@@ -3,14 +3,13 @@
 <project name="FileBot" basedir="." default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="2.1" />
-	<property name="url" value="http://sourceforge.net/projects/filebot/" />
+	<property name="version" value="1.6" />
 
 	<property name="source" location="${basedir}/source" />
 	<property name="build" location="${basedir}/build" />
 	<property name="lib" location="${basedir}/lib" />
 
-	<property name="executable" location="${basedir}/${title}.jar" />
+	<property name="executable" location="${build}/${title}.jar" />
 
 	<property name="lib.nekohtml" value="nekohtml.jar" />
 	<property name="lib.xerces" value="xercesImpl.jar" />
@@ -24,9 +23,7 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="Main" />
-				<attribute name="Title" value="${title}" />
 				<attribute name="Version" value="${version}" />
-				<attribute name="URL" value="${url}" />
 			</manifest>
 
 			<!-- include libs if fatjar is set -->
