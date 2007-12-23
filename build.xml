@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<project name="FileBot" basedir="." default="fatjar">
+
+	<property name="title" value="${ant.project.name}" />
+	<property name="version" value="2.1" />
+	<property name="url" value="http://sourceforge.net/projects/filebot/" />
+
+	<property name="source" location="${basedir}/source" />
+	<property name="build" location="${basedir}/build" />
+	<property name="lib" location="${basedir}/lib" />
+
+	<property name="executable" location="${basedir}/${title}.jar" />
+
+	<property name="lib.nekohtml" value="nekohtml.jar" />
+	<property name="lib.xerces" value="xercesImpl.jar" />
+	<property name="lib.simmetrics" value="simmetrics_jar_v1_6_2_d07_02_07.jar" />
+
+
+	<target name="jar" depends="build">
+		<jar destfile="${executable}" duplicate="fail">
+			<fileset dir="${build}" />
+
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="Main" />
+				<attribute name="Title" value="${title}" />
+				<attribute name="Version" value="${version}" />
+				<attribute name="URL" value="${url}" />
+			</manifest>
+
+			<!-- include libs if fatjar is set -->
+			<zipfileset src="${lib}/${lib.nekohtml}">
+				<include if="fatjar" name="**/*.class" />
+				<include if="fatjar" name="**/*.properties" />
+			</zipfileset>
+			<zipfileset src="${lib}/${lib.xerces}">
+				<include if="fatjar" name="**/*.class" />
+			</zipfileset>
+			<zipfileset src="${lib}/${lib.simmetrics}">
+				<include if="fatjar" name="**/*.class" />
+				<exclude name="**/*Test*" />
+			</zipfileset>
+		</jar>
+	</target>
+
+
+	<target name="fatjar">
+		<antcall target="jar">
+			<param name="fatjar" value="true" />
+		</antcall>
+	</target>
+
+
+	<target name="build" depends="clean">
+		<!-- create build dir -->
+		<mkdir dir="${build}" />
+
+		<!-- compile -->
+		<javac srcdir="${source}" destdir="${build}">
+			<classpath>
+				<fileset dir="${lib}" includes="*.jar" />
+			</classpath>
+		</javac>
+
+		<!-- copy resources -->
+		<copy todir="${build}">
+			<fileset dir="${source}">
+				<include name="**/*.png" />
+				<include name="**/*.gif" />
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="clean">
+		<delete dir="${build}" />
+		<delete file="${executable}" verbose="true" />
+	</target>
+
+
+	<target name="run" depends="fatjar">
+		<java jar="${executable}" fork="true" />
+	</target>
+
+</project>
