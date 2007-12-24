@@ -30,11 +30,6 @@ public class SfvTableModel extends AbstractTableModel {
 	private int checksumColumnsOffset = 2;
 	
 	
-	public SfvTableModel() {
-		
-	}
-	
-
 	@Override
 	public String getColumnName(int columnIndex) {
 		if (columnIndex == 0)
@@ -152,15 +147,15 @@ public class SfvTableModel extends AbstractTableModel {
 	
 
 	public synchronized void clear() {
+		
 		// stop any running computations
 		for (ChecksumRow row : rows) {
-			for (File columnRoot : checksumColumnRoots) {
-				Checksum c = row.getChecksum(columnRoot);
-				
-				if (c != null)
-					c.cancelComputationTask();
+			for (Checksum checksum : row.getChecksums()) {
+				checksum.cancelComputationTask();
 			}
 		}
+		
+		ChecksumComputationExecutor.getInstance().clear();
 		
 		checksumColumnRoots.clear();
 		rows.clear();

@@ -6,14 +6,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.ui.FileFormat;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 
 
@@ -30,7 +28,7 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 	}
 	
 	
-	private class SfvFilePolicy extends FileTransferablePolicy {
+	private class SfvFilePolicy extends BackgroundFileTransferablePolicy<SfvTableModel.Entry> {
 		
 		@Override
 		protected boolean accept(File file) {
@@ -46,6 +44,28 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
+		protected void process(List<SfvTableModel.Entry> chunks) {
+			tableModel.addAll(chunks);
+		}
+		
+
+		@Override
+		protected boolean load(List<File> files) {
+			synchronized (ChecksumComputationExecutor.getInstance()) {
+				ChecksumComputationExecutor.getInstance().pause();
+				
+				for (File file : files) {
+					load(file);
+				}
+				
+				ChecksumComputationExecutor.getInstance().resume();
+			}
+			
+			return true;
+		}
+		
+
+		@Override
 		protected boolean load(File sfvFile) {
 			
 			try {
@@ -53,8 +73,6 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 				
 				String line = null;
 				Pattern pattern = Pattern.compile("(.*)\\s+(\\p{XDigit}{8})");
-				
-				ArrayList<SfvTableModel.Entry> entries = new ArrayList<SfvTableModel.Entry>(50);
 				
 				while ((line = in.readLine()) != null) {
 					if (line.startsWith(";"))
@@ -68,21 +86,17 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 					String filename = matcher.group(1);
 					String checksumString = matcher.group(2);
 					
-					entries.add(new SfvTableModel.Entry(filename, new Checksum(checksumString), sfvFile));
+					publish(new SfvTableModel.Entry(filename, new Checksum(checksumString), sfvFile));
 					
 					File compareColumnRoot = sfvFile.getParentFile();
 					File compareFile = new File(compareColumnRoot, filename);
 					
 					if (compareFile.exists()) {
-						entries.add(new SfvTableModel.Entry(filename, new Checksum(compareFile), compareColumnRoot));
+						publish(new SfvTableModel.Entry(filename, new Checksum(compareFile), compareColumnRoot));
 					}
 				}
 				
 				in.close();
-				
-				if (!entries.isEmpty()) {
-					tableModel.addAll(entries);
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -124,21 +138,25 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 			if (files.isEmpty())
 				return true;
 			
-			ChecksumComputationExecutor.getInstance().pause();
-			
-			File firstFile = files.get(0);
-			
-			if ((files.size() == 1 && firstFile.isDirectory())) {
-				for (File f : firstFile.listFiles())
-					load(f, firstFile, "");
-			} else {
-				File columnRoot = firstFile.getParentFile();
+			synchronized (ChecksumComputationExecutor.getInstance()) {
+				ChecksumComputationExecutor.getInstance().pause();
 				
-				for (File f : files)
-					load(f, columnRoot, "");
+				File firstFile = files.get(0);
+				
+				if ((files.size() == 1 && firstFile.isDirectory())) {
+					for (File f : firstFile.listFiles()) {
+						load(f, firstFile, "");
+					}
+				} else {
+					File columnRoot = firstFile.getParentFile();
+					
+					for (File f : files) {
+						load(f, columnRoot, "");
+					}
+				}
+				
+				ChecksumComputationExecutor.getInstance().resume();
 			}
-			
-			ChecksumComputationExecutor.getInstance().resume();
 			
 			return true;
 		}

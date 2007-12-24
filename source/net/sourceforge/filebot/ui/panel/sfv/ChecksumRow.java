@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
@@ -74,6 +75,11 @@ public class ChecksumRow {
 
 	public Checksum getChecksum(File columnRoot) {
 		return checksumMap.get(columnRoot);
+	}
+	
+
+	public Collection<Checksum> getChecksums() {
+		return checksumMap.values();
 	}
 	
 

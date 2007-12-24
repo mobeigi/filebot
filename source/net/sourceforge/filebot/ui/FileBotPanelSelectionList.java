@@ -16,6 +16,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
@@ -90,6 +91,9 @@ public class FileBotPanelSelectionList extends JList {
 
 		public void actionPerformed(ActionEvent e) {
 			selectEnabled = true;
+			
+			// bring window to front when on dnd
+			SwingUtilities.getWindowAncestor(FileBotPanelSelectionList.this).toFront();
 		}
 		
 

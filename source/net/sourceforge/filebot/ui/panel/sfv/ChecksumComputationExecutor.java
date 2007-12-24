@@ -22,10 +22,10 @@ public class ChecksumComputationExecutor {
 	
 	private static final int MINIMUM_POOL_SIZE = 1;
 	
-	private boolean active = false;
+	private Boolean active = false;
 	private long lastTaskCount = 0;
 	
-	private static ChecksumComputationExecutor instance = null;
+	private static ChecksumComputationExecutor instance = new ChecksumComputationExecutor();
 	
 	private LinkedBlockingQueue<ChecksumComputationTask> workQueue = new LinkedBlockingQueue<ChecksumComputationTask>();
 	
@@ -48,25 +48,20 @@ public class ChecksumComputationExecutor {
 	};
 	
 	
-	private ChecksumComputationExecutor() {
-		
-	}
-	
-
-	public static synchronized ChecksumComputationExecutor getInstance() {
-		if (instance == null)
-			instance = new ChecksumComputationExecutor();
-		
+	public static ChecksumComputationExecutor getInstance() {
 		return instance;
 	}
 	
 
 	public void execute(ChecksumComputationTask task) {
-		setActive(true);
+		synchronized (workQueue) {
+			setActive(true);
+			
+			adjustPoolSize();
+			
+			executor.execute(task);
+		}
 		
-		adjustPoolSize();
-		
-		executor.execute(task);
 		fireActiveSessionTaskCountChange();
 	}
 	
@@ -78,7 +73,7 @@ public class ChecksumComputationExecutor {
 		// for only a few files, use only one thread
 		// for lots of files, use multiple threads
 		// e.g 200 files ~ 1 thread, 1000 files ~ 2 threads, 40000 files ~ 4 threads
-		int recommendedPoolSize = (int) Math.max(Math.log10(Math.max(workQueue.size(), 1)), MINIMUM_POOL_SIZE);
+		int recommendedPoolSize = (int) Math.log10(Math.max(workQueue.size(), 1) + MINIMUM_POOL_SIZE);
 		
 		if (executor.getCorePoolSize() != recommendedPoolSize)
 			executor.setCorePoolSize(recommendedPoolSize);
@@ -107,22 +102,24 @@ public class ChecksumComputationExecutor {
 	}
 	
 
-	private synchronized void setActive(boolean b) {
-		if (this.active == b)
-			return;
-		
-		this.active = b;
-		
-		if (!this.active) {
-			// end of active computing session
-			lastTaskCount = executor.getTaskCount();
+	private void setActive(boolean b) {
+		synchronized (active) {
+			if (this.active == b)
+				return;
 			
-			// reset pool size
-			adjustPoolSize();
+			this.active = b;
+			
+			if (!this.active) {
+				// end of active computing session
+				lastTaskCount = executor.getTaskCount();
+				
+				// reset pool size
+				adjustPoolSize();
+			}
+			
+			// invoke property change events on EDT
+			SwingUtilities.invokeLater(new FirePropertyChangeRunnable(ACTIVE_PROPERTY, null, active));
 		}
-		
-		// invoke property change events on EDT
-		SwingUtilities.invokeLater(new FirePropertyChangeRunnable(ACTIVE_PROPERTY, null, active));
 	}
 	
 
@@ -157,6 +154,20 @@ public class ChecksumComputationExecutor {
 
 	public int getActiveSessionTaskCount() {
 		return (int) (executor.getTaskCount() - lastTaskCount);
+	}
+	
+
+	public void clear() {
+		synchronized (workQueue) {
+			executor.purge();
+			workQueue.clear();
+			
+			adjustPoolSize();
+			
+			if (executor.getActiveCount() == 0) {
+				setActive(false);
+			}
+		}
 	}
 	
 
