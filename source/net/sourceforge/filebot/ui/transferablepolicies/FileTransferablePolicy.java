@@ -69,7 +69,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 		try {
 			String transferString = (String) tr.getTransferData(DataFlavor.stringFlavor);
 			
-			String lines[] = transferString.split("\n");
+			String lines[] = transferString.split("\r?\n");
 			ArrayList<File> files = new ArrayList<File>(lines.length);
 			
 			for (String line : lines) {
@@ -78,8 +78,8 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 					
 					if (file.exists())
 						files.add(file);
-				} catch (IllegalArgumentException e) {
-					// invalid file uri
+				} catch (Exception e) {
+					System.err.println(e);
 				}
 			}
 			
