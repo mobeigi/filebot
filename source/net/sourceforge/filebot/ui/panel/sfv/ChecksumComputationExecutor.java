@@ -80,7 +80,10 @@ public class ChecksumComputationExecutor {
 	}
 	
 
-	public void resume() {
+	/**
+	 * Only use in block that is synchronized to {@link ChecksumComputationExecutor#getInstance()} after {@link ChecksumComputationExecutor#pause()} has been called.
+	 */
+	public synchronized void resume() {
 		if (!isPaused())
 			return;
 		
@@ -91,7 +94,20 @@ public class ChecksumComputationExecutor {
 	}
 	
 
-	public void pause() {
+	/**
+	 * Synchronize to {@link ChecksumComputationExecutor#getInstance()} before using {@link ChecksumComputationExecutor#pause()}.
+	 * 
+	 * <pre>
+	 * synchronized (ChecksumComputationExecutor.getInstance()) {
+	 * 	ChecksumComputationExecutor.getInstance().pause();
+	 * 	
+	 * 	// some code
+	 * 	
+	 * 	ChecksumComputationExecutor.getInstance().resume();
+	 * }
+	 * </pre>
+	 */
+	public synchronized void pause() {
 		if (isPaused())
 			return;
 		
