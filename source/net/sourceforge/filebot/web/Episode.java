@@ -4,17 +4,14 @@ package net.sourceforge.filebot.web;
 
 public class Episode {
 	
-	private String showname;
-	
+	private String showName;
 	private String numberOfSeason;
-	
 	private String numberOfEpisode;
-	
 	private String title;
 	
 	
 	public Episode(String showname, String numberOfSeason, String numberOfEpisode, String title) {
-		this.showname = showname;
+		this.showName = showname;
 		this.numberOfSeason = numberOfSeason;
 		this.numberOfEpisode = numberOfEpisode;
 		this.title = title;
@@ -31,28 +28,13 @@ public class Episode {
 	}
 	
 
-	public void setNumberOfEpisode(String numberOfEpisode) {
-		this.numberOfEpisode = numberOfEpisode;
-	}
-	
-
 	public String getNumberOfSeason() {
 		return numberOfSeason;
 	}
 	
 
-	public void setNumberOfSeason(String numberOfSeason) {
-		this.numberOfSeason = numberOfSeason;
-	}
-	
-
-	public String getShowname() {
-		return showname;
-	}
-	
-
-	public void setShowname(String showname) {
-		this.showname = showname;
+	public String getShowName() {
+		return showName;
 	}
 	
 
@@ -61,16 +43,11 @@ public class Episode {
 	}
 	
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
-
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append(showname + " - ");
+		sb.append(showName + " - ");
 		
 		if (numberOfSeason != null)
 			sb.append(numberOfSeason + "x");
