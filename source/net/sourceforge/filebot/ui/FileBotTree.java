@@ -88,15 +88,16 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 	}
 	
 
-	private void walk(TreeModel model, Object o, LinkedList<File> list) {
-		int cc = model.getChildCount(o);
-		
-		for (int i = 0; i < cc; i++) {
-			DefaultMutableTreeNode child = (DefaultMutableTreeNode) model.getChild(o, i);
-			if (model.isLeaf(child))
-				list.add((File) child.getUserObject());
-			else
+	private void walk(TreeModel model, Object node, LinkedList<File> list) {
+		for (int i = 0; i < model.getChildCount(node); i++) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) model.getChild(node, i);
+			if (model.isLeaf(child)) {
+				File file = (File) child.getUserObject();
+				if (file.isFile())
+					list.add(file);
+			} else {
 				walk(model, child, list);
+			}
 		}
 	}
 	

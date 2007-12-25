@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
-import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -89,12 +88,6 @@ public class FileTree extends FileBotTree {
 		@Override
 		protected boolean accept(File file) {
 			return file.isFile() || file.isDirectory();
-		}
-		
-
-		@Override
-		public boolean handleTransferable(Transferable tr, boolean add) {
-			return super.handleTransferable(tr, true);
 		}
 		
 

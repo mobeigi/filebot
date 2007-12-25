@@ -38,7 +38,7 @@ public class TypePanel extends ToolPanel {
 		setLoadingOverlayPane(loadingOverlay);
 	}
 	
-	UpdateTask latestUpdateTask;
+	private UpdateTask latestUpdateTask;
 	
 	
 	@Override

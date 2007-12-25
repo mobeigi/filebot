@@ -54,18 +54,23 @@ public class FileFormat {
 	}
 	
 
-	public static String getSuffix(File f, boolean dot) {
+	public static String getSuffix(File f, boolean includeDot) {
 		String name = f.getName();
 		int dotIndex = name.lastIndexOf(".");
 		
-		if (dotIndex > 1) {
-			String suffix = name.substring(dotIndex + 1, name.length());
-			if (dot)
-				return "." + suffix;
-			else
-				return suffix;
-		} else
-			return "";
+		// .config -> no suffix
+		if (dotIndex >= 1) {
+			int startIndex = dotIndex;
+			
+			if (!includeDot)
+				startIndex += 1;
+			
+			if (startIndex <= name.length()) {
+				return name.substring(dotIndex + 1, name.length());
+			}
+		}
+		
+		return "";
 	}
 	
 
