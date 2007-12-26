@@ -8,8 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
@@ -18,7 +19,6 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -42,8 +42,6 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 		setRootVisible(false);
 		setRowHeight(22);
 		
-		setTransferHandler(new FileBotTransferHandler(this, null));
-		
 		addMouseListener(new ExpandCollapsePopupListener());
 	}
 	
@@ -63,11 +61,36 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 	}
 	
 
-	public LinkedList<File> convertToList() {
-		LinkedList<File> list = new LinkedList<File>();
-		TreeModel m = getModel();
-		walk(m, m.getRoot(), list);
+	public List<File> convertToList() {
+		TreeNode node = (TreeNode) getModel().getRoot();
+		
+		return convertToList(node);
+	}
+	
+
+	public List<File> convertToList(TreeNode node) {
+		ArrayList<File> list = new ArrayList<File>();
+		
+		convertToListImpl((DefaultMutableTreeNode) node, list);
+		
 		return list;
+	}
+	
+
+	private void convertToListImpl(DefaultMutableTreeNode node, List<File> list) {
+		if (node.isLeaf()) {
+			if (node.getUserObject() instanceof File) {
+				File file = (File) node.getUserObject();
+				
+				if (file.isFile())
+					list.add(file);
+			}
+		} else {
+			for (int i = 0; i < node.getChildCount(); i++) {
+				DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+				convertToListImpl(child, list);
+			}
+		}
 	}
 	
 
@@ -85,20 +108,6 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 		}
 		
 		return value.toString();
-	}
-	
-
-	private void walk(TreeModel model, Object node, LinkedList<File> list) {
-		for (int i = 0; i < model.getChildCount(node); i++) {
-			DefaultMutableTreeNode child = (DefaultMutableTreeNode) model.getChild(node, i);
-			if (model.isLeaf(child)) {
-				File file = (File) child.getUserObject();
-				if (file.isFile())
-					list.add(file);
-			} else {
-				walk(model, child, list);
-			}
-		}
 	}
 	
 

@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultTreeModel;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.FileFormat;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LoadingOverlayPanel;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
@@ -60,6 +61,9 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		add(loadingOverlay, BorderLayout.CENTER);
 		add(spinnerBox, BorderLayout.SOUTH);
 		
+		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
+		tree.setDragEnabled(true);
+		
 		Color beginColor = new Color(0, 0, 0, 90);
 		SeparatorBorder separatorBorder = new SeparatorBorder(2, beginColor, GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.TOP);
 		spinnerBox.setBorder(new CompoundBorder(separatorBorder, new EmptyBorder(6, 5, 7, 5)));
@@ -71,7 +75,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	
 
 	/**
-	 * splitsize change callback
+	 * callback when splitsize has been changed
 	 */
 	public void stateChanged(ChangeEvent e) {
 		if (files != null)

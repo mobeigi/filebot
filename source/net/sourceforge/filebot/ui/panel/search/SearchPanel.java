@@ -37,7 +37,7 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileBotUtil;
 import net.sourceforge.filebot.ui.MessageManager;
-import net.sourceforge.filebot.ui.sal.SaveAction;
+import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbSearchEngine;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.SearchEngine;

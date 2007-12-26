@@ -20,8 +20,8 @@ import javax.swing.border.EmptyBorder;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotUtil;
 import net.sourceforge.filebot.ui.FileFormat;
-import net.sourceforge.filebot.ui.sal.LoadAction;
-import net.sourceforge.filebot.ui.sal.SaveAction;
+import net.sourceforge.filebot.ui.transfer.LoadAction;
+import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.ui.SelectDialog;
 
 

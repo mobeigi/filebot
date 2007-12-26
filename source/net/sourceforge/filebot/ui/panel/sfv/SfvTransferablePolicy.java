@@ -143,15 +143,13 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 				
 				File firstFile = files.get(0);
 				
-				if ((files.size() == 1 && firstFile.isDirectory())) {
+				if (files.size() == 1 && firstFile.isDirectory()) {
 					for (File f : firstFile.listFiles()) {
 						load(f, firstFile, "");
 					}
 				} else {
-					File columnRoot = firstFile.getParentFile();
-					
 					for (File f : files) {
-						load(f, columnRoot, "");
+						load(f, f.getParentFile(), "");
 					}
 				}
 				

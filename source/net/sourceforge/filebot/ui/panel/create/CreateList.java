@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.sal.SaveAction;
+import net.sourceforge.filebot.ui.transfer.SaveAction;
 
 
 public class CreateList extends FileBotList {

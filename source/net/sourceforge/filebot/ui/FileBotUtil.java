@@ -10,7 +10,7 @@ import javax.swing.KeyStroke;
 public class FileBotUtil {
 	
 	private FileBotUtil() {
-		// hide construktor
+		
 	}
 	
 

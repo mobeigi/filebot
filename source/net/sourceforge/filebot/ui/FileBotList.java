@@ -19,8 +19,13 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
-import net.sourceforge.filebot.ui.sal.FileTransferable;
-import net.sourceforge.filebot.ui.sal.Saveable;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.filebot.ui.transfer.ExportHandler;
+import net.sourceforge.filebot.ui.transfer.FileTransferable;
+import net.sourceforge.filebot.ui.transfer.ImportHandler;
+import net.sourceforge.filebot.ui.transfer.Saveable;
+import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
@@ -43,7 +48,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 	}
 	
 
-	public FileBotList(boolean enableDrop, boolean enableDrag, boolean initRemoveAction, boolean border) {
+	public FileBotList(boolean enableImport, boolean enableExport, boolean enableRemoveAction, boolean border) {
 		super(new BorderLayout());
 		
 		JScrollPane listScrollPane = new JScrollPane(list);
@@ -59,23 +64,19 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		add(listScrollPane, BorderLayout.CENTER);
 		
-		TransferablePolicySupport handlerTransferablePolicySupport = null;
-		Saveable handlerSaveable = null;
+		ImportHandler importHander = null;
+		ExportHandler exportHandler = null;
 		
-		if (enableDrop) {
-			handlerTransferablePolicySupport = this;
-		}
+		if (enableImport)
+			importHander = new TransferablePolicyImportHandler(this);
 		
-		if (enableDrag) {
-			handlerSaveable = this;
-		}
+		if (enableExport)
+			exportHandler = new SaveableExportHandler(this);
 		
-		list.setTransferHandler(new FileBotTransferHandler(handlerTransferablePolicySupport, handlerSaveable));
+		list.setTransferHandler(new DefaultTransferHandler(importHander, exportHandler));
+		list.setDragEnabled(enableExport);
 		
-		if (handlerSaveable != null)
-			MouseDragRecognizeListener.createForComponent(this.getListComponent());
-		
-		if (initRemoveAction) {
+		if (enableRemoveAction) {
 			// Shortcut DELETE
 			FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		}

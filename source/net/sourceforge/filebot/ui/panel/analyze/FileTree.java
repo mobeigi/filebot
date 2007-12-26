@@ -11,7 +11,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sourceforge.filebot.ui.FileBotTree;
-import net.sourceforge.filebot.ui.sal.FileTransferable;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.filebot.ui.transfer.FileTransferable;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
@@ -23,18 +25,18 @@ public class FileTree extends FileBotTree {
 	
 	public FileTree() {
 		setTransferablePolicy(new FileTreeTransferPolicy());
+		setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(this), null));
 	}
 	
 
 	public void removeTreeItems(TreePath paths[]) {
+		firePropertyChange(LOADING_PROPERTY, null, true);
+		
 		for (TreePath element : paths) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) (element.getLastPathComponent());
 			node.removeFromParent();
 		}
 		
-		updateUI();
-		
-		firePropertyChange(LOADING_PROPERTY, null, true);
 		contentChanged();
 		firePropertyChange(LOADING_PROPERTY, null, false);
 	}
@@ -123,9 +125,9 @@ public class FileTree extends FileBotTree {
 			Boolean loading = (Boolean) evt.getNewValue();
 			
 			if (loading) {
-				FileTree.this.firePropertyChange(LOADING_PROPERTY, null, true);
+				FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
 			} else {
-				FileTree.this.firePropertyChange(LOADING_PROPERTY, null, false);
+				FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
 				updateUI();
 				contentChanged();
 			}

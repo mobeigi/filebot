@@ -18,7 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.sal.LoadAction;
+import net.sourceforge.filebot.ui.transfer.LoadAction;
 
 
 public abstract class RenameList extends FileBotList {

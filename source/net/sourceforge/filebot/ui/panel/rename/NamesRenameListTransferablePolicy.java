@@ -38,7 +38,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 		
 		@Override
 		protected boolean accept(File file) {
-			return file.isFile() && file.length() < MAX_FILESIZE;
+			return file.isFile() && (file.length() < MAX_FILESIZE);
 		}
 		
 

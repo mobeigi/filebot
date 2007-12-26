@@ -8,6 +8,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,11 +75,11 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 			
 			for (String line : lines) {
 				try {
-					File file = new File(URI.create(line));
+					File file = new File(new URI(line));
 					
 					if (file.exists())
 						files.add(file);
-				} catch (Exception e) {
+				} catch (URISyntaxException e) {
 					System.err.println(e);
 				}
 			}

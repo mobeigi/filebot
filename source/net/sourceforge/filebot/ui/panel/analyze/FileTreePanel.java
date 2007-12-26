@@ -18,7 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotUtil;
-import net.sourceforge.filebot.ui.sal.LoadAction;
+import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPanel;
 
 
@@ -85,6 +85,7 @@ public class FileTreePanel extends JPanel {
 			int row = fileTree.getMinSelectionRow();
 			
 			fileTree.removeTreeItems(fileTree.getSelectionPaths());
+			fileTree.updateUI();
 			
 			int maxRow = fileTree.getRowCount() - 1;
 			

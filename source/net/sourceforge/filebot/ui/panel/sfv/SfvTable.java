@@ -16,13 +16,16 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.ui.FileBotTransferHandler;
 import net.sourceforge.filebot.ui.FileFormat;
-import net.sourceforge.filebot.ui.MouseDragRecognizeListener;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.TextTableCellRenderer;
-import net.sourceforge.filebot.ui.sal.Saveable;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.filebot.ui.transfer.ExportHandler;
+import net.sourceforge.filebot.ui.transfer.ImportHandler;
+import net.sourceforge.filebot.ui.transfer.Saveable;
+import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
@@ -50,8 +53,11 @@ public class SfvTable extends JTable implements TransferablePolicySupport, Savea
 		
 		setRowHeight(20);
 		
-		setTransferHandler(new FileBotTransferHandler(this, this));
-		MouseDragRecognizeListener.createForComponent(this);
+		ImportHandler importHandler = new TransferablePolicyImportHandler(this);
+		ExportHandler exportHandler = new SaveableExportHandler(this);
+		
+		setTransferHandler(new DefaultTransferHandler(importHandler, exportHandler));
+		setDragEnabled(true);
 		
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
 		setDefaultRenderer(String.class, new TextTableCellRenderer());
