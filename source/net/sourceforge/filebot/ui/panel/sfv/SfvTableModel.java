@@ -136,13 +136,15 @@ public class SfvTableModel extends AbstractTableModel {
 			ChecksumRow row = rows.get(i);
 			rowsToRemove.add(rows.get(i));
 			
-			for (File columnRoot : checksumColumnRoots) {
-				row.getChecksum(columnRoot).cancelComputationTask();
+			for (Checksum checksum : row.getChecksums()) {
+				checksum.cancelComputationTask();
 			}
 		}
 		
 		rows.removeAll(rowsToRemove);
 		fireTableRowsDeleted(rowIndices[0], rowIndices[rowIndices.length - 1]);
+		
+		ChecksumComputationExecutor.getInstance().purge();
 	}
 	
 

@@ -180,10 +180,19 @@ public class ChecksumComputationExecutor {
 			
 			adjustPoolSize();
 			
+			fireRemainingTaskCountChange();
+			fireActiveSessionTaskCountChange();
+			
 			if (executor.getActiveCount() == 0) {
 				setActive(false);
 			}
 		}
+	}
+	
+
+	public void purge() {
+		executor.purge();
+		fireActiveSessionTaskCountChange();
 	}
 	
 
