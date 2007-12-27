@@ -20,10 +20,11 @@ public class Checksum {
 	private Long checksum = null;
 	private State state = State.PENDING;
 	private ChecksumComputationTask computationTask = null;
+	private String errorMessage = null;
 	
 	
 	public static enum State {
-		PENDING, INPROGRESS, READY;
+		PENDING, INPROGRESS, READY, ERROR;
 	}
 	
 	
@@ -67,6 +68,21 @@ public class Checksum {
 	public synchronized void setChecksum(Long checksum) {
 		this.checksum = checksum;
 		setState(State.READY);
+		
+		computationTask = null;
+	}
+	
+
+	public synchronized void setChecksumError(Exception exception) {
+		// get root cause
+		Throwable cause = exception;
+		
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		
+		errorMessage = cause.getMessage();
+		setState(State.ERROR);
+		
 		computationTask = null;
 	}
 	
@@ -83,14 +99,15 @@ public class Checksum {
 	
 
 	public Integer getProgress() {
-		switch (state) {
-			case PENDING:
-				return 0;
-			case READY:
-				return 100;
-			default:
-				return computationTask.getProgress();
-		}
+		if (state == State.INPROGRESS)
+			return computationTask.getProgress();
+		
+		return null;
+	}
+	
+
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 	
 
@@ -123,6 +140,7 @@ public class Checksum {
 					setChecksum(computationTask.get());
 				}
 			} catch (Exception e) {
+				setChecksumError(e);
 				e.printStackTrace();
 			}
 		}
@@ -141,16 +159,13 @@ public class Checksum {
 
 	@Override
 	public String toString() {
-		switch (state) {
-			case PENDING:
-				return state.toString();
-			case INPROGRESS:
-				return state.toString();
-			case READY:
-				return getChecksumString();
-			default:
-				return null;
-		}
+		if (state == State.READY)
+			return getChecksumString();
+		
+		if (state == State.ERROR)
+			return getErrorMessage();
+		
+		return state.toString();
 	}
 	
 }

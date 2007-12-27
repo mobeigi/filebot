@@ -45,13 +45,15 @@ public class ChecksumRow {
 
 	public State getState() {
 		HashSet<Long> checksums = new HashSet<Long>();
-		boolean ready = true;
 		
-		for (Checksum checksum : checksumMap.values()) {
-			if (checksum.getState() == Checksum.State.READY)
+		for (Checksum checksum : getChecksums()) {
+			if (checksum.getState() == Checksum.State.READY) {
 				checksums.add(checksum.getChecksum());
-			else
-				ready = false;
+			} else if (checksum.getState() == Checksum.State.ERROR) {
+				return State.ERROR;
+			} else {
+				return State.UNKNOWN;
+			}
 		}
 		
 		if (checksums.size() > 1) {
@@ -63,10 +65,6 @@ public class ChecksumRow {
 			// check if the checksum in the filename matches
 			if (!checksums.contains(checksumFromFileName))
 				return State.WARNING;
-		}
-		
-		if (!ready) {
-			return State.UNKNOWN;
 		}
 		
 		return State.OK;

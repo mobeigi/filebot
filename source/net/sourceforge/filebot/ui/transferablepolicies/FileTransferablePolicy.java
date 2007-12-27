@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -31,9 +32,11 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	protected List<File> getFilesFromTransferable(Transferable tr) {
 		List<File> files = getFilesFromFileTransferable(tr);
 		
-		// if there is no file transferable, look if there is a string transferable
+		// if there is no file transferable, look if there is a string transferable that contains file uris
 		if (files == null)
 			files = getFilesFromStringTransferable(tr);
+		
+		Collections.sort(files);
 		
 		return files;
 	}

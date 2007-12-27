@@ -27,6 +27,8 @@ public class ChecksumTableCellRenderer extends TextTableCellRenderer {
 			setText(checksum.getChecksumString());
 		} else if (checksum.getState() == Checksum.State.PENDING) {
 			setText("Pending ...");
+		} else if (checksum.getState() == Checksum.State.ERROR) {
+			setText(checksum.getErrorMessage());
 		} else {
 			return progressBarRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		}
