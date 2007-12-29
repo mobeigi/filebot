@@ -66,7 +66,7 @@ public class FileFormat {
 				startIndex += 1;
 			
 			if (startIndex <= name.length()) {
-				return name.substring(dotIndex + 1, name.length());
+				return name.substring(startIndex, name.length());
 			}
 		}
 		
