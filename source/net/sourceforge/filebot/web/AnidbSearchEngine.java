@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 
 public class AnidbSearchEngine extends SearchEngine {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>(String.CASE_INSENSITIVE_ORDER));
+	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
 	
 	private String host = "anidb.info";
 	
