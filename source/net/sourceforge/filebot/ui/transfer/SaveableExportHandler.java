@@ -11,6 +11,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
+import net.sourceforge.filebot.ui.FileBotUtil;
+
 
 public class SaveableExportHandler implements ExportHandler {
 	
@@ -51,7 +53,7 @@ public class SaveableExportHandler implements ExportHandler {
 	@Override
 	public Transferable createTransferable(JComponent c) {
 		try {
-			File temporaryFile = new File(tmpdir, saveable.getDefaultFileName());
+			File temporaryFile = new File(tmpdir, FileBotUtil.validateFileName(saveable.getDefaultFileName()));
 			temporaryFile.createNewFile();
 			
 			saveable.save(temporaryFile);
@@ -62,5 +64,4 @@ public class SaveableExportHandler implements ExportHandler {
 		
 		return null;
 	}
-	
 }

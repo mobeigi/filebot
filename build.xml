@@ -13,7 +13,7 @@
 
 	<property name="lib.nekohtml" value="nekohtml.jar" />
 	<property name="lib.xerces" value="xercesImpl.jar" />
-	<property name="lib.simmetrics" value="simmetrics_jar_v1_6_2_d07_02_07.jar" />
+	<property name="lib.simmetrics" value="simmetrics.jar" />
 
 
 	<target name="jar" depends="build">
@@ -33,11 +33,11 @@
 			</zipfileset>
 			<zipfileset src="${lib}/${lib.xerces}">
 				<include if="fatjar" name="**/*.class" />
-			</zipfileset>
+			</zipfileset>			
 			<zipfileset src="${lib}/${lib.simmetrics}">
 				<include if="fatjar" name="**/*.class" />
-				<exclude name="**/*Test*" />
-			</zipfileset>
+				<exclude if="fatjar" name="**/*Test*" />
+			</zipfileset>	
 		</jar>
 	</target>
 
