@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 
 public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 	
-	private static final int MAX_READ_LENGTH = 200 * 1024; // 200 KB
+	private static final int CHUNK_SIZE = 20 * 1024;
 	
 	private File file;
 	
@@ -27,29 +27,25 @@ public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 		CheckedInputStream cis = new CheckedInputStream(new FileInputStream(file), new CRC32());
 		
 		long length = file.length();
-		long done = 0;
 		
-		int bufferLength = (int) Math.min(length, MAX_READ_LENGTH);
-		
-		// don't allow bufferLength == 0
-		if (bufferLength < 1)
-			bufferLength = 1;
-		
-		byte[] buffer = new byte[bufferLength];
-		
-		int bytesRead = 0;
-		
-		while ((bytesRead = cis.read(buffer)) >= 0) {
-			if (isCancelled())
-				break;
+		if (length > 0) {
+			long done = 0;
 			
-			done += bytesRead;
+			int bufferLength = (int) Math.min(length, CHUNK_SIZE);
 			
-			if (length > 0) {
+			byte[] buffer = new byte[bufferLength];
+			
+			int bytesRead = 0;
+			
+			while ((bytesRead = cis.read(buffer)) >= 0) {
+				if (isCancelled())
+					break;
+				
+				done += bytesRead;
+				
 				int progress = (int) ((done * 100) / length);
 				setProgress(progress);
 			}
-			
 		}
 		
 		cis.close();

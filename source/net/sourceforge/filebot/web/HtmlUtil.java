@@ -23,7 +23,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 
-public class HtmlUtil {
+class HtmlUtil {
 	
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
