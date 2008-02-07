@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -43,13 +44,13 @@ public class TVRageSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//DIV[@id='search_begin']//TABLE[1]//TR/TD/A[1]", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//DIV[@id='search_begin']//TABLE[1]/*/TR/TD/A[1]", dom);
 		
 		ArrayList<String> shows = new ArrayList<String>(nodes.size());
 		
 		for (Node node : nodes) {
-			String href = HtmlUtil.selectString("@href", node);
-			String title = HtmlUtil.selectString("text()", node);
+			String href = XPathUtil.selectString("@href", node);
+			String title = XPathUtil.selectString("text()", node);
 			
 			try {
 				URL url = new URL(href);
@@ -69,18 +70,18 @@ public class TVRageSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//TABLE[@class='b']//TR[@id='brow']", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='b']//TR[@id='brow']", dom);
 		
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		
 		for (Node node : nodes) {
-			String seasonAndEpisodeNumber = HtmlUtil.selectString("./TD[2]/A/text()", node);
-			String title = HtmlUtil.selectString("./TD[4]/A/text()", node);
+			String seasonAndEpisodeNumber = XPathUtil.selectString("./TD[2]/A/text()", node);
+			String title = XPathUtil.selectString("./TD[4]/A/text()", node);
 			
-			List<Node> precedings = HtmlUtil.selectNodes("../preceding-sibling::TABLE", node);
+			List<Node> precedings = XPathUtil.selectNodes("../preceding-sibling::TABLE", node);
 			Node previousTable = precedings.get(precedings.size() - 1);
 			
-			String seasonHeader = HtmlUtil.selectString("./TR/TD/FONT/text()", previousTable);
+			String seasonHeader = XPathUtil.selectString("./TR/TD/FONT/text()", previousTable);
 			
 			Matcher seasonMatcher = Pattern.compile("Season (\\d+)").matcher(seasonHeader);
 			

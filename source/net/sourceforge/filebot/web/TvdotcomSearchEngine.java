@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -42,7 +43,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//html:TABLE[@id='search-results']//html:SPAN/html:A", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@id='search-results']//SPAN/A", dom);
 		
 		ArrayList<String> shows = new ArrayList<String>(nodes.size());
 		
@@ -52,7 +53,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 			// we only want search results that are shows
 			if (category.toLowerCase().startsWith("show")) {
 				String title = node.getTextContent();
-				String href = HtmlUtil.selectString("@href", node);
+				String href = XPathUtil.selectString("@href", node);
 				
 				try {
 					URL url = new URL(href);
@@ -74,7 +75,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//html:DIV[@id='episode-listing']/html:DIV/html:TABLE/html:TR/html:TD/ancestor::html:TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//DIV[@id='episode-listing']/DIV/TABLE/TR/TD/ancestor::TR", dom);
 		
 		String seasonString = null;
 		
@@ -93,8 +94,8 @@ public class TvdotcomSearchEngine extends SearchEngine {
 			episodeOffset = 0;
 		
 		for (Node node : nodes) {
-			String episodeNumber = HtmlUtil.selectString("./html:TD[1]/text()", node);
-			String title = HtmlUtil.selectString("./html:TD[2]/html:A/text()", node);
+			String episodeNumber = XPathUtil.selectString("./TD[1]/text()", node);
+			String title = XPathUtil.selectString("./TD[2]/A/text()", node);
 			
 			try {
 				// format number of episode
@@ -105,7 +106,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 				
 				episodeNumber = numberFormat.format(n - episodeOffset);
 			} catch (NumberFormatException e) {
-				// episode number can be "Pilot" or "Special"
+				// episode number may be "Pilot", "Special", etc.
 			}
 			
 			episodes.add(new Episode(showname, seasonString, episodeNumber, title));

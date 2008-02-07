@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -42,19 +43,19 @@ public class AnidbSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//TABLE[@class='anime_list']//TR//TD//ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='anime_list']//TR//TD//ancestor::TR", dom);
 		ArrayList<String> shows = new ArrayList<String>(nodes.size());
 		
 		if (!nodes.isEmpty())
 			for (Node node : nodes) {
-				String type = HtmlUtil.selectString("./TD[2]/text()", node);
+				String type = XPathUtil.selectString("./TD[2]/text()", node);
 				
 				// we only want shows
 				if (type.equalsIgnoreCase("tv series")) {
-					Node titleNode = HtmlUtil.selectNode("./TD[1]/A", node);
+					Node titleNode = XPathUtil.selectNode("./TD[1]/A", node);
 					
-					String title = HtmlUtil.selectString("text()", titleNode);
-					String href = HtmlUtil.selectString("@href", titleNode);
+					String title = XPathUtil.selectString("text()", titleNode);
+					String href = XPathUtil.selectString("@href", titleNode);
 					
 					String file = "/perl-bin/" + href;
 					
@@ -70,11 +71,11 @@ public class AnidbSearchEngine extends SearchEngine {
 			}
 		else {
 			// we might have been redirected to the episode list page directly
-			List<Node> results = HtmlUtil.selectNodes("//TABLE[@class='eplist']", dom);
+			List<Node> results = XPathUtil.selectNodes("//TABLE[@class='eplist']", dom);
 			
 			if (!results.isEmpty()) {
 				// get show's name from the document
-				String header = HtmlUtil.selectString("//DIV[@id='layout-content']//H1[1]/text()", dom);
+				String header = XPathUtil.selectString("//DIV[@id='layout-content']//H1[1]/text()", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
 				cache.put(title, getSearchUrl(searchterm));
@@ -92,7 +93,7 @@ public class AnidbSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
 		
-		List<Node> nodes = HtmlUtil.selectNodes("//TABLE[@id='eplist']//TR/TD/SPAN/ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@id='eplist']//TR/TD/SPAN/ancestor::TR", dom);
 		
 		LinkedList<Episode> list = new LinkedList<Episode>();
 		
@@ -101,8 +102,8 @@ public class AnidbSearchEngine extends SearchEngine {
 		f.setGroupingUsed(false);
 		
 		for (Node node : nodes) {
-			String number = HtmlUtil.selectString("./TD[1]/A/text()", node);
-			String title = HtmlUtil.selectString("./TD[2]/SPAN/text()", node);
+			String number = XPathUtil.selectString("./TD[1]/A/text()", node);
+			String title = XPathUtil.selectString("./TD[2]/SPAN/text()", node);
 			
 			if (title.startsWith("recap"))
 				title = title.replaceFirst("recap", "");

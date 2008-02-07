@@ -28,11 +28,11 @@ public class Torrent {
 	
 	
 	public Torrent(File torrent) throws IOException {
-		FileInputStream in = new FileInputStream(torrent);
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(torrent));
 		Map<?, ?> torrentMap = null;
 		
 		try {
-			torrentMap = BDecoder.decode(new BufferedInputStream(in));
+			torrentMap = BDecoder.decode(in);
 		} finally {
 			in.close();
 		}
