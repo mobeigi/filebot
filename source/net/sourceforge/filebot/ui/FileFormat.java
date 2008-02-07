@@ -90,11 +90,13 @@ public class FileFormat {
 	
 
 	public static String getName(File file) {
-		if (!file.getName().isEmpty()) {
-			return file.getName();
-		} else {
-			return file.toString();
-		}
+		String name = file.getName();
+		
+		if (!name.isEmpty())
+			return name;
+		
+		// file might be a drive (only has a path, but no name)
+		return file.toString();
 	}
 	
 }
