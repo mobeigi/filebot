@@ -7,18 +7,18 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.SearchEngine;
+import net.sourceforge.filebot.web.EpisodeListClient;
 
 
 public class FetchEpisodesTask extends SwingWorker<List<Episode>, Object> {
 	
 	private String showName;
-	private SearchEngine searchEngine;
+	private EpisodeListClient searchEngine;
 	private int numberOfSeason;
 	private long duration;
 	
 	
-	public FetchEpisodesTask(SearchEngine searchEngine, String showname, int numberOfSeason) {
+	public FetchEpisodesTask(EpisodeListClient searchEngine, String showname, int numberOfSeason) {
 		showName = showname;
 		this.searchEngine = searchEngine;
 		this.numberOfSeason = numberOfSeason;
@@ -51,7 +51,7 @@ public class FetchEpisodesTask extends SwingWorker<List<Episode>, Object> {
 	}
 	
 
-	public SearchEngine getSearchEngine() {
+	public EpisodeListClient getSearchEngine() {
 		return searchEngine;
 	}
 	

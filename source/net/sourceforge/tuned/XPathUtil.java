@@ -26,6 +26,11 @@ public class XPathUtil {
 	}
 	
 
+	public static Node selectFirstNode(String xpath, Object node) {
+		return selectNodes(xpath, node).get(0);
+	}
+	
+
 	public static List<Node> selectNodes(String xpath, Object node) {
 		try {
 			XPath xp = XPathFactory.newInstance().newXPath();

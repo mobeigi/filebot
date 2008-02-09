@@ -16,7 +16,7 @@ import java.nio.channels.FileChannel.MapMode;
  * checksum of the first and last 64k (even if they overlap because the file is smaller than
  * 128k).
  */
-class OpenSubtitlesHasher {
+public class OpenSubtitlesHasher {
 	
 	/**
 	 * Size of the chunks that will be hashed in bytes (64 KB)
@@ -44,7 +44,8 @@ class OpenSubtitlesHasher {
 		BigInteger bigHash = BigInteger.valueOf(size).add(head.add(tail));
 		
 		byte[] hash = getTrailingBytes(bigHash.toByteArray(), HASH_SIZE);
-		return format(new BigInteger(1, hash));
+		
+		return String.format("%0" + HASH_SIZE * 2 + "x", new BigInteger(1, hash));
 	}
 	
 
@@ -62,22 +63,6 @@ class OpenSubtitlesHasher {
 		}
 		
 		return bigHash;
-	}
-	
-
-	private static String format(BigInteger hash) {
-		// 1 byte -> 2 hex digits
-		int minLength = HASH_SIZE * 2;
-		
-		StringBuffer sb = new StringBuffer(minLength);
-		
-		sb.append(hash.toString(16));
-		
-		while (sb.length() < minLength) {
-			sb.insert(0, "0");
-		}
-		
-		return sb.toString();
 	}
 	
 

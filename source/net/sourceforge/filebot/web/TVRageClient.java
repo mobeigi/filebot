@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,14 +26,14 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TVRageSearchEngine extends SearchEngine {
+public class TVRageClient extends EpisodeListClient {
 	
 	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
 	
 	private String host = "www.tvrage.com";
 	
 	
-	public TVRageSearchEngine() {
+	public TVRageClient() {
 		super("TVRage", ResourceManager.getIcon("search.tvrage"), true);
 	}
 	
@@ -44,7 +46,7 @@ public class TVRageSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//DIV[@id='search_begin']//TABLE[1]/*/TR/TD/A[1]", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('search_begin')//TABLE[1]/*/TR/TD/A[1]", dom);
 		
 		ArrayList<String> shows = new ArrayList<String>(nodes.size());
 		
@@ -57,7 +59,7 @@ public class TVRageSearchEngine extends SearchEngine {
 				cache.put(title, url);
 				shows.add(title);
 			} catch (MalformedURLException e) {
-				System.err.println("Invalid href: " + href);
+				Logger.getAnonymousLogger().log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		

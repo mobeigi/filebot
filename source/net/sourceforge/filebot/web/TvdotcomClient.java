@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
@@ -23,14 +25,14 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TvdotcomSearchEngine extends SearchEngine {
+public class TvdotcomClient extends EpisodeListClient {
 	
 	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
 	
 	private String host = "www.tv.com";
 	
 	
-	public TvdotcomSearchEngine() {
+	public TvdotcomClient() {
 		super("TV.com", ResourceManager.getIcon("search.tvdotcom"), true);
 	}
 	
@@ -43,7 +45,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@id='search-results']//SPAN/A", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN/A", dom);
 		
 		ArrayList<String> shows = new ArrayList<String>(nodes.size());
 		
@@ -61,7 +63,7 @@ public class TvdotcomSearchEngine extends SearchEngine {
 					cache.put(title, url);
 					shows.add(title);
 				} catch (MalformedURLException e) {
-					System.err.println("Invalid href: " + href);
+					Logger.getAnonymousLogger().log(Level.WARNING, "Invalid href: " + href, e);
 				}
 			}
 		}

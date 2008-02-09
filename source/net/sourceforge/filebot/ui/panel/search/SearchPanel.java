@@ -38,11 +38,11 @@ import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileBotUtil;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.web.AnidbSearchEngine;
+import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.SearchEngine;
-import net.sourceforge.filebot.web.TVRageSearchEngine;
-import net.sourceforge.filebot.web.TvdotcomSearchEngine;
+import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.TVRageClient;
+import net.sourceforge.filebot.web.TvdotcomClient;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SelectDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
@@ -58,11 +58,11 @@ public class SearchPanel extends FileBotPanel {
 	
 	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
 	
-	private TextFieldWithSelect<SearchEngine> searchField;
+	private TextFieldWithSelect<EpisodeListClient> searchField;
 	
 	private TextCompletion searchFieldCompletion;
 	
-	private List<SearchEngine> searchEngineList = new ArrayList<SearchEngine>();
+	private List<EpisodeListClient> episodeListClients = new ArrayList<EpisodeListClient>();
 	
 	private JSpinner seasonSpinner;
 	
@@ -70,17 +70,17 @@ public class SearchPanel extends FileBotPanel {
 	public SearchPanel() {
 		super("Search", ResourceManager.getIcon("panel.search"));
 		
-		searchEngineList.add(new TvdotcomSearchEngine());
-		searchEngineList.add(new AnidbSearchEngine());
-		searchEngineList.add(new TVRageSearchEngine());
+		episodeListClients.add(new TvdotcomClient());
+		episodeListClients.add(new AnidbClient());
+		episodeListClients.add(new TVRageClient());
 		
-		HashMap<SearchEngine, ImageIcon> icons = new HashMap<SearchEngine, ImageIcon>();
+		HashMap<EpisodeListClient, ImageIcon> icons = new HashMap<EpisodeListClient, ImageIcon>();
 		
-		for (SearchEngine searchEngine : searchEngineList) {
+		for (EpisodeListClient searchEngine : episodeListClients) {
 			icons.put(searchEngine, searchEngine.getIcon());
 		}
 		
-		searchField = new TextFieldWithSelect<SearchEngine>(searchEngineList, icons);
+		searchField = new TextFieldWithSelect<EpisodeListClient>(episodeListClients, icons);
 		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE_PROPERTY, searchFieldListener);
 		searchField.getTextField().setColumns(25);
 		
@@ -142,7 +142,7 @@ public class SearchPanel extends FileBotPanel {
 	private final PropertyChangeListener searchFieldListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			SearchEngine se = searchField.getSelectedValue();
+			EpisodeListClient se = searchField.getSelectedValue();
 			
 			if (!se.isSingleSeasonSupported()) {
 				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
@@ -160,7 +160,7 @@ public class SearchPanel extends FileBotPanel {
 		public void actionPerformed(ActionEvent e) {
 			searchField.clearTextSelection();
 			
-			SearchEngine searchEngine = searchField.getSelectedValue();
+			EpisodeListClient searchEngine = searchField.getSelectedValue();
 			SearchTask task = new SearchTask(searchEngine, searchField.getTextField().getText(), seasonSpinnerModel.getNumber().intValue());
 			task.addPropertyChangeListener(new SearchTaskListener());
 			
@@ -230,17 +230,17 @@ public class SearchPanel extends FileBotPanel {
 		
 
 		public void actionPerformed(ActionEvent e) {
-			SearchEngine current = searchField.getSelectedValue();
+			EpisodeListClient current = searchField.getSelectedValue();
 			
-			int nextIndex = searchEngineList.indexOf(current) + spinOffset;
-			int maxIndex = searchEngineList.size() - 1;
+			int nextIndex = episodeListClients.indexOf(current) + spinOffset;
+			int maxIndex = episodeListClients.size() - 1;
 			
 			if (nextIndex < 0)
 				nextIndex = maxIndex;
 			else if (nextIndex > maxIndex)
 				nextIndex = 0;
 			
-			searchField.getSelectButton().setSelectedValue(searchEngineList.get(nextIndex));
+			searchField.getSelectButton().setSelectedValue(episodeListClients.get(nextIndex));
 		}
 	}
 	
@@ -248,11 +248,11 @@ public class SearchPanel extends FileBotPanel {
 	private class SearchTask extends SwingWorker<List<String>, Object> {
 		
 		private String searchTerm;
-		private SearchEngine searchEngine;
+		private EpisodeListClient searchEngine;
 		private int numberOfSeason;
 		
 		
-		public SearchTask(SearchEngine searchEngine, String searchterm, int numberOfSeason) {
+		public SearchTask(EpisodeListClient searchEngine, String searchterm, int numberOfSeason) {
 			searchTerm = searchterm;
 			this.searchEngine = searchEngine;
 			this.numberOfSeason = numberOfSeason;
@@ -269,7 +269,7 @@ public class SearchPanel extends FileBotPanel {
 		}
 		
 
-		public SearchEngine getSearchEngine() {
+		public EpisodeListClient getSearchEngine() {
 			return searchEngine;
 		}
 		

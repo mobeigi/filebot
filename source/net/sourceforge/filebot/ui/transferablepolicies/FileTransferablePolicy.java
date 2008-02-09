@@ -12,6 +12,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public abstract class FileTransferablePolicy extends TransferablePolicy {
@@ -32,7 +34,8 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	protected List<File> getFilesFromTransferable(Transferable tr) {
 		List<File> files = getFilesFromFileTransferable(tr);
 		
-		// if there is no file transferable, look if there is a string transferable that contains file uris
+		// if there is no file transferable, look if there is a string transferable that
+		// contains file uris
 		if (files == null)
 			files = getFilesFromStringTransferable(tr);
 		
@@ -83,7 +86,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 					if (file.exists())
 						files.add(file);
 				} catch (URISyntaxException e) {
-					System.err.println(e);
+					Logger.getAnonymousLogger().log(Level.WARNING, "Invalid file url: " + line, e);
 				}
 			}
 			

@@ -48,15 +48,7 @@ public class Checksum {
 	
 
 	public String getChecksumString() {
-		StringBuffer buffer = new StringBuffer(8);
-		
-		buffer.append(Long.toHexString(checksum).toUpperCase());
-		
-		while (buffer.length() < 8) {
-			buffer.insert(0, "0");
-		}
-		
-		return buffer.toString();
+		return String.format("%08x", checksum).toUpperCase();
 	}
 	
 

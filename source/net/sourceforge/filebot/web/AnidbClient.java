@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
@@ -23,14 +25,14 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class AnidbSearchEngine extends SearchEngine {
+public class AnidbClient extends EpisodeListClient {
 	
 	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
 	
 	private String host = "anidb.info";
 	
 	
-	public AnidbSearchEngine() {
+	public AnidbClient() {
 		super("AniDB", ResourceManager.getIcon("search.anidb"), false);
 	};
 	
@@ -65,7 +67,7 @@ public class AnidbSearchEngine extends SearchEngine {
 						cache.put(title, url);
 						shows.add(title);
 					} catch (MalformedURLException e) {
-						System.err.println("Invalid href: " + href);
+						Logger.getAnonymousLogger().log(Level.WARNING, "Invalid href: " + href, e);
 					}
 				}
 			}

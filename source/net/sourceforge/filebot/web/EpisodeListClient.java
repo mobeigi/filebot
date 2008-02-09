@@ -8,13 +8,15 @@ import java.util.List;
 import javax.swing.ImageIcon;
 
 
-public abstract class SearchEngine {
+public abstract class EpisodeListClient {
 	
+	/**
+	 * List of shows
+	 */
 	public abstract List<String> search(String searchterm) throws Exception;
 	
 
 	/**
-	 * 
 	 * @param showname
 	 * @param season number of season, 0 for all seasons
 	 * @return
@@ -35,7 +37,7 @@ public abstract class SearchEngine {
 	private ImageIcon icon;
 	
 	
-	public SearchEngine(String name, ImageIcon icon, boolean singleSeasonSupported) {
+	public EpisodeListClient(String name, ImageIcon icon, boolean singleSeasonSupported) {
 		this.name = name;
 		this.icon = icon;
 		this.singleSeasonSupported = singleSeasonSupported;
