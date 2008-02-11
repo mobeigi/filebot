@@ -86,7 +86,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 					if (file.exists())
 						files.add(file);
 				} catch (URISyntaxException e) {
-					Logger.getAnonymousLogger().log(Level.WARNING, "Invalid file url: " + line, e);
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line, e);
 				}
 			}
 			

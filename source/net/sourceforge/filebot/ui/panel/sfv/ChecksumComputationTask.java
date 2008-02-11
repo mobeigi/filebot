@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 
 public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 	
-	private static final int CHUNK_SIZE = 20 * 1024;
+	private static final int CHUNK_SIZE = 32 * 1024;
 	
 	private File file;
 	

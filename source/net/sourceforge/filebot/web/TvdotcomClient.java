@@ -63,7 +63,7 @@ public class TvdotcomClient extends EpisodeListClient {
 					cache.put(title, url);
 					shows.add(title);
 				} catch (MalformedURLException e) {
-					Logger.getAnonymousLogger().log(Level.WARNING, "Invalid href: " + href, e);
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 				}
 			}
 		}
@@ -118,7 +118,8 @@ public class TvdotcomClient extends EpisodeListClient {
 	}
 	
 
-	public URL getEpisodeListUrl(String showname, int season) {
+	@Override
+    public URL getEpisodeListUrl(String showname, int season) {
 		try {
 			String summaryFile = cache.get(showname).getFile();
 			

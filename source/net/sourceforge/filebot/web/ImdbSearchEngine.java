@@ -41,7 +41,7 @@ public class ImdbSearchEngine {
 			try {
 				movies.add(parseMovie(node));
 			} catch (Exception e) {
-				Logger.getAnonymousLogger().log(Level.WARNING, "Invalid movie node", e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid movie node", e);
 			}
 		}
 		
