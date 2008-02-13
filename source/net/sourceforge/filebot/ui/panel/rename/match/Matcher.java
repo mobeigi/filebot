@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename.match;
 
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
@@ -12,7 +12,7 @@ import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 public class Matcher {
 	
 	public List<Match> match(List<? extends ListEntry<?>> listA, List<? extends ListEntry<?>> listB, SimilarityMetric similarityMetric) {
-		LinkedList<Match> matches = new LinkedList<Match>();
+		ArrayList<Match> matches = new ArrayList<Match>();
 		
 		for (ListEntry<?> entryA : listA) {
 			float maxSimilarity = -1;

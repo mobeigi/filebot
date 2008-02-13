@@ -7,7 +7,7 @@ import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -70,7 +70,7 @@ public class AnalyzePanel extends FileBotPanel {
 		}
 	};
 	
-	private LinkedList<ToolPanel> toolPanels = new LinkedList<ToolPanel>();
+	private List<ToolPanel> toolPanels = new ArrayList<ToolPanel>();
 	
 	
 	public void addTool(ToolPanel toolPanel) {

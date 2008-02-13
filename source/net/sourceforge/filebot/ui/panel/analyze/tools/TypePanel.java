@@ -4,9 +4,9 @@ package net.sourceforge.filebot.ui.panel.analyze.tools;
 
 import java.awt.BorderLayout;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -84,7 +84,7 @@ public class TypePanel extends ToolPanel {
 				if (list != null)
 					list.add(f);
 				else {
-					list = new LinkedList<File>();
+					list = new ArrayList<File>();
 					list.add(f);
 					map.put(suffix, list);
 				}

@@ -29,19 +29,19 @@ public class ImdbSearchEngine {
 	private String host = "www.imdb.com";
 	
 	
-	public List<Movie> search(String searchterm) throws IOException, SAXException {
+	public List<MovieDescriptor> search(String searchterm) throws IOException, SAXException {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('outerbody')//TABLE//P[position() >= 2 and position() <=3 ]//A[count(child::IMG) <= 0]/..", dom);
 		
-		ArrayList<Movie> movies = new ArrayList<Movie>();
+		ArrayList<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
 		for (Node node : nodes) {
 			try {
-				movies.add(parseMovie(node));
+				movies.add(parseMovieNode(node));
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid movie node", e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse movie node", e);
 			}
 		}
 		
@@ -49,7 +49,7 @@ public class ImdbSearchEngine {
 	}
 	
 
-	private Movie parseMovie(Node node) {
+	private MovieDescriptor parseMovieNode(Node node) throws MalformedURLException {
 		// ignore javascript links
 		Node linkNode = XPathUtil.selectFirstNode("./A[count(@onclick) <= 0]", node);
 		
@@ -58,13 +58,12 @@ public class ImdbSearchEngine {
 		
 		// match /title/tt0379786/
 		Matcher idMatcher = Pattern.compile(".*/tt(\\d+)/.*").matcher(href);
-		Integer imdbID = null;
+		int imdbId;
 		
 		if (idMatcher.matches()) {
-			imdbID = new Integer(idMatcher.group(1));
-		} else {
+			imdbId = new Integer(idMatcher.group(1));
+		} else
 			throw new IllegalArgumentException("Cannot match imdb id: " + href);
-		}
 		
 		String yearString = XPathUtil.selectString("text()[1]", node);
 		
@@ -73,12 +72,13 @@ public class ImdbSearchEngine {
 		Integer year = null;
 		
 		if (yearMatcher.matches()) {
-			year = new Integer(yearMatcher.group(1));
-		} else {
+			year = Integer.parseInt(yearMatcher.group(1));
+		} else
 			throw new IllegalArgumentException("Cannot match year: " + yearString);
-		}
 		
-		return new Movie(title, year, imdbID);
+		URL imdbUrl = new URL("http", host, href);
+		
+		return new MovieDescriptor(title, year, imdbId, imdbUrl);
 	}
 	
 

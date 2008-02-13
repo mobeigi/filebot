@@ -10,7 +10,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,9 +38,8 @@ public class AnidbClient extends EpisodeListClient {
 
 	@Override
 	public List<String> search(String searchterm) throws IOException, SAXException {
-		if (cache.containsKey(searchterm)) {
+		if (cache.containsKey(searchterm))
 			return Arrays.asList(searchterm);
-		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
@@ -97,7 +95,7 @@ public class AnidbClient extends EpisodeListClient {
 		
 		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@id='eplist']//TR/TD/SPAN/ancestor::TR", dom);
 		
-		LinkedList<Episode> list = new LinkedList<Episode>();
+		ArrayList<Episode> list = new ArrayList<Episode>(nodes.size());
 		
 		NumberFormat f = NumberFormat.getInstance();
 		f.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));

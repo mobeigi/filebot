@@ -11,7 +11,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import javax.swing.SwingConstants;
@@ -23,7 +23,7 @@ import javax.swing.SwingConstants;
  */
 public class QueueNotificationLayout implements NotificationLayout, SwingConstants {
 	
-	private LinkedList<NotificationWindow> notificationList = new LinkedList<NotificationWindow>();
+	private ArrayList<NotificationWindow> notificationList = new ArrayList<NotificationWindow>();
 	
 	private int orientation;
 	private int direction;

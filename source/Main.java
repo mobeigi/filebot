@@ -1,3 +1,6 @@
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -10,6 +13,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.ALL);
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {

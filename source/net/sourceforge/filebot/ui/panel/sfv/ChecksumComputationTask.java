@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 
 public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 	
-	private static final int CHUNK_SIZE = 32 * 1024;
+	private static final int BUFFER_SIZE = 32 * 1024;
 	
 	private File file;
 	
@@ -31,9 +31,7 @@ public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 		if (length > 0) {
 			long done = 0;
 			
-			int bufferLength = (int) Math.min(length, CHUNK_SIZE);
-			
-			byte[] buffer = new byte[bufferLength];
+			byte[] buffer = new byte[BUFFER_SIZE];
 			
 			int bytesRead = 0;
 			
