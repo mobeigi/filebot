@@ -32,4 +32,13 @@ public class FileBotUtil {
 		return filename.replaceAll("[\\\\/:*?\"<>|]", "");
 	}
 	
+
+	public static boolean isFileListFlavorSupportedByWindowManager() {
+		String os = System.getProperty("os.name");
+		
+		if (os.toLowerCase().contains("windows"))
+			return true;
+		
+		return false;
+	}
 }

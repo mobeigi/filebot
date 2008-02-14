@@ -26,14 +26,14 @@ public class SaveableExportHandler implements ExportHandler {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void exportDone(JComponent source, Transferable data, int action) {
 		try {
-			List<?> list = (List<?>) data.getTransferData(DataFlavor.javaFileListFlavor);
+			List<File> files = (List<File>) data.getTransferData(DataFlavor.javaFileListFlavor);
 			
-			for (Object object : list) {
-				File temporaryFile = (File) object;
-				temporaryFile.deleteOnExit();
+			for (File file : files) {
+				file.deleteOnExit();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -43,7 +43,7 @@ public class SaveableExportHandler implements ExportHandler {
 
 	@Override
 	public int getSourceActions(JComponent c) {
-		if (saveable == null || !saveable.isSaveable())
+		if ((saveable == null) || !saveable.isSaveable())
 			return TransferHandler.NONE;
 		
 		return TransferHandler.MOVE | TransferHandler.COPY;
