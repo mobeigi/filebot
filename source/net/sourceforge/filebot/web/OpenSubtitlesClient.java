@@ -139,7 +139,7 @@ public class OpenSubtitlesClient {
 				Map<String, String> response = (Map<String, String>) invoke("LogOut", token);
 				checkStatus(response.get("status"));
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Exception while deactivating connection", e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating connection", e);
 			}
 		}
 		
@@ -180,7 +180,7 @@ public class OpenSubtitlesClient {
 			return rpc.invoke(method, arguments);
 		} catch (MalformedURLException e) {
 			// will never happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid xml-rpc url: " + url, e);
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Invalid xml-rpc url: " + url, e);
 			return null;
 		}
 	}

@@ -41,7 +41,7 @@ public class ImdbSearchEngine {
 			try {
 				movies.add(parseMovieNode(node));
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse movie node", e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse movie node");
 			}
 		}
 		

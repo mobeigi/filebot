@@ -147,7 +147,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 				sb.append(URLEncoder.encode(parameters.get(key), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				// will never happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
 			
 			i++;

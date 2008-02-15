@@ -50,7 +50,7 @@ public class OpenSubtitleDescriptor {
 		try {
 			return new URL(link);
 		} catch (MalformedURLException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid download link: " + link, e);
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid download link: " + link);
 			return null;
 		}
 	}

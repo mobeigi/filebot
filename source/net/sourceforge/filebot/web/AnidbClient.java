@@ -65,7 +65,7 @@ public class AnidbClient extends EpisodeListClient {
 						cache.put(title, url);
 						shows.add(title);
 					} catch (MalformedURLException e) {
-						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
+						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
 					}
 				}
 			}

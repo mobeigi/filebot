@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.web;
 
 
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class SubsceneSubtitleDescriptor {
 	}
 	
 
-	public DownloadTask createDownloadTask() throws UnsupportedEncodingException {
+	public DownloadTask createDownloadTask() {
 		return new DownloadTask(downloadUrl, downloadParameters);
 	}
 	
