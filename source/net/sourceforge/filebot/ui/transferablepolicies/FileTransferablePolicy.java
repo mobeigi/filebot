@@ -39,7 +39,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 			} else if (tr.isDataFlavorSupported(FileBotUtil.uriListFlavor)) {
-				String transferString = (String) tr.getTransferData(DataFlavor.stringFlavor);
+				String transferString = (String) tr.getTransferData(FileBotUtil.uriListFlavor);
 				
 				String lines[] = transferString.split("\r?\n");
 				ArrayList<File> files = new ArrayList<File>(lines.length);
@@ -57,9 +57,11 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 							files.add(file);
 					} catch (Exception e) {
 						// URISyntaxException, IllegalArgumentException 
-						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line, e);
+						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line);
 					}
 				}
+				
+				return files;
 			}
 		} catch (UnsupportedFlavorException e) {
 			e.printStackTrace();

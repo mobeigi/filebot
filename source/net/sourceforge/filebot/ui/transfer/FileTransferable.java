@@ -53,7 +53,7 @@ public class FileTransferable implements Transferable {
 		StringBuffer sb = new StringBuffer();
 		
 		for (File file : files) {
-			sb.append(file.toURI());
+			sb.append("file:///" + file.toURI().getPath());
 			sb.append("\r\n");
 		}
 		
