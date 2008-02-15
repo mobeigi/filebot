@@ -50,7 +50,7 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected boolean load(List<File> files) {
+		protected void load(List<File> files) {
 			synchronized (ChecksumComputationExecutor.getInstance()) {
 				ChecksumComputationExecutor.getInstance().pause();
 				
@@ -60,8 +60,6 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 				
 				ChecksumComputationExecutor.getInstance().resume();
 			}
-			
-			return true;
 		}
 		
 
@@ -134,16 +132,16 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected boolean load(List<File> files) {
+		protected void load(List<File> files) {
 			if (files.isEmpty())
-				return true;
+				return;
 			
 			synchronized (ChecksumComputationExecutor.getInstance()) {
 				ChecksumComputationExecutor.getInstance().pause();
 				
 				File firstFile = files.get(0);
 				
-				if (files.size() == 1 && firstFile.isDirectory()) {
+				if ((files.size() == 1) && firstFile.isDirectory()) {
 					for (File f : firstFile.listFiles()) {
 						load(f, firstFile, "");
 					}
@@ -155,8 +153,6 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 				
 				ChecksumComputationExecutor.getInstance().resume();
 			}
-			
-			return true;
 		}
 		
 

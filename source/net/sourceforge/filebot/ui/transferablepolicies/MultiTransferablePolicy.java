@@ -31,6 +31,7 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 	}
 	
 
+	@Override
 	public boolean accept(Transferable tr) {
 		if (!isEnabled())
 			return false;
@@ -44,13 +45,14 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 	}
 	
 
-	public boolean handleTransferable(Transferable tr, boolean add) {
+	@Override
+	public void handleTransferable(Transferable tr, boolean add) {
 		for (TransferablePolicy policy : policies) {
-			if (policy.accept(tr))
-				return policy.handleTransferable(tr, add);
+			if (policy.accept(tr)) {
+				policy.handleTransferable(tr, add);
+				return;
+			}
 		}
-		
-		return true;
 	}
 	
 	private final PropertyChangeListener relayListener = new PropertyChangeListener() {

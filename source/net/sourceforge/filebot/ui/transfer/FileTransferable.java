@@ -15,9 +15,9 @@ import net.sourceforge.filebot.ui.FileBotUtil;
 
 public class FileTransferable implements Transferable {
 	
-	private static final boolean fileListFlavorSupported = FileBotUtil.isFileListFlavorSupportedByWindowManager();
-	
 	private List<File> files;
+	
+	private DataFlavor[] supportedFlavors = { DataFlavor.javaFileListFlavor, FileBotUtil.uriListFlavor };
 	
 	
 	public FileTransferable(File... fileArray) {
@@ -38,7 +38,7 @@ public class FileTransferable implements Transferable {
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 		if (flavor.isFlavorJavaFileListType())
 			return files;
-		else if (flavor.isFlavorTextType())
+		else if (flavor.equals(FileBotUtil.uriListFlavor))
 			return getUriList();
 		else
 			throw new UnsupportedFlavorException(flavor);
@@ -54,7 +54,7 @@ public class FileTransferable implements Transferable {
 		
 		for (File file : files) {
 			sb.append(file.toURI());
-			sb.append("\n");
+			sb.append("\r\n");
 		}
 		
 		return sb.toString();
@@ -62,21 +62,16 @@ public class FileTransferable implements Transferable {
 	
 
 	public DataFlavor[] getTransferDataFlavors() {
-		if (fileListFlavorSupported) {
-			DataFlavor[] flavours = { DataFlavor.javaFileListFlavor };
-			return flavours;
-		} else {
-			DataFlavor[] flavours = { DataFlavor.javaFileListFlavor, DataFlavor.stringFlavor };
-			return flavours;
-		}
+		return supportedFlavors;
 	}
 	
 
 	public boolean isDataFlavorSupported(DataFlavor flavor) {
-		if (fileListFlavorSupported)
-			return flavor.isFlavorJavaFileListType();
-		else
-			return flavor.isFlavorJavaFileListType() || flavor.isFlavorTextType();
+		for (DataFlavor supportedFlavor : supportedFlavors) {
+			if (flavor.equals(supportedFlavor))
+				return true;
+		}
+		
+		return false;
 	}
-	
 }

@@ -33,7 +33,8 @@ public class SaveableExportHandler implements ExportHandler {
 			List<File> files = (List<File>) data.getTransferData(DataFlavor.javaFileListFlavor);
 			
 			for (File file : files) {
-				file.deleteOnExit();
+				if (file.exists())
+					file.deleteOnExit();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

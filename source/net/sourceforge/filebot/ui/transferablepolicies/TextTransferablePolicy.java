@@ -8,6 +8,7 @@ import java.awt.datatransfer.Transferable;
 
 public abstract class TextTransferablePolicy extends TransferablePolicy {
 	
+	@Override
 	public boolean accept(Transferable tr) {
 		if (!isEnabled())
 			return false;
@@ -16,7 +17,8 @@ public abstract class TextTransferablePolicy extends TransferablePolicy {
 	}
 	
 
-	public boolean handleTransferable(Transferable tr, boolean add) {
+	@Override
+	public void handleTransferable(Transferable tr, boolean add) {
 		try {
 			String string = (String) tr.getTransferData(DataFlavor.stringFlavor);
 			
@@ -24,10 +26,9 @@ public abstract class TextTransferablePolicy extends TransferablePolicy {
 				clear();
 			}
 			
-			return load(string);
+			load(string);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
 	}
 	

@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
+import java.awt.datatransfer.DataFlavor;
+
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
@@ -32,13 +34,18 @@ public class FileBotUtil {
 		return filename.replaceAll("[\\\\/:*?\"<>|]", "");
 	}
 	
-
-	public static boolean isFileListFlavorSupportedByWindowManager() {
-		String os = System.getProperty("os.name");
+	public static final DataFlavor uriListFlavor = createUriListFlavor();
+	
+	
+	private static DataFlavor createUriListFlavor() {
+		try {
+			return new DataFlavor("text/uri-list;class=java.lang.String");
+		} catch (ClassNotFoundException e) {
+			// will never happen
+			e.printStackTrace();
+		}
 		
-		if (os.toLowerCase().contains("windows"))
-			return true;
-		
-		return false;
+		return null;
 	}
+	
 }

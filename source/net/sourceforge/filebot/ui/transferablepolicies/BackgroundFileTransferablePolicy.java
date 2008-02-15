@@ -20,11 +20,11 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	
 	
 	@Override
-	public boolean handleTransferable(Transferable tr, boolean add) {
+	public void handleTransferable(Transferable tr, boolean add) {
 		List<File> files = getFilesFromTransferable(tr);
 		
 		if (files == null)
-			return false;
+			return;
 		
 		if (!add)
 			clear();
@@ -32,8 +32,6 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		backgroundWorker = new BackgroundWorker(files);
 		backgroundWorker.addPropertyChangeListener(new BackgroundWorkerListener());
 		backgroundWorker.execute();
-		
-		return true;
 	}
 	
 
@@ -48,7 +46,8 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	
 
 	/**
-	 * Receives data chunks from the publish method asynchronously on the Event Dispatch Thread.
+	 * Receives data chunks from the publish method asynchronously on the Event Dispatch
+	 * Thread.
 	 * 
 	 * @param chunks
 	 */

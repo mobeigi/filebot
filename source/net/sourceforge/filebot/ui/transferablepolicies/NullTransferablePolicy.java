@@ -7,13 +7,15 @@ import java.awt.datatransfer.Transferable;
 
 public class NullTransferablePolicy extends TransferablePolicy {
 	
+	@Override
 	public boolean accept(Transferable tr) {
 		return false;
 	}
 	
 
-	public boolean handleTransferable(Transferable tr, boolean add) {
-		return false;
+	@Override
+	public void handleTransferable(Transferable tr, boolean add) {
+		
 	}
 	
 

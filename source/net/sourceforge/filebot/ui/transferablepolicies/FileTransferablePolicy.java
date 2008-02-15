@@ -8,90 +8,59 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.ui.FileBotUtil;
+
 
 public abstract class FileTransferablePolicy extends TransferablePolicy {
 	
+	@Override
 	public boolean accept(Transferable tr) {
 		if (!isEnabled())
 			return false;
 		
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (files == null || files.isEmpty())
+		if ((files == null) || files.isEmpty())
 			return false;
 		
 		return accept(files);
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	protected List<File> getFilesFromTransferable(Transferable tr) {
-		List<File> files = getFilesFromFileTransferable(tr);
-		
-		// if there is no file transferable, look if there is a string transferable that
-		// contains file uris
-		if (files == null)
-			files = getFilesFromStringTransferable(tr);
-		
-		Collections.sort(files);
-		
-		return files;
-	}
-	
-
-	protected List<File> getFilesFromFileTransferable(Transferable tr) {
-		if (!tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
-			return null;
-		
 		try {
-			List<?> list = (List<?>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-			
-			ArrayList<File> files = new ArrayList<File>(list.size());
-			
-			for (Object object : list)
-				files.add((File) object);
-			
-			if (!files.isEmpty())
-				return files;
-		} catch (UnsupportedFlavorException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-
-	protected List<File> getFilesFromStringTransferable(Transferable tr) {
-		if (!tr.isDataFlavorSupported(DataFlavor.stringFlavor))
-			return null;
-		
-		try {
-			String transferString = (String) tr.getTransferData(DataFlavor.stringFlavor);
-			
-			String lines[] = transferString.split("\r?\n");
-			ArrayList<File> files = new ArrayList<File>(lines.length);
-			
-			for (String line : lines) {
-				try {
-					File file = new File(new URI(line));
+			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+			} else if (tr.isDataFlavorSupported(FileBotUtil.uriListFlavor)) {
+				String transferString = (String) tr.getTransferData(DataFlavor.stringFlavor);
+				
+				String lines[] = transferString.split("\r?\n");
+				ArrayList<File> files = new ArrayList<File>(lines.length);
+				
+				for (String line : lines) {
+					if (line.startsWith("#")) {
+						// the line is a comment (as per the RFC 2483)
+						continue;
+					}
 					
-					if (file.exists())
-						files.add(file);
-				} catch (URISyntaxException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line, e);
+					try {
+						File file = new File(new URI(line));
+						
+						if (file.exists())
+							files.add(file);
+					} catch (Exception e) {
+						// URISyntaxException, IllegalArgumentException 
+						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line, e);
+					}
 				}
 			}
-			
-			if (!files.isEmpty())
-				return files;
 		} catch (UnsupportedFlavorException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -102,16 +71,19 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	}
 	
 
-	public boolean handleTransferable(Transferable tr, boolean add) {
+	@Override
+	public void handleTransferable(Transferable tr, boolean add) {
 		List<File> files = getFilesFromTransferable(tr);
 		
 		if (files == null)
-			return false;
+			return;
+		
+		Collections.sort(files);
 		
 		if (!add)
 			clear();
 		
-		return load(files);
+		load(files);
 	}
 	
 
@@ -124,14 +96,10 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	}
 	
 
-	protected boolean load(List<File> files) {
-		boolean success = false;
-		
+	protected void load(List<File> files) {
 		for (File file : files) {
-			success |= load(file);
+			load(file);
 		}
-		
-		return success;
 	}
 	
 

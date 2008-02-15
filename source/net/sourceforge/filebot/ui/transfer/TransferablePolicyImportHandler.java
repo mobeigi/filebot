@@ -49,7 +49,9 @@ public class TransferablePolicyImportHandler implements ImportHandler {
 		
 		Transferable t = support.getTransferable();
 		
-		return transferablePolicySupport.getTransferablePolicy().handleTransferable(t, add);
+		transferablePolicySupport.getTransferablePolicy().handleTransferable(t, add);
+		
+		return true;
 	}
 	
 }

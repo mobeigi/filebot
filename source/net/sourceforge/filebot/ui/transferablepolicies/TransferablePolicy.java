@@ -13,7 +13,7 @@ public abstract class TransferablePolicy {
 	public abstract boolean accept(Transferable tr);
 	
 
-	public abstract boolean handleTransferable(Transferable tr, boolean add);
+	public abstract void handleTransferable(Transferable tr, boolean add);
 	
 	private boolean enabled = true;
 	

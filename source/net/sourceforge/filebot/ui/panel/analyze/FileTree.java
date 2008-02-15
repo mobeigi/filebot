@@ -100,15 +100,13 @@ public class FileTree extends FileBotTree {
 		
 
 		@Override
-		protected boolean load(List<File> files) {
+		protected void load(List<File> files) {
 			DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
 			
 			File fileArray[] = new File[files.size()];
 			files.toArray(fileArray);
 			
 			addFiles(root, fileArray);
-			
-			return true;
 		}
 		
 
