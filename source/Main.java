@@ -18,7 +18,8 @@ public class Main {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {

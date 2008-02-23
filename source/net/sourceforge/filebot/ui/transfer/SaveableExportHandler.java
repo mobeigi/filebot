@@ -7,6 +7,8 @@ import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -37,7 +39,8 @@ public class SaveableExportHandler implements ExportHandler {
 					file.deleteOnExit();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	
@@ -60,7 +63,8 @@ public class SaveableExportHandler implements ExportHandler {
 			saveable.save(temporaryFile);
 			return new FileTransferable(temporaryFile);
 		} catch (IOException e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 		
 		return null;

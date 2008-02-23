@@ -5,8 +5,11 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,7 +67,7 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected boolean load(File sfvFile) {
+		protected void load(File sfvFile) {
 			
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(sfvFile)));
@@ -95,12 +98,10 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 				}
 				
 				in.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
+			} catch (IOException e) {
+				// should not happen
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
-			
-			return true;
 		}
 		
 
@@ -166,15 +167,6 @@ public class SfvTransferablePolicy extends MultiTransferablePolicy {
 			} else if (file.isFile()) {
 				publish(new SfvTableModel.Entry(prefix + file.getName(), new Checksum(file), columnRoot));
 			}
-		}
-		
-
-		/**
-		 * this method will not be used
-		 */
-		@Override
-		protected boolean load(File file) {
-			return false;
 		}
 		
 

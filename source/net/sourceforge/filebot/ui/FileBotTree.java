@@ -11,6 +11,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
@@ -101,7 +103,7 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 			
 			Object userObject = node.getUserObject();
 			
-			if (userObject != null && userObject instanceof File) {
+			if ((userObject != null) && (userObject instanceof File)) {
 				File file = (File) node.getUserObject();
 				return file.getName();
 			}
@@ -186,12 +188,12 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 			}
 			
 
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent event) {
 				try {
 					Desktop.getDesktop().open(file);
-				} catch (Exception ex) {
-					MessageManager.showWarning(ex.getMessage());
-					ex.printStackTrace();
+				} catch (Exception e) {
+					MessageManager.showWarning(e.getMessage());
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 		}

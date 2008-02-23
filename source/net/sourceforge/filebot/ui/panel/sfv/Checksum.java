@@ -6,6 +6,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
@@ -132,8 +134,9 @@ public class Checksum {
 					setChecksum(computationTask.get());
 				}
 			} catch (Exception e) {
+				// might happen if file system is corrupt (e.g. CRC errors)
 				setChecksumError(e);
-				e.printStackTrace();
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
 			}
 		}
 	}

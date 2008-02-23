@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.DefaultListModel;
 
@@ -49,7 +51,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected boolean load(File file) {
+		protected void load(File file) {
 			try {
 				if (FileFormat.getSuffix(file).equalsIgnoreCase("torrent")) {
 					Torrent torrent = new Torrent(file);
@@ -68,13 +70,10 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 					
 					in.close();
 				}
-				
-				return true;
 			} catch (Exception e) {
-				e.printStackTrace();
+				// should not happen
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
-			
-			return false;
 		}
 		
 

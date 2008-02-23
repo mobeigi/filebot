@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -180,7 +182,8 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 				
 				tree.setModel(model);
 			} catch (Exception e) {
-				e.printStackTrace();
+				// should not happen
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
 			
 			SplitPanel.this.firePropertyChange(LOADING_PROPERTY, null, false);

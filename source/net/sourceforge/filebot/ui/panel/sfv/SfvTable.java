@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -162,7 +164,8 @@ public class SfvTable extends JTable implements TransferablePolicySupport, Savea
 			
 			out.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	

@@ -4,6 +4,8 @@ package net.sourceforge.filebot.ui.panel.list;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileFormat;
@@ -33,7 +35,7 @@ public class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected boolean load(File file) {
+	protected void load(File file) {
 		if (file.isDirectory()) {
 			list.setTitle(file.getName());
 			
@@ -49,12 +51,11 @@ public class FileListTransferablePolicy extends FileTransferablePolicy {
 						list.getModel().addElement(FileFormat.getNameWithoutSuffix(entry.getName()));
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					// should not happen
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 		}
-		
-		return true;
 	}
 	
 

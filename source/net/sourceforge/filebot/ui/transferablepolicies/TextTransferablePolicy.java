@@ -4,6 +4,8 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public abstract class TextTransferablePolicy extends TransferablePolicy {
@@ -28,7 +30,8 @@ public abstract class TextTransferablePolicy extends TransferablePolicy {
 			
 			load(string);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	

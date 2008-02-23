@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -323,14 +325,8 @@ public class SearchPanel extends FileBotPanel {
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
 				
-				Throwable t = e;
-				
-				while (t.getCause() != null) {
-					t = t.getCause();
-				}
-				
-				MessageManager.showWarning(t.toString());
-				t.printStackTrace();
+				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 				
 				return;
 			}
@@ -348,8 +344,9 @@ public class SearchPanel extends FileBotPanel {
 				select.setIconImage(episodeList.getIcon().getImage());
 				select.setVisible(true);
 				showname = select.getSelectedValue();
-			} else
+			} else {
 				MessageManager.showWarning("\"" + task.getSearchTerm() + "\" has not been found.");
+			}
 			
 			if (showname == null) {
 				tabbedPane.remove(episodeList);
@@ -409,16 +406,8 @@ public class SearchPanel extends FileBotPanel {
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
 				
-				Throwable t = e;
-				
-				// find root cause
-				
-				while (t.getCause() != null) {
-					t = t.getCause();
-				}
-				
-				MessageManager.showWarning(t.toString());
-				t.printStackTrace();
+				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 		

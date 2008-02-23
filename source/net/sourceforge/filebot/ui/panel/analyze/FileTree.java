@@ -110,15 +110,6 @@ public class FileTree extends FileBotTree {
 		}
 		
 
-		/**
-		 * This method will not be used
-		 */
-		@Override
-		protected boolean load(File file) {
-			return false;
-		}
-		
-
 		public void propertyChange(PropertyChangeEvent evt) {
 			Boolean loading = (Boolean) evt.getNewValue();
 			

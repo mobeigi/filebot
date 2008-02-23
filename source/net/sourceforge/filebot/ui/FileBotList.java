@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -132,7 +134,8 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 			
 			out.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 	

@@ -4,9 +4,7 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,10 +61,9 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 				
 				return files;
 			}
-		} catch (UnsupportedFlavorException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 		}
 		
 		return null;
@@ -105,12 +102,18 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	}
 	
 
-	protected abstract boolean accept(File file);
+	protected boolean accept(File file) {
+		return false;
+	}
 	
 
-	protected abstract void clear();
+	protected void clear() {
+		
+	}
 	
 
-	protected abstract boolean load(File file);
+	protected void load(File file) {
+		
+	}
 	
 }

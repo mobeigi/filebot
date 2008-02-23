@@ -34,17 +34,16 @@ public class FilesRenameListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected boolean load(File file) {
+	protected void load(File file) {
 		if (file.isDirectory()) {
 			File subfiles[] = file.listFiles();
 			Arrays.sort(subfiles);
 			
 			for (File f : subfiles)
 				listModel.addElement(new FileEntry(f));
-		} else
+		} else {
 			listModel.addElement(new FileEntry(file));
-		
-		return true;
+		}
 	}
 	
 

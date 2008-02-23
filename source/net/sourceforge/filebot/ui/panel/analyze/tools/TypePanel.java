@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
@@ -128,7 +130,8 @@ public class TypePanel extends ToolPanel {
 				
 				tree.setModel(model);
 			} catch (Exception e) {
-				e.printStackTrace();
+				// should not happen
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
 			}
 			
 			TypePanel.this.firePropertyChange(LOADING_PROPERTY, null, false);
