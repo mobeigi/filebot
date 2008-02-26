@@ -326,7 +326,7 @@ public class SearchPanel extends FileBotPanel {
 				tabbedPane.remove(episodeList);
 				
 				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 				
 				return;
 			}
@@ -407,7 +407,7 @@ public class SearchPanel extends FileBotPanel {
 				tabbedPane.remove(episodeList);
 				
 				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 			}
 		}
 		

@@ -13,13 +13,12 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.ALL);
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {

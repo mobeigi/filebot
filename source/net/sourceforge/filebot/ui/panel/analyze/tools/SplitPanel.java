@@ -183,7 +183,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 				tree.setModel(model);
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 			}
 			
 			SplitPanel.this.firePropertyChange(LOADING_PROPERTY, null, false);

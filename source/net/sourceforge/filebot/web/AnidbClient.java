@@ -48,11 +48,11 @@ public class AnidbClient extends EpisodeListClient {
 		
 		if (!nodes.isEmpty())
 			for (Node node : nodes) {
-				String type = XPathUtil.selectString("./TD[2]/text()", node);
+				String type = XPathUtil.selectString("./TD[3]/text()", node);
 				
 				// we only want shows
 				if (type.equalsIgnoreCase("tv series")) {
-					Node titleNode = XPathUtil.selectNode("./TD[1]/A", node);
+					Node titleNode = XPathUtil.selectNode("./TD[2]/A", node);
 					
 					String title = XPathUtil.selectString("text()", titleNode);
 					String href = XPathUtil.selectString("@href", titleNode);
@@ -103,7 +103,7 @@ public class AnidbClient extends EpisodeListClient {
 		
 		for (Node node : nodes) {
 			String number = XPathUtil.selectString("./TD[1]/A/text()", node);
-			String title = XPathUtil.selectString("./TD[2]/SPAN/text()", node);
+			String title = XPathUtil.selectString("./TD[2]/LABEL/text()", node);
 			
 			if (title.startsWith("recap"))
 				title = title.replaceFirst("recap", "");

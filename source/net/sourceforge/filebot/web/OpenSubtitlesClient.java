@@ -37,7 +37,7 @@ public class OpenSubtitlesClient {
 	 * </tr>
 	 * </table>
 	 */
-	private String url = "http://dev.opensubtitles.org/xml-rpc";
+	private String url = "http://www.opensubtitles.org/xml-rpc";
 	
 	private String username;
 	private String password;
@@ -52,7 +52,7 @@ public class OpenSubtitlesClient {
 	/**
 	 * Interval to call NoOperation to keep the session from expiring
 	 */
-	public static final int KEEP_ALIVE_INTERVAL = 12 * 60 * 1000; // 12 minutes
+	private static final int KEEP_ALIVE_INTERVAL = 12 * 60 * 1000; // 12 minutes
 	
 	
 	public OpenSubtitlesClient(String useragent) {
@@ -93,8 +93,6 @@ public class OpenSubtitlesClient {
 		this.username = username;
 		this.password = password;
 		this.language = language;
-		
-		activate();
 	}
 	
 
@@ -216,10 +214,31 @@ public class OpenSubtitlesClient {
 		
 		ArrayList<OpenSubtitleDescriptor> subs = new ArrayList<OpenSubtitleDescriptor>();
 		
-		for (Map<String, String> subtitle : response.get("data"))
+		if (!(response.get("data") instanceof List))
+			throw new XmlRpcException("Illegal response: " + response.toString());
+		
+		// if there was an error data may not be a list
+		for (Map<String, String> subtitle : response.get("data")) {
 			subs.add(new OpenSubtitleDescriptor(subtitle));
+		}
 		
 		return subs;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
+		activate();
+		
+		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", token, query);
+		
+		ArrayList<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
+		
+		for (Map<String, String> movie : response.get("data")) {
+			movies.add(new MovieDescriptor(movie.get("title"), new Integer(movie.get("id"))));
+		}
+		
+		return movies;
 	}
 	
 

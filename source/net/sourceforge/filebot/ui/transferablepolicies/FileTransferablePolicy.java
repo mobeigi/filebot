@@ -4,7 +4,9 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.ui.FileBotUtil;
+import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
 public abstract class FileTransferablePolicy extends TransferablePolicy {
@@ -36,8 +38,8 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 		try {
 			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-			} else if (tr.isDataFlavorSupported(FileBotUtil.uriListFlavor)) {
-				String transferString = (String) tr.getTransferData(FileBotUtil.uriListFlavor);
+			} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
+				String transferString = (String) tr.getTransferData(FileTransferable.uriListFlavor);
 				
 				String lines[] = transferString.split("\r?\n");
 				ArrayList<File> files = new ArrayList<File>(lines.length);
@@ -61,9 +63,12 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 				
 				return files;
 			}
-		} catch (Exception e) {
+		} catch (UnsupportedFlavorException e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+		} catch (IOException e) {
+			// should not happen
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
 		
 		return null;

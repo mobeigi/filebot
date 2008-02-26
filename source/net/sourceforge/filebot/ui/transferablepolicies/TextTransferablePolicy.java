@@ -31,7 +31,7 @@ public abstract class TextTransferablePolicy extends TransferablePolicy {
 			load(string);
 		} catch (Exception e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
 	}
 	

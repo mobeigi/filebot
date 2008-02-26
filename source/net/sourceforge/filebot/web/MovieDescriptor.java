@@ -8,12 +8,18 @@ import java.net.URL;
 public class MovieDescriptor {
 	
 	private String title;
-	private int year;
-	private int imdbId;
+	private Integer imdbId;
+	
+	private Integer year;
 	private URL imdbUrl;
 	
 	
-	public MovieDescriptor(String title, int year, int imdbId, URL imdbUrl) {
+	public MovieDescriptor(String description, Integer imdbId) {
+		this(description, imdbId, null, null);
+	}
+	
+
+	public MovieDescriptor(String title, Integer imdbId, Integer year, URL imdbUrl) {
 		this.title = title;
 		this.imdbId = imdbId;
 		this.year = year;
@@ -26,13 +32,13 @@ public class MovieDescriptor {
 	}
 	
 
-	public int getYear() {
-		return year;
+	public Integer getImdbId() {
+		return imdbId;
 	}
 	
 
-	public int getImdbId() {
-		return imdbId;
+	public Integer getYear() {
+		return year;
 	}
 	
 
@@ -43,6 +49,9 @@ public class MovieDescriptor {
 
 	@Override
 	public String toString() {
+		if (year == null)
+			return title;
+		
 		return String.format("%s (%d)", title, year);
 	}
 }

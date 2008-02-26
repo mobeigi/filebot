@@ -131,7 +131,7 @@ public class TypePanel extends ToolPanel {
 				tree.setModel(model);
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 			}
 			
 			TypePanel.this.firePropertyChange(LOADING_PROPERTY, null, false);

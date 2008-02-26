@@ -38,7 +38,7 @@ public class HyperlinkLabel extends JLabel {
 				Desktop.getDesktop().browse(url.toURI());
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 			}
 		}
 		
