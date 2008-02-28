@@ -19,9 +19,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileBotUtil;
 
 
 public class CreatePanel extends FileBotPanel {

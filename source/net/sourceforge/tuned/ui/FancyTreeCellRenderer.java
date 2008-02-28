@@ -81,7 +81,7 @@ public class FancyTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	protected int getLabelStart() {
 		Icon icon = getIcon();
-		if (icon != null && getText() != null) {
+		if ((icon != null) && (getText() != null)) {
 			return icon.getIconWidth() + Math.max(0, getIconTextGap() - 1);
 		}
 		

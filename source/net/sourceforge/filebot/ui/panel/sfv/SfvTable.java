@@ -18,7 +18,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.ui.FileFormat;
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.TextTableCellRenderer;

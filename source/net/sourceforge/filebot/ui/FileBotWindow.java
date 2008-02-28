@@ -21,6 +21,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.ui.ShadowBorder;
 
@@ -55,7 +57,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		
 		setSize(760, 615);
 		
-		selectionListPanel.setSelectedIndex(3);
+		selectionListPanel.setSelectedIndex(Settings.getSettings().getSelectedPanel());
 	}
 	
 
@@ -68,6 +70,8 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		
 		JComponent c = (JComponent) getContentPane();
 		c.updateUI();
+		
+		Settings.getSettings().setSelectedPanel(selectionListPanel.getSelectedIndex());
 	}
 	
 

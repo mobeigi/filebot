@@ -21,6 +21,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.ExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;

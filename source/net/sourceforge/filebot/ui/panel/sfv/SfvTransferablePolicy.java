@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.ui.FileFormat;
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 

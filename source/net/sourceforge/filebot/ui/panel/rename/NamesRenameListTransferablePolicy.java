@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 
 import javax.swing.DefaultListModel;
 
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
-import net.sourceforge.filebot.ui.FileFormat;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;

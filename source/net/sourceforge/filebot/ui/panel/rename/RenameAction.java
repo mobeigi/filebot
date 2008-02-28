@@ -9,8 +9,8 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.FileFormat;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;

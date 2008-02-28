@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.sourceforge.filebot.ui.FileFormat;
+import net.sourceforge.filebot.FileFormat;
 
 
 public class SfvTableModel extends AbstractTableModel {

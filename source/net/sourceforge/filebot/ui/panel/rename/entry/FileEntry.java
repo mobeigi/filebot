@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.panel.rename.entry;
 
 import java.io.File;
 
-import net.sourceforge.filebot.ui.FileFormat;
+import net.sourceforge.filebot.FileFormat;
 
 
 public class FileEntry extends AbstractFileEntry<File> {

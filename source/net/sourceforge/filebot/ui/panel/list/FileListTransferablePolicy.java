@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
-import net.sourceforge.filebot.ui.FileFormat;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 
 

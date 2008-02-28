@@ -8,8 +8,8 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotUtil;
 
 
 public class SaveAction extends AbstractAction {

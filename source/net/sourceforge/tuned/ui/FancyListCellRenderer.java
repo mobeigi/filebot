@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.DefaultListCellRenderer;
@@ -23,49 +24,65 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	
 	private Color gradientEndColor;
 	
+	private boolean highlightingEnabled;
+	
 	private Border defaultBorder;
 	
 	private Border selectedBorder;
 	
 	private GradientStyle gradientStyle;
 	
-	private boolean paintGradient;
+	private boolean paintGradientEnabled;
+	
+	private Insets padding;
 	
 	
 	public FancyListCellRenderer() {
-		this(7, GradientStyle.TOP_TO_BOTTOM);
+		this(GradientStyle.TOP_TO_BOTTOM, false, new Insets(7, 7, 7, 7), new Insets(1, 1, 0, 1), null);
 	}
 	
 
-	public FancyListCellRenderer(int margin, GradientStyle gradientStyle) {
-		this(margin, null, gradientStyle);
+	public FancyListCellRenderer(int padding, Color selectedBorderColor, GradientStyle gradientStyle) {
+		this(gradientStyle, false, new Insets(padding, padding, padding, padding), new Insets(0, 0, 0, 0), selectedBorderColor);
 	}
 	
 
-	public FancyListCellRenderer(int margin, Color selectedBorderColor, GradientStyle gradientStyle) {
+	public FancyListCellRenderer(GradientStyle gradientStyle, boolean highlighting, Insets margin, Insets padding, Color selectedBorderColor) {
 		this.gradientStyle = gradientStyle;
+		this.padding = padding;
+		this.highlightingEnabled = highlighting;
 		
-		Border marginBorder = new EmptyBorder(margin, margin, margin, margin);
+		Border marginBorder = new EmptyBorder(margin);
+		Border paddingBorder = new EmptyBorder(padding);
+		
+		defaultBorder = marginBorder;
+		selectedBorder = marginBorder;
 		
 		if (selectedBorderColor != null) {
-			defaultBorder = new CompoundBorder(new EmptyBorder(1, 1, 1, 1), marginBorder);
-			selectedBorder = new CompoundBorder(new LineBorder(selectedBorderColor, 1), marginBorder);
-		} else {
-			defaultBorder = marginBorder;
-			selectedBorder = marginBorder;
+			defaultBorder = new CompoundBorder(new EmptyBorder(1, 1, 1, 1), defaultBorder);
+			selectedBorder = new CompoundBorder(new LineBorder(selectedBorderColor, 1), selectedBorder);
 		}
 		
+		defaultBorder = new CompoundBorder(paddingBorder, defaultBorder);
+		selectedBorder = new CompoundBorder(paddingBorder, selectedBorder);
+		
+		setOpaque(false);
 	}
 	
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		if (isPaintGradient()) {
-			Graphics2D g2d = (Graphics2D) g;
-			
-			Rectangle2D shape = new Rectangle2D.Double(0, 0, getWidth(), getHeight());
-			
+		Graphics2D g2d = (Graphics2D) g;
+		Rectangle2D shape = new Rectangle2D.Double(padding.left, padding.top, getWidth() - (padding.left + padding.right), getHeight() - (padding.top + padding.bottom));
+		
+		if (highlightingEnabled) {
+			g2d.setPaint(getBackground());
+			g2d.fill(shape);
+		}
+		
+		if (paintGradientEnabled) {
 			GradientPaint gradient = gradientStyle.getGradientPaint(shape, gradientBeginColor, gradientEndColor);
+			
 			g2d.setPaint(gradient);
 			g2d.fill(shape);
 		}
@@ -78,18 +95,27 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		setOpaque(false);
+		Color sc = list.getSelectionBackground();
+		
+		if (highlightingEnabled) {
+			Color normalBg = list.getBackground();
+			Color highlightBg = new Color(sc.getRed(), sc.getGreen(), sc.getBlue(), 28);
+			
+			if ((index % 2) == 0)
+				setBackground(highlightBg);
+			else
+				setBackground(normalBg);
+		}
 		
 		if (isSelected) {
-			setPaintGradient(true);
+			setPaintGradientEnabled(true);
 			
-			Color c = list.getSelectionBackground();
-			setGradientBeginColor(c.brighter());
-			setGradientEndColor(c);
+			setGradientBeginColor(sc.brighter());
+			setGradientEndColor(sc);
 			
 			setBorder(selectedBorder);
 		} else {
-			setPaintGradient(false);
+			setPaintGradientEnabled(false);
 			setBorder(defaultBorder);
 		}
 		
@@ -127,13 +153,23 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	}
 	
 
-	public boolean isPaintGradient() {
-		return paintGradient;
+	public boolean isPaintGradientEnabled() {
+		return paintGradientEnabled;
 	}
 	
 
-	public void setPaintGradient(boolean gradientEnabled) {
-		this.paintGradient = gradientEnabled;
+	public void setPaintGradientEnabled(boolean gradientEnabled) {
+		this.paintGradientEnabled = gradientEnabled;
+	}
+	
+
+	public boolean isHighlightingEnabled() {
+		return highlightingEnabled;
+	}
+	
+
+	public void setHighlightingEnabled(boolean highlightingEnabled) {
+		this.highlightingEnabled = highlightingEnabled;
 	}
 	
 }

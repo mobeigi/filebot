@@ -2,9 +2,9 @@
 package net.sourceforge.filebot.ui.panel.rename.entry;
 
 
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.torrent.Torrent.Entry;
-import net.sourceforge.filebot.ui.FileFormat;
 
 
 public class TorrentEntry extends AbstractFileEntry<Torrent.Entry> {

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import net.sourceforge.filebot.ui.FileBotUtil;
+import net.sourceforge.filebot.FileBotUtil;
 
 
 public class SaveableExportHandler implements ExportHandler {

@@ -15,7 +15,7 @@ import javax.swing.text.JTextComponent;
 
 public class TextCompletion {
 	
-	private Set<String> completionTerms = Collections.synchronizedSet(new TreeSet<String>(String.CASE_INSENSITIVE_ORDER));;
+	private Set<String> completionTerms = Collections.synchronizedSet(new TreeSet<String>(String.CASE_INSENSITIVE_ORDER));
 	
 	private int completionStartLength = 1;
 	
@@ -59,6 +59,11 @@ public class TextCompletion {
 
 	public void setCompletionStartLength(int codeCompletionStartLength) {
 		this.completionStartLength = codeCompletionStartLength;
+	}
+	
+
+	public Set<String> getCompletionTerms() {
+		return completionTerms;
 	}
 	
 

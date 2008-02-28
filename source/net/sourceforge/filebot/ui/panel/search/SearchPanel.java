@@ -34,10 +34,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
+import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileBotUtil;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbClient;
@@ -87,6 +88,7 @@ public class SearchPanel extends FileBotPanel {
 		searchField.getTextField().setColumns(25);
 		
 		searchFieldCompletion = new TextCompletion(searchField.getTextField());
+		searchFieldCompletion.addCompletionTerms(Settings.getSettings().getTvShowCompletionTerms());
 		searchFieldCompletion.hook();
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
@@ -354,6 +356,7 @@ public class SearchPanel extends FileBotPanel {
 			}
 			
 			searchFieldCompletion.addCompletionTerm(showname);
+			Settings.getSettings().setTvShowCompletionTerms(searchFieldCompletion.getCompletionTerms());
 			
 			String title = showname;
 			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS)
