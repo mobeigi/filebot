@@ -4,15 +4,22 @@ package net.sourceforge.filebot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 
 public class Settings {
 	
 	private static Settings settings = new Settings();
+	
+	public static final String SELECTED_PANEL = "panel";
+	public static final String SEARCH_HISTORY = "history/search";
+	public static final String SUBTITLE_HISTORY = "history/subtitle";
 	
 	
 	public static Settings getSettings() {
@@ -23,74 +30,91 @@ public class Settings {
 	
 	
 	private Settings() {
-		this.prefs = Preferences.userNodeForPackage(this.getClass());
-	}
-	
-	private String defaultDelimiter = ";";
-	
-	
-	private void putStringList(String key, Collection<String> values) {
-		try {
-			StringBuffer sb = new StringBuffer();
-			
-			for (String value : values) {
-				sb.append(value.replaceAll(defaultDelimiter, " "));
-				sb.append(defaultDelimiter);
-			}
-			
-			prefs.put(key, sb.toString());
-		} catch (IllegalArgumentException e) {
-			// value might exceed max length
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
-		}
+		this.prefs = Preferences.userRoot().node("filebot");
 	}
 	
 
-	private Collection<String> getStringList(String key) {
-		String[] values = prefs.get(key, "").split(defaultDelimiter);
+	public void putString(String key, String value) {
+		prefs.put(key, value);
+	}
+	
+
+	public String getString(String key, String def) {
+		return prefs.get(key, def);
+	}
+	
+
+	public void putInt(String key, int value) {
+		prefs.putInt(key, value);
+	}
+	
+
+	public int getInt(String key, int def) {
+		return prefs.getInt(key, def);
+	}
+	
+
+	public void putBoolean(String key, boolean value) {
+		prefs.putBoolean(key, value);
+	}
+	
+
+	public boolean getBoolean(String key, boolean def) {
+		return prefs.getBoolean(key, def);
+	}
+	
+
+	public Collection<String> getStringList(String key) {
+		Preferences listNode = prefs.node(key);
 		
 		List<String> list = new ArrayList<String>();
 		
-		for (String value : values) {
-			if (!value.isEmpty())
-				list.add(value);
+		try {
+			for (String nodeKey : listNode.keys()) {
+				list.add(listNode.get(nodeKey, null));
+			}
+		} catch (BackingStoreException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
 		
 		return list;
 	}
 	
-	
-	private static enum Key {
-		panel, tvshowcompletionterms, subtitlecompletionterms;
-	}
-	
-	
-	public int getSelectedPanel() {
-		return prefs.getInt(Key.panel.name(), 3);
+
+	public void putStringList(String key, Collection<String> list) {
+		Preferences listNode = prefs.node(key);
+		
+		int i = 0;
+		
+		for (String entry : list) {
+			listNode.put(Integer.toString(i), entry);
+			i++;
+		}
 	}
 	
 
-	public void setSelectedPanel(int index) {
-		prefs.putInt(Key.panel.name(), index);
+	public Map<String, String> getStringMap(String key) {
+		Preferences mapNode = prefs.node(key);
+		
+		Map<String, String> map = new HashMap<String, String>();
+		
+		try {
+			for (String mapNodeKey : mapNode.keys()) {
+				map.put(mapNodeKey, mapNode.get(mapNodeKey, null));
+			}
+		} catch (BackingStoreException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+		}
+		
+		return map;
 	}
 	
 
-	public void setTvShowCompletionTerms(Collection<String> terms) {
-		putStringList(Key.tvshowcompletionterms.name(), terms);
-	}
-	
-
-	public Collection<String> getTvShowCompletionTerms() {
-		return getStringList(Key.tvshowcompletionterms.name());
-	}
-	
-
-	public void setSubtitleCompletionTerms(Collection<String> terms) {
-		putStringList(Key.subtitlecompletionterms.name(), terms);
-	}
-	
-
-	public Collection<String> getSubtitleCompletionTerms() {
-		return getStringList(Key.subtitlecompletionterms.name());
+	public void putStringMap(String key, Map<String, String> map) {
+		Preferences mapNode = prefs.node(key);
+		
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			mapNode.put(entry.getKey(), entry.getValue());
+		}
 	}
 }

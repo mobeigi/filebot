@@ -57,7 +57,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		
 		setSize(760, 615);
 		
-		selectionListPanel.setSelectedIndex(Settings.getSettings().getSelectedPanel());
+		selectionListPanel.setSelectedIndex(Settings.getSettings().getInt(Settings.SELECTED_PANEL, 3));
 	}
 	
 
@@ -71,7 +71,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		JComponent c = (JComponent) getContentPane();
 		c.updateUI();
 		
-		Settings.getSettings().setSelectedPanel(selectionListPanel.getSelectedIndex());
+		Settings.getSettings().putInt(Settings.SELECTED_PANEL, selectionListPanel.getSelectedIndex());
 	}
 	
 

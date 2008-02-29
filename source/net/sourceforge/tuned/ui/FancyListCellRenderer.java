@@ -24,8 +24,6 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	
 	private Color gradientEndColor;
 	
-	private boolean highlightingEnabled;
-	
 	private Border defaultBorder;
 	
 	private Border selectedBorder;
@@ -36,9 +34,11 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	
 	private Insets padding;
 	
+	private boolean highlightingEnabled;
+	
 	
 	public FancyListCellRenderer() {
-		this(GradientStyle.TOP_TO_BOTTOM, false, new Insets(7, 7, 7, 7), new Insets(1, 1, 0, 1), null);
+		this(GradientStyle.TOP_TO_BOTTOM, true, new Insets(7, 7, 7, 7), new Insets(1, 1, 0, 1), null);
 	}
 	
 

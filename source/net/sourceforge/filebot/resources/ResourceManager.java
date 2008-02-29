@@ -6,6 +6,8 @@ import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -27,13 +29,20 @@ public class ResourceManager {
 		try {
 			return ImageIO.read(getResource(name));
 		} catch (IOException e) {
-			return null;
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
+		
+		return null;
 	}
 	
 
 	public static ImageIcon getIcon(String name) {
 		return new ImageIcon(getResource(name));
+	}
+	
+
+	public static ImageIcon getFlagIcon(String countryCode) {
+		return new ImageIcon(ResourceManager.class.getResource(String.format("flags/%s.gif", countryCode)));
 	}
 	
 

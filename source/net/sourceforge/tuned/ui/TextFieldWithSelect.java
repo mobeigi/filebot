@@ -6,14 +6,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+
+import net.sourceforge.tuned.ui.SelectButton.Entry;
 
 
 public class TextFieldWithSelect<T> extends JPanel {
@@ -24,10 +24,10 @@ public class TextFieldWithSelect<T> extends JPanel {
 	private Color borderColor = Color.decode("#A4A4A4");
 	
 	
-	public TextFieldWithSelect(List<T> options, Map<T, ? extends Icon> icons) {
+	public TextFieldWithSelect(Collection<Entry<T>> options) {
 		setLayout(new BorderLayout(0, 0));
 		
-		selectButton = new SelectButton<T>(options, icons);
+		selectButton = new SelectButton<T>(options);
 		selectButton.addActionListener(textFieldFocusOnClick);
 		
 		Border lineBorder = BorderFactory.createLineBorder(borderColor, 1);
@@ -54,7 +54,7 @@ public class TextFieldWithSelect<T> extends JPanel {
 	
 
 	public T getSelectedValue() {
-		return selectButton.getSelectedValue();
+		return selectButton.getSelectedEntry();
 	}
 	
 

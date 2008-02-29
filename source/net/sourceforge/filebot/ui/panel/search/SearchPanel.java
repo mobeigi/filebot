@@ -12,7 +12,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +20,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -41,11 +39,8 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
-import net.sourceforge.filebot.web.TVRageClient;
-import net.sourceforge.filebot.web.TvdotcomClient;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SelectDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
@@ -65,30 +60,24 @@ public class SearchPanel extends FileBotPanel {
 	
 	private TextCompletion searchFieldCompletion;
 	
-	private List<EpisodeListClient> episodeListClients = new ArrayList<EpisodeListClient>();
-	
 	private JSpinner seasonSpinner;
 	
 	
 	public SearchPanel() {
 		super("Search", ResourceManager.getIcon("panel.search"));
 		
-		episodeListClients.add(new TvdotcomClient());
-		episodeListClients.add(new AnidbClient());
-		episodeListClients.add(new TVRageClient());
+		List<SelectButton.Entry<EpisodeListClient>> episodeListClients = new ArrayList<SelectButton.Entry<EpisodeListClient>>();
 		
-		HashMap<EpisodeListClient, ImageIcon> icons = new HashMap<EpisodeListClient, ImageIcon>();
-		
-		for (EpisodeListClient searchEngine : episodeListClients) {
-			icons.put(searchEngine, searchEngine.getIcon());
+		for (EpisodeListClient client : EpisodeListClient.getAvailableEpisodeListClients()) {
+			episodeListClients.add(new SelectButton.Entry<EpisodeListClient>(client, client.getIcon()));
 		}
 		
-		searchField = new TextFieldWithSelect<EpisodeListClient>(episodeListClients, icons);
+		searchField = new TextFieldWithSelect<EpisodeListClient>(episodeListClients);
 		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE_PROPERTY, searchFieldListener);
 		searchField.getTextField().setColumns(25);
 		
 		searchFieldCompletion = new TextCompletion(searchField.getTextField());
-		searchFieldCompletion.addCompletionTerms(Settings.getSettings().getTvShowCompletionTerms());
+		searchFieldCompletion.addCompletionTerms(Settings.getSettings().getStringList(Settings.SEARCH_HISTORY));
 		searchFieldCompletion.hook();
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
@@ -224,27 +213,17 @@ public class SearchPanel extends FileBotPanel {
 	
 	private class SpinSearchEngineAction extends AbstractAction {
 		
-		private int spinOffset;
+		private int spin;
 		
 		
-		public SpinSearchEngineAction(int spinOffset) {
+		public SpinSearchEngineAction(int spin) {
 			super("Spin Search Engine");
-			this.spinOffset = spinOffset;
+			this.spin = spin;
 		}
 		
 
 		public void actionPerformed(ActionEvent e) {
-			EpisodeListClient current = searchField.getSelectedValue();
-			
-			int nextIndex = episodeListClients.indexOf(current) + spinOffset;
-			int maxIndex = episodeListClients.size() - 1;
-			
-			if (nextIndex < 0)
-				nextIndex = maxIndex;
-			else if (nextIndex > maxIndex)
-				nextIndex = 0;
-			
-			searchField.getSelectButton().setSelectedValue(episodeListClients.get(nextIndex));
+			searchField.getSelectButton().spinValue(spin);
 		}
 	}
 	
@@ -327,8 +306,9 @@ public class SearchPanel extends FileBotPanel {
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
 				
-				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+				Throwable cause = FileBotUtil.getRootCause(e);
+				MessageManager.showWarning(cause.getMessage());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.toString());
 				
 				return;
 			}
@@ -356,9 +336,10 @@ public class SearchPanel extends FileBotPanel {
 			}
 			
 			searchFieldCompletion.addCompletionTerm(showname);
-			Settings.getSettings().setTvShowCompletionTerms(searchFieldCompletion.getCompletionTerms());
+			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getCompletionTerms());
 			
 			String title = showname;
+			
 			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS)
 				title += " - Season " + task.getNumberOfSeason();
 			

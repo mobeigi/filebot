@@ -119,7 +119,7 @@ public class TvdotcomClient extends EpisodeListClient {
 	
 
 	@Override
-    public URL getEpisodeListUrl(String showname, int season) {
+	public URL getEpisodeListUrl(String showname, int season) {
 		try {
 			String summaryFile = cache.get(showname).getFile();
 			
@@ -139,4 +139,5 @@ public class TvdotcomClient extends EpisodeListClient {
 		
 		return new URL("http", host, file);
 	}
+	
 }

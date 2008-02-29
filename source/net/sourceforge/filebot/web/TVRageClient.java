@@ -88,7 +88,7 @@ public class TVRageClient extends EpisodeListClient {
 			Matcher seasonMatcher = Pattern.compile("Season (\\d+)").matcher(seasonHeader);
 			
 			if (seasonMatcher.matches()) {
-				if (season == 0 || season == Integer.parseInt(seasonMatcher.group(1))) {
+				if ((season == 0) || (season == Integer.parseInt(seasonMatcher.group(1)))) {
 					Matcher saeMatcher = Pattern.compile("(\\d+)x(\\d+)").matcher(seasonAndEpisodeNumber);
 					
 					String seasonNumber = null;
@@ -133,4 +133,5 @@ public class TVRageClient extends EpisodeListClient {
 		String file = "/search.php?search=" + qs;
 		return new URL("http", host, file);
 	}
+	
 }

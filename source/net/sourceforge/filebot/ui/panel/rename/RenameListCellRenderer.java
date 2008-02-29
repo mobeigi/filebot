@@ -20,6 +20,8 @@ class RenameListCellRenderer extends FancyListCellRenderer {
 	public RenameListCellRenderer(ListModel names, ListModel files) {
 		this.names = names;
 		this.files = files;
+		
+		setHighlightingEnabled(false);
 	}
 	
 	private Color noMatchGradientBeginColor = Color.decode("#B7B7B7");
@@ -44,7 +46,7 @@ class RenameListCellRenderer extends FancyListCellRenderer {
 	
 
 	private int getMinLength() {
-		if (names == null || files == null)
+		if ((names == null) || (files == null))
 			return 0;
 		
 		int n1 = names.getSize();

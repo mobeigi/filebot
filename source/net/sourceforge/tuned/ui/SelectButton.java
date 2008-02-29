@@ -15,8 +15,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -35,17 +36,18 @@ public class SelectButton<T> extends JButton implements ActionListener {
 	private Color beginColorHover = beginColor;
 	private Color endColorHover = Color.decode("#D8D7CD");
 	
-	private T selectedValue = null;
+	private Entry<T> selectedEntry = null;
 	
-	private List<T> options;
-	private Map<T, ? extends Icon> icons;
+	private List<Entry<T>> entries = new ArrayList<Entry<T>>();
 	
 	public static final String SELECTED_VALUE_PROPERTY = "SELECTED_VALUE_PROPERTY";
 	
 	
-	public SelectButton(List<T> options, Map<T, ? extends Icon> icons) {
-		this.options = options;
-		this.icons = icons;
+	public SelectButton(Collection<Entry<T>> entries) {
+		if (entries.isEmpty())
+			throw new IllegalArgumentException("Entries must not be empty");
+		
+		this.entries.addAll(entries);
 		
 		setContentAreaFilled(false);
 		setFocusable(false);
@@ -57,36 +59,70 @@ public class SelectButton<T> extends JButton implements ActionListener {
 		
 		addMouseListener(new MouseInputListener());
 		
-		// select first option
-		setSelectedValue(options.iterator().next());
 		setPreferredSize(new Dimension(32, 22));
+		
+		// select first entry
+		setSelectedIndex(0);
 	}
 	
 
 	public void setSelectedValue(T value) {
-		if (selectedValue == value)
+		Entry<T> entry = find(value);
+		
+		if (entry == null)
 			return;
 		
-		T oldSelectedValue = selectedValue;
+		selectedEntry = entry;
+		setIcon(new SelectIcon(selectedEntry.getIcon()));
 		
-		selectedValue = value;
-		Icon icon = icons.get(selectedValue);
-		setIcon(new SelectIcon(icon));
-		
-		firePropertyChange(SELECTED_VALUE_PROPERTY, oldSelectedValue, selectedValue);
+		firePropertyChange(SELECTED_VALUE_PROPERTY, null, selectedEntry);
 	}
 	
 
-	public T getSelectedValue() {
-		return selectedValue;
+	public T getSelectedEntry() {
+		return selectedEntry.getValue();
+	}
+	
+
+	public void setSelectedIndex(int i) {
+		setSelectedValue(entries.get(i).getValue());
+	}
+	
+
+	public int getSelectedIndex() {
+		return entries.indexOf(selectedEntry);
+	}
+	
+
+	private Entry<T> find(T value) {
+		for (Entry<T> entry : entries) {
+			if (entry.value == value)
+				return entry;
+		}
+		
+		return null;
+	}
+	
+
+	public void spinValue(int spin) {
+		spin = spin % entries.size();
+		
+		int next = getSelectedIndex() + spin;
+		
+		if (next < 0)
+			next += entries.size();
+		else if (next >= entries.size())
+			next -= entries.size();
+		
+		setSelectedIndex(next);
 	}
 	
 
 	public void actionPerformed(ActionEvent e) {
 		JPopupMenu popup = new JPopupMenu();
 		
-		for (T option : options) {
-			popup.add(new SelectMenuIem(option));
+		for (Entry<T> entry : entries) {
+			popup.add(new SelectMenuItem(entry));
 		}
 		
 		popup.show(this, 0, getHeight() - 1);
@@ -108,22 +144,24 @@ public class SelectButton<T> extends JButton implements ActionListener {
 	}
 	
 	
-	private class SelectMenuIem extends JMenuItem implements ActionListener {
+	private class SelectMenuItem extends JMenuItem implements ActionListener {
 		
 		private T value;
 		
 		
-		public SelectMenuIem(T value) {
-			super(value.toString(), icons.get(value));
-			this.value = value;
+		public SelectMenuItem(Entry<T> entry) {
+			super(entry.toString(), entry.getIcon());
+			this.value = entry.getValue();
+			
 			this.setMargin(new Insets(3, 0, 3, 0));
 			this.addActionListener(this);
 			
-			if (this.value == getSelectedValue())
+			if (this.value == getSelectedEntry())
 				this.setFont(this.getFont().deriveFont(Font.BOLD));
 		}
 		
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			setSelectedValue(value);
 		}
@@ -187,6 +225,35 @@ public class SelectButton<T> extends JButton implements ActionListener {
 			repaint();
 		}
 		
+	}
+	
+
+	public static class Entry<T> {
+		
+		private T value;
+		private Icon icon;
+		
+		
+		public Entry(T value, Icon icon) {
+			this.value = value;
+			this.icon = icon;
+		}
+		
+
+		public T getValue() {
+			return value;
+		}
+		
+
+		public Icon getIcon() {
+			return icon;
+		}
+		
+
+		@Override
+		public String toString() {
+			return value.toString();
+		}
 	}
 	
 }
