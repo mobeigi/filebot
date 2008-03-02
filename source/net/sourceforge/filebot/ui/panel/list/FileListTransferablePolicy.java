@@ -9,15 +9,16 @@ import java.util.logging.Logger;
 
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
+import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 
 
 public class FileListTransferablePolicy extends FileTransferablePolicy {
 	
-	private FileList list;
+	private FileBotList list;
 	
 	
-	public FileListTransferablePolicy(FileList list) {
+	public FileListTransferablePolicy(FileBotList list) {
 		this.list = list;
 	}
 	
@@ -39,8 +40,9 @@ public class FileListTransferablePolicy extends FileTransferablePolicy {
 		if (file.isDirectory()) {
 			list.setTitle(file.getName());
 			
-			for (File f : file.listFiles())
-				list.getModel().addElement(FileFormat.formatName(f));
+			for (File f : file.listFiles()) {
+				list.getModel().add(FileFormat.formatName(f));
+			}
 		} else {
 			if (FileFormat.getSuffix(file).equalsIgnoreCase("torrent")) {
 				try {
@@ -48,7 +50,7 @@ public class FileListTransferablePolicy extends FileTransferablePolicy {
 					list.setTitle(FileFormat.getNameWithoutSuffix(torrent.getName()));
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {
-						list.getModel().addElement(FileFormat.getNameWithoutSuffix(entry.getName()));
+						list.getModel().add(FileFormat.getNameWithoutSuffix(entry.getName()));
 					}
 				} catch (IOException e) {
 					// should not happen

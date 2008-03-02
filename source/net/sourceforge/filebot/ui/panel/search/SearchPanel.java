@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -382,10 +381,7 @@ public class SearchPanel extends FileBotPanel {
 				else {
 					episodeList.setLoading(false);
 					
-					DefaultListModel model = episodeList.getModel();
-					
-					for (Episode e : episodes)
-						model.addElement(e.toString());
+					episodeList.getModel().addAll(episodes);
 				}
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);

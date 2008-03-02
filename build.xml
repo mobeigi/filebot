@@ -76,6 +76,7 @@
 			<fileset dir="${source}">
 				<include name="**/*.png" />
 				<include name="**/*.gif" />
+				<include name="**/*.xml" />
 			</fileset>
 		</copy>
 	</target>

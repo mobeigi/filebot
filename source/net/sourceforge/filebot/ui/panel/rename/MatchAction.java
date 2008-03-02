@@ -4,10 +4,10 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.DefaultListModel;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.resources.ResourceManager;
@@ -92,12 +92,8 @@ public class MatchAction extends AbstractAction {
 		
 		List<Match> matches = matcher.match(listA, listB, metric);
 		
-		// insert matches into the UI
-		DefaultListModel namesModel = namesList.getModel();
-		DefaultListModel filesModel = filesList.getModel();
-		
-		namesModel.clear();
-		filesModel.clear();
+		List<ListEntry<?>> names = new ArrayList<ListEntry<?>>();
+		List<ListEntry<?>> files = new ArrayList<ListEntry<?>>();
 		
 		for (Match match : matches) {
 			ListEntry<?> a, b;
@@ -111,14 +107,14 @@ public class MatchAction extends AbstractAction {
 			}
 			
 			if (a != null)
-				namesModel.addElement(a);
+				names.add(a);
 			
 			if (b != null)
-				filesModel.addElement(b);
+				files.add(b);
 		}
 		
-		namesList.repaint();
-		filesList.repaint();
+		namesList.getModel().set(names);
+		filesList.getModel().set(files);
 		
 		SwingUtilities.getRoot(namesList).setCursor(Cursor.getDefaultCursor());
 	}

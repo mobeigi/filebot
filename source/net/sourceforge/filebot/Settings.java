@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -17,9 +18,12 @@ public class Settings {
 	
 	private static Settings settings = new Settings();
 	
+	private static final String ROOT = "filebot";
+	
 	public static final String SELECTED_PANEL = "panel";
 	public static final String SEARCH_HISTORY = "history/search";
 	public static final String SUBTITLE_HISTORY = "history/subtitle";
+	public static final String LANGUAGE_HISTORY = "history/language";
 	
 	
 	public static Settings getSettings() {
@@ -30,7 +34,7 @@ public class Settings {
 	
 	
 	private Settings() {
-		this.prefs = Preferences.userRoot().node("filebot");
+		this.prefs = Preferences.userRoot().node(ROOT);
 	}
 	
 
@@ -115,6 +119,44 @@ public class Settings {
 		
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			mapNode.put(entry.getKey(), entry.getValue());
+		}
+	}
+	
+
+	public Map<String, Integer> getIntegerMap(String key) {
+		Map<String, String> entries = getStringMap(key);
+		
+		Map<String, Integer> map = new HashMap<String, Integer>(entries.size());
+		
+		for (Entry<String, String> entry : entries.entrySet()) {
+			try {
+				map.put(entry.getKey(), new Integer(entry.getValue()));
+			} catch (NumberFormatException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			}
+		}
+		
+		return map;
+	}
+	
+
+	public void putIntegerMap(String key, Map<String, Integer> map) {
+		Map<String, String> entries = new HashMap<String, String>();
+		
+		for (Entry<String, Integer> entry : map.entrySet()) {
+			entries.put(entry.getKey(), entry.getValue().toString());
+		}
+		
+		putStringMap(key, entries);
+	}
+	
+
+	public void clear() {
+		try {
+			prefs.removeNode();
+			prefs = Preferences.userRoot().node(ROOT);
+		} catch (BackingStoreException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
 		}
 	}
 }

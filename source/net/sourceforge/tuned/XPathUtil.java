@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Node;
@@ -17,9 +19,7 @@ public class XPathUtil {
 	
 	public static Node selectNode(String xpath, Object node) {
 		try {
-			XPath xp = XPathFactory.newInstance().newXPath();
-			
-			return (Node) xp.evaluate(xpath, node, XPathConstants.NODE);
+			return (Node) getXPath(xpath).evaluate(node, XPathConstants.NODE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -27,15 +27,22 @@ public class XPathUtil {
 	
 
 	public static Node selectFirstNode(String xpath, Object node) {
-		return selectNodes(xpath, node).get(0);
+		try {
+			NodeList nodeList = (NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET);
+			
+			if (nodeList.getLength() <= 0)
+				return null;
+			
+			return nodeList.item(0);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 
 	public static List<Node> selectNodes(String xpath, Object node) {
 		try {
-			XPath xp = XPathFactory.newInstance().newXPath();
-			
-			NodeList nodeList = (NodeList) xp.evaluate(xpath, node, XPathConstants.NODESET);
+			NodeList nodeList = (NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET);
 			
 			ArrayList<Node> nodes = new ArrayList<Node>(nodeList.getLength());
 			
@@ -52,11 +59,16 @@ public class XPathUtil {
 
 	public static String selectString(String xpath, Object node) {
 		try {
-			XPath xp = XPathFactory.newInstance().newXPath();
-			return ((String) xp.evaluate(xpath, node, XPathConstants.STRING)).trim();
+			return ((String) getXPath(xpath).evaluate(node, XPathConstants.STRING)).trim();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
+	private static XPath xpathObject = XPathFactory.newInstance().newXPath();
+	
+	
+	private static synchronized XPathExpression getXPath(String xpath) throws XPathExpressionException {
+		return xpathObject.compile(xpath);
+	}
 }

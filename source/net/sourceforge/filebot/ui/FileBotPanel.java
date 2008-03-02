@@ -10,14 +10,13 @@ import javax.swing.JPanel;
 
 public class FileBotPanel extends JPanel {
 	
-	private String text;
-	
+	private String title;
 	private Icon icon;
 	
 	
-	public FileBotPanel(String text, Icon icon) {
-		super(new BorderLayout(10, 20));
-		this.text = text;
+	public FileBotPanel(String title, Icon icon) {
+		super(new BorderLayout(10, 0));
+		this.title = title;
 		this.icon = icon;
 	}
 	
@@ -27,14 +26,8 @@ public class FileBotPanel extends JPanel {
 	}
 	
 
-	public String getText() {
-		return text;
-	}
-	
-
-	@Override
-	public String toString() {
-		return getText();
+	public String getTitle() {
+		return title;
 	}
 	
 }

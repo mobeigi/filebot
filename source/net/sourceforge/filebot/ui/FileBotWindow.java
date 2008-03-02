@@ -64,9 +64,9 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 	public void valueChanged(ListSelectionEvent e) {
 		FileBotPanel currentPanel = (FileBotPanel) selectionListPanel.getSelectedValue();
 		
-		headerPanel.setTitle(currentPanel.getText());
+		headerPanel.setTitle(currentPanel.getTitle());
 		CardLayout cardLayout = (CardLayout) pagePanel.getLayout();
-		cardLayout.show(pagePanel, currentPanel.getText());
+		cardLayout.show(pagePanel, currentPanel.getTitle());
 		
 		JComponent c = (JComponent) getContentPane();
 		c.updateUI();
@@ -112,7 +112,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		for (int i = 0; i < model.getSize(); i++) {
 			FileBotPanel panel = (FileBotPanel) model.getElementAt(i);
 			panel.setVisible(false);
-			pagePanel.add(panel, panel.getText());
+			pagePanel.add(panel, panel.getTitle());
 		}
 		
 		pageLayer.setAlignmentX(0.0f);

@@ -43,9 +43,7 @@ public class FileTransferable implements Transferable {
 	
 
 	public FileTransferable(Collection<File> fileCollection) {
-		files = new ArrayList<File>(fileCollection.size());
-		
-		files.addAll(fileCollection);
+		files = new ArrayList<File>(fileCollection);
 	}
 	
 

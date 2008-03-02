@@ -3,15 +3,23 @@ package net.sourceforge.tuned.ui;
 
 
 import java.awt.Color;
-import java.awt.GradientPaint;
+import java.awt.LinearGradientPaint;
+import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.geom.Point2D;
 import java.awt.geom.RectangularShape;
 
 
 public enum GradientStyle {
-	TOP_TO_BOTTOM, BOTTOM_TO_TOP, LEFT_TO_RIGHT, RIGHT_TO_LEFT, TOP_LEFT_TO_BOTTOM_RIGHT, BOTTOM_RIGHT_TO_TOP_LEFT, TOP_RIGHT_TO_BOTTOM_LEFT, BOTTOM_LEFT_TO_TOP_RIGHT;
+	TOP_TO_BOTTOM,
+	BOTTOM_TO_TOP,
+	LEFT_TO_RIGHT,
+	RIGHT_TO_LEFT,
+	TOP_LEFT_TO_BOTTOM_RIGHT,
+	BOTTOM_RIGHT_TO_TOP_LEFT,
+	TOP_RIGHT_TO_BOTTOM_LEFT,
+	BOTTOM_LEFT_TO_TOP_RIGHT;
 	
-	public GradientPaint getGradientPaint(RectangularShape shape, Color gradientBeginColor, Color gradientEndColor) {
+	public LinearGradientPaint getGradientPaint(RectangularShape shape, Color gradientBeginColor, Color gradientEndColor) {
 		Point2D start = null;
 		Point2D end = null;
 		
@@ -60,7 +68,9 @@ public enum GradientStyle {
 				return null;
 		}
 		
-		return new GradientPaint(start, gradientBeginColor, end, gradientEndColor);
+		Color[] colors = { gradientBeginColor, gradientEndColor };
+		float[] fractions = { 0.0f, 1.0f };
+		return new LinearGradientPaint(start, end, fractions, colors, CycleMethod.NO_CYCLE);
 	}
 	
 }

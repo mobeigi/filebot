@@ -11,8 +11,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -21,13 +22,14 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
-import net.sourceforge.filebot.ui.panel.create.CreatePanel;
 import net.sourceforge.filebot.ui.panel.list.ListPanel;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanel;
 import net.sourceforge.filebot.ui.panel.search.SearchPanel;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanel;
+import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
 import net.sourceforge.tuned.ui.FancyListCellRenderer;
 import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 public class FileBotPanelSelectionList extends JList {
@@ -36,9 +38,6 @@ public class FileBotPanelSelectionList extends JList {
 	
 	
 	public FileBotPanelSelectionList() {
-		DefaultListModel model = new DefaultListModel();
-		setModel(model);
-		
 		setCellRenderer(new PanelCellRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
@@ -46,12 +45,16 @@ public class FileBotPanelSelectionList extends JList {
 		
 		new DropTarget(this, new DragDropListener());
 		
-		model.addElement(new ListPanel());
-		model.addElement(new RenamePanel());
-		model.addElement(new AnalyzePanel());
-		model.addElement(new SearchPanel());
-		model.addElement(new CreatePanel());
-		model.addElement(new SfvPanel());
+		List<FileBotPanel> panels = new ArrayList<FileBotPanel>();
+		
+		panels.add(new ListPanel());
+		panels.add(new RenamePanel());
+		panels.add(new AnalyzePanel());
+		panels.add(new SearchPanel());
+		panels.add(new SubtitlePanel());
+		panels.add(new SfvPanel());
+		
+		setModel(new SimpleListModel(panels));
 	}
 	
 	
@@ -69,7 +72,7 @@ public class FileBotPanelSelectionList extends JList {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			
 			FileBotPanel panel = (FileBotPanel) value;
-			setText(panel.getText());
+			setText(panel.getTitle());
 			setIcon(panel.getIcon());
 			
 			return this;

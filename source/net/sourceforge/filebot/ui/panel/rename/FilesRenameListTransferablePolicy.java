@@ -5,18 +5,17 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.io.File;
 import java.util.Arrays;
 
-import javax.swing.DefaultListModel;
-
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
+import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 public class FilesRenameListTransferablePolicy extends FileTransferablePolicy {
 	
-	private DefaultListModel listModel;
+	private SimpleListModel listModel;
 	
 	
-	public FilesRenameListTransferablePolicy(DefaultListModel listModel) {
+	public FilesRenameListTransferablePolicy(SimpleListModel listModel) {
 		this.listModel = listModel;
 	}
 	
@@ -40,9 +39,9 @@ public class FilesRenameListTransferablePolicy extends FileTransferablePolicy {
 			Arrays.sort(subfiles);
 			
 			for (File f : subfiles)
-				listModel.addElement(new FileEntry(f));
+				listModel.add(new FileEntry(f));
 		} else {
-			listModel.addElement(new FileEntry(file));
+			listModel.add(new FileEntry(file));
 		}
 	}
 	

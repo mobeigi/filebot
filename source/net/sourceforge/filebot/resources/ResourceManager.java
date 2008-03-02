@@ -42,7 +42,22 @@ public class ResourceManager {
 	
 
 	public static ImageIcon getFlagIcon(String countryCode) {
-		return new ImageIcon(ResourceManager.class.getResource(String.format("flags/%s.gif", countryCode)));
+		URL url = ResourceManager.class.getResource(String.format("flags/%s.gif", countryCode));
+		
+		if (url == null)
+			url = ResourceManager.class.getResource(String.format("flags/default.gif", countryCode));
+		
+		return new ImageIcon(url);
+	}
+	
+
+	public static ImageIcon getArchiveIcon(String type) {
+		URL url = ResourceManager.class.getResource(String.format("archive/%s.png", type.toLowerCase()));
+		
+		if (url == null)
+			url = ResourceManager.class.getResource(String.format("archive/default.png"));
+		
+		return new ImageIcon(url);
 	}
 	
 

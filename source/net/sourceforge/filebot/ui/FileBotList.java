@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,11 +32,12 @@ import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
 import net.sourceforge.tuned.ui.FancyListCellRenderer;
+import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 public class FileBotList extends JPanel implements Saveable, TransferablePolicySupport {
 	
-	private JList list = new JList(new DefaultListModel());
+	private JList list = new JList(new SimpleListModel());
 	
 	private TitledBorder titledBorder;
 	
@@ -119,8 +119,8 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 	}
 	
 
-	public DefaultListModel getModel() {
-		return (DefaultListModel) list.getModel();
+	public SimpleListModel getModel() {
+		return (SimpleListModel) list.getModel();
 	}
 	
 
@@ -128,10 +128,9 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		try {
 			PrintStream out = new PrintStream(file);
 			
-			DefaultListModel model = getModel();
-			
-			for (int i = 0; i < model.getSize(); ++i)
-				out.println(model.get(i).toString());
+			for (Object object : getModel().getCopy()) {
+				out.println(object.toString());
+			}
 			
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -165,7 +164,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 			Object values[] = list.getSelectedValues();
 			
 			for (Object value : values)
-				getModel().removeElement(value);
+				getModel().remove(value);
 			
 			int maxIndex = list.getModel().getSize() - 1;
 			

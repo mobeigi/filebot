@@ -9,8 +9,6 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultListModel;
-
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
@@ -19,14 +17,15 @@ import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
+import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 	
-	private DefaultListModel listModel;
+	private SimpleListModel listModel;
 	
 	
-	public NamesRenameListTransferablePolicy(DefaultListModel listModel) {
+	public NamesRenameListTransferablePolicy(SimpleListModel listModel) {
 		this.listModel = listModel;
 		
 		addPolicy(filePolicy);
@@ -57,7 +56,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 					Torrent torrent = new Torrent(file);
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {
-						listModel.addElement(new TorrentEntry(entry));
+						listModel.add(new TorrentEntry(entry));
 					}
 				} else {
 					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -66,7 +65,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 					
 					while ((line = in.readLine()) != null)
 						if (line.trim().length() > 0)
-							listModel.addElement(new StringEntry(line));
+							listModel.add(new StringEntry(line));
 					
 					in.close();
 				}
@@ -93,7 +92,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 			for (String line : lines) {
 				
 				if (!line.isEmpty())
-					listModel.addElement(new StringEntry(line));
+					listModel.add(new StringEntry(line));
 			}
 			
 			return true;

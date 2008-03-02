@@ -4,7 +4,6 @@ package net.sourceforge.tuned.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -70,8 +69,7 @@ public class FancyTreeCellRenderer extends DefaultTreeCellRenderer {
 			int arch = 16;
 			RoundRectangle2D shape = new RoundRectangle2D.Double(imageOffset, 1, getWidth() - imageOffset, getHeight() - 2, arch, arch);
 			
-			GradientPaint gradient = gradientStyle.getGradientPaint(shape, gradientBeginColor, gradientEndColor);
-			g2d.setPaint(gradient);
+			g2d.setPaint(gradientStyle.getGradientPaint(shape, gradientBeginColor, gradientEndColor));
 			g2d.fill(shape);
 		}
 		
@@ -81,6 +79,7 @@ public class FancyTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	protected int getLabelStart() {
 		Icon icon = getIcon();
+		
 		if ((icon != null) && (getText() != null)) {
 			return icon.getIconWidth() + Math.max(0, getIconTextGap() - 1);
 		}

@@ -50,7 +50,7 @@ public class RenameAction extends AbstractAction {
 			File newFile = new File(f.getParentFile(), newName);
 			
 			if (f.renameTo(newFile)) {
-				filesList.getModel().removeElement(fileEntry);
+				filesList.getModel().remove(fileEntry);
 			} else {
 				errors++;
 			}

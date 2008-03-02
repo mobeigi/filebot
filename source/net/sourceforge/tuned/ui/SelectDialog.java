@@ -17,7 +17,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -108,13 +107,7 @@ public class SelectDialog<T> extends JDialog {
 	
 
 	private void initialize() {
-		DefaultListModel model = new DefaultListModel();
-		
-		for (Object e : options) {
-			model.addElement(e);
-		}
-		
-		list.setModel(model);
+		list.setModel(new SimpleListModel(options));
 		list.setSelectedIndex(0);
 		
 		setDefaultLocation();
@@ -171,6 +164,7 @@ public class SelectDialog<T> extends JDialog {
 		private Border border = BorderFactory.createEmptyBorder(4, 4, 4, 4);
 		
 		
+		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
 			setBorder(border);
@@ -186,7 +180,7 @@ public class SelectDialog<T> extends JDialog {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
+			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2))
 				selectAction.actionPerformed(null);
 		}
 	};

@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JViewport;
@@ -55,12 +54,10 @@ public abstract class RenameList extends FileBotList {
 			if (index <= 0) // first element
 				return;
 			
-			DefaultListModel model = getModel();
-			
-			Object object = model.remove(index);
+			Object object = getModel().remove(index);
 			
 			int newIndex = index - 1;
-			model.add(newIndex, object);
+			getModel().add(newIndex, object);
 			getListComponent().setSelectedIndex(newIndex);
 		}
 	};
@@ -70,15 +67,13 @@ public abstract class RenameList extends FileBotList {
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
 			
-			DefaultListModel model = getModel();
-			
-			if (index >= model.getSize() - 1) // last element
+			if (index >= getModel().getSize() - 1) // last element
 				return;
 			
-			Object object = model.remove(index);
+			Object object = getModel().remove(index);
 			
 			int newIndex = index + 1;
-			model.add(newIndex, object);
+			getModel().add(newIndex, object);
 			getListComponent().setSelectedIndex(newIndex);
 		}
 	};
@@ -90,11 +85,13 @@ public abstract class RenameList extends FileBotList {
 		private int from = -1;
 		
 		
+		@Override
 		public void mousePressed(MouseEvent m) {
 			from = getListComponent().getSelectedIndex();
 		}
 		
 
+		@Override
 		public void mouseDragged(MouseEvent m) {
 			int to = getListComponent().getSelectedIndex();
 			
@@ -102,7 +99,7 @@ public abstract class RenameList extends FileBotList {
 				return;
 			
 			Object object = getModel().remove(from);
-			getModel().insertElementAt(object, to);
+			getModel().add(to, object);
 			from = to;
 		}
 	};

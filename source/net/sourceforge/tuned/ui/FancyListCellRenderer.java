@@ -4,7 +4,6 @@ package net.sourceforge.tuned.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -21,20 +20,12 @@ import javax.swing.border.LineBorder;
 public class FancyListCellRenderer extends DefaultListCellRenderer {
 	
 	private Color gradientBeginColor;
-	
 	private Color gradientEndColor;
-	
-	private Border defaultBorder;
-	
-	private Border selectedBorder;
-	
 	private GradientStyle gradientStyle;
-	
-	private boolean paintGradientEnabled;
-	
-	private Insets padding;
-	
+	private Insets margin;
 	private boolean highlightingEnabled;
+	private boolean selected;
+	private Border border;
 	
 	
 	public FancyListCellRenderer() {
@@ -47,43 +38,39 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	}
 	
 
-	public FancyListCellRenderer(GradientStyle gradientStyle, boolean highlighting, Insets margin, Insets padding, Color selectedBorderColor) {
+	public FancyListCellRenderer(GradientStyle gradientStyle, boolean highlighting, Insets padding, Insets margin, Color selectedBorderColor) {
 		this.gradientStyle = gradientStyle;
-		this.padding = padding;
+		this.margin = margin;
 		this.highlightingEnabled = highlighting;
 		
-		Border marginBorder = new EmptyBorder(margin);
-		Border paddingBorder = new EmptyBorder(padding);
-		
-		defaultBorder = marginBorder;
-		selectedBorder = marginBorder;
-		
-		if (selectedBorderColor != null) {
-			defaultBorder = new CompoundBorder(new EmptyBorder(1, 1, 1, 1), defaultBorder);
-			selectedBorder = new CompoundBorder(new LineBorder(selectedBorderColor, 1), selectedBorder);
-		}
-		
-		defaultBorder = new CompoundBorder(paddingBorder, defaultBorder);
-		selectedBorder = new CompoundBorder(paddingBorder, selectedBorder);
+		border = new EmptyBorder(padding);
+		border = new CompoundBorder(new LineBorder(selectedBorderColor, 1), border);
+		border = new CompoundBorder(new EmptyBorder(margin), border);
 		
 		setOpaque(false);
 	}
 	
 
 	@Override
+	protected void paintBorder(Graphics g) {
+		if (selected) {
+			super.paintBorder(g);
+		}
+	}
+	
+
+	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		Rectangle2D shape = new Rectangle2D.Double(padding.left, padding.top, getWidth() - (padding.left + padding.right), getHeight() - (padding.top + padding.bottom));
+		Rectangle2D shape = new Rectangle2D.Double(margin.left, margin.top, getWidth() - (margin.left + margin.right), getHeight() - (margin.top + margin.bottom));
 		
 		if (highlightingEnabled) {
 			g2d.setPaint(getBackground());
 			g2d.fill(shape);
 		}
 		
-		if (paintGradientEnabled) {
-			GradientPaint gradient = gradientStyle.getGradientPaint(shape, gradientBeginColor, gradientEndColor);
-			
-			g2d.setPaint(gradient);
+		if (selected) {
+			g2d.setPaint(gradientStyle.getGradientPaint(shape, gradientBeginColor, gradientEndColor));
 			g2d.fill(shape);
 		}
 		
@@ -94,6 +81,9 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		
+		setSelected(isSelected);
+		setBorder(border);
 		
 		Color sc = list.getSelectionBackground();
 		
@@ -108,15 +98,8 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 		}
 		
 		if (isSelected) {
-			setPaintGradientEnabled(true);
-			
 			setGradientBeginColor(sc.brighter());
 			setGradientEndColor(sc);
-			
-			setBorder(selectedBorder);
-		} else {
-			setPaintGradientEnabled(false);
-			setBorder(defaultBorder);
 		}
 		
 		return this;
@@ -153,16 +136,6 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	}
 	
 
-	public boolean isPaintGradientEnabled() {
-		return paintGradientEnabled;
-	}
-	
-
-	public void setPaintGradientEnabled(boolean gradientEnabled) {
-		this.paintGradientEnabled = gradientEnabled;
-	}
-	
-
 	public boolean isHighlightingEnabled() {
 		return highlightingEnabled;
 	}
@@ -172,4 +145,13 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 		this.highlightingEnabled = highlightingEnabled;
 	}
 	
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
+	
+
+	public boolean isSelected() {
+		return selected;
+	}
 }
