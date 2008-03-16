@@ -8,7 +8,6 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Paint;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
@@ -29,13 +28,15 @@ public class FancyBorder implements Border {
 	private float radius;
 	
 	
-	public FancyBorder(int width, Color color) {
+	public FancyBorder(int width, Color... colors) {
 		this.borderWidth = width;
 		
-		float[] dist = { 0, 1 };
-		this.dist = dist;
+		this.dist = new float[colors.length];
 		
-		Color[] colors = { color.brighter(), color };
+		for (int i = 0; i < colors.length; i++) {
+			this.dist[i] = (1.0f / colors.length) * i;
+		}
+		
 		this.colors = colors;
 		
 		this.radius = 100;
@@ -52,7 +53,9 @@ public class FancyBorder implements Border {
 
 	@Override
 	public Insets getBorderInsets(Component c) {
-		return new Insets(borderWidth, borderWidth, borderWidth, borderWidth);
+		
+		int horizontalOffset = 8;
+		return new Insets(borderWidth, borderWidth + horizontalOffset, borderWidth, borderWidth + horizontalOffset);
 	}
 	
 
@@ -66,19 +69,17 @@ public class FancyBorder implements Border {
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		Graphics2D g2d = (Graphics2D) g;
 		
-		Shape shape = new RoundRectangle2D.Double(x, y, width, height, 10, 10);
+		float arch = Math.min(width, height) / 2;
+		
+		Shape shape = new RoundRectangle2D.Float(x + borderWidth, y + borderWidth, width - borderWidth * 2, height - borderWidth * 2, arch, arch);
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setPaint(getPaint(x, y, width, height));
+		
+		Point2D center = new Point2D.Float(width, 0);
+		g2d.setPaint(new RadialGradientPaint(center, radius, dist, colors, CycleMethod.REFLECT));
+		
 		g2d.setStroke(new BasicStroke(borderWidth));
 		
 		g2d.draw(shape);
-	}
-	
-
-	private Paint getPaint(int x, int y, int width, int height) {
-		Point2D center = new Point2D.Float(width, 0);
-		
-		return new RadialGradientPaint(center, radius, dist, colors, CycleMethod.REFLECT);
 	}
 }

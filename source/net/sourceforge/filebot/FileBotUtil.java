@@ -20,7 +20,12 @@ public class FileBotUtil {
 		component.getActionMap().put(key, action);
 	}
 	
-
+	/**
+	 * invalid characters: \, /, :, *, ?, ", <, > and |
+	 */
+	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|";
+	
+	
 	/**
 	 * Strip string of invalid characters
 	 * 
@@ -28,8 +33,8 @@ public class FileBotUtil {
 	 * @return filename stripped of invalid characters
 	 */
 	public static String validateFileName(String filename) {
-		// strip \, /, :, *, ?, ", <, > and |
-		return filename.replaceAll("[\\\\/:*?\"<>|]", "");
+		// strip  \, /, :, *, ?, ", <, > and |
+		return filename.replaceAll(String.format("[%s]+", INVALID_CHARACTERS), "");
 	}
 	
 

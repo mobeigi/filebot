@@ -40,8 +40,8 @@ public class ListPanel extends FileBotPanel {
 	private LoadAction loadAction = new LoadAction(list);
 	
 	private JTextField textField = new JTextField(String.format("Name - %s", INDEX_VARIABLE), 25);
-	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 1, Integer.MAX_VALUE, 1);
+	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
+	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
 	
 	
 	public ListPanel() {

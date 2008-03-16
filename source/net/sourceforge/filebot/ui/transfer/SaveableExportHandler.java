@@ -40,7 +40,7 @@ public class SaveableExportHandler implements ExportHandler {
 			}
 		} catch (Exception e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class SaveableExportHandler implements ExportHandler {
 			return new FileTransferable(temporaryFile);
 		} catch (IOException e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return null;

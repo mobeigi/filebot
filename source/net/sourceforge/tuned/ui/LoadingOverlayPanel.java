@@ -31,7 +31,7 @@ public class LoadingOverlayPanel extends JPanel {
 		
 		loadingLabel.setIcon(animation);
 		loadingLabel.setOpaque(false);
-		loadingLabel.setBorder(BorderFactory.createEmptyBorder(12, 0, 0, 16));
+		loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 20));
 		
 		loadingLabel.setAlignmentX(1.0f);
 		loadingLabel.setAlignmentY(0.0f);

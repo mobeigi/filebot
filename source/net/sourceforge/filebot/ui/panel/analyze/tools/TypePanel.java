@@ -6,8 +6,9 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,7 +77,7 @@ public class TypePanel extends ToolPanel {
 
 		@Override
 		protected DefaultTreeModel doInBackground() throws Exception {
-			TreeMap<String, Collection<File>> map = new TreeMap<String, Collection<File>>();
+			Map<String, Collection<File>> map = new HashMap<String, Collection<File>>();
 			
 			for (File f : files) {
 				String suffix = FileFormat.getSuffix(f);
@@ -131,7 +132,7 @@ public class TypePanel extends ToolPanel {
 				tree.setModel(model);
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 			
 			TypePanel.this.firePropertyChange(LOADING_PROPERTY, null, false);

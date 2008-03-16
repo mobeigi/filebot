@@ -27,7 +27,7 @@ public class FileFormat {
 		else if (size >= KILO)
 			return nf.format((double) size / KILO) + " KB";
 		else
-			return nf.format(size + " Byte");
+			return nf.format(size) + " Byte";
 	}
 	
 

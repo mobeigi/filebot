@@ -122,4 +122,5 @@ public class SimpleListModel extends AbstractListModel {
 			fireContentsChanged(this, 0, end);
 		}
 	}
+	
 }

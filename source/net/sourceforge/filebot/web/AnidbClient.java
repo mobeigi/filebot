@@ -10,9 +10,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
 
 public class AnidbClient extends EpisodeListClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
+	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
 	
 	private String host = "anidb.info";
 	
@@ -48,13 +48,13 @@ public class AnidbClient extends EpisodeListClient {
 		
 		if (!nodes.isEmpty())
 			for (Node node : nodes) {
-				String type = XPathUtil.selectString("./TD[3]/text()", node);
+				String type = XPathUtil.selectString("./TD[3]", node);
 				
 				// we only want shows
 				if (type.equalsIgnoreCase("tv series")) {
 					Node titleNode = XPathUtil.selectNode("./TD[2]/A", node);
 					
-					String title = XPathUtil.selectString("text()", titleNode);
+					String title = XPathUtil.selectString(".", titleNode);
 					String href = XPathUtil.selectString("@href", titleNode);
 					
 					String file = "/perl-bin/" + href;
@@ -75,7 +75,7 @@ public class AnidbClient extends EpisodeListClient {
 			
 			if (!results.isEmpty()) {
 				// get show's name from the document
-				String header = XPathUtil.selectString("//DIV[@id='layout-content']//H1[1]/text()", dom);
+				String header = XPathUtil.selectString("//DIV[@id='layout-content']//H1[1]", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
 				cache.put(title, getSearchUrl(searchterm));
@@ -102,7 +102,7 @@ public class AnidbClient extends EpisodeListClient {
 		f.setGroupingUsed(false);
 		
 		for (Node node : nodes) {
-			String number = XPathUtil.selectString("./TD[1]/A/text()", node);
+			String number = XPathUtil.selectString("./TD[1]/A", node);
 			String title = XPathUtil.selectString("./TD[2]/LABEL/text()", node);
 			
 			if (title.startsWith("recap"))

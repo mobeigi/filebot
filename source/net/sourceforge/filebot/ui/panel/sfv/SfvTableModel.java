@@ -179,7 +179,7 @@ public class SfvTableModel extends AbstractTableModel {
 		for (ChecksumRow row : rows) {
 			Checksum checksum = row.getChecksum(columnRoot);
 			
-			if (checksum != null && checksum.getState() == Checksum.State.READY) {
+			if ((checksum != null) && (checksum.getState() == Checksum.State.READY)) {
 				checksumMap.put(row.getName(), checksum);
 			}
 		}
@@ -235,6 +235,12 @@ public class SfvTableModel extends AbstractTableModel {
 
 		public File getColumnRoot() {
 			return columnRoot;
+		}
+		
+
+		@Override
+		public String toString() {
+			return getName();
 		}
 	}
 	

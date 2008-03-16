@@ -10,9 +10,9 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 
 public class TVRageClient extends EpisodeListClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
+	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
 	
 	private String host = "www.tvrage.com";
 	
@@ -52,7 +52,7 @@ public class TVRageClient extends EpisodeListClient {
 		
 		for (Node node : nodes) {
 			String href = XPathUtil.selectString("@href", node);
-			String title = XPathUtil.selectString("text()", node);
+			String title = XPathUtil.selectString(".", node);
 			
 			try {
 				URL url = new URL(href);
@@ -77,13 +77,13 @@ public class TVRageClient extends EpisodeListClient {
 		ArrayList<Episode> episodes = new ArrayList<Episode>();
 		
 		for (Node node : nodes) {
-			String seasonAndEpisodeNumber = XPathUtil.selectString("./TD[2]/A/text()", node);
-			String title = XPathUtil.selectString("./TD[4]/A/text()", node);
+			String seasonAndEpisodeNumber = XPathUtil.selectString("./TD[2]/A", node);
+			String title = XPathUtil.selectString("./TD[5]/A", node);
 			
 			List<Node> precedings = XPathUtil.selectNodes("../preceding-sibling::TABLE", node);
 			Node previousTable = precedings.get(precedings.size() - 1);
 			
-			String seasonHeader = XPathUtil.selectString("./TR/TD/FONT/text()", previousTable);
+			String seasonHeader = XPathUtil.selectString("./TR/TD/FONT", previousTable);
 			
 			Matcher seasonMatcher = Pattern.compile("Season (\\d+)").matcher(seasonHeader);
 			

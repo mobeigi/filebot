@@ -3,20 +3,22 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 
 import java.awt.datatransfer.Transferable;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.SwingWorker;
-
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
+import javax.swing.SwingUtilities;
 
 
 public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferablePolicy {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
-	private BackgroundWorker backgroundWorker;
+	private SingleThreadExecutor executor = null;
 	
 	
 	@Override
@@ -29,9 +31,34 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		if (!add)
 			clear();
 		
-		backgroundWorker = new BackgroundWorker(files);
-		backgroundWorker.addPropertyChangeListener(new BackgroundWorkerListener());
-		backgroundWorker.execute();
+		submit(new LoadFilesTask(files));
+	}
+	
+
+	protected void submit(Runnable task) {
+		synchronized (this) {
+			if (executor == null) {
+				executor = new SingleThreadExecutor();
+			}
+		}
+		
+		executor.submit(task);
+	}
+	
+
+	public boolean isActive() {
+		return executor.isActive();
+	}
+	
+
+	public void cancelAll() {
+		synchronized (this) {
+			if (executor != null) {
+				// interrupt all threads
+				executor.shutdownNow();
+				executor = null;
+			}
+		}
 	}
 	
 
@@ -41,7 +68,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 * @param chunks
 	 */
 	protected final void publish(V... chunks) {
-		backgroundWorker.publishChunks(chunks);
+		SwingUtilities.invokeLater(new ProcessChunksTask(chunks, Thread.currentThread()));
 	}
 	
 
@@ -51,59 +78,95 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 * 
 	 * @param chunks
 	 */
-	protected void process(List<V> chunks) {
-		
-	}
+	protected abstract void process(List<V> chunks);
 	
 	
-	private class BackgroundWorker extends SwingWorker<Object, V> {
+	private class LoadFilesTask implements Runnable {
 		
 		private List<File> files;
 		
 		
-		public BackgroundWorker(List<File> files) {
+		public LoadFilesTask(List<File> files) {
 			this.files = files;
 		}
 		
 
 		@Override
-		protected void process(List<V> chunks) {
-			BackgroundFileTransferablePolicy.this.process(chunks);
-		}
-		
-
-		/**
-		 * make publish() accessible
-		 * 
-		 * @param chunks
-		 */
-		public void publishChunks(V... chunks) {
-			super.publish(chunks);
-		}
-		
-
-		@Override
-		protected Object doInBackground() throws Exception {
+		public void run() {
 			load(files);
-			return null;
 		}
 	}
 	
 
-	private class BackgroundWorkerListener extends SwingWorkerPropertyChangeAdapter {
+	private class ProcessChunksTask implements Runnable {
 		
-		@Override
-		public void started(PropertyChangeEvent evt) {
-			setEnabled(false);
-			firePropertyChange(LOADING_PROPERTY, null, true);
+		private V[] chunks;
+		private Thread publisher;
+		
+		
+		public ProcessChunksTask(V[] chunks, Thread publisher) {
+			this.chunks = chunks;
+			this.publisher = publisher;
 		}
 		
 
 		@Override
-		public void done(PropertyChangeEvent evt) {
-			firePropertyChange(LOADING_PROPERTY, null, false);
-			setEnabled(true);
+		public void run() {
+			if (!publisher.isInterrupted() && publisher.isAlive()) {
+				process(Arrays.asList(chunks));
+			}
 		}
+	}
+	
+
+	private class SingleThreadExecutor extends ThreadPoolExecutor {
+		
+		private final AtomicInteger count = new AtomicInteger(0);
+		
+		
+		public SingleThreadExecutor() {
+			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		}
+		
+
+		public boolean isActive() {
+			return count.get() > 0;
+		}
+		
+
+		@Override
+		public void execute(Runnable command) {
+			
+			if (count.getAndIncrement() <= 0) {
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						firePropertyChange(LOADING_PROPERTY, false, true);
+					}
+				});
+			}
+			
+			super.execute(command);
+		}
+		
+
+		@Override
+		protected void afterExecute(Runnable r, Throwable t) {
+			super.afterExecute(r, t);
+			
+			if (count.decrementAndGet() <= 0) {
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						firePropertyChange(LOADING_PROPERTY, true, false);
+					}
+				});
+			}
+		}
+		
 	}
 	
 }

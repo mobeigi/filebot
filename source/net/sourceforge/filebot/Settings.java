@@ -78,7 +78,7 @@ public class Settings {
 				list.add(listNode.get(nodeKey, null));
 			}
 		} catch (BackingStoreException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return list;
@@ -107,7 +107,7 @@ public class Settings {
 				map.put(mapNodeKey, mapNode.get(mapNodeKey, null));
 			}
 		} catch (BackingStoreException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return map;
@@ -132,7 +132,7 @@ public class Settings {
 			try {
 				map.put(entry.getKey(), new Integer(entry.getValue()));
 			} catch (NumberFormatException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		
@@ -156,7 +156,7 @@ public class Settings {
 			prefs.removeNode();
 			prefs = Preferences.userRoot().node(ROOT);
 		} catch (BackingStoreException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 	}
 }

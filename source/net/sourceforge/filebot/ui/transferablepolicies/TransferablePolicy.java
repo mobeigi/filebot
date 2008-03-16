@@ -22,6 +22,10 @@ public abstract class TransferablePolicy {
 	public static final String ENABLED_PROPERTY = "enabled";
 	
 	
+	public abstract String getDescription();
+	
+
+	//TODO remove enabled stuff
 	public boolean isEnabled() {
 		return enabled;
 	}
@@ -59,11 +63,8 @@ public abstract class TransferablePolicy {
 	}
 	
 
-	public void firePropertyChange(PropertyChangeEvent evt) {
+	protected void firePropertyChange(PropertyChangeEvent evt) {
 		propertyChangeSupport.firePropertyChange(evt);
 	}
-	
-
-	public abstract String getDescription();
 	
 }

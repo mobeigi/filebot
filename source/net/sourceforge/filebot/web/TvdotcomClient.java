@@ -11,9 +11,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +27,7 @@ import org.xml.sax.SAXException;
 
 public class TvdotcomClient extends EpisodeListClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
+	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
 	
 	private String host = "www.tv.com";
 	
@@ -96,8 +96,8 @@ public class TvdotcomClient extends EpisodeListClient {
 			episodeOffset = 0;
 		
 		for (Node node : nodes) {
-			String episodeNumber = XPathUtil.selectString("./TD[1]/text()", node);
-			String title = XPathUtil.selectString("./TD[2]/A/text()", node);
+			String episodeNumber = XPathUtil.selectString("./TD[1]", node);
+			String title = XPathUtil.selectString("./TD[2]/A", node);
 			
 			try {
 				// format number of episode

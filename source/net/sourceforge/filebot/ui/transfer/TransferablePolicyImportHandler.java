@@ -4,6 +4,8 @@ package net.sourceforge.filebot.ui.transfer;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.InvalidDnDOperationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
@@ -49,7 +51,11 @@ public class TransferablePolicyImportHandler implements ImportHandler {
 		
 		Transferable t = support.getTransferable();
 		
-		transferablePolicySupport.getTransferablePolicy().handleTransferable(t, add);
+		try {
+			transferablePolicySupport.getTransferablePolicy().handleTransferable(t, add);
+		} catch (Exception e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+		}
 		
 		return true;
 	}

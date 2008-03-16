@@ -120,8 +120,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 
 		private void setLastChildUserObject(DefaultMutableTreeNode root, int part, long size) {
 			DefaultMutableTreeNode node = ((DefaultMutableTreeNode) root.getLastChild());
-			String uo = "Part " + part + " (" + FileFormat.formatSize(size) + ")";
-			node.setUserObject(uo);
+			node.setUserObject(String.format("Part %d (%s)", part, FileFormat.formatSize(size)));
 		}
 		
 
@@ -183,7 +182,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 				tree.setModel(model);
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 			
 			SplitPanel.this.firePropertyChange(LOADING_PROPERTY, null, false);

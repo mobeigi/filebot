@@ -49,7 +49,7 @@ public class ImdbSearchEngine {
 	}
 	
 
-	private MovieDescriptor parseMovieNode(Node node) throws MalformedURLException {
+	private MovieDescriptor parseMovieNode(Node node) throws Exception {
 		// ignore javascript links
 		Node linkNode = XPathUtil.selectFirstNode("./A[count(@onclick) <= 0]", node);
 		

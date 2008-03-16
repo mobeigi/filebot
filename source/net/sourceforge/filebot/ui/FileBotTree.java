@@ -193,7 +193,7 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 					Desktop.getDesktop().open(file);
 				} catch (Exception e) {
 					MessageManager.showWarning(e.getMessage());
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 				}
 			}
 		}

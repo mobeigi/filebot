@@ -56,31 +56,16 @@ public class FileTree extends FileBotTree {
 	}
 	
 
-	public void addFiles(DefaultMutableTreeNode parent, File files[]) {
-		// folders first
-		for (File f : files)
-			if (f.isDirectory()) {
-				// run through file tree
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(f);
-				addFiles(node, f.listFiles());
-				parent.add(node);
-			}
-		
-		for (File f : files) {
-			if (!f.isDirectory())
-				parent.add(new DefaultMutableTreeNode(f));
-		}
-	}
-	
-
 	@Override
 	public void clear() {
+		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).cancelAll();
+		
 		super.clear();
 		contentChanged();
 	}
 	
 	
-	private class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<Object> implements PropertyChangeListener {
+	private class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> implements PropertyChangeListener {
 		
 		public FileTreeTransferPolicy() {
 			addPropertyChangeListener(LOADING_PROPERTY, this);
@@ -100,25 +85,50 @@ public class FileTree extends FileBotTree {
 		
 
 		@Override
-		protected void load(List<File> files) {
+		protected void process(List<DefaultMutableTreeNode> chunks) {
 			DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
 			
-			File fileArray[] = new File[files.size()];
-			files.toArray(fileArray);
+			for (DefaultMutableTreeNode node : chunks) {
+				root.add(node);
+			}
 			
-			addFiles(root, fileArray);
+			updateUI();
+		}
+		
+
+		@Override
+		protected void load(List<File> files) {
+			for (File file : files) {
+				publish(getTree(file));
+			}
+		}
+		
+
+		private DefaultMutableTreeNode getTree(File file) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(file);
+			
+			if (file.isDirectory() && !Thread.currentThread().isInterrupted()) {
+				// run through file tree
+				for (File f : file.listFiles()) {
+					node.add(getTree(f));
+				}
+			}
+			
+			return node;
 		}
 		
 
 		public void propertyChange(PropertyChangeEvent evt) {
-			Boolean loading = (Boolean) evt.getNewValue();
-			
-			if (loading) {
-				FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
-			} else {
-				FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
-				updateUI();
-				contentChanged();
+			if (evt.getPropertyName() == BackgroundFileTransferablePolicy.LOADING_PROPERTY) {
+				Boolean loading = (Boolean) evt.getNewValue();
+				
+				if (loading) {
+					FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
+				} else {
+					FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
+					
+					contentChanged();
+				}
 			}
 		}
 		

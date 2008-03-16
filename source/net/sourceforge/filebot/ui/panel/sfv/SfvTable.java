@@ -28,6 +28,7 @@ import net.sourceforge.filebot.ui.transfer.ImportHandler;
 import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
+import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
@@ -91,6 +92,8 @@ public class SfvTable extends JTable implements TransferablePolicySupport, Savea
 	
 
 	public void clear() {
+		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).cancelAll();
+		
 		((SfvTableModel) getModel()).clear();
 	}
 	
@@ -165,7 +168,7 @@ public class SfvTable extends JTable implements TransferablePolicySupport, Savea
 			out.close();
 		} catch (FileNotFoundException e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	

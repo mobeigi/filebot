@@ -106,28 +106,13 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	}
 	
 
-	public Color getGradientBeginColor() {
-		return gradientBeginColor;
-	}
-	
-
 	public void setGradientBeginColor(Color gradientBeginColor) {
 		this.gradientBeginColor = gradientBeginColor;
 	}
 	
 
-	public Color getGradientEndColor() {
-		return gradientEndColor;
-	}
-	
-
 	public void setGradientEndColor(Color gradientEndColor) {
 		this.gradientEndColor = gradientEndColor;
-	}
-	
-
-	public GradientStyle getGradientStyle() {
-		return gradientStyle;
 	}
 	
 

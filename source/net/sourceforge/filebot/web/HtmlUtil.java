@@ -9,6 +9,8 @@ import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -29,7 +31,12 @@ public class HtmlUtil {
 			
 			if (matcher.matches()) {
 				String charsetName = matcher.group(1);
-				return Charset.forName(charsetName);
+				
+				try {
+					return Charset.forName(charsetName);
+				} catch (Exception e) {
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
+				}
 			}
 		}
 		
@@ -45,7 +52,7 @@ public class HtmlUtil {
 		String encoding = connection.getContentEncoding();
 		InputStream inputStream = connection.getInputStream();
 		
-		if (encoding != null && encoding.equalsIgnoreCase("gzip"))
+		if ((encoding != null) && encoding.equalsIgnoreCase("gzip"))
 			inputStream = new GZIPInputStream(inputStream);
 		
 		return getHtmlDocument(new InputStreamReader(inputStream, charset));

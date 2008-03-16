@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -27,7 +26,7 @@ import org.xml.sax.SAXException;
 
 public class SubsceneClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new TreeMap<String, URL>());
+	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
 	
 	private String host = "subscene.com";
 	
