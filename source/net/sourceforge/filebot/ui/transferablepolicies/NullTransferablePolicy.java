@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 import java.awt.datatransfer.Transferable;
 
 
-public class NullTransferablePolicy extends TransferablePolicy {
+public class NullTransferablePolicy implements TransferablePolicy {
 	
 	@Override
 	public boolean accept(Transferable tr) {

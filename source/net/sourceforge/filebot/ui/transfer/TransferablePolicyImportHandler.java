@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
 
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
 
 
 public class TransferablePolicyImportHandler implements ImportHandler {

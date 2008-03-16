@@ -3,15 +3,16 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 
 import java.awt.datatransfer.Transferable;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.List;
+
+import net.sourceforge.filebot.FileBotUtil;
 
 
-public class MultiTransferablePolicy extends TransferablePolicy {
+public class MultiTransferablePolicy implements TransferablePolicy {
 	
-	private ArrayList<TransferablePolicy> policies = new ArrayList<TransferablePolicy>();
+	private List<TransferablePolicy> policies = Collections.synchronizedList(new ArrayList<TransferablePolicy>());
 	
 	
 	public MultiTransferablePolicy() {
@@ -21,21 +22,16 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 
 	public void addPolicy(TransferablePolicy policy) {
 		policies.add(policy);
-		policy.addPropertyChangeListener(relayListener);
 	}
 	
 
 	public void removePolicy(TransferablePolicy policy) {
-		policy.removePropertyChangeListener(relayListener);
 		policies.remove(policy);
 	}
 	
 
 	@Override
 	public boolean accept(Transferable tr) {
-		if (!isEnabled())
-			return false;
-		
 		for (TransferablePolicy policy : policies) {
 			if (policy.accept(tr))
 				return true;
@@ -55,14 +51,7 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 		}
 	}
 	
-	private final PropertyChangeListener relayListener = new PropertyChangeListener() {
-		
-		public void propertyChange(PropertyChangeEvent evt) {
-			firePropertyChange(evt);
-		}
-	};
-	
-	
+
 	@Override
 	public String getDescription() {
 		return getDescription(TransferablePolicy.class);
@@ -70,9 +59,7 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 	
 
 	public String getDescription(Class<? extends TransferablePolicy> filter) {
-		StringBuffer sb = new StringBuffer();
-		
-		ArrayList<String> descriptions = new ArrayList<String>();
+		List<String> descriptions = new ArrayList<String>();
 		
 		for (TransferablePolicy policy : policies) {
 			String desc = policy.getDescription();
@@ -81,17 +68,7 @@ public class MultiTransferablePolicy extends TransferablePolicy {
 				descriptions.add(desc);
 		}
 		
-		Iterator<String> it = descriptions.iterator();
-		
-		while (it.hasNext()) {
-			String desc = it.next();
-			sb.append(desc);
-			
-			if (it.hasNext())
-				sb.append(", ");
-		}
-		
-		return sb.toString();
+		return FileBotUtil.join(descriptions, ", ");
 	}
 	
 }

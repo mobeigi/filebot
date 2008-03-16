@@ -17,7 +17,7 @@ import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
-public class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableModel.Entry> {
+class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableModel.Entry> {
 	
 	private SfvTableModel tableModel;
 	

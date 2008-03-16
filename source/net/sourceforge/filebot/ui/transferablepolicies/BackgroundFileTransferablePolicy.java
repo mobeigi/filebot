@@ -3,6 +3,8 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 
 import java.awt.datatransfer.Transferable;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +49,12 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	
 
 	public boolean isActive() {
-		return executor.isActive();
+		synchronized (this) {
+			if (executor == null)
+				return false;
+			
+			return executor.isActive();
+		}
 	}
 	
 
@@ -169,4 +176,25 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 	}
 	
+	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	
+	
+	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+	}
+	
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(listener);
+	}
+	
+
+	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+	}
+	
+
+	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
 }

@@ -13,7 +13,7 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 
 
-public class FileListTransferablePolicy extends FileTransferablePolicy {
+class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 	private FileBotList list;
 	

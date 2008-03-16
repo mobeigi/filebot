@@ -28,9 +28,9 @@ import net.sourceforge.filebot.ui.transfer.ImportHandler;
 import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
 import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
 import net.sourceforge.tuned.ui.FancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
 

@@ -9,7 +9,6 @@ import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicySupport;
 
 
 public class LoadAction extends AbstractAction {

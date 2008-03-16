@@ -6,6 +6,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,13 +18,10 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
-public abstract class FileTransferablePolicy extends TransferablePolicy {
+public abstract class FileTransferablePolicy implements TransferablePolicy {
 	
 	@Override
 	public boolean accept(Transferable tr) {
-		if (!isEnabled())
-			return false;
-		
 		List<File> files = getFilesFromTransferable(tr);
 		
 		if ((files == null) || files.isEmpty())
@@ -37,8 +35,10 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	protected List<File> getFilesFromTransferable(Transferable tr) {
 		try {
 			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+				// file list flavor
 				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 			} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
+				// file uri list flavor
 				String transferString = (String) tr.getTransferData(FileTransferable.uriListFlavor);
 				
 				String lines[] = transferString.split("\r?\n");
@@ -53,10 +53,12 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 					try {
 						File file = new File(new URI(line));
 						
-						if (file.exists())
-							files.add(file);
+						if (!file.exists())
+							throw new FileNotFoundException(file.toString());
+						
+						files.add(file);
 					} catch (Exception e) {
-						// URISyntaxException, IllegalArgumentException 
+						// URISyntaxException, IllegalArgumentException, FileNotFoundException
 						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line);
 					}
 				}

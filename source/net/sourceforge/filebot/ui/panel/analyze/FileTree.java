@@ -6,7 +6,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -14,7 +17,6 @@ import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
-import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
 public class FileTree extends FileBotTree {
@@ -22,9 +24,14 @@ public class FileTree extends FileBotTree {
 	public static final String LOADING_PROPERTY = "loading";
 	public static final String CONTENT_PROPERTY = "content";
 	
+	private PostProcessor postProcessor;
+	
 	
 	public FileTree() {
-		setTransferablePolicy(new FileTreeTransferPolicy());
+		FileTreeTransferPolicy transferPolicy = new FileTreeTransferPolicy((DefaultMutableTreeNode) getModel().getRoot());
+		transferPolicy.addPropertyChangeListener(LOADING_PROPERTY, new LoadingPropertyChangeListener());
+		
+		setTransferablePolicy(transferPolicy);
 		setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(this), null));
 	}
 	
@@ -50,94 +57,73 @@ public class FileTree extends FileBotTree {
 	}
 	
 
-	private void contentChanged() {
-		List<File> files = convertToList();
-		firePropertyChange(CONTENT_PROPERTY, null, files);
-	}
-	
-
 	@Override
 	public void clear() {
-		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).cancelAll();
+		FileTreeTransferPolicy transferPolicy = ((FileTreeTransferPolicy) getTransferablePolicy());
+		boolean loading = transferPolicy.isActive();
+		
+		if (loading) {
+			transferPolicy.cancelAll();
+		}
 		
 		super.clear();
-		contentChanged();
+		
+		if (!loading) {
+			contentChanged();
+		}
+		// else, contentChanged() will be called after when loading is finished
 	}
 	
-	
-	private class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> implements PropertyChangeListener {
-		
-		public FileTreeTransferPolicy() {
-			addPropertyChangeListener(LOADING_PROPERTY, this);
-		}
-		
 
-		@Override
-		protected boolean accept(File file) {
-			return file.isFile() || file.isDirectory();
-		}
-		
-
-		@Override
-		protected void clear() {
-			FileTree.this.clear();
-		}
-		
-
-		@Override
-		protected void process(List<DefaultMutableTreeNode> chunks) {
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
+	private void contentChanged() {
+		synchronized (this) {
+			if (postProcessor != null)
+				postProcessor.cancel(false);
 			
-			for (DefaultMutableTreeNode node : chunks) {
-				root.add(node);
+			postProcessor = new PostProcessor();
+			postProcessor.execute();
+		}
+	};
+	
+	
+	private class LoadingPropertyChangeListener implements PropertyChangeListener {
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			Boolean loading = (Boolean) evt.getNewValue();
+			
+			if (loading) {
+				firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
+			} else {
+				contentChanged();
+			}
+		}
+	}
+	
+
+	private class PostProcessor extends SwingWorker<List<File>, Object> {
+		
+		@Override
+		protected List<File> doInBackground() throws Exception {
+			return convertToList();
+		}
+		
+
+		@Override
+		protected void done() {
+			if (isCancelled())
+				return;
+			
+			try {
+				List<File> files = get();
+				FileTree.this.firePropertyChange(CONTENT_PROPERTY, null, files);
+			} catch (Exception e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 			
+			FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
 			updateUI();
 		}
 		
-
-		@Override
-		protected void load(List<File> files) {
-			for (File file : files) {
-				publish(getTree(file));
-			}
-		}
-		
-
-		private DefaultMutableTreeNode getTree(File file) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(file);
-			
-			if (file.isDirectory() && !Thread.currentThread().isInterrupted()) {
-				// run through file tree
-				for (File f : file.listFiles()) {
-					node.add(getTree(f));
-				}
-			}
-			
-			return node;
-		}
-		
-
-		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName() == BackgroundFileTransferablePolicy.LOADING_PROPERTY) {
-				Boolean loading = (Boolean) evt.getNewValue();
-				
-				if (loading) {
-					FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
-				} else {
-					FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
-					
-					contentChanged();
-				}
-			}
-		}
-		
-
-		@Override
-		public String getDescription() {
-			return "files and folders";
-		}
-		
 	}
-	
 }

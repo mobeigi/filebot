@@ -10,12 +10,12 @@ import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
-public class FilesRenameListTransferablePolicy extends FileTransferablePolicy {
+class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private SimpleListModel listModel;
 	
 	
-	public FilesRenameListTransferablePolicy(SimpleListModel listModel) {
+	public FilesListTransferablePolicy(SimpleListModel listModel) {
 		this.listModel = listModel;
 	}
 	

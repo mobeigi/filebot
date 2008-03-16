@@ -8,13 +8,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public abstract class TextTransferablePolicy extends TransferablePolicy {
+public abstract class TextTransferablePolicy implements TransferablePolicy {
 	
 	@Override
 	public boolean accept(Transferable tr) {
-		if (!isEnabled())
-			return false;
-		
 		return tr.isDataFlavorSupported(DataFlavor.stringFlavor);
 	}
 	

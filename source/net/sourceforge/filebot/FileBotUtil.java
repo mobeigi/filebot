@@ -2,6 +2,8 @@
 package net.sourceforge.filebot;
 
 
+import java.util.Iterator;
+
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
@@ -46,4 +48,19 @@ public class FileBotUtil {
 		return t;
 	}
 	
+
+	public static String join(Iterable<?> list, String delim) {
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<?> it = list.iterator();
+		
+		while (it.hasNext()) {
+			sb.append(it.next().toString());
+			
+			if (it.hasNext())
+				sb.append(delim);
+		}
+		
+		return sb.toString();
+	}
 }

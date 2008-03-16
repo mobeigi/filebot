@@ -16,23 +16,23 @@ import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
-public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
+class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	
 	private SimpleListModel listModel;
 	
 	
-	public NamesRenameListTransferablePolicy(SimpleListModel listModel) {
+	public NamesListTransferablePolicy(SimpleListModel listModel) {
 		this.listModel = listModel;
 		
-		addPolicy(filePolicy);
-		addPolicy(textPolicy);
+		addPolicy(new FilePolicy());
+		addPolicy(new TextPolicy());
 	}
 	
-	private TransferablePolicy filePolicy = new FileTransferablePolicy() {
+	
+	private class FilePolicy extends FileTransferablePolicy {
 		
 		private long MAX_FILESIZE = 10 * FileFormat.MEGA;
 		
@@ -83,7 +83,8 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 		
 	};
 	
-	private TransferablePolicy textPolicy = new TextTransferablePolicy() {
+
+	private class TextPolicy extends TextTransferablePolicy {
 		
 		@Override
 		protected boolean load(String text) {
@@ -107,7 +108,7 @@ public class NamesRenameListTransferablePolicy extends MultiTransferablePolicy {
 
 		@Override
 		public String getDescription() {
-			return "Lines of text";
+			return "lines of text";
 		}
 	};
 	

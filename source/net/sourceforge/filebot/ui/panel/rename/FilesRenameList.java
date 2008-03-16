@@ -11,7 +11,7 @@ public class FilesRenameList extends RenameList {
 	
 	public FilesRenameList() {
 		setTitle("Files");
-		setTransferablePolicy(new FilesRenameListTransferablePolicy(getModel()));
+		setTransferablePolicy(new FilesListTransferablePolicy(getModel()));
 	}
 	
 
