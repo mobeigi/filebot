@@ -29,7 +29,7 @@ public class ResourceManager {
 		try {
 			return ImageIO.read(getResource(name));
 		} catch (IOException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return null;
