@@ -33,9 +33,11 @@ public abstract class TextTransferablePolicy implements TransferablePolicy {
 	}
 	
 
-	protected abstract void clear();
+	protected void clear() {
+		
+	}
 	
 
-	protected abstract boolean load(String text);
+	protected abstract void load(String text);
 	
 }

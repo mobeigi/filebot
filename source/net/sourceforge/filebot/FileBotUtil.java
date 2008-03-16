@@ -3,6 +3,7 @@ package net.sourceforge.filebot;
 
 
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -26,6 +27,7 @@ public class FileBotUtil {
 	 * invalid characters: \, /, :, *, ?, ", <, > and |
 	 */
 	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|";
+	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
 	
 	/**
@@ -36,7 +38,12 @@ public class FileBotUtil {
 	 */
 	public static String validateFileName(String filename) {
 		// strip  \, /, :, *, ?, ", <, > and |
-		return filename.replaceAll(String.format("[%s]+", INVALID_CHARACTERS), "");
+		return INVALID_CHARACTERS_PATTERN.matcher(filename).replaceAll("");
+	}
+	
+
+	public static boolean isInvalidFileName(String filename) {
+		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
 	}
 	
 

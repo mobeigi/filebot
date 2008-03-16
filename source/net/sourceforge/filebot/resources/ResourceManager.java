@@ -42,10 +42,10 @@ public class ResourceManager {
 	
 
 	public static ImageIcon getFlagIcon(String countryCode) {
-		URL url = ResourceManager.class.getResource(String.format("flags/%s.gif", countryCode));
+		URL url = ResourceManager.class.getResource(String.format("flags/%s.png", countryCode));
 		
 		if (url == null)
-			url = ResourceManager.class.getResource(String.format("flags/default.gif", countryCode));
+			url = ResourceManager.class.getResource(String.format("flags/default.png", countryCode));
 		
 		return new ImageIcon(url);
 	}

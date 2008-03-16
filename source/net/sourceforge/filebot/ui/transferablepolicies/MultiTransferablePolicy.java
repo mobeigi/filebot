@@ -32,23 +32,38 @@ public class MultiTransferablePolicy implements TransferablePolicy {
 
 	@Override
 	public boolean accept(Transferable tr) {
-		for (TransferablePolicy policy : policies) {
-			if (policy.accept(tr))
-				return true;
-		}
-		
-		return false;
+		return getFirstAccepted(tr) != null;
 	}
 	
 
 	@Override
 	public void handleTransferable(Transferable tr, boolean add) {
-		for (TransferablePolicy policy : policies) {
-			if (policy.accept(tr)) {
-				policy.handleTransferable(tr, add);
-				return;
+		TransferablePolicy policy = getFirstAccepted(tr);
+		
+		if (policy != null) {
+			if (!add)
+				clear();
+			
+			policy.handleTransferable(tr, add);
+		}
+		
+	}
+	
+
+	protected void clear() {
+		
+	}
+	
+
+	public TransferablePolicy getFirstAccepted(Transferable tr) {
+		synchronized (policies) {
+			for (TransferablePolicy policy : policies) {
+				if (policy.accept(tr))
+					return policy;
 			}
 		}
+		
+		return null;
 	}
 	
 

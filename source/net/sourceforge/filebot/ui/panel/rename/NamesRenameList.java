@@ -11,7 +11,7 @@ class NamesRenameList extends RenameList {
 	
 	public NamesRenameList() {
 		setTitle("Names");
-		setTransferablePolicy(new NamesListTransferablePolicy(this.getModel()));
+		setTransferablePolicy(new NamesListTransferablePolicy(this));
 	}
 	
 

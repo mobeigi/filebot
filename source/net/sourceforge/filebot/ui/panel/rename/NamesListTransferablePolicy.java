@@ -6,10 +6,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
+
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
@@ -18,24 +22,42 @@ import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
-import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	
-	private SimpleListModel listModel;
+	private NamesRenameList list;
 	
 	
-	public NamesListTransferablePolicy(SimpleListModel listModel) {
-		this.listModel = listModel;
+	public NamesListTransferablePolicy(NamesRenameList list) {
+		this.list = list;
 		
 		addPolicy(new FilePolicy());
 		addPolicy(new TextPolicy());
 	}
 	
 
-	private void submit(Collection<ListEntry<?>> entries) {
-		this.listModel.addAll(entries);
+	private void submit(List<ListEntry<?>> entries) {
+		List<ListEntry<?>> invalidEntries = new ArrayList<ListEntry<?>>();
+		
+		for (ListEntry<?> entry : entries) {
+			if (FileBotUtil.isInvalidFileName(entry.getName()))
+				invalidEntries.add(entry);
+		}
+		
+		ValidateNamesDialog dialog = new ValidateNamesDialog(SwingUtilities.getWindowAncestor(list), invalidEntries);
+		dialog.setVisible(true);
+		
+		if (dialog.isCancelled())
+			return;
+		
+		list.getModel().addAll(entries);
+	}
+	
+
+	@Override
+	protected void clear() {
+		list.getModel().clear();
 	}
 	
 	
@@ -51,19 +73,15 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected void clear() {
-			listModel.clear();
-		}
-		
-
-		@Override
 		protected void load(File file) {
 			try {
+				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+				
 				if (FileFormat.getSuffix(file).equalsIgnoreCase("torrent")) {
 					Torrent torrent = new Torrent(file);
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {
-						listModel.add(new TorrentEntry(entry));
+						entries.add(new TorrentEntry(entry));
 					}
 				} else {
 					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -72,9 +90,13 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 					
 					while ((line = in.readLine()) != null)
 						if (line.trim().length() > 0)
-							listModel.add(new StringEntry(line));
+							entries.add(new StringEntry(line));
 					
 					in.close();
+				}
+				
+				if (!entries.isEmpty()) {
+					submit(entries);
 				}
 			} catch (Exception e) {
 				// should not happen
@@ -94,22 +116,20 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	private class TextPolicy extends TextTransferablePolicy {
 		
 		@Override
-		protected boolean load(String text) {
+		protected void load(String text) {
+			List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+			
 			String[] lines = text.split("\n");
 			
 			for (String line : lines) {
 				
 				if (!line.isEmpty())
-					listModel.add(new StringEntry(line));
+					entries.add(new StringEntry(line));
 			}
 			
-			return true;
-		}
-		
-
-		@Override
-		protected void clear() {
-			listModel.clear();
+			if (!entries.isEmpty()) {
+				submit(entries);
+			}
 		}
 		
 
