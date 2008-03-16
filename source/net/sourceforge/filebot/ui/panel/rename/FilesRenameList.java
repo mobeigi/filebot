@@ -7,7 +7,7 @@ import java.util.List;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 
 
-public class FilesRenameList extends RenameList {
+class FilesRenameList extends RenameList {
 	
 	public FilesRenameList() {
 		setTitle("Files");

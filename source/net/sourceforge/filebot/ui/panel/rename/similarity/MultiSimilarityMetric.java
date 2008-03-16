@@ -2,39 +2,32 @@
 package net.sourceforge.filebot.ui.panel.rename.similarity;
 
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 
 
-public class MultiSimilarityMetric extends SimilarityMetric {
+public class MultiSimilarityMetric extends SimilarityMetric implements Iterable<SimilarityMetric> {
 	
-	private ArrayList<SimilarityMetric> similarityMetrics = new ArrayList<SimilarityMetric>();
+	private List<SimilarityMetric> similarityMetrics;
 	
 	
+	public MultiSimilarityMetric(SimilarityMetric... metrics) {
+		similarityMetrics = Arrays.asList(metrics);
+	}
+	
+
 	@Override
 	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
-		if (similarityMetrics.size() < 1)
-			return 0;
-		
 		float similarity = 0;
 		
 		for (SimilarityMetric metric : similarityMetrics) {
-			similarity += metric.getSimilarity(a, b);
+			similarity += metric.getSimilarity(a, b) / similarityMetrics.size();
 		}
 		
-		return similarity / similarityMetrics.size();
-	}
-	
-
-	public void addMetric(SimilarityMetric similarityMetric) {
-		similarityMetrics.add(similarityMetric);
-	}
-	
-
-	public List<SimilarityMetric> getSimilarityMetrics() {
-		return similarityMetrics;
+		return similarity;
 	}
 	
 
@@ -47,6 +40,12 @@ public class MultiSimilarityMetric extends SimilarityMetric {
 	@Override
 	public String getName() {
 		return "Average";
+	}
+	
+
+	@Override
+	public Iterator<SimilarityMetric> iterator() {
+		return similarityMetrics.iterator();
 	}
 	
 }

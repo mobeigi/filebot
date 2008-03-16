@@ -12,7 +12,7 @@ import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 public class Matcher {
 	
 	public List<Match> match(List<? extends ListEntry<?>> listA, List<? extends ListEntry<?>> listB, SimilarityMetric similarityMetric) {
-		ArrayList<Match> matches = new ArrayList<Match>();
+		List<Match> matches = new ArrayList<Match>();
 		
 		for (ListEntry<?> entryA : listA) {
 			float maxSimilarity = -1;

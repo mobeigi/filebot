@@ -10,8 +10,7 @@ public class StringEntry extends ListEntry<String> {
 	
 
 	@Override
-	public String toString() {
-		return getValue();
+	protected String getName(String value) {
+		return value;
 	}
-	
 }

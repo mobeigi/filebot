@@ -6,11 +6,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
+import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
@@ -29,6 +31,11 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 		
 		addPolicy(new FilePolicy());
 		addPolicy(new TextPolicy());
+	}
+	
+
+	private void submit(Collection<ListEntry<?>> entries) {
+		this.listModel.addAll(entries);
 	}
 	
 	

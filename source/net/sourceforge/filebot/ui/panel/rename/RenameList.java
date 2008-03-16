@@ -20,7 +20,7 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 
 
-public abstract class RenameList extends FileBotList {
+abstract class RenameList extends FileBotList {
 	
 	public RenameList() {
 		super(true, false, true);

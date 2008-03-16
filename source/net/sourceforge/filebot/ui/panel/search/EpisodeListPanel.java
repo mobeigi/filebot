@@ -8,7 +8,7 @@ import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 
 
-public class EpisodeListPanel extends FileBotList {
+class EpisodeListPanel extends FileBotList {
 	
 	private TabComponentWithClose tabComponent;
 	private ImageIcon icon;

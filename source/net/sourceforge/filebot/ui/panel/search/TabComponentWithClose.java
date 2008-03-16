@@ -19,7 +19,7 @@ import javax.swing.SwingUtilities;
 import net.sourceforge.filebot.resources.ResourceManager;
 
 
-public class TabComponentWithClose extends JPanel {
+class TabComponentWithClose extends JPanel {
 	
 	private JLabel label;
 	

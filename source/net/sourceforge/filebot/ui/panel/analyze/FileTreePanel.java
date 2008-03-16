@@ -22,7 +22,7 @@ import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPanel;
 
 
-public class FileTreePanel extends JPanel {
+class FileTreePanel extends JPanel {
 	
 	private FileTree fileTree = new FileTree();
 	
@@ -58,7 +58,7 @@ public class FileTreePanel extends JPanel {
 			Boolean loading = (Boolean) evt.getNewValue();
 			
 			loadingOverlay.setOverlayVisible(loading);
-			loadingOverlay.updateOverlayUI();
+			loadingOverlay.updateOverlay();
 		}
 	};
 	
@@ -85,7 +85,6 @@ public class FileTreePanel extends JPanel {
 			int row = fileTree.getMinSelectionRow();
 			
 			fileTree.removeTreeItems(fileTree.getSelectionPaths());
-			fileTree.updateUI();
 			
 			int maxRow = fileTree.getRowCount() - 1;
 			

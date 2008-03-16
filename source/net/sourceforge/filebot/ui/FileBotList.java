@@ -46,8 +46,8 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 	private TransferablePolicy transferablePolicy = new NullTransferablePolicy();
 	
 	
-	public FileBotList(boolean enableDrop, boolean enableDrag, boolean initRemoveAction) {
-		this(enableDrop, enableDrag, initRemoveAction, true);
+	public FileBotList(boolean enableDrop, boolean enableDrag, boolean enableRemoveAction) {
+		this(enableDrop, enableDrag, enableRemoveAction, true);
 	}
 	
 
@@ -65,6 +65,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		
 		list.setCellRenderer(new FancyListCellRenderer());
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
 		add(listScrollPane, BorderLayout.CENTER);
 		
 		ImportHandler importHander = null;

@@ -46,7 +46,7 @@ public abstract class ToolPanel extends JComponent {
 				return;
 			
 			loadingOverlay.setOverlayVisible(loading);
-			loadingOverlay.updateOverlayUI();
+			loadingOverlay.updateOverlay();
 		}
 	};
 	

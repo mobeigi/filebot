@@ -7,7 +7,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 
-public class SelectionSynchroniser {
+class SelectionSynchroniser {
 	
 	private JList list1;
 	private JList list2;

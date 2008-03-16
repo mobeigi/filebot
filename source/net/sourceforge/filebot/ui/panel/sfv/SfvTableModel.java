@@ -10,22 +10,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
 import net.sourceforge.filebot.FileFormat;
 
 
-public class SfvTableModel extends AbstractTableModel {
+class SfvTableModel extends AbstractTableModel {
 	
-	private ArrayList<ChecksumRow> rows = new ArrayList<ChecksumRow>();
+	private List<ChecksumRow> rows = new ArrayList<ChecksumRow>();
 	
 	/**
 	 * Used for Name->Checksum mapping (for performance reasons)
 	 */
-	private HashMap<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>();
+	private Map<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>();
 	
-	private ArrayList<File> checksumColumnRoots = new ArrayList<File>();
+	private List<File> checksumColumnRoots = new ArrayList<File>();
 	
 	private int checksumColumnsOffset = 2;
 	

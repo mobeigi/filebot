@@ -5,12 +5,15 @@ package net.sourceforge.filebot.ui.panel.analyze;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sourceforge.filebot.ui.FileBotTree;
@@ -19,7 +22,7 @@ import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 
 
-public class FileTree extends FileBotTree {
+class FileTree extends FileBotTree {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	public static final String CONTENT_PROPERTY = "content";
@@ -28,7 +31,7 @@ public class FileTree extends FileBotTree {
 	
 	
 	public FileTree() {
-		FileTreeTransferPolicy transferPolicy = new FileTreeTransferPolicy((DefaultMutableTreeNode) getModel().getRoot());
+		FileTreeTransferPolicy transferPolicy = new FileTreeTransferPolicy(this);
 		transferPolicy.addPropertyChangeListener(LOADING_PROPERTY, new LoadingPropertyChangeListener());
 		
 		setTransferablePolicy(transferPolicy);
@@ -37,15 +40,24 @@ public class FileTree extends FileBotTree {
 	
 
 	public void removeTreeItems(TreePath paths[]) {
-		firePropertyChange(LOADING_PROPERTY, null, true);
+		List<TreeNode> changedNodes = new ArrayList<TreeNode>(paths.length);
 		
 		for (TreePath element : paths) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) (element.getLastPathComponent());
-			node.removeFromParent();
+			
+			if (!node.isRoot()) {
+				changedNodes.add(node.getParent());
+				node.removeFromParent();
+			}
+		}
+		
+		DefaultTreeModel model = (DefaultTreeModel) getModel();
+		
+		for (TreeNode treeNode : changedNodes) {
+			model.reload(treeNode);
 		}
 		
 		contentChanged();
-		firePropertyChange(LOADING_PROPERTY, null, false);
 	}
 	
 
@@ -68,14 +80,11 @@ public class FileTree extends FileBotTree {
 		
 		super.clear();
 		
-		if (!loading) {
-			contentChanged();
-		}
-		// else, contentChanged() will be called after when loading is finished
+		contentChanged();
 	}
 	
 
-	private void contentChanged() {
+	void contentChanged() {
 		synchronized (this) {
 			if (postProcessor != null)
 				postProcessor.cancel(false);
@@ -92,9 +101,10 @@ public class FileTree extends FileBotTree {
 		public void propertyChange(PropertyChangeEvent evt) {
 			Boolean loading = (Boolean) evt.getNewValue();
 			
-			if (loading) {
-				firePropertyChange(FileTree.LOADING_PROPERTY, null, true);
-			} else {
+			firePropertyChange(FileTree.LOADING_PROPERTY, null, loading);
+			
+			if (!loading) {
+				((DefaultTreeModel) getModel()).reload();
 				contentChanged();
 			}
 		}
@@ -120,9 +130,6 @@ public class FileTree extends FileBotTree {
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
-			
-			FileTree.this.firePropertyChange(FileTree.LOADING_PROPERTY, null, false);
-			updateUI();
 		}
 		
 	}

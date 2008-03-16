@@ -16,8 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
+import net.sourceforge.tuned.ui.HyperlinkLabel;
 
-public class HistoryPanel extends JPanel {
+
+class HistoryPanel extends JPanel {
 	
 	private JPanel grid = new JPanel(new GridLayout(0, 3, 15, 10));
 	

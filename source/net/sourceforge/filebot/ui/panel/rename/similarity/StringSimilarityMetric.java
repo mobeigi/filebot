@@ -25,7 +25,7 @@ public class StringSimilarityMetric extends SimilarityMetric {
 
 	@Override
 	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
-		return metric.getSimilarity(a.toString(), b.toString());
+		return metric.getSimilarity(a.getName(), b.getName());
 	}
 	
 

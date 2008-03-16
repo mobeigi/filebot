@@ -11,13 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -27,40 +24,30 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 
 public class SelectDialog<T> extends JDialog {
 	
-	private Collection<T> options;
+	private JLabel label = new JLabel();
 	
-	private Map<T, ? extends Icon> iconMap;
+	private JList list = new JList();
+	
+	private T selectedValue = null;
 	
 	
-	public SelectDialog(Window owner, Collection<T> options, Map<T, ? extends Icon> icons) {
-		this(owner);
-		this.options = options;
-		this.iconMap = icons;
-		initialize();
-	}
-	
-
 	public SelectDialog(Window owner, Collection<T> options) {
-		this(owner, options, null);
-	}
-	
-
-	private SelectDialog(Window owner) {
 		super(owner, "Select", ModalityType.DOCUMENT_MODAL);
+		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		list.setCellRenderer(cellRenderer);
+		list.setCellRenderer(new SelectListCellRenderer());
 		list.addMouseListener(mouseListener);
 		
-		label.setText("Select:");
+		setText("Select:");
 		
 		JComponent c = (JComponent) getContentPane();
+		
 		int border = 5;
 		c.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
 		c.setLayout(new BorderLayout(border, border));
@@ -82,8 +69,14 @@ public class SelectDialog<T> extends JDialog {
 		c.add(listPanel, BorderLayout.CENTER);
 		c.add(buttonBox, BorderLayout.SOUTH);
 		
+		// bounds and  location
 		setMinimumSize(new Dimension(175, 175));
 		setSize(new Dimension(200, 190));
+		setLocation(getDefaultLocation());
+		
+		// default selection
+		list.setModel(new SimpleListModel(options));
+		list.setSelectedIndex(0);
 		
 		// Shortcut Enter
 		Integer actionMapKey = new Integer(selectAction.hashCode());
@@ -97,29 +90,16 @@ public class SelectDialog<T> extends JDialog {
 	}
 	
 
-	public void setDefaultLocation() {
+	public Point getDefaultLocation() {
 		Point p = getOwner().getLocation();
 		Dimension d = getOwner().getSize();
 		
 		Point offset = new Point(d.width / 4, d.height / 7);
-		setLocation(p.x + offset.x, p.y + offset.y);
+		
+		return new Point(p.x + offset.x, p.y + offset.y);
 	}
 	
 
-	private void initialize() {
-		list.setModel(new SimpleListModel(options));
-		list.setSelectedIndex(0);
-		
-		setDefaultLocation();
-	}
-	
-	private JLabel label = new JLabel();
-	
-	private JList list = new JList();
-	
-	private T selectedValue = null;
-	
-	
 	public void setText(String s) {
 		label.setText(s);
 	}
@@ -159,18 +139,17 @@ public class SelectDialog<T> extends JDialog {
 		return value.toString();
 	}
 	
-	private DefaultListCellRenderer cellRenderer = new DefaultListCellRenderer() {
+	
+	private class SelectListCellRenderer extends FancyListCellRenderer {
 		
-		private Border border = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+		public SelectListCellRenderer() {
+			super(4, false);
+		}
 		
-		
+
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
-			setBorder(border);
-			
-			if (iconMap != null)
-				setIcon(iconMap.get(value));
 			
 			return this;
 		}

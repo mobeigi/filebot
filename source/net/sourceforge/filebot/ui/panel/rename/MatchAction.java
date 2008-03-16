@@ -16,17 +16,18 @@ import net.sourceforge.filebot.ui.panel.rename.match.Match;
 import net.sourceforge.filebot.ui.panel.rename.match.Matcher;
 import net.sourceforge.filebot.ui.panel.rename.similarity.LengthEqualsMetric;
 import net.sourceforge.filebot.ui.panel.rename.similarity.MultiSimilarityMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.panel.rename.similarity.StringEqualsMetric;
 import net.sourceforge.filebot.ui.panel.rename.similarity.StringSimilarityMetric;
 
 
-public class MatchAction extends AbstractAction {
+class MatchAction extends AbstractAction {
 	
 	private NamesRenameList namesList;
 	private FilesRenameList filesList;
-	private Matcher matcher;
-	private SimilarityMetric metric;
+	
+	private MultiSimilarityMetric metrics;
+	
+	private Matcher matcher = new Matcher();
 	
 	private boolean matchName2File;
 	
@@ -40,15 +41,8 @@ public class MatchAction extends AbstractAction {
 		this.namesList = namesList;
 		this.filesList = filesList;
 		
-		MultiSimilarityMetric multiMetric = new MultiSimilarityMetric();
-		multiMetric.addMetric(new StringSimilarityMetric());
-		multiMetric.addMetric(new StringEqualsMetric());
-		
 		// length similarity will only effect torrent <-> file matches
-		multiMetric.addMetric(new LengthEqualsMetric());
-		
-		matcher = new Matcher();
-		metric = multiMetric;
+		metrics = new MultiSimilarityMetric(new StringSimilarityMetric(), new StringEqualsMetric(), new LengthEqualsMetric());
 		
 		setMatchName2File(true);
 	}
@@ -67,8 +61,8 @@ public class MatchAction extends AbstractAction {
 	}
 	
 
-	public SimilarityMetric getMetric() {
-		return metric;
+	public MultiSimilarityMetric getMetrics() {
+		return metrics;
 	}
 	
 
@@ -90,7 +84,7 @@ public class MatchAction extends AbstractAction {
 			listA = filesList.getListEntries();
 		}
 		
-		List<Match> matches = matcher.match(listA, listB, metric);
+		List<Match> matches = matcher.match(listA, listB, metrics);
 		
 		List<ListEntry<?>> names = new ArrayList<ListEntry<?>>();
 		List<ListEntry<?>> files = new ArrayList<ListEntry<?>>();

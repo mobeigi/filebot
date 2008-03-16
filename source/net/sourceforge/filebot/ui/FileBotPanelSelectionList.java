@@ -32,7 +32,7 @@ import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
-public class FileBotPanelSelectionList extends JList {
+class FileBotPanelSelectionList extends JList {
 	
 	private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 	

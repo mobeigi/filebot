@@ -9,14 +9,6 @@ public abstract class AbstractFileEntry<T> extends ListEntry<T> {
 	}
 	
 
-	@Override
-	public String toString() {
-		return getName();
-	}
-	
-
 	public abstract long getLength();
 	
-
-	public abstract String getName();
 }

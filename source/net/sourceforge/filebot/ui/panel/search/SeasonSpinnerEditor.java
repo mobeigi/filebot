@@ -16,7 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
-public class SeasonSpinnerEditor extends JPanel implements ChangeListener {
+class SeasonSpinnerEditor extends JPanel implements ChangeListener {
 	
 	public static final int ALL_SEASONS = 0;
 	

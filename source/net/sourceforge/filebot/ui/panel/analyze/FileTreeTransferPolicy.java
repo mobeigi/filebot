@@ -12,11 +12,11 @@ import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferabl
 
 class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> {
 	
-	DefaultMutableTreeNode root;
+	private FileTree tree;
 	
 	
-	public FileTreeTransferPolicy(DefaultMutableTreeNode root) {
-		this.root = root;
+	public FileTreeTransferPolicy(FileTree tree) {
+		this.tree = tree;
 	}
 	
 
@@ -28,12 +28,14 @@ class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMut
 
 	@Override
 	protected void clear() {
-		root.removeAllChildren();
+		tree.clear();
 	}
 	
 
 	@Override
 	protected void process(List<DefaultMutableTreeNode> chunks) {
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+		
 		for (DefaultMutableTreeNode node : chunks) {
 			root.add(node);
 		}

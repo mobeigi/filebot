@@ -34,7 +34,7 @@ import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
-public class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
+class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 	private TransferablePolicy transferablePolicy = new NullTransferablePolicy();
 	

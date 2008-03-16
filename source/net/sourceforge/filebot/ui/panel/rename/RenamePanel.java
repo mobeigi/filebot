@@ -60,7 +60,7 @@ public class RenamePanel extends FileBotPanel {
 		similarityPanel = new SimilarityPanel(list1, list2);
 		
 		similarityPanel.setVisible(false);
-		similarityPanel.setMetrics(matchAction.getMetric());
+		similarityPanel.setMetrics(matchAction.getMetrics());
 		
 		Box box = new Box(BoxLayout.X_AXIS);
 		
@@ -215,6 +215,7 @@ public class RenamePanel extends FileBotPanel {
 
 	private class MatchPopupListener extends MouseAdapter {
 		
+		@Override
 		public void mouseReleased(MouseEvent e) {
 			if (SwingUtilities.isRightMouseButton(e)) {
 				MatcherSelectPopup popup = new MatcherSelectPopup();

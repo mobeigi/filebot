@@ -77,7 +77,6 @@ public class SfvPanel extends FileBotPanel {
 
 		@Override
 		protected String getDefaultFileName() {
-			System.out.println(name);
 			return name;
 		}
 		

@@ -15,7 +15,7 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 
 
-public class TotalProgressPanel extends Box {
+class TotalProgressPanel extends Box {
 	
 	private JProgressBar progressBar = new JProgressBar(0, 0);
 	

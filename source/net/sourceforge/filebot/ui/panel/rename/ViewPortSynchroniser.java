@@ -9,7 +9,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
-public class ViewPortSynchroniser {
+class ViewPortSynchroniser {
 	
 	private JViewport viewport1;
 	private JViewport viewport2;

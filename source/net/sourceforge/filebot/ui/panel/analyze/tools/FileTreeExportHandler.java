@@ -16,7 +16,7 @@ import net.sourceforge.filebot.ui.transfer.ExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
-public class FileTreeExportHandler implements ExportHandler {
+class FileTreeExportHandler implements ExportHandler {
 	
 	@Override
 	public Transferable createTransferable(JComponent c) {

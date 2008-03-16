@@ -69,7 +69,9 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		cardLayout.show(pagePanel, currentPanel.getTitle());
 		
 		JComponent c = (JComponent) getContentPane();
-		c.updateUI();
+		
+		c.revalidate();
+		c.repaint();
 		
 		Settings.getSettings().putInt(Settings.SELECTED_PANEL, selectionListPanel.getSelectedIndex());
 	}

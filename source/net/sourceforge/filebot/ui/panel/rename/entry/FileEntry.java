@@ -15,7 +15,7 @@ public class FileEntry extends AbstractFileEntry<File> {
 	
 
 	@Override
-	public String getName() {
+	public String getName(File value) {
 		return FileFormat.getNameWithoutSuffix(getValue());
 	}
 	

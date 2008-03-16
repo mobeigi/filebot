@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.search;
+package net.sourceforge.tuned.ui;
 
 
 import java.awt.Color;

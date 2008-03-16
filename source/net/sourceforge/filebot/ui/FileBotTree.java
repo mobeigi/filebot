@@ -49,8 +49,11 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 	
 
 	public void clear() {
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
+		DefaultTreeModel model = (DefaultTreeModel) getModel();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+		
 		root.removeAllChildren();
+		model.reload(root);
 	}
 	
 
@@ -194,7 +197,7 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 					Desktop.getDesktop().open(file);
 				} catch (Exception e) {
 					MessageManager.showWarning(e.getMessage());
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
 				}
 			}
 		}

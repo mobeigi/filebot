@@ -9,7 +9,7 @@ public class StringEqualsMetric extends SimilarityMetric {
 	
 	@Override
 	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
-		if (a.toString().equalsIgnoreCase(b.toString())) {
+		if (a.getName().equalsIgnoreCase(b.getName())) {
 			return 1;
 		}
 		

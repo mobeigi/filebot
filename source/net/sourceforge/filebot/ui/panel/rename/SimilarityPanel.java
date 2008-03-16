@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,7 +24,7 @@ import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 
 
-public class SimilarityPanel extends Box {
+class SimilarityPanel extends Box {
 	
 	private JPanel grid = new JPanel(new GridLayout(0, 2, 25, 1));
 	
@@ -35,7 +36,7 @@ public class SimilarityPanel extends Box {
 	
 	private NumberFormat numberFormat = NumberFormat.getNumberInstance();
 	
-	private ArrayList<MetricUpdater> updaterList = new ArrayList<MetricUpdater>();
+	private List<MetricUpdater> updaterList = new ArrayList<MetricUpdater>();
 	
 	private Border labelMarginBorder = BorderFactory.createEmptyBorder(0, 3, 0, 0);
 	
@@ -69,44 +70,36 @@ public class SimilarityPanel extends Box {
 	}
 	
 
-	public void setMetrics(SimilarityMetric similarityMetric) {
+	public void setMetrics(MultiSimilarityMetric metrics) {
 		grid.removeAll();
 		updaterList.clear();
 		
-		if (similarityMetric instanceof MultiSimilarityMetric) {
-			MultiSimilarityMetric multiSimilarityMetric = (MultiSimilarityMetric) similarityMetric;
+		for (SimilarityMetric metric : metrics) {
+			JLabel name = new JLabel(metric.getName());
+			name.setToolTipText(metric.getDescription());
 			
-			for (SimilarityMetric metric : multiSimilarityMetric.getSimilarityMetrics()) {
-				JLabel name = new JLabel(metric.getName());
-				name.setToolTipText(metric.getDescription());
-				
-				JLabel value = new JLabel();
-				
-				name.setBorder(labelMarginBorder);
-				value.setBorder(labelMarginBorder);
-				
-				MetricUpdater updater = new MetricUpdater(value, metric);
-				updaterList.add(updater);
-				
-				grid.add(name);
-				grid.add(value);
-			}
+			JLabel value = new JLabel();
+			
+			name.setBorder(labelMarginBorder);
+			value.setBorder(labelMarginBorder);
+			
+			MetricUpdater updater = new MetricUpdater(value, metric);
+			updaterList.add(updater);
+			
+			grid.add(name);
+			grid.add(value);
 		}
 		
-		JLabel name = new JLabel(similarityMetric.getName());
-		name.setToolTipText(similarityMetric.getDescription());
+		JLabel name = new JLabel(metrics.getName());
 		
 		JLabel value = new JLabel();
 		
-		MetricUpdater updater = new MetricUpdater(value, similarityMetric);
+		MetricUpdater updater = new MetricUpdater(value, metrics);
 		updaterList.add(updater);
 		
-		if (similarityMetric instanceof MultiSimilarityMetric) {
-			Border border = BorderFactory.createCompoundBorder(separatorBorder, labelMarginBorder);
-			
-			name.setBorder(border);
-			value.setBorder(border);
-		}
+		Border border = BorderFactory.createCompoundBorder(separatorBorder, labelMarginBorder);
+		name.setBorder(border);
+		value.setBorder(border);
 		
 		grid.add(name);
 		grid.add(value);
@@ -134,7 +127,7 @@ public class SimilarityPanel extends Box {
 		ListEntry<?> a = (ListEntry<?>) nameList.getSelectedValue();
 		ListEntry<?> b = (ListEntry<?>) fileList.getSelectedValue();
 		
-		if (a == lastListEntryA && b == lastListEntryB)
+		if ((a == lastListEntryA) && (b == lastListEntryB))
 			return;
 		
 		lastListEntryA = a;

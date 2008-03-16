@@ -82,8 +82,9 @@ public class LoadingOverlayPanel extends JPanel {
 	}
 	
 	
-	public void updateOverlayUI() {
-		loadingLabel.updateUI();
+	public void updateOverlay() {
+		revalidate();
+		repaint();
 	}
 	
 }

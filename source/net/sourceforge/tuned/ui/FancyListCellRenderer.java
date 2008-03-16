@@ -33,6 +33,11 @@ public class FancyListCellRenderer extends DefaultListCellRenderer {
 	}
 	
 
+	public FancyListCellRenderer(int padding, boolean highlighting) {
+		this(GradientStyle.TOP_TO_BOTTOM, highlighting, new Insets(padding, padding, padding, padding), new Insets(1, 1, 0, 1), null);
+	}
+	
+
 	public FancyListCellRenderer(int padding, Color selectedBorderColor, GradientStyle gradientStyle) {
 		this(gradientStyle, false, new Insets(padding, padding, padding, padding), new Insets(0, 0, 0, 0), selectedBorderColor);
 	}

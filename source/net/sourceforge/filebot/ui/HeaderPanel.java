@@ -20,7 +20,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 
-public class HeaderPanel extends JPanel {
+class HeaderPanel extends JPanel {
 	
 	private JLabel titleLabel = new JLabel();
 	
