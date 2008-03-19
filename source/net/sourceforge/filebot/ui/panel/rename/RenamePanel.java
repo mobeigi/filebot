@@ -25,6 +25,8 @@ import javax.swing.event.ListDataListener;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
+import net.sourceforge.tuned.MessageBus;
 
 
 public class RenamePanel extends FileBotPanel {
@@ -80,6 +82,8 @@ public class RenamePanel extends FileBotPanel {
 		
 		namesList.getModel().addListDataListener(repaintOnDataChange);
 		filesList.getModel().addListDataListener(repaintOnDataChange);
+		
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), namesList));
 	}
 	
 
@@ -117,16 +121,16 @@ public class RenamePanel extends FileBotPanel {
 		
 
 		public void intervalAdded(ListDataEvent e) {
-			update();
+			repaintBoth();
 		}
 		
 
 		public void intervalRemoved(ListDataEvent e) {
-			update();
+			repaintBoth();
 		}
 		
 
-		public void update() {
+		public void repaintBoth() {
 			namesList.repaint();
 			filesList.repaint();
 		}

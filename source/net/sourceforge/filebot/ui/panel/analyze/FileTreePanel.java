@@ -4,8 +4,6 @@ package net.sourceforge.filebot.ui.panel.analyze;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -19,23 +17,18 @@ import javax.swing.border.EmptyBorder;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.tuned.ui.LoadingOverlayPanel;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
 class FileTreePanel extends JPanel {
 	
 	private FileTree fileTree = new FileTree();
 	
-	private LoadingOverlayPanel loadingOverlay;
-	
 	
 	public FileTreePanel() {
 		super(new BorderLayout());
-		fileTree.addPropertyChangeListener(FileTree.LOADING_PROPERTY, loadingOverlayUpdateListener);
 		
 		setBorder(BorderFactory.createTitledBorder("File Tree"));
-		
-		loadingOverlay = new LoadingOverlayPanel(new JScrollPane(fileTree), ResourceManager.getIcon("loading"));
 		
 		Box buttons = Box.createHorizontalBox();
 		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -48,21 +41,11 @@ class FileTreePanel extends JPanel {
 		// Shortcut DELETE
 		FileBotUtil.registerActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
-		add(loadingOverlay, BorderLayout.CENTER);
+		add(new LoadingOverlayPane(new JScrollPane(fileTree), ResourceManager.getIcon("loading")), BorderLayout.CENTER);
 		add(buttons, BorderLayout.SOUTH);
 	}
 	
-	private PropertyChangeListener loadingOverlayUpdateListener = new PropertyChangeListener() {
-		
-		public void propertyChange(PropertyChangeEvent evt) {
-			Boolean loading = (Boolean) evt.getNewValue();
-			
-			loadingOverlay.setOverlayVisible(loading);
-			loadingOverlay.updateOverlay();
-		}
-	};
-	
-	
+
 	public FileTree getFileTree() {
 		return fileTree;
 	}

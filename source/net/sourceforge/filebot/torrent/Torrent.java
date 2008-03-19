@@ -65,7 +65,7 @@ public class Torrent {
 				Map<?, ?> fileMap = (Map<?, ?>) fileMapObject;
 				List<?> pathList = (List<?>) fileMap.get("path");
 				
-				StringBuffer pathBuffer = new StringBuffer();
+				StringBuilder pathBuffer = new StringBuilder();
 				String entryName = null;
 				
 				Iterator<?> iterator = pathList.iterator();

@@ -22,6 +22,7 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
 	}
 	
 
+	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 		super.beforeExecute(t, r);
 		pauseLock.lock();
@@ -56,8 +57,8 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor {
 		}
 	}
 	
-	
-    public boolean isPaused() {
-	    return paused;
+
+	public boolean isPaused() {
+		return paused;
 	}
 }

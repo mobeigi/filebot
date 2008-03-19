@@ -1,11 +1,10 @@
 
-package net.sourceforge.tuned.ui;
+package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -25,6 +24,11 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+
+import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.ui.FancyListCellRenderer;
+import net.sourceforge.tuned.ui.SimpleListModel;
 
 
 public class SelectDialog<T> extends JDialog {
@@ -72,7 +76,7 @@ public class SelectDialog<T> extends JDialog {
 		// bounds and  location
 		setMinimumSize(new Dimension(175, 175));
 		setSize(new Dimension(200, 190));
-		setLocation(getDefaultLocation());
+		setLocation(FileBotUtil.getPreferredLocation(this));
 		
 		// default selection
 		list.setModel(new SimpleListModel(options));
@@ -87,16 +91,6 @@ public class SelectDialog<T> extends JDialog {
 		actionMapKey = new Integer(cancelAction.hashCode());
 		list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released ESCAPE"), actionMapKey);
 		list.getActionMap().put(actionMapKey, cancelAction);
-	}
-	
-
-	public Point getDefaultLocation() {
-		Point p = getOwner().getLocation();
-		Dimension d = getOwner().getSize();
-		
-		Point offset = new Point(d.width / 4, d.height / 7);
-		
-		return new Point(p.x + offset.x, p.y + offset.y);
 	}
 	
 
@@ -115,7 +109,7 @@ public class SelectDialog<T> extends JDialog {
 		list.setSelectedValue(value, true);
 	}
 	
-	private AbstractAction selectAction = new AbstractAction("Select") {
+	private AbstractAction selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
 		@SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent e) {
@@ -125,7 +119,7 @@ public class SelectDialog<T> extends JDialog {
 		}
 	};
 	
-	private AbstractAction cancelAction = new AbstractAction("Cancel") {
+	private AbstractAction cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
 		public void actionPerformed(ActionEvent e) {
 			selectedValue = null;

@@ -25,7 +25,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected boolean accept(File file) {
-		return file.isDirectory() || FileFormat.getSuffix(file).equalsIgnoreCase("torrent");
+		return file.isDirectory() || FileFormat.getExtension(file).equalsIgnoreCase("torrent");
 	}
 	
 
@@ -44,13 +44,13 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 				list.getModel().add(FileFormat.formatName(f));
 			}
 		} else {
-			if (FileFormat.getSuffix(file).equalsIgnoreCase("torrent")) {
+			if (FileFormat.getExtension(file).equalsIgnoreCase("torrent")) {
 				try {
 					Torrent torrent = new Torrent(file);
-					list.setTitle(FileFormat.getNameWithoutSuffix(torrent.getName()));
+					list.setTitle(FileFormat.getNameWithoutExtension(torrent.getName()));
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {
-						list.getModel().add(FileFormat.getNameWithoutSuffix(entry.getName()));
+						list.getModel().add(FileFormat.getNameWithoutExtension(entry.getName()));
 					}
 				} catch (IOException e) {
 					// should not happen

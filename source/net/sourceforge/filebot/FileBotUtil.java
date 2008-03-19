@@ -2,11 +2,15 @@
 package net.sourceforge.filebot;
 
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Window;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
 
@@ -69,5 +73,18 @@ public class FileBotUtil {
 		}
 		
 		return sb.toString();
+	}
+	
+
+	public static Point getPreferredLocation(JDialog dialog) {
+		Window owner = dialog.getOwner();
+		
+		if (owner == null)
+			return new Point(120, 80);
+		
+		Point p = owner.getLocation();
+		Dimension d = owner.getSize();
+		
+		return new Point(p.x + d.width / 4, p.y + d.height / 7);
 	}
 }

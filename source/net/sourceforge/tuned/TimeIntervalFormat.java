@@ -25,13 +25,13 @@ public class TimeIntervalFormat {
 			negativ = true;
 		}
 		
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (long unitBaseTime : unitMap.descendingKeySet()) {
 			int quotient = (int) (millis / unitBaseTime);
 			
 			boolean isLastKey = (unitBaseTime == unitMap.firstKey());
 			
-			if (zerounits || quotient != 0 || isLastKey) {
+			if (zerounits || (quotient != 0) || isLastKey) {
 				sb.append(quotient + unitMap.get(unitBaseTime));
 				
 				if (!isLastKey)

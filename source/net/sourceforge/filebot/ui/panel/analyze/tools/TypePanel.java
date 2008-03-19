@@ -22,7 +22,7 @@ import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.tuned.ui.LoadingOverlayPanel;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
 public class TypePanel extends ToolPanel {
@@ -36,13 +36,10 @@ public class TypePanel extends ToolPanel {
 		
 		JScrollPane sp = new JScrollPane(tree);
 		sp.setBorder(BorderFactory.createEmptyBorder());
-		LoadingOverlayPanel loadingOverlay = new LoadingOverlayPanel(sp, ResourceManager.getIcon("loading"));
-		add(loadingOverlay, BorderLayout.CENTER);
+		add(new LoadingOverlayPane(sp, ResourceManager.getIcon("loading")), BorderLayout.CENTER);
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
-		
-		setLoadingOverlayPane(loadingOverlay);
 	}
 	
 	private UpdateTask latestUpdateTask;
@@ -52,7 +49,7 @@ public class TypePanel extends ToolPanel {
 	public void update(Collection<File> files) {
 		latestUpdateTask = new UpdateTask(files);
 		
-		firePropertyChange(LOADING_PROPERTY, null, true);
+		tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
 		latestUpdateTask.execute();
 	}
 	
@@ -80,16 +77,16 @@ public class TypePanel extends ToolPanel {
 			Map<String, Collection<File>> map = new HashMap<String, Collection<File>>();
 			
 			for (File f : files) {
-				String suffix = FileFormat.getSuffix(f);
+				String extension = FileFormat.getExtension(f);
 				
-				Collection<File> list = map.get(suffix);
+				Collection<File> list = map.get(extension);
 				
 				if (list != null)
 					list.add(f);
 				else {
 					list = new ArrayList<File>();
 					list.add(f);
-					map.put(suffix, list);
+					map.put(extension, list);
 				}
 				
 				if (!isLatest())
@@ -135,7 +132,7 @@ public class TypePanel extends ToolPanel {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 			
-			TypePanel.this.firePropertyChange(LOADING_PROPERTY, null, false);
+			tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
 		}
 	}
 	

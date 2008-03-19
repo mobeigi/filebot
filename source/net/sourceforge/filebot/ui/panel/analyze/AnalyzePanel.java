@@ -19,15 +19,19 @@ import javax.swing.SwingConstants;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.panel.analyze.tools.SplitPanel;
 import net.sourceforge.filebot.ui.panel.analyze.tools.ToolPanel;
 import net.sourceforge.filebot.ui.panel.analyze.tools.TypePanel;
+import net.sourceforge.tuned.MessageBus;
 
 
 public class AnalyzePanel extends FileBotPanel {
 	
-	private FileTreePanel filePanel = new FileTreePanel();
-	private JTabbedPane toolsPanel = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	private final FileTreePanel fileTreePanel = new FileTreePanel();
+	private final JTabbedPane toolsPanel = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	
+	private final List<ToolPanel> toolPanels = new ArrayList<ToolPanel>();
 	
 	
 	public AnalyzePanel() {
@@ -35,7 +39,7 @@ public class AnalyzePanel extends FileBotPanel {
 		
 		Box panel = new Box(BoxLayout.X_AXIS);
 		
-		panel.add(filePanel);
+		panel.add(fileTreePanel);
 		
 		panel.add(Box.createHorizontalStrut(50));
 		
@@ -49,14 +53,22 @@ public class AnalyzePanel extends FileBotPanel {
 		
 		add(panel, BorderLayout.CENTER);
 		
-		filePanel.getFileTree().addPropertyChangeListener(FileTree.CONTENT_PROPERTY, fileTreeChangeListener);
-		
-		addTool(new TypePanel());
-		addTool(new SplitPanel());
-		
 		Dimension min = new Dimension(300, 300);
-		filePanel.setMinimumSize(min);
+		fileTreePanel.setMinimumSize(min);
 		toolsPanel.setMinimumSize(min);
+		
+		addTool(new SplitPanel());
+		addTool(new TypePanel());
+		
+		fileTreePanel.getFileTree().addPropertyChangeListener(FileTree.CONTENT_PROPERTY, fileTreeChangeListener);
+		
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), fileTreePanel.getFileTree()));
+	}
+	
+
+	private void addTool(ToolPanel toolPanel) {
+		toolsPanel.addTab(toolPanel.getToolName(), toolPanel);
+		toolPanels.add(toolPanel);
 	}
 	
 	private PropertyChangeListener fileTreeChangeListener = new PropertyChangeListener() {
@@ -65,17 +77,10 @@ public class AnalyzePanel extends FileBotPanel {
 		public void propertyChange(PropertyChangeEvent evt) {
 			List<File> files = (List<File>) evt.getNewValue();
 			
-			for (ToolPanel toolPanel : toolPanels)
+			for (ToolPanel toolPanel : toolPanels) {
 				toolPanel.update(files);
+			}
 		}
 	};
-	
-	private List<ToolPanel> toolPanels = new ArrayList<ToolPanel>();
-	
-	
-	public void addTool(ToolPanel toolPanel) {
-		toolsPanel.addTab(toolPanel.getName(), toolPanel);
-		toolPanels.add(toolPanel);
-	}
 	
 }

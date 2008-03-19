@@ -52,10 +52,10 @@ public class ResourceManager {
 	
 
 	public static ImageIcon getArchiveIcon(String type) {
-		URL url = ResourceManager.class.getResource(String.format("archive/%s.png", type.toLowerCase()));
+		URL url = ResourceManager.class.getResource(String.format("archives/%s.png", type.toLowerCase()));
 		
 		if (url == null)
-			url = ResourceManager.class.getResource(String.format("archive/default.png"));
+			url = ResourceManager.class.getResource(String.format("archives/default.png"));
 		
 		return new ImageIcon(url);
 	}

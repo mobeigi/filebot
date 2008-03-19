@@ -29,7 +29,7 @@ import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.LoadingOverlayPanel;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 
 
@@ -46,7 +46,6 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		
 		JScrollPane sp = new JScrollPane(tree);
 		sp.setBorder(BorderFactory.createEmptyBorder());
-		LoadingOverlayPanel loadingOverlay = new LoadingOverlayPanel(sp, ResourceManager.getIcon("loading"));
 		JSpinner spinner = new JSpinner(spinnerModel);
 		spinner.setMaximumSize(spinner.getPreferredSize());
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
@@ -60,7 +59,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		spinnerBox.add(new JLabel("MB."));
 		spinnerBox.add(Box.createGlue());
 		
-		add(loadingOverlay, BorderLayout.CENTER);
+		add(new LoadingOverlayPane(sp, ResourceManager.getIcon("loading")), BorderLayout.CENTER);
 		add(spinnerBox, BorderLayout.SOUTH);
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
@@ -70,7 +69,6 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		SeparatorBorder separatorBorder = new SeparatorBorder(2, beginColor, GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.TOP);
 		spinnerBox.setBorder(new CompoundBorder(separatorBorder, new EmptyBorder(6, 5, 7, 5)));
 		
-		setLoadingOverlayPane(loadingOverlay);
 		spinnerModel.addChangeListener(this);
 		spinner.setPreferredSize(new Dimension(80, 20));
 	}
@@ -103,7 +101,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 
 	private void update() {
 		latestUpdateTask = new UpdateTask();
-		firePropertyChange(LOADING_PROPERTY, null, true);
+		tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
 		latestUpdateTask.execute();
 	}
 	
@@ -185,7 +183,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 			
-			SplitPanel.this.firePropertyChange(LOADING_PROPERTY, null, false);
+			tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
 		}
 	}
 	

@@ -10,7 +10,8 @@ import net.sourceforge.filebot.ui.FileBotList;
 
 class EpisodeListPanel extends FileBotList {
 	
-	private TabComponentWithClose tabComponent;
+	private final TabComponentWithClose tabComponent = new TabComponentWithClose();
+	
 	private ImageIcon icon;
 	
 	private boolean loading = false;
@@ -18,7 +19,6 @@ class EpisodeListPanel extends FileBotList {
 	
 	public EpisodeListPanel() {
 		super(false, true, true, false);
-		tabComponent = new TabComponentWithClose();
 	}
 	
 
@@ -35,10 +35,12 @@ class EpisodeListPanel extends FileBotList {
 	
 
 	public void setIcon(ImageIcon icon) {
-		this.icon = icon;
-		
-		if (!loading) {
-			tabComponent.setIcon(icon);
+		synchronized (tabComponent) {
+			this.icon = icon;
+			
+			if (!loading) {
+				tabComponent.setIcon(icon);
+			}
 		}
 	}
 	
@@ -49,10 +51,12 @@ class EpisodeListPanel extends FileBotList {
 	
 
 	public void setLoading(boolean loading) {
-		if (loading) {
-			tabComponent.setIcon(ResourceManager.getIcon("tab.loading"));
-		} else {
-			tabComponent.setIcon(icon);
+		synchronized (tabComponent) {
+			if (loading) {
+				tabComponent.setIcon(ResourceManager.getIcon("tab.loading"));
+			} else {
+				tabComponent.setIcon(icon);
+			}
 		}
 	}
 	

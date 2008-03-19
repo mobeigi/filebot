@@ -18,7 +18,7 @@ public class Settings {
 	
 	private static Settings settings = new Settings();
 	
-	private static final String ROOT = "filebot";
+	public static final String ROOT = "filebot";
 	
 	public static final String SELECTED_PANEL = "panel";
 	public static final String SEARCH_HISTORY = "history/search";

@@ -12,7 +12,7 @@ import javax.swing.AbstractListModel;
 
 public class SimpleListModel extends AbstractListModel {
 	
-	private List<Object> list;
+	private final List<Object> list;
 	
 	
 	public SimpleListModel() {

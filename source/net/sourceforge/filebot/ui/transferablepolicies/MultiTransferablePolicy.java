@@ -40,13 +40,14 @@ public class MultiTransferablePolicy implements TransferablePolicy {
 	public void handleTransferable(Transferable tr, boolean add) {
 		TransferablePolicy policy = getFirstAccepted(tr);
 		
-		if (policy != null) {
-			if (!add)
-				clear();
-			
-			policy.handleTransferable(tr, add);
+		if (policy == null)
+			return;
+		
+		if (!add) {
+			clear();
 		}
 		
+		policy.handleTransferable(tr, add);
 	}
 	
 

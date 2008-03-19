@@ -45,11 +45,13 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 				invalidEntries.add(entry);
 		}
 		
-		ValidateNamesDialog dialog = new ValidateNamesDialog(SwingUtilities.getWindowAncestor(list), invalidEntries);
-		dialog.setVisible(true);
-		
-		if (dialog.isCancelled())
-			return;
+		if (!invalidEntries.isEmpty()) {
+			ValidateNamesDialog dialog = new ValidateNamesDialog(SwingUtilities.getWindowAncestor(list), invalidEntries);
+			dialog.setVisible(true);
+			
+			if (dialog.isCancelled())
+				return;
+		}
 		
 		list.getModel().addAll(entries);
 	}
@@ -77,7 +79,7 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 			try {
 				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
 				
-				if (FileFormat.getSuffix(file).equalsIgnoreCase("torrent")) {
+				if (FileFormat.getExtension(file).equalsIgnoreCase("torrent")) {
 					Torrent torrent = new Torrent(file);
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {

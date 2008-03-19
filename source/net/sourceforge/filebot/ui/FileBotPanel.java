@@ -3,20 +3,54 @@ package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
+import java.util.LinkedHashSet;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
+import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
+import net.sourceforge.filebot.ui.panel.list.ListPanel;
+import net.sourceforge.filebot.ui.panel.rename.RenamePanel;
+import net.sourceforge.filebot.ui.panel.search.SearchPanel;
+import net.sourceforge.filebot.ui.panel.sfv.SfvPanel;
+import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
+
 
 public class FileBotPanel extends JPanel {
 	
-	private String title;
-	private Icon icon;
+	private static final LinkedHashSet<FileBotPanel> registry = new LinkedHashSet<FileBotPanel>();
+	
+	static {
+		registry.add(new ListPanel());
+		registry.add(new RenamePanel());
+		registry.add(new AnalyzePanel());
+		registry.add(new SearchPanel());
+		registry.add(new SubtitlePanel());
+		registry.add(new SfvPanel());
+	}
+	
+	
+	public static Iterable<FileBotPanel> getAvailablePanels() {
+		return registry;
+	}
+	
+
+	public static FileBotPanel forName(String name) {
+		for (FileBotPanel panel : registry) {
+			if (name.equalsIgnoreCase(panel.getPanelName()))
+				return panel;
+		}
+		
+		return null;
+	}
+	
+	private final String name;
+	private final Icon icon;
 	
 	
 	public FileBotPanel(String title, Icon icon) {
 		super(new BorderLayout(10, 0));
-		this.title = title;
+		this.name = title;
 		this.icon = icon;
 	}
 	
@@ -26,8 +60,7 @@ public class FileBotPanel extends JPanel {
 	}
 	
 
-	public String getTitle() {
-		return title;
+	public String getPanelName() {
+		return name;
 	}
-	
 }

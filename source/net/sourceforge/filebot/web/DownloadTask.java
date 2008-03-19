@@ -27,7 +27,10 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 	
 	
 	public static enum DownloadState {
-		PENDING, CONNECTING, DOWNLOADING, DONE;
+		PENDING,
+		CONNECTING,
+		DOWNLOADING,
+		DONE;
 	}
 	
 	private static final int BUFFER_SIZE = 4 * 1024;
@@ -132,7 +135,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 	
 
 	private static ByteBuffer encodeParameters(Map<String, String> parameters) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		int i = 0;
 		

@@ -34,20 +34,20 @@ public class DefaultClipboardHandler implements ClipboardHandler {
 			JTable table = (JTable) comp;
 			
 			for (int row : table.getSelectedRows()) {
-				StringBuffer b = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				int maxCol = table.getColumnCount() - 1;
 				for (int col = 0; col <= maxCol; col++) {
-					b.append(table.getModel().getValueAt(row, col));
+					sb.append(table.getModel().getValueAt(row, col));
 					
 					if (col != maxCol)
-						b.append("\t");
+						sb.append("\t");
 				}
 				
-				lines.add(b.toString());
+				lines.add(sb.toString());
 			}
 		}
 		
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Iterator<String> it = lines.iterator();
 		
 		while (it.hasNext()) {

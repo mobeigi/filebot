@@ -81,7 +81,7 @@ public abstract class FileTransferablePolicy implements TransferablePolicy {
 	public void handleTransferable(Transferable tr, boolean add) {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (files == null)
+		if ((files == null) || files.isEmpty())
 			return;
 		
 		Collections.sort(files);

@@ -8,7 +8,7 @@ import java.text.NumberFormat;
 
 public class FileFormat {
 	
-	private static NumberFormat nf = NumberFormat.getNumberInstance();
+	private static final NumberFormat numberFormat = NumberFormat.getNumberInstance();
 	
 	public final static long KILO = 1024;
 	
@@ -17,17 +17,17 @@ public class FileFormat {
 	public final static long GIGA = MEGA * 1024;
 	
 	static {
-		nf.setMaximumFractionDigits(0);
+		numberFormat.setMaximumFractionDigits(0);
 	}
 	
 	
 	public static String formatSize(long size) {
 		if (size >= MEGA)
-			return nf.format((double) size / MEGA) + " MB";
+			return numberFormat.format((double) size / MEGA) + " MB";
 		else if (size >= KILO)
-			return nf.format((double) size / KILO) + " KB";
+			return numberFormat.format((double) size / KILO) + " KB";
 		else
-			return nf.format(size) + " Byte";
+			return numberFormat.format(size) + " Byte";
 	}
 	
 
@@ -37,7 +37,7 @@ public class FileFormat {
 		if (f.isDirectory())
 			return name;
 		
-		return getNameWithoutSuffix(name);
+		return getNameWithoutExtension(name);
 	}
 	
 
@@ -49,16 +49,16 @@ public class FileFormat {
 	}
 	
 
-	public static String getSuffix(File f) {
-		return getSuffix(f, false);
+	public static String getExtension(File f) {
+		return getExtension(f, false);
 	}
 	
 
-	public static String getSuffix(File f, boolean includeDot) {
+	public static String getExtension(File f, boolean includeDot) {
 		String name = f.getName();
 		int dotIndex = name.lastIndexOf(".");
 		
-		// .config -> no suffix
+		// .config -> no extension
 		if (dotIndex >= 1) {
 			int startIndex = dotIndex;
 			
@@ -74,7 +74,7 @@ public class FileFormat {
 	}
 	
 
-	public static String getNameWithoutSuffix(String name) {
+	public static String getNameWithoutExtension(String name) {
 		int dotIndex = name.lastIndexOf(".");
 		
 		if (dotIndex < 1)
@@ -84,8 +84,8 @@ public class FileFormat {
 	}
 	
 
-	public static String getNameWithoutSuffix(File file) {
-		return getNameWithoutSuffix(file.getName());
+	public static String getNameWithoutExtension(File file) {
+		return getNameWithoutExtension(file.getName());
 	}
 	
 

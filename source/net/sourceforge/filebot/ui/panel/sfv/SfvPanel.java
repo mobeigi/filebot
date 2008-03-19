@@ -21,9 +21,11 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
+import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.ui.SelectDialog;
+import net.sourceforge.tuned.MessageBus;
 
 
 public class SfvPanel extends FileBotPanel {
@@ -60,6 +62,8 @@ public class SfvPanel extends FileBotPanel {
 		
 		// Shortcut DELETE
 		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), sfvTable));
 	}
 	
 	private final SaveAction saveAction = new SaveAction(sfvTable) {
@@ -114,7 +118,7 @@ public class SfvPanel extends FileBotPanel {
 				return;
 			
 			index = options.indexOf(selected);
-			name = FileFormat.getNameWithoutSuffix(selected);
+			name = FileFormat.getNameWithoutExtension(selected);
 			
 			if (name.isEmpty())
 				name = "name";

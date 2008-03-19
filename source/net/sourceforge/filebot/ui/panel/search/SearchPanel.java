@@ -34,14 +34,14 @@ import javax.swing.border.EmptyBorder;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.MessageManager;
+import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
+import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.tuned.ui.SelectButton;
-import net.sourceforge.tuned.ui.SelectDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TextCompletion;
 import net.sourceforge.tuned.ui.TextFieldWithSelect;
@@ -176,15 +176,15 @@ public class SearchPanel extends FileBotPanel {
 	
 	private final SaveAction saveAction = new SaveAction(null) {
 		
-		private FileBotList current;
+		private Saveable current;
 		
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Component c = tabbedPane.getSelectedComponent();
 			
-			if (c instanceof FileBotList) {
-				current = (FileBotList) c;
+			if (c instanceof Saveable) {
+				current = (Saveable) c;
 				super.actionPerformed(e);
 			}
 		}

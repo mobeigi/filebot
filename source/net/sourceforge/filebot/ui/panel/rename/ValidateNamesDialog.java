@@ -5,10 +5,8 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -84,22 +82,12 @@ public class ValidateNamesDialog extends JDialog {
 		c.add(listPanel, BorderLayout.CENTER);
 		c.add(buttonBox, BorderLayout.SOUTH);
 		
-		setLocation(getDefaultLocation());
+		setLocation(FileBotUtil.getPreferredLocation(this));
 		
 		// Shortcut Escape
 		FileBotUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 		
 		pack();
-	}
-	
-
-	public Point getDefaultLocation() {
-		Point p = getOwner().getLocation();
-		Dimension d = getOwner().getSize();
-		
-		Point offset = new Point(d.width / 4, d.height / 7);
-		
-		return new Point(p.x + offset.x, p.y + offset.y);
 	}
 	
 
@@ -119,7 +107,7 @@ public class ValidateNamesDialog extends JDialog {
 	private class ValidateAction extends AbstractAction {
 		
 		public ValidateAction() {
-			super("Validate", ResourceManager.getIcon("dialog.continue.valid"));
+			super("Validate", ResourceManager.getIcon("dialog.continue"));
 			putValue(SHORT_DESCRIPTION, "Remove invalid characters");
 		}
 		

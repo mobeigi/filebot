@@ -45,7 +45,7 @@ public class RenameAction extends AbstractAction {
 			FileEntry fileEntry = fileEntries.get(i);
 			File f = fileEntry.getValue();
 			
-			String newName = nameEntries.get(i).toString() + FileFormat.getSuffix(f, true);
+			String newName = nameEntries.get(i).toString() + FileFormat.getExtension(f, true);
 			
 			File newFile = new File(f.getParentFile(), newName);
 			

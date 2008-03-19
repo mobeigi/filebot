@@ -11,7 +11,7 @@ import javax.swing.ImageIcon;
 
 public abstract class EpisodeListClient {
 	
-	private static LinkedHashSet<EpisodeListClient> registry = new LinkedHashSet<EpisodeListClient>();
+	private static final LinkedHashSet<EpisodeListClient> registry = new LinkedHashSet<EpisodeListClient>();
 	
 	static {
 		registry.add(new TvdotcomClient());
@@ -27,7 +27,7 @@ public abstract class EpisodeListClient {
 
 	public static EpisodeListClient forName(String name) {
 		for (EpisodeListClient client : registry) {
-			if (name.equals(client.getName()))
+			if (name.equalsIgnoreCase(client.getName()))
 				return client;
 		}
 		

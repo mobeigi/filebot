@@ -18,6 +18,9 @@ public abstract class TextTransferablePolicy implements TransferablePolicy {
 
 	@Override
 	public void handleTransferable(Transferable tr, boolean add) {
+		if (!accept(tr))
+			return;
+		
 		try {
 			String string = (String) tr.getTransferData(DataFlavor.stringFlavor);
 			

@@ -16,7 +16,7 @@ public class TorrentEntry extends AbstractFileEntry<Torrent.Entry> {
 
 	@Override
 	public String getName(Torrent.Entry value) {
-		return FileFormat.getNameWithoutSuffix(getValue().getName());
+		return FileFormat.getNameWithoutExtension(getValue().getName());
 	}
 	
 

@@ -26,8 +26,10 @@ import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.MessageManager;
+import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
+import net.sourceforge.tuned.MessageBus;
 
 
 public class ListPanel extends FileBotPanel {
@@ -87,6 +89,8 @@ public class ListPanel extends FileBotPanel {
 		add(list, BorderLayout.CENTER);
 		
 		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), list));
 	}
 	
 

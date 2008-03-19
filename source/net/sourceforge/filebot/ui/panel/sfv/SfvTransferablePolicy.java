@@ -91,7 +91,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 
 	private boolean isSfvFileList(List<File> files) {
 		for (File file : files) {
-			if (!FileFormat.getSuffix(file).equalsIgnoreCase("sfv"))
+			if (!FileFormat.getExtension(file).equalsIgnoreCase("sfv"))
 				return false;
 		}
 		

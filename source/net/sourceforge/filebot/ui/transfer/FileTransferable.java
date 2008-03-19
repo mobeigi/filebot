@@ -7,6 +7,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -29,21 +30,18 @@ public class FileTransferable implements Transferable {
 		return null;
 	}
 	
-	private List<File> files;
+	private final List<File> files;
 	
-	private DataFlavor[] supportedFlavors = { DataFlavor.javaFileListFlavor, uriListFlavor };
+	private final DataFlavor[] supportedFlavors = { DataFlavor.javaFileListFlavor, uriListFlavor };
 	
 	
-	public FileTransferable(File... fileArray) {
-		files = new ArrayList<File>(fileArray.length);
-		
-		for (File file : fileArray)
-			files.add(file);
+	public FileTransferable(File... files) {
+		this(Arrays.asList(files));
 	}
 	
 
-	public FileTransferable(Collection<File> fileCollection) {
-		files = new ArrayList<File>(fileCollection);
+	public FileTransferable(Collection<File> files) {
+		this.files = new ArrayList<File>(files);
 	}
 	
 
@@ -62,7 +60,7 @@ public class FileTransferable implements Transferable {
 	 * @return line separated list of file uris
 	 */
 	private String getUriList() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		for (File file : files) {
 			sb.append("file://" + file.toURI().getPath());
