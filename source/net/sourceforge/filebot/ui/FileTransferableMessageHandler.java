@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,12 +36,17 @@ public class FileTransferableMessageHandler implements MessageHandler {
 		List<File> files = new ArrayList<File>(messages.length);
 		
 		for (String filename : messages) {
-			File file = new File(filename);
-			
-			if (file.exists()) {
-				files.add(file);
-			} else {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, String.format("Invalid File: %s", filename));
+			try {
+				File file = new File(filename);
+				
+				if (file.exists()) {
+					// file might be relative, use absolute file
+					files.add(file.getCanonicalFile());
+				} else {
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, String.format("Invalid File: %s", filename));
+				}
+			} catch (IOException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		

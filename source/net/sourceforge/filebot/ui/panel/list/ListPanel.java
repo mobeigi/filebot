@@ -25,8 +25,8 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
+import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.MessageBus;
@@ -129,7 +129,7 @@ public class ListPanel extends FileBotPanel {
 			Matcher titleMatcher = Pattern.compile("^([\\w\\s]+).*(\\s+\\w*" + Pattern.quote(INDEX_VARIABLE) + ").*").matcher(pattern);
 			
 			if (titleMatcher.matches()) {
-				list.setTitle(titleMatcher.group(1));
+				list.setTitle(titleMatcher.group(1).trim());
 			}
 			
 			ArrayList<String> entries = new ArrayList<String>();

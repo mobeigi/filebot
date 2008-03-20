@@ -32,7 +32,7 @@ public class TemporaryFolder {
 	 * Delete all temporary folders on shutdown
 	 */
 	static {
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("TemporaryFolder ShutdownHook") {
 			
 			@Override
 			public void run() {
@@ -52,13 +52,16 @@ public class TemporaryFolder {
 	
 	private TemporaryFolder(File root) {
 		this.root = root;
-		this.root.mkdir();
 	}
 	
 
 	public File createFile(String name) throws IOException {
+		if (!root.exists())
+			root.mkdir();
+		
 		File file = new File(root, name);
 		file.createNewFile();
+		
 		return file;
 	}
 	
