@@ -2,10 +2,9 @@
 package net.sourceforge.tuned;
 
 
-import java.util.EventListener;
 
 
-public interface MessageHandler extends EventListener {
+public interface MessageHandler {
 	
 	public void handle(String topic, String... messages);
 	

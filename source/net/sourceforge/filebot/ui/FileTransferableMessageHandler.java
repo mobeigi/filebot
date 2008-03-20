@@ -29,6 +29,7 @@ public class FileTransferableMessageHandler implements MessageHandler {
 	@Override
 	public void handle(String topic, String... messages) {
 		
+		// change panel
 		MessageBus.getDefault().publish("panel", name);
 		
 		List<File> files = new ArrayList<File>(messages.length);

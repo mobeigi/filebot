@@ -69,8 +69,9 @@ public class SfvPanel extends FileBotPanel {
 	private final SaveAction saveAction = new SaveAction(sfvTable) {
 		
 		private int index;
-		
 		private String name;
+		
+		private File folder = null;
 		
 		
 		@Override
@@ -82,6 +83,12 @@ public class SfvPanel extends FileBotPanel {
 		@Override
 		protected String getDefaultFileName() {
 			return name;
+		}
+		
+
+		@Override
+		protected File getDefaultFolder() {
+			return folder;
 		}
 		
 
@@ -125,8 +132,10 @@ public class SfvPanel extends FileBotPanel {
 			
 			name += ".sfv";
 			
-			if (selected.isDirectory())
-				name = new File(selected, name).getAbsolutePath();
+			// selected is either a folder or a sfv file
+			if (selected.isDirectory()) {
+				folder = selected;
+			}
 			
 			super.actionPerformed(e);
 		}

@@ -8,6 +8,7 @@ import java.io.File;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 
 
@@ -32,6 +33,11 @@ public class SaveAction extends AbstractAction {
 	}
 	
 
+	protected File getDefaultFolder() {
+		return null;
+	}
+	
+
 	protected boolean isSaveable() {
 		return saveable.isSaveable();
 	}
@@ -44,7 +50,8 @@ public class SaveAction extends AbstractAction {
 		JFileChooser chooser = new JFileChooser();
 		
 		chooser.setMultiSelectionEnabled(false);
-		chooser.setSelectedFile(new File(getDefaultFileName()));
+		
+		chooser.setSelectedFile(new File(getDefaultFolder(), FileBotUtil.validateFileName(getDefaultFileName())));
 		
 		if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;

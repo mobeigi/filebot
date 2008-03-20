@@ -19,11 +19,6 @@ public class MessageBus {
 		return instance;
 	}
 	
-
-	private MessageBus() {
-		
-	}
-	
 	private final Map<String, List<MessageHandler>> handlers = new HashMap<String, List<MessageHandler>>() {
 		
 		@Override
@@ -39,6 +34,11 @@ public class MessageBus {
 	};
 	
 	
+	private MessageBus() {
+		
+	}
+	
+
 	public synchronized void addMessageHandler(String topic, MessageHandler handler) {
 		List<MessageHandler> list = handlers.get(topic);
 		

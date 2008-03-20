@@ -25,8 +25,6 @@ import javax.swing.event.ListDataListener;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
-import net.sourceforge.tuned.MessageBus;
 
 
 public class RenamePanel extends FileBotPanel {
@@ -41,7 +39,7 @@ public class RenamePanel extends FileBotPanel {
 	
 	private SimilarityPanel similarityPanel;
 	
-	private ViewPortSynchroniser viewPortSynchroniser;
+	private ViewPortSynchronizer viewPortSynchroniser;
 	
 	
 	public RenamePanel() {
@@ -55,9 +53,9 @@ public class RenamePanel extends FileBotPanel {
 		JList list1 = namesList.getListComponent();
 		JList list2 = filesList.getListComponent();
 		
-		new SelectionSynchroniser(list1, list2);
+		new SelectionSynchronizer(list1, list2);
 		
-		viewPortSynchroniser = new ViewPortSynchroniser((JViewport) list1.getParent(), (JViewport) list2.getParent());
+		viewPortSynchroniser = new ViewPortSynchronizer((JViewport) list1.getParent(), (JViewport) list2.getParent());
 		
 		similarityPanel = new SimilarityPanel(list1, list2);
 		
@@ -82,8 +80,6 @@ public class RenamePanel extends FileBotPanel {
 		
 		namesList.getModel().addListDataListener(repaintOnDataChange);
 		filesList.getModel().addListDataListener(repaintOnDataChange);
-		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), namesList));
 	}
 	
 
