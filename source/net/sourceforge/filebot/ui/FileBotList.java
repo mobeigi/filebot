@@ -5,7 +5,6 @@ package net.sourceforge.filebot.ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.Level;
@@ -134,7 +133,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 			}
 			
 			out.close();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			// should not happen
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}

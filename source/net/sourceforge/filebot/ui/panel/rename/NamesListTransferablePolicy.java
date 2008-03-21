@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,19 +15,17 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
-import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
 
 
 class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	
-	private NamesRenameList list;
+	private final NamesRenameList list;
 	
 	
 	public NamesListTransferablePolicy(NamesRenameList list) {
@@ -63,45 +62,71 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	}
 	
 	
-	private class FilePolicy extends FileTransferablePolicy {
+	private class FilePolicy extends FilesListTransferablePolicy {
 		
-		private long MAX_FILESIZE = 10 * FileFormat.MEGA;
-		
-		
-		@Override
-		protected boolean accept(File file) {
-			return file.isFile() && (file.length() < MAX_FILESIZE);
+		public FilePolicy() {
+			super(list.getModel());
 		}
 		
 
 		@Override
-		protected void load(File file) {
+		protected boolean accept(File file) {
+			return file.isFile() || file.isDirectory();
+		}
+		
+
+		@Override
+		protected void load(List<File> files) {
+			
+			if (FileBotUtil.containsOnlyListFiles(files)) {
+				loadListFiles(files);
+			} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
+				loadTorrentFiles(files);
+			} else {
+				super.load(files);
+			}
+		}
+		
+
+		private void loadListFiles(List<File> files) {
 			try {
 				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
 				
-				if (FileFormat.getExtension(file).equalsIgnoreCase("torrent")) {
+				for (File file : files) {
+					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+					
+					String line = null;
+					
+					while ((line = in.readLine()) != null) {
+						if (line.trim().length() > 0) {
+							entries.add(new StringEntry(line));
+						}
+					}
+					
+					in.close();
+				}
+				
+				submit(entries);
+			} catch (IOException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			}
+		}
+		
+
+		private void loadTorrentFiles(List<File> files) {
+			try {
+				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+				
+				for (File file : files) {
 					Torrent torrent = new Torrent(file);
 					
 					for (Torrent.Entry entry : torrent.getFiles()) {
 						entries.add(new TorrentEntry(entry));
 					}
-				} else {
-					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-					
-					String line = null;
-					
-					while ((line = in.readLine()) != null)
-						if (line.trim().length() > 0)
-							entries.add(new StringEntry(line));
-					
-					in.close();
 				}
 				
-				if (!entries.isEmpty()) {
-					submit(entries);
-				}
-			} catch (Exception e) {
-				// should not happen
+				submit(entries);
+			} catch (IOException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 		}

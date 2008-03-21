@@ -101,7 +101,18 @@ public class SimpleListModel extends AbstractListModel {
 	
 
 	public void remove(Object object) {
-		remove(indexOf(object));
+		synchronized (list) {
+			remove(indexOf(object));
+		}
+	}
+	
+
+	public void sort() {
+		synchronized (list) {
+			Collections.sort(list, null);
+		}
+		
+		fireContentsChanged(this, 0, list.size());
 	}
 	
 
@@ -115,8 +126,10 @@ public class SimpleListModel extends AbstractListModel {
 	public void set(Collection<? extends Object> c) {
 		int end = Math.max(list.size(), c.size()) - 1;
 		
-		list.clear();
-		list.addAll(c);
+		synchronized (list) {
+			list.clear();
+			list.addAll(c);
+		}
 		
 		if (end >= 0) {
 			fireContentsChanged(this, 0, end);

@@ -31,10 +31,13 @@ public class FileFormat {
 	}
 	
 
-	public static String formatName(File f) {
-		String name = f.getName();
+	public static String formatName(File file) {
+		if (file == null)
+			return "";
 		
-		if (f.isDirectory())
+		String name = file.getName();
+		
+		if (file.isDirectory())
 			return name;
 		
 		return getNameWithoutExtension(name);
@@ -49,13 +52,16 @@ public class FileFormat {
 	}
 	
 
-	public static String getExtension(File f) {
-		return getExtension(f, false);
+	public static String getExtension(File file) {
+		return getExtension(file, false);
 	}
 	
 
-	public static String getExtension(File f, boolean includeDot) {
-		String name = f.getName();
+	public static String getExtension(File file, boolean includeDot) {
+		if (!file.isFile())
+			return null;
+		
+		String name = file.getName();
 		int dotIndex = name.lastIndexOf(".");
 		
 		// .config -> no extension
@@ -90,6 +96,9 @@ public class FileFormat {
 	
 
 	public static String getName(File file) {
+		if (file == null)
+			return "";
+		
 		String name = file.getName();
 		
 		if (!name.isEmpty())

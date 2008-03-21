@@ -5,9 +5,8 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-
-import net.sourceforge.filebot.FileBotUtil;
 
 
 public class MultiTransferablePolicy implements TransferablePolicy {
@@ -84,7 +83,17 @@ public class MultiTransferablePolicy implements TransferablePolicy {
 				descriptions.add(desc);
 		}
 		
-		return FileBotUtil.join(descriptions, ", ");
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> iterator = descriptions.iterator();
+		
+		while (iterator.hasNext()) {
+			sb.append(iterator.next().toString());
+			
+			if (iterator.hasNext())
+				sb.append(", ");
+		}
+		
+		return sb.toString();
 	}
 	
 }

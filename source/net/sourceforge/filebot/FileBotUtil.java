@@ -5,7 +5,8 @@ package net.sourceforge.filebot;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
-import java.util.Iterator;
+import java.io.File;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
@@ -18,13 +19,6 @@ public class FileBotUtil {
 	
 	private FileBotUtil() {
 		
-	}
-	
-
-	public static void registerActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
-		Integer key = action.hashCode();
-		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
-		component.getActionMap().put(key, action);
 	}
 	
 	/**
@@ -60,19 +54,63 @@ public class FileBotUtil {
 	}
 	
 
-	public static String join(Iterable<?> list, String delim) {
-		StringBuilder sb = new StringBuilder();
-		
-		Iterator<?> it = list.iterator();
-		
-		while (it.hasNext()) {
-			sb.append(it.next().toString());
-			
-			if (it.hasNext())
-				sb.append(delim);
+	public static boolean containsOnlyFolders(List<File> files) {
+		for (File file : files) {
+			if (!file.isDirectory())
+				return false;
 		}
 		
-		return sb.toString();
+		return true;
+	}
+	
+
+	public static boolean containsOnlyTorrentFiles(List<File> files) {
+		for (File file : files) {
+			if (!file.isFile() || !FileFormat.getExtension(file).equalsIgnoreCase("torrent"))
+				return false;
+		}
+		
+		return true;
+	}
+	
+
+	public static boolean containsOnlySfvFiles(List<File> files) {
+		for (File file : files) {
+			if (!file.isFile() || !FileFormat.getExtension(file).equalsIgnoreCase("sfv"))
+				return false;
+		}
+		
+		return true;
+	}
+	
+
+	public static boolean containsOnlyListFiles(List<File> files) {
+		for (File file : files) {
+			if (!isListFile(file))
+				return false;
+		}
+		
+		return true;
+	}
+	
+
+	public static boolean isListFile(File file) {
+		if (!file.isFile())
+			return false;
+		
+		String extension = FileFormat.getExtension(file).toLowerCase();
+		
+		if (extension.equals("txt") || extension.equals("list") || extension.isEmpty())
+			return true;
+		
+		return false;
+	}
+	
+
+	public static void registerActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
+		Integer key = action.hashCode();
+		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
+		component.getActionMap().put(key, action);
 	}
 	
 

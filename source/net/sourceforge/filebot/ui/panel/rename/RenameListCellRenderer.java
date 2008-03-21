@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
@@ -13,8 +14,10 @@ import net.sourceforge.tuned.ui.FancyListCellRenderer;
 
 class RenameListCellRenderer extends FancyListCellRenderer {
 	
-	private ListModel names;
-	private ListModel files;
+	private final ListModel names;
+	private final ListModel files;
+	
+	private final JLabel extension = new JLabel(".png");
 	
 	
 	public RenameListCellRenderer(ListModel names, ListModel files) {
@@ -22,6 +25,8 @@ class RenameListCellRenderer extends FancyListCellRenderer {
 		this.files = files;
 		
 		setHighlightingEnabled(false);
+		
+		this.add(extension);
 	}
 	
 	private Color noMatchGradientBeginColor = Color.decode("#B7B7B7");

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.FileFormat;
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
@@ -89,22 +89,12 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 	}
 	
 
-	private boolean isSfvFileList(List<File> files) {
-		for (File file : files) {
-			if (!FileFormat.getExtension(file).equalsIgnoreCase("sfv"))
-				return false;
-		}
-		
-		return true;
-	}
-	
-
 	@Override
 	protected void load(List<File> files) {
 		synchronized (ChecksumComputationExecutor.getInstance()) {
 			ChecksumComputationExecutor.getInstance().pause();
 			
-			if (isSfvFileList(files)) {
+			if (FileBotUtil.containsOnlySfvFiles(files)) {
 				// one or more sfv files
 				for (File file : files) {
 					loadSfvFile(file);

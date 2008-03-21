@@ -5,7 +5,6 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -166,7 +165,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 			}
 			
 			out.close();
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			// should not happen
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
