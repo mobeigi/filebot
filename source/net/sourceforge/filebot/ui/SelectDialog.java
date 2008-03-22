@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -27,7 +26,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.ui.FancyListCellRenderer;
+import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
@@ -134,18 +133,17 @@ public class SelectDialog<T> extends JDialog {
 	}
 	
 	
-	private class SelectListCellRenderer extends FancyListCellRenderer {
+	private class SelectListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public SelectListCellRenderer() {
-			super(4, false);
+			super(4);
+			setHighlightingEnabled(false);
 		}
 		
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
-			
-			return this;
+		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			super.configureListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
 		}
 	};
 	

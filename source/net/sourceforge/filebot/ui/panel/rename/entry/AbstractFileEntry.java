@@ -4,11 +4,17 @@ package net.sourceforge.filebot.ui.panel.rename.entry;
 
 public abstract class AbstractFileEntry<T> extends ListEntry<T> {
 	
-	public AbstractFileEntry(T value) {
-		super(value);
+	private final long length;
+	
+	
+	public AbstractFileEntry(String name, T value, long length) {
+		super(name, value);
+		this.length = length;
 	}
 	
 
-	public abstract long getLength();
+	public long getLength() {
+		return length;
+	}
 	
 }

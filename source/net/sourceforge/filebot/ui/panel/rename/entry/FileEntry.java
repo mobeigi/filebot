@@ -10,19 +10,7 @@ import net.sourceforge.filebot.FileFormat;
 public class FileEntry extends AbstractFileEntry<File> {
 	
 	public FileEntry(File file) {
-		super(file);
-	}
-	
-
-	@Override
-	public String getName(File value) {
-		return FileFormat.getNameWithoutExtension(getValue());
-	}
-	
-
-	@Override
-	public long getLength() {
-		return getValue().length();
+		super(FileFormat.formatName(file), file, file.length());
 	}
 	
 }

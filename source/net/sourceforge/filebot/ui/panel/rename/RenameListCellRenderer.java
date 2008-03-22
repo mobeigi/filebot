@@ -3,16 +3,15 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import java.awt.Color;
-import java.awt.Component;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
-import net.sourceforge.tuned.ui.FancyListCellRenderer;
+import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 
-class RenameListCellRenderer extends FancyListCellRenderer {
+class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
 	private final ListModel names;
 	private final ListModel files;
@@ -29,24 +28,22 @@ class RenameListCellRenderer extends FancyListCellRenderer {
 		this.add(extension);
 	}
 	
-	private Color noMatchGradientBeginColor = Color.decode("#B7B7B7");
-	private Color noMatchGradientEndColor = Color.decode("#9A9A9A");
+	private final Color noMatchGradientBeginColor = Color.decode("#B7B7B7");
+	private final Color noMatchGradientEndColor = Color.decode("#9A9A9A");
 	
 	
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		if (index >= getMinLength())
+		if (index >= getMinLength()) {
 			if (isSelected) {
 				setForeground(Color.WHITE);
-				setGradientBeginColor(noMatchGradientBeginColor);
-				setGradientEndColor(noMatchGradientEndColor);
+				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
 			} else {
 				setForeground(noMatchGradientBeginColor);
 			}
-		
-		return this;
+		}
 	}
 	
 

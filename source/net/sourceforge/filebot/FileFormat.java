@@ -32,9 +32,6 @@ public class FileFormat {
 	
 
 	public static String formatName(File file) {
-		if (file == null)
-			return "";
-		
 		String name = file.getName();
 		
 		if (file.isDirectory())
@@ -52,15 +49,27 @@ public class FileFormat {
 	}
 	
 
+	public static boolean hasExtension(File file, String... extensions) {
+		if (!file.isFile())
+			return false;
+		
+		String extension = getExtension(file);
+		
+		for (String ext : extensions) {
+			if (ext.equalsIgnoreCase(extension))
+				return true;
+		}
+		
+		return false;
+	}
+	
+
 	public static String getExtension(File file) {
 		return getExtension(file, false);
 	}
 	
 
 	public static String getExtension(File file, boolean includeDot) {
-		if (!file.isFile())
-			return null;
-		
 		String name = file.getName();
 		int dotIndex = name.lastIndexOf(".");
 		

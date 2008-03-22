@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Window;
@@ -52,7 +53,7 @@ public class ValidateNamesDialog extends JDialog {
 		JList list = new JList(new SimpleListModel(entries));
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(Color.decode("#FF4200"), Color.decode("#FF1200")), 4, true));
+		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(Color.decode("#FF4200"), Color.decode("#FF1200")), 4));
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		
@@ -84,10 +85,11 @@ public class ValidateNamesDialog extends JDialog {
 		
 		setLocation(FileBotUtil.getPreferredLocation(this));
 		
+		setPreferredSize(new Dimension(365, 280));
+		pack();
+		
 		// Shortcut Escape
 		FileBotUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
-		
-		pack();
 	}
 	
 

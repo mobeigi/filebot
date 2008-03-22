@@ -3,7 +3,9 @@ package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -18,7 +20,7 @@ import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
 
 public class FileBotPanel extends JPanel {
 	
-	private static final LinkedHashSet<FileBotPanel> registry = new LinkedHashSet<FileBotPanel>();
+	private static final List<FileBotPanel> registry = new ArrayList<FileBotPanel>();
 	
 	static {
 		registry.add(new ListPanel());
@@ -30,8 +32,8 @@ public class FileBotPanel extends JPanel {
 	}
 	
 	
-	public static Iterable<FileBotPanel> getAvailablePanels() {
-		return registry;
+	public static List<FileBotPanel> getAvailablePanels() {
+		return Collections.unmodifiableList(registry);
 	}
 	
 

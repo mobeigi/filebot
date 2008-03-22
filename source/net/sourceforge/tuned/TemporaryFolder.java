@@ -32,7 +32,7 @@ public class TemporaryFolder {
 	 * Delete all temporary folders on shutdown
 	 */
 	static {
-		Runtime.getRuntime().addShutdownHook(new Thread("TemporaryFolder ShutdownHook") {
+		Runtime.getRuntime().addShutdownHook(new Thread("TemporaryFolder Cleanup") {
 			
 			@Override
 			public void run() {

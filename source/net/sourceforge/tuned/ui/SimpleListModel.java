@@ -112,7 +112,7 @@ public class SimpleListModel extends AbstractListModel {
 			Collections.sort(list, null);
 		}
 		
-		fireContentsChanged(this, 0, list.size());
+		fireContentsChanged(this, 0, list.size() - 1);
 	}
 	
 

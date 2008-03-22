@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,12 +21,12 @@ public class Language {
 	public static List<Language> languages = null;
 	
 	
-	public static synchronized Iterable<Language> getLanguages() {
+	public static synchronized List<Language> getLanguages() {
 		if (languages == null) {
 			languages = parseLanguages();
 		}
 		
-		return languages;
+		return Collections.unmodifiableList(languages);
 	}
 	
 
@@ -52,7 +53,7 @@ public class Language {
 	
 
 	private static List<Language> parseLanguages() {
-		ArrayList<Language> languages = new ArrayList<Language>();
+		List<Language> languages = new ArrayList<Language>();
 		
 		try {
 			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(Language.class.getResourceAsStream("languages.xml"));

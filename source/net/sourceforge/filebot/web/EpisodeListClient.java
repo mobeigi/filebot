@@ -3,7 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URL;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -11,7 +12,7 @@ import javax.swing.ImageIcon;
 
 public abstract class EpisodeListClient {
 	
-	private static final LinkedHashSet<EpisodeListClient> registry = new LinkedHashSet<EpisodeListClient>();
+	private static final List<EpisodeListClient> registry = new ArrayList<EpisodeListClient>();
 	
 	static {
 		registry.add(new TvdotcomClient());
@@ -20,8 +21,8 @@ public abstract class EpisodeListClient {
 	}
 	
 	
-	public static Iterable<EpisodeListClient> getAvailableEpisodeListClients() {
-		return registry;
+	public static List<EpisodeListClient> getAvailableEpisodeListClients() {
+		return Collections.unmodifiableList(registry);
 	}
 	
 

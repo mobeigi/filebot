@@ -10,19 +10,7 @@ import net.sourceforge.filebot.torrent.Torrent.Entry;
 public class TorrentEntry extends AbstractFileEntry<Torrent.Entry> {
 	
 	public TorrentEntry(Entry value) {
-		super(value);
-	}
-	
-
-	@Override
-	public String getName(Torrent.Entry value) {
-		return FileFormat.getNameWithoutExtension(getValue().getName());
-	}
-	
-
-	@Override
-	public long getLength() {
-		return getValue().getLength();
+		super(FileFormat.getNameWithoutExtension(value.getName()), value, value.getLength());
 	}
 	
 }

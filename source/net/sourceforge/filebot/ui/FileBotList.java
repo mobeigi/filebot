@@ -30,7 +30,7 @@ import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
 import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
-import net.sourceforge.tuned.ui.FancyListCellRenderer;
+import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
@@ -62,7 +62,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 			listScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		}
 		
-		list.setCellRenderer(new FancyListCellRenderer());
+		list.setCellRenderer(new DefaultFancyListCellRenderer());
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		add(listScrollPane, BorderLayout.CENTER);

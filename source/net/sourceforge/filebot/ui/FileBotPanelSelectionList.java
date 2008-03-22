@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
@@ -19,8 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.tuned.ui.FancyListCellRenderer;
-import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
@@ -47,25 +46,27 @@ class FileBotPanelSelectionList extends JList {
 	}
 	
 	
-	private class PanelCellRenderer extends FancyListCellRenderer {
+	private class PanelCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public PanelCellRenderer() {
-			super(10, Color.decode("#163264"), GradientStyle.TOP_TO_BOTTOM);
+			super(BorderLayout.CENTER, 10, 0, Color.decode("#163264"));
+			
+			setHighlightingEnabled(false);
+			
 			setVerticalTextPosition(SwingConstants.BOTTOM);
 			setHorizontalTextPosition(SwingConstants.CENTER);
 		}
 		
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			
 			FileBotPanel panel = (FileBotPanel) value;
 			setText(panel.getPanelName());
 			setIcon(panel.getIcon());
-			
-			return this;
 		}
+		
 	}
 	
 

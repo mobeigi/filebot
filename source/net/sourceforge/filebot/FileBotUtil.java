@@ -66,7 +66,7 @@ public class FileBotUtil {
 
 	public static boolean containsOnlyTorrentFiles(List<File> files) {
 		for (File file : files) {
-			if (!file.isFile() || !FileFormat.getExtension(file).equalsIgnoreCase("torrent"))
+			if (!FileFormat.hasExtension(file, "torrent"))
 				return false;
 		}
 		
@@ -76,7 +76,7 @@ public class FileBotUtil {
 
 	public static boolean containsOnlySfvFiles(List<File> files) {
 		for (File file : files) {
-			if (!file.isFile() || !FileFormat.getExtension(file).equalsIgnoreCase("sfv"))
+			if (!FileFormat.hasExtension(file, "sfv"))
 				return false;
 		}
 		
@@ -86,24 +86,11 @@ public class FileBotUtil {
 
 	public static boolean containsOnlyListFiles(List<File> files) {
 		for (File file : files) {
-			if (!isListFile(file))
+			if (!FileFormat.hasExtension(file, "txt", "list", ""))
 				return false;
 		}
 		
 		return true;
-	}
-	
-
-	public static boolean isListFile(File file) {
-		if (!file.isFile())
-			return false;
-		
-		String extension = FileFormat.getExtension(file).toLowerCase();
-		
-		if (extension.equals("txt") || extension.equals("list") || extension.isEmpty())
-			return true;
-		
-		return false;
 	}
 	
 

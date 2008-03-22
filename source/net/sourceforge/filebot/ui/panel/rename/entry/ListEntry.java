@@ -2,19 +2,16 @@
 package net.sourceforge.filebot.ui.panel.rename.entry;
 
 
-public abstract class ListEntry<T> {
+public class ListEntry<T> {
 	
 	private String name;
 	private T value;
 	
 	
-	public ListEntry(T value) {
+	public ListEntry(String name, T value) {
+		this.name = name;
 		this.value = value;
-		this.name = getName(value);
 	}
-	
-
-	protected abstract String getName(T value);
 	
 
 	public String getName() {
