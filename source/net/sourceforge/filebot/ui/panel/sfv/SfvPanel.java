@@ -94,7 +94,7 @@ public class SfvPanel extends FileBotPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			SfvTableModel model = (SfvTableModel) sfvTable.getModel();
+			ChecksumTableModel model = (ChecksumTableModel) sfvTable.getModel();
 			
 			ArrayList<File> options = new ArrayList<File>();
 			

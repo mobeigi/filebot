@@ -5,6 +5,8 @@ package net.sourceforge.filebot.web;
 import java.net.URL;
 import java.util.Map;
 
+import net.sourceforge.tuned.DownloadTask;
+
 
 public class SubsceneSubtitleDescriptor {
 	

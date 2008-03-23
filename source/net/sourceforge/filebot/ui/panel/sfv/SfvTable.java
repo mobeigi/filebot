@@ -39,7 +39,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 	
 	public SfvTable() {
-		final SfvTableModel model = (SfvTableModel) getModel();
+		final ChecksumTableModel model = (ChecksumTableModel) getModel();
 		model.addPropertyChangeListener(repaintListener);
 		
 		setFillsViewportHeight(true);
@@ -69,7 +69,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 
 	@Override
 	protected TableModel createDefaultDataModel() {
-		return new SfvTableModel();
+		return new ChecksumTableModel();
 	}
 	
 
@@ -93,7 +93,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	public void clear() {
 		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).cancelAll();
 		
-		((SfvTableModel) getModel()).clear();
+		((ChecksumTableModel) getModel()).clear();
 	}
 	
 	private PropertyChangeListener repaintListener = new PropertyChangeListener() {
@@ -115,7 +115,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 
 	public String getDefaultFileName() {
-		SfvTableModel model = (SfvTableModel) getModel();
+		ChecksumTableModel model = (ChecksumTableModel) getModel();
 		File columnRoot = model.getChecksumColumnRoot(0);
 		
 		String name = "";
@@ -136,7 +136,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 
 	public void removeRows(int... rowIndices) {
-		SfvTableModel model = (SfvTableModel) getModel();
+		ChecksumTableModel model = (ChecksumTableModel) getModel();
 		model.removeRows(rowIndices);
 	}
 	
@@ -145,7 +145,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 		try {
 			PrintStream out = new PrintStream(file);
 			
-			SfvTableModel model = (SfvTableModel) getModel();
+			ChecksumTableModel model = (ChecksumTableModel) getModel();
 			File columnRoot = model.getChecksumColumnRoot(checksumColumnIndex);
 			
 			if (columnRoot != null) {

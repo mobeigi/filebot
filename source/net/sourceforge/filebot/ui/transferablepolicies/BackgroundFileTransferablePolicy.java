@@ -150,7 +150,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 					
 					@Override
 					public void run() {
-						firePropertyChange(LOADING_PROPERTY, false, true);
+						propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, false, true);
 					}
 				});
 			}
@@ -168,7 +168,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 					
 					@Override
 					public void run() {
-						firePropertyChange(LOADING_PROPERTY, true, false);
+						propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
 					}
 				});
 			}
@@ -184,17 +184,8 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	}
 	
 
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
-	
-
 	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
 		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
 	}
 	
-
-	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		propertyChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
-	}
 }

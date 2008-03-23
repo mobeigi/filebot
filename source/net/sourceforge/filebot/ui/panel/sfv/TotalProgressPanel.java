@@ -36,58 +36,43 @@ class TotalProgressPanel extends Box {
 		setBorder(BorderFactory.createCompoundBorder(margin, title));
 		
 		add(progressBar);
-		ChecksumComputationExecutor.getInstance().addPropertyChangeListener(executorListener);
+		ChecksumComputationService.getService().addPropertyChangeListener(executorListener);
 	}
 	
 	private PropertyChangeListener executorListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			ChecksumComputationExecutor executor = ChecksumComputationExecutor.getInstance();
+			
 			String property = evt.getPropertyName();
 			
-			if (property == ChecksumComputationExecutor.ACTIVE_PROPERTY) {
+			if (property == ChecksumComputationService.ACTIVE_PROPERTY) {
 				Boolean active = (Boolean) evt.getNewValue();
-				setVisible(active);
-				return;
-			}
-			
-			if (property == ChecksumComputationExecutor.PAUSED_PROPERTY) {
-				Boolean paused = (Boolean) evt.getNewValue();
 				
-				if (paused) {
-					progressBar.setString("Updating ...");
+				if (active) {
+					new SetVisibleTimer().start();
 				}
+			} else if (property == ChecksumComputationService.REMAINING_TASK_COUNT_PROPERTY) {
 				
-				return;
-			}
-			
-			if (property == ChecksumComputationExecutor.ACTIVE_SESSION_TASK_COUNT_PROPERTY) {
-				progressBar.setMaximum(executor.getActiveSessionTaskCount());
-			}
-			
-			if (property == ChecksumComputationExecutor.REMAINING_TASK_COUNT_PROPERTY) {
-				int progress = executor.getActiveSessionTaskCount() - executor.getRemainingTaskCount();
+				int taskCount = ChecksumComputationService.getService().getActiveSessionTaskCount();
+				int progress = taskCount - ChecksumComputationService.getService().getRemainingTaskCount();
+				
 				progressBar.setValue(progress);
+				progressBar.setMaximum(taskCount);
+				
+				progressBar.setString(progressBar.getValue() + " / " + progressBar.getMaximum());
 			}
 			
-			progressBar.setString(progressBar.getValue() + " / " + progressBar.getMaximum());
+			if (!ChecksumComputationService.getService().isActive()) {
+				setVisible(false);
+			}
 		}
 	};
 	
 	
-	@Override
-	public void setVisible(boolean flag) {
-		if (flag) {
-			new SetVisibleTimer().start();
-		} else {
-			super.setVisible(false);
-		}
-	}
-	
-	private int millisToSetVisible = 200;
-	
-	
 	private class SetVisibleTimer extends Timer implements ActionListener {
+		
+		private static final int millisToSetVisible = 200;
+		
 		
 		public SetVisibleTimer() {
 			super(millisToSetVisible, null);
@@ -97,8 +82,7 @@ class TotalProgressPanel extends Box {
 		
 
 		public void actionPerformed(ActionEvent e) {
-			if (ChecksumComputationExecutor.getInstance().isActive())
-				TotalProgressPanel.super.setVisible(true);
+			setVisible(ChecksumComputationService.getService().isActive());
 		}
 	}
 	

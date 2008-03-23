@@ -14,7 +14,7 @@ public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 	
 	private static final int BUFFER_SIZE = 32 * 1024;
 	
-	private File file;
+	private final File file;
 	
 	
 	public ChecksumComputationTask(File file) {
@@ -36,7 +36,7 @@ public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 			int bytesRead = 0;
 			
 			while ((bytesRead = cis.read(buffer)) >= 0) {
-				if (isCancelled())
+				if (isCancelled() || Thread.currentThread().isInterrupted())
 					break;
 				
 				done += bytesRead;
@@ -54,7 +54,6 @@ public class ChecksumComputationTask extends SwingWorker<Long, Object> {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " (" + file.getName() + ")";
+		return String.format("%s (%s)", getClass().getSimpleName(), file.getName());
 	}
-	
 }

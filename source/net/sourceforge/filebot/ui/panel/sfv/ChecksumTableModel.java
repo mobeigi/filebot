@@ -17,13 +17,9 @@ import javax.swing.table.AbstractTableModel;
 import net.sourceforge.filebot.FileFormat;
 
 
-class SfvTableModel extends AbstractTableModel {
+class ChecksumTableModel extends AbstractTableModel {
 	
 	private List<ChecksumRow> rows = new ArrayList<ChecksumRow>();
-	
-	/**
-	 * Used for Name->Checksum mapping (for performance reasons)
-	 */
 	private Map<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>();
 	
 	private List<File> checksumColumnRoots = new ArrayList<File>();
@@ -145,7 +141,7 @@ class SfvTableModel extends AbstractTableModel {
 		rows.removeAll(rowsToRemove);
 		fireTableRowsDeleted(rowIndices[0], rowIndices[rowIndices.length - 1]);
 		
-		ChecksumComputationExecutor.getInstance().purge();
+		ChecksumComputationService.getService().purge();
 	}
 	
 
@@ -158,7 +154,7 @@ class SfvTableModel extends AbstractTableModel {
 			}
 		}
 		
-		ChecksumComputationExecutor.getInstance().clear();
+		ChecksumComputationService.getService().cancelAll();
 		
 		checksumColumnRoots.clear();
 		rows.clear();
@@ -174,7 +170,7 @@ class SfvTableModel extends AbstractTableModel {
 	}
 	
 
-	public LinkedHashMap<String, Checksum> getChecksumColumn(File columnRoot) {
+	public Map<String, Checksum> getChecksumColumn(File columnRoot) {
 		LinkedHashMap<String, Checksum> checksumMap = new LinkedHashMap<String, Checksum>();
 		
 		for (ChecksumRow row : rows) {

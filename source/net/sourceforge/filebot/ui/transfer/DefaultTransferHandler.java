@@ -5,11 +5,8 @@ package net.sourceforge.filebot.ui.transfer;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
-
-import net.sourceforge.filebot.resources.ResourceManager;
 
 
 public class DefaultTransferHandler extends TransferHandler {

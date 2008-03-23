@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.web;
+package net.sourceforge.tuned;
 
 
 import java.io.ByteArrayOutputStream;
@@ -55,8 +55,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 	
 
 	public DownloadTask(URL url, Map<String, String> postdata) {
-		this.url = url;
-		this.postdata = encodeParameters(postdata);
+		this(url, encodeParameters(postdata));
 	}
 	
 

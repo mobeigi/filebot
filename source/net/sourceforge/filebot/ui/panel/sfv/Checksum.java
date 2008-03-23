@@ -5,7 +5,6 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +25,10 @@ public class Checksum {
 	
 	
 	public static enum State {
-		PENDING, INPROGRESS, READY, ERROR;
+		PENDING,
+		INPROGRESS,
+		READY,
+		ERROR;
 	}
 	
 	
@@ -41,11 +43,10 @@ public class Checksum {
 	}
 	
 
-	public Checksum(File file) {
-		computationTask = new ChecksumComputationTask(file);
-		computationTask.addPropertyChangeListener(new ComputationTaskPropertyChangeListener());
+	public Checksum(ChecksumComputationTask computationTask) {
+		this.computationTask = computationTask;
 		
-		ChecksumComputationExecutor.getInstance().execute(computationTask);
+		this.computationTask.addPropertyChangeListener(new ComputationTaskPropertyChangeListener());
 	}
 	
 

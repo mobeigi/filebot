@@ -17,12 +17,12 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
-class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableModel.Entry> {
+class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTableModel.Entry> {
 	
-	private SfvTableModel tableModel;
+	private ChecksumTableModel tableModel;
 	
 	
-	public SfvTransferablePolicy(SfvTableModel tableModel) {
+	public SfvTransferablePolicy(ChecksumTableModel tableModel) {
 		this.tableModel = tableModel;
 	}
 	
@@ -41,7 +41,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 	
 
 	@Override
-	protected void process(List<SfvTableModel.Entry> chunks) {
+	protected void process(List<ChecksumTableModel.Entry> chunks) {
 		tableModel.addAll(chunks);
 	}
 	
@@ -65,13 +65,13 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 				String filename = matcher.group(1);
 				String checksumString = matcher.group(2);
 				
-				publish(new SfvTableModel.Entry(filename, new Checksum(checksumString), sfvFile));
+				publish(new ChecksumTableModel.Entry(filename, new Checksum(checksumString), sfvFile));
 				
 				File compareColumnRoot = sfvFile.getParentFile();
 				File compareFile = new File(compareColumnRoot, filename);
 				
 				if (compareFile.exists()) {
-					publish(new SfvTableModel.Entry(filename, new Checksum(compareFile), compareColumnRoot));
+					publish(new ChecksumTableModel.Entry(filename, new Checksum(ChecksumComputationService.getService().submit(compareFile, compareColumnRoot)), compareColumnRoot));
 				}
 			}
 			
@@ -91,29 +91,23 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 
 	@Override
 	protected void load(List<File> files) {
-		synchronized (ChecksumComputationExecutor.getInstance()) {
-			ChecksumComputationExecutor.getInstance().pause();
-			
-			if (FileBotUtil.containsOnlySfvFiles(files)) {
-				// one or more sfv files
-				for (File file : files) {
-					loadSfvFile(file);
-				}
-			} else if ((files.size() == 1) && files.get(0).isDirectory()) {
-				// one single folder
-				File file = files.get(0);
-				
-				for (File f : file.listFiles()) {
-					load(f, file, "");
-				}
-			} else {
-				// bunch of files
-				for (File f : files) {
-					load(f, f.getParentFile(), "");
-				}
+		if (FileBotUtil.containsOnlySfvFiles(files)) {
+			// one or more sfv files
+			for (File file : files) {
+				loadSfvFile(file);
 			}
+		} else if ((files.size() == 1) && files.get(0).isDirectory()) {
+			// one single folder
+			File file = files.get(0);
 			
-			ChecksumComputationExecutor.getInstance().resume();
+			for (File f : file.listFiles()) {
+				load(f, file, "");
+			}
+		} else {
+			// bunch of files
+			for (File f : files) {
+				load(f, f.getParentFile(), "");
+			}
 		}
 	}
 	
@@ -129,7 +123,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<SfvTableMod
 				load(f, columnRoot, newPrefix);
 			}
 		} else if (file.isFile()) {
-			publish(new SfvTableModel.Entry(prefix + file.getName(), new Checksum(file), columnRoot));
+			publish(new ChecksumTableModel.Entry(prefix + file.getName(), new Checksum(ChecksumComputationService.getService().submit(file, columnRoot)), columnRoot));
 		}
 	}
 	
