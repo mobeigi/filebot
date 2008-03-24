@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
@@ -14,10 +12,12 @@ import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.sourceforge.filebot.FileFormat;
+import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.TextTableCellRenderer;
@@ -40,7 +40,6 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 	public SfvTable() {
 		final ChecksumTableModel model = (ChecksumTableModel) getModel();
-		model.addPropertyChangeListener(repaintListener);
 		
 		setFillsViewportHeight(true);
 		
@@ -96,14 +95,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 		((ChecksumTableModel) getModel()).clear();
 	}
 	
-	private PropertyChangeListener repaintListener = new PropertyChangeListener() {
-		
-		public void propertyChange(PropertyChangeEvent evt) {
-			repaint();
-		}
-	};
-	
-	
+
 	public TransferablePolicy getTransferablePolicy() {
 		return transferablePolicy;
 	}
@@ -138,6 +130,16 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	public void removeRows(int... rowIndices) {
 		ChecksumTableModel model = (ChecksumTableModel) getModel();
 		model.removeRows(rowIndices);
+	}
+	
+
+	@Override
+	public void tableChanged(TableModelEvent e) {
+		if (e.getType() == ChecksumTableModelEvent.CHECKSUM_PROGRESS) {
+			repaint();
+		} else {
+			super.tableChanged(e);
+		}
 	}
 	
 

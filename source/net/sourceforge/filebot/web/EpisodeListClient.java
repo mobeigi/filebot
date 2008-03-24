@@ -28,7 +28,7 @@ public abstract class EpisodeListClient {
 
 	public static EpisodeListClient forName(String name) {
 		for (EpisodeListClient client : registry) {
-			if (name.equalsIgnoreCase(client.getName()))
+			if (client.getName().equalsIgnoreCase(name))
 				return client;
 		}
 		

@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 import net.sourceforge.filebot.FileFormat;
 
@@ -184,24 +185,12 @@ class ChecksumTableModel extends AbstractTableModel {
 		return checksumMap;
 	}
 	
-	private PropertyChangeListener checksumListener = new PropertyChangeListener() {
+	private final PropertyChangeListener checksumListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			propertyChangeSupport.firePropertyChange(evt);
+			fireTableChanged(new ChecksumTableModelEvent(ChecksumTableModel.this));
 		}
 	};
-	
-	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-	
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-	
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
 	
 	
 	public static class Entry {
@@ -239,6 +228,19 @@ class ChecksumTableModel extends AbstractTableModel {
 		public String toString() {
 			return getName();
 		}
+	}
+	
+
+	public static class ChecksumTableModelEvent extends TableModelEvent {
+		
+		public static final int CHECKSUM_PROGRESS = 10;
+		
+		
+		public ChecksumTableModelEvent(TableModel source) {
+			super(source);
+			type = CHECKSUM_PROGRESS;
+		}
+		
 	}
 	
 }

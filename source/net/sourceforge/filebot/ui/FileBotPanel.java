@@ -39,7 +39,7 @@ public class FileBotPanel extends JPanel {
 
 	public static FileBotPanel forName(String name) {
 		for (FileBotPanel panel : registry) {
-			if (name.equalsIgnoreCase(panel.getPanelName()))
+			if (panel.getPanelName().equalsIgnoreCase(name))
 				return panel;
 		}
 		
