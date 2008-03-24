@@ -11,11 +11,11 @@ import javax.swing.event.ChangeListener;
 
 class ViewPortSynchronizer {
 	
-	private JViewport viewport1;
-	private JViewport viewport2;
+	private final JViewport viewport1;
+	private final JViewport viewport2;
 	
-	private ViewPortSynchronizeListener viewPortSynchronizeListener1;
-	private ViewPortSynchronizeListener viewPortSynchronizeListener2;
+	private final ViewPortSynchronizeListener viewPortSynchronizeListener1;
+	private final ViewPortSynchronizeListener viewPortSynchronizeListener2;
 	
 	
 	public ViewPortSynchronizer(JViewport viewport1, JViewport viewport2) {
@@ -44,7 +44,7 @@ class ViewPortSynchronizer {
 	
 	private static class ViewPortSynchronizeListener implements ChangeListener {
 		
-		private JViewport target;
+		private final JViewport target;
 		
 		
 		public ViewPortSynchronizeListener(JViewport target) {
@@ -59,11 +59,10 @@ class ViewPortSynchronizer {
 			Point viewPosition = source.getViewPosition();
 			
 			// return if both viewports have the same view position
-			if (viewPosition.equals(target.getViewPosition()))
-				return;
-			
-			target.setViewPosition(viewPosition);
-			target.repaint();
+			if (!viewPosition.equals(target.getViewPosition())) {
+				target.setViewPosition(viewPosition);
+				target.repaint();
+			}
 		}
 	}
 	

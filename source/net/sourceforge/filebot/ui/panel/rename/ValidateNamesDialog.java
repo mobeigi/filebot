@@ -53,7 +53,7 @@ public class ValidateNamesDialog extends JDialog {
 		JList list = new JList(new SimpleListModel(entries));
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(Color.decode("#FF4200"), Color.decode("#FF1200")), 4));
+		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		

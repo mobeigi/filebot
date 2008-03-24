@@ -49,7 +49,7 @@ class FileBotPanelSelectionList extends JList {
 	private class PanelCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public PanelCellRenderer() {
-			super(BorderLayout.CENTER, 10, 0, Color.decode("#163264"));
+			super(BorderLayout.CENTER, 10, 0, new Color(0x163264));
 			
 			setHighlightingEnabled(false);
 			

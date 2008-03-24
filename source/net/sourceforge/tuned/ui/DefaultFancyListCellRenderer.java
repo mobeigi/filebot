@@ -17,25 +17,18 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	
 	
 	public DefaultFancyListCellRenderer() {
-		this.add(label, BorderLayout.WEST);
-		initializeLabel(BorderLayout.WEST);
+		add(label, BorderLayout.WEST);
 	}
 	
 
 	public DefaultFancyListCellRenderer(int padding) {
 		super(new Insets(padding, padding, padding, padding));
-		initializeLabel(BorderLayout.WEST);
+		add(label, BorderLayout.WEST);
 	}
 	
 
 	protected DefaultFancyListCellRenderer(Object constraint, int padding, int margin, Color selectedBorderColor) {
 		super(new Insets(padding, padding, padding, padding), new Insets(margin, margin, margin, margin), selectedBorderColor);
-		initializeLabel(constraint);
-	}
-	
-
-	private void initializeLabel(Object constraint) {
-		label.setOpaque(false);
 		add(label, constraint);
 	}
 	
@@ -43,6 +36,8 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	@Override
 	protected void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		
+		label.setOpaque(false);
 		
 		setText(value.toString());
 	}

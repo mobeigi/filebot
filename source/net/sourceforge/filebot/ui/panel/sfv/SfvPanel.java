@@ -110,7 +110,7 @@ public class SfvPanel extends FileBotPanel {
 					@Override
 					protected String convertValueToString(Object value) {
 						File columnRoot = (File) value;
-						return FileFormat.getName(columnRoot);
+						return FileFormat.getFolderName(columnRoot);
 					}
 				};
 				
@@ -125,7 +125,7 @@ public class SfvPanel extends FileBotPanel {
 				return;
 			
 			index = options.indexOf(selected);
-			name = FileFormat.getNameWithoutExtension(selected);
+			name = FileFormat.getFileName(selected);
 			
 			if (name.isEmpty())
 				name = "name";

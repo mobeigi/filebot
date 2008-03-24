@@ -21,7 +21,7 @@ public class TextFieldWithSelect<T> extends JPanel {
 	private SelectButton<T> selectButton;
 	
 	private JTextField textfield = new JTextField();
-	private Color borderColor = Color.decode("#A4A4A4");
+	private Color borderColor = new Color(0xA4A4A4);
 	
 	
 	public TextFieldWithSelect(Collection<Entry<T>> options) {

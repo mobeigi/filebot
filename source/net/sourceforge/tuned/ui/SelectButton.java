@@ -30,11 +30,11 @@ public class SelectButton<T> extends JButton implements ActionListener {
 	
 	private boolean hover = false;
 	
-	private Color beginColor = Color.decode("#F0EEE4");
-	private Color endColor = Color.decode("#E0DED4");
+	private Color beginColor = new Color(0xF0EEE4);
+	private Color endColor = new Color(0xE0DED4);
 	
 	private Color beginColorHover = beginColor;
-	private Color endColorHover = Color.decode("#D8D7CD");
+	private Color endColorHover = new Color(0xD8D7CD);
 	
 	private Entry<T> selectedEntry = null;
 	

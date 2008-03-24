@@ -31,16 +31,6 @@ public class FileFormat {
 	}
 	
 
-	public static String formatName(File file) {
-		String name = file.getName();
-		
-		if (file.isDirectory())
-			return name;
-		
-		return getNameWithoutExtension(name);
-	}
-	
-
 	public static String formatNumberOfFiles(int n) {
 		if (n == 1)
 			return n + " file";
@@ -50,7 +40,7 @@ public class FileFormat {
 	
 
 	public static boolean hasExtension(File file, String... extensions) {
-		if (!file.isFile())
+		if (file.isDirectory())
 			return false;
 		
 		String extension = getExtension(file);
@@ -70,10 +60,14 @@ public class FileFormat {
 	
 
 	public static String getExtension(File file, boolean includeDot) {
-		String name = file.getName();
+		return getExtension(file.getName(), includeDot);
+	}
+	
+
+	public static String getExtension(String name, boolean includeDot) {
 		int dotIndex = name.lastIndexOf(".");
 		
-		// .config -> no extension
+		// .config -> no extension, just hidden
 		if (dotIndex >= 1) {
 			int startIndex = dotIndex;
 			
@@ -99,15 +93,15 @@ public class FileFormat {
 	}
 	
 
-	public static String getNameWithoutExtension(File file) {
+	public static String getFileName(File file) {
+		if (file.isDirectory())
+			return getFolderName(file);
+		
 		return getNameWithoutExtension(file.getName());
 	}
 	
 
-	public static String getName(File file) {
-		if (file == null)
-			return "";
-		
+	public static String getFolderName(File file) {
 		String name = file.getName();
 		
 		if (!name.isEmpty())
@@ -115,6 +109,25 @@ public class FileFormat {
 		
 		// file might be a drive (only has a path, but no name)
 		return file.toString();
+	}
+	
+
+	public static String getFileType(File file) {
+		if (file.isDirectory())
+			return "Folder";
+		
+		return getFileType(file.getName());
+	}
+	
+
+	public static String getFileType(String name) {
+		String extension = getExtension(name, false);
+		
+		if (!extension.isEmpty())
+			return extension;
+		
+		// some file with no suffix
+		return "File";
 	}
 	
 }

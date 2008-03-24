@@ -9,11 +9,11 @@ import javax.swing.event.ListSelectionListener;
 
 class SelectionSynchronizer {
 	
-	private JList list1;
-	private JList list2;
+	private final JList list1;
+	private final JList list2;
 	
-	private SelectionSynchronizeListener selectionSynchronizeListener1;
-	private SelectionSynchronizeListener selectionSynchronizeListener2;
+	private final SelectionSynchronizeListener selectionSynchronizeListener1;
+	private final SelectionSynchronizeListener selectionSynchronizeListener2;
 	
 	
 	public SelectionSynchronizer(JList list1, JList list2) {
@@ -45,8 +45,8 @@ class SelectionSynchronizer {
 		private JList target;
 		
 		
-		public SelectionSynchronizeListener(JList to) {
-			this.target = to;
+		public SelectionSynchronizeListener(JList target) {
+			this.target = target;
 		}
 		
 

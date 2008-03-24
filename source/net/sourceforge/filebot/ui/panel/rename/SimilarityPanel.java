@@ -40,7 +40,7 @@ class SimilarityPanel extends Box {
 	
 	private Border labelMarginBorder = BorderFactory.createEmptyBorder(0, 3, 0, 0);
 	
-	private Border separatorBorder = new SeparatorBorder(1, Color.decode("#ACA899"), SeparatorBorder.Position.TOP);
+	private Border separatorBorder = new SeparatorBorder(1, new Color(0xACA899), SeparatorBorder.Position.TOP);
 	
 	
 	public SimilarityPanel(JList nameList, JList fileList) {

@@ -38,7 +38,7 @@ class ChecksumTableModel extends AbstractTableModel {
 		
 		if (columnIndex >= checksumColumnsOffset) {
 			File columnRoot = checksumColumnRoots.get(columnIndex - checksumColumnsOffset);
-			return FileFormat.getName(columnRoot);
+			return FileFormat.getFolderName(columnRoot);
 		}
 		
 		return null;

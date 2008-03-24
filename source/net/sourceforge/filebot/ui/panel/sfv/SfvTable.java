@@ -113,7 +113,7 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 		String name = "";
 		
 		if (columnRoot != null)
-			name = FileFormat.getNameWithoutExtension(columnRoot);
+			name = FileFormat.getFileName(columnRoot);
 		
 		if (name.isEmpty())
 			name = "name";

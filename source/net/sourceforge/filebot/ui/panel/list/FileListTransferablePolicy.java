@@ -41,7 +41,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	@Override
 	protected void load(List<File> files) {
 		if (files.size() > 1) {
-			list.setTitle(FileFormat.getName(files.get(0).getParentFile()));
+			list.setTitle(FileFormat.getFolderName(files.get(0).getParentFile()));
 		}
 		
 		if (FileBotUtil.containsOnlyFolders(files)) {
@@ -56,12 +56,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	private void loadFolderList(List<File> folders) {
 		if (folders.size() == 1) {
-			list.setTitle(FileFormat.getName(folders.get(0)));
+			list.setTitle(FileFormat.getFolderName(folders.get(0)));
 		}
 		
 		for (File folder : folders) {
 			for (File file : folder.listFiles()) {
-				list.getModel().add(FileFormat.formatName(file));
+				list.getModel().add(FileFormat.getFolderName(file));
 			}
 		}
 	}
@@ -93,7 +93,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(File file) {
-		list.getModel().add(FileFormat.formatName(file));
+		list.getModel().add(FileFormat.getFileName(file));
 	}
 	
 
