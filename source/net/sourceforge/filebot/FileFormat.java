@@ -31,14 +31,6 @@ public class FileFormat {
 	}
 	
 
-	public static String formatNumberOfFiles(int n) {
-		if (n == 1)
-			return n + " file";
-		else
-			return n + " files";
-	}
-	
-
 	public static boolean hasExtension(File file, String... extensions) {
 		if (file.isDirectory())
 			return false;

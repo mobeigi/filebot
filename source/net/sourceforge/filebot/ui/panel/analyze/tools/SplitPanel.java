@@ -6,7 +6,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,12 +76,10 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	}
 	
 
-	/**
-	 * callback when splitsize has been changed
-	 */
 	public void stateChanged(ChangeEvent e) {
-		if (files != null)
+		if (fileChache != null) {
 			update();
+		}
 	}
 	
 
@@ -87,83 +87,94 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		return spinnerModel.getNumber().intValue() * FileFormat.MEGA;
 	}
 	
-	private UpdateTask latestUpdateTask;
+	private UpdateTask updateTask;
 	
-	private Collection<File> files;
+	private Collection<File> fileChache;
 	
 	
 	@Override
 	public void update(Collection<File> files) {
-		this.files = files;
+		this.fileChache = files;
 		update();
 	}
 	
 
-	private void update() {
-		latestUpdateTask = new UpdateTask();
+	private synchronized void update() {
+		if (updateTask != null) {
+			updateTask.cancel(false);
+		}
+		
+		updateTask = new UpdateTask(fileChache);
+		
 		tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
-		latestUpdateTask.execute();
+		updateTask.execute();
 	}
 	
 	
 	private class UpdateTask extends SwingWorker<DefaultTreeModel, Object> {
 		
-		private boolean isLatest() {
-			if (this == latestUpdateTask)
-				return true;
-			else
-				return false;
-		}
+		private final Collection<File> files;
 		
-
-		private void setLastChildUserObject(DefaultMutableTreeNode root, int part, long size) {
-			DefaultMutableTreeNode node = ((DefaultMutableTreeNode) root.getLastChild());
-			node.setUserObject(String.format("Part %d (%s)", part, FileFormat.formatSize(size)));
+		
+		public UpdateTask(Collection<File> files) {
+			this.files = files;
 		}
 		
 
 		@Override
 		protected DefaultTreeModel doInBackground() throws Exception {
-			long currentSize = 0;
 			
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-			DefaultMutableTreeNode first = new DefaultMutableTreeNode();
-			root.add(first);
-			DefaultMutableTreeNode remainder = new DefaultMutableTreeNode("Remainder");
+			List<List<File>> parts = new ArrayList<List<File>>();
+			List<File> remainder = new ArrayList<File>();
 			
-			int p = 1;
 			long splitSize = getSplitSize();
 			
-			for (File f : files) {
-				long fileSize = f.length();
-				DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(f);
+			long currentSize = 0;
+			List<File> currentPart = null;
+			
+			for (File file : files) {
+				long fileSize = file.length();
 				
-				if (fileSize > splitSize)
-					remainder.add(fileNode);
-				else if (currentSize + fileSize <= splitSize) {
-					currentSize += fileSize;
-					((DefaultMutableTreeNode) root.getLastChild()).add(fileNode);
-				} else {
-					setLastChildUserObject(root, p, currentSize);
-					
-					currentSize = fileSize;
-					p++;
-					DefaultMutableTreeNode node = new DefaultMutableTreeNode();
-					node.add(fileNode);
-					root.add(node);
+				if (fileSize > splitSize) {
+					remainder.add(file);
+					continue;
 				}
 				
-				if (!isLatest())
+				if (currentSize + fileSize > splitSize) {
+					currentSize = 0;
+					currentPart = null;
+				}
+				
+				if (currentPart == null) {
+					currentPart = new ArrayList<File>();
+					parts.add(currentPart);
+				}
+				
+				currentSize += fileSize;
+				currentPart.add(file);
+				
+				if (isCancelled()) {
 					return null;
+				}
 			}
 			
-			setLastChildUserObject(root, p, currentSize);
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
 			
-			if (!remainder.isLeaf())
-				root.add(remainder);
+			int count = 1;
 			
-			if (first.isLeaf())
-				first.removeFromParent();
+			for (List<File> part : parts) {
+				root.add(createTreeNode(String.format("Part %d", count), part));
+				
+				count++;
+				
+				if (isCancelled()) {
+					return null;
+				}
+			}
+			
+			if (!remainder.isEmpty()) {
+				root.add(createTreeNode("Remainder", remainder));
+			}
 			
 			return new DefaultTreeModel(root);
 		}
@@ -171,13 +182,12 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 
 		@Override
 		protected void done() {
+			if (isCancelled()) {
+				return;
+			}
+			
 			try {
-				DefaultTreeModel model = get();
-				
-				if (model == null)
-					return;
-				
-				tree.setModel(model);
+				tree.setModel(get());
 			} catch (Exception e) {
 				// should not happen
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

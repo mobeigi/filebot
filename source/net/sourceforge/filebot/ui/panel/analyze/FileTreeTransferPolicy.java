@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.analyze;
 
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -54,8 +55,13 @@ class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMut
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(file);
 		
 		if (file.isDirectory() && !Thread.currentThread().isInterrupted()) {
-			// run through file tree
-			for (File f : file.listFiles()) {
+			// run through folders first
+			for (File f : file.listFiles(FOLDER_FILTER)) {
+				node.add(getTree(f));
+			}
+			
+			// then files
+			for (File f : file.listFiles(FILE_FILTER)) {
 				node.add(getTree(f));
 			}
 		}
@@ -68,5 +74,23 @@ class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMut
 	public String getDescription() {
 		return "files and folders";
 	}
+	
+	private static final FileFilter FOLDER_FILTER = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isDirectory();
+		}
+		
+	};
+	
+	private static final FileFilter FILE_FILTER = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isFile();
+		}
+		
+	};
 	
 }

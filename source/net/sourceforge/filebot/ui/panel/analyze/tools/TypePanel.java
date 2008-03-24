@@ -4,11 +4,12 @@ package net.sourceforge.filebot.ui.panel.analyze.tools;
 
 import java.awt.BorderLayout;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,21 +43,25 @@ public class TypePanel extends ToolPanel {
 		tree.setDragEnabled(true);
 	}
 	
-	private UpdateTask latestUpdateTask;
+	private UpdateTask updateTask = null;
 	
 	
 	@Override
-	public void update(Collection<File> files) {
-		latestUpdateTask = new UpdateTask(files);
+	public synchronized void update(Collection<File> files) {
+		if (updateTask != null) {
+			updateTask.cancel(false);
+		}
+		
+		updateTask = new UpdateTask(files);
 		
 		tree.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
-		latestUpdateTask.execute();
+		updateTask.execute();
 	}
 	
 	
 	private class UpdateTask extends SwingWorker<DefaultTreeModel, Object> {
 		
-		private Collection<File> files;
+		private final Collection<File> files;
 		
 		
 		public UpdateTask(Collection<File> files) {
@@ -64,54 +69,36 @@ public class TypePanel extends ToolPanel {
 		}
 		
 
-		private boolean isLatest() {
-			if (this == latestUpdateTask)
-				return true;
-			else
-				return false;
-		}
-		
-
 		@Override
 		protected DefaultTreeModel doInBackground() throws Exception {
-			Map<String, Collection<File>> map = new HashMap<String, Collection<File>>();
+			SortedMap<String, SortedSet<File>> map = new TreeMap<String, SortedSet<File>>();
 			
-			for (File f : files) {
-				String extension = FileFormat.getExtension(f);
+			for (File file : files) {
+				String extension = FileFormat.getExtension(file);
 				
-				Collection<File> list = map.get(extension);
+				SortedSet<File> set = map.get(extension);
 				
-				if (list != null)
-					list.add(f);
-				else {
-					list = new ArrayList<File>();
-					list.add(f);
-					map.put(extension, list);
+				if (set == null) {
+					set = new TreeSet<File>();
+					map.put(extension, set);
 				}
 				
-				if (!isLatest())
+				set.add(file);
+				
+				if (isCancelled()) {
 					return null;
+				}
 			}
 			
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-			Iterator<String> i = map.keySet().iterator();
 			
-			while (i.hasNext()) {
-				String key = i.next();
-				Collection<File> list = map.get(key);
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode();
-				long size = 0;
+			for (Map.Entry<String, SortedSet<File>> entry : map.entrySet()) {
 				
-				for (File f : list) {
-					node.add(new DefaultMutableTreeNode(f));
-					size += f.length();
-				}
+				root.add(createTreeNode(entry.getKey(), entry.getValue()));
 				
-				node.setUserObject(key + " (" + FileFormat.formatNumberOfFiles(list.size()) + ", " + FileFormat.formatSize(size) + ")");
-				root.add(node);
-				
-				if (!isLatest())
+				if (isCancelled()) {
 					return null;
+				}
 			}
 			
 			return new DefaultTreeModel(root);
@@ -120,13 +107,12 @@ public class TypePanel extends ToolPanel {
 
 		@Override
 		protected void done() {
+			if (isCancelled()) {
+				return;
+			}
+			
 			try {
-				DefaultTreeModel model = get();
-				
-				if (model == null)
-					return;
-				
-				tree.setModel(model);
+				tree.setModel(get());
 			} catch (Exception e) {
 				// should not happen
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

@@ -57,8 +57,8 @@ public class AnalyzePanel extends FileBotPanel {
 		fileTreePanel.setMinimumSize(min);
 		toolsPanel.setMinimumSize(min);
 		
-		addTool(new SplitPanel());
 		addTool(new TypePanel());
+		addTool(new SplitPanel());
 		
 		fileTreePanel.getFileTree().addPropertyChangeListener(FileTree.CONTENT_PROPERTY, fileTreeChangeListener);
 		
