@@ -4,7 +4,9 @@ package net.sourceforge.tuned;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -56,8 +58,9 @@ public class TemporaryFolder {
 	
 
 	public File createFile(String name) throws IOException {
-		if (!root.exists())
+		if (!root.exists()) {
 			root.mkdir();
+		}
 		
 		File file = new File(root, name);
 		file.createNewFile();
@@ -71,6 +74,48 @@ public class TemporaryFolder {
 		
 		if (file.exists()) {
 			file.delete();
+		}
+	}
+	
+
+	public File getFolder() {
+		return root;
+	}
+	
+
+	public TemporaryFolder createFolder(String name) {
+		if (!root.exists()) {
+			root.mkdir();
+		}
+		
+		TemporaryFolder folder = new TemporaryFolder(new File(root, name));
+		
+		folder.root.mkdir();
+		
+		return folder;
+	}
+	
+
+	public List<File> list(boolean recursive) {
+		List<File> list = new ArrayList<File>();
+		
+		list(root, list, recursive);
+		
+		return list;
+	}
+	
+
+	private void list(File file, List<File> list, boolean recursive) {
+		if (file.isDirectory()) {
+			for (File entry : file.listFiles()) {
+				if (entry.isDirectory()) {
+					if (recursive) {
+						list(entry, list, recursive);
+					}
+				} else {
+					list.add(entry);
+				}
+			}
 		}
 	}
 	

@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -112,4 +113,22 @@ public class FileBotUtil {
 		
 		return new Point(p.x + d.width / 4, p.y + d.height / 7);
 	}
+	
+	public static final FileFilter FOLDERS_ONLY = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isDirectory();
+		}
+		
+	};
+	
+	public static final FileFilter FILES_ONLY = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isFile();
+		}
+		
+	};
 }
