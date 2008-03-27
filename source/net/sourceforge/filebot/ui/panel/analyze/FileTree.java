@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -74,25 +73,15 @@ class FileTree extends FileBotTree {
 	public void clear() {
 		((FileTreeTransferablePolicy) getTransferablePolicy()).reset();
 		
-		// there may still be some runnables from the transfer in the event queue, 
-		// clear the model, after those runnables have finished,
-		// otherwise it may happen, that stuff is added, after the model has been cleared
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				FileTree.super.clear();
-				contentChanged();
-			}
-		});
-		
+		super.clear();
+		contentChanged();
 	}
 	
 
-	void contentChanged() {
+	private void contentChanged() {
 		synchronized (this) {
 			if (postProcessor != null)
-				postProcessor.cancel(false);
+				postProcessor.cancel(true);
 			
 			postProcessor = new PostProcessor();
 			postProcessor.execute();
@@ -138,4 +127,5 @@ class FileTree extends FileBotTree {
 		}
 		
 	}
+	
 }

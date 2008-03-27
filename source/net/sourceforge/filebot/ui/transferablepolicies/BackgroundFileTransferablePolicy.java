@@ -3,101 +3,64 @@ package net.sourceforge.filebot.ui.transferablepolicies;
 
 
 import java.awt.datatransfer.Transferable;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
-import net.sourceforge.tuned.DefaultThreadFactory;
+import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
 
 public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferablePolicy {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
-	private static final ThreadFactory backgroundTransferThreadFactory = new DefaultThreadFactory("BackgroundTransferPool", Thread.NORM_PRIORITY);
-	
-	private SingleThreadExecutor executor = null;
-	
-	private final AtomicInteger count = new AtomicInteger(0);
+	private BackgroundWorker worker = null;
 	
 	
+	@Override
+	public boolean accept(Transferable tr) {
+		if (isActive())
+			return false;
+		
+		return super.accept(tr);
+	}
+	
+
 	@Override
 	public void handleTransferable(Transferable tr, boolean add) {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (files == null)
+		if ((files == null) || files.isEmpty()) {
 			return;
-		
-		if (!add)
-			clear();
-		
-		execute(new LoadFilesTask(files));
-	}
-	
-
-	protected synchronized void execute(Runnable task) {
-		if (executor == null) {
-			executor = new SingleThreadExecutor();
 		}
 		
-		executor.execute(task);
-	}
-	
-
-	public boolean isActive() {
-		return count.get() > 0;
-	}
-	
-
-	private synchronized void setActive(final boolean active) {
-		
-		SwingUtilities.invokeLater(new Runnable() {
+		synchronized (this) {
+			reset();
 			
-			@Override
-			public void run() {
-				propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, active);
-			}
-		});
-	}
-	
-
-	private synchronized void deactivate(boolean shutdownNow) {
-		if (executor != null) {
-			if (shutdownNow) {
-				executor.shutdownNow();
-			} else {
-				executor.shutdown();
+			if (!add) {
+				clear();
 			}
 			
-			executor = null;
+			worker = new BackgroundWorker(files);
+			worker.addPropertyChangeListener(new BackgroundWorkerListener());
+			worker.execute();
 		}
-		
-		count.set(0);
+	}
+	
+
+	public synchronized boolean isActive() {
+		return (worker != null) && !worker.isDone();
 	}
 	
 
 	public synchronized void reset() {
-		deactivate(true);
-		setActive(false);
-	}
-	
-
-	/**
-	 * Sends data chunks to the process method.
-	 * 
-	 * @param chunks
-	 */
-	protected final void publish(V... chunks) {
-		SwingUtilities.invokeLater(new ProcessChunksTask(chunks));
+		if (isActive()) {
+			worker.cancel(true);
+		}
 	}
 	
 
@@ -109,37 +72,62 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 */
 	protected abstract void process(List<V> chunks);
 	
+
+	/**
+	 * Sends data chunks to the process method.
+	 * 
+	 * @param chunks
+	 */
+	protected final void publish(V... chunks) {
+		worker.publishChunks(chunks);
+	}
 	
-	private class LoadFilesTask implements Runnable {
+	
+	private class BackgroundWorker extends SwingWorker<Object, V> {
 		
 		private final List<File> files;
 		
 		
-		public LoadFilesTask(List<File> files) {
+		public BackgroundWorker(List<File> files) {
 			this.files = files;
 		}
 		
 
 		@Override
-		public void run() {
+		protected Object doInBackground() {
 			load(files);
+			
+			return null;
 		}
-	}
-	
+		
 
-	private class ProcessChunksTask implements Runnable {
-		
-		private final V[] chunks;
-		
-		
-		public ProcessChunksTask(V[] chunks) {
-			this.chunks = chunks;
+		public void publishChunks(V... chunks) {
+			if (!isCancelled()) {
+				publish(chunks);
+			}
 		}
 		
 
 		@Override
-		public void run() {
-			process(Arrays.asList(chunks));
+		protected void process(List<V> chunks) {
+			if (!isCancelled()) {
+				BackgroundFileTransferablePolicy.this.process(chunks);
+			}
+		}
+	}
+	
+
+	private class BackgroundWorkerListener extends SwingWorkerPropertyChangeAdapter {
+		
+		@Override
+		public void started(PropertyChangeEvent evt) {
+			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, true);
+		}
+		
+
+		@Override
+		public void done(PropertyChangeEvent evt) {
+			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, false);
 		}
 	}
 	
@@ -154,37 +142,4 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
 		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
 	}
-	
-	
-	private class SingleThreadExecutor extends ThreadPoolExecutor {
-		
-		public SingleThreadExecutor() {
-			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), backgroundTransferThreadFactory);
-		}
-		
-
-		@Override
-		public void execute(Runnable command) {
-			
-			if (count.getAndIncrement() <= 0) {
-				setActive(true);
-			}
-			
-			super.execute(command);
-		}
-		
-
-		@Override
-		protected void afterExecute(Runnable r, Throwable t) {
-			super.afterExecute(r, t);
-			
-			if (count.decrementAndGet() <= 0) {
-				// shutdown executor
-				deactivate(false);
-				setActive(false);
-			}
-		}
-		
-	}
-	
 }

@@ -23,6 +23,7 @@ public class DefaultThreadFactory implements ThreadFactory {
 	public DefaultThreadFactory(String groupName, int priority, boolean daemon) {
 		group = new ThreadGroup(groupName);
 		group.setDaemon(daemon);
+		group.setMaxPriority(priority);
 		
 		this.daemon = daemon;
 		this.priority = priority;
@@ -30,12 +31,12 @@ public class DefaultThreadFactory implements ThreadFactory {
 	
 
 	public Thread newThread(Runnable r) {
-		Thread t = new Thread(group, r, String.format("%s-thread-%d", group.getName(), threadNumber.incrementAndGet()));
+		Thread thread = new Thread(group, r, String.format("%s-thread-%d", group.getName(), threadNumber.incrementAndGet()));
 		
-		t.setDaemon(daemon);
-		t.setPriority(priority);
+		thread.setDaemon(daemon);
+		thread.setPriority(priority);
 		
-		return t;
+		return thread;
 	}
 	
 }
