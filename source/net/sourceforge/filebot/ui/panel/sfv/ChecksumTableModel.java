@@ -147,15 +147,7 @@ class ChecksumTableModel extends AbstractTableModel {
 	
 
 	public synchronized void clear() {
-		
-		// stop any running computations
-		for (ChecksumRow row : rows) {
-			for (Checksum checksum : row.getChecksums()) {
-				checksum.cancelComputationTask();
-			}
-		}
-		
-		ChecksumComputationService.getService().cancelAll();
+		ChecksumComputationService.getService().reset();
 		
 		checksumColumnRoots.clear();
 		rows.clear();

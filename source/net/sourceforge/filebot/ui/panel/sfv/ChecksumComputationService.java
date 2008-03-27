@@ -18,11 +18,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 
+import net.sourceforge.tuned.DefaultThreadFactory;
+
 
 public class ChecksumComputationService {
 	
 	public static final String ACTIVE_PROPERTY = "ACTIVE_PROPERTY";
 	public static final String REMAINING_TASK_COUNT_PROPERTY = "REMAINING_TASK_COUNT_PROPERTY";
+	
+	private static final ThreadFactory checksumComputationThreadFactory = new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY);
 	
 	private static final ChecksumComputationService service = new ChecksumComputationService();
 	
@@ -44,22 +48,35 @@ public class ChecksumComputationService {
 	}
 	
 
-	public ChecksumComputationTask submit(File file, File workerQueueKey) {
+	public Checksum getChecksum(File file, File workerQueueKey) {
 		ChecksumComputationTask task = new ChecksumComputationTask(file);
+		Checksum checksum = new Checksum(task);
 		
 		getExecutor(workerQueueKey).execute(task);
 		
-		return task;
+		return checksum;
 	}
 	
 
-	public void cancelAll() {
+	public void reset() {
+		deactivate(true);
+	}
+	
+
+	private void deactivate(boolean shutdownNow) {
 		synchronized (executors) {
 			for (ChecksumComputationExecutor executor : executors.values()) {
-				executor.shutdownNow();
+				if (shutdownNow) {
+					executor.shutdownNow();
+				} else {
+					executor.shutdown();
+				}
 			}
 			
-			setActive(false);
+			executors.clear();
+			
+			activeSessionTaskCount.set(0);
+			remainingTaskCount.set(0);
 		}
 	}
 	
@@ -108,7 +125,7 @@ public class ChecksumComputationService {
 		
 		
 		public ChecksumComputationExecutor() {
-			super(MINIMUM_POOL_SIZE, MINIMUM_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ChecksumComputationThreadFactory());
+			super(MINIMUM_POOL_SIZE, MINIMUM_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), checksumComputationThreadFactory);
 		}
 		
 
@@ -191,6 +208,7 @@ public class ChecksumComputationService {
 			super.afterExecute(r, t);
 			
 			if (remainingTaskCount.decrementAndGet() <= 0) {
+				deactivate(false);
 				setActive(false);
 			}
 			
@@ -200,15 +218,6 @@ public class ChecksumComputationService {
 	
 	
 	private void setActive(boolean active) {
-		if (!active) {
-			activeSessionTaskCount.set(0);
-			remainingTaskCount.set(0);
-			
-			synchronized (executors) {
-				executors.clear();
-			}
-		}
-		
 		SwingUtilities.invokeLater(new FirePropertyChangeRunnable(ACTIVE_PROPERTY, active));
 	}
 	
@@ -231,46 +240,18 @@ public class ChecksumComputationService {
 	private class FirePropertyChangeRunnable implements Runnable {
 		
 		private final String property;
-		private final Object oldValue;
 		private final Object newValue;
 		
 		
-		public FirePropertyChangeRunnable(String property, Object oldValue, Object newValue) {
-			this.property = property;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-		
-
 		public FirePropertyChangeRunnable(String property, Object newValue) {
-			this(property, null, newValue);
+			this.property = property;
+			this.newValue = newValue;
 		}
 		
 
 		@Override
 		public void run() {
-			propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
-		}
-	}
-	
-
-	private static class ChecksumComputationThreadFactory implements ThreadFactory {
-		
-		private static final AtomicInteger poolNumber = new AtomicInteger(0);
-		
-		private final ThreadGroup group = new ThreadGroup("ChecksumComputationPool");
-		private final AtomicInteger threadNumber = new AtomicInteger(0);
-		
-		private final String namePrefix = String.format("%s-%d-thread-", group.getName(), poolNumber.incrementAndGet());
-		
-		
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(group, r, namePrefix + threadNumber.incrementAndGet(), 0);
-			
-			t.setDaemon(false);
-			t.setPriority(Thread.MIN_PRIORITY);
-			
-			return t;
+			propertyChangeSupport.firePropertyChange(property, null, newValue);
 		}
 	}
 	

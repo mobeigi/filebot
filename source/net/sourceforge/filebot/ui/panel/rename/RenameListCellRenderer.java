@@ -19,7 +19,7 @@ import javax.swing.ListModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.ui.panel.rename.entry.AbstractFileEntry;
+import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 
@@ -50,8 +50,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		if ((list.getModel() == files) && (value instanceof AbstractFileEntry<?>)) {
-			AbstractFileEntry<?> entry = (AbstractFileEntry<?>) value;
+		if ((list.getModel() == files) && (value instanceof FileEntry)) {
+			FileEntry entry = (FileEntry) value;
 			
 			extension.setText(entry.getType());
 			extension.setVisible(true);
@@ -86,7 +86,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private class ExtensionLabel extends JLabel {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
-		private final Insets padding = new Insets(1, 6, 1, 5);
+		private final Insets padding = new Insets(0, 6, 0, 5);
 		private final int arc = 10;
 		
 		private Color gradientBeginColor = new Color(0xFFCC00);
@@ -97,7 +97,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public ExtensionLabel() {
 			setOpaque(false);
-			setForeground(new Color(42, 42, 42));
+			setForeground(new Color(0x141414));
 			
 			setBorder(new CompoundBorder(new EmptyBorder(margin), new EmptyBorder(padding)));
 		}
@@ -120,7 +120,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			g2d.setPaint(getForeground());
 			
 			Rectangle2D textBounds = g2d.getFontMetrics().getStringBounds(getText(), g2d);
-			
 			g2d.drawString(getText(), (float) (shape.getCenterX() - textBounds.getX() - (textBounds.getWidth() / 2f)), (float) (shape.getCenterY() - textBounds.getY() - (textBounds.getHeight() / 2)));
 		}
 		

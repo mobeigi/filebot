@@ -9,18 +9,25 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.SwingUtilities;
 
+import net.sourceforge.tuned.DefaultThreadFactory;
+
 
 public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferablePolicy {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
+	private static final ThreadFactory backgroundTransferThreadFactory = new DefaultThreadFactory("BackgroundTransferPool", Thread.NORM_PRIORITY);
+	
 	private SingleThreadExecutor executor = null;
+	
+	private final AtomicInteger count = new AtomicInteger(0);
 	
 	
 	@Override
@@ -33,39 +40,54 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		if (!add)
 			clear();
 		
-		submit(new LoadFilesTask(files));
+		execute(new LoadFilesTask(files));
 	}
 	
 
-	protected void submit(Runnable task) {
-		synchronized (this) {
-			if (executor == null) {
-				executor = new SingleThreadExecutor();
-			}
+	protected synchronized void execute(Runnable task) {
+		if (executor == null) {
+			executor = new SingleThreadExecutor();
 		}
 		
-		executor.submit(task);
+		executor.execute(task);
 	}
 	
 
 	public boolean isActive() {
-		synchronized (this) {
-			if (executor == null)
-				return false;
-			
-			return executor.isActive();
-		}
+		return count.get() > 0;
 	}
 	
 
-	public void cancelAll() {
-		synchronized (this) {
-			if (executor != null) {
-				// interrupt all threads
-				executor.shutdownNow();
-				executor = null;
+	private synchronized void setActive(final boolean active) {
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, active);
 			}
+		});
+	}
+	
+
+	private synchronized void deactivate(boolean shutdownNow) {
+		if (executor != null) {
+			if (shutdownNow) {
+				executor.shutdownNow();
+			} else {
+				executor.shutdown();
+			}
+			
+			executor = null;
 		}
+		
+		count.set(0);
+	}
+	
+
+	public synchronized void reset() {
+		deactivate(true);
+		setActive(false);
 	}
 	
 
@@ -75,7 +97,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 * @param chunks
 	 */
 	protected final void publish(V... chunks) {
-		SwingUtilities.invokeLater(new ProcessChunksTask(chunks, Thread.currentThread()));
+		SwingUtilities.invokeLater(new ProcessChunksTask(chunks));
 	}
 	
 
@@ -90,7 +112,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	
 	private class LoadFilesTask implements Runnable {
 		
-		private List<File> files;
+		private final List<File> files;
 		
 		
 		public LoadFilesTask(List<File> files) {
@@ -107,37 +129,37 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 
 	private class ProcessChunksTask implements Runnable {
 		
-		private V[] chunks;
-		private Thread publisher;
+		private final V[] chunks;
 		
 		
-		public ProcessChunksTask(V[] chunks, Thread publisher) {
+		public ProcessChunksTask(V[] chunks) {
 			this.chunks = chunks;
-			this.publisher = publisher;
 		}
 		
 
 		@Override
 		public void run() {
-			if (!publisher.isInterrupted() && publisher.isAlive()) {
-				process(Arrays.asList(chunks));
-			}
+			process(Arrays.asList(chunks));
 		}
 	}
 	
+	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	
+	
+	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+	}
+	
 
+	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+	}
+	
+	
 	private class SingleThreadExecutor extends ThreadPoolExecutor {
 		
-		private final AtomicInteger count = new AtomicInteger(0);
-		
-		
 		public SingleThreadExecutor() {
-			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-		}
-		
-
-		public boolean isActive() {
-			return count.get() > 0;
+			super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), backgroundTransferThreadFactory);
 		}
 		
 
@@ -145,14 +167,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		public void execute(Runnable command) {
 			
 			if (count.getAndIncrement() <= 0) {
-				
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, false, true);
-					}
-				});
+				setActive(true);
 			}
 			
 			super.execute(command);
@@ -164,28 +179,12 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			super.afterExecute(r, t);
 			
 			if (count.decrementAndGet() <= 0) {
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
-					}
-				});
+				// shutdown executor
+				deactivate(false);
+				setActive(false);
 			}
 		}
 		
-	}
-	
-	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-	
-	
-	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
-	}
-	
-
-	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
 	}
 	
 }

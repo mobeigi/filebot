@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 public class ByteBufferInputStream extends InputStream {
 	
-	private ByteBuffer buffer;
+	private final ByteBuffer buffer;
 	
 	
 	public ByteBufferInputStream(ByteBuffer buffer) {

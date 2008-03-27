@@ -108,12 +108,7 @@ public class FileFormat {
 		if (file.isDirectory())
 			return "Folder";
 		
-		return getFileType(file.getName());
-	}
-	
-
-	public static String getFileType(String name) {
-		String extension = getExtension(name, false);
+		String extension = getExtension(file.getName(), false);
 		
 		if (!extension.isEmpty())
 			return extension;

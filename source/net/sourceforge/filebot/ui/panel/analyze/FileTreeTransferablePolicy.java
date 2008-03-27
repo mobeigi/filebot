@@ -6,17 +6,18 @@ import java.io.File;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
-class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> {
+class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> {
 	
-	private FileTree tree;
+	private final FileTree tree;
 	
 	
-	public FileTreeTransferPolicy(FileTree tree) {
+	public FileTreeTransferablePolicy(FileTree tree) {
 		this.tree = tree;
 	}
 	
@@ -35,18 +36,26 @@ class FileTreeTransferPolicy extends BackgroundFileTransferablePolicy<DefaultMut
 
 	@Override
 	protected void process(List<DefaultMutableTreeNode> chunks) {
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+		DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 		
 		for (DefaultMutableTreeNode node : chunks) {
 			root.add(node);
 		}
+		
+		model.reload(root);
 	}
 	
 
 	@Override
 	protected void load(List<File> files) {
 		for (File file : files) {
-			publish(getTree(file));
+			DefaultMutableTreeNode node = getTree(file);
+			
+			if (Thread.currentThread().isInterrupted())
+				return;
+			
+			publish(node);
 		}
 	}
 	

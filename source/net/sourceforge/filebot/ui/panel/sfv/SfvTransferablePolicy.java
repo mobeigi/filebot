@@ -35,7 +35,6 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 
 	@Override
 	protected void clear() {
-		cancelAll();
 		tableModel.clear();
 	}
 	
@@ -71,7 +70,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 				File compareFile = new File(compareColumnRoot, filename);
 				
 				if (compareFile.exists()) {
-					publish(new ChecksumTableModel.Entry(filename, new Checksum(ChecksumComputationService.getService().submit(compareFile, compareColumnRoot)), compareColumnRoot));
+					publish(new ChecksumTableModel.Entry(filename, ChecksumComputationService.getService().getChecksum(compareFile, compareColumnRoot), compareColumnRoot));
 				}
 			}
 			
@@ -123,8 +122,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 				load(f, columnRoot, newPrefix);
 			}
 		} else if (file.isFile()) {
-			publish(new ChecksumTableModel.Entry(prefix + file.getName(), new Checksum(ChecksumComputationService.getService().submit(file, columnRoot)), columnRoot));
+			publish(new ChecksumTableModel.Entry(prefix + file.getName(), ChecksumComputationService.getService().getChecksum(file, columnRoot), columnRoot));
 		}
 	}
-	
 }

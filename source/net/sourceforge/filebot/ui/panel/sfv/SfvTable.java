@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
@@ -90,9 +91,18 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 
 	public void clear() {
-		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).cancelAll();
+		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).reset();
 		
-		((ChecksumTableModel) getModel()).clear();
+		// there may still be some runnables from the transfer in the event queue, 
+		// clear the model, after those runnables have finished,
+		// otherwise it may happen, that stuff is added, after the model has been cleared
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				((ChecksumTableModel) getModel()).clear();
+			}
+		});
 	}
 	
 

@@ -43,9 +43,8 @@ public class Checksum {
 	}
 	
 
-	public Checksum(ChecksumComputationTask computationTask) {
+	protected Checksum(ChecksumComputationTask computationTask) {
 		this.computationTask = computationTask;
-		
 		this.computationTask.addPropertyChangeListener(new ComputationTaskPropertyChangeListener());
 	}
 	
