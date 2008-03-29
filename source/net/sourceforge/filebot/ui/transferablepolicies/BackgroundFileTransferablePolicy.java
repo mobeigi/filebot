@@ -79,7 +79,9 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 * @param chunks
 	 */
 	protected final void publish(V... chunks) {
-		worker.publishChunks(chunks);
+		if (worker != null) {
+			worker.publishChunks(chunks);
+		}
 	}
 	
 	

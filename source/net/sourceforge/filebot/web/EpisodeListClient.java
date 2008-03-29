@@ -42,11 +42,12 @@ public abstract class EpisodeListClient {
 	public abstract List<String> search(String searchterm) throws Exception;
 	
 
+	public abstract String getFoundName(String searchterm);
+	
+
 	/**
 	 * @param showname
 	 * @param season number of season, 0 for all seasons
-	 * @return
-	 * @throws Exception
 	 */
 	public abstract List<Episode> getEpisodeList(String showname, int season) throws Exception;
 	

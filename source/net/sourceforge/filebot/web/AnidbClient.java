@@ -9,10 +9,10 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
 
 public class AnidbClient extends EpisodeListClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
+	private NavigableMap<String, URL> cache = new TreeMap<String, URL>(String.CASE_INSENSITIVE_ORDER);
 	
 	private String host = "anidb.info";
 	
@@ -38,13 +38,17 @@ public class AnidbClient extends EpisodeListClient {
 
 	@Override
 	public List<String> search(String searchterm) throws IOException, SAXException {
-		if (cache.containsKey(searchterm))
-			return Arrays.asList(searchterm);
+		synchronized (cache) {
+			if (getFoundName(searchterm) != null) {
+				return Arrays.asList(getFoundName(searchterm));
+			}
+		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
 		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='anime_list']//TR//TD//ancestor::TR", dom);
-		ArrayList<String> shows = new ArrayList<String>(nodes.size());
+		
+		LinkedHashMap<String, URL> searchResults = new LinkedHashMap<String, URL>(nodes.size());
 		
 		if (!nodes.isEmpty())
 			for (Node node : nodes) {
@@ -62,8 +66,7 @@ public class AnidbClient extends EpisodeListClient {
 					try {
 						URL url = new URL("http", host, file);
 						
-						cache.put(title, url);
-						shows.add(title);
+						searchResults.put(title, url);
 					} catch (MalformedURLException e) {
 						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
 					}
@@ -71,20 +74,22 @@ public class AnidbClient extends EpisodeListClient {
 			}
 		else {
 			// we might have been redirected to the episode list page directly
-			List<Node> results = XPathUtil.selectNodes("//TABLE[@class='eplist']", dom);
+			List<Node> list = XPathUtil.selectNodes("//TABLE[@class='eplist']", dom);
 			
-			if (!results.isEmpty()) {
+			if (!list.isEmpty()) {
 				// get show's name from the document
 				String header = XPathUtil.selectString("//DIV[@id='layout-content']//H1[1]", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
-				cache.put(title, getSearchUrl(searchterm));
-				shows.add(title);
+				searchResults.put(title, getSearchUrl(searchterm));
 			}
-			
 		}
 		
-		return shows;
+		synchronized (cache) {
+			cache.putAll(searchResults);
+		}
+		
+		return new ArrayList<String>(searchResults.keySet());
 	}
 	
 
@@ -124,7 +129,21 @@ public class AnidbClient extends EpisodeListClient {
 
 	@Override
 	public URL getEpisodeListUrl(String showname, int season) {
-		return cache.get(showname);
+		synchronized (cache) {
+			return cache.get(showname);
+		}
+	}
+	
+
+	@Override
+	public String getFoundName(String searchterm) {
+		synchronized (cache) {
+			if (cache.containsKey(searchterm)) {
+				return cache.floorKey(searchterm);
+			}
+		}
+		
+		return null;
 	}
 	
 

@@ -25,7 +25,7 @@ class ChecksumTableModel extends AbstractTableModel {
 	
 	private List<File> checksumColumnRoots = new ArrayList<File>();
 	
-	private int checksumColumnsOffset = 2;
+	private final int checksumColumnsOffset = 2;
 	
 	
 	@Override

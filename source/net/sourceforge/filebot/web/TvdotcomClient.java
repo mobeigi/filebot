@@ -10,10 +10,10 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,7 +27,7 @@ import org.xml.sax.SAXException;
 
 public class TvdotcomClient extends EpisodeListClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
+	private NavigableMap<String, URL> cache = new TreeMap<String, URL>(String.CASE_INSENSITIVE_ORDER);
 	
 	private String host = "www.tv.com";
 	
@@ -39,15 +39,17 @@ public class TvdotcomClient extends EpisodeListClient {
 
 	@Override
 	public List<String> search(String searchterm) throws UnsupportedEncodingException, MalformedURLException, IOException, SAXException {
-		if (cache.containsKey(searchterm)) {
-			return Arrays.asList(searchterm);
+		synchronized (cache) {
+			if (getFoundName(searchterm) != null) {
+				return Arrays.asList(getFoundName(searchterm));
+			}
 		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN/A", dom);
 		
-		ArrayList<String> shows = new ArrayList<String>(nodes.size());
+		LinkedHashMap<String, URL> searchResults = new LinkedHashMap<String, URL>(nodes.size());
 		
 		for (Node node : nodes) {
 			String category = node.getParentNode().getTextContent();
@@ -60,15 +62,18 @@ public class TvdotcomClient extends EpisodeListClient {
 				try {
 					URL url = new URL(href);
 					
-					cache.put(title, url);
-					shows.add(title);
+					searchResults.put(title, url);
 				} catch (MalformedURLException e) {
 					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 				}
 			}
 		}
 		
-		return shows;
+		synchronized (cache) {
+			cache.putAll(searchResults);
+		}
+		
+		return new ArrayList<String>(searchResults.keySet());
 	}
 	
 
@@ -121,15 +126,31 @@ public class TvdotcomClient extends EpisodeListClient {
 	@Override
 	public URL getEpisodeListUrl(String showname, int season) {
 		try {
-			String summaryFile = cache.get(showname).getFile();
+			String summaryFile = null;
+			
+			synchronized (cache) {
+				summaryFile = cache.get(showname).getFile();
+			}
 			
 			String base = summaryFile.substring(0, summaryFile.indexOf("summary.html"));
 			String episodelistFile = base + "episode_listings.html&season=" + season;
 			
 			return new URL("http", host, episodelistFile);
 		} catch (Exception e) {
-			throw new RuntimeException("Cannot determine URL of episode listing for " + showname, e);
+			return null;
 		}
+	}
+	
+
+	@Override
+	public String getFoundName(String searchterm) {
+		synchronized (cache) {
+			if (cache.containsKey(searchterm)) {
+				return cache.floorKey(searchterm);
+			}
+		}
+		
+		return null;
 	}
 	
 

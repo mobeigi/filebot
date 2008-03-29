@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -76,7 +77,7 @@ public class SearchPanel extends FileBotPanel {
 		searchField.getTextField().setColumns(25);
 		
 		searchFieldCompletion = new TextCompletion(searchField.getTextField());
-		searchFieldCompletion.addCompletionTerms(Settings.getSettings().getStringList(Settings.SEARCH_HISTORY));
+		searchFieldCompletion.addTerms(Settings.getSettings().getStringList(Settings.SEARCH_HISTORY));
 		searchFieldCompletion.hook();
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
@@ -111,6 +112,8 @@ public class SearchPanel extends FileBotPanel {
 		
 		JScrollPane sp = new JScrollPane(history);
 		sp.setBorder(BorderFactory.createEmptyBorder());
+		sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		
 		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), sp);
 		
 		mainPanel.add(searchBox, BorderLayout.NORTH);
@@ -134,9 +137,9 @@ public class SearchPanel extends FileBotPanel {
 	private final PropertyChangeListener searchFieldListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			EpisodeListClient se = searchField.getSelectedValue();
+			EpisodeListClient client = searchField.getSelectedValue();
 			
-			if (!se.isSingleSeasonSupported()) {
+			if (!client.isSingleSeasonSupported()) {
 				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
 				seasonSpinnerModel.setValue(SeasonSpinnerEditor.ALL_SEASONS);
 			} else {
@@ -277,8 +280,9 @@ public class SearchPanel extends FileBotPanel {
 			
 			String title = task.getSearchTerm();
 			
-			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS)
-				title += " - Season " + task.getNumberOfSeason();
+			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS) {
+				title += String.format(" - Season %d", task.getNumberOfSeason());
+			}
 			
 			episodeList.setTitle(title);
 			episodeList.setIcon(task.getSearchEngine().getIcon());
@@ -306,17 +310,23 @@ public class SearchPanel extends FileBotPanel {
 				tabbedPane.remove(episodeList);
 				
 				Throwable cause = FileBotUtil.getRootCause(e);
+				
 				MessageManager.showWarning(cause.getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.toString());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, cause.toString());
 				
 				return;
 			}
 			
 			String showname = null;
 			
-			if (shows.size() == 1)
+			if (task.getSearchEngine().getFoundName(task.getSearchTerm()) != null) {
+				// a show matching the search term exactly has already been found 
+				showname = task.getSearchEngine().getFoundName(task.getSearchTerm());
+			} else if (shows.size() == 1) {
+				// only one show found, select this one
 				showname = shows.get(0);
-			else if (shows.size() > 1) {
+			} else if (shows.size() > 1) {
+				// multiple shows found, let user selected one
 				Window window = SwingUtilities.getWindowAncestor(SearchPanel.this);
 				
 				SelectDialog<String> select = new SelectDialog<String>(window, shows);
@@ -324,6 +334,7 @@ public class SearchPanel extends FileBotPanel {
 				select.setText("Select a Show:");
 				select.setIconImage(episodeList.getIcon().getImage());
 				select.setVisible(true);
+				
 				showname = select.getSelectedValue();
 			} else {
 				MessageManager.showWarning("\"" + task.getSearchTerm() + "\" has not been found.");
@@ -334,29 +345,31 @@ public class SearchPanel extends FileBotPanel {
 				return;
 			}
 			
-			searchFieldCompletion.addCompletionTerm(showname);
-			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getCompletionTerms());
+			searchFieldCompletion.addTerm(showname);
+			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
 			
 			String title = showname;
 			
-			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS)
-				title += " - Season " + task.getNumberOfSeason();
+			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS) {
+				title += String.format(" - Season %d", task.getNumberOfSeason());
+			}
 			
 			episodeList.setTitle(title);
 			
-			FetchEpisodesTask getEpisodesTask = new FetchEpisodesTask(task.getSearchEngine(), showname, task.getNumberOfSeason());
-			getEpisodesTask.addPropertyChangeListener(new FetchEpisodesTaskListener(episodeList));
+			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.getSearchEngine(), showname, task.getNumberOfSeason());
+			getEpisodesTask.addPropertyChangeListener(new FetchEpisodeListTaskListener(episodeList));
+			
 			getEpisodesTask.execute();
 		}
 	}
 	
 
-	private class FetchEpisodesTaskListener extends SwingWorkerPropertyChangeAdapter {
+	private class FetchEpisodeListTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
 		private EpisodeListPanel episodeList;
 		
 		
-		public FetchEpisodesTaskListener(EpisodeListPanel episodeList) {
+		public FetchEpisodeListTaskListener(EpisodeListPanel episodeList) {
 			this.episodeList = episodeList;
 		}
 		
@@ -367,7 +380,7 @@ public class SearchPanel extends FileBotPanel {
 			if (tabbedPane.indexOfComponent(episodeList) < 0)
 				return;
 			
-			FetchEpisodesTask task = (FetchEpisodesTask) evt.getSource();
+			FetchEpisodeListTask task = (FetchEpisodeListTask) evt.getSource();
 			
 			try {
 				URL url = task.getSearchEngine().getEpisodeListUrl(task.getShowName(), task.getNumberOfSeason());

@@ -37,37 +37,37 @@ public class TextCompletion {
 	}
 	
 
-	public void addCompletionTerm(String term) {
+	public void addTerm(String term) {
 		completionTerms.add(term);
 	}
 	
 
-	public void addCompletionTerms(Collection<String> terms) {
+	public void addTerms(Collection<String> terms) {
 		completionTerms.addAll(terms);
 	}
 	
 
-	public void removeCompletionTerm(String term) {
+	public void removeTerm(String term) {
 		completionTerms.remove(term);
 	}
 	
 
-	public void removeCompletionTerms(Collection<String> terms) {
+	public void removeTerms(Collection<String> terms) {
 		completionTerms.removeAll(terms);
 	}
 	
 
-	public void setCompletionStartLength(int codeCompletionStartLength) {
+	public void setStartLength(int codeCompletionStartLength) {
 		this.completionStartLength = codeCompletionStartLength;
 	}
 	
 
-	public Set<String> getCompletionTerms() {
+	public Set<String> getTerms() {
 		return completionTerms;
 	}
 	
 
-	public int getCompletionStartLength() {
+	public int getStartLength() {
 		return completionStartLength;
 	}
 	
