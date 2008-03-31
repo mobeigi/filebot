@@ -41,11 +41,11 @@ public class ResourceManager {
 	}
 	
 
-	public static ImageIcon getFlagIcon(String countryCode) {
-		URL url = ResourceManager.class.getResource(String.format("flags/%s.png", countryCode));
+	public static ImageIcon getFlagIcon(String languageCode) {
+		URL url = ResourceManager.class.getResource(String.format("flags/%s.png", languageCode));
 		
 		if (url == null)
-			url = ResourceManager.class.getResource(String.format("flags/default.png", countryCode));
+			url = ResourceManager.class.getResource(String.format("flags/default.png", languageCode));
 		
 		return new ImageIcon(url);
 	}
