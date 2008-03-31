@@ -18,6 +18,9 @@ public class Settings {
 	
 	private static Settings settings = new Settings();
 	
+	public static final String NAME = "FileBot";
+	public static final String VERSION = "2.0";
+	
 	public static final String ROOT = "filebot";
 	
 	public static final String SELECTED_PANEL = "panel";

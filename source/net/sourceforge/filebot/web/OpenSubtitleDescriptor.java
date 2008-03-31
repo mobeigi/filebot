@@ -8,15 +8,17 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.tuned.DownloadTask;
+
 
 /**
  * Describes a subtitle on OpenSubtitles.
  * 
  * @see OpenSubtitlesClient
  */
-public class OpenSubtitleDescriptor {
+public class OpenSubtitleDescriptor implements SubtitleDescriptor {
 	
-	private Map<String, String> properties;
+	private final Map<String, String> properties;
 	
 	
 	public static enum Properties {
@@ -60,13 +62,19 @@ public class OpenSubtitleDescriptor {
 	}
 	
 
-	public Map<String, String> getPropertyMap() {
-		return properties;
+	public String getProperty(Properties property) {
+		return properties.get(property.name());
 	}
 	
 
-	public String getProperty(Properties property) {
-		return properties.get(property.name());
+	@Override
+	public String getName() {
+		return getProperty(Properties.SubFileName);
+	}
+	
+
+	public String getLanguageName() {
+		return getProperty(Properties.LanguageName);
 	}
 	
 
@@ -76,7 +84,7 @@ public class OpenSubtitleDescriptor {
 	
 
 	public URL getDownloadLink() {
-		String link = getProperty(Properties.SubDownloadLink);
+		String link = getProperty(Properties.ZipDownloadLink);
 		
 		try {
 			return new URL(link);
@@ -88,8 +96,20 @@ public class OpenSubtitleDescriptor {
 	
 
 	@Override
+	public DownloadTask createDownloadTask() {
+		return new DownloadTask(getDownloadLink());
+	}
+	
+
+	@Override
+	public String getArchiveType() {
+		return "zip";
+	}
+	
+
+	@Override
 	public String toString() {
-		return String.format("%s [%s]", getProperty(Properties.SubFileName), getProperty(Properties.LanguageName));
+		return String.format("%s [%s]", getName(), getLanguageName());
 	}
 	
 }

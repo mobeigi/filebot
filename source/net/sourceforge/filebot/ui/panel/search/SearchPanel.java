@@ -21,11 +21,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -36,6 +34,7 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
@@ -52,15 +51,13 @@ public class SearchPanel extends FileBotPanel {
 	
 	private JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	
-	private HistoryPanel history = new HistoryPanel();
+	private HistoryPanel historyPanel = new HistoryPanel("Show", "Number of Episodes");
 	
 	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
 	
 	private TextFieldWithSelect<EpisodeListClient> searchField;
 	
 	private TextCompletion searchFieldCompletion;
-	
-	private JSpinner seasonSpinner;
 	
 	
 	public SearchPanel() {
@@ -85,7 +82,7 @@ public class SearchPanel extends FileBotPanel {
 		Box searchBox = Box.createHorizontalBox();
 		searchBox.setBorder(new EmptyBorder(5, 5, 5, 5));
 		
-		seasonSpinner = new JSpinner(seasonSpinnerModel);
+		JSpinner seasonSpinner = new JSpinner(seasonSpinnerModel);
 		seasonSpinner.setEditor(new SeasonSpinnerEditor(seasonSpinner));
 		searchField.setMaximumSize(searchField.getPreferredSize());
 		seasonSpinner.setMaximumSize(seasonSpinner.getPreferredSize());
@@ -110,11 +107,7 @@ public class SearchPanel extends FileBotPanel {
 		centerPanel.add(tabbedPane, BorderLayout.CENTER);
 		centerPanel.add(buttonBox, BorderLayout.SOUTH);
 		
-		JScrollPane sp = new JScrollPane(history);
-		sp.setBorder(BorderFactory.createEmptyBorder());
-		sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		
-		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), sp);
+		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyPanel);
 		
 		mainPanel.add(searchBox, BorderLayout.NORTH);
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -124,8 +117,8 @@ public class SearchPanel extends FileBotPanel {
 		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
 		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinSearchEngineAction(-1));
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSearchEngineAction(1));
+		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinClientAction(-1));
+		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinClientAction(1));
 	}
 	
 
@@ -213,13 +206,12 @@ public class SearchPanel extends FileBotPanel {
 	};
 	
 	
-	private class SpinSearchEngineAction extends AbstractAction {
+	private class SpinClientAction extends AbstractAction {
 		
 		private int spin;
 		
 		
-		public SpinSearchEngineAction(int spin) {
-			super("Spin Search Engine");
+		public SpinClientAction(int spin) {
 			this.spin = spin;
 		}
 		
@@ -232,36 +224,21 @@ public class SearchPanel extends FileBotPanel {
 
 	private class SearchTask extends SwingWorker<List<String>, Object> {
 		
-		private String searchTerm;
-		private EpisodeListClient searchEngine;
+		private String query;
+		private EpisodeListClient client;
 		private int numberOfSeason;
 		
 		
-		public SearchTask(EpisodeListClient searchEngine, String searchterm, int numberOfSeason) {
-			searchTerm = searchterm;
-			this.searchEngine = searchEngine;
+		public SearchTask(EpisodeListClient client, String query, int numberOfSeason) {
+			this.query = query;
+			this.client = client;
 			this.numberOfSeason = numberOfSeason;
-		}
-		
-
-		public String getSearchTerm() {
-			return searchTerm;
-		}
-		
-
-		public int getNumberOfSeason() {
-			return numberOfSeason;
-		}
-		
-
-		public EpisodeListClient getSearchEngine() {
-			return searchEngine;
 		}
 		
 
 		@Override
 		protected List<String> doInBackground() throws Exception {
-			return searchEngine.search(searchTerm);
+			return client.search(query);
 		}
 		
 	}
@@ -278,14 +255,14 @@ public class SearchPanel extends FileBotPanel {
 			
 			episodeList = new EpisodeListPanel();
 			
-			String title = task.getSearchTerm();
+			String title = task.query;
 			
-			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS) {
-				title += String.format(" - Season %d", task.getNumberOfSeason());
+			if (task.numberOfSeason != SeasonSpinnerEditor.ALL_SEASONS) {
+				title += String.format(" - Season %d", task.numberOfSeason);
 			}
 			
 			episodeList.setTitle(title);
-			episodeList.setIcon(task.getSearchEngine().getIcon());
+			episodeList.setIcon(task.client.getIcon());
 			
 			tabbedPane.addTab(title, episodeList);
 			tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(episodeList), episodeList.getTabComponent());
@@ -319,9 +296,9 @@ public class SearchPanel extends FileBotPanel {
 			
 			String showname = null;
 			
-			if (task.getSearchEngine().getFoundName(task.getSearchTerm()) != null) {
+			if (task.client.getFoundName(task.query) != null) {
 				// a show matching the search term exactly has already been found 
-				showname = task.getSearchEngine().getFoundName(task.getSearchTerm());
+				showname = task.client.getFoundName(task.query);
 			} else if (shows.size() == 1) {
 				// only one show found, select this one
 				showname = shows.get(0);
@@ -337,7 +314,7 @@ public class SearchPanel extends FileBotPanel {
 				
 				showname = select.getSelectedValue();
 			} else {
-				MessageManager.showWarning("\"" + task.getSearchTerm() + "\" has not been found.");
+				MessageManager.showWarning("\"" + task.query + "\" has not been found.");
 			}
 			
 			if (showname == null) {
@@ -350,13 +327,13 @@ public class SearchPanel extends FileBotPanel {
 			
 			String title = showname;
 			
-			if (task.getNumberOfSeason() != SeasonSpinnerEditor.ALL_SEASONS) {
-				title += String.format(" - Season %d", task.getNumberOfSeason());
+			if (task.numberOfSeason != SeasonSpinnerEditor.ALL_SEASONS) {
+				title += String.format(" - Season %d", task.numberOfSeason);
 			}
 			
 			episodeList.setTitle(title);
 			
-			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.getSearchEngine(), showname, task.getNumberOfSeason());
+			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.client, showname, task.numberOfSeason);
 			getEpisodesTask.addPropertyChangeListener(new FetchEpisodeListTaskListener(episodeList));
 			
 			getEpisodesTask.execute();
@@ -387,13 +364,14 @@ public class SearchPanel extends FileBotPanel {
 				
 				Collection<Episode> episodes = task.get();
 				
-				history.add(episodeList.getTitle(), url, episodes.size(), task.getDuration(), episodeList.getIcon());
+				String info = (episodes.size() > 0) ? String.format("%d episodes", episodes.size()) : "No episodes found";
+				
+				historyPanel.add(episodeList.getTitle(), url, info, task.getDuration(), episodeList.getIcon());
 				
 				if (episodes.size() <= 0)
 					tabbedPane.remove(episodeList);
 				else {
 					episodeList.setLoading(false);
-					
 					episodeList.getModel().addAll(episodes);
 				}
 			} catch (Exception e) {
@@ -403,7 +381,6 @@ public class SearchPanel extends FileBotPanel {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
 		}
-		
 	}
 	
 }

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
@@ -24,20 +25,26 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class SubsceneClient {
+public class SubsceneClient extends SubtitleClient {
 	
-	private Map<String, URL> cache = Collections.synchronizedMap(new HashMap<String, URL>());
+	private final Map<MovieDescriptor, URL> cache = Collections.synchronizedMap(new HashMap<MovieDescriptor, URL>());
 	
-	private String host = "subscene.com";
+	private final String host = "subscene.com";
 	
 	
-	public List<String> search(String searchterm) throws IOException, SAXException {
+	public SubsceneClient() {
+		super("Subscene", ResourceManager.getIcon("search.subscene"));
+	}
+	
+
+	@Override
+	public List<MovieDescriptor> search(String searchterm) throws IOException, SAXException {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('filmSearch')/A", dom);
 		
-		ArrayList<String> titles = new ArrayList<String>();
+		ArrayList<MovieDescriptor> results = new ArrayList<MovieDescriptor>(nodes.size());
 		
 		for (Node node : nodes) {
 			String title = XPathUtil.selectString("text()", node);
@@ -46,22 +53,21 @@ public class SubsceneClient {
 			try {
 				URL url = new URL("http", host, href);
 				
-				cache.put(title, url);
-				titles.add(title);
+				MovieDescriptor descriptor = new MovieDescriptor(title);
+				cache.put(descriptor, url);
+				results.add(descriptor);
 			} catch (MalformedURLException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		
-		return titles;
+		return results;
 	}
 	
 
-	public List<SubsceneSubtitleDescriptor> getSubtitleList(String title) throws IOException, SAXException {
-		URL url = cache.get(title);
-		
-		if (url == null)
-			throw new IllegalArgumentException("Unknown title: " + title);
+	@Override
+	public List<SubsceneSubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws IOException, SAXException {
+		URL url = cache.get(descriptor);
 		
 		Document dom = HtmlUtil.getHtmlDocument(url);
 		

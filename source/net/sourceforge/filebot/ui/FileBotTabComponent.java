@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.search;
+package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
@@ -19,16 +19,23 @@ import javax.swing.SwingUtilities;
 import net.sourceforge.filebot.resources.ResourceManager;
 
 
-class TabComponentWithClose extends JPanel {
+public class FileBotTabComponent extends JPanel {
 	
-	private JLabel label;
+	private final JLabel label;
 	
 	
-	public TabComponentWithClose() {
+	public FileBotTabComponent() {
+		this("", null);
+	}
+	
+
+	public FileBotTabComponent(String title, Icon icon) {
 		super(new BorderLayout(0, 0));
 		setOpaque(false);
 		
-		label = new JLabel("", SwingConstants.LEFT);
+		label = new JLabel(title, SwingConstants.LEFT);
+		label.setIcon(icon);
+		
 		label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
 		
 		add(label, BorderLayout.CENTER);
@@ -52,8 +59,8 @@ class TabComponentWithClose extends JPanel {
 	
 
 	public void close() {
-		JTabbedPane tabs = (JTabbedPane) SwingUtilities.getAncestorOfClass(JTabbedPane.class, TabComponentWithClose.this);
-		tabs.removeTabAt(tabs.indexOfTabComponent(TabComponentWithClose.this));
+		JTabbedPane tabs = (JTabbedPane) SwingUtilities.getAncestorOfClass(JTabbedPane.class, FileBotTabComponent.this);
+		tabs.removeTabAt(tabs.indexOfTabComponent(FileBotTabComponent.this));
 	}
 	
 	private final AbstractAction tabCloseAction = new AbstractAction(null, null) {

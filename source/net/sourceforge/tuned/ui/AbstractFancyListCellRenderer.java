@@ -57,8 +57,6 @@ public abstract class AbstractFancyListCellRenderer extends JComponent implement
 	public AbstractFancyListCellRenderer(Insets padding, Insets margin, Color borderColor) {
 		this.setLayout(new BorderLayout());
 		
-		this.margin = margin;
-		
 		Border border = null;
 		
 		if (padding != null)
@@ -67,8 +65,12 @@ public abstract class AbstractFancyListCellRenderer extends JComponent implement
 		if (borderColor != null)
 			border = new CompoundBorder(new LineBorder(borderColor, 1), border);
 		
-		if (margin != null)
+		if (margin != null) {
+			this.margin = margin;
 			border = new CompoundBorder(new EmptyBorder(margin), border);
+		} else {
+			this.margin = new Insets(0, 0, 0, 0);
+		}
 		
 		setBorder(border);
 		setOpaque(false);

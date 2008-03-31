@@ -8,15 +8,15 @@ import java.util.Map;
 import net.sourceforge.tuned.DownloadTask;
 
 
-public class SubsceneSubtitleDescriptor {
+public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
-	private String title;
-	private String language;
-	private int numberOfCDs;
-	private String author;
+	private final String title;
+	private final String language;
+	private final int numberOfCDs;
+	private final String author;
 	
-	private Map<String, String> downloadParameters;
-	private URL downloadUrl;
+	private final Map<String, String> downloadParameters;
+	private final URL downloadUrl;
 	
 	
 	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, URL downloadUrl, Map<String, String> downloadParameters) {
@@ -30,12 +30,12 @@ public class SubsceneSubtitleDescriptor {
 	}
 	
 
-	public String getTitle() {
+	public String getName() {
 		return title;
 	}
 	
 
-	public String getLanguage() {
+	public String getLanguageName() {
 		return language;
 	}
 	
@@ -50,13 +50,13 @@ public class SubsceneSubtitleDescriptor {
 	}
 	
 
-	public String getArchiveType() {
-		return downloadParameters.get("typeId");
+	public DownloadTask createDownloadTask() {
+		return new DownloadTask(downloadUrl, downloadParameters);
 	}
 	
 
-	public DownloadTask createDownloadTask() {
-		return new DownloadTask(downloadUrl, downloadParameters);
+	public String getArchiveType() {
+		return downloadParameters.get("typeId");
 	}
 	
 

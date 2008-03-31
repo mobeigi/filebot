@@ -78,7 +78,7 @@ public class ImdbSearchEngine {
 		
 		URL imdbUrl = new URL("http", host, href);
 		
-		return new MovieDescriptor(title, year, imdbId, imdbUrl);
+		return new MovieDescriptor(title, imdbId, year, imdbUrl);
 	}
 	
 

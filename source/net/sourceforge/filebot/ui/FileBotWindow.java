@@ -40,7 +40,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 	
 	
 	public FileBotWindow() {
-		super("FileBot");
+		super(Settings.NAME);
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		

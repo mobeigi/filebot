@@ -6,11 +6,12 @@ import javax.swing.ImageIcon;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
+import net.sourceforge.filebot.ui.FileBotTabComponent;
 
 
-class EpisodeListPanel extends FileBotList {
+public class EpisodeListPanel extends FileBotList {
 	
-	private final TabComponentWithClose tabComponent = new TabComponentWithClose();
+	private final FileBotTabComponent tabComponent = new FileBotTabComponent();
 	
 	private ImageIcon icon;
 	
@@ -22,7 +23,7 @@ class EpisodeListPanel extends FileBotList {
 	}
 	
 
-	public TabComponentWithClose getTabComponent() {
+	public FileBotTabComponent getTabComponent() {
 		return tabComponent;
 	}
 	

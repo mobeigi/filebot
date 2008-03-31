@@ -7,13 +7,18 @@ import java.net.URL;
 
 public class MovieDescriptor {
 	
-	private String title;
-	private Integer imdbId;
+	private final String title;
+	private final Integer imdbId;
 	
-	private Integer year;
-	private URL imdbUrl;
+	private final Integer year;
+	private final URL imdbUrl;
 	
 	
+	public MovieDescriptor(String description) {
+		this(description, null);
+	}
+	
+
 	public MovieDescriptor(String description, Integer imdbId) {
 		this(description, imdbId, null, null);
 	}

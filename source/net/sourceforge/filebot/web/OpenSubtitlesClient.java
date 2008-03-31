@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.resources.ResourceManager;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
@@ -23,7 +25,18 @@ import redstone.xmlrpc.XmlRpcFault;
  * Client for the OpenSubtitles XML-RPC API.
  * 
  */
-public class OpenSubtitlesClient {
+public class OpenSubtitlesClient extends SubtitleClient {
+	
+	@Override
+	public List<MovieDescriptor> search(String query) throws Exception {
+		return searchMoviesOnIMDB(query);
+	}
+	
+
+	@Override
+	public List<OpenSubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws Exception {
+		return searchSubtitles(descriptor.getImdbId());
+	}
 	
 	/**
 	 * <table>
@@ -39,11 +52,11 @@ public class OpenSubtitlesClient {
 	 */
 	private String url = "http://www.opensubtitles.org/xml-rpc";
 	
-	private String username;
-	private String password;
-	private String language;
+	private String username = "";
+	private String password = "";
+	private String language = "en";
 	
-	private String useragent;
+	private String useragent = String.format("%s v%s", Settings.NAME, Settings.VERSION);
 	
 	private String token = null;
 	
@@ -55,56 +68,8 @@ public class OpenSubtitlesClient {
 	private static final int KEEP_ALIVE_INTERVAL = 12 * 60 * 1000; // 12 minutes
 	
 	
-	public OpenSubtitlesClient(String useragent) {
-		this.useragent = useragent;
-	}
-	
-
-	public boolean isLoggedOn() {
-		return username != null;
-	}
-	
-
-	/**
-	 * login as anonymous user
-	 */
-	public synchronized void login() throws XmlRpcFault {
-		this.login("", "", "en");
-	}
-	
-
-	/**
-	 * This will login user. This method should be called always when starting talking with
-	 * server.
-	 * 
-	 * @param username blank for anonymous user.
-	 * @param password blank for anonymous user.
-	 * @param language <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
-	 *            2 letter codes as language and later communication will be done in this
-	 *            language if applicable (error codes and so on).
-	 */
-	public synchronized void login(String username, String password, String language) throws XmlRpcFault {
-		if (isLoggedOn())
-			throw new IllegalStateException("User is already logged on");
-		
-		if ((username == null) || (password == null) || (language == null))
-			throw new IllegalArgumentException("Username, password and language must not be null");
-		
-		this.username = username;
-		this.password = password;
-		this.language = language;
-	}
-	
-
-	public synchronized void logout() {
-		if (!isLoggedOn())
-			throw new IllegalStateException("User is not logged on");
-		
-		deactivate();
-		
-		username = null;
-		password = null;
-		language = null;
+	public OpenSubtitlesClient() {
+		super("OpenSubtitles", ResourceManager.getIcon("search.opensubtitles"));
 	}
 	
 
@@ -112,9 +77,6 @@ public class OpenSubtitlesClient {
 	private synchronized void activate() throws XmlRpcFault {
 		if (isActive())
 			return;
-		
-		if (!isLoggedOn())
-			throw new IllegalStateException("User is not logged on");
 		
 		Map<String, String> response = (Map<String, String>) invoke("LogIn", username, password, language, useragent);
 		checkStatus(response.get("status"));
@@ -262,13 +224,11 @@ public class OpenSubtitlesClient {
 		
 		@Override
 		public void run() {
-			Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-			
-			if (!noOperation()) {
-				logger.log(Level.INFO, "Connection lost");
-				deactivate();
+			if (noOperation()) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Connection is OK");
 			} else {
-				logger.log(Level.INFO, "Connection is OK");
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Connection lost");
+				deactivate();
 			}
 		};
 	};
