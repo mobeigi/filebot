@@ -25,14 +25,14 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class SubsceneClient extends SubtitleClient {
+public class SubsceneSubtitleClient extends SubtitleClient {
 	
 	private final Map<MovieDescriptor, URL> cache = Collections.synchronizedMap(new HashMap<MovieDescriptor, URL>());
 	
 	private final String host = "subscene.com";
 	
 	
-	public SubsceneClient() {
+	public SubsceneSubtitleClient() {
 		super("Subscene", ResourceManager.getIcon("search.subscene"));
 	}
 	

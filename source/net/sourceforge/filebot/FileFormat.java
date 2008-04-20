@@ -35,7 +35,12 @@ public class FileFormat {
 		if (file.isDirectory())
 			return false;
 		
-		String extension = getExtension(file);
+		return hasExtension(file.getName(), extensions);
+	}
+	
+
+	public static boolean hasExtension(String filename, String... extensions) {
+		String extension = getExtension(filename, false);
 		
 		for (String ext : extensions) {
 			if (ext.equalsIgnoreCase(extension))

@@ -13,11 +13,13 @@ import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
@@ -53,7 +55,11 @@ public class RenamePanel extends FileBotPanel {
 		JList list1 = namesList.getListComponent();
 		JList list2 = filesList.getListComponent();
 		
-		new SelectionSynchronizer(list1, list2);
+		ListSelectionModel selectionModel = new DefaultListSelectionModel();
+		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		namesList.getListComponent().setSelectionModel(selectionModel);
+		filesList.getListComponent().setSelectionModel(selectionModel);
 		
 		viewPortSynchroniser = new ViewPortSynchronizer((JViewport) list1.getParent(), (JViewport) list2.getParent());
 		

@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,13 +39,14 @@ import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TextCompletion;
 import net.sourceforge.tuned.ui.TextFieldWithSelect;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class SubtitlePanel extends FileBotPanel {
 	
 	private JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	
-	private HistoryPanel historyPanel = new HistoryPanel("Show / Movie", "Number of Subtitles");
+	private HistoryPanel historyPanel = new HistoryPanel();
 	
 	private TextFieldWithSelect<SubtitleClient> searchField;
 	
@@ -66,6 +68,10 @@ public class SubtitlePanel extends FileBotPanel {
 		searchFieldCompletion = new TextCompletion(searchField.getTextField());
 		searchFieldCompletion.addTerms(Settings.getSettings().getStringList(Settings.SUBTITLE_HISTORY));
 		searchFieldCompletion.hook();
+		
+		historyPanel.setColumnHeader1("Show / Movie");
+		historyPanel.setColumnHeader2("Number of Subtitles");
+		historyPanel.setColumnHeader3("Duration");
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 		
@@ -99,25 +105,7 @@ public class SubtitlePanel extends FileBotPanel {
 		
 		this.add(mainPanel, BorderLayout.CENTER);
 		
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinClientAction(-1));
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinClientAction(1));
-	}
-	
-	
-	private class SpinClientAction extends AbstractAction {
-		
-		private int spin;
-		
-		
-		public SpinClientAction(int spin) {
-			this.spin = spin;
-		}
-		
-
-		public void actionPerformed(ActionEvent e) {
-			searchField.getSelectButton().spinValue(spin);
-		}
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
 	
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
@@ -251,25 +239,6 @@ public class SubtitlePanel extends FileBotPanel {
 	}
 	
 
-	private class FetchSubtitleListTask extends SwingWorker<List<? extends SubtitleDescriptor>, Object> {
-		
-		private final SubtitleClient client;
-		private final MovieDescriptor descriptor;
-		
-		
-		public FetchSubtitleListTask(MovieDescriptor descriptor, SubtitleClient client) {
-			this.descriptor = descriptor;
-			this.client = client;
-		}
-		
-
-		@Override
-		protected List<? extends SubtitleDescriptor> doInBackground() throws Exception {
-			return client.getSubtitleList(descriptor);
-		}
-	}
-	
-
 	private class FetchSubtitleListTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
 		private final SubtitleListPanel subtitleSearchResultPanel;
@@ -295,14 +264,14 @@ public class SubtitlePanel extends FileBotPanel {
 				
 				String info = (subtitleDescriptors.size() > 0) ? String.format("%d subtitles", subtitleDescriptors.size()) : "No subtitles found";
 				
-				historyPanel.add(task.descriptor.toString(), null, info, 0, task.client.getIcon());
+				historyPanel.add(task.getDescriptor().toString(), null, task.getClient().getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
 				
 				if (subtitleDescriptors.isEmpty()) {
 					tabbedPane.remove(subtitleSearchResultPanel);
 					return;
 				}
 				
-				tabComponent.setIcon(task.client.getIcon());
+				tabComponent.setIcon(task.getClient().getIcon());
 				
 				//TODO icon view
 				//TODO sysout

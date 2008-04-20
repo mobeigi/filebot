@@ -7,15 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.resources.ResourceManager;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
@@ -25,18 +21,7 @@ import redstone.xmlrpc.XmlRpcFault;
  * Client for the OpenSubtitles XML-RPC API.
  * 
  */
-public class OpenSubtitlesClient extends SubtitleClient {
-	
-	@Override
-	public List<MovieDescriptor> search(String query) throws Exception {
-		return searchMoviesOnIMDB(query);
-	}
-	
-
-	@Override
-	public List<OpenSubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws Exception {
-		return searchSubtitles(descriptor.getImdbId());
-	}
+public class OpenSubtitlesClient {
 	
 	/**
 	 * <table>
@@ -52,65 +37,57 @@ public class OpenSubtitlesClient extends SubtitleClient {
 	 */
 	private String url = "http://www.opensubtitles.org/xml-rpc";
 	
-	private String username = "";
-	private String password = "";
-	private String language = "en";
-	
-	private String useragent = String.format("%s v%s", Settings.NAME, Settings.VERSION);
+	private String useragent;
 	
 	private String token = null;
 	
-	private Timer keepAliveDaemon = null;
 	
-	/**
-	 * Interval to call NoOperation to keep the session from expiring
-	 */
-	private static final int KEEP_ALIVE_INTERVAL = 12 * 60 * 1000; // 12 minutes
-	
-	
-	public OpenSubtitlesClient() {
-		super("OpenSubtitles", ResourceManager.getIcon("search.opensubtitles"));
+	public OpenSubtitlesClient(String useragent) {
+		this.useragent = useragent;
 	}
 	
 
+	public void login(String username, String password) throws XmlRpcFault {
+		login(username, password, "en");
+	}
+	
+
+	/**
+	 * This will login user. This method should be called always when starting talking with
+	 * server.
+	 * 
+	 * @param username blank for anonymous user.
+	 * @param password blank for anonymous user.
+	 * @param language <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
+	 *            2 letter codes as language and later communication will be done in this
+	 *            language if applicable (error codes and so on).
+	 */
 	@SuppressWarnings("unchecked")
-	private synchronized void activate() throws XmlRpcFault {
-		if (isActive())
-			return;
+	public synchronized void login(String username, String password, String language) throws XmlRpcFault {
 		
 		Map<String, String> response = (Map<String, String>) invoke("LogIn", username, password, language, useragent);
 		checkStatus(response.get("status"));
 		
 		token = response.get("token");
-		
-		keepAliveDaemon = new Timer(getClass().getSimpleName() + " Keepalive", true);
-		keepAliveDaemon.schedule(new KeepAliveTimerTask(), KEEP_ALIVE_INTERVAL, KEEP_ALIVE_INTERVAL);
 	}
 	
 
 	@SuppressWarnings("unchecked")
-	private synchronized void deactivate() {
-		if (!isActive())
-			return;
+	public synchronized void logout() {
 		
 		// anonymous users will always get a 401 Unauthorized when trying to logout
-		if (!username.isEmpty()) {
-			try {
-				Map<String, String> response = (Map<String, String>) invoke("LogOut", token);
-				checkStatus(response.get("status"));
-			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating connection", e);
-			}
+		try {
+			Map<String, String> response = (Map<String, String>) invoke("LogOut", token);
+			checkStatus(response.get("status"));
+		} catch (Exception e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating session", e);
 		}
 		
 		token = null;
-		
-		keepAliveDaemon.cancel();
-		keepAliveDaemon = null;
 	}
 	
 
-	private boolean isActive() {
+	public synchronized boolean isLoggedOn() {
 		return token != null;
 	}
 	
@@ -151,15 +128,12 @@ public class OpenSubtitlesClient extends SubtitleClient {
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, String> getServerInfo() throws XmlRpcFault {
-		activate();
-		
 		return (Map<String, String>) invoke("ServerInfo", token);
 	}
 	
 
 	@SuppressWarnings("unchecked")
-	public List<OpenSubtitleDescriptor> searchSubtitles(int... imdbidArray) throws XmlRpcFault {
-		activate();
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int... imdbidArray) throws XmlRpcFault {
 		
 		List<Map<String, String>> imdbidList = new ArrayList<Map<String, String>>(imdbidArray.length);
 		
@@ -174,14 +148,14 @@ public class OpenSubtitlesClient extends SubtitleClient {
 		
 		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, imdbidList);
 		
-		ArrayList<OpenSubtitleDescriptor> subs = new ArrayList<OpenSubtitleDescriptor>();
+		ArrayList<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		
 		if (!(response.get("data") instanceof List))
 			throw new XmlRpcException("Illegal response: " + response.toString());
 		
 		// if there was an error data may not be a list
 		for (Map<String, String> subtitle : response.get("data")) {
-			subs.add(new OpenSubtitleDescriptor(subtitle));
+			subs.add(new OpenSubtitlesSubtitleDescriptor(subtitle));
 		}
 		
 		return subs;
@@ -190,7 +164,6 @@ public class OpenSubtitlesClient extends SubtitleClient {
 
 	@SuppressWarnings("unchecked")
 	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
-		activate();
 		
 		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", token, query);
 		
@@ -207,30 +180,13 @@ public class OpenSubtitlesClient extends SubtitleClient {
 	@SuppressWarnings("unchecked")
 	public boolean noOperation() {
 		try {
-			activate();
-			
 			Map<String, String> response = (Map<String, String>) invoke("NoOperation", token);
 			checkStatus(response.get("status"));
 			
 			return true;
 		} catch (Exception e) {
-			deactivate();
 			return false;
 		}
 	}
-	
-	
-	private class KeepAliveTimerTask extends TimerTask {
-		
-		@Override
-		public void run() {
-			if (noOperation()) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Connection is OK");
-			} else {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO, "Connection lost");
-				deactivate();
-			}
-		};
-	};
 	
 }

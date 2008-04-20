@@ -21,7 +21,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
@@ -30,6 +29,7 @@ import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.MessageBus;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class ListPanel extends FileBotPanel {
@@ -88,7 +88,7 @@ public class ListPanel extends FileBotPanel {
 		add(spinners, BorderLayout.NORTH);
 		add(list, BorderLayout.CENTER);
 		
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 		
 		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), list));
 	}

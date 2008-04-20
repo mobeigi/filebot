@@ -14,10 +14,10 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 class FileTreePanel extends JPanel {
@@ -39,7 +39,7 @@ class FileTreePanel extends JPanel {
 		buttons.add(Box.createGlue());
 		
 		// Shortcut DELETE
-		FileBotUtil.registerActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtil.registerActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
 		add(new LoadingOverlayPane(new JScrollPane(fileTree), ResourceManager.getIcon("loading")), BorderLayout.CENTER);
 		add(buttons, BorderLayout.SOUTH);

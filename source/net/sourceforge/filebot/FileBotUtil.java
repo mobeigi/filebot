@@ -2,24 +2,17 @@
 package net.sourceforge.filebot;
 
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Window;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.KeyStroke;
 
 
 public class FileBotUtil {
 	
 	private FileBotUtil() {
-		
+		// hide constructor
 	}
 	
 	/**
@@ -36,7 +29,7 @@ public class FileBotUtil {
 	 * @return filename stripped of invalid characters
 	 */
 	public static String validateFileName(String filename) {
-		// strip  \, /, :, *, ?, ", <, > and |
+		// strip invalid characters from filename
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).replaceAll("");
 	}
 	
@@ -54,7 +47,12 @@ public class FileBotUtil {
 		return t;
 	}
 	
-
+	private static final String[] TORRENT_FILE_EXTENSIONS = { "torrent" };
+	private static final String[] SFV_FILE_EXTENSIONS = { "sfv" };
+	private static final String[] LIST_FILE_EXTENSIONS = { "txt", "list", "" };
+	private static final String[] SUBTITLE_FILE_EXTENSIONS = { "srt", "sub", "ssa" };
+	
+	
 	public static boolean containsOnlyFolders(List<File> files) {
 		for (File file : files) {
 			if (!file.isDirectory())
@@ -66,52 +64,27 @@ public class FileBotUtil {
 	
 
 	public static boolean containsOnlyTorrentFiles(List<File> files) {
-		for (File file : files) {
-			if (!FileFormat.hasExtension(file, "torrent"))
-				return false;
-		}
-		
-		return true;
+		return containsOnly(files, TORRENT_FILE_EXTENSIONS);
 	}
 	
 
 	public static boolean containsOnlySfvFiles(List<File> files) {
-		for (File file : files) {
-			if (!FileFormat.hasExtension(file, "sfv"))
-				return false;
-		}
-		
-		return true;
+		return containsOnly(files, SFV_FILE_EXTENSIONS);
 	}
 	
 
 	public static boolean containsOnlyListFiles(List<File> files) {
+		return containsOnly(files, LIST_FILE_EXTENSIONS);
+	}
+	
+
+	private static boolean containsOnly(List<File> files, String[] extensions) {
 		for (File file : files) {
-			if (!FileFormat.hasExtension(file, "txt", "list", ""))
+			if (!FileFormat.hasExtension(file, extensions))
 				return false;
 		}
 		
 		return true;
-	}
-	
-
-	public static void registerActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
-		Integer key = action.hashCode();
-		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
-		component.getActionMap().put(key, action);
-	}
-	
-
-	public static Point getPreferredLocation(JDialog dialog) {
-		Window owner = dialog.getOwner();
-		
-		if (owner == null)
-			return new Point(120, 80);
-		
-		Point p = owner.getLocation();
-		Dimension d = owner.getSize();
-		
-		return new Point(p.x + d.width / 4, p.y + d.height / 7);
 	}
 	
 	public static final FileFilter FOLDERS_ONLY = new FileFilter() {
@@ -131,4 +104,14 @@ public class FileBotUtil {
 		}
 		
 	};
+	
+	public static final FilenameFilter SUBTITLES_ONLY = new FilenameFilter() {
+		
+		@Override
+		public boolean accept(File dir, String name) {
+			return FileFormat.hasExtension(name, SUBTITLE_FILE_EXTENSIONS);
+		}
+		
+	};
+	
 }

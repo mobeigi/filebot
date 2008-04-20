@@ -19,7 +19,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.ExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
@@ -32,6 +31,7 @@ import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class FileBotList extends JPanel implements Saveable, TransferablePolicySupport {
@@ -81,7 +81,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		
 		if (enableRemoveAction) {
 			// Shortcut DELETE
-			FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+			TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		}
 	}
 	

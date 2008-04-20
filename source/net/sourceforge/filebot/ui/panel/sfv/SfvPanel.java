@@ -17,7 +17,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
@@ -26,6 +25,7 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.MessageBus;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class SfvPanel extends FileBotPanel {
@@ -61,7 +61,7 @@ public class SfvPanel extends FileBotPanel {
 		add(southPanel, BorderLayout.SOUTH);
 		
 		// Shortcut DELETE
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
 		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), sfvTable));
 	}

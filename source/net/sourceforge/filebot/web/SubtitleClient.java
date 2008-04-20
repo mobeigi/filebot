@@ -14,8 +14,8 @@ public abstract class SubtitleClient {
 	private static final List<SubtitleClient> registry = new ArrayList<SubtitleClient>();
 	
 	static {
-		registry.add(new OpenSubtitlesClient());
-		registry.add(new SubsceneClient());
+		registry.add(new OpenSubtitlesSubtitleClient());
+		registry.add(new SubsceneSubtitleClient());
 	}
 	
 	

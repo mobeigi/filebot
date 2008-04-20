@@ -8,9 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
 import net.sourceforge.tuned.ui.SelectButton.Entry;
@@ -40,6 +42,9 @@ public class TextFieldWithSelect<T> extends JPanel {
 		textfield.setColumns(20);
 		add(textfield, BorderLayout.CENTER);
 		add(selectButton, BorderLayout.WEST);
+		
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinClientAction(-1));
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinClientAction(1));
 	}
 	
 
@@ -70,5 +75,21 @@ public class TextFieldWithSelect<T> extends JPanel {
 		}
 		
 	};
+	
+	
+	private class SpinClientAction extends AbstractAction {
+		
+		private int spin;
+		
+		
+		public SpinClientAction(int spin) {
+			this.spin = spin;
+		}
+		
+
+		public void actionPerformed(ActionEvent e) {
+			selectButton.spinValue(spin);
+		}
+	}
 	
 }

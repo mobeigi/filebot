@@ -21,13 +21,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.MessageBus;
 import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.ShadowBorder;
 import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class FileBotWindow extends JFrame implements ListSelectionListener {
@@ -56,7 +56,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		setContentPane(contentPane);
 		
 		// Shortcut ESC
-		FileBotUtil.registerActionForKeystroke(contentPane, KeyStroke.getKeyStroke("released ESCAPE"), closeAction);
+		TunedUtil.registerActionForKeystroke(contentPane, KeyStroke.getKeyStroke("released ESCAPE"), closeAction);
 		
 		setSize(760, 615);
 		

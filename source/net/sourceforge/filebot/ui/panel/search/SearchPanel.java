@@ -10,6 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -45,13 +46,14 @@ import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TextCompletion;
 import net.sourceforge.tuned.ui.TextFieldWithSelect;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class SearchPanel extends FileBotPanel {
 	
 	private JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	
-	private HistoryPanel historyPanel = new HistoryPanel("Show", "Number of Episodes");
+	private HistoryPanel historyPanel = new HistoryPanel();
 	
 	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
 	
@@ -76,6 +78,10 @@ public class SearchPanel extends FileBotPanel {
 		searchFieldCompletion = new TextCompletion(searchField.getTextField());
 		searchFieldCompletion.addTerms(Settings.getSettings().getStringList(Settings.SEARCH_HISTORY));
 		searchFieldCompletion.hook();
+		
+		historyPanel.setColumnHeader1("Show");
+		historyPanel.setColumnHeader2("Number of Episodes");
+		historyPanel.setColumnHeader3("Duration");
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 		
@@ -114,11 +120,9 @@ public class SearchPanel extends FileBotPanel {
 		
 		this.add(mainPanel, BorderLayout.CENTER);
 		
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinClientAction(-1));
-		FileBotUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinClientAction(1));
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
+		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
 	}
 	
 
@@ -206,22 +210,6 @@ public class SearchPanel extends FileBotPanel {
 	};
 	
 	
-	private class SpinClientAction extends AbstractAction {
-		
-		private int spin;
-		
-		
-		public SpinClientAction(int spin) {
-			this.spin = spin;
-		}
-		
-
-		public void actionPerformed(ActionEvent e) {
-			searchField.getSelectButton().spinValue(spin);
-		}
-	}
-	
-
 	private class SearchTask extends SwingWorker<List<String>, Object> {
 		
 		private String query;
@@ -366,7 +354,7 @@ public class SearchPanel extends FileBotPanel {
 				
 				String info = (episodes.size() > 0) ? String.format("%d episodes", episodes.size()) : "No episodes found";
 				
-				historyPanel.add(episodeList.getTitle(), url, info, task.getDuration(), episodeList.getIcon());
+				historyPanel.add(episodeList.getTitle(), url, episodeList.getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
 				
 				if (episodes.size() <= 0)
 					tabbedPane.remove(episodeList);

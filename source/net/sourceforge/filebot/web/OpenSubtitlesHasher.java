@@ -5,7 +5,8 @@ package net.sourceforge.filebot.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigInteger;
+import java.nio.ByteOrder;
+import java.nio.LongBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -23,11 +24,6 @@ public class OpenSubtitlesHasher {
 	 */
 	private static final int HASH_CHUNK_SIZE = 64 * 1024;
 	
-	/**
-	 * Size of the checksum in bytes (64 Bit)
-	 */
-	private static final int HASH_SIZE = 8;
-	
 	
 	public static String computeHash(File file) throws IOException {
 		long size = file.length();
@@ -35,63 +31,26 @@ public class OpenSubtitlesHasher {
 		
 		FileChannel fileChannel = new FileInputStream(file).getChannel();
 		
-		BigInteger head = computeHashForChunk(fileChannel, 0, chunkSizeForFile);
-		BigInteger tail = computeHashForChunk(fileChannel, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile);
+		long head = computeHashForChunk(fileChannel, 0, chunkSizeForFile);
+		long tail = computeHashForChunk(fileChannel, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile);
 		
 		fileChannel.close();
 		
-		// size + head + tail
-		BigInteger bigHash = BigInteger.valueOf(size).add(head.add(tail));
-		
-		byte[] hash = getTrailingBytes(bigHash.toByteArray(), HASH_SIZE);
-		
-		return String.format("%0" + HASH_SIZE * 2 + "x", new BigInteger(1, hash));
+		return String.format("%016x", size + head + tail);
 	}
 	
 
-	private static BigInteger computeHashForChunk(FileChannel fileChannel, long start, long size) throws IOException {
-		MappedByteBuffer buffer = fileChannel.map(MapMode.READ_ONLY, start, size);
+	private static long computeHashForChunk(FileChannel fileChannel, long start, long size) throws IOException {
+		MappedByteBuffer byteBuffer = fileChannel.map(MapMode.READ_ONLY, start, size);
 		
-		BigInteger bigHash = BigInteger.ZERO;
-		byte[] bytes = new byte[HASH_SIZE];
+		LongBuffer longBuffer = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
+		long hash = 0;
 		
-		while (buffer.hasRemaining()) {
-			buffer.get(bytes, 0, Math.min(HASH_SIZE, buffer.remaining()));
-			
-			// BigInteger expects a big-endian byte-order, so we reverse the byte array
-			bigHash = bigHash.add(new BigInteger(1, reverse(bytes)));
+		while (longBuffer.hasRemaining()) {
+			hash += longBuffer.get();
 		}
 		
-		return bigHash;
-	}
-	
-
-	/**
-	 * copy the last n bytes to a new array
-	 * 
-	 * @param bytes original array
-	 * @param n number of trailing bytes
-	 * @return new array
-	 */
-	private static byte[] getTrailingBytes(byte[] src, int n) {
-		int length = Math.min(src.length, n);
-		
-		byte[] dest = new byte[length];
-		
-		int offsetSrc = Math.max(src.length - n, 0);
-		System.arraycopy(src, offsetSrc, dest, 0, length);
-		
-		return dest;
-	}
-	
-
-	private static byte[] reverse(byte[] bytes) {
-		byte[] reverseBytes = new byte[bytes.length];
-		
-		for (int forward = 0, backward = bytes.length; forward < bytes.length; ++forward)
-			reverseBytes[forward] = bytes[--backward];
-		
-		return reverseBytes;
+		return hash;
 	}
 	
 }

@@ -24,10 +24,10 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class SelectDialog<T> extends JDialog {
@@ -75,7 +75,7 @@ public class SelectDialog<T> extends JDialog {
 		// bounds and  location
 		setMinimumSize(new Dimension(175, 175));
 		setSize(new Dimension(200, 190));
-		setLocation(FileBotUtil.getPreferredLocation(this));
+		setLocation(TunedUtil.getPreferredLocation(this));
 		
 		// default selection
 		list.setModel(new SimpleListModel(options));

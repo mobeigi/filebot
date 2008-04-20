@@ -7,7 +7,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.net.URL;
-import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -16,18 +15,22 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.tuned.ui.HyperlinkLabel;
 
 
 public class HistoryPanel extends JPanel {
 	
-	private JPanel grid = new JPanel(new GridLayout(0, 3, 15, 10));
+	private final JPanel grid = new JPanel(new GridLayout(0, 3, 15, 10));
+	
+	private final JLabel columnHeader1 = new JLabel();
+	private final JLabel columnHeader2 = new JLabel();
+	private final JLabel columnHeader3 = new JLabel();
 	
 	
-	public HistoryPanel(String titleHeader, String infoHeader) {
-		setLayout(new FlowLayout(FlowLayout.CENTER));
+	public HistoryPanel() {
+		super(new FlowLayout(FlowLayout.CENTER));
 		
 		JScrollPane scrollPane = new JScrollPane(grid, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -38,48 +41,53 @@ public class HistoryPanel extends JPanel {
 		setOpaque(true);
 		grid.setOpaque(false);
 		
-		JLabel titleLabel = new JLabel(titleHeader);
-		JLabel infoLabel = new JLabel(infoHeader);
-		JLabel durationLabel = new JLabel("Duration");
+		Font font = columnHeader1.getFont().deriveFont(Font.BOLD);
 		
-		Font font = titleLabel.getFont().deriveFont(Font.BOLD);
+		columnHeader1.setHorizontalAlignment(SwingConstants.CENTER);
+		columnHeader2.setHorizontalAlignment(SwingConstants.CENTER);
+		columnHeader3.setHorizontalAlignment(SwingConstants.RIGHT);
 		
-		titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		durationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		columnHeader1.setFont(font);
+		columnHeader2.setFont(font);
+		columnHeader3.setFont(font);
 		
-		titleLabel.setFont(font);
-		infoLabel.setFont(font);
-		durationLabel.setFont(font);
-		
-		grid.add(titleLabel);
-		grid.add(infoLabel);
-		grid.add(durationLabel);
+		grid.add(columnHeader1);
+		grid.add(columnHeader2);
+		grid.add(columnHeader3);
 	}
 	
-	private final Border infoBorder = BorderFactory.createEmptyBorder(0, 0, 0, 10);
-	
-	
-	public void add(String title, URL url, String info, long duration, Icon icon) {
-		
-		String durationString = NumberFormat.getInstance().format(duration) + " ms";
-		
-		JLabel titleLabel = (url != null) ? new HyperlinkLabel(title, url) : new JLabel(title);
-		JLabel infoLabel = new JLabel(info);
-		JLabel durationLabel = new JLabel(durationString);
-		
-		infoLabel.setBorder(infoBorder);
-		
-		titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		infoLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		durationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		
-		titleLabel.setIcon(icon);
-		titleLabel.setIconTextGap(7);
-		
-		grid.add(titleLabel);
-		grid.add(infoLabel);
-		grid.add(durationLabel);
+
+	public void setColumnHeader1(String text) {
+		columnHeader1.setText(text);
 	}
 	
+
+	public void setColumnHeader2(String text) {
+		columnHeader2.setText(text);
+	}
+	
+
+	public void setColumnHeader3(String text) {
+		columnHeader3.setText(text);
+	}
+	
+
+	public void add(String column1, URL url, Icon icon, String column2, String column3) {
+		JLabel label1 = (url != null) ? new HyperlinkLabel(column1, url) : new JLabel(column1);
+		JLabel label2 = new JLabel(column2);
+		JLabel label3 = new JLabel(column3);
+		
+		label1.setHorizontalAlignment(SwingConstants.LEFT);
+		label2.setHorizontalAlignment(SwingConstants.RIGHT);
+		label3.setHorizontalAlignment(SwingConstants.RIGHT);
+		
+		label1.setIcon(icon);
+		label1.setIconTextGap(7);
+		
+		label2.setBorder(new EmptyBorder(0, 0, 0, 10));
+		
+		grid.add(label1);
+		grid.add(label2);
+		grid.add(label3);
+	}
 }

@@ -30,6 +30,7 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class ValidateNamesDialog extends JDialog {
@@ -83,13 +84,12 @@ public class ValidateNamesDialog extends JDialog {
 		c.add(listPanel, BorderLayout.CENTER);
 		c.add(buttonBox, BorderLayout.SOUTH);
 		
-		setLocation(FileBotUtil.getPreferredLocation(this));
+		setLocation(TunedUtil.getPreferredLocation(this));
 		
 		setPreferredSize(new Dimension(365, 280));
 		pack();
 		
-		// Shortcut Escape
-		FileBotUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

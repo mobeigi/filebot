@@ -16,7 +16,7 @@ import net.sourceforge.tuned.DownloadTask;
  * 
  * @see OpenSubtitlesClient
  */
-public class OpenSubtitleDescriptor implements SubtitleDescriptor {
+public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 	private final Map<String, String> properties;
 	
@@ -57,7 +57,7 @@ public class OpenSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 	
-	public OpenSubtitleDescriptor(Map<String, String> properties) {
+	public OpenSubtitlesSubtitleDescriptor(Map<String, String> properties) {
 		this.properties = properties;
 	}
 	
