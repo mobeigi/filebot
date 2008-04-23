@@ -5,7 +5,6 @@ package net.sourceforge.tuned;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -65,10 +64,9 @@ public class XPathUtil {
 		}
 	}
 	
-	private static XPath xpathObject = XPathFactory.newInstance().newXPath();
-	
-	
-	private static synchronized XPathExpression getXPath(String xpath) throws XPathExpressionException {
-		return xpathObject.compile(xpath);
+
+	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
+		return XPathFactory.newInstance().newXPath().compile(xpath);
 	}
+	
 }

@@ -46,17 +46,17 @@ public class AnidbClient extends EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='anime_list']//TR//TD//ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='animelist']//TR/TD/ancestor::TR", dom);
 		
 		LinkedHashMap<String, URL> searchResults = new LinkedHashMap<String, URL>(nodes.size());
 		
 		if (!nodes.isEmpty())
 			for (Node node : nodes) {
-				String type = XPathUtil.selectString("./TD[3]", node);
+				String type = XPathUtil.selectString("./TD[contains(@class,'type')]", node);
 				
 				// we only want shows
 				if (type.equalsIgnoreCase("tv series")) {
-					Node titleNode = XPathUtil.selectNode("./TD[2]/A", node);
+					Node titleNode = XPathUtil.selectNode("./TD[@class='name']/A", node);
 					
 					String title = XPathUtil.selectString(".", titleNode);
 					String href = XPathUtil.selectString("@href", titleNode);
@@ -107,8 +107,8 @@ public class AnidbClient extends EpisodeListClient {
 		f.setGroupingUsed(false);
 		
 		for (Node node : nodes) {
-			String number = XPathUtil.selectString("./TD[1]/A", node);
-			String title = XPathUtil.selectString("./TD[2]/LABEL/text()", node);
+			String number = XPathUtil.selectString("./TD[contains(@class,'id')]/A", node);
+			String title = XPathUtil.selectString("./TD[@class='title']/LABEL/text()", node);
 			
 			if (title.startsWith("recap"))
 				title = title.replaceFirst("recap", "");
