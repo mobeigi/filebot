@@ -48,7 +48,7 @@ public class TVRageClient extends EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('search_begin')//TABLE[1]/*/TR/TD/A[1]", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('search_begin')/TABLE[1]/*/TR/TD/A[1]", dom);
 		
 		LinkedHashMap<String, URL> searchResults = new LinkedHashMap<String, URL>(nodes.size());
 		
@@ -83,7 +83,7 @@ public class TVRageClient extends EpisodeListClient {
 		
 		for (Node node : nodes) {
 			String seasonAndEpisodeNumber = XPathUtil.selectString("./TD[2]/A", node);
-			String title = XPathUtil.selectString("./TD[5]/A", node);
+			String title = XPathUtil.selectString("./TD[5]", node);
 			
 			List<Node> precedings = XPathUtil.selectNodes("../preceding-sibling::TABLE", node);
 			Node previousTable = precedings.get(precedings.size() - 1);

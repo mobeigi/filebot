@@ -78,7 +78,7 @@ public class AnidbClient extends EpisodeListClient {
 			
 			if (!list.isEmpty()) {
 				// get show's name from the document
-				String header = XPathUtil.selectString("//DIV[@id='layout-content']//H1[1]", dom);
+				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
 				searchResults.put(title, getSearchUrl(searchterm));
@@ -98,7 +98,7 @@ public class AnidbClient extends EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@id='eplist']//TR/TD/SPAN/ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
 		ArrayList<Episode> list = new ArrayList<Episode>(nodes.size());
 		

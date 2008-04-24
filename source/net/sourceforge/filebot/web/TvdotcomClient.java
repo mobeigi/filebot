@@ -82,7 +82,7 @@ public class TvdotcomClient extends EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//DIV[@id='episode-listing']/DIV/TABLE/TR/TD/ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('episode-listing')/DIV/TABLE/TR/TD/ancestor::TR", dom);
 		
 		String seasonString = null;
 		
