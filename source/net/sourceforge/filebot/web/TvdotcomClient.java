@@ -38,7 +38,7 @@ public class TvdotcomClient extends EpisodeListClient {
 	
 
 	@Override
-	public List<String> search(String searchterm) throws UnsupportedEncodingException, MalformedURLException, IOException, SAXException {
+	public List<String> search(String searchterm) throws IOException, SAXException {
 		synchronized (cache) {
 			if (getFoundName(searchterm) != null) {
 				return Arrays.asList(getFoundName(searchterm));

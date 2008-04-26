@@ -22,9 +22,11 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -113,7 +115,10 @@ public class SearchPanel extends FileBotPanel {
 		centerPanel.add(tabbedPane, BorderLayout.CENTER);
 		centerPanel.add(buttonBox, BorderLayout.SOUTH);
 		
-		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyPanel);
+		JScrollPane historyScrollPane = new JScrollPane(historyPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		historyScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		
+		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyScrollPane);
 		
 		mainPanel.add(searchBox, BorderLayout.NORTH);
 		mainPanel.add(centerPanel, BorderLayout.CENTER);

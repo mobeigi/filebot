@@ -72,6 +72,10 @@ public class OpenSubtitlesClient {
 	}
 	
 
+	/**
+	 * This will logout user (ends session id). Good call this function is before ending
+	 * (closing) clients program.
+	 */
 	@SuppressWarnings("unchecked")
 	public synchronized void logout() {
 		

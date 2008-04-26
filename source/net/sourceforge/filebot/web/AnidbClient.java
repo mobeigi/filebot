@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -147,7 +148,7 @@ public class AnidbClient extends EpisodeListClient {
 	}
 	
 
-	private URL getSearchUrl(String searchterm) throws IOException {
+	private URL getSearchUrl(String searchterm) throws UnsupportedEncodingException, MalformedURLException {
 		String qs = URLEncoder.encode(searchterm, "UTF-8");
 		String file = "/perl-bin/animedb.pl?show=animelist&orderby=name&orderdir=0&adb.search=" + qs + "&noalias=1&notinml=0";
 		

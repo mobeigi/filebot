@@ -19,12 +19,18 @@ public class ByteBufferInputStream extends InputStream {
 
 	@Override
 	public synchronized int read() throws IOException {
-		return buffer.getInt();
+		if (buffer.remaining() <= 0)
+			return -1;
+		
+		return buffer.get();
 	}
 	
 
 	@Override
 	public synchronized int read(byte[] b, int off, int len) throws IOException {
+		if (buffer.remaining() <= 0)
+			return -1;
+		
 		int length = Math.min(len, buffer.remaining());
 		
 		buffer.get(b, off, length);

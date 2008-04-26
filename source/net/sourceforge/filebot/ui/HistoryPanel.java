@@ -8,12 +8,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.net.URL;
 
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -32,11 +29,6 @@ public class HistoryPanel extends JPanel {
 	public HistoryPanel() {
 		super(new FlowLayout(FlowLayout.CENTER));
 		
-		JScrollPane scrollPane = new JScrollPane(grid, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBorder(BorderFactory.createEmptyBorder());
-		
-		add(grid);
-		
 		setBackground(Color.WHITE);
 		setOpaque(true);
 		grid.setOpaque(false);
@@ -54,6 +46,8 @@ public class HistoryPanel extends JPanel {
 		grid.add(columnHeader1);
 		grid.add(columnHeader2);
 		grid.add(columnHeader3);
+		
+		add(grid);
 	}
 	
 
