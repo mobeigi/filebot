@@ -20,7 +20,7 @@ public class MultiSimilarityMetric extends SimilarityMetric implements Iterable<
 	
 
 	@Override
-	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
+	public float getSimilarity(ListEntry a, ListEntry b) {
 		float similarity = 0;
 		
 		for (SimilarityMetric metric : similarityMetrics) {

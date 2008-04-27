@@ -118,14 +118,14 @@ class SimilarityPanel extends Box {
 		fileList.removeListSelectionListener(updateMetricsListener);
 	}
 	
-	private ListEntry<?> lastListEntryA = null;
+	private ListEntry lastListEntryA = null;
 	
-	private ListEntry<?> lastListEntryB = null;
+	private ListEntry lastListEntryB = null;
 	
 	
 	public void updateMetrics() {
-		ListEntry<?> a = (ListEntry<?>) nameList.getSelectedValue();
-		ListEntry<?> b = (ListEntry<?>) fileList.getSelectedValue();
+		ListEntry a = (ListEntry) nameList.getSelectedValue();
+		ListEntry b = (ListEntry) fileList.getSelectedValue();
 		
 		if ((a == lastListEntryA) && (b == lastListEntryB))
 			return;
@@ -170,7 +170,7 @@ class SimilarityPanel extends Box {
 		}
 		
 
-		public void update(ListEntry<?> a, ListEntry<?> b) {
+		public void update(ListEntry a, ListEntry b) {
 			value.setText(numberFormat.format(metric.getSimilarity(a, b)));
 		}
 		

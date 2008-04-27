@@ -5,11 +5,14 @@ package net.sourceforge.tuned.ui;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
+import javax.swing.Timer;
 
 
 public class TunedUtil {
@@ -32,4 +35,22 @@ public class TunedUtil {
 		
 		return new Point(p.x + d.width / 4, p.y + d.height / 7);
 	}
+	
+
+	public static Timer invokeLater(int delay, final Runnable runnable) {
+		Timer timer = new Timer(delay, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				runnable.run();
+			}
+			
+		});
+		
+		timer.setRepeats(false);
+		timer.start();
+		
+		return timer;
+	}
+	
 }

@@ -8,7 +8,7 @@ import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 public class StringEqualsMetric extends SimilarityMetric {
 	
 	@Override
-	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
+	public float getSimilarity(ListEntry a, ListEntry b) {
 		if (a.getName().equalsIgnoreCase(b.getName())) {
 			return 1;
 		}

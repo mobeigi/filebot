@@ -2,8 +2,6 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -13,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.OverlayLayout;
-import javax.swing.Timer;
 
 
 public class LoadingOverlayPane extends JComponent {
@@ -77,26 +74,18 @@ public class LoadingOverlayPane extends JComponent {
 		overlayEnabled = b;
 		
 		if (overlayEnabled) {
-			new OverlayTimer().start();
+			TunedUtil.invokeLater(millisToOverlay, new Runnable() {
+				
+				@Override
+				public void run() {
+					if (overlayEnabled) {
+						loadingLabel.setVisible(true);
+					}
+				}
+				
+			});
 		} else {
 			loadingLabel.setVisible(false);
-		}
-	}
-	
-	
-	private class OverlayTimer extends Timer implements ActionListener {
-		
-		public OverlayTimer() {
-			super(millisToOverlay, null);
-			addActionListener(this);
-			setRepeats(false);
-		}
-		
-
-		public void actionPerformed(ActionEvent e) {
-			if (overlayEnabled) {
-				loadingLabel.setVisible(true);
-			}
 		}
 	}
 	

@@ -6,10 +6,6 @@
 package net.sourceforge.tuned.ui.notification;
 
 
-/**
- * @author Reinhard
- * 
- */
 public interface NotificationLayout {
 	
 	public void add(NotificationWindow notification);

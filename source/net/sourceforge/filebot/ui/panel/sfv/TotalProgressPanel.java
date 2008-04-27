@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -11,11 +9,14 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JProgressBar;
-import javax.swing.Timer;
 import javax.swing.border.Border;
+
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 class TotalProgressPanel extends Box {
+	
+	private int millisToSetVisible = 200;
 	
 	private JProgressBar progressBar = new JProgressBar(0, 0);
 	
@@ -49,7 +50,13 @@ class TotalProgressPanel extends Box {
 				Boolean active = (Boolean) evt.getNewValue();
 				
 				if (active) {
-					new SetVisibleTimer().start();
+					TunedUtil.invokeLater(millisToSetVisible, new Runnable() {
+						
+						@Override
+						public void run() {
+							setVisible(ChecksumComputationService.getService().isActive());
+						}
+					});
 				}
 			} else if (property == ChecksumComputationService.REMAINING_TASK_COUNT_PROPERTY) {
 				
@@ -67,23 +74,5 @@ class TotalProgressPanel extends Box {
 			}
 		}
 	};
-	
-	
-	private class SetVisibleTimer extends Timer implements ActionListener {
-		
-		private static final int millisToSetVisible = 200;
-		
-		
-		public SetVisibleTimer() {
-			super(millisToSetVisible, null);
-			addActionListener(this);
-			setRepeats(false);
-		}
-		
-
-		public void actionPerformed(ActionEvent e) {
-			setVisible(ChecksumComputationService.getService().isActive());
-		}
-	}
 	
 }

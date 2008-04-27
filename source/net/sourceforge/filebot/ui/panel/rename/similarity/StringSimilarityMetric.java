@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.rename.similarity;
 
 
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
-
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 
@@ -24,7 +23,7 @@ public class StringSimilarityMetric extends SimilarityMetric {
 	
 
 	@Override
-	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
+	public float getSimilarity(ListEntry a, ListEntry b) {
 		return metric.getSimilarity(a.getName(), b.getName());
 	}
 	

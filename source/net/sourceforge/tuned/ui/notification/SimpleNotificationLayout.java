@@ -13,11 +13,6 @@ import java.awt.Toolkit;
 
 import javax.swing.SwingConstants;
 
-
-/**
- * @author Reinhard
- * 
- */
 public class SimpleNotificationLayout implements NotificationLayout, SwingConstants {
 	
 	private NotificationWindow currentNotification;

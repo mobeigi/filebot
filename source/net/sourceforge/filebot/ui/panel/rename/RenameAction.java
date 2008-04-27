@@ -18,12 +18,11 @@ import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 
 public class RenameAction extends AbstractAction {
 	
-	private NamesRenameList namesList;
+	private final RenameList namesList;
+	private final RenameList filesList;
 	
-	private FilesRenameList filesList;
 	
-	
-	public RenameAction(NamesRenameList namesList, FilesRenameList filesList) {
+	public RenameAction(RenameList namesList, RenameList filesList) {
 		super("Rename", ResourceManager.getIcon("action.rename"));
 		this.namesList = namesList;
 		this.filesList = filesList;
@@ -33,8 +32,8 @@ public class RenameAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent e) {
-		List<ListEntry<?>> nameEntries = namesList.getListEntries();
-		List<FileEntry> fileEntries = filesList.getListEntries();
+		List<ListEntry> nameEntries = namesList.getEntries();
+		List<ListEntry> fileEntries = filesList.getEntries();
 		
 		int minLength = Math.min(nameEntries.size(), fileEntries.size());
 		
@@ -42,8 +41,8 @@ public class RenameAction extends AbstractAction {
 		int errors = 0;
 		
 		for (i = 0; i < minLength; i++) {
-			FileEntry fileEntry = fileEntries.get(i);
-			File f = fileEntry.getValue();
+			FileEntry fileEntry = (FileEntry) fileEntries.get(i);
+			File f = fileEntry.getFile();
 			
 			String newName = nameEntries.get(i).toString() + FileFormat.getExtension(f, true);
 			
@@ -64,5 +63,4 @@ public class RenameAction extends AbstractAction {
 		namesList.repaint();
 		filesList.repaint();
 	}
-	
 }

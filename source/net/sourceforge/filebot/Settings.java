@@ -16,17 +16,17 @@ import java.util.prefs.Preferences;
 
 public class Settings {
 	
-	private static Settings settings = new Settings();
-	
 	public static final String NAME = "FileBot";
 	public static final String VERSION = "2.0";
 	
-	public static final String ROOT = "filebot";
+	public static final String ROOT = NAME.toLowerCase();
 	
 	public static final String SELECTED_PANEL = "panel";
 	public static final String SEARCH_HISTORY = "history/search";
 	public static final String SUBTITLE_HISTORY = "history/subtitle";
 	public static final String LANGUAGE_HISTORY = "history/language";
+	
+	private static Settings settings = new Settings();
 	
 	
 	public static Settings getSettings() {

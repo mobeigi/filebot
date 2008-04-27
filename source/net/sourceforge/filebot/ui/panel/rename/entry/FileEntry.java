@@ -7,15 +7,18 @@ import java.io.File;
 import net.sourceforge.filebot.FileFormat;
 
 
-public class FileEntry extends AbstractFileEntry<File> {
+public class FileEntry extends AbstractFileEntry {
+	
+	private final File file;
 	
 	private final long length;
 	private final String type;
 	
 	
 	public FileEntry(File file) {
-		super(FileFormat.getFileName(file), file);
+		super(FileFormat.getFileName(file));
 		
+		this.file = file;
 		this.length = file.length();
 		this.type = FileFormat.getFileType(file);
 	}
@@ -29,5 +32,10 @@ public class FileEntry extends AbstractFileEntry<File> {
 
 	public String getType() {
 		return type;
+	}
+	
+
+	public File getFile() {
+		return file;
 	}
 }

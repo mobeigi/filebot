@@ -9,10 +9,10 @@ import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 public class LengthEqualsMetric extends SimilarityMetric {
 	
 	@Override
-	public float getSimilarity(ListEntry<?> a, ListEntry<?> b) {
-		if (a instanceof AbstractFileEntry && b instanceof AbstractFileEntry) {
-			long lengthA = ((AbstractFileEntry<?>) a).getLength();
-			long lengthB = ((AbstractFileEntry<?>) b).getLength();
+	public float getSimilarity(ListEntry a, ListEntry b) {
+		if ((a instanceof AbstractFileEntry) && (b instanceof AbstractFileEntry)) {
+			long lengthA = ((AbstractFileEntry) a).getLength();
+			long lengthB = ((AbstractFileEntry) b).getLength();
 			
 			if (lengthA == lengthB)
 				return 1;

@@ -2,10 +2,10 @@
 package net.sourceforge.filebot.ui.panel.rename.entry;
 
 
-public abstract class AbstractFileEntry<T> extends ListEntry<T> {
+public abstract class AbstractFileEntry extends ListEntry {
 	
-	public AbstractFileEntry(String name, T value) {
-		super(name, value);
+	public AbstractFileEntry(String name) {
+		super(name);
 	}
 	
 

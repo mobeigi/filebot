@@ -31,9 +31,8 @@ import net.sourceforge.filebot.ui.FileBotPanel;
 
 public class RenamePanel extends FileBotPanel {
 	
-	private NamesRenameList namesList = new NamesRenameList();
-	
-	private FilesRenameList filesList = new FilesRenameList();
+	private RenameList namesList = new RenameList();
+	private RenameList filesList = new RenameList();
 	
 	private MatchAction matchAction = new MatchAction(namesList, filesList);
 	
@@ -46,6 +45,12 @@ public class RenamePanel extends FileBotPanel {
 	
 	public RenamePanel() {
 		super("Rename", ResourceManager.getIcon("panel.rename"));
+		
+		namesList.setTitle("Names");
+		namesList.setTransferablePolicy(new NamesListTransferablePolicy(namesList));
+		
+		filesList.setTitle("Files");
+		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
 		
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(namesList.getModel(), filesList.getModel());
 		

@@ -17,10 +17,6 @@ import java.util.ListIterator;
 import javax.swing.SwingConstants;
 
 
-/**
- * @author Reinhard
- * 
- */
 public class QueueNotificationLayout implements NotificationLayout, SwingConstants {
 	
 	private ArrayList<NotificationWindow> notificationList = new ArrayList<NotificationWindow>();

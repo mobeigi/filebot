@@ -25,10 +25,10 @@ import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
 
 class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	
-	private final NamesRenameList list;
+	private final RenameList list;
 	
 	
-	public NamesListTransferablePolicy(NamesRenameList list) {
+	public NamesListTransferablePolicy(RenameList list) {
 		this.list = list;
 		
 		addPolicy(new FilePolicy());
@@ -36,10 +36,10 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 	}
 	
 
-	private void submit(List<ListEntry<?>> entries) {
-		List<ListEntry<?>> invalidEntries = new ArrayList<ListEntry<?>>();
+	private void submit(List<ListEntry> entries) {
+		List<ListEntry> invalidEntries = new ArrayList<ListEntry>();
 		
-		for (ListEntry<?> entry : entries) {
+		for (ListEntry entry : entries) {
 			if (FileBotUtil.isInvalidFileName(entry.getName()))
 				invalidEntries.add(entry);
 		}
@@ -90,7 +90,7 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 
 		private void loadListFiles(List<File> files) {
 			try {
-				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+				List<ListEntry> entries = new ArrayList<ListEntry>();
 				
 				for (File file : files) {
 					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -115,7 +115,7 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 
 		private void loadTorrentFiles(List<File> files) {
 			try {
-				List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+				List<ListEntry> entries = new ArrayList<ListEntry>();
 				
 				for (File file : files) {
 					Torrent torrent = new Torrent(file);
@@ -144,7 +144,7 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 		
 		@Override
 		protected void load(String text) {
-			List<ListEntry<?>> entries = new ArrayList<ListEntry<?>>();
+			List<ListEntry> entries = new ArrayList<ListEntry>();
 			
 			String[] lines = text.split("\n");
 			

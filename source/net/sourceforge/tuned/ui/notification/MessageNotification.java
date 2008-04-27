@@ -21,10 +21,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 
-/**
- * @author Reinhard
- * 
- */
 public class MessageNotification extends NotificationWindow {
 	
 	public MessageNotification(String head, String text, Icon icon, int timeout) {

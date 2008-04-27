@@ -2,15 +2,13 @@
 package net.sourceforge.filebot.ui.panel.rename.entry;
 
 
-public class ListEntry<T> {
+public class ListEntry {
 	
 	private String name;
-	private T value;
 	
 	
-	public ListEntry(String name, T value) {
+	public ListEntry(String name) {
 		this.name = name;
-		this.value = value;
 	}
 	
 
@@ -21,11 +19,6 @@ public class ListEntry<T> {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-	
-
-	public T getValue() {
-		return value;
 	}
 	
 

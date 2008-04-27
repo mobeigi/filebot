@@ -9,8 +9,6 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -21,6 +19,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 class FileBotPanelSelectionList extends JList {
@@ -70,26 +69,13 @@ class FileBotPanelSelectionList extends JList {
 	}
 	
 
-	private class DragDropListener extends DropTargetAdapter implements ActionListener {
+	private class DragDropListener extends DropTargetAdapter {
 		
 		private boolean selectEnabled = false;
 		
-		private Timer timer = new Timer(SELECTDELAY_ON_DRAG_OVER, this);
+		private Timer dragEnterTimer;
 		
 		
-		public DragDropListener() {
-			timer.setRepeats(false);
-		}
-		
-
-		public void actionPerformed(ActionEvent e) {
-			selectEnabled = true;
-			
-			// bring window to front when on dnd
-			SwingUtilities.getWindowAncestor(FileBotPanelSelectionList.this).toFront();
-		}
-		
-
 		@Override
 		public void dragOver(DropTargetDragEvent dtde) {
 			if (selectEnabled) {
@@ -101,14 +87,26 @@ class FileBotPanelSelectionList extends JList {
 
 		@Override
 		public void dragEnter(DropTargetDragEvent dtde) {
-			timer.start();
+			dragEnterTimer = TunedUtil.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
+				
+				@Override
+				public void run() {
+					selectEnabled = true;
+					
+					// bring window to front when on dnd
+					SwingUtilities.getWindowAncestor(FileBotPanelSelectionList.this).toFront();
+				}
+			});
 		}
 		
 
 		@Override
 		public void dragExit(DropTargetEvent dte) {
-			timer.stop();
 			selectEnabled = false;
+			
+			if (dragEnterTimer != null) {
+				dragEnterTimer.stop();
+			}
 		}
 		
 

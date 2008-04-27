@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
@@ -17,10 +18,11 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
+import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 
 
-abstract class RenameList extends FileBotList {
+class RenameList extends FileBotList {
 	
 	public RenameList() {
 		super(true, false, true);
@@ -44,6 +46,12 @@ abstract class RenameList extends FileBotList {
 		
 		JViewport viewport = (JViewport) list.getParent();
 		viewport.setBackground(list.getBackground());
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public List<ListEntry> getEntries() {
+		return (List<ListEntry>) getModel().getCopy();
 	}
 	
 	private final AbstractAction upAction = new AbstractAction(null, ResourceManager.getIcon("action.up")) {

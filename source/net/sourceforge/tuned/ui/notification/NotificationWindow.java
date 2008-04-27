@@ -7,25 +7,21 @@ package net.sourceforge.tuned.ui.notification;
 
 
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.JWindow;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import net.sourceforge.tuned.ui.TunedUtil;
 
-/**
- * @author Reinhard
- * 
- */
+
 public class NotificationWindow extends JWindow {
 	
-	private Timer timer;
+	private int timeout;
 	
 	
 	public NotificationWindow(Window owner, int timeout) {
@@ -35,6 +31,8 @@ public class NotificationWindow extends JWindow {
 
 	public NotificationWindow(Window owner, int timeout, boolean closeOnClick) {
 		super(owner);
+		this.timeout = timeout;
+		
 		setAlwaysOnTop(true);
 		
 		if (closeOnClick)
@@ -42,19 +40,7 @@ public class NotificationWindow extends JWindow {
 		
 		getGlassPane().setVisible(true);
 		
-		if (timeout >= 0) {
-			ActionListener doClose = new ActionListener() {
-				
-				public void actionPerformed(ActionEvent e) {
-					close();
-				}
-			};
-			
-			timer = new Timer(timeout, doClose);
-			timer.setRepeats(false);
-			
-			addWindowListener(windowListener);
-		}
+		addComponentListener(visibleListener);
 	}
 	
 
@@ -74,33 +60,43 @@ public class NotificationWindow extends JWindow {
 	
 
 	public final void close() {
-		processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		setVisible(false);
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			public void run() {
-				dispose();
-			}
-		});
+		// component hidden is not fired automatically
+		processComponentEvent(new ComponentEvent(this, ComponentEvent.COMPONENT_HIDDEN));
 	}
 	
-	private WindowAdapter windowListener = new WindowAdapter() {
+	private ComponentListener visibleListener = new ComponentAdapter() {
+		
+		private Timer timer;
+		
 		
 		@Override
-		public void windowOpened(WindowEvent e) {
-			timer.start();
+		public void componentShown(ComponentEvent e) {
+			if (timeout >= 0) {
+				timer = TunedUtil.invokeLater(timeout, new Runnable() {
+					
+					@Override
+					public void run() {
+						close();
+					}
+				});
+			}
 		}
 		
 
 		@Override
-		public void windowClosing(WindowEvent e) {
-			if (timer != null)
+		public void componentHidden(ComponentEvent e) {
+			if (timer != null) {
 				timer.stop();
+			}
 		}
+		
 	};
 	
 	private MouseAdapter clickListener = new MouseAdapter() {
 		
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			close();
 		}

@@ -82,14 +82,10 @@ public class SelectDialog<T> extends JDialog {
 		list.setSelectedIndex(0);
 		
 		// Shortcut Enter
-		Integer actionMapKey = new Integer(selectAction.hashCode());
-		list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released ENTER"), actionMapKey);
-		list.getActionMap().put(actionMapKey, selectAction);
+		TunedUtil.registerActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
 		
 		// Shortcut Escape
-		actionMapKey = new Integer(cancelAction.hashCode());
-		list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("released ESCAPE"), actionMapKey);
-		list.getActionMap().put(actionMapKey, cancelAction);
+		TunedUtil.registerActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

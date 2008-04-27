@@ -35,7 +35,7 @@ import net.sourceforge.tuned.ui.TunedUtil;
 
 public class ValidateNamesDialog extends JDialog {
 	
-	private final List<ListEntry<?>> entries;
+	private final List<ListEntry> entries;
 	
 	private boolean cancelled = true;
 	
@@ -44,7 +44,7 @@ public class ValidateNamesDialog extends JDialog {
 	private final CancelAction cancelAction = new CancelAction();
 	
 	
-	public ValidateNamesDialog(Window owner, List<ListEntry<?>> entries) {
+	public ValidateNamesDialog(Window owner, List<ListEntry> entries) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
 		this.entries = entries;
@@ -116,7 +116,7 @@ public class ValidateNamesDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for (ListEntry<?> entry : entries) {
+			for (ListEntry entry : entries) {
 				String validatedName = FileBotUtil.validateFileName(entry.getName());
 				entry.setName(validatedName);
 			}
