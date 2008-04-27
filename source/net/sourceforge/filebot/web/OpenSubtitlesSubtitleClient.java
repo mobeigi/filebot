@@ -49,7 +49,7 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 	private synchronized void activate() {
 		try {
 			if (!client.isLoggedOn()) {
-				client.login("", "");
+				client.loginAnonymous();
 			}
 		} catch (Exception e) {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

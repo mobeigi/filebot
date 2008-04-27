@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -26,6 +27,7 @@ import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.panel.rename.similarity.StringEqualsMetric;
 import net.sourceforge.filebot.ui.panel.rename.similarity.StringSimilarityMetric;
 import net.sourceforge.tuned.ui.ProgressDialog;
+import net.sourceforge.tuned.ui.SwingWorkerProgressMonitor;
 
 
 class MatchAction extends AbstractAction {
@@ -78,13 +80,15 @@ class MatchAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		SwingUtilities.getRoot(namesList).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		JComponent source = (JComponent) evt.getSource();
+		
+		SwingUtilities.getRoot(source).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
 		RenameList primaryList = matchName2File ? namesList : filesList;
 		RenameList secondaryList = matchName2File ? filesList : namesList;
 		
 		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(primaryList, secondaryList, metrics);
-		SwingWorkerProgressMonitor monitor = new SwingWorkerProgressMonitor(SwingUtilities.getWindowAncestor(namesList), backgroundMatcher);
+		SwingWorkerProgressMonitor monitor = new SwingWorkerProgressMonitor(SwingUtilities.getWindowAncestor(source), backgroundMatcher);
 		
 		ProgressDialog progressDialog = monitor.getProgressDialog();
 		progressDialog.setTitle("Matching ...");
@@ -103,7 +107,7 @@ class MatchAction extends AbstractAction {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
-		SwingUtilities.getRoot(namesList).setCursor(Cursor.getDefaultCursor());
+		SwingUtilities.getRoot(source).setCursor(Cursor.getDefaultCursor());
 	}
 	
 	
@@ -125,7 +129,7 @@ class MatchAction extends AbstractAction {
 
 		@Override
 		protected List<Match> doInBackground() throws Exception {
-			int total = matcher.remaining();
+			int total = matcher.remainingMatches();
 			
 			List<Match> matches = new ArrayList<Match>(total);
 			
@@ -167,12 +171,13 @@ class MatchAction extends AbstractAction {
 				secondaryList.getModel().clear();
 				
 				for (Match match : matches) {
-					if (match.getA() != null)
-						primaryList.getModel().add(match.getA());
-					
-					if (match.getB() != null)
-						secondaryList.getModel().add(match.getB());
+					primaryList.getModel().add(match.getA());
+					secondaryList.getModel().add(match.getB());
 				}
+				
+				primaryList.getModel().addAll(matcher.getPrimaryList());
+				secondaryList.getModel().addAll(matcher.getSecondaryList());
+				
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}

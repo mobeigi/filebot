@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename.match;
 
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +11,7 @@ import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
 
 
-public class Matcher implements Iterable<Match>, Iterator<Match> {
+public class Matcher implements Iterator<Match> {
 	
 	private final LinkedList<ListEntry> primaryList;
 	private final LinkedList<ListEntry> secondaryList;
@@ -25,23 +26,13 @@ public class Matcher implements Iterable<Match>, Iterator<Match> {
 	
 
 	@Override
-	public Iterator<Match> iterator() {
-		return this;
-	}
-	
-
-	@Override
 	public boolean hasNext() {
-		return !primaryList.isEmpty() || !secondaryList.isEmpty();
+		return remainingMatches() > 0;
 	}
 	
 
 	@Override
 	public Match next() {
-		if (primaryList.isEmpty()) {
-			return new Match(null, secondaryList.removeFirst());
-		}
-		
 		ListEntry primaryEntry = primaryList.removeFirst();
 		
 		float maxSimilarity = -1;
@@ -80,8 +71,18 @@ public class Matcher implements Iterable<Match>, Iterator<Match> {
 	}
 	
 
-	public int remaining() {
-		return Math.max(primaryList.size(), secondaryList.size());
+	public int remainingMatches() {
+		return Math.min(primaryList.size(), secondaryList.size());
+	}
+	
+
+	public List<ListEntry> getPrimaryList() {
+		return Collections.unmodifiableList(primaryList);
+	}
+	
+
+	public List<ListEntry> getSecondaryList() {
+		return Collections.unmodifiableList(secondaryList);
 	}
 	
 

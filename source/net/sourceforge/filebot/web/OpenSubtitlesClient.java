@@ -47,6 +47,16 @@ public class OpenSubtitlesClient {
 	}
 	
 
+	/**
+	 * Login as anonymous user
+	 * 
+	 * @throws XmlRpcFault
+	 */
+	public void loginAnonymous() throws XmlRpcFault {
+		login("", "");
+	}
+	
+
 	public void login(String username, String password) throws XmlRpcFault {
 		login(username, password, "en");
 	}
@@ -56,8 +66,8 @@ public class OpenSubtitlesClient {
 	 * This will login user. This method should be called always when starting talking with
 	 * server.
 	 * 
-	 * @param username blank for anonymous user.
-	 * @param password blank for anonymous user.
+	 * @param username username (blank for anonymous user)
+	 * @param password password (blank for anonymous user)
 	 * @param language <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
 	 *            2 letter codes as language and later communication will be done in this
 	 *            language if applicable (error codes and so on).
