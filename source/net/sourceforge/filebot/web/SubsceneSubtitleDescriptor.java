@@ -14,22 +14,25 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private final String language;
 	private final int numberOfCDs;
 	private final String author;
+	private final boolean hearingImpaired;
 	
 	private final Map<String, String> downloadParameters;
 	private final URL downloadUrl;
 	
 	
-	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, URL downloadUrl, Map<String, String> downloadParameters) {
+	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, boolean hearingImpaired, URL downloadUrl, Map<String, String> downloadParameters) {
 		this.title = title;
 		this.language = language;
 		this.numberOfCDs = numberOfCDs;
 		this.author = author;
+		this.hearingImpaired = hearingImpaired;
 		
 		this.downloadUrl = downloadUrl;
 		this.downloadParameters = downloadParameters;
 	}
 	
 
+	@Override
 	public String getName() {
 		return title;
 	}
@@ -50,11 +53,18 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
+	public boolean getHearingImpaired() {
+		return hearingImpaired;
+	}
+	
+
+	@Override
 	public DownloadTask createDownloadTask() {
 		return new DownloadTask(downloadUrl, downloadParameters);
 	}
 	
 
+	@Override
 	public String getArchiveType() {
 		return downloadParameters.get("typeId");
 	}

@@ -84,10 +84,11 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 				
 				String href = XPathUtil.selectString("@href", linkNode);
 				
-				String name = XPathUtil.selectString("./SPAN[2]", linkNode);
 				String lang = XPathUtil.selectString("./SPAN[1]", linkNode);
+				String name = XPathUtil.selectString("./SPAN[2]", linkNode);
 				
 				int numberOfCDs = Integer.parseInt(XPathUtil.selectString("./TD[2]", node));
+				boolean hearingImpaired = XPathUtil.selectFirstNode("./TD[3]/*[@id='imgEar']", node) != null;
 				String author = XPathUtil.selectString("./TD[4]", node);
 				
 				URL downloadUrl = new URL("http", host, downloadPath);
@@ -95,7 +96,7 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 				Map<String, String> downloadParameters = parseParameters(href);
 				downloadParameters.put("__VIEWSTATE", viewstate);
 				
-				list.add(new SubsceneSubtitleDescriptor(name, lang, numberOfCDs, author, downloadUrl, downloadParameters));
+				list.add(new SubsceneSubtitleDescriptor(name, lang, numberOfCDs, author, hearingImpaired, downloadUrl, downloadParameters));
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse subtitle node", e);
 			}

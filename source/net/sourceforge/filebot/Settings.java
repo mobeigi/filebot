@@ -22,9 +22,9 @@ public class Settings {
 	public static final String ROOT = NAME.toLowerCase();
 	
 	public static final String SELECTED_PANEL = "panel";
-	public static final String SEARCH_HISTORY = "history/search";
-	public static final String SUBTITLE_HISTORY = "history/subtitle";
-	public static final String LANGUAGE_HISTORY = "history/language";
+	public static final String SEARCH_HISTORY = "search/history";
+	public static final String SUBTITLE_HISTORY = "subtitle/history";
+	public static final String SUBTITLE_LANGUAGE = "subtitle/language";
 	
 	private static Settings settings = new Settings();
 	
@@ -133,7 +133,7 @@ public class Settings {
 		
 		for (Entry<String, String> entry : entries.entrySet()) {
 			try {
-				map.put(entry.getKey(), new Integer(entry.getValue()));
+				map.put(entry.getKey(), Integer.valueOf(entry.getValue()));
 			} catch (NumberFormatException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
@@ -151,6 +151,35 @@ public class Settings {
 		}
 		
 		putStringMap(key, entries);
+	}
+	
+
+	public Map<String, Boolean> getBooleanMap(String key) {
+		Map<String, String> entries = getStringMap(key);
+		
+		Map<String, Boolean> map = new HashMap<String, Boolean>(entries.size());
+		
+		for (Entry<String, String> entry : entries.entrySet()) {
+			map.put(entry.getKey(), Boolean.valueOf(entry.getValue()));
+		}
+		
+		return map;
+	}
+	
+
+	public void putBooleanMap(String key, Map<String, Boolean> map) {
+		Map<String, String> entries = new HashMap<String, String>();
+		
+		for (Entry<String, Boolean> entry : map.entrySet()) {
+			entries.put(entry.getKey(), entry.getValue().toString());
+		}
+		
+		putStringMap(key, entries);
+	}
+	
+
+	public void putBooleanMapEntry(String nodeKey, String mapKey, Boolean value) {
+		prefs.node(nodeKey).put(mapKey, value.toString());
 	}
 	
 

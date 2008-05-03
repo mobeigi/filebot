@@ -155,7 +155,7 @@ public class SubtitlePanel extends FileBotPanel {
 
 	private class SearchTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private SubtitleListPanel subtitleSearchResultPanel;
+		private SubtitleViewPanel subtitleSearchResultPanel;
 		private FileBotTabComponent tabComponent;
 		
 		
@@ -163,7 +163,7 @@ public class SubtitlePanel extends FileBotPanel {
 		public void started(PropertyChangeEvent evt) {
 			SearchTask task = (SearchTask) evt.getSource();
 			
-			subtitleSearchResultPanel = new SubtitleListPanel();
+			subtitleSearchResultPanel = new SubtitleViewPanel();
 			tabComponent = new FileBotTabComponent(task.query, ResourceManager.getIcon("tab.loading"));
 			
 			tabbedPane.addTab(task.query, subtitleSearchResultPanel);
@@ -246,11 +246,11 @@ public class SubtitlePanel extends FileBotPanel {
 
 	private class FetchSubtitleListTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private final SubtitleListPanel subtitleSearchResultPanel;
+		private final SubtitleViewPanel subtitleSearchResultPanel;
 		private final FileBotTabComponent tabComponent;
 		
 		
-		public FetchSubtitleListTaskListener(SubtitleListPanel subtitleSearchResultPanel, FileBotTabComponent tabComponent) {
+		public FetchSubtitleListTaskListener(SubtitleViewPanel subtitleSearchResultPanel, FileBotTabComponent tabComponent) {
 			this.subtitleSearchResultPanel = subtitleSearchResultPanel;
 			this.tabComponent = tabComponent;
 		}

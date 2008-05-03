@@ -13,10 +13,10 @@ import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
 public class Checksum {
 	
-	private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	
-	public static final String STATE_PROPERTY = "STATE_PROPERTY";
-	public static final String PROGRESS_PROPERTY = "PROGRESS_PROPERTY";
+	public static final String STATE_PROPERTY = "DOWNLOAD_STATE";
+	public static final String PROGRESS_PROPERTY = "DOWNLOAD_PROGRESS";
 	
 	private Long checksum = null;
 	private State state = State.PENDING;

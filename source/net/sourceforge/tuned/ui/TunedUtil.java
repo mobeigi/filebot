@@ -2,6 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Window;
@@ -17,6 +18,11 @@ import javax.swing.Timer;
 
 public class TunedUtil {
 	
+	private TunedUtil() {
+		// hide constructor
+	}
+	
+
 	public static void registerActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
 		Integer key = action.hashCode();
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);

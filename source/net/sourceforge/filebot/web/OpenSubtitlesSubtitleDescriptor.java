@@ -73,8 +73,15 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
+	@Override
 	public String getLanguageName() {
 		return getProperty(Properties.LanguageName);
+	}
+	
+
+	@Override
+	public String getAuthor() {
+		return getProperty(Properties.UserNickName);
 	}
 	
 

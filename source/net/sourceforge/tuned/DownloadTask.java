@@ -23,7 +23,7 @@ import javax.swing.SwingWorker;
 public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 	
 	public static final String DOWNLOAD_STATE = "download state";
-	public static final String BYTES_READ = "bytes read";
+	public static final String DOWNLOAD_PROGRESS = "download progress";
 	
 	
 	public static enum DownloadState {
@@ -84,11 +84,11 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Object> {
 		int len = 0;
 		
 		try {
-			while ((len = in.read(buffer)) > 0) {
+			while (((len = in.read(buffer)) > 0) && !isCancelled()) {
 				out.write(buffer, 0, len);
 				
 				bytesRead += len;
-				getPropertyChangeSupport().firePropertyChange(BYTES_READ, null, bytesRead);
+				getPropertyChangeSupport().firePropertyChange(DOWNLOAD_PROGRESS, null, bytesRead);
 			}
 		} catch (IOException e) {
 			// IOException (Premature EOF) is always thrown when the size of 

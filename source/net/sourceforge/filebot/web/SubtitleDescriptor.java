@@ -13,6 +13,9 @@ public interface SubtitleDescriptor {
 	public String getLanguageName();
 	
 
+	public String getAuthor();
+	
+
 	public String getArchiveType();
 	
 
