@@ -11,9 +11,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 	private final String title;
 	private final String language;
-	private final int numberOfCDs;
 	private final String author;
-	private final boolean hearingImpaired;
 	
 	private final String typeId;
 	
@@ -21,12 +19,10 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private final URL referer;
 	
 	
-	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, boolean hearingImpaired, String typeId, URL downloadUrl, URL referer) {
+	public SubsceneSubtitleDescriptor(String title, String language, String author, String typeId, URL downloadUrl, URL referer) {
 		this.title = title;
 		this.language = language;
-		this.numberOfCDs = numberOfCDs;
 		this.author = author;
-		this.hearingImpaired = hearingImpaired;
 		
 		this.typeId = typeId;
 		
@@ -46,18 +42,8 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
-	public int getNumberOfCDs() {
-		return numberOfCDs;
-	}
-	
-
 	public String getAuthor() {
 		return author;
-	}
-	
-
-	public boolean getHearingImpaired() {
-		return hearingImpaired;
 	}
 	
 
