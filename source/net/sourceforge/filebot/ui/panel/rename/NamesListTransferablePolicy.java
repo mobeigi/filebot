@@ -70,12 +70,6 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 		
 
 		@Override
-		protected boolean accept(File file) {
-			return file.isFile() || file.isDirectory();
-		}
-		
-
-		@Override
 		protected void load(List<File> files) {
 			
 			if (FileBotUtil.containsOnlyListFiles(files)) {
@@ -146,7 +140,7 @@ class NamesListTransferablePolicy extends MultiTransferablePolicy {
 		protected void load(String text) {
 			List<ListEntry> entries = new ArrayList<ListEntry>();
 			
-			String[] lines = text.split("\n");
+			String[] lines = text.split("\r?\n");
 			
 			for (String line : lines) {
 				

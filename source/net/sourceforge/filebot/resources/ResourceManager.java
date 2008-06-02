@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -30,59 +28,47 @@ public class ResourceManager {
 		aliasMap.put("loading", "loading.gif");
 	}
 	
-	private static final Map<String, Image> cache = Collections.synchronizedMap(new WeakHashMap<String, Image>());
+	private static final Map<String, ImageIcon> iconCache = Collections.synchronizedMap(new WeakHashMap<String, ImageIcon>());
 	
 	
 	public static ImageIcon getIcon(String name) {
-		return new ImageIcon(getImage(name));
+		return getIcon(name, null);
+	}
+	
+
+	public static ImageIcon getIcon(String name, String def) {
+		ImageIcon icon = iconCache.get(name);
+		
+		if (icon == null) {
+			// load image if not in cache
+			URL resource = getResource(name, def);
+			
+			if (resource != null) {
+				icon = new ImageIcon(resource);
+				iconCache.put(name, icon);
+			}
+		}
+		
+		return icon;
 	}
 	
 
 	public static ImageIcon getFlagIcon(String languageCode) {
-		if (languageCode == null)
-			languageCode = "default";
-		
-		return new ImageIcon(getImage(String.format("flags/%s", languageCode.toLowerCase()), "flags/default"));
+		return getIcon(String.format("flags/%s", languageCode), "flags/default");
 	}
 	
 
 	public static ImageIcon getArchiveIcon(String type) {
-		if (type == null)
-			type = "default";
-		
-		return new ImageIcon(getImage(String.format("archives/%s", type.toLowerCase()), "archives/default"));
+		return getIcon(String.format("archives/%s", type), "archives/default");
 	}
 	
 
 	public static Image getImage(String name) {
-		Image image = cache.get(name);
-		
-		if (image == null) {
-			try {
-				// load image if not in cache
-				URL resource = getResource(name);
-				
-				if (resource != null) {
-					image = ImageIO.read(resource);
-					cache.put(name, image);
-				}
-			} catch (IOException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
-			}
+		try {
+			return ImageIO.read(getResource(name));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		
-		return image;
-	}
-	
-
-	private static Image getImage(String name, String def) {
-		Image image = getImage(name);
-		
-		// image not found, use default
-		if (image == null)
-			image = getImage(def);
-		
-		return image;
 	}
 	
 
@@ -95,6 +81,16 @@ public class ResourceManager {
 			resource = name + ".png";
 		
 		return ResourceManager.class.getResource(resource);
+	}
+	
+
+	private static URL getResource(String name, String def) {
+		URL resource = getResource(name);
+		
+		if (resource == null)
+			resource = getResource(def);
+		
+		return resource;
 	}
 	
 }

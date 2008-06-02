@@ -10,7 +10,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
 
 
-class FetchEpisodeListTask extends SwingWorker<List<Episode>, Object> {
+class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 	
 	private final String showName;
 	private final EpisodeListClient searchEngine;

@@ -4,7 +4,11 @@ package net.sourceforge.filebot;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -16,9 +20,9 @@ public class FileBotUtil {
 	}
 	
 	/**
-	 * invalid characters: \, /, :, *, ?, ", <, > and |
+	 * invalid characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
-	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|";
+	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
 	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
 	
@@ -113,5 +117,13 @@ public class FileBotUtil {
 		}
 		
 	};
+	
+	
+	//TODO needed??
+	public static void writeToFile(File file, ByteBuffer data) throws IOException {
+		FileChannel channel = new FileOutputStream(file).getChannel();
+		channel.write(data);
+		channel.close();
+	}
 	
 }

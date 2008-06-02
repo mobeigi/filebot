@@ -26,14 +26,14 @@ public class Settings {
 	public static final String SUBTITLE_HISTORY = "subtitle/history";
 	public static final String SUBTITLE_LANGUAGE = "subtitle/language";
 	
-	private static Settings settings = new Settings();
+	private static final Settings settings = new Settings();
 	
 	
 	public static Settings getSettings() {
 		return settings;
 	}
 	
-	private Preferences prefs;
+	private final Preferences prefs;
 	
 	
 	private Settings() {
@@ -89,7 +89,7 @@ public class Settings {
 	
 
 	public void putStringList(String key, Collection<String> list) {
-		Preferences listNode = prefs.node(key);
+		Preferences listNode = getClearNode(key);
 		
 		int i = 0;
 		
@@ -118,7 +118,7 @@ public class Settings {
 	
 
 	public void putStringMap(String key, Map<String, String> map) {
-		Preferences mapNode = prefs.node(key);
+		Preferences mapNode = getClearNode(key);
 		
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			mapNode.put(entry.getKey(), entry.getValue());
@@ -185,10 +185,24 @@ public class Settings {
 
 	public void clear() {
 		try {
-			prefs.removeNode();
-			prefs = Preferences.userRoot().node(ROOT);
+			for (String child : prefs.childrenNames()) {
+				prefs.node(child).removeNode();
+			}
 		} catch (BackingStoreException e) {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
+	}
+	
+
+	private Preferences getClearNode(String nodeName) {
+		Preferences node = prefs.node(nodeName);
+		
+		try {
+			node.clear();
+		} catch (BackingStoreException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+		}
+		
+		return node;
 	}
 }

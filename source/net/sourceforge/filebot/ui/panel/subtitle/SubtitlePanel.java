@@ -30,7 +30,6 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileBotTabComponent;
 import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
@@ -133,7 +132,7 @@ public class SubtitlePanel extends FileBotPanel {
 	};
 	
 	
-	private class SearchTask extends SwingWorker<List<MovieDescriptor>, Object> {
+	private class SearchTask extends SwingWorker<List<MovieDescriptor>, Void> {
 		
 		private final String query;
 		private final SubtitleClient client;
@@ -155,26 +154,27 @@ public class SubtitlePanel extends FileBotPanel {
 
 	private class SearchTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private SubtitleViewPanel subtitleSearchResultPanel;
-		private FileBotTabComponent tabComponent;
+		private FileBotTab<SubtitleDownloadPanel> downloadPanel;
 		
 		
 		@Override
 		public void started(PropertyChangeEvent evt) {
 			SearchTask task = (SearchTask) evt.getSource();
 			
-			subtitleSearchResultPanel = new SubtitleViewPanel();
-			tabComponent = new FileBotTabComponent(task.query, ResourceManager.getIcon("tab.loading"));
+			downloadPanel = new FileBotTab<SubtitleDownloadPanel>(new SubtitleDownloadPanel());
 			
-			tabbedPane.addTab(task.query, subtitleSearchResultPanel);
-			tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(subtitleSearchResultPanel), tabComponent);
+			downloadPanel.setTitle(task.query);
+			downloadPanel.setLoading(true);
+			downloadPanel.setIcon(task.client.getIcon());
+			
+			downloadPanel.addTo(tabbedPane);
 		}
 		
 
 		@Override
 		public void done(PropertyChangeEvent evt) {
 			// tab might have been closed
-			if (tabbedPane.indexOfComponent(subtitleSearchResultPanel) < 0)
+			if (downloadPanel.isClosed())
 				return;
 			
 			SearchTask searchTask = (SearchTask) evt.getSource();
@@ -185,18 +185,26 @@ public class SubtitlePanel extends FileBotPanel {
 				MovieDescriptor descriptor = selectDescriptor(desriptors, searchTask.client);
 				
 				if (descriptor == null) {
+					// user canceled selection, or no subtitles available
 					if (desriptors.isEmpty()) {
 						MessageManager.showWarning(String.format("\"%s\" has not been found.", searchTask.query));
 					}
 					
-					tabbedPane.remove(subtitleSearchResultPanel);
+					downloadPanel.close();
 					return;
 				}
 				
-				fetchSubtitles(descriptor, searchTask.client);
+				searchFieldCompletion.addTerm(descriptor.getTitle());
+				Settings.getSettings().putStringList(Settings.SUBTITLE_HISTORY, searchFieldCompletion.getTerms());
 				
+				downloadPanel.setTitle(descriptor.getTitle());
+				
+				FetchSubtitleListTask fetchListTask = new FetchSubtitleListTask(descriptor, searchTask.client);
+				fetchListTask.addPropertyChangeListener(new FetchSubtitleListTaskListener(downloadPanel));
+				
+				fetchListTask.execute();
 			} catch (Exception e) {
-				tabbedPane.remove(subtitleSearchResultPanel);
+				downloadPanel.close();
 				
 				Throwable cause = FileBotUtil.getRootCause(e);
 				
@@ -224,42 +232,27 @@ public class SubtitlePanel extends FileBotPanel {
 			selectDialog.setIconImage(client.getIcon().getImage());
 			selectDialog.setVisible(true);
 			
-			// selected value or null if cancelled by the user
+			// selected value or null if canceled by the user
 			return selectDialog.getSelectedValue();
 		}
 		
-
-		private void fetchSubtitles(MovieDescriptor descriptor, SubtitleClient client) {
-			
-			Settings.getSettings().putStringList(Settings.SUBTITLE_HISTORY, searchFieldCompletion.getTerms());
-			searchFieldCompletion.addTerm(descriptor.getTitle());
-			
-			tabComponent.setText(descriptor.getTitle());
-			
-			FetchSubtitleListTask fetchListTask = new FetchSubtitleListTask(descriptor, client);
-			fetchListTask.addPropertyChangeListener(new FetchSubtitleListTaskListener(subtitleSearchResultPanel, tabComponent));
-			
-			fetchListTask.execute();
-		}
 	}
 	
 
 	private class FetchSubtitleListTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private final SubtitleViewPanel subtitleSearchResultPanel;
-		private final FileBotTabComponent tabComponent;
+		private final FileBotTab<SubtitleDownloadPanel> downloadPanel;
 		
 		
-		public FetchSubtitleListTaskListener(SubtitleViewPanel subtitleSearchResultPanel, FileBotTabComponent tabComponent) {
-			this.subtitleSearchResultPanel = subtitleSearchResultPanel;
-			this.tabComponent = tabComponent;
+		public FetchSubtitleListTaskListener(FileBotTab<SubtitleDownloadPanel> downloadPanel) {
+			this.downloadPanel = downloadPanel;
 		}
 		
 
 		@Override
 		public void done(PropertyChangeEvent evt) {
 			// tab might have been closed
-			if (tabbedPane.indexOfComponent(subtitleSearchResultPanel) < 0)
+			if (downloadPanel.isClosed())
 				return;
 			
 			FetchSubtitleListTask task = (FetchSubtitleListTask) evt.getSource();
@@ -272,17 +265,17 @@ public class SubtitlePanel extends FileBotPanel {
 				historyPanel.add(task.getDescriptor().toString(), null, task.getClient().getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
 				
 				if (subtitleDescriptors.isEmpty()) {
-					tabbedPane.remove(subtitleSearchResultPanel);
+					MessageManager.showWarning(info);
+					downloadPanel.close();
 					return;
 				}
 				
-				tabComponent.setIcon(task.getClient().getIcon());
+				downloadPanel.setLoading(false);
 				
-				//TODO icon view
-				//TODO sysout
-				System.out.println(subtitleDescriptors);
+				downloadPanel.getComponent().getPackagePanel().setTitle(info);
+				downloadPanel.getComponent().addSubtitleDescriptors(subtitleDescriptors);
 			} catch (Exception e) {
-				tabbedPane.remove(subtitleSearchResultPanel);
+				downloadPanel.close();
 				
 				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

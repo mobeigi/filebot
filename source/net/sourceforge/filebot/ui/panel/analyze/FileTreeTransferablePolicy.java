@@ -23,12 +23,6 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Defaul
 	
 
 	@Override
-	protected boolean accept(File file) {
-		return file.isFile() || file.isDirectory();
-	}
-	
-
-	@Override
 	protected void clear() {
 		tree.clear();
 	}

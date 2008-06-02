@@ -50,7 +50,7 @@ class FileTreePanel extends JPanel {
 		return fileTree;
 	}
 	
-	private final LoadAction loadAction = new LoadAction(fileTree);
+	private final LoadAction loadAction = new LoadAction(fileTree.getTransferablePolicy());
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 		

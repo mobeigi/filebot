@@ -110,7 +110,7 @@ public abstract class FileTransferablePolicy implements TransferablePolicy {
 	
 
 	protected boolean accept(File file) {
-		return false;
+		return file.isFile() || file.isDirectory();
 	}
 	
 

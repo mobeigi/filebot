@@ -23,12 +23,6 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected boolean accept(File file) {
-		return file.isFile() || file.isDirectory();
-	}
-	
-
-	@Override
 	protected void clear() {
 		model.clear();
 	}

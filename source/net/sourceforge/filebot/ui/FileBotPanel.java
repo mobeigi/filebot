@@ -20,19 +20,21 @@ import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
 
 public class FileBotPanel extends JPanel {
 	
-	private static final List<FileBotPanel> registry = new ArrayList<FileBotPanel>();
-	
-	static {
-		registry.add(new ListPanel());
-		registry.add(new RenamePanel());
-		registry.add(new AnalyzePanel());
-		registry.add(new SearchPanel());
-		registry.add(new SubtitlePanel());
-		registry.add(new SfvPanel());
-	}
+	private static List<FileBotPanel> registry;
 	
 	
-	public static List<FileBotPanel> getAvailablePanels() {
+	public static synchronized List<FileBotPanel> getAvailablePanels() {
+		if (registry == null) {
+			registry = new ArrayList<FileBotPanel>(6);
+			
+			registry.add(new ListPanel());
+			registry.add(new RenamePanel());
+			registry.add(new AnalyzePanel());
+			registry.add(new SearchPanel());
+			registry.add(new SubtitlePanel());
+			registry.add(new SfvPanel());
+		}
+		
 		return Collections.unmodifiableList(registry);
 	}
 	

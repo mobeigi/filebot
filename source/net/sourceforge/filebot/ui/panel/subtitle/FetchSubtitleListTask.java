@@ -11,7 +11,7 @@ import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 
 
-class FetchSubtitleListTask extends SwingWorker<List<? extends SubtitleDescriptor>, Object> {
+class FetchSubtitleListTask extends SwingWorker<List<? extends SubtitleDescriptor>, Void> {
 	
 	private final SubtitleClient client;
 	private final MovieDescriptor descriptor;

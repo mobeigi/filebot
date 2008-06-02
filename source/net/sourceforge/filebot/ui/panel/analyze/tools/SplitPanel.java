@@ -111,7 +111,7 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	}
 	
 	
-	private class UpdateTask extends SwingWorker<DefaultTreeModel, Object> {
+	private class UpdateTask extends SwingWorker<DefaultTreeModel, Void> {
 		
 		private final Collection<File> files;
 		

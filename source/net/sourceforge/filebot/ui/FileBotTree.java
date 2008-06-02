@@ -26,15 +26,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
-import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
-public class FileBotTree extends JTree implements TransferablePolicySupport {
-	
-	private TransferablePolicy transferablePolicy = new NullTransferablePolicy();
-	
+public class FileBotTree extends JTree {
 	
 	public FileBotTree() {
 		super(new DefaultTreeModel(new DefaultMutableTreeNode()));
@@ -54,16 +48,6 @@ public class FileBotTree extends JTree implements TransferablePolicySupport {
 		
 		root.removeAllChildren();
 		model.reload(root);
-	}
-	
-
-	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		this.transferablePolicy = transferablePolicy;
-	}
-	
-
-	public TransferablePolicy getTransferablePolicy() {
-		return transferablePolicy;
 	}
 	
 

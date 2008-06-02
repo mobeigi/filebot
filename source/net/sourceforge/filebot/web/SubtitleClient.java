@@ -11,15 +11,17 @@ import javax.swing.ImageIcon;
 
 public abstract class SubtitleClient {
 	
-	private static final List<SubtitleClient> registry = new ArrayList<SubtitleClient>();
-	
-	static {
-		registry.add(new OpenSubtitlesSubtitleClient());
-		registry.add(new SubsceneSubtitleClient());
-	}
+	private static List<SubtitleClient> registry;
 	
 	
-	public static List<SubtitleClient> getAvailableSubtitleClients() {
+	public static synchronized List<SubtitleClient> getAvailableSubtitleClients() {
+		if (registry == null) {
+			registry = new ArrayList<SubtitleClient>(2);
+			
+			registry.add(new OpenSubtitlesSubtitleClient());
+			registry.add(new SubsceneSubtitleClient());
+		}
+		
 		return Collections.unmodifiableList(registry);
 	}
 	

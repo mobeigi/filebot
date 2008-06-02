@@ -42,8 +42,6 @@ public class TemporaryFolder {
 					for (TemporaryFolder folder : folders.values()) {
 						folder.delete();
 					}
-					
-					folders.clear();
 				}
 			}
 		});
@@ -57,6 +55,13 @@ public class TemporaryFolder {
 	}
 	
 
+	/**
+	 * Create an empty file in this temporary folder
+	 * 
+	 * @param name name of the file
+	 * @return newly created file
+	 * @throws IOException if an I/O error occurred
+	 */
 	public File createFile(String name) throws IOException {
 		if (!root.exists()) {
 			root.mkdir();
@@ -69,15 +74,37 @@ public class TemporaryFolder {
 	}
 	
 
-	public void deleteFile(String name) {
-		File file = new File(root, name);
-		
-		if (file.exists()) {
-			file.delete();
+	/**
+	 * Creates an empty file in this temporary folder, using the given prefix and suffix to
+	 * generate its name.
+	 * 
+	 * @param prefix The prefix string to be used in generating the file's name; must be at
+	 *            least three characters long
+	 * @param suffix The suffix string to be used in generating the file's name; may be null,
+	 *            in which case the suffix ".tmp" will be used
+	 * @return An abstract pathname denoting a newly-created empty file
+	 * @throws IOException If a file could not be created
+	 * @see File#createTempFile(String, String)
+	 */
+	public File createFile(String prefix, String suffix) throws IOException {
+		if (!root.exists()) {
+			root.mkdir();
 		}
+		
+		return File.createTempFile(prefix, suffix, root);
 	}
 	
 
+	public boolean deleteFile(String name) {
+		return new File(root, name).delete();
+	}
+	
+
+	/**
+	 * Retrieve the {@link File} object for this {@link TemporaryFolder}
+	 * 
+	 * @return the {@link File} object for this {@link TemporaryFolder}
+	 */
 	public File getFolder() {
 		return root;
 	}

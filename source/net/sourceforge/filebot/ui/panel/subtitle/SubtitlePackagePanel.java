@@ -20,25 +20,23 @@ import java.util.TreeSet;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
-import javax.swing.JToolTip;
 import javax.swing.ListModel;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.ui.IconViewPanel;
 import net.sourceforge.tuned.ui.SimpleListModel;
 
 
-public class SubtitleViewPanel extends IconViewPanel {
+public class SubtitlePackagePanel extends IconViewPanel {
+	
+	private final JPanel languageFilterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 1));
 	
 	private ListModel unfilteredModel = new SimpleListModel();
-	private JPanel languageFilterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 1));
-	
 	private Map<String, Boolean> languageFilterSelection = new TreeMap<String, Boolean>(String.CASE_INSENSITIVE_ORDER);
 	
 	
-	public SubtitleViewPanel() {
+	public SubtitlePackagePanel() {
 		setCellRenderer(new SubtitleCellRenderer());
 		
 		languageFilterPanel.setOpaque(false);
@@ -71,7 +69,7 @@ public class SubtitleViewPanel extends IconViewPanel {
 		SortedSet<String> languages = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		
 		for (int i = 0; i < unfilteredModel.getSize(); i++) {
-			SubtitleDescriptor subtitle = (SubtitleDescriptor) unfilteredModel.getElementAt(i);
+			SubtitlePackage subtitle = (SubtitlePackage) unfilteredModel.getElementAt(i);
 			languages.add(subtitle.getLanguageName());
 		}
 		
@@ -90,7 +88,7 @@ public class SubtitleViewPanel extends IconViewPanel {
 		SimpleListModel model = new SimpleListModel();
 		
 		for (int i = 0; i < unfilteredModel.getSize(); i++) {
-			SubtitleDescriptor subtitle = (SubtitleDescriptor) unfilteredModel.getElementAt(i);
+			SubtitlePackage subtitle = (SubtitlePackage) unfilteredModel.getElementAt(i);
 			
 			if (isLanguageSelected(subtitle.getLanguageName())) {
 				model.add(subtitle);
@@ -103,6 +101,12 @@ public class SubtitleViewPanel extends IconViewPanel {
 
 	public boolean isLanguageSelected(String language) {
 		return !languageFilterSelection.containsKey(language) || languageFilterSelection.get(language);
+	}
+	
+
+	public void setLanguageSelected(String language, boolean selected) {
+		languageFilterSelection.put(language, selected);
+		Settings.getSettings().putBooleanMapEntry(Settings.SUBTITLE_LANGUAGE, language, selected);
 	}
 	
 
@@ -132,8 +136,7 @@ public class SubtitleViewPanel extends IconViewPanel {
 		public void itemStateChanged(ItemEvent e) {
 			boolean selected = (e.getStateChange() == ItemEvent.SELECTED);
 			
-			languageFilterSelection.put(language, selected);
-			Settings.getSettings().putBooleanMapEntry(Settings.SUBTITLE_LANGUAGE, language, selected);
+			setLanguageSelected(language, selected);
 			
 			updateFilteredModel();
 		}
@@ -170,19 +173,15 @@ public class SubtitleViewPanel extends IconViewPanel {
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2d = (Graphics2D) g;
 			
-			AlphaComposite composite = AlphaComposite.SrcOver.derive(isSelected() ? 1.0f : 0.2f);
-			g2d.setComposite(composite);
+			// make transparent if not selected
+			if (!isSelected()) {
+				AlphaComposite composite = AlphaComposite.SrcOver.derive(0.2f);
+				g2d.setComposite(composite);
+			}
 			
 			super.paintComponent(g2d);
 		}
 		
-	}
-	
-	
-	@Override
-	public JToolTip createToolTip() {
-		System.out.println("SubtitleViewPanel.createToolTip()");
-		return super.createToolTip();
 	}
 	
 }

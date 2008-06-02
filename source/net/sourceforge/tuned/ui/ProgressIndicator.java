@@ -1,6 +1,10 @@
+
 package net.sourceforge.tuned.ui;
+
+
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,14 +30,15 @@ public class ProgressIndicator extends JComponent {
 	private int indeterminateShapeCount = 1;
 	
 	private float progressStrokeWidth = 4.5f;
-	private float remainingStrokeWidth = 2.5f;
+	private float remainingStrokeWidth = 2f;
 	
 	private Stroke progressStroke = new BasicStroke(progressStrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	private Stroke remainingStroke = new BasicStroke(remainingStrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	
 	private Color progressColor = Color.orange;
 	private Color remainingColor = new Color(0f, 0f, 0f, 0.25f);
-	private Color textColor = new Color(42, 42, 42);
+	
+	private Color textColor = new Color(0x5F5F5F);
 	
 	private boolean paintText = true;
 	private boolean paintBackground = false;
@@ -41,6 +46,8 @@ public class ProgressIndicator extends JComponent {
 	private final Rectangle2D frame = new Rectangle2D.Double();
 	private final Arc2D arc = new Arc2D.Double();
 	private final Ellipse2D circle = new Ellipse2D.Double();
+	
+	private final Dimension baseSize = new Dimension(32, 32);
 	
 	
 	public ProgressIndicator() {
@@ -53,7 +60,7 @@ public class ProgressIndicator extends JComponent {
 		
 		indeterminate = (model == null);
 		
-		setFont(new Font(Font.DIALOG, Font.PLAIN, 8));
+		setFont(new Font(Font.DIALOG, Font.BOLD, 8));
 	}
 	
 
@@ -69,20 +76,25 @@ public class ProgressIndicator extends JComponent {
 	
 
 	@Override
-	public void paint(Graphics g) {
+	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
+		
+		double a = Math.min(getWidth(), getHeight());
+		
+		g2d.scale(a / baseSize.width, a / baseSize.height);
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		if (paintBackground) {
-			frame.setFrame(0, 0, getWidth(), getHeight());
+			frame.setFrame(0, 0, baseSize.width, baseSize.height);
 			
 			g2d.setPaint(getBackground());
 			circle.setFrame(frame);
 			g2d.fill(circle);
 		}
 		
-		frame.setFrame(progressStrokeWidth, progressStrokeWidth, getWidth() - progressStrokeWidth * 2 - 1, getHeight() - progressStrokeWidth * 2 - 1);
+		double inset = Math.max(Math.max(remainingStrokeWidth, progressStrokeWidth), indeterminateRadius);
+		frame.setFrame(inset, inset, baseSize.width - inset * 2 - 1, baseSize.height - inset * 2 - 1);
 		
 		if (!indeterminate) {
 			paintProgress(g2d);

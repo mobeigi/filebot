@@ -13,19 +13,19 @@ import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 public class LoadAction extends AbstractAction {
 	
-	private TransferablePolicySupport transferablePolicySupport;
+	private final TransferablePolicy transferablePolicy;
 	
 	
-	public LoadAction(TransferablePolicySupport transferablePolicySupport) {
+	public LoadAction(TransferablePolicy transferablePolicy) {
 		super("Load", ResourceManager.getIcon("action.load"));
-		this.transferablePolicySupport = transferablePolicySupport;
+		this.transferablePolicy = transferablePolicy;
 	}
 	
 
 	public void actionPerformed(ActionEvent e) {
 		JFileChooser chooser = new JFileChooser();
 		
-		chooser.setFileFilter(new TransferablePolicyFileFilter(transferablePolicySupport.getTransferablePolicy()));
+		chooser.setFileFilter(new TransferablePolicyFileFilter(transferablePolicy));
 		
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		chooser.setMultiSelectionEnabled(true);
@@ -34,8 +34,6 @@ public class LoadAction extends AbstractAction {
 			return;
 		
 		FileTransferable transferable = new FileTransferable(chooser.getSelectedFiles());
-		
-		TransferablePolicy transferablePolicy = transferablePolicySupport.getTransferablePolicy();
 		
 		boolean add = ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0);
 		

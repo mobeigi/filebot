@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
 
@@ -71,8 +72,7 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(url);
 		
-		String downloadPath = XPathUtil.selectString("id('aspnetForm')/@action", dom);
-		String viewstate = XPathUtil.selectString("id('__VIEWSTATE')/@value", dom);
+		Pattern hrefPattern = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', '0', '(\\d+)'\\);");
 		
 		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", dom);
 		
@@ -88,15 +88,20 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 				String name = XPathUtil.selectString("./SPAN[2]", linkNode);
 				
 				int numberOfCDs = Integer.parseInt(XPathUtil.selectString("./TD[2]", node));
-				boolean hearingImpaired = XPathUtil.selectFirstNode("./TD[3]/*[@id='imgEar']", node) != null;
+				boolean hearingImpaired = (XPathUtil.selectFirstNode("./TD[3]/*[@id='imgEar']", node) != null);
 				String author = XPathUtil.selectString("./TD[4]", node);
 				
-				URL downloadUrl = new URL("http", host, downloadPath);
+				Matcher matcher = hrefPattern.matcher(href);
 				
-				Map<String, String> downloadParameters = parseParameters(href);
-				downloadParameters.put("__VIEWSTATE", viewstate);
+				if (!matcher.matches())
+					throw new IllegalArgumentException("Cannot extract download parameters: " + href);
 				
-				list.add(new SubsceneSubtitleDescriptor(name, lang, numberOfCDs, author, hearingImpaired, downloadUrl, downloadParameters));
+				String subtitleId = matcher.group(1);
+				String typeId = matcher.group(2);
+				
+				URL downloadUrl = getDownloadUrl(url, subtitleId, typeId);
+				
+				list.add(new SubsceneSubtitleDescriptor(name, lang, numberOfCDs, author, hearingImpaired, typeId, downloadUrl, url));
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse subtitle node", e);
 			}
@@ -106,19 +111,11 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 	}
 	
 
-	private Map<String, String> parseParameters(String href) {
-		Matcher matcher = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', '0', '(\\d+)'\\);").matcher(href);
+	private URL getDownloadUrl(URL referer, String subtitleId, String typeId) throws MalformedURLException {
+		String basePath = FileFormat.getNameWithoutExtension(referer.getFile());
+		String path = String.format("%s-dlpath-%s/%s.zipx", basePath, subtitleId, typeId);
 		
-		if (!matcher.matches())
-			throw new IllegalArgumentException("Cannot extract download parameters: " + href);
-		
-		Map<String, String> map = new HashMap<String, String>();
-		
-		map.put("subtitleId", matcher.group(1));
-		map.put("typeId", matcher.group(2));
-		map.put("filmId", matcher.group(3));
-		
-		return map;
+		return new URL(referer.getProtocol(), referer.getHost(), path);
 	}
 	
 

@@ -25,7 +25,7 @@ import net.sourceforge.filebot.ui.transfer.LoadAction;
 class RenameList extends FileBotList {
 	
 	public RenameList() {
-		super(true, false, true);
+		super(false, true, true);
 		
 		Box buttons = Box.createHorizontalBox();
 		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -86,7 +86,7 @@ class RenameList extends FileBotList {
 		}
 	};
 	
-	protected final LoadAction loadAction = new LoadAction(this);
+	protected final LoadAction loadAction = new LoadAction(getTransferablePolicy());
 	
 	private MouseAdapter dndReorderMouseAdapter = new MouseAdapter() {
 		

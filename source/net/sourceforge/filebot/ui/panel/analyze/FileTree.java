@@ -20,6 +20,7 @@ import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
+import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
 class FileTree extends FileBotTree {
@@ -29,13 +30,19 @@ class FileTree extends FileBotTree {
 	
 	private PostProcessor postProcessor;
 	
+	private final FileTreeTransferablePolicy transferablePolicy;
+	
 	
 	public FileTree() {
-		FileTreeTransferablePolicy transferPolicy = new FileTreeTransferablePolicy(this);
-		transferPolicy.addPropertyChangeListener(LOADING_PROPERTY, new LoadingPropertyChangeListener());
+		transferablePolicy = new FileTreeTransferablePolicy(this);
+		transferablePolicy.addPropertyChangeListener(LOADING_PROPERTY, new LoadingPropertyChangeListener());
 		
-		setTransferablePolicy(transferPolicy);
-		setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(this), null));
+		setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(transferablePolicy), null));
+	}
+	
+
+	public TransferablePolicy getTransferablePolicy() {
+		return transferablePolicy;
 	}
 	
 
@@ -64,14 +71,14 @@ class FileTree extends FileBotTree {
 	public void load(List<File> files) {
 		FileTransferable tr = new FileTransferable(files);
 		
-		if (getTransferablePolicy().accept(tr))
-			getTransferablePolicy().handleTransferable(tr, true);
+		if (transferablePolicy.accept(tr))
+			transferablePolicy.handleTransferable(tr, true);
 	}
 	
 
 	@Override
 	public void clear() {
-		((FileTreeTransferablePolicy) getTransferablePolicy()).reset();
+		transferablePolicy.reset();
 		
 		super.clear();
 		contentChanged();
@@ -105,7 +112,7 @@ class FileTree extends FileBotTree {
 	}
 	
 
-	private class PostProcessor extends SwingWorker<List<File>, Object> {
+	private class PostProcessor extends SwingWorker<List<File>, Void> {
 		
 		@Override
 		protected List<File> doInBackground() throws Exception {

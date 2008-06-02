@@ -10,7 +10,7 @@ import java.util.zip.CheckedInputStream;
 import javax.swing.SwingWorker;
 
 
-public class ChecksumComputationTask extends SwingWorker<Long, Object> {
+public class ChecksumComputationTask extends SwingWorker<Long, Void> {
 	
 	private static final int BUFFER_SIZE = 32 * 1024;
 	

@@ -7,13 +7,14 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow.State;
 
 
-public class StateIconTableCellRenderer extends TextTableCellRenderer {
+public class StateIconTableCellRenderer extends DefaultTableCellRenderer {
 	
 	private Icon warning = ResourceManager.getIcon("status.warning");
 	private Icon error = ResourceManager.getIcon("status.error");
@@ -45,8 +46,6 @@ public class StateIconTableCellRenderer extends TextTableCellRenderer {
 				break;
 			case UNKNOWN:
 				setIcon(unknown);
-				break;
-			default:
 				break;
 		}
 		

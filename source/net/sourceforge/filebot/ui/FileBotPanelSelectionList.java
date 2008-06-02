@@ -33,15 +33,10 @@ class FileBotPanelSelectionList extends JList {
 		
 		setBorder(new EmptyBorder(4, 5, 4, 5));
 		
+		// initialize "drag over" panel selection
 		new DropTarget(this, new DragDropListener());
 		
-		SimpleListModel model = new SimpleListModel();
-		
-		for (FileBotPanel panel : FileBotPanel.getAvailablePanels()) {
-			model.add(panel);
-		}
-		
-		setModel(model);
+		setModel(new SimpleListModel(FileBotPanel.getAvailablePanels()));
 	}
 	
 	
@@ -110,6 +105,7 @@ class FileBotPanelSelectionList extends JList {
 		}
 		
 
+		@Override
 		public void drop(DropTargetDropEvent dtde) {
 			
 		}

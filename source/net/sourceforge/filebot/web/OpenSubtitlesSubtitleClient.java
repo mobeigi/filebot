@@ -13,7 +13,7 @@ import net.sourceforge.filebot.resources.ResourceManager;
 
 
 /**
- * Client for the OpenSubtitles XML-RPC API.
+ * {@link SubtitleClient} for OpenSubtitles.
  * 
  */
 public class OpenSubtitlesSubtitleClient extends SubtitleClient {
@@ -32,7 +32,7 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 
 	@Override
 	public List<MovieDescriptor> search(String query) throws Exception {
-		activate();
+		login();
 		
 		return client.searchMoviesOnIMDB(query);
 	}
@@ -40,39 +40,45 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 
 	@Override
 	public List<OpenSubtitlesSubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws Exception {
-		activate();
+		login();
 		
 		return client.searchSubtitles(descriptor.getImdbId());
 	}
 	
 
-	private synchronized void activate() {
-		try {
-			if (!client.isLoggedOn()) {
-				client.loginAnonymous();
-			}
-		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+	private synchronized void login() throws Exception {
+		if (!client.isLoggedOn()) {
+			client.loginAnonymous();
 		}
 		
 		logoutTimer.restart();
 	}
 	
+
+	private synchronized void logout() {
+		logoutTimer.stop();
+		
+		if (client.isLoggedOn()) {
+			try {
+				client.logout();
+			} catch (Exception e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating session", e);
+			}
+		}
+	}
+	
 	private final Runnable doLogout = new Runnable() {
 		
+		@Override
 		public void run() {
-			logoutTimer.stop();
-			
-			if (client.isLoggedOn()) {
-				client.logout();
-			}
+			logout();
 		}
 	};
 	
 	
 	private class LogoutTimer {
 		
-		private static final int LOGOUT_DELAY = 15000; // 12 minutes
+		private final long LOGOUT_DELAY = 12 * 60 * 1000; // 12 minutes
 		
 		private Timer daemon = null;
 		private LogoutTimerTask currentTimerTask = null;
@@ -85,7 +91,6 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 			
 			if (currentTimerTask != null) {
 				currentTimerTask.cancel();
-				daemon.purge();
 			}
 			
 			currentTimerTask = new LogoutTimerTask();
@@ -109,7 +114,7 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 			
 			@Override
 			public void run() {
-				doLogout.run();
+				logout();
 			};
 		};
 	}

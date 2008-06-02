@@ -8,7 +8,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -181,41 +180,20 @@ public class SearchPanel extends FileBotPanel {
 	
 	private final SaveAction saveAction = new SaveAction(null) {
 		
-		private Saveable current;
-		
-		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Component c = tabbedPane.getSelectedComponent();
 			
 			if (c instanceof Saveable) {
-				current = (Saveable) c;
+				setSaveable((Saveable) c);
 				super.actionPerformed(e);
 			}
 		}
 		
-
-		@Override
-		protected boolean isSaveable() {
-			return current.isSaveable();
-		}
-		
-
-		@Override
-		protected String getDefaultFileName() {
-			return current.getDefaultFileName();
-		}
-		
-
-		@Override
-		protected void save(File file) {
-			current.save(file);
-			current = null;
-		}
 	};
 	
 	
-	private class SearchTask extends SwingWorker<List<String>, Object> {
+	private class SearchTask extends SwingWorker<List<String>, Void> {
 		
 		private String query;
 		private EpisodeListClient client;

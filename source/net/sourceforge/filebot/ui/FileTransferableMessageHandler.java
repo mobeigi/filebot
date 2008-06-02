@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
+import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.tuned.MessageBus;
 import net.sourceforge.tuned.MessageHandler;
 
@@ -18,18 +18,17 @@ import net.sourceforge.tuned.MessageHandler;
 public class FileTransferableMessageHandler implements MessageHandler {
 	
 	private final String name;
-	private final TransferablePolicySupport transferablePolicySupport;
+	private final TransferablePolicy transferablePolicy;
 	
 	
-	public FileTransferableMessageHandler(String name, TransferablePolicySupport transferablePolicySupport) {
+	public FileTransferableMessageHandler(String name, TransferablePolicy transferablePolicy) {
 		this.name = name;
-		this.transferablePolicySupport = transferablePolicySupport;
+		this.transferablePolicy = transferablePolicy;
 	}
 	
 
 	@Override
 	public void handle(String topic, String... messages) {
-		
 		// change panel
 		MessageBus.getDefault().publish("panel", name);
 		
@@ -50,6 +49,6 @@ public class FileTransferableMessageHandler implements MessageHandler {
 			}
 		}
 		
-		transferablePolicySupport.getTransferablePolicy().handleTransferable(new FileTransferable(files), true);
+		transferablePolicy.handleTransferable(new FileTransferable(files), true);
 	}
 }

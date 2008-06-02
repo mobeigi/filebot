@@ -20,7 +20,7 @@ public class LanguageResolver {
 	
 	
 	/**
-	 * Get the locale for a language.
+	 * Get the {@link Locale} for a given language name (e.g. "german").
 	 * 
 	 * @param languageName english name of the language
 	 * @return the locale for this language or null if no locale for this language exists
@@ -56,6 +56,13 @@ public class LanguageResolver {
 	}
 	
 
+	/**
+	 * Find the {@link Locale} for a given language name.
+	 * 
+	 * @param languageName lower-case language name
+	 * @return {@link Locale} for the given language, or null if no matching {@link Locale} is
+	 *         available
+	 */
 	private Locale findLocale(String languageName) {
 		for (Locale locale : Locale.getAvailableLocales()) {
 			if (locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase().equals(languageName))

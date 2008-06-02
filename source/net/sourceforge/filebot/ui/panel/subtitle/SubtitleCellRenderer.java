@@ -12,8 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.SwingConstants;
 
-import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.ui.ColorTintImageFilter;
 import net.sourceforge.tuned.ui.IconViewCellRenderer;
 
@@ -44,18 +42,17 @@ public class SubtitleCellRenderer extends IconViewCellRenderer {
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		SubtitleDescriptor subtitle = (SubtitleDescriptor) value;
+		SubtitlePackage subtitle = (SubtitlePackage) value;
 		
 		setText(subtitle.getName());
 		
 		info1.setText(subtitle.getLanguageName());
-		info2.setText(subtitle.getAuthor());
 		
-		icon = (ResourceManager.getFlagIcon(LanguageResolver.getDefault().getLocale(subtitle.getLanguageName()).getLanguage()));
+		icon = subtitle.getLanguageIcon();
 		
 		info1.setIcon(icon);
 		
-		ImageIcon icon = ResourceManager.getArchiveIcon(subtitle.getArchiveType());
+		ImageIcon icon = subtitle.getArchiveIcon();
 		
 		if (isSelected) {
 			setIcon(new ImageIcon(createImage(new FilteredImageSource(icon.getImage().getSource(), new ColorTintImageFilter(list.getSelectionBackground(), 0.5f)))));

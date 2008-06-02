@@ -63,7 +63,7 @@ public class SfvPanel extends FileBotPanel {
 		// Shortcut DELETE
 		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), sfvTable));
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), sfvTable.getTransferablePolicy()));
 	}
 	
 	private final SaveAction saveAction = new SaveAction(sfvTable) {
@@ -141,7 +141,7 @@ public class SfvPanel extends FileBotPanel {
 		}
 	};
 	
-	private final LoadAction loadAction = new LoadAction(sfvTable);
+	private final LoadAction loadAction = new LoadAction(sfvTable.getTransferablePolicy());
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 		

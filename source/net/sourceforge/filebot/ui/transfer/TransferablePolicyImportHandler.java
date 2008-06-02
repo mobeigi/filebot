@@ -10,15 +10,16 @@ import java.util.logging.Logger;
 import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
 
+import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
 public class TransferablePolicyImportHandler implements ImportHandler {
 	
-	private TransferablePolicySupport transferablePolicySupport;
+	private final TransferablePolicy transferablePolicy;
 	
 	
-	public TransferablePolicyImportHandler(TransferablePolicySupport transferablePolicySupport) {
-		this.transferablePolicySupport = transferablePolicySupport;
+	public TransferablePolicyImportHandler(TransferablePolicy transferablePolicy) {
+		this.transferablePolicy = transferablePolicy;
 	}
 	
 	private boolean canImportCache = false;
@@ -32,7 +33,7 @@ public class TransferablePolicyImportHandler implements ImportHandler {
 		Transferable t = support.getTransferable();
 		
 		try {
-			canImportCache = transferablePolicySupport.getTransferablePolicy().accept(t);
+			canImportCache = transferablePolicy.accept(t);
 		} catch (InvalidDnDOperationException e) {
 			// for some reason the last transferable has no drop current
 		}
@@ -51,7 +52,7 @@ public class TransferablePolicyImportHandler implements ImportHandler {
 		Transferable t = support.getTransferable();
 		
 		try {
-			transferablePolicySupport.getTransferablePolicy().handleTransferable(t, add);
+			transferablePolicy.handleTransferable(t, add);
 		} catch (Exception e) {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}

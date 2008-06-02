@@ -62,7 +62,7 @@ public class AnalyzePanel extends FileBotPanel {
 		
 		fileTreePanel.getFileTree().addPropertyChangeListener(FileTree.CONTENT_PROPERTY, fileTreeChangeListener);
 		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), fileTreePanel.getFileTree()));
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), fileTreePanel.getFileTree().getTransferablePolicy()));
 	}
 	
 

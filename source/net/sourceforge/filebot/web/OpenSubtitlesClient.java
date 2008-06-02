@@ -35,9 +35,9 @@ public class OpenSubtitlesClient {
 	 * </tr>
 	 * </table>
 	 */
-	private String url = "http://www.opensubtitles.org/xml-rpc";
+	private final String url = "http://www.opensubtitles.org/xml-rpc";
 	
-	private String useragent;
+	private final String useragent;
 	
 	private String token = null;
 	
@@ -57,6 +57,13 @@ public class OpenSubtitlesClient {
 	}
 	
 
+	/**
+	 * Login as user and use english as language
+	 * 
+	 * @param username
+	 * @param password
+	 * @throws XmlRpcFault
+	 */
 	public void login(String username, String password) throws XmlRpcFault {
 		login(username, password, "en");
 	}
@@ -85,19 +92,20 @@ public class OpenSubtitlesClient {
 	/**
 	 * This will logout user (ends session id). Good call this function is before ending
 	 * (closing) clients program.
+	 * 
+	 * @throws XmlRpcFault
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized void logout() {
-		
-		// anonymous users will always get a 401 Unauthorized when trying to logout
+	public synchronized void logout() throws XmlRpcFault {
 		try {
-			Map<String, String> response = (Map<String, String>) invoke("LogOut", token);
-			checkStatus(response.get("status"));
-		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating session", e);
+			invoke("LogOut", token);
+			
+			// anonymous users will always get a 401 Unauthorized when trying to logout
+			// do not check status for logout response
+			// checkStatus(response.get("status"));
+		} finally {
+			token = null;
 		}
-		
-		token = null;
 	}
 	
 

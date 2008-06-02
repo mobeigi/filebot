@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.search;
 
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
@@ -19,11 +20,11 @@ public class EpisodeListPanel extends FileBotList {
 	
 	
 	public EpisodeListPanel() {
-		super(false, true, true, false);
+		super(true, true, false);
 	}
 	
 
-	public FileBotTabComponent getTabComponent() {
+	public JComponent getTabComponent() {
 		return tabComponent;
 	}
 	

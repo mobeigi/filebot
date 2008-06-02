@@ -43,6 +43,11 @@ public class SaveAction extends AbstractAction {
 	}
 	
 
+	protected void setSaveable(Saveable saveable) {
+		this.saveable = saveable;
+	}
+	
+
 	public void actionPerformed(ActionEvent e) {
 		if (!isSaveable())
 			return;

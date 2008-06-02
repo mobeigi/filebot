@@ -20,12 +20,12 @@ public class Unrar {
 	private static final int sleepInterval = 50;
 	
 	
-	public static void extractFiles(File archive, File destination) throws Exception {
+	public static void extractFiles(File archiveFile, File destinationFolder) throws Exception {
 		if (command == null) {
 			throw new IllegalStateException("Unrar could not be initialized");
 		}
 		
-		Process process = command.execute(archive, destination);
+		Process process = command.execute(archiveFile, destinationFolder);
 		
 		int counter = 0;
 		
@@ -117,7 +117,15 @@ public class Unrar {
 			ProcessBuilder builder = new ProcessBuilder(executable, "x", "-y", archive.getAbsolutePath());
 			builder.directory(workingDirectory);
 			
-			return builder.start();
+			Process process = builder.start();
+			
+			// make sure process is non-interactive
+			// e.g. if input stream is not closed 7z.exe sometimes doesn't exit 
+			process.getInputStream().close();
+			process.getOutputStream().close();
+			process.getErrorStream().close();
+			
+			return process;
 		}
 		
 

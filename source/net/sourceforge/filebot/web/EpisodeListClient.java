@@ -12,16 +12,18 @@ import javax.swing.ImageIcon;
 
 public abstract class EpisodeListClient {
 	
-	private static final List<EpisodeListClient> registry = new ArrayList<EpisodeListClient>();
-	
-	static {
-		registry.add(new TvdotcomClient());
-		registry.add(new AnidbClient());
-		registry.add(new TVRageClient());
-	}
+	private static List<EpisodeListClient> registry;
 	
 	
-	public static List<EpisodeListClient> getAvailableEpisodeListClients() {
+	public static synchronized List<EpisodeListClient> getAvailableEpisodeListClients() {
+		if (registry == null) {
+			registry = new ArrayList<EpisodeListClient>(3);
+			
+			registry.add(new TvdotcomClient());
+			registry.add(new AnidbClient());
+			registry.add(new TVRageClient());
+		}
+		
 		return Collections.unmodifiableList(registry);
 	}
 	

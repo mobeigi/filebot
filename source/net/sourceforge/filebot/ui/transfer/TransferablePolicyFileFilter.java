@@ -13,7 +13,7 @@ import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 public class TransferablePolicyFileFilter extends FileFilter {
 	
-	private TransferablePolicy transferablePolicy;
+	private final TransferablePolicy transferablePolicy;
 	
 	
 	public TransferablePolicyFileFilter(TransferablePolicy transferablePolicy) {

@@ -28,12 +28,6 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	
 
 	@Override
-	protected boolean accept(File file) {
-		return file.isFile() || file.isDirectory();
-	}
-	
-
-	@Override
 	protected void clear() {
 		tableModel.clear();
 	}

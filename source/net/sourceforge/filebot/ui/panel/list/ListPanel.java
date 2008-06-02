@@ -39,7 +39,7 @@ public class ListPanel extends FileBotPanel {
 	private FileBotList list = new FileBotList(true, true, true);
 	
 	private SaveAction saveAction = new SaveAction(list);
-	private LoadAction loadAction = new LoadAction(list);
+	private LoadAction loadAction = new LoadAction(list.getTransferablePolicy());
 	
 	private JTextField textField = new JTextField(String.format("Name - %s", INDEX_VARIABLE), 25);
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
@@ -90,7 +90,7 @@ public class ListPanel extends FileBotPanel {
 		
 		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), list));
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), list.getTransferablePolicy()));
 	}
 	
 

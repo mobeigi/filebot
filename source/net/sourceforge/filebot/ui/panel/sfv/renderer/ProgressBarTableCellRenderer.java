@@ -6,10 +6,10 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 import net.sourceforge.filebot.ui.panel.sfv.Checksum;
@@ -17,17 +17,17 @@ import net.sourceforge.filebot.ui.panel.sfv.Checksum;
 
 public class ProgressBarTableCellRenderer extends JPanel implements TableCellRenderer {
 	
-	private JProgressBar progressBar = new JProgressBar(0, 100);
+	private final JProgressBar progressBar = new JProgressBar(0, 100);
 	
 	
 	public ProgressBarTableCellRenderer() {
 		super(new BorderLayout());
 		
 		progressBar.setStringPainted(true);
+		
 		add(progressBar, BorderLayout.CENTER);
 		
-		int margin = 2;
-		setBorder(BorderFactory.createEmptyBorder(margin, margin, margin, margin));
+		setBorder(new EmptyBorder(2, 2, 2, 2));
 	}
 	
 
@@ -50,6 +50,7 @@ public class ProgressBarTableCellRenderer extends JPanel implements TableCellRen
 	/**
 	 * Overridden for performance reasons.
 	 */
+	@Override
 	public void repaint(long tm, int x, int y, int width, int height) {
 	}
 	
@@ -57,6 +58,7 @@ public class ProgressBarTableCellRenderer extends JPanel implements TableCellRen
 	/**
 	 * Overridden for performance reasons.
 	 */
+	@Override
 	public void repaint(Rectangle r) {
 	}
 	
@@ -64,6 +66,7 @@ public class ProgressBarTableCellRenderer extends JPanel implements TableCellRen
 	/**
 	 * Overridden for performance reasons.
 	 */
+	@Override
 	public void repaint() {
 	}
 	
@@ -71,6 +74,7 @@ public class ProgressBarTableCellRenderer extends JPanel implements TableCellRen
 	/**
 	 * Overridden for performance reasons.
 	 */
+	@Override
 	public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
 	}
 	

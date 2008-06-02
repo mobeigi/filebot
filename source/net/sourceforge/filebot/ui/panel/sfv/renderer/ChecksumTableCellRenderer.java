@@ -5,13 +5,14 @@ package net.sourceforge.filebot.ui.panel.sfv.renderer;
 import java.awt.Component;
 
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sourceforge.filebot.ui.panel.sfv.Checksum;
 
 
-public class ChecksumTableCellRenderer extends TextTableCellRenderer {
+public class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 	
-	private ProgressBarTableCellRenderer progressBarRenderer = new ProgressBarTableCellRenderer();
+	private final ProgressBarTableCellRenderer progressBarRenderer = new ProgressBarTableCellRenderer();
 	
 	
 	@Override

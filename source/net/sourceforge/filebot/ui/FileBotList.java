@@ -22,35 +22,28 @@ import javax.swing.border.TitledBorder;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.ExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
-import net.sourceforge.filebot.ui.transfer.ImportHandler;
 import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
-import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
+import net.sourceforge.filebot.ui.transferablepolicies.MutableTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.SimpleListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
-public class FileBotList extends JPanel implements Saveable, TransferablePolicySupport {
+public class FileBotList extends JPanel implements Saveable {
 	
-	private JList list = new JList(new SimpleListModel());
+	private final JList list = new JList(new SimpleListModel());
 	
-	private TitledBorder titledBorder;
+	private final MutableTransferablePolicy mutableTransferablePolicy = new MutableTransferablePolicy();
+	
+	private final TitledBorder titledBorder;
 	
 	private String title;
 	
-	private TransferablePolicy transferablePolicy = new NullTransferablePolicy();
 	
-	
-	public FileBotList(boolean enableDrop, boolean enableDrag, boolean enableRemoveAction) {
-		this(enableDrop, enableDrag, enableRemoveAction, true);
-	}
-	
-
-	public FileBotList(boolean enableImport, boolean enableExport, boolean enableRemoveAction, boolean border) {
+	public FileBotList(boolean enableExport, boolean enableRemoveAction, boolean border) {
 		super(new BorderLayout());
 		
 		JScrollPane listScrollPane = new JScrollPane(list);
@@ -59,6 +52,7 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 			titledBorder = new TitledBorder("");
 			setBorder(titledBorder);
 		} else {
+			titledBorder = null;
 			listScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		}
 		
@@ -67,16 +61,12 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		
 		add(listScrollPane, BorderLayout.CENTER);
 		
-		ImportHandler importHander = null;
 		ExportHandler exportHandler = null;
-		
-		if (enableImport)
-			importHander = new TransferablePolicyImportHandler(this);
 		
 		if (enableExport)
 			exportHandler = new SaveableExportHandler(this);
 		
-		list.setTransferHandler(new DefaultTransferHandler(importHander, exportHandler));
+		list.setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(mutableTransferablePolicy), exportHandler));
 		list.setDragEnabled(enableExport);
 		
 		if (enableRemoveAction) {
@@ -92,12 +82,12 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 	
 
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		this.transferablePolicy = transferablePolicy;
+		mutableTransferablePolicy.setTransferablePolicy(transferablePolicy);
 	}
 	
 
 	public TransferablePolicy getTransferablePolicy() {
-		return transferablePolicy;
+		return mutableTransferablePolicy;
 	}
 	
 
@@ -112,10 +102,8 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 		if (titledBorder != null)
 			titledBorder.setTitle(title);
 		
-		if (isVisible()) {
-			revalidate();
-			repaint();
-		}
+		revalidate();
+		repaint();
 	}
 	
 
@@ -153,8 +141,8 @@ public class FileBotList extends JPanel implements Saveable, TransferablePolicyS
 	public void load(List<File> files) {
 		FileTransferable tr = new FileTransferable(files);
 		
-		if (transferablePolicy.accept(tr))
-			transferablePolicy.handleTransferable(tr, false);
+		if (mutableTransferablePolicy.accept(tr))
+			mutableTransferablePolicy.handleTransferable(tr, false);
 	}
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {

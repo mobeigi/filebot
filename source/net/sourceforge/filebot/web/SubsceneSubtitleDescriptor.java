@@ -3,7 +3,6 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URL;
-import java.util.Map;
 
 import net.sourceforge.tuned.DownloadTask;
 
@@ -16,19 +15,23 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private final String author;
 	private final boolean hearingImpaired;
 	
-	private final Map<String, String> downloadParameters;
+	private final String typeId;
+	
 	private final URL downloadUrl;
+	private final URL referer;
 	
 	
-	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, boolean hearingImpaired, URL downloadUrl, Map<String, String> downloadParameters) {
+	public SubsceneSubtitleDescriptor(String title, String language, int numberOfCDs, String author, boolean hearingImpaired, String typeId, URL downloadUrl, URL referer) {
 		this.title = title;
 		this.language = language;
 		this.numberOfCDs = numberOfCDs;
 		this.author = author;
 		this.hearingImpaired = hearingImpaired;
 		
+		this.typeId = typeId;
+		
 		this.downloadUrl = downloadUrl;
-		this.downloadParameters = downloadParameters;
+		this.referer = referer;
 	}
 	
 
@@ -60,13 +63,16 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public DownloadTask createDownloadTask() {
-		return new DownloadTask(downloadUrl, downloadParameters);
+		DownloadTask downloadTask = new DownloadTask(downloadUrl);
+		downloadTask.setRequestHeader("Referer", referer.toString());
+		
+		return downloadTask;
 	}
 	
 
 	@Override
 	public String getArchiveType() {
-		return downloadParameters.get("typeId");
+		return typeId;
 	}
 	
 

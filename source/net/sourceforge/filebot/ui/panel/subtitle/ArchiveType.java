@@ -20,4 +20,9 @@ public enum ArchiveType {
 		return UNKNOWN;
 	}
 	
+
+	public String getExtension() {
+		return toString().toLowerCase();
+	}
+	
 }

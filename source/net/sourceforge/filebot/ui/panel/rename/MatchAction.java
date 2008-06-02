@@ -111,7 +111,7 @@ class MatchAction extends AbstractAction {
 	}
 	
 	
-	private class BackgroundMatcher extends SwingWorker<List<Match>, Object> {
+	private class BackgroundMatcher extends SwingWorker<List<Match>, Void> {
 		
 		private final RenameList primaryList;
 		private final RenameList secondaryList;

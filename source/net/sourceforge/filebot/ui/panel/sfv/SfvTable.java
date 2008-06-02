@@ -20,32 +20,28 @@ import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
-import net.sourceforge.filebot.ui.panel.sfv.renderer.TextTableCellRenderer;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.ExportHandler;
 import net.sourceforge.filebot.ui.transfer.ImportHandler;
 import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicySupport;
-import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.NullTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
-class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
+class SfvTable extends JTable implements Saveable {
 	
-	private TransferablePolicy transferablePolicy = new NullTransferablePolicy();
+	private final SfvTransferablePolicy transferablePolicy;
 	
 	
 	public SfvTable() {
-		final ChecksumTableModel model = (ChecksumTableModel) getModel();
-		
-		setFillsViewportHeight(true);
+		ChecksumTableModel model = (ChecksumTableModel) getModel();
 		
 		transferablePolicy = new SfvTransferablePolicy(model);
 		
 		setModel(model);
+		
+		setFillsViewportHeight(true);
 		setAutoCreateRowSorter(true);
 		setAutoCreateColumnsFromModel(true);
 		setAutoResizeMode(AUTO_RESIZE_SUBSEQUENT_COLUMNS);
@@ -54,15 +50,19 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 		
 		setRowHeight(20);
 		
-		ImportHandler importHandler = new TransferablePolicyImportHandler(this);
+		ImportHandler importHandler = new TransferablePolicyImportHandler(transferablePolicy);
 		ExportHandler exportHandler = new SaveableExportHandler(this);
 		
 		setTransferHandler(new DefaultTransferHandler(importHandler, exportHandler));
 		setDragEnabled(true);
 		
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
-		setDefaultRenderer(String.class, new TextTableCellRenderer());
 		setDefaultRenderer(Checksum.class, new ChecksumTableCellRenderer());
+	}
+	
+
+	public TransferablePolicy getTransferablePolicy() {
+		return transferablePolicy;
 	}
 	
 
@@ -90,19 +90,9 @@ class SfvTable extends JTable implements TransferablePolicySupport, Saveable {
 	
 
 	public void clear() {
-		((BackgroundFileTransferablePolicy<?>) getTransferablePolicy()).reset();
+		transferablePolicy.reset();
 		
 		((ChecksumTableModel) getModel()).clear();
-	}
-	
-
-	public TransferablePolicy getTransferablePolicy() {
-		return transferablePolicy;
-	}
-	
-
-	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		this.transferablePolicy = transferablePolicy;
 	}
 	
 

@@ -85,7 +85,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	}
 	
 	
-	private class BackgroundWorker extends SwingWorker<Object, V> {
+	private class BackgroundWorker extends SwingWorker<Void, V> {
 		
 		private final List<File> files;
 		
@@ -96,7 +96,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 
 		@Override
-		protected Object doInBackground() {
+		protected Void doInBackground() {
 			load(files);
 			
 			return null;

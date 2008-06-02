@@ -15,10 +15,16 @@
 	<property name="lib.nekohtml" value="nekohtml-1.9.7.jar" />
 	<property name="lib.simmetrics" value="simmetrics_jar_v1_6_2_d07_02_07.jar" />
 	<property name="lib.xmlrpc" value="xmlrpc-client-1.1.jar" />
+	
 
+	<patternset id="classes">
+		<include name="**/*.class" />
+		<include name="**/*.properties" />
+		<exclude name="**/*Test*" />
+	</patternset>
 
-
-	<target name="jar" depends="build">
+	
+	<target name="fatjar" depends="build">
 		<jar destfile="${executable}" duplicate="fail">
 			<fileset dir="${build}" />
 
@@ -28,35 +34,24 @@
 				<attribute name="Version" value="${version}" />
 			</manifest>
 
+			
 			<!-- include libs if fatjar is set -->
 			<zipfileset src="${lib}/${lib.xerces}">
-				<include if="fatjar" name="**/*.class" />
-				<include if="fatjar" name="**/*.properties" />
-				<exclude if="fatjar" name="**/*Test*" />
+				<patternset refid="classes" />
 			</zipfileset>
+
 			<zipfileset src="${lib}/${lib.nekohtml}">
-				<include if="fatjar" name="**/*.class" />
-				<include if="fatjar" name="**/*.properties" />
-				<exclude if="fatjar" name="**/*Test*" />
+				<patternset refid="classes" />
 			</zipfileset>
+			
 			<zipfileset src="${lib}/${lib.simmetrics}">
-				<include if="fatjar" name="**/*.class" />
-				<include if="fatjar" name="**/*.properties" />
-				<exclude if="fatjar" name="**/*Test*" />
+				<patternset refid="classes" />
 			</zipfileset>
+
 			<zipfileset src="${lib}/${lib.xmlrpc}">
-				<include if="fatjar" name="**/*.class" />
-				<include if="fatjar" name="**/*.properties" />
-				<exclude if="fatjar" name="**/*Test*" />
+				<patternset refid="classes" />
 			</zipfileset>
 		</jar>
-	</target>
-
-
-	<target name="fatjar">
-		<antcall target="jar">
-			<param name="fatjar" value="true" />
-		</antcall>
 	</target>
 
 
