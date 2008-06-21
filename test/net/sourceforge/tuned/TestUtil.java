@@ -5,6 +5,7 @@ package net.sourceforge.tuned;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -20,6 +21,17 @@ public class TestUtil {
 		}
 		
 		return rotations;
+	}
+	
+
+	public static <T> List<T> asList(Iterator<T> iterator) {
+		List<T> list = new ArrayList<T>();
+		
+		while (iterator.hasNext()) {
+			list.add(iterator.next());
+		}
+		
+		return list;
 	}
 	
 

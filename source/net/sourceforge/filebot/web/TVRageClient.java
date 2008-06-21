@@ -3,25 +3,19 @@ package net.sourceforge.filebot.web;
 
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.FunctionIterator;
+import net.sourceforge.tuned.DefaultProgressIterator;
 import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.XPathUtil;
-import net.sourceforge.tuned.FunctionIterator.Function;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -41,28 +35,25 @@ public class TVRageClient extends EpisodeListClient {
 	
 
 	@Override
-	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
+	public List<SearchResult> search(String searchterm) throws SAXException, IOException, ParserConfigurationException {
 		if (cache.containsKey(searchterm)) {
 			return Collections.singletonList(cache.get(searchterm));
 		}
 		
-		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
+		String searchUri = String.format("http://" + host + "/feeds/search.php?show=" + URLEncoder.encode(searchterm, "UTF-8"));
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('search_begin')/TABLE[1]/*/TR/TD/A[1]", dom);
+		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(searchUri);
+		
+		List<Node> nodes = XPathUtil.selectNodes("Results/show", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String href = XPathUtil.selectString("@href", node);
-			String title = XPathUtil.selectString(".", node);
+			String showid = XPathUtil.selectString("showid", node);
+			String name = XPathUtil.selectString("name", node);
+			String link = XPathUtil.selectString("link", node);
 			
-			try {
-				URL url = new URL(href);
-				
-				searchResults.add(new HyperLink(title, url));
-			} catch (MalformedURLException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
-			}
+			searchResults.add(new TVRageSearchResult(name, showid, link));
 		}
 		
 		cache.addAll(searchResults);
@@ -72,87 +63,73 @@ public class TVRageClient extends EpisodeListClient {
 	
 
 	@Override
-	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
+	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
+		String showId = ((TVRageSearchResult) searchResult).getShowId();
+		String episodeListUri = String.format("http://" + host + "/feeds/episode_list.php?sid=" + showId);
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='b']//TR[@id='brow']", dom);
+		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(episodeListUri);
 		
-		return new FunctionIterator<Node, Episode>(nodes, new EpisodeFunction(searchResult, season));
-	}
-	
-	
-	private static class EpisodeFunction implements Function<Node, Episode> {
+		int numberOfSeasons = XPathUtil.selectInteger("Show/totalseasons", dom);
 		
-		private final SearchResult searchResult;
-		private final int season;
+		if (season > numberOfSeasons)
+			throw new IllegalArgumentException(String.format("%s only has %d seasons", searchResult.getName(), numberOfSeasons));
 		
+		Node episodeListNode = XPathUtil.selectNode("Show/Episodelist", dom);
 		
-		public EpisodeFunction(SearchResult searchResult, int season) {
-			this.searchResult = searchResult;
-			this.season = season;
-		}
+		boolean allSeasons = (season == 0);
 		
-
-		@Override
-		public Episode evaluate(Node node) {
-			String seasonAndEpisodeNumber = XPathUtil.selectString("./TD[2]/A", node);
-			String title = XPathUtil.selectString("./TD[5]", node);
-			
-			List<Node> precedings = XPathUtil.selectNodes("../preceding-sibling::TABLE", node);
-			Node previousTable = precedings.get(precedings.size() - 1);
-			
-			String seasonHeader = XPathUtil.selectString("./TR/TD/FONT", previousTable);
-			
-			Matcher seasonMatcher = Pattern.compile("Season (\\d+)").matcher(seasonHeader);
-			
-			if (seasonMatcher.matches()) {
-				if ((season == 0) || (season == Integer.parseInt(seasonMatcher.group(1)))) {
-					Matcher saeMatcher = Pattern.compile("(\\d+)x(\\d+)").matcher(seasonAndEpisodeNumber);
+		List<Episode> episodes = new ArrayList<Episode>(24);
+		
+		for (int i = 0; i <= numberOfSeasons; i++) {
+			if (i == season || allSeasons) {
+				List<Node> nodes = XPathUtil.selectNodes("Season" + i + "/episode", episodeListNode);
+				
+				for (Node node : nodes) {
+					String title = XPathUtil.selectString("title", node);
+					String episodeNumber = XPathUtil.selectString("seasonnum", node);
+					String seasonNumber = Integer.toString(i);
 					
-					String seasonNumber = null;
-					String episodeNumber = null;
-					
-					if (saeMatcher.matches()) {
-						seasonNumber = saeMatcher.group(1);
-						episodeNumber = saeMatcher.group(2);
-					} else {
-						episodeNumber = seasonAndEpisodeNumber;
-					}
-					
-					return new Episode(searchResult.getName(), seasonNumber, episodeNumber, title);
+					episodes.add(new Episode(searchResult.getName(), seasonNumber, episodeNumber, title));
 				}
 			}
-			
-			return null;
-		}
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		URI baseUri = ((HyperLink) searchResult).getUri();
-		
-		String seasonString = "all";
-		
-		if (season >= 1) {
-			seasonString = Integer.toString(season);
 		}
 		
-		String path = baseUri.getPath() + "/episode_list/" + seasonString;
-		
-		try {
-			return new URI("http", host, path, null);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		return new DefaultProgressIterator<Episode>(episodes);
 	}
 	
 
-	private URL getSearchUrl(String searchterm) throws UnsupportedEncodingException, MalformedURLException {
-		String qs = URLEncoder.encode(searchterm, "UTF-8");
-		String file = "/search.php?search=" + qs;
-		return new URL("http", host, file);
+	@Override
+	public URI getEpisodeListLink(SearchResult searchResult, int season) {
+		String page = ((TVRageSearchResult) searchResult).getLink();
+		String seasonString = (season >= 1) ? Integer.toString(season) : "all";
+		
+		return URI.create(page + "/episode_list/" + seasonString);
+	}
+	
+	
+	public static class TVRageSearchResult extends SearchResult {
+		
+		private final String showId;
+		private final String link;
+		
+		
+		public TVRageSearchResult(String name, String showId, String link) {
+			super(name);
+			this.showId = showId;
+			this.link = link;
+		}
+		
+
+		public String getShowId() {
+			return showId;
+		}
+		
+
+		public String getLink() {
+			return link;
+		}
+		
 	}
 	
 }

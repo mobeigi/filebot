@@ -65,6 +65,11 @@ public class XPathUtil {
 	}
 	
 
+	public static int selectInteger(String xpath, Object node) {
+		return Integer.parseInt(selectString(xpath, node));
+	}
+	
+
 	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
 		return XPathFactory.newInstance().newXPath().compile(xpath);
 	}
