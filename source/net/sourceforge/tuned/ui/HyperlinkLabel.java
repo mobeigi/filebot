@@ -9,7 +9,7 @@ import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.net.URL;
+import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,13 +18,13 @@ import javax.swing.JLabel;
 
 public class HyperlinkLabel extends JLabel {
 	
-	private URL url;
-	private Color defaultColor;
+	private final URI link;
+	private final Color defaultColor;
 	
 	
-	public HyperlinkLabel(String label, URL url) {
+	public HyperlinkLabel(String label, URI link) {
 		super(label);
-		this.url = url;
+		this.link = link;
 		defaultColor = getForeground();
 		addMouseListener(linker);
 		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -35,7 +35,7 @@ public class HyperlinkLabel extends JLabel {
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			try {
-				Desktop.getDesktop().browse(url.toURI());
+				Desktop.getDesktop().browse(link);
 			} catch (Exception e) {
 				// should not happen
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

@@ -17,8 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -62,26 +60,6 @@ public class IconViewPanel extends JPanel {
 
 	public void setTitle(String text) {
 		title.setText(text);
-	}
-	
-
-	public ListCellRenderer getCellRenderer() {
-		return list.getCellRenderer();
-	}
-	
-
-	public void setCellRenderer(ListCellRenderer cellRenderer) {
-		list.setCellRenderer(cellRenderer);
-	}
-	
-
-	public ListModel getModel() {
-		return list.getModel();
-	}
-	
-
-	public void setModel(ListModel model) {
-		list.setModel(model);
 	}
 	
 

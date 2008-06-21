@@ -7,7 +7,7 @@ import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
+import net.sourceforge.filebot.ui.transferablepolicies.CompositeTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
 
 
@@ -32,8 +32,8 @@ public class TransferablePolicyFileFilter extends FileFilter {
 
 	@Override
 	public String getDescription() {
-		if (transferablePolicy instanceof MultiTransferablePolicy) {
-			MultiTransferablePolicy multi = (MultiTransferablePolicy) transferablePolicy;
+		if (transferablePolicy instanceof CompositeTransferablePolicy) {
+			CompositeTransferablePolicy multi = (CompositeTransferablePolicy) transferablePolicy;
 			return multi.getDescription(FileTransferablePolicy.class);
 		}
 		

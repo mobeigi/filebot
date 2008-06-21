@@ -8,7 +8,7 @@ import java.util.Collection;
 import javax.swing.JComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import net.sourceforge.filebot.FileFormat;
+import net.sourceforge.tuned.FileUtil;
 
 
 public abstract class ToolPanel extends JComponent {
@@ -47,7 +47,7 @@ public abstract class ToolPanel extends JComponent {
 			count = String.format("%d files", files.size());
 		}
 		
-		node.setUserObject(String.format("%s (%s, %s)", name, count, FileFormat.formatSize(totalSize)));
+		node.setUserObject(String.format("%s (%s, %s)", name, count, FileUtil.formatSize(totalSize)));
 		
 		return node;
 	}

@@ -3,12 +3,16 @@ package net.sourceforge.tuned.ui;
 
 
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
@@ -39,6 +43,22 @@ public class TunedUtil {
 		Dimension d = owner.getSize();
 		
 		return new Point(p.x + d.width / 4, p.y + d.height / 7);
+	}
+	
+
+	public static Image getImage(Icon icon) {
+		//TODO uncomment
+		//		if (icon instanceof ImageIcon) {
+		//			return ((ImageIcon) icon).getImage();
+		//		}
+		
+		BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+		
+		Graphics2D g2d = image.createGraphics();
+		icon.paintIcon(null, g2d, 0, 0);
+		g2d.dispose();
+		
+		return image;
 	}
 	
 

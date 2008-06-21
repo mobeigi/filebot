@@ -5,16 +5,13 @@ package net.sourceforge.filebot.ui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.OverlayLayout;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
@@ -27,7 +24,6 @@ import net.sourceforge.tuned.MessageBus;
 import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.ShadowBorder;
 import net.sourceforge.tuned.ui.SimpleListModel;
-import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class FileBotWindow extends JFrame implements ListSelectionListener {
@@ -54,9 +50,6 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		JComponent contentPane = createContentPane();
 		
 		setContentPane(contentPane);
-		
-		// Shortcut ESC
-		TunedUtil.registerActionForKeystroke(contentPane, KeyStroke.getKeyStroke("released ESCAPE"), closeAction);
 		
 		setSize(760, 615);
 		
@@ -148,15 +141,6 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 			}
 		}
 		
-	};
-	
-	private final AbstractAction closeAction = new AbstractAction("Close") {
-		
-		public void actionPerformed(ActionEvent e) {
-			setVisible(false);
-			dispose();
-			System.exit(0);
-		}
 	};
 	
 }

@@ -2,6 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -17,41 +18,50 @@ public class LoadingOverlayPane extends JComponent {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
-	private final JLabel loadingLabel;
+	private final JComponent animationComponent;
 	
 	private boolean overlayEnabled = false;
 	
 	private int millisToOverlay = 500;
 	
-	private final JComponent view;
-	
 	
 	public LoadingOverlayPane(JComponent component, Icon animation) {
+		this(component, new JLabel(""), getView(component));
+	}
+	
+
+	public LoadingOverlayPane(JComponent component, JComponent animation) {
 		this(component, animation, getView(component));
 	}
 	
 
-	public LoadingOverlayPane(JComponent component, Icon animation, JComponent view) {
-		this.view = view;
-		
+	public LoadingOverlayPane(JComponent component, JComponent animation, JComponent view) {
 		setLayout(new OverlayLayout(this));
+		
+		this.animationComponent = animation;
 		
 		component.setAlignmentX(1.0f);
 		component.setAlignmentY(0.0f);
 		
-		loadingLabel = new JLabel(animation);
-		loadingLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 20));
+		animation.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 20));
 		
-		loadingLabel.setAlignmentX(1.0f);
-		loadingLabel.setAlignmentY(0.0f);
-		loadingLabel.setMaximumSize(loadingLabel.getPreferredSize());
+		animation.setAlignmentX(1.0f);
+		animation.setAlignmentY(0.0f);
+		animationComponent.setPreferredSize(new Dimension(48, 48));
+		animationComponent.setMaximumSize(animationComponent.getPreferredSize());
 		
-		add(loadingLabel);
+		add(animation);
 		add(component);
 		
-		setOverlayVisible(false);
+		setOverlayVisible(true);
 		
 		view.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
+	}
+	
+
+	@Override
+	public boolean isOptimizedDrawingEnabled() {
+		return false;
 	}
 	
 
@@ -65,11 +75,6 @@ public class LoadingOverlayPane extends JComponent {
 	}
 	
 
-	public JComponent getView() {
-		return view;
-	}
-	
-
 	public void setOverlayVisible(boolean b) {
 		overlayEnabled = b;
 		
@@ -79,13 +84,13 @@ public class LoadingOverlayPane extends JComponent {
 				@Override
 				public void run() {
 					if (overlayEnabled) {
-						loadingLabel.setVisible(true);
+						animationComponent.setVisible(true);
 					}
 				}
 				
 			});
 		} else {
-			loadingLabel.setVisible(false);
+			animationComponent.setVisible(false);
 		}
 	}
 	

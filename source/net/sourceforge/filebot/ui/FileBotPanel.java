@@ -53,7 +53,7 @@ public class FileBotPanel extends JPanel {
 	
 	
 	public FileBotPanel(String title, Icon icon) {
-		super(new BorderLayout(10, 0));
+		super(new BorderLayout(10, 10));
 		this.name = title;
 		this.icon = icon;
 	}

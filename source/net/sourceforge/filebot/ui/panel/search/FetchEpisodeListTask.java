@@ -2,26 +2,29 @@
 package net.sourceforge.filebot.ui.panel.search;
 
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.SearchResult;
 
 
 class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 	
-	private final String showName;
+	private final SearchResult searchResult;
 	private final EpisodeListClient searchEngine;
 	private final int numberOfSeason;
 	
 	private long duration = -1;
 	
 	
-	public FetchEpisodeListTask(EpisodeListClient searchEngine, String showname, int numberOfSeason) {
-		showName = showname;
+	public FetchEpisodeListTask(EpisodeListClient searchEngine, SearchResult searchResult, int numberOfSeason) {
 		this.searchEngine = searchEngine;
+		this.searchResult = searchResult;
 		this.numberOfSeason = numberOfSeason;
 	}
 	
@@ -30,15 +33,25 @@ class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 	protected List<Episode> doInBackground() throws Exception {
 		long start = System.currentTimeMillis();
 		
-		List<Episode> episodes = searchEngine.getEpisodeList(showName, numberOfSeason);
+		Iterator<Episode> itr = searchEngine.getEpisodeList(searchResult, numberOfSeason);
+		
+		ArrayList<Episode> list = new ArrayList<Episode>();
+		
+		while (itr.hasNext())
+			list.add(itr.next());
 		
 		duration = System.currentTimeMillis() - start;
-		return episodes;
+		return list;
 	}
 	
 
-	public String getShowName() {
-		return showName;
+	public EpisodeListClient getSearchEngine() {
+		return searchEngine;
+	}
+	
+
+	public SearchResult getSearchResult() {
+		return searchResult;
 	}
 	
 
@@ -49,11 +62,6 @@ class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 
 	public long getDuration() {
 		return duration;
-	}
-	
-
-	public EpisodeListClient getSearchEngine() {
-		return searchEngine;
 	}
 	
 }

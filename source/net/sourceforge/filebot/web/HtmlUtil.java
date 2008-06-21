@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -42,6 +43,11 @@ public class HtmlUtil {
 		
 		// use UTF-8 if charset cannot be determined
 		return Charset.forName("UTF-8");
+	}
+	
+
+	public static Document getHtmlDocument(URI uri) throws IOException, SAXException {
+		return getHtmlDocument(uri.toURL());
 	}
 	
 

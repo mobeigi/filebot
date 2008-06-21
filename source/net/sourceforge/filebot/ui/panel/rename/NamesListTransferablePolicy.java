@@ -19,11 +19,11 @@ import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
-import net.sourceforge.filebot.ui.transferablepolicies.MultiTransferablePolicy;
+import net.sourceforge.filebot.ui.transferablepolicies.CompositeTransferablePolicy;
 import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
 
 
-class NamesListTransferablePolicy extends MultiTransferablePolicy {
+class NamesListTransferablePolicy extends CompositeTransferablePolicy {
 	
 	private final RenameList list;
 	

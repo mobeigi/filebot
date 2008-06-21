@@ -1,19 +1,22 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
+import javax.swing.DefaultBoundedRangeModel;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotTabComponent;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.tuned.ui.ProgressIndicator;
 
 
 public class FileBotTab<T extends JComponent> extends JPanel {
@@ -22,7 +25,7 @@ public class FileBotTab<T extends JComponent> extends JPanel {
 	
 	private final T component;
 	
-	private ImageIcon icon;
+	private Icon icon;
 	
 	private boolean loading = false;
 	
@@ -33,7 +36,14 @@ public class FileBotTab<T extends JComponent> extends JPanel {
 		this.component = component;
 		tabComponent.getCloseButton().addActionListener(closeAction);
 		
-		add(component, BorderLayout.CENTER);
+		ProgressIndicator progress = new ProgressIndicator(new DefaultBoundedRangeModel(4, 0, 0, 10));
+		progress.setPaintBackground(true);
+		progress.setPaintText(false);
+		progress.setBackground(new Color(255, 255, 255, 70));
+		
+		LoadingOverlayPane pane = new LoadingOverlayPane(this.component, progress);
+		
+		add(pane, BorderLayout.CENTER);
 	}
 	
 
@@ -85,7 +95,7 @@ public class FileBotTab<T extends JComponent> extends JPanel {
 	}
 	
 
-	public void setIcon(ImageIcon icon) {
+	public void setIcon(Icon icon) {
 		this.icon = icon;
 		
 		if (!loading) {
@@ -94,7 +104,7 @@ public class FileBotTab<T extends JComponent> extends JPanel {
 	}
 	
 
-	public ImageIcon getIcon() {
+	public Icon getIcon() {
 		return icon;
 	}
 	

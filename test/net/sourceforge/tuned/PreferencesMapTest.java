@@ -158,11 +158,10 @@ public class PreferencesMapTest {
 	}
 	
 
-	@Test(expected = IllegalArgumentException.class)
 	public void getWithObjectKey() throws Exception {
 		Map<String, String> map = PreferencesMap.map(strings, String.class);
 		
-		map.get(new Object());
+		assertEquals(null, map.get(new Object()));
 	}
 	
 

@@ -2,11 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+
+import net.sourceforge.tuned.ProgressIterator;
 
 
 public abstract class SubtitleClient {
@@ -35,6 +38,15 @@ public abstract class SubtitleClient {
 	}
 	
 
+	public abstract List<SearchResult> search(String searchterm) throws Exception;
+	
+
+	public abstract ProgressIterator<SubtitleDescriptor> getSubtitleList(SearchResult searchResult) throws Exception;
+	
+
+	public abstract URI getSubtitleListLink(SearchResult searchResult);
+	
+
 	public String getName() {
 		return name;
 	}
@@ -43,12 +55,6 @@ public abstract class SubtitleClient {
 	public ImageIcon getIcon() {
 		return icon;
 	}
-	
-
-	public abstract List<MovieDescriptor> search(String query) throws Exception;
-	
-
-	public abstract List<? extends SubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws Exception;
 	
 
 	@Override

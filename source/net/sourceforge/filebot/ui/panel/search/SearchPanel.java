@@ -8,9 +8,8 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.URL;
+import java.net.URI;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,8 +31,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.HistoryPanel;
@@ -43,10 +40,13 @@ import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.SelectButton;
+import net.sourceforge.tuned.ui.SelectButtonTextField;
+import net.sourceforge.tuned.ui.SimpleIconProvider;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TextCompletion;
-import net.sourceforge.tuned.ui.TextFieldWithSelect;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
@@ -58,7 +58,7 @@ public class SearchPanel extends FileBotPanel {
 	
 	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
 	
-	private TextFieldWithSelect<EpisodeListClient> searchField;
+	private SelectButtonTextField<EpisodeListClient> searchField;
 	
 	private TextCompletion searchFieldCompletion;
 	
@@ -66,19 +66,12 @@ public class SearchPanel extends FileBotPanel {
 	public SearchPanel() {
 		super("Search", ResourceManager.getIcon("panel.search"));
 		
-		List<SelectButton.Entry<EpisodeListClient>> episodeListClients = new ArrayList<SelectButton.Entry<EpisodeListClient>>();
+		searchField = new SelectButtonTextField<EpisodeListClient>();
 		
-		for (EpisodeListClient client : EpisodeListClient.getAvailableEpisodeListClients()) {
-			episodeListClients.add(new SelectButton.Entry<EpisodeListClient>(client, client.getIcon()));
-		}
+		searchField.getSelectButton().setModel(EpisodeListClient.getAvailableEpisodeListClients());
+		searchField.getSelectButton().setIconProvider(SimpleIconProvider.forClass(EpisodeListClient.class));
 		
-		searchField = new TextFieldWithSelect<EpisodeListClient>(episodeListClients);
-		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE_PROPERTY, searchFieldListener);
-		searchField.getTextField().setColumns(25);
-		
-		searchFieldCompletion = new TextCompletion(searchField.getTextField());
-		searchFieldCompletion.addTerms(Settings.getSettings().getStringList(Settings.SEARCH_HISTORY));
-		searchFieldCompletion.hook();
+		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
 		historyPanel.setColumnHeader1("Show");
 		historyPanel.setColumnHeader2("Number of Episodes");
@@ -135,14 +128,14 @@ public class SearchPanel extends FileBotPanel {
 			seasonSpinnerModel.setValue(value);
 	}
 	
-	private final PropertyChangeListener searchFieldListener = new PropertyChangeListener() {
+	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			EpisodeListClient client = searchField.getSelectedValue();
+			EpisodeListClient client = searchField.getSelected();
 			
 			if (!client.isSingleSeasonSupported()) {
-				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
 				seasonSpinnerModel.setValue(SeasonSpinnerEditor.ALL_SEASONS);
+				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
 			} else {
 				seasonSpinnerModel.setMaximum(Integer.MAX_VALUE);
 			}
@@ -154,10 +147,9 @@ public class SearchPanel extends FileBotPanel {
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			searchField.clearTextSelection();
+			EpisodeListClient searchEngine = searchField.getSelected();
 			
-			EpisodeListClient searchEngine = searchField.getSelectedValue();
-			SearchTask task = new SearchTask(searchEngine, searchField.getTextField().getText(), seasonSpinnerModel.getNumber().intValue());
+			SearchTask task = new SearchTask(searchEngine, searchField.getText(), seasonSpinnerModel.getNumber().intValue());
 			task.addPropertyChangeListener(new SearchTaskListener());
 			
 			task.execute();
@@ -182,10 +174,10 @@ public class SearchPanel extends FileBotPanel {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			Component c = tabbedPane.getSelectedComponent();
+			Component comp = tabbedPane.getSelectedComponent();
 			
-			if (c instanceof Saveable) {
-				setSaveable((Saveable) c);
+			if (comp instanceof Saveable) {
+				setSaveable((Saveable) comp);
 				super.actionPerformed(e);
 			}
 		}
@@ -193,11 +185,11 @@ public class SearchPanel extends FileBotPanel {
 	};
 	
 	
-	private class SearchTask extends SwingWorker<List<String>, Void> {
+	private class SearchTask extends SwingWorker<List<SearchResult>, Void> {
 		
-		private String query;
-		private EpisodeListClient client;
-		private int numberOfSeason;
+		private final String query;
+		private final EpisodeListClient client;
+		private final int numberOfSeason;
 		
 		
 		public SearchTask(EpisodeListClient client, String query, int numberOfSeason) {
@@ -208,7 +200,7 @@ public class SearchPanel extends FileBotPanel {
 		
 
 		@Override
-		protected List<String> doInBackground() throws Exception {
+		protected List<SearchResult> doInBackground() throws Exception {
 			return client.search(query);
 		}
 		
@@ -250,14 +242,14 @@ public class SearchPanel extends FileBotPanel {
 			
 			SearchTask task = (SearchTask) evt.getSource();
 			
-			List<String> shows = null;
+			List<SearchResult> searchResults;
 			
 			try {
-				shows = task.get();
+				searchResults = task.get();
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
 				
-				Throwable cause = FileBotUtil.getRootCause(e);
+				Throwable cause = ExceptionUtil.getRootCause(e);
 				
 				MessageManager.showWarning(cause.getMessage());
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, cause.toString());
@@ -265,38 +257,43 @@ public class SearchPanel extends FileBotPanel {
 				return;
 			}
 			
-			String showname = null;
-			
+			SearchResult selectedResult = null;
+			/*
+			 * NEEDED??? exact find without cache???
+			/// TODO: ??????
 			if (task.client.getFoundName(task.query) != null) {
 				// a show matching the search term exactly has already been found 
 				showname = task.client.getFoundName(task.query);
-			} else if (shows.size() == 1) {
+			}*/
+
+			if (searchResults.size() == 1) {
 				// only one show found, select this one
-				showname = shows.get(0);
-			} else if (shows.size() > 1) {
+				selectedResult = searchResults.get(0);
+			} else if (searchResults.size() > 1) {
 				// multiple shows found, let user selected one
 				Window window = SwingUtilities.getWindowAncestor(SearchPanel.this);
 				
-				SelectDialog<String> select = new SelectDialog<String>(window, shows);
+				SelectDialog<SearchResult> select = new SelectDialog<SearchResult>(window, searchResults);
 				
 				select.setText("Select a Show:");
 				select.setIconImage(episodeList.getIcon().getImage());
 				select.setVisible(true);
 				
-				showname = select.getSelectedValue();
+				selectedResult = select.getSelectedValue();
 			} else {
 				MessageManager.showWarning("\"" + task.query + "\" has not been found.");
 			}
 			
-			if (showname == null) {
+			if (selectedResult == null) {
 				tabbedPane.remove(episodeList);
 				return;
 			}
 			
-			searchFieldCompletion.addTerm(showname);
-			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
+			String title = selectedResult.getName();
 			
-			String title = showname;
+			searchFieldCompletion.addTerm(title);
+			//TODO fix
+			//			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
 			
 			if (task.numberOfSeason != SeasonSpinnerEditor.ALL_SEASONS) {
 				title += String.format(" - Season %d", task.numberOfSeason);
@@ -304,7 +301,7 @@ public class SearchPanel extends FileBotPanel {
 			
 			episodeList.setTitle(title);
 			
-			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.client, showname, task.numberOfSeason);
+			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.client, selectedResult, task.numberOfSeason);
 			getEpisodesTask.addPropertyChangeListener(new FetchEpisodeListTaskListener(episodeList));
 			
 			getEpisodesTask.execute();
@@ -331,13 +328,13 @@ public class SearchPanel extends FileBotPanel {
 			FetchEpisodeListTask task = (FetchEpisodeListTask) evt.getSource();
 			
 			try {
-				URL url = task.getSearchEngine().getEpisodeListUrl(task.getShowName(), task.getNumberOfSeason());
+				URI link = task.getSearchEngine().getEpisodeListLink(task.getSearchResult(), task.getNumberOfSeason());
 				
 				Collection<Episode> episodes = task.get();
 				
 				String info = (episodes.size() > 0) ? String.format("%d episodes", episodes.size()) : "No episodes found";
 				
-				historyPanel.add(episodeList.getTitle(), url, episodeList.getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
+				historyPanel.add(episodeList.getTitle(), link, episodeList.getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
 				
 				if (episodes.size() <= 0)
 					tabbedPane.remove(episodeList);
@@ -348,8 +345,10 @@ public class SearchPanel extends FileBotPanel {
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
 				
-				MessageManager.showWarning(FileBotUtil.getRootCause(e).getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+				Throwable cause = ExceptionUtil.getRootCause(e);
+				
+				MessageManager.showWarning(cause.getMessage());
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.getMessage(), cause);
 			}
 		}
 	}

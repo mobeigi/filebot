@@ -2,12 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+
+import net.sourceforge.tuned.ProgressIterator;
 
 
 public abstract class EpisodeListClient {
@@ -27,43 +29,9 @@ public abstract class EpisodeListClient {
 		return Collections.unmodifiableList(registry);
 	}
 	
-
-	public static EpisodeListClient forName(String name) {
-		for (EpisodeListClient client : registry) {
-			if (client.getName().equalsIgnoreCase(name))
-				return client;
-		}
-		
-		return null;
-	}
-	
-
-	/**
-	 * List of shows
-	 */
-	public abstract List<String> search(String searchterm) throws Exception;
-	
-
-	public abstract String getFoundName(String searchterm);
-	
-
-	/**
-	 * @param showname
-	 * @param season number of season, 0 for all seasons
-	 */
-	public abstract List<Episode> getEpisodeList(String showname, int season) throws Exception;
-	
-
-	public abstract URL getEpisodeListUrl(String showname, int season);
-	
-
-	public boolean isSingleSeasonSupported() {
-		return singleSeasonSupported;
-	}
-	
-	private String name;
-	private boolean singleSeasonSupported;
-	private ImageIcon icon;
+	private final String name;
+	private final boolean singleSeasonSupported;
+	private final ImageIcon icon;
 	
 	
 	public EpisodeListClient(String name, ImageIcon icon, boolean singleSeasonSupported) {
@@ -73,8 +41,17 @@ public abstract class EpisodeListClient {
 	}
 	
 
-	public String getName() {
-		return name;
+	public abstract List<SearchResult> search(String searchterm) throws Exception;
+	
+
+	public abstract ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception;
+	
+
+	public abstract URI getEpisodeListLink(SearchResult searchResult, int season);
+	
+
+	public boolean isSingleSeasonSupported() {
+		return singleSeasonSupported;
 	}
 	
 
@@ -83,9 +60,14 @@ public abstract class EpisodeListClient {
 	}
 	
 
+	public String getName() {
+		return name;
+	}
+	
+
 	@Override
 	public String toString() {
-		return getName();
+		return name;
 	}
 	
 }

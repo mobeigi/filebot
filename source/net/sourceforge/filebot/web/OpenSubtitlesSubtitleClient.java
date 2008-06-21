@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import java.net.URI;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -10,6 +11,9 @@ import java.util.logging.Logger;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.FunctionIterator;
+import net.sourceforge.tuned.ProgressIterator;
+import net.sourceforge.tuned.FunctionIterator.Function;
 
 
 /**
@@ -30,19 +34,31 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<MovieDescriptor> search(String query) throws Exception {
+	public List<SearchResult> search(String searchterm) throws Exception {
 		login();
 		
-		return client.searchMoviesOnIMDB(query);
+		List result = client.searchMoviesOnIMDB(searchterm);
+		return result;
 	}
 	
 
 	@Override
-	public List<OpenSubtitlesSubtitleDescriptor> getSubtitleList(MovieDescriptor descriptor) throws Exception {
+	public ProgressIterator<SubtitleDescriptor> getSubtitleList(SearchResult searchResult) throws Exception {
 		login();
 		
-		return client.searchSubtitles(descriptor.getImdbId());
+		int imdbId = ((MovieDescriptor) searchResult).getImdbId();
+		
+		List<OpenSubtitlesSubtitleDescriptor> subtitles = client.searchSubtitles(imdbId);
+		
+		return new FunctionIterator<OpenSubtitlesSubtitleDescriptor, SubtitleDescriptor>(subtitles, new SubtitleFunction());
+	}
+	
+
+	@Override
+	public URI getSubtitleListLink(SearchResult searchResult) {
+		return null;
 	}
 	
 
@@ -117,6 +133,15 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 				logout();
 			};
 		};
+	}
+	
+
+	private static class SubtitleFunction implements Function<OpenSubtitlesSubtitleDescriptor, SubtitleDescriptor> {
+		
+		@Override
+		public SubtitleDescriptor evaluate(OpenSubtitlesSubtitleDescriptor sourceValue) {
+			return sourceValue;
+		}
 	}
 	
 }

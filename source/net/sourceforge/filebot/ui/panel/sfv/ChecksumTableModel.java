@@ -15,7 +15,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.FileFormat;
+import net.sourceforge.tuned.FileUtil;
 
 
 class ChecksumTableModel extends AbstractTableModel {
@@ -38,7 +38,7 @@ class ChecksumTableModel extends AbstractTableModel {
 		
 		if (columnIndex >= checksumColumnsOffset) {
 			File columnRoot = checksumColumnRoots.get(columnIndex - checksumColumnsOffset);
-			return FileFormat.getFolderName(columnRoot);
+			return FileUtil.getFolderName(columnRoot);
 		}
 		
 		return null;

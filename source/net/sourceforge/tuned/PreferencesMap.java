@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return adapter.get(prefs, (String) key);
 		}
 		
-		throw new IllegalArgumentException("Key must be a String");
+		return null;
 	}
 	
 
@@ -58,7 +57,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 	@Override
 	public T remove(Object key) {
 		if (key instanceof String) {
-			prefs.remove((String) key);
+			adapter.remove(prefs, (String) key);
 		}
 		
 		return null;
@@ -67,7 +66,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	public String[] keys() {
 		try {
-			return prefs.keys();
+			return adapter.keys(prefs);
 		} catch (BackingStoreException e) {
 			throw new RuntimeException(e);
 		}
@@ -76,10 +75,8 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	@Override
 	public void clear() {
-		try {
-			prefs.clear();
-		} catch (BackingStoreException e) {
-			throw new RuntimeException(e);
+		for (String key : keys()) {
+			adapter.remove(prefs, key);
 		}
 	}
 	
@@ -131,7 +128,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	@Override
 	public Set<String> keySet() {
-		return new HashSet<String>(Arrays.asList(keys()));
+		return new LinkedHashSet<String>(Arrays.asList(keys()));
 	}
 	
 
@@ -213,14 +210,44 @@ public class PreferencesMap<T> implements Map<String, T> {
 	
 	public static interface Adapter<T> {
 		
+		public String[] keys(Preferences prefs) throws BackingStoreException;
+		
+
 		public T get(Preferences prefs, String key);
 		
 
 		public void put(Preferences prefs, String key, T value);
+		
+
+		public void remove(Preferences prefs, String key);
 	}
 	
 
-	public static class StringAdapter implements Adapter<String> {
+	public static abstract class AbstractAdapter<T> implements Adapter<T> {
+		
+		@Override
+		public abstract T get(Preferences prefs, String key);
+		
+
+		@Override
+		public abstract void put(Preferences prefs, String key, T value);
+		
+
+		@Override
+		public String[] keys(Preferences prefs) throws BackingStoreException {
+			return prefs.keys();
+		}
+		
+
+		@Override
+		public void remove(Preferences prefs, String key) {
+			prefs.remove(key);
+		}
+		
+	}
+	
+
+	public static class StringAdapter extends AbstractAdapter<String> {
 		
 		@Override
 		public String get(Preferences prefs, String key) {
@@ -236,7 +263,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 	}
 	
 
-	public static class SimpleAdapter<T> implements Adapter<T> {
+	public static class SimpleAdapter<T> extends AbstractAdapter<T> {
 		
 		private final Constructor<T> constructor;
 		
@@ -260,6 +287,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			try {
 				return constructor.newInstance(stringValue);
 			} catch (InvocationTargetException e) {
+				// try to throw the cause directly, e.g. NumberFormatException
 				throw ExceptionUtil.asRuntimeException(e.getCause());
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -275,7 +303,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 	}
 	
 
-	public static class SerializableAdapter<T extends Serializable> implements Adapter<T> {
+	public static class SerializableAdapter<T extends Serializable> extends AbstractAdapter<T> {
 		
 		@SuppressWarnings("unchecked")
 		@Override

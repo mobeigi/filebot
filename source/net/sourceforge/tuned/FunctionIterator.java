@@ -2,11 +2,12 @@
 package net.sourceforge.tuned;
 
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 
-public class FunctionIterator<S, T> implements Iterator<T> {
+public class FunctionIterator<S, T> implements ProgressIterator<T> {
 	
 	/**
 	 * A Function transforms one Object into another.
@@ -22,20 +23,30 @@ public class FunctionIterator<S, T> implements Iterator<T> {
 		 * @param sourceValue - the Object to transform
 		 * @return the transformed version of the object
 		 */
-		public T evaluate(S sourceValue);
+		public T evaluate(S sourceValue) throws Exception;
 	}
 	
 	private final Iterator<S> sourceIterator;
 	private final Function<S, T> function;
+	private final int length;
+	
+	private int position = 0;
 	
 	
-	public FunctionIterator(Iterable<S> source, Function<S, T> function) {
-		this(source.iterator(), function);
+	public FunctionIterator(Collection<S> source, Function<S, T> function) {
+		this(source.iterator(), source.size(), function);
 	}
 	
 
-	public FunctionIterator(Iterator<S> iterator, Function<S, T> function) {
+	//TODO TEST case!!! for piped functions -> correct progress
+	public FunctionIterator(ProgressIterator<S> iterator, Function<S, T> function) {
+		this(iterator, iterator.getLength(), function);
+	}
+	
+
+	public FunctionIterator(Iterator<S> iterator, int length, Function<S, T> function) {
 		this.sourceIterator = iterator;
+		this.length = length;
 		this.function = function;
 	}
 	
@@ -74,17 +85,35 @@ public class FunctionIterator<S, T> implements Iterator<T> {
 			
 			try {
 				cache = transform(sourceIterator.next());
-			} catch (RuntimeException e) {
-				currentException = e;
+			} catch (Exception e) {
+				currentException = ExceptionUtil.asRuntimeException(e);
 			}
+			
+			position++;
 		}
 		
 		return cache;
 	}
 	
 
-	private T transform(S sourceValue) {
+	private T transform(S sourceValue) throws Exception {
 		return function.evaluate(sourceValue);
+	}
+	
+
+	@Override
+	public int getPosition() {
+		if (sourceIterator instanceof FunctionIterator) {
+			return ((ProgressIterator<?>) sourceIterator).getPosition();
+		}
+		
+		return position;
+	}
+	
+
+	@Override
+	public int getLength() {
+		return length;
 	}
 	
 
@@ -98,4 +127,5 @@ public class FunctionIterator<S, T> implements Iterator<T> {
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
+	
 }

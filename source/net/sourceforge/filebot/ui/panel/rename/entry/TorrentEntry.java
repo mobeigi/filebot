@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename.entry;
 
 
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent.Entry;
+import net.sourceforge.tuned.FileUtil;
 
 
 public class TorrentEntry extends AbstractFileEntry {
@@ -12,7 +12,7 @@ public class TorrentEntry extends AbstractFileEntry {
 	
 	
 	public TorrentEntry(Entry entry) {
-		super(FileFormat.getNameWithoutExtension(entry.getName()));
+		super(FileUtil.getNameWithoutExtension(entry.getName()));
 		
 		this.entry = entry;
 	}

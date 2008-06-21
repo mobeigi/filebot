@@ -1,14 +1,11 @@
 
-package net.sourceforge.filebot;
+package net.sourceforge.tuned;
 
 
 import java.io.File;
-import java.text.NumberFormat;
 
 
-public class FileFormat {
-	
-	private static final NumberFormat numberFormat = NumberFormat.getNumberInstance();
+public class FileUtil {
 	
 	public final static long KILO = 1024;
 	
@@ -16,18 +13,14 @@ public class FileFormat {
 	
 	public final static long GIGA = MEGA * 1024;
 	
-	static {
-		numberFormat.setMaximumFractionDigits(0);
-	}
-	
 	
 	public static String formatSize(long size) {
 		if (size >= MEGA)
-			return numberFormat.format((double) size / MEGA) + " MB";
+			return String.format("%d MB", (double) size / MEGA);
 		else if (size >= KILO)
-			return numberFormat.format((double) size / KILO) + " KB";
+			return String.format("%d KB", (double) size / KILO);
 		else
-			return numberFormat.format(size) + " Byte";
+			return String.format("%d Byte", size);
 	}
 	
 

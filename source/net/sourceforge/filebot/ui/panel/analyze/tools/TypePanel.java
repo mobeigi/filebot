@@ -19,10 +19,10 @@ import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.tuned.FileUtil;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
@@ -74,7 +74,7 @@ public class TypePanel extends ToolPanel {
 			SortedMap<String, SortedSet<File>> map = new TreeMap<String, SortedSet<File>>();
 			
 			for (File file : files) {
-				String extension = FileFormat.getExtension(file);
+				String extension = FileUtil.getExtension(file);
 				
 				SortedSet<File> set = map.get(extension);
 				

@@ -16,7 +16,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
@@ -27,6 +26,7 @@ import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
 import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
+import net.sourceforge.tuned.FileUtil;
 
 
 class SfvTable extends JTable implements Saveable {
@@ -103,7 +103,7 @@ class SfvTable extends JTable implements Saveable {
 		String name = "";
 		
 		if (columnRoot != null)
-			name = FileFormat.getFileName(columnRoot);
+			name = FileUtil.getFileName(columnRoot);
 		
 		if (name.isEmpty())
 			name = "name";

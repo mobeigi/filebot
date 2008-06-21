@@ -9,12 +9,12 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class MultiTransferablePolicy implements TransferablePolicy {
+public class CompositeTransferablePolicy implements TransferablePolicy {
 	
 	private List<TransferablePolicy> policies = Collections.synchronizedList(new ArrayList<TransferablePolicy>());
 	
 	
-	public MultiTransferablePolicy() {
+	public CompositeTransferablePolicy() {
 		
 	}
 	

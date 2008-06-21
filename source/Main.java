@@ -22,7 +22,7 @@ public class Main {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		
 		final Arguments arguments = new Arguments(args);
 		
@@ -36,15 +36,16 @@ public class Main {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
 		
-		final FileBotWindow window = new FileBotWindow();
-		
-		// publish messages from arguments to the newly created components
-		arguments.publishMessages();
-		
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
+				FileBotWindow window = new FileBotWindow();
+				
+				// publish messages from arguments to the newly created components
+				arguments.publishMessages();
+				
+				// start
 				window.setVisible(true);
 			}
 		});

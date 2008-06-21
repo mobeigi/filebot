@@ -10,10 +10,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
+import net.sourceforge.tuned.FileUtil;
 
 
 class FileListTransferablePolicy extends FileTransferablePolicy {
@@ -35,7 +35,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	@Override
 	protected void load(List<File> files) {
 		if (files.size() > 1) {
-			list.setTitle(FileFormat.getFolderName(files.get(0).getParentFile()));
+			list.setTitle(FileUtil.getFolderName(files.get(0).getParentFile()));
 		}
 		
 		if (FileBotUtil.containsOnlyFolders(files)) {
@@ -50,12 +50,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	private void loadFolderList(List<File> folders) {
 		if (folders.size() == 1) {
-			list.setTitle(FileFormat.getFolderName(folders.get(0)));
+			list.setTitle(FileUtil.getFolderName(folders.get(0)));
 		}
 		
 		for (File folder : folders) {
 			for (File file : folder.listFiles()) {
-				list.getModel().add(FileFormat.getFolderName(file));
+				list.getModel().add(FileUtil.getFolderName(file));
 			}
 		}
 	}
@@ -70,12 +70,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			}
 			
 			if (torrentFiles.size() == 1) {
-				list.setTitle(FileFormat.getNameWithoutExtension(torrents.get(0).getName()));
+				list.setTitle(FileUtil.getNameWithoutExtension(torrents.get(0).getName()));
 			}
 			
 			for (Torrent torrent : torrents) {
 				for (Torrent.Entry entry : torrent.getFiles()) {
-					list.getModel().add(FileFormat.getNameWithoutExtension(entry.getName()));
+					list.getModel().add(FileUtil.getNameWithoutExtension(entry.getName()));
 				}
 			}
 		} catch (IOException e) {
@@ -87,7 +87,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(File file) {
-		list.getModel().add(FileFormat.getFileName(file));
+		list.getModel().add(FileUtil.getFileName(file));
 	}
 	
 

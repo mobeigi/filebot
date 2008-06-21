@@ -5,20 +5,23 @@ package net.sourceforge.filebot.web;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.FunctionIterator;
+import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.XPathUtil;
+import net.sourceforge.tuned.FunctionIterator.Function;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -27,9 +30,9 @@ import org.xml.sax.SAXException;
 
 public class TvdotcomClient extends EpisodeListClient {
 	
-	private NavigableMap<String, URL> cache = new TreeMap<String, URL>(String.CASE_INSENSITIVE_ORDER);
+	private final SearchResultCache cache = new SearchResultCache();
 	
-	private String host = "www.tv.com";
+	private final String host = "www.tv.com";
 	
 	
 	public TvdotcomClient() {
@@ -38,18 +41,16 @@ public class TvdotcomClient extends EpisodeListClient {
 	
 
 	@Override
-	public List<String> search(String searchterm) throws IOException, SAXException {
-		synchronized (cache) {
-			if (getFoundName(searchterm) != null) {
-				return Arrays.asList(getFoundName(searchterm));
-			}
+	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
+		if (cache.containsKey(searchterm)) {
+			return Collections.singletonList(cache.get(searchterm));
 		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN/A", dom);
 		
-		LinkedHashMap<String, URL> searchResults = new LinkedHashMap<String, URL>(nodes.size());
+		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
 			String category = node.getParentNode().getTextContent();
@@ -62,45 +63,53 @@ public class TvdotcomClient extends EpisodeListClient {
 				try {
 					URL url = new URL(href);
 					
-					searchResults.put(title, url);
+					searchResults.add(new HyperLink(title, url));
 				} catch (MalformedURLException e) {
 					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 				}
 			}
 		}
 		
-		synchronized (cache) {
-			cache.putAll(searchResults);
-		}
+		cache.addAll(searchResults);
 		
-		return new ArrayList<String>(searchResults.keySet());
+		return searchResults;
 	}
 	
 
 	@Override
-	public List<Episode> getEpisodeList(String showname, int season) throws IOException, SAXException {
+	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListUrl(showname, season));
+		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('episode-listing')/DIV/TABLE/TR/TD/ancestor::TR", dom);
 		
-		String seasonString = null;
+		return new FunctionIterator<Node, Episode>(nodes, new EpisodeFunction(searchResult, season, nodes.size()));
+	}
+	
+	
+	private static class EpisodeFunction implements Function<Node, Episode> {
 		
-		if (season >= 1)
-			seasonString = Integer.toString(season);
+		private final SearchResult searchResult;
+		private final NumberFormat numberFormat;
 		
-		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		private Integer episodeOffset = null;
+		private String seasonString = null;
 		
-		NumberFormat numberFormat = NumberFormat.getInstance();
-		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
-		numberFormat.setGroupingUsed(false);
 		
-		Integer episodeOffset = null;
+		public EpisodeFunction(SearchResult searchResult, int season, int nodeCount) {
+			this.searchResult = searchResult;
+			
+			numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
+			numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodeCount).length(), 2));
+			numberFormat.setGroupingUsed(false);
+			
+			if (season >= 1)
+				seasonString = Integer.toString(season);
+		}
 		
-		if (season == 1)
-			episodeOffset = 0;
-		
-		for (Node node : nodes) {
+
+		@Override
+		public Episode evaluate(Node node) {
 			String episodeNumber = XPathUtil.selectString("./TD[1]", node);
 			String title = XPathUtil.selectString("./TD[2]/A", node);
 			
@@ -113,44 +122,29 @@ public class TvdotcomClient extends EpisodeListClient {
 				
 				episodeNumber = numberFormat.format(n - episodeOffset);
 			} catch (NumberFormatException e) {
-				// episode number may be "Pilot", "Special", etc.
+				// episode number may be "Pilot", "Special", ...
 			}
 			
-			episodes.add(new Episode(showname, seasonString, episodeNumber, title));
+			return new Episode(searchResult.getName(), seasonString, episodeNumber, title);
 		}
-		
-		return episodes;
 	}
 	
-
+	
 	@Override
-	public URL getEpisodeListUrl(String showname, int season) {
+	public URI getEpisodeListLink(SearchResult searchResult, int season) {
+		String summaryFile = null;
+		
+		summaryFile = ((HyperLink) searchResult).getUri().getPath();
+		
+		String base = summaryFile.substring(0, summaryFile.indexOf("summary.html"));
+		String file = base + "episode_listings.html";
+		String query = "season=" + season;
+		
 		try {
-			String summaryFile = null;
-			
-			synchronized (cache) {
-				summaryFile = cache.get(showname).getFile();
-			}
-			
-			String base = summaryFile.substring(0, summaryFile.indexOf("summary.html"));
-			String episodelistFile = base + "episode_listings.html&season=" + season;
-			
-			return new URL("http", host, episodelistFile);
-		} catch (Exception e) {
-			return null;
+			return new URI("http", host, file, query, null);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
 		}
-	}
-	
-
-	@Override
-	public String getFoundName(String searchterm) {
-		synchronized (cache) {
-			if (cache.containsKey(searchterm)) {
-				return cache.floorKey(searchterm);
-			}
-		}
-		
-		return null;
 	}
 	
 

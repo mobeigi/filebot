@@ -6,7 +6,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.net.URL;
+import java.net.URI;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -66,8 +66,8 @@ public class HistoryPanel extends JPanel {
 	}
 	
 
-	public void add(String column1, URL url, Icon icon, String column2, String column3) {
-		JLabel label1 = (url != null) ? new HyperlinkLabel(column1, url) : new JLabel(column1);
+	public void add(String column1, URI link, Icon icon, String column2, String column3) {
+		JLabel label1 = (link != null) ? new HyperlinkLabel(column1, link) : new JLabel(column1);
 		JLabel label2 = new JLabel(column2);
 		JLabel label3 = new JLabel(column3);
 		

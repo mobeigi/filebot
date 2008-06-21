@@ -46,9 +46,9 @@ public class SubtitleCellRenderer extends IconViewCellRenderer {
 		
 		setText(subtitle.getName());
 		
-		info1.setText(subtitle.getLanguageName());
+		info1.setText(subtitle.getLanguage().getName());
 		
-		icon = subtitle.getLanguageIcon();
+		icon = subtitle.getLanguage().getIcon();
 		
 		info1.setIcon(icon);
 		

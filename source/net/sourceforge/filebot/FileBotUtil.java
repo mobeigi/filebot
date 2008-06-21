@@ -12,6 +12,8 @@ import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import net.sourceforge.tuned.FileUtil;
+
 
 public class FileBotUtil {
 	
@@ -40,15 +42,6 @@ public class FileBotUtil {
 
 	public static boolean isInvalidFileName(String filename) {
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
-	}
-	
-
-	public static Throwable getRootCause(Throwable t) {
-		while (t.getCause() != null) {
-			t = t.getCause();
-		}
-		
-		return t;
 	}
 	
 	private static final String[] TORRENT_FILE_EXTENSIONS = { "torrent" };
@@ -84,7 +77,7 @@ public class FileBotUtil {
 
 	private static boolean containsOnly(List<File> files, String[] extensions) {
 		for (File file : files) {
-			if (!FileFormat.hasExtension(file, extensions))
+			if (!FileUtil.hasExtension(file, extensions))
 				return false;
 		}
 		
@@ -113,7 +106,7 @@ public class FileBotUtil {
 		
 		@Override
 		public boolean accept(File dir, String name) {
-			return FileFormat.hasExtension(name, SUBTITLE_FILE_EXTENSIONS);
+			return FileUtil.hasExtension(name, SUBTITLE_FILE_EXTENSIONS);
 		}
 		
 	};

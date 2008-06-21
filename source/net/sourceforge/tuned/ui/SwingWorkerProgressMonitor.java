@@ -11,7 +11,6 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 
-
 public class SwingWorkerProgressMonitor {
 	
 	public static final String PROPERTY_NOTE = "note";

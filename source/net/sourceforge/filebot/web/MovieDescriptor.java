@@ -2,36 +2,19 @@
 package net.sourceforge.filebot.web;
 
 
-public class MovieDescriptor {
+public class MovieDescriptor extends SearchResult {
 	
-	private final String title;
-	private final Integer imdbId;
+	private final int imdbId;
 	
 	
-	public MovieDescriptor(String title) {
-		this(title, null);
-	}
-	
-
-	public MovieDescriptor(String title, Integer imdbId) {
-		this.title = title;
+	public MovieDescriptor(String name, int imdbId) {
+		super(name);
 		this.imdbId = imdbId;
 	}
 	
 
-	public String getTitle() {
-		return title;
-	}
-	
-
-	public Integer getImdbId() {
+	public int getImdbId() {
 		return imdbId;
-	}
-	
-
-	@Override
-	public String toString() {
-		return title;
 	}
 	
 }

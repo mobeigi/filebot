@@ -17,13 +17,13 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
+import net.sourceforge.tuned.FileUtil;
 import net.sourceforge.tuned.MessageBus;
 import net.sourceforge.tuned.ui.TunedUtil;
 
@@ -110,7 +110,7 @@ public class SfvPanel extends FileBotPanel {
 					@Override
 					protected String convertValueToString(Object value) {
 						File columnRoot = (File) value;
-						return FileFormat.getFolderName(columnRoot);
+						return FileUtil.getFolderName(columnRoot);
 					}
 				};
 				
@@ -125,7 +125,7 @@ public class SfvPanel extends FileBotPanel {
 				return;
 			
 			index = options.indexOf(selected);
-			name = FileFormat.getFileName(selected);
+			name = FileUtil.getFileName(selected);
 			
 			if (name.isEmpty())
 				name = "name";

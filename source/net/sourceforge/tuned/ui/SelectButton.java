@@ -11,121 +11,132 @@ import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import javax.swing.DefaultSingleSelectionModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SingleSelectionModel;
 import javax.swing.SwingConstants;
 
 
-public class SelectButton<T> extends JButton implements ActionListener {
+public class SelectButton<T> extends JButton {
+	
+	public static final String SELECTED_VALUE = "selected value";
+	
+	private final Color beginColor = new Color(0xF0EEE4);
+	private final Color endColor = new Color(0xE0DED4);
+	
+	private final Color beginColorHover = beginColor;
+	private final Color endColorHover = new Color(0xD8D7CD);
+	
+	private final SelectIcon selectIcon = new SelectIcon();
+	
+	private List<T> model = new ArrayList<T>(0);
+	private SingleSelectionModel selectionModel = new DefaultSingleSelectionModel();
+	
+	private IconProvider<T> iconProvider = new NullIconProvider<T>();
 	
 	private boolean hover = false;
 	
-	private Color beginColor = new Color(0xF0EEE4);
-	private Color endColor = new Color(0xE0DED4);
 	
-	private Color beginColorHover = beginColor;
-	private Color endColorHover = new Color(0xD8D7CD);
-	
-	private Entry<T> selectedEntry = null;
-	
-	private List<Entry<T>> entries = new ArrayList<Entry<T>>();
-	
-	public static final String SELECTED_VALUE_PROPERTY = "SELECTED_VALUE_PROPERTY";
-	
-	
-	public SelectButton(Collection<Entry<T>> entries) {
-		if (entries.isEmpty())
-			throw new IllegalArgumentException("Entries must not be empty");
-		
-		this.entries.addAll(entries);
-		
+	public SelectButton() {
 		setContentAreaFilled(false);
 		setFocusable(false);
 		
-		addActionListener(this);
+		super.setIcon(selectIcon);
 		
 		setHorizontalAlignment(SwingConstants.CENTER);
 		setVerticalAlignment(SwingConstants.CENTER);
 		
-		addMouseListener(new MouseInputListener());
-		
 		setPreferredSize(new Dimension(32, 22));
 		
-		// select first entry
+		addActionListener(new OpenPopupOnClick());
+	}
+	
+
+	public void setModel(List<T> model) {
+		this.model = model;
 		setSelectedIndex(0);
 	}
 	
 
-	public void setSelectedValue(T value) {
-		Entry<T> entry = find(value);
-		
-		if (entry == null)
-			return;
-		
-		selectedEntry = entry;
-		setIcon(new SelectIcon(selectedEntry.getIcon()));
-		
-		firePropertyChange(SELECTED_VALUE_PROPERTY, null, selectedEntry);
+	public IconProvider<T> getIconProvider() {
+		return iconProvider;
 	}
 	
 
-	public T getSelectedEntry() {
-		return selectedEntry.getValue();
+	public void setIconProvider(IconProvider<T> iconProvider) {
+		this.iconProvider = iconProvider;
+		
+		// update icon
+		this.setIcon(iconProvider.getIcon(getSelectedValue()));
+	}
+	
+
+	@Override
+	public void setIcon(Icon icon) {
+		selectIcon.setInnerIcon(icon);
+		repaint();
+	}
+	
+
+	public void setSelectedValue(T value) {
+		setSelectedIndex(model.indexOf(value));
+	}
+	
+
+	public T getSelectedValue() {
+		if (!selectionModel.isSelected())
+			return null;
+		
+		return model.get(selectionModel.getSelectedIndex());
 	}
 	
 
 	public void setSelectedIndex(int i) {
-		setSelectedValue(entries.get(i).getValue());
+		if (i < 0 || i >= model.size()) {
+			selectionModel.clearSelection();
+			setIcon(null);
+			return;
+		}
+		
+		if (i != selectionModel.getSelectedIndex()) {
+			selectionModel.setSelectedIndex(i);
+			
+			T value = model.get(i);
+			
+			setIcon(iconProvider.getIcon(value));
+			
+			firePropertyChange(SELECTED_VALUE, null, value);
+		}
 	}
 	
 
 	public int getSelectedIndex() {
-		return entries.indexOf(selectedEntry);
-	}
-	
-
-	private Entry<T> find(T value) {
-		for (Entry<T> entry : entries) {
-			if (entry.value == value)
-				return entry;
-		}
-		
-		return null;
+		return selectionModel.getSelectedIndex();
 	}
 	
 
 	public void spinValue(int spin) {
-		spin = spin % entries.size();
+		int size = model.size();
+		
+		spin = spin % size;
 		
 		int next = getSelectedIndex() + spin;
 		
 		if (next < 0)
-			next += entries.size();
-		else if (next >= entries.size())
-			next -= entries.size();
+			next += size;
+		else if (next >= size)
+			next -= size;
 		
 		setSelectedIndex(next);
-	}
-	
-
-	public void actionPerformed(ActionEvent e) {
-		JPopupMenu popup = new JPopupMenu();
-		
-		for (Entry<T> entry : entries) {
-			popup.add(new SelectMenuItem(entry));
-		}
-		
-		popup.show(this, 0, getHeight() - 1);
 	}
 	
 
@@ -143,21 +154,62 @@ public class SelectButton<T> extends JButton implements ActionListener {
 		super.paintComponent(g);
 	}
 	
+
+	@Override
+	protected void processMouseEvent(MouseEvent e) {
+		switch (e.getID()) {
+			case MouseEvent.MOUSE_ENTERED:
+				hover = true;
+				repaint();
+				break;
+			case MouseEvent.MOUSE_EXITED:
+				hover = false;
+				repaint();
+				break;
+		}
+		
+		super.processMouseEvent(e);
+	}
 	
-	private class SelectMenuItem extends JMenuItem implements ActionListener {
+	
+	private class OpenPopupOnClick implements ActionListener {
 		
-		private T value;
-		
-		
-		public SelectMenuItem(Entry<T> entry) {
-			super(entry.toString(), entry.getIcon());
-			this.value = entry.getValue();
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JPopupMenu popup = new JPopupMenu();
 			
-			this.setMargin(new Insets(3, 0, 3, 0));
-			this.addActionListener(this);
+			for (T value : model) {
+				SelectPopupMenuItem item = new SelectPopupMenuItem(value, iconProvider.getIcon(value));
+				
+				if (value == getSelectedValue())
+					item.setSelected(true);
+				
+				popup.add(item);
+			}
 			
-			if (this.value == getSelectedEntry())
-				this.setFont(this.getFont().deriveFont(Font.BOLD));
+			popup.show(SelectButton.this, -4, getHeight() - 5);
+		}
+	}
+	
+
+	private class SelectPopupMenuItem extends JMenuItem implements ActionListener {
+		
+		private final T value;
+		
+		
+		public SelectPopupMenuItem(T value, Icon icon) {
+			super(value.toString(), icon);
+			
+			this.value = value;
+			
+			setMargin(new Insets(3, 0, 3, 0));
+			addActionListener(this);
+		}
+		
+
+		@Override
+		public void setSelected(boolean selected) {
+			setFont(getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN));
 		}
 		
 
@@ -171,13 +223,12 @@ public class SelectButton<T> extends JButton implements ActionListener {
 
 	private static class SelectIcon implements Icon {
 		
+		private final GeneralPath arrow;
+		
 		private Icon icon;
-		private GeneralPath arrow;
 		
 		
-		public SelectIcon(Icon icon) {
-			this.icon = icon;
-			
+		public SelectIcon() {
 			arrow = new GeneralPath(Path2D.WIND_EVEN_ODD, 3);
 			int x = 25;
 			int y = 10;
@@ -189,10 +240,17 @@ public class SelectButton<T> extends JButton implements ActionListener {
 		}
 		
 
-		public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+		public void setInnerIcon(Icon icon) {
+			this.icon = icon;
+		}
+		
+
+		public void paintIcon(Component c, Graphics g, int x, int y) {
 			Graphics2D g2d = (Graphics2D) g;
 			
-			icon.paintIcon(c, g2d, 4, 3);
+			if (icon != null) {
+				icon.paintIcon(c, g2d, 4, 3);
+			}
 			
 			g2d.setPaint(Color.BLACK);
 			g2d.fill(arrow);
@@ -206,53 +264,6 @@ public class SelectButton<T> extends JButton implements ActionListener {
 
 		public int getIconHeight() {
 			return 20;
-		}
-	}
-	
-
-	private class MouseInputListener extends MouseAdapter {
-		
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			hover = true;
-			repaint();
-		}
-		
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			hover = false;
-			repaint();
-		}
-		
-	}
-	
-
-	public static class Entry<T> {
-		
-		private T value;
-		private Icon icon;
-		
-		
-		public Entry(T value, Icon icon) {
-			this.value = value;
-			this.icon = icon;
-		}
-		
-
-		public T getValue() {
-			return value;
-		}
-		
-
-		public Icon getIcon() {
-			return icon;
-		}
-		
-
-		@Override
-		public String toString() {
-			return value.toString();
 		}
 	}
 	

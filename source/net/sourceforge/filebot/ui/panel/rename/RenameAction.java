@@ -9,11 +9,11 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sourceforge.filebot.FileFormat;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
+import net.sourceforge.tuned.FileUtil;
 
 
 public class RenameAction extends AbstractAction {
@@ -44,7 +44,7 @@ public class RenameAction extends AbstractAction {
 			FileEntry fileEntry = (FileEntry) fileEntries.get(i);
 			File f = fileEntry.getFile();
 			
-			String newName = nameEntries.get(i).toString() + FileFormat.getExtension(f, true);
+			String newName = nameEntries.get(i).toString() + FileUtil.getExtension(f, true);
 			
 			File newFile = new File(f.getParentFile(), newName);
 			
