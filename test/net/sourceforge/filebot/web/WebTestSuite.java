@@ -1,5 +1,5 @@
 
-package net.sourceforge.tuned;
+package net.sourceforge.filebot.web;
 
 
 import junit.framework.JUnit4TestAdapter;
@@ -11,11 +11,11 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { FunctionIteratorTest.class, PreferencesMapTest.class, PreferencesListTest.class })
-public class TestSuite {
+@SuiteClasses( { TVRageClientTest.class })
+public class WebTestSuite {
 	
 	public static Test suite() {
-		return new JUnit4TestAdapter(TestSuite.class);
+		return new JUnit4TestAdapter(WebTestSuite.class);
 	}
 	
 }

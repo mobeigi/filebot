@@ -19,8 +19,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
-import net.sourceforge.filebot.ui.panel.rename.similarity.MultiSimilarityMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
+import net.sourceforge.filebot.ui.panel.rename.metric.CompositeSimilarityMetric;
+import net.sourceforge.filebot.ui.panel.rename.metric.SimilarityMetric;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 
 
@@ -70,7 +70,7 @@ class SimilarityPanel extends Box {
 	}
 	
 
-	public void setMetrics(MultiSimilarityMetric metrics) {
+	public void setMetrics(CompositeSimilarityMetric metrics) {
 		grid.removeAll();
 		updaterList.clear();
 		

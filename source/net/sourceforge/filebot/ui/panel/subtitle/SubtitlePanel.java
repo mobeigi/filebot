@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 import java.net.URI;
 import java.util.List;
 
+import net.sourceforge.filebot.ListChangeSynchronizer;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -12,30 +13,28 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.tuned.BasicCachingList;
 import net.sourceforge.tuned.FunctionIterator;
 import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.FunctionIterator.Function;
 import net.sourceforge.tuned.ui.SimpleIconProvider;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage, SubtitleDownloadPanel> {
 	
 	public SubtitlePanel() {
-		super("Subtitle", ResourceManager.getIcon("panel.subtitle"), globalSearchHistory());
+		super("Subtitle", ResourceManager.getIcon("panel.subtitle"));
 		
 		getHistoryPanel().setColumnHeader1("Show / Movie");
 		getHistoryPanel().setColumnHeader2("Number of Subtitles");
 		
 		getSearchField().getSelectButton().setModel(SubtitleClient.getAvailableSubtitleClients());
 		getSearchField().getSelectButton().setIconProvider(SimpleIconProvider.forClass(SubtitleClient.class));
-	}
-	
-
-	private static EventList<String> globalSearchHistory() {
-		return GlazedLists.eventList(new BasicCachingList<String>(Settings.getSettings().asStringList(Settings.SUBTITLE_HISTORY)));
+		
+		List<String> persistentSearchHistory = Settings.getSettings().asStringList(Settings.SUBTITLE_HISTORY);
+		
+		getSearchHistory().addAll(persistentSearchHistory);
+		
+		ListChangeSynchronizer.syncEventListToList(getSearchHistory(), persistentSearchHistory);
 	}
 	
 

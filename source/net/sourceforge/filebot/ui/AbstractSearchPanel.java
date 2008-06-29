@@ -34,6 +34,7 @@ import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
@@ -46,13 +47,12 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	
 	private final SelectButtonTextField<S> searchField;
 	
-	private final EventList<String> searchHistory;
+	private final EventList<String> searchHistory = new BasicEventList<String>();
 	
 	
-	public AbstractSearchPanel(String title, Icon icon, EventList<String> searchHistory) {
+	@SuppressWarnings("unchecked")
+	public AbstractSearchPanel(String title, Icon icon) {
 		super(title, icon);
-		
-		this.searchHistory = searchHistory;
 		
 		setLayout(new BorderLayout(10, 5));
 		
@@ -84,6 +84,15 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		add(searchBox, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
 		
+		/*
+		 * TODO: fetchHistory
+		// no need to care about thread-safety, history-lists are only accessed from the EDT
+		CompositeList<Object> completionList = new CompositeList<Object>();
+		
+		completionList.addMemberList((EventList) searchHistory);
+		completionList.addMemberList(fetchHistory);
+		*/
+
 		AutoCompleteSupport.install(searchField.getEditor(), searchHistory);
 		
 		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
@@ -102,7 +111,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	protected abstract URI getLink(S client, SearchResult searchResult);
 	
 
-	public List<String> getSearchHistory() {
+	public EventList<String> getSearchHistory() {
 		return searchHistory;
 	}
 	

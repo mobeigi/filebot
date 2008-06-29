@@ -19,20 +19,18 @@ import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
-import net.sourceforge.filebot.ui.panel.rename.match.Match;
-import net.sourceforge.filebot.ui.panel.rename.match.Matcher;
-import net.sourceforge.filebot.ui.panel.rename.similarity.LengthEqualsMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.MultiSimilarityMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.SimilarityMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.StringEqualsMetric;
-import net.sourceforge.filebot.ui.panel.rename.similarity.StringSimilarityMetric;
+import net.sourceforge.filebot.ui.panel.rename.matcher.Match;
+import net.sourceforge.filebot.ui.panel.rename.matcher.Matcher;
+import net.sourceforge.filebot.ui.panel.rename.metric.CompositeSimilarityMetric;
+import net.sourceforge.filebot.ui.panel.rename.metric.NumericSimilarityMetric;
+import net.sourceforge.filebot.ui.panel.rename.metric.SimilarityMetric;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.SwingWorkerProgressMonitor;
 
 
 class MatchAction extends AbstractAction {
 	
-	private MultiSimilarityMetric metrics;
+	private CompositeSimilarityMetric metrics;
 	
 	private final RenameList namesList;
 	private final RenameList filesList;
@@ -50,7 +48,7 @@ class MatchAction extends AbstractAction {
 		this.filesList = filesList;
 		
 		// length similarity will only effect torrent <-> file matches
-		metrics = new MultiSimilarityMetric(new StringSimilarityMetric(), new StringEqualsMetric(), new LengthEqualsMetric());
+		metrics = new CompositeSimilarityMetric(new NumericSimilarityMetric());
 		
 		setMatchName2File(true);
 	}
@@ -69,7 +67,7 @@ class MatchAction extends AbstractAction {
 	}
 	
 
-	public MultiSimilarityMetric getMetrics() {
+	public CompositeSimilarityMetric getMetrics() {
 		return metrics;
 	}
 	
@@ -92,7 +90,7 @@ class MatchAction extends AbstractAction {
 		
 		ProgressDialog progressDialog = monitor.getProgressDialog();
 		progressDialog.setTitle("Matching ...");
-		progressDialog.setHeader("Matching ...");
+		progressDialog.setHeader(progressDialog.getTitle());
 		progressDialog.setIcon((Icon) getValue(SMALL_ICON));
 		
 		backgroundMatcher.execute();

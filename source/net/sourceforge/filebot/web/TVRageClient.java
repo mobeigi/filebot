@@ -49,7 +49,7 @@ public class TVRageClient extends EpisodeListClient {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String showid = XPathUtil.selectString("showid", node);
+			int showid = XPathUtil.selectInteger("showid", node);
 			String name = XPathUtil.selectString("name", node);
 			String link = XPathUtil.selectString("link", node);
 			
@@ -65,7 +65,7 @@ public class TVRageClient extends EpisodeListClient {
 	@Override
 	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
 		
-		String showId = ((TVRageSearchResult) searchResult).getShowId();
+		int showId = ((TVRageSearchResult) searchResult).getShowId();
 		String episodeListUri = String.format("http://" + host + "/feeds/episode_list.php?sid=" + showId);
 		
 		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(episodeListUri);
@@ -110,18 +110,18 @@ public class TVRageClient extends EpisodeListClient {
 	
 	public static class TVRageSearchResult extends SearchResult {
 		
-		private final String showId;
+		private final int showId;
 		private final String link;
 		
 		
-		public TVRageSearchResult(String name, String showId, String link) {
+		public TVRageSearchResult(String name, int showId, String link) {
 			super(name);
 			this.showId = showId;
 			this.link = link;
 		}
 		
 
-		public String getShowId() {
+		public int getShowId() {
 			return showId;
 		}
 		

@@ -39,28 +39,36 @@ public class PreferencesList<T> extends AbstractList<T> {
 
 	@Override
 	public boolean add(T e) {
-		prefs.put(key(size()), e);
+		setImpl(size(), e);
 		return true;
 	}
 	
 
+	//TODO: assert invalid index
+	@Override
+	public void add(int index, T element) {
+		copy(index, index + 1, size() - index);
+		
+		setImpl(index, element);
+	}
+	
+
+	private T setImpl(int index, T element) {
+		return prefs.put(key(index), element);
+	}
+	
+
+	/**
+	 * @return always null
+	 */
 	@Override
 	public T remove(int index) {
-		
 		int lastIndex = size() - 1;
 		
-		List<T> shiftList = new ArrayList<T>(subList(index, lastIndex + 1));
-		
-		T value = shiftList.remove(0);
-		
+		copy(index + 1, index, lastIndex - index);
 		prefs.remove(key(lastIndex));
 		
-		for (T element : shiftList) {
-			set(index, element);
-			index++;
-		}
-		
-		return value;
+		return null;
 	}
 	
 
@@ -69,7 +77,19 @@ public class PreferencesList<T> extends AbstractList<T> {
 		if (index < 0 || index >= size())
 			throw new IndexOutOfBoundsException();
 		
-		return prefs.put(key(index), element);
+		return setImpl(index, element);
+	}
+	
+
+	private void copy(int startIndex, int newStartIndex, int count) {
+		if (count == 0 || startIndex == newStartIndex)
+			return;
+		
+		List<T> copy = new ArrayList<T>(subList(startIndex, startIndex + count));
+		
+		for (int i = newStartIndex, n = 0; n < count; i++, n++) {
+			setImpl(i, copy.get(n));
+		}
 	}
 	
 

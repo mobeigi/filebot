@@ -5,6 +5,7 @@ package net.sourceforge.tuned;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -23,7 +24,7 @@ public class PreferencesListTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		root = Preferences.userRoot().node("filebot-test/PreferencesList");
+		root = Preferences.userRoot().node("junit-test");
 		
 		strings = root.node("strings");
 		strings.put("0", "Rei");
@@ -59,7 +60,7 @@ public class PreferencesListTest {
 	
 
 	@Test
-	public void testAdd() {
+	public void add() {
 		List<Integer> list = PreferencesList.map(numbers, Integer.class);
 		
 		list.add(3);
@@ -70,16 +71,25 @@ public class PreferencesListTest {
 
 	@Test
 	public void remove() {
-		temp.put("0", "Gladiator 1");
-		temp.put("1", "Gladiator 2");
-		temp.put("2", "Gladiator 3");
-		temp.put("3", "Gladiator 4");
 		
-		List<String> list = PreferencesList.map(temp, String.class);
+		ArrayList<String> compareValues = new ArrayList<String>();
 		
-		assertEquals("Gladiator 2", list.remove(1));
-		assertEquals("Gladiator 4", list.remove(2));
-		assertEquals("Gladiator 1", list.remove(0));
+		compareValues.add("Gladiator 1");
+		compareValues.add("Gladiator 2");
+		compareValues.add("Gladiator 3");
+		compareValues.add("Gladiator 4");
+		compareValues.add("Gladiator 5");
+		
+		List<String> prefs = PreferencesList.map(temp, String.class);
+		prefs.addAll(compareValues);
+		
+		for (int index : new int[] { 4, 0, 1 }) {
+			prefs.remove(index);
+			compareValues.remove(index);
+			
+			assertArrayEquals(compareValues.toArray(), prefs.toArray());
+		}
+		
 	}
 	
 

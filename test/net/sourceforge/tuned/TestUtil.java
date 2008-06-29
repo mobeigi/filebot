@@ -11,16 +11,14 @@ import java.util.List;
 
 public class TestUtil {
 	
-	public static <T> List<List<T>> rotations(Collection<T> source) {
-		List<List<T>> rotations = new ArrayList<List<T>>();
+	public static List<Object[]> asParameters(Object... parameterSet) {
+		List<Object[]> list = new ArrayList<Object[]>();
 		
-		for (int i = 0; i < source.size(); i++) {
-			List<T> copy = new ArrayList<T>(source);
-			Collections.rotate(copy, i);
-			rotations.add(copy);
+		for (Object parameter : parameterSet) {
+			list.add(new Object[] { parameter });
 		}
 		
-		return rotations;
+		return list;
 	}
 	
 
@@ -35,13 +33,16 @@ public class TestUtil {
 	}
 	
 
-	public static List<Object[]> asParameters(Object... parameterSet) {
-		List<Object[]> list = new ArrayList<Object[]>();
+	public static <T> List<List<T>> rotations(Collection<T> source) {
+		List<List<T>> rotations = new ArrayList<List<T>>();
 		
-		for (Object parameter : parameterSet) {
-			list.add(new Object[] { parameter });
+		for (int i = 0; i < source.size(); i++) {
+			List<T> copy = new ArrayList<T>(source);
+			Collections.rotate(copy, i);
+			rotations.add(copy);
 		}
 		
-		return list;
+		return rotations;
 	}
+	
 }

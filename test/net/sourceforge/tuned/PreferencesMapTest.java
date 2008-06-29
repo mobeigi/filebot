@@ -31,7 +31,7 @@ public class PreferencesMapTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		root = Preferences.userRoot().node("filebot-test/PreferencesMap");
+		root = Preferences.userRoot().node("junit-test");
 		
 		strings = root.node("strings");
 		strings.put("1", "Firefly");

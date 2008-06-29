@@ -60,15 +60,9 @@
 				<include name="**/*.class" />
 			</zipfileset>
 
-			<!--
 			<zipfileset src="${lib.glazedlists}">
-				<include name="ca/odell/glazedlists/*.class" />
-				<include name="ca/odell/glazedlists/event/**" />
-				<include name="ca/odell/glazedlists/matchers/**" />
-				<include name="ca/odell/glazedlists/gui/**" />
-				<include name="ca/odell/glazedlists/swing/**" />
+				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
-			-->
 		</jar>
 	</target>
 
