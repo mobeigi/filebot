@@ -16,7 +16,7 @@ public class LanguageResolver {
 		return defaultInstance;
 	}
 	
-	private final Map<String, Locale> localeMap = new HashMap<String, Locale>();
+	private final Map<String, Locale> cache = new HashMap<String, Locale>();
 	
 	
 	/**
@@ -28,11 +28,11 @@ public class LanguageResolver {
 	public synchronized Locale getLocale(String languageName) {
 		languageName = languageName.toLowerCase();
 		
-		Locale locale = localeMap.get(languageName);
+		Locale locale = cache.get(languageName);
 		
 		if (locale == null) {
 			locale = findLocale(languageName);
-			localeMap.put(languageName, locale);
+			cache.put(languageName, locale);
 		}
 		
 		return locale;

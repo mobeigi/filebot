@@ -3,7 +3,9 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -11,9 +13,6 @@ import java.util.logging.Logger;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.FunctionIterator;
-import net.sourceforge.tuned.ProgressIterator;
-import net.sourceforge.tuned.FunctionIterator.Function;
 
 
 /**
@@ -44,15 +43,14 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public ProgressIterator<SubtitleDescriptor> getSubtitleList(SearchResult searchResult) throws Exception {
+	public Collection<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
 		login();
 		
 		int imdbId = ((MovieDescriptor) searchResult).getImdbId();
 		
-		List<OpenSubtitlesSubtitleDescriptor> subtitles = client.searchSubtitles(imdbId);
-		
-		return new FunctionIterator<OpenSubtitlesSubtitleDescriptor, SubtitleDescriptor>(subtitles, new SubtitleFunction());
+		return (Collection) client.searchSubtitles(imdbId, language);
 	}
 	
 
@@ -133,15 +131,6 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 				logout();
 			};
 		};
-	}
-	
-
-	private static class SubtitleFunction implements Function<OpenSubtitlesSubtitleDescriptor, SubtitleDescriptor> {
-		
-		@Override
-		public SubtitleDescriptor evaluate(OpenSubtitlesSubtitleDescriptor sourceValue) {
-			return sourceValue;
-		}
 	}
 	
 }

@@ -2,28 +2,26 @@
 package net.sourceforge.filebot.web;
 
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class SearchResultCache {
 	
-	private final Map<String, SearchResult> cache = Collections.synchronizedMap(new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER));
+	private final ConcurrentHashMap<String, SearchResult> cache = new ConcurrentHashMap<String, SearchResult>();
 	
 	
 	public boolean containsKey(String name) {
-		return cache.containsKey(name);
+		return cache.containsKey(key(name));
 	}
 	
 
 	public SearchResult get(String name) {
-		return cache.get(name);
+		return cache.get(key(name));
 	}
 	
 
 	public void add(SearchResult searchResult) {
-		cache.put(searchResult.getName(), searchResult);
+		cache.putIfAbsent(key(searchResult.getName()), searchResult);
 	}
 	
 
@@ -32,4 +30,10 @@ public class SearchResultCache {
 			add(searchResult);
 		}
 	}
+	
+
+	private String key(String name) {
+		return name.toLowerCase();
+	}
+	
 }

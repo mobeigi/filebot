@@ -11,7 +11,6 @@ import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.text.NumberFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -185,7 +184,7 @@ public class SearchPanel extends FileBotPanel {
 	};
 	
 	
-	private class SearchTask extends SwingWorker<List<SearchResult>, Void> {
+	private class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
 		
 		private final String query;
 		private final EpisodeListClient client;
@@ -200,7 +199,7 @@ public class SearchPanel extends FileBotPanel {
 		
 
 		@Override
-		protected List<SearchResult> doInBackground() throws Exception {
+		protected Collection<SearchResult> doInBackground() throws Exception {
 			return client.search(query);
 		}
 		
@@ -242,7 +241,7 @@ public class SearchPanel extends FileBotPanel {
 			
 			SearchTask task = (SearchTask) evt.getSource();
 			
-			List<SearchResult> searchResults;
+			Collection<SearchResult> searchResults;
 			
 			try {
 				searchResults = task.get();
@@ -268,7 +267,7 @@ public class SearchPanel extends FileBotPanel {
 
 			if (searchResults.size() == 1) {
 				// only one show found, select this one
-				selectedResult = searchResults.get(0);
+				selectedResult = searchResults.iterator().next();
 			} else if (searchResults.size() > 1) {
 				// multiple shows found, let user selected one
 				Window window = SwingUtilities.getWindowAncestor(SearchPanel.this);

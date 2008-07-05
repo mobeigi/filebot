@@ -17,10 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.FunctionIterator;
-import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.XPathUtil;
-import net.sourceforge.tuned.FunctionIterator.Function;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -88,33 +85,19 @@ public class AnidbClient extends EpisodeListClient {
 	
 
 	@Override
-	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
-		return new FunctionIterator<Node, Episode>(nodes, new EpisodeFunction(searchResult, nodes.size()));
-	}
-	
-	
-	private static class EpisodeFunction implements Function<Node, Episode> {
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
+		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
+		numberFormat.setGroupingUsed(false);
 		
-		private final SearchResult searchResult;
-		private final NumberFormat numberFormat;
+		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
-		
-		public EpisodeFunction(SearchResult searchResult, int nodeCount) {
-			this.searchResult = searchResult;
-			
-			numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
-			numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodeCount).length(), 2));
-			numberFormat.setGroupingUsed(false);
-		}
-		
-
-		@Override
-		public Episode evaluate(Node node) {
+		for (Node node : nodes) {
 			String number = XPathUtil.selectString("./TD[contains(@class,'id')]/A", node);
 			String title = XPathUtil.selectString("./TD[@class='title']/LABEL/text()", node);
 			
@@ -129,15 +112,16 @@ public class AnidbClient extends EpisodeListClient {
 			}
 			
 			// no seasons for anime
-			return new Episode(searchResult.getName(), null, number, title);
+			episodes.add(new Episode(searchResult.getName(), null, number, title));
 		}
 		
+		return episodes;
 	}
 	
-	
+
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return ((HyperLink) searchResult).getUri();
+		return ((HyperLink) searchResult).toUri();
 	}
 	
 

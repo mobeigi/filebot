@@ -18,10 +18,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.FunctionIterator;
-import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.XPathUtil;
-import net.sourceforge.tuned.FunctionIterator.Function;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -77,39 +74,22 @@ public class TvdotcomClient extends EpisodeListClient {
 	
 
 	@Override
-	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('episode-listing')/DIV/TABLE/TR/TD/ancestor::TR", dom);
 		
-		return new FunctionIterator<Node, Episode>(nodes, new EpisodeFunction(searchResult, season, nodes.size()));
-	}
-	
-	
-	private static class EpisodeFunction implements Function<Node, Episode> {
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
+		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
+		numberFormat.setGroupingUsed(false);
 		
-		private final SearchResult searchResult;
-		private final NumberFormat numberFormat;
+		Integer episodeOffset = null;
+		String seasonString = (season >= 1) ? Integer.toString(season) : null;
 		
-		private Integer episodeOffset = null;
-		private String seasonString = null;
+		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
-		
-		public EpisodeFunction(SearchResult searchResult, int season, int nodeCount) {
-			this.searchResult = searchResult;
-			
-			numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
-			numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodeCount).length(), 2));
-			numberFormat.setGroupingUsed(false);
-			
-			if (season >= 1)
-				seasonString = Integer.toString(season);
-		}
-		
-
-		@Override
-		public Episode evaluate(Node node) {
+		for (Node node : nodes) {
 			String episodeNumber = XPathUtil.selectString("./TD[1]", node);
 			String title = XPathUtil.selectString("./TD[2]/A", node);
 			
@@ -125,16 +105,17 @@ public class TvdotcomClient extends EpisodeListClient {
 				// episode number may be "Pilot", "Special", ...
 			}
 			
-			return new Episode(searchResult.getName(), seasonString, episodeNumber, title);
+			episodes.add(new Episode(searchResult.getName(), seasonString, episodeNumber, title));
 		}
+		
+		return episodes;
 	}
 	
-	
+
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		String summaryFile = null;
 		
-		summaryFile = ((HyperLink) searchResult).getUri().getPath();
+		String summaryFile = ((HyperLink) searchResult).getUrl().getPath();
 		
 		String base = summaryFile.substring(0, summaryFile.indexOf("summary.html"));
 		String file = base + "episode_listings.html";

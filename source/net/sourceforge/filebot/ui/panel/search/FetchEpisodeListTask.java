@@ -33,7 +33,7 @@ class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 	protected List<Episode> doInBackground() throws Exception {
 		long start = System.currentTimeMillis();
 		
-		Iterator<Episode> itr = searchEngine.getEpisodeList(searchResult, numberOfSeason);
+		Iterator<Episode> itr = searchEngine.getEpisodeList(searchResult, numberOfSeason).iterator();
 		
 		ArrayList<Episode> list = new ArrayList<Episode>();
 		

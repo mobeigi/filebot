@@ -15,6 +15,11 @@ public class DefaultThreadFactory implements ThreadFactory {
 	private final boolean daemon;
 	
 	
+	public DefaultThreadFactory(String name) {
+		this(name, Thread.NORM_PRIORITY);
+	}
+	
+
 	public DefaultThreadFactory(String name, int priority) {
 		this(name, priority, false);
 	}

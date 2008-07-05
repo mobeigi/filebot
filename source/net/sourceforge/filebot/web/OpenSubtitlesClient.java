@@ -4,8 +4,10 @@ package net.sourceforge.filebot.web;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,20 +157,18 @@ public class OpenSubtitlesClient {
 	
 
 	@SuppressWarnings("unchecked")
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int... imdbidArray) throws XmlRpcFault {
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, Locale language) throws XmlRpcFault {
 		
-		List<Map<String, String>> imdbidList = new ArrayList<Map<String, String>>(imdbidArray.length);
+		Map<String, String> searchListEntry = new HashMap<String, String>(2);
 		
-		for (int imdbid : imdbidArray) {
-			Map<String, String> map = new HashMap<String, String>(1);
-			
-			// pad id with zeros
-			map.put("imdbid", String.format("%07d", imdbid));
-			
-			imdbidList.add(map);
-		}
+		// pad imdbId with zeros
+		//TODO needed???
+		searchListEntry.put("imdbid", String.format("%07d", imdbid));
+		searchListEntry.put("sublanguageid", getSubLanguageID(language));
 		
-		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, imdbidList);
+		List<Map<String, String>> searchList = Collections.singletonList(searchListEntry);
+		
+		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, searchList);
 		
 		ArrayList<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		
@@ -181,6 +181,12 @@ public class OpenSubtitlesClient {
 		}
 		
 		return subs;
+	}
+	
+
+	private String getSubLanguageID(Locale locale) {
+		//TODO test if sublanguageid is really ISO3 language code
+		return locale.getISO3Language();
 	}
 	
 

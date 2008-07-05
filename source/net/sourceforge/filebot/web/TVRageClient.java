@@ -13,8 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.tuned.DefaultProgressIterator;
-import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
@@ -63,7 +61,7 @@ public class TVRageClient extends EpisodeListClient {
 	
 
 	@Override
-	public ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
 		
 		int showId = ((TVRageSearchResult) searchResult).getShowId();
 		String episodeListUri = String.format("http://" + host + "/feeds/episode_list.php?sid=" + showId);
@@ -95,7 +93,7 @@ public class TVRageClient extends EpisodeListClient {
 			}
 		}
 		
-		return new DefaultProgressIterator<Episode>(episodes);
+		return episodes;
 	}
 	
 

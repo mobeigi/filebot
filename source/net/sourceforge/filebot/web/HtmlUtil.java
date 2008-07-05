@@ -52,8 +52,11 @@ public class HtmlUtil {
 	
 
 	public static Document getHtmlDocument(URL url) throws IOException, SAXException {
-		URLConnection connection = url.openConnection();
-		
+		return getHtmlDocument(url.openConnection());
+	}
+	
+
+	public static Document getHtmlDocument(URLConnection connection) throws IOException, SAXException {
 		Charset charset = getCharset(connection.getContentType());
 		String encoding = connection.getContentEncoding();
 		InputStream inputStream = connection.getInputStream();

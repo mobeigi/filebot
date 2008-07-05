@@ -4,12 +4,11 @@ package net.sourceforge.filebot.web;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-
-import net.sourceforge.tuned.ProgressIterator;
 
 
 public abstract class EpisodeListClient {
@@ -41,10 +40,10 @@ public abstract class EpisodeListClient {
 	}
 	
 
-	public abstract List<SearchResult> search(String searchterm) throws Exception;
+	public abstract Collection<SearchResult> search(String searchterm) throws Exception;
 	
 
-	public abstract ProgressIterator<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception;
+	public abstract Collection<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception;
 	
 
 	public abstract URI getEpisodeListLink(SearchResult searchResult, int season);

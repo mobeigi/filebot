@@ -7,7 +7,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import net.sourceforge.filebot.web.TVRageClient.TVRageSearchResult;
-import net.sourceforge.tuned.TestUtil;
 
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = TestUtil.asList(tvrage.getEpisodeList(testResult, 7));
+		List<Episode> list = tvrage.getEpisodeList(testResult, 7);
 		
 		Episode chosen = list.get(21);
 		
@@ -45,7 +44,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = TestUtil.asList(tvrage.getEpisodeList(testResult, 0));
+		List<Episode> list = tvrage.getEpisodeList(testResult, 0);
 		
 		assertEquals(145, list.size());
 		

@@ -8,23 +8,22 @@ import java.net.URL;
 
 public class HyperLink extends SearchResult {
 	
-	private final URI uri;
+	private final URL url;
 	
 	
-	public HyperLink(String name, URI uri) {
-		super(name);
-		this.uri = uri;
-	}
-	
-
 	public HyperLink(String name, URL url) {
 		super(name);
-		this.uri = URI.create(url.toString());
+		this.url = url;
 	}
 	
 
-	public URI getUri() {
-		return uri;
+	public URL getUrl() {
+		return url;
+	}
+	
+
+	public URI toUri() {
+		return URI.create(url.toString());
 	}
 	
 }

@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,6 @@ import javax.swing.SwingWorker;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtil;
-import net.sourceforge.tuned.ProgressIterator;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
@@ -137,7 +137,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	};
 	
 	
-	protected abstract class SearchTask extends SwingWorker<List<SearchResult>, Void> {
+	protected abstract class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
 		
 		private final String searchText;
 		private final S client;
@@ -153,7 +153,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		
 
 		@Override
-		protected abstract List<SearchResult> doInBackground() throws Exception;
+		protected abstract Collection<SearchResult> doInBackground() throws Exception;
 		
 
 		public String getSearchText() {
@@ -240,13 +240,13 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		
 
 		private SearchResult selectSearchResult(SearchTask task) throws Exception {
-			List<SearchResult> searchResults = task.get();
+			Collection<SearchResult> searchResults = task.get();
 			
 			switch (searchResults.size()) {
 				case 0:
 					return null;
 				case 1:
-					return searchResults.get(0);
+					return searchResults.iterator().next();
 			}
 			
 			// multiple results have been found, user must selected one
@@ -288,17 +288,10 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		protected final Void doInBackground() throws Exception {
 			long start = System.currentTimeMillis();
 			
-			ProgressIterator<E> iterator = fetch();
+			Collection<E> results = fetch();
 			
-			while (!isCancelled() && iterator.hasNext()) {
-				
-				try {
-					publish(iterator.next());
-				} catch (Exception e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
-				}
-				
-				setProgress((iterator.getPosition() * 100) / iterator.getLength());
+			for (E result : results) {
+				publish(result);
 				count++;
 			}
 			
@@ -308,7 +301,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		}
 		
 
-		protected abstract ProgressIterator<E> fetch() throws Exception;
+		protected abstract Collection<E> fetch() throws Exception;
 		
 
 		@Override

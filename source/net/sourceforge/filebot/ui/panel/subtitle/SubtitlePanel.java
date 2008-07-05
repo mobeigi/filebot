@@ -3,7 +3,10 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import net.sourceforge.filebot.ListChangeSynchronizer;
 import net.sourceforge.filebot.Settings;
@@ -13,9 +16,6 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.tuned.FunctionIterator;
-import net.sourceforge.tuned.ProgressIterator;
-import net.sourceforge.tuned.FunctionIterator.Function;
 import net.sourceforge.tuned.ui.SimpleIconProvider;
 
 
@@ -72,7 +72,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 
 		@Override
-		protected List<SearchResult> doInBackground() throws Exception {
+		protected Collection<SearchResult> doInBackground() throws Exception {
 			return getClient().search(getSearchText());
 		}
 		
@@ -87,10 +87,16 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 
 		@Override
-		protected ProgressIterator<SubtitlePackage> fetch() throws Exception {
-			ProgressIterator<SubtitleDescriptor> descriptors = getClient().getSubtitleList(getSearchResult());
+		protected Collection<SubtitlePackage> fetch() throws Exception {
+			//TODO language combobox
+			Collection<SubtitleDescriptor> descriptors = getClient().getSubtitleList(getSearchResult(), Locale.ENGLISH);
+			ArrayList<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
 			
-			return new FunctionIterator<SubtitleDescriptor, SubtitlePackage>(descriptors, new SubtitlePackageFunction());
+			for (SubtitleDescriptor descriptor : descriptors) {
+				packages.add(new SubtitlePackage(descriptor));
+			}
+			
+			return packages;
 		}
 		
 
@@ -107,16 +113,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 			
 			return "No subtitles found";
 		}
-	}
-	
-
-	private static class SubtitlePackageFunction implements Function<SubtitleDescriptor, SubtitlePackage> {
-		
-		@Override
-		public SubtitlePackage evaluate(SubtitleDescriptor sourceValue) {
-			return new SubtitlePackage(sourceValue);
-		}
-		
 	}
 	
 }
