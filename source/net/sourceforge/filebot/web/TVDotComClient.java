@@ -61,20 +61,15 @@ public class TVDotComClient extends EpisodeListClient {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String category = node.getParentNode().getTextContent();
+			String title = node.getTextContent();
+			String href = XPathUtil.selectString("@href", node);
 			
-			// we only want search results that are shows
-			if (category.toLowerCase().startsWith("show")) {
-				String title = node.getTextContent();
-				String href = XPathUtil.selectString("@href", node);
+			try {
+				String episodeListingUrl = href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html");
 				
-				try {
-					String episodeListingUrl = href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html");
-					
-					searchResults.add(new HyperLink(title, episodeListingUrl));
-				} catch (URISyntaxException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
-				}
+				searchResults.add(new HyperLink(title, episodeListingUrl));
+			} catch (URISyntaxException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		
