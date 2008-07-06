@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -32,7 +34,7 @@ public class AnidbClient extends EpisodeListClient {
 	
 	
 	public AnidbClient() {
-		super("AniDB", ResourceManager.getIcon("search.anidb"), false);
+		super("AniDB", ResourceManager.getIcon("search.anidb"));
 	};
 	
 
@@ -48,24 +50,24 @@ public class AnidbClient extends EpisodeListClient {
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
-		if (!nodes.isEmpty())
+		if (!nodes.isEmpty()) {
 			for (Node node : nodes) {
 				Node titleNode = XPathUtil.selectNode("./TD[@class='name']/A", node);
 				
 				String title = XPathUtil.selectString(".", titleNode);
 				String href = XPathUtil.selectString("@href", titleNode);
 				
-				String file = "/perl-bin/" + href;
+				String path = "/perl-bin/" + href;
 				
 				try {
-					URL url = new URL("http", host, file);
+					URI animeUrl = new URI("http", host, path, null);
 					
-					searchResults.add(new HyperLink(title, url));
-				} catch (MalformedURLException e) {
+					searchResults.add(new HyperLink(title, animeUrl));
+				} catch (URISyntaxException e) {
 					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
 				}
 			}
-		else {
+		} else {
 			// we might have been redirected to the episode list page directly
 			List<Node> list = XPathUtil.selectNodes("//TABLE[@class='eplist']", dom);
 			
@@ -74,7 +76,7 @@ public class AnidbClient extends EpisodeListClient {
 				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
-				searchResults.add(new HyperLink(title, getSearchUrl(searchterm)));
+				searchResults.add(new HyperLink(title, URI.create(getSearchUrl(searchterm).toString())));
 			}
 		}
 		
@@ -85,9 +87,9 @@ public class AnidbClient extends EpisodeListClient {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
+		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult));
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
@@ -120,8 +122,26 @@ public class AnidbClient extends EpisodeListClient {
 	
 
 	@Override
+	public URI getEpisodeListLink(SearchResult searchResult) {
+		return ((HyperLink) searchResult).getURI();
+	}
+	
+
+	@Override
+	public boolean hasSingleSeasonSupport() {
+		return false;
+	}
+	
+
+	@Override
+	public Collection<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+	
+
+	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return ((HyperLink) searchResult).toUri();
+		throw new UnsupportedOperationException();
 	}
 	
 
@@ -129,9 +149,9 @@ public class AnidbClient extends EpisodeListClient {
 		String qs = URLEncoder.encode(searchterm, "UTF-8");
 		
 		// type=2 -> only TV Series
-		String file = "/perl-bin/animedb.pl?type=2&show=animelist&orderby.name=0.1&orderbar=0&noalias=1&do.search=Search&adb.search=" + qs;
+		String path = "/perl-bin/animedb.pl?type=2&show=animelist&orderby.name=0.1&orderbar=0&noalias=1&do.search=Search&adb.search=" + qs;
 		
-		return new URL("http", host, file);
+		return new URL("http", host, path);
 	}
 	
 }

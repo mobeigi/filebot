@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -57,10 +58,11 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 			String href = XPathUtil.selectString("@href", node);
 			
 			try {
-				URL url = new URL("http", host, href);
+				//TODO which exception?
+				URI url = new URI("http", host, href);
 				
 				searchResults.add(new HyperLink(title, url));
-			} catch (MalformedURLException e) {
+			} catch (URISyntaxException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
@@ -168,7 +170,7 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult) {
-		return ((HyperLink) searchResult).toUri();
+		return ((HyperLink) searchResult).getURI();
 	}
 	
 

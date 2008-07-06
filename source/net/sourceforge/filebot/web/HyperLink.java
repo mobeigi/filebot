@@ -3,27 +3,27 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 
 
 public class HyperLink extends SearchResult {
 	
-	private final URL url;
+	private final URI uri;
 	
 	
-	public HyperLink(String name, URL url) {
+	public HyperLink(String name, URI uri) {
 		super(name);
-		this.url = url;
+		this.uri = uri;
 	}
 	
 
-	public URL getUrl() {
-		return url;
+	public HyperLink(String name, String uri) throws URISyntaxException {
+		this(name, new URI(uri));
 	}
 	
 
-	public URI toUri() {
-		return URI.create(url.toString());
+	public URI getURI() {
+		return uri;
 	}
 	
 }

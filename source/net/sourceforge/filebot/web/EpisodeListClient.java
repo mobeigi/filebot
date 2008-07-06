@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 
 
 public abstract class EpisodeListClient {
@@ -20,7 +20,7 @@ public abstract class EpisodeListClient {
 		if (registry == null) {
 			registry = new ArrayList<EpisodeListClient>(3);
 			
-			registry.add(new TvdotcomClient());
+			registry.add(new TVDotComClient());
 			registry.add(new AnidbClient());
 			registry.add(new TVRageClient());
 		}
@@ -29,38 +29,40 @@ public abstract class EpisodeListClient {
 	}
 	
 	private final String name;
-	private final boolean singleSeasonSupported;
-	private final ImageIcon icon;
+	private final Icon icon;
 	
 	
-	public EpisodeListClient(String name, ImageIcon icon, boolean singleSeasonSupported) {
+	public EpisodeListClient(String name, Icon icon) {
 		this.name = name;
 		this.icon = icon;
-		this.singleSeasonSupported = singleSeasonSupported;
 	}
 	
 
 	public abstract Collection<SearchResult> search(String searchterm) throws Exception;
 	
 
+	public abstract boolean hasSingleSeasonSupport();
+	
+
+	public abstract Collection<Episode> getEpisodeList(SearchResult searchResult) throws Exception;
+	
+
 	public abstract Collection<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception;
+	
+
+	public abstract URI getEpisodeListLink(SearchResult searchResult);
 	
 
 	public abstract URI getEpisodeListLink(SearchResult searchResult, int season);
 	
 
-	public boolean isSingleSeasonSupported() {
-		return singleSeasonSupported;
-	}
-	
-
-	public ImageIcon getIcon() {
-		return icon;
-	}
-	
-
 	public String getName() {
 		return name;
+	}
+	
+
+	public Icon getIcon() {
+		return icon;
 	}
 	
 

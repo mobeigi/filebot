@@ -28,7 +28,13 @@ public class TVRageClient extends EpisodeListClient {
 	
 	
 	public TVRageClient() {
-		super("TVRage", ResourceManager.getIcon("search.tvrage"), true);
+		super("TVRage", ResourceManager.getIcon("search.tvrage"));
+	}
+	
+
+	@Override
+	public boolean hasSingleSeasonSupport() {
+		return true;
 	}
 	
 
@@ -60,53 +66,48 @@ public class TVRageClient extends EpisodeListClient {
 	}
 	
 
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
-		
+	private EpisodeListFeed getEpisodeListFeed(SearchResult searchResult) throws SAXException, IOException, ParserConfigurationException {
 		int showId = ((TVRageSearchResult) searchResult).getShowId();
 		String episodeListUri = String.format("http://" + host + "/feeds/episode_list.php?sid=" + showId);
 		
 		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(episodeListUri);
 		
-		int numberOfSeasons = XPathUtil.selectInteger("Show/totalseasons", dom);
-		
-		if (season > numberOfSeasons)
-			throw new IllegalArgumentException(String.format("%s only has %d seasons", searchResult.getName(), numberOfSeasons));
-		
-		Node episodeListNode = XPathUtil.selectNode("Show/Episodelist", dom);
-		
-		boolean allSeasons = (season == 0);
-		
-		List<Episode> episodes = new ArrayList<Episode>(24);
-		
-		for (int i = 0; i <= numberOfSeasons; i++) {
-			if (i == season || allSeasons) {
-				List<Node> nodes = XPathUtil.selectNodes("Season" + i + "/episode", episodeListNode);
-				
-				for (Node node : nodes) {
-					String title = XPathUtil.selectString("title", node);
-					String episodeNumber = XPathUtil.selectString("seasonnum", node);
-					String seasonNumber = Integer.toString(i);
-					
-					episodes.add(new Episode(searchResult.getName(), seasonNumber, episodeNumber, title));
-				}
-			}
-		}
-		
-		return episodes;
+		return new EpisodeListFeed(dom);
+	}
+	
+
+	@Override
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
+		return getEpisodeListFeed(searchResult).getEpisodeList();
+	}
+	
+
+	@Override
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
+		return getEpisodeListFeed(searchResult).getEpisodeList(season);
+	}
+	
+
+	@Override
+	public URI getEpisodeListLink(SearchResult searchResult) {
+		return getEpisodeListLink(searchResult, "all");
 	}
 	
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		String page = ((TVRageSearchResult) searchResult).getLink();
-		String seasonString = (season >= 1) ? Integer.toString(season) : "all";
+		return getEpisodeListLink(searchResult, Integer.toString(season));
+	}
+	
+
+	private URI getEpisodeListLink(SearchResult searchResult, String seasonString) {
+		String base = ((TVRageSearchResult) searchResult).getLink();
 		
-		return URI.create(page + "/episode_list/" + seasonString);
+		return URI.create(base + "/episode_list/" + seasonString);
 	}
 	
 	
-	public static class TVRageSearchResult extends SearchResult {
+	protected static class TVRageSearchResult extends SearchResult {
 		
 		private final int showId;
 		private final String link;
@@ -126,6 +127,66 @@ public class TVRageClient extends EpisodeListClient {
 
 		public String getLink() {
 			return link;
+		}
+		
+	}
+	
+
+	private static class EpisodeListFeed {
+		
+		private final String name;
+		
+		private final int totalSeasons;
+		
+		private final Node episodeListNode;
+		
+		
+		public EpisodeListFeed(Document dom) {
+			name = XPathUtil.selectString("Show/name", dom);
+			totalSeasons = XPathUtil.selectInteger("Show/totalseasons", dom);
+			
+			episodeListNode = XPathUtil.selectNode("Show/Episodelist", dom);
+		}
+		
+
+		public String getName() {
+			return name;
+		}
+		
+
+		public int getTotalSeasons() {
+			return totalSeasons;
+		}
+		
+
+		public List<Episode> getEpisodeList() {
+			List<Episode> episodes = new ArrayList<Episode>(150);
+			
+			for (int i = 0; i <= getTotalSeasons(); i++) {
+				episodes.addAll(getEpisodeList(i));
+			}
+			
+			return episodes;
+		}
+		
+
+		public List<Episode> getEpisodeList(int season) {
+			if (season > getTotalSeasons() || season < 0)
+				throw new IllegalArgumentException(String.format("%s only has %d seasons", getName(), getTotalSeasons()));
+			
+			String seasonString = Integer.toString(season);
+			List<Node> nodes = XPathUtil.selectNodes("Season" + seasonString + "/episode", episodeListNode);
+			
+			List<Episode> episodes = new ArrayList<Episode>(nodes.size());
+			
+			for (Node node : nodes) {
+				String title = XPathUtil.selectString("title", node);
+				String episodeNumber = XPathUtil.selectString("seasonnum", node);
+				
+				episodes.add(new Episode(getName(), seasonString, episodeNumber, title));
+			}
+			
+			return episodes;
 		}
 		
 	}

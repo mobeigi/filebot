@@ -13,8 +13,8 @@ import org.junit.Test;
 
 public class TVRageClientTest {
 	
-	private TVRageClient tvrage = new TVRageClient();
-	private TVRageSearchResult testResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
+	private static TVRageClient tvrage = new TVRageClient();
+	private static TVRageSearchResult testResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
 	
 	
 	@Test
@@ -33,6 +33,8 @@ public class TVRageClientTest {
 	public void getEpisodeList() throws Exception {
 		List<Episode> list = tvrage.getEpisodeList(testResult, 7);
 		
+		assertEquals(22, list.size());
+		
 		Episode chosen = list.get(21);
 		
 		assertEquals("Buffy the Vampire Slayer", chosen.getShowName());
@@ -44,7 +46,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = tvrage.getEpisodeList(testResult, 0);
+		List<Episode> list = tvrage.getEpisodeList(testResult);
 		
 		assertEquals(145, list.size());
 		
@@ -65,8 +67,13 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListLink() throws Exception {
-		assertEquals(tvrage.getEpisodeListLink(testResult, 0).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/all");
 		assertEquals(tvrage.getEpisodeListLink(testResult, 1).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/1");
+	}
+	
+
+	@Test
+	public void getEpisodeListLinkAll() throws Exception {
+		assertEquals(tvrage.getEpisodeListLink(testResult).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/all");
 	}
 	
 }
