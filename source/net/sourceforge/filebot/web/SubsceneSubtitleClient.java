@@ -6,15 +6,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -32,6 +33,8 @@ import org.xml.sax.SAXException;
 public class SubsceneSubtitleClient extends SubtitleClient {
 	
 	private final SearchResultCache cache = new SearchResultCache();
+	
+	private final Map<String, Integer> languageFilterMap = new ConcurrentHashMap<String, Integer>(50);
 	
 	private final String host = "subscene.com";
 	
@@ -56,13 +59,14 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 		for (Node node : nodes) {
 			String title = XPathUtil.selectString("text()", node);
 			String href = XPathUtil.selectString("@href", node);
+			String count = XPathUtil.selectString("./DFN", node).replaceAll("\\D+", "");
 			
 			try {
-				//TODO which exception?
-				URI url = new URI("http", host, href);
+				URL subtitleListUrl = new URL("http", host, href);
+				int subtitleCount = Integer.parseInt(count);
 				
-				searchResults.add(new HyperLink(title, url));
-			} catch (URISyntaxException e) {
+				searchResults.add(new SubsceneSearchResult(title, subtitleListUrl, subtitleCount));
+			} catch (MalformedURLException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
@@ -72,85 +76,127 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 		return searchResults;
 	}
 	
-	HashMap<String, String> languageIdCache;
+
+	private void updateLanguageFilterMap(Document subtitleListDocument) {
+		
+		List<Node> nodes = XPathUtil.selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
+		
+		for (Node node : nodes) {
+			String onClick = XPathUtil.selectString("./INPUT/@onclick", node);
+			
+			String filter = new Scanner(onClick).findInLine("\\d+");
+			
+			if (filter != null) {
+				String name = XPathUtil.selectString("./LABEL/text()", node);
+				
+				languageFilterMap.put(name.toLowerCase(), Integer.valueOf(filter));
+			}
+		}
+	}
 	
+
+	private Integer getLanguageFilter(String languageName) {
+		if (languageName == null)
+			return null;
+		
+		return languageFilterMap.get(languageName.toLowerCase());
+	}
 	
-	public String getLanguageID(Locale language) {
-		return languageIdCache.get(language.getDisplayLanguage(Locale.ENGLISH).toLowerCase());
+
+	private String getLanguageName(Locale language) {
+		if (language == null || language == Locale.ROOT)
+			return null;
+		
+		return language.getDisplayLanguage(Locale.ENGLISH);
 	}
 	
 
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
 		
-		URL url = getSubtitleListLink(searchResult).toURL();
+		URL subtitleListUrl = getSubtitleListLink(searchResult).toURL();
+		String languageName = getLanguageName(language);
+		Integer languageFilter = getLanguageFilter(languageName);
 		
-		Document dom = null;
+		boolean reloadFilteredDocument = (languageFilter == null && useFilteredDocument(searchResult));
+		boolean forceReload = false;
 		
-		if (languageIdCache != null) {
-			URLConnection connection = url.openConnection();
+		if (reloadFilteredDocument && languageFilterMap.isEmpty()) {
+			// we don't know the filter values yet, so we request a document with an invalid filter,
+			// that will return a subtitle document very fast
+			languageFilter = -1;
+			forceReload = true;
+		}
+		
+		Document subtitleListDocument = getSubtitleListDocument(subtitleListUrl, languageFilter);
+		
+		if (languageFilterMap.isEmpty()) {
+			updateLanguageFilterMap(subtitleListDocument);
+		}
+		
+		// check if document is already filtered and if requesting a filtered document 
+		// will result in a performance gain (Note: XPath can be very slow)
+		if (reloadFilteredDocument) {
+			languageFilter = getLanguageFilter(languageName);
 			
-			if (language != null && language != Locale.ROOT) {
-				System.out.println(getLanguageID(language));
-				connection.addRequestProperty("Cookie", "subscene_sLanguageIds=" + getLanguageID(language));
-			}
-			
-			dom = HtmlUtil.getHtmlDocument(connection);
-		} else {
-			URLConnection connection = url.openConnection();
-			
-			dom = HtmlUtil.getHtmlDocument(connection);
-			
-			List<Node> nodes = XPathUtil.selectNodes("//DIV[@class='languageList']/DIV", dom);
-			
-			Pattern onClickPattern = Pattern.compile("selectLanguage\\((\\d+)\\);");
-			
-			languageIdCache = new HashMap<String, String>();
-			
-			for (Node node : nodes) {
-				Matcher matcher = onClickPattern.matcher(XPathUtil.selectString("./INPUT/@onclick", node));
-				
-				if (matcher.matches()) {
-					String name = XPathUtil.selectString("./LABEL/text()", node);
-					String id = matcher.group(1);
-					
-					//TODO sysout
-					System.out.println(name + " = " + id);
-					
-					languageIdCache.put(name.toLowerCase(), id);
-				}
+			// if language filter has become available, request a filtered document, or if first request was a dummy request
+			if (languageFilter != null || forceReload) {
+				subtitleListDocument = getSubtitleListDocument(subtitleListUrl, languageFilter);
 			}
 		}
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", dom);
+		return getSubtitleList(subtitleListUrl, languageName, subtitleListDocument);
+	}
+	
+
+	private boolean useFilteredDocument(SearchResult searchResult) {
+		SubsceneSearchResult sr = (SubsceneSearchResult) searchResult;
+		return sr.getSubtitleCount() > 100;
+	}
+	
+
+	private Document getSubtitleListDocument(URL subtitleListUrl, Integer languageFilter) throws IOException, SAXException {
+		Map<String, String> requestHeaders = new HashMap<String, String>(1);
 		
-		Pattern hrefPattern = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', '\\d+', '(\\d+)'\\);");
+		if (languageFilter != null) {
+			requestHeaders.put("Cookie", "subscene_sLanguageIds=" + languageFilter);
+		}
 		
-		ArrayList<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(nodes.size());
+		return HtmlUtil.getHtmlDocument(subtitleListUrl, requestHeaders);
+	}
+	
+
+	private List<SubtitleDescriptor> getSubtitleList(URL subtitleListUrl, String languageName, Document subtitleListDocument) {
+		
+		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", subtitleListDocument);
+		
+		Pattern hrefPattern = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', .*");
+		
+		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(nodes.size());
 		
 		for (Node node : nodes) {
 			try {
 				Node linkNode = XPathUtil.selectFirstNode("./TD[1]/A", node);
-				
 				String lang = XPathUtil.selectString("./SPAN[1]", linkNode);
 				
-				String href = XPathUtil.selectString("@href", linkNode);
-				
-				String name = XPathUtil.selectString("./SPAN[2]", linkNode);
-				
-				String author = XPathUtil.selectString("./TD[4]", node);
-				
-				Matcher matcher = hrefPattern.matcher(href);
-				
-				if (!matcher.matches())
-					throw new IllegalArgumentException("Cannot extract download parameters: " + href);
-				
-				String subtitleId = matcher.group(1);
-				String typeId = matcher.group(2);
-				
-				URL downloadUrl = getDownloadUrl(url, subtitleId, typeId);
-				
-				subtitles.add(new SubsceneSubtitleDescriptor(name, lang, author, typeId, downloadUrl, url));
+				if (languageName == null || languageName.equalsIgnoreCase(lang)) {
+					
+					String href = XPathUtil.selectString("@href", linkNode);
+					String name = XPathUtil.selectString("./SPAN[2]", linkNode);
+					String author = XPathUtil.selectString("./TD[4]", node);
+					
+					Matcher matcher = hrefPattern.matcher(href);
+					
+					if (!matcher.matches())
+						throw new IllegalArgumentException("Cannot extract download parameters: " + href);
+					
+					String subtitleId = matcher.group(1);
+					String typeId = matcher.group(2);
+					
+					URL downloadUrl = getDownloadUrl(subtitleListUrl, subtitleId, typeId);
+					
+					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, author, typeId, downloadUrl, subtitleListUrl));
+				}
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse subtitle node", e);
 			}
@@ -170,7 +216,7 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult) {
-		return ((HyperLink) searchResult).getURI();
+		return ((HyperLink) searchResult).toURI();
 	}
 	
 
@@ -178,6 +224,24 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 		String qs = URLEncoder.encode(searchterm, "UTF-8");
 		String file = "/filmsearch.aspx?q=" + qs;
 		return new URL("http", host, file);
+	}
+	
+	
+	protected static class SubsceneSearchResult extends HyperLink {
+		
+		private final int subtitleCount;
+		
+		
+		public SubsceneSearchResult(String name, URL url, int subtitleCount) {
+			super(name, url);
+			this.subtitleCount = subtitleCount;
+		}
+		
+
+		public int getSubtitleCount() {
+			return subtitleCount;
+		}
+		
 	}
 	
 }

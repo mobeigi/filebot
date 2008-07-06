@@ -4,21 +4,30 @@ package net.sourceforge.filebot.web;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 
 public class TVDotComClientTest {
 	
-	private static TVDotComClient tvdotcom = new TVDotComClient();
+	private static HyperLink testResult;
+	private static HyperLink singleSeasonTestResult;
+	private static HyperLink manySeasonsTestResult;
 	
-	private static HyperLink testResult = new HyperLink("Buffy the Vampire Slayer", URI.create("http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html"));
-	private static HyperLink singleSeasonTestResult = new HyperLink("Firefly", URI.create("http://www.tv.com/firefly/show/7097/episode_listings.html"));
-	private static HyperLink manySeasonsTestResult = new HyperLink("Doctor Who", URI.create("http://www.tv.com/doctor-who/show/355/episode_listings.html"));
+	private TVDotComClient tvdotcom = new TVDotComClient();
 	
 	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		testResult = new HyperLink("Buffy the Vampire Slayer", new URL("http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html"));
+		singleSeasonTestResult = new HyperLink("Firefly", new URL("http://www.tv.com/firefly/show/7097/episode_listings.html"));
+		manySeasonsTestResult = new HyperLink("Doctor Who", new URL("http://www.tv.com/doctor-who/show/355/episode_listings.html"));
+	}
+	
+
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = tvdotcom.search("Buffy");
@@ -26,7 +35,7 @@ public class TVDotComClientTest {
 		HyperLink result = (HyperLink) results.get(0);
 		
 		assertEquals(testResult.getName(), result.getName());
-		assertEquals(testResult.getURI(), result.getURI());
+		assertEquals(testResult.getURL().toString(), result.getURL().toString());
 	}
 	
 

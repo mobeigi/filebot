@@ -13,8 +13,9 @@ import org.junit.Test;
 
 public class TVRageClientTest {
 	
-	private static TVRageClient tvrage = new TVRageClient();
 	private static TVRageSearchResult testResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
+	
+	private TVRageClient tvrage = new TVRageClient();
 	
 	
 	@Test

@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -53,6 +54,17 @@ public class HtmlUtil {
 
 	public static Document getHtmlDocument(URL url) throws IOException, SAXException {
 		return getHtmlDocument(url.openConnection());
+	}
+	
+
+	public static Document getHtmlDocument(URL url, Map<String, String> requestHeaders) throws IOException, SAXException {
+		URLConnection connection = url.openConnection();
+		
+		for (String key : requestHeaders.keySet()) {
+			connection.addRequestProperty(key, requestHeaders.get(key));
+		}
+		
+		return getHtmlDocument(connection);
 	}
 	
 

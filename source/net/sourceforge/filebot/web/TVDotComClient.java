@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
@@ -65,10 +64,10 @@ public class TVDotComClient extends EpisodeListClient {
 			String href = XPathUtil.selectString("@href", node);
 			
 			try {
-				String episodeListingUrl = href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html");
+				URL episodeListingUrl = new URL(href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html"));
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
-			} catch (URISyntaxException e) {
+			} catch (MalformedURLException e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
@@ -169,7 +168,7 @@ public class TVDotComClient extends EpisodeListClient {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		String episodeListingUrl = ((HyperLink) searchResult).getURI().toString();
+		URL episodeListingUrl = ((HyperLink) searchResult).getURL();
 		
 		return URI.create(episodeListingUrl + "?season=" + season);
 	}

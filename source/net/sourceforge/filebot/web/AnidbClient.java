@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
@@ -60,10 +59,8 @@ public class AnidbClient extends EpisodeListClient {
 				String path = "/perl-bin/" + href;
 				
 				try {
-					URI animeUrl = new URI("http", host, path, null);
-					
-					searchResults.add(new HyperLink(title, animeUrl));
-				} catch (URISyntaxException e) {
+					searchResults.add(new HyperLink(title, new URL("http", host, path)));
+				} catch (MalformedURLException e) {
 					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
 				}
 			}
@@ -76,7 +73,7 @@ public class AnidbClient extends EpisodeListClient {
 				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
 				String title = header.replaceFirst("Anime:\\s*", "");
 				
-				searchResults.add(new HyperLink(title, URI.create(getSearchUrl(searchterm).toString())));
+				searchResults.add(new HyperLink(title, getSearchUrl(searchterm)));
 			}
 		}
 		
@@ -123,7 +120,7 @@ public class AnidbClient extends EpisodeListClient {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return ((HyperLink) searchResult).getURI();
+		return ((HyperLink) searchResult).toURI();
 	}
 	
 
