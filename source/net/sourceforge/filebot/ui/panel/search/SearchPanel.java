@@ -45,7 +45,6 @@ import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.SimpleIconProvider;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
-import net.sourceforge.tuned.ui.TextCompletion;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
@@ -58,8 +57,6 @@ public class SearchPanel extends FileBotPanel {
 	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
 	
 	private SelectButtonTextField<EpisodeListClient> searchField;
-	
-	private TextCompletion searchFieldCompletion;
 	
 	
 	public SearchPanel() {
@@ -132,7 +129,7 @@ public class SearchPanel extends FileBotPanel {
 		public void propertyChange(PropertyChangeEvent evt) {
 			EpisodeListClient client = searchField.getSelected();
 			
-			if (!client.isSingleSeasonSupported()) {
+			if (!client.hasSingleSeasonSupport()) {
 				seasonSpinnerModel.setValue(SeasonSpinnerEditor.ALL_SEASONS);
 				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
 			} else {
@@ -275,7 +272,8 @@ public class SearchPanel extends FileBotPanel {
 				SelectDialog<SearchResult> select = new SelectDialog<SearchResult>(window, searchResults);
 				
 				select.setText("Select a Show:");
-				select.setIconImage(episodeList.getIcon().getImage());
+				
+				select.setIconImage(TunedUtil.getImage(episodeList.getIcon()));
 				select.setVisible(true);
 				
 				selectedResult = select.getSelectedValue();
@@ -290,7 +288,7 @@ public class SearchPanel extends FileBotPanel {
 			
 			String title = selectedResult.getName();
 			
-			searchFieldCompletion.addTerm(title);
+			//			searchFieldCompletion.addTerm(title);
 			//TODO fix
 			//			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
 			

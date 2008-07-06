@@ -44,7 +44,7 @@ public class ChecksumComputationService {
 	
 	
 	private ChecksumComputationService() {
-		
+		// hide constructor
 	}
 	
 

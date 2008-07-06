@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.search;
 
 
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import net.sourceforge.filebot.resources.ResourceManager;
@@ -14,7 +14,7 @@ public class EpisodeListPanel extends FileBotList {
 	
 	private final FileBotTabComponent tabComponent = new FileBotTabComponent();
 	
-	private ImageIcon icon;
+	private Icon icon;
 	
 	private boolean loading = false;
 	
@@ -36,7 +36,7 @@ public class EpisodeListPanel extends FileBotList {
 	}
 	
 
-	public void setIcon(ImageIcon icon) {
+	public void setIcon(Icon icon) {
 		synchronized (tabComponent) {
 			this.icon = icon;
 			
@@ -47,7 +47,7 @@ public class EpisodeListPanel extends FileBotList {
 	}
 	
 
-	public ImageIcon getIcon() {
+	public Icon getIcon() {
 		return icon;
 	}
 	
