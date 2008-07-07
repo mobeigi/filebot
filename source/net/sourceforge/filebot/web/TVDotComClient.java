@@ -31,7 +31,7 @@ import org.xml.sax.SAXException;
 
 public class TVDotComClient extends EpisodeListClient {
 	
-	private final SearchResultCache cache = new SearchResultCache();
+	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final String host = "www.tv.com";
 	
@@ -49,8 +49,8 @@ public class TVDotComClient extends EpisodeListClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (cache.containsKey(searchterm)) {
-			return Collections.singletonList(cache.get(searchterm));
+		if (searchResultCache.containsKey(searchterm)) {
+			return Collections.singletonList(searchResultCache.get(searchterm));
 		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
@@ -72,7 +72,7 @@ public class TVDotComClient extends EpisodeListClient {
 			}
 		}
 		
-		cache.addAll(searchResults);
+		searchResultCache.addAll(searchResults);
 		
 		return searchResults;
 	}

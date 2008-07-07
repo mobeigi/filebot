@@ -32,7 +32,7 @@ import org.xml.sax.SAXException;
 
 public class SubsceneSubtitleClient extends SubtitleClient {
 	
-	private final SearchResultCache cache = new SearchResultCache();
+	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final Map<String, Integer> languageFilterMap = new ConcurrentHashMap<String, Integer>(50);
 	
@@ -46,8 +46,8 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (cache.containsKey(searchterm)) {
-			return Collections.singletonList(cache.get(searchterm));
+		if (searchResultCache.containsKey(searchterm)) {
+			return Collections.singletonList(searchResultCache.get(searchterm));
 		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
@@ -71,7 +71,30 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 			}
 		}
 		
-		cache.addAll(searchResults);
+		// we might have been redirected to the subtitle list
+		if (searchResults.isEmpty()) {
+			int subtitleNodeCount = getSubtitleNodes(dom).size();
+			
+			// check if document is a subtitle list
+			if (subtitleNodeCount > 0) {
+				
+				// get name of current search result
+				String name = XPathUtil.selectString("id('leftWrapperWide')//H1/text()", dom);
+				
+				// get current url
+				String file = XPathUtil.selectString("id('aspnetForm')/@action", dom);
+				
+				try {
+					URL url = new URL("http", host, file);
+					
+					searchResults.add(new SubsceneSearchResult(name, url, subtitleNodeCount));
+				} catch (MalformedURLException e) {
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid location: " + file, e);
+				}
+			}
+		}
+		
+		searchResultCache.addAll(searchResults);
 		
 		return searchResults;
 	}
@@ -130,6 +153,7 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 		
 		Document subtitleListDocument = getSubtitleListDocument(subtitleListUrl, languageFilter);
 		
+		// let's update language filters if they are not known yet
 		if (languageFilterMap.isEmpty()) {
 			updateLanguageFilterMap(subtitleListDocument);
 		}
@@ -145,13 +169,13 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 			}
 		}
 		
-		return getSubtitleList(subtitleListUrl, languageName, subtitleListDocument);
+		return getSubtitleList(subtitleListUrl, languageName, getSubtitleNodes(subtitleListDocument));
 	}
 	
 
 	private boolean useFilteredDocument(SearchResult searchResult) {
 		SubsceneSearchResult sr = (SubsceneSearchResult) searchResult;
-		return sr.getSubtitleCount() > 100;
+		return sr.getSubtitleCount() > 50;
 	}
 	
 
@@ -166,15 +190,18 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 	}
 	
 
-	private List<SubtitleDescriptor> getSubtitleList(URL subtitleListUrl, String languageName, Document subtitleListDocument) {
-		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", subtitleListDocument);
+	private List<Node> getSubtitleNodes(Document subtitleListDocument) {
+		return XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", subtitleListDocument);
+	}
+	
+
+	private List<SubtitleDescriptor> getSubtitleList(URL subtitleListUrl, String languageName, List<Node> subtitleNodes) {
 		
 		Pattern hrefPattern = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', .*");
 		
-		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(nodes.size());
+		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(subtitleNodes.size());
 		
-		for (Node node : nodes) {
+		for (Node node : subtitleNodes) {
 			try {
 				Node linkNode = XPathUtil.selectFirstNode("./TD[1]/A", node);
 				String lang = XPathUtil.selectString("./SPAN[1]", linkNode);

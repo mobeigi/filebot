@@ -70,6 +70,11 @@ public class XPathUtil {
 	}
 	
 
+	public static boolean exists(String xpath, Object node) {
+		return selectNode(xpath, node) != null;
+	}
+	
+
 	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
 		return XPathFactory.newInstance().newXPath().compile(xpath);
 	}

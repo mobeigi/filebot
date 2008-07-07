@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 
 public class TVRageClient extends EpisodeListClient {
 	
-	private final SearchResultCache cache = new SearchResultCache();
+	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final String host = "www.tvrage.com";
 	
@@ -40,8 +40,8 @@ public class TVRageClient extends EpisodeListClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws SAXException, IOException, ParserConfigurationException {
-		if (cache.containsKey(searchterm)) {
-			return Collections.singletonList(cache.get(searchterm));
+		if (searchResultCache.containsKey(searchterm)) {
+			return Collections.singletonList(searchResultCache.get(searchterm));
 		}
 		
 		String searchUri = String.format("http://" + host + "/feeds/search.php?show=" + URLEncoder.encode(searchterm, "UTF-8"));
@@ -60,7 +60,7 @@ public class TVRageClient extends EpisodeListClient {
 			searchResults.add(new TVRageSearchResult(name, showid, link));
 		}
 		
-		cache.addAll(searchResults);
+		searchResultCache.addAll(searchResults);
 		
 		return searchResults;
 	}

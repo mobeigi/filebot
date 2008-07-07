@@ -27,9 +27,9 @@ import org.xml.sax.SAXException;
 
 public class AnidbClient extends EpisodeListClient {
 	
-	private final SearchResultCache cache = new SearchResultCache();
+	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
-	private final String host = "anidb.info";
+	private final String host = "anidb.net";
 	
 	
 	public AnidbClient() {
@@ -39,8 +39,8 @@ public class AnidbClient extends EpisodeListClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (cache.containsKey(searchterm)) {
-			return Collections.singletonList(cache.get(searchterm));
+		if (searchResultCache.containsKey(searchterm)) {
+			return Collections.singletonList(searchResultCache.get(searchterm));
 		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
@@ -49,35 +49,40 @@ public class AnidbClient extends EpisodeListClient {
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
-		if (!nodes.isEmpty()) {
-			for (Node node : nodes) {
-				Node titleNode = XPathUtil.selectNode("./TD[@class='name']/A", node);
-				
-				String title = XPathUtil.selectString(".", titleNode);
-				String href = XPathUtil.selectString("@href", titleNode);
-				
-				String path = "/perl-bin/" + href;
-				
-				try {
-					searchResults.add(new HyperLink(title, new URL("http", host, path)));
-				} catch (MalformedURLException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
-				}
-			}
-		} else {
-			// we might have been redirected to the episode list page directly
-			List<Node> list = XPathUtil.selectNodes("//TABLE[@class='eplist']", dom);
+		for (Node node : nodes) {
+			Node titleNode = XPathUtil.selectNode("./TD[@class='name']/A", node);
 			
-			if (!list.isEmpty()) {
-				// get show's name from the document
-				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
-				String title = header.replaceFirst("Anime:\\s*", "");
-				
-				searchResults.add(new HyperLink(title, getSearchUrl(searchterm)));
+			String title = XPathUtil.selectString(".", titleNode);
+			String href = XPathUtil.selectString("@href", titleNode);
+			
+			String path = "/perl-bin/" + href;
+			
+			try {
+				searchResults.add(new HyperLink(title, new URL("http", host, path)));
+			} catch (MalformedURLException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
 			}
 		}
 		
-		cache.addAll(searchResults);
+		// we might have been redirected to the episode list page
+		if (searchResults.isEmpty()) {
+			// check if current page contains an episode list
+			if (XPathUtil.exists("//TABLE[@class='eplist']", dom)) {
+				// get show's name from the document
+				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
+				String name = header.replaceFirst("Anime:\\s*", "");
+				
+				String episodeListUrl = XPathUtil.selectString("id('layout-main')//DIV[@class='data']//A[@class='short_link']/@href", dom);
+				
+				try {
+					searchResults.add(new HyperLink(name, new URL(episodeListUrl)));
+				} catch (MalformedURLException e) {
+					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid location: " + episodeListUrl);
+				}
+			}
+		}
+		
+		searchResultCache.addAll(searchResults);
 		
 		return searchResults;
 	}
@@ -106,12 +111,13 @@ public class AnidbClient extends EpisodeListClient {
 			try {
 				// try to format number of episode
 				number = numberFormat.format(Integer.parseInt(number));
+				
+				// no seasons for anime
+				episodes.add(new Episode(searchResult.getName(), null, number, title));
 			} catch (NumberFormatException ex) {
-				// leave it be
+				// ignore node, episode is probably some kind of special (S1, S2, ...)
 			}
 			
-			// no seasons for anime
-			episodes.add(new Episode(searchResult.getName(), null, number, title));
 		}
 		
 		return episodes;

@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 import java.util.List;
@@ -88,7 +89,7 @@ public class TVDotComClientTest {
 	public void getEpisodeListAllManySeasons() throws Exception {
 		List<Episode> list = tvdotcom.getEpisodeList(manySeasonsTestResult);
 		
-		assertEquals(708, list.size());
+		assertTrue(list.size() > 700);
 	}
 	
 

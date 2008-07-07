@@ -20,7 +20,7 @@ public class SubsceneSubtitleClientTest {
 	private static SubsceneSearchResult testResult;
 	private static SubsceneSearchResult manySubtitlesTestResult;
 	
-	private SubsceneSubtitleClient client = new SubsceneSubtitleClient();
+	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
 	
 	
 	@BeforeClass
@@ -32,7 +32,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void search() throws Exception {
-		List<SearchResult> results = client.search("twin peaks");
+		List<SearchResult> results = subscene.search("twin peaks");
 		
 		SubsceneSearchResult result = (SubsceneSearchResult) results.get(1);
 		
@@ -43,8 +43,22 @@ public class SubsceneSubtitleClientTest {
 	
 
 	@Test
+	public void searchResultPageRedirect() throws Exception {
+		List<SearchResult> results = subscene.search("firefly");
+		
+		assertEquals(1, results.size());
+		
+		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
+		
+		assertEquals("Firefly - The Complete Series", result.getName());
+		assertEquals("http://subscene.com/Firefly-The-Complete-Series/subtitles-20008.aspx", result.getURL().toString());
+		assertEquals(15, result.getSubtitleCount());
+	}
+	
+
+	@Test
 	public void getSubtitleListSearchResult() throws Exception {
-		List<SubtitleDescriptor> subtitleList = client.getSubtitleList(testResult, Locale.ITALIAN);
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(testResult, Locale.ITALIAN);
 		
 		assertEquals(1, subtitleList.size());
 		
@@ -58,7 +72,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResultMany() throws Exception {
-		List<SubtitleDescriptor> subtitleList = client.getSubtitleList(manySubtitlesTestResult, LanguageResolver.getDefault().getLocale("Vietnamese"));
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(manySubtitlesTestResult, LanguageResolver.getDefault().getLocale("Vietnamese"));
 		
 		assertEquals(1, subtitleList.size());
 	}
@@ -66,7 +80,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListLink() throws Exception {
-		assertEquals(testResult.getURL().toString(), client.getSubtitleListLink(testResult).toURL().toString());
+		assertEquals(testResult.getURL().toString(), subscene.getSubtitleListLink(testResult).toURL().toString());
 	}
 	
 }
