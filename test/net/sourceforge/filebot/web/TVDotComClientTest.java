@@ -14,35 +14,46 @@ import org.junit.Test;
 
 public class TVDotComClientTest {
 	
-	private static HyperLink testResult;
-	private static HyperLink singleSeasonTestResult;
-	private static HyperLink manySeasonsTestResult;
+	/**
+	 * 145 episodes / 7 seasons
+	 */
+	private static HyperLink buffySearchResult;
 	
-	private TVDotComClient tvdotcom = new TVDotComClient();
+	/**
+	 * 13 episodes / 1 season only
+	 */
+	private static HyperLink fireflySearchResult;
+	
+	/**
+	 * more than 700 episodes / 26 seasons (on going)
+	 */
+	private static HyperLink doctorwhoTestResult;
 	
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		testResult = new HyperLink("Buffy the Vampire Slayer", new URL("http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html"));
-		singleSeasonTestResult = new HyperLink("Firefly", new URL("http://www.tv.com/firefly/show/7097/episode_listings.html"));
-		manySeasonsTestResult = new HyperLink("Doctor Who", new URL("http://www.tv.com/doctor-who/show/355/episode_listings.html"));
+		buffySearchResult = new HyperLink("Buffy the Vampire Slayer", new URL("http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html"));
+		fireflySearchResult = new HyperLink("Firefly", new URL("http://www.tv.com/firefly/show/7097/episode_listings.html"));
+		doctorwhoTestResult = new HyperLink("Doctor Who", new URL("http://www.tv.com/doctor-who/show/355/episode_listings.html"));
 	}
 	
-
+	private TVDotComClient tvdotcom = new TVDotComClient();
+	
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = tvdotcom.search("Buffy");
 		
 		HyperLink result = (HyperLink) results.get(0);
 		
-		assertEquals(testResult.getName(), result.getName());
-		assertEquals(testResult.getURL().toString(), result.getURL().toString());
+		assertEquals(buffySearchResult.getName(), result.getName());
+		assertEquals(buffySearchResult.getURL().toString(), result.getURL().toString());
 	}
 	
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> results = tvdotcom.getEpisodeList(testResult, 7);
+		List<Episode> results = tvdotcom.getEpisodeList(buffySearchResult, 7);
 		
 		assertEquals(22, results.size());
 		
@@ -57,7 +68,7 @@ public class TVDotComClientTest {
 
 	@Test
 	public void getEpisodeListAllMultiSeason() throws Exception {
-		List<Episode> list = tvdotcom.getEpisodeList(testResult);
+		List<Episode> list = tvdotcom.getEpisodeList(buffySearchResult);
 		
 		assertEquals(145, list.size());
 		
@@ -72,7 +83,7 @@ public class TVDotComClientTest {
 
 	@Test
 	public void getEpisodeListAllSingleSeason() throws Exception {
-		List<Episode> list = tvdotcom.getEpisodeList(singleSeasonTestResult);
+		List<Episode> list = tvdotcom.getEpisodeList(fireflySearchResult);
 		
 		assertEquals(15, list.size());
 		
@@ -87,21 +98,22 @@ public class TVDotComClientTest {
 
 	@Test
 	public void getEpisodeListAllManySeasons() throws Exception {
-		List<Episode> list = tvdotcom.getEpisodeList(manySeasonsTestResult);
+		List<Episode> list = tvdotcom.getEpisodeList(doctorwhoTestResult);
 		
+		// there are still new episodes coming out
 		assertTrue(list.size() > 700);
 	}
 	
 
 	@Test
 	public void getEpisodeListLink() {
-		assertEquals(tvdotcom.getEpisodeListLink(testResult, 1).toString(), "http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html?season=1");
+		assertEquals(tvdotcom.getEpisodeListLink(buffySearchResult, 1).toString(), "http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html?season=1");
 	}
 	
 
 	@Test
 	public void getEpisodeListLinkAll() {
-		assertEquals(tvdotcom.getEpisodeListLink(testResult, 0).toString(), "http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html?season=0");
+		assertEquals(tvdotcom.getEpisodeListLink(buffySearchResult, 0).toString(), "http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html?season=0");
 	}
 	
 }

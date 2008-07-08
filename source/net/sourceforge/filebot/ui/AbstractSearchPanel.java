@@ -50,7 +50,6 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	private final EventList<String> searchHistory = new BasicEventList<String>();
 	
 	
-	@SuppressWarnings("unchecked")
 	public AbstractSearchPanel(String title, Icon icon) {
 		super(title, icon);
 		

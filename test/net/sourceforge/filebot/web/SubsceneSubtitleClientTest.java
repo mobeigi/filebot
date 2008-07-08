@@ -17,28 +17,35 @@ import org.junit.Test;
 
 public class SubsceneSubtitleClientTest {
 	
-	private static SubsceneSearchResult testResult;
-	private static SubsceneSearchResult manySubtitlesTestResult;
+	/**
+	 * Twin Peaks - First Season, ~ 15 subtitles
+	 */
+	private static SubsceneSearchResult twinpeaksSearchResult;
 	
-	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
+	/**
+	 * Lost - Fourth Season, ~ 430 subtitles
+	 */
+	private static SubsceneSearchResult lostSearchResult;
 	
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		testResult = new SubsceneSearchResult("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"), 17);
-		manySubtitlesTestResult = new SubsceneSearchResult("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"), 420);
+		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"), 17);
+		lostSearchResult = new SubsceneSearchResult("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"), 420);
 	}
 	
-
+	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
+	
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = subscene.search("twin peaks");
 		
 		SubsceneSearchResult result = (SubsceneSearchResult) results.get(1);
 		
-		assertEquals(testResult.getName(), result.getName());
-		assertEquals(testResult.getURL().toString(), result.getURL().toString());
-		assertEquals(testResult.getSubtitleCount(), result.getSubtitleCount());
+		assertEquals(twinpeaksSearchResult.getName(), result.getName());
+		assertEquals(twinpeaksSearchResult.getURL().toString(), result.getURL().toString());
+		assertEquals(twinpeaksSearchResult.getSubtitleCount(), result.getSubtitleCount());
 	}
 	
 
@@ -58,7 +65,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResult() throws Exception {
-		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(testResult, Locale.ITALIAN);
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(twinpeaksSearchResult, Locale.ITALIAN);
 		
 		assertEquals(1, subtitleList.size());
 		
@@ -72,15 +79,16 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResultMany() throws Exception {
-		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(manySubtitlesTestResult, LanguageResolver.getDefault().getLocale("Vietnamese"));
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(lostSearchResult, LanguageResolver.getDefault().getLocale("Vietnamese"));
 		
+		// lots of subtitles, but only one is vietnamese
 		assertEquals(1, subtitleList.size());
 	}
 	
 
 	@Test
 	public void getSubtitleListLink() throws Exception {
-		assertEquals(testResult.getURL().toString(), subscene.getSubtitleListLink(testResult).toURL().toString());
+		assertEquals(twinpeaksSearchResult.getURL().toString(), subscene.getSubtitleListLink(twinpeaksSearchResult).toURL().toString());
 	}
 	
 }

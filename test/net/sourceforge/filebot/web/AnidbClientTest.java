@@ -13,19 +13,26 @@ import org.junit.Test;
 
 public class AnidbClientTest {
 	
-	private static HyperLink testResult;
-	private static HyperLink shortLinkTestResult;
+	/**
+	 * 74 episodes
+	 */
+	private static HyperLink monsterSearchResult;
 	
-	private AnidbClient anidb = new AnidbClient();
+	/**
+	 * 45 episodes, direct result page (short_link)
+	 */
+	private static HyperLink twelvekingdomsSearchResult;
 	
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		testResult = new HyperLink("Monster", new URL("http://anidb.net/perl-bin/animedb.pl?show=anime&aid=1539"));
-		shortLinkTestResult = new HyperLink("Juuni Kokuki", new URL("http://anidb.net/a26"));
+		monsterSearchResult = new HyperLink("Monster", new URL("http://anidb.net/perl-bin/animedb.pl?show=anime&aid=1539"));
+		twelvekingdomsSearchResult = new HyperLink("Juuni Kokuki", new URL("http://anidb.net/a26"));
 	}
 	
-
+	private AnidbClient anidb = new AnidbClient();
+	
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = anidb.search("one piece");
@@ -52,7 +59,7 @@ public class AnidbClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = anidb.getEpisodeList(testResult);
+		List<Episode> list = anidb.getEpisodeList(monsterSearchResult);
 		
 		assertEquals(74, list.size());
 		
@@ -67,7 +74,7 @@ public class AnidbClientTest {
 
 	@Test
 	public void getEpisodeListAllShortLink() throws Exception {
-		List<Episode> list = anidb.getEpisodeList(shortLinkTestResult);
+		List<Episode> list = anidb.getEpisodeList(twelvekingdomsSearchResult);
 		
 		assertEquals(45, list.size());
 		
@@ -82,7 +89,7 @@ public class AnidbClientTest {
 
 	@Test
 	public void getEpisodeListLink() throws Exception {
-		assertEquals(testResult.getURL().toString(), anidb.getEpisodeListLink(testResult).toURL().toString());
+		assertEquals(monsterSearchResult.getURL().toString(), anidb.getEpisodeListLink(monsterSearchResult).toURL().toString());
 	}
 	
 }

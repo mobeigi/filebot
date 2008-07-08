@@ -97,7 +97,6 @@ public class OpenSubtitlesClient {
 	 * 
 	 * @throws XmlRpcFault
 	 */
-	@SuppressWarnings("unchecked")
 	public synchronized void logout() throws XmlRpcFault {
 		try {
 			invoke("LogOut", token);
