@@ -44,6 +44,9 @@ public class TVDotComClientTest {
 	public void search() throws Exception {
 		List<SearchResult> results = tvdotcom.search("Buffy");
 		
+		// if this fails, there is probably a problem with the xpath query
+		assertEquals(10, results.size());
+		
 		HyperLink result = (HyperLink) results.get(0);
 		
 		assertEquals(buffySearchResult.getName(), result.getName());
@@ -77,7 +80,7 @@ public class TVDotComClientTest {
 		assertEquals("Buffy the Vampire Slayer", first.getShowName());
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("Pilot", first.getNumberOfEpisode());
-		assertEquals("1", first.getNumberOfSeason());
+		assertEquals(null, first.getNumberOfSeason());
 	}
 	
 

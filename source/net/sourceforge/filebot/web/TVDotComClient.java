@@ -55,7 +55,7 @@ public class TVDotComClient extends EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN/A", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN[@class='f-18']/A", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
@@ -67,7 +67,7 @@ public class TVDotComClient extends EpisodeListClient {
 				URL episodeListingUrl = new URL(href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html"));
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
-			} catch (MalformedURLException e) {
+			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
@@ -125,7 +125,7 @@ public class TVDotComClient extends EpisodeListClient {
 	}
 	
 
-	private List<Episode> getEpisodeList(SearchResult searchResult, int season, Document dom) {
+	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('episode-listing')/DIV/TABLE/TR/TD/ancestor::TR", dom);
 		
@@ -138,22 +138,24 @@ public class TVDotComClient extends EpisodeListClient {
 		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String episodeNumber = XPathUtil.selectString("./TD[1]", node);
+			String episode = XPathUtil.selectString("./TD[1]", node);
 			String title = XPathUtil.selectString("./TD[2]/A", node);
+			String season = Integer.toString(seasonNumber);
 			
 			try {
 				// format number of episode
-				int n = Integer.parseInt(episodeNumber);
+				int n = Integer.parseInt(episode);
 				
 				if (episodeOffset == null)
 					episodeOffset = n - 1;
 				
-				episodeNumber = numberFormat.format(n - episodeOffset);
+				episode = numberFormat.format(n - episodeOffset);
 			} catch (NumberFormatException e) {
-				// episode number may be "Pilot", "Special", ...
+				// episode may be "Pilot", "Special", "TV Movie" ...
+				season = null;
 			}
 			
-			episodes.add(new Episode(searchResult.getName(), Integer.toString(season), episodeNumber, title));
+			episodes.add(new Episode(searchResult.getName(), season, episode, title));
 		}
 		
 		return episodes;
