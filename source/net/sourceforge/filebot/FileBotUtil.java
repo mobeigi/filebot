@@ -4,11 +4,7 @@ package net.sourceforge.filebot;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -22,17 +18,17 @@ public class FileBotUtil {
 	}
 	
 	/**
-	 * invalid characters: \, /, :, *, ?, ", <, >, |, \r and \n
+	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
 	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
 	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
 	
 	/**
-	 * Strip string of invalid characters
+	 * Strip filename of invalid characters
 	 * 
 	 * @param filename original filename
-	 * @return filename stripped of invalid characters
+	 * @return valid filename stripped of invalid characters
 	 */
 	public static String validateFileName(String filename) {
 		// strip invalid characters from filename
@@ -47,7 +43,7 @@ public class FileBotUtil {
 	private static final String[] TORRENT_FILE_EXTENSIONS = { "torrent" };
 	private static final String[] SFV_FILE_EXTENSIONS = { "sfv" };
 	private static final String[] LIST_FILE_EXTENSIONS = { "txt", "list", "" };
-	private static final String[] SUBTITLE_FILE_EXTENSIONS = { "srt", "sub", "ssa" };
+	private static final String[] SUBTITLE_FILE_EXTENSIONS = { "srt", "sub", "ssa", "smi" };
 	
 	
 	public static boolean containsOnlyFolders(List<File> files) {
@@ -75,7 +71,7 @@ public class FileBotUtil {
 	}
 	
 
-	private static boolean containsOnly(List<File> files, String[] extensions) {
+	public static boolean containsOnly(List<File> files, String... extensions) {
 		for (File file : files) {
 			if (!FileUtil.hasExtension(file, extensions))
 				return false;
@@ -110,13 +106,5 @@ public class FileBotUtil {
 		}
 		
 	};
-	
-	
-	//TODO needed??
-	public static void writeToFile(File file, ByteBuffer data) throws IOException {
-		FileChannel channel = new FileOutputStream(file).getChannel();
-		channel.write(data);
-		channel.close();
-	}
 	
 }

@@ -15,8 +15,8 @@ public class Checksum {
 	
 	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	
-	public static final String STATE_PROPERTY = "DOWNLOAD_STATE";
-	public static final String PROGRESS_PROPERTY = "DOWNLOAD_PROGRESS";
+	public static final String STATE_PROPERTY = "state";
+	public static final String PROGRESS_PROPERTY = "progress";
 	
 	private Long checksum = null;
 	private State state = State.PENDING;

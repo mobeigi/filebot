@@ -92,26 +92,20 @@ public class DefaultTransferHandler extends TransferHandler {
 		if (clipboardHandler != null)
 			clipboardHandler.exportToClipboard(comp, clip, action);
 	}
-
-
 	
-    public void setImportHandler(ImportHandler importHandler) {
-    	this.importHandler = importHandler;
-    }
 
+	public void setImportHandler(ImportHandler importHandler) {
+		this.importHandler = importHandler;
+	}
+	
 
+	public void setExportHandler(ExportHandler exportHandler) {
+		this.exportHandler = exportHandler;
+	}
 	
-    public void setExportHandler(ExportHandler exportHandler) {
-    	this.exportHandler = exportHandler;
-    }
 
-
-	
-    public void setClipboardHandler(ClipboardHandler clipboardHandler) {
-    	this.clipboardHandler = clipboardHandler;
-    }
-	
-	
-	
+	public void setClipboardHandler(ClipboardHandler clipboardHandler) {
+		this.clipboardHandler = clipboardHandler;
+	}
 	
 }

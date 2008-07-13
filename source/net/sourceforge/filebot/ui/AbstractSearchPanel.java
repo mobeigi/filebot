@@ -31,6 +31,7 @@ import javax.swing.SwingWorker;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
@@ -45,7 +46,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	
 	private final HistoryPanel historyPanel = new HistoryPanel();
 	
-	private final SelectButtonTextField<S> searchField;
+	private final SelectButtonTextField<S> searchField = new SelectButtonTextField<S>();
 	
 	private final EventList<String> searchHistory = new BasicEventList<String>();
 	
@@ -54,8 +55,6 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		super(title, icon);
 		
 		setLayout(new BorderLayout(10, 5));
-		
-		searchField = new SelectButtonTextField<S>();
 		
 		Box searchBox = Box.createHorizontalBox();
 		searchBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -92,10 +91,19 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		completionList.addMemberList(fetchHistory);
 		*/
 
+		searchField.getSelectButton().setModel(createSearchEngines());
+		searchField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
+		
 		AutoCompleteSupport.install(searchField.getEditor(), searchHistory);
 		
 		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
+	
+
+	protected abstract List<S> createSearchEngines();
+	
+
+	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
 	
 
 	protected abstract SearchTask createSearchTask();
@@ -185,7 +193,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			
 			tab.setTitle(task.getSearchText());
 			tab.setLoading(true);
-			tab.setIcon(searchField.getSelectButton().getIconProvider().getIcon(task.getClient()));
+			tab.setIcon(searchField.getSelectButton().getLabelProvider().getIcon(task.getClient()));
 			
 			tab.addTo(tabbedPane);
 			
@@ -253,7 +261,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			
 			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
 			
-			selectDialog.setIconImage(TunedUtil.getImage(searchField.getSelectButton().getIconProvider().getIcon(task.getClient())));
+			selectDialog.setIconImage(TunedUtil.getImage(searchField.getSelectButton().getLabelProvider().getIcon(task.getClient())));
 			
 			configureSelectDialog(selectDialog);
 			selectDialog.setVisible(true);
@@ -372,7 +380,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 				
 				String title = task.getSearchResult().toString();
 				URI link = getLink(task.getClient(), task.getSearchResult());
-				Icon icon = searchField.getSelectButton().getIconProvider().getIcon(task.getClient());
+				Icon icon = searchField.getSelectButton().getLabelProvider().getIcon(task.getClient());
 				String info = task.getStatusMessage();
 				String duration = String.format("%,d ms", task.getDuration());
 				

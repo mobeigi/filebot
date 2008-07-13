@@ -17,6 +17,8 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Icon;
+
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
 
@@ -25,16 +27,23 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class AnidbClient extends EpisodeListClient {
+public class AnidbClient implements EpisodeListClient {
 	
 	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final String host = "anidb.net";
 	
 	
-	public AnidbClient() {
-		super("AniDB", ResourceManager.getIcon("search.anidb"));
-	};
+	@Override
+	public String getName() {
+		return "AniDB";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.anidb");
+	}
 	
 
 	@Override

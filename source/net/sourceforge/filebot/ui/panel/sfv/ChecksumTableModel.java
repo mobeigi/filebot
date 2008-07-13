@@ -93,10 +93,10 @@ class ChecksumTableModel extends AbstractTableModel {
 	}
 	
 
-	public synchronized void addAll(List<Entry> list) {
+	public synchronized void addAll(List<ChecksumCell> list) {
 		int firstRow = getRowCount();
 		
-		for (Entry entry : list) {
+		for (ChecksumCell entry : list) {
 			addChecksum(entry.getName(), entry.getChecksum(), entry.getColumnRoot());
 		}
 		
@@ -185,16 +185,14 @@ class ChecksumTableModel extends AbstractTableModel {
 	};
 	
 	
-	public static class Entry {
+	public static class ChecksumCell {
 		
-		private String name;
-		
-		private Checksum checksum;
-		
-		private File columnRoot;
+		private final String name;
+		private final Checksum checksum;
+		private final File columnRoot;
 		
 		
-		public Entry(String name, Checksum checksum, File columnRoot) {
+		public ChecksumCell(String name, Checksum checksum, File columnRoot) {
 			this.name = name;
 			this.checksum = checksum;
 			this.columnRoot = columnRoot;

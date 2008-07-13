@@ -13,10 +13,13 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.tuned.ui.SimpleIconProvider;
+import net.sourceforge.tuned.ui.LabelProvider;
+import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage, SubtitleDownloadPanel> {
@@ -27,14 +30,28 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		getHistoryPanel().setColumnHeader1("Show / Movie");
 		getHistoryPanel().setColumnHeader2("Number of Subtitles");
 		
-		getSearchField().getSelectButton().setModel(SubtitleClient.getAvailableSubtitleClients());
-		getSearchField().getSelectButton().setIconProvider(SimpleIconProvider.forClass(SubtitleClient.class));
-		
 		List<String> persistentSearchHistory = Settings.getSettings().asStringList(Settings.SUBTITLE_HISTORY);
 		
 		getSearchHistory().addAll(persistentSearchHistory);
 		
 		ListChangeSynchronizer.syncEventListToList(getSearchHistory(), persistentSearchHistory);
+	}
+	
+
+	@Override
+	protected List<SubtitleClient> createSearchEngines() {
+		List<SubtitleClient> engines = new ArrayList<SubtitleClient>(2);
+		
+		engines.add(new OpenSubtitlesSubtitleClient());
+		engines.add(new SubsceneSubtitleClient());
+		
+		return engines;
+	}
+	
+
+	@Override
+	protected LabelProvider<SubtitleClient> createSearchEngineLabelProvider() {
+		return SimpleLabelProvider.forClass(SubtitleClient.class);
 	}
 	
 

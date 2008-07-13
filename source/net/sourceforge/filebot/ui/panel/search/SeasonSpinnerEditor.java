@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -18,9 +17,7 @@ import javax.swing.event.ChangeListener;
 
 class SeasonSpinnerEditor extends JPanel implements ChangeListener {
 	
-	public static final int ALL_SEASONS = 0;
-	
-	private JLabel text = new JLabel();
+	private final JLabel text = new JLabel();
 	
 	
 	public SeasonSpinnerEditor(JSpinner spinner) {
@@ -44,13 +41,11 @@ class SeasonSpinnerEditor extends JPanel implements ChangeListener {
 	
 
 	private void setValueFromSpinner(JSpinner spinner) {
-		SpinnerNumberModel model = (SpinnerNumberModel) spinner.getModel();
-		int i = model.getNumber().intValue();
+		int season = ((SeasonSpinnerModel) spinner.getModel()).getSeason();
 		
-		if (i == ALL_SEASONS)
+		if (season == SeasonSpinnerModel.ALL_SEASONS)
 			text.setText("All Seasons");
 		else
-			text.setText("Season " + i);
+			text.setText("Season " + season);
 	}
-	
 }

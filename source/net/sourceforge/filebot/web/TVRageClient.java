@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -20,15 +21,22 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TVRageClient extends EpisodeListClient {
+public class TVRageClient implements EpisodeListClient {
 	
 	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final String host = "www.tvrage.com";
 	
 	
-	public TVRageClient() {
-		super("TVRage", ResourceManager.getIcon("search.tvrage"));
+	@Override
+	public String getName() {
+		return "TVRage";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.tvrage");
 	}
 	
 

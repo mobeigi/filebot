@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,8 +82,6 @@ public abstract class FileTransferablePolicy implements TransferablePolicy {
 		
 		if ((files == null) || files.isEmpty())
 			return;
-		
-		Collections.sort(files);
 		
 		if (!add)
 			clear();

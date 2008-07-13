@@ -17,7 +17,7 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
 
 
-class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTableModel.Entry> {
+class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTableModel.ChecksumCell> {
 	
 	private ChecksumTableModel tableModel;
 	
@@ -34,7 +34,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	
 
 	@Override
-	protected void process(List<ChecksumTableModel.Entry> chunks) {
+	protected void process(List<ChecksumTableModel.ChecksumCell> chunks) {
 		tableModel.addAll(chunks);
 	}
 	
@@ -58,13 +58,13 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 				String filename = matcher.group(1);
 				String checksumString = matcher.group(2);
 				
-				publish(new ChecksumTableModel.Entry(filename, new Checksum(checksumString), sfvFile));
+				publish(new ChecksumTableModel.ChecksumCell(filename, new Checksum(checksumString), sfvFile));
 				
 				File compareColumnRoot = sfvFile.getParentFile();
 				File compareFile = new File(compareColumnRoot, filename);
 				
 				if (compareFile.exists()) {
-					publish(new ChecksumTableModel.Entry(filename, ChecksumComputationService.getService().getChecksum(compareFile, compareColumnRoot), compareColumnRoot));
+					publish(new ChecksumTableModel.ChecksumCell(filename, ChecksumComputationService.getService().getChecksum(compareFile, compareColumnRoot), compareColumnRoot));
 				}
 			}
 			
@@ -116,7 +116,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 				load(f, columnRoot, newPrefix);
 			}
 		} else if (file.isFile()) {
-			publish(new ChecksumTableModel.Entry(prefix + file.getName(), ChecksumComputationService.getService().getChecksum(file, columnRoot), columnRoot));
+			publish(new ChecksumTableModel.ChecksumCell(prefix + file.getName(), ChecksumComputationService.getService().getChecksum(file, columnRoot), columnRoot));
 		}
 	}
 }

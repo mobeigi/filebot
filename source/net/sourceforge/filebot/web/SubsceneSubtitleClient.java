@@ -21,6 +21,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
+
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.FileUtil;
 import net.sourceforge.tuned.XPathUtil;
@@ -30,7 +32,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class SubsceneSubtitleClient extends SubtitleClient {
+public class SubsceneSubtitleClient implements SubtitleClient {
 	
 	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
@@ -39,8 +41,15 @@ public class SubsceneSubtitleClient extends SubtitleClient {
 	private final String host = "subscene.com";
 	
 	
-	public SubsceneSubtitleClient() {
-		super("Subscene", ResourceManager.getIcon("search.subscene"));
+	@Override
+	public String getName() {
+		return "Subscene";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.subscene");
 	}
 	
 

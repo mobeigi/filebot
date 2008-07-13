@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.search;
 
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -33,12 +32,13 @@ class FetchEpisodeListTask extends SwingWorker<List<Episode>, Void> {
 	protected List<Episode> doInBackground() throws Exception {
 		long start = System.currentTimeMillis();
 		
-		Iterator<Episode> itr = searchEngine.getEpisodeList(searchResult, numberOfSeason).iterator();
+		List<Episode> list = new ArrayList<Episode>();
 		
-		ArrayList<Episode> list = new ArrayList<Episode>();
-		
-		while (itr.hasNext())
-			list.add(itr.next());
+		if (numberOfSeason == SeasonSpinnerModel.ALL_SEASONS) {
+			list.addAll(searchEngine.getEpisodeList(searchResult));
+		} else {
+			list.addAll(searchEngine.getEpisodeList(searchResult, numberOfSeason));
+		}
 		
 		duration = System.currentTimeMillis() - start;
 		return list;

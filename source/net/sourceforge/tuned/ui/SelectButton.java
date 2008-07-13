@@ -41,7 +41,7 @@ public class SelectButton<T> extends JButton {
 	private List<T> model = new ArrayList<T>(0);
 	private SingleSelectionModel selectionModel = new DefaultSingleSelectionModel();
 	
-	private IconProvider<T> iconProvider = new NullIconProvider<T>();
+	private LabelProvider<T> labelProvider = new NullLabelProvider<T>();
 	
 	private boolean hover = false;
 	
@@ -62,21 +62,23 @@ public class SelectButton<T> extends JButton {
 	
 
 	public void setModel(List<T> model) {
-		this.model = model;
+		this.model.clear();
+		this.model.addAll(model);
+		
 		setSelectedIndex(0);
 	}
 	
 
-	public IconProvider<T> getIconProvider() {
-		return iconProvider;
+	public LabelProvider<T> getLabelProvider() {
+		return labelProvider;
 	}
 	
 
-	public void setIconProvider(IconProvider<T> iconProvider) {
-		this.iconProvider = iconProvider;
+	public void setLabelProvider(LabelProvider<T> labelProvider) {
+		this.labelProvider = labelProvider;
 		
 		// update icon
-		this.setIcon(iconProvider.getIcon(getSelectedValue()));
+		this.setIcon(labelProvider.getIcon(getSelectedValue()));
 	}
 	
 
@@ -112,7 +114,7 @@ public class SelectButton<T> extends JButton {
 			
 			T value = model.get(i);
 			
-			setIcon(iconProvider.getIcon(value));
+			setIcon(labelProvider.getIcon(value));
 			
 			firePropertyChange(SELECTED_VALUE, null, value);
 		}
@@ -179,7 +181,7 @@ public class SelectButton<T> extends JButton {
 			JPopupMenu popup = new JPopupMenu();
 			
 			for (T value : model) {
-				SelectPopupMenuItem item = new SelectPopupMenuItem(value, iconProvider.getIcon(value));
+				SelectPopupMenuItem item = new SelectPopupMenuItem(labelProvider.getText(value), labelProvider.getIcon(value), value);
 				
 				if (value == getSelectedValue())
 					item.setSelected(true);
@@ -197,8 +199,8 @@ public class SelectButton<T> extends JButton {
 		private final T value;
 		
 		
-		public SelectPopupMenuItem(T value, Icon icon) {
-			super(value.toString(), icon);
+		public SelectPopupMenuItem(String text, Icon icon, T value) {
+			super(text, icon);
 			
 			this.value = value;
 			

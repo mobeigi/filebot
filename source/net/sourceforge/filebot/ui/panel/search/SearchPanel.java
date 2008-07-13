@@ -10,7 +10,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +26,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -37,13 +38,17 @@ import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.ui.transfer.Saveable;
+import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TVDotComClient;
+import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
-import net.sourceforge.tuned.ui.SimpleIconProvider;
+import net.sourceforge.tuned.ui.SimpleLabelProvider;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
 
@@ -54,7 +59,7 @@ public class SearchPanel extends FileBotPanel {
 	
 	private HistoryPanel historyPanel = new HistoryPanel();
 	
-	private SpinnerNumberModel seasonSpinnerModel = new SpinnerNumberModel(SeasonSpinnerEditor.ALL_SEASONS, SeasonSpinnerEditor.ALL_SEASONS, Integer.MAX_VALUE, 1);
+	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
 	
 	private SelectButtonTextField<EpisodeListClient> searchField;
 	
@@ -64,8 +69,8 @@ public class SearchPanel extends FileBotPanel {
 		
 		searchField = new SelectButtonTextField<EpisodeListClient>();
 		
-		searchField.getSelectButton().setModel(EpisodeListClient.getAvailableEpisodeListClients());
-		searchField.getSelectButton().setIconProvider(SimpleIconProvider.forClass(EpisodeListClient.class));
+		searchField.getSelectButton().setModel(createSearchEngines());
+		searchField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
 		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
@@ -119,9 +124,19 @@ public class SearchPanel extends FileBotPanel {
 	}
 	
 
-	public void setSeasonValue(Object value) {
-		if (value != null)
-			seasonSpinnerModel.setValue(value);
+	protected List<EpisodeListClient> createSearchEngines() {
+		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(3);
+		
+		engines.add(new TVDotComClient());
+		engines.add(new AnidbClient());
+		engines.add(new TVRageClient());
+		
+		return engines;
+	}
+	
+
+	protected LabelProvider<EpisodeListClient> createSearchEngineLabelProvider() {
+		return SimpleLabelProvider.forClass(EpisodeListClient.class);
 	}
 	
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
@@ -130,12 +145,10 @@ public class SearchPanel extends FileBotPanel {
 			EpisodeListClient client = searchField.getSelected();
 			
 			if (!client.hasSingleSeasonSupport()) {
-				seasonSpinnerModel.setValue(SeasonSpinnerEditor.ALL_SEASONS);
-				seasonSpinnerModel.setMaximum(SeasonSpinnerEditor.ALL_SEASONS);
+				seasonSpinnerModel.lock(SeasonSpinnerModel.ALL_SEASONS);
 			} else {
-				seasonSpinnerModel.setMaximum(Integer.MAX_VALUE);
+				seasonSpinnerModel.unlock();
 			}
-			
 		}
 		
 	};
@@ -145,7 +158,7 @@ public class SearchPanel extends FileBotPanel {
 		public void actionPerformed(ActionEvent e) {
 			EpisodeListClient searchEngine = searchField.getSelected();
 			
-			SearchTask task = new SearchTask(searchEngine, searchField.getText(), seasonSpinnerModel.getNumber().intValue());
+			SearchTask task = new SearchTask(searchEngine, searchField.getText(), seasonSpinnerModel.getSeason());
 			task.addPropertyChangeListener(new SearchTaskListener());
 			
 			task.execute();
@@ -155,14 +168,14 @@ public class SearchPanel extends FileBotPanel {
 	private final AbstractAction upAction = new AbstractAction("Up") {
 		
 		public void actionPerformed(ActionEvent e) {
-			setSeasonValue(seasonSpinnerModel.getNextValue());
+			seasonSpinnerModel.setValue(seasonSpinnerModel.getNextValue());
 		}
 	};
 	
 	private final AbstractAction downAction = new AbstractAction("Down") {
 		
 		public void actionPerformed(ActionEvent e) {
-			setSeasonValue(seasonSpinnerModel.getPreviousValue());
+			seasonSpinnerModel.setValue(seasonSpinnerModel.getPreviousValue());
 		}
 	};
 	
@@ -216,7 +229,7 @@ public class SearchPanel extends FileBotPanel {
 			
 			String title = task.query;
 			
-			if (task.numberOfSeason != SeasonSpinnerEditor.ALL_SEASONS) {
+			if (task.numberOfSeason != SeasonSpinnerModel.ALL_SEASONS) {
 				title += String.format(" - Season %d", task.numberOfSeason);
 			}
 			
@@ -292,7 +305,7 @@ public class SearchPanel extends FileBotPanel {
 			//TODO fix
 			//			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
 			
-			if (task.numberOfSeason != SeasonSpinnerEditor.ALL_SEASONS) {
+			if (task.numberOfSeason != SeasonSpinnerModel.ALL_SEASONS) {
 				title += String.format(" - Season %d", task.numberOfSeason);
 			}
 			

@@ -21,6 +21,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
+
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
 
@@ -29,15 +31,22 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TVDotComClient extends EpisodeListClient {
+public class TVDotComClient implements EpisodeListClient {
 	
 	private final SearchResultCache searchResultCache = new SearchResultCache();
 	
 	private final String host = "www.tv.com";
 	
 	
-	public TVDotComClient() {
-		super("TV.com", ResourceManager.getIcon("search.tvdotcom"));
+	@Override
+	public String getName() {
+		return "TV.com";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.tvdotcom");
 	}
 	
 

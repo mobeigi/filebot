@@ -11,6 +11,8 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.Icon;
+
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 
@@ -19,17 +21,22 @@ import net.sourceforge.filebot.resources.ResourceManager;
  * {@link SubtitleClient} for OpenSubtitles.
  * 
  */
-public class OpenSubtitlesSubtitleClient extends SubtitleClient {
+public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
 	private final OpenSubtitlesClient client = new OpenSubtitlesClient(String.format("%s v%s", Settings.NAME, Settings.VERSION));
 	
 	private final LogoutTimer logoutTimer = new LogoutTimer();
 	
 	
-	public OpenSubtitlesSubtitleClient() {
-		super("OpenSubtitles", ResourceManager.getIcon("search.opensubtitles"));
-		
-		Runtime.getRuntime().addShutdownHook(new Thread(doLogout));
+	@Override
+	public String getName() {
+		return "OpenSubtitles";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.opensubtitles");
 	}
 	
 
@@ -63,6 +70,7 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 	private synchronized void login() throws Exception {
 		if (!client.isLoggedOn()) {
 			client.loginAnonymous();
+			Runtime.getRuntime().addShutdownHook(logoutShutdownHook);
 		}
 		
 		logoutTimer.restart();
@@ -77,11 +85,13 @@ public class OpenSubtitlesSubtitleClient extends SubtitleClient {
 				client.logout();
 			} catch (Exception e) {
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Exception while deactivating session", e);
+			} finally {
+				Runtime.getRuntime().removeShutdownHook(logoutShutdownHook);
 			}
 		}
 	}
 	
-	private final Runnable doLogout = new Runnable() {
+	private final Thread logoutShutdownHook = new Thread() {
 		
 		@Override
 		public void run() {
