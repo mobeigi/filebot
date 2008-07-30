@@ -29,7 +29,7 @@ import javax.swing.border.EmptyBorder;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
-import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
@@ -51,7 +51,7 @@ public class ValidateNamesDialog extends JDialog {
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		JList list = new JList(new SimpleListModel(entries));
+		JList list = new JList(new ArrayListModel(entries));
 		list.setEnabled(false);
 		
 		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
@@ -89,7 +89,7 @@ public class ValidateNamesDialog extends JDialog {
 		setPreferredSize(new Dimension(365, 280));
 		pack();
 		
-		TunedUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtil.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 
@@ -176,7 +176,7 @@ public class ValidateNamesDialog extends JDialog {
 		protected void actionPropertyChanged(Action action, String propertyName) {
 			super.actionPropertyChanged(action, propertyName);
 			
-			if (propertyName == ContinueAction.ALPHA) {
+			if (propertyName.equals(ContinueAction.ALPHA)) {
 				alpha = getAlpha(action);
 			}
 		}

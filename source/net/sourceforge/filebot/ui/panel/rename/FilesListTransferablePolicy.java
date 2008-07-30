@@ -8,17 +8,17 @@ import java.util.List;
 
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
-import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
-import net.sourceforge.tuned.ui.SimpleListModel;
+import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
+import ca.odell.glazedlists.EventList;
 
 
 class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
-	private final SimpleListModel model;
+	private final EventList<? super FileEntry> model;
 	
 	
-	public FilesListTransferablePolicy(SimpleListModel listModel) {
-		this.model = listModel;
+	public FilesListTransferablePolicy(EventList<? super FileEntry> model) {
+		this.model = model;
 	}
 	
 
@@ -47,7 +47,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	public String getDescription() {
+	public String getFileFilterDescription() {
 		return "files and folders";
 	}
 	

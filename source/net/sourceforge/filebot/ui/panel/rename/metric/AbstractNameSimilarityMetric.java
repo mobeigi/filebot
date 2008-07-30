@@ -16,10 +16,8 @@ public abstract class AbstractNameSimilarityMetric implements SimilarityMetric {
 	protected String normalize(String name) {
 		name = stripChecksum(name);
 		name = normalizeSeparators(name);
-		name = name.trim();
-		name = name.toLowerCase();
 		
-		return name;
+		return name.trim().toLowerCase();
 	}
 	
 

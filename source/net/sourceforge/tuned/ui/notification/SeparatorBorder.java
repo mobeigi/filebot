@@ -29,7 +29,10 @@ public class SeparatorBorder extends AbstractBorder {
 	
 	
 	public static enum Position {
-		TOP, BOTTOM, LEFT, RIGHT;
+		TOP,
+		BOTTOM,
+		LEFT,
+		RIGHT;
 		
 		public Rectangle2D getRectangle(RectangularShape shape, int borderWidth) {
 			switch (this) {
@@ -72,10 +75,6 @@ public class SeparatorBorder extends AbstractBorder {
 	}
 	
 	
-	protected SeparatorBorder() {
-	}
-	
-
 	public SeparatorBorder(int height, Color color, Position position) {
 		this(height, color, null, null, position);
 	}

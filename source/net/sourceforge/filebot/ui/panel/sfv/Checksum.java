@@ -92,7 +92,7 @@ public class Checksum {
 	}
 	
 
-	public Integer getProgress() {
+	public synchronized Integer getProgress() {
 		if (state == State.INPROGRESS)
 			return computationTask.getProgress();
 		
@@ -130,8 +130,10 @@ public class Checksum {
 		@Override
 		public void done(PropertyChangeEvent evt) {
 			try {
-				if (!computationTask.isCancelled()) {
-					setChecksum(computationTask.get());
+				ChecksumComputationTask task = (ChecksumComputationTask) evt.getSource();
+				
+				if (!task.isCancelled()) {
+					setChecksum(task.get());
 				}
 			} catch (Exception e) {
 				// might happen if file system is corrupt (e.g. CRC errors)

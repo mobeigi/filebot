@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot;
+package net.sourceforge.tuned;
 
 
 import java.util.List;
@@ -9,7 +9,6 @@ import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
 
-//TODO: testcase, class doc
 public class ListChangeSynchronizer<E> implements ListEventListener<E> {
 	
 	private final List<E> target;

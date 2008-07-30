@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import java.beans.PropertyChangeEvent;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker.StateValue;
 
@@ -57,7 +58,7 @@ public class SubtitlePackage extends AbstractBean {
 	}
 	
 
-	public ImageIcon getArchiveIcon() {
+	public Icon getArchiveIcon() {
 		return archiveIcon;
 	}
 	
@@ -68,9 +69,9 @@ public class SubtitlePackage extends AbstractBean {
 	}
 	
 
-	public synchronized void download() {
+	public synchronized void startDownload() {
 		if (downloadTask != null)
-			throw new IllegalStateException("Download has been started already");
+			throw new IllegalStateException("Download has already been started");
 		
 		downloadTask = subtitleDescriptor.createDownloadTask();
 		downloadTask.addPropertyChangeListener(new DownloadTaskPropertyChangeAdapter());

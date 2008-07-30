@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -60,8 +61,8 @@ public class HtmlUtil {
 	public static Document getHtmlDocument(URL url, Map<String, String> requestHeaders) throws IOException, SAXException {
 		URLConnection connection = url.openConnection();
 		
-		for (String key : requestHeaders.keySet()) {
-			connection.addRequestProperty(key, requestHeaders.get(key));
+		for (Entry<String, String> entry : requestHeaders.entrySet()) {
+			connection.addRequestProperty(entry.getKey(), entry.getValue());
 		}
 		
 		return getHtmlDocument(connection);

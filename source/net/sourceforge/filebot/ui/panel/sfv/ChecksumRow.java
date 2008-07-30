@@ -16,24 +16,28 @@ public class ChecksumRow {
 	
 	private HashMap<File, Checksum> checksumMap = new HashMap<File, Checksum>();
 	
-	private Long checksumFromFileName = null;
+	/**
+	 * Checksum that is embedded in the file name (e.g. My File [49A93C5F].txt)
+	 */
+	private Long embeddedChecksum = null;
 	
 	
 	public static enum State {
-		OK, UNKNOWN, WARNING, ERROR;
+		OK,
+		WARNING,
+		ERROR,
+		UNKNOWN;
 	}
 	
 	
 	public ChecksumRow(String name) {
 		this.name = name;
 		
-		// look for a patter like [49A93C5F]
-		Pattern pattern = Pattern.compile(".*\\[(\\p{XDigit}{8})\\].*");
-		Matcher matcher = pattern.matcher(getName());
+		// look for a checksum pattern like [49A93C5F]		
+		Matcher matcher = Pattern.compile("\\[(\\p{XDigit}{8})\\]").matcher(name);
 		
-		if (matcher.matches()) {
-			String checksumString = matcher.group(matcher.groupCount());
-			checksumFromFileName = Long.parseLong(checksumString, 16);
+		if (matcher.find()) {
+			embeddedChecksum = Long.parseLong(matcher.group(1), 16);
 		}
 	}
 	
@@ -61,9 +65,9 @@ public class ChecksumRow {
 			return State.ERROR;
 		}
 		
-		if (!checksums.isEmpty() && checksumFromFileName != null) {
-			// check if the checksum in the filename matches
-			if (!checksums.contains(checksumFromFileName))
+		if (!checksums.isEmpty() && embeddedChecksum != null) {
+			// check if the embedded checksum matches
+			if (!checksums.contains(embeddedChecksum))
 				return State.WARNING;
 		}
 		
@@ -71,8 +75,8 @@ public class ChecksumRow {
 	}
 	
 
-	public Checksum getChecksum(File columnRoot) {
-		return checksumMap.get(columnRoot);
+	public Checksum getChecksum(File column) {
+		return checksumMap.get(column);
 	}
 	
 
@@ -81,13 +85,13 @@ public class ChecksumRow {
 	}
 	
 
-	public void putChecksum(File columnRoot, Checksum checksum) {
-		checksumMap.put(columnRoot, checksum);
+	public void putChecksum(File column, Checksum checksum) {
+		checksumMap.put(column, checksum);
 	}
 	
 
-	public void removeChecksum(File columnRoot) {
-		checksumMap.remove(columnRoot);
+	public void removeChecksum(File column) {
+		checksumMap.remove(column);
 	}
 	
 }

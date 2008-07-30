@@ -5,17 +5,12 @@ package net.sourceforge.tuned.ui.notification;
 import javax.swing.SwingConstants;
 
 
-class Factor extends Object implements SwingConstants {
+class Factor implements SwingConstants {
 	
-	public double fx = 0;
-	public double fy = 0;
+	public final double fx;
+	public final double fy;
 	
 	
-	public Factor() {
-		
-	}
-	
-
 	public Factor(double fx, double fy) {
 		this.fx = fx;
 		this.fy = fy;

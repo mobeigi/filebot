@@ -31,12 +31,14 @@ public class OpenSubtitlesHasher {
 		
 		FileChannel fileChannel = new FileInputStream(file).getChannel();
 		
-		long head = computeHashForChunk(fileChannel, 0, chunkSizeForFile);
-		long tail = computeHashForChunk(fileChannel, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile);
-		
-		fileChannel.close();
-		
-		return String.format("%016x", size + head + tail);
+		try {
+			long head = computeHashForChunk(fileChannel, 0, chunkSizeForFile);
+			long tail = computeHashForChunk(fileChannel, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile);
+			
+			return String.format("%016x", size + head + tail);
+		} finally {
+			fileChannel.close();
+		}
 	}
 	
 

@@ -12,6 +12,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JWindow;
 import javax.swing.Timer;
@@ -21,7 +22,7 @@ import net.sourceforge.tuned.ui.TunedUtil;
 
 public class NotificationWindow extends JWindow {
 	
-	private int timeout;
+	private final int timeout;
 	
 	
 	public NotificationWindow(Window owner, int timeout) {
@@ -35,17 +36,12 @@ public class NotificationWindow extends JWindow {
 		
 		setAlwaysOnTop(true);
 		
-		if (closeOnClick)
+		if (closeOnClick) {
 			getGlassPane().addMouseListener(clickListener);
+			getGlassPane().setVisible(true);
+		}
 		
-		getGlassPane().setVisible(true);
-		
-		addComponentListener(visibleListener);
-	}
-	
-
-	public NotificationWindow(int timeout) {
-		this((Window) null, timeout);
+		addComponentListener(closeOnTimeout);
 	}
 	
 
@@ -54,21 +50,23 @@ public class NotificationWindow extends JWindow {
 	}
 	
 
-	public NotificationWindow() {
-		this((Window) null, -1);
-	}
-	
-
 	public final void close() {
+		TunedUtil.checkEventDispatchThread();
+		
+		// window events are not fired automatically, required for layout updates
+		processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		
 		setVisible(false);
 		
-		// component hidden is not fired automatically
+		// component events are not fired automatically, used to cancel timeout timer
 		processComponentEvent(new ComponentEvent(this, ComponentEvent.COMPONENT_HIDDEN));
+		
+		dispose();
 	}
 	
-	private ComponentListener visibleListener = new ComponentAdapter() {
+	private final ComponentListener closeOnTimeout = new ComponentAdapter() {
 		
-		private Timer timer;
+		private Timer timer = null;
 		
 		
 		@Override
@@ -94,7 +92,7 @@ public class NotificationWindow extends JWindow {
 		
 	};
 	
-	private MouseAdapter clickListener = new MouseAdapter() {
+	private final MouseAdapter clickListener = new MouseAdapter() {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {

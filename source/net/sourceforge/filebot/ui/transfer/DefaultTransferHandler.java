@@ -94,13 +94,28 @@ public class DefaultTransferHandler extends TransferHandler {
 	}
 	
 
+	public ImportHandler getImportHandler() {
+		return importHandler;
+	}
+	
+
 	public void setImportHandler(ImportHandler importHandler) {
 		this.importHandler = importHandler;
 	}
 	
 
+	public ExportHandler getExportHandler() {
+		return exportHandler;
+	}
+	
+
 	public void setExportHandler(ExportHandler exportHandler) {
 		this.exportHandler = exportHandler;
+	}
+	
+
+	public ClipboardHandler getClipboardHandler() {
+		return clipboardHandler;
 	}
 	
 

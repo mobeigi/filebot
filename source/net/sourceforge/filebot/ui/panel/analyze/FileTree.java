@@ -12,15 +12,12 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.FileTransferable;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 
 
 class FileTree extends FileBotTree {
@@ -37,11 +34,11 @@ class FileTree extends FileBotTree {
 		transferablePolicy = new FileTreeTransferablePolicy(this);
 		transferablePolicy.addPropertyChangeListener(LOADING_PROPERTY, new LoadingPropertyChangeListener());
 		
-		setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(transferablePolicy), null));
+		setTransferHandler(new DefaultTransferHandler(transferablePolicy, null));
 	}
 	
 
-	public TransferablePolicy getTransferablePolicy() {
+	public FileTransferablePolicy getTransferablePolicy() {
 		return transferablePolicy;
 	}
 	
@@ -58,21 +55,11 @@ class FileTree extends FileBotTree {
 			}
 		}
 		
-		DefaultTreeModel model = (DefaultTreeModel) getModel();
-		
 		for (TreeNode treeNode : changedNodes) {
-			model.reload(treeNode);
+			getModel().reload(treeNode);
 		}
 		
 		contentChanged();
-	}
-	
-
-	public void load(List<File> files) {
-		FileTransferable tr = new FileTransferable(files);
-		
-		if (transferablePolicy.accept(tr))
-			transferablePolicy.handleTransferable(tr, true);
 	}
 	
 
@@ -85,14 +72,12 @@ class FileTree extends FileBotTree {
 	}
 	
 
-	private void contentChanged() {
-		synchronized (this) {
-			if (postProcessor != null)
-				postProcessor.cancel(true);
-			
-			postProcessor = new PostProcessor();
-			postProcessor.execute();
-		}
+	private synchronized void contentChanged() {
+		if (postProcessor != null)
+			postProcessor.cancel(true);
+		
+		postProcessor = new PostProcessor();
+		postProcessor.execute();
 	};
 	
 	
@@ -105,7 +90,7 @@ class FileTree extends FileBotTree {
 			firePropertyChange(FileTree.LOADING_PROPERTY, null, loading);
 			
 			if (!loading) {
-				((DefaultTreeModel) getModel()).reload();
+				getModel().reload();
 				contentChanged();
 			}
 		}

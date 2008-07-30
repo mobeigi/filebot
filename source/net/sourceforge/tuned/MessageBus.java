@@ -19,19 +19,7 @@ public class MessageBus {
 		return instance;
 	}
 	
-	private final Map<String, List<MessageHandler>> handlers = new HashMap<String, List<MessageHandler>>() {
-		
-		@Override
-		public List<MessageHandler> get(Object key) {
-			return super.get(key.toString().toLowerCase());
-		}
-		
-
-		@Override
-		public List<MessageHandler> put(String key, List<MessageHandler> value) {
-			return super.put(key.toLowerCase(), value);
-		}
-	};
+	private final Map<String, List<MessageHandler>> handlers = new HashMap<String, List<MessageHandler>>();
 	
 	
 	private MessageBus() {
@@ -40,11 +28,12 @@ public class MessageBus {
 	
 
 	public synchronized void addMessageHandler(String topic, MessageHandler handler) {
-		List<MessageHandler> list = handlers.get(topic);
+		
+		List<MessageHandler> list = handlers.get(topic.toLowerCase());
 		
 		if (list == null) {
 			list = new ArrayList<MessageHandler>(3);
-			handlers.put(topic, list);
+			handlers.put(topic.toLowerCase(), list);
 		}
 		
 		list.add(handler);
@@ -52,7 +41,7 @@ public class MessageBus {
 	
 
 	public synchronized void removeMessageHandler(String topic, MessageHandler handler) {
-		List<MessageHandler> list = handlers.get(topic);
+		List<MessageHandler> list = handlers.get(topic.toLowerCase());
 		
 		if (list != null) {
 			list.remove(handler);
@@ -61,7 +50,7 @@ public class MessageBus {
 	
 
 	public synchronized MessageHandler[] getHandlers(String topic) {
-		List<MessageHandler> list = handlers.get(topic);
+		List<MessageHandler> list = handlers.get(topic.toLowerCase());
 		
 		if (list == null)
 			return new MessageHandler[0];
@@ -70,17 +59,15 @@ public class MessageBus {
 	}
 	
 
-	public void publish(final String topic, final String... messages) {
-		
+	public void publish(final String topic, final Object... messages) {
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
-				for (MessageHandler handler : getHandlers(topic)) {
-					handler.handle(topic, messages);
+				for (MessageHandler handler : getHandlers(topic.toLowerCase())) {
+					handler.handle(topic.toLowerCase(), messages);
 				}
 			}
 		});
 	}
-	
 }

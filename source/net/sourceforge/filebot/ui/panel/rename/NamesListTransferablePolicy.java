@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import java.awt.datatransfer.Transferable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,20 +20,35 @@ import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
-import net.sourceforge.filebot.ui.transferablepolicies.CompositeTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TextTransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.StringTransferablePolicy;
 
 
-class NamesListTransferablePolicy extends CompositeTransferablePolicy {
+class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 	
-	private final RenameList list;
+	private final RenameList<ListEntry> list;
+	
+	private final TextPolicy textPolicy = new TextPolicy();
 	
 	
-	public NamesListTransferablePolicy(RenameList list) {
-		this.list = list;
+	public NamesListTransferablePolicy(RenameList<ListEntry> list) {
+		super(list.getModel());
 		
-		addPolicy(new FilePolicy());
-		addPolicy(new TextPolicy());
+		this.list = list;
+	}
+	
+
+	@Override
+	public boolean accept(Transferable tr) {
+		return textPolicy.accept(tr) || super.accept(tr);
+	}
+	
+
+	@Override
+	public void handleTransferable(Transferable tr, TransferAction action) {
+		if (super.accept(tr))
+			super.handleTransferable(tr, action);
+		else if (textPolicy.accept(tr))
+			textPolicy.handleTransferable(tr, action);
 	}
 	
 
@@ -57,90 +73,81 @@ class NamesListTransferablePolicy extends CompositeTransferablePolicy {
 	
 
 	@Override
-	protected void clear() {
-		list.getModel().clear();
+	protected void load(List<File> files) {
+		
+		if (FileBotUtil.containsOnlyListFiles(files)) {
+			loadListFiles(files);
+		} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
+			loadTorrentFiles(files);
+		} else {
+			super.load(files);
+		}
+	}
+	
+
+	private void loadListFiles(List<File> files) {
+		try {
+			List<ListEntry> entries = new ArrayList<ListEntry>();
+			
+			for (File file : files) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+				
+				String line = null;
+				
+				while ((line = in.readLine()) != null) {
+					if (line.trim().length() > 0) {
+						entries.add(new StringEntry(line));
+					}
+				}
+				
+				in.close();
+			}
+			
+			submit(entries);
+		} catch (IOException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+		}
+	}
+	
+
+	private void loadTorrentFiles(List<File> files) {
+		try {
+			List<ListEntry> entries = new ArrayList<ListEntry>();
+			
+			for (File file : files) {
+				Torrent torrent = new Torrent(file);
+				
+				for (Torrent.Entry entry : torrent.getFiles()) {
+					entries.add(new TorrentEntry(entry));
+				}
+			}
+			
+			submit(entries);
+		} catch (IOException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+		}
+	}
+	
+
+	@Override
+	public String getFileFilterDescription() {
+		return "text files and torrent files";
 	}
 	
 	
-	private class FilePolicy extends FilesListTransferablePolicy {
+	private class TextPolicy extends StringTransferablePolicy {
 		
-		public FilePolicy() {
-			super(list.getModel());
+		@Override
+		protected void clear() {
+			NamesListTransferablePolicy.this.clear();
 		}
 		
 
 		@Override
-		protected void load(List<File> files) {
-			
-			if (FileBotUtil.containsOnlyListFiles(files)) {
-				loadListFiles(files);
-			} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
-				loadTorrentFiles(files);
-			} else {
-				super.load(files);
-			}
-		}
-		
-
-		private void loadListFiles(List<File> files) {
-			try {
-				List<ListEntry> entries = new ArrayList<ListEntry>();
-				
-				for (File file : files) {
-					BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-					
-					String line = null;
-					
-					while ((line = in.readLine()) != null) {
-						if (line.trim().length() > 0) {
-							entries.add(new StringEntry(line));
-						}
-					}
-					
-					in.close();
-				}
-				
-				submit(entries);
-			} catch (IOException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
-			}
-		}
-		
-
-		private void loadTorrentFiles(List<File> files) {
-			try {
-				List<ListEntry> entries = new ArrayList<ListEntry>();
-				
-				for (File file : files) {
-					Torrent torrent = new Torrent(file);
-					
-					for (Torrent.Entry entry : torrent.getFiles()) {
-						entries.add(new TorrentEntry(entry));
-					}
-				}
-				
-				submit(entries);
-			} catch (IOException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
-			}
-		}
-		
-
-		@Override
-		public String getDescription() {
-			return "text files and torrent files";
-		}
-		
-	};
-	
-
-	private class TextPolicy extends TextTransferablePolicy {
-		
-		@Override
-		protected void load(String text) {
+		protected void load(String string) {
 			List<ListEntry> entries = new ArrayList<ListEntry>();
 			
-			String[] lines = text.split("\r?\n");
+			String[] lines = string.split("\r?\n");
 			
 			for (String line : lines) {
 				
@@ -153,11 +160,6 @@ class NamesListTransferablePolicy extends CompositeTransferablePolicy {
 			}
 		}
 		
-
-		@Override
-		public String getDescription() {
-			return "lines of text";
-		}
-	};
+	}
 	
 }

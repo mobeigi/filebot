@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -33,9 +32,7 @@ import org.xml.sax.SAXException;
 
 public class TVDotComClient implements EpisodeListClient {
 	
-	private final SearchResultCache searchResultCache = new SearchResultCache();
-	
-	private final String host = "www.tv.com";
+	private static final String host = "www.tv.com";
 	
 	
 	@Override
@@ -58,9 +55,6 @@ public class TVDotComClient implements EpisodeListClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (searchResultCache.containsKey(searchterm)) {
-			return Collections.singletonList(searchResultCache.get(searchterm));
-		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
@@ -81,8 +75,6 @@ public class TVDotComClient implements EpisodeListClient {
 			}
 		}
 		
-		searchResultCache.addAll(searchResults);
-		
 		return searchResults;
 	}
 	
@@ -99,7 +91,7 @@ public class TVDotComClient implements EpisodeListClient {
 		List<Future<List<Episode>>> futures = new ArrayList<Future<List<Episode>>>(seasonCount);
 		
 		if (seasonCount > 1) {
-			// max. 12 threads so we don't get too many concurrent downloads
+			// max. 12 threads so we don't get too many concurrent connections
 			ExecutorService executor = Executors.newFixedThreadPool(Math.min(seasonCount - 1, 12));
 			
 			// we already have the document for season 1, start with season 2
@@ -111,7 +103,7 @@ public class TVDotComClient implements EpisodeListClient {
 			executor.shutdown();
 		}
 		
-		List<Episode> episodes = new ArrayList<Episode>(150);
+		List<Episode> episodes = new ArrayList<Episode>(25 * seasonCount);
 		
 		// get episode list from season 1 document
 		episodes.addAll(getEpisodeList(searchResult, 1, dom));

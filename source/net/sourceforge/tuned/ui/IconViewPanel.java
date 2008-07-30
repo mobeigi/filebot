@@ -13,10 +13,12 @@ import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -24,8 +26,10 @@ import javax.swing.border.EmptyBorder;
 
 public class IconViewPanel extends JPanel {
 	
-	private final JList list = new JList(new SimpleListModel());
-	private final JLabel title = new JLabel();
+	private final JList list = new JList(createModel());
+	
+	private final JLabel titleLabel = new JLabel();
+	
 	private final JPanel headerPanel = new JPanel(new BorderLayout());
 	
 	
@@ -35,10 +39,10 @@ public class IconViewPanel extends JPanel {
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setVisibleRowCount(-1);
 		
-		title.setFont(title.getFont().deriveFont(Font.BOLD));
+		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 		
 		headerPanel.setOpaque(false);
-		headerPanel.add(title, BorderLayout.WEST);
+		headerPanel.add(titleLabel, BorderLayout.WEST);
 		
 		setBackground(list.getBackground());
 		
@@ -53,13 +57,23 @@ public class IconViewPanel extends JPanel {
 	}
 	
 
+	protected ListModel createModel() {
+		return new DefaultListModel();
+	}
+	
+
 	public JPanel getHeaderPanel() {
 		return headerPanel;
 	}
 	
 
 	public void setTitle(String text) {
-		title.setText(text);
+		titleLabel.setText(text);
+	}
+	
+
+	public String getTitle() {
+		return titleLabel.getText();
 	}
 	
 

@@ -13,10 +13,6 @@ import net.sourceforge.tuned.FileUtil;
 
 public class FileBotUtil {
 	
-	private FileBotUtil() {
-		// hide constructor
-	}
-	
 	/**
 	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
@@ -106,5 +102,10 @@ public class FileBotUtil {
 		}
 		
 	};
+	
+	
+	private FileBotUtil() {
+		// hide constructor
+	}
 	
 }

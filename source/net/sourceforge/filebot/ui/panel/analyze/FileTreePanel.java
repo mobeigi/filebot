@@ -39,7 +39,7 @@ class FileTreePanel extends JPanel {
 		buttons.add(Box.createGlue());
 		
 		// Shortcut DELETE
-		TunedUtil.registerActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtil.putActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
 		add(new LoadingOverlayPane(new JScrollPane(fileTree), ResourceManager.getIcon("loading")), BorderLayout.CENTER);
 		add(buttons, BorderLayout.SOUTH);

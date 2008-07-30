@@ -4,14 +4,9 @@ package net.sourceforge.filebot.ui;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
+import javax.swing.Action;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -20,59 +15,48 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.ExportHandler;
-import net.sourceforge.filebot.ui.transfer.FileTransferable;
-import net.sourceforge.filebot.ui.transfer.Saveable;
-import net.sourceforge.filebot.ui.transfer.SaveableExportHandler;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicyImportHandler;
-import net.sourceforge.filebot.ui.transferablepolicies.MutableTransferablePolicy;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.FileExportHandler;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.SimpleListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.swing.EventListModel;
 
 
-public class FileBotList extends JPanel implements Saveable {
+public class FileBotList<E> extends JPanel {
 	
-	private final JList list = new JList(new SimpleListModel());
+	protected final EventList<E> model = new BasicEventList<E>();
 	
-	private final MutableTransferablePolicy mutableTransferablePolicy = new MutableTransferablePolicy();
+	protected final JList list = new JList(new EventListModel<E>(model));
 	
-	private final TitledBorder titledBorder;
+	protected final JScrollPane listScrollPane = new JScrollPane(list);
 	
-	private String title;
+	private String title = null;
 	
 	
-	public FileBotList(boolean enableExport, boolean enableRemoveAction, boolean border) {
+	public FileBotList() {
 		super(new BorderLayout());
 		
-		JScrollPane listScrollPane = new JScrollPane(list);
-		
-		if (border) {
-			titledBorder = new TitledBorder("");
-			setBorder(titledBorder);
-		} else {
-			titledBorder = null;
-			listScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		}
+		setBorder(new TitledBorder(getTitle()));
 		
 		list.setCellRenderer(new DefaultFancyListCellRenderer());
 		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
+		list.setTransferHandler(new DefaultTransferHandler(null, null));
+		list.setDragEnabled(false);
+		
 		add(listScrollPane, BorderLayout.CENTER);
 		
-		ExportHandler exportHandler = null;
+		// Shortcut DELETE, disabled by default
+		removeAction.setEnabled(false);
 		
-		if (enableExport)
-			exportHandler = new SaveableExportHandler(this);
-		
-		list.setTransferHandler(new DefaultTransferHandler(new TransferablePolicyImportHandler(mutableTransferablePolicy), exportHandler));
-		list.setDragEnabled(enableExport);
-		
-		if (enableRemoveAction) {
-			// Shortcut DELETE
-			TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
-		}
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+	}
+	
+
+	public EventList<E> getModel() {
+		return model;
 	}
 	
 
@@ -81,13 +65,34 @@ public class FileBotList extends JPanel implements Saveable {
 	}
 	
 
+	@Override
+	public DefaultTransferHandler getTransferHandler() {
+		return (DefaultTransferHandler) list.getTransferHandler();
+	}
+	
+
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		mutableTransferablePolicy.setTransferablePolicy(transferablePolicy);
+		getTransferHandler().setImportHandler(transferablePolicy);
 	}
 	
 
 	public TransferablePolicy getTransferablePolicy() {
-		return mutableTransferablePolicy;
+		TransferablePolicy importHandler = (TransferablePolicy) getTransferHandler().getImportHandler();
+		
+		return importHandler;
+	}
+	
+
+	public void setExportHandler(FileExportHandler exportHandler) {
+		getTransferHandler().setExportHandler(exportHandler);
+		
+		// enable drag if ExportHandler is available
+		list.setDragEnabled(exportHandler != null);
+	}
+	
+
+	public FileExportHandler getExportHandler() {
+		return (FileExportHandler) getTransferHandler().getExportHandler();
 	}
 	
 
@@ -99,50 +104,18 @@ public class FileBotList extends JPanel implements Saveable {
 	public void setTitle(String title) {
 		this.title = title;
 		
-		if (titledBorder != null)
+		if (getBorder() instanceof TitledBorder) {
+			TitledBorder titledBorder = (TitledBorder) getBorder();
 			titledBorder.setTitle(title);
-		
-		revalidate();
-		repaint();
-	}
-	
-
-	public SimpleListModel getModel() {
-		return (SimpleListModel) list.getModel();
-	}
-	
-
-	public void save(File file) {
-		try {
-			PrintStream out = new PrintStream(file);
 			
-			for (Object object : getModel().getCopy()) {
-				out.println(object.toString());
-			}
-			
-			out.close();
-		} catch (Exception e) {
-			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			revalidate();
+			repaint();
 		}
 	}
 	
 
-	public String getDefaultFileName() {
-		return title + ".txt";
-	}
-	
-
-	public boolean isSaveable() {
-		return !getModel().isEmpty();
-	}
-	
-
-	public void load(List<File> files) {
-		FileTransferable tr = new FileTransferable(files);
-		
-		if (mutableTransferablePolicy.accept(tr))
-			mutableTransferablePolicy.handleTransferable(tr, false);
+	public Action getRemoveAction() {
+		return removeAction;
 	}
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {

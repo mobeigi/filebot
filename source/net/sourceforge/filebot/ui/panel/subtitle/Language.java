@@ -5,7 +5,6 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 
@@ -16,7 +15,7 @@ class Language implements Comparable<Language> {
 	private final Locale locale;
 	
 	private final String code;
-	private final ImageIcon icon;
+	private final Icon icon;
 	
 	
 	public Language(String languageName) {
@@ -57,13 +56,11 @@ class Language implements Comparable<Language> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
 		
-		if (obj instanceof Language) {
+		if (obj instanceof Language)
 			return getName().equalsIgnoreCase(((Language) obj).getName());
-		}
 		
 		return false;
 	}

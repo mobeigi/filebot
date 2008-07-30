@@ -18,16 +18,23 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.SimpleListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.swing.EventListModel;
 
 
 class FileBotPanelSelectionList extends JList {
 	
 	private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 	
+	private final EventList<FileBotPanel> panelModel = new BasicEventList<FileBotPanel>();
+	
 	
 	public FileBotPanelSelectionList() {
+		
+		setModel(new EventListModel<FileBotPanel>(panelModel));
+		
 		setCellRenderer(new PanelCellRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
@@ -35,12 +42,15 @@ class FileBotPanelSelectionList extends JList {
 		
 		// initialize "drag over" panel selection
 		new DropTarget(this, new DragDropListener());
-		
-		setModel(new SimpleListModel(FileBotPanel.getAvailablePanels()));
+	}
+	
+
+	public EventList<FileBotPanel> getPanelModel() {
+		return panelModel;
 	}
 	
 	
-	private class PanelCellRenderer extends DefaultFancyListCellRenderer {
+	private static class PanelCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public PanelCellRenderer() {
 			super(BorderLayout.CENTER, 10, 0, new Color(0x163264));

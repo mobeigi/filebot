@@ -6,7 +6,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,16 +32,7 @@ public class Torrent {
 	
 	
 	public Torrent(File torrent) throws IOException {
-		this(new FileInputStream(torrent));
-	}
-	
-
-	/**
-	 * Load torrent data from an <code>InputStream</code>. The given stream will be closed
-	 * after data has been read.
-	 */
-	public Torrent(InputStream inputStream) throws IOException {
-		this(decodeTorrent(inputStream));
+		this(decodeTorrent(torrent));
 	}
 	
 
@@ -56,7 +46,7 @@ public class Torrent {
 			charset = Charset.forName(encoding);
 		} catch (IllegalArgumentException e) {
 			// invalid encoding, just keep using UTF-8
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid encoding: " + encoding);
 		}
 		
 		createdBy = decodeString(torrentMap.get("created by"), charset);
@@ -109,6 +99,17 @@ public class Torrent {
 			Long length = decodeLong(infoMap.get("length"));
 			
 			files = Collections.singletonList(new Entry(name, length, ""));
+		}
+	}
+	
+
+	private static Map<?, ?> decodeTorrent(File torrent) throws IOException {
+		BufferedInputStream in = new BufferedInputStream(new FileInputStream(torrent));
+		
+		try {
+			return BDecoder.decode(in);
+		} finally {
+			in.close();
 		}
 	}
 	
@@ -171,17 +172,6 @@ public class Torrent {
 
 	public boolean isSingleFileTorrent() {
 		return singleFileTorrent;
-	}
-	
-
-	private static Map<?, ?> decodeTorrent(InputStream torrent) throws IOException {
-		BufferedInputStream in = new BufferedInputStream(torrent);
-		
-		try {
-			return BDecoder.decode(in);
-		} finally {
-			in.close();
-		}
 	}
 	
 	

@@ -93,7 +93,7 @@ public class ProgressDialog extends JDialog {
 		setLocation(TunedUtil.getPreferredLocation(this));
 		
 		// Shortcut Escape
-		TunedUtil.registerActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtil.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

@@ -14,21 +14,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 
 
 class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTableModel.ChecksumCell> {
 	
-	private ChecksumTableModel tableModel;
+	private final ChecksumTableModel tableModel;
+	private final ChecksumComputationService checksumComputationService;
 	
 	
-	public SfvTransferablePolicy(ChecksumTableModel tableModel) {
+	public SfvTransferablePolicy(ChecksumTableModel tableModel, ChecksumComputationService checksumComputationService) {
 		this.tableModel = tableModel;
+		this.checksumComputationService = checksumComputationService;
 	}
 	
 
 	@Override
 	protected void clear() {
+		checksumComputationService.reset();
 		tableModel.clear();
 	}
 	
@@ -60,11 +63,11 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 				
 				publish(new ChecksumTableModel.ChecksumCell(filename, new Checksum(checksumString), sfvFile));
 				
-				File compareColumnRoot = sfvFile.getParentFile();
-				File compareFile = new File(compareColumnRoot, filename);
+				File column = sfvFile.getParentFile();
+				File file = new File(column, filename);
 				
-				if (compareFile.exists()) {
-					publish(new ChecksumTableModel.ChecksumCell(filename, ChecksumComputationService.getService().getChecksum(compareFile, compareColumnRoot), compareColumnRoot));
+				if (file.exists()) {
+					publish(new ChecksumTableModel.ChecksumCell(filename, checksumComputationService.schedule(file, column), column));
 				}
 			}
 			
@@ -77,7 +80,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	
 
 	@Override
-	public String getDescription() {
+	public String getFileFilterDescription() {
 		return "files, folders and sfv files";
 	}
 	
@@ -105,7 +108,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	}
 	
 
-	protected void load(File file, File columnRoot, String prefix) {
+	protected void load(File file, File column, String prefix) {
 		if (Thread.currentThread().isInterrupted())
 			return;
 		
@@ -113,10 +116,10 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 			// load all files in the file tree
 			String newPrefix = prefix + file.getName() + "/";
 			for (File f : file.listFiles()) {
-				load(f, columnRoot, newPrefix);
+				load(f, column, newPrefix);
 			}
 		} else if (file.isFile()) {
-			publish(new ChecksumTableModel.ChecksumCell(prefix + file.getName(), ChecksumComputationService.getService().getChecksum(file, columnRoot), columnRoot));
+			publish(new ChecksumTableModel.ChecksumCell(prefix + file.getName(), checksumComputationService.schedule(file, column), column));
 		}
 	}
 }

@@ -12,16 +12,16 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.transferablepolicies.FileTransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.tuned.FileUtil;
 
 
 class FileListTransferablePolicy extends FileTransferablePolicy {
 	
-	private FileBotList list;
+	private FileBotList<? super String> list;
 	
 	
-	public FileListTransferablePolicy(FileBotList list) {
+	public FileListTransferablePolicy(FileBotList<? super String> list) {
 		this.list = list;
 	}
 	
@@ -50,12 +50,13 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	private void loadFolderList(List<File> folders) {
 		if (folders.size() == 1) {
+			// if only one folder was dropped, use its name as title
 			list.setTitle(FileUtil.getFolderName(folders.get(0)));
 		}
 		
 		for (File folder : folders) {
 			for (File file : folder.listFiles()) {
-				list.getModel().add(FileUtil.getFolderName(file));
+				list.getModel().add(FileUtil.getFileName(file));
 			}
 		}
 	}
@@ -92,7 +93,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	public String getDescription() {
+	public String getFileFilterDescription() {
 		return "files, folders and torrents";
 	}
 	

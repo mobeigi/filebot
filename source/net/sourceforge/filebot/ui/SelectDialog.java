@@ -25,8 +25,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.SimpleListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
@@ -78,14 +78,14 @@ public class SelectDialog<T> extends JDialog {
 		setLocation(TunedUtil.getPreferredLocation(this));
 		
 		// default selection
-		list.setModel(new SimpleListModel(options));
+		list.setModel(new ArrayListModel(options));
 		list.setSelectedIndex(0);
 		
 		// Shortcut Enter
-		TunedUtil.registerActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
+		TunedUtil.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
 		
 		// Shortcut Escape
-		TunedUtil.registerActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtil.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

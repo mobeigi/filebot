@@ -9,7 +9,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.ui.transferablepolicies.BackgroundFileTransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> {
@@ -74,7 +74,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Defaul
 	
 
 	@Override
-	public String getDescription() {
+	public String getFileFilterDescription() {
 		return "files and folders";
 	}
 	

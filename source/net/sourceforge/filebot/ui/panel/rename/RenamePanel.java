@@ -27,12 +27,14 @@ import javax.swing.event.ListDataListener;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
+import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 
 
 public class RenamePanel extends FileBotPanel {
 	
-	private RenameList namesList = new RenameList();
-	private RenameList filesList = new RenameList();
+	private RenameList<ListEntry> namesList = new RenameList<ListEntry>();
+	private RenameList<FileEntry> filesList = new RenameList<FileEntry>();
 	
 	private MatchAction matchAction = new MatchAction(namesList, filesList);
 	
@@ -52,23 +54,23 @@ public class RenamePanel extends FileBotPanel {
 		filesList.setTitle("Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
 		
-		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(namesList.getModel(), filesList.getModel());
+		JList namesListComponent = namesList.getListComponent();
+		JList filesListComponent = filesList.getListComponent();
 		
-		namesList.getListComponent().setCellRenderer(cellrenderer);
-		filesList.getListComponent().setCellRenderer(cellrenderer);
+		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(namesListComponent.getModel(), filesListComponent.getModel());
 		
-		JList list1 = namesList.getListComponent();
-		JList list2 = filesList.getListComponent();
+		namesListComponent.setCellRenderer(cellrenderer);
+		filesListComponent.setCellRenderer(cellrenderer);
 		
 		ListSelectionModel selectionModel = new DefaultListSelectionModel();
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		namesList.getListComponent().setSelectionModel(selectionModel);
-		filesList.getListComponent().setSelectionModel(selectionModel);
+		namesListComponent.setSelectionModel(selectionModel);
+		filesListComponent.setSelectionModel(selectionModel);
 		
-		viewPortSynchroniser = new ViewPortSynchronizer((JViewport) list1.getParent(), (JViewport) list2.getParent());
+		viewPortSynchroniser = new ViewPortSynchronizer((JViewport) namesListComponent.getParent(), (JViewport) filesListComponent.getParent());
 		
-		similarityPanel = new SimilarityPanel(list1, list2);
+		similarityPanel = new SimilarityPanel(namesListComponent, filesListComponent);
 		
 		similarityPanel.setVisible(false);
 		similarityPanel.setMetrics(matchAction.getMetrics());
@@ -89,8 +91,8 @@ public class RenamePanel extends FileBotPanel {
 		
 		add(box, BorderLayout.CENTER);
 		
-		namesList.getModel().addListDataListener(repaintOnDataChange);
-		filesList.getModel().addListDataListener(repaintOnDataChange);
+		namesListComponent.getModel().addListDataListener(repaintOnDataChange);
+		filesListComponent.getModel().addListDataListener(repaintOnDataChange);
 	}
 	
 
@@ -120,7 +122,7 @@ public class RenamePanel extends FileBotPanel {
 		return centerBox;
 	}
 	
-	private ListDataListener repaintOnDataChange = new ListDataListener() {
+	private final ListDataListener repaintOnDataChange = new ListDataListener() {
 		
 		public void contentsChanged(ListDataEvent e) {
 			

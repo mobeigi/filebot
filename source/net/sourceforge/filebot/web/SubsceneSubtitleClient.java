@@ -9,7 +9,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,11 +33,9 @@ import org.xml.sax.SAXException;
 
 public class SubsceneSubtitleClient implements SubtitleClient {
 	
-	private final SearchResultCache searchResultCache = new SearchResultCache();
+	private static final String host = "subscene.com";
 	
 	private final Map<String, Integer> languageFilterMap = new ConcurrentHashMap<String, Integer>(50);
-	
-	private final String host = "subscene.com";
 	
 	
 	@Override
@@ -55,9 +52,6 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (searchResultCache.containsKey(searchterm)) {
-			return Collections.singletonList(searchResultCache.get(searchterm));
-		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
@@ -102,8 +96,6 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 				}
 			}
 		}
-		
-		searchResultCache.addAll(searchResults);
 		
 		return searchResults;
 	}
@@ -224,7 +216,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 					Matcher matcher = hrefPattern.matcher(href);
 					
 					if (!matcher.matches())
-						throw new IllegalArgumentException("Cannot extract download parameters: " + href);
+						throw new IllegalArgumentException("Cannot parse download parameters: " + href);
 					
 					String subtitleId = matcher.group(1);
 					String typeId = matcher.group(2);

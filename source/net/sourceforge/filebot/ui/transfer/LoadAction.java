@@ -8,7 +8,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.transferablepolicies.TransferablePolicy;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
 
 
 public class LoadAction extends AbstractAction {
@@ -18,6 +18,7 @@ public class LoadAction extends AbstractAction {
 	
 	public LoadAction(TransferablePolicy transferablePolicy) {
 		super("Load", ResourceManager.getIcon("action.load"));
+		
 		this.transferablePolicy = transferablePolicy;
 	}
 	
@@ -35,10 +36,14 @@ public class LoadAction extends AbstractAction {
 		
 		FileTransferable transferable = new FileTransferable(chooser.getSelectedFiles());
 		
-		boolean add = ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0);
+		TransferAction action = TransferAction.PUT;
+		
+		// if CTRL was pressed when the button was clicked, assume ADD action (same as with dnd)
+		if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0)
+			action = TransferAction.ADD;
 		
 		if (transferablePolicy.accept(transferable))
-			transferablePolicy.handleTransferable(transferable, add);
+			transferablePolicy.handleTransferable(transferable, action);
 	}
 	
 }

@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +36,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		DONE
 	}
 	
-	private final int BUFFER_SIZE = 4 * 1024;
+	private static final int BUFFER_SIZE = 4 * 1024;
 	
 	private URL url;
 	private ByteBuffer postdata;
@@ -175,15 +176,15 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		
 		int i = 0;
 		
-		for (String key : parameters.keySet()) {
+		for (Entry<String, String> entry : parameters.entrySet()) {
 			if (i > 0)
 				sb.append("&");
 			
-			sb.append(key);
+			sb.append(entry.getKey());
 			sb.append("=");
 			
 			try {
-				sb.append(URLEncoder.encode(parameters.get(key), "UTF-8"));
+				sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				// will never happen
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);

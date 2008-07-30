@@ -4,8 +4,12 @@ package net.sourceforge.filebot.ui.transfer;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.FileBotUtil;
@@ -14,22 +18,32 @@ import net.sourceforge.filebot.resources.ResourceManager;
 
 public class SaveAction extends AbstractAction {
 	
-	protected Saveable saveable;
+	protected final FileExportHandler exportHandler;
 	
 	
-	public SaveAction(Saveable saveable) {
+	public SaveAction(FileExportHandler exportHandler) {
 		super("Save as ...", ResourceManager.getIcon("action.save"));
-		this.saveable = saveable;
+		this.exportHandler = exportHandler;
 	}
 	
 
-	protected void save(File file) {
-		saveable.save(file);
+	protected SaveAction() {
+		this(null);
+	}
+	
+
+	protected boolean canExport() {
+		return exportHandler.canExport();
+	}
+	
+
+	protected void export(File file) throws IOException {
+		exportHandler.export(file);
 	}
 	
 
 	protected String getDefaultFileName() {
-		return saveable.getDefaultFileName();
+		return exportHandler.getDefaultFileName();
 	}
 	
 
@@ -38,18 +52,8 @@ public class SaveAction extends AbstractAction {
 	}
 	
 
-	protected boolean isSaveable() {
-		return saveable.isSaveable();
-	}
-	
-
-	protected void setSaveable(Saveable saveable) {
-		this.saveable = saveable;
-	}
-	
-
-	public void actionPerformed(ActionEvent e) {
-		if (!isSaveable())
+	public void actionPerformed(ActionEvent evt) {
+		if (!canExport())
 			return;
 		
 		JFileChooser chooser = new JFileChooser();
@@ -58,10 +62,13 @@ public class SaveAction extends AbstractAction {
 		
 		chooser.setSelectedFile(new File(getDefaultFolder(), FileBotUtil.validateFileName(getDefaultFileName())));
 		
-		if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+		if (chooser.showSaveDialog((JComponent) evt.getSource()) != JFileChooser.APPROVE_OPTION)
 			return;
 		
-		save(chooser.getSelectedFile());
+		try {
+			export(chooser.getSelectedFile());
+		} catch (IOException e) {
+			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+		}
 	}
-	
 }

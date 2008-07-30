@@ -42,12 +42,17 @@ public class FileBotTree extends JTree {
 	}
 	
 
+	@Override
+	public DefaultTreeModel getModel() {
+		return (DefaultTreeModel) super.getModel();
+	}
+	
+
 	public void clear() {
-		DefaultTreeModel model = (DefaultTreeModel) getModel();
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-		
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) getModel().getRoot();
 		root.removeAllChildren();
-		model.reload(root);
+		
+		getModel().reload(root);
 	}
 	
 

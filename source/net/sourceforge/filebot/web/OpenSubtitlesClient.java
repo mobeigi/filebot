@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,23 +19,10 @@ import redstone.xmlrpc.XmlRpcFault;
 
 /**
  * Client for the OpenSubtitles XML-RPC API.
- * 
  */
 public class OpenSubtitlesClient {
 	
-	/**
-	 * <table>
-	 * <tr>
-	 * <td>Main server:</td>
-	 * <td>http://www.opensubtitles.org/xml-rpc</td>
-	 * </tr>
-	 * <tr>
-	 * <td>Developing tests:</td>
-	 * <td>http://dev.opensubtitles.org/xml-rpc</td>
-	 * </tr>
-	 * </table>
-	 */
-	private final String url = "http://www.opensubtitles.org/xml-rpc";
+	private static final String url = "http://www.opensubtitles.org/xml-rpc";
 	
 	private final String useragent;
 	
@@ -60,7 +45,7 @@ public class OpenSubtitlesClient {
 	
 
 	/**
-	 * Login as user and use english as language
+	 * Login as user and use English as language
 	 * 
 	 * @param username
 	 * @param password
@@ -77,8 +62,9 @@ public class OpenSubtitlesClient {
 	 * 
 	 * @param username username (blank for anonymous user)
 	 * @param password password (blank for anonymous user)
-	 * @param language <a href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
-	 *            2 letter codes as language and later communication will be done in this
+	 * @param language <a
+	 *            href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
+	 *            2-letter codes as language and later communication will be done in this
 	 *            language if applicable (error codes and so on).
 	 */
 	@SuppressWarnings("unchecked")
@@ -116,7 +102,7 @@ public class OpenSubtitlesClient {
 	
 
 	/**
-	 * Check status whether it is OK or not
+	 * Check whether status is OK or not
 	 * 
 	 * @param status status code and message (e.g. 200 OK, 401 Unauthorized, ...)
 	 * @throws XmlRpcFault thrown if status code is not OK
@@ -139,9 +125,7 @@ public class OpenSubtitlesClient {
 			XmlRpcClient rpc = new XmlRpcClient(url, false);
 			return rpc.invoke(method, arguments);
 		} catch (MalformedURLException e) {
-			// will never happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, "Invalid xml-rpc url: " + url, e);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -169,14 +153,15 @@ public class OpenSubtitlesClient {
 		
 		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, searchList);
 		
-		ArrayList<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
+		List<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		
-		if (!(response.get("data") instanceof List))
-			throw new XmlRpcException("Illegal response: " + response.toString());
-		
-		// if there was an error data may not be a list
-		for (Map<String, String> subtitle : response.get("data")) {
-			subs.add(new OpenSubtitlesSubtitleDescriptor(subtitle));
+		try {
+			for (Map<String, String> subtitle : response.get("data")) {
+				subs.add(new OpenSubtitlesSubtitleDescriptor(subtitle));
+			}
+		} catch (ClassCastException e) {
+			// if the response is an error message, generic types won't match 
+			throw new XmlRpcException("Illegal response: " + response.toString(), e);
 		}
 		
 		return subs;

@@ -11,7 +11,6 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -29,9 +28,7 @@ import org.xml.sax.SAXException;
 
 public class AnidbClient implements EpisodeListClient {
 	
-	private final SearchResultCache searchResultCache = new SearchResultCache();
-	
-	private final String host = "anidb.net";
+	private static final String host = "anidb.net";
 	
 	
 	@Override
@@ -48,9 +45,6 @@ public class AnidbClient implements EpisodeListClient {
 
 	@Override
 	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
-		if (searchResultCache.containsKey(searchterm)) {
-			return Collections.singletonList(searchResultCache.get(searchterm));
-		}
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
@@ -91,8 +85,6 @@ public class AnidbClient implements EpisodeListClient {
 			}
 		}
 		
-		searchResultCache.addAll(searchResults);
-		
 		return searchResults;
 	}
 	
@@ -122,7 +114,7 @@ public class AnidbClient implements EpisodeListClient {
 				number = numberFormat.format(Integer.parseInt(number));
 				
 				// no seasons for anime
-				episodes.add(new Episode(searchResult.getName(), null, number, title));
+				episodes.add(new Episode(searchResult.getName(), number, title));
 			} catch (NumberFormatException ex) {
 				// ignore node, episode is probably some kind of special (S1, S2, ...)
 			}

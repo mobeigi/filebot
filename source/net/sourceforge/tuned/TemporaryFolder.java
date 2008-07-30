@@ -19,11 +19,11 @@ public class TemporaryFolder {
 	
 	public static TemporaryFolder getFolder(String name) {
 		synchronized (folders) {
-			TemporaryFolder folder = folders.get(name);
+			TemporaryFolder folder = folders.get(name.toLowerCase());
 			
 			if (folder == null) {
 				folder = new TemporaryFolder(new File(tmpdir, name));
-				folders.put(name, folder);
+				folders.put(name.toLowerCase(), folder);
 			}
 			
 			return folder;
@@ -63,14 +63,12 @@ public class TemporaryFolder {
 	 * @throws IOException if an I/O error occurred
 	 */
 	public File createFile(String name) throws IOException {
-		if (!root.exists()) {
-			root.mkdir();
-		}
 		
-		File file = new File(root, name);
+		File file = new File(getFolder(), name);
 		file.createNewFile();
 		
 		return file;
+		
 	}
 	
 
@@ -87,16 +85,12 @@ public class TemporaryFolder {
 	 * @see File#createTempFile(String, String)
 	 */
 	public File createFile(String prefix, String suffix) throws IOException {
-		if (!root.exists()) {
-			root.mkdir();
-		}
-		
-		return File.createTempFile(prefix, suffix, root);
+		return File.createTempFile(prefix, suffix, getFolder());
 	}
 	
 
 	public boolean deleteFile(String name) {
-		return new File(root, name).delete();
+		return new File(getFolder(), name).delete();
 	}
 	
 
@@ -106,20 +100,15 @@ public class TemporaryFolder {
 	 * @return the {@link File} object for this {@link TemporaryFolder}
 	 */
 	public File getFolder() {
+		if (!root.exists())
+			root.mkdirs();
+		
 		return root;
 	}
 	
 
 	public TemporaryFolder createFolder(String name) {
-		if (!root.exists()) {
-			root.mkdir();
-		}
-		
-		TemporaryFolder folder = new TemporaryFolder(new File(root, name));
-		
-		folder.root.mkdir();
-		
-		return folder;
+		return new TemporaryFolder(new File(getFolder(), name));
 	}
 	
 

@@ -18,11 +18,11 @@ import net.sourceforge.tuned.FileUtil;
 
 public class RenameAction extends AbstractAction {
 	
-	private final RenameList namesList;
-	private final RenameList filesList;
+	private final RenameList<ListEntry> namesList;
+	private final RenameList<FileEntry> filesList;
 	
 	
-	public RenameAction(RenameList namesList, RenameList filesList) {
+	public RenameAction(RenameList<ListEntry> namesList, RenameList<FileEntry> filesList) {
 		super("Rename", ResourceManager.getIcon("action.rename"));
 		this.namesList = namesList;
 		this.filesList = filesList;
@@ -33,7 +33,7 @@ public class RenameAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		List<ListEntry> nameEntries = namesList.getEntries();
-		List<ListEntry> fileEntries = filesList.getEntries();
+		List<FileEntry> fileEntries = filesList.getEntries();
 		
 		int minLength = Math.min(nameEntries.size(), fileEntries.size());
 		
@@ -41,7 +41,7 @@ public class RenameAction extends AbstractAction {
 		int errors = 0;
 		
 		for (i = 0; i < minLength; i++) {
-			FileEntry fileEntry = (FileEntry) fileEntries.get(i);
+			FileEntry fileEntry = fileEntries.get(i);
 			File f = fileEntry.getFile();
 			
 			String newName = nameEntries.get(i).toString() + FileUtil.getExtension(f, true);

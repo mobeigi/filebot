@@ -4,6 +4,7 @@ package net.sourceforge.filebot.web;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,7 +59,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 	
 	public OpenSubtitlesSubtitleDescriptor(Map<String, String> properties) {
-		this.properties = properties;
+		this.properties = new HashMap<String, String>(properties);
 	}
 	
 

@@ -6,6 +6,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,12 +21,19 @@ import net.sourceforge.tuned.FileUtil;
 
 class ChecksumTableModel extends AbstractTableModel {
 	
-	private List<ChecksumRow> rows = new ArrayList<ChecksumRow>();
-	private Map<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>();
+	private List<ChecksumRow> rows = new ArrayList<ChecksumRow>(50);
 	
-	private List<File> checksumColumnRoots = new ArrayList<File>();
+	/**
+	 * Hash map for fast access to the row of a given name
+	 */
+	private Map<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>(50);
 	
-	private final int checksumColumnsOffset = 2;
+	private List<File> columns = new ArrayList<File>();
+	
+	/**
+	 * Checksum start at column 3
+	 */
+	private static final int checksumColumnOffset = 2;
 	
 	
 	@Override
@@ -36,9 +44,11 @@ class ChecksumTableModel extends AbstractTableModel {
 		if (columnIndex == 1)
 			return "Name";
 		
-		if (columnIndex >= checksumColumnsOffset) {
-			File columnRoot = checksumColumnRoots.get(columnIndex - checksumColumnsOffset);
-			return FileUtil.getFolderName(columnRoot);
+		if (columnIndex >= checksumColumnOffset) {
+			File column = columns.get(columnIndex - checksumColumnOffset);
+			
+			// works for files too and simply returns the name unchanged
+			return FileUtil.getFolderName(column);
 		}
 		
 		return null;
@@ -53,7 +63,7 @@ class ChecksumTableModel extends AbstractTableModel {
 		if (columnIndex == 1)
 			return String.class;
 		
-		if (columnIndex >= checksumColumnsOffset)
+		if (columnIndex >= checksumColumnOffset)
 			return Checksum.class;
 		
 		return null;
@@ -61,12 +71,17 @@ class ChecksumTableModel extends AbstractTableModel {
 	
 
 	public int getColumnCount() {
-		return checksumColumnsOffset + getChecksumColumnCount();
+		return checksumColumnOffset + getChecksumColumnCount();
 	}
 	
 
 	public int getChecksumColumnCount() {
-		return checksumColumnRoots.size();
+		return columns.size();
+	}
+	
+
+	public List<File> getChecksumColumns() {
+		return Collections.unmodifiableList(columns);
 	}
 	
 
@@ -84,20 +99,20 @@ class ChecksumTableModel extends AbstractTableModel {
 		if (columnIndex == 1)
 			return row.getName();
 		
-		if (columnIndex >= checksumColumnsOffset) {
-			File columnRoot = checksumColumnRoots.get(columnIndex - checksumColumnsOffset);
-			return row.getChecksum(columnRoot);
+		if (columnIndex >= checksumColumnOffset) {
+			File column = columns.get(columnIndex - checksumColumnOffset);
+			return row.getChecksum(column);
 		}
 		
 		return null;
 	}
 	
 
-	public synchronized void addAll(List<ChecksumCell> list) {
+	public void addAll(List<ChecksumCell> list) {
 		int firstRow = getRowCount();
 		
 		for (ChecksumCell entry : list) {
-			addChecksum(entry.getName(), entry.getChecksum(), entry.getColumnRoot());
+			addChecksum(entry.getName(), entry.getChecksum(), entry.getColumn());
 		}
 		
 		int lastRow = getRowCount() - 1;
@@ -108,7 +123,7 @@ class ChecksumTableModel extends AbstractTableModel {
 	}
 	
 
-	private synchronized void addChecksum(String name, Checksum checksum, File columnRoot) {
+	private void addChecksum(String name, Checksum checksum, File column) {
 		ChecksumRow row = rowMap.get(name);
 		
 		if (row == null) {
@@ -117,17 +132,17 @@ class ChecksumTableModel extends AbstractTableModel {
 			rowMap.put(name, row);
 		}
 		
-		row.putChecksum(columnRoot, checksum);
+		row.putChecksum(column, checksum);
 		checksum.addPropertyChangeListener(checksumListener);
 		
-		if (!checksumColumnRoots.contains(columnRoot)) {
-			checksumColumnRoots.add(columnRoot);
+		if (!columns.contains(column)) {
+			columns.add(column);
 			fireTableStructureChanged();
 		}
 	}
 	
 
-	public synchronized void removeRows(int... rowIndices) {
+	public void removeRows(int... rowIndices) {
 		ArrayList<ChecksumRow> rowsToRemove = new ArrayList<ChecksumRow>(rowIndices.length);
 		
 		for (int i : rowIndices) {
@@ -137,37 +152,35 @@ class ChecksumTableModel extends AbstractTableModel {
 			for (Checksum checksum : row.getChecksums()) {
 				checksum.cancelComputationTask();
 			}
+			
+			rowMap.remove(row.getName());
 		}
 		
 		rows.removeAll(rowsToRemove);
 		fireTableRowsDeleted(rowIndices[0], rowIndices[rowIndices.length - 1]);
-		
-		ChecksumComputationService.getService().purge();
 	}
 	
 
-	public synchronized void clear() {
-		ChecksumComputationService.getService().reset();
-		
-		checksumColumnRoots.clear();
+	public void clear() {
+		columns.clear();
 		rows.clear();
 		rowMap.clear();
-		
 		fireTableStructureChanged();
+		
 		fireTableDataChanged();
 	}
 	
 
-	public File getChecksumColumnRoot(int checksumColumnIndex) {
-		return checksumColumnRoots.get(checksumColumnIndex);
+	public File getChecksumColumn(int columnIndex) {
+		return columns.get(columnIndex);
 	}
 	
 
-	public Map<String, Checksum> getChecksumColumn(File columnRoot) {
+	public Map<String, Checksum> getChecksumColumn(File column) {
 		LinkedHashMap<String, Checksum> checksumMap = new LinkedHashMap<String, Checksum>();
 		
 		for (ChecksumRow row : rows) {
-			Checksum checksum = row.getChecksum(columnRoot);
+			Checksum checksum = row.getChecksum(column);
 			
 			if ((checksum != null) && (checksum.getState() == Checksum.State.READY)) {
 				checksumMap.put(row.getName(), checksum);
@@ -189,13 +202,13 @@ class ChecksumTableModel extends AbstractTableModel {
 		
 		private final String name;
 		private final Checksum checksum;
-		private final File columnRoot;
+		private final File column;
 		
 		
-		public ChecksumCell(String name, Checksum checksum, File columnRoot) {
+		public ChecksumCell(String name, Checksum checksum, File column) {
 			this.name = name;
 			this.checksum = checksum;
-			this.columnRoot = columnRoot;
+			this.column = column;
 		}
 		
 
@@ -209,8 +222,8 @@ class ChecksumTableModel extends AbstractTableModel {
 		}
 		
 
-		public File getColumnRoot() {
-			return columnRoot;
+		public File getColumn() {
+			return column;
 		}
 		
 

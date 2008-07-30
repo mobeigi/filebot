@@ -5,7 +5,8 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -32,7 +33,7 @@ public class SfvPanel extends FileBotPanel {
 	
 	private SfvTable sfvTable = new SfvTable();
 	
-	private TotalProgressPanel totalProgressPanel = new TotalProgressPanel();
+	private TotalProgressPanel totalProgressPanel = new TotalProgressPanel(sfvTable.getChecksumComputationService());
 	
 	
 	public SfvPanel() {
@@ -61,85 +62,12 @@ public class SfvPanel extends FileBotPanel {
 		add(southPanel, BorderLayout.SOUTH);
 		
 		// Shortcut DELETE
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), sfvTable.getTransferablePolicy()));
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, sfvTable.getTransferablePolicy()));
 	}
 	
-	private final SaveAction saveAction = new SaveAction(sfvTable) {
-		
-		private int index;
-		private String name;
-		
-		private File folder = null;
-		
-		
-		@Override
-		protected void save(File file) {
-			sfvTable.save(file, index);
-		}
-		
-
-		@Override
-		protected String getDefaultFileName() {
-			return name;
-		}
-		
-
-		@Override
-		protected File getDefaultFolder() {
-			return folder;
-		}
-		
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			ChecksumTableModel model = (ChecksumTableModel) sfvTable.getModel();
-			
-			ArrayList<File> options = new ArrayList<File>();
-			
-			for (int i = 0; i < model.getChecksumColumnCount(); i++) {
-				options.add(model.getChecksumColumnRoot(i));
-			}
-			
-			File selected = null;
-			
-			if (options.size() > 1) {
-				SelectDialog<File> selectDialog = new SelectDialog<File>(SwingUtilities.getWindowAncestor(SfvPanel.this), options) {
-					
-					@Override
-					protected String convertValueToString(Object value) {
-						File columnRoot = (File) value;
-						return FileUtil.getFolderName(columnRoot);
-					}
-				};
-				
-				selectDialog.setText("Select checksum column:");
-				selectDialog.setVisible(true);
-				selected = selectDialog.getSelectedValue();
-			} else if (options.size() == 1) {
-				selected = options.get(0);
-			}
-			
-			if (selected == null)
-				return;
-			
-			index = options.indexOf(selected);
-			name = FileUtil.getFileName(selected);
-			
-			if (name.isEmpty())
-				name = "name";
-			
-			name += ".sfv";
-			
-			// selected is either a folder or a sfv file
-			if (selected.isDirectory()) {
-				folder = selected;
-			}
-			
-			super.actionPerformed(e);
-		}
-	};
+	private final SaveAction saveAction = new ChecksumTableSaveAction();
 	
 	private final LoadAction loadAction = new LoadAction(sfvTable.getTransferablePolicy());
 	
@@ -168,5 +96,69 @@ public class SfvPanel extends FileBotPanel {
 			sfvTable.getSelectionModel().setSelectionInterval(row, row);
 		}
 	};
+	
+	
+	private class ChecksumTableSaveAction extends SaveAction {
+		
+		private File selectedColumn = null;
+		
+		
+		@Override
+		protected boolean canExport() {
+			return selectedColumn != null && sfvTable.getExportHandler().canExport();
+		}
+		
+
+		@Override
+		protected void export(File file) throws IOException {
+			sfvTable.getExportHandler().export(file, selectedColumn);
+		}
+		
+
+		@Override
+		protected String getDefaultFileName() {
+			return sfvTable.getExportHandler().getDefaultFileName(selectedColumn);
+		}
+		
+
+		@Override
+		protected File getDefaultFolder() {
+			// if column is a folder use it as default folder in file dialog
+			return selectedColumn.isDirectory() ? selectedColumn : null;
+		}
+		
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<File> options = sfvTable.getModel().getChecksumColumns();
+			
+			this.selectedColumn = null;
+			
+			if (options.size() == 1) {
+				// auto-select if there is only one option
+				this.selectedColumn = options.get(0);
+			} else if (options.size() > 1) {
+				// show user his/her options
+				SelectDialog<File> selectDialog = new SelectDialog<File>(SwingUtilities.getWindowAncestor(SfvPanel.this), options) {
+					
+					@Override
+					protected String convertValueToString(Object value) {
+						return FileUtil.getFolderName((File) value);
+					}
+				};
+				
+				selectDialog.setText("Select checksum column:");
+				selectDialog.setVisible(true);
+				
+				this.selectedColumn = selectDialog.getSelectedValue();
+			}
+			
+			if (this.selectedColumn != null) {
+				// continue if a column was selected
+				super.actionPerformed(e);
+			}
+		}
+		
+	}
 	
 }

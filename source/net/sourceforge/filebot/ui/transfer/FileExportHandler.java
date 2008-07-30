@@ -3,8 +3,11 @@ package net.sourceforge.filebot.ui.transfer;
 
 
 import java.awt.datatransfer.Transferable;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,19 +19,31 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.tuned.TemporaryFolder;
 
 
-public class SaveableExportHandler implements ExportHandler {
+public abstract class FileExportHandler implements ExportHandler {
 	
-	private final Saveable saveable;
+	public abstract boolean canExport();
 	
+
+	public abstract void export(OutputStream out) throws IOException;
 	
-	public SaveableExportHandler(Saveable saveable) {
-		this.saveable = saveable;
+
+	public abstract String getDefaultFileName();
+	
+
+	public void export(File file) throws IOException {
+		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+		
+		try {
+			export(out);
+		} finally {
+			out.close();
+		}
 	}
 	
 
 	@Override
 	public int getSourceActions(JComponent c) {
-		if ((saveable == null) || !saveable.isSaveable())
+		if (!canExport())
 			return TransferHandler.NONE;
 		
 		return TransferHandler.MOVE | TransferHandler.COPY;
@@ -38,11 +53,12 @@ public class SaveableExportHandler implements ExportHandler {
 	@Override
 	public Transferable createTransferable(JComponent c) {
 		try {
-			// Remove invalid characters from default filename
-			String name = FileBotUtil.validateFileName(saveable.getDefaultFileName());
+			// remove invalid characters from file name
+			String name = FileBotUtil.validateFileName(getDefaultFileName());
 			
 			File temporaryFile = TemporaryFolder.getFolder(Settings.ROOT).createFile(name);
-			saveable.save(temporaryFile);
+			
+			export(temporaryFile);
 			
 			return new FileTransferable(temporaryFile);
 		} catch (IOException e) {
@@ -58,4 +74,5 @@ public class SaveableExportHandler implements ExportHandler {
 	public void exportDone(JComponent source, Transferable data, int action) {
 		
 	}
+	
 }

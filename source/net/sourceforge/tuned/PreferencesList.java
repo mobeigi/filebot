@@ -44,10 +44,14 @@ public class PreferencesList<T> extends AbstractList<T> {
 	}
 	
 
-	//TODO: assert invalid index
 	@Override
 	public void add(int index, T element) {
-		copy(index, index + 1, size() - index);
+		int size = size();
+		
+		if (index > size)
+			throw new IndexOutOfBoundsException(String.format("Index: %d, Size: %d", index, size));
+		
+		copy(index, index + 1, size - index);
 		
 		setImpl(index, element);
 	}
@@ -99,12 +103,6 @@ public class PreferencesList<T> extends AbstractList<T> {
 	}
 	
 
-	public void set(List<T> data) {
-		clear();
-		addAll(data);
-	}
-	
-
 	public static <T> PreferencesList<T> map(Preferences prefs, Class<T> type) {
 		return new PreferencesList<T>(PreferencesMap.map(prefs, type));
 	}
@@ -113,4 +111,5 @@ public class PreferencesList<T> extends AbstractList<T> {
 	public static <T> PreferencesList<T> map(Preferences prefs, Adapter<T> adapter) {
 		return new PreferencesList<T>(PreferencesMap.map(prefs, adapter));
 	}
+	
 }

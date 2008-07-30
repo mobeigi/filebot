@@ -13,7 +13,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { MatcherTestSuite.class, WebTestSuite.class })
+@SuiteClasses( { MatcherTestSuite.class, WebTestSuite.class, ArgumentBeanTest.class })
 public class FileBotTestSuite {
 	
 	public static Test suite() {

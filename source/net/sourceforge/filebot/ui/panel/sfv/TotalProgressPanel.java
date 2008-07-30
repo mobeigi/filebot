@@ -18,14 +18,18 @@ class TotalProgressPanel extends Box {
 	
 	private int millisToSetVisible = 200;
 	
-	private JProgressBar progressBar = new JProgressBar(0, 0);
+	private final JProgressBar progressBar = new JProgressBar(0, 0);
+	
+	private final ChecksumComputationService checksumComputationService;
 	
 	
-	public TotalProgressPanel() {
+	public TotalProgressPanel(ChecksumComputationService checksumComputationService) {
 		super(BoxLayout.Y_AXIS);
 		
-		// start invisible
-		super.setVisible(false);
+		this.checksumComputationService = checksumComputationService;
+		
+		// invisible by default
+		setVisible(false);
 		
 		progressBar.setStringPainted(true);
 		progressBar.setBorderPainted(false);
@@ -37,10 +41,11 @@ class TotalProgressPanel extends Box {
 		setBorder(BorderFactory.createCompoundBorder(margin, title));
 		
 		add(progressBar);
-		ChecksumComputationService.getService().addPropertyChangeListener(executorListener);
+		
+		checksumComputationService.addPropertyChangeListener(progressListener);
 	}
 	
-	private PropertyChangeListener executorListener = new PropertyChangeListener() {
+	private PropertyChangeListener progressListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
 			
@@ -54,23 +59,22 @@ class TotalProgressPanel extends Box {
 						
 						@Override
 						public void run() {
-							setVisible(ChecksumComputationService.getService().isActive());
+							setVisible(checksumComputationService.isActive());
 						}
 					});
+				} else {
+					// hide when not active
+					setVisible(false);
 				}
 			} else if (property == ChecksumComputationService.REMAINING_TASK_COUNT_PROPERTY) {
 				
-				int taskCount = ChecksumComputationService.getService().getActiveSessionTaskCount();
-				int progress = taskCount - ChecksumComputationService.getService().getRemainingTaskCount();
+				int taskCount = checksumComputationService.getActiveSessionTaskCount();
+				int progress = taskCount - checksumComputationService.getRemainingTaskCount();
 				
 				progressBar.setValue(progress);
 				progressBar.setMaximum(taskCount);
 				
 				progressBar.setString(progressBar.getValue() + " / " + progressBar.getMaximum());
-			}
-			
-			if (!ChecksumComputationService.getService().isActive()) {
-				setVisible(false);
 			}
 		}
 	};

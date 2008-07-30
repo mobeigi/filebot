@@ -23,7 +23,6 @@ public class Settings {
 	public static final String SELECTED_PANEL = "panel";
 	public static final String SEARCH_HISTORY = "search/history";
 	public static final String SUBTITLE_HISTORY = "subtitle/history";
-	public static final String SUBTITLE_LANGUAGE = "subtitle/language";
 	
 	private static final Settings settings = new Settings();
 	

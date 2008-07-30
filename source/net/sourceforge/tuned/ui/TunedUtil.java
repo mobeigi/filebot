@@ -13,20 +13,24 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 
 public class TunedUtil {
 	
-	private TunedUtil() {
-		// hide constructor
+	public static void checkEventDispatchThread() {
+		if (!SwingUtilities.isEventDispatchThread()) {
+			throw new IllegalStateException("Method must be accessed from the Swing Event Dispatch Thread, but was called on Thread \"" + Thread.currentThread().getName() + "\"");
+		}
 	}
 	
 
-	public static void registerActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
+	public static void putActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
 		Integer key = action.hashCode();
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
 		component.getActionMap().put(key, action);
@@ -47,10 +51,9 @@ public class TunedUtil {
 	
 
 	public static Image getImage(Icon icon) {
-		//TODO uncomment
-		//		if (icon instanceof ImageIcon) {
-		//			return ((ImageIcon) icon).getImage();
-		//		}
+		if (icon instanceof ImageIcon) {
+			return ((ImageIcon) icon).getImage();
+		}
 		
 		BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
 		
@@ -76,6 +79,11 @@ public class TunedUtil {
 		timer.start();
 		
 		return timer;
+	}
+	
+
+	private TunedUtil() {
+		// hide constructor
 	}
 	
 }

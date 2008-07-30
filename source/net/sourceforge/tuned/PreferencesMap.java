@@ -81,12 +81,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 	}
 	
 
-	public void set(Map<String, T> data) {
-		clear();
-		putAll(data);
-	}
-	
-
 	@Override
 	public boolean containsKey(Object key) {
 		if (key instanceof String) {
@@ -134,8 +128,8 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	@Override
 	public void putAll(Map<? extends String, ? extends T> map) {
-		for (String key : map.keySet()) {
-			put(key, map.get(key));
+		for (Map.Entry<? extends String, ? extends T> entry : map.entrySet()) {
+			put(entry.getKey(), entry.getValue());
 		}
 	}
 	

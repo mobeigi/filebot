@@ -6,12 +6,12 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
@@ -20,25 +20,26 @@ import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
+import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 
 
-class RenameList extends FileBotList {
+class RenameList<E extends ListEntry> extends FileBotList<E> {
+	
+	private JButton loadButton = new JButton();
+	
 	
 	public RenameList() {
-		super(false, true, true);
-		
 		Box buttons = Box.createHorizontalBox();
 		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
 		buttons.add(Box.createGlue());
 		buttons.add(new JButton(downAction));
 		buttons.add(new JButton(upAction));
 		buttons.add(Box.createHorizontalStrut(10));
-		buttons.add(new JButton(loadAction));
+		buttons.add(loadButton);
 		buttons.add(Box.createGlue());
 		
 		add(buttons, BorderLayout.SOUTH);
 		
-		JList list = getListComponent();
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		list.addMouseListener(dndReorderMouseAdapter);
@@ -46,69 +47,76 @@ class RenameList extends FileBotList {
 		
 		JViewport viewport = (JViewport) list.getParent();
 		viewport.setBackground(list.getBackground());
+		
+		getRemoveAction().setEnabled(true);
 	}
 	
 
-	@SuppressWarnings("unchecked")
-	public List<ListEntry> getEntries() {
-		return (List<ListEntry>) getModel().getCopy();
+	@Override
+	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
+		super.setTransferablePolicy(transferablePolicy);
+		loadButton.setAction(new LoadAction(transferablePolicy));
+	}
+	
+
+	public List<E> getEntries() {
+		return new ArrayList<E>(getModel());
+	}
+	
+
+	private boolean moveEntry(int fromIndex, int toIndex) {
+		if (toIndex < 0 || toIndex >= getModel().size())
+			return false;
+		
+		getModel().add(toIndex, getModel().remove(fromIndex));
+		return true;
 	}
 	
 	private final AbstractAction upAction = new AbstractAction(null, ResourceManager.getIcon("action.up")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			int index = getListComponent().getSelectedIndex();
+			int selectedIndex = getListComponent().getSelectedIndex();
+			int toIndex = selectedIndex + 1;
 			
-			if (index <= 0) // first element
-				return;
-			
-			Object object = getModel().remove(index);
-			
-			int newIndex = index - 1;
-			getModel().add(newIndex, object);
-			getListComponent().setSelectedIndex(newIndex);
+			if (moveEntry(selectedIndex, toIndex)) {
+				getListComponent().setSelectedIndex(toIndex);
+			}
 		}
 	};
 	
 	private final AbstractAction downAction = new AbstractAction(null, ResourceManager.getIcon("action.down")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			int index = getListComponent().getSelectedIndex();
+			int selectedIndex = getListComponent().getSelectedIndex();
+			int toIndex = selectedIndex - 1;
 			
-			if (index >= getModel().getSize() - 1) // last element
-				return;
-			
-			Object object = getModel().remove(index);
-			
-			int newIndex = index + 1;
-			getModel().add(newIndex, object);
-			getListComponent().setSelectedIndex(newIndex);
+			if (moveEntry(selectedIndex, toIndex)) {
+				getListComponent().setSelectedIndex(toIndex);
+			}
 		}
 	};
 	
-	protected final LoadAction loadAction = new LoadAction(getTransferablePolicy());
-	
-	private MouseAdapter dndReorderMouseAdapter = new MouseAdapter() {
+	private final MouseAdapter dndReorderMouseAdapter = new MouseAdapter() {
 		
-		private int from = -1;
+		private int fromIndex = -1;
 		
 		
 		@Override
 		public void mousePressed(MouseEvent m) {
-			from = getListComponent().getSelectedIndex();
+			fromIndex = getListComponent().getSelectedIndex();
 		}
 		
 
 		@Override
 		public void mouseDragged(MouseEvent m) {
-			int to = getListComponent().getSelectedIndex();
+			int toIndex = getListComponent().getSelectedIndex();
 			
-			if (to == from)
+			if (toIndex == fromIndex)
 				return;
 			
-			Object object = getModel().remove(from);
-			getModel().add(to, object);
-			from = to;
+			moveEntry(fromIndex, toIndex);
+			
+			fromIndex = toIndex;
 		}
 	};
 	

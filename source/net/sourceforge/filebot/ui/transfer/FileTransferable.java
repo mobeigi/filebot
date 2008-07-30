@@ -56,7 +56,6 @@ public class FileTransferable implements Transferable {
 	
 
 	/**
-	 * 
 	 * @return line separated list of file uris
 	 */
 	private String getUriList() {
@@ -72,7 +71,7 @@ public class FileTransferable implements Transferable {
 	
 
 	public DataFlavor[] getTransferDataFlavors() {
-		return supportedFlavors;
+		return supportedFlavors.clone();
 	}
 	
 

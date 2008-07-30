@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
-import net.sourceforge.filebot.ListChangeSynchronizer;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -18,6 +17,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
@@ -64,12 +64,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	
 
 	@Override
-	protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
-		selectDialog.setText("Select a Show / Movie:");
-	}
-	
-
-	@Override
 	protected FetchTask createFetchTask(SearchTask searchTask, SearchResult selectedSearchResult) {
 		return new SubtitleFetchTask(searchTask.getClient(), selectedSearchResult, searchTask.getTabPanel());
 	}
@@ -91,6 +85,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		@Override
 		protected Collection<SearchResult> doInBackground() throws Exception {
 			return getClient().search(getSearchText());
+		}
+		
+
+		@Override
+		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) throws Exception {
+			super.configureSelectDialog(selectDialog);
+			selectDialog.setText("Select a Show / Movie:");
 		}
 		
 	}

@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
+import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.MessageManager;
@@ -36,10 +37,7 @@ public class ListPanel extends FileBotPanel {
 	
 	private static final String INDEX_VARIABLE = "<i>";
 	
-	private FileBotList list = new FileBotList(true, true, true);
-	
-	private SaveAction saveAction = new SaveAction(list);
-	private LoadAction loadAction = new LoadAction(list.getTransferablePolicy());
+	private FileBotList<String> list = new FileBotList<String>();
 	
 	private JTextField textField = new JTextField(String.format("Name - %s", INDEX_VARIABLE), 25);
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
@@ -50,14 +48,17 @@ public class ListPanel extends FileBotPanel {
 		super("List", ResourceManager.getIcon("panel.list"));
 		
 		list.setTransferablePolicy(new FileListTransferablePolicy(list));
+		list.setExportHandler(new FileBotListExportHandler(list));
+		
+		list.getRemoveAction().setEnabled(true);
 		
 		Box buttons = Box.createHorizontalBox();
 		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
 		buttons.add(Box.createHorizontalGlue());
 		
-		buttons.add(new JButton(loadAction));
+		buttons.add(new JButton(new LoadAction(list.getTransferablePolicy())));
 		buttons.add(Box.createHorizontalStrut(5));
-		buttons.add(new JButton(saveAction));
+		buttons.add(new JButton(new SaveAction(list.getExportHandler())));
 		buttons.add(Box.createHorizontalGlue());
 		
 		list.add(buttons, BorderLayout.SOUTH);
@@ -88,9 +89,9 @@ public class ListPanel extends FileBotPanel {
 		add(spinners, BorderLayout.NORTH);
 		add(list, BorderLayout.CENTER);
 		
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(getPanelName(), list.getTransferablePolicy()));
+		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, list.getTransferablePolicy()));
 	}
 	
 
@@ -144,7 +145,8 @@ public class ListPanel extends FileBotPanel {
 				index += increment;
 			} while (index != (to + increment));
 			
-			list.getModel().set(entries);
+			list.getModel().clear();
+			list.getModel().addAll(entries);
 		}
 	};
 	

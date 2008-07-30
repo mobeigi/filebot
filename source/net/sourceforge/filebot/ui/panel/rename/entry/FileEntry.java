@@ -38,4 +38,5 @@ public class FileEntry extends AbstractFileEntry {
 	public File getFile() {
 		return file;
 	}
+	
 }

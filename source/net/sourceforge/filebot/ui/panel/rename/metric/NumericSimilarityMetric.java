@@ -46,7 +46,7 @@ public class NumericSimilarityMetric extends AbstractNameSimilarityMetric {
 	
 	private static class NumberTokeniser implements InterfaceTokeniser {
 		
-		private final String delimiter = "(\\D)+";
+		private static final String delimiter = "(\\D)+";
 		
 		
 		@Override

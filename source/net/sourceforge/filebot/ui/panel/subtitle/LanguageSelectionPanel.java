@@ -16,7 +16,6 @@ import java.util.TreeMap;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import net.sourceforge.filebot.Settings;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FunctionList;
 import ca.odell.glazedlists.ListSelection;
@@ -31,13 +30,14 @@ public class LanguageSelectionPanel extends JPanel {
 	private final ListSelection<Language> selectionModel;
 	
 	private final Map<String, Boolean> defaultSelection = new TreeMap<String, Boolean>(String.CASE_INSENSITIVE_ORDER);
-	private final Map<String, Boolean> globalSelection = Settings.getSettings().asBooleanMap(Settings.SUBTITLE_LANGUAGE);
 	
+	
+	//	private final Map<String, Boolean> globalSelection = Settings.getSettings().asBooleanMap(Settings.SUBTITLE_LANGUAGE);
 	
 	public LanguageSelectionPanel(EventList<SubtitlePackage> source) {
 		super(new FlowLayout(FlowLayout.RIGHT, 5, 1));
 		
-		defaultSelection.putAll(globalSelection);
+		//		defaultSelection.putAll(globalSelection);
 		
 		EventList<Language> languageList = new FunctionList<SubtitlePackage, Language>(source, new LanguageFunction());
 		EventList<Language> languageSet = new UniqueList<Language>(languageList);
@@ -68,7 +68,7 @@ public class LanguageSelectionPanel extends JPanel {
 		String key = language.getName();
 		
 		defaultSelection.put(key, selected);
-		globalSelection.put(key, selected);
+		//		globalSelection.put(key, selected);
 		
 		if (selected)
 			selectionModel.select(language);

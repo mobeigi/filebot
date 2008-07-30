@@ -91,12 +91,14 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		completionList.addMemberList(fetchHistory);
 		*/
 
+		searchField.getEditor().setAction(searchAction);
+		
 		searchField.getSelectButton().setModel(createSearchEngines());
 		searchField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
 		AutoCompleteSupport.install(searchField.getEditor(), searchHistory);
 		
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
 	
 
@@ -107,9 +109,6 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	
 
 	protected abstract SearchTask createSearchTask();
-	
-
-	protected abstract void configureSelectDialog(SelectDialog<SearchResult> selectDialog);
 	
 
 	protected abstract FetchTask createFetchTask(SearchTask searchTask, SearchResult selectedSearchResult);
@@ -163,6 +162,41 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		protected abstract Collection<SearchResult> doInBackground() throws Exception;
 		
 
+		protected SearchResult chooseSearchResult() throws Exception {
+			
+			switch (get().size()) {
+				case 0:
+					MessageManager.showWarning(String.format("\"%s\" has not been found.", getSearchText()));
+					return null;
+				case 1:
+					return get().iterator().next();
+			}
+			
+			// check if an exact match has been found
+			for (SearchResult searchResult : get()) {
+				if (getSearchText().equalsIgnoreCase(searchResult.getName()))
+					return searchResult;
+			}
+			
+			// multiple results have been found, user must select one
+			Window window = SwingUtilities.getWindowAncestor(AbstractSearchPanel.this);
+			
+			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, get());
+			
+			configureSelectDialog(selectDialog);
+			
+			selectDialog.setVisible(true);
+			
+			// selected value or null if the dialog was canceled by the user
+			return selectDialog.getSelectedValue();
+		}
+		
+
+		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) throws Exception {
+			selectDialog.setIconImage(TunedUtil.getImage(searchField.getSelectButton().getLabelProvider().getIcon(getClient())));
+		}
+		
+
 		public String getSearchText() {
 			return searchText;
 		}
@@ -210,14 +244,9 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			SearchTask task = (SearchTask) evt.getSource();
 			
 			try {
-				SearchResult selectedResult = selectSearchResult(task);
+				SearchResult selectedResult = task.chooseSearchResult();
 				
 				if (selectedResult == null) {
-					if (task.get().isEmpty()) {
-						// no search results
-						MessageManager.showWarning(String.format("\"%s\" has not been found.", task.getSearchText()));
-					}
-					
 					tab.close();
 					return;
 				}
@@ -243,31 +272,6 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.getMessage(), cause);
 			}
 			
-		}
-		
-
-		private SearchResult selectSearchResult(SearchTask task) throws Exception {
-			Collection<SearchResult> searchResults = task.get();
-			
-			switch (searchResults.size()) {
-				case 0:
-					return null;
-				case 1:
-					return searchResults.iterator().next();
-			}
-			
-			// multiple results have been found, user must selected one
-			Window window = SwingUtilities.getWindowAncestor(AbstractSearchPanel.this);
-			
-			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
-			
-			selectDialog.setIconImage(TunedUtil.getImage(searchField.getSelectButton().getLabelProvider().getIcon(task.getClient())));
-			
-			configureSelectDialog(selectDialog);
-			selectDialog.setVisible(true);
-			
-			// selected value or null if canceled by the user
-			return selectDialog.getSelectedValue();
 		}
 		
 	}

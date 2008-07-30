@@ -26,13 +26,12 @@ public class LanguageResolver {
 	 * @return the locale for this language or null if no locale for this language exists
 	 */
 	public synchronized Locale getLocale(String languageName) {
-		languageName = languageName.toLowerCase();
 		
-		Locale locale = cache.get(languageName);
+		Locale locale = cache.get(languageName.toLowerCase());
 		
 		if (locale == null) {
 			locale = findLocale(languageName);
-			cache.put(languageName, locale);
+			cache.put(languageName.toLowerCase(), locale);
 		}
 		
 		return locale;
@@ -59,16 +58,17 @@ public class LanguageResolver {
 	/**
 	 * Find the {@link Locale} for a given language name.
 	 * 
-	 * @param languageName lower-case language name
+	 * @param languageName language name
 	 * @return {@link Locale} for the given language, or null if no matching {@link Locale} is
 	 *         available
 	 */
 	private Locale findLocale(String languageName) {
 		for (Locale locale : Locale.getAvailableLocales()) {
-			if (locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase().equals(languageName))
+			if (locale.getDisplayLanguage(Locale.ENGLISH).equalsIgnoreCase(languageName))
 				return locale;
 		}
 		
 		return null;
 	}
+	
 }

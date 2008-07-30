@@ -4,10 +4,10 @@ package net.sourceforge.filebot.web;
 
 public class Episode {
 	
-	private String showName;
-	private String numberOfSeason;
-	private String numberOfEpisode;
-	private String title;
+	private final String showName;
+	private final String numberOfSeason;
+	private final String numberOfEpisode;
+	private final String title;
 	
 	
 	public Episode(String showname, String numberOfSeason, String numberOfEpisode, String title) {

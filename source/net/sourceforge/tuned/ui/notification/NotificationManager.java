@@ -6,13 +6,15 @@
 package net.sourceforge.tuned.ui.notification;
 
 
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class NotificationManager {
 	
-	private NotificationLayout layout;
+	private final NotificationLayout layout;
 	
 	
 	public NotificationManager() {
@@ -21,45 +23,25 @@ public class NotificationManager {
 	
 
 	public NotificationManager(NotificationLayout layout) {
-		setLayoutManager(layout);
-	}
-	
-
-	public void setLayoutManager(NotificationLayout layout) {
 		this.layout = layout;
 	}
 	
 
-	public NotificationLayout getLayoutManager() {
-		return layout;
-	}
-	
-
 	public void show(NotificationWindow notification) {
-		if (layout == null)
-			return;
+		TunedUtil.checkEventDispatchThread();
 		
-		notification.addComponentListener(new RemoveListener(layout));
+		notification.addWindowListener(new RemoveListener());
 		layout.add(notification);
+		
 		notification.setVisible(true);
 	}
 	
 	
-	private static class RemoveListener extends ComponentAdapter {
+	private class RemoveListener extends WindowAdapter {
 		
-		private NotificationLayout layout;
-		
-		
-		public RemoveListener(NotificationLayout layout) {
-			this.layout = layout;
-		}
-		
-
 		@Override
-		public void componentHidden(ComponentEvent e) {
-			NotificationWindow window = (NotificationWindow) e.getSource();
-			layout.remove(window);
-			window.dispose();
+		public void windowClosing(WindowEvent e) {
+			layout.remove((NotificationWindow) e.getWindow());
 		}
 	}
 	

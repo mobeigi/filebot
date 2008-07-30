@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.search;
 
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -32,12 +31,14 @@ import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.ui.transfer.AdaptiveFileExportHandler;
+import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.ui.transfer.Saveable;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
@@ -118,9 +119,9 @@ public class SearchPanel extends FileBotPanel {
 		
 		this.add(mainPanel, BorderLayout.CENTER);
 		
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
-		TunedUtil.registerActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
 	}
 	
 
@@ -179,21 +180,27 @@ public class SearchPanel extends FileBotPanel {
 		}
 	};
 	
-	private final SaveAction saveAction = new SaveAction(null) {
+	private final SaveAction saveAction = new SaveAction(new SelectedTabExportHandler());
+	
+	
+	private class SelectedTabExportHandler extends AdaptiveFileExportHandler {
 		
+		/**
+		 * @return the <code>FileExportHandler</code> of the currently selected tab
+		 */
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			Component comp = tabbedPane.getSelectedComponent();
-			
-			if (comp instanceof Saveable) {
-				setSaveable((Saveable) comp);
-				super.actionPerformed(e);
+		protected FileExportHandler getExportHandler() {
+			try {
+				FileBotList<?> list = (FileBotList<?>) tabbedPane.getSelectedComponent();
+				return list.getExportHandler();
+			} catch (ClassCastException e) {
+				// selected component is the history panel
+				return null;
 			}
 		}
-		
-	};
+	}
 	
-	
+
 	private class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
 		
 		private final String query;
@@ -267,14 +274,7 @@ public class SearchPanel extends FileBotPanel {
 			}
 			
 			SearchResult selectedResult = null;
-			/*
-			 * NEEDED??? exact find without cache???
-			/// TODO: ??????
-			if (task.client.getFoundName(task.query) != null) {
-				// a show matching the search term exactly has already been found 
-				showname = task.client.getFoundName(task.query);
-			}*/
-
+			
 			if (searchResults.size() == 1) {
 				// only one show found, select this one
 				selectedResult = searchResults.iterator().next();

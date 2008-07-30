@@ -19,7 +19,6 @@ import net.sourceforge.filebot.resources.ResourceManager;
 
 /**
  * {@link SubtitleClient} for OpenSubtitles.
- * 
  */
 public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
@@ -102,7 +101,7 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
 	private class LogoutTimer {
 		
-		private final long LOGOUT_DELAY = 12 * 60 * 1000; // 12 minutes
+		private static final long LOGOUT_DELAY = 12 * 60 * 1000; // 12 minutes
 		
 		private Timer daemon = null;
 		private LogoutTimerTask currentTimerTask = null;

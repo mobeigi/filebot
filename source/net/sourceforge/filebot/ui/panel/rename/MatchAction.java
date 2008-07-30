@@ -18,6 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.matcher.Match;
 import net.sourceforge.filebot.ui.panel.rename.matcher.Matcher;
@@ -32,8 +33,8 @@ class MatchAction extends AbstractAction {
 	
 	private CompositeSimilarityMetric metrics;
 	
-	private final RenameList namesList;
-	private final RenameList filesList;
+	private final RenameList<ListEntry> namesList;
+	private final RenameList<FileEntry> filesList;
 	
 	private boolean matchName2File;
 	
@@ -41,7 +42,7 @@ class MatchAction extends AbstractAction {
 	public static final String MATCH_FILES_2_NAMES_DESCRIPTION = "Match files to names";
 	
 	
-	public MatchAction(RenameList namesList, RenameList filesList) {
+	public MatchAction(RenameList<ListEntry> namesList, RenameList<FileEntry> filesList) {
 		super("Match");
 		
 		this.namesList = namesList;
@@ -77,13 +78,14 @@ class MatchAction extends AbstractAction {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent evt) {
 		JComponent source = (JComponent) evt.getSource();
 		
 		SwingUtilities.getRoot(source).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		RenameList primaryList = matchName2File ? namesList : filesList;
-		RenameList secondaryList = matchName2File ? filesList : namesList;
+		RenameList<ListEntry> primaryList = (RenameList<ListEntry>) (matchName2File ? namesList : filesList);
+		RenameList<ListEntry> secondaryList = (RenameList<ListEntry>) (matchName2File ? filesList : namesList);
 		
 		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(primaryList, secondaryList, metrics);
 		SwingWorkerProgressMonitor monitor = new SwingWorkerProgressMonitor(SwingUtilities.getWindowAncestor(source), backgroundMatcher);
@@ -109,15 +111,15 @@ class MatchAction extends AbstractAction {
 	}
 	
 	
-	private class BackgroundMatcher extends SwingWorker<List<Match>, Void> {
+	private static class BackgroundMatcher extends SwingWorker<List<Match>, Void> {
 		
-		private final RenameList primaryList;
-		private final RenameList secondaryList;
+		private final RenameList<ListEntry> primaryList;
+		private final RenameList<ListEntry> secondaryList;
 		
 		private final Matcher matcher;
 		
 		
-		public BackgroundMatcher(RenameList primaryList, RenameList secondaryList, SimilarityMetric similarityMetric) {
+		public BackgroundMatcher(RenameList<ListEntry> primaryList, RenameList<ListEntry> secondaryList, SimilarityMetric similarityMetric) {
 			this.primaryList = primaryList;
 			this.secondaryList = secondaryList;
 			
@@ -167,7 +169,6 @@ class MatchAction extends AbstractAction {
 				
 				primaryList.getModel().clear();
 				secondaryList.getModel().clear();
-				
 				for (Match match : matches) {
 					primaryList.getModel().add(match.getA());
 					secondaryList.getModel().add(match.getB());
