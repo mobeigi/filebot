@@ -90,7 +90,7 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 			List<ListEntry> entries = new ArrayList<ListEntry>();
 			
 			for (File file : files) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 				
 				String line = null;
 				

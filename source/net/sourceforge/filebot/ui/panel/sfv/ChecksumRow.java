@@ -17,9 +17,9 @@ public class ChecksumRow {
 	private HashMap<File, Checksum> checksumMap = new HashMap<File, Checksum>();
 	
 	/**
-	 * Checksum that is embedded in the file name (e.g. My File [49A93C5F].txt)
+	 * Checksum that is embedded in the file name (e.g. Test[49A93C5F].txt)
 	 */
-	private Long embeddedChecksum = null;
+	private final Long embeddedChecksum;
 	
 	
 	public static enum State {
@@ -32,13 +32,30 @@ public class ChecksumRow {
 	
 	public ChecksumRow(String name) {
 		this.name = name;
-		
+		this.embeddedChecksum = getEmbeddedChecksum(name);
+	}
+	
+
+	/**
+	 * Try to parse a CRC32 checksum from the given file name. The checksum is assumed to be in
+	 * brackets.
+	 * 
+	 * <pre>
+	 * e.g.
+	 * Test[49A93C5F].txt
+	 * </pre>
+	 * 
+	 * @param file name that contains a checksum
+	 * @return the checksum or null, if parameter did not contain a checksum
+	 */
+	private static Long getEmbeddedChecksum(String name) {
 		// look for a checksum pattern like [49A93C5F]		
 		Matcher matcher = Pattern.compile("\\[(\\p{XDigit}{8})\\]").matcher(name);
 		
-		if (matcher.find()) {
-			embeddedChecksum = Long.parseLong(matcher.group(1), 16);
-		}
+		if (matcher.find())
+			return Long.parseLong(matcher.group(1), 16);
+		else
+			return null;
 	}
 	
 

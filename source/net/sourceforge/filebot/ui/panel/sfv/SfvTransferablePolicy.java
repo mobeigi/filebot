@@ -44,7 +44,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 
 	protected void loadSfvFile(File sfvFile) {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(sfvFile)));
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(sfvFile), "UTF-8"));
 			
 			String line = null;
 			Pattern pattern = Pattern.compile("(.*)\\s+(\\p{XDigit}{8})");

@@ -7,8 +7,8 @@ import javax.swing.JComponent;
 
 import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
+import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTabComponent;
-import net.sourceforge.filebot.ui.transfer.DefaultListExportHandler;
 import net.sourceforge.filebot.web.Episode;
 
 
@@ -22,7 +22,7 @@ public class EpisodeListPanel extends FileBotList<Episode> {
 	
 	
 	public EpisodeListPanel() {
-		setExportHandler(new DefaultListExportHandler(list));
+		setExportHandler(new FileBotListExportHandler(this));
 		getRemoveAction().setEnabled(true);
 		
 		setBorder(null);

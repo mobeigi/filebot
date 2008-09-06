@@ -30,7 +30,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Defaul
 
 	@Override
 	protected void process(List<DefaultMutableTreeNode> chunks) {
-		DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+		DefaultTreeModel model = tree.getModel();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
 		
 		for (DefaultMutableTreeNode node : chunks) {
@@ -46,6 +46,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Defaul
 		for (File file : files) {
 			DefaultMutableTreeNode node = getTree(file);
 			
+			// operation may be aborted via interrupt
 			if (Thread.currentThread().isInterrupted())
 				return;
 			

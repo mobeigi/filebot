@@ -10,6 +10,7 @@ import javax.swing.table.TableModel;
 
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
+import net.sourceforge.filebot.ui.panel.sfv.renderer.FileNameTableCellRenderer;
 import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 
@@ -39,6 +40,7 @@ class SfvTable extends JTable {
 		setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		setDragEnabled(true);
 		
+		setDefaultRenderer(String.class, new FileNameTableCellRenderer());
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
 		setDefaultRenderer(Checksum.class, new ChecksumTableCellRenderer());
 	}

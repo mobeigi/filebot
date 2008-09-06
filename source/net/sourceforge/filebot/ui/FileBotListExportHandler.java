@@ -27,7 +27,7 @@ public class FileBotListExportHandler extends FileExportHandler {
 
 	@Override
 	public void export(OutputStream out) throws IOException {
-		PrintStream printer = new PrintStream(out);
+		PrintStream printer = new PrintStream(out, false, "UTF-8");
 		
 		for (Object entry : list.getModel()) {
 			printer.println(entry);

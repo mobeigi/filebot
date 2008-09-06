@@ -57,7 +57,7 @@ public class ChecksumTableExportHandler extends FileExportHandler {
 	
 
 	public void export(OutputStream out, File column) throws IOException {
-		PrintStream printer = new PrintStream(out);
+		PrintStream printer = new PrintStream(out, false, "UTF-8");
 		
 		SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
