@@ -18,7 +18,7 @@ public class FileNameTableCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		
-		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 		
 		if (hasFocus) {
 			// do not highlight text is focused, that just looks weird
@@ -33,15 +33,13 @@ public class FileNameTableCellRenderer extends DefaultTableCellRenderer {
 			return this;
 		}
 		
-		matcher.reset();
-		StringBuffer sb = new StringBuffer("<html>");
+		// html label will word-wrap automatically, so we use nobr to make it single-line
+		StringBuffer sb = new StringBuffer("<html><nobr>");
 		
-		while (matcher.find()) {
-			matcher.appendReplacement(sb, "[<font color=#009900>$1</font>]");
-		}
-		
+		matcher.appendReplacement(sb, "[<font color=#009900>$1</font>]");
 		matcher.appendTail(sb);
-		sb.append("</html>");
+		
+		sb.append("</nobr></html>");
 		
 		setText(sb.toString());
 		

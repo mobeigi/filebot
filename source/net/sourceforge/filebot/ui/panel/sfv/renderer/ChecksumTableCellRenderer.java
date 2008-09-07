@@ -17,7 +17,7 @@ public class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 	
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-		super.getTableCellRendererComponent(table, null, isSelected, hasFocus, row, column);
+		super.getTableCellRendererComponent(table, null, isSelected, false, row, column);
 		
 		if (value == null)
 			return this;
