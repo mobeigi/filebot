@@ -18,39 +18,10 @@ public abstract class TransferablePolicy implements ImportHandler {
 
 	public abstract void handleTransferable(Transferable tr, TransferAction action);
 	
-	
-	public static enum TransferAction {
-		PUT(TransferHandler.MOVE),
-		ADD(TransferHandler.COPY),
-		LINK(TransferHandler.LINK);
-		
-		private final int dndConstant;
-		
-		
-		private TransferAction(int dndConstant) {
-			this.dndConstant = dndConstant;
-		}
-		
 
-		public int getDnDConstant() {
-			return dndConstant;
-		}
-		
-
-		public static TransferAction fromDnDConstant(int dndConstant) {
-			for (TransferAction action : values()) {
-				if (dndConstant == action.dndConstant)
-					return action;
-			}
-			
-			throw new IllegalArgumentException("Unsupported dndConstant: " + dndConstant);
-		}
-		
-	}
-	
-	
 	@Override
 	public boolean canImport(TransferSupport support) {
+		
 		if (support.isDrop())
 			support.setShowDropLocation(false);
 		
@@ -91,6 +62,36 @@ public abstract class TransferablePolicy implements ImportHandler {
 		
 		// use PUT by default (e.g. clipboard transfers)
 		return TransferAction.PUT;
+	}
+	
+	
+	public static enum TransferAction {
+		PUT(TransferHandler.MOVE),
+		ADD(TransferHandler.COPY),
+		LINK(TransferHandler.LINK);
+		
+		private final int dndConstant;
+		
+		
+		private TransferAction(int dndConstant) {
+			this.dndConstant = dndConstant;
+		}
+		
+
+		public int getDnDConstant() {
+			return dndConstant;
+		}
+		
+
+		public static TransferAction fromDnDConstant(int dndConstant) {
+			for (TransferAction action : values()) {
+				if (dndConstant == action.dndConstant)
+					return action;
+			}
+			
+			throw new IllegalArgumentException("Unsupported dndConstant: " + dndConstant);
+		}
+		
 	}
 	
 }

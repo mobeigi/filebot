@@ -2,9 +2,14 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import java.awt.dnd.DnDConstants;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.MouseInputListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
@@ -39,6 +44,8 @@ class SfvTable extends JTable {
 		
 		setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		setDragEnabled(true);
+		
+		setUI(new DragDropRowTableUI());
 		
 		setDefaultRenderer(String.class, new FileNameTableCellRenderer());
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
@@ -111,16 +118,46 @@ class SfvTable extends JTable {
 
 	@Override
 	public void tableChanged(TableModelEvent e) {
-		// only request repaint when progress changes, or selection will go haywire
+		// only request repaint when progress changes. Selection will go haywire if you don't.
 		if (e.getType() == ChecksumTableModelEvent.CHECKSUM_PROGRESS) {
 			repaint();
-		} else {
-			super.tableChanged(e);
+			return;
+		}
+		
+		if (e.getType() == TableModelEvent.DELETE) {
+			// remove cancelled tasks from queue
+			checksumComputationService.purge();
+		}
+		
+		super.tableChanged(e);
+		
+	}
+	
+	
+	/**
+	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead
+	 * of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
+	 */
+	private class DragDropRowTableUI extends BasicTableUI {
+		
+		@Override
+		protected MouseInputListener createMouseInputListener() {
+			return new DragDropRowMouseInputHandler();
+		}
+		
+		
+		private class DragDropRowMouseInputHandler extends MouseInputHandler {
 			
-			if (e.getType() == TableModelEvent.DELETE) {
-				// remove cancelled task from queue
-				checksumComputationService.purge();
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// Only do special handling if we are drag enabled with multiple selection
+				if (table.getDragEnabled() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) {
+					table.getTransferHandler().exportAsDrag(table, e, DnDConstants.ACTION_COPY);
+				} else {
+					super.mouseDragged(e);
+				}
 			}
 		}
 	}
+	
 }
