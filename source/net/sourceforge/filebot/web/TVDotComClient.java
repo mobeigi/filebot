@@ -58,7 +58,7 @@ public class TVDotComClient implements EpisodeListClient {
 		
 		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('search-results')//SPAN[@class='f-18']/A", dom);
+		List<Node> nodes = XPathUtil.selectNodes("//H3[@class='title']/A", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
@@ -85,7 +85,7 @@ public class TVDotComClient implements EpisodeListClient {
 		// get document for season 1
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, 1));
 		
-		int seasonCount = XPathUtil.selectInteger("count(id('season-dropdown')//SELECT/OPTION[text() != 'All Seasons'])", dom);
+		int seasonCount = XPathUtil.selectInteger("count(id('eps_table')//SELECT[@name='season']/OPTION[text() != 'All Seasons'])", dom);
 		
 		// we're going to fetch the episode list for each season on multiple threads
 		List<Future<List<Episode>>> futures = new ArrayList<Future<List<Episode>>>(seasonCount);
@@ -128,7 +128,7 @@ public class TVDotComClient implements EpisodeListClient {
 
 	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('episode-listing')/DIV/TABLE/TR/TD/ancestor::TR", dom);
+		List<Node> nodes = XPathUtil.selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
 		
 		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
 		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
@@ -140,7 +140,7 @@ public class TVDotComClient implements EpisodeListClient {
 		
 		for (Node node : nodes) {
 			String episode = XPathUtil.selectString("./TD[1]", node);
-			String title = XPathUtil.selectString("./TD[2]/A", node);
+			String title = XPathUtil.selectString("./TD[2]//A", node);
 			String season = Integer.toString(seasonNumber);
 			
 			try {
