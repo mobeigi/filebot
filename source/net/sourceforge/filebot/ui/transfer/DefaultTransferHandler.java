@@ -11,20 +11,20 @@ import javax.swing.TransferHandler;
 
 public class DefaultTransferHandler extends TransferHandler {
 	
-	private ImportHandler importHandler;
-	private ExportHandler exportHandler;
+	private TransferablePolicy transferablePolicy;
+	private TransferableExportHandler exportHandler;
 	private ClipboardHandler clipboardHandler;
 	
 	private boolean dragging = false;
 	
 	
-	public DefaultTransferHandler(ImportHandler importHandler, ExportHandler exportHandler) {
-		this(importHandler, exportHandler, new DefaultClipboardHandler());
+	public DefaultTransferHandler(TransferablePolicy transferablePolicy, TransferableExportHandler exportHandler) {
+		this(transferablePolicy, exportHandler, new DefaultClipboardHandler());
 	}
 	
 
-	public DefaultTransferHandler(ImportHandler importHandler, ExportHandler exportHandler, ClipboardHandler clipboardHandler) {
-		this.importHandler = importHandler;
+	public DefaultTransferHandler(TransferablePolicy transferablePolicy, TransferableExportHandler exportHandler, ClipboardHandler clipboardHandler) {
+		this.transferablePolicy = transferablePolicy;
 		this.exportHandler = exportHandler;
 		this.clipboardHandler = clipboardHandler;
 	}
@@ -36,8 +36,8 @@ public class DefaultTransferHandler extends TransferHandler {
 		if (dragging)
 			return true;
 		
-		if (importHandler != null)
-			return importHandler.canImport(support);
+		if (transferablePolicy != null)
+			return transferablePolicy.canImport(support);
 		
 		return false;
 	}
@@ -51,7 +51,7 @@ public class DefaultTransferHandler extends TransferHandler {
 		if (!canImport(support))
 			return false;
 		
-		return importHandler.importData(support);
+		return transferablePolicy.importData(support);
 	}
 	
 
@@ -94,22 +94,22 @@ public class DefaultTransferHandler extends TransferHandler {
 	}
 	
 
-	public ImportHandler getImportHandler() {
-		return importHandler;
+	public TransferablePolicy getTransferablePolicy() {
+		return transferablePolicy;
 	}
 	
 
-	public void setImportHandler(ImportHandler importHandler) {
-		this.importHandler = importHandler;
+	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
+		this.transferablePolicy = transferablePolicy;
 	}
 	
 
-	public ExportHandler getExportHandler() {
+	public TransferableExportHandler getExportHandler() {
 		return exportHandler;
 	}
 	
 
-	public void setExportHandler(ExportHandler exportHandler) {
+	public void setExportHandler(TransferableExportHandler exportHandler) {
 		this.exportHandler = exportHandler;
 	}
 	

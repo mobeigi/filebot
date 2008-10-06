@@ -44,4 +44,22 @@ public class ByteBufferInputStream extends InputStream {
 		return buffer.remaining();
 	}
 	
+
+	@Override
+	public boolean markSupported() {
+		return true;
+	}
+	
+
+	@Override
+	public synchronized void mark(int readlimit) {
+		buffer.mark();
+	}
+	
+
+	@Override
+	public synchronized void reset() throws IOException {
+		buffer.reset();
+	}
+	
 }

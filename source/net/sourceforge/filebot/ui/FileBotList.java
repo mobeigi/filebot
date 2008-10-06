@@ -15,7 +15,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.FileExportHandler;
+import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.TunedUtil;
@@ -72,27 +72,25 @@ public class FileBotList<E> extends JPanel {
 	
 
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
-		getTransferHandler().setImportHandler(transferablePolicy);
+		getTransferHandler().setTransferablePolicy(transferablePolicy);
 	}
 	
 
 	public TransferablePolicy getTransferablePolicy() {
-		TransferablePolicy importHandler = (TransferablePolicy) getTransferHandler().getImportHandler();
-		
-		return importHandler;
+		return getTransferHandler().getTransferablePolicy();
 	}
 	
 
-	public void setExportHandler(FileExportHandler exportHandler) {
+	public void setExportHandler(TextFileExportHandler exportHandler) {
 		getTransferHandler().setExportHandler(exportHandler);
 		
-		// enable drag if ExportHandler is available
+		// enable drag if export handler is available
 		list.setDragEnabled(exportHandler != null);
 	}
 	
 
-	public FileExportHandler getExportHandler() {
-		return (FileExportHandler) getTransferHandler().getExportHandler();
+	public TextFileExportHandler getExportHandler() {
+		return (TextFileExportHandler) getTransferHandler().getExportHandler();
 	}
 	
 

@@ -10,4 +10,5 @@ import javax.swing.JComponent;
 public interface ClipboardHandler {
 	
 	public void exportToClipboard(JComponent comp, Clipboard clip, int action) throws IllegalStateException;
+	
 }

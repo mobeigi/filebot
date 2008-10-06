@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,9 +29,7 @@ public class FileTransferable implements Transferable {
 		return null;
 	}
 	
-	private final List<File> files;
-	
-	private final DataFlavor[] supportedFlavors = { DataFlavor.javaFileListFlavor, uriListFlavor };
+	private final Collection<File> files;
 	
 	
 	public FileTransferable(File... files) {
@@ -45,6 +42,7 @@ public class FileTransferable implements Transferable {
 	}
 	
 
+	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 		if (flavor.isFlavorJavaFileListType())
 			return files;
@@ -56,7 +54,7 @@ public class FileTransferable implements Transferable {
 	
 
 	/**
-	 * @return line separated list of file uris
+	 * @return line separated list of file URIs
 	 */
 	private String getUriList() {
 		StringBuilder sb = new StringBuilder();
@@ -70,18 +68,20 @@ public class FileTransferable implements Transferable {
 	}
 	
 
+	@Override
 	public DataFlavor[] getTransferDataFlavors() {
-		return supportedFlavors.clone();
+		return new DataFlavor[] { DataFlavor.javaFileListFlavor, uriListFlavor };
 	}
 	
 
+	@Override
 	public boolean isDataFlavorSupported(DataFlavor flavor) {
-		for (DataFlavor supportedFlavor : supportedFlavors) {
-			if (flavor.equals(supportedFlavor))
-				return true;
-		}
-		
-		return false;
+		return isFileListFlavor(flavor);
+	}
+	
+
+	public static boolean isFileListFlavor(DataFlavor flavor) {
+		return flavor.isFlavorJavaFileListType() || flavor.equals(uriListFlavor);
 	}
 	
 }

@@ -11,7 +11,7 @@ import javax.swing.TransferHandler;
 import javax.swing.TransferHandler.TransferSupport;
 
 
-public abstract class TransferablePolicy implements ImportHandler {
+public abstract class TransferablePolicy {
 	
 	public abstract boolean accept(Transferable tr);
 	
@@ -19,7 +19,6 @@ public abstract class TransferablePolicy implements ImportHandler {
 	public abstract void handleTransferable(Transferable tr, TransferAction action);
 	
 
-	@Override
 	public boolean canImport(TransferSupport support) {
 		
 		if (support.isDrop())
@@ -37,7 +36,6 @@ public abstract class TransferablePolicy implements ImportHandler {
 	}
 	
 
-	@Override
 	public boolean importData(TransferSupport support) {
 		Transferable transferable = support.getTransferable();
 		

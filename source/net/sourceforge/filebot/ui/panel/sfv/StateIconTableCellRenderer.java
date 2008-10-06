@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.sfv.renderer;
+package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import java.awt.Component;
@@ -10,11 +10,9 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sourceforge.filebot.resources.ResourceManager;
-import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow;
-import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow.State;
 
 
-public class StateIconTableCellRenderer extends DefaultTableCellRenderer {
+class StateIconTableCellRenderer extends DefaultTableCellRenderer {
 	
 	private Icon warning = ResourceManager.getIcon("status.warning");
 	private Icon error = ResourceManager.getIcon("status.error");
@@ -32,7 +30,7 @@ public class StateIconTableCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, null, isSelected, false, row, column);
 		
-		ChecksumRow.State state = (State) value;
+		ChecksumRow.State state = (ChecksumRow.State) value;
 		
 		switch (state) {
 			case OK:

@@ -48,10 +48,10 @@ public class RenamePanel extends FileBotPanel {
 	public RenamePanel() {
 		super("Rename", ResourceManager.getIcon("panel.rename"));
 		
-		namesList.setTitle("Names");
+		namesList.setTitle("Proposed");
 		namesList.setTransferablePolicy(new NamesListTransferablePolicy(namesList));
 		
-		filesList.setTitle("Files");
+		filesList.setTitle("Current");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
 		
 		JList namesListComponent = namesList.getListComponent();

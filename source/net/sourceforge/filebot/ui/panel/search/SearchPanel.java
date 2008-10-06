@@ -7,6 +7,8 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -36,7 +38,6 @@ import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.ui.transfer.AdaptiveFileExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbClient;
@@ -183,13 +184,12 @@ public class SearchPanel extends FileBotPanel {
 	private final SaveAction saveAction = new SaveAction(new SelectedTabExportHandler());
 	
 	
-	private class SelectedTabExportHandler extends AdaptiveFileExportHandler {
+	private class SelectedTabExportHandler implements FileExportHandler {
 		
 		/**
 		 * @return the <code>FileExportHandler</code> of the currently selected tab
 		 */
-		@Override
-		protected FileExportHandler getExportHandler() {
+		private FileExportHandler getExportHandler() {
 			try {
 				FileBotList<?> list = (FileBotList<?>) tabbedPane.getSelectedComponent();
 				return list.getExportHandler();
@@ -198,6 +198,30 @@ public class SearchPanel extends FileBotPanel {
 				return null;
 			}
 		}
+		
+
+		@Override
+		public boolean canExport() {
+			FileExportHandler handler = getExportHandler();
+			
+			if (handler == null)
+				return false;
+			
+			return handler.canExport();
+		}
+		
+
+		@Override
+		public void export(File file) throws IOException {
+			getExportHandler().export(file);
+		}
+		
+
+		@Override
+		public String getDefaultFileName() {
+			return getExportHandler().getDefaultFileName();
+		}
+		
 	}
 	
 

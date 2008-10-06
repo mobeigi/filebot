@@ -2,14 +2,12 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 
-import net.sourceforge.filebot.ui.transfer.FileExportHandler;
+import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 
 
-public class FileBotListExportHandler extends FileExportHandler {
+public class FileBotListExportHandler extends TextFileExportHandler {
 	
 	private final FileBotList<?> list;
 	
@@ -26,11 +24,9 @@ public class FileBotListExportHandler extends FileExportHandler {
 	
 
 	@Override
-	public void export(OutputStream out) throws IOException {
-		PrintStream printer = new PrintStream(out, false, "UTF-8");
-		
+	public void export(PrintWriter out) {
 		for (Object entry : list.getModel()) {
-			printer.println(entry);
+			out.println(entry);
 		}
 	}
 	

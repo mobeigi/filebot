@@ -14,9 +14,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
-import net.sourceforge.filebot.ui.panel.sfv.renderer.ChecksumTableCellRenderer;
-import net.sourceforge.filebot.ui.panel.sfv.renderer.FileNameTableCellRenderer;
-import net.sourceforge.filebot.ui.panel.sfv.renderer.StateIconTableCellRenderer;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 
 

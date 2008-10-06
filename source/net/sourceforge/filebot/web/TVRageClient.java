@@ -174,16 +174,16 @@ public class TVRageClient implements EpisodeListClient {
 			if (season > getTotalSeasons() || season < 0)
 				throw new IllegalArgumentException(String.format("%s only has %d seasons", getName(), getTotalSeasons()));
 			
-			String seasonString = Integer.toString(season);
-			List<Node> nodes = XPathUtil.selectNodes("Season" + seasonString + "/episode", episodeListNode);
+			List<Node> nodes = XPathUtil.selectNodes("Season[@no='" + season + "']/episode", episodeListNode);
 			
 			List<Episode> episodes = new ArrayList<Episode>(nodes.size());
+			String numberOfSeason = Integer.toString(season);
 			
 			for (Node node : nodes) {
 				String title = XPathUtil.selectString("title", node);
 				String episodeNumber = XPathUtil.selectString("seasonnum", node);
 				
-				episodes.add(new Episode(getName(), seasonString, episodeNumber, title));
+				episodes.add(new Episode(getName(), numberOfSeason, episodeNumber, title));
 			}
 			
 			return episodes;

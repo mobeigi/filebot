@@ -36,7 +36,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 				// file list flavor
 				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 			} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
-				// file uri list flavor
+				// file URI list flavor
 				String transferString = (String) tr.getTransferData(FileTransferable.uriListFlavor);
 				
 				String lines[] = transferString.split("\r?\n");

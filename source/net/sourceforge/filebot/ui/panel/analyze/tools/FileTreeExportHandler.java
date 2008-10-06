@@ -12,11 +12,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sourceforge.filebot.ui.FileBotTree;
-import net.sourceforge.filebot.ui.transfer.ExportHandler;
+import net.sourceforge.filebot.ui.transfer.TransferableExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
-class FileTreeExportHandler implements ExportHandler {
+class FileTreeExportHandler implements TransferableExportHandler {
 	
 	@Override
 	public Transferable createTransferable(JComponent c) {

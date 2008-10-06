@@ -47,6 +47,8 @@ public class ListPanel extends FileBotPanel {
 	public ListPanel() {
 		super("List", ResourceManager.getIcon("panel.list"));
 		
+		list.setTitle("Title");
+		
 		list.setTransferablePolicy(new FileListTransferablePolicy(list));
 		list.setExportHandler(new FileBotListExportHandler(list));
 		

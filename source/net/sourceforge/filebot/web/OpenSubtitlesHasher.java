@@ -5,9 +5,9 @@ package net.sourceforge.filebot.web;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.LongBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
@@ -32,8 +32,8 @@ public class OpenSubtitlesHasher {
 		FileChannel fileChannel = new FileInputStream(file).getChannel();
 		
 		try {
-			long head = computeHashForChunk(fileChannel, 0, chunkSizeForFile);
-			long tail = computeHashForChunk(fileChannel, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile);
+			long head = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, 0, chunkSizeForFile));
+			long tail = computeHashForChunk(fileChannel.map(MapMode.READ_ONLY, Math.max(size - HASH_CHUNK_SIZE, 0), chunkSizeForFile));
 			
 			return String.format("%016x", size + head + tail);
 		} finally {
@@ -42,10 +42,9 @@ public class OpenSubtitlesHasher {
 	}
 	
 
-	private static long computeHashForChunk(FileChannel fileChannel, long start, long size) throws IOException {
-		MappedByteBuffer byteBuffer = fileChannel.map(MapMode.READ_ONLY, start, size);
+	private static long computeHashForChunk(ByteBuffer buffer) {
 		
-		LongBuffer longBuffer = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
+		LongBuffer longBuffer = buffer.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
 		long hash = 0;
 		
 		while (longBuffer.hasRemaining()) {
