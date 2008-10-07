@@ -109,6 +109,21 @@ public class TVDotComClientTest {
 	
 
 	@Test
+	public void getEpisodeListEncoding() throws Exception {
+		HyperLink lostTestResult = new HyperLink("Lost", new URL("http://www.tv.com/lost/show/24313/episode_listings.html"));
+		
+		List<Episode> list = tvdotcom.getEpisodeList(lostTestResult, 3);
+		
+		Episode episode = list.get(13);
+		
+		assertEquals("Lost", episode.getShowName());
+		assertEquals("Exposé", episode.getTitle());
+		assertEquals("14", episode.getNumberOfEpisode());
+		assertEquals("3", episode.getNumberOfSeason());
+	}
+	
+
+	@Test
 	public void getEpisodeListLink() {
 		assertEquals(tvdotcom.getEpisodeListLink(buffySearchResult, 1).toString(), "http://www.tv.com/buffy-the-vampire-slayer/show/10/episode_listings.html?season=1");
 	}
