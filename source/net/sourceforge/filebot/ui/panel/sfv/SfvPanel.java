@@ -103,27 +103,38 @@ public class SfvPanel extends FileBotPanel {
 		private File selectedColumn = null;
 		
 		
+		public ChecksumTableSaveAction() {
+			super(sfvTable.getExportHandler());
+		}
+		
+
+		@Override
+		public ChecksumTableExportHandler getExportHandler() {
+			return (ChecksumTableExportHandler) super.getExportHandler();
+		}
+		
+
 		@Override
 		protected boolean canExport() {
-			return selectedColumn != null && sfvTable.getExportHandler().canExport();
+			return selectedColumn != null && super.canExport();
 		}
 		
 
 		@Override
 		protected void export(File file) throws IOException {
-			sfvTable.getExportHandler().export(file, selectedColumn);
+			getExportHandler().export(file, selectedColumn);
 		}
 		
 
 		@Override
 		protected String getDefaultFileName() {
-			return sfvTable.getExportHandler().getDefaultFileName(selectedColumn);
+			return getExportHandler().getDefaultFileName(selectedColumn);
 		}
 		
 
 		@Override
 		protected File getDefaultFolder() {
-			// if column is a folder use it as default folder in file dialog
+			// if the column is a folder use it as default folder in the file dialog
 			return selectedColumn.isDirectory() ? selectedColumn : null;
 		}
 		
@@ -135,10 +146,10 @@ public class SfvPanel extends FileBotPanel {
 			this.selectedColumn = null;
 			
 			if (options.size() == 1) {
-				// auto-select if there is only one option
+				// auto-select option if there is only one option
 				this.selectedColumn = options.get(0);
 			} else if (options.size() > 1) {
-				// show user his/her options
+				// user must select one option
 				SelectDialog<File> selectDialog = new SelectDialog<File>(SwingUtilities.getWindowAncestor(SfvPanel.this), options) {
 					
 					@Override

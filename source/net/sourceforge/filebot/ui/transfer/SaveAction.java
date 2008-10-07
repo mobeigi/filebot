@@ -18,7 +18,7 @@ import net.sourceforge.filebot.resources.ResourceManager;
 
 public class SaveAction extends AbstractAction {
 	
-	protected final FileExportHandler exportHandler;
+	private final FileExportHandler exportHandler;
 	
 	
 	public SaveAction(FileExportHandler exportHandler) {
@@ -27,23 +27,23 @@ public class SaveAction extends AbstractAction {
 	}
 	
 
-	protected SaveAction() {
-		this(null);
+	public FileExportHandler getExportHandler() {
+		return exportHandler;
 	}
 	
 
 	protected boolean canExport() {
-		return exportHandler.canExport();
+		return getExportHandler().canExport();
 	}
 	
 
 	protected void export(File file) throws IOException {
-		exportHandler.export(file);
+		getExportHandler().export(file);
 	}
 	
 
 	protected String getDefaultFileName() {
-		return exportHandler.getDefaultFileName();
+		return getExportHandler().getDefaultFileName();
 	}
 	
 

@@ -18,7 +18,7 @@ public class ResourceManager {
 	
 
 	public static ImageIcon getIcon(String name, String def) {
-		URL resource = getResource(name, def);
+		URL resource = getImageResource(name, def);
 		
 		if (resource != null)
 			return new ImageIcon(resource);
@@ -39,23 +39,23 @@ public class ResourceManager {
 
 	public static Image getImage(String name) {
 		try {
-			return ImageIO.read(getResource(name));
+			return ImageIO.read(getImageResource(name));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 
-	private static URL getResource(String name) {
+	private static URL getImageResource(String name) {
 		return ResourceManager.class.getResource(name + ".png");
 	}
 	
 
-	private static URL getResource(String name, String def) {
-		URL resource = getResource(name);
+	private static URL getImageResource(String name, String def) {
+		URL resource = getImageResource(name);
 		
 		if (resource == null)
-			resource = getResource(def);
+			resource = getImageResource(def);
 		
 		return resource;
 	}
