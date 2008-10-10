@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import net.sourceforge.tuned.FileUtil;
 
 
-public class FileBotUtil {
+public final class FileBotUtil {
 	
 	/**
 	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
@@ -104,8 +104,11 @@ public class FileBotUtil {
 	};
 	
 	
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
 	private FileBotUtil() {
-		// hide constructor
+		throw new UnsupportedOperationException();
 	}
 	
 }

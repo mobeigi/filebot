@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class TemporaryFolder {
+public final class TemporaryFolder {
 	
 	private static final String tmpdir = System.getProperty("java.io.tmpdir");
 	

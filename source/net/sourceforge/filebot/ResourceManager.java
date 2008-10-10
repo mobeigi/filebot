@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 
-public class ResourceManager {
+public final class ResourceManager {
 	
 	public static ImageIcon getIcon(String name) {
 		return getIcon(name, null);
@@ -48,7 +48,7 @@ public class ResourceManager {
 
 	/**
 	 * Get the URL of an image resource in this jar. Image must be located in
-	 * <code>/resources</code> and the file type is assumed to be png.
+	 * <code>resources/</code> and the file type is assumed to be png.
 	 * 
 	 * @param name simple name of the resource (without extension)
 	 * @return URL of the resource or null if resource does not exist
@@ -68,6 +68,9 @@ public class ResourceManager {
 	}
 	
 
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
 	private ResourceManager() {
 		throw new UnsupportedOperationException();
 	}

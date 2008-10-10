@@ -22,11 +22,6 @@ public class MessageBus {
 	private final Map<String, List<MessageHandler>> handlers = new HashMap<String, List<MessageHandler>>();
 	
 	
-	private MessageBus() {
-		
-	}
-	
-
 	public synchronized void addMessageHandler(String topic, MessageHandler handler) {
 		
 		List<MessageHandler> list = handlers.get(topic.toLowerCase());
@@ -70,4 +65,5 @@ public class MessageBus {
 			}
 		});
 	}
+	
 }

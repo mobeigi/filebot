@@ -14,7 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class XPathUtil {
+public final class XPathUtil {
 	
 	public static Node selectNode(String xpath, Object node) {
 		try {
@@ -77,6 +77,14 @@ public class XPathUtil {
 
 	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
 		return XPathFactory.newInstance().newXPath().compile(xpath);
+	}
+	
+
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
+	private XPathUtil() {
+		throw new UnsupportedOperationException();
 	}
 	
 }

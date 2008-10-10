@@ -21,7 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 
-public class TunedUtil {
+public final class TunedUtil {
 	
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
@@ -82,8 +82,11 @@ public class TunedUtil {
 	}
 	
 
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
 	private TunedUtil() {
-		// hide constructor
+		throw new UnsupportedOperationException();
 	}
 	
 }

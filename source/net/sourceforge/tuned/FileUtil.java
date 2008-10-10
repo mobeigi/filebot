@@ -5,7 +5,7 @@ package net.sourceforge.tuned;
 import java.io.File;
 
 
-public class FileUtil {
+public final class FileUtil {
 	
 	public final static long KILO = 1024;
 	
@@ -113,6 +113,14 @@ public class FileUtil {
 		
 		// some file with no suffix
 		return "File";
+	}
+	
+
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
+	private FileUtil() {
+		throw new UnsupportedOperationException();
 	}
 	
 }
