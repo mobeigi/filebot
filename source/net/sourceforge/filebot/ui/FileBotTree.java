@@ -25,7 +25,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class FileBotTree extends JTree {

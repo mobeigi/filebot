@@ -27,7 +27,7 @@ import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.TunedUtil;

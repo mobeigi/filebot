@@ -12,7 +12,7 @@ import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;

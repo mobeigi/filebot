@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 
 
 class Language implements Comparable<Language> {

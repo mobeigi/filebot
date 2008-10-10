@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.resources;
+package net.sourceforge.filebot;
 
 
 import java.awt.Image;
@@ -46,8 +46,15 @@ public class ResourceManager {
 	}
 	
 
+	/**
+	 * Get the URL of an image resource in this jar. Image must be located in
+	 * <code>/resources</code> and the file type is assumed to be png.
+	 * 
+	 * @param name simple name of the resource (without extension)
+	 * @return URL of the resource or null if resource does not exist
+	 */
 	private static URL getImageResource(String name) {
-		return ResourceManager.class.getResource(name + ".png");
+		return ResourceManager.class.getResource("resources/" + name + ".png");
 	}
 	
 

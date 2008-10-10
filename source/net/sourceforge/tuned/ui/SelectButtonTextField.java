@@ -19,7 +19,7 @@ import javax.swing.plaf.ComboBoxUI;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class SelectButtonTextField<T> extends JPanel {

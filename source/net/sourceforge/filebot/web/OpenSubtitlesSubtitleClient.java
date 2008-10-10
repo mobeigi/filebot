@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.resources.ResourceManager;
 
 
 /**

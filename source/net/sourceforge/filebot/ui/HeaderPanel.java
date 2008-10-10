@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;

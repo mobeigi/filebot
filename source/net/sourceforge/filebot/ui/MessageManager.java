@@ -5,8 +5,8 @@ package net.sourceforge.filebot.ui;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.tuned.ui.notification.MessageNotification;
 import net.sourceforge.tuned.ui.notification.NotificationManager;
 import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;

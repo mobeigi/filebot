@@ -8,7 +8,7 @@ import java.io.File;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.FancyTreeCellRenderer;
 import net.sourceforge.tuned.ui.GradientStyle;
 

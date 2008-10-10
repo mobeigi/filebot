@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.panel.search;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTabComponent;

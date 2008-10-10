@@ -8,7 +8,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker.StateValue;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.DownloadTask;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;

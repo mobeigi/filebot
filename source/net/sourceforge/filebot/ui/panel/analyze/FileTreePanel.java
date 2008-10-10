@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import net.sourceforge.tuned.ui.TunedUtil;

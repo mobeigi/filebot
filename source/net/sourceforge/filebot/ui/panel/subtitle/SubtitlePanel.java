@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;

@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.LabelProvider;

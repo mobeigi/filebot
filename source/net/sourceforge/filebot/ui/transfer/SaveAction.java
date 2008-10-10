@@ -13,7 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class SaveAction extends AbstractAction {

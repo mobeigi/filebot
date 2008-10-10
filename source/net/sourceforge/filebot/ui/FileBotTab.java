@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import net.sourceforge.tuned.ui.ProgressIndicator;
 

@@ -17,7 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.matcher.Match;

@@ -16,7 +16,7 @@ import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.resources.ResourceManager;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.transfer.LoadAction;

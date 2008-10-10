@@ -18,8 +18,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.resources.ResourceManager;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
 import net.sourceforge.filebot.ui.panel.list.ListPanel;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanel;
