@@ -72,7 +72,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		
 		centerPanel.add(tabbedPane, BorderLayout.CENTER);
 		
-		historyPanel.setColumnHeader3("Duration");
+		historyPanel.setColumnHeader(2, "Duration");
 		
 		JScrollPane historyScrollPane = new JScrollPane(historyPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		historyScrollPane.setBorder(BorderFactory.createEmptyBorder());

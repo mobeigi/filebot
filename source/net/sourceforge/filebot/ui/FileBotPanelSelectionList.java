@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
@@ -53,7 +53,10 @@ class FileBotPanelSelectionList extends JList {
 	private static class PanelCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public PanelCellRenderer() {
-			super(BorderLayout.CENTER, 10, 0, new Color(0x163264));
+			super(10, 0, new Color(0x163264));
+			
+			// center labels in list
+			setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 			
 			setHighlightingEnabled(false);
 			

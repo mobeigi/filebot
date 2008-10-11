@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
@@ -18,6 +18,7 @@ import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.ListChangeSynchronizer;
+import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
@@ -25,15 +26,21 @@ import net.sourceforge.tuned.ui.SimpleLabelProvider;
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage, SubtitleDownloadPanel> {
 	
 	public SubtitlePanel() {
-		super("Subtitle", ResourceManager.getIcon("panel.subtitle"));
+		super("Subtitles", ResourceManager.getIcon("panel.subtitle"));
 		
-		getHistoryPanel().setColumnHeader1("Show / Movie");
-		getHistoryPanel().setColumnHeader2("Number of Subtitles");
+		getHistoryPanel().setColumnHeader(0, "Show / Movie");
+		getHistoryPanel().setColumnHeader(1, "Number of Subtitles");
 		
-		List<String> persistentSearchHistory = Settings.getSettings().asStringList(Settings.SUBTITLE_HISTORY);
+		// get preferences node that contains the history entries
+		Preferences historyNode = Preferences.systemNodeForPackage(getClass()).node("history");
 		
+		// get a StringList that read and writes directly from and to the preferences
+		List<String> persistentSearchHistory = PreferencesList.map(historyNode, String.class);
+		
+		// add history from the preferences to the current in-memory history (for completion)
 		getSearchHistory().addAll(persistentSearchHistory);
 		
+		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
 		ListChangeSynchronizer.syncEventListToList(getSearchHistory(), persistentSearchHistory);
 	}
 	

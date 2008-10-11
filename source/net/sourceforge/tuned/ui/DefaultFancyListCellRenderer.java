@@ -2,7 +2,6 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Insets;
 
@@ -17,19 +16,19 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	
 	
 	public DefaultFancyListCellRenderer() {
-		add(label, BorderLayout.WEST);
+		add(label);
 	}
 	
 
 	public DefaultFancyListCellRenderer(int padding) {
 		super(new Insets(padding, padding, padding, padding));
-		add(label, BorderLayout.WEST);
+		add(label);
 	}
 	
 
-	protected DefaultFancyListCellRenderer(Object constraint, int padding, int margin, Color selectedBorderColor) {
+	protected DefaultFancyListCellRenderer(int padding, int margin, Color selectedBorderColor) {
 		super(new Insets(padding, padding, padding, padding), new Insets(margin, margin, margin, margin), selectedBorderColor);
-		add(label, constraint);
+		add(label);
 	}
 	
 

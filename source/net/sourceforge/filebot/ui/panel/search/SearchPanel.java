@@ -67,7 +67,7 @@ public class SearchPanel extends FileBotPanel {
 	
 	
 	public SearchPanel() {
-		super("Search", ResourceManager.getIcon("panel.search"));
+		super("Episodes", ResourceManager.getIcon("panel.search"));
 		
 		searchField = new SelectButtonTextField<EpisodeListClient>();
 		
@@ -76,9 +76,9 @@ public class SearchPanel extends FileBotPanel {
 		
 		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
-		historyPanel.setColumnHeader1("Show");
-		historyPanel.setColumnHeader2("Number of Episodes");
-		historyPanel.setColumnHeader3("Duration");
+		historyPanel.setColumnHeader(0, "Show");
+		historyPanel.setColumnHeader(1, "Number of Episodes");
+		historyPanel.setColumnHeader(2, "Duration");
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 		

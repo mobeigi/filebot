@@ -2,9 +2,9 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -55,7 +55,7 @@ public abstract class AbstractFancyListCellRenderer extends JComponent implement
 	
 
 	public AbstractFancyListCellRenderer(Insets padding, Insets margin, Color borderColor) {
-		this.setLayout(new BorderLayout());
+		this.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		
 		Border border = null;
 		

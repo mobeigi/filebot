@@ -16,11 +16,11 @@ public final class FileUtil {
 	
 	public static String formatSize(long size) {
 		if (size >= MEGA)
-			return String.format("%d MB", size / MEGA);
+			return String.format("%,d MB", size / MEGA);
 		else if (size >= KILO)
-			return String.format("%d KB", size / KILO);
+			return String.format("%,d KB", size / KILO);
 		else
-			return String.format("%d Byte", size);
+			return String.format("%,d Byte", size);
 	}
 	
 

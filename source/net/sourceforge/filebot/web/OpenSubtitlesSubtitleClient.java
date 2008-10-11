@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
 
 
 /**
@@ -22,7 +22,7 @@ import net.sourceforge.filebot.Settings;
  */
 public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
-	private final OpenSubtitlesClient client = new OpenSubtitlesClient(String.format("%s v%s", Settings.NAME, Settings.VERSION));
+	private final OpenSubtitlesClient client = new OpenSubtitlesClient(String.format("%s v%s", FileBotUtil.getApplicationName(), FileBotUtil.getApplicationVersion()));
 	
 	private final LogoutTimer logoutTimer = new LogoutTimer();
 	

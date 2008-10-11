@@ -29,7 +29,7 @@ public abstract class ToolPanel extends JComponent {
 	public abstract void update(Collection<File> list);
 	
 
-	protected static DefaultMutableTreeNode createTreeNode(String name, Collection<File> files) {
+	protected DefaultMutableTreeNode createTreeNode(String name, Collection<File> files) {
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode();
 		
 		long totalSize = 0;
@@ -39,15 +39,11 @@ public abstract class ToolPanel extends JComponent {
 			totalSize += file.length();
 		}
 		
-		String count = null;
+		// format the number of files string (e.g. 1 file, 2 files, ...)
+		String numberOfFiles = String.format("%,d %s", files.size(), files.size() == 1 ? "file" : "files");
 		
-		if (files.size() == 1) {
-			count = String.format("%d file", files.size());
-		} else {
-			count = String.format("%d files", files.size());
-		}
-		
-		node.setUserObject(String.format("%s (%s, %s)", name, count, FileUtil.formatSize(totalSize)));
+		// set node text (e.g. txt (1 file, 42 Byte))
+		node.setUserObject(String.format("%s (%s, %s)", name, numberOfFiles, FileUtil.formatSize(totalSize)));
 		
 		return node;
 	}

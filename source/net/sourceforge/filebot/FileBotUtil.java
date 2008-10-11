@@ -13,6 +13,15 @@ import net.sourceforge.tuned.FileUtil;
 
 public final class FileBotUtil {
 	
+	public static final String getApplicationName() {
+		return "FileBot";
+	};
+	
+
+	public static final String getApplicationVersion() {
+		return "1.9";
+	};
+	
 	/**
 	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */

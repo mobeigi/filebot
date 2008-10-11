@@ -5,8 +5,8 @@ package net.sourceforge.filebot.ui;
 import javax.swing.Icon;
 import javax.swing.SwingConstants;
 
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
 import net.sourceforge.tuned.ui.notification.MessageNotification;
 import net.sourceforge.tuned.ui.notification.NotificationManager;
 import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;
@@ -29,7 +29,7 @@ public class MessageManager {
 	
 
 	private static void show(String message, Icon icon, int timeout) {
-		manager.show(new MessageNotification(Settings.NAME, message, icon, timeout));
+		manager.show(new MessageNotification(FileBotUtil.getApplicationName(), message, icon, timeout));
 	}
 	
 }

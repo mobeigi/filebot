@@ -1,11 +1,13 @@
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import net.sourceforge.filebot.ArgumentBean;
-import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.FileBotWindow;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -21,8 +23,13 @@ public class Main {
 		
 		final ArgumentBean argumentBean = parseArguments(args);
 		
-		if (argumentBean.isClear())
-			Settings.getSettings().clear();
+		if (argumentBean.isClear()) {
+			try {
+				Preferences.userNodeForPackage(FileBotUtil.class).removeNode();
+			} catch (BackingStoreException e) {
+				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			}
+		}
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -67,4 +74,5 @@ public class Main {
 		
 		return argumentBean;
 	}
+	
 }

@@ -3,85 +3,66 @@ package net.sourceforge.filebot.ui;
 
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.tuned.ui.HyperlinkLabel;
 
 
 public class HistoryPanel extends JPanel {
 	
-	private final JPanel grid = new JPanel(new GridLayout(0, 3, 15, 10));
-	
-	private final JLabel columnHeader1 = new JLabel();
-	private final JLabel columnHeader2 = new JLabel();
-	private final JLabel columnHeader3 = new JLabel();
+	private final List<JLabel> columnHeaders = new ArrayList<JLabel>(3);
 	
 	
 	public HistoryPanel() {
-		super(new FlowLayout(FlowLayout.CENTER));
+		super(new MigLayout("fillx, insets 10 30 10 50, wrap 3"));
 		
 		setBackground(Color.WHITE);
 		setOpaque(true);
-		grid.setOpaque(false);
 		
-		Font font = columnHeader1.getFont().deriveFont(Font.BOLD);
-		
-		columnHeader1.setHorizontalAlignment(SwingConstants.CENTER);
-		columnHeader2.setHorizontalAlignment(SwingConstants.CENTER);
-		columnHeader3.setHorizontalAlignment(SwingConstants.RIGHT);
-		
-		columnHeader1.setFont(font);
-		columnHeader2.setFont(font);
-		columnHeader3.setFont(font);
-		
-		grid.add(columnHeader1);
-		grid.add(columnHeader2);
-		grid.add(columnHeader3);
-		
-		add(grid);
+		setupHeader();
 	}
 	
 
-	public void setColumnHeader1(String text) {
-		columnHeader1.setText(text);
+	protected void setupHeader() {
+		for (int i = 0; i < 3; i++) {
+			JLabel columnHeader = new JLabel();
+			
+			columnHeader.setFont(columnHeader.getFont().deriveFont(Font.BOLD));
+			
+			columnHeaders.add(columnHeader);
+			add(columnHeader, (i == 0) ? "align left, gapbefore 20" : "align right, gapafter 20");
+		}
 	}
 	
 
-	public void setColumnHeader2(String text) {
-		columnHeader2.setText(text);
-	}
-	
-
-	public void setColumnHeader3(String text) {
-		columnHeader3.setText(text);
+	public void setColumnHeader(int index, String text) {
+		columnHeaders.get(index).setText(text);
 	}
 	
 
 	public void add(String column1, URI link, Icon icon, String column2, String column3) {
 		JLabel label1 = (link != null) ? new HyperlinkLabel(column1, link) : new JLabel(column1);
-		JLabel label2 = new JLabel(column2);
-		JLabel label3 = new JLabel(column3);
-		
-		label1.setHorizontalAlignment(SwingConstants.LEFT);
-		label2.setHorizontalAlignment(SwingConstants.RIGHT);
-		label3.setHorizontalAlignment(SwingConstants.RIGHT);
+		JLabel label2 = new JLabel(column2, SwingConstants.RIGHT);
+		JLabel label3 = new JLabel(column3, SwingConstants.RIGHT);
 		
 		label1.setIcon(icon);
 		label1.setIconTextGap(7);
 		
-		label2.setBorder(new EmptyBorder(0, 0, 0, 10));
+		add(label1, "align left");
 		
-		grid.add(label1);
-		grid.add(label2);
-		grid.add(label3);
+		// set minimum with to 100px so the text is aligned to the right,
+		// even though the whole label is centered
+		add(label2, "align center, wmin 100");
+		
+		add(label3, "align right");
 	}
 }

@@ -12,7 +12,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 import net.sourceforge.filebot.FileBotUtil;
-import net.sourceforge.filebot.Settings;
 import net.sourceforge.tuned.TemporaryFolder;
 
 
@@ -56,7 +55,7 @@ public class TextFileTransferable implements Transferable {
 		String filename = FileBotUtil.validateFileName(defaultFileName);
 		
 		// create new temporary file
-		File temporaryFile = TemporaryFolder.getFolder(Settings.ROOT).createFile(filename);
+		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName().toLowerCase()).createFile(filename);
 		
 		// write text to file
 		FileChannel fileChannel = new FileOutputStream(temporaryFile).getChannel();
