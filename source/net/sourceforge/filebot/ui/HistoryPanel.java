@@ -32,14 +32,27 @@ public class HistoryPanel extends JPanel {
 	}
 	
 
-	protected void setupHeader() {
+	private void setupHeader() {
 		for (int i = 0; i < 3; i++) {
 			JLabel columnHeader = new JLabel();
 			
 			columnHeader.setFont(columnHeader.getFont().deriveFont(Font.BOLD));
 			
 			columnHeaders.add(columnHeader);
-			add(columnHeader, (i == 0) ? "align left, gapbefore 20" : "align right, gapafter 20");
+			
+			add(columnHeader, getHeaderConstraint(i));
+		}
+	}
+	
+
+	private String getHeaderConstraint(int headerIndex) {
+		switch (headerIndex) {
+			case 0:
+				return "align left, gapbefore 24";
+			case 1:
+				return "align center";
+			default:
+				return "align right, gapafter 12";
 		}
 	}
 	

@@ -138,14 +138,14 @@ public class TVRageClient implements EpisodeListClient {
 		
 		private final int totalSeasons;
 		
-		private final Node episodeListNode;
+		private final Document feed;
 		
 		
-		public EpisodeListFeed(Document dom) {
-			name = XPathUtil.selectString("Show/name", dom);
-			totalSeasons = XPathUtil.selectInteger("Show/totalseasons", dom);
+		public EpisodeListFeed(Document feed) {
+			name = XPathUtil.selectString("Show/name", feed);
+			totalSeasons = XPathUtil.selectInteger("Show/totalseasons", feed);
 			
-			episodeListNode = XPathUtil.selectNode("Show/Episodelist", dom);
+			this.feed = feed;
 		}
 		
 
@@ -172,9 +172,9 @@ public class TVRageClient implements EpisodeListClient {
 
 		public List<Episode> getEpisodeList(int season) {
 			if (season > getTotalSeasons() || season < 0)
-				throw new IllegalArgumentException(String.format("%s only has %d seasons", getName(), getTotalSeasons()));
+				throw new IllegalArgumentException(String.format("%s only has %d seasons.", getName(), getTotalSeasons()));
 			
-			List<Node> nodes = XPathUtil.selectNodes("Season[@no='" + season + "']/episode", episodeListNode);
+			List<Node> nodes = XPathUtil.selectNodes("//Season[@no='" + season + "']/episode", feed);
 			
 			List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 			String numberOfSeason = Integer.toString(season);
