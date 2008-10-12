@@ -3,7 +3,7 @@
 <project name="FileBot" default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.9" />
+	<property name="version" value="1.9.0" />
 
 
 	<property name="dir.source" 		location="${basedir}/source" />

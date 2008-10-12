@@ -22,9 +22,9 @@ import javax.swing.event.ListSelectionListener;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
+import net.sourceforge.filebot.ui.panel.episodelist.EpisodeListPanel;
 import net.sourceforge.filebot.ui.panel.list.ListPanel;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanel;
-import net.sourceforge.filebot.ui.panel.search.SearchPanel;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanel;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
 import net.sourceforge.tuned.MessageBus;
@@ -61,7 +61,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		setSize(760, 615);
 		
 		// restore the panel selection from last time,
-		// switch to SearchPanel by default (e.g. first start)
+		// switch to EpisodeListPanel by default (e.g. first start)
 		int selectedPanel = Preferences.userNodeForPackage(getClass()).getInt("selectedPanel", 3);
 		selectionListPanel.setSelectedIndex(selectedPanel);
 		
@@ -75,7 +75,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		panels.add(new ListPanel());
 		panels.add(new RenamePanel());
 		panels.add(new AnalyzePanel());
-		panels.add(new SearchPanel());
+		panels.add(new EpisodeListPanel());
 		panels.add(new SubtitlePanel());
 		panels.add(new SfvPanel());
 		

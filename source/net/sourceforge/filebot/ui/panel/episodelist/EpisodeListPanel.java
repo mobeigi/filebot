@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.search;
+package net.sourceforge.filebot.ui.panel.episodelist;
 
 
 import java.awt.BorderLayout;
@@ -35,6 +35,7 @@ import javax.swing.border.EmptyBorder;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.FileBotTab;
 import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
@@ -55,7 +56,7 @@ import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
-public class SearchPanel extends FileBotPanel {
+public class EpisodeListPanel extends FileBotPanel {
 	
 	private JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 	
@@ -66,8 +67,8 @@ public class SearchPanel extends FileBotPanel {
 	private SelectButtonTextField<EpisodeListClient> searchField;
 	
 	
-	public SearchPanel() {
-		super("Episodes", ResourceManager.getIcon("panel.search"));
+	public EpisodeListPanel() {
+		super("Episodes", ResourceManager.getIcon("panel.episodelist"));
 		
 		searchField = new SelectButtonTextField<EpisodeListClient>();
 		
@@ -129,9 +130,9 @@ public class SearchPanel extends FileBotPanel {
 	protected List<EpisodeListClient> createSearchEngines() {
 		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(3);
 		
-		engines.add(new TVDotComClient());
-		engines.add(new AnidbClient());
 		engines.add(new TVRageClient());
+		engines.add(new AnidbClient());
+		engines.add(new TVDotComClient());
 		
 		return engines;
 	}
@@ -249,14 +250,14 @@ public class SearchPanel extends FileBotPanel {
 
 	private class SearchTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private EpisodeListPanel episodeList;
+		private FileBotTab<FileBotList<Episode>> episodeList;
 		
 		
 		@Override
 		public void started(PropertyChangeEvent evt) {
 			SearchTask task = (SearchTask) evt.getSource();
 			
-			episodeList = new EpisodeListPanel();
+			episodeList = new EpisodeListTab();
 			
 			String title = task.query;
 			
@@ -304,7 +305,7 @@ public class SearchPanel extends FileBotPanel {
 				selectedResult = searchResults.iterator().next();
 			} else if (searchResults.size() > 1) {
 				// multiple shows found, let user selected one
-				Window window = SwingUtilities.getWindowAncestor(SearchPanel.this);
+				Window window = SwingUtilities.getWindowAncestor(EpisodeListPanel.this);
 				
 				SelectDialog<SearchResult> select = new SelectDialog<SearchResult>(window, searchResults);
 				
@@ -345,10 +346,10 @@ public class SearchPanel extends FileBotPanel {
 
 	private class FetchEpisodeListTaskListener extends SwingWorkerPropertyChangeAdapter {
 		
-		private EpisodeListPanel episodeList;
+		private FileBotTab<FileBotList<Episode>> episodeList;
 		
 		
-		public FetchEpisodeListTaskListener(EpisodeListPanel episodeList) {
+		public FetchEpisodeListTaskListener(FileBotTab<FileBotList<Episode>> episodeList) {
 			this.episodeList = episodeList;
 		}
 		
@@ -374,7 +375,7 @@ public class SearchPanel extends FileBotPanel {
 					tabbedPane.remove(episodeList);
 				else {
 					episodeList.setLoading(false);
-					episodeList.getModel().addAll(episodes);
+					episodeList.getComponent().getModel().addAll(episodes);
 				}
 			} catch (Exception e) {
 				tabbedPane.remove(episodeList);
