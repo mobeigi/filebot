@@ -19,6 +19,7 @@
 	<property name="lib.simmetrics" 	location="${dir.lib}/simmetrics_jar_v1_6_2_d07_02_07.jar" />
 	<property name="lib.xmlrpc" 		location="${dir.lib}/xmlrpc-client-1.1.jar" />
 	<property name="lib.glazedlists"	location="${dir.lib}/glazedlists-1.7.0_java15.jar" />
+	<property name="lib.miglayout" 		location="${dir.lib}/miglayout-3.6-swing.jar" />
 	<property name="lib.args4j" 		location="${dir.lib}/args4j-2.0.9.jar" />
 	<property name="lib.junit" 			location="${dir.lib}/junit-4.4.jar" />
 	
@@ -37,7 +38,6 @@
 				<attribute name="Main-Class" value="Main" />
 				<attribute name="Version" value="${version}" />
 			</manifest>
-
 
 			<!-- include libs -->
 			<zipfileset src="${lib.xerces}">
@@ -62,16 +62,20 @@
 				<include name="uk/ac/shef/wit/simmetrics/wordhandlers/**" />
 			</zipfileset>
 
+			<zipfileset src="${lib.glazedlists}">
+				<include name="ca/odell/glazedlists/**" />
+			</zipfileset>
+
+			<zipfileset src="${lib.miglayout}">
+				<include name="**/*.class" />
+			</zipfileset>
+
 			<zipfileset src="${lib.xmlrpc}">
 				<include name="**/*.class" />
 			</zipfileset>
 
-			<zipfileset src="${lib.glazedlists}">
-				<include name="ca/odell/glazedlists/**" />
-			</zipfileset>
-			
 			<zipfileset src="${lib.args4j}">
-				<include name="*/**" />
+				<include name="**/*.class" />
 			</zipfileset>
 		</jar>
 	</target>
