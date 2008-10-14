@@ -44,7 +44,8 @@ class SfvTable extends JTable {
 		
 		setUI(new DragDropRowTableUI());
 		
-		setDefaultRenderer(String.class, new FileNameTableCellRenderer());
+		// highlight CRC32 patterns in filenames in green and with smaller font-size
+		setDefaultRenderer(String.class, new HighlightPatternCellRenderer("\\[(\\p{XDigit}{8})\\]", "#009900", "smaller"));
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
 		setDefaultRenderer(Checksum.class, new ChecksumTableCellRenderer());
 	}
