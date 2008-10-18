@@ -68,14 +68,17 @@
 
 			<zipfileset src="${lib.miglayout}">
 				<include name="**/*.class" />
+				<include name="**/*.properties" />
 			</zipfileset>
 
 			<zipfileset src="${lib.xmlrpc}">
 				<include name="**/*.class" />
+				<include name="**/*.properties" />
 			</zipfileset>
 
 			<zipfileset src="${lib.args4j}">
 				<include name="**/*.class" />
+				<include name="**/*.properties" />
 			</zipfileset>
 		</jar>
 	</target>
