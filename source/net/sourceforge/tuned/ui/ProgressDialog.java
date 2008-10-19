@@ -2,8 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -12,18 +11,14 @@ import java.awt.event.WindowListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
+
+import net.miginfocom.swing.MigLayout;
 
 
 public class ProgressDialog extends JDialog {
@@ -41,59 +36,27 @@ public class ProgressDialog extends JDialog {
 	public ProgressDialog(Window owner) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 		
-		if (!owner.getIconImages().isEmpty()) {
-			setIconImages(owner.getIconImages());
-		}
-		
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(closeListener);
-		
 		cancelButton = new JButton(cancelAction);
 		
+		addWindowListener(closeListener);
+		
+		headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
 		progressBar.setStringPainted(true);
 		
-		iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		iconLabel.setVerticalAlignment(SwingConstants.CENTER);
-		iconLabel.setBorder(new EmptyBorder(0, 2, 0, 10));
+		JPanel c = (JPanel) getContentPane();
 		
-		Border labelBorder = new EmptyBorder(3, 0, 0, 0);
-		headerLabel.setBorder(labelBorder);
-		noteLabel.setBorder(labelBorder);
+		c.setLayout(new MigLayout("insets panel, fill"));
 		
-		JComponent c = (JComponent) getContentPane();
+		c.add(iconLabel, "spany 2, grow 0 0, gap right 1mm");
+		c.add(headerLabel, "align left, wmax 70%, grow 100 0, wrap");
+		c.add(noteLabel, "align left, wmax 70%, grow 100 0, wrap");
+		c.add(progressBar, "spanx 2, gap top unrel, gap bottom unrel, grow, wrap");
 		
-		c.setBorder(new EmptyBorder(5, 5, 5, 5));
+		c.add(cancelButton, "spanx 2, align center");
 		
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		buttonPanel.add(cancelButton);
-		
-		Box messageBox = Box.createVerticalBox();
-		messageBox.add(headerLabel);
-		messageBox.add(noteLabel);
-		messageBox.add(Box.createVerticalGlue());
-		
-		JPanel messagePanel = new JPanel(new BorderLayout());
-		messagePanel.add(iconLabel, BorderLayout.WEST);
-		messagePanel.add(messageBox, BorderLayout.CENTER);
-		
-		JPanel progressBarPanel = new JPanel(new BorderLayout());
-		progressBarPanel.add(progressBar, BorderLayout.CENTER);
-		progressBarPanel.setBorder(new EmptyBorder(8, 12, 3, 12));
-		
-		Box progressBox = Box.createVerticalBox();
-		progressBox.add(messagePanel);
-		progressBox.add(progressBarPanel);
-		
-		c.add(progressBox, BorderLayout.CENTER);
-		c.add(buttonPanel, BorderLayout.SOUTH);
-		
-		setSize(240, 138);
-		setResizable(false);
+		setSize(240, 155);
 		
 		setLocation(TunedUtil.getPreferredLocation(this));
-		
-		// Shortcut Escape
-		TunedUtil.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 
@@ -117,23 +80,8 @@ public class ProgressDialog extends JDialog {
 	}
 	
 
-	public void setProgressMaximum(int n) {
-		progressBar.setMaximum(n);
-	}
-	
-
-	public void setProgressMinimum(int n) {
-		progressBar.setMinimum(n);
-	}
-	
-
-	public void setProgressValue(int n) {
-		progressBar.setValue(n);
-	}
-	
-
-	public void setProgressString(String text) {
-		progressBar.setString(text);
+	public JProgressBar getProgressBar() {
+		return progressBar;
 	}
 	
 
@@ -161,8 +109,8 @@ public class ProgressDialog extends JDialog {
 		
 		@Override
 		public void windowClosing(WindowEvent e) {
-			cancelled = true;
-			close();
+			cancelAction.actionPerformed(null);
 		}
 	};
+	
 }

@@ -7,12 +7,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 
+import javax.swing.Icon;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 
 public class SwingWorkerProgressMonitor {
 	
+	public static final String PROPERTY_TITLE = "title";
 	public static final String PROPERTY_NOTE = "note";
 	public static final String PROPERTY_PROGRESS_STRING = "progress string";
 	
@@ -22,12 +24,14 @@ public class SwingWorkerProgressMonitor {
 	private int millisToPopup = 2000;
 	
 	
-	public SwingWorkerProgressMonitor(Window owner, SwingWorker<?, ?> worker) {
+	public SwingWorkerProgressMonitor(Window owner, SwingWorker<?, ?> worker, Icon progressDialogIcon) {
 		this.worker = worker;
 		
 		progressDialog = new ProgressDialog(owner);
+		progressDialog.setIcon(progressDialogIcon);
 		
 		worker.addPropertyChangeListener(listener);
+		
 		progressDialog.getCancelButton().addActionListener(cancelListener);
 	}
 	
@@ -48,27 +52,29 @@ public class SwingWorkerProgressMonitor {
 	
 	private final SwingWorkerPropertyChangeAdapter listener = new SwingWorkerPropertyChangeAdapter() {
 		
-		private Timer popupTimer;
+		private Timer popupTimer = null;
 		
 		
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals(PROPERTY_NOTE))
-				note(evt);
-			else if (evt.getPropertyName().equals(PROPERTY_PROGRESS_STRING))
+			if (evt.getPropertyName().equals(PROPERTY_PROGRESS_STRING))
 				progressString(evt);
+			else if (evt.getPropertyName().equals(PROPERTY_NOTE))
+				note(evt);
+			else if (evt.getPropertyName().equals(PROPERTY_TITLE))
+				title(evt);
 			else
 				super.propertyChange(evt);
 		}
 		
 
 		@Override
-		public void started(PropertyChangeEvent evt) {
+		protected void started(PropertyChangeEvent evt) {
 			popupTimer = TunedUtil.invokeLater(millisToPopup, new Runnable() {
 				
 				@Override
 				public void run() {
-					if (!worker.isDone()) {
+					if (!worker.isDone() && !progressDialog.isVisible()) {
 						progressDialog.setVisible(true);
 					}
 				}
@@ -77,7 +83,7 @@ public class SwingWorkerProgressMonitor {
 		
 
 		@Override
-		public void done(PropertyChangeEvent evt) {
+		protected void done(PropertyChangeEvent evt) {
 			if (popupTimer != null) {
 				popupTimer.stop();
 			}
@@ -87,18 +93,26 @@ public class SwingWorkerProgressMonitor {
 		
 
 		@Override
-		public void progress(PropertyChangeEvent evt) {
-			progressDialog.setProgressValue((Integer) evt.getNewValue());
+		protected void progress(PropertyChangeEvent evt) {
+			progressDialog.getProgressBar().setValue((Integer) evt.getNewValue());
 		}
 		
 
-		public void progressString(PropertyChangeEvent evt) {
-			progressDialog.setProgressString(evt.getNewValue().toString());
+		protected void progressString(PropertyChangeEvent evt) {
+			progressDialog.getProgressBar().setString(evt.getNewValue().toString());
 		}
 		
 
-		public void note(PropertyChangeEvent evt) {
+		protected void note(PropertyChangeEvent evt) {
 			progressDialog.setNote(evt.getNewValue().toString());
+		}
+		
+
+		protected void title(PropertyChangeEvent evt) {
+			String title = evt.getNewValue().toString();
+			
+			progressDialog.setHeader(title);
+			progressDialog.setTitle(title);
 		}
 		
 	};

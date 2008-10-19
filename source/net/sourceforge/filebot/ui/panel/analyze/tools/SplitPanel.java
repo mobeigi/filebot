@@ -2,9 +2,7 @@
 package net.sourceforge.filebot.ui.panel.analyze.tools;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,19 +11,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingWorker;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotTree;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
@@ -44,35 +41,31 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	
 	public SplitPanel() {
 		super("Split");
-		setLayout(new BorderLayout());
 		
-		JScrollPane sp = new JScrollPane(tree);
-		sp.setBorder(BorderFactory.createEmptyBorder());
+		setLayout(new MigLayout("nogrid, flowx, insets 0, fill", "align center"));
+		
+		JScrollPane treeScrollPane = new JScrollPane(tree);
+		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		
 		JSpinner spinner = new JSpinner(spinnerModel);
-		spinner.setMaximumSize(spinner.getPreferredSize());
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
 		
-		Box spinnerBox = Box.createHorizontalBox();
-		spinnerBox.add(Box.createGlue());
-		spinnerBox.add(new JLabel("Split every"));
-		spinnerBox.add(Box.createHorizontalStrut(5));
-		spinnerBox.add(spinner);
-		spinnerBox.add(Box.createHorizontalStrut(5));
-		spinnerBox.add(new JLabel("MB."));
-		spinnerBox.add(Box.createGlue());
+		JPanel spinnerPanel = new JPanel(new MigLayout("nogrid, flowx"));
+		spinnerPanel.setOpaque(false);
 		
-		add(new LoadingOverlayPane(sp, ResourceManager.getIcon("loading")), BorderLayout.CENTER);
-		add(spinnerBox, BorderLayout.SOUTH);
+		LoadingOverlayPane loadingOverlayPane = new LoadingOverlayPane(treeScrollPane, ResourceManager.getIcon("loading"));
+		loadingOverlayPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
+		
+		add(loadingOverlayPane, "grow, wrap");
+		
+		add(new JLabel("Split every"));
+		add(spinner, "wmax 80, gap top rel, gap bottom unrel");
+		add(new JLabel("MB."));
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
 		
-		Color beginColor = new Color(0, 0, 0, 90);
-		SeparatorBorder separatorBorder = new SeparatorBorder(2, beginColor, GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.TOP);
-		spinnerBox.setBorder(new CompoundBorder(separatorBorder, new EmptyBorder(6, 5, 7, 5)));
-		
 		spinnerModel.addChangeListener(this);
-		spinner.setPreferredSize(new Dimension(80, 20));
 	}
 	
 

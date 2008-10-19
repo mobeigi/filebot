@@ -25,7 +25,6 @@ import net.sourceforge.filebot.ui.panel.rename.matcher.Matcher;
 import net.sourceforge.filebot.ui.panel.rename.metric.CompositeSimilarityMetric;
 import net.sourceforge.filebot.ui.panel.rename.metric.NumericSimilarityMetric;
 import net.sourceforge.filebot.ui.panel.rename.metric.SimilarityMetric;
-import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.SwingWorkerProgressMonitor;
 
 
@@ -88,12 +87,7 @@ class MatchAction extends AbstractAction {
 		RenameList<ListEntry> secondaryList = (RenameList<ListEntry>) (matchName2File ? filesList : namesList);
 		
 		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(primaryList, secondaryList, metrics);
-		SwingWorkerProgressMonitor monitor = new SwingWorkerProgressMonitor(SwingUtilities.getWindowAncestor(source), backgroundMatcher);
-		
-		ProgressDialog progressDialog = monitor.getProgressDialog();
-		progressDialog.setTitle("Matching ...");
-		progressDialog.setHeader(progressDialog.getTitle());
-		progressDialog.setIcon((Icon) getValue(SMALL_ICON));
+		SwingWorkerProgressMonitor monitor = new SwingWorkerProgressMonitor(SwingUtilities.getWindowAncestor(source), backgroundMatcher, (Icon) getValue(SMALL_ICON));
 		
 		backgroundMatcher.execute();
 		
@@ -102,7 +96,7 @@ class MatchAction extends AbstractAction {
 			backgroundMatcher.get(monitor.getMillisToPopup(), TimeUnit.MILLISECONDS);
 		} catch (TimeoutException ex) {
 			// matcher will take longer, stop blocking EDT
-			progressDialog.setVisible(true);
+			monitor.getProgressDialog().setVisible(true);
 		} catch (Exception e) {
 			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 		}
@@ -129,6 +123,9 @@ class MatchAction extends AbstractAction {
 
 		@Override
 		protected List<Match> doInBackground() throws Exception {
+			
+			firePropertyChange(SwingWorkerProgressMonitor.PROPERTY_TITLE, null, "Matching...");
+			
 			int total = matcher.remainingMatches();
 			
 			List<Match> matches = new ArrayList<Match>(total);

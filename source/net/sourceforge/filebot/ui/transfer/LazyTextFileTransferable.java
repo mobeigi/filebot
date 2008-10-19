@@ -15,7 +15,7 @@ import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.tuned.TemporaryFolder;
 
 
-public class TextFileTransferable implements Transferable {
+public class LazyTextFileTransferable implements Transferable {
 	
 	private final String text;
 	private final String defaultFileName;
@@ -23,7 +23,7 @@ public class TextFileTransferable implements Transferable {
 	private FileTransferable fileTransferable = null;
 	
 	
-	public TextFileTransferable(String text, String defaultFileName) {
+	public LazyTextFileTransferable(String text, String defaultFileName) {
 		this.text = text;
 		this.defaultFileName = defaultFileName;
 	}

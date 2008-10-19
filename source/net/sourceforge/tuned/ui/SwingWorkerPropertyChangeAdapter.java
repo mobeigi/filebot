@@ -18,7 +18,7 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 	}
 	
 
-	public void state(PropertyChangeEvent evt) {
+	protected void state(PropertyChangeEvent evt) {
 		switch ((StateValue) evt.getNewValue()) {
 			case STARTED:
 				started(evt);
@@ -30,15 +30,15 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 	}
 	
 
-	public void progress(PropertyChangeEvent evt) {
+	protected void progress(PropertyChangeEvent evt) {
 	}
 	
 
-	public void started(PropertyChangeEvent evt) {
+	protected void started(PropertyChangeEvent evt) {
 	}
 	
 
-	public void done(PropertyChangeEvent evt) {
+	protected void done(PropertyChangeEvent evt) {
 	}
 	
 }

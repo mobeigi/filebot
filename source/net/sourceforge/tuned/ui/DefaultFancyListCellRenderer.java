@@ -38,7 +38,7 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 		
 		label.setOpaque(false);
 		
-		setText(value.toString());
+		setText(String.valueOf(value));
 	}
 	
 

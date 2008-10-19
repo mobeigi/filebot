@@ -50,7 +50,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 		StringWriter buffer = new StringWriter();
 		export(new PrintWriter(buffer));
 		
-		return new TextFileTransferable(buffer.toString(), getDefaultFileName());
+		return new LazyTextFileTransferable(buffer.toString(), getDefaultFileName());
 	}
 	
 
