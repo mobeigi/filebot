@@ -5,13 +5,13 @@ package net.sourceforge.filebot.ui.panel.analyze.tools;
 import java.io.File;
 import java.util.Collection;
 
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import net.sourceforge.tuned.FileUtil;
 
 
-public abstract class ToolPanel extends JComponent {
+public abstract class ToolPanel extends JPanel {
 	
 	private final String name;
 	

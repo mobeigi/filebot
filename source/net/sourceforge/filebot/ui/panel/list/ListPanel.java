@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.list;
 
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -11,16 +10,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
@@ -54,59 +52,34 @@ public class ListPanel extends FileBotPanel {
 		
 		list.getRemoveAction().setEnabled(true);
 		
-		Box buttons = Box.createHorizontalBox();
-		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
-		buttons.add(Box.createHorizontalGlue());
-		
-		buttons.add(new JButton(new LoadAction(list.getTransferablePolicy())));
-		buttons.add(Box.createHorizontalStrut(5));
-		buttons.add(new JButton(new SaveAction(list.getExportHandler())));
-		buttons.add(Box.createHorizontalGlue());
-		
-		list.add(buttons, BorderLayout.SOUTH);
-		
 		JSpinner fromSpinner = new JSpinner(fromSpinnerModel);
 		JSpinner toSpinner = new JSpinner(toSpinnerModel);
 		
 		fromSpinner.setEditor(new JSpinner.NumberEditor(fromSpinner, "#"));
 		toSpinner.setEditor(new JSpinner.NumberEditor(toSpinner, "#"));
 		
-		Dimension spinnerDimension = new Dimension(50, textField.getPreferredSize().height);
-		fromSpinner.setPreferredSize(spinnerDimension);
-		toSpinner.setPreferredSize(spinnerDimension);
+		setLayout(new MigLayout("nogrid, flowx, insets dialog, fill", "align center"));
 		
-		Box spinners = Box.createHorizontalBox();
-		spinners.setBorder(new EmptyBorder(5, 5, 5, 5));
-		spinners.add(Box.createHorizontalGlue());
+		add(new JLabel("Pattern:"), "gapbefore indent");
+		add(textField, "gap related, wmin 2cm");
+		add(new JLabel("From:"), "gap 5mm");
+		add(fromSpinner, "gap related, wmax 12mm, sizegroup spinner");
+		add(new JLabel("To:"), "gap 5mm");
+		add(toSpinner, "gap related, wmax 12mm, sizegroup spinner");
+		add(new JButton(createAction), "gap 7mm, gapafter indent, wrap paragraph");
 		
-		spinners.add(createLabeledComponent("Pattern:", textField));
-		spinners.add(Box.createHorizontalStrut(15));
-		spinners.add(createLabeledComponent("From:", fromSpinner));
-		spinners.add(Box.createHorizontalStrut(10));
-		spinners.add(createLabeledComponent("To:", toSpinner));
-		spinners.add(Box.createHorizontalStrut(15));
-		spinners.add(new JButton(createAction));
-		spinners.add(Box.createHorizontalGlue());
+		add(list, "grow");
 		
-		add(spinners, BorderLayout.NORTH);
-		add(list, BorderLayout.CENTER);
+		// panel with buttons that will be added inside the list component
+		JPanel buttonPanel = new JPanel(new MigLayout("insets 5px, nogrid, flowx, fill", "align center"));
+		buttonPanel.add(new JButton(new LoadAction(list.getTransferablePolicy())));
+		buttonPanel.add(new JButton(new SaveAction(list.getExportHandler())), "gap unrelated");
+		
+		list.add(buttonPanel, BorderLayout.SOUTH);
 		
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 		
 		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, list.getTransferablePolicy()));
-	}
-	
-
-	private JComponent createLabeledComponent(String label, JComponent component) {
-		Box box = Box.createHorizontalBox();
-		box.setBorder(new EmptyBorder(5, 5, 5, 5));
-		box.add(new JLabel(label));
-		box.add(Box.createHorizontalStrut(6));
-		box.add(component);
-		
-		box.setMaximumSize(box.getPreferredSize());
-		
-		return box;
 	}
 	
 	private AbstractAction createAction = new AbstractAction("Create") {

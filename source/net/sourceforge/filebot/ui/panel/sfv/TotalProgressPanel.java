@@ -9,7 +9,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JProgressBar;
-import javax.swing.border.Border;
 
 import net.sourceforge.tuned.ui.TunedUtil;
 
@@ -35,10 +34,7 @@ class TotalProgressPanel extends Box {
 		progressBar.setBorderPainted(false);
 		progressBar.setString("");
 		
-		Border margin = BorderFactory.createEmptyBorder(5, 5, 4, 8);
-		Border title = BorderFactory.createTitledBorder("Total Progress");
-		
-		setBorder(BorderFactory.createCompoundBorder(margin, title));
+		setBorder(BorderFactory.createTitledBorder("Total Progress"));
 		
 		add(progressBar);
 		

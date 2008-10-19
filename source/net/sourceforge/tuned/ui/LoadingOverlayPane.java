@@ -10,11 +10,12 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.OverlayLayout;
 
 
-public class LoadingOverlayPane extends JComponent {
+public class LoadingOverlayPane extends JPanel {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	

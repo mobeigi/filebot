@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -10,14 +9,12 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
@@ -41,25 +38,15 @@ public class SfvPanel extends FileBotPanel {
 		
 		setBorder(BorderFactory.createTitledBorder("SFV"));
 		
-		JPanel southPanel = new JPanel(new BorderLayout());
+		setLayout(new MigLayout("nogrid, flowx, insets 0, fill", "", "align bottom"));
 		
-		JPanel southEastPanel = new JPanel(new BorderLayout());
+		add(new JScrollPane(sfvTable), "grow, gap bottom 5, wrap");
 		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.setBorder(new EmptyBorder(5, 15, 5, 15));
+		add(new JButton(loadAction), "gap right 5, gap bottom 4, gap left 15");
+		add(new JButton(saveAction), "gap right 5, gap bottom 4");
+		add(new JButton(clearAction), "gap right 5, gap bottom 4");
 		
-		buttonBox.add(new JButton(loadAction));
-		buttonBox.add(Box.createHorizontalStrut(5));
-		buttonBox.add(new JButton(saveAction));
-		buttonBox.add(Box.createHorizontalStrut(5));
-		buttonBox.add(new JButton(clearAction));
-		southEastPanel.add(buttonBox, BorderLayout.SOUTH);
-		
-		southPanel.add(southEastPanel, BorderLayout.WEST);
-		southPanel.add(totalProgressPanel, BorderLayout.EAST);
-		
-		add(new JScrollPane(sfvTable), BorderLayout.CENTER);
-		add(southPanel, BorderLayout.SOUTH);
+		add(totalProgressPanel, "gap left push, gap bottom 2, gap right 7, hidemode 3");
 		
 		// Shortcut DELETE
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);

@@ -17,10 +17,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.Calendar;
 
 import javax.swing.BoundedRangeModel;
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 
-public class ProgressIndicator extends JComponent {
+public class ProgressIndicator extends JPanel {
 	
 	private BoundedRangeModel model = null;
 	

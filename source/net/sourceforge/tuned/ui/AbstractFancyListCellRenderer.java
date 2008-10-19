@@ -11,8 +11,8 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
-import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -20,7 +20,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 
-public abstract class AbstractFancyListCellRenderer extends JComponent implements ListCellRenderer {
+public abstract class AbstractFancyListCellRenderer extends JPanel implements ListCellRenderer {
 	
 	private Color gradientBeginColor;
 	private Color gradientEndColor;

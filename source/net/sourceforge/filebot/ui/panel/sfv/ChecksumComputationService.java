@@ -127,11 +127,10 @@ public class ChecksumComputationService {
 		
 
 		private void adjustPoolSize() {
-			// for only a few files, use one thread
+			// for a few files, use one thread
 			// for lots of files, use multiple threads
 			// e.g 50 files ~ 1 thread, 1000 files ~ 3 threads, 40000 files ~ 5 threads
-			
-			int preferredPoolSize = (int) Math.log10(Math.max(getQueue().size() / 10, MINIMUM_POOL_SIZE));
+			int preferredPoolSize = (int) Math.max(Math.log10(getQueue().size() / 10), MINIMUM_POOL_SIZE);
 			
 			if (getCorePoolSize() != preferredPoolSize) {
 				setCorePoolSize(preferredPoolSize);
