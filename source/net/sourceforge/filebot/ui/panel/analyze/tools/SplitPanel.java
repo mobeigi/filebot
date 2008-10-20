@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -42,16 +41,13 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	public SplitPanel() {
 		super("Split");
 		
-		setLayout(new MigLayout("nogrid, flowx, insets 0, fill", "align center"));
+		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
 		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
 		JSpinner spinner = new JSpinner(spinnerModel);
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
-		
-		JPanel spinnerPanel = new JPanel(new MigLayout("nogrid, flowx"));
-		spinnerPanel.setOpaque(false);
 		
 		LoadingOverlayPane loadingOverlayPane = new LoadingOverlayPane(treeScrollPane, ResourceManager.getIcon("loading"));
 		loadingOverlayPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));

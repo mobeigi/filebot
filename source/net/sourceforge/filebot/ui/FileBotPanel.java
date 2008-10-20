@@ -13,6 +13,8 @@ public class FileBotPanel extends JPanel {
 	
 	
 	public FileBotPanel(String title, Icon icon) {
+		super(null);
+		
 		this.name = title;
 		this.icon = icon;
 	}

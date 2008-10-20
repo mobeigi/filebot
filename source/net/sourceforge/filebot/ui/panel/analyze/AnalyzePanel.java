@@ -32,7 +32,7 @@ public class AnalyzePanel extends FileBotPanel {
 		
 		toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 		
-		setLayout(new MigLayout("insets 0,gapx 50, fill"));
+		setLayout(new MigLayout("insets 0, gapx 50, fill"));
 		
 		add(fileTreePanel, "grow");
 		add(toolsPanel, "grow");

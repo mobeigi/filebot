@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -11,8 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -25,6 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
@@ -75,57 +72,38 @@ public class RenamePanel extends FileBotPanel {
 		similarityPanel.setVisible(false);
 		similarityPanel.setMetrics(matchAction.getMetrics());
 		
-		Box box = new Box(BoxLayout.X_AXIS);
+		// create Match button
+		JButton matchButton = new JButton(matchAction);
+		matchButton.addMouseListener(new MatchPopupListener());
+		matchButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+		matchButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		box.add(namesList);
-		box.add(Box.createHorizontalStrut(10));
-		box.add(createCenterBox());
-		box.add(Box.createHorizontalStrut(10));
+		// create Rename button
+		JButton renameButton = new JButton(renameAction);
+		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		Box subBox = Box.createVerticalBox();
+		setLayout(new MigLayout("insets 0, gapx 10px, fill", "", "align 33%"));
 		
-		subBox.add(similarityPanel);
-		subBox.add(filesList);
+		add(namesList, "grow");
 		
-		box.add(subBox);
+		// make buttons larger
+		matchButton.setMargin(new Insets(3, 14, 2, 14));
+		renameButton.setMargin(new Insets(6, 11, 2, 11));
 		
-		add(box, BorderLayout.CENTER);
+		add(matchButton, "cell 1 0, flowy");
+		add(renameButton, "cell 1 0, gapy 30px");
+		
+		add(filesList, "grow");
 		
 		namesListComponent.getModel().addListDataListener(repaintOnDataChange);
 		filesListComponent.getModel().addListDataListener(repaintOnDataChange);
 	}
 	
-
-	private Box createCenterBox() {
-		Box centerBox = Box.createVerticalBox();
-		
-		JButton matchButton = new JButton(matchAction);
-		matchButton.addMouseListener(new MatchPopupListener());
-		matchButton.setMargin(new Insets(3, 14, 2, 14));
-		matchButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-		matchButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		matchButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		JButton renameButton = new JButton(renameAction);
-		renameButton.setMargin(new Insets(6, 11, 2, 11));
-		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
-		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
-		renameButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		centerBox.add(Box.createGlue());
-		centerBox.add(matchButton);
-		centerBox.add(Box.createVerticalStrut(30));
-		centerBox.add(renameButton);
-		centerBox.add(Box.createGlue());
-		centerBox.add(Box.createGlue());
-		
-		return centerBox;
-	}
-	
 	private final ListDataListener repaintOnDataChange = new ListDataListener() {
 		
 		public void contentsChanged(ListDataEvent e) {
-			
+			repaintBoth();
 		}
 		
 
@@ -139,7 +117,7 @@ public class RenamePanel extends FileBotPanel {
 		}
 		
 
-		public void repaintBoth() {
+		private void repaintBoth() {
 			namesList.repaint();
 			filesList.repaint();
 		}

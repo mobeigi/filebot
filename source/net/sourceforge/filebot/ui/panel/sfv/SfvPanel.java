@@ -38,15 +38,15 @@ public class SfvPanel extends FileBotPanel {
 		
 		setBorder(BorderFactory.createTitledBorder("SFV"));
 		
-		setLayout(new MigLayout("nogrid, flowx, insets 0, fill", "", "align bottom"));
+		setLayout(new MigLayout("insets 0, nogrid, fill", "", "align bottom"));
 		
-		add(new JScrollPane(sfvTable), "grow, gap bottom 5, wrap");
+		add(new JScrollPane(sfvTable), "grow, gap bottom 5px, wrap");
 		
-		add(new JButton(loadAction), "gap right 5, gap bottom 4, gap left 15");
-		add(new JButton(saveAction), "gap right 5, gap bottom 4");
-		add(new JButton(clearAction), "gap right 5, gap bottom 4");
+		add(new JButton(loadAction), "gap 15px, gap bottom 4px");
+		add(new JButton(saveAction), "gap rel, gap bottom 4px");
+		add(new JButton(clearAction), "gap rel, gap bottom 4px");
 		
-		add(totalProgressPanel, "gap left push, gap bottom 2, gap right 7, hidemode 3");
+		add(totalProgressPanel, "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
 		
 		// Shortcut DELETE
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);

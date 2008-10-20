@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
@@ -29,17 +29,6 @@ class RenameList<E extends ListEntry> extends FileBotList<E> {
 	
 	
 	public RenameList() {
-		Box buttons = Box.createHorizontalBox();
-		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
-		buttons.add(Box.createGlue());
-		buttons.add(new JButton(downAction));
-		buttons.add(new JButton(upAction));
-		buttons.add(Box.createHorizontalStrut(10));
-		buttons.add(loadButton);
-		buttons.add(Box.createGlue());
-		
-		add(buttons, BorderLayout.SOUTH);
-		
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		list.addMouseListener(dndReorderMouseAdapter);
@@ -49,6 +38,14 @@ class RenameList<E extends ListEntry> extends FileBotList<E> {
 		viewport.setBackground(list.getBackground());
 		
 		getRemoveAction().setEnabled(true);
+		
+		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
+		
+		buttonPanel.add(new JButton(downAction));
+		buttonPanel.add(new JButton(upAction), "gap 0");
+		buttonPanel.add(loadButton, "gap 10px");
+		
+		add(buttonPanel, BorderLayout.SOUTH);
 	}
 	
 

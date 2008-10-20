@@ -58,7 +58,7 @@ public class ListPanel extends FileBotPanel {
 		fromSpinner.setEditor(new JSpinner.NumberEditor(fromSpinner, "#"));
 		toSpinner.setEditor(new JSpinner.NumberEditor(toSpinner, "#"));
 		
-		setLayout(new MigLayout("nogrid, flowx, insets dialog, fill", "align center"));
+		setLayout(new MigLayout("insets dialog, nogrid, fill", "align center"));
 		
 		add(new JLabel("Pattern:"), "gapbefore indent");
 		add(textField, "gap related, wmin 2cm");
@@ -71,9 +71,9 @@ public class ListPanel extends FileBotPanel {
 		add(list, "grow");
 		
 		// panel with buttons that will be added inside the list component
-		JPanel buttonPanel = new JPanel(new MigLayout("insets 5px, nogrid, flowx, fill", "align center"));
+		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
 		buttonPanel.add(new JButton(new LoadAction(list.getTransferablePolicy())));
-		buttonPanel.add(new JButton(new SaveAction(list.getExportHandler())), "gap unrelated");
+		buttonPanel.add(new JButton(new SaveAction(list.getExportHandler())), "gap related");
 		
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
