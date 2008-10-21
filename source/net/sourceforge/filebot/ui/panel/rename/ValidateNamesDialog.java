@@ -3,29 +3,24 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.util.List;
+import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
@@ -35,7 +30,7 @@ import net.sourceforge.tuned.ui.TunedUtil;
 
 public class ValidateNamesDialog extends JDialog {
 	
-	private final List<ListEntry> entries;
+	private final Collection<ListEntry> entries;
 	
 	private boolean cancelled = true;
 	
@@ -44,7 +39,7 @@ public class ValidateNamesDialog extends JDialog {
 	private final CancelAction cancelAction = new CancelAction();
 	
 	
-	public ValidateNamesDialog(Window owner, List<ListEntry> entries) {
+	public ValidateNamesDialog(Window owner, Collection<ListEntry> entries) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
 		this.entries = entries;
@@ -60,34 +55,16 @@ public class ValidateNamesDialog extends JDialog {
 		
 		JComponent c = (JComponent) getContentPane();
 		
-		int border = 5;
-		c.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
-		c.setLayout(new BorderLayout(border, border));
+		c.setLayout(new MigLayout("insets dialog, nogrid, fill"));
 		
-		JPanel listPanel = new JPanel(new BorderLayout());
+		c.add(label, "wrap");
+		c.add(new JScrollPane(list), "grow, wrap 2mm");
 		
-		listPanel.add(new JScrollPane(list), BorderLayout.CENTER);
+		c.add(new JButton(validateAction), "align center");
+		c.add(new AlphaButton(continueAction), "gap related");
+		c.add(new JButton(cancelAction), "gap 12mm");
 		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(new JButton(validateAction));
-		buttonBox.add(Box.createHorizontalStrut(10));
-		buttonBox.add(new AlphaButton(continueAction));
-		
-		buttonBox.add(Box.createHorizontalStrut(40));
-		buttonBox.add(new JButton(cancelAction));
-		buttonBox.add(Box.createHorizontalGlue());
-		
-		c.add(label, BorderLayout.NORTH);
-		c.add(listPanel, BorderLayout.CENTER);
-		c.add(buttonBox, BorderLayout.SOUTH);
-		
-		setLocation(TunedUtil.getPreferredLocation(this));
-		
-		setPreferredSize(new Dimension(365, 280));
-		pack();
+		setSize(365, 280);
 		
 		TunedUtil.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
@@ -126,6 +103,7 @@ public class ValidateNamesDialog extends JDialog {
 			continueAction.putValue(SMALL_ICON, getValue(SMALL_ICON));
 			continueAction.putValue(ContinueAction.ALPHA, 1.0f);
 			
+			// render list entries again to display changes
 			repaint();
 		}
 	};

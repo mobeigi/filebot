@@ -98,7 +98,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		@Override
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) throws Exception {
 			super.configureSelectDialog(selectDialog);
-			selectDialog.setText("Select a Show / Movie:");
+			selectDialog.getHeaderLabel().setText("Select a Show / Movie:");
 		}
 		
 	}

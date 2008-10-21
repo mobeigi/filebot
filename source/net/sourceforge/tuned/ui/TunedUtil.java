@@ -2,6 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -22,6 +23,9 @@ import javax.swing.Timer;
 
 
 public final class TunedUtil {
+	
+	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
+	
 	
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {

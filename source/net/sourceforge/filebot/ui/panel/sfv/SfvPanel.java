@@ -40,7 +40,7 @@ public class SfvPanel extends FileBotPanel {
 		
 		setLayout(new MigLayout("insets 0, nogrid, fill", "", "align bottom"));
 		
-		add(new JScrollPane(sfvTable), "grow, gap bottom 5px, wrap");
+		add(new JScrollPane(sfvTable), "grow, wrap 10px");
 		
 		add(new JButton(loadAction), "gap 15px, gap bottom 4px");
 		add(new JButton(saveAction), "gap rel, gap bottom 4px");
@@ -145,7 +145,7 @@ public class SfvPanel extends FileBotPanel {
 					}
 				};
 				
-				selectDialog.setText("Select checksum column:");
+				selectDialog.getHeaderLabel().setText("Select checksum column:");
 				selectDialog.setVisible(true);
 				
 				this.selectedColumn = selectDialog.getSelectedValue();

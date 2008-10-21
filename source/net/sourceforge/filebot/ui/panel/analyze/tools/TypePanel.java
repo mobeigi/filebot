@@ -33,6 +33,7 @@ public class TypePanel extends ToolPanel {
 	
 	public TypePanel() {
 		super("Types");
+		
 		setLayout(new BorderLayout());
 		
 		JScrollPane sp = new JScrollPane(tree);

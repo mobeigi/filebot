@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JList;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -19,6 +20,7 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
 import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
@@ -30,13 +32,17 @@ public class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 	
 	
 	public HighlightListCellRenderer(Pattern pattern, Highlighter.HighlightPainter highlightPainter, int padding) {
-		super(new Insets(padding, padding, padding, padding));
+		super(new Insets(0, 0, 0, 0));
 		
 		this.pattern = pattern;
 		this.highlightPainter = highlightPainter;
 		
-		textComponent.setBorder(null);
-		textComponent.setOpaque(false);
+		// pad the cell from inside the text component, 
+		// so the HighlightPainter may paint in this space as well
+		textComponent.setBorder(new EmptyBorder(padding, padding, padding, padding));
+		
+		// make text component transparent, should work for all LAFs (setOpaque(false) may not, e.g. Nimbus) 
+		textComponent.setBackground(TunedUtil.TRANSLUCENT);
 		
 		this.add(textComponent, BorderLayout.WEST);
 		
@@ -83,7 +89,7 @@ public class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 		
 		@Override
 		public void changedUpdate(DocumentEvent e) {
-			
+			updateHighlighter();
 		}
 		
 

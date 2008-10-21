@@ -17,6 +17,7 @@ public abstract class ToolPanel extends JPanel {
 	
 	
 	public ToolPanel(String name) {
+		super(null);
 		this.name = name;
 	}
 	

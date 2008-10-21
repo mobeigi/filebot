@@ -41,8 +41,6 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 	public SplitPanel() {
 		super("Split");
 		
-		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
-		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
@@ -51,6 +49,8 @@ public class SplitPanel extends ToolPanel implements ChangeListener {
 		
 		LoadingOverlayPane loadingOverlayPane = new LoadingOverlayPane(treeScrollPane, ResourceManager.getIcon("loading"));
 		loadingOverlayPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
+		
+		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
 		
 		add(loadingOverlayPane, "grow, wrap");
 		

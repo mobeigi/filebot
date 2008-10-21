@@ -309,7 +309,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				
 				SelectDialog<SearchResult> select = new SelectDialog<SearchResult>(window, searchResults);
 				
-				select.setText("Select a Show:");
+				select.getHeaderLabel().setText("Select a Show:");
 				
 				select.setIconImage(TunedUtil.getImage(episodeList.getIcon()));
 				select.setVisible(true);

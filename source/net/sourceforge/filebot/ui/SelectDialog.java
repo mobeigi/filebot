@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -11,19 +10,16 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
@@ -32,11 +28,11 @@ import net.sourceforge.tuned.ui.TunedUtil;
 
 public class SelectDialog<T> extends JDialog {
 	
-	private JLabel label = new JLabel();
+	private final JLabel headerLabel = new JLabel();
 	
-	private JList list = new JList();
+	private final JList list;
 	
-	private T selectedValue = null;
+	private boolean valueSelected = false;
 	
 	
 	public SelectDialog(Window owner, Collection<T> options) {
@@ -44,42 +40,29 @@ public class SelectDialog<T> extends JDialog {
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		list.setCellRenderer(new SelectListCellRenderer());
-		list.addMouseListener(mouseListener);
+		// initialize list and select first element
+		list = new JList(new ArrayListModel(options));
+		list.setSelectedIndex(0);
 		
-		setText("Select:");
+		DefaultFancyListCellRenderer cellRenderer = new DefaultFancyListCellRenderer(4);
+		cellRenderer.setHighlightingEnabled(false);
+		
+		list.setCellRenderer(cellRenderer);
+		list.addMouseListener(mouseListener);
 		
 		JComponent c = (JComponent) getContentPane();
 		
-		int border = 5;
-		c.setBorder(BorderFactory.createEmptyBorder(border, border, border, border));
-		c.setLayout(new BorderLayout(border, border));
+		c.setLayout(new MigLayout("insets 1.5mm, nogrid, fill"));
 		
-		JPanel listPanel = new JPanel(new BorderLayout());
+		c.add(headerLabel, "wrap");
+		c.add(new JScrollPane(list), "grow, wrap 2mm");
 		
-		listPanel.add(new JScrollPane(list), BorderLayout.CENTER);
+		c.add(new JButton(selectAction), "align center");
+		c.add(new JButton(cancelAction), "gap unrel, wrap 1.2mm");
 		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(new JButton(selectAction));
-		buttonBox.add(Box.createHorizontalStrut(10));
-		buttonBox.add(new JButton(cancelAction));
-		buttonBox.add(Box.createHorizontalGlue());
-		
-		c.add(label, BorderLayout.NORTH);
-		c.add(listPanel, BorderLayout.CENTER);
-		c.add(buttonBox, BorderLayout.SOUTH);
-		
-		// bounds and  location
-		setMinimumSize(new Dimension(175, 175));
-		setSize(new Dimension(200, 190));
+		// set default size and location
+		setSize(new Dimension(210, 210));
 		setLocation(TunedUtil.getPreferredLocation(this));
-		
-		// default selection
-		list.setModel(new ArrayListModel(options));
-		list.setSelectedIndex(0);
 		
 		// Shortcut Enter
 		TunedUtil.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
@@ -89,57 +72,43 @@ public class SelectDialog<T> extends JDialog {
 	}
 	
 
-	public void setText(String s) {
-		label.setText(s);
+	protected String convertValueToString(Object value) {
+		return value.toString();
 	}
 	
 
+	public JLabel getHeaderLabel() {
+		return headerLabel;
+	}
+	
+
+	@SuppressWarnings("unchecked")
 	public T getSelectedValue() {
-		return selectedValue;
+		if (!valueSelected)
+			return null;
+		
+		return (T) list.getSelectedValue();
 	}
 	
 
-	public void setSelectedValue(T value) {
-		this.selectedValue = value;
-		list.setSelectedValue(value, true);
+	public void close() {
+		setVisible(false);
+		dispose();
 	}
 	
 	private AbstractAction selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
-		@SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent e) {
-			selectedValue = (T) list.getSelectedValue();
-			setVisible(false);
-			dispose();
+			valueSelected = true;
+			close();
 		}
 	};
 	
 	private AbstractAction cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			selectedValue = null;
-			setVisible(false);
-			dispose();
-		}
-	};
-	
-	
-	protected String convertValueToString(Object value) {
-		return value.toString();
-	}
-	
-	
-	private class SelectListCellRenderer extends DefaultFancyListCellRenderer {
-		
-		public SelectListCellRenderer() {
-			super(4);
-			setHighlightingEnabled(false);
-		}
-		
-
-		@Override
-		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			super.configureListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
+			valueSelected = false;
+			close();
 		}
 	};
 	
@@ -147,8 +116,9 @@ public class SelectDialog<T> extends JDialog {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2))
+			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
 				selectAction.actionPerformed(null);
+			}
 		}
 	};
 }

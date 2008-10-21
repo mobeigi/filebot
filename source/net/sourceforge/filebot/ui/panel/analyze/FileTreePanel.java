@@ -2,18 +2,16 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
@@ -26,23 +24,16 @@ class FileTreePanel extends JPanel {
 	
 	
 	public FileTreePanel() {
-		super(new BorderLayout());
+		super(new MigLayout("insets 0, nogrid, fill", "align center"));
 		
 		setBorder(BorderFactory.createTitledBorder("File Tree"));
 		
-		Box buttons = Box.createHorizontalBox();
-		buttons.setBorder(new EmptyBorder(5, 5, 5, 5));
-		buttons.add(Box.createGlue());
-		buttons.add(new JButton(loadAction));
-		buttons.add(Box.createHorizontalStrut(5));
-		buttons.add(new JButton(clearAction));
-		buttons.add(Box.createGlue());
+		add(new LoadingOverlayPane(new JScrollPane(fileTree), ResourceManager.getIcon("loading")), "grow, wrap 1.2mm");
+		add(new JButton(loadAction));
+		add(new JButton(clearAction), "gap 1.2mm, wrap 1.2mm");
 		
 		// Shortcut DELETE
 		TunedUtil.putActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
-		
-		add(new LoadingOverlayPane(new JScrollPane(fileTree), ResourceManager.getIcon("loading")), BorderLayout.CENTER);
-		add(buttons, BorderLayout.SOUTH);
 	}
 	
 
