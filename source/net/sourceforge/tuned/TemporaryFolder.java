@@ -119,7 +119,7 @@ public final class TemporaryFolder {
 	}
 	
 
-	public TemporaryFolder createFolder(String name) {
+	public TemporaryFolder subFolder(String name) {
 		return new TemporaryFolder(new File(getFolder(), name));
 	}
 	
