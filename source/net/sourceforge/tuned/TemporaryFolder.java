@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public final class TemporaryFolder {
@@ -17,12 +18,21 @@ public final class TemporaryFolder {
 	private static final Map<String, TemporaryFolder> folders = new HashMap<String, TemporaryFolder>();
 	
 	
+	/**
+	 * Get a {@link TemporaryFolder} instance for a given name. The actual directory will be
+	 * created lazily (e.g. when a file is created). The directories name will start with the
+	 * given name and contain a unique id, so multiple application instances may run at the
+	 * same time without the risk of interference.
+	 * 
+	 * @param name case-insensitive name of a temporary folder (e.g. application name)
+	 * @return temporary folder for this name
+	 */
 	public static TemporaryFolder getFolder(String name) {
 		synchronized (folders) {
 			TemporaryFolder folder = folders.get(name.toLowerCase());
 			
 			if (folder == null) {
-				folder = new TemporaryFolder(new File(tmpdir, name));
+				folder = new TemporaryFolder(new File(tmpdir, String.format("%s [%s]", name, UUID.randomUUID())));
 				folders.put(name.toLowerCase(), folder);
 			}
 			
@@ -56,7 +66,7 @@ public final class TemporaryFolder {
 	
 
 	/**
-	 * Create an empty file in this temporary folder
+	 * Create an empty file in this temporary folder.
 	 * 
 	 * @param name name of the file
 	 * @return newly created file
@@ -64,11 +74,11 @@ public final class TemporaryFolder {
 	 */
 	public File createFile(String name) throws IOException {
 		
+		// if the directory does not exist it will be created
 		File file = new File(getFolder(), name);
 		file.createNewFile();
 		
 		return file;
-		
 	}
 	
 
@@ -95,13 +105,15 @@ public final class TemporaryFolder {
 	
 
 	/**
-	 * Retrieve the {@link File} object for this {@link TemporaryFolder}
+	 * Retrieve the {@link File} object for this {@link TemporaryFolder}. The actual directory
+	 * for the {@link TemporaryFolder} instance will be created by this method.
 	 * 
 	 * @return the {@link File} object for this {@link TemporaryFolder}
 	 */
 	public File getFolder() {
-		if (!root.exists())
+		if (!root.exists()) {
 			root.mkdirs();
+		}
 		
 		return root;
 	}

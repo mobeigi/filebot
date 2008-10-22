@@ -18,13 +18,15 @@ import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.panel.analyze.tools.SplitPanel;
 import net.sourceforge.filebot.ui.panel.analyze.tools.ToolPanel;
 import net.sourceforge.filebot.ui.panel.analyze.tools.TypePanel;
-import net.sourceforge.tuned.MessageBus;
+import net.sourceforge.tuned.MessageHandler;
 
 
 public class AnalyzePanel extends FileBotPanel {
 	
 	private final FileTreePanel fileTreePanel = new FileTreePanel();
 	private final JTabbedPane toolsPanel = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	
+	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, fileTreePanel.getFileTree().getTransferablePolicy());
 	
 	
 	public AnalyzePanel() {
@@ -41,8 +43,12 @@ public class AnalyzePanel extends FileBotPanel {
 		addTool(new SplitPanel());
 		
 		fileTreePanel.getFileTree().addPropertyChangeListener(FileTree.CONTENT_PROPERTY, fileTreeChangeListener);
-		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, fileTreePanel.getFileTree().getTransferablePolicy()));
+	}
+	
+
+	@Override
+	public MessageHandler getMessageHandler() {
+		return messageHandler;
 	}
 	
 

@@ -5,6 +5,8 @@ package net.sourceforge.filebot.ui;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 
+import net.sourceforge.tuned.MessageHandler;
+
 
 public class FileBotPanel extends JPanel {
 	
@@ -27,6 +29,11 @@ public class FileBotPanel extends JPanel {
 
 	public String getPanelName() {
 		return name;
+	}
+	
+
+	public MessageHandler getMessageHandler() {
+		return null;
 	}
 	
 }

@@ -52,10 +52,10 @@ public class LazyTextFileTransferable implements Transferable {
 
 	private FileTransferable createFileTransferable() throws IOException {
 		// remove invalid characters from file name
-		String filename = FileBotUtil.validateFileName(defaultFileName);
+		String validFileName = FileBotUtil.validateFileName(defaultFileName);
 		
-		// create new temporary file
-		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName().toLowerCase()).createFile(filename);
+		// create new temporary file in TEMP/APP_NAME [UUID]/dnd
+		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName().toLowerCase()).createFolder("dnd").createFile(validFileName);
 		
 		// write text to file
 		FileChannel fileChannel = new FileOutputStream(temporaryFile).getChannel();

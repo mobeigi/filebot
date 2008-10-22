@@ -36,23 +36,25 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 	
 	private JPanel pagePanel = new JPanel(new CardLayout());
 	
-	private FileBotPanelSelectionList selectionListPanel = new FileBotPanelSelectionList();
+	private FileBotPanelSelectionList panelSelectionList = new FileBotPanelSelectionList();
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
 	
 	public FileBotWindow() {
 		super(FileBotUtil.getApplicationName());
+		
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
+		// set taskbar / taskswitch icons
 		ArrayList<Image> icons = new ArrayList<Image>(2);
 		icons.add(ResourceManager.getImage("window.icon.small"));
 		icons.add(ResourceManager.getImage("window.icon.big"));
 		setIconImages(icons);
 		
-		selectionListPanel.getPanelModel().addAll(createPanels());
-		selectionListPanel.addListSelectionListener(this);
+		panelSelectionList.getPanelModel().addAll(createPanels());
+		panelSelectionList.addListSelectionListener(this);
 		
 		JComponent contentPane = createContentPane();
 		
@@ -63,14 +65,19 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		// restore the panel selection from last time,
 		// switch to EpisodeListPanel by default (e.g. first start)
 		int selectedPanel = Preferences.userNodeForPackage(getClass()).getInt("selectedPanel", 3);
-		selectionListPanel.setSelectedIndex(selectedPanel);
+		panelSelectionList.setSelectedIndex(selectedPanel);
 		
+		// connect message handlers to message bus
 		MessageBus.getDefault().addMessageHandler("panel", panelSelectMessageHandler);
+		
+		for (FileBotPanel panel : panelSelectionList.getPanelModel()) {
+			MessageBus.getDefault().addMessageHandler(panel.getPanelName(), panel.getMessageHandler());
+		}
 	}
 	
 
 	private List<FileBotPanel> createPanels() {
-		List<FileBotPanel> panels = new ArrayList<FileBotPanel>();
+		List<FileBotPanel> panels = new ArrayList<FileBotPanel>(6);
 		
 		panels.add(new ListPanel());
 		panels.add(new RenamePanel());
@@ -84,7 +91,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 	
 
 	public void valueChanged(ListSelectionEvent e) {
-		FileBotPanel currentPanel = (FileBotPanel) selectionListPanel.getSelectedValue();
+		FileBotPanel currentPanel = (FileBotPanel) panelSelectionList.getSelectedValue();
 		
 		headerPanel.setTitle(currentPanel.getPanelName());
 		CardLayout cardLayout = (CardLayout) pagePanel.getLayout();
@@ -95,7 +102,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		c.revalidate();
 		c.repaint();
 		
-		Preferences.userNodeForPackage(getClass()).putInt("selectedPanel", selectionListPanel.getSelectedIndex());
+		Preferences.userNodeForPackage(getClass()).putInt("selectedPanel", panelSelectionList.getSelectedIndex());
 	}
 	
 
@@ -106,7 +113,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		JPanel shadowBorderPanel = new JPanel(new BorderLayout());
 		shadowBorderPanel.setOpaque(false);
 		
-		JScrollPane selectListScrollPane = new JScrollPane(selectionListPanel);
+		JScrollPane selectListScrollPane = new JScrollPane(panelSelectionList);
 		selectListScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		selectListScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		shadowBorderPanel.add(selectListScrollPane, BorderLayout.CENTER);
@@ -130,7 +137,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		pageLayer.add(headerPanel, BorderLayout.NORTH);
 		pageLayer.add(pagePanel, BorderLayout.CENTER);
 		
-		for (FileBotPanel panel : selectionListPanel.getPanelModel()) {
+		for (FileBotPanel panel : panelSelectionList.getPanelModel()) {
 			pagePanel.add(panel, panel.getPanelName());
 		}
 		
@@ -161,7 +168,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 				
 				// switch to this panel
 				if (panel instanceof FileBotPanel)
-					selectionListPanel.setSelectedValue(panel, true);
+					panelSelectionList.setSelectedValue(panel, true);
 			}
 		}
 		

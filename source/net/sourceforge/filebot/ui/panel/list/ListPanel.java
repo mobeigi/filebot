@@ -27,7 +27,7 @@ import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.MessageBus;
+import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
@@ -40,6 +40,8 @@ public class ListPanel extends FileBotPanel {
 	private JTextField textField = new JTextField(String.format("Name - %s", INDEX_VARIABLE), 25);
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
 	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
+	
+	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, list.getTransferablePolicy());
 	
 	
 	public ListPanel() {
@@ -78,8 +80,12 @@ public class ListPanel extends FileBotPanel {
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
-		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, list.getTransferablePolicy()));
+	}
+	
+
+	@Override
+	public MessageHandler getMessageHandler() {
+		return messageHandler;
 	}
 	
 	private AbstractAction createAction = new AbstractAction("Create") {

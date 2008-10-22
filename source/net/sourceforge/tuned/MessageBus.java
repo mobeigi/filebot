@@ -23,6 +23,8 @@ public class MessageBus {
 	
 	
 	public synchronized void addMessageHandler(String topic, MessageHandler handler) {
+		if (handler == null)
+			return;
 		
 		List<MessageHandler> list = handlers.get(topic.toLowerCase());
 		
@@ -55,15 +57,24 @@ public class MessageBus {
 	
 
 	public void publish(final String topic, final Object... messages) {
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				for (MessageHandler handler : getHandlers(topic.toLowerCase())) {
-					handler.handle(topic.toLowerCase(), messages);
+		if (SwingUtilities.isEventDispatchThread()) {
+			publishDirect(topic, messages);
+		} else {
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					publishDirect(topic, messages);
 				}
-			}
-		});
+			});
+		}
+	}
+	
+
+	private void publishDirect(String topic, Object... messages) {
+		for (MessageHandler handler : getHandlers(topic.toLowerCase())) {
+			handler.handle(topic.toLowerCase(), messages);
+		}
 	}
 	
 }

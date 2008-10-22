@@ -22,15 +22,17 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.FileUtil;
-import net.sourceforge.tuned.MessageBus;
+import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class SfvPanel extends FileBotPanel {
 	
-	private SfvTable sfvTable = new SfvTable();
+	private final SfvTable sfvTable = new SfvTable();
 	
-	private TotalProgressPanel totalProgressPanel = new TotalProgressPanel(sfvTable.getChecksumComputationService());
+	private final TotalProgressPanel totalProgressPanel = new TotalProgressPanel(sfvTable.getChecksumComputationService());
+	
+	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, sfvTable.getTransferablePolicy());
 	
 	
 	public SfvPanel() {
@@ -50,8 +52,12 @@ public class SfvPanel extends FileBotPanel {
 		
 		// Shortcut DELETE
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
-		
-		MessageBus.getDefault().addMessageHandler(getPanelName(), new FileTransferableMessageHandler(this, sfvTable.getTransferablePolicy()));
+	}
+	
+
+	@Override
+	public MessageHandler getMessageHandler() {
+		return messageHandler;
 	}
 	
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
