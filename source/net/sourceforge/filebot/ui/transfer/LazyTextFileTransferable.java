@@ -55,12 +55,16 @@ public class LazyTextFileTransferable implements Transferable {
 		String validFileName = FileBotUtil.validateFileName(defaultFileName);
 		
 		// create new temporary file in TEMP/APP_NAME [UUID]/dnd
-		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName().toLowerCase()).subFolder("dnd").createFile(validFileName);
+		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName()).subFolder("dnd").createFile(validFileName);
 		
 		// write text to file
 		FileChannel fileChannel = new FileOutputStream(temporaryFile).getChannel();
-		fileChannel.write(Charset.forName("UTF-8").encode(text));
-		fileChannel.close();
+		
+		try {
+			fileChannel.write(Charset.forName("UTF-8").encode(text));
+		} finally {
+			fileChannel.close();
+		}
 		
 		return new FileTransferable(temporaryFile);
 	}

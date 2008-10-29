@@ -20,20 +20,23 @@ public final class TemporaryFolder {
 	
 	/**
 	 * Get a {@link TemporaryFolder} instance for a given name. The actual directory will be
-	 * created lazily (e.g. when a file is created). The directories name will start with the
-	 * given name and contain a unique id, so multiple application instances may run at the
-	 * same time without the risk of interference.
+	 * created lazily (e.g. when a file is created). The name of the directory will start with
+	 * the given name (lower-case) and contain a unique id, so multiple application instances
+	 * may run at the same time without the risk of interference.
 	 * 
 	 * @param name case-insensitive name of a temporary folder (e.g. application name)
 	 * @return temporary folder for this name
 	 */
 	public static TemporaryFolder getFolder(String name) {
+		// make name case-insensitive
+		name = name.toLowerCase();
+		
 		synchronized (folders) {
-			TemporaryFolder folder = folders.get(name.toLowerCase());
+			TemporaryFolder folder = folders.get(name);
 			
 			if (folder == null) {
 				folder = new TemporaryFolder(new File(tmpdir, String.format("%s [%s]", name, UUID.randomUUID())));
-				folders.put(name.toLowerCase(), folder);
+				folders.put(name, folder);
 			}
 			
 			return folder;

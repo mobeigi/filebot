@@ -28,6 +28,8 @@ public final class FileBotUtil {
 	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
 	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
+	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("[(\\[](\\p{XDigit}{8})[\\])]");
+	
 	
 	/**
 	 * Strip filename of invalid characters

@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import java.awt.Component;
+import java.util.regex.Pattern;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -13,12 +14,12 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 	
-	private final String pattern;
+	private final Pattern pattern;
 	private final String cssColor;
 	private final String cssFontSize;
 	
 	
-	public HighlightPatternCellRenderer(String pattern, String cssColor, String cssFontSize) {
+	public HighlightPatternCellRenderer(Pattern pattern, String cssColor, String cssFontSize) {
 		this.pattern = pattern;
 		this.cssColor = cssColor;
 		this.cssFontSize = cssFontSize;
@@ -31,7 +32,7 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		
 		// highlight CRC32 checksum patterns by using a smaller font-size and changing the font-color to a dark green
 		// do not change the font-color if cell is selected, because that would look ugly (imagine green text on blue background ...)
-		String htmlText = value.toString().replaceAll(pattern, "[<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$1</span>]");
+		String htmlText = pattern.matcher(value.toString()).replaceAll("[<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$1</span>]");
 		
 		// use no-break, because we really don't want line-wrapping in our table cells
 		setText("<html><nobr>" + htmlText + "</nobr></html>");

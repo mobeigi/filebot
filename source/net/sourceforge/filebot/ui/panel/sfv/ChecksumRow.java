@@ -7,7 +7,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import net.sourceforge.filebot.FileBotUtil;
 
 
 public class ChecksumRow {
@@ -50,7 +51,7 @@ public class ChecksumRow {
 	 */
 	private static Long getEmbeddedChecksum(String name) {
 		// look for a checksum pattern like [49A93C5F]		
-		Matcher matcher = Pattern.compile("\\[(\\p{XDigit}{8})\\]").matcher(name);
+		Matcher matcher = FileBotUtil.EMBEDDED_CHECKSUM_PATTERN.matcher(name);
 		
 		if (matcher.find())
 			return Long.parseLong(matcher.group(1), 16);
