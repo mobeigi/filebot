@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import java.awt.Component;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JTable;
@@ -32,10 +33,20 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		
 		// highlight CRC32 checksum patterns by using a smaller font-size and changing the font-color to a dark green
 		// do not change the font-color if cell is selected, because that would look ugly (imagine green text on blue background ...)
-		String htmlText = pattern.matcher(value.toString()).replaceAll("[<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$1</span>]");
+		Matcher matcher = pattern.matcher(value.toString());
 		
 		// use no-break, because we really don't want line-wrapping in our table cells
-		setText("<html><nobr>" + htmlText + "</nobr></html>");
+		StringBuffer htmlText = new StringBuffer("<html><nobr>");
+		
+		while (matcher.find()) {
+			matcher.appendReplacement(htmlText, "<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$1</span>");
+		}
+		
+		matcher.appendTail(htmlText);
+		
+		htmlText.append("</nobr></html>");
+		
+		setText(htmlText.toString());
 		
 		return this;
 	}

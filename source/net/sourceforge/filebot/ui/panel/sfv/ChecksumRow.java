@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.regex.Matcher;
 
 import net.sourceforge.filebot.FileBotUtil;
 
@@ -50,13 +49,13 @@ public class ChecksumRow {
 	 * @return the checksum or null, if parameter did not contain a checksum
 	 */
 	private static Long getEmbeddedChecksum(String name) {
-		// look for a checksum pattern like [49A93C5F]		
-		Matcher matcher = FileBotUtil.EMBEDDED_CHECKSUM_PATTERN.matcher(name);
+		// look for a checksum pattern like [49A93C5F]
+		String match = FileBotUtil.getEmbeddedChecksum(name);
 		
-		if (matcher.find())
-			return Long.parseLong(matcher.group(1), 16);
-		else
-			return null;
+		if (match != null)
+			return Long.parseLong(match, 16);
+		
+		return null;
 	}
 	
 

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.tuned.FileUtil;
@@ -28,8 +29,6 @@ public final class FileBotUtil {
 	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
 	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
-	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("[(\\[](\\p{XDigit}{8})[\\])]");
-	
 	
 	/**
 	 * Strip filename of invalid characters
@@ -45,6 +44,26 @@ public final class FileBotUtil {
 
 	public static boolean isInvalidFileName(String filename) {
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
+	}
+	
+	/**
+	 * A {@link Pattern} that will match checksums enclosed in brackets ("[]" or "()"). A
+	 * checksum string is a hex number with at least 8 digits. Capturing group 1 will contain
+	 * the matched checksum string.
+	 */
+	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8,})(?=\\]|\\))");
+	
+	
+	public static String getEmbeddedChecksum(String string) {
+		Matcher matcher = FileBotUtil.EMBEDDED_CHECKSUM_PATTERN.matcher(string);
+		String embeddedChecksum = null;
+		
+		// get last match
+		while (matcher.find()) {
+			embeddedChecksum = matcher.group(1);
+		}
+		
+		return embeddedChecksum;
 	}
 	
 	private static final String[] TORRENT_FILE_EXTENSIONS = { "torrent" };
