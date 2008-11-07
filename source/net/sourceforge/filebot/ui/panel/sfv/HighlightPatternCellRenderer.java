@@ -39,7 +39,7 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		StringBuffer htmlText = new StringBuffer("<html><nobr>");
 		
 		while (matcher.find()) {
-			matcher.appendReplacement(htmlText, "<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$1</span>");
+			matcher.appendReplacement(htmlText, "<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$0</span>");
 		}
 		
 		matcher.appendTail(htmlText);

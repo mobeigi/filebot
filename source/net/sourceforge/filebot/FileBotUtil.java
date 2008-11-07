@@ -48,7 +48,7 @@ public final class FileBotUtil {
 	
 	/**
 	 * A {@link Pattern} that will match checksums enclosed in brackets ("[]" or "()"). A
-	 * checksum string is a hex number with at least 8 digits. Capturing group 1 will contain
+	 * checksum string is a hex number with at least 8 digits. Capturing group 0 will contain
 	 * the matched checksum string.
 	 */
 	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8,})(?=\\]|\\))");
@@ -60,7 +60,7 @@ public final class FileBotUtil {
 		
 		// get last match
 		while (matcher.find()) {
-			embeddedChecksum = matcher.group(1);
+			embeddedChecksum = matcher.group(0);
 		}
 		
 		return embeddedChecksum;
