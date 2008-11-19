@@ -2,19 +2,18 @@
 package net.sourceforge.tuned;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -36,38 +35,29 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		DONE
 	}
 	
-	private static final int BUFFER_SIZE = 4 * 1024;
-	
 	private URL url;
-	private ByteBuffer postdata;
 	
 	private long size = -1;
 	private long bytesRead = 0;
 	private DownloadState state = DownloadState.PENDING;
 	
-	private final Map<String, String> requestHeaders = new HashMap<String, String>();
-	private final Map<String, String> responseHeaders = new HashMap<String, String>();
+	private Map<String, String> postParameters;
+	private Map<String, String> requestHeaders;
+	private Map<String, List<String>> responseHeaders;
 	
 	
 	public DownloadTask(URL url) {
-		this(url, null);
-	}
-	
-
-	public DownloadTask(URL url, Map<String, String> postParameters) {
 		this.url = url;
-		
-		if (postParameters != null) {
-			this.postdata = encodeParameters(postParameters);
-		}
 	}
 	
 
 	protected HttpURLConnection createConnection() throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		
-		for (String key : requestHeaders.keySet()) {
-			connection.addRequestProperty(key, requestHeaders.get(key));
+		if (requestHeaders != null) {
+			for (Entry<String, String> entry : requestHeaders.entrySet()) {
+				connection.addRequestProperty(entry.getKey(), entry.getValue());
+			}
 		}
 		
 		return connection;
@@ -80,33 +70,28 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		
 		HttpURLConnection connection = createConnection();
 		
-		if (postdata != null) {
+		if (postParameters != null) {
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
 			WritableByteChannel out = Channels.newChannel(connection.getOutputStream());
-			out.write(postdata);
+			out.write(encodeParameters(postParameters));
 			out.close();
 		}
 		
 		size = connection.getContentLength();
 		
-		for (String key : connection.getHeaderFields().keySet()) {
-			responseHeaders.put(key, connection.getHeaderField(key));
-		}
+		responseHeaders = connection.getHeaderFields();
 		
 		setDownloadState(DownloadState.DOWNLOADING);
 		
-		InputStream in = connection.getInputStream();
-		ByteArrayOutputStream out = new ByteArrayOutputStream(Math.max((int) size, BUFFER_SIZE));
+		ReadableByteChannel in = Channels.newChannel(connection.getInputStream());
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) (size > 0 ? size : 32 * 1024));
 		
-		byte[] buffer = new byte[BUFFER_SIZE];
-		int len = 0;
+		int count = 0;
 		
 		try {
-			while (((len = in.read(buffer)) >= 0) && !isCancelled()) {
-				out.write(buffer, 0, len);
-				
-				bytesRead += len;
+			while (!isCancelled() && ((count = buffer.transferFrom(in)) >= 0)) {
+				bytesRead += count;
 				
 				firePropertyChange(DOWNLOAD_PROGRESS, null, bytesRead);
 				
@@ -116,17 +101,19 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 			}
 		} catch (IOException e) {
 			// IOException (Premature EOF) is always thrown when the size of 
-			// the response body is not known in advance, so we ignore it
+			// the response body is not known in advance, so we ignore it, if that is the case
 			if (isDownloadSizeKnown())
 				throw e;
 			
 		} finally {
 			in.close();
-			out.close();
+			buffer.close();
+			
+			// download either finished or an exception is thrown
+			setDownloadState(DownloadState.DONE);
 		}
 		
-		setDownloadState(DownloadState.DONE);
-		return ByteBuffer.wrap(out.toByteArray());
+		return buffer.getByteBuffer();
 	}
 	
 
@@ -161,13 +148,28 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	}
 	
 
-	public void setRequestHeader(String name, String value) {
-		requestHeaders.put(name, value);
+	public void setRequestHeaders(Map<String, String> requestHeaders) {
+		this.requestHeaders = new HashMap<String, String>(requestHeaders);
 	}
 	
 
-	public Map<String, String> getResponseHeaders() {
-		return Collections.unmodifiableMap(responseHeaders);
+	public void setPostParameters(Map<String, String> postParameters) {
+		this.postParameters = new HashMap<String, String>(postParameters);
+	}
+	
+
+	public Map<String, List<String>> getResponseHeaders() {
+		return responseHeaders;
+	}
+	
+
+	public Map<String, String> getPostParameters() {
+		return postParameters;
+	}
+	
+
+	public Map<String, String> getRequestHeaders() {
+		return requestHeaders;
 	}
 	
 
