@@ -21,7 +21,7 @@ public class NumericSimilarityMetric extends AbstractNameSimilarityMetric {
 	
 	public NumericSimilarityMetric() {
 		// I have absolutely no clue as to why, but I get a good matching behavior  
-		// when using my NumberTokensier with EuclideanDistance
+		// when using a numeric tokensier with EuclideanDistance
 		metric = new EuclideanDistance(new NumberTokeniser());
 	}
 	

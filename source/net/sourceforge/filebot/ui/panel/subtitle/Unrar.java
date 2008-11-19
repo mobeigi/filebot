@@ -80,6 +80,7 @@ public class Unrar {
 				
 				throw new FileNotFoundException("External program not found");
 			} else {
+				// linux, bsd, mac, ...
 				String command = "unrar";
 				
 				// will throw an exception if command cannot be executed
@@ -119,8 +120,8 @@ public class Unrar {
 			
 			Process process = builder.start();
 			
-			// make sure process is non-interactive
-			// e.g. if input stream is not closed 7z.exe sometimes doesn't exit 
+			// if output stream is open, but not read, the subprocess may block due to limited buffer size,
+			// so we close all streams just in case
 			process.getInputStream().close();
 			process.getOutputStream().close();
 			process.getErrorStream().close();

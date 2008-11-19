@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URL;
+import java.util.Collections;
 
 import net.sourceforge.tuned.DownloadTask;
 
@@ -50,7 +51,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	@Override
 	public DownloadTask createDownloadTask() {
 		DownloadTask downloadTask = new DownloadTask(downloadUrl);
-		downloadTask.setRequestHeader("Referer", referer.toString());
+		downloadTask.setRequestHeaders(Collections.singletonMap("Referer", referer.toString()));
 		
 		return downloadTask;
 	}
