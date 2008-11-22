@@ -92,4 +92,14 @@ public class ByteBufferOutputStream extends OutputStream {
 		return channel.read(buffer);
 	}
 	
+
+	public synchronized int position() {
+		return buffer.position();
+	}
+	
+
+	public synchronized int capacity() {
+		return buffer.capacity();
+	}
+	
 }

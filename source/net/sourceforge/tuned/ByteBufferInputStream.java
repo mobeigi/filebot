@@ -13,7 +13,7 @@ public class ByteBufferInputStream extends InputStream {
 	
 	
 	public ByteBufferInputStream(ByteBuffer buffer) {
-		this.buffer = buffer;
+		this.buffer = buffer.duplicate();
 	}
 	
 

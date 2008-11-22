@@ -11,7 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { PreferencesMapTest.class, PreferencesListTest.class })
+@SuiteClasses( { ByteBufferOutputStreamTest.class, PreferencesMapTest.class, PreferencesListTest.class })
 public class TunedTestSuite {
 	
 	public static Test suite() {

@@ -37,8 +37,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	
 	private URL url;
 	
-	private long size = -1;
-	private long bytesRead = 0;
+	private long contentLength = -1;
 	private DownloadState state = DownloadState.PENDING;
 	
 	private Map<String, String> postParameters;
@@ -71,43 +70,47 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		HttpURLConnection connection = createConnection();
 		
 		if (postParameters != null) {
+			ByteBuffer postData = encodeParameters(postParameters);
+			
+			// add content type and content length headers
+			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			connection.addRequestProperty("Content-Length", String.valueOf(postData.remaining()));
+			
 			connection.setRequestMethod("POST");
 			connection.setDoOutput(true);
+			
+			// write post data
 			WritableByteChannel out = Channels.newChannel(connection.getOutputStream());
-			out.write(encodeParameters(postParameters));
+			out.write(postData);
 			out.close();
 		}
 		
-		size = connection.getContentLength();
+		contentLength = connection.getContentLength();
 		
 		responseHeaders = connection.getHeaderFields();
 		
 		setDownloadState(DownloadState.DOWNLOADING);
 		
 		ReadableByteChannel in = Channels.newChannel(connection.getInputStream());
-		ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) (size > 0 ? size : 32 * 1024));
-		
-		int count = 0;
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) (contentLength > 0 ? contentLength : 32 * 1024));
 		
 		try {
-			while (!isCancelled() && ((count = buffer.transferFrom(in)) >= 0)) {
-				bytesRead += count;
+			while (!isCancelled() && ((buffer.transferFrom(in)) >= 0)) {
 				
-				firePropertyChange(DOWNLOAD_PROGRESS, null, bytesRead);
+				firePropertyChange(DOWNLOAD_PROGRESS, null, buffer.position());
 				
-				if (isDownloadSizeKnown()) {
-					setProgress((int) ((bytesRead * 100) / size));
+				if (isContentLengthKnown()) {
+					setProgress((int) ((buffer.position() * 100) / contentLength));
 				}
 			}
 		} catch (IOException e) {
-			// IOException (Premature EOF) is always thrown when the size of 
-			// the response body is not known in advance, so we ignore it, if that is the case
-			if (isDownloadSizeKnown())
+			// if the content length is not known in advance an IOException (Premature EOF) 
+			// is always thrown after all the data has been read
+			if (isContentLengthKnown())
 				throw e;
 			
 		} finally {
 			in.close();
-			buffer.close();
 			
 			// download either finished or an exception is thrown
 			setDownloadState(DownloadState.DONE);
@@ -133,18 +136,13 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	}
 	
 
-	public long getBytesRead() {
-		return bytesRead;
+	public boolean isContentLengthKnown() {
+		return contentLength >= 0;
 	}
 	
 
-	public boolean isDownloadSizeKnown() {
-		return size >= 0;
-	}
-	
-
-	public long getDownloadSize() {
-		return size;
+	public long getContentLength() {
+		return contentLength;
 	}
 	
 
@@ -173,13 +171,11 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	}
 	
 
-	protected static ByteBuffer encodeParameters(Map<String, String> parameters) {
+	protected ByteBuffer encodeParameters(Map<String, String> parameters) {
 		StringBuilder sb = new StringBuilder();
 		
-		int i = 0;
-		
 		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (i > 0)
+			if (sb.length() > 0)
 				sb.append("&");
 			
 			sb.append(entry.getKey());
@@ -191,8 +187,6 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 				// will never happen
 				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
 			}
-			
-			i++;
 		}
 		
 		return Charset.forName("UTF-8").encode(sb.toString());
