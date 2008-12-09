@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -18,7 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -67,7 +67,7 @@ public class TVDotComClient implements EpisodeListClient {
 			String href = XPathUtil.selectString("@href", node);
 			
 			try {
-				URL episodeListingUrl = new URL(href.replaceFirst(Pattern.quote("summary.html?") + ".*", "episode_listings.html"));
+				URL episodeListingUrl = new URL(href.replaceFirst("summary.html\\?.*", "episode_listings.html"));
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
 			} catch (Exception e) {
@@ -85,7 +85,16 @@ public class TVDotComClient implements EpisodeListClient {
 		// get document for season 1
 		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, 1));
 		
-		int seasonCount = XPathUtil.selectInteger("count(id('eps_table')//SELECT[@name='season']/OPTION[text() != 'All Seasons'])", dom);
+		// seasons are ordered in reverse, first element is latest season
+		String latestSeasonString = XPathUtil.selectString("id('eps_table')//*[starts-with(text(),'Season:')]/*[1]/text()", dom);
+		
+		if (latestSeasonString.isEmpty()) {
+			// assume single season series
+			latestSeasonString = "1";
+		}
+		
+		// strip unexpected characters from season string (e.g. "7...");
+		int seasonCount = Integer.valueOf(latestSeasonString.replaceAll("\\D+", ""));
 		
 		// we're going to fetch the episode list for each season on multiple threads
 		List<Future<List<Episode>>> futures = new ArrayList<Future<List<Episode>>>(seasonCount);
@@ -129,6 +138,9 @@ public class TVDotComClient implements EpisodeListClient {
 	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
 		
 		List<Node> nodes = XPathUtil.selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
+		
+		// episodes are ordered in reverse ... we definitely don't want that!
+		Collections.reverse(nodes);
 		
 		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
 		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
