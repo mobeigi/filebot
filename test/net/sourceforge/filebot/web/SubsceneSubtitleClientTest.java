@@ -59,7 +59,7 @@ public class SubsceneSubtitleClientTest {
 		
 		assertEquals("Firefly - The Complete Series", result.getName());
 		assertEquals("http://subscene.com/Firefly-The-Complete-Series/subtitles-20008.aspx", result.getURL().toString());
-		assertEquals(15, result.getSubtitleCount());
+		assertEquals(16, result.getSubtitleCount());
 	}
 	
 
