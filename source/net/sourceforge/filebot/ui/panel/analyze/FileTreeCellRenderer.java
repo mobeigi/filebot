@@ -1,22 +1,22 @@
 
-package net.sourceforge.filebot.ui;
+package net.sourceforge.filebot.ui.panel.analyze;
 
 
 import java.awt.Component;
-import java.io.File;
 
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.FancyTreeCellRenderer;
 import net.sourceforge.tuned.ui.GradientStyle;
 
 
-public class FileBotTreeCellRenderer extends FancyTreeCellRenderer {
+public class FileTreeCellRenderer extends FancyTreeCellRenderer {
 	
-	public FileBotTreeCellRenderer() {
+	public FileTreeCellRenderer() {
 		super(GradientStyle.TOP_TO_BOTTOM);
+		
 		openIcon = ResourceManager.getIcon("tree.open");
 		closedIcon = ResourceManager.getIcon("tree.closed");
 		leafIcon = ResourceManager.getIcon("tree.leaf");
@@ -25,23 +25,22 @@ public class FileBotTreeCellRenderer extends FancyTreeCellRenderer {
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-		if (leaf && isFolder(value))
-			super.getTreeCellRendererComponent(tree, value, sel, true, false, row, hasFocus);
-		else
-			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+		if (leaf && isFolder(value)) {
+			// make leafs that are empty folders look like expanded nodes
+			expanded = true;
+			leaf = false;
+		}
+		
+		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		
 		return this;
 	}
 	
 
 	private boolean isFolder(Object value) {
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-		Object object = node.getUserObject();
-		
-		if (object instanceof File)
-			return ((File) object).isDirectory();
+		if (((TreeNode) value).getAllowsChildren())
+			return true;
 		
 		return false;
 	}
-	
 }

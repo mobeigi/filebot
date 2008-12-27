@@ -5,73 +5,64 @@ package net.sourceforge.tuned.ui;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.geom.Arc2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Calendar;
 
-import javax.swing.BoundedRangeModel;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
+import javax.swing.Timer;
 
 
-public class ProgressIndicator extends JPanel {
+public class ProgressIndicator extends JComponent {
 	
-	private BoundedRangeModel model = null;
+	private float radius = 4.0f;
+	private int shapeCount = 3;
 	
-	private boolean indeterminate = false;
+	private float strokeWidth = 2f;
+	private Stroke stroke = new BasicStroke(strokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 	
-	private float indeterminateRadius = 4.0f;
-	private int indeterminateShapeCount = 1;
-	
-	private float progressStrokeWidth = 4.5f;
-	private float remainingStrokeWidth = 2f;
-	
-	private Stroke progressStroke = new BasicStroke(progressStrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-	private Stroke remainingStroke = new BasicStroke(remainingStrokeWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-	
-	private Color progressColor = Color.orange;
-	private Color remainingColor = new Color(0f, 0f, 0f, 0.25f);
-	
-	private Color textColor = new Color(0x5F5F5F);
-	
-	private boolean paintText = true;
-	private boolean paintBackground = false;
+	private Color progressShapeColor = Color.orange;
+	private Color backgroundShapeColor = new Color(0f, 0f, 0f, 0.25f);
 	
 	private final Rectangle2D frame = new Rectangle2D.Double();
-	private final Arc2D arc = new Arc2D.Double();
 	private final Ellipse2D circle = new Ellipse2D.Double();
 	
 	private final Dimension baseSize = new Dimension(32, 32);
 	
+	private Timer updateTimer = new Timer(20, new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			repaint();
+		}
+	});;
+	
 	
 	public ProgressIndicator() {
-		this(null);
-	}
-	
+		setPreferredSize(baseSize);
+		
+		addComponentListener(new ComponentAdapter() {
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				stopAnimation();
+			}
+			
 
-	public ProgressIndicator(BoundedRangeModel model) {
-		this.model = model;
-		
-		indeterminate = (model == null);
-		
-		setFont(new Font(Font.DIALOG, Font.BOLD, 8));
-	}
-	
-
-	public double getProgress() {
-		if (model == null)
-			return 0;
-		
-		double total = model.getMaximum() - model.getMinimum();
-		double current = model.getValue() - model.getMinimum();
-		
-		return current / total;
+			@Override
+			public void componentShown(ComponentEvent e) {
+				startAnimation();
+			}
+		});
 	}
 	
 
@@ -85,85 +76,38 @@ public class ProgressIndicator extends JPanel {
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		if (paintBackground) {
-			frame.setFrame(0, 0, baseSize.width, baseSize.height);
-			
-			g2d.setPaint(getBackground());
-			circle.setFrame(frame);
-			g2d.fill(circle);
-		}
+		frame.setFrame(radius, radius, baseSize.width - radius * 2 - 1, baseSize.height - radius * 2 - 1);
 		
-		double inset = Math.max(Math.max(remainingStrokeWidth, progressStrokeWidth), indeterminateRadius);
-		frame.setFrame(inset, inset, baseSize.width - inset * 2 - 1, baseSize.height - inset * 2 - 1);
-		
-		if (!indeterminate) {
-			paintProgress(g2d);
-		} else {
-			paintIndeterminate(g2d);
-		}
+		paintShapes(g2d);
 	}
 	
 
-	protected void paintProgress(Graphics2D g2d) {
-		
-		double progress = getProgress();
-		
-		// remaining circle
+	protected void paintShapes(Graphics2D g2d) {
 		circle.setFrame(frame);
 		
-		g2d.setStroke(remainingStroke);
-		g2d.setPaint(remainingColor);
-		
-		g2d.draw(circle);
-		
-		// progress circle
-		arc.setArc(frame, 90, progress * 360 * -1, Arc2D.OPEN);
-		
-		g2d.setStroke(progressStroke);
-		g2d.setPaint(progressColor);
-		
-		g2d.draw(arc);
-		
-		if (paintText) {
-			// text
-			g2d.setFont(getFont());
-			g2d.setPaint(textColor);
-			
-			String text = String.format("%d%%", (int) (100 * progress));
-			Rectangle2D textBounds = g2d.getFontMetrics().getStringBounds(text, g2d);
-			
-			g2d.drawString(text, (float) (frame.getCenterX() - textBounds.getX() - (textBounds.getWidth() / 2f) + 0.5f), (float) (frame.getCenterY() - textBounds.getY() - (textBounds.getHeight() / 2)));
-		}
-	}
-	
-
-	protected void paintIndeterminate(Graphics2D g2d) {
-		circle.setFrame(frame);
-		
-		g2d.setStroke(remainingStroke);
-		g2d.setPaint(remainingColor);
+		g2d.setStroke(stroke);
+		g2d.setPaint(backgroundShapeColor);
 		
 		g2d.draw(circle);
 		
 		Point2D center = new Point2D.Double(frame.getCenterX(), frame.getMinY());
 		
-		circle.setFrameFromCenter(center, new Point2D.Double(center.getX() + indeterminateRadius, center.getY() + indeterminateRadius));
+		circle.setFrameFromCenter(center, new Point2D.Double(center.getX() + radius, center.getY() + radius));
 		
-		g2d.setStroke(progressStroke);
-		g2d.setPaint(progressColor);
+		g2d.setStroke(stroke);
+		g2d.setPaint(progressShapeColor);
 		
 		Calendar now = Calendar.getInstance();
 		
 		double theta = getTheta(now.get(Calendar.MILLISECOND), now.getMaximum(Calendar.MILLISECOND));
 		g2d.rotate(theta, frame.getCenterX(), frame.getCenterY());
 		
-		theta = getTheta(1, indeterminateShapeCount);
+		theta = getTheta(1, shapeCount);
 		
-		for (int i = 0; i < indeterminateShapeCount; i++) {
+		for (int i = 0; i < shapeCount; i++) {
 			g2d.rotate(theta, frame.getCenterX(), frame.getCenterY());
 			g2d.fill(circle);
 		}
-		
 	}
 	
 
@@ -172,58 +116,18 @@ public class ProgressIndicator extends JPanel {
 	}
 	
 
-	public BoundedRangeModel getModel() {
-		return model;
+	public void startAnimation() {
+		updateTimer.restart();
 	}
 	
 
-	public void setModel(BoundedRangeModel model) {
-		this.model = model;
+	public void stopAnimation() {
+		updateTimer.stop();
 	}
 	
 
-	public boolean isIndeterminate() {
-		return indeterminate;
-	}
-	
-
-	public void setIndeterminate(boolean indeterminate) {
-		this.indeterminate = indeterminate;
-	}
-	
-
-	public void setIndeterminateRadius(float indeterminateRadius) {
-		this.indeterminateRadius = indeterminateRadius;
-	}
-	
-
-	public void setIndeterminateShapeCount(int indeterminateShapeCount) {
-		this.indeterminateShapeCount = indeterminateShapeCount;
-	}
-	
-
-	public void setProgressColor(Color progressColor) {
-		this.progressColor = progressColor;
-	}
-	
-
-	public void setRemainingColor(Color remainingColor) {
-		this.remainingColor = remainingColor;
-	}
-	
-
-	public void setTextColor(Color textColor) {
-		this.textColor = textColor;
-	}
-	
-
-	public void setPaintBackground(boolean paintBackground) {
-		this.paintBackground = paintBackground;
-	}
-	
-
-	public void setPaintText(boolean paintString) {
-		this.paintText = paintString;
+	public void setShapeCount(int indeterminateShapeCount) {
+		this.shapeCount = indeterminateShapeCount;
 	}
 	
 }

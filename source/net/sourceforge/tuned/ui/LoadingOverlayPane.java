@@ -2,20 +2,15 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.OverlayLayout;
+
+import net.miginfocom.swing.MigLayout;
 
 
-public class LoadingOverlayPane extends JPanel {
+public class LoadingOverlayPane extends JComponent {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
@@ -26,53 +21,27 @@ public class LoadingOverlayPane extends JPanel {
 	private int millisToOverlay = 500;
 	
 	
-	public LoadingOverlayPane(JComponent component, Icon animation) {
-		this(component, new JLabel(""), getView(component));
+	public LoadingOverlayPane(JComponent component, JComponent propertyChangeSource) {
+		this(component, new ProgressIndicator(), propertyChangeSource);
 	}
 	
 
-	public LoadingOverlayPane(JComponent component, JComponent animation) {
-		this(component, animation, getView(component));
-	}
-	
-
-	public LoadingOverlayPane(JComponent component, JComponent animation, JComponent view) {
-		setLayout(new OverlayLayout(this));
+	public LoadingOverlayPane(JComponent component, JComponent animationComponent, JComponent propertyChangeSource) {
+		setLayout(new MigLayout("fill, insets 0"));
+		this.animationComponent = animationComponent;
 		
-		this.animationComponent = animation;
+		add(animationComponent, "pos visual.x2-pref-18px 8px");
+		add(component, "grow");
 		
-		component.setAlignmentX(1.0f);
-		component.setAlignmentY(0.0f);
+		animationComponent.setVisible(false);
 		
-		animation.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 20));
-		
-		animation.setAlignmentX(1.0f);
-		animation.setAlignmentY(0.0f);
-		animationComponent.setPreferredSize(new Dimension(48, 48));
-		animationComponent.setMaximumSize(animationComponent.getPreferredSize());
-		
-		add(animation);
-		add(component);
-		
-		setOverlayVisible(true);
-		
-		view.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
+		propertyChangeSource.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
 	}
 	
 
 	@Override
 	public boolean isOptimizedDrawingEnabled() {
 		return false;
-	}
-	
-
-	private static JComponent getView(JComponent component) {
-		if (component instanceof JScrollPane) {
-			JScrollPane scrollPane = (JScrollPane) component;
-			return (JComponent) scrollPane.getViewport().getView();
-		}
-		
-		return component;
 	}
 	
 

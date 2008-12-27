@@ -23,6 +23,12 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
+	protected boolean accept(List<File> files) {
+		return true;
+	}
+	
+
+	@Override
 	protected void clear() {
 		model.clear();
 	}
@@ -32,17 +38,18 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	protected void load(List<File> files) {
 		if (FileBotUtil.containsOnlyFolders(files)) {
 			for (File folder : files) {
-				super.load(Arrays.asList(folder.listFiles()));
+				loadFiles(Arrays.asList(folder.listFiles()));
 			}
 		} else {
-			super.load(files);
+			loadFiles(files);
 		}
 	}
 	
 
-	@Override
-	protected void load(File file) {
-		model.add(new FileEntry(file));
+	protected void loadFiles(List<File> files) {
+		for (File file : files) {
+			model.add(new FileEntry(file));
+		}
 	}
 	
 

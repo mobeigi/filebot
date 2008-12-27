@@ -5,14 +5,14 @@ package net.sourceforge.filebot.ui.panel.analyze;
 import java.io.File;
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-
-import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.ui.panel.analyze.FileTree.AbstractTreeNode;
+import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
+import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.sourceforge.tuned.FileUtil;
 
 
-class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<DefaultMutableTreeNode> {
+class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {
 	
 	private final FileTree tree;
 	
@@ -23,54 +23,70 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Defaul
 	
 
 	@Override
+	protected boolean accept(List<File> files) {
+		return true;
+	}
+	
+
+	@Override
 	protected void clear() {
 		tree.clear();
 	}
 	
 
 	@Override
-	protected void process(List<DefaultMutableTreeNode> chunks) {
-		DefaultTreeModel model = tree.getModel();
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+	protected void process(List<AbstractTreeNode> chunks) {
+		FolderNode root = tree.getRoot();
 		
-		for (DefaultMutableTreeNode node : chunks) {
+		for (AbstractTreeNode node : chunks) {
 			root.add(node);
 		}
 		
-		model.reload(root);
+		tree.getModel().reload();
 	}
 	
 
 	@Override
 	protected void load(List<File> files) {
-		for (File file : files) {
-			DefaultMutableTreeNode node = getTree(file);
-			
-			// operation may be aborted via interrupt
-			if (Thread.currentThread().isInterrupted())
-				return;
-			
-			publish(node);
+		try {
+			for (File file : files) {
+				AbstractTreeNode node = getTreeNode(file);
+				
+				// publish on EDT
+				publish(node);
+			}
+		} catch (InterruptedException e) {
+			// supposed to happen if background execution was aborted
 		}
 	}
 	
 
-	private DefaultMutableTreeNode getTree(File file) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(file);
+	private AbstractTreeNode getTreeNode(File file) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		
-		if (file.isDirectory() && !Thread.currentThread().isInterrupted()) {
-			// run through folders first
-			for (File f : file.listFiles(FileBotUtil.FOLDERS_ONLY)) {
-				node.add(getTree(f));
+		if (file.isDirectory()) {
+			File[] files = file.listFiles();
+			
+			FolderNode node = new FolderNode(FileUtil.getFolderName(file), files.length);
+			
+			// add folders first
+			for (File f : files) {
+				if (f.isDirectory()) {
+					node.add(getTreeNode(f));
+				}
 			}
 			
-			// then files
-			for (File f : file.listFiles(FileBotUtil.FILES_ONLY)) {
-				node.add(getTree(f));
+			for (File f : files) {
+				if (f.isFile()) {
+					node.add(getTreeNode(f));
+				}
 			}
+			
+			return node;
 		}
 		
-		return node;
+		return new FileNode(file);
 	}
 	
 

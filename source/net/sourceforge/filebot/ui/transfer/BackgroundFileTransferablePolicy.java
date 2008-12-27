@@ -69,14 +69,14 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	 * 
 	 * @param chunks
 	 */
-	protected synchronized final void publish(V... chunks) {
+	protected synchronized void publish(V... chunks) {
 		if (worker != null) {
 			worker.publishChunks(chunks);
 		}
 	}
 	
 	
-	private class BackgroundWorker extends SwingWorker<Void, V> {
+	private class BackgroundWorker extends SwingWorker<Object, V> {
 		
 		private final List<File> files;
 		
@@ -87,9 +87,8 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 
 		@Override
-		protected Void doInBackground() {
+		protected Object doInBackground() {
 			load(files);
-			
 			return null;
 		}
 		
@@ -114,13 +113,13 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 		@Override
 		public void started(PropertyChangeEvent evt) {
-			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, true);
+			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, false, true);
 		}
 		
 
 		@Override
 		public void done(PropertyChangeEvent evt) {
-			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, null, false);
+			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
 		}
 	}
 	

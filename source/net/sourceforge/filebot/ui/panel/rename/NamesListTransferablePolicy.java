@@ -105,7 +105,7 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 			
 			submit(entries);
 		} catch (IOException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -124,7 +124,7 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 			
 			submit(entries);
 		} catch (IOException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	

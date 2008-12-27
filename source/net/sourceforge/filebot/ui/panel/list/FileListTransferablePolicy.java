@@ -27,6 +27,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
+	protected boolean accept(List<File> files) {
+		return true;
+	}
+	
+
+	@Override
 	protected void clear() {
 		list.getModel().clear();
 	}
@@ -34,21 +40,22 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		if (files.size() > 1) {
-			list.setTitle(FileUtil.getFolderName(files.get(0).getParentFile()));
-		}
+		// set title based on parent folder of first file
+		list.setTitle(FileUtil.getFolderName(files.get(0).getParentFile()));
 		
 		if (FileBotUtil.containsOnlyFolders(files)) {
-			loadFolderList(files);
+			loadFolders(files);
 		} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
-			loadTorrentList(files);
+			loadTorrents(files);
 		} else {
-			super.load(files);
+			for (File file : files) {
+				list.getModel().add(FileUtil.getFileName(file));
+			}
 		}
 	}
 	
 
-	private void loadFolderList(List<File> folders) {
+	private void loadFolders(List<File> folders) {
 		if (folders.size() == 1) {
 			// if only one folder was dropped, use its name as title
 			list.setTitle(FileUtil.getFolderName(folders.get(0)));
@@ -62,7 +69,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	private void loadTorrentList(List<File> torrentFiles) {
+	private void loadTorrents(List<File> torrentFiles) {
 		try {
 			List<Torrent> torrents = new ArrayList<Torrent>(torrentFiles.size());
 			
@@ -81,14 +88,8 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			}
 		} catch (IOException e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
-	}
-	
-
-	@Override
-	protected void load(File file) {
-		list.getModel().add(FileUtil.getFileName(file));
 	}
 	
 

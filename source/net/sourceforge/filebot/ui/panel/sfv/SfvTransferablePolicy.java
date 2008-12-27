@@ -30,6 +30,12 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	
 
 	@Override
+	protected boolean accept(List<File> files) {
+		return true;
+	}
+	
+
+	@Override
 	protected void clear() {
 		checksumComputationService.reset();
 		tableModel.clear();
@@ -49,7 +55,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 			String line = null;
 			Pattern pattern = Pattern.compile("(.*)\\s+(\\p{XDigit}{8})");
 			
-			while (((line = in.readLine()) != null) && !Thread.currentThread().isInterrupted()) {
+			while (((line = in.readLine()) != null) && !Thread.interrupted()) {
 				if (line.startsWith(";"))
 					continue;
 				
@@ -74,7 +80,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 			in.close();
 		} catch (IOException e) {
 			// should not happen
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	
@@ -87,30 +93,34 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 
 	@Override
 	protected void load(List<File> files) {
-		if (FileBotUtil.containsOnlySfvFiles(files)) {
-			// one or more sfv files
-			for (File file : files) {
-				loadSfvFile(file);
+		try {
+			if (FileBotUtil.containsOnlySfvFiles(files)) {
+				// one or more sfv files
+				for (File file : files) {
+					loadSfvFile(file);
+				}
+			} else if ((files.size() == 1) && files.get(0).isDirectory()) {
+				// one single folder
+				File file = files.get(0);
+				
+				for (File f : file.listFiles()) {
+					load(f, file, "");
+				}
+			} else {
+				// bunch of files
+				for (File f : files) {
+					load(f, f.getParentFile(), "");
+				}
 			}
-		} else if ((files.size() == 1) && files.get(0).isDirectory()) {
-			// one single folder
-			File file = files.get(0);
-			
-			for (File f : file.listFiles()) {
-				load(f, file, "");
-			}
-		} else {
-			// bunch of files
-			for (File f : files) {
-				load(f, f.getParentFile(), "");
-			}
+		} catch (InterruptedException e) {
+			// supposed to happen if background execution was aborted
 		}
 	}
 	
 
-	protected void load(File file, File column, String prefix) {
-		if (Thread.currentThread().isInterrupted())
-			return;
+	protected void load(File file, File column, String prefix) throws InterruptedException {
+		if (Thread.interrupted())
+			throw new InterruptedException();
 		
 		if (file.isDirectory()) {
 			// load all files in the file tree
@@ -122,4 +132,5 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 			publish(new ChecksumTableModel.ChecksumCell(prefix + file.getName(), checksumComputationService.schedule(file, column), column));
 		}
 	}
+	
 }

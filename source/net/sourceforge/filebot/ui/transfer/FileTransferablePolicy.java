@@ -57,7 +57,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 						files.add(file);
 					} catch (Exception e) {
 						// URISyntaxException, IllegalArgumentException, FileNotFoundException
-						Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid file url: " + line);
+						Logger.getLogger("global").log(Level.WARNING, "Invalid file url: " + line);
 					}
 				}
 				
@@ -79,42 +79,21 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	public void handleTransferable(Transferable tr, TransferAction action) {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (action != TransferAction.ADD)
+		if (action != TransferAction.ADD) {
 			clear();
+		}
 		
 		load(files);
 	}
 	
 
-	protected boolean accept(List<File> files) {
-		for (File f : files)
-			if (!accept(f))
-				return false;
-		
-		return true;
-	}
+	protected abstract boolean accept(List<File> files);
 	
 
-	protected void load(List<File> files) {
-		for (File file : files) {
-			load(file);
-		}
-	}
+	protected abstract void load(List<File> files);
 	
 
-	protected boolean accept(File file) {
-		return file.isFile() || file.isDirectory();
-	}
-	
-
-	protected void clear() {
-		
-	}
-	
-
-	protected void load(File file) {
-		
-	}
+	protected abstract void clear();
 	
 
 	public String getFileFilterDescription() {

@@ -1,0 +1,131 @@
+
+package net.sourceforge.filebot.ui.panel.analyze;
+
+
+import java.awt.Color;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+
+import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.tuned.ui.notification.SeparatorBorder;
+
+
+public class SplitTool extends Tool<TreeModel> implements ChangeListener {
+	
+	private FileTree tree = new FileTree();
+	
+	private SpinnerNumberModel spinnerModel = new SpinnerNumberModel(4480, 0, Integer.MAX_VALUE, 100);
+	
+	
+	public SplitTool() {
+		super("Split");
+		
+		JScrollPane treeScrollPane = new JScrollPane(tree);
+		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		
+		JSpinner spinner = new JSpinner(spinnerModel);
+		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
+		
+		LoadingOverlayPane loadingOverlayPane = new LoadingOverlayPane(treeScrollPane, this);
+		loadingOverlayPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
+		
+		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
+		
+		add(loadingOverlayPane, "grow, wrap");
+		
+		add(new JLabel("Split every"));
+		add(spinner, "wmax 80, gap top rel, gap bottom unrel");
+		add(new JLabel("MB."));
+		
+		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
+		tree.setDragEnabled(true);
+		
+		spinnerModel.addChangeListener(this);
+	}
+	
+
+	private long getSplitSize() {
+		return spinnerModel.getNumber().intValue() * FileUtil.MEGA;
+	}
+	
+	private FolderNode sourceModel = null;
+	
+	
+	public void stateChanged(ChangeEvent e) {
+		if (sourceModel != null)
+			setSourceModel(sourceModel);
+	}
+	
+
+	@Override
+	protected TreeModel createModelInBackground(FolderNode sourceModel, Cancellable cancellable) {
+		this.sourceModel = sourceModel;
+		
+		FolderNode root = new FolderNode();
+		int nextPart = 1;
+		
+		long splitSize = getSplitSize();
+		
+		List<File> currentPart = new ArrayList<File>(50);
+		List<File> remainder = new ArrayList<File>(50);
+		long totalSize = 0;
+		
+		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext() && !cancellable.isCancelled();) {
+			File file = iterator.next();
+			
+			long fileSize = file.length();
+			
+			if (fileSize > splitSize) {
+				remainder.add(file);
+				continue;
+			}
+			
+			if (totalSize + fileSize > splitSize) {
+				// part is full, add node and start with next one
+				root.add(createStatisticsNode(String.format("Part %d", nextPart++), currentPart));
+				
+				// reset total size and file list
+				totalSize = 0;
+				currentPart.clear();
+			}
+			
+			totalSize += fileSize;
+			currentPart.add(file);
+		}
+		
+		if (!currentPart.isEmpty()) {
+			// add last part
+			root.add(createStatisticsNode(String.format("Part %d", nextPart++), currentPart));
+		}
+		
+		if (!remainder.isEmpty()) {
+			root.add(createStatisticsNode("Remainder", remainder));
+		}
+		
+		return new DefaultTreeModel(root);
+	}
+	
+
+	@Override
+	protected void setModel(TreeModel model) {
+		tree.setModel(model);
+	}
+	
+}
