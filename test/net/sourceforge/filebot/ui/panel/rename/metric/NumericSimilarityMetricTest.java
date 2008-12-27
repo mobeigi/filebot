@@ -57,7 +57,7 @@ public class NumericSimilarityMetricTest {
 
 	@Parameters
 	public static Collection<Object[]> createParameters() {
-		return TestUtil.asParameters(matches.keySet().toArray());
+		return TestUtil.asParameters(matches.keySet());
 	}
 	
 	private String normalizedName;
@@ -82,8 +82,6 @@ public class NumericSimilarityMetricTest {
 		
 		for (String comparisonValue : testdata) {
 			float similarity = metric.getSimilarity(value, comparisonValue);
-			
-			// System.out.println(String.format("%s vs %s = %f", value, comparisonValue, similarity));
 			
 			if (similarity > maxSimilarity) {
 				maxSimilarity = similarity;

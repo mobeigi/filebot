@@ -39,7 +39,7 @@ public class AbstractNameSimilarityMetricTest {
 		// lower-case
 		matches.put("the a-team", "The A-Team");
 		
-		return TestUtil.asParameters(matches.entrySet().toArray());
+		return TestUtil.asParameters(matches.entrySet());
 	}
 	
 	private Entry<String, String> entry;

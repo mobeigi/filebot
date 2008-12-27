@@ -5,16 +5,15 @@ package net.sourceforge.tuned;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 
 public class TestUtil {
 	
-	public static List<Object[]> asParameters(Object... parameterSet) {
+	public static List<Object[]> asParameters(Object... parameters) {
 		List<Object[]> list = new ArrayList<Object[]>();
 		
-		for (Object parameter : parameterSet) {
+		for (Object parameter : parameters) {
 			list.add(new Object[] { parameter });
 		}
 		
@@ -22,14 +21,8 @@ public class TestUtil {
 	}
 	
 
-	public static <T> List<T> asList(Iterator<T> iterator) {
-		List<T> list = new ArrayList<T>();
-		
-		while (iterator.hasNext()) {
-			list.add(iterator.next());
-		}
-		
-		return list;
+	public static List<Object[]> asParameters(Collection<?> parameters) {
+		return asParameters(parameters.toArray());
 	}
 	
 
