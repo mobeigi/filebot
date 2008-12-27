@@ -138,7 +138,7 @@ public class Checksum {
 			} catch (Exception e) {
 				// might happen if file system is corrupt (e.g. CRC errors)
 				setChecksumError(e);
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
+				Logger.getLogger("global").log(Level.WARNING, e.getMessage());
 			}
 		}
 	}

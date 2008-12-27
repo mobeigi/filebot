@@ -10,8 +10,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -38,7 +36,7 @@ public class HtmlUtil {
 				try {
 					return Charset.forName(charsetName);
 				} catch (Exception e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
+					Logger.getLogger("global").log(Level.WARNING, e.getMessage());
 				}
 			}
 		}
@@ -58,18 +56,12 @@ public class HtmlUtil {
 	}
 	
 
-	public static Document getHtmlDocument(URL url, Map<String, String> requestHeaders) throws IOException, SAXException {
-		URLConnection connection = url.openConnection();
-		
-		for (Entry<String, String> entry : requestHeaders.entrySet()) {
-			connection.addRequestProperty(entry.getKey(), entry.getValue());
-		}
-		
-		return getHtmlDocument(connection);
+	public static Document getHtmlDocument(URLConnection connection) throws IOException, SAXException {
+		return getHtmlDocument(getReader(connection));
 	}
 	
 
-	public static Document getHtmlDocument(URLConnection connection) throws IOException, SAXException {
+	public static Reader getReader(URLConnection connection) throws IOException {
 		Charset charset = getCharset(connection.getContentType());
 		String encoding = connection.getContentEncoding();
 		InputStream inputStream = connection.getInputStream();
@@ -77,7 +69,7 @@ public class HtmlUtil {
 		if ((encoding != null) && encoding.equalsIgnoreCase("gzip"))
 			inputStream = new GZIPInputStream(inputStream);
 		
-		return getHtmlDocument(new InputStreamReader(inputStream, charset));
+		return new InputStreamReader(inputStream, charset);
 	}
 	
 

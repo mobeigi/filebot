@@ -68,7 +68,7 @@ public class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 				textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
 			} catch (BadLocationException e) {
 				//should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	}

@@ -46,11 +46,11 @@ public class FileTransferableMessageHandler implements MessageHandler {
 					// path may be relative, use absolute path
 					files.add(file.getCanonicalFile());
 				} catch (IOException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+					Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 				}
 			} else {
 				// file doesn't exist
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid File: " + file);
+				Logger.getLogger("global").log(Level.WARNING, "Invalid File: " + file);
 			}
 		}
 		

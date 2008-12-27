@@ -50,10 +50,9 @@ class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 		
 		
 		public ProgressBarTableCellRenderer() {
-			super(new BorderLayout());
-			
 			progressBar.setStringPainted(true);
 			
+			setLayout(new BorderLayout());
 			add(progressBar, BorderLayout.CENTER);
 			
 			setBorder(new EmptyBorder(2, 2, 2, 2));

@@ -69,6 +69,7 @@ public class EpisodeListPanel extends FileBotPanel {
 	
 	public EpisodeListPanel() {
 		super("Episodes", ResourceManager.getIcon("panel.episodelist"));
+		setLayout(new BorderLayout());
 		
 		searchField = new SelectButtonTextField<EpisodeListClient>();
 		
@@ -293,7 +294,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				Throwable cause = ExceptionUtil.getRootCause(e);
 				
 				MessageManager.showWarning(cause.getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, cause.toString());
+				Logger.getLogger("global").log(Level.WARNING, cause.toString());
 				
 				return;
 			}
@@ -383,7 +384,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				Throwable cause = ExceptionUtil.getRootCause(e);
 				
 				MessageManager.showWarning(cause.getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.getMessage(), cause);
+				Logger.getLogger("global").log(Level.SEVERE, cause.getMessage(), cause);
 			}
 		}
 	}

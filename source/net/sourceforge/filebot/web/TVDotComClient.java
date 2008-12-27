@@ -71,7 +71,7 @@ public class TVDotComClient implements EpisodeListClient {
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
+				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		

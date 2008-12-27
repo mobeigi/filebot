@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -20,7 +21,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 
-class HeaderPanel extends JPanel {
+class HeaderPanel extends JComponent {
 	
 	private JLabel titleLabel = new JLabel();
 	
@@ -29,7 +30,7 @@ class HeaderPanel extends JPanel {
 	
 	
 	public HeaderPanel() {
-		super(new BorderLayout());
+		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());

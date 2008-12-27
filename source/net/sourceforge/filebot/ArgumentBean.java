@@ -79,7 +79,7 @@ public class ArgumentBean {
 				}
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	}

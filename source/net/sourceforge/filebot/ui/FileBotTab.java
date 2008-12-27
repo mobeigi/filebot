@@ -3,47 +3,34 @@ package net.sourceforge.filebot.ui;
 
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import net.sourceforge.tuned.ui.ProgressIndicator;
 
 
-public class FileBotTab<T extends JComponent> extends JPanel {
+public class FileBotTab<T extends JComponent> extends JComponent {
 	
 	private final FileBotTabComponent tabComponent = new FileBotTabComponent();
 	
 	private final T component;
 	
-	private Icon icon;
-	
-	private boolean loading = false;
+	private final LoadingOverlayPane loadingOverlayPane;
 	
 	
 	public FileBotTab(T component) {
-		super(new BorderLayout());
 		
+		setLayout(new BorderLayout());
 		this.component = component;
 		tabComponent.getCloseButton().addActionListener(closeAction);
 		
-		ProgressIndicator progress = new ProgressIndicator(new DefaultBoundedRangeModel(4, 0, 0, 10));
-		progress.setPaintBackground(true);
-		progress.setPaintText(false);
-		progress.setBackground(new Color(255, 255, 255, 70));
-		
-		LoadingOverlayPane pane = new LoadingOverlayPane(this.component, progress);
-		
-		add(pane, BorderLayout.CENTER);
+		loadingOverlayPane = new LoadingOverlayPane(component, this);
+		add(loadingOverlayPane, BorderLayout.CENTER);
 	}
 	
 
@@ -96,27 +83,18 @@ public class FileBotTab<T extends JComponent> extends JPanel {
 	
 
 	public void setIcon(Icon icon) {
-		this.icon = icon;
-		
-		if (!loading) {
-			tabComponent.setIcon(icon);
-		}
+		tabComponent.setIcon(icon);
 	}
 	
 
 	public Icon getIcon() {
-		return icon;
+		return tabComponent.getIcon();
 	}
 	
 
 	public void setLoading(boolean loading) {
-		this.loading = loading;
-		
-		if (loading) {
-			tabComponent.setIcon(ResourceManager.getIcon("tab.loading"));
-		} else {
-			tabComponent.setIcon(icon);
-		}
+		tabComponent.setLoading(loading);
+		loadingOverlayPane.setOverlayVisible(loading);
 	}
 	
 	private final ActionListener closeAction = new ActionListener() {

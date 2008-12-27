@@ -56,9 +56,9 @@ public class RenameAction extends AbstractAction {
 		}
 		
 		if (errors > 0)
-			MessageManager.showWarning((i - errors) + " of " + i + " files renamed.");
+			MessageManager.showInfo(String.format("%d of %d files renamed.", i - errors, i));
 		else
-			MessageManager.showInfo(i + " files renamed.");
+			MessageManager.showInfo(String.format("%d files renamed.", i));
 		
 		namesList.repaint();
 		filesList.repaint();

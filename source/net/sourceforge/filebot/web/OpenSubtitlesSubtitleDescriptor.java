@@ -97,7 +97,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		try {
 			return new URL(link);
 		} catch (MalformedURLException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid download link: " + link);
+			Logger.getLogger("global").log(Level.WARNING, "Invalid download link: " + link);
 			return null;
 		}
 	}

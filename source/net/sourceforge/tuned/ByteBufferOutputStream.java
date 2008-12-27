@@ -102,4 +102,9 @@ public class ByteBufferOutputStream extends OutputStream {
 		return buffer.capacity();
 	}
 	
+
+	public synchronized void rewind() {
+		buffer.rewind();
+	}
+	
 }

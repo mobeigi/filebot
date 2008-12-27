@@ -98,7 +98,7 @@ class MatchAction extends AbstractAction {
 			// matcher will take longer, stop blocking EDT
 			monitor.getProgressDialog().setVisible(true);
 		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 		
 		SwingUtilities.getRoot(source).setCursor(Cursor.getDefaultCursor());
@@ -175,7 +175,7 @@ class MatchAction extends AbstractAction {
 				secondaryList.getModel().addAll(matcher.getSecondaryList());
 				
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		

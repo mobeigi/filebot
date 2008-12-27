@@ -91,8 +91,8 @@ public class RenamePanel extends FileBotPanel {
 		matchButton.setMargin(new Insets(3, 14, 2, 14));
 		renameButton.setMargin(new Insets(6, 11, 2, 11));
 		
-		add(matchButton, "cell 1 0, flowy");
-		add(renameButton, "cell 1 0, gapy 30px");
+		add(matchButton, "cell 1 0, flowy, sizegroup button");
+		add(renameButton, "cell 1 0, gapy 30px, sizegroup button");
 		
 		add(filesList, "grow");
 		

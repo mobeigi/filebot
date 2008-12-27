@@ -2,37 +2,57 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-
-import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.tuned.ui.ProgressIndicator;
 
 
-public class FileBotTabComponent extends JPanel {
+public class FileBotTabComponent extends JComponent {
 	
-	private final JLabel label = new JLabel();
-	private final JButton closeButton = createCloseButton();
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
+	private JLabel label = new JLabel();
+	private JButton closeButton = createCloseButton();
+	
+	private Icon icon = null;
+	private boolean loading = false;
 	
 	
 	public FileBotTabComponent() {
-		super(new BorderLayout(0, 0));
-		setOpaque(false);
+		setLayout(new MigLayout("nogrid, fill, insets 0"));
 		
-		label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 2));
+		progressIndicator.setVisible(loading);
 		
-		add(label, BorderLayout.CENTER);
-		add(closeButton, BorderLayout.EAST);
+		add(progressIndicator, "gap right 4px, w 17px!, h 17px!, hidemode 3");
+		add(label, "grow");
+		add(closeButton, "gap 3px:push, w 17!, h 17!");
+	}
+	
+
+	public void setLoading(boolean loading) {
+		this.loading = loading;
+		progressIndicator.setVisible(loading);
+		label.setIcon(loading ? null : icon);
+	}
+	
+
+	public boolean isLoading() {
+		return loading;
 	}
 	
 
 	public void setIcon(Icon icon) {
-		label.setIcon(icon);
+		this.icon = icon;
+		label.setIcon(loading ? null : icon);
+	}
+	
+
+	public Icon getIcon() {
+		return icon;
 	}
 	
 
@@ -61,8 +81,6 @@ public class FileBotTabComponent extends JPanel {
 		
 		button.setIcon(ResourceManager.getIcon("tab.close"));
 		button.setRolloverIcon(ResourceManager.getIcon("tab.close.hover"));
-		
-		button.setPreferredSize(new Dimension(17, 17));
 		
 		return button;
 	}

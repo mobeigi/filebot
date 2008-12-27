@@ -45,7 +45,7 @@ public abstract class TransferablePolicy {
 				return true;
 			}
 		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.toString(), e);
+			Logger.getLogger("global").log(Level.WARNING, e.toString(), e);
 		}
 		
 		// transferable was not accepted, or transfer failed 

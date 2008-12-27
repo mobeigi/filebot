@@ -2,36 +2,22 @@
 package net.sourceforge.filebot.ui.panel.episodelist;
 
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
-class SeasonSpinnerEditor extends JPanel implements ChangeListener {
-	
-	private final JLabel text = new JLabel();
-	
+class SeasonSpinnerEditor extends JLabel implements ChangeListener {
 	
 	public SeasonSpinnerEditor(JSpinner spinner) {
-		super(new BorderLayout());
 		spinner.addChangeListener(this);
 		setValueFromSpinner(spinner);
 		
-		text.setHorizontalAlignment(SwingConstants.RIGHT);
-		text.setBackground(Color.WHITE);
-		text.setOpaque(true);
-		text.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 3));
-		text.setPreferredSize(new Dimension(60, 16));
-		
-		add(text, BorderLayout.CENTER);
+		setBackground(Color.WHITE);
+		setOpaque(true);
 	}
 	
 
@@ -44,8 +30,8 @@ class SeasonSpinnerEditor extends JPanel implements ChangeListener {
 		int season = ((SeasonSpinnerModel) spinner.getModel()).getSeason();
 		
 		if (season == SeasonSpinnerModel.ALL_SEASONS)
-			text.setText("All Seasons");
+			setText("All Seasons");
 		else
-			text.setText("Season " + season);
+			setText(String.format("Season %d", season));
 	}
 }

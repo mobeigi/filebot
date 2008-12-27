@@ -3,20 +3,18 @@ package net.sourceforge.filebot.ui;
 
 
 import javax.swing.Icon;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import net.sourceforge.tuned.MessageHandler;
 
 
-public class FileBotPanel extends JPanel {
+public class FileBotPanel extends JComponent {
 	
 	private final String name;
 	private final Icon icon;
 	
 	
 	public FileBotPanel(String title, Icon icon) {
-		super(null);
-		
 		this.name = title;
 		this.icon = icon;
 	}

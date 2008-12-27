@@ -7,8 +7,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -24,7 +24,7 @@ import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;
 
 
-public class FileBotList<E> extends JPanel {
+public class FileBotList<E> extends JComponent {
 	
 	protected final EventList<E> model = new BasicEventList<E>();
 	
@@ -36,8 +36,8 @@ public class FileBotList<E> extends JPanel {
 	
 	
 	public FileBotList() {
-		super(new BorderLayout());
 		
+		setLayout(new BorderLayout());
 		setBorder(new TitledBorder(getTitle()));
 		
 		list.setCellRenderer(new DefaultFancyListCellRenderer());

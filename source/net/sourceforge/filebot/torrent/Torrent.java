@@ -46,7 +46,7 @@ public class Torrent {
 			charset = Charset.forName(encoding);
 		} catch (IllegalArgumentException e) {
 			// invalid encoding, just keep using UTF-8
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid encoding: " + encoding);
+			Logger.getLogger("global").log(Level.WARNING, "Invalid encoding: " + encoding);
 		}
 		
 		createdBy = decodeString(torrentMap.get("created by"), charset);

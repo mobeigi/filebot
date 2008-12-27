@@ -63,7 +63,7 @@ public class AnidbClient implements EpisodeListClient {
 			try {
 				searchResults.add(new HyperLink(title, new URL("http", host, path)));
 			} catch (MalformedURLException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href);
+				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href);
 			}
 		}
 		
@@ -80,7 +80,7 @@ public class AnidbClient implements EpisodeListClient {
 				try {
 					searchResults.add(new HyperLink(name, new URL(episodeListUrl)));
 				} catch (MalformedURLException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid location: " + episodeListUrl);
+					Logger.getLogger("global").log(Level.WARNING, "Invalid location: " + episodeListUrl);
 				}
 			}
 		}

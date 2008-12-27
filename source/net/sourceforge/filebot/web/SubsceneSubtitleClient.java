@@ -7,9 +7,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,7 +70,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 				
 				searchResults.add(new SubsceneSearchResult(title, subtitleListUrl, subtitleCount));
 			} catch (MalformedURLException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid href: " + href, e);
+				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		
@@ -84,7 +84,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 				// get name of current search result
 				String name = XPathUtil.selectString("id('leftWrapperWide')//H1/text()", dom);
 				
-				// get current url
+				// get current location
 				String file = XPathUtil.selectString("id('aspnetForm')/@action", dom);
 				
 				try {
@@ -92,7 +92,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 					
 					searchResults.add(new SubsceneSearchResult(name, url, subtitleNodeCount));
 				} catch (MalformedURLException e) {
-					Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Invalid location: " + file, e);
+					Logger.getLogger("global").log(Level.WARNING, "Invalid location: " + file, e);
 				}
 			}
 		}
@@ -181,13 +181,13 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 
 	private Document getSubtitleListDocument(URL subtitleListUrl, Integer languageFilter) throws IOException, SAXException {
-		Map<String, String> requestHeaders = new HashMap<String, String>(1);
+		URLConnection connection = subtitleListUrl.openConnection();
 		
 		if (languageFilter != null) {
-			requestHeaders.put("Cookie", "subscene_sLanguageIds=" + languageFilter);
+			connection.addRequestProperty("Cookie", "subscene_sLanguageIds=" + languageFilter);
 		}
 		
-		return HtmlUtil.getHtmlDocument(subtitleListUrl, requestHeaders);
+		return HtmlUtil.getHtmlDocument(connection);
 	}
 	
 
@@ -226,7 +226,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, author, typeId, downloadUrl, subtitleListUrl));
 				}
 			} catch (Exception e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot parse subtitle node", e);
+				Logger.getLogger("global").log(Level.WARNING, "Cannot parse subtitle node", e);
 			}
 		}
 		
