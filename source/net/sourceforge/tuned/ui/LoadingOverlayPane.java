@@ -18,7 +18,7 @@ public class LoadingOverlayPane extends JComponent {
 	
 	private boolean overlayEnabled = false;
 	
-	private int millisToOverlay = 500;
+	private int millisToOverlay = 400;
 	
 	
 	public LoadingOverlayPane(JComponent component, JComponent propertyChangeSource) {
@@ -27,15 +27,17 @@ public class LoadingOverlayPane extends JComponent {
 	
 
 	public LoadingOverlayPane(JComponent component, JComponent animationComponent, JComponent propertyChangeSource) {
-		setLayout(new MigLayout("fill, insets 0"));
+		setLayout(new MigLayout("insets 0, fill"));
 		this.animationComponent = animationComponent;
 		
-		add(animationComponent, "pos visual.x2-pref-18px 8px");
+		add(animationComponent, "pos n 8px 100%-18px n");
 		add(component, "grow");
 		
 		animationComponent.setVisible(false);
 		
-		propertyChangeSource.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
+		if (propertyChangeSource != null) {
+			propertyChangeSource.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
+		}
 	}
 	
 

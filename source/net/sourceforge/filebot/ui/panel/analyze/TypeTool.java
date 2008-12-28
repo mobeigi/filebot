@@ -31,9 +31,9 @@ public class TypeTool extends Tool<TreeModel> {
 		
 		setLayout(new MigLayout("insets 0, fill"));
 		
-		JScrollPane sp = new JScrollPane(tree);
-		sp.setBorder(BorderFactory.createEmptyBorder());
-		add(new LoadingOverlayPane(sp, this), "grow");
+		JScrollPane treeScrollPane = new JScrollPane(tree);
+		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		add(new LoadingOverlayPane(treeScrollPane, this), "grow");
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);

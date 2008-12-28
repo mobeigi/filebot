@@ -5,12 +5,12 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.tuned.FileUtil;
@@ -56,9 +56,9 @@ public class RenameAction extends AbstractAction {
 		}
 		
 		if (errors > 0)
-			MessageManager.showInfo(String.format("%d of %d files renamed.", i - errors, i));
+			Logger.getLogger("ui").info(String.format("%d of %d files renamed.", i - errors, i));
 		else
-			MessageManager.showInfo(String.format("%d files renamed.", i));
+			Logger.getLogger("ui").info(String.format("%d files renamed.", i));
 		
 		namesList.repaint();
 		filesList.repaint();

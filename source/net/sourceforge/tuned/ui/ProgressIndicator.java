@@ -44,7 +44,7 @@ public class ProgressIndicator extends JComponent {
 		public void actionPerformed(ActionEvent e) {
 			repaint();
 		}
-	});;
+	});
 	
 	
 	public ProgressIndicator() {
@@ -82,7 +82,7 @@ public class ProgressIndicator extends JComponent {
 	}
 	
 
-	protected void paintShapes(Graphics2D g2d) {
+	private void paintShapes(Graphics2D g2d) {
 		circle.setFrame(frame);
 		
 		g2d.setStroke(stroke);

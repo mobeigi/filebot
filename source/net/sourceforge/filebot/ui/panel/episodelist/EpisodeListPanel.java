@@ -37,7 +37,6 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileBotTab;
 import net.sourceforge.filebot.ui.HistoryPanel;
-import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
@@ -293,7 +292,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				
 				Throwable cause = ExceptionUtil.getRootCause(e);
 				
-				MessageManager.showWarning(cause.getMessage());
+				Logger.getLogger("ui").warning(cause.getMessage());
 				Logger.getLogger("global").log(Level.WARNING, cause.toString());
 				
 				return;
@@ -317,7 +316,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				
 				selectedResult = select.getSelectedValue();
 			} else {
-				MessageManager.showWarning("\"" + task.query + "\" has not been found.");
+				Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", task.query));
 			}
 			
 			if (selectedResult == null) {
@@ -383,7 +382,7 @@ public class EpisodeListPanel extends FileBotPanel {
 				
 				Throwable cause = ExceptionUtil.getRootCause(e);
 				
-				MessageManager.showWarning(cause.getMessage());
+				Logger.getLogger("ui").warning(cause.getMessage());
 				Logger.getLogger("global").log(Level.SEVERE, cause.getMessage(), cause);
 			}
 		}

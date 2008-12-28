@@ -31,8 +31,8 @@ public class AnalyzePanel extends FileBotPanel {
 		
 		setLayout(new MigLayout("insets 0, gapx 50, fill"));
 		
-		add(fileTreePanel, "grow, sizegroup column");
-		add(toolsPanel, "grow, sizegroup column");
+		add(fileTreePanel, "grow, sizegroupx column");
+		add(toolsPanel, "grow, sizegroupx column");
 		
 		addTool(new TypeTool());
 		addTool(new SplitTool());

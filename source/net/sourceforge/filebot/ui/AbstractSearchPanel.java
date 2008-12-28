@@ -134,6 +134,10 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
 		
 		public void actionPerformed(ActionEvent e) {
+			if (e.getActionCommand() == null) {
+				// command triggered by auto-completion
+				return;
+			}
 			
 			SearchTask searchTask = createSearchTask();
 			searchTask.addPropertyChangeListener(new SearchTaskListener());
@@ -166,7 +170,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			
 			switch (get().size()) {
 				case 0:
-					MessageManager.showWarning(String.format("\"%s\" has not been found.", getSearchText()));
+					Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", getSearchText()));
 					return null;
 				case 1:
 					return get().iterator().next();
@@ -266,10 +270,8 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			} catch (Exception e) {
 				tab.close();
 				
-				Throwable cause = ExceptionUtil.getRootCause(e);
-				
-				MessageManager.showWarning(cause.getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, cause.getMessage(), cause);
+				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
+				Logger.getLogger("global").log(Level.SEVERE, "Search failed", e);
 			}
 			
 		}
@@ -392,14 +394,14 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 				
 				// close tab if no elements were fetched
 				if (task.getCount() <= 0) {
-					MessageManager.showWarning(info);
+					Logger.getLogger("ui").warning(info);
 					tab.close();
 				}
 			} catch (Exception e) {
 				tab.close();
 				
-				MessageManager.showWarning(ExceptionUtil.getRootCause(e).getMessage());
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
+				Logger.getLogger("global").log(Level.SEVERE, "Fetch failed", e);
 			}
 			
 			tab.setLoading(false);

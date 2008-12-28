@@ -32,7 +32,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.tuned.FilterIterator;
 import net.sourceforge.tuned.TreeIterator;
 
@@ -160,8 +159,8 @@ public class FileTree extends JTree {
 						Desktop.getDesktop().open(file);
 					}
 				} catch (Exception e) {
-					MessageManager.showWarning(e.getMessage());
-					Logger.getLogger("global").log(Level.SEVERE, e.getMessage(), e);
+					Logger.getLogger("ui").warning(e.getMessage());
+					Logger.getLogger("global").log(Level.SEVERE, "Failed to open file", e);
 				}
 			}
 		}

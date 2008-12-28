@@ -6,6 +6,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,6 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
-import net.sourceforge.filebot.ui.MessageManager;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.MessageHandler;
@@ -99,7 +99,7 @@ public class ListPanel extends FileBotPanel {
 			String pattern = textField.getText();
 			
 			if (!pattern.contains(INDEX_VARIABLE)) {
-				MessageManager.showWarning(String.format("Pattern does not contain index variable %s.", INDEX_VARIABLE));
+				Logger.getLogger("ui").warning(String.format("Pattern does not contain index variable %s.", INDEX_VARIABLE));
 				return;
 			}
 			

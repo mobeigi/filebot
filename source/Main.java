@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 import net.sourceforge.filebot.ArgumentBean;
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.FileBotWindow;
+import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -21,21 +22,20 @@ public class Main {
 	 */
 	public static void main(String... args) {
 		
-		final ArgumentBean argumentBean = parseArguments(args);
+		setupLogging();
 		
-		if (argumentBean.isClear()) {
-			try {
-				Preferences.userNodeForPackage(FileBotUtil.class).removeNode();
-			} catch (BackingStoreException e) {
-				Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
-			}
-		}
+		final ArgumentBean argumentBean = handleArguments(args);
 		
 		try {
 			//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+			//			UIManager.setLookAndFeel("a03.swing.plaf.A03LookAndFeel");
+			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel");
+			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaBrickWallLookAndFeel");
+			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceSaharaLookAndFeel");
+			
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -54,7 +54,14 @@ public class Main {
 	}
 	
 
-	private static ArgumentBean parseArguments(String... args) {
+	private static void setupLogging() {
+		Logger uiLogger = Logger.getLogger("ui");
+		uiLogger.addHandler(new NotificationLoggingHandler());
+		uiLogger.setUseParentHandlers(false);
+	}
+	
+
+	private static ArgumentBean handleArguments(String... args) {
 		
 		ArgumentBean argumentBean = new ArgumentBean();
 		CmdLineParser argumentParser = new CmdLineParser(argumentBean);
@@ -62,7 +69,7 @@ public class Main {
 		try {
 			argumentParser.parseArgument(args);
 		} catch (CmdLineException e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, e.getMessage());
+			Logger.getLogger("global").log(Level.WARNING, e.getMessage());
 		}
 		
 		if (argumentBean.isHelp()) {
@@ -71,6 +78,15 @@ public class Main {
 			
 			// just print help message and exit afterwards
 			System.exit(0);
+		}
+		
+		if (argumentBean.isClear()) {
+			// clear preferences
+			try {
+				Preferences.userNodeForPackage(FileBotUtil.class).removeNode();
+			} catch (BackingStoreException e) {
+				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			}
 		}
 		
 		return argumentBean;

@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -34,15 +36,8 @@ abstract class Tool<M> extends JComponent {
 		}
 		
 		updateTask = new UpdateModelTask(sourceModel);
-		
-		updateSemaphore.acquireUninterruptibly();
-		setLoading(true);
+		updateTask.addPropertyChangeListener(loadingListener);
 		updateTask.execute();
-	}
-	
-
-	private void setLoading(boolean loading) {
-		firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, !loading, loading);
 	}
 	
 
@@ -64,7 +59,22 @@ abstract class Tool<M> extends JComponent {
 
 		@Override
 		protected M doInBackground() throws Exception {
-			return createModelInBackground(sourceModel, this);
+			// acquire semaphore
+			updateSemaphore.acquireUninterruptibly();
+			
+			try {
+				M model = null;
+				
+				if (!isCancelled()) {
+					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
+					model = createModelInBackground(sourceModel, this);
+					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
+				}
+				
+				return model;
+			} finally {
+				updateSemaphore.release();
+			}
 		}
 		
 
@@ -79,9 +89,6 @@ abstract class Tool<M> extends JComponent {
 					Logger.getLogger("global").log(Level.WARNING, e.toString());
 				}
 			}
-			
-			setLoading(false);
-			updateSemaphore.release();
 		}
 	}
 	
@@ -110,5 +117,17 @@ abstract class Tool<M> extends JComponent {
 		
 		return folder;
 	}
+	
+	private final PropertyChangeListener loadingListener = new PropertyChangeListener() {
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			// propagate loading events
+			if (evt.getPropertyName().equals(LoadingOverlayPane.LOADING_PROPERTY)) {
+				firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+			}
+			
+		}
+	};
 	
 }
