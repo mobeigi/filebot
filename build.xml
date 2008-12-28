@@ -19,7 +19,7 @@
 	<property name="lib.simmetrics" 	location="${dir.lib}/simmetrics_jar_v1_6_2_d07_02_07.jar" />
 	<property name="lib.xmlrpc" 		location="${dir.lib}/xmlrpc-client-1.1.jar" />
 	<property name="lib.glazedlists"	location="${dir.lib}/glazedlists-1.7.0_java15.jar" />
-	<property name="lib.miglayout" 		location="${dir.lib}/miglayout-3.6-swing.jar" />
+	<property name="lib.miglayout" 		location="${dir.lib}/miglayout-3.6.2-swing.jar" />
 	<property name="lib.args4j" 		location="${dir.lib}/args4j-2.0.9.jar" />
 	<property name="lib.junit" 			location="${dir.lib}/junit-4.4.jar" />
 	
@@ -89,7 +89,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}">
+		<javac srcdir="${dir.source}" destdir="${dir.build}" encoding="utf-8">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
@@ -106,7 +106,7 @@
 	
 	
 	<target name="build-test" depends="build">
-		<javac srcdir="${dir.test}" destdir="${dir.build}">
+		<javac srcdir="${dir.test}" destdir="${dir.build}" encoding="utf-8">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
