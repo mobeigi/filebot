@@ -3,11 +3,9 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,16 +13,15 @@ import javax.swing.Icon;
 
 import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.tuned.Timer;
 
 
 /**
- * {@link SubtitleClient} for OpenSubtitles.
+ * SubtitleClient for OpenSubtitles.
  */
 public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
 	private final OpenSubtitlesClient client = new OpenSubtitlesClient(String.format("%s v%s", FileBotUtil.getApplicationName(), FileBotUtil.getApplicationVersion()));
-	
-	private final LogoutTimer logoutTimer = new LogoutTimer();
 	
 	
 	@Override
@@ -44,19 +41,16 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	public List<SearchResult> search(String searchterm) throws Exception {
 		login();
 		
-		List result = client.searchMoviesOnIMDB(searchterm);
-		return result;
+		return (List) client.searchMoviesOnIMDB(searchterm);
 	}
 	
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Collection<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
+	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
 		login();
 		
-		int imdbId = ((MovieDescriptor) searchResult).getImdbId();
-		
-		return (Collection) client.searchSubtitles(imdbId, language);
+		return (List) client.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), language);
 	}
 	
 
@@ -69,81 +63,30 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	private synchronized void login() throws Exception {
 		if (!client.isLoggedOn()) {
 			client.loginAnonymous();
-			Runtime.getRuntime().addShutdownHook(logoutShutdownHook);
 		}
 		
-		logoutTimer.restart();
+		logoutTimer.set(12, TimeUnit.MINUTES, true);
 	}
 	
 
 	private synchronized void logout() {
-		logoutTimer.stop();
+		logoutTimer.cancel();
 		
 		if (client.isLoggedOn()) {
 			try {
 				client.logout();
 			} catch (Exception e) {
 				Logger.getLogger("global").log(Level.SEVERE, "Exception while deactivating session", e);
-			} finally {
-				try {
-					Runtime.getRuntime().removeShutdownHook(logoutShutdownHook);
-				} catch (IllegalStateException e) {
-					// shutdown in progress
-				}
 			}
 		}
 	}
 	
-	private final Thread logoutShutdownHook = new Thread() {
+	private final Timer logoutTimer = new Timer() {
 		
 		@Override
 		public void run() {
 			logout();
 		}
+		
 	};
-	
-	
-	private class LogoutTimer {
-		
-		private static final long LOGOUT_DELAY = 12 * 60 * 1000; // 12 minutes
-		
-		private Timer daemon = null;
-		private LogoutTimerTask currentTimerTask = null;
-		
-		
-		public synchronized void restart() {
-			if (daemon == null) {
-				daemon = new Timer(getClass().getName(), true);
-			}
-			
-			if (currentTimerTask != null) {
-				currentTimerTask.cancel();
-			}
-			
-			currentTimerTask = new LogoutTimerTask();
-			daemon.schedule(currentTimerTask, LOGOUT_DELAY);
-		}
-		
-
-		public synchronized void stop() {
-			if (daemon == null)
-				return;
-			
-			currentTimerTask.cancel();
-			currentTimerTask = null;
-			
-			daemon.cancel();
-			daemon = null;
-		}
-		
-		
-		private class LogoutTimerTask extends TimerTask {
-			
-			@Override
-			public void run() {
-				logout();
-			};
-		};
-	}
-	
 }

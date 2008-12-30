@@ -38,13 +38,13 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			clear();
 		
 		worker = new BackgroundWorker(files);
-		worker.addPropertyChangeListener(new BackgroundWorkerListener());
+		worker.addPropertyChangeListener(backgroundWorkerListener);
 		worker.execute();
 	}
 	
 
 	public synchronized boolean isActive() {
-		return (worker != null) && !worker.isDone();
+		return worker != null && !worker.isDone();
 	}
 	
 
@@ -108,8 +108,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		}
 	}
 	
-
-	private class BackgroundWorkerListener extends SwingWorkerPropertyChangeAdapter {
+	private final PropertyChangeListener backgroundWorkerListener = new SwingWorkerPropertyChangeAdapter() {
 		
 		@Override
 		public void started(PropertyChangeEvent evt) {
@@ -121,7 +120,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		public void done(PropertyChangeEvent evt) {
 			propertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
 		}
-	}
+	};
 	
 	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 	

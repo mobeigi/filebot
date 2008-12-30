@@ -27,8 +27,6 @@ public class DefaultThreadFactory implements ThreadFactory {
 
 	public DefaultThreadFactory(String groupName, int priority, boolean daemon) {
 		group = new ThreadGroup(groupName);
-		group.setDaemon(daemon);
-		group.setMaxPriority(priority);
 		
 		this.daemon = daemon;
 		this.priority = priority;
