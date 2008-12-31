@@ -1,3 +1,4 @@
+package net.sourceforge.filebot;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -6,8 +7,6 @@ import java.util.prefs.Preferences;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import net.sourceforge.filebot.ArgumentBean;
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.FileBotWindow;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 

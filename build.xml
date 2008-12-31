@@ -1,46 +1,58 @@
 <?xml version="1.0"?>
-
-<project name="FileBot" default="fatjar">
+<project name="FileBot" default="jar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.9.0" />
+	<property name="version" value="1.9" />
 
+	<tstamp>
+		<format property="today" pattern="yyyy-MM-dd" />
+	</tstamp>
 
-	<property name="dir.source" 		location="${basedir}/source" />
-	<property name="dir.test" 			location="${basedir}/test" />
-	<property name="dir.build"			location="${basedir}/build" />
-	<property name="dir.dist"			location="${basedir}/dist" />
-	<property name="dir.lib" 			location="${basedir}/lib" />
-
-	<property name="executable" 		location="${dir.dist}/${title}.jar" />
-
-	<property name="lib.xerces" 		location="${dir.lib}/xercesImpl.jar" />
-	<property name="lib.nekohtml" 		location="${dir.lib}/nekohtml-1.9.7.jar" />
-	<property name="lib.simmetrics" 	location="${dir.lib}/simmetrics_jar_v1_6_2_d07_02_07.jar" />
-	<property name="lib.xmlrpc" 		location="${dir.lib}/xmlrpc-client-1.1.jar" />
-	<property name="lib.glazedlists"	location="${dir.lib}/glazedlists-1.7.0_java15.jar" />
-	<property name="lib.miglayout" 		location="${dir.lib}/miglayout-3.6.2-swing.jar" />
-	<property name="lib.args4j" 		location="${dir.lib}/args4j-2.0.9.jar" />
-	<property name="lib.junit" 			location="${dir.lib}/junit-4.4.jar" />
-	
+	<property name="dir.source" location="${basedir}/source" />
+	<property name="dir.test" location="${basedir}/test" />
+	<property name="dir.build" location="${basedir}/build" />
+	<property name="dir.dist" location="${basedir}/dist" />
+	<property name="dir.lib" location="${basedir}/lib" />
 
 
 
-	<target name="fatjar" depends="clean, build">
+	<target name="jar" depends="build">
 		<!-- create dist dir -->
 		<mkdir dir="${dir.dist}" />
-	
-		<jar destfile="${executable}" duplicate="fail">
-			<fileset dir="${dir.build}" />
+
+		<!-- main jar -->
+		<jar destfile="${dir.dist}/filebot.jar">
+			<fileset dir="${dir.build}" excludes="**/*Test*" />
 
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="Main" />
-				<attribute name="Version" value="${version}" />
+				<attribute name="Built-Date" value="${today}" />
+				<attribute name="Implementation-Title" value="${title}" />
+				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Class-Path" value="args4j.jar miglayout.jar glazedlists.jar nekohtml.jar xercesImpl.jar simmetrics.jar xmlrpc-client.jar" />
+				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
 			</manifest>
+		</jar>
+
+		<!-- extra jar containing all the unit tests -->
+		<jar destfile="${dir.dist}/filebot-test.jar">
+			<fileset dir="${dir.build}" includes="**/*Test*" />
+		</jar>
+	</target>
+
+
+	<target name="fatjar" depends="jar">
+		<!-- create dist/fatjar dir -->
+		<mkdir dir="${dir.dist}/fatjar" />
+
+		<jar destfile="${dir.dist}/fatjar/FileBot.jar" filesetmanifest="merge" duplicate="fail">
+
+			<zipfileset src="${dir.dist}/filebot.jar">
+				<include name="**/*" />
+			</zipfileset>
 
 			<!-- include libs -->
-			<zipfileset src="${lib.xerces}">
+			<zipfileset src="${dir.lib}/xercesImpl.jar">
 				<include name="org/apache/html/dom/**" />
 				<include name="org/apache/xerces/dom/**" />
 				<include name="org/apache/xerces/impl/**" />
@@ -50,33 +62,33 @@
 				<include name="org/apache/xerces/xs/**" />
 			</zipfileset>
 
-			<zipfileset src="${lib.nekohtml}">
+			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</zipfileset>
 
-			<zipfileset src="${lib.simmetrics}">
+			<zipfileset src="${dir.lib}/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/math/**" />
 				<include name="uk/ac/shef/wit/simmetrics/similaritymetrics/**" />
 				<include name="uk/ac/shef/wit/simmetrics/tokenisers/**" />
 				<include name="uk/ac/shef/wit/simmetrics/wordhandlers/**" />
 			</zipfileset>
 
-			<zipfileset src="${lib.glazedlists}">
+			<zipfileset src="${dir.lib}/glazedlists.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
 
-			<zipfileset src="${lib.miglayout}">
+			<zipfileset src="${dir.lib}/miglayout.jar">
 				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</zipfileset>
 
-			<zipfileset src="${lib.xmlrpc}">
+			<zipfileset src="${dir.lib}/xmlrpc-client.jar">
 				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</zipfileset>
 
-			<zipfileset src="${lib.args4j}">
+			<zipfileset src="${dir.lib}/args4j.jar">
 				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</zipfileset>
@@ -89,7 +101,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}" destdir="${dir.build}" encoding="utf-8">
+		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" source="1.6" encoding="utf-8">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
@@ -99,18 +111,8 @@
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
 				<include name="**/*.png" />
-				<include name="**/*.gif" />
 			</fileset>
 		</copy>
-	</target>
-	
-	
-	<target name="build-test" depends="build">
-		<javac srcdir="${dir.test}" destdir="${dir.build}" encoding="utf-8">
-			<classpath>
-				<fileset dir="${dir.lib}" includes="*.jar" />
-			</classpath>
-		</javac>
 	</target>
 
 
@@ -118,24 +120,34 @@
 		<delete dir="${dir.dist}" />
 		<delete dir="${dir.build}" />
 	</target>
-	
 
-	<target name="test" depends="clean, build-test, fatjar">
-		<junit printsummary="yes" showoutput="yes">
+
+	<target name="test" depends="jar">
+		<junit printsummary="yes" fork="true">
 			<classpath>
-				<pathelement location="${executable}"/>
-				<pathelement location="${lib.junit}"/>
+				<fileset dir="${dir.dist}" includes="*.jar" />
+				<fileset dir="${dir.lib}" includes="*.jar" />
+			</classpath>
+
+			<formatter type="plain" />
+
+			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
+		</junit>
+	</target>
+
+	
+	<target name="test-fatjar" depends="fatjar">
+		<junit printsummary="yes" fork="true">
+			<classpath>
+				<pathelement location="${dir.dist}/fatjar/FileBot.jar" />
+				<pathelement location="${dir.dist}/filebot-test.jar" />
+				<pathelement location="${dir.lib}/junit.jar" />
 			</classpath>
 			
 			<formatter type="plain" />
-			
-			<test name="AllTests" outfile="test-report" />
+
+			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
 	</target>
 	
-	
-	<target name="run" depends="fatjar">
-		<java jar="${executable}" fork="yes" />
-	</target>
-
 </project>

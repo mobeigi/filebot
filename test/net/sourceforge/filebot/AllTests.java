@@ -1,4 +1,4 @@
-import net.sourceforge.filebot.FileBotTestSuite;
+package net.sourceforge.filebot;
 import net.sourceforge.tuned.TunedTestSuite;
 
 import org.junit.runner.RunWith;

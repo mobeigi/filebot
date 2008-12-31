@@ -36,15 +36,15 @@ public class FilterIteratorTest {
 			@Override
 			protected Integer filter(String sourceValue) {
 				if (sourceValue.matches("\\d+"))
-					return Integer.parseInt(sourceValue);
+					return Integer.valueOf(sourceValue);
 				
 				return null;
 			}
 		};
 		
-		assertEquals(2, integers.next());
+		assertEquals(Integer.valueOf(2), integers.next());
 		integers.remove();
-		assertEquals(5, integers.next());
+		assertEquals(Integer.valueOf(5), integers.next());
 		integers.remove();
 		
 		assertFalse(integers.hasNext());
