@@ -69,6 +69,11 @@ public final class TunedUtil {
 	}
 	
 
+	public static Dimension getDimension(Icon icon) {
+		return new Dimension(icon.getIconWidth(), icon.getIconHeight());
+	}
+	
+
 	public static Timer invokeLater(int delay, final Runnable runnable) {
 		Timer timer = new Timer(delay, new ActionListener() {
 			

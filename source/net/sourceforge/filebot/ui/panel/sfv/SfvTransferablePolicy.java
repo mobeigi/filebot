@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import static net.sourceforge.filebot.FileBotUtil.SFV_FILE_EXTENSIONS;
+import static net.sourceforge.filebot.FileBotUtil.containsOnly;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +16,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 
 
@@ -94,7 +96,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	@Override
 	protected void load(List<File> files) {
 		try {
-			if (FileBotUtil.containsOnlySfvFiles(files)) {
+			if (containsOnly(files, SFV_FILE_EXTENSIONS)) {
 				// one or more sfv files
 				for (File file : files) {
 					loadSfvFile(file);

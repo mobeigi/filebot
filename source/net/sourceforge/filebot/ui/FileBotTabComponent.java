@@ -2,41 +2,51 @@
 package net.sourceforge.filebot.ui;
 
 
+import java.awt.Dimension;
+
+import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ProgressIndicator;
+import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class FileBotTabComponent extends JComponent {
 	
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
-	private JLabel label = new JLabel();
-	private JButton closeButton = createCloseButton();
+	private JLabel textLabel = new JLabel();
+	private JLabel iconLabel = new JLabel();
+	private AbstractButton closeButton = createCloseButton();
 	
-	private Icon icon = null;
 	private boolean loading = false;
 	
 	
 	public FileBotTabComponent() {
-		setLayout(new MigLayout("nogrid, fill, insets 0"));
+		iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		textLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		progressIndicator.setVisible(loading);
+		progressIndicator.setMinimumSize(new Dimension(16, 16));
 		
-		add(progressIndicator, "gap right 4px, w 17px!, h 17px!, hidemode 3");
-		add(label, "grow");
-		add(closeButton, "gap 3px:push, w 17!, h 17!");
+		setLayout(new MigLayout("nogrid, insets 0 0 1 3"));
+		
+		add(progressIndicator, "hidemode 3");
+		add(iconLabel, "hidemode 3");
+		add(textLabel, "gap rel, align left");
+		add(closeButton, "gap unrel:push, hidemode 3, align center 45%");
 	}
 	
 
 	public void setLoading(boolean loading) {
 		this.loading = loading;
 		progressIndicator.setVisible(loading);
-		label.setIcon(loading ? null : icon);
+		iconLabel.setVisible(!loading);
 	}
 	
 
@@ -46,43 +56,46 @@ public class FileBotTabComponent extends JComponent {
 	
 
 	public void setIcon(Icon icon) {
-		this.icon = icon;
-		label.setIcon(loading ? null : icon);
+		iconLabel.setIcon(icon);
+		progressIndicator.setPreferredSize(icon != null ? TunedUtil.getDimension(icon) : progressIndicator.getMinimumSize());
 	}
 	
 
 	public Icon getIcon() {
-		return icon;
+		return iconLabel.getIcon();
 	}
 	
 
 	public void setText(String text) {
-		label.setText(text);
+		textLabel.setText(text);
 	}
 	
 
 	public String getText() {
-		return label.getText();
+		return textLabel.getText();
 	}
 	
 
-	public JButton getCloseButton() {
+	public AbstractButton getCloseButton() {
 		return closeButton;
 	}
 	
 
-	private JButton createCloseButton() {
-		JButton button = new JButton();
+	protected AbstractButton createCloseButton() {
+		Icon icon = ResourceManager.getIcon("tab.close");
+		Icon rolloverIcon = ResourceManager.getIcon("tab.close.hover");
+		
+		JButton button = new JButton(icon);
+		button.setRolloverIcon(rolloverIcon);
+		
+		button.setPreferredSize(TunedUtil.getDimension(rolloverIcon));
+		button.setMaximumSize(button.getPreferredSize());
 		
 		button.setContentAreaFilled(false);
 		button.setBorderPainted(false);
 		button.setFocusable(false);
 		button.setRolloverEnabled(true);
 		
-		button.setIcon(ResourceManager.getIcon("tab.close"));
-		button.setRolloverIcon(ResourceManager.getIcon("tab.close.hover"));
-		
 		return button;
 	}
-	
 }

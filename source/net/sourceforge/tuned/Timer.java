@@ -2,7 +2,7 @@
 package net.sourceforge.tuned;
 
 
-import java.util.concurrent.RunnableScheduledFuture;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +11,7 @@ public abstract class Timer implements Runnable {
 	
 	private final ScheduledThreadPoolExecutor executor;
 	
-	private RunnableScheduledFuture<?> scheduledFuture;
+	private ScheduledFuture<?> scheduledFuture;
 	private Thread shutdownHook;
 	
 	
@@ -47,7 +47,7 @@ public abstract class Timer implements Runnable {
 			removeShutdownHook();
 		}
 		
-		scheduledFuture = (RunnableScheduledFuture<?>) executor.schedule(r, delay, unit);
+		scheduledFuture = executor.schedule(r, delay, unit);
 	}
 	
 
@@ -60,8 +60,8 @@ public abstract class Timer implements Runnable {
 	private synchronized void removeScheduledFuture() {
 		if (scheduledFuture != null) {
 			try {
-				scheduledFuture.cancel(false);
-				executor.remove(scheduledFuture);
+				scheduledFuture.cancel(true);
+				executor.purge();
 			} finally {
 				scheduledFuture = null;
 			}

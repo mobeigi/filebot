@@ -3,13 +3,12 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.sourceforge.filebot.FileBotUtil;
 
 
 public class Unrar {
@@ -64,11 +63,11 @@ public class Unrar {
 			if (System.getProperty("os.name").toLowerCase().contains("windows")) {
 				File programFiles = new File(System.getenv("PROGRAMFILES"));
 				
-				for (File folder : programFiles.listFiles(FileBotUtil.FOLDERS_ONLY)) {
+				for (File folder : programFiles.listFiles(FOLDERS_ONLY)) {
 					String name = folder.getName().toLowerCase();
 					
 					if (name.contains("rar") || name.contains("zip")) {
-						for (File file : folder.listFiles(FileBotUtil.FILES_ONLY)) {
+						for (File file : folder.listFiles(FILES_ONLY)) {
 							String filename = file.getName();
 							
 							if (filename.equalsIgnoreCase("unrar.exe") || filename.equalsIgnoreCase("7z.exe")) {
@@ -89,7 +88,7 @@ public class Unrar {
 				return new Command(command);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Cannot initialize unrar facility: " + e.getMessage());
+			Logger.getLogger("global").log(Level.WARNING, "Cannot initialize unrar facility: " + e.getMessage());
 		}
 		
 		return null;
@@ -135,4 +134,23 @@ public class Unrar {
 		}
 		
 	}
+	
+	private static final FileFilter FOLDERS_ONLY = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isDirectory();
+		}
+		
+	};
+	
+	private static final FileFilter FILES_ONLY = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.isFile();
+		}
+		
+	};
+	
 }

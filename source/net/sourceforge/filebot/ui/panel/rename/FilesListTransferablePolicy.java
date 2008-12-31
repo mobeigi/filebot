@@ -2,11 +2,12 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import ca.odell.glazedlists.EventList;
@@ -36,7 +37,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		if (FileBotUtil.containsOnlyFolders(files)) {
+		if (containsOnlyFolders(files)) {
 			for (File folder : files) {
 				loadFiles(Arrays.asList(folder.listFiles()));
 			}

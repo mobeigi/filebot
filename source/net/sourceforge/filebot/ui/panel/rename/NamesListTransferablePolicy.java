@@ -2,6 +2,10 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.FileBotUtil.LIST_FILE_EXTENSIONS;
+import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
+import static net.sourceforge.filebot.FileBotUtil.containsOnly;
+
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedReader;
 import java.io.File;
@@ -75,9 +79,9 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 	@Override
 	protected void load(List<File> files) {
 		
-		if (FileBotUtil.containsOnlyListFiles(files)) {
+		if (containsOnly(files, LIST_FILE_EXTENSIONS)) {
 			loadListFiles(files);
-		} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
+		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
 			loadTorrentFiles(files);
 		} else {
 			super.load(files);

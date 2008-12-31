@@ -24,7 +24,7 @@ public final class FileUtil {
 	}
 	
 
-	public static boolean hasExtension(File file, String... extensions) {
+	public static boolean hasExtension(File file, Iterable<String> extensions) {
 		if (file.isDirectory())
 			return false;
 		
@@ -32,7 +32,7 @@ public final class FileUtil {
 	}
 	
 
-	public static boolean hasExtension(String filename, String... extensions) {
+	public static boolean hasExtension(String filename, Iterable<String> extensions) {
 		String extension = getExtension(filename, false);
 		
 		for (String ext : extensions) {

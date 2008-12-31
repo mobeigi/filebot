@@ -2,6 +2,10 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
+import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
+import static net.sourceforge.filebot.FileBotUtil.containsOnly;
+import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,7 +13,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -43,9 +46,9 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		// set title based on parent folder of first file
 		list.setTitle(FileUtil.getFolderName(files.get(0).getParentFile()));
 		
-		if (FileBotUtil.containsOnlyFolders(files)) {
+		if (containsOnlyFolders(files)) {
 			loadFolders(files);
-		} else if (FileBotUtil.containsOnlyTorrentFiles(files)) {
+		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
 			loadTorrents(files);
 		} else {
 			for (File file : files) {

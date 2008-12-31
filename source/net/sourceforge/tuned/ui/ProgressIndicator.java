@@ -53,14 +53,14 @@ public class ProgressIndicator extends JComponent {
 		addComponentListener(new ComponentAdapter() {
 			
 			@Override
-			public void componentHidden(ComponentEvent e) {
-				stopAnimation();
+			public void componentShown(ComponentEvent e) {
+				startAnimation();
 			}
 			
 
 			@Override
-			public void componentShown(ComponentEvent e) {
-				startAnimation();
+			public void componentHidden(ComponentEvent e) {
+				stopAnimation();
 			}
 		});
 	}

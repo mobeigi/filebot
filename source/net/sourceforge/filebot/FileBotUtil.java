@@ -3,8 +3,8 @@ package net.sourceforge.filebot;
 
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,13 +66,18 @@ public final class FileBotUtil {
 		return embeddedChecksum;
 	}
 	
-	private static final String[] TORRENT_FILE_EXTENSIONS = { "torrent" };
-	private static final String[] SFV_FILE_EXTENSIONS = { "sfv" };
-	private static final String[] LIST_FILE_EXTENSIONS = { "txt", "list", "" };
-	private static final String[] SUBTITLE_FILE_EXTENSIONS = { "srt", "sub", "ssa", "smi" };
+	public static final List<String> TORRENT_FILE_EXTENSIONS = unmodifiableList("torrent");
+	public static final List<String> SFV_FILE_EXTENSIONS = unmodifiableList("sfv");
+	public static final List<String> LIST_FILE_EXTENSIONS = unmodifiableList("txt", "list", "");
+	public static final List<String> SUBTITLE_FILE_EXTENSIONS = unmodifiableList("srt", "sub", "ssa", "smi");
 	
 	
-	public static boolean containsOnlyFolders(List<File> files) {
+	private static List<String> unmodifiableList(String... elements) {
+		return Collections.unmodifiableList(Arrays.asList(elements));
+	}
+	
+
+	public static boolean containsOnlyFolders(Iterable<File> files) {
 		for (File file : files) {
 			if (!file.isDirectory())
 				return false;
@@ -82,22 +87,7 @@ public final class FileBotUtil {
 	}
 	
 
-	public static boolean containsOnlyTorrentFiles(List<File> files) {
-		return containsOnly(files, TORRENT_FILE_EXTENSIONS);
-	}
-	
-
-	public static boolean containsOnlySfvFiles(List<File> files) {
-		return containsOnly(files, SFV_FILE_EXTENSIONS);
-	}
-	
-
-	public static boolean containsOnlyListFiles(List<File> files) {
-		return containsOnly(files, LIST_FILE_EXTENSIONS);
-	}
-	
-
-	public static boolean containsOnly(List<File> files, String... extensions) {
+	public static boolean containsOnly(Iterable<File> files, Iterable<String> extensions) {
 		for (File file : files) {
 			if (!FileUtil.hasExtension(file, extensions))
 				return false;
@@ -106,34 +96,7 @@ public final class FileBotUtil {
 		return true;
 	}
 	
-	public static final FileFilter FOLDERS_ONLY = new FileFilter() {
-		
-		@Override
-		public boolean accept(File file) {
-			return file.isDirectory();
-		}
-		
-	};
-	
-	public static final FileFilter FILES_ONLY = new FileFilter() {
-		
-		@Override
-		public boolean accept(File file) {
-			return file.isFile();
-		}
-		
-	};
-	
-	public static final FilenameFilter SUBTITLES_ONLY = new FilenameFilter() {
-		
-		@Override
-		public boolean accept(File dir, String name) {
-			return FileUtil.hasExtension(name, SUBTITLE_FILE_EXTENSIONS);
-		}
-		
-	};
-	
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
