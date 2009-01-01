@@ -17,7 +17,7 @@ public interface SubtitleClient {
 	public Collection<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception;
 	
 
-	public URI getSubtitleListLink(SearchResult searchResult);
+	public URI getSubtitleListLink(SearchResult searchResult, Locale language);
 	
 
 	public String getName();

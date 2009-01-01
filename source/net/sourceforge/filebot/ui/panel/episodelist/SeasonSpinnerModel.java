@@ -15,18 +15,28 @@ public class SeasonSpinnerModel extends SpinnerNumberModel {
 	}
 	
 
-	public int getSeason() {
+	public Integer getSeason() {
 		return getNumber().intValue();
 	}
 	
 
-	public void lock(int maxSeason) {
-		setMaximum(maxSeason);
+	public void spin(int steps) {
+		int next = getSeason() + steps;
+		
+		if (next < ALL_SEASONS)
+			next = ALL_SEASONS;
+		
+		setValue(next);
 	}
 	
 
-	public void unlock() {
-		setMaximum(Integer.MAX_VALUE);
+	public void lock(boolean lock) {
+		if (lock) {
+			setValue(ALL_SEASONS);
+			setMaximum(ALL_SEASONS);
+		} else {
+			setMaximum(Integer.MAX_VALUE);
+		}
 	}
 	
 }

@@ -60,7 +60,7 @@ public class ListPanel extends FileBotPanel {
 		fromSpinner.setEditor(new JSpinner.NumberEditor(fromSpinner, "#"));
 		toSpinner.setEditor(new JSpinner.NumberEditor(toSpinner, "#"));
 		
-		setLayout(new MigLayout("insets dialog, nogrid, fill", "align center"));
+		setLayout(new MigLayout("nogrid, fill, insets 6px 2px 6px 2px", "align center"));
 		
 		add(new JLabel("Pattern:"), "gapbefore indent");
 		add(textField, "gap related, wmin 2cm");

@@ -88,7 +88,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListLink() throws Exception {
-		assertEquals(twinpeaksSearchResult.getURL().toString(), subscene.getSubtitleListLink(twinpeaksSearchResult).toURL().toString());
+		assertEquals(twinpeaksSearchResult.getURL().toString(), subscene.getSubtitleListLink(twinpeaksSearchResult, null).toURL().toString());
 	}
 	
 }

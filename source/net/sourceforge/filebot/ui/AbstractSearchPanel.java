@@ -2,11 +2,13 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.awt.BorderLayout;
+import static javax.swing.JTabbedPane.WRAP_TAB_LAYOUT;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.SwingConstants.TOP;
+
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +17,6 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -23,64 +24,51 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 
-public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends FileBotPanel {
+public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 	
-	private final JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+	protected final JPanel tabbedPaneGroup = new JPanel(new MigLayout("nogrid, fill, insets 0"));
 	
-	private final HistoryPanel historyPanel = new HistoryPanel();
+	protected final JTabbedPane tabbedPane = new JTabbedPane(TOP, WRAP_TAB_LAYOUT);
 	
-	private final SelectButtonTextField<S> searchField = new SelectButtonTextField<S>();
+	protected final HistoryPanel historyPanel = new HistoryPanel();
 	
-	private final EventList<String> searchHistory = new BasicEventList<String>();
+	protected final SelectButtonTextField<S> searchTextField = new SelectButtonTextField<S>();
+	
+	private EventList<String> searchHistory = new BasicEventList<String>();
 	
 	
 	public AbstractSearchPanel(String title, Icon icon) {
 		super(title, icon);
 		
-		setLayout(new BorderLayout(10, 5));
-		
-		Box searchBox = Box.createHorizontalBox();
-		searchBox.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
-		searchField.setMaximumSize(searchField.getPreferredSize());
-		
-		searchBox.add(Box.createHorizontalGlue());
-		searchBox.add(searchField);
-		searchBox.add(Box.createHorizontalStrut(15));
-		searchBox.add(new JButton(searchAction));
-		searchBox.add(Box.createHorizontalGlue());
-		
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		centerPanel.setBorder(BorderFactory.createTitledBorder("Search Results"));
-		
-		centerPanel.add(tabbedPane, BorderLayout.CENTER);
-		
 		historyPanel.setColumnHeader(2, "Duration");
 		
-		JScrollPane historyScrollPane = new JScrollPane(historyPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane historyScrollPane = new JScrollPane(historyPanel, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
 		historyScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
 		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyScrollPane);
 		
-		add(searchBox, BorderLayout.NORTH);
-		add(centerPanel, BorderLayout.CENTER);
+		tabbedPaneGroup.setBorder(BorderFactory.createTitledBorder("Search Results"));
+		tabbedPaneGroup.add(tabbedPane, "grow, wrap 8px");
+		
+		setLayout(new MigLayout("nogrid, fill, insets 0 0 5px 0"));
+		add(searchTextField, "alignx center, gapafter indent");
+		add(new JButton(searchAction), "gap 18px, wrap 10px");
+		add(tabbedPaneGroup, "grow");
 		
 		/*
 		 * TODO: fetchHistory
@@ -91,12 +79,12 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		completionList.addMemberList(fetchHistory);
 		*/
 
-		searchField.getEditor().setAction(searchAction);
+		searchTextField.getEditor().setAction(searchAction);
 		
-		searchField.getSelectButton().setModel(createSearchEngines());
-		searchField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
+		searchTextField.getSelectButton().setModel(createSearchEngines());
+		searchTextField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
-		AutoCompleteSupport.install(searchField.getEditor(), searchHistory);
+		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory);
 		
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
@@ -108,13 +96,7 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
 	
 
-	protected abstract SearchTask createSearchTask();
-	
-
-	protected abstract FetchTask createFetchTask(SearchTask searchTask, SearchResult selectedSearchResult);
-	
-
-	protected abstract URI getLink(S client, SearchResult searchResult);
+	protected abstract RequestProcessor<?> createRequestProcessor();
 	
 
 	public EventList<String> getSearchHistory() {
@@ -122,13 +104,20 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 	}
 	
 
-	public HistoryPanel getHistoryPanel() {
-		return historyPanel;
-	}
-	
-
-	public SelectButtonTextField<S> getSearchField() {
-		return searchField;
+	private void search(RequestProcessor<?> requestProcessor) {
+		FileBotTab<?> tab = requestProcessor.tab;
+		Request request = requestProcessor.request;
+		
+		tab.setTitle(requestProcessor.getTitle());
+		tab.setLoading(true);
+		tab.setIcon(searchTextField.getSelectButton().getLabelProvider().getIcon(request.getClient()));
+		
+		tab.addTo(tabbedPane);
+		
+		tabbedPane.setSelectedComponent(tab);
+		
+		// search in background
+		new SearchTask(requestProcessor).execute();
 	}
 	
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
@@ -139,53 +128,112 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 				return;
 			}
 			
-			SearchTask searchTask = createSearchTask();
-			searchTask.addPropertyChangeListener(new SearchTaskListener());
-			
-			searchTask.execute();
+			search(createRequestProcessor());
 		}
 	};
 	
 	
-	protected abstract class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
+	protected class Request {
 		
-		private final String searchText;
 		private final S client;
+		private final String searchText;
 		
-		private final T tabPanel;
 		
-		
-		public SearchTask(S client, String searchText, T tabPanel) {
-			this.searchText = searchText;
+		public Request(S client, String searchText) {
 			this.client = client;
-			this.tabPanel = tabPanel;
+			this.searchText = searchText;
 		}
 		
 
-		@Override
-		protected abstract Collection<SearchResult> doInBackground() throws Exception;
+		public S getClient() {
+			return client;
+		}
 		
 
-		protected SearchResult chooseSearchResult() throws Exception {
+		public String getSearchText() {
+			return searchText;
+		}
+		
+	}
+	
+
+	protected abstract class RequestProcessor<R extends Request> {
+		
+		protected final R request;
+		
+		private FileBotTab<JComponent> tab;
+		
+		private SearchResult searchResult = null;
+		
+		private long duration = 0;
+		
+		
+		public RequestProcessor(R request, JComponent component) {
+			this.request = request;
+			this.tab = new FileBotTab<JComponent>(component);
+		}
+		
+
+		public abstract Collection<SearchResult> search() throws Exception;
+		
+
+		public abstract Collection<E> fetch() throws Exception;
+		
+
+		public abstract void process(Collection<E> elements);
+		
+
+		public abstract URI getLink();
+		
+
+		public JComponent getComponent() {
+			return tab.getComponent();
+		}
+		
+
+		public SearchResult getSearchResult() {
+			return searchResult;
+		}
+		
+
+		private void setSearchResult(SearchResult searchResult) {
+			this.searchResult = searchResult;
+		}
+		
+
+		public String getStatusMessage(Collection<E> result) {
+			return String.format("%d elements found", result.size());
+		}
+		
+
+		public String getTitle() {
+			if (searchResult != null)
+				return searchResult.getName();
 			
-			switch (get().size()) {
+			return request.getSearchText();
+		}
+		
+
+		protected SearchResult chooseSearchResult(Collection<SearchResult> searchResults) throws Exception {
+			
+			switch (searchResults.size()) {
 				case 0:
-					Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", getSearchText()));
+					Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", request.getSearchText()));
 					return null;
 				case 1:
-					return get().iterator().next();
+					return searchResults.iterator().next();
 			}
 			
 			// check if an exact match has been found
-			for (SearchResult searchResult : get()) {
-				if (getSearchText().equalsIgnoreCase(searchResult.getName()))
+			for (SearchResult searchResult : searchResults) {
+				if (request.getSearchText().equalsIgnoreCase(searchResult.getName()))
 					return searchResult;
 			}
 			
 			// multiple results have been found, user must select one
 			Window window = SwingUtilities.getWindowAncestor(AbstractSearchPanel.this);
 			
-			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, get());
+			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
 			
 			configureSelectDialog(selectDialog);
 			
@@ -196,146 +244,8 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 		}
 		
 
-		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) throws Exception {
-			selectDialog.setIconImage(TunedUtil.getImage(searchField.getSelectButton().getLabelProvider().getIcon(getClient())));
-		}
-		
-
-		public String getSearchText() {
-			return searchText;
-		}
-		
-
-		public S getClient() {
-			return client;
-		}
-		
-
-		public T getTabPanel() {
-			return tabPanel;
-		}
-		
-	}
-	
-
-	private class SearchTaskListener extends SwingWorkerPropertyChangeAdapter {
-		
-		private FileBotTab<T> tab;
-		
-		
-		@Override
-		public void started(PropertyChangeEvent evt) {
-			SearchTask task = (SearchTask) evt.getSource();
-			
-			tab = new FileBotTab<T>(task.getTabPanel());
-			
-			tab.setTitle(task.getSearchText());
-			tab.setLoading(true);
-			tab.setIcon(searchField.getSelectButton().getLabelProvider().getIcon(task.getClient()));
-			
-			tab.addTo(tabbedPane);
-			
-			tabbedPane.setSelectedComponent(tab);
-		}
-		
-
-		@Override
-		public void done(PropertyChangeEvent evt) {
-			// tab might have been closed
-			if (tab.isClosed())
-				return;
-			
-			SearchTask task = (SearchTask) evt.getSource();
-			
-			try {
-				SearchResult selectedResult = task.chooseSearchResult();
-				
-				if (selectedResult == null) {
-					tab.close();
-					return;
-				}
-				
-				String title = selectedResult.getName();
-				
-				if (!searchHistory.contains(title)) {
-					searchHistory.add(title);
-				}
-				
-				tab.setTitle(title);
-				
-				FetchTask fetchTask = createFetchTask(task, selectedResult);
-				fetchTask.addPropertyChangeListener(new FetchTaskListener(tab));
-				
-				fetchTask.execute();
-			} catch (Exception e) {
-				tab.close();
-				
-				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
-				Logger.getLogger("global").log(Level.SEVERE, "Search failed", e);
-			}
-			
-		}
-		
-	}
-	
-
-	protected abstract class FetchTask extends SwingWorker<Void, E> {
-		
-		private long duration = -1;
-		private int count = 0;
-		
-		private final S client;
-		private final SearchResult searchResult;
-		private final T tabPanel;
-		
-		
-		public FetchTask(S client, SearchResult searchResult, T tabPanel) {
-			this.client = client;
-			this.searchResult = searchResult;
-			this.tabPanel = tabPanel;
-		}
-		
-
-		@SuppressWarnings("unchecked")
-		@Override
-		protected final Void doInBackground() throws Exception {
-			long start = System.currentTimeMillis();
-			
-			Collection<E> results = fetch();
-			
-			for (E result : results) {
-				publish(result);
-				count++;
-			}
-			
-			duration = System.currentTimeMillis() - start;
-			
-			return null;
-		}
-		
-
-		protected abstract Collection<E> fetch() throws Exception;
-		
-
-		@Override
-		protected abstract void process(List<E> elements);
-		
-
-		public abstract String getStatusMessage();
-		
-
-		public S getClient() {
-			return client;
-		}
-		
-
-		public SearchResult getSearchResult() {
-			return searchResult;
-		}
-		
-
-		public T getTabPanel() {
-			return tabPanel;
+		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
+			selectDialog.setIconImage(TunedUtil.getImage(searchTextField.getSelectButton().getLabelProvider().getIcon(request.getClient())));
 		}
 		
 
@@ -343,87 +253,126 @@ public abstract class AbstractSearchPanel<S, E, T extends JComponent> extends Fi
 			return duration;
 		}
 		
+	}
+	
 
-		public int getCount() {
-			return count;
+	private class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
+		
+		private final RequestProcessor<?> requestProcessor;
+		
+		
+		public SearchTask(RequestProcessor<?> requestProcessor) {
+			this.requestProcessor = requestProcessor;
+		}
+		
+
+		@Override
+		protected Collection<SearchResult> doInBackground() throws Exception {
+			long start = System.currentTimeMillis();
+			
+			try {
+				return requestProcessor.search();
+			} finally {
+				requestProcessor.duration += (System.currentTimeMillis() - start);
+			}
+		}
+		
+
+		@Override
+		public void done() {
+			FileBotTab<?> tab = requestProcessor.tab;
+			
+			// tab might have been closed
+			if (tab.isClosed())
+				return;
+			
+			try {
+				// choose search result
+				requestProcessor.setSearchResult(requestProcessor.chooseSearchResult(get()));
+				
+				if (requestProcessor.getSearchResult() == null) {
+					tab.close();
+					return;
+				}
+				
+				String title = requestProcessor.getTitle();
+				
+				if (!searchHistory.contains(title)) {
+					searchHistory.add(title);
+				}
+				
+				tab.setTitle(title);
+				
+				// fetch elements of the selected search result
+				new FetchTask(requestProcessor).execute();
+			} catch (Exception e) {
+				tab.close();
+				
+				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
+				Logger.getLogger("global").log(Level.WARNING, "Search failed", e);
+			}
+			
 		}
 		
 	}
 	
 
-	private class FetchTaskListener extends SwingWorkerPropertyChangeAdapter {
+	private class FetchTask extends SwingWorker<Collection<E>, Void> {
 		
-		private final FileBotTab<T> tab;
-		
-		private CancelAction cancelOnClose;
+		private final RequestProcessor<?> requestProcessor;
 		
 		
-		public FetchTaskListener(FileBotTab<T> tab) {
-			this.tab = tab;
+		public FetchTask(RequestProcessor<?> requestProcessor) {
+			this.requestProcessor = requestProcessor;
 		}
 		
 
 		@Override
-		public void started(PropertyChangeEvent evt) {
-			cancelOnClose = new CancelAction((SwingWorker<?, ?>) evt.getSource());
-			tab.getTabComponent().getCloseButton().addActionListener(cancelOnClose);
+		protected final Collection<E> doInBackground() throws Exception {
+			long start = System.currentTimeMillis();
+			
+			try {
+				return requestProcessor.fetch();
+			} finally {
+				requestProcessor.duration += (System.currentTimeMillis() - start);
+			}
 		}
 		
 
 		@Override
-		public void done(PropertyChangeEvent evt) {
-			tab.getTabComponent().getCloseButton().removeActionListener(cancelOnClose);
+		public void done() {
+			FileBotTab<?> tab = requestProcessor.tab;
+			Request request = requestProcessor.request;
 			
-			FetchTask task = (FetchTask) evt.getSource();
-			
-			// tab might still be open, even if task was cancelled
-			if (tab.isClosed() || task.isCancelled())
+			if (tab.isClosed())
 				return;
 			
 			try {
 				// check if exception occurred
-				task.get();
+				Collection<E> elements = get();
 				
-				String title = task.getSearchResult().toString();
-				URI link = getLink(task.getClient(), task.getSearchResult());
-				Icon icon = searchField.getSelectButton().getLabelProvider().getIcon(task.getClient());
-				String info = task.getStatusMessage();
-				String duration = String.format("%,d ms", task.getDuration());
+				requestProcessor.process(elements);
 				
-				historyPanel.add(title, link, icon, info, duration);
+				String title = requestProcessor.getSearchResult().toString();
+				Icon icon = searchTextField.getSelectButton().getLabelProvider().getIcon(request.getClient());
+				String statusMessage = requestProcessor.getStatusMessage(elements);
+				
+				historyPanel.add(title, requestProcessor.getLink(), icon, statusMessage, String.format("%,d ms", requestProcessor.getDuration()));
 				
 				// close tab if no elements were fetched
-				if (task.getCount() <= 0) {
-					Logger.getLogger("ui").warning(info);
+				if (get().size() <= 0) {
+					Logger.getLogger("ui").warning(statusMessage);
 					tab.close();
 				}
 			} catch (Exception e) {
 				tab.close();
 				
 				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
-				Logger.getLogger("global").log(Level.SEVERE, "Fetch failed", e);
+				Logger.getLogger("global").log(Level.WARNING, "Fetch failed", e);
+			} finally {
+				tab.setLoading(false);
 			}
-			
-			tab.setLoading(false);
 		}
-	}
-	
-
-	private static class CancelAction implements ActionListener {
-		
-		private final SwingWorker<?, ?> worker;
-		
-		
-		public CancelAction(SwingWorker<?, ?> worker) {
-			this.worker = worker;
-		}
-		
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			worker.cancel(false);
-		}
-		
 	}
 	
 }

@@ -16,7 +16,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Calendar;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
@@ -35,13 +34,22 @@ public class ProgressIndicator extends JComponent {
 	
 	private final Rectangle2D frame = new Rectangle2D.Double();
 	private final Ellipse2D circle = new Ellipse2D.Double();
-	
 	private final Dimension baseSize = new Dimension(32, 32);
 	
-	private Timer updateTimer = new Timer(20, new ActionListener() {
+	private double alpha = 0;
+	private double speed = 1.2;
+	
+	private final Timer updateTimer = new Timer(20, new ActionListener() {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			Timer timer = (Timer) e.getSource();
+			
+			alpha += (timer.getDelay() * speed) / 1000;
+			
+			if (alpha >= 1)
+				alpha -= Math.floor(alpha);
+			
 			repaint();
 		}
 	});
@@ -97,12 +105,10 @@ public class ProgressIndicator extends JComponent {
 		g2d.setStroke(stroke);
 		g2d.setPaint(progressShapeColor);
 		
-		Calendar now = Calendar.getInstance();
+		// base rotation
+		g2d.rotate(getTheta(alpha, 1.0), frame.getCenterX(), frame.getCenterY());
 		
-		double theta = getTheta(now.get(Calendar.MILLISECOND), now.getMaximum(Calendar.MILLISECOND));
-		g2d.rotate(theta, frame.getCenterX(), frame.getCenterY());
-		
-		theta = getTheta(1, shapeCount);
+		double theta = getTheta(1, shapeCount);
 		
 		for (int i = 0; i < shapeCount; i++) {
 			g2d.rotate(theta, frame.getCenterX(), frame.getCenterY());
@@ -111,8 +117,8 @@ public class ProgressIndicator extends JComponent {
 	}
 	
 
-	private double getTheta(int value, int max) {
-		return ((double) value / max) * 2 * Math.PI;
+	private double getTheta(double value, double max) {
+		return (value / max) * 2 * Math.PI;
 	}
 	
 
@@ -128,6 +134,16 @@ public class ProgressIndicator extends JComponent {
 
 	public void setShapeCount(int indeterminateShapeCount) {
 		this.shapeCount = indeterminateShapeCount;
+	}
+	
+
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+	
+
+	public double getSpeed() {
+		return speed;
 	}
 	
 }

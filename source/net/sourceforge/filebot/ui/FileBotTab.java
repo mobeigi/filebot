@@ -11,8 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
-
 
 public class FileBotTab<T extends JComponent> extends JComponent {
 	
@@ -20,17 +18,14 @@ public class FileBotTab<T extends JComponent> extends JComponent {
 	
 	private final T component;
 	
-	private final LoadingOverlayPane loadingOverlayPane;
-	
 	
 	public FileBotTab(T component) {
-		
-		setLayout(new BorderLayout());
 		this.component = component;
+		
 		tabComponent.getCloseButton().addActionListener(closeAction);
 		
-		loadingOverlayPane = new LoadingOverlayPane(component, this);
-		add(loadingOverlayPane, BorderLayout.CENTER);
+		setLayout(new BorderLayout());
+		add(component, BorderLayout.CENTER);
 	}
 	
 
@@ -94,7 +89,6 @@ public class FileBotTab<T extends JComponent> extends JComponent {
 
 	public void setLoading(boolean loading) {
 		tabComponent.setLoading(loading);
-		loadingOverlayPane.setOverlayVisible(loading);
 	}
 	
 	private final ActionListener closeAction = new ActionListener() {

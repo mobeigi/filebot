@@ -17,6 +17,7 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultSingleSelectionModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -55,6 +56,7 @@ public class SelectButton<T> extends JButton {
 		setHorizontalAlignment(SwingConstants.CENTER);
 		setVerticalAlignment(SwingConstants.CENTER);
 		
+		setBorder(BorderFactory.createLineBorder(new Color(0xA4A4A4), 1));
 		setPreferredSize(new Dimension(32, 22));
 		
 		addActionListener(new OpenPopupOnClick());
@@ -189,7 +191,7 @@ public class SelectButton<T> extends JButton {
 				popup.add(item);
 			}
 			
-			popup.show(SelectButton.this, -4, getHeight() - 5);
+			popup.show(SelectButton.this, 0, getHeight() - 1);
 		}
 	}
 	

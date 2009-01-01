@@ -2,41 +2,28 @@
 package net.sourceforge.filebot.ui.panel.episodelist;
 
 
-import java.awt.BorderLayout;
-import java.awt.Window;
+import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.ALL_SEASONS;
+
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
-import net.sourceforge.filebot.ui.HistoryPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
@@ -46,87 +33,42 @@ import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
-import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
-import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
-public class EpisodeListPanel extends FileBotPanel {
-	
-	private JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
-	
-	private HistoryPanel historyPanel = new HistoryPanel();
+public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Episode> {
 	
 	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
-	
-	private SelectButtonTextField<EpisodeListClient> searchField;
 	
 	
 	public EpisodeListPanel() {
 		super("Episodes", ResourceManager.getIcon("panel.episodelist"));
-		setLayout(new BorderLayout());
-		
-		searchField = new SelectButtonTextField<EpisodeListClient>();
-		
-		searchField.getSelectButton().setModel(createSearchEngines());
-		searchField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
-		
-		searchField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
 		historyPanel.setColumnHeader(0, "Show");
 		historyPanel.setColumnHeader(1, "Number of Episodes");
-		historyPanel.setColumnHeader(2, "Duration");
-		
-		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
-		
-		Box searchBox = Box.createHorizontalBox();
-		searchBox.setBorder(new EmptyBorder(5, 5, 5, 5));
 		
 		JSpinner seasonSpinner = new JSpinner(seasonSpinnerModel);
 		seasonSpinner.setEditor(new SeasonSpinnerEditor(seasonSpinner));
-		searchField.setMaximumSize(searchField.getPreferredSize());
-		seasonSpinner.setMaximumSize(seasonSpinner.getPreferredSize());
 		
-		searchBox.add(Box.createHorizontalGlue());
-		searchBox.add(searchField);
-		searchBox.add(Box.createHorizontalStrut(15));
-		searchBox.add(seasonSpinner);
-		searchBox.add(Box.createHorizontalStrut(15));
-		searchBox.add(new JButton(searchAction));
-		searchBox.add(Box.createHorizontalGlue());
+		// set minimum size to "All Seasons" preferred size
+		seasonSpinner.setMinimumSize(seasonSpinner.getPreferredSize());
 		
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		centerPanel.setBorder(BorderFactory.createTitledBorder("Search Results"));
+		// add after text field
+		add(seasonSpinner, 1);
+		// add after tabbed pane
+		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())), "align center, wrap 5px");
 		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.setBorder(new EmptyBorder(5, 5, 5, 5));
-		buttonBox.add(Box.createHorizontalGlue());
-		buttonBox.add(new JButton(saveAction));
-		buttonBox.add(Box.createHorizontalGlue());
+		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
-		centerPanel.add(tabbedPane, BorderLayout.CENTER);
-		centerPanel.add(buttonBox, BorderLayout.SOUTH);
-		
-		JScrollPane historyScrollPane = new JScrollPane(historyPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		historyScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		
-		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyScrollPane);
-		
-		mainPanel.add(searchBox, BorderLayout.NORTH);
-		mainPanel.add(centerPanel, BorderLayout.CENTER);
-		
-		this.add(mainPanel, BorderLayout.CENTER);
-		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("UP"), upAction);
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("DOWN"), downAction);
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
+		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
 	}
 	
 
+	@Override
 	protected List<EpisodeListClient> createSearchEngines() {
 		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(3);
 		
@@ -138,61 +80,54 @@ public class EpisodeListPanel extends FileBotPanel {
 	}
 	
 
+	@Override
 	protected LabelProvider<EpisodeListClient> createSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(EpisodeListClient.class);
 	}
 	
+
+	@Override
+	protected EpisodeListRequestProcessor createRequestProcessor() {
+		EpisodeListClient client = searchTextField.getSelectButton().getSelectedValue();
+		String text = searchTextField.getText().trim();
+		int season = seasonSpinnerModel.getSeason();
+		
+		return new EpisodeListRequestProcessor(new EpisodeListRequest(client, text, season));
+	};
+	
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			EpisodeListClient client = searchField.getSelected();
+			EpisodeListClient client = searchTextField.getSelectButton().getSelectedValue();
 			
-			if (!client.hasSingleSeasonSupport()) {
-				seasonSpinnerModel.lock(SeasonSpinnerModel.ALL_SEASONS);
-			} else {
-				seasonSpinnerModel.unlock();
-			}
+			// lock season spinner on "All Seasons" if client doesn't support fetching of single seasons
+			seasonSpinnerModel.lock(!client.hasSingleSeasonSupport());
 		}
-		
 	};
 	
-	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
+	
+	private class SpinSeasonAction extends AbstractAction {
 		
+		public SpinSeasonAction(int spin) {
+			putValue("spin", spin);
+		}
+		
+
 		public void actionPerformed(ActionEvent e) {
-			EpisodeListClient searchEngine = searchField.getSelected();
-			
-			SearchTask task = new SearchTask(searchEngine, searchField.getText(), seasonSpinnerModel.getSeason());
-			task.addPropertyChangeListener(new SearchTaskListener());
-			
-			task.execute();
+			seasonSpinnerModel.spin((Integer) getValue("spin"));
 		}
-	};
+	}
 	
-	private final AbstractAction upAction = new AbstractAction("Up") {
-		
-		public void actionPerformed(ActionEvent e) {
-			seasonSpinnerModel.setValue(seasonSpinnerModel.getNextValue());
-		}
-	};
-	
-	private final AbstractAction downAction = new AbstractAction("Down") {
-		
-		public void actionPerformed(ActionEvent e) {
-			seasonSpinnerModel.setValue(seasonSpinnerModel.getPreviousValue());
-		}
-	};
-	
-	private final SaveAction saveAction = new SaveAction(new SelectedTabExportHandler());
-	
-	
+
 	private class SelectedTabExportHandler implements FileExportHandler {
 		
 		/**
 		 * @return the <code>FileExportHandler</code> of the currently selected tab
 		 */
+		@SuppressWarnings("unchecked")
 		private FileExportHandler getExportHandler() {
 			try {
-				FileBotList<?> list = (FileBotList<?>) tabbedPane.getSelectedComponent();
+				EpisodeListTab list = ((FileBotTab<EpisodeListTab>) tabbedPane.getSelectedComponent()).getComponent();
 				return list.getExportHandler();
 			} catch (ClassCastException e) {
 				// selected component is the history panel
@@ -226,166 +161,109 @@ public class EpisodeListPanel extends FileBotPanel {
 	}
 	
 
-	private class SearchTask extends SwingWorker<Collection<SearchResult>, Void> {
+	private class EpisodeListRequest extends Request {
 		
-		private final String query;
-		private final EpisodeListClient client;
-		private final int numberOfSeason;
+		private final int season;
 		
 		
-		public SearchTask(EpisodeListClient client, String query, int numberOfSeason) {
-			this.query = query;
-			this.client = client;
-			this.numberOfSeason = numberOfSeason;
+		public EpisodeListRequest(EpisodeListClient client, String searchText, int season) {
+			super(client, searchText);
+			this.season = season;
 		}
 		
 
-		@Override
-		protected Collection<SearchResult> doInBackground() throws Exception {
-			return client.search(query);
+		public int getSeason() {
+			return season;
 		}
 		
 	}
 	
 
-	private class SearchTaskListener extends SwingWorkerPropertyChangeAdapter {
+	private class EpisodeListRequestProcessor extends RequestProcessor<EpisodeListRequest> {
 		
-		private FileBotTab<FileBotList<Episode>> episodeList;
-		
-		
-		@Override
-		public void started(PropertyChangeEvent evt) {
-			SearchTask task = (SearchTask) evt.getSource();
-			
-			episodeList = new EpisodeListTab();
-			
-			String title = task.query;
-			
-			if (task.numberOfSeason != SeasonSpinnerModel.ALL_SEASONS) {
-				title += String.format(" - Season %d", task.numberOfSeason);
-			}
-			
-			episodeList.setTitle(title);
-			episodeList.setIcon(task.client.getIcon());
-			
-			tabbedPane.addTab(title, episodeList);
-			tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(episodeList), episodeList.getTabComponent());
-			
-			episodeList.setLoading(true);
+		public EpisodeListRequestProcessor(EpisodeListRequest request) {
+			super(request, new EpisodeListTab());
 		}
 		
 
 		@Override
-		public void done(PropertyChangeEvent evt) {
-			// tab might have been closed
-			if (tabbedPane.indexOfComponent(episodeList) < 0)
-				return;
-			
-			SearchTask task = (SearchTask) evt.getSource();
-			
-			Collection<SearchResult> searchResults;
-			
-			try {
-				searchResults = task.get();
-			} catch (Exception e) {
-				tabbedPane.remove(episodeList);
-				
-				Throwable cause = ExceptionUtil.getRootCause(e);
-				
-				Logger.getLogger("ui").warning(cause.getMessage());
-				Logger.getLogger("global").log(Level.WARNING, cause.toString());
-				
-				return;
-			}
-			
-			SearchResult selectedResult = null;
-			
-			if (searchResults.size() == 1) {
-				// only one show found, select this one
-				selectedResult = searchResults.iterator().next();
-			} else if (searchResults.size() > 1) {
-				// multiple shows found, let user selected one
-				Window window = SwingUtilities.getWindowAncestor(EpisodeListPanel.this);
-				
-				SelectDialog<SearchResult> select = new SelectDialog<SearchResult>(window, searchResults);
-				
-				select.getHeaderLabel().setText("Select a Show:");
-				
-				select.setIconImage(TunedUtil.getImage(episodeList.getIcon()));
-				select.setVisible(true);
-				
-				selectedResult = select.getSelectedValue();
-			} else {
-				Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", task.query));
-			}
-			
-			if (selectedResult == null) {
-				tabbedPane.remove(episodeList);
-				return;
-			}
-			
-			String title = selectedResult.getName();
-			
-			//			searchFieldCompletion.addTerm(title);
-			//TODO fix
-			//			Settings.getSettings().putStringList(Settings.SEARCH_HISTORY, searchFieldCompletion.getTerms());
-			
-			if (task.numberOfSeason != SeasonSpinnerModel.ALL_SEASONS) {
-				title += String.format(" - Season %d", task.numberOfSeason);
-			}
-			
-			episodeList.setTitle(title);
-			
-			FetchEpisodeListTask getEpisodesTask = new FetchEpisodeListTask(task.client, selectedResult, task.numberOfSeason);
-			getEpisodesTask.addPropertyChangeListener(new FetchEpisodeListTaskListener(episodeList));
-			
-			getEpisodesTask.execute();
+		public Collection<SearchResult> search() throws Exception {
+			return request.getClient().search(request.getSearchText());
 		}
+		
+
+		@Override
+		public Collection<Episode> fetch() throws Exception {
+			if (request.getSeason() != ALL_SEASONS)
+				return request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
+			else
+				return request.getClient().getEpisodeList(getSearchResult());
+		}
+		
+
+		@Override
+		public URI getLink() {
+			if (request.getSeason() != ALL_SEASONS)
+				return request.getClient().getEpisodeListLink(getSearchResult(), request.getSeason());
+			else
+				return request.getClient().getEpisodeListLink(getSearchResult());
+		}
+		
+
+		@Override
+		public void process(Collection<Episode> episodes) {
+			// set a proper title for the export handler before adding episodes
+			getComponent().setTitle(getTitle());
+			
+			getComponent().getModel().addAll(episodes);
+		}
+		
+
+		@Override
+		public String getStatusMessage(Collection<Episode> result) {
+			return (result.isEmpty()) ? "No episodes found" : String.format("%d episodes", result.size());
+		}
+		
+
+		@Override
+		public EpisodeListTab getComponent() {
+			return (EpisodeListTab) super.getComponent();
+		}
+		
+
+		@Override
+		public String getTitle() {
+			if (request.getSeason() == ALL_SEASONS)
+				return super.getTitle();
+			
+			// add additional information to default title
+			return String.format("%s - Season %d", super.getTitle(), request.getSeason());
+		}
+		
+
+		@Override
+		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
+			super.configureSelectDialog(selectDialog);
+			selectDialog.getHeaderLabel().setText("Select a Show:");
+		}
+		
 	}
 	
 
-	private class FetchEpisodeListTaskListener extends SwingWorkerPropertyChangeAdapter {
+	private static class EpisodeListTab extends FileBotList<Episode> {
 		
-		private FileBotTab<FileBotList<Episode>> episodeList;
-		
-		
-		public FetchEpisodeListTaskListener(FileBotTab<FileBotList<Episode>> episodeList) {
-			this.episodeList = episodeList;
+		public EpisodeListTab() {
+			// set export handler for episode list
+			setExportHandler(new FileBotListExportHandler(this));
+			
+			// allow removal of episode list entries
+			getRemoveAction().setEnabled(true);
+			
+			// remove borders
+			listScrollPane.setBorder(null);
+			setBorder(null);
 		}
 		
-
-		@Override
-		public void done(PropertyChangeEvent evt) {
-			// tab might have been closed
-			if (tabbedPane.indexOfComponent(episodeList) < 0)
-				return;
-			
-			FetchEpisodeListTask task = (FetchEpisodeListTask) evt.getSource();
-			
-			try {
-				URI link = task.getSearchEngine().getEpisodeListLink(task.getSearchResult(), task.getNumberOfSeason());
-				
-				Collection<Episode> episodes = task.get();
-				
-				String info = (episodes.size() > 0) ? String.format("%d episodes", episodes.size()) : "No episodes found";
-				
-				historyPanel.add(episodeList.getTitle(), link, episodeList.getIcon(), info, NumberFormat.getInstance().format(task.getDuration()) + " ms");
-				
-				if (episodes.size() <= 0)
-					tabbedPane.remove(episodeList);
-				else {
-					episodeList.setLoading(false);
-					episodeList.getComponent().getModel().addAll(episodes);
-				}
-			} catch (Exception e) {
-				tabbedPane.remove(episodeList);
-				
-				Throwable cause = ExceptionUtil.getRootCause(e);
-				
-				Logger.getLogger("ui").warning(cause.getMessage());
-				Logger.getLogger("global").log(Level.SEVERE, cause.getMessage(), cause);
-			}
-		}
 	}
 	
 }

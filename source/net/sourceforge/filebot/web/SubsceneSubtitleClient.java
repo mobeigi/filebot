@@ -138,7 +138,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
 		
-		URL subtitleListUrl = getSubtitleListLink(searchResult).toURL();
+		URL subtitleListUrl = getSubtitleListLink(searchResult, language).toURL();
 		String languageName = getLanguageName(language);
 		Integer languageFilter = getLanguageFilter(languageName);
 		
@@ -243,7 +243,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult) {
+	public URI getSubtitleListLink(SearchResult searchResult, Locale locale) {
 		return ((HyperLink) searchResult).toURI();
 	}
 	

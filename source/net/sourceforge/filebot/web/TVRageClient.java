@@ -172,7 +172,7 @@ public class TVRageClient implements EpisodeListClient {
 
 		public List<Episode> getEpisodeList(int season) {
 			if (season > getTotalSeasons() || season < 0)
-				throw new IllegalArgumentException(String.format("%s only has %d seasons.", getName(), getTotalSeasons()));
+				throw new IndexOutOfBoundsException(String.format("%s has only %d season%s.", getName(), getTotalSeasons(), getTotalSeasons() != 1 ? "s" : ""));
 			
 			List<Node> nodes = XPathUtil.selectNodes("//Season[@no='" + season + "']/episode", feed);
 			
@@ -188,7 +188,6 @@ public class TVRageClient implements EpisodeListClient {
 			
 			return episodes;
 		}
-		
 	}
 	
 }

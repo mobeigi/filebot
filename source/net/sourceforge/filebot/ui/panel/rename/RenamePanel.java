@@ -83,7 +83,7 @@ public class RenamePanel extends FileBotPanel {
 		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
 		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		setLayout(new MigLayout("insets 0, gapx 10px, fill", "", "align 33%"));
+		setLayout(new MigLayout("fill, insets 0, gapx 10px", null, "align 33%"));
 		
 		add(namesList, "grow");
 		
@@ -91,8 +91,8 @@ public class RenamePanel extends FileBotPanel {
 		matchButton.setMargin(new Insets(3, 14, 2, 14));
 		renameButton.setMargin(new Insets(6, 11, 2, 11));
 		
-		add(matchButton, "cell 1 0, flowy, sizegroup button");
-		add(renameButton, "cell 1 0, gapy 30px, sizegroup button");
+		add(matchButton, "split 2, flowy, sizegroupx button");
+		add(renameButton, "gapy 30px, sizegroupx button");
 		
 		add(filesList, "grow");
 		

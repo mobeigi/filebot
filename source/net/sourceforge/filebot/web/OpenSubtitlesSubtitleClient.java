@@ -55,7 +55,8 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult) {
+	public URI getSubtitleListLink(SearchResult searchResult, Locale language) {
+		//TODO provide link
 		return null;
 	}
 	

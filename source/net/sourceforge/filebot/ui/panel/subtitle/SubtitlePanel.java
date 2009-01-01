@@ -23,13 +23,13 @@ import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
 
-public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage, SubtitleDownloadPanel> {
+public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage> {
 	
 	public SubtitlePanel() {
 		super("Subtitles", ResourceManager.getIcon("panel.subtitle"));
 		
-		getHistoryPanel().setColumnHeader(0, "Show / Movie");
-		getHistoryPanel().setColumnHeader(1, "Number of Subtitles");
+		historyPanel.setColumnHeader(0, "Show / Movie");
+		historyPanel.setColumnHeader(1, "Number of Subtitles");
 		
 		// get preferences node that contains the history entries
 		Preferences historyNode = Preferences.systemNodeForPackage(getClass()).node("history");
@@ -63,62 +63,54 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	
 
 	@Override
-	protected SearchTask createSearchTask() {
-		SubtitleDownloadPanel panel = new SubtitleDownloadPanel();
+	protected SubtitleRequestProcessor createRequestProcessor() {
+		SubtitleClient client = searchTextField.getSelectButton().getSelectedValue();
+		String text = searchTextField.getText().trim();
 		
-		return new SubtitleSearchTask(getSearchField().getSelected(), getSearchField().getText(), panel);
+		//TODO language selection combobox
+		Locale language = Locale.ENGLISH;
+		
+		return new SubtitleRequestProcessor(new SubtitleRequest(client, text, language));
+	}
+	
+	
+	private class SubtitleRequest extends Request {
+		
+		private final Locale language;
+		
+		
+		public SubtitleRequest(SubtitleClient client, String searchText, Locale language) {
+			super(client, searchText);
+			this.language = language;
+		}
+		
+
+		public Locale getLanguage() {
+			return language;
+		}
+		
 	}
 	
 
-	@Override
-	protected FetchTask createFetchTask(SearchTask searchTask, SearchResult selectedSearchResult) {
-		return new SubtitleFetchTask(searchTask.getClient(), selectedSearchResult, searchTask.getTabPanel());
-	}
-	
-
-	@Override
-	protected URI getLink(SubtitleClient client, SearchResult result) {
-		return client.getSubtitleListLink(result);
-	}
-	
-	
-	private class SubtitleSearchTask extends SearchTask {
+	private class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest> {
 		
-		public SubtitleSearchTask(SubtitleClient client, String searchText, SubtitleDownloadPanel panel) {
-			super(client, searchText, panel);
+		public SubtitleRequestProcessor(SubtitleRequest request) {
+			super(request, new SubtitleDownloadPanel());
 		}
 		
 
 		@Override
-		protected Collection<SearchResult> doInBackground() throws Exception {
-			return getClient().search(getSearchText());
+		public Collection<SearchResult> search() throws Exception {
+			return request.getClient().search(request.getSearchText());
 		}
 		
 
 		@Override
-		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) throws Exception {
-			super.configureSelectDialog(selectDialog);
-			selectDialog.getHeaderLabel().setText("Select a Show / Movie:");
-		}
-		
-	}
-	
-
-	private class SubtitleFetchTask extends FetchTask {
-		
-		public SubtitleFetchTask(SubtitleClient client, SearchResult searchResult, SubtitleDownloadPanel tabPanel) {
-			super(client, searchResult, tabPanel);
-		}
-		
-
-		@Override
-		protected Collection<SubtitlePackage> fetch() throws Exception {
-			//TODO language combobox
-			Collection<SubtitleDescriptor> descriptors = getClient().getSubtitleList(getSearchResult(), Locale.ENGLISH);
-			ArrayList<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
+		public Collection<SubtitlePackage> fetch() throws Exception {
+			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>(20);
 			
-			for (SubtitleDescriptor descriptor : descriptors) {
-				packages.add(new SubtitlePackage(descriptor));
+			for (SubtitleDescriptor subtitle : request.getClient().getSubtitleList(getSearchResult(), request.getLanguage())) {
+				packages.add(new SubtitlePackage(subtitle));
 			}
 			
 			return packages;
@@ -126,18 +118,37 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 
 		@Override
-		protected void process(List<SubtitlePackage> elements) {
-			getTabPanel().getPackagePanel().getModel().addAll(elements);
+		public URI getLink() {
+			return request.getClient().getSubtitleListLink(getSearchResult(), request.getLanguage());
 		}
 		
 
 		@Override
-		public String getStatusMessage() {
-			if (getCount() > 0)
-				return String.format("%d subtitles", getCount());
-			
-			return "No subtitles found";
+		public void process(Collection<SubtitlePackage> episodes) {
+			//TODO subtitle tab ui
+			System.out.println(episodes);
 		}
+		
+
+		@Override
+		public String getStatusMessage(Collection<SubtitlePackage> result) {
+			return (result.isEmpty()) ? "No subtitles found" : String.format("%d subtitles", result.size());
+		}
+		
+
+		@Override
+		public String getTitle() {
+			// add additional information to default title
+			return String.format("%s [%s]", super.getTitle(), request.getLanguage().getDisplayName(Locale.ENGLISH));
+		}
+		
+
+		@Override
+		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
+			super.configureSelectDialog(selectDialog);
+			selectDialog.getHeaderLabel().setText("Select a Show / Movie:");
+		}
+		
 	}
 	
 }

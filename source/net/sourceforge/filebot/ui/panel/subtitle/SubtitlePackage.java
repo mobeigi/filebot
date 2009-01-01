@@ -2,21 +2,15 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import java.beans.PropertyChangeEvent;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.SwingWorker.StateValue;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.DownloadTask;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
-
-import org.jdesktop.beans.AbstractBean;
 
 
-public class SubtitlePackage extends AbstractBean {
+public class SubtitlePackage {
 	
 	private final SubtitleDescriptor subtitleDescriptor;
 	
@@ -26,20 +20,22 @@ public class SubtitlePackage extends AbstractBean {
 	
 	private final Language language;
 	
-	private DownloadTask downloadTask;
-	
-	private StateValue downloadState = StateValue.PENDING;
-	
-	private float downloadProgress = 0;
+	private final DownloadTask downloadTask;
 	
 	
 	public SubtitlePackage(SubtitleDescriptor subtitleDescriptor) {
 		this.subtitleDescriptor = subtitleDescriptor;
 		
-		this.language = new Language(subtitleDescriptor.getLanguageName());
+		language = new Language(subtitleDescriptor.getLanguageName());
+		downloadTask = subtitleDescriptor.createDownloadTask();
 		
-		this.archiveType = ArchiveType.forName(subtitleDescriptor.getArchiveType());
-		this.archiveIcon = ResourceManager.getArchiveIcon(archiveType.getExtension());
+		archiveType = ArchiveType.forName(subtitleDescriptor.getArchiveType());
+		archiveIcon = ResourceManager.getArchiveIcon(archiveType.getExtension());
+	}
+	
+
+	public SubtitleDescriptor getSubtitleDescriptor() {
+		return subtitleDescriptor;
 	}
 	
 
@@ -69,57 +65,8 @@ public class SubtitlePackage extends AbstractBean {
 	}
 	
 
-	public synchronized void startDownload() {
-		if (downloadTask != null)
-			throw new IllegalStateException("Download has already been started");
-		
-		downloadTask = subtitleDescriptor.createDownloadTask();
-		downloadTask.addPropertyChangeListener(new DownloadTaskPropertyChangeAdapter());
-		
-		downloadTask.execute();
+	public DownloadTask getDownloadTask() {
+		return downloadTask;
 	}
-	
-
-	public StateValue getDownloadState() {
-		return downloadState;
-	}
-	
-
-	private void setDownloadState(StateValue downloadState) {
-		this.downloadState = downloadState;
-		firePropertyChange("downloadState", null, downloadState);
-	}
-	
-
-	public float getDownloadProgress() {
-		return downloadProgress;
-	}
-	
-
-	private void setDownloadProgress(float downloadProgress) {
-		this.downloadProgress = downloadProgress;
-		firePropertyChange("downloadProgress", null, downloadProgress);
-	}
-	
-	
-	private class DownloadTaskPropertyChangeAdapter extends SwingWorkerPropertyChangeAdapter {
-		
-		@Override
-		public void started(PropertyChangeEvent evt) {
-			setDownloadState(StateValue.STARTED);
-		}
-		
-
-		@Override
-		public void done(PropertyChangeEvent evt) {
-			setDownloadState(StateValue.DONE);
-		}
-		
-
-		@Override
-		public void progress(PropertyChangeEvent evt) {
-			setDownloadProgress((Float) evt.getNewValue() / 100);
-		}
-	};
 	
 }
