@@ -1,4 +1,7 @@
+
 package net.sourceforge.filebot;
+
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -21,9 +24,9 @@ public class Main {
 	 */
 	public static void main(String... args) {
 		
-		setupLogging();
-		
 		final ArgumentBean argumentBean = handleArguments(args);
+		
+		setupLogging();
 		
 		try {
 			//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -82,7 +85,7 @@ public class Main {
 		if (argumentBean.isClear()) {
 			// clear preferences
 			try {
-				Preferences.userNodeForPackage(FileBotUtil.class).removeNode();
+				Preferences.userNodeForPackage(Main.class).removeNode();
 			} catch (BackingStoreException e) {
 				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 			}

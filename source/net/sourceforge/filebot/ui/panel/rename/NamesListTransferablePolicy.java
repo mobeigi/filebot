@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import static net.sourceforge.filebot.FileBotUtil.LIST_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.containsOnly;
+import static net.sourceforge.filebot.FileBotUtil.isInvalidFileName;
 
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedReader;
@@ -19,7 +20,6 @@ import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
@@ -60,7 +60,7 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 		List<ListEntry> invalidEntries = new ArrayList<ListEntry>();
 		
 		for (ListEntry entry : entries) {
-			if (FileBotUtil.isInvalidFileName(entry.getName()))
+			if (isInvalidFileName(entry.getName()))
 				invalidEntries.add(entry);
 		}
 		

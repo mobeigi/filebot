@@ -57,7 +57,7 @@ public class FileTransferable implements Transferable {
 	 * @return line separated list of file URIs
 	 */
 	private String getUriList() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(80 * files.size());
 		
 		for (File file : files) {
 			sb.append("file://" + file.toURI().getPath());

@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -16,41 +15,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 
-public class HtmlUtil {
+public final class WebRequest {
 	
-	private static Charset getCharset(String contentType) {
-		if (contentType != null) {
-			// e.g. Content-Type: text/html; charset=iso-8859-1
-			Pattern pattern = Pattern.compile(".*;\\s*charset=(\\S+).*", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(contentType);
-			
-			if (matcher.matches()) {
-				String charsetName = matcher.group(1);
-				
-				try {
-					return Charset.forName(charsetName);
-				} catch (Exception e) {
-					Logger.getLogger("global").log(Level.WARNING, e.getMessage());
-				}
-			}
-		}
-		
-		// use UTF-8 if charset cannot be determined
-		return Charset.forName("UTF-8");
-	}
-	
-
-	public static Document getHtmlDocument(URI uri) throws IOException, SAXException {
-		return getHtmlDocument(uri.toURL());
-	}
-	
-
 	public static Document getHtmlDocument(URL url) throws IOException, SAXException {
 		return getHtmlDocument(url.openConnection());
 	}
@@ -81,4 +56,45 @@ public class HtmlUtil {
 		return parser.getDocument();
 	}
 	
+
+	public static Document getDocument(URL url) throws SAXException, IOException, ParserConfigurationException {
+		return getDocument(url.toString());
+	}
+	
+
+	public static Document getDocument(String url) throws SAXException, IOException, ParserConfigurationException {
+		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
+	}
+	
+
+	public static Document getDocument(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
+		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
+	}
+	
+
+	private static Charset getCharset(String contentType) {
+		if (contentType != null) {
+			// e.g. Content-Type: text/html; charset=iso-8859-1
+			Pattern pattern = Pattern.compile(".*;\\s*charset=(\\S+).*", Pattern.CASE_INSENSITIVE);
+			Matcher matcher = pattern.matcher(contentType);
+			
+			if (matcher.matches()) {
+				String charsetName = matcher.group(1);
+				
+				try {
+					return Charset.forName(charsetName);
+				} catch (Exception e) {
+					Logger.getLogger("global").log(Level.WARNING, e.getMessage());
+				}
+			}
+		}
+		
+		// use UTF-8 if charset cannot be determined
+		return Charset.forName("UTF-8");
+	}
+	
+
+	private WebRequest() {
+		throw new UnsupportedOperationException();
+	}
 }

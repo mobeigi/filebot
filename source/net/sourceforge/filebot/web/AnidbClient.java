@@ -2,24 +2,26 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
+import static net.sourceforge.tuned.XPathUtil.exists;
+import static net.sourceforge.tuned.XPathUtil.selectNode;
+import static net.sourceforge.tuned.XPathUtil.selectNodes;
+import static net.sourceforge.tuned.XPathUtil.selectString;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -44,19 +46,22 @@ public class AnidbClient implements EpisodeListClient {
 	
 
 	@Override
-	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
+	public List<SearchResult> search(String query) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
+		// type=2 -> only TV Series
+		URL searchUrl = new URL("http", host, "/perl-bin/animedb.pl?type=2&show=animelist&orderby.name=0.1&orderbar=0&noalias=1&do.search=Search&adb.search=" + URLEncoder.encode(query, "UTF-8"));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//TABLE[@class='animelist']//TR/TD/ancestor::TR", dom);
+		Document dom = getHtmlDocument(searchUrl);
+		
+		List<Node> nodes = selectNodes("//TABLE[@class='animelist']//TR/TD/ancestor::TR", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			Node titleNode = XPathUtil.selectNode("./TD[@class='name']/A", node);
+			Node titleNode = selectNode("./TD[@class='name']/A", node);
 			
-			String title = XPathUtil.selectString(".", titleNode);
-			String href = XPathUtil.selectString("@href", titleNode);
+			String title = selectString(".", titleNode);
+			String href = selectString("@href", titleNode);
 			
 			String path = "/perl-bin/" + href;
 			
@@ -70,12 +75,12 @@ public class AnidbClient implements EpisodeListClient {
 		// we might have been redirected to the episode list page
 		if (searchResults.isEmpty()) {
 			// check if current page contains an episode list
-			if (XPathUtil.exists("//TABLE[@class='eplist']", dom)) {
+			if (exists("//TABLE[@class='eplist']", dom)) {
 				// get show's name from the document
-				String header = XPathUtil.selectString("id('layout-content')//H1[1]", dom);
+				String header = selectString("id('layout-content')//H1[1]", dom);
 				String name = header.replaceFirst("Anime:\\s*", "");
 				
-				String episodeListUrl = XPathUtil.selectString("id('layout-main')//DIV[@class='data']//A[@class='short_link']/@href", dom);
+				String episodeListUrl = selectString("id('layout-main')//DIV[@class='data']//A[@class='short_link']/@href", dom);
 				
 				try {
 					searchResults.add(new HyperLink(name, new URL(episodeListUrl)));
@@ -92,33 +97,25 @@ public class AnidbClient implements EpisodeListClient {
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult));
+		Document dom = getHtmlDocument(getEpisodeListLink(searchResult).toURL());
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
-		
-		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
-		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
-		numberFormat.setGroupingUsed(false);
+		List<Node> nodes = selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
 		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String number = XPathUtil.selectString("./TD[contains(@class,'id')]/A", node);
-			String title = XPathUtil.selectString("./TD[@class='title']/LABEL/text()", node);
+			String number = selectString("./TD[contains(@class,'id')]/A", node);
+			String title = selectString("./TD[@class='title']/LABEL/text()", node);
 			
-			if (title.startsWith("recap"))
+			if (title.startsWith("recap")) {
 				title = title.replaceFirst("recap", "");
-			
-			try {
-				// try to format number of episode
-				number = numberFormat.format(Integer.parseInt(number));
-				
-				// no seasons for anime
-				episodes.add(new Episode(searchResult.getName(), number, title));
-			} catch (NumberFormatException ex) {
-				// ignore node, episode is probably some kind of special (S1, S2, ...)
 			}
 			
+			// if number does not match, episode is probably some kind of special (S1, S2, ...)
+			if (number.matches("\\d+")) {
+				// no seasons for anime
+				episodes.add(new Episode(searchResult.getName(), number, title));
+			}
 		}
 		
 		return episodes;
@@ -146,16 +143,6 @@ public class AnidbClient implements EpisodeListClient {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		throw new UnsupportedOperationException();
-	}
-	
-
-	private URL getSearchUrl(String searchterm) throws UnsupportedEncodingException, MalformedURLException {
-		String qs = URLEncoder.encode(searchterm, "UTF-8");
-		
-		// type=2 -> only TV Series
-		String path = "/perl-bin/animedb.pl?type=2&show=animelist&orderby.name=0.1&orderbar=0&noalias=1&do.search=Search&adb.search=" + qs;
-		
-		return new URL("http", host, path);
 	}
 	
 }

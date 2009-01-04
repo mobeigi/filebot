@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
@@ -33,6 +34,7 @@ import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
+import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
@@ -74,6 +76,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 		engines.add(new TVRageClient());
 		engines.add(new AnidbClient());
+		engines.add(new TheTVDBClient("58B4AA94C59AD656"));
 		engines.add(new TVDotComClient());
 		
 		return engines;
@@ -101,7 +104,11 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 			EpisodeListClient client = searchTextField.getSelectButton().getSelectedValue();
 			
 			// lock season spinner on "All Seasons" if client doesn't support fetching of single seasons
-			seasonSpinnerModel.lock(!client.hasSingleSeasonSupport());
+			if (!client.hasSingleSeasonSupport()) {
+				seasonSpinnerModel.lock(ALL_SEASONS);
+			} else {
+				seasonSpinnerModel.unlock();
+			}
 		}
 	};
 	
@@ -161,14 +168,21 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	}
 	
 
-	private class EpisodeListRequest extends Request {
+	protected static class EpisodeListRequest extends Request {
 		
+		private final EpisodeListClient client;
 		private final int season;
 		
 		
 		public EpisodeListRequest(EpisodeListClient client, String searchText, int season) {
-			super(client, searchText);
+			super(searchText);
+			this.client = client;
 			this.season = season;
+		}
+		
+
+		public EpisodeListClient getClient() {
+			return client;
 		}
 		
 
@@ -179,7 +193,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	}
 	
 
-	private class EpisodeListRequestProcessor extends RequestProcessor<EpisodeListRequest> {
+	protected static class EpisodeListRequestProcessor extends RequestProcessor<EpisodeListRequest, Episode> {
 		
 		public EpisodeListRequestProcessor(EpisodeListRequest request) {
 			super(request, new EpisodeListTab());
@@ -194,10 +208,37 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 		@Override
 		public Collection<Episode> fetch() throws Exception {
-			if (request.getSeason() != ALL_SEASONS)
-				return request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
-			else
-				return request.getClient().getEpisodeList(getSearchResult());
+			Collection<Episode> episodes;
+			
+			if (request.getSeason() != ALL_SEASONS) {
+				episodes = request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
+			} else {
+				episodes = request.getClient().getEpisodeList(getSearchResult());
+			}
+			
+			// find max. episode number string length
+			int maxLength = 1;
+			
+			for (Episode episode : episodes) {
+				String num = episode.getEpisodeNumber();
+				
+				if (num.matches("\\d+") && num.length() > maxLength) {
+					maxLength = num.length();
+				}
+			}
+			
+			// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
+			String format = "%0" + maxLength + "d";
+			for (Episode episode : episodes) {
+				
+				try {
+					episode.setEpisodeNumber(String.format(format, Integer.parseInt(episode.getEpisodeNumber())));
+				} catch (NumberFormatException e) {
+					// ignore
+				}
+			}
+			
+			return episodes;
 		}
 		
 
@@ -242,6 +283,12 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 
 		@Override
+		public Icon getIcon() {
+			return request.getClient().getIcon();
+		}
+		
+
+		@Override
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			super.configureSelectDialog(selectDialog);
 			selectDialog.getHeaderLabel().setText("Select a Show:");
@@ -250,7 +297,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	}
 	
 
-	private static class EpisodeListTab extends FileBotList<Episode> {
+	protected static class EpisodeListTab extends FileBotList<Episode> {
 		
 		public EpisodeListTab() {
 			// set export handler for episode list

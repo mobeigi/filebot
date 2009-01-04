@@ -35,7 +35,7 @@ public class SelectDialog<T> extends JDialog {
 	private boolean valueSelected = false;
 	
 	
-	public SelectDialog(Window owner, Collection<T> options) {
+	public SelectDialog(Window owner, Collection<? extends T> options) {
 		super(owner, "Select", ModalityType.DOCUMENT_MODAL);
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);

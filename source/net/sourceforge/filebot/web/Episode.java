@@ -2,34 +2,37 @@
 package net.sourceforge.filebot.web;
 
 
-public class Episode {
+import java.io.Serializable;
+
+
+public class Episode implements Serializable {
 	
-	private final String showName;
-	private final String numberOfSeason;
-	private final String numberOfEpisode;
-	private final String title;
+	private String showName;
+	private String seasonNumber;
+	private String episodeNumber;
+	private String title;
 	
 	
-	public Episode(String showname, String numberOfSeason, String numberOfEpisode, String title) {
-		this.showName = showname;
-		this.numberOfSeason = numberOfSeason;
-		this.numberOfEpisode = numberOfEpisode;
+	public Episode(String showName, String seasonNumber, String episodeNumber, String title) {
+		this.showName = showName;
+		this.seasonNumber = seasonNumber;
+		this.episodeNumber = episodeNumber;
 		this.title = title;
 	}
 	
 
-	public Episode(String showname, String numberOfEpisode, String title) {
-		this(showname, null, numberOfEpisode, title);
+	public Episode(String showName, String episodeNumber, String title) {
+		this(showName, null, episodeNumber, title);
 	}
 	
 
-	public String getNumberOfEpisode() {
-		return numberOfEpisode;
+	public String getEpisodeNumber() {
+		return episodeNumber;
 	}
 	
 
-	public String getNumberOfSeason() {
-		return numberOfSeason;
+	public String getSeasonNumber() {
+		return seasonNumber;
 	}
 	
 
@@ -43,16 +46,36 @@ public class Episode {
 	}
 	
 
+	public void setShowName(String seriesName) {
+		this.showName = seriesName;
+	}
+	
+
+	public void setSeasonNumber(String seasonNumber) {
+		this.seasonNumber = seasonNumber;
+	}
+	
+
+	public void setEpisodeNumber(String episodeNumber) {
+		this.episodeNumber = episodeNumber;
+	}
+	
+
+	public void setTitle(String episodeName) {
+		this.title = episodeName;
+	}
+	
+
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(40);
 		
 		sb.append(showName + " - ");
 		
-		if (numberOfSeason != null)
-			sb.append(numberOfSeason + "x");
+		if (seasonNumber != null)
+			sb.append(seasonNumber + "x");
 		
-		sb.append(numberOfEpisode);
+		sb.append(episodeNumber);
 		
 		sb.append(" - " + title);
 		

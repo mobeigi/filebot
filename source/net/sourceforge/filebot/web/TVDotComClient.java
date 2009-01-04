@@ -2,17 +2,17 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
+import static net.sourceforge.tuned.XPathUtil.selectNodes;
+import static net.sourceforge.tuned.XPathUtil.selectString;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -54,17 +53,20 @@ public class TVDotComClient implements EpisodeListClient {
 	
 
 	@Override
-	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
+	public List<SearchResult> search(String query) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
+		// use ajax search request, because we don't need the whole search result page
+		URL searchUrl = new URL("http", host, "/search.php?type=Search&stype=ajax_search&search_type=program&qs=" + URLEncoder.encode(query, "UTF-8"));
 		
-		List<Node> nodes = XPathUtil.selectNodes("//H3[@class='title']/A", dom);
+		Document dom = getHtmlDocument(searchUrl);
+		
+		List<Node> nodes = selectNodes("//H3[@class='title']/A", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
 			String title = node.getTextContent();
-			String href = XPathUtil.selectString("@href", node);
+			String href = selectString("@href", node);
 			
 			try {
 				URL episodeListingUrl = new URL(href.replaceFirst("summary.html\\?.*", "episode_listings.html"));
@@ -83,10 +85,10 @@ public class TVDotComClient implements EpisodeListClient {
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
 		
 		// get document for season 1
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, 1));
+		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, 1).toURL());
 		
 		// seasons are ordered in reverse, first element is latest season
-		String latestSeasonString = XPathUtil.selectString("id('eps_table')//*[starts-with(text(),'Season:')]/*[1]/text()", dom);
+		String latestSeasonString = selectString("id('eps_table')//*[starts-with(text(),'Season:')]/*[1]/text()", dom);
 		
 		if (latestSeasonString.isEmpty()) {
 			// assume single season series
@@ -129,7 +131,7 @@ public class TVDotComClient implements EpisodeListClient {
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getEpisodeListLink(searchResult, season));
+		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, season).toURL());
 		
 		return getEpisodeList(searchResult, season, dom);
 	}
@@ -137,32 +139,31 @@ public class TVDotComClient implements EpisodeListClient {
 
 	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
+		List<Node> nodes = selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
+		
+		// create mutable list from nodes so we can reverse the list
+		nodes = new ArrayList<Node>(nodes);
 		
 		// episodes are ordered in reverse ... we definitely don't want that!
 		Collections.reverse(nodes);
-		
-		NumberFormat numberFormat = NumberFormat.getInstance(Locale.ENGLISH);
-		numberFormat.setMinimumIntegerDigits(Math.max(Integer.toString(nodes.size()).length(), 2));
-		numberFormat.setGroupingUsed(false);
 		
 		Integer episodeOffset = null;
 		
 		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String episode = XPathUtil.selectString("./TD[1]", node);
-			String title = XPathUtil.selectString("./TD[2]//A", node);
-			String season = Integer.toString(seasonNumber);
+			String episode = selectString("./TD[1]", node);
+			String title = selectString("./TD[2]//A", node);
+			String season = String.valueOf(seasonNumber);
 			
 			try {
-				// format number of episode
+				// convert the absolute episode number to the season episode number
 				int n = Integer.parseInt(episode);
 				
 				if (episodeOffset == null)
 					episodeOffset = n - 1;
 				
-				episode = numberFormat.format(n - episodeOffset);
+				episode = String.valueOf(n - episodeOffset);
 			} catch (NumberFormatException e) {
 				// episode may be "Pilot", "Special", "TV Movie" ...
 				season = null;
@@ -186,14 +187,6 @@ public class TVDotComClient implements EpisodeListClient {
 		URL episodeListingUrl = ((HyperLink) searchResult).getURL();
 		
 		return URI.create(episodeListingUrl + "?season=" + season);
-	}
-	
-
-	private URL getSearchUrl(String searchterm) throws UnsupportedEncodingException, MalformedURLException {
-		String qs = URLEncoder.encode(searchterm, "UTF-8");
-		String file = "/search.php?type=Search&stype=ajax_search&search_type=program&qs=" + qs;
-		
-		return new URL("http", host, file);
 	}
 	
 	

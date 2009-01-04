@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
+import static net.sourceforge.filebot.FileBotUtil.getApplicationVersion;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,7 +52,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	protected List<SubtitleClient> createSearchEngines() {
 		List<SubtitleClient> engines = new ArrayList<SubtitleClient>(2);
 		
-		engines.add(new OpenSubtitlesSubtitleClient());
+		engines.add(new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())));
 		engines.add(new SubsceneSubtitleClient());
 		
 		return engines;
@@ -74,14 +77,21 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	}
 	
 	
-	private class SubtitleRequest extends Request {
+	protected static class SubtitleRequest extends Request {
 		
+		private final SubtitleClient client;
 		private final Locale language;
 		
 		
 		public SubtitleRequest(SubtitleClient client, String searchText, Locale language) {
-			super(client, searchText);
+			super(searchText);
+			this.client = client;
 			this.language = language;
+		}
+		
+
+		public SubtitleClient getClient() {
+			return client;
 		}
 		
 
@@ -92,7 +102,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	}
 	
 
-	private class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest> {
+	protected static class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest, SubtitlePackage> {
 		
 		public SubtitleRequestProcessor(SubtitleRequest request) {
 			super(request, new SubtitleDownloadPanel());

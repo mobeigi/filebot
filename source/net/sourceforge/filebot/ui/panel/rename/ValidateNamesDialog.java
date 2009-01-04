@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.FileBotUtil.INVALID_CHARACTERS_PATTERN;
+import static net.sourceforge.filebot.FileBotUtil.validateFileName;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -21,7 +24,6 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.tuned.ui.ArrayListModel;
@@ -49,7 +51,7 @@ public class ValidateNamesDialog extends JDialog {
 		JList list = new JList(new ArrayListModel(entries));
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(FileBotUtil.INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
+		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		
@@ -94,8 +96,7 @@ public class ValidateNamesDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			for (ListEntry entry : entries) {
-				String validatedName = FileBotUtil.validateFileName(entry.getName());
-				entry.setName(validatedName);
+				entry.setName(validateFileName(entry.getName()));
 			}
 			
 			setEnabled(false);

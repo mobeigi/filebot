@@ -43,8 +43,8 @@ public class TVRageClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", chosen.getShowName());
 		assertEquals("Chosen", chosen.getTitle());
-		assertEquals("22", chosen.getNumberOfEpisode());
-		assertEquals("7", chosen.getNumberOfSeason());
+		assertEquals("22", chosen.getEpisodeNumber());
+		assertEquals("7", chosen.getSeasonNumber());
 	}
 	
 
@@ -58,12 +58,12 @@ public class TVRageClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getShowName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("00", first.getNumberOfEpisode());
-		assertEquals("0", first.getNumberOfSeason());
+		assertEquals("00", first.getEpisodeNumber());
+		assertEquals("0", first.getSeasonNumber());
 	}
 	
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = SeasonOutOfBoundsException.class)
 	public void getEpisodeListIllegalSeason() throws Exception {
 		tvrage.getEpisodeList(buffySearchResult, 42);
 	}

@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.Timer;
 
@@ -21,9 +20,14 @@ import net.sourceforge.tuned.Timer;
  */
 public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 	
-	private final OpenSubtitlesClient client = new OpenSubtitlesClient(String.format("%s v%s", FileBotUtil.getApplicationName(), FileBotUtil.getApplicationVersion()));
+	private final OpenSubtitlesClient client;
 	
 	
+	public OpenSubtitlesSubtitleClient(String useragent) {
+		this.client = new OpenSubtitlesClient(useragent);
+	}
+	
+
 	@Override
 	public String getName() {
 		return "OpenSubtitles";
@@ -38,10 +42,10 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SearchResult> search(String searchterm) throws Exception {
+	public List<SearchResult> search(String query) throws Exception {
 		login();
 		
-		return (List) client.searchMoviesOnIMDB(searchterm);
+		return (List) client.searchMoviesOnIMDB(query);
 	}
 	
 

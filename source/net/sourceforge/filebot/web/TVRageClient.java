@@ -2,18 +2,28 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.WebRequest.getDocument;
+import static net.sourceforge.tuned.XPathUtil.getTextContent;
+import static net.sourceforge.tuned.XPathUtil.selectInteger;
+import static net.sourceforge.tuned.XPathUtil.selectNodes;
+import static net.sourceforge.tuned.XPathUtil.selectString;
+
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -23,6 +33,8 @@ import org.xml.sax.SAXException;
 public class TVRageClient implements EpisodeListClient {
 	
 	private static final String host = "www.tvrage.com";
+	
+	private final Cache cache = CacheManager.getInstance().getCache("web");
 	
 	
 	@Override
@@ -44,20 +56,20 @@ public class TVRageClient implements EpisodeListClient {
 	
 
 	@Override
-	public List<SearchResult> search(String searchterm) throws SAXException, IOException, ParserConfigurationException {
+	public List<SearchResult> search(String query) throws SAXException, IOException, ParserConfigurationException {
 		
-		String searchUri = String.format("http://" + host + "/feeds/search.php?show=" + URLEncoder.encode(searchterm, "UTF-8"));
+		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + URLEncoder.encode(query, "UTF-8"));
 		
-		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(searchUri);
+		Document dom = getDocument(searchUrl);
 		
-		List<Node> nodes = XPathUtil.selectNodes("Results/show", dom);
+		List<Node> nodes = selectNodes("Results/show", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			int showid = XPathUtil.selectInteger("showid", node);
-			String name = XPathUtil.selectString("name", node);
-			String link = XPathUtil.selectString("link", node);
+			int showid = selectInteger("showid", node);
+			String name = selectString("name", node);
+			String link = selectString("link", node);
 			
 			searchResults.add(new TVRageSearchResult(name, showid, link));
 		}
@@ -66,25 +78,71 @@ public class TVRageClient implements EpisodeListClient {
 	}
 	
 
-	private EpisodeListFeed getEpisodeListFeed(SearchResult searchResult) throws SAXException, IOException, ParserConfigurationException {
-		int showId = ((TVRageSearchResult) searchResult).getShowId();
-		String episodeListUri = String.format("http://" + host + "/feeds/episode_list.php?sid=" + showId);
-		
-		Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(episodeListUri);
-		
-		return new EpisodeListFeed(dom);
-	}
-	
-
+	@SuppressWarnings("unchecked")
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeListFeed(searchResult).getEpisodeList();
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException, ParserConfigurationException {
+		int showId = ((TVRageSearchResult) searchResult).getShowId();
+		
+		URL episodeListUrl = new URL("http", host, "/feeds/episode_list.php?sid=" + showId);
+		
+		// try to load from cache
+		Element cacheEntry = cache.get(episodeListUrl.toString());
+		
+		if (cacheEntry != null) {
+			return (List<Episode>) cacheEntry.getValue();
+		}
+		
+		Document dom = getDocument(episodeListUrl);
+		
+		String showName = selectString("Show/name", dom);
+		List<Node> nodes = selectNodes("Show/Episodelist/Season/episode", dom);
+		
+		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		
+		for (Node node : nodes) {
+			String title = getTextContent("title", node);
+			String episodeNumber = getTextContent("seasonnum", node);
+			String seasonNumber = node.getParentNode().getAttributes().getNamedItem("no").getTextContent();
+			
+			episodes.add(new Episode(showName, seasonNumber, episodeNumber, title));
+		}
+		
+		// populate cache
+		cache.put(new Element(episodeListUrl.toString(), episodes));
+		
+		return episodes;
 	}
 	
 
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
-		return getEpisodeListFeed(searchResult).getEpisodeList(season);
+		
+		List<Episode> episodes = new ArrayList<Episode>(25);
+		
+		// remember max. season, so we can throw a proper exception, in case an illegal season number was requested
+		int maxSeason = 0;
+		
+		// filter given season from all seasons
+		for (Episode episode : getEpisodeList(searchResult)) {
+			try {
+				int seasonNumber = Integer.parseInt(episode.getSeasonNumber());
+				
+				if (season == seasonNumber) {
+					episodes.add(episode);
+				}
+				
+				if (seasonNumber > maxSeason) {
+					maxSeason = seasonNumber;
+				}
+			} catch (NumberFormatException e) {
+				Logger.getLogger("global").log(Level.WARNING, "Illegal season number", e);
+			}
+		}
+		
+		if (episodes.isEmpty())
+			throw new SeasonOutOfBoundsException(searchResult.getName(), season, maxSeason);
+		
+		return episodes;
 	}
 	
 
@@ -96,7 +154,7 @@ public class TVRageClient implements EpisodeListClient {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return getEpisodeListLink(searchResult, Integer.toString(season));
+		return getEpisodeListLink(searchResult, String.valueOf(season));
 	}
 	
 
@@ -107,7 +165,7 @@ public class TVRageClient implements EpisodeListClient {
 	}
 	
 	
-	protected static class TVRageSearchResult extends SearchResult {
+	public static class TVRageSearchResult extends SearchResult {
 		
 		private final int showId;
 		private final String link;
@@ -129,65 +187,6 @@ public class TVRageClient implements EpisodeListClient {
 			return link;
 		}
 		
-	}
-	
-
-	private static class EpisodeListFeed {
-		
-		private final String name;
-		
-		private final int totalSeasons;
-		
-		private final Document feed;
-		
-		
-		public EpisodeListFeed(Document feed) {
-			name = XPathUtil.selectString("Show/name", feed);
-			totalSeasons = XPathUtil.selectInteger("Show/totalseasons", feed);
-			
-			this.feed = feed;
-		}
-		
-
-		public String getName() {
-			return name;
-		}
-		
-
-		public int getTotalSeasons() {
-			return totalSeasons;
-		}
-		
-
-		public List<Episode> getEpisodeList() {
-			List<Episode> episodes = new ArrayList<Episode>(150);
-			
-			for (int i = 0; i <= getTotalSeasons(); i++) {
-				episodes.addAll(getEpisodeList(i));
-			}
-			
-			return episodes;
-		}
-		
-
-		public List<Episode> getEpisodeList(int season) {
-			if (season > getTotalSeasons() || season < 0)
-				throw new IndexOutOfBoundsException(String.format("%s has only %d season%s.", getName(), getTotalSeasons(), getTotalSeasons() != 1 ? "s" : ""));
-			
-			List<Node> nodes = XPathUtil.selectNodes("//Season[@no='" + season + "']/episode", feed);
-			
-			List<Episode> episodes = new ArrayList<Episode>(nodes.size());
-			String numberOfSeason = Integer.toString(season);
-			
-			for (Node node : nodes) {
-				String title = XPathUtil.selectString("title", node);
-				String episodeNumber = XPathUtil.selectString("seasonnum", node);
-				
-				episodes.add(new Episode(getName(), numberOfSeason, episodeNumber, title));
-			}
-			
-			return episodes;
-		}
 	}
 	
 }

@@ -14,12 +14,12 @@ import net.sourceforge.tuned.FileUtil;
 
 public final class FileBotUtil {
 	
-	public static final String getApplicationName() {
+	public static String getApplicationName() {
 		return "FileBot";
 	};
 	
 
-	public static final String getApplicationVersion() {
+	public static String getApplicationVersion() {
 		return "1.9";
 	};
 	
@@ -55,7 +55,7 @@ public final class FileBotUtil {
 	
 	
 	public static String getEmbeddedChecksum(String string) {
-		Matcher matcher = FileBotUtil.EMBEDDED_CHECKSUM_PATTERN.matcher(string);
+		Matcher matcher = EMBEDDED_CHECKSUM_PATTERN.matcher(string);
 		String embeddedChecksum = null;
 		
 		// get last match

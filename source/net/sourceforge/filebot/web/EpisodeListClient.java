@@ -10,7 +10,7 @@ import javax.swing.Icon;
 
 public interface EpisodeListClient {
 	
-	public Collection<SearchResult> search(String searchterm) throws Exception;
+	public Collection<SearchResult> search(String query) throws Exception;
 	
 
 	public boolean hasSingleSeasonSupport();

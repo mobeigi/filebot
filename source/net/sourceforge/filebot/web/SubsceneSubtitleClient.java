@@ -2,8 +2,12 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
+import static net.sourceforge.tuned.XPathUtil.selectNode;
+import static net.sourceforge.tuned.XPathUtil.selectNodes;
+import static net.sourceforge.tuned.XPathUtil.selectString;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -24,7 +28,6 @@ import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.FileUtil;
-import net.sourceforge.tuned.XPathUtil;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -51,18 +54,20 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 
 	@Override
-	public List<SearchResult> search(String searchterm) throws IOException, SAXException {
+	public List<SearchResult> search(String query) throws IOException, SAXException {
 		
-		Document dom = HtmlUtil.getHtmlDocument(getSearchUrl(searchterm));
+		URL searchUrl = new URL("http", host, "/filmsearch.aspx?q=" + URLEncoder.encode(query, "UTF-8"));
 		
-		List<Node> nodes = XPathUtil.selectNodes("id('filmSearch')/A", dom);
+		Document dom = getHtmlDocument(searchUrl);
+		
+		List<Node> nodes = selectNodes("id('filmSearch')/A", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String title = XPathUtil.selectString("text()", node);
-			String href = XPathUtil.selectString("@href", node);
-			String count = XPathUtil.selectString("./DFN", node).replaceAll("\\D+", "");
+			String title = selectString("text()", node);
+			String href = selectString("@href", node);
+			String count = selectString("./DFN", node).replaceAll("\\D+", "");
 			
 			try {
 				URL subtitleListUrl = new URL("http", host, href);
@@ -82,10 +87,10 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 			if (subtitleNodeCount > 0) {
 				
 				// get name of current search result
-				String name = XPathUtil.selectString("id('leftWrapperWide')//H1/text()", dom);
+				String name = selectString("id('leftWrapperWide')//H1/text()", dom);
 				
 				// get current location
-				String file = XPathUtil.selectString("id('aspnetForm')/@action", dom);
+				String file = selectString("id('aspnetForm')/@action", dom);
 				
 				try {
 					URL url = new URL("http", host, file);
@@ -103,15 +108,15 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 
 	private void updateLanguageFilterMap(Document subtitleListDocument) {
 		
-		List<Node> nodes = XPathUtil.selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
+		List<Node> nodes = selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
 		
 		for (Node node : nodes) {
-			String onClick = XPathUtil.selectString("./INPUT/@onclick", node);
+			String onClick = selectString("./INPUT/@onclick", node);
 			
 			String filter = new Scanner(onClick).findInLine("\\d+");
 			
 			if (filter != null) {
-				String name = XPathUtil.selectString("./LABEL/text()", node);
+				String name = selectString("./LABEL/text()", node);
 				
 				languageFilterMap.put(name.toLowerCase(), Integer.valueOf(filter));
 			}
@@ -175,8 +180,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 
 	private boolean useFilteredDocument(SearchResult searchResult) {
-		SubsceneSearchResult sr = (SubsceneSearchResult) searchResult;
-		return sr.getSubtitleCount() > 50;
+		return ((SubsceneSearchResult) searchResult).getSubtitleCount() > 50;
 	}
 	
 
@@ -187,12 +191,12 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 			connection.addRequestProperty("Cookie", "subscene_sLanguageIds=" + languageFilter);
 		}
 		
-		return HtmlUtil.getHtmlDocument(connection);
+		return getHtmlDocument(connection);
 	}
 	
 
 	private List<Node> getSubtitleNodes(Document subtitleListDocument) {
-		return XPathUtil.selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", subtitleListDocument);
+		return selectNodes("//TABLE[@class='filmSubtitleList']//A[@id]//ancestor::TR", subtitleListDocument);
 	}
 	
 
@@ -204,14 +208,14 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 		
 		for (Node node : subtitleNodes) {
 			try {
-				Node linkNode = XPathUtil.selectFirstNode("./TD[1]/A", node);
-				String lang = XPathUtil.selectString("./SPAN[1]", linkNode);
+				Node linkNode = selectNode("./TD[1]/A", node);
+				String lang = selectString("./SPAN[1]", linkNode);
 				
 				if (languageName == null || languageName.equalsIgnoreCase(lang)) {
 					
-					String href = XPathUtil.selectString("@href", linkNode);
-					String name = XPathUtil.selectString("./SPAN[2]", linkNode);
-					String author = XPathUtil.selectString("./TD[4]", node);
+					String href = selectString("@href", linkNode);
+					String name = selectString("./SPAN[2]", linkNode);
+					String author = selectString("./TD[4]", node);
 					
 					Matcher matcher = hrefPattern.matcher(href);
 					
@@ -245,13 +249,6 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, Locale locale) {
 		return ((HyperLink) searchResult).toURI();
-	}
-	
-
-	private URL getSearchUrl(String searchterm) throws UnsupportedEncodingException, MalformedURLException {
-		String qs = URLEncoder.encode(searchterm, "UTF-8");
-		String file = "/filmsearch.aspx?q=" + qs;
-		return new URL("http", host, file);
 	}
 	
 	

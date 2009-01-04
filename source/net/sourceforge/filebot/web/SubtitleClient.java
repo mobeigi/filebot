@@ -11,7 +11,7 @@ import javax.swing.Icon;
 
 public interface SubtitleClient {
 	
-	public Collection<SearchResult> search(String searchterm) throws Exception;
+	public Collection<SearchResult> search(String query) throws Exception;
 	
 
 	public Collection<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception;

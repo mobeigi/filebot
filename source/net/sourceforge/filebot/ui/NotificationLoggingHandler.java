@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
+import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
+
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -10,7 +12,6 @@ import javax.swing.Icon;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.notification.MessageNotification;
 import net.sourceforge.tuned.ui.notification.NotificationManager;
@@ -54,7 +55,7 @@ public class NotificationLoggingHandler extends Handler {
 	
 
 	private void show(String message, Icon icon, int timeout) {
-		notificationManager.show(new MessageNotification(FileBotUtil.getApplicationName(), message, icon, timeout));
+		notificationManager.show(new MessageNotification(getApplicationName(), message, icon, timeout));
 	}
 	
 

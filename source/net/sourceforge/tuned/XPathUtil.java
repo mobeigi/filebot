@@ -2,7 +2,7 @@
 package net.sourceforge.tuned;
 
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 import java.util.List;
 
 import javax.xml.xpath.XPathConstants;
@@ -25,31 +25,9 @@ public final class XPathUtil {
 	}
 	
 
-	public static Node selectFirstNode(String xpath, Object node) {
-		try {
-			NodeList nodeList = (NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET);
-			
-			if (nodeList.getLength() <= 0)
-				return null;
-			
-			return nodeList.item(0);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-
 	public static List<Node> selectNodes(String xpath, Object node) {
 		try {
-			NodeList nodeList = (NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET);
-			
-			ArrayList<Node> nodes = new ArrayList<Node>(nodeList.getLength());
-			
-			for (int i = 0; i < nodeList.getLength(); i++) {
-				nodes.add(nodeList.item(i));
-			}
-			
-			return nodes;
+			return new NodeListDecorator((NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -62,6 +40,40 @@ public final class XPathUtil {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+
+	/**
+	 * @param nodeName search for nodes with this name
+	 * @param parentNode search in the child nodes of this nodes
+	 * @return text content of the child node or null if no child with the given name was found
+	 */
+	public static Node getChild(String nodeName, Node parentNode) {
+		for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
+			if (nodeName.equals(child.getNodeName()))
+				return child;
+		}
+		
+		return null;
+	}
+	
+
+	/**
+	 * Get text content of the first child node matching the given node name. Use this method
+	 * instead of {@link #selectString(String, Object)} whenever xpath support is not required,
+	 * because it is much faster, especially for large documents.
+	 * 
+	 * @param nodeName search for nodes with this name
+	 * @param parentNode search in the child nodes of this nodes
+	 * @return text content of the child node or null if no child with the given name was found
+	 */
+	public static String getTextContent(String nodeName, Node parentNode) {
+		Node child = getChild(nodeName, parentNode);
+		
+		if (child == null)
+			return null;
+		
+		return child.getTextContent();
 	}
 	
 
@@ -85,6 +97,30 @@ public final class XPathUtil {
 	 */
 	private XPathUtil() {
 		throw new UnsupportedOperationException();
+	}
+	
+	
+	protected static class NodeListDecorator extends AbstractList<Node> {
+		
+		private final NodeList nodes;
+		
+		
+		public NodeListDecorator(NodeList nodes) {
+			this.nodes = nodes;
+		}
+		
+
+		@Override
+		public Node get(int index) {
+			return nodes.item(index);
+		}
+		
+
+		@Override
+		public int size() {
+			return nodes.getLength();
+		}
+		
 	}
 	
 }

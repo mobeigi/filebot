@@ -111,6 +111,7 @@
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
 				<include name="**/*.png" />
+				<include name="**/*.xml" />
 			</fileset>
 		</copy>
 	</target>

@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
+import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
+import static net.sourceforge.filebot.FileBotUtil.validateFileName;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -11,7 +14,6 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.tuned.TemporaryFolder;
 
 
@@ -52,10 +54,10 @@ public class LazyTextFileTransferable implements Transferable {
 
 	private FileTransferable createFileTransferable() throws IOException {
 		// remove invalid characters from file name
-		String validFileName = FileBotUtil.validateFileName(defaultFileName);
+		String validFileName = validateFileName(defaultFileName);
 		
 		// create new temporary file in TEMP/APP_NAME [UUID]/dnd
-		File temporaryFile = TemporaryFolder.getFolder(FileBotUtil.getApplicationName()).subFolder("dnd").createFile(validFileName);
+		File temporaryFile = TemporaryFolder.getFolder(getApplicationName()).subFolder("dnd").createFile(validFileName);
 		
 		// write text to file
 		FileChannel fileChannel = new FileOutputStream(temporaryFile).getChannel();

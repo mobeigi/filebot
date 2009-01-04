@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
+import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Image;
@@ -19,7 +21,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sourceforge.filebot.FileBotUtil;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
 import net.sourceforge.filebot.ui.panel.episodelist.EpisodeListPanel;
@@ -42,7 +43,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 	
 	
 	public FileBotWindow() {
-		super(FileBotUtil.getApplicationName());
+		super(getApplicationName());
 		
 		setLocationByPlatform(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
