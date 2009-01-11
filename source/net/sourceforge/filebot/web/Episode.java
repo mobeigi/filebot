@@ -70,16 +70,17 @@ public class Episode implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(40);
 		
-		sb.append(showName + " - ");
+		sb.append(showName);
+		sb.append(" - ");
 		
 		if (seasonNumber != null)
 			sb.append(seasonNumber + "x");
 		
 		sb.append(episodeNumber);
 		
-		sb.append(" - " + title);
+		sb.append(" - ");
+		sb.append(title);
 		
 		return sb.toString();
 	}
-	
 }

@@ -8,17 +8,15 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import ca.odell.glazedlists.EventList;
 
 
 class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
-	private final EventList<? super FileEntry> model;
+	private final List<? super FileEntry> model;
 	
 	
-	public FilesListTransferablePolicy(EventList<? super FileEntry> model) {
+	public FilesListTransferablePolicy(List<? super FileEntry> model) {
 		this.model = model;
 	}
 	

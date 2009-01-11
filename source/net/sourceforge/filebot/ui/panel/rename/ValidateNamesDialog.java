@@ -25,23 +25,22 @@ import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
 public class ValidateNamesDialog extends JDialog {
 	
-	private final Collection<ListEntry> entries;
+	private final Collection<StringEntry> entries;
 	
 	private boolean cancelled = true;
 	
-	private final ValidateAction validateAction = new ValidateAction();
-	private final ContinueAction continueAction = new ContinueAction();
-	private final CancelAction cancelAction = new CancelAction();
+	protected final Action validateAction = new ValidateAction();
+	protected final Action continueAction = new ContinueAction();
+	protected final Action cancelAction = new CancelAction();
 	
 	
-	public ValidateNamesDialog(Window owner, Collection<ListEntry> entries) {
+	public ValidateNamesDialog(Window owner, Collection<StringEntry> entries) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
 		this.entries = entries;
@@ -95,8 +94,8 @@ public class ValidateNamesDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for (ListEntry entry : entries) {
-				entry.setName(validateFileName(entry.getName()));
+			for (StringEntry entry : entries) {
+				entry.setValue(validateFileName(entry.getValue()));
 			}
 			
 			setEnabled(false);
@@ -127,7 +126,7 @@ public class ValidateNamesDialog extends JDialog {
 	};
 	
 
-	private class CancelAction extends AbstractAction {
+	protected class CancelAction extends AbstractAction {
 		
 		public CancelAction() {
 			super("Cancel", ResourceManager.getIcon("dialog.cancel"));
@@ -140,7 +139,7 @@ public class ValidateNamesDialog extends JDialog {
 	};
 	
 
-	private static class AlphaButton extends JButton {
+	protected static class AlphaButton extends JButton {
 		
 		private float alpha;
 		

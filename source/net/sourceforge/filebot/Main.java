@@ -2,6 +2,7 @@
 package net.sourceforge.filebot;
 
 
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -58,8 +59,18 @@ public class Main {
 
 	private static void setupLogging() {
 		Logger uiLogger = Logger.getLogger("ui");
-		uiLogger.addHandler(new NotificationLoggingHandler());
+		
+		// don't use parent handlers
 		uiLogger.setUseParentHandlers(false);
+		
+		// ui handler
+		uiLogger.addHandler(new NotificationLoggingHandler());
+		
+		// console handler (for warnings and errors only)
+		ConsoleHandler consoleHandler = new ConsoleHandler();
+		consoleHandler.setLevel(Level.WARNING);
+		
+		uiLogger.addHandler(consoleHandler);
 	}
 	
 

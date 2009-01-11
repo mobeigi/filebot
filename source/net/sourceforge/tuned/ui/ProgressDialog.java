@@ -2,12 +2,8 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -26,42 +22,35 @@ public class ProgressDialog extends JDialog {
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
 	private final JLabel iconLabel = new JLabel();
 	private final JLabel headerLabel = new JLabel();
-	private final JLabel noteLabel = new JLabel();
 	
-	private final JButton cancelButton;
-	
-	private boolean cancelled = false;
+	private final Cancellable cancellable;
 	
 	
-	public ProgressDialog(Window owner) {
+	public ProgressDialog(Window owner, Cancellable cancellable) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 		
-		cancelButton = new JButton(cancelAction);
+		this.cancellable = cancellable;
 		
-		addWindowListener(closeListener);
+		// disable window close button
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
-		headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
+		headerLabel.setFont(headerLabel.getFont().deriveFont(18f));
+		progressBar.setIndeterminate(true);
 		progressBar.setStringPainted(true);
 		
 		JPanel c = (JPanel) getContentPane();
 		
-		c.setLayout(new MigLayout("insets panel, fill"));
+		c.setLayout(new MigLayout("insets dialog, nogrid, fill"));
 		
-		c.add(iconLabel, "spany 2, grow 0 0, gap right 1mm");
-		c.add(headerLabel, "align left, wmax 70%, grow 100 0, wrap");
-		c.add(noteLabel, "align left, wmax 70%, grow 100 0, wrap");
-		c.add(progressBar, "spanx 2, gap top unrel, gap bottom unrel, grow, wrap");
+		c.add(iconLabel, "h pref!, w pref!");
+		c.add(headerLabel, "gap 3mm, wrap paragraph");
+		c.add(progressBar, "grow, wrap paragraph");
 		
-		c.add(cancelButton, "spanx 2, align center");
+		c.add(new JButton(cancelAction), "align center");
 		
 		setSize(240, 155);
 		
 		setLocation(TunedUtil.getPreferredLocation(this));
-	}
-	
-
-	public boolean isCancelled() {
-		return cancelled;
 	}
 	
 
@@ -71,11 +60,13 @@ public class ProgressDialog extends JDialog {
 	
 
 	public void setNote(String text) {
-		noteLabel.setText(text);
+		progressBar.setString(text);
 	}
 	
 
-	public void setHeader(String text) {
+	@Override
+	public void setTitle(String text) {
+		super.setTitle(text);
 		headerLabel.setText(text);
 	}
 	
@@ -85,32 +76,26 @@ public class ProgressDialog extends JDialog {
 	}
 	
 
-	public JButton getCancelButton() {
-		return cancelButton;
-	}
-	
-
 	public void close() {
 		setVisible(false);
 		dispose();
 	}
 	
-	private final Action cancelAction = new AbstractAction("Cancel") {
+	protected final Action cancelAction = new AbstractAction("Cancel") {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			cancelled = true;
-			close();
+			cancellable.cancel();
 		}
-		
 	};
 	
-	private final WindowListener closeListener = new WindowAdapter() {
+	
+	public static interface Cancellable {
 		
-		@Override
-		public void windowClosing(WindowEvent e) {
-			cancelAction.actionPerformed(null);
-		}
-	};
+		boolean isCancelled();
+		
+
+		boolean cancel();
+	}
 	
 }

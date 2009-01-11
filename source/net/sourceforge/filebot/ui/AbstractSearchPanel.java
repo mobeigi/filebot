@@ -184,8 +184,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
-				Logger.getLogger("global").log(Level.WARNING, "Search failed", e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
 			}
 			
 		}
@@ -241,8 +240,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").warning(ExceptionUtil.getRootCause(e).getMessage());
-				Logger.getLogger("global").log(Level.WARNING, "Fetch failed", e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
 			} finally {
 				tab.setLoading(false);
 			}
@@ -333,7 +331,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			
 			switch (searchResults.size()) {
 				case 0:
-					Logger.getLogger("ui").warning(String.format("\"%s\" has not been found.", request.getSearchText()));
+					Logger.getLogger("ui").warning(String.format("'%s' has not been found.", request.getSearchText()));
 					return null;
 				case 1:
 					return searchResults.iterator().next();

@@ -2,39 +2,34 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static java.awt.datatransfer.DataFlavor.stringFlavor;
 import static net.sourceforge.filebot.FileBotUtil.LIST_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.containsOnly;
 import static net.sourceforge.filebot.FileBotUtil.isInvalidFileName;
+import static net.sourceforge.tuned.FileUtil.getNameWithoutExtension;
 
 import java.awt.datatransfer.Transferable;
-import java.io.BufferedReader;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.torrent.Torrent;
-import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
-import net.sourceforge.filebot.ui.panel.rename.entry.StringEntry;
-import net.sourceforge.filebot.ui.panel.rename.entry.TorrentEntry;
-import net.sourceforge.filebot.ui.transfer.StringTransferablePolicy;
 
 
 class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 	
-	private final RenameList<ListEntry> list;
-	
-	private final TextPolicy textPolicy = new TextPolicy();
+	private final RenameList<Object> list;
 	
 	
-	public NamesListTransferablePolicy(RenameList<ListEntry> list) {
+	public NamesListTransferablePolicy(RenameList<Object> list) {
 		super(list.getModel());
 		
 		this.list = list;
@@ -43,24 +38,39 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 
 	@Override
 	public boolean accept(Transferable tr) {
-		return textPolicy.accept(tr) || super.accept(tr);
+		return tr.isDataFlavorSupported(stringFlavor) || super.accept(tr);
 	}
 	
 
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) {
-		if (super.accept(tr))
-			super.handleTransferable(tr, action);
-		else if (textPolicy.accept(tr))
-			textPolicy.handleTransferable(tr, action);
+		if (action == TransferAction.PUT) {
+			clear();
+		}
+		
+		if (tr.isDataFlavorSupported(stringFlavor)) {
+			// string transferable
+			try {
+				load((String) tr.getTransferData(stringFlavor));
+			} catch (UnsupportedFlavorException e) {
+				// should not happen
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				// should not happen
+				throw new RuntimeException(e);
+			}
+		} else if (super.accept(tr)) {
+			// file transferable
+			load(getFilesFromTransferable(tr));
+		}
 	}
 	
 
-	private void submit(List<ListEntry> entries) {
-		List<ListEntry> invalidEntries = new ArrayList<ListEntry>();
+	protected void submit(List<StringEntry> entries) {
+		List<StringEntry> invalidEntries = new ArrayList<StringEntry>();
 		
-		for (ListEntry entry : entries) {
-			if (isInvalidFileName(entry.getName()))
+		for (StringEntry entry : entries) {
+			if (isInvalidFileName(entry.getValue()))
 				invalidEntries.add(entry);
 		}
 		
@@ -68,17 +78,35 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 			ValidateNamesDialog dialog = new ValidateNamesDialog(SwingUtilities.getWindowAncestor(list), invalidEntries);
 			dialog.setVisible(true);
 			
-			if (dialog.isCancelled())
+			if (dialog.isCancelled()) {
+				// return immediately, don't add items to list
 				return;
+			}
 		}
 		
 		list.getModel().addAll(entries);
 	}
 	
 
+	protected void load(String string) {
+		List<StringEntry> entries = new ArrayList<StringEntry>();
+		
+		Scanner scanner = new Scanner(string).useDelimiter(LINE_SEPARATOR);
+		
+		while (scanner.hasNext()) {
+			String line = scanner.next();
+			
+			if (line.trim().length() > 0) {
+				entries.add(new StringEntry(line));
+			}
+		}
+		
+		submit(entries);
+	}
+	
+
 	@Override
 	protected void load(List<File> files) {
-		
 		if (containsOnly(files, LIST_FILE_EXTENSIONS)) {
 			loadListFiles(files);
 		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
@@ -91,20 +119,20 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 
 	private void loadListFiles(List<File> files) {
 		try {
-			List<ListEntry> entries = new ArrayList<ListEntry>();
+			List<StringEntry> entries = new ArrayList<StringEntry>();
 			
 			for (File file : files) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+				Scanner scanner = new Scanner(file, "UTF-8").useDelimiter(LINE_SEPARATOR);
 				
-				String line = null;
-				
-				while ((line = in.readLine()) != null) {
+				while (scanner.hasNext()) {
+					String line = scanner.next();
+					
 					if (line.trim().length() > 0) {
 						entries.add(new StringEntry(line));
 					}
 				}
 				
-				in.close();
+				scanner.close();
 			}
 			
 			submit(entries);
@@ -116,17 +144,18 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 
 	private void loadTorrentFiles(List<File> files) {
 		try {
-			List<ListEntry> entries = new ArrayList<ListEntry>();
+			List<AbstractFileEntry> entries = new ArrayList<AbstractFileEntry>();
 			
 			for (File file : files) {
 				Torrent torrent = new Torrent(file);
 				
 				for (Torrent.Entry entry : torrent.getFiles()) {
-					entries.add(new TorrentEntry(entry));
+					entries.add(new AbstractFileEntry(getNameWithoutExtension(entry.getName()), entry.getLength()));
 				}
 			}
 			
-			submit(entries);
+			// add torrent entries directly without checking file names for invalid characters
+			list.getModel().addAll(entries);
 		} catch (IOException e) {
 			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
@@ -136,34 +165,6 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 	@Override
 	public String getFileFilterDescription() {
 		return "text files and torrent files";
-	}
-	
-	
-	private class TextPolicy extends StringTransferablePolicy {
-		
-		@Override
-		protected void clear() {
-			NamesListTransferablePolicy.this.clear();
-		}
-		
-
-		@Override
-		protected void load(String string) {
-			List<ListEntry> entries = new ArrayList<ListEntry>();
-			
-			String[] lines = string.split("\r?\n");
-			
-			for (String line : lines) {
-				
-				if (!line.isEmpty())
-					entries.add(new StringEntry(line));
-			}
-			
-			if (!entries.isEmpty()) {
-				submit(entries);
-			}
-		}
-		
 	}
 	
 }

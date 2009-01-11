@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.rename.metric;
+package net.sourceforge.filebot.similarity;
 
 
 import static org.junit.Assert.assertEquals;
@@ -60,7 +60,7 @@ public class NumericSimilarityMetricTest {
 		return TestUtil.asParameters(matches.keySet());
 	}
 	
-	private String normalizedName;
+	private final String normalizedName;
 	
 	
 	public NumericSimilarityMetricTest(String normalizedName) {
@@ -77,17 +77,19 @@ public class NumericSimilarityMetricTest {
 	
 
 	public String getBestMatch(String value, Collection<String> testdata) {
-		float maxSimilarity = -1;
+		double maxSimilarity = -1;
 		String mostSimilar = null;
 		
-		for (String comparisonValue : testdata) {
-			float similarity = metric.getSimilarity(value, comparisonValue);
+		for (String current : testdata) {
+			double similarity = metric.getSimilarity(value, current);
 			
 			if (similarity > maxSimilarity) {
 				maxSimilarity = similarity;
-				mostSimilar = comparisonValue;
+				mostSimilar = current;
 			}
 		}
+		
+		//		System.out.println(String.format("[%f, %s, %s]", maxSimilarity, value, mostSimilar));
 		
 		return mostSimilar;
 	}

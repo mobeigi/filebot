@@ -41,10 +41,10 @@ public class TypeTool extends Tool<TreeModel> {
 	
 
 	@Override
-	protected TreeModel createModelInBackground(FolderNode sourceModel, Cancellable cancellable) {
+	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
 		TreeMap<String, List<File>> map = new TreeMap<String, List<File>>();
 		
-		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext() && !cancellable.isCancelled();) {
+		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
 			File file = iterator.next();
 			String extension = FileUtil.getExtension(file);
 			
@@ -62,6 +62,11 @@ public class TypeTool extends Tool<TreeModel> {
 		
 		for (Entry<String, List<File>> entry : map.entrySet()) {
 			root.add(createStatisticsNode(entry.getKey(), entry.getValue()));
+			
+			// unwind thread, if we have been cancelled
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 		
 		return new DefaultTreeModel(root);

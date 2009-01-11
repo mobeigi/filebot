@@ -32,7 +32,7 @@ abstract class Tool<M> extends JComponent {
 
 	public synchronized void setSourceModel(FolderNode sourceModel) {
 		if (updateTask != null) {
-			updateTask.cancel(false);
+			updateTask.cancel(true);
 		}
 		
 		updateTask = new UpdateModelTask(sourceModel);
@@ -41,13 +41,13 @@ abstract class Tool<M> extends JComponent {
 	}
 	
 
-	protected abstract M createModelInBackground(FolderNode sourceModel, Cancellable cancellable);
+	protected abstract M createModelInBackground(FolderNode sourceModel) throws InterruptedException;
 	
 
 	protected abstract void setModel(M model);
 	
 	
-	private class UpdateModelTask extends SwingWorker<M, Void> implements Cancellable {
+	private class UpdateModelTask extends SwingWorker<M, Void> {
 		
 		private final FolderNode sourceModel;
 		
@@ -67,7 +67,7 @@ abstract class Tool<M> extends JComponent {
 				
 				if (!isCancelled()) {
 					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
-					model = createModelInBackground(sourceModel, this);
+					model = createModelInBackground(sourceModel);
 					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
 				}
 				
@@ -90,12 +90,6 @@ abstract class Tool<M> extends JComponent {
 				}
 			}
 		}
-	}
-	
-
-	protected static interface Cancellable {
-		
-		boolean isCancelled();
 	}
 	
 	

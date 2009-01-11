@@ -75,7 +75,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 	
 
 	@Override
-	protected TreeModel createModelInBackground(FolderNode sourceModel, Cancellable cancellable) {
+	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
 		this.sourceModel = sourceModel;
 		
 		FolderNode root = new FolderNode();
@@ -87,7 +87,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		List<File> remainder = new ArrayList<File>(50);
 		long totalSize = 0;
 		
-		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext() && !cancellable.isCancelled();) {
+		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
 			File file = iterator.next();
 			
 			long fileSize = file.length();
@@ -108,6 +108,11 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 			
 			totalSize += fileSize;
 			currentPart.add(file);
+			
+			// unwind thread, if we have been cancelled
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 		
 		if (!currentPart.isEmpty()) {

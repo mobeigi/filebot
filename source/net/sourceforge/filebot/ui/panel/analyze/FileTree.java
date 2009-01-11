@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -160,7 +159,6 @@ public class FileTree extends JTree {
 					}
 				} catch (Exception e) {
 					Logger.getLogger("ui").warning(e.getMessage());
-					Logger.getLogger("global").log(Level.SEVERE, "Failed to open file", e);
 				}
 			}
 		}

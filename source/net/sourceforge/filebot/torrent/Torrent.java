@@ -189,13 +189,13 @@ public class Torrent {
 		}
 		
 
-		public Long getLength() {
-			return length;
+		public String getName() {
+			return name;
 		}
 		
 
-		public String getName() {
-			return name;
+		public Long getLength() {
+			return length;
 		}
 		
 

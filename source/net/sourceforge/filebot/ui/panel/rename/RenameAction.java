@@ -4,63 +4,84 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
-import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
+import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.tuned.FileUtil;
 
 
 public class RenameAction extends AbstractAction {
 	
-	private final RenameList<ListEntry> namesList;
-	private final RenameList<FileEntry> filesList;
+	private final List<Object> namesModel;
+	private final List<FileEntry> filesModel;
 	
 	
-	public RenameAction(RenameList<ListEntry> namesList, RenameList<FileEntry> filesList) {
+	public RenameAction(List<Object> namesModel, List<FileEntry> filesModel) {
 		super("Rename", ResourceManager.getIcon("action.rename"));
-		this.namesList = namesList;
-		this.filesList = filesList;
 		
-		putValue(Action.SHORT_DESCRIPTION, "Rename files");
+		putValue(SHORT_DESCRIPTION, "Rename files");
+		
+		this.namesModel = namesModel;
+		this.filesModel = filesModel;
 	}
 	
 
-	public void actionPerformed(ActionEvent e) {
-		List<ListEntry> nameEntries = namesList.getEntries();
-		List<FileEntry> fileEntries = filesList.getEntries();
+	public void actionPerformed(ActionEvent evt) {
 		
-		int minLength = Math.min(nameEntries.size(), fileEntries.size());
+		Deque<Match<File, File>> renameMatches = new ArrayDeque<Match<File, File>>();
+		Deque<Match<File, File>> revertMatches = new ArrayDeque<Match<File, File>>();
 		
-		int i = 0;
-		int errors = 0;
+		Iterator<Object> names = namesModel.iterator();
+		Iterator<FileEntry> files = filesModel.iterator();
 		
-		for (i = 0; i < minLength; i++) {
-			FileEntry fileEntry = fileEntries.get(i);
-			File f = fileEntry.getFile();
+		while (names.hasNext() && files.hasNext()) {
+			File source = files.next().getFile();
 			
-			String newName = nameEntries.get(i).toString() + FileUtil.getExtension(f, true);
+			String targetName = names.next().toString() + FileUtil.getExtension(source, true);
+			File target = new File(source.getParentFile(), targetName);
 			
-			File newFile = new File(f.getParentFile(), newName);
+			renameMatches.addLast(new Match<File, File>(source, target));
+		}
+		
+		try {
+			int renameCount = renameMatches.size();
 			
-			if (f.renameTo(newFile)) {
-				filesList.getModel().remove(fileEntry);
-			} else {
-				errors++;
+			for (Match<File, File> match : renameMatches) {
+				// rename file
+				if (!match.getValue().renameTo(match.getCandidate()))
+					throw new IOException(String.format("Failed to rename file: %s.", match.getValue().getName()));
+				
+				// revert in reverse order if renaming of all matches fails
+				revertMatches.addFirst(match);
+			}
+			
+			// renamed all matches successfully
+			Logger.getLogger("ui").info(String.format("%d files renamed.", renameCount));
+		} catch (IOException e) {
+			// rename failed
+			Logger.getLogger("ui").warning(e.getMessage());
+			
+			boolean revertFailed = false;
+			
+			// revert rename operations
+			for (Match<File, File> match : revertMatches) {
+				if (!match.getCandidate().renameTo(match.getValue())) {
+					revertFailed = true;
+				}
+			}
+			
+			if (revertFailed) {
+				Logger.getLogger("ui").severe("Failed to revert all rename operations.");
 			}
 		}
 		
-		if (errors > 0)
-			Logger.getLogger("ui").info(String.format("%d of %d files renamed.", i - errors, i));
-		else
-			Logger.getLogger("ui").info(String.format("%d files renamed.", i));
-		
-		namesList.repaint();
-		filesList.repaint();
 	}
 }

@@ -12,11 +12,19 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 
 public abstract class FileTransferablePolicy extends TransferablePolicy {
+	
+	/**
+	 * Pattern that will match Windows (\r\n), Unix (\n) and Mac (\r) line separators.
+	 */
+	public static final Pattern LINE_SEPARATOR = Pattern.compile("\r?\n|\r\n?");
+	
 	
 	@Override
 	public boolean accept(Transferable tr) {
@@ -37,19 +45,22 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 			} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 				// file URI list flavor
-				String transferString = (String) tr.getTransferData(FileTransferable.uriListFlavor);
+				String transferData = (String) tr.getTransferData(FileTransferable.uriListFlavor);
 				
-				String lines[] = transferString.split("\r?\n");
-				ArrayList<File> files = new ArrayList<File>(lines.length);
+				Scanner scanner = new Scanner(transferData).useDelimiter(LINE_SEPARATOR);
 				
-				for (String line : lines) {
-					if (line.startsWith("#")) {
-						// the line is a comment (as per the RFC 2483)
+				ArrayList<File> files = new ArrayList<File>();
+				
+				while (scanner.hasNext()) {
+					String uri = scanner.next();
+					
+					if (uri.startsWith("#")) {
+						// the line is a comment (as per RFC 2483)
 						continue;
 					}
 					
 					try {
-						File file = new File(new URI(line));
+						File file = new File(new URI(uri));
 						
 						if (!file.exists())
 							throw new FileNotFoundException(file.toString());
@@ -57,7 +68,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 						files.add(file);
 					} catch (Exception e) {
 						// URISyntaxException, IllegalArgumentException, FileNotFoundException
-						Logger.getLogger("global").log(Level.WARNING, "Invalid file url: " + line);
+						Logger.getLogger("global").log(Level.WARNING, "Invalid file uri: " + uri);
 					}
 				}
 				
@@ -79,7 +90,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	public void handleTransferable(Transferable tr, TransferAction action) {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (action != TransferAction.ADD) {
+		if (action == TransferAction.PUT) {
 			clear();
 		}
 		

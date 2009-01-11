@@ -19,7 +19,7 @@ import javax.swing.ListModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.ui.panel.rename.entry.FileEntry;
+
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 

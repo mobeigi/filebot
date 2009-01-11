@@ -99,7 +99,7 @@ public class ListPanel extends FileBotPanel {
 			String pattern = textField.getText();
 			
 			if (!pattern.contains(INDEX_VARIABLE)) {
-				Logger.getLogger("ui").warning(String.format("Pattern does not contain index variable %s.", INDEX_VARIABLE));
+				Logger.getLogger("ui").warning(String.format("Pattern must contain index variable %s.", INDEX_VARIABLE));
 				return;
 			}
 			

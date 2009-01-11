@@ -66,6 +66,11 @@ public final class FileBotUtil {
 		return embeddedChecksum;
 	}
 	
+
+	public static String removeEmbeddedChecksum(String string) {
+		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
+	}
+	
 	public static final List<String> TORRENT_FILE_EXTENSIONS = unmodifiableList("torrent");
 	public static final List<String> SFV_FILE_EXTENSIONS = unmodifiableList("sfv");
 	public static final List<String> LIST_FILE_EXTENSIONS = unmodifiableList("txt", "list", "");

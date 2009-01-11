@@ -18,12 +18,11 @@ import javax.swing.ListSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.panel.rename.entry.ListEntry;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 
 
-class RenameList<E extends ListEntry> extends FileBotList<E> {
+class RenameList<E> extends FileBotList<E> {
 	
 	private JButton loadButton = new JButton();
 	
