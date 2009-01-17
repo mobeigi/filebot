@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -38,17 +39,19 @@ public class SfvPanel extends FileBotPanel {
 	public SfvPanel() {
 		super("SFV", ResourceManager.getIcon("panel.sfv"));
 		
-		setBorder(BorderFactory.createTitledBorder("SFV"));
+		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", null, "align bottom"));
+		contentPane.setBorder(new TitledBorder("SFV"));
 		
-		setLayout(new MigLayout("insets 0, nogrid, fill", "", "align bottom"));
+		this.setLayout(new MigLayout("insets dialog, fill"));
+		this.add(contentPane, "grow");
 		
-		add(new JScrollPane(sfvTable), "grow, wrap 10px");
+		contentPane.add(new JScrollPane(sfvTable), "grow, wrap 10px");
 		
-		add(new JButton(loadAction), "gap 15px, gap bottom 4px");
-		add(new JButton(saveAction), "gap rel, gap bottom 4px");
-		add(new JButton(clearAction), "gap rel, gap bottom 4px");
+		contentPane.add(new JButton(loadAction), "gap 15px, gap bottom 4px");
+		contentPane.add(new JButton(saveAction), "gap rel, gap bottom 4px");
+		contentPane.add(new JButton(clearAction), "gap rel, gap bottom 4px");
 		
-		add(totalProgressPanel, "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
+		contentPane.add(totalProgressPanel, "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
 		
 		// Shortcut DELETE
 		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);

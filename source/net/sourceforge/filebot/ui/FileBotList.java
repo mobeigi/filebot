@@ -26,17 +26,16 @@ import ca.odell.glazedlists.swing.EventListModel;
 
 public class FileBotList<E> extends JComponent {
 	
-	protected final EventList<E> model = new BasicEventList<E>();
+	protected EventList<E> model = new BasicEventList<E>();
 	
-	protected final JList list = new JList(new EventListModel<E>(model));
+	protected JList list = new JList(new EventListModel<E>(model));
 	
-	protected final JScrollPane listScrollPane = new JScrollPane(list);
+	protected JScrollPane listScrollPane = new JScrollPane(list);
 	
 	private String title = null;
 	
 	
 	public FileBotList() {
-		
 		setLayout(new BorderLayout());
 		setBorder(new TitledBorder(getTitle()));
 		
@@ -57,6 +56,12 @@ public class FileBotList<E> extends JComponent {
 
 	public EventList<E> getModel() {
 		return model;
+	}
+	
+
+	public void setModel(EventList<E> model) {
+		this.model = model;
+		list.setModel(new EventListModel<E>(model));
 	}
 	
 

@@ -88,6 +88,9 @@ public class SeasonEpisodeSimilarityMetricTest {
 		
 		// first two digits <= 29
 		assertEquals(null, metric.match("The 4400"));
+		
+		// test lookbehind
+		assertEquals(null, metric.match("720p"));
 	}
 	
 }

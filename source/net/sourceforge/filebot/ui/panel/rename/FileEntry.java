@@ -7,7 +7,7 @@ import java.io.File;
 import net.sourceforge.tuned.FileUtil;
 
 
-public class FileEntry extends AbstractFileEntry {
+class FileEntry extends AbstractFileEntry {
 	
 	private final File file;
 	private final String type;

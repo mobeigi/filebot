@@ -1,4 +1,7 @@
+
 package net.sourceforge.filebot.ui.panel.rename;
+
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,7 +20,7 @@ import javax.swing.text.JTextComponent;
 import net.sourceforge.tuned.ui.GradientStyle;
 
 
-public class CharacterHighlightPainter implements Highlighter.HighlightPainter {
+class CharacterHighlightPainter implements Highlighter.HighlightPainter {
 	
 	private Color gradientBeginColor;
 	private Color gradientEndColor;

@@ -16,7 +16,7 @@ public class NameSimilarityMetricTest {
 	public void getSimilarity() {
 		// normalize separators, lower-case
 		assertEquals(1, metric.getSimilarity("test s01e01 first", "test.S01E01.First"));
-		assertEquals(1, metric.getSimilarity("test s01e02 second", "test_S01E02_Second"));
+		assertEquals(1, metric.getSimilarity("test s01e02 second", "test_[S01E02]_Second"));
 		assertEquals(1, metric.getSimilarity("test s01e03 third", "__test__S01E03__Third__"));
 		assertEquals(1, metric.getSimilarity("test s01e04 four", "test   s01e04     four"));
 		

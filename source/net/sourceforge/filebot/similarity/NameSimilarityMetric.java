@@ -30,7 +30,7 @@ public class NameSimilarityMetric implements SimilarityMetric {
 		String name = removeEmbeddedChecksum(object.toString());
 		
 		// normalize separators
-		name = name.replaceAll("[\\._ ]+", " ");
+		name = name.replaceAll("[^\\p{Alnum}]+", " ");
 		
 		// normalize case and trim
 		return name.trim().toLowerCase();

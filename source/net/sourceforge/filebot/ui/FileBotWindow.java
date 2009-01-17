@@ -133,7 +133,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 
 	private JComponent createPageLayer() {
 		JPanel pageLayer = new JPanel(new BorderLayout());
-		pagePanel.setBorder(new EmptyBorder(10, 110, 10, 10));
+		pagePanel.setBorder(new EmptyBorder(0, 95, 0, 0));
 		
 		pageLayer.add(headerPanel, BorderLayout.NORTH);
 		pageLayer.add(pagePanel, BorderLayout.CENTER);

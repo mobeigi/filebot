@@ -65,7 +65,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		tabbedPaneGroup.setBorder(BorderFactory.createTitledBorder("Search Results"));
 		tabbedPaneGroup.add(tabbedPane, "grow, wrap 8px");
 		
-		setLayout(new MigLayout("nogrid, fill, insets 0 0 5px 0"));
+		setLayout(new MigLayout("nogrid, fill, insets 10px 10px 15px 10px"));
 		add(searchTextField, "alignx center, gapafter indent");
 		add(new JButton(searchAction), "gap 18px, wrap 10px");
 		add(tabbedPaneGroup, "grow");

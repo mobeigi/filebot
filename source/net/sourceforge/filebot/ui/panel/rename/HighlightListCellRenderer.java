@@ -23,7 +23,7 @@ import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
-public class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
+class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 	
 	private final JTextComponent textComponent = new JTextField();
 	

@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -30,7 +29,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	public boolean accept(Transferable tr) {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (files.isEmpty())
+		if (files == null || files.isEmpty())
 			return false;
 		
 		return accept(files);
@@ -82,7 +81,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 			throw new RuntimeException(e);
 		}
 		
-		return Collections.EMPTY_LIST;
+		return null;
 	}
 	
 

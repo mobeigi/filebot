@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-public class AbstractFileEntry {
+class AbstractFileEntry {
 	
 	private final String name;
 	private final long length;

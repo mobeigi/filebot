@@ -33,19 +33,17 @@ import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
 
 class MatchAction extends AbstractAction {
 	
-	private final List<Object> namesModel;
-	private final List<FileEntry> filesModel;
+	private final RenameModel model;
 	
 	private final SimilarityMetric[] metrics;
 	
 	
-	public MatchAction(List<Object> namesModel, List<FileEntry> filesModel) {
+	public MatchAction(RenameModel model) {
 		super("Match", ResourceManager.getIcon("action.match"));
 		
 		putValue(SHORT_DESCRIPTION, "Match names to files");
 		
-		this.namesModel = namesModel;
-		this.filesModel = filesModel;
+		this.model = model;
 		
 		metrics = new SimilarityMetric[3];
 		
@@ -75,7 +73,7 @@ class MatchAction extends AbstractAction {
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(namesModel, filesModel, Arrays.asList(metrics));
+		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, Arrays.asList(metrics));
 		backgroundMatcher.execute();
 		
 		try {
@@ -118,17 +116,16 @@ class MatchAction extends AbstractAction {
 	
 	protected static class BackgroundMatcher extends SwingWorker<List<Match<Object, FileEntry>>, Void> implements Cancellable {
 		
-		private final List<Object> namesModel;
-		private final List<FileEntry> filesModel;
+		private final RenameModel model;
 		
 		private final Matcher<Object, FileEntry> matcher;
 		
 		
-		public BackgroundMatcher(List<Object> namesModel, List<FileEntry> filesModel, List<SimilarityMetric> metrics) {
-			this.namesModel = namesModel;
-			this.filesModel = filesModel;
+		public BackgroundMatcher(RenameModel model, List<SimilarityMetric> metrics) {
+			this.model = model;
 			
-			this.matcher = new Matcher<Object, FileEntry>(namesModel, filesModel, metrics);
+			// match names against files
+			this.matcher = new Matcher<Object, FileEntry>(model.names(), model.files(), metrics);
 		}
 		
 
@@ -144,18 +141,12 @@ class MatchAction extends AbstractAction {
 				return;
 			
 			try {
-				List<Match<Object, FileEntry>> matches = get();
+				// put new data into model
+				model.setData(get());
 				
-				namesModel.clear();
-				filesModel.clear();
-				
-				for (Match<Object, FileEntry> match : matches) {
-					namesModel.add(match.getValue());
-					filesModel.add(match.getCandidate());
-				}
-				
-				namesModel.addAll(matcher.remainingValues());
-				namesModel.addAll(matcher.remainingCandidates());
+				// insert objects that could not be matched at the end
+				model.names().addAll(matcher.remainingValues());
+				model.files().addAll(matcher.remainingCandidates());
 			} catch (Exception e) {
 				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 			}

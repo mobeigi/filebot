@@ -29,7 +29,7 @@ import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.TunedUtil;
 
 
-public class ValidateNamesDialog extends JDialog {
+class ValidateNamesDialog extends JDialog {
 	
 	private final Collection<StringEntry> entries;
 	

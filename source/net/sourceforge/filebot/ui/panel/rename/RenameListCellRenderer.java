@@ -15,25 +15,21 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.ListModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-
 
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
-	private final ListModel names;
-	private final ListModel files;
+	private final RenameModel model;
 	
 	private final ExtensionLabel extension = new ExtensionLabel();
 	
 	
-	public RenameListCellRenderer(ListModel names, ListModel files) {
-		this.names = names;
-		this.files = files;
+	public RenameListCellRenderer(RenameModel model) {
+		this.model = model;
 		
 		setHighlightingEnabled(false);
 		
@@ -50,7 +46,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		if ((list.getModel() == files) && (value instanceof FileEntry)) {
+		// show extension label only for items of the files model
+		if (value instanceof FileEntry) {
 			FileEntry entry = (FileEntry) value;
 			
 			extension.setText(entry.getType());
@@ -61,7 +58,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		extension.setAlpha(1.0f);
 		
-		if (index >= getMinLength()) {
+		if (index >= model.matchCount()) {
 			if (isSelected) {
 				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
 			} else {
@@ -71,19 +68,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		}
 	}
 	
-
-	private int getMinLength() {
-		if ((names == null) || (files == null))
-			return 0;
-		
-		int n1 = names.getSize();
-		int n2 = files.getSize();
-		
-		return Math.min(n1, n2);
-	}
 	
-	
-	private class ExtensionLabel extends JLabel {
+	protected class ExtensionLabel extends JLabel {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
 		private final Insets padding = new Insets(0, 6, 0, 5);

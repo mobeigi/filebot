@@ -6,8 +6,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -20,29 +18,29 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
+import ca.odell.glazedlists.EventList;
 
 
 class RenameList<E> extends FileBotList<E> {
 	
-	private JButton loadButton = new JButton();
-	
-	
-	public RenameList() {
+	public RenameList(EventList<E> model) {
+		// replace default model with given model
+		setModel(model);
+		
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		list.addMouseListener(dndReorderMouseAdapter);
 		list.addMouseMotionListener(dndReorderMouseAdapter);
 		
-		JViewport viewport = (JViewport) list.getParent();
-		viewport.setBackground(list.getBackground());
+		getViewPort().setBackground(list.getBackground());
 		
 		getRemoveAction().setEnabled(true);
 		
 		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
 		
-		buttonPanel.add(new JButton(downAction));
+		buttonPanel.add(new JButton(downAction), "gap 10px");
 		buttonPanel.add(new JButton(upAction), "gap 0");
-		buttonPanel.add(loadButton, "gap 10px");
+		buttonPanel.add(new JButton(loadAction), "gap 10px");
 		
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
@@ -51,31 +49,34 @@ class RenameList<E> extends FileBotList<E> {
 	@Override
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
 		super.setTransferablePolicy(transferablePolicy);
-		loadButton.setAction(new LoadAction(transferablePolicy));
+		loadAction.putValue(LoadAction.TRANSFERABLE_POLICY, transferablePolicy);
 	}
 	
 
-	public List<E> getEntries() {
-		return new ArrayList<E>(getModel());
-	}
-	
-
-	private boolean moveEntry(int fromIndex, int toIndex) {
+	protected boolean moveEntry(int fromIndex, int toIndex) {
 		if (toIndex < 0 || toIndex >= getModel().size())
 			return false;
 		
+		// move element
 		getModel().add(toIndex, getModel().remove(fromIndex));
+		
 		return true;
 	}
+	
+
+	public JViewport getViewPort() {
+		return listScrollPane.getViewport();
+	}
+	
+	private final LoadAction loadAction = new LoadAction(null);
 	
 	private final AbstractAction upAction = new AbstractAction(null, ResourceManager.getIcon("action.up")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			int selectedIndex = getListComponent().getSelectedIndex();
-			int toIndex = selectedIndex + 1;
+			int index = getListComponent().getSelectedIndex();
 			
-			if (moveEntry(selectedIndex, toIndex)) {
-				getListComponent().setSelectedIndex(toIndex);
+			if (moveEntry(index, index - 1)) {
+				getListComponent().setSelectedIndex(index - 1);
 			}
 		}
 	};
@@ -83,11 +84,10 @@ class RenameList<E> extends FileBotList<E> {
 	private final AbstractAction downAction = new AbstractAction(null, ResourceManager.getIcon("action.down")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			int selectedIndex = getListComponent().getSelectedIndex();
-			int toIndex = selectedIndex - 1;
+			int index = getListComponent().getSelectedIndex();
 			
-			if (moveEntry(selectedIndex, toIndex)) {
-				getListComponent().setSelectedIndex(toIndex);
+			if (moveEntry(index, index + 1)) {
+				getListComponent().setSelectedIndex(index + 1);
 			}
 		}
 	};

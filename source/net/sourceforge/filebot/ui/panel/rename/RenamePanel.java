@@ -6,8 +6,6 @@ import java.awt.Insets;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
@@ -20,12 +18,15 @@ import ca.odell.glazedlists.event.ListEventListener;
 
 public class RenamePanel extends FileBotPanel {
 	
-	private RenameList<Object> namesList = new RenameList<Object>();
-	private RenameList<FileEntry> filesList = new RenameList<FileEntry>();
+	private RenameModel model = new RenameModel();
 	
-	private MatchAction matchAction = new MatchAction(namesList.getModel(), filesList.getModel());
+	private RenameList<Object> namesList = new RenameList<Object>(model.names());
 	
-	private RenameAction renameAction = new RenameAction(namesList.getModel(), filesList.getModel());
+	private RenameList<FileEntry> filesList = new RenameList<FileEntry>(model.files());
+	
+	private MatchAction matchAction = new MatchAction(model);
+	
+	private RenameAction renameAction = new RenameAction(model);
 	
 	
 	public RenamePanel() {
@@ -37,22 +38,20 @@ public class RenamePanel extends FileBotPanel {
 		filesList.setTitle("Current");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
 		
-		JList namesListComponent = namesList.getListComponent();
-		JList filesListComponent = filesList.getListComponent();
+		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(model);
 		
-		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(namesListComponent.getModel(), filesListComponent.getModel());
-		
-		namesListComponent.setCellRenderer(cellrenderer);
-		filesListComponent.setCellRenderer(cellrenderer);
+		namesList.getListComponent().setCellRenderer(cellrenderer);
+		filesList.getListComponent().setCellRenderer(cellrenderer);
 		
 		ListSelectionModel selectionModel = new DefaultListSelectionModel();
 		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
-		namesListComponent.setSelectionModel(selectionModel);
-		filesListComponent.setSelectionModel(selectionModel);
+		// use the same selection model for both lists to synchronize selection
+		namesList.getListComponent().setSelectionModel(selectionModel);
+		filesList.getListComponent().setSelectionModel(selectionModel);
 		
 		// synchronize viewports
-		new ViewPortSynchronizer((JViewport) namesListComponent.getParent(), (JViewport) filesListComponent.getParent());
+		new ViewPortSynchronizer(namesList.getViewPort(), filesList.getViewPort());
 		
 		// create Match button
 		JButton matchButton = new JButton(matchAction);
@@ -64,7 +63,7 @@ public class RenamePanel extends FileBotPanel {
 		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
 		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		setLayout(new MigLayout("fill, insets 0, gapx 10px", null, "align 33%"));
+		setLayout(new MigLayout("fill, insets dialog, gapx 10px", null, "align 33%"));
 		
 		add(namesList, "grow");
 		
@@ -77,8 +76,9 @@ public class RenamePanel extends FileBotPanel {
 		
 		add(filesList, "grow");
 		
-		namesList.getModel().addListEventListener(new RepaintHandler<Object>());
-		filesList.getModel().addListEventListener(new RepaintHandler<FileEntry>());
+		// repaint on change
+		model.names().addListEventListener(new RepaintHandler<Object>());
+		model.files().addListEventListener(new RepaintHandler<FileEntry>());
 	}
 	
 	

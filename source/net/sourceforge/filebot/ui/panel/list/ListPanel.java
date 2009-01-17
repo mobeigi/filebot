@@ -18,6 +18,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.JSpinner.NumberEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -57,10 +58,10 @@ public class ListPanel extends FileBotPanel {
 		JSpinner fromSpinner = new JSpinner(fromSpinnerModel);
 		JSpinner toSpinner = new JSpinner(toSpinnerModel);
 		
-		fromSpinner.setEditor(new JSpinner.NumberEditor(fromSpinner, "#"));
-		toSpinner.setEditor(new JSpinner.NumberEditor(toSpinner, "#"));
+		fromSpinner.setEditor(new NumberEditor(fromSpinner, "#"));
+		toSpinner.setEditor(new NumberEditor(toSpinner, "#"));
 		
-		setLayout(new MigLayout("nogrid, fill, insets 6px 2px 6px 2px", "align center"));
+		setLayout(new MigLayout("nogrid, fill, insets dialog", "align center"));
 		
 		add(new JLabel("Pattern:"), "gapbefore indent");
 		add(textField, "gap related, wmin 2cm");

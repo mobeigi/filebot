@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 import javax.swing.SpinnerNumberModel;
 
 
-public class SeasonSpinnerModel extends SpinnerNumberModel {
+class SeasonSpinnerModel extends SpinnerNumberModel {
 	
 	public static final int ALL_SEASONS = 0;
 	

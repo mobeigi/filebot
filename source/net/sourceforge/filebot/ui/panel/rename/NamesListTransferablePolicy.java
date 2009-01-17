@@ -6,6 +6,7 @@ import static java.awt.datatransfer.DataFlavor.stringFlavor;
 import static net.sourceforge.filebot.FileBotUtil.LIST_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
 import static net.sourceforge.filebot.FileBotUtil.containsOnly;
+import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
 import static net.sourceforge.filebot.FileBotUtil.isInvalidFileName;
 import static net.sourceforge.tuned.FileUtil.getNameWithoutExtension;
 
@@ -14,6 +15,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -22,23 +24,35 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.torrent.Torrent;
+import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
+import net.sourceforge.tuned.FileUtil;
 
 
-class NamesListTransferablePolicy extends FilesListTransferablePolicy {
+class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private final RenameList<Object> list;
 	
 	
 	public NamesListTransferablePolicy(RenameList<Object> list) {
-		super(list.getModel());
-		
 		this.list = list;
+	}
+	
+
+	@Override
+	protected void clear() {
+		list.getModel().clear();
 	}
 	
 
 	@Override
 	public boolean accept(Transferable tr) {
 		return tr.isDataFlavorSupported(stringFlavor) || super.accept(tr);
+	}
+	
+
+	@Override
+	protected boolean accept(List<File> files) {
+		return true;
 	}
 	
 
@@ -111,13 +125,25 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 			loadListFiles(files);
 		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
 			loadTorrentFiles(files);
+		} else if (containsOnlyFolders(files)) {
+			// load files from each folder
+			for (File folder : files) {
+				loadFiles(Arrays.asList(folder.listFiles()));
+			}
 		} else {
-			super.load(files);
+			loadFiles(files);
 		}
 	}
 	
 
-	private void loadListFiles(List<File> files) {
+	protected void loadFiles(List<File> files) {
+		for (File file : files) {
+			list.getModel().add(new AbstractFileEntry(FileUtil.getFileName(file), file.length()));
+		}
+	}
+	
+
+	protected void loadListFiles(List<File> files) {
 		try {
 			List<StringEntry> entries = new ArrayList<StringEntry>();
 			
@@ -142,7 +168,7 @@ class NamesListTransferablePolicy extends FilesListTransferablePolicy {
 	}
 	
 
-	private void loadTorrentFiles(List<File> files) {
+	protected void loadTorrentFiles(List<File> files) {
 		try {
 			List<AbstractFileEntry> entries = new ArrayList<AbstractFileEntry>();
 			

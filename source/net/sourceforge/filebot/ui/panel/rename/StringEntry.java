@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-public class StringEntry {
+class StringEntry {
 	
 	private String value;
 	
