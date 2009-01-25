@@ -50,7 +50,7 @@ public class ProgressDialog extends JDialog {
 		
 		setSize(240, 155);
 		
-		setLocation(TunedUtil.getPreferredLocation(this));
+		setLocation(TunedUtilities.getPreferredLocation(this));
 	}
 	
 

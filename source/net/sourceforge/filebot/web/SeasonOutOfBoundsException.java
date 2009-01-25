@@ -4,13 +4,13 @@ package net.sourceforge.filebot.web;
 
 public class SeasonOutOfBoundsException extends IndexOutOfBoundsException {
 	
-	private final String showName;
+	private final String seriesName;
 	private final int season;
 	private final int maxSeason;
 	
 	
-	public SeasonOutOfBoundsException(String showName, int season, int maxSeason) {
-		this.showName = showName;
+	public SeasonOutOfBoundsException(String seriesName, int season, int maxSeason) {
+		this.seriesName = seriesName;
 		this.season = season;
 		this.maxSeason = maxSeason;
 	}
@@ -18,12 +18,12 @@ public class SeasonOutOfBoundsException extends IndexOutOfBoundsException {
 
 	@Override
 	public String getMessage() {
-		return String.format("%s has only %d season%s.", showName, maxSeason, maxSeason != 1 ? "s" : "");
+		return String.format("%s has only %d season%s.", seriesName, maxSeason, maxSeason != 1 ? "s" : "");
 	}
 	
 
-	public String getShowName() {
-		return showName;
+	public String getSeriesName() {
+		return seriesName;
 	}
 	
 

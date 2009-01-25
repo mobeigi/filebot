@@ -3,12 +3,12 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.awt.datatransfer.DataFlavor.stringFlavor;
-import static net.sourceforge.filebot.FileBotUtil.LIST_FILE_EXTENSIONS;
-import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
-import static net.sourceforge.filebot.FileBotUtil.containsOnly;
-import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
-import static net.sourceforge.filebot.FileBotUtil.isInvalidFileName;
-import static net.sourceforge.tuned.FileUtil.getNameWithoutExtension;
+import static net.sourceforge.filebot.FileBotUtilities.LIST_FILES;
+import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
+import static net.sourceforge.filebot.FileBotUtilities.isInvalidFileName;
+import static net.sourceforge.tuned.FileUtilities.FOLDERS;
+import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static net.sourceforge.tuned.FileUtilities.getNameWithoutExtension;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
@@ -121,11 +121,11 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		if (containsOnly(files, LIST_FILE_EXTENSIONS)) {
+		if (containsOnly(files, LIST_FILES)) {
 			loadListFiles(files);
-		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
+		} else if (containsOnly(files, TORRENT_FILES)) {
 			loadTorrentFiles(files);
-		} else if (containsOnlyFolders(files)) {
+		} else if (containsOnly(files, FOLDERS)) {
 			// load files from each folder
 			for (File folder : files) {
 				loadFiles(Arrays.asList(folder.listFiles()));
@@ -138,7 +138,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	protected void loadFiles(List<File> files) {
 		for (File file : files) {
-			list.getModel().add(new AbstractFileEntry(FileUtil.getFileName(file), file.length()));
+			list.getModel().add(new AbstractFileEntry(FileUtilities.getName(file), file.length()));
 		}
 	}
 	

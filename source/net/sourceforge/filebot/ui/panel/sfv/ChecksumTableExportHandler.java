@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class ChecksumTableExportHandler extends TextFileExportHandler {
@@ -75,7 +75,7 @@ public class ChecksumTableExportHandler extends TextFileExportHandler {
 		String name = "";
 		
 		if (column != null)
-			name = FileUtil.getFileName(column);
+			name = FileUtilities.getName(column);
 		
 		if (name.isEmpty())
 			name = "name";

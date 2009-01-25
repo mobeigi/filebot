@@ -22,9 +22,9 @@ import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.MessageHandler;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class SfvPanel extends FileBotPanel {
@@ -54,7 +54,7 @@ public class SfvPanel extends FileBotPanel {
 		contentPane.add(totalProgressPanel, "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
 		
 		// Shortcut DELETE
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 
@@ -150,7 +150,7 @@ public class SfvPanel extends FileBotPanel {
 					
 					@Override
 					protected String convertValueToString(Object value) {
-						return FileUtil.getFolderName((File) value);
+						return FileUtilities.getFolderName((File) value);
 					}
 				};
 				

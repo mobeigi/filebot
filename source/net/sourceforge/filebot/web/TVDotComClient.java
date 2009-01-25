@@ -11,7 +11,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -140,12 +139,6 @@ public class TVDotComClient implements EpisodeListClient {
 	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
 		
 		List<Node> nodes = selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
-		
-		// create mutable list from nodes so we can reverse the list
-		nodes = new ArrayList<Node>(nodes);
-		
-		// episodes are ordered in reverse ... we definitely don't want that!
-		Collections.reverse(nodes);
 		
 		Integer episodeOffset = null;
 		

@@ -7,8 +7,8 @@ class StringEntry {
 	private String value;
 	
 	
-	public StringEntry(String value) {
-		this.value = value;
+	public StringEntry(Object value) {
+		setValue(value);
 	}
 	
 
@@ -17,8 +17,8 @@ class StringEntry {
 	}
 	
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setValue(Object value) {
+		this.value = String.valueOf(value);
 	}
 	
 

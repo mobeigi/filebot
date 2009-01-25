@@ -89,8 +89,6 @@ public class NumericSimilarityMetricTest {
 			}
 		}
 		
-		//		System.out.println(String.format("[%f, %s, %s]", maxSimilarity, value, mostSimilar));
-		
 		return mostSimilar;
 	}
 }

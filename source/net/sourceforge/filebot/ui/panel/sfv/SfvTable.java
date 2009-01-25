@@ -13,7 +13,7 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 
@@ -46,7 +46,7 @@ class SfvTable extends JTable {
 		setUI(new DragDropRowTableUI());
 		
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
-		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(FileBotUtil.EMBEDDED_CHECKSUM_PATTERN, "#009900", "smaller"));
+		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN, "#009900", "smaller"));
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
 		setDefaultRenderer(Checksum.class, new ChecksumTableCellRenderer());
 	}

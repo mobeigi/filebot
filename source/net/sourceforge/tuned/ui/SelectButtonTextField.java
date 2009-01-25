@@ -43,8 +43,8 @@ public class SelectButtonTextField<T> extends JComponent {
 		
 		editor.setUI(new TextFieldComboBoxUI());
 		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl UP"), new SpinClientAction(-1));
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl DOWN"), new SpinClientAction(1));
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl UP"), new SpinClientAction(-1));
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl DOWN"), new SpinClientAction(1));
 	}
 	
 

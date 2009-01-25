@@ -9,7 +9,7 @@ import net.sourceforge.filebot.ui.panel.analyze.FileTree.AbstractTreeNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {
@@ -68,7 +68,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		if (file.isDirectory()) {
 			File[] files = file.listFiles();
 			
-			FolderNode node = new FolderNode(FileUtil.getFolderName(file), files.length);
+			FolderNode node = new FolderNode(FileUtilities.getFolderName(file), files.length);
 			
 			// add folders first
 			for (File f : files) {

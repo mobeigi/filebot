@@ -34,4 +34,10 @@ public class FileBotPanel extends JComponent {
 		return null;
 	}
 	
+
+	@Override
+	public String toString() {
+		return getPanelName();
+	}
+	
 }

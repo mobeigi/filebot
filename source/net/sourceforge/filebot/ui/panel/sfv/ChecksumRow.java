@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.FileBotUtilities;
 
 
 public class ChecksumRow {
@@ -50,7 +50,7 @@ public class ChecksumRow {
 	 */
 	private static Long getEmbeddedChecksum(String name) {
 		// look for a checksum pattern like [49A93C5F]
-		String match = FileBotUtil.getEmbeddedChecksum(name);
+		String match = FileBotUtilities.getEmbeddedChecksum(name);
 		
 		if (match != null)
 			return Long.parseLong(match, 16);

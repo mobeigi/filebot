@@ -7,22 +7,22 @@ import java.io.Serializable;
 
 public class Episode implements Serializable {
 	
-	private String showName;
+	private String seriesName;
 	private String seasonNumber;
 	private String episodeNumber;
 	private String title;
 	
 	
-	public Episode(String showName, String seasonNumber, String episodeNumber, String title) {
-		this.showName = showName;
+	public Episode(String seriesName, String seasonNumber, String episodeNumber, String title) {
+		this.seriesName = seriesName;
 		this.seasonNumber = seasonNumber;
 		this.episodeNumber = episodeNumber;
 		this.title = title;
 	}
 	
 
-	public Episode(String showName, String episodeNumber, String title) {
-		this(showName, null, episodeNumber, title);
+	public Episode(String seriesName, String episodeNumber, String title) {
+		this(seriesName, null, episodeNumber, title);
 	}
 	
 
@@ -36,8 +36,8 @@ public class Episode implements Serializable {
 	}
 	
 
-	public String getShowName() {
-		return showName;
+	public String getSeriesName() {
+		return seriesName;
 	}
 	
 
@@ -46,8 +46,8 @@ public class Episode implements Serializable {
 	}
 	
 
-	public void setShowName(String seriesName) {
-		this.showName = seriesName;
+	public void setSeriesName(String seriesName) {
+		this.seriesName = seriesName;
 	}
 	
 
@@ -70,17 +70,43 @@ public class Episode implements Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(40);
 		
-		sb.append(showName);
-		sb.append(" - ");
+		sb.append(seriesName).append(" - ");
 		
-		if (seasonNumber != null)
-			sb.append(seasonNumber + "x");
+		if (seasonNumber != null) {
+			sb.append(seasonNumber).append("x");
+		}
 		
-		sb.append(episodeNumber);
-		
-		sb.append(" - ");
-		sb.append(title);
+		sb.append(episodeNumber).append(" - ").append(title);
 		
 		return sb.toString();
+	}
+	
+
+	public static <T extends Iterable<Episode>> T formatEpisodeNumbers(T episodes, int minDigits) {
+		// find max. episode number length
+		for (Episode episode : episodes) {
+			try {
+				int n = Integer.parseInt(episode.getEpisodeNumber());
+				
+				if (n > 0) {
+					minDigits = Math.max(minDigits, (int) (Math.log(n) / Math.log(10)));
+				}
+			} catch (NumberFormatException e) {
+				// ignore
+			}
+		}
+		
+		// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
+		String numberFormat = "%0" + minDigits + "d";
+		
+		for (Episode episode : episodes) {
+			try {
+				episode.setEpisodeNumber(String.format(numberFormat, Integer.parseInt(episode.getEpisodeNumber())));
+			} catch (NumberFormatException e) {
+				// ignore
+			}
+		}
+		
+		return episodes;
 	}
 }

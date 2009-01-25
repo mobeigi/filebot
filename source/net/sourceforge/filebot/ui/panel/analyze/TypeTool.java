@@ -4,10 +4,12 @@ package net.sourceforge.filebot.ui.panel.analyze;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
@@ -17,7 +19,7 @@ import javax.swing.tree.TreeModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
@@ -42,11 +44,11 @@ public class TypeTool extends Tool<TreeModel> {
 
 	@Override
 	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
-		TreeMap<String, List<File>> map = new TreeMap<String, List<File>>();
+		Map<String, List<File>> map = new HashMap<String, List<File>>();
 		
 		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
 			File file = iterator.next();
-			String extension = FileUtil.getExtension(file);
+			String extension = FileUtilities.getExtension(file);
 			
 			List<File> files = map.get(extension);
 			
@@ -58,10 +60,22 @@ public class TypeTool extends Tool<TreeModel> {
 			files.add(file);
 		}
 		
+		List<String> keys = new ArrayList<String>(map.keySet());
+		
+		// sort strings like always, handle null as empty string
+		Collections.sort(keys, new Comparator<String>() {
+			
+			@Override
+			public int compare(String s1, String s2) {
+				return ((s1 != null) ? s1 : "").compareTo((s2 != null) ? s2 : "");
+			}
+		});
+		
+		// create tree model
 		FolderNode root = new FolderNode();
 		
-		for (Entry<String, List<File>> entry : map.entrySet()) {
-			root.add(createStatisticsNode(entry.getKey(), entry.getValue()));
+		for (String key : keys) {
+			root.add(createStatisticsNode(key, map.get(key)));
 			
 			// unwind thread, if we have been cancelled
 			if (Thread.interrupted()) {

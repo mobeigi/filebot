@@ -3,20 +3,22 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.EventListener;
 
+import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
-import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ObservableElementList;
 import ca.odell.glazedlists.swing.EventListModel;
 
 
-public class SubtitlePackagePanel extends JPanel {
+public class SubtitlePackagePanel extends JComponent {
 	
 	private final EventList<SubtitlePackage> model = new BasicEventList<SubtitlePackage>();
 	
@@ -24,7 +26,7 @@ public class SubtitlePackagePanel extends JPanel {
 	
 	
 	public SubtitlePackagePanel() {
-		super(new BorderLayout());
+		setLayout(new BorderLayout());
 		add(languageSelection, BorderLayout.NORTH);
 		add(new JScrollPane(createList()), BorderLayout.CENTER);
 	}
@@ -37,11 +39,56 @@ public class SubtitlePackagePanel extends JPanel {
 
 	protected JList createList() {
 		FilterList<SubtitlePackage> filterList = new FilterList<SubtitlePackage>(model, new LanguageMatcherEditor(languageSelection));
-		ObservableElementList<SubtitlePackage> observableList = new ObservableElementList<SubtitlePackage>(filterList, GlazedLists.beanConnector(SubtitlePackage.class));
+		ObservableElementList<SubtitlePackage> observableList = new ObservableElementList<SubtitlePackage>(filterList, new SubtitlePackageConnector());
 		
 		JList list = new JList(new EventListModel<SubtitlePackage>(observableList));
 		
 		return list;
+	}
+	
+	
+	private static class SubtitlePackageConnector implements ObservableElementList.Connector<SubtitlePackage> {
+		
+		/**
+		 * The list which contains the elements being observed via this
+		 * {@link ObservableElementList.Connector}.
+		 */
+		private ObservableElementList<SubtitlePackage> list = null;
+		
+		
+		public EventListener installListener(SubtitlePackage element) {
+			PropertyChangeListener listener = new SubtitlePackageListener(element);
+			element.getDownloadTask().addPropertyChangeListener(listener);
+			
+			return listener;
+		}
+		
+
+		public void uninstallListener(SubtitlePackage element, EventListener listener) {
+			element.getDownloadTask().removePropertyChangeListener((PropertyChangeListener) listener);
+		}
+		
+
+		public void setObservableElementList(ObservableElementList<SubtitlePackage> list) {
+			this.list = list;
+		}
+		
+		
+		private class SubtitlePackageListener implements PropertyChangeListener {
+			
+			private final SubtitlePackage subtitlePackage;
+			
+			
+			public SubtitlePackageListener(SubtitlePackage subtitlePackage) {
+				this.subtitlePackage = subtitlePackage;
+			}
+			
+
+			public void propertyChange(PropertyChangeEvent evt) {
+				list.elementChanged(subtitlePackage);
+			}
+		}
+		
 	}
 	
 	/*

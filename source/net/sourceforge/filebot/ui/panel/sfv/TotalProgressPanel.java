@@ -10,7 +10,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JProgressBar;
 
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 class TotalProgressPanel extends Box {
@@ -51,7 +51,7 @@ class TotalProgressPanel extends Box {
 				Boolean active = (Boolean) evt.getNewValue();
 				
 				if (active) {
-					TunedUtil.invokeLater(millisToSetVisible, new Runnable() {
+					TunedUtilities.invokeLater(millisToSetVisible, new Runnable() {
 						
 						@Override
 						public void run() {

@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.filebot.FileBotUtil.INVALID_CHARACTERS_PATTERN;
-import static net.sourceforge.filebot.FileBotUtil.validateFileName;
+import static net.sourceforge.filebot.FileBotUtilities.INVALID_CHARACTERS_PATTERN;
+import static net.sourceforge.filebot.FileBotUtilities.validateFileName;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -26,7 +26,7 @@ import javax.swing.KeyStroke;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ArrayListModel;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 class ValidateNamesDialog extends JDialog {
@@ -67,7 +67,7 @@ class ValidateNamesDialog extends JDialog {
 		
 		setSize(365, 280);
 		
-		TunedUtil.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtilities.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

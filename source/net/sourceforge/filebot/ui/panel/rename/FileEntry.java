@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import java.io.File;
 
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class FileEntry extends AbstractFileEntry {
@@ -14,10 +14,10 @@ class FileEntry extends AbstractFileEntry {
 	
 	
 	public FileEntry(File file) {
-		super(FileUtil.getFileName(file), file.length());
+		super(FileUtilities.getName(file), file.length());
 		
 		this.file = file;
-		this.type = FileUtil.getFileType(file);
+		this.type = FileUtilities.getType(file);
 	}
 	
 

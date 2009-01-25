@@ -13,7 +13,7 @@ import javax.swing.AbstractAction;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class RenameAction extends AbstractAction {
@@ -38,8 +38,16 @@ class RenameAction extends AbstractAction {
 		for (Match<Object, FileEntry> match : model.matches()) {
 			File source = match.getCandidate().getFile();
 			
-			String newName = match.getValue().toString() + FileUtil.getExtension(source, true);
-			File target = new File(source.getParentFile(), newName);
+			String extension = FileUtilities.getExtension(source);
+			
+			StringBuilder nameBuilder = new StringBuilder();
+			nameBuilder.append(match.getValue());
+			
+			if (extension != null) {
+				nameBuilder.append(".").append(extension);
+			}
+			
+			File target = new File(source.getParentFile(), nameBuilder.toString());
 			
 			todoQueue.addLast(new Match<File, File>(source, target));
 		}

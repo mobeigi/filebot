@@ -20,7 +20,7 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
 import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
@@ -42,7 +42,7 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 		textComponent.setBorder(new EmptyBorder(padding, padding, padding, padding));
 		
 		// make text component transparent, should work for all LAFs (setOpaque(false) may not, e.g. Nimbus) 
-		textComponent.setBackground(TunedUtil.TRANSLUCENT);
+		textComponent.setBackground(TunedUtilities.TRANSLUCENT);
 		
 		this.add(textComponent, BorderLayout.WEST);
 		

@@ -11,6 +11,9 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.lang.reflect.Method;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -21,8 +24,10 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import net.sourceforge.tuned.ExceptionUtil;
 
-public final class TunedUtil {
+
+public final class TunedUtilities {
 	
 	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
 	
@@ -55,10 +60,13 @@ public final class TunedUtil {
 	
 
 	public static Image getImage(Icon icon) {
-		if (icon instanceof ImageIcon) {
-			return ((ImageIcon) icon).getImage();
-		}
+		if (icon == null)
+			return null;
 		
+		if (icon instanceof ImageIcon)
+			return ((ImageIcon) icon).getImage();
+		
+		// draw icon into a new image
 		BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
 		
 		Graphics2D g2d = image.createGraphics();
@@ -91,10 +99,58 @@ public final class TunedUtil {
 	}
 	
 
+	public static void syncPropertyChangeEvents(Class<?> propertyType, String property, Object from, Object to) {
+		PropertyChangeDelegate.create(propertyType, property, from, to);
+	}
+	
+	
+	private static class PropertyChangeDelegate implements PropertyChangeListener {
+		
+		private final String property;
+		
+		private final Object target;
+		private final Method firePropertyChange;
+		
+		
+		public static PropertyChangeDelegate create(Class<?> propertyType, String property, Object source, Object target) {
+			try {
+				
+				PropertyChangeDelegate listener = new PropertyChangeDelegate(propertyType, property, target);
+				source.getClass().getMethod("addPropertyChangeListener", PropertyChangeListener.class).invoke(source, listener);
+				
+				return listener;
+			} catch (Exception e) {
+				throw ExceptionUtil.asRuntimeException(e);
+			}
+		}
+		
+
+		protected PropertyChangeDelegate(Class<?> propertyType, String property, Object target) throws SecurityException, NoSuchMethodException {
+			this.property = property;
+			this.target = target;
+			
+			this.firePropertyChange = target.getClass().getMethod("firePropertyChange", String.class, propertyType, propertyType);
+		}
+		
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (property.equals(evt.getPropertyName())) {
+				try {
+					firePropertyChange.invoke(target, evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+				} catch (Exception e) {
+					throw ExceptionUtil.asRuntimeException(e);
+				}
+			}
+		}
+		
+	}
+	
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
-	private TunedUtil() {
+	private TunedUtilities() {
 		throw new UnsupportedOperationException();
 	}
 	

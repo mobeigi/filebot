@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -239,7 +239,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 
 	private URL getDownloadUrl(URL referer, String subtitleId, String typeId) throws MalformedURLException {
-		String basePath = FileUtil.getNameWithoutExtension(referer.getFile());
+		String basePath = FileUtilities.getNameWithoutExtension(referer.getFile());
 		String path = String.format("%s-dlpath-%s/%s.zipx", basePath, subtitleId, typeId);
 		
 		return new URL(referer.getProtocol(), referer.getHost(), path);

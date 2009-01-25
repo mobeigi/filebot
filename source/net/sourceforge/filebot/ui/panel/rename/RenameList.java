@@ -28,6 +28,7 @@ class RenameList<E> extends FileBotList<E> {
 		setModel(model);
 		
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setFixedCellHeight(28);
 		
 		list.addMouseListener(dndReorderMouseAdapter);
 		list.addMouseMotionListener(dndReorderMouseAdapter);

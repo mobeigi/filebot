@@ -4,8 +4,10 @@ package net.sourceforge.filebot.web;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,10 +21,10 @@ import net.sourceforge.tuned.DownloadTask;
  */
 public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
-	private final Map<String, String> properties;
+	private final Map<Property, String> properties;
 	
 	
-	public static enum Properties {
+	public static enum Property {
 		IDSubMovieFile,
 		MovieHash,
 		MovieByteSize,
@@ -54,45 +56,59 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		ISO639,
 		LanguageName,
 		SubDownloadLink,
-		ZipDownloadLink,
+		ZipDownloadLink;
+		
+		public static <V> EnumMap<Property, V> asEnumMap(Map<String, V> stringMap) {
+			EnumMap<Property, V> enumMap = new EnumMap<Property, V>(Property.class);
+			
+			for (Entry<String, V> entry : stringMap.entrySet()) {
+				try {
+					enumMap.put(Property.valueOf(entry.getKey()), entry.getValue());
+				} catch (IllegalArgumentException e) {
+					// illegal enum constant, just ignore
+				}
+			}
+			
+			return enumMap;
+		}
 	}
 	
 	
-	public OpenSubtitlesSubtitleDescriptor(Map<String, String> properties) {
-		this.properties = new HashMap<String, String>(properties);
+	public OpenSubtitlesSubtitleDescriptor(Map<Property, String> properties) {
+		this.properties = new EnumMap<Property, String>(properties);
 	}
 	
 
-	public String getProperty(Properties property) {
-		return properties.get(property.name());
+	public Map<Property, String> getProperties() {
+		return Collections.unmodifiableMap(properties);
 	}
 	
 
 	@Override
 	public String getName() {
-		return getProperty(Properties.SubFileName);
+		return properties.get(Property.SubFileName);
 	}
 	
 
 	@Override
 	public String getLanguageName() {
-		return getProperty(Properties.LanguageName);
+		return properties.get(Property.LanguageName);
 	}
 	
 
 	@Override
 	public String getAuthor() {
-		return getProperty(Properties.UserNickName);
+		return properties.get(Property.UserNickName);
 	}
 	
 
 	public long getSize() {
-		return Long.parseLong(getProperty(Properties.SubSize));
+		return Long.parseLong(properties.get(Property.SubSize));
 	}
 	
 
 	public URL getDownloadLink() {
-		String link = getProperty(Properties.ZipDownloadLink);
+		String link = properties.get(Property.ZipDownloadLink);
 		
 		try {
 			return new URL(link);

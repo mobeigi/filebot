@@ -16,7 +16,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class ChecksumTableModel extends AbstractTableModel {
@@ -48,7 +48,7 @@ class ChecksumTableModel extends AbstractTableModel {
 			File column = columns.get(columnIndex - checksumColumnOffset);
 			
 			// works for files too and simply returns the name unchanged
-			return FileUtil.getFolderName(column);
+			return FileUtilities.getFolderName(column);
 		}
 		
 		return null;

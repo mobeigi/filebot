@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 
 
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.ALL_SEASONS;
+import static net.sourceforge.filebot.web.Episode.formatEpisodeNumbers;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -21,6 +22,7 @@ import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
@@ -38,7 +40,7 @@ import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Episode> {
@@ -65,8 +67,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
 	}
 	
 
@@ -76,8 +78,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 		engines.add(new TVRageClient());
 		engines.add(new AnidbClient());
-		engines.add(new TheTVDBClient("58B4AA94C59AD656"));
 		engines.add(new TVDotComClient());
+		engines.add(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey")));
 		
 		return engines;
 	}
@@ -216,29 +218,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 				episodes = request.getClient().getEpisodeList(getSearchResult());
 			}
 			
-			// find max. episode number string length
-			int maxLength = 1;
-			
-			for (Episode episode : episodes) {
-				String num = episode.getEpisodeNumber();
-				
-				if (num.matches("\\d+") && num.length() > maxLength) {
-					maxLength = num.length();
-				}
-			}
-			
-			// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
-			String format = "%0" + maxLength + "d";
-			for (Episode episode : episodes) {
-				
-				try {
-					episode.setEpisodeNumber(String.format(format, Integer.parseInt(episode.getEpisodeNumber())));
-				} catch (NumberFormatException e) {
-					// ignore
-				}
-			}
-			
-			return episodes;
+			return formatEpisodeNumbers(episodes, 2);
 		}
 		
 

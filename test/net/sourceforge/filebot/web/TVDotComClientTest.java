@@ -62,7 +62,7 @@ public class TVDotComClientTest {
 		
 		Episode chosen = list.get(21);
 		
-		assertEquals("Buffy the Vampire Slayer", chosen.getShowName());
+		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisodeNumber());
 		assertEquals("7", chosen.getSeasonNumber());
@@ -77,7 +77,7 @@ public class TVDotComClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Buffy the Vampire Slayer", first.getShowName());
+		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("Pilot", first.getEpisodeNumber());
 		assertEquals(null, first.getSeasonNumber());
@@ -92,7 +92,7 @@ public class TVDotComClientTest {
 		
 		Episode fourth = list.get(3);
 		
-		assertEquals("Firefly", fourth.getShowName());
+		assertEquals("Firefly", fourth.getSeriesName());
 		assertEquals("Jaynestown", fourth.getTitle());
 		assertEquals("4", fourth.getEpisodeNumber());
 		assertEquals("1", fourth.getSeasonNumber());
@@ -116,7 +116,7 @@ public class TVDotComClientTest {
 		
 		Episode episode = list.get(13);
 		
-		assertEquals("Lost", episode.getShowName());
+		assertEquals("Lost", episode.getSeriesName());
 		assertEquals("Exposé", episode.getTitle());
 		assertEquals("14", episode.getEpisodeNumber());
 		assertEquals("3", episode.getSeasonNumber());

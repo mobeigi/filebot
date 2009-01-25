@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { NameSimilarityMetricTest.class, NumericSimilarityMetricTest.class, SeasonEpisodeSimilarityMetricTest.class })
+@SuiteClasses( { SeriesNameMatcherTest.class, SeasonEpisodeMatcherTest.class, NameSimilarityMetricTest.class, NumericSimilarityMetricTest.class, SeasonEpisodeSimilarityMetricTest.class })
 public class SimilarityTestSuite {
 	
 }

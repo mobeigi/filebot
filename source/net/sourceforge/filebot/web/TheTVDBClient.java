@@ -51,6 +51,9 @@ public class TheTVDBClient implements EpisodeListClient {
 	
 	
 	public TheTVDBClient(String apikey) {
+		if (apikey == null)
+			throw new NullPointerException("apikey must not be null");
+		
 		this.apikey = apikey;
 	}
 	
@@ -131,8 +134,9 @@ public class TheTVDBClient implements EpisodeListClient {
 			}
 		}
 		
-		if (episodes.isEmpty())
+		if (episodes.isEmpty()) {
 			throw new SeasonOutOfBoundsException(searchResult.getName(), season, maxSeason);
+		}
 		
 		return episodes;
 	}

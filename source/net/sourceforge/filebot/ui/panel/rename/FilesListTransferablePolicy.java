@@ -2,7 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
+import static net.sourceforge.tuned.FileUtilities.FOLDERS;
+import static net.sourceforge.tuned.FileUtilities.containsOnly;
 
 import java.io.File;
 import java.util.Arrays;
@@ -35,7 +36,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		if (containsOnlyFolders(files)) {
+		if (containsOnly(files, FOLDERS)) {
 			for (File folder : files) {
 				loadFiles(Arrays.asList(folder.listFiles()));
 			}

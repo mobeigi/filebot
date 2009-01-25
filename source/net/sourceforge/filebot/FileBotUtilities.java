@@ -2,26 +2,16 @@
 package net.sourceforge.filebot;
 
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.FileFilter;
+import java.util.AbstractList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
-public final class FileBotUtil {
-	
-	public static String getApplicationName() {
-		return "FileBot";
-	};
-	
-
-	public static String getApplicationVersion() {
-		return "1.9";
-	};
+public final class FileBotUtilities {
 	
 	/**
 	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
@@ -36,13 +26,13 @@ public final class FileBotUtil {
 	 * @param filename original filename
 	 * @return valid filename stripped of invalid characters
 	 */
-	public static String validateFileName(String filename) {
+	public static String validateFileName(CharSequence filename) {
 		// strip invalid characters from filename
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).replaceAll("");
 	}
 	
 
-	public static boolean isInvalidFileName(String filename) {
+	public static boolean isInvalidFileName(CharSequence filename) {
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
 	}
 	
@@ -54,13 +44,13 @@ public final class FileBotUtil {
 	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8,})(?=\\]|\\))");
 	
 	
-	public static String getEmbeddedChecksum(String string) {
+	public static String getEmbeddedChecksum(CharSequence string) {
 		Matcher matcher = EMBEDDED_CHECKSUM_PATTERN.matcher(string);
 		String embeddedChecksum = null;
 		
 		// get last match
 		while (matcher.find()) {
-			embeddedChecksum = matcher.group(0);
+			embeddedChecksum = matcher.group();
 		}
 		
 		return embeddedChecksum;
@@ -71,41 +61,52 @@ public final class FileBotUtil {
 		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
 	}
 	
-	public static final List<String> TORRENT_FILE_EXTENSIONS = unmodifiableList("torrent");
-	public static final List<String> SFV_FILE_EXTENSIONS = unmodifiableList("sfv");
-	public static final List<String> LIST_FILE_EXTENSIONS = unmodifiableList("txt", "list", "");
-	public static final List<String> SUBTITLE_FILE_EXTENSIONS = unmodifiableList("srt", "sub", "ssa", "smi");
-	
-	
-	private static List<String> unmodifiableList(String... elements) {
-		return Collections.unmodifiableList(Arrays.asList(elements));
-	}
-	
 
-	public static boolean containsOnlyFolders(Iterable<File> files) {
-		for (File file : files) {
-			if (!file.isDirectory())
-				return false;
+	public static String join(Object[] values, String separator) {
+		if (values == null) {
+			return null;
 		}
 		
-		return true;
-	}
-	
-
-	public static boolean containsOnly(Iterable<File> files, Iterable<String> extensions) {
-		for (File file : files) {
-			if (!FileUtil.hasExtension(file, extensions))
-				return false;
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < values.length; i++) {
+			sb.append(values[i]);
+			
+			if (i < values.length - 1) {
+				sb.append(separator);
+			}
 		}
 		
-		return true;
+		return sb.toString();
 	}
 	
 
+	public static List<String> asStringList(final List<?> list) {
+		return new AbstractList<String>() {
+			
+			@Override
+			public String get(int index) {
+				return list.get(index).toString();
+			}
+			
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+		};
+	}
+	
+	public static final FileFilter TORRENT_FILES = new ExtensionFileFilter("torrent");
+	public static final FileFilter SFV_FILES = new ExtensionFileFilter("sfv");
+	public static final FileFilter LIST_FILES = new ExtensionFileFilter("txt", "list", "");
+	public static final FileFilter SUBTITLE_FILES = new ExtensionFileFilter("srt", "sub", "ssa", "ass", "smi");
+	
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
-	private FileBotUtil() {
+	private FileBotUtilities() {
 		throw new UnsupportedOperationException();
 	}
 	

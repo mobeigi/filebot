@@ -125,7 +125,7 @@
     Simple memory cache named web. Time to live is 5 min. This cache is used by TheTVDBClient and TVRageClient.
     -->
     <cache name="web"
-           maxElementsInMemory="40"
+           maxElementsInMemory="120"
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="300"           

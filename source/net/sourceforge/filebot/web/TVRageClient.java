@@ -94,7 +94,7 @@ public class TVRageClient implements EpisodeListClient {
 		
 		Document dom = getDocument(episodeListUrl);
 		
-		String showName = selectString("Show/name", dom);
+		String seriesName = selectString("Show/name", dom);
 		List<Node> nodes = selectNodes("Show/Episodelist/Season/episode", dom);
 		
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
@@ -104,7 +104,7 @@ public class TVRageClient implements EpisodeListClient {
 			String episodeNumber = getTextContent("seasonnum", node);
 			String seasonNumber = node.getParentNode().getAttributes().getNamedItem("no").getTextContent();
 			
-			episodes.add(new Episode(showName, seasonNumber, episodeNumber, title));
+			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title));
 		}
 		
 		// populate cache

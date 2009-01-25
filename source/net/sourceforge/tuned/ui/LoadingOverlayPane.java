@@ -22,21 +22,27 @@ public class LoadingOverlayPane extends JComponent {
 	
 	
 	public LoadingOverlayPane(JComponent component, JComponent propertyChangeSource) {
-		this(component, new ProgressIndicator(), propertyChangeSource);
+		this(component, propertyChangeSource, null, null);
 	}
 	
 
-	public LoadingOverlayPane(JComponent component, JComponent animationComponent, JComponent propertyChangeSource) {
+	public LoadingOverlayPane(JComponent component, JComponent propertyChangeSource, String offsetX, String offsetY) {
 		setLayout(new MigLayout("insets 0, fill"));
-		this.animationComponent = animationComponent;
 		
-		add(animationComponent, "pos n 8px 100%-18px n");
-		add(component, "grow");
-		
+		animationComponent = new ProgressIndicator();
 		animationComponent.setVisible(false);
 		
+		add(animationComponent, String.format("pos n %s 100%%-%s n", offsetY != null ? offsetY : "8px", offsetX != null ? offsetX : "18px"));
+		add(component, "grow");
+		
 		if (propertyChangeSource != null) {
-			propertyChangeSource.addPropertyChangeListener(LOADING_PROPERTY, loadingListener);
+			propertyChangeSource.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					setOverlayVisible((Boolean) evt.getNewValue());
+				}
+			});
 		}
 	}
 	
@@ -51,7 +57,7 @@ public class LoadingOverlayPane extends JComponent {
 		overlayEnabled = b;
 		
 		if (overlayEnabled) {
-			TunedUtil.invokeLater(millisToOverlay, new Runnable() {
+			TunedUtilities.invokeLater(millisToOverlay, new Runnable() {
 				
 				@Override
 				public void run() {
@@ -65,16 +71,5 @@ public class LoadingOverlayPane extends JComponent {
 			animationComponent.setVisible(false);
 		}
 	}
-	
-	private final PropertyChangeListener loadingListener = new PropertyChangeListener() {
-		
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			Boolean loading = (Boolean) evt.getNewValue();
-			
-			setOverlayVisible(loading);
-		}
-		
-	};
 	
 }

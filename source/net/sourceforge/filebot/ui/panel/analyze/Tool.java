@@ -2,9 +2,10 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
+
 import java.io.File;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
@@ -15,8 +16,9 @@ import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
-import net.sourceforge.tuned.FileUtil;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 abstract class Tool<M> extends JComponent {
@@ -36,7 +38,10 @@ abstract class Tool<M> extends JComponent {
 		}
 		
 		updateTask = new UpdateModelTask(sourceModel);
-		updateTask.addPropertyChangeListener(loadingListener);
+		
+		// sync events for loading overlay
+		TunedUtilities.syncPropertyChangeEvents(boolean.class, LOADING_PROPERTY, updateTask, this);
+		
 		updateTask.execute();
 	}
 	
@@ -66,9 +71,9 @@ abstract class Tool<M> extends JComponent {
 				M model = null;
 				
 				if (!isCancelled()) {
-					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
+					firePropertyChange(LOADING_PROPERTY, false, true);
 					model = createModelInBackground(sourceModel);
-					firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
+					firePropertyChange(LOADING_PROPERTY, true, false);
 				}
 				
 				return model;
@@ -85,8 +90,12 @@ abstract class Tool<M> extends JComponent {
 				try {
 					setModel(get());
 				} catch (Exception e) {
-					// should not happen
-					Logger.getLogger("global").log(Level.WARNING, e.toString());
+					if (ExceptionUtil.getRootCause(e) instanceof ConcurrentModificationException) {
+						// if it happens, it is supposed to
+					} else {
+						// should not happen
+						Logger.getLogger("global").log(Level.WARNING, e.toString(), e);
+					}
 				}
 			}
 		}
@@ -107,21 +116,9 @@ abstract class Tool<M> extends JComponent {
 		String numberOfFiles = String.format("%,d %s", files.size(), files.size() == 1 ? "file" : "files");
 		
 		// set node text (e.g. txt (1 file, 42 Byte))
-		folder.setTitle(String.format("%s (%s, %s)", name, numberOfFiles, FileUtil.formatSize(totalSize)));
+		folder.setTitle(String.format("%s (%s, %s)", name, numberOfFiles, FileUtilities.formatSize(totalSize)));
 		
 		return folder;
 	}
-	
-	private final PropertyChangeListener loadingListener = new PropertyChangeListener() {
-		
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			// propagate loading events
-			if (evt.getPropertyName().equals(LoadingOverlayPane.LOADING_PROPERTY)) {
-				firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-			}
-			
-		}
-	};
 	
 }

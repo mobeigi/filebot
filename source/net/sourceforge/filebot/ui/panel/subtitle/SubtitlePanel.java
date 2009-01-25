@@ -2,17 +2,17 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
-import static net.sourceforge.filebot.FileBotUtil.getApplicationVersion;
+import static net.sourceforge.filebot.Settings.getApplicationName;
+import static net.sourceforge.filebot.Settings.getApplicationVersion;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.prefs.Preferences;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
@@ -21,7 +21,6 @@ import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.ListChangeSynchronizer;
-import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
@@ -35,10 +34,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
 		
 		// get preferences node that contains the history entries
-		Preferences historyNode = Preferences.systemNodeForPackage(getClass()).node("history");
-		
-		// get a StringList that read and writes directly from and to the preferences
-		List<String> persistentSearchHistory = PreferencesList.map(historyNode, String.class);
+		//  and get a StringList that read and writes directly from and to the preferences
+		List<String> persistentSearchHistory = Settings.userRoot().node("subtitles/history").asList(String.class);
 		
 		// add history from the preferences to the current in-memory history (for completion)
 		getSearchHistory().addAll(persistentSearchHistory);

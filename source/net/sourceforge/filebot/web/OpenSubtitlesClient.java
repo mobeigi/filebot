@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
@@ -156,8 +157,8 @@ public class OpenSubtitlesClient {
 		List<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		
 		try {
-			for (Map<String, String> subtitle : response.get("data")) {
-				subs.add(new OpenSubtitlesSubtitleDescriptor(subtitle));
+			for (Map<String, String> subtitleData : response.get("data")) {
+				subs.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(subtitleData)));
 			}
 		} catch (ClassCastException e) {
 			// if the response is an error message, generic types won't match 

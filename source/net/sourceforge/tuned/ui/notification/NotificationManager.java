@@ -9,7 +9,7 @@ package net.sourceforge.tuned.ui.notification;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class NotificationManager {
@@ -28,7 +28,7 @@ public class NotificationManager {
 	
 
 	public void show(NotificationWindow notification) {
-		TunedUtil.checkEventDispatchThread();
+		TunedUtilities.checkEventDispatchThread();
 		
 		notification.addWindowListener(new RemoveListener());
 		layout.add(notification);

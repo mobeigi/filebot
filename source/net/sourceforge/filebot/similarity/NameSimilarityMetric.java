@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.FileBotUtil.removeEmbeddedChecksum;
+import static net.sourceforge.filebot.FileBotUtilities.removeEmbeddedChecksum;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3Extended;
@@ -30,7 +30,7 @@ public class NameSimilarityMetric implements SimilarityMetric {
 		String name = removeEmbeddedChecksum(object.toString());
 		
 		// normalize separators
-		name = name.replaceAll("[^\\p{Alnum}]+", " ");
+		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
 		
 		// normalize case and trim
 		return name.trim().toLowerCase();

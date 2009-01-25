@@ -5,8 +5,6 @@ package net.sourceforge.filebot;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -23,11 +21,24 @@ public class Main {
 	/**
 	 * @param args
 	 */
-	public static void main(String... args) {
+	public static void main(String... args) throws Exception {
 		
-		final ArgumentBean argumentBean = handleArguments(args);
+		final ArgumentBean argumentBean = initializeArgumentBean(args);
 		
-		setupLogging();
+		if (argumentBean.isHelp()) {
+			printUsage(argumentBean);
+			
+			// just print help message and exit afterwards
+			System.exit(0);
+		}
+		
+		if (argumentBean.isClear()) {
+			// clear preferences
+			Settings.userRoot().clear();
+		}
+		
+		initializeLogging();
+		initializeSettings();
 		
 		try {
 			//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -57,7 +68,7 @@ public class Main {
 	}
 	
 
-	private static void setupLogging() {
+	private static void initializeLogging() {
 		Logger uiLogger = Logger.getLogger("ui");
 		
 		// don't use parent handlers
@@ -74,35 +85,24 @@ public class Main {
 	}
 	
 
-	private static ArgumentBean handleArguments(String... args) {
-		
+	private static void initializeSettings() {
+		Settings.userRoot().putDefault("thetvdb.apikey", "58B4AA94C59AD656");
+	}
+	
+
+	private static ArgumentBean initializeArgumentBean(String... args) throws CmdLineException {
 		ArgumentBean argumentBean = new ArgumentBean();
-		CmdLineParser argumentParser = new CmdLineParser(argumentBean);
 		
-		try {
-			argumentParser.parseArgument(args);
-		} catch (CmdLineException e) {
-			Logger.getLogger("global").log(Level.WARNING, e.getMessage());
-		}
-		
-		if (argumentBean.isHelp()) {
-			System.out.println("Options:");
-			argumentParser.printUsage(System.out);
-			
-			// just print help message and exit afterwards
-			System.exit(0);
-		}
-		
-		if (argumentBean.isClear()) {
-			// clear preferences
-			try {
-				Preferences.userNodeForPackage(Main.class).removeNode();
-			} catch (BackingStoreException e) {
-				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
-			}
-		}
+		new CmdLineParser(argumentBean).parseArgument(args);
 		
 		return argumentBean;
+	}
+	
+
+	private static void printUsage(ArgumentBean argumentBean) {
+		System.out.println("Options:");
+		
+		new CmdLineParser(argumentBean).printUsage(System.out);
 	}
 	
 }

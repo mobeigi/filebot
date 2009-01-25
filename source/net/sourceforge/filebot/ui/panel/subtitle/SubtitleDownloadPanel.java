@@ -4,10 +4,10 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 
-public class SubtitleDownloadPanel extends JPanel {
+public class SubtitleDownloadPanel extends JComponent {
 	
 	private final SubtitlePackagePanel packagePanel = new SubtitlePackagePanel();
 	

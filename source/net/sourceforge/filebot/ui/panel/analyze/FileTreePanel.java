@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
+import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.LOADING_PROPERTY;
+
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,7 +20,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 class FileTreePanel extends JComponent {
@@ -38,10 +40,20 @@ class FileTreePanel extends JComponent {
 		add(new JButton(loadAction));
 		add(new JButton(clearAction), "gap 1.2mm, wrap 1.2mm");
 		
-		transferablePolicy.addPropertyChangeListener("loading", loadingListener);
+		TunedUtilities.syncPropertyChangeEvents(boolean.class, LOADING_PROPERTY, transferablePolicy, this);
+		
+		// update tree when loading is finished
+		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (LOADING_PROPERTY.equals(evt.getPropertyName()) && !(Boolean) evt.getNewValue()) {
+					fireFileTreeChange();
+				}
+			}
+		});
 		
 		// Shortcut DELETE
-		TunedUtil.putActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.putActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 
@@ -90,19 +102,5 @@ class FileTreePanel extends JComponent {
 	private void fireFileTreeChange() {
 		firePropertyChange("filetree", null, fileTree);
 	}
-	
-	private final PropertyChangeListener loadingListener = new PropertyChangeListener() {
-		
-		public void propertyChange(PropertyChangeEvent evt) {
-			boolean loading = (Boolean) evt.getNewValue();
-			
-			// relay loading property changes for loading overlay
-			firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-			
-			if (!loading) {
-				fireFileTreeChange();
-			}
-		}
-	};
 	
 }

@@ -7,6 +7,8 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -26,6 +28,8 @@ import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
@@ -35,17 +39,21 @@ class MatchAction extends AbstractAction {
 	
 	private final RenameModel model;
 	
-	private final SimilarityMetric[] metrics;
+	private final Collection<SimilarityMetric> metrics;
 	
 	
 	public MatchAction(RenameModel model) {
 		super("Match", ResourceManager.getIcon("action.match"));
 		
-		putValue(SHORT_DESCRIPTION, "Match names to files");
-		
 		this.model = model;
+		this.metrics = createMetrics();
 		
-		metrics = new SimilarityMetric[3];
+		putValue(SHORT_DESCRIPTION, "Match names to files");
+	}
+	
+
+	protected Collection<SimilarityMetric> createMetrics() {
+		SimilarityMetric[] metrics = new SimilarityMetric[3];
 		
 		// 1. pass: match by file length (fast, but only works when matching torrents or files)
 		metrics[0] = new LengthEqualsMetric() {
@@ -61,19 +69,48 @@ class MatchAction extends AbstractAction {
 		};
 		
 		// 2. pass: match by season / episode numbers, or generic numeric similarity
-		metrics[1] = new SeasonEpisodeSimilarityMetric();
+		metrics[1] = new SeasonEpisodeSimilarityMetric() {
+			
+			@Override
+			protected Collection<SxE> parse(Object o) {
+				if (o instanceof Episode) {
+					Episode episode = (Episode) o;
+					
+					try {
+						// create SxE from episode
+						return Collections.singleton(new SxE(episode.getSeasonNumber(), episode.getEpisodeNumber()));
+					} catch (NumberFormatException e) {
+						// some kind of special episode, no SxE
+						return null;
+					}
+				}
+				
+				return super.parse(o);
+			}
+		};
 		
 		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		metrics[2] = new NameSimilarityMetric();
+		
+		return Arrays.asList(metrics);
+	}
+	
+
+	public Collection<SimilarityMetric> getMetrics() {
+		return Collections.unmodifiableCollection(metrics);
 	}
 	
 
 	public void actionPerformed(ActionEvent evt) {
+		if (model.names().isEmpty() || model.files().isEmpty()) {
+			return;
+		}
+		
 		JComponent eventSource = (JComponent) evt.getSource();
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, Arrays.asList(metrics));
+		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, metrics);
 		backgroundMatcher.execute();
 		
 		try {
@@ -114,16 +151,12 @@ class MatchAction extends AbstractAction {
 	}
 	
 	
-	protected static class BackgroundMatcher extends SwingWorker<List<Match<Object, FileEntry>>, Void> implements Cancellable {
-		
-		private final RenameModel model;
+	protected class BackgroundMatcher extends SwingWorker<List<Match<Object, FileEntry>>, Void> implements Cancellable {
 		
 		private final Matcher<Object, FileEntry> matcher;
 		
 		
-		public BackgroundMatcher(RenameModel model, List<SimilarityMetric> metrics) {
-			this.model = model;
-			
+		public BackgroundMatcher(RenameModel model, Collection<SimilarityMetric> metrics) {
 			// match names against files
 			this.matcher = new Matcher<Object, FileEntry>(model.names(), model.files(), metrics);
 		}
@@ -141,8 +174,15 @@ class MatchAction extends AbstractAction {
 				return;
 			
 			try {
+				List<Match<Object, FileEntry>> matches = get();
+				
+				model.clear();
+				
 				// put new data into model
-				model.setData(get());
+				for (Match<Object, FileEntry> match : matches) {
+					model.names().add(match.getValue());
+					model.files().add(match.getCandidate());
+				}
 				
 				// insert objects that could not be matched at the end
 				model.names().addAll(matcher.remainingValues());

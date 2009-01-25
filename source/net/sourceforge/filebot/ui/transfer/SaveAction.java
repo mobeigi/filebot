@@ -12,7 +12,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
-import net.sourceforge.filebot.FileBotUtil;
+import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.ResourceManager;
 
 
@@ -60,7 +60,7 @@ public class SaveAction extends AbstractAction {
 		
 		chooser.setMultiSelectionEnabled(false);
 		
-		chooser.setSelectedFile(new File(getDefaultFolder(), FileBotUtil.validateFileName(getDefaultFileName())));
+		chooser.setSelectedFile(new File(getDefaultFolder(), FileBotUtilities.validateFileName(getDefaultFileName())));
 		
 		if (chooser.showSaveDialog((JComponent) evt.getSource()) != JFileChooser.APPROVE_OPTION)
 			return;

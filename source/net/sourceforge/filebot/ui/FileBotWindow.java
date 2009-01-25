@@ -2,14 +2,14 @@
 package net.sourceforge.filebot.ui;
 
 
-import static net.sourceforge.filebot.FileBotUtil.getApplicationName;
+import static net.sourceforge.filebot.FileBotUtilities.asStringList;
+import static net.sourceforge.filebot.Settings.getApplicationName;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.Preferences;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -22,6 +22,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
 import net.sourceforge.filebot.ui.panel.episodelist.EpisodeListPanel;
 import net.sourceforge.filebot.ui.panel.list.ListPanel;
@@ -65,7 +66,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		
 		// restore the panel selection from last time,
 		// switch to EpisodeListPanel by default (e.g. first start)
-		int selectedPanel = Preferences.userNodeForPackage(getClass()).getInt("selectedPanel", 3);
+		int selectedPanel = asStringList(panelSelectionList.getPanelModel()).indexOf(Settings.userRoot().get("selectedPanel"));
 		panelSelectionList.setSelectedIndex(selectedPanel);
 		
 		// connect message handlers to message bus
@@ -103,7 +104,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		c.revalidate();
 		c.repaint();
 		
-		Preferences.userNodeForPackage(getClass()).putInt("selectedPanel", panelSelectionList.getSelectedIndex());
+		Settings.userRoot().put("selectedPanel", panelSelectionList.getSelectedValue().toString());
 	}
 	
 

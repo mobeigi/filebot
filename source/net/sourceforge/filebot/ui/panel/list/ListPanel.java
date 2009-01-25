@@ -29,7 +29,7 @@ import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.MessageHandler;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class ListPanel extends FileBotPanel {
@@ -80,7 +80,7 @@ public class ListPanel extends FileBotPanel {
 		
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 	}
 	
 

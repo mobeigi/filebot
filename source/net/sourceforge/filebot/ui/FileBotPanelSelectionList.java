@@ -18,7 +18,7 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;
@@ -95,7 +95,7 @@ class FileBotPanelSelectionList extends JList {
 
 		@Override
 		public void dragEnter(DropTargetDragEvent dtde) {
-			dragEnterTimer = TunedUtil.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
+			dragEnterTimer = TunedUtilities.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
 				
 				@Override
 				public void run() {

@@ -33,7 +33,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
@@ -86,7 +86,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory);
 		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
 	
 
@@ -356,7 +356,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		
 
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
-			selectDialog.setIconImage(TunedUtil.getImage(getIcon()));
+			selectDialog.setIconImage(TunedUtilities.getImage(getIcon()));
 		}
 		
 

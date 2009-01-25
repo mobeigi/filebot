@@ -2,9 +2,9 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
-import static net.sourceforge.filebot.FileBotUtil.TORRENT_FILE_EXTENSIONS;
-import static net.sourceforge.filebot.FileBotUtil.containsOnly;
-import static net.sourceforge.filebot.FileBotUtil.containsOnlyFolders;
+import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
+import static net.sourceforge.tuned.FileUtilities.FOLDERS;
+import static net.sourceforge.tuned.FileUtilities.containsOnly;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.tuned.FileUtil;
+import net.sourceforge.tuned.FileUtilities;
 
 
 class FileListTransferablePolicy extends FileTransferablePolicy {
@@ -44,15 +44,15 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	@Override
 	protected void load(List<File> files) {
 		// set title based on parent folder of first file
-		list.setTitle(FileUtil.getFolderName(files.get(0).getParentFile()));
+		list.setTitle(FileUtilities.getFolderName(files.get(0).getParentFile()));
 		
-		if (containsOnlyFolders(files)) {
+		if (containsOnly(files, FOLDERS)) {
 			loadFolders(files);
-		} else if (containsOnly(files, TORRENT_FILE_EXTENSIONS)) {
+		} else if (containsOnly(files, TORRENT_FILES)) {
 			loadTorrents(files);
 		} else {
 			for (File file : files) {
-				list.getModel().add(FileUtil.getFileName(file));
+				list.getModel().add(FileUtilities.getName(file));
 			}
 		}
 	}
@@ -61,12 +61,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	private void loadFolders(List<File> folders) {
 		if (folders.size() == 1) {
 			// if only one folder was dropped, use its name as title
-			list.setTitle(FileUtil.getFolderName(folders.get(0)));
+			list.setTitle(FileUtilities.getFolderName(folders.get(0)));
 		}
 		
 		for (File folder : folders) {
 			for (File file : folder.listFiles()) {
-				list.getModel().add(FileUtil.getFileName(file));
+				list.getModel().add(FileUtilities.getName(file));
 			}
 		}
 	}
@@ -81,12 +81,12 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			}
 			
 			if (torrentFiles.size() == 1) {
-				list.setTitle(FileUtil.getNameWithoutExtension(torrents.get(0).getName()));
+				list.setTitle(FileUtilities.getNameWithoutExtension(torrents.get(0).getName()));
 			}
 			
 			for (Torrent torrent : torrents) {
 				for (Torrent.Entry entry : torrent.getFiles()) {
-					list.getModel().add(FileUtil.getNameWithoutExtension(entry.getName()));
+					list.getModel().add(FileUtilities.getNameWithoutExtension(entry.getName()));
 				}
 			}
 		} catch (IOException e) {

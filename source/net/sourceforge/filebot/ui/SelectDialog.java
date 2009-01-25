@@ -23,7 +23,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class SelectDialog<T> extends JDialog {
@@ -62,13 +62,13 @@ public class SelectDialog<T> extends JDialog {
 		
 		// set default size and location
 		setSize(new Dimension(210, 210));
-		setLocation(TunedUtil.getPreferredLocation(this));
+		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		// Shortcut Enter
-		TunedUtil.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
+		TunedUtilities.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
 		
 		// Shortcut Escape
-		TunedUtil.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtilities.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

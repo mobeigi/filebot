@@ -14,7 +14,7 @@ import javax.swing.SwingConstants;
 
 import net.sourceforge.tuned.ui.ColorTintImageFilter;
 import net.sourceforge.tuned.ui.IconViewCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class SubtitleCellRenderer extends IconViewCellRenderer {
@@ -56,7 +56,7 @@ public class SubtitleCellRenderer extends IconViewCellRenderer {
 		Icon icon = subtitle.getArchiveIcon();
 		
 		if (isSelected) {
-			setIcon(new ImageIcon(createImage(new FilteredImageSource(TunedUtil.getImage(icon).getSource(), new ColorTintImageFilter(list.getSelectionBackground(), 0.5f)))));
+			setIcon(new ImageIcon(createImage(new FilteredImageSource(TunedUtilities.getImage(icon).getSource(), new ColorTintImageFilter(list.getSelectionBackground(), 0.5f)))));
 			
 			info1.setForeground(list.getSelectionForeground());
 			info2.setForeground(list.getSelectionForeground());

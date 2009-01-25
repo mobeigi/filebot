@@ -18,7 +18,7 @@ import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtil;
+import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;
@@ -50,7 +50,7 @@ public class FileBotList<E> extends JComponent {
 		// Shortcut DELETE, disabled by default
 		removeAction.setEnabled(false);
 		
-		TunedUtil.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 

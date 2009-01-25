@@ -48,7 +48,7 @@ public class Matcher<V, C> {
 		}
 		
 		// match recursively
-		match(possibleMatches, 0);
+		deepMatch(possibleMatches, 0);
 		
 		// restore order according to the given values
 		List<Match<V, C>> result = new ArrayList<Match<V, C>>();
@@ -74,17 +74,17 @@ public class Matcher<V, C> {
 	}
 	
 
-	public List<V> remainingValues() {
+	public synchronized List<V> remainingValues() {
 		return Collections.unmodifiableList(values);
 	}
 	
 
-	public List<C> remainingCandidates() {
+	public synchronized List<C> remainingCandidates() {
 		return Collections.unmodifiableList(candidates);
 	}
 	
 
-	protected void match(Collection<Match<V, C>> possibleMatches, int level) throws InterruptedException {
+	protected void deepMatch(Collection<Match<V, C>> possibleMatches, int level) throws InterruptedException {
 		if (level >= metrics.size() || possibleMatches.isEmpty()) {
 			// no further refinement possible
 			disjointMatchCollection.addAll(possibleMatches);
@@ -106,8 +106,8 @@ public class Matcher<V, C> {
 			// remove invalid matches
 			removeCollected(matchesWithEqualSimilarity);
 			
-			// matches are ambiguous, more refined matching required
-			match(matchesWithEqualSimilarity, level + 1);
+			// matches may be ambiguous, more refined matching required
+			deepMatch(matchesWithEqualSimilarity, level + 1);
 		}
 	}
 	
