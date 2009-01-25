@@ -3,13 +3,14 @@ package net.sourceforge.filebot.ui;
 
 
 import static net.sourceforge.filebot.Settings.getApplicationName;
+import static net.sourceforge.tuned.ui.notification.Direction.NORTH;
+import static net.sourceforge.tuned.ui.notification.Direction.SOUTH;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 import javax.swing.Icon;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.ResourceManager;
@@ -25,7 +26,7 @@ public class NotificationLoggingHandler extends Handler {
 	
 	
 	public NotificationLoggingHandler() {
-		this(new NotificationManager(new QueueNotificationLayout(SwingConstants.NORTH, SwingConstants.SOUTH)));
+		this(new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
 	
 

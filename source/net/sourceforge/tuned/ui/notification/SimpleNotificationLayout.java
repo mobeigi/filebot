@@ -6,17 +6,18 @@
 package net.sourceforge.tuned.ui.notification;
 
 
+import static net.sourceforge.tuned.ui.notification.Direction.NORTH;
+
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 
-import javax.swing.SwingConstants;
 
-public class SimpleNotificationLayout implements NotificationLayout, SwingConstants {
+public class SimpleNotificationLayout implements NotificationLayout {
 	
 	private NotificationWindow currentNotification;
-	private int orientation;
+	private Direction alignment;
 	
 	
 	public SimpleNotificationLayout() {
@@ -24,21 +25,19 @@ public class SimpleNotificationLayout implements NotificationLayout, SwingConsta
 	}
 	
 
-	public SimpleNotificationLayout(int orientation) {
-		this.orientation = orientation;
+	public SimpleNotificationLayout(Direction alignment) {
+		this.alignment = alignment;
 	}
 	
 
 	private Point getBaseAnchor(Dimension screen, Insets insets) {
-		Factor f = Factor.getOrientationFactor(orientation);
-		
 		Point p = new Point();
 		
 		screen.height -= insets.top + insets.bottom;
 		screen.width -= insets.left + insets.right;
 		
-		p.x = (int) (f.fx * screen.width);
-		p.y = (int) (f.fy * screen.height);
+		p.x = (int) (alignment.ax * screen.width);
+		p.y = (int) (alignment.ay * screen.height);
 		
 		p.x += insets.left;
 		p.y += insets.top;
@@ -48,11 +47,10 @@ public class SimpleNotificationLayout implements NotificationLayout, SwingConsta
 	
 
 	private Point getLocation(Point anchor, Dimension size) {
-		Factor f = Factor.getOrientationFactor(orientation);
-		
 		Point p = new Point();
-		p.x = (int) (anchor.x - size.width * f.fx);
-		p.y = (int) (anchor.y - size.height * f.fy);
+		
+		p.x = (int) (anchor.x - size.width * alignment.ax);
+		p.y = (int) (anchor.y - size.height * alignment.ay);
 		
 		return p;
 	}
@@ -66,8 +64,9 @@ public class SimpleNotificationLayout implements NotificationLayout, SwingConsta
 		Point anchor = getBaseAnchor(screen, insets);
 		notification.setLocation(getLocation(anchor, size));
 		
-		if (currentNotification != null)
+		if (currentNotification != null) {
 			currentNotification.close();
+		}
 		
 		currentNotification = notification;
 	}
