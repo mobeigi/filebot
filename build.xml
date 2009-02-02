@@ -92,6 +92,10 @@
 				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/ehcache.jar">
+				<include name="net/sf/ehcache/**" />
+			</zipfileset>			
 		</jar>
 	</target>
 

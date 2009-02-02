@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.asStringList;
 import static net.sourceforge.filebot.Settings.getApplicationName;
 
 import java.awt.BorderLayout;
@@ -64,10 +63,10 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		
 		setSize(760, 615);
 		
-		// restore the panel selection from last time,
+		//TODO restore the panel selection from last time,
 		// switch to EpisodeListPanel by default (e.g. first start)
-		int selectedPanel = asStringList(panelSelectionList.getPanelModel()).indexOf(Settings.userRoot().get("selectedPanel"));
-		panelSelectionList.setSelectedIndex(selectedPanel);
+		//		int selectedPanel = asStringList(panelSelectionList.getPanelModel()).indexOf(Settings.userRoot().get("selectedPanel"));
+		//		panelSelectionList.setSelectedIndex(selectedPanel);
 		
 		// connect message handlers to message bus
 		MessageBus.getDefault().addMessageHandler("panel", panelSelectMessageHandler);

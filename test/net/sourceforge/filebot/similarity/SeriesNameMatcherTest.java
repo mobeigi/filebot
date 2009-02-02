@@ -16,6 +16,12 @@ public class SeriesNameMatcherTest {
 	
 	
 	@Test
+	public void match() {
+		assertEquals("Test Series", matcher.match("My Test Series - 1x01", "Test Series - Season 1"));
+	}
+	
+
+	@Test
 	public void matchBeforeSeasonEpisodePattern() {
 		assertEquals("The Test", matcher.matchBySeasonEpisodePattern("The Test - 1x01"));
 		
@@ -30,7 +36,10 @@ public class SeriesNameMatcherTest {
 		assertEquals("The Test", matcher.normalize("_The_Test_-_ ..."));
 		
 		// brackets
-		assertEquals("Luffy", matcher.normalize("[strawhat] Luffy [D.] [@Monkey]"));
+		assertEquals("Luffy", matcher.normalize("[strawhat] Luffy [D.] [#Monkey]"));
+		
+		// invalid brackets
+		assertEquals("strawhat Luffy", matcher.normalize("(strawhat [Luffy (#Monkey)"));
 	}
 	
 

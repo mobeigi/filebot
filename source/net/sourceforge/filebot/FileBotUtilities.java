@@ -2,12 +2,14 @@
 package net.sourceforge.filebot;
 
 
+import java.io.File;
 import java.io.FileFilter;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
@@ -63,10 +65,6 @@ public final class FileBotUtilities {
 	
 
 	public static String join(Object[] values, String separator) {
-		if (values == null) {
-			return null;
-		}
-		
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i = 0; i < values.length; i++) {
@@ -81,12 +79,12 @@ public final class FileBotUtilities {
 	}
 	
 
-	public static List<String> asStringList(final List<?> list) {
+	public static List<String> asFileNameList(final List<File> list) {
 		return new AbstractList<String>() {
 			
 			@Override
 			public String get(int index) {
-				return list.get(index).toString();
+				return FileUtilities.getName(list.get(index));
 			}
 			
 

@@ -9,10 +9,12 @@ import static net.sourceforge.tuned.FileUtilities.containsOnly;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -51,9 +53,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		} else if (containsOnly(files, TORRENT_FILES)) {
 			loadTorrents(files);
 		} else {
-			for (File file : files) {
-				list.getModel().add(FileUtilities.getName(file));
-			}
+			list.getModel().addAll(FileBotUtilities.asFileNameList(files));
 		}
 	}
 	
@@ -65,9 +65,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		}
 		
 		for (File folder : folders) {
-			for (File file : folder.listFiles()) {
-				list.getModel().add(FileUtilities.getName(file));
-			}
+			list.getModel().addAll(FileBotUtilities.asFileNameList(Arrays.asList(folder.listFiles())));
 		}
 	}
 	

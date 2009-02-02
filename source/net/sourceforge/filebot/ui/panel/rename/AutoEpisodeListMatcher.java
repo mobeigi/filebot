@@ -3,10 +3,10 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.filebot.FileBotUtilities.SUBTITLE_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.asStringList;
 import static net.sourceforge.filebot.web.Episode.formatEpisodeNumbers;
 import static net.sourceforge.tuned.FileUtilities.FILES;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,9 +52,16 @@ class AutoEpisodeListMatcher extends SwingWorker<List<Match<FileEntry, Episode>>
 	
 
 	protected Collection<String> matchSeriesNames(List<FileEntry> episodes) {
-		int threshold = Math.min(episodes.size(), 5);
+		File[] files = new File[episodes.size()];
 		
-		return new SeriesNameMatcher(threshold).matchAll(asStringList(episodes));
+		for (int i = 0; i < files.length; i++) {
+			files[i] = episodes.get(i).getFile();
+		}
+		
+		// allow matching of a small number of episodes, by setting threshold = length if length < 5
+		int threshold = Math.min(files.length, 5);
+		
+		return new SeriesNameMatcher(threshold).matchAll(files);
 	}
 	
 
