@@ -100,6 +100,18 @@ public final class FileBotUtilities {
 	public static final FileFilter LIST_FILES = new ExtensionFileFilter("txt", "list", "");
 	public static final FileFilter SUBTITLE_FILES = new ExtensionFileFilter("srt", "sub", "ssa", "ass", "smi");
 	
+	/**
+	 * This filter does not filter by extension, but file size. All files larger than 10 MB
+	 * will be accepted.
+	 */
+	public static final FileFilter MOVIE_FILES = new FileFilter() {
+		
+		@Override
+		public boolean accept(File file) {
+			return file.length() > 10 * FileUtilities.MEGA;
+		}
+	};
+	
 	
 	/**
 	 * Dummy constructor to prevent instantiation.

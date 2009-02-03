@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
 import static net.sourceforge.filebot.FileBotUtilities.*;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,6 +34,8 @@ import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import ca.odell.glazedlists.FunctionList;
+import ca.odell.glazedlists.FunctionList.Function;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
@@ -156,10 +159,22 @@ public class RenamePanel extends FileBotPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			if (model.files().isEmpty() || isAutoMatchInProgress())
+			if (model.files().isEmpty() || isAutoMatchInProgress()) {
 				return;
+			}
 			
-			AutoEpisodeListMatcher worker = new AutoEpisodeListMatcher(client, new ArrayList<FileEntry>(model.files()), matchAction.getMetrics()) {
+			// clear names list
+			model.names().clear();
+			
+			List<File> files = new FunctionList<FileEntry, File>(model.files(), new Function<FileEntry, File>() {
+				
+				@Override
+				public File evaluate(FileEntry entry) {
+					return entry.getFile();
+				}
+			});
+			
+			AutoEpisodeListMatcher worker = new AutoEpisodeListMatcher(client, files, matchAction.getMetrics()) {
 				
 				@Override
 				protected void done() {
@@ -172,15 +187,15 @@ public class RenamePanel extends FileBotPanel {
 						
 						List<StringEntry> invalidNames = new ArrayList<StringEntry>();
 						
-						for (Match<FileEntry, Episode> match : get()) {
+						for (Match<File, Episode> match : get()) {
 							StringEntry name = new StringEntry(match.getCandidate());
 							
 							if (isInvalidFileName(name.toString())) {
 								invalidNames.add(name);
 							}
 							
-							names.add(new StringEntry(name));
-							files.add(match.getValue());
+							names.add(name);
+							files.add(new FileEntry(match.getValue()));
 						}
 						
 						if (!invalidNames.isEmpty()) {
@@ -193,13 +208,15 @@ public class RenamePanel extends FileBotPanel {
 							}
 						}
 						
+						// add remaining file entries
+						for (File file : remainingFiles()) {
+							files.add(new FileEntry(file));
+						}
+						
 						model.clear();
 						
 						model.names().addAll(names);
 						model.files().addAll(files);
-						
-						// add remaining file entries again
-						model.files().addAll(remainingFiles());
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
 					}

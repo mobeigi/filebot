@@ -4,6 +4,8 @@ package net.sourceforge.tuned;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public final class FileUtilities {
@@ -113,6 +115,22 @@ public final class FileUtilities {
 		}
 		
 		return true;
+	}
+	
+
+	public static List<File> filter(Iterable<File> files, FileFilter... filters) {
+		List<File> accepted = new ArrayList<File>();
+		
+		for (File file : files) {
+			for (FileFilter filter : filters) {
+				if (filter.accept(file)) {
+					accepted.add(file);
+					break;
+				}
+			}
+		}
+		
+		return accepted;
 	}
 	
 	public static final FileFilter FOLDERS = new FileFilter() {

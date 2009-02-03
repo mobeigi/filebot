@@ -26,23 +26,13 @@ public class SeriesNameMatcher {
 	
 	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
 	
-	protected final int threshold;
 	
-	
-	public SeriesNameMatcher(int threshold) {
-		if (threshold < 0)
-			throw new IllegalArgumentException("threshold must be greater than 0");
-		
-		this.threshold = threshold;
-	}
-	
-
 	public String match(File file) {
 		return match(file.getName(), file.getParent());
 	}
 	
 
-	public Collection<String> matchAll(File... files) {
+	public Collection<String> matchAll(File[] files) {
 		SeriesNameCollection seriesNames = new SeriesNameCollection();
 		
 		// group files by parent folder
@@ -62,14 +52,17 @@ public class SeriesNameMatcher {
 	}
 	
 
-	public Collection<String> matchAll(String... names) {
+	public Collection<String> matchAll(String[] names) {
 		SeriesNameCollection seriesNames = new SeriesNameCollection();
 		
+		// allow matching of a small number of episodes, by setting threshold = length if length < 5
+		int threshold = Math.min(names.length, 5);
+		
 		// 1. use pattern matching with frequency threshold
-		seriesNames.addAll(flatMatchAll(names));
+		seriesNames.addAll(flatMatchAll(names, threshold));
 		
 		// 2. match common word sequences
-		seriesNames.addAll(deepMatchAll(names));
+		seriesNames.addAll(deepMatchAll(names, threshold));
 		
 		return seriesNames;
 	}
@@ -82,7 +75,7 @@ public class SeriesNameMatcher {
 	 * @return series names that have been matched one or multiple times depending on the
 	 *         threshold
 	 */
-	private Collection<String> flatMatchAll(String[] names) {
+	private Collection<String> flatMatchAll(String[] names, int threshold) {
 		ThresholdCollection<String> seriesNames = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
 		
 		for (String name : names) {
@@ -103,7 +96,7 @@ public class SeriesNameMatcher {
 	 * @param names list of episode names
 	 * @return all common word sequences that have been found
 	 */
-	private Collection<String> deepMatchAll(String[] names) {
+	private Collection<String> deepMatchAll(String[] names, int threshold) {
 		// can't use common word sequence matching for less than 2 names
 		if (names.length < 2 || names.length < threshold) {
 			return Collections.emptySet();
@@ -120,8 +113,8 @@ public class SeriesNameMatcher {
 		List<String> results = new ArrayList<String>();
 		
 		// split list in two and try to match common word sequence on those
-		results.addAll(deepMatchAll(Arrays.copyOfRange(names, 0, names.length / 2)));
-		results.addAll(deepMatchAll(Arrays.copyOfRange(names, names.length / 2, names.length)));
+		results.addAll(deepMatchAll(Arrays.copyOfRange(names, 0, names.length / 2), threshold));
+		results.addAll(deepMatchAll(Arrays.copyOfRange(names, names.length / 2, names.length), threshold));
 		
 		return results;
 	}
@@ -173,8 +166,9 @@ public class SeriesNameMatcher {
 	/**
 	 * Try to match a series name from the first common word sequence.
 	 * 
-	 * @param names various episode names (5 or more for accurate results)
+	 * @param names various episode names (at least two)
 	 * @return a word sequence all episode names have in common, or null
+	 * @throws IllegalArgumentException if less than 2 episode names are given
 	 */
 	public String matchByFirstCommonWordSequence(String... names) {
 		if (names.length < 2) {
@@ -301,7 +295,7 @@ public class SeriesNameMatcher {
 			int upper = 0;
 			int lower = 0;
 			
-			Scanner scanner = new Scanner(s); // Scanner has white space delimiter by default
+			Scanner scanner = new Scanner(s); // Scanner uses a white space delimiter by default
 			
 			while (scanner.hasNext()) {
 				char c = scanner.next().charAt(0);
@@ -312,7 +306,7 @@ public class SeriesNameMatcher {
 					upper++;
 			}
 			
-			// give upper case characters a slight boost
+			// give upper case characters a slight boost over lower case characters
 			return (lower + (upper * 1.01f)) / Math.abs(lower - upper);
 		}
 		

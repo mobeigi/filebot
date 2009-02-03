@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class SeriesNameMatcherTest {
 	
-	private static SeriesNameMatcher matcher = new SeriesNameMatcher(5);
+	private static SeriesNameMatcher matcher = new SeriesNameMatcher();
 	
 	
 	@Test
