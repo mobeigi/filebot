@@ -34,8 +34,6 @@ import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtil;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import ca.odell.glazedlists.FunctionList;
-import ca.odell.glazedlists.FunctionList.Function;
 import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
@@ -166,15 +164,14 @@ public class RenamePanel extends FileBotPanel {
 			// clear names list
 			model.names().clear();
 			
-			List<File> files = new FunctionList<FileEntry, File>(model.files(), new Function<FileEntry, File>() {
-				
-				@Override
-				public File evaluate(FileEntry entry) {
-					return entry.getFile();
-				}
-			});
+			// gather File objects from model
+			List<File> files = new ArrayList<File>();
 			
-			AutoEpisodeListMatcher worker = new AutoEpisodeListMatcher(client, files, matchAction.getMetrics()) {
+			for (FileEntry entry : model.files()) {
+				files.add(entry.getFile());
+			}
+			
+			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(client, files, matchAction.getMetrics()) {
 				
 				@Override
 				protected void done() {

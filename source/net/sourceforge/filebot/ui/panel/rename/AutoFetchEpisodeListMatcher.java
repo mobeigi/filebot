@@ -33,7 +33,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.FileUtilities;
 
 
-class AutoEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Void> {
+class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Void> {
 	
 	private final List<File> files;
 	
@@ -42,7 +42,7 @@ class AutoEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Voi
 	private final Collection<SimilarityMetric> metrics;
 	
 	
-	public AutoEpisodeListMatcher(EpisodeListClient client, List<File> files, Collection<SimilarityMetric> metrics) {
+	public AutoFetchEpisodeListMatcher(EpisodeListClient client, List<File> files, Collection<SimilarityMetric> metrics) {
 		this.client = client;
 		this.files = new LinkedList<File>(files);
 		this.metrics = new ArrayList<SimilarityMetric>(metrics);
@@ -56,7 +56,7 @@ class AutoEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Voi
 
 	protected Collection<String> detectSeriesNames(Collection<File> files) {
 		// detect series name(s) from files
-		return new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
+		return new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
 	}
 	
 
@@ -109,7 +109,7 @@ class AutoEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Voi
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
 		
 		// group by subtitles first and then by files in general
-		for (List<File> filesPerType : mapByFileType(files, MOVIE_FILES, SUBTITLE_FILES).values()) {
+		for (List<File> filesPerType : mapByFileType(mediaFiles, MOVIE_FILES, SUBTITLE_FILES).values()) {
 			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, metrics);
 			matches.addAll(matcher.match());
 		}
