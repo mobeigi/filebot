@@ -14,7 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public final class XPathUtil {
+public final class XPathUtilities {
 	
 	public static Node selectNode(String xpath, Object node) {
 		try {
@@ -95,7 +95,7 @@ public final class XPathUtil {
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
-	private XPathUtil() {
+	private XPathUtilities() {
 		throw new UnsupportedOperationException();
 	}
 	

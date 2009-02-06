@@ -3,14 +3,15 @@ package net.sourceforge.filebot.web;
 
 
 import static net.sourceforge.filebot.web.WebRequest.getDocument;
-import static net.sourceforge.tuned.XPathUtil.getTextContent;
-import static net.sourceforge.tuned.XPathUtil.selectInteger;
-import static net.sourceforge.tuned.XPathUtil.selectNodes;
-import static net.sourceforge.tuned.XPathUtil.selectString;
+import static net.sourceforge.tuned.XPathUtilities.getTextContent;
+import static net.sourceforge.tuned.XPathUtilities.selectInteger;
+import static net.sourceforge.tuned.XPathUtilities.selectNodes;
+import static net.sourceforge.tuned.XPathUtilities.selectString;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -205,7 +206,11 @@ public class TheTVDBClient implements EpisodeListClient {
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
 		
-		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + seriesId);
+		try {
+			return new URI("http://" + host + "/?tab=seasonall&id=" + seriesId);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 
@@ -225,9 +230,12 @@ public class TheTVDBClient implements EpisodeListClient {
 				cache.putSeasonId(seriesId, season, seasonId);
 			}
 			
-			return new URI("http://www.thetvdb.com/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
-		} catch (Exception e) {
+			return new URI("http://" + host + "/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
+		} catch (IOException e) {
+			// log and ignore any IOException
 			Logger.getLogger("global").log(Level.WARNING, "Failed to retrieve season id", e);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 		
 		return null;

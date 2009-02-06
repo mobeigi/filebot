@@ -2,9 +2,9 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 public class LanguageResolver {
@@ -16,7 +16,7 @@ public class LanguageResolver {
 		return defaultInstance;
 	}
 	
-	private final Map<String, Locale> cache = new HashMap<String, Locale>();
+	private final ConcurrentMap<String, Locale> cache = new ConcurrentHashMap<String, Locale>();
 	
 	
 	/**
@@ -25,13 +25,15 @@ public class LanguageResolver {
 	 * @param languageName english name of the language
 	 * @return the locale for this language or null if no locale for this language exists
 	 */
-	public synchronized Locale getLocale(String languageName) {
+	public Locale getLocale(String languageName) {
+		// case insensitive
+		String key = languageName.toLowerCase();
 		
-		Locale locale = cache.get(languageName.toLowerCase());
+		Locale locale = cache.get(key);
 		
 		if (locale == null) {
 			locale = findLocale(languageName);
-			cache.put(languageName.toLowerCase(), locale);
+			cache.put(key, locale);
 		}
 		
 		return locale;
@@ -62,7 +64,7 @@ public class LanguageResolver {
 	 * @return {@link Locale} for the given language, or null if no matching {@link Locale} is
 	 *         available
 	 */
-	private Locale findLocale(String languageName) {
+	protected Locale findLocale(String languageName) {
 		for (Locale locale : Locale.getAvailableLocales()) {
 			if (locale.getDisplayLanguage(Locale.ENGLISH).equalsIgnoreCase(languageName))
 				return locale;

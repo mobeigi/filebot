@@ -24,4 +24,5 @@ public abstract class SearchResult implements Serializable {
 	public String toString() {
 		return name;
 	}
+	
 }

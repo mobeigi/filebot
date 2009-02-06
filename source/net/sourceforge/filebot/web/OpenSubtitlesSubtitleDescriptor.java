@@ -8,9 +8,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import net.sourceforge.tuned.DownloadTask;
 
 
@@ -97,31 +94,12 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public String getAuthor() {
-		return properties.get(Property.UserNickName);
-	}
-	
-
-	public long getSize() {
-		return Long.parseLong(properties.get(Property.SubSize));
-	}
-	
-
-	public URL getDownloadLink() {
-		String link = properties.get(Property.ZipDownloadLink);
-		
-		try {
-			return new URL(link);
-		} catch (MalformedURLException e) {
-			Logger.getLogger("global").log(Level.WARNING, "Invalid download link: " + link);
-			return null;
-		}
-	}
-	
-
-	@Override
 	public DownloadTask createDownloadTask() {
-		return new DownloadTask(getDownloadLink());
+		try {
+			return new DownloadTask(new URL(properties.get(Property.ZipDownloadLink)));
+		} catch (MalformedURLException e) {
+			throw new UnsupportedOperationException(e);
+		}
 	}
 	
 

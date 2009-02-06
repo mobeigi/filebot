@@ -65,7 +65,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public String toString() {
-		return String.format("%s [%s]", title, language);
+		return String.format("%s [%s]", getName(), getLanguageName());
 	}
 	
 }

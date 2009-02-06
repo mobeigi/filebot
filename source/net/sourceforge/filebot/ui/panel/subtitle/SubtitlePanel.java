@@ -20,6 +20,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.filebot.web.SubtitleSourceClient;
 import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
@@ -51,6 +52,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 		engines.add(new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())));
 		engines.add(new SubsceneSubtitleClient());
+		engines.add(new SubtitleSourceClient());
 		
 		return engines;
 	}
@@ -131,9 +133,14 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 
 		@Override
-		public void process(Collection<SubtitlePackage> episodes) {
-			//TODO subtitle tab ui
-			System.out.println(episodes);
+		public void process(Collection<SubtitlePackage> subtitles) {
+			getComponent().getPackagePanel().getModel().addAll(subtitles);
+		}
+		
+
+		@Override
+		public SubtitleDownloadPanel getComponent() {
+			return (SubtitleDownloadPanel) super.getComponent();
 		}
 		
 

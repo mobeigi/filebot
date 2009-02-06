@@ -3,10 +3,10 @@ package net.sourceforge.filebot.web;
 
 
 import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
-import static net.sourceforge.tuned.XPathUtil.exists;
-import static net.sourceforge.tuned.XPathUtil.selectNode;
-import static net.sourceforge.tuned.XPathUtil.selectNodes;
-import static net.sourceforge.tuned.XPathUtil.selectString;
+import static net.sourceforge.tuned.XPathUtilities.exists;
+import static net.sourceforge.tuned.XPathUtilities.selectNode;
+import static net.sourceforge.tuned.XPathUtilities.selectNodes;
+import static net.sourceforge.tuned.XPathUtilities.selectString;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

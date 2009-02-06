@@ -3,8 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
-import static net.sourceforge.tuned.XPathUtil.selectNodes;
-import static net.sourceforge.tuned.XPathUtil.selectString;
+import static net.sourceforge.tuned.XPathUtilities.selectNodes;
+import static net.sourceforge.tuned.XPathUtilities.selectString;
 
 import java.io.IOException;
 import java.net.URI;

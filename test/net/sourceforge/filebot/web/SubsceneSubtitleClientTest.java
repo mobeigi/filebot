@@ -30,7 +30,7 @@ public class SubsceneSubtitleClientTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"), 17);
+		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"), 18);
 		lostSearchResult = new SubsceneSearchResult("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"), 420);
 	}
 	
