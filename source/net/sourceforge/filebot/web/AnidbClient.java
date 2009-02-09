@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,7 +134,7 @@ public class AnidbClient implements EpisodeListClient {
 	
 
 	@Override
-	public Collection<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 	

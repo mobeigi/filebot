@@ -30,7 +30,7 @@ import javax.swing.SwingWorker;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -184,7 +184,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCause(e).getMessage(), e);
 			}
 			
 		}
@@ -240,7 +240,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCause(e).getMessage(), e);
 			} finally {
 				tab.setLoading(false);
 			}

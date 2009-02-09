@@ -31,7 +31,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import ca.odell.glazedlists.event.ListEvent;
@@ -215,7 +215,7 @@ public class RenamePanel extends FileBotPanel {
 						model.names().addAll(names);
 						model.files().addAll(files);
 					} catch (Exception e) {
-						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtil.getRootCause(e).getMessage(), e);
+						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCause(e).getMessage(), e);
 					}
 				}
 			};

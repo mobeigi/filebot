@@ -49,14 +49,19 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	}
 	
 
-	public Collection<File> remainingFiles() {
-		return Collections.unmodifiableCollection(files);
+	public List<File> remainingFiles() {
+		return Collections.unmodifiableList(files);
 	}
 	
 
 	protected Collection<String> detectSeriesNames(Collection<File> files) {
 		// detect series name(s) from files
-		return new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+		Collection<String> names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+		
+		if (names.isEmpty())
+			throw new IllegalArgumentException("Cannot auto-detect series name.");
+		
+		return names;
 	}
 	
 
@@ -78,9 +83,6 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				}
 			});
 		}
-		
-		if (tasks.isEmpty())
-			throw new IllegalArgumentException("Failed to auto-detect series name.");
 		
 		// fetch episode lists concurrently
 		List<Episode> episodes = new ArrayList<Episode>();

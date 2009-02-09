@@ -2,7 +2,7 @@
 package net.sourceforge.tuned;
 
 
-public final class ExceptionUtil {
+public final class ExceptionUtilities {
 	
 	public static Throwable getRootCause(Throwable t) {
 		while (t.getCause() != null) {
@@ -25,7 +25,7 @@ public final class ExceptionUtil {
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
-	private ExceptionUtil() {
+	private ExceptionUtilities() {
 		throw new UnsupportedOperationException();
 	}
 	

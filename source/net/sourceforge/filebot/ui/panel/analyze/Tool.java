@@ -16,7 +16,7 @@ import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
@@ -90,7 +90,7 @@ abstract class Tool<M> extends JComponent {
 				try {
 					setModel(get());
 				} catch (Exception e) {
-					if (ExceptionUtil.getRootCause(e) instanceof ConcurrentModificationException) {
+					if (ExceptionUtilities.getRootCause(e) instanceof ConcurrentModificationException) {
 						// if it happens, it is supposed to
 					} else {
 						// should not happen

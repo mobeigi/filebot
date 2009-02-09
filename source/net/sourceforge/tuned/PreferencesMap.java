@@ -282,7 +282,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 				return constructor.newInstance(stringValue);
 			} catch (InvocationTargetException e) {
 				// try to throw the cause directly, e.g. NumberFormatException
-				throw ExceptionUtil.asRuntimeException(e.getCause());
+				throw ExceptionUtilities.asRuntimeException(e.getCause());
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

@@ -2,194 +2,130 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import java.beans.PropertyChangeEvent;
+import static java.lang.Math.log10;
+import static java.lang.Math.max;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
 
 import net.sourceforge.tuned.DefaultThreadFactory;
 
 
 public class ChecksumComputationService {
 	
-	public static final String ACTIVE_PROPERTY = "active";
-	public static final String REMAINING_TASK_COUNT_PROPERTY = "remainingTaskCount";
+	public static final String TASK_COUNT_PROPERTY = "taskCount";
 	
-	private final Map<File, ChecksumComputationExecutor> executors = new HashMap<File, ChecksumComputationExecutor>();
+	private final List<ThreadPoolExecutor> executors = new ArrayList<ThreadPoolExecutor>();
 	
-	private final AtomicInteger activeSessionTaskCount = new AtomicInteger(0);
-	private final AtomicInteger remainingTaskCount = new AtomicInteger(0);
-	
-	private final ThreadFactory threadFactory;
-	
-	/**
-	 * Property change events will be fired on the event dispatch thread
-	 */
-	private final SwingWorkerPropertyChangeSupport propertyChangeSupport = new SwingWorkerPropertyChangeSupport(this);
+	private final AtomicInteger completedTaskCount = new AtomicInteger(0);
+	private final AtomicInteger totalTaskCount = new AtomicInteger(0);
 	
 	
-	public ChecksumComputationService() {
-		this(new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
-	}
-	
-
-	public ChecksumComputationService(ThreadFactory threadFactory) {
-		this.threadFactory = threadFactory;
-	}
-	
-
-	public Checksum schedule(File file, File workerQueue) {
-		ChecksumComputationTask task = new ChecksumComputationTask(file);
-		Checksum checksum = new Checksum(task);
-		
-		getExecutor(workerQueue).execute(task);
-		
-		return checksum;
+	public ExecutorService newExecutor() {
+		return new ChecksumComputationExecutor();
 	}
 	
 
 	public void reset() {
-		deactivate(true);
-	}
-	
-
-	private synchronized void deactivate(boolean shutdownNow) {
-		for (ChecksumComputationExecutor executor : executors.values()) {
-			if (shutdownNow)
+		synchronized (executors) {
+			for (ExecutorService executor : executors) {
 				executor.shutdownNow();
-			else
-				executor.shutdown();
+			}
+			
+			totalTaskCount.set(0);
+			completedTaskCount.set(0);
+			
+			executors.clear();
 		}
 		
-		executors.clear();
-		
-		activeSessionTaskCount.set(0);
-		remainingTaskCount.set(0);
+		fireTaskCountChanged();
 	}
 	
 
-	public boolean isActive() {
-		return activeSessionTaskCount.get() > 0;
+	public int getTaskCount() {
+		return getTotalTaskCount() - getCompletedTaskCount();
 	}
 	
 
-	public int getRemainingTaskCount() {
-		return remainingTaskCount.get();
+	public int getTotalTaskCount() {
+		return totalTaskCount.get();
 	}
 	
 
-	public int getActiveSessionTaskCount() {
-		return activeSessionTaskCount.get();
+	public int getCompletedTaskCount() {
+		return completedTaskCount.get();
 	}
 	
 
-	public synchronized void purge() {
-		for (ChecksumComputationExecutor executor : executors.values()) {
-			executor.purge();
+	public void purge() {
+		synchronized (executors) {
+			for (ThreadPoolExecutor executor : executors) {
+				executor.purge();
+			}
 		}
-	}
-	
-
-	private synchronized ChecksumComputationExecutor getExecutor(File workerQueue) {
-		ChecksumComputationExecutor executor = executors.get(workerQueue);
-		
-		if (executor == null) {
-			executor = new ChecksumComputationExecutor();
-			executors.put(workerQueue, executor);
-		}
-		
-		return executor;
 	}
 	
 	
 	private class ChecksumComputationExecutor extends ThreadPoolExecutor {
 		
-		private static final int MINIMUM_POOL_SIZE = 1;
-		
-		
 		public ChecksumComputationExecutor() {
-			super(MINIMUM_POOL_SIZE, MINIMUM_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), threadFactory);
+			super(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
+			
+			synchronized (executors) {
+				executors.add(this);
+			}
+			
+			prestartAllCoreThreads();
 		}
 		
 
-		private void adjustPoolSize() {
+		protected int getPreferredPoolSize() {
 			// for a few files, use one thread
 			// for lots of files, use multiple threads
-			// e.g 50 files ~ 1 thread, 1000 files ~ 3 threads, 40000 files ~ 5 threads
-			int preferredPoolSize = (int) Math.max(Math.log10(getQueue().size() / 10), MINIMUM_POOL_SIZE);
-			
-			if (getCorePoolSize() != preferredPoolSize) {
-				setCorePoolSize(preferredPoolSize);
-			}
+			// e.g 50 files ~ 1 thread, 200 files ~ 2 threads, 1000 files ~ 3 threads, 40000 files ~ 5 threads
+			return max((int) log10(getQueue().size()), 1);
 		}
 		
 
 		@Override
 		public void execute(Runnable command) {
-			if (activeSessionTaskCount.getAndIncrement() <= 0) {
-				setActive(true);
+			int preferredPoolSize = getPreferredPoolSize();
+			
+			if (getCorePoolSize() < preferredPoolSize) {
+				setCorePoolSize(preferredPoolSize);
 			}
 			
-			super.execute(command);
+			synchronized (this) {
+				super.execute(command);
+			}
 			
-			adjustPoolSize();
-			
-			remainingTaskCount.incrementAndGet();
-			fireRemainingTaskCountChange();
+			totalTaskCount.incrementAndGet();
+			fireTaskCountChanged();
 		}
 		
 
 		@Override
 		public void purge() {
-			try {
-				List<ChecksumComputationTask> cancelledTasks = new ArrayList<ChecksumComputationTask>();
-				
-				for (Runnable entry : getQueue()) {
-					ChecksumComputationTask task = (ChecksumComputationTask) entry;
-					
-					if (task.isCancelled()) {
-						cancelledTasks.add(task);
-					}
-				}
-				
-				for (ChecksumComputationTask task : cancelledTasks) {
-					remove(task);
-				}
-			} catch (ConcurrentModificationException e) {
-				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
-			}
-		}
-		
-
-		@Override
-		public boolean remove(Runnable task) {
-			boolean success = super.remove(task);
+			int delta = 0;
 			
-			if (success) {
-				activeSessionTaskCount.decrementAndGet();
-				
-				if (remainingTaskCount.decrementAndGet() <= 0) {
-					setActive(false);
-				}
-				
-				fireRemainingTaskCountChange();
+			synchronized (this) {
+				delta += getQueue().size();
+				super.purge();
+				delta -= getQueue().size();
 			}
 			
-			return success;
+			if (delta > 0) {
+				// subtract removed tasks from task count
+				totalTaskCount.addAndGet(-delta);
+				fireTaskCountChanged();
+			}
 		}
 		
 
@@ -197,54 +133,35 @@ public class ChecksumComputationService {
 		protected void afterExecute(Runnable r, Throwable t) {
 			super.afterExecute(r, t);
 			
-			if (remainingTaskCount.decrementAndGet() <= 0) {
-				deactivate(false);
-				setActive(false);
-			}
-			
-			fireRemainingTaskCountChange();
-		}
-	}
-	
-	
-	private void setActive(boolean active) {
-		propertyChangeSupport.firePropertyChange(ACTIVE_PROPERTY, null, active);
-	}
-	
-
-	private void fireRemainingTaskCountChange() {
-		propertyChangeSupport.firePropertyChange(REMAINING_TASK_COUNT_PROPERTY, null, getRemainingTaskCount());
-	}
-	
-
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-	
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
-	}
-	
-	
-	private static class SwingWorkerPropertyChangeSupport extends PropertyChangeSupport {
-		
-		public SwingWorkerPropertyChangeSupport(Object sourceBean) {
-			super(sourceBean);
+			completedTaskCount.incrementAndGet();
+			fireTaskCountChanged();
 		}
 		
 
 		@Override
-		public void firePropertyChange(final PropertyChangeEvent evt) {
-			SwingUtilities.invokeLater(new Runnable() {
-				
-				@Override
-				public void run() {
-					SwingWorkerPropertyChangeSupport.super.firePropertyChange(evt);
-				}
-				
-			});
+		protected void terminated() {
+			synchronized (executors) {
+				executors.remove(this);
+			}
 		}
+		
+	}
+	
+	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	
+	
+	private void fireTaskCountChanged() {
+		propertyChangeSupport.firePropertyChange(TASK_COUNT_PROPERTY, null, getTaskCount());
+	}
+	
+
+	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+	}
+	
+
+	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
 	}
 	
 }

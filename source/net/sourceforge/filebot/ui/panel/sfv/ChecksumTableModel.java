@@ -2,15 +2,20 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import static javax.swing.event.TableModelEvent.UPDATE;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
@@ -19,92 +24,86 @@ import javax.swing.table.TableModel;
 import net.sourceforge.tuned.FileUtilities;
 
 
-class ChecksumTableModel extends AbstractTableModel {
+class ChecksumTableModel extends AbstractTableModel implements Iterable<ChecksumRow> {
 	
-	private List<ChecksumRow> rows = new ArrayList<ChecksumRow>(50);
+	private final IndexedMap<String, ChecksumRow> rows = new IndexedMap<String, ChecksumRow>() {
+		
+		@Override
+		public String key(ChecksumRow value) {
+			return value.getName();
+		}
+	};
 	
-	/**
-	 * Hash map for fast access to the row of a given name
-	 */
-	private Map<String, ChecksumRow> rowMap = new HashMap<String, ChecksumRow>(50);
-	
-	private List<File> columns = new ArrayList<File>();
-	
-	/**
-	 * Checksum start at column 3
-	 */
-	private static final int checksumColumnOffset = 2;
+	private final List<File> columns = new ArrayList<File>();
 	
 	
 	@Override
 	public String getColumnName(int columnIndex) {
-		if (columnIndex == 0)
-			return "State";
-		
-		if (columnIndex == 1)
-			return "Name";
-		
-		if (columnIndex >= checksumColumnOffset) {
-			File column = columns.get(columnIndex - checksumColumnOffset);
-			
-			// works for files too and simply returns the name unchanged
-			return FileUtilities.getFolderName(column);
+		switch (columnIndex) {
+			case 0:
+				return "State";
+			case 1:
+				return "Name";
+			default:
+				// works for files too and simply returns the name unchanged
+				return FileUtilities.getFolderName(getColumnRoot(columnIndex));
 		}
-		
-		return null;
 	}
 	
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		if (columnIndex == 0)
-			return ChecksumRow.State.class;
-		
-		if (columnIndex == 1)
-			return String.class;
-		
-		if (columnIndex >= checksumColumnOffset)
-			return Checksum.class;
-		
-		return null;
+		switch (columnIndex) {
+			case 0:
+				return ChecksumRow.State.class;
+			case 1:
+				return String.class;
+			default:
+				return ChecksumCell.class;
+		}
 	}
 	
 
+	public File getColumnRoot(int columnIndex) {
+		return columns.get(columnIndex - 2);
+	}
+	
+
+	@Override
 	public int getColumnCount() {
-		return checksumColumnOffset + getChecksumColumnCount();
+		return columns.size() + 2;
 	}
 	
 
-	public int getChecksumColumnCount() {
-		return columns.size();
-	}
-	
-
-	public List<File> getChecksumColumns() {
+	public List<File> getChecksumList() {
 		return Collections.unmodifiableList(columns);
 	}
 	
 
+	@Override
 	public int getRowCount() {
 		return rows.size();
 	}
 	
 
+	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		ChecksumRow row = rows.get(rowIndex);
 		
-		if (columnIndex == 0)
-			return row.getState();
-		
-		if (columnIndex == 1)
-			return row.getName();
-		
-		if (columnIndex >= checksumColumnOffset) {
-			File column = columns.get(columnIndex - checksumColumnOffset);
-			return row.getChecksum(column);
+		switch (columnIndex) {
+			case 0:
+				return row.getState();
+			case 1:
+				return row.getName();
+			default:
+				return row.getChecksum(getColumnRoot(columnIndex));
 		}
-		
-		return null;
+	}
+	
+
+	@Override
+	public Iterator<ChecksumRow> iterator() {
+		return rows.iterator();
 	}
 	
 
@@ -112,7 +111,22 @@ class ChecksumTableModel extends AbstractTableModel {
 		int firstRow = getRowCount();
 		
 		for (ChecksumCell entry : list) {
-			addChecksum(entry.getName(), entry.getChecksum(), entry.getColumn());
+			ChecksumRow row = rows.getByKey(entry.getName());
+			
+			if (row == null) {
+				row = new ChecksumRow(entry.getName());
+				rows.add(row);
+			}
+			
+			row.add(entry);
+			
+			// listen to changes (progress, state)
+			entry.addPropertyChangeListener(progressListener);
+			
+			if (!columns.contains(entry.getRoot())) {
+				columns.add(entry.getRoot());
+				fireTableStructureChanged();
+			}
 		}
 		
 		int lastRow = getRowCount() - 1;
@@ -123,125 +137,142 @@ class ChecksumTableModel extends AbstractTableModel {
 	}
 	
 
-	private void addChecksum(String name, Checksum checksum, File column) {
-		ChecksumRow row = rowMap.get(name);
-		
-		if (row == null) {
-			row = new ChecksumRow(name);
-			rows.add(row);
-			rowMap.put(name, row);
-		}
-		
-		row.putChecksum(column, checksum);
-		checksum.addPropertyChangeListener(checksumListener);
-		
-		if (!columns.contains(column)) {
-			columns.add(column);
-			fireTableStructureChanged();
-		}
-	}
-	
-
-	public void removeRows(int... rowIndices) {
-		ArrayList<ChecksumRow> rowsToRemove = new ArrayList<ChecksumRow>(rowIndices.length);
-		
-		for (int i : rowIndices) {
-			ChecksumRow row = rows.get(i);
-			rowsToRemove.add(rows.get(i));
-			
-			for (Checksum checksum : row.getChecksums()) {
-				checksum.cancelComputationTask();
+	public void remove(int... index) {
+		for (int i : index) {
+			for (ChecksumCell entry : rows.get(i).values()) {
+				entry.removePropertyChangeListener(progressListener);
+				entry.dispose();
 			}
-			
-			rowMap.remove(row.getName());
 		}
 		
-		rows.removeAll(rowsToRemove);
-		fireTableRowsDeleted(rowIndices[0], rowIndices[rowIndices.length - 1]);
+		// remove rows
+		rows.removeAll(index);
+		
+		fireTableRowsDeleted(index[0], index[index.length - 1]);
 	}
 	
 
 	public void clear() {
 		columns.clear();
 		rows.clear();
-		rowMap.clear();
+		
 		fireTableStructureChanged();
-		
-		fireTableDataChanged();
 	}
 	
-
-	public File getChecksumColumn(int columnIndex) {
-		return columns.get(columnIndex);
-	}
-	
-
-	public Map<String, Checksum> getChecksumColumn(File column) {
-		LinkedHashMap<String, Checksum> checksumMap = new LinkedHashMap<String, Checksum>();
+	private final PropertyChangeListener progressListener = new PropertyChangeListener() {
 		
-		for (ChecksumRow row : rows) {
-			Checksum checksum = row.getChecksum(column);
-			
-			if ((checksum != null) && (checksum.getState() == Checksum.State.READY)) {
-				checksumMap.put(row.getName(), checksum);
-			}
-		}
+		private final MutableTableModelEvent mutableUpdateEvent = new MutableTableModelEvent(ChecksumTableModel.this, UPDATE);
 		
-		return checksumMap;
-	}
-	
-	private final PropertyChangeListener checksumListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			fireTableChanged(new ChecksumTableModelEvent(ChecksumTableModel.this));
+			ChecksumCell entry = (ChecksumCell) evt.getSource();
+			
+			int index = rows.getIndexByKey(entry.getName());
+			
+			if (index >= 0) {
+				rows.get(index).updateState();
+				fireTableChanged(mutableUpdateEvent.setRow(index));
+			}
 		}
 	};
 	
 	
-	public static class ChecksumCell {
+	protected static class MutableTableModelEvent extends TableModelEvent {
 		
-		private final String name;
-		private final Checksum checksum;
-		private final File column;
-		
-		
-		public ChecksumCell(String name, Checksum checksum, File column) {
-			this.name = name;
-			this.checksum = checksum;
-			this.column = column;
+		public MutableTableModelEvent(TableModel source, int type) {
+			super(source, 0, 0, ALL_COLUMNS, type);
 		}
 		
 
-		public String getName() {
-			return name;
-		}
-		
-
-		public Checksum getChecksum() {
-			return checksum;
-		}
-		
-
-		public File getColumn() {
-			return column;
-		}
-		
-
-		@Override
-		public String toString() {
-			return getName();
+		public MutableTableModelEvent setRow(int row) {
+			this.firstRow = row;
+			this.lastRow = row;
+			
+			return this;
 		}
 	}
 	
 
-	public static class ChecksumTableModelEvent extends TableModelEvent {
+	protected static abstract class IndexedMap<K, V> extends AbstractList<V> implements Set<V> {
 		
-		public static final int CHECKSUM_PROGRESS = 10;
+		private final Map<K, Integer> indexMap = new HashMap<K, Integer>(64);
+		private final List<V> list = new ArrayList<V>(64);
 		
 		
-		public ChecksumTableModelEvent(TableModel source) {
-			super(source);
-			type = CHECKSUM_PROGRESS;
+		public abstract K key(V value);
+		
+
+		@Override
+		public V get(int index) {
+			return list.get(index);
+		}
+		
+
+		public V getByKey(K key) {
+			Integer index = indexMap.get(key);
+			
+			if (index == null)
+				return null;
+			
+			return get(index);
+		}
+		
+
+		public int getIndexByKey(K key) {
+			Integer index = indexMap.get(key);
+			
+			if (index == null)
+				return -1;
+			
+			return index;
+		}
+		
+
+		@Override
+		public boolean add(V value) {
+			K key = key(value);
+			Integer index = indexMap.get(key);
+			
+			if (index == null && list.add(value)) {
+				indexMap.put(key, lastIndexOf(value));
+				return true;
+			}
+			
+			return false;
+		}
+		
+
+		public void removeAll(int... index) {
+			// sort index array
+			Arrays.sort(index);
+			
+			// remove in reverse
+			for (int i = index.length - 1; i >= 0; i--) {
+				V value = list.remove(index[i]);
+				indexMap.remove(key(value));
+			}
+			
+			updateIndexMap();
+		}
+		
+
+		private void updateIndexMap() {
+			for (int i = 0; i < list.size(); i++) {
+				indexMap.put(key(list.get(i)), i);
+			}
+		}
+		
+
+		@Override
+		public int size() {
+			return list.size();
+		}
+		
+
+		@Override
+		public void clear() {
+			list.clear();
+			indexMap.clear();
 		}
 		
 	}

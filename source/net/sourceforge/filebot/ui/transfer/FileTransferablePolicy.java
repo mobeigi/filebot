@@ -23,7 +23,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	/**
 	 * Pattern that will match Windows (\r\n), Unix (\n) and Mac (\r) line separators.
 	 */
-	public static final Pattern LINE_SEPARATOR = Pattern.compile("\r?\n|\r\n?");
+	public static final Pattern LINE_SEPARATOR = Pattern.compile("\r\n|[\r\n]");
 	
 	
 	@Override

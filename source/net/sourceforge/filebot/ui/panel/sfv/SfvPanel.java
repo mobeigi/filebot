@@ -5,24 +5,19 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
-import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
@@ -82,7 +77,8 @@ public class SfvPanel extends FileBotPanel {
 			
 			int row = sfvTable.getSelectionModel().getMinSelectionIndex();
 			
-			sfvTable.removeRows(sfvTable.getSelectedRows());
+			// remove selected rows
+			sfvTable.getModel().remove(sfvTable.getSelectedRows());
 			
 			int maxRow = sfvTable.getRowCount() - 1;
 			

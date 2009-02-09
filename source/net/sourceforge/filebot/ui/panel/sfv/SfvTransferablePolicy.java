@@ -5,12 +5,14 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import static net.sourceforge.filebot.FileBotUtilities.SFV_FILES;
 import static net.sourceforge.tuned.FileUtilities.containsOnly;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -19,14 +21,14 @@ import java.util.regex.Pattern;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 
 
-class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTableModel.ChecksumCell> {
+class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {
 	
-	private final ChecksumTableModel tableModel;
+	private final ChecksumTableModel model;
 	private final ChecksumComputationService checksumComputationService;
 	
 	
-	public SfvTransferablePolicy(ChecksumTableModel tableModel, ChecksumComputationService checksumComputationService) {
-		this.tableModel = tableModel;
+	public SfvTransferablePolicy(ChecksumTableModel model, ChecksumComputationService checksumComputationService) {
+		this.model = model;
 		this.checksumComputationService = checksumComputationService;
 	}
 	
@@ -40,46 +42,58 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 	@Override
 	protected void clear() {
 		checksumComputationService.reset();
-		tableModel.clear();
+		model.clear();
 	}
 	
 
 	@Override
-	protected void process(List<ChecksumTableModel.ChecksumCell> chunks) {
-		tableModel.addAll(chunks);
+	protected void process(List<ChecksumCell> chunks) {
+		model.addAll(chunks);
 	}
 	
 
-	protected void loadSfvFile(File sfvFile) {
+	protected void loadSfvFile(File sfvFile, Executor executor) {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(sfvFile), "UTF-8"));
+			// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
+			Scanner scanner = new Scanner(new FileInputStream(sfvFile), "utf-8");
 			
-			String line = null;
-			Pattern pattern = Pattern.compile("(.*)\\s+(\\p{XDigit}{8})");
-			
-			while (((line = in.readLine()) != null) && !Thread.interrupted()) {
-				if (line.startsWith(";"))
-					continue;
+			try {
+				Pattern pattern = Pattern.compile("(.+)\\s+(\\p{XDigit}{8})");
 				
-				Matcher matcher = pattern.matcher(line);
-				
-				if (!matcher.matches())
-					continue;
-				
-				String filename = matcher.group(1);
-				String checksumString = matcher.group(2);
-				
-				publish(new ChecksumTableModel.ChecksumCell(filename, new Checksum(checksumString), sfvFile));
-				
-				File column = sfvFile.getParentFile();
-				File file = new File(column, filename);
-				
-				if (file.exists()) {
-					publish(new ChecksumTableModel.ChecksumCell(filename, checksumComputationService.schedule(file, column), column));
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					
+					if (line.startsWith(";"))
+						continue;
+					
+					Matcher matcher = pattern.matcher(line);
+					
+					if (!matcher.matches())
+						continue;
+					
+					String filename = matcher.group(1);
+					String checksum = matcher.group(2);
+					
+					publish(new ChecksumCell(filename, sfvFile, Collections.singletonMap(HashType.CRC32, checksum)));
+					
+					File column = sfvFile.getParentFile();
+					File file = new File(column, filename);
+					
+					if (file.exists()) {
+						ChecksumComputationTask task = new ChecksumComputationTask(file);
+						
+						publish(new ChecksumCell(filename, column, task));
+						
+						executor.execute(task);
+					}
+					
+					if (Thread.interrupted()) {
+						break;
+					}
 				}
+			} finally {
+				scanner.close();
 			}
-			
-			in.close();
 		} catch (IOException e) {
 			// should not happen
 			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
@@ -95,44 +109,52 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumTab
 
 	@Override
 	protected void load(List<File> files) {
+		ExecutorService executor = checksumComputationService.newExecutor();
+		
 		try {
 			if (containsOnly(files, SFV_FILES)) {
 				// one or more sfv files
 				for (File file : files) {
-					loadSfvFile(file);
+					loadSfvFile(file, executor);
 				}
 			} else if ((files.size() == 1) && files.get(0).isDirectory()) {
 				// one single folder
 				File file = files.get(0);
 				
 				for (File f : file.listFiles()) {
-					load(f, file, "");
+					load(f, file, "", executor);
 				}
 			} else {
 				// bunch of files
 				for (File f : files) {
-					load(f, f.getParentFile(), "");
+					load(f, f.getParentFile(), "", executor);
 				}
 			}
 		} catch (InterruptedException e) {
 			// supposed to happen if background execution was aborted
+		} finally {
+			executor.shutdown();
 		}
 	}
 	
 
-	protected void load(File file, File column, String prefix) throws InterruptedException {
+	protected void load(File file, File root, String prefix, Executor executor) throws InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
 		
 		if (file.isDirectory()) {
 			// load all files in the file tree
 			String newPrefix = prefix + file.getName() + "/";
+			
 			for (File f : file.listFiles()) {
-				load(f, column, newPrefix);
+				load(f, root, newPrefix, executor);
 			}
 		} else if (file.isFile()) {
-			publish(new ChecksumTableModel.ChecksumCell(prefix + file.getName(), checksumComputationService.schedule(file, column), column));
+			ChecksumComputationTask task = new ChecksumComputationTask(file);
+			
+			publish(new ChecksumCell(prefix + file.getName(), root, task));
+			
+			executor.execute(task);
 		}
 	}
-	
 }

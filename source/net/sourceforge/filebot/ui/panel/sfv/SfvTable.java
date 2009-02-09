@@ -14,7 +14,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import net.sourceforge.filebot.FileBotUtilities;
-import net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.ChecksumTableModelEvent;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 
 
@@ -27,7 +26,6 @@ class SfvTable extends JTable {
 	
 	
 	public SfvTable() {
-		
 		transferablePolicy = new SfvTransferablePolicy(getModel(), checksumComputationService);
 		exportHandler = new ChecksumTableExportHandler(getModel());
 		
@@ -48,7 +46,7 @@ class SfvTable extends JTable {
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
 		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN, "#009900", "smaller"));
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
-		setDefaultRenderer(Checksum.class, new ChecksumTableCellRenderer());
+		setDefaultRenderer(ChecksumCell.class, new ChecksumTableCellRenderer());
 	}
 	
 
@@ -91,6 +89,7 @@ class SfvTable extends JTable {
 		
 		for (int i = 0; i < getColumnCount(); i++) {
 			TableColumn column = getColumnModel().getColumn(i);
+			
 			if (i == 0) {
 				column.setPreferredWidth(45);
 			} else if (i == 1) {
@@ -110,26 +109,15 @@ class SfvTable extends JTable {
 	}
 	
 
-	public void removeRows(int... rowIndices) {
-		getModel().removeRows(rowIndices);
-	}
-	
-
 	@Override
 	public void tableChanged(TableModelEvent e) {
-		// only request repaint when progress changes. Selection will go haywire if you don't.
-		if (e.getType() == ChecksumTableModelEvent.CHECKSUM_PROGRESS) {
-			repaint();
-			return;
-		}
-		
+		//TODO CCS in SfvPanel??
 		if (e.getType() == TableModelEvent.DELETE) {
 			// remove cancelled tasks from queue
 			checksumComputationService.purge();
 		}
 		
 		super.tableChanged(e);
-		
 	}
 	
 	

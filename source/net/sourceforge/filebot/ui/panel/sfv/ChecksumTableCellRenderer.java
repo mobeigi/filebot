@@ -23,24 +23,25 @@ class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, null, isSelected, false, row, column);
 		
-		if (value == null)
-			return this;
-		
-		Checksum checksum = (Checksum) value;
-		
-		switch (checksum.getState()) {
-			case READY:
-				setText(checksum.getChecksumString());
-				return this;
-			case PENDING:
-				setText("Pending ...");
-				return this;
-			case ERROR:
-				setText(checksum.getErrorMessage());
-				return this;
-			default:
-				return progressBarRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		if (value instanceof ChecksumCell) {
+			ChecksumCell checksum = (ChecksumCell) value;
+			
+			switch (checksum.getState()) {
+				case READY:
+					setText(checksum.getChecksum(HashType.CRC32));
+					break;
+				case PENDING:
+					setText("Pending ...");
+					break;
+				case ERROR:
+					setText(checksum.getError().getMessage());
+					break;
+				default:
+					return progressBarRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			}
 		}
+		
+		return this;
 	}
 	
 	
@@ -61,9 +62,11 @@ class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			
-			Checksum checksum = (Checksum) value;
+			ChecksumComputationTask task = ((ChecksumCell) value).getTask();
 			
-			progressBar.setValue(checksum.getProgress());
+			if (task != null) {
+				progressBar.setValue(task.getProgress());
+			}
 			
 			if (isSelected) {
 				this.setBackground(table.getSelectionBackground());

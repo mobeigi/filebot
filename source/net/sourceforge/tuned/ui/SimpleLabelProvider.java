@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import javax.swing.Icon;
 
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 
 
 /**
@@ -73,7 +73,7 @@ public class SimpleLabelProvider<T> implements LabelProvider<T> {
 		try {
 			return (String) getTextMethod.invoke(value);
 		} catch (Exception e) {
-			throw ExceptionUtil.asRuntimeException(e);
+			throw ExceptionUtilities.asRuntimeException(e);
 		}
 	}
 	
@@ -83,7 +83,7 @@ public class SimpleLabelProvider<T> implements LabelProvider<T> {
 		try {
 			return (Icon) getIconMethod.invoke(value);
 		} catch (Exception e) {
-			throw ExceptionUtil.asRuntimeException(e);
+			throw ExceptionUtilities.asRuntimeException(e);
 		}
 	}
 	

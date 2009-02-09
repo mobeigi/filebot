@@ -8,6 +8,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.SwingWorker;
 
@@ -76,7 +78,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	}
 	
 	
-	private class BackgroundWorker extends SwingWorker<Object, V> {
+	private class BackgroundWorker extends SwingWorker<Void, V> {
 		
 		private final List<File> files;
 		
@@ -87,8 +89,13 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 
 		@Override
-		protected Object doInBackground() {
-			load(files);
+		protected Void doInBackground() {
+			try {
+				load(files);
+			} catch (Exception e) {
+				Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
+			}
+			
 			return null;
 		}
 		

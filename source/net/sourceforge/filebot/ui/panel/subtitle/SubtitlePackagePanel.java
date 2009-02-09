@@ -9,7 +9,8 @@ import java.util.EventListener;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JScrollPane;
+import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.tuned.DownloadTask;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
@@ -24,7 +25,33 @@ public class SubtitlePackagePanel extends JComponent {
 	
 	public SubtitlePackagePanel() {
 		setLayout(new BorderLayout());
-		add(new JScrollPane(createList()), BorderLayout.CENTER);
+		add(createList(), BorderLayout.CENTER);
+		model.add(new SubtitlePackage(new SubtitleDescriptor() {
+			
+			@Override
+			public DownloadTask createDownloadTask() {
+				return null;
+			}
+			
+
+			@Override
+			public String getArchiveType() {
+				return ArchiveType.ZIP.getExtension();
+			}
+			
+
+			@Override
+			public String getLanguageName() {
+				return "english";
+			}
+			
+
+			@Override
+			public String getName() {
+				return "Firefly 1x01 The Train Job.srt";
+			}
+			
+		}));
 	}
 	
 
@@ -33,10 +60,14 @@ public class SubtitlePackagePanel extends JComponent {
 	}
 	
 
-	protected JList createList() {
+	protected JComponent createList() {
 		ObservableElementList<SubtitlePackage> observableList = new ObservableElementList<SubtitlePackage>(model, new SubtitlePackageConnector());
 		
 		JList list = new JList(new EventListModel<SubtitlePackage>(observableList));
+		
+		list.setCellRenderer(new SubtitleCellRenderer());
+		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		list.setVisibleRowCount(-1);
 		
 		return list;
 	}
@@ -51,9 +82,14 @@ public class SubtitlePackagePanel extends JComponent {
 		private ObservableElementList<SubtitlePackage> list = null;
 		
 		
-		public EventListener installListener(SubtitlePackage element) {
-			PropertyChangeListener listener = new SubtitlePackageListener(element);
-			element.getDownloadTask().addPropertyChangeListener(listener);
+		public EventListener installListener(final SubtitlePackage element) {
+			PropertyChangeListener listener = new PropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					list.elementChanged(element);
+				}
+			};
 			
 			return listener;
 		}
@@ -64,24 +100,10 @@ public class SubtitlePackagePanel extends JComponent {
 		}
 		
 
-		public void setObservableElementList(ObservableElementList<SubtitlePackage> list) {
-			this.list = list;
-		}
-		
-		
-		protected class SubtitlePackageListener implements PropertyChangeListener {
-			
-			private final SubtitlePackage subtitlePackage;
-			
-			
-			public SubtitlePackageListener(SubtitlePackage subtitlePackage) {
-				this.subtitlePackage = subtitlePackage;
-			}
-			
-
-			public void propertyChange(PropertyChangeEvent evt) {
-				list.elementChanged(subtitlePackage);
-			}
+		@SuppressWarnings("unchecked")
+		@Override
+		public void setObservableElementList(ObservableElementList<? extends SubtitlePackage> list) {
+			this.list = (ObservableElementList<SubtitlePackage>) list;
 		}
 		
 	}

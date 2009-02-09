@@ -3,6 +3,8 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import java.awt.Component;
+import java.util.EnumMap;
+import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JTable;
@@ -10,17 +12,20 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow.State;
 
 
 class StateIconTableCellRenderer extends DefaultTableCellRenderer {
 	
-	private Icon warning = ResourceManager.getIcon("status.warning");
-	private Icon error = ResourceManager.getIcon("status.error");
-	private Icon unknown = ResourceManager.getIcon("status.unknown");
-	private Icon ok = ResourceManager.getIcon("status.ok");
+	private final Map<State, Icon> icons = new EnumMap<State, Icon>(State.class);
 	
 	
 	public StateIconTableCellRenderer() {
+		icons.put(State.UNKNOWN, ResourceManager.getIcon("status.unknown"));
+		icons.put(State.OK, ResourceManager.getIcon("status.ok"));
+		icons.put(State.WARNING, ResourceManager.getIcon("status.warning"));
+		icons.put(State.ERROR, ResourceManager.getIcon("status.error"));
+		
 		setVerticalAlignment(SwingConstants.CENTER);
 		setHorizontalAlignment(SwingConstants.CENTER);
 	}
@@ -30,22 +35,7 @@ class StateIconTableCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, null, isSelected, false, row, column);
 		
-		ChecksumRow.State state = (ChecksumRow.State) value;
-		
-		switch (state) {
-			case OK:
-				setIcon(ok);
-				break;
-			case ERROR:
-				setIcon(error);
-				break;
-			case WARNING:
-				setIcon(warning);
-				break;
-			case UNKNOWN:
-				setIcon(unknown);
-				break;
-		}
+		setIcon(icons.get(value));
 		
 		return this;
 	}

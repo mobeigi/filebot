@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.PreferencesMap;
 import net.sourceforge.tuned.PreferencesMap.Adapter;
@@ -96,7 +96,7 @@ public final class Settings {
 			// remove entries
 			prefs.clear();
 		} catch (BackingStoreException e) {
-			throw ExceptionUtil.asRuntimeException(e);
+			throw ExceptionUtilities.asRuntimeException(e);
 		}
 	}
 }

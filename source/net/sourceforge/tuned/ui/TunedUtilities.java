@@ -24,7 +24,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import net.sourceforge.tuned.ExceptionUtil;
+import net.sourceforge.tuned.ExceptionUtilities;
 
 
 public final class TunedUtilities {
@@ -120,7 +120,7 @@ public final class TunedUtilities {
 				
 				return listener;
 			} catch (Exception e) {
-				throw ExceptionUtil.asRuntimeException(e);
+				throw ExceptionUtilities.asRuntimeException(e);
 			}
 		}
 		
@@ -139,7 +139,7 @@ public final class TunedUtilities {
 				try {
 					firePropertyChange.invoke(target, evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 				} catch (Exception e) {
-					throw ExceptionUtil.asRuntimeException(e);
+					throw ExceptionUtilities.asRuntimeException(e);
 				}
 			}
 		}

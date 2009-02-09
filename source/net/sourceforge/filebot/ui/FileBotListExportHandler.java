@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
-import java.io.PrintWriter;
+import java.util.Formatter;
 
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 
@@ -24,9 +24,9 @@ public class FileBotListExportHandler extends TextFileExportHandler {
 	
 
 	@Override
-	public void export(PrintWriter out) {
+	public void export(Formatter out) {
 		for (Object entry : list.getModel()) {
-			out.println(entry);
+			out.format("%s%n", entry);
 		}
 	}
 	

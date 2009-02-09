@@ -8,13 +8,12 @@ import java.util.Collection;
 import net.sourceforge.filebot.similarity.Match;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.GlazedLists;
 
 
 class RenameModel {
 	
-	private final EventList<Object> names = GlazedLists.threadSafeList(new BasicEventList<Object>());
-	private final EventList<FileEntry> files = GlazedLists.threadSafeList(new BasicEventList<FileEntry>());
+	private final EventList<Object> names = new BasicEventList<Object>();
+	private final EventList<FileEntry> files = new BasicEventList<FileEntry>();
 	
 	
 	public EventList<Object> names() {

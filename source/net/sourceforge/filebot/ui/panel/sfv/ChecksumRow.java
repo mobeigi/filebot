@@ -4,8 +4,12 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import net.sourceforge.filebot.FileBotUtilities;
 
@@ -14,48 +18,26 @@ public class ChecksumRow {
 	
 	private String name;
 	
-	private HashMap<File, Checksum> checksumMap = new HashMap<File, Checksum>();
+	private Map<File, ChecksumCell> hashes = new HashMap<File, ChecksumCell>(4);
+	private State state = State.UNKNOWN;
 	
 	/**
 	 * Checksum that is embedded in the file name (e.g. Test[49A93C5F].txt)
 	 */
-	private final Long embeddedChecksum;
+	private String embeddedChecksum;
 	
 	
 	public static enum State {
+		UNKNOWN,
 		OK,
 		WARNING,
-		ERROR,
-		UNKNOWN;
+		ERROR
 	}
 	
 	
 	public ChecksumRow(String name) {
 		this.name = name;
-		this.embeddedChecksum = getEmbeddedChecksum(name);
-	}
-	
-
-	/**
-	 * Try to parse a CRC32 checksum from the given file name. The checksum is assumed to be in
-	 * brackets.
-	 * 
-	 * <pre>
-	 * e.g.
-	 * Test[49A93C5F].txt
-	 * </pre>
-	 * 
-	 * @param file name that contains a checksum
-	 * @return the checksum or null, if parameter did not contain a checksum
-	 */
-	private static Long getEmbeddedChecksum(String name) {
-		// look for a checksum pattern like [49A93C5F]
-		String match = FileBotUtilities.getEmbeddedChecksum(name);
-		
-		if (match != null)
-			return Long.parseLong(match, 16);
-		
-		return null;
+		this.embeddedChecksum = FileBotUtilities.getEmbeddedChecksum(name);
 	}
 	
 
@@ -65,50 +47,91 @@ public class ChecksumRow {
 	
 
 	public State getState() {
-		HashSet<Long> checksums = new HashSet<Long>();
-		
-		for (Checksum checksum : getChecksums()) {
-			if (checksum.getState() == Checksum.State.READY) {
-				checksums.add(checksum.getChecksum());
-			} else if (checksum.getState() == Checksum.State.ERROR) {
+		return state;
+	}
+	
+
+	public ChecksumCell getChecksum(File root) {
+		return hashes.get(root);
+	}
+	
+
+	public Collection<ChecksumCell> values() {
+		return Collections.unmodifiableCollection(hashes.values());
+	}
+	
+
+	public void add(ChecksumCell entry) {
+		hashes.put(entry.getRoot(), entry);
+		updateState();
+	}
+	
+
+	public void updateState() {
+		// update state
+		state = getState(hashes.values());
+	}
+	
+
+	protected State getState(Collection<ChecksumCell> entries) {
+		// check states before we bother comparing the hash values
+		for (ChecksumCell entry : entries) {
+			if (entry.getState() == ChecksumCell.State.ERROR) {
+				// one error cell -> error state
 				return State.ERROR;
-			} else {
+			} else if (entry.getState() != ChecksumCell.State.READY) {
+				// one cell that is not ready yet -> unknown state
 				return State.UNKNOWN;
 			}
 		}
 		
-		if (checksums.size() > 1) {
-			// checksums do not match
+		// compare hash values
+		Set<String> checksumSet = new HashSet<String>(2);
+		Set<State> verdictSet = EnumSet.noneOf(State.class);
+		
+		for (HashType type : HashType.values()) {
+			checksumSet.clear();
+			
+			for (ChecksumCell entry : entries) {
+				String checksum = entry.getChecksum(type);
+				
+				if (checksum != null) {
+					checksumSet.add(checksum);
+				}
+			}
+			
+			verdictSet.add(getVerdict(checksumSet));
+		}
+		
+		// ERROR > WARNING > OK > UNKOWN 
+		return Collections.max(verdictSet);
+	}
+	
+
+	protected State getVerdict(Set<String> checksumSet) {
+		if (checksumSet.size() < 1) {
+			// no hash values
+			return State.UNKNOWN;
+		} else if (checksumSet.size() > 1) {
+			// hashes don't match, something is wrong
 			return State.ERROR;
+		} else {
+			// all hashes match
+			if (embeddedChecksum != null) {
+				String checksum = checksumSet.iterator().next();
+				
+				if (checksum.length() == embeddedChecksum.length() && !checksum.equalsIgnoreCase(embeddedChecksum)) {
+					return State.WARNING;
+				}
+			}
+			
+			return State.OK;
 		}
-		
-		if (!checksums.isEmpty() && embeddedChecksum != null) {
-			// check if the embedded checksum matches
-			if (!checksums.contains(embeddedChecksum))
-				return State.WARNING;
-		}
-		
-		return State.OK;
 	}
 	
 
-	public Checksum getChecksum(File column) {
-		return checksumMap.get(column);
+	@Override
+	public String toString() {
+		return String.format("%s %s", name, hashes);
 	}
-	
-
-	public Collection<Checksum> getChecksums() {
-		return checksumMap.values();
-	}
-	
-
-	public void putChecksum(File column, Checksum checksum) {
-		checksumMap.put(column, checksum);
-	}
-	
-
-	public void removeChecksum(File column) {
-		checksumMap.remove(column);
-	}
-	
 }
