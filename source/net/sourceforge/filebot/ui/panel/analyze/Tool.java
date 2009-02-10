@@ -90,11 +90,13 @@ abstract class Tool<M> extends JComponent {
 				try {
 					setModel(get());
 				} catch (Exception e) {
-					if (ExceptionUtilities.getRootCause(e) instanceof ConcurrentModificationException) {
+					Throwable cause = ExceptionUtilities.getRootCause(e);
+					
+					if (cause instanceof ConcurrentModificationException || cause instanceof InterruptedException) {
 						// if it happens, it is supposed to
 					} else {
 						// should not happen
-						Logger.getLogger("global").log(Level.WARNING, e.toString(), e);
+						Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
 					}
 				}
 			}

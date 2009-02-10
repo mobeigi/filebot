@@ -13,6 +13,22 @@ public final class ExceptionUtilities {
 	}
 	
 
+	public static String getRootCauseMessage(Throwable t) {
+		return getMessage(getRootCause(t));
+	}
+	
+
+	public static String getMessage(Throwable t) {
+		String message = t.getMessage();
+		
+		if (message == null || message.isEmpty()) {
+			return t.toString();
+		}
+		
+		return message;
+	}
+	
+
 	public static RuntimeException asRuntimeException(Throwable t) {
 		if (t instanceof RuntimeException) {
 			return (RuntimeException) t;

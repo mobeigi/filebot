@@ -184,7 +184,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCause(e).getMessage(), e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			}
 			
 		}
@@ -240,7 +240,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			} catch (Exception e) {
 				tab.close();
 				
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCause(e).getMessage(), e);
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			} finally {
 				tab.setLoading(false);
 			}

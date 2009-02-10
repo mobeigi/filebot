@@ -14,6 +14,7 @@ import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.notification.MessageNotification;
 import net.sourceforge.tuned.ui.notification.NotificationManager;
 import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;
@@ -61,7 +62,7 @@ public class NotificationLoggingHandler extends Handler {
 		
 		if (message == null || message.isEmpty()) {
 			// if message is empty, display exception string
-			message = record.getThrown().toString();
+			return ExceptionUtilities.getMessage(record.getThrown());
 		}
 		
 		return message;

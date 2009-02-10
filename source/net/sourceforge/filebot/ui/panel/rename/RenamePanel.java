@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -214,7 +215,7 @@ public class RenamePanel extends FileBotPanel {
 						model.names().addAll(names);
 						model.files().addAll(files);
 					} catch (Exception e) {
-						Logger.getLogger("ui").warning(ExceptionUtilities.getRootCause(e).getMessage());
+						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					}
 				}
 			};

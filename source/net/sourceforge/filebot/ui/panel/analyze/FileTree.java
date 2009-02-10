@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -31,6 +32,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FilterIterator;
 import net.sourceforge.tuned.TreeIterator;
 
@@ -158,7 +160,7 @@ public class FileTree extends JTree {
 						Desktop.getDesktop().open(file);
 					}
 				} catch (Exception e) {
-					Logger.getLogger("ui").warning(e.getMessage());
+					Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 				}
 			}
 		}

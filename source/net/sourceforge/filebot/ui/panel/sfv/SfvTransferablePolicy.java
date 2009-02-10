@@ -55,7 +55,7 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCel
 
 	@Override
 	protected void process(Exception e) {
-		Logger.getLogger("ui").warning(ExceptionUtilities.getRootCause(e).getMessage());
+		Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 	
 

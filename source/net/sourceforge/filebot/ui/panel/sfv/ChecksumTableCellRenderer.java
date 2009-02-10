@@ -13,6 +13,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
+import net.sourceforge.tuned.ExceptionUtilities;
+
 
 class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 	
@@ -34,7 +36,7 @@ class ChecksumTableCellRenderer extends DefaultTableCellRenderer {
 					setText("Pending ...");
 					break;
 				case ERROR:
-					setText(checksum.getError().getMessage());
+					setText(ExceptionUtilities.getMessage(checksum.getError()));
 					break;
 				default:
 					return progressBarRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

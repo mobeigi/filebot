@@ -13,6 +13,7 @@ import javax.swing.AbstractAction;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -68,7 +69,7 @@ class RenameAction extends AbstractAction {
 			Logger.getLogger("ui").info(String.format("%d files renamed.", renameCount));
 		} catch (IOException e) {
 			// rename failed
-			Logger.getLogger("ui").warning(e.getMessage());
+			Logger.getLogger("ui").warning(ExceptionUtilities.getRootCauseMessage(e));
 			
 			boolean revertFailed = false;
 			

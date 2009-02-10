@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.analyze;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.AbstractTreeNode;
@@ -50,7 +51,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 
 	@Override
 	protected void process(Exception e) {
-		Logger.getLogger("ui").warning(ExceptionUtilities.getRootCause(e).getMessage());
+		Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 	
 
