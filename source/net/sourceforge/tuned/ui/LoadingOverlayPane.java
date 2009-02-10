@@ -32,7 +32,7 @@ public class LoadingOverlayPane extends JComponent {
 		animationComponent = new ProgressIndicator();
 		animationComponent.setVisible(false);
 		
-		add(animationComponent, String.format("pos n %s 100%%-%s n", offsetY != null ? offsetY : "8px", offsetX != null ? offsetX : "18px"));
+		add(animationComponent, String.format("pos n %s 100%%-%s n", offsetY != null ? offsetY : "8px", offsetX != null ? offsetX : "20px"));
 		add(component, "grow");
 		
 		if (propertyChangeSource != null) {

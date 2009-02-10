@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,30 +58,43 @@ public class ChecksumRow {
 	}
 	
 
-	public Collection<ChecksumCell> values() {
-		return Collections.unmodifiableCollection(hashes.values());
-	}
-	
-
-	public void add(ChecksumCell entry) {
-		hashes.put(entry.getRoot(), entry);
+	public void put(ChecksumCell cell) {
+		ChecksumCell old = hashes.put(cell.getRoot(), cell);
+		
+		// dispose of old map entry 
+		if (old != null) {
+			old.dispose();
+		}
+		
+		// update state immediately
 		updateState();
+		
+		// keep state up-to-date
+		cell.addPropertyChangeListener(updateStateListener);
 	}
 	
 
 	public void updateState() {
-		// update state
 		state = getState(hashes.values());
 	}
 	
 
-	protected State getState(Collection<ChecksumCell> entries) {
+	public void dispose() {
+		for (ChecksumCell cell : hashes.values()) {
+			cell.dispose();
+		}
+		
+		hashes.clear();
+	}
+	
+
+	protected State getState(Collection<ChecksumCell> cells) {
 		// check states before we bother comparing the hash values
-		for (ChecksumCell entry : entries) {
-			if (entry.getState() == ChecksumCell.State.ERROR) {
+		for (ChecksumCell cell : cells) {
+			if (cell.getState() == ChecksumCell.State.ERROR) {
 				// one error cell -> error state
 				return State.ERROR;
-			} else if (entry.getState() != ChecksumCell.State.READY) {
+			} else if (cell.getState() != ChecksumCell.State.READY) {
 				// one cell that is not ready yet -> unknown state
 				return State.UNKNOWN;
 			}
@@ -92,8 +107,8 @@ public class ChecksumRow {
 		for (HashType type : HashType.values()) {
 			checksumSet.clear();
 			
-			for (ChecksumCell entry : entries) {
-				String checksum = entry.getChecksum(type);
+			for (ChecksumCell cell : cells) {
+				String checksum = cell.getChecksum(type);
 				
 				if (checksum != null) {
 					checksumSet.add(checksum);
@@ -134,4 +149,12 @@ public class ChecksumRow {
 	public String toString() {
 		return String.format("%s %s", name, hashes);
 	}
+	
+	private final PropertyChangeListener updateStateListener = new PropertyChangeListener() {
+		
+		public void propertyChange(PropertyChangeEvent evt) {
+			updateState();
+		}
+	};
+	
 }

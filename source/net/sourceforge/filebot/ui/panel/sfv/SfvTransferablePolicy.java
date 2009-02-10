@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.sourceforge.tuned.ExceptionUtilities;
 
 
 class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {
@@ -52,6 +53,12 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCel
 	}
 	
 
+	@Override
+	protected void process(Exception e) {
+		Logger.getLogger("ui").warning(ExceptionUtilities.getRootCause(e).getMessage());
+	}
+	
+
 	protected void loadSfvFile(File sfvFile, Executor executor) {
 		try {
 			// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
@@ -59,6 +66,9 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCel
 			
 			try {
 				Pattern pattern = Pattern.compile("(.+)\\s+(\\p{XDigit}{8})");
+				
+				// root for relative file paths in sfv file
+				File root = sfvFile.getParentFile();
 				
 				while (scanner.hasNextLine()) {
 					String line = scanner.nextLine();
@@ -71,21 +81,13 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCel
 					if (!matcher.matches())
 						continue;
 					
-					String filename = matcher.group(1);
+					String name = matcher.group(1);
 					String checksum = matcher.group(2);
 					
-					publish(new ChecksumCell(filename, sfvFile, Collections.singletonMap(HashType.CRC32, checksum)));
+					ChecksumCell correct = new ChecksumCell(name, sfvFile, Collections.singletonMap(HashType.CRC32, checksum));
+					ChecksumCell current = createChecksumCell(name, root, new File(root, name), executor);
 					
-					File column = sfvFile.getParentFile();
-					File file = new File(column, filename);
-					
-					if (file.exists()) {
-						ChecksumComputationTask task = new ChecksumComputationTask(file);
-						
-						publish(new ChecksumCell(filename, column, task));
-						
-						executor.execute(task);
-					}
+					publish(correct, current);
 					
 					if (Thread.interrupted()) {
 						break;
@@ -150,11 +152,17 @@ class SfvTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCel
 				load(f, root, newPrefix, executor);
 			}
 		} else if (file.isFile()) {
-			ChecksumComputationTask task = new ChecksumComputationTask(file);
-			
-			publish(new ChecksumCell(prefix + file.getName(), root, task));
-			
-			executor.execute(task);
+			publish(createChecksumCell(prefix + file.getName(), root, file, executor));
 		}
+	}
+	
+
+	protected ChecksumCell createChecksumCell(String name, File root, File file, Executor executor) {
+		ChecksumCell cell = new ChecksumCell(name, root, new ChecksumComputationTask(new File(root, name), HashType.CRC32));
+		
+		// start computation task
+		executor.execute(cell.getTask());
+		
+		return cell;
 	}
 }

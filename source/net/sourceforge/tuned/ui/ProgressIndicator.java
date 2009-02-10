@@ -37,22 +37,9 @@ public class ProgressIndicator extends JComponent {
 	private final Dimension baseSize = new Dimension(32, 32);
 	
 	private double alpha = 0;
-	private double speed = 1.2;
+	private double speed = 24;
 	
-	private final Timer updateTimer = new Timer(20, new ActionListener() {
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			Timer timer = (Timer) e.getSource();
-			
-			alpha += (timer.getDelay() * speed) / 1000;
-			
-			if (alpha >= 1)
-				alpha -= Math.floor(alpha);
-			
-			repaint();
-		}
-	});
+	private Timer updateTimer;
 	
 	
 	public ProgressIndicator() {
@@ -71,6 +58,13 @@ public class ProgressIndicator extends JComponent {
 				stopAnimation();
 			}
 		});
+	}
+	
+
+	public void animateOnce() {
+		if ((alpha += (speed / 1000)) >= 1) {
+			alpha -= Math.floor(alpha);
+		}
 	}
 	
 
@@ -123,12 +117,26 @@ public class ProgressIndicator extends JComponent {
 	
 
 	public void startAnimation() {
-		updateTimer.restart();
+		if (updateTimer == null) {
+			updateTimer = new Timer(20, new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					animateOnce();
+					repaint();
+				}
+			});
+			
+			updateTimer.start();
+		}
 	}
 	
 
 	public void stopAnimation() {
-		updateTimer.stop();
+		if (updateTimer != null) {
+			updateTimer.stop();
+			updateTimer = null;
+		}
 	}
 	
 

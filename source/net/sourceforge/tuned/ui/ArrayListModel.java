@@ -2,7 +2,6 @@
 package net.sourceforge.tuned.ui;
 
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.swing.ListModel;
@@ -11,23 +10,23 @@ import javax.swing.event.ListDataListener;
 
 public class ArrayListModel implements ListModel {
 	
-	private final ArrayList<Object> data;
+	private final Object[] data;
 	
 	
 	public ArrayListModel(Collection<? extends Object> data) {
-		this.data = new ArrayList<Object>(data);
+		this.data = data.toArray();
 	}
 	
 
 	@Override
 	public Object getElementAt(int index) {
-		return data.get(index);
+		return data[index];
 	}
 	
 
 	@Override
 	public int getSize() {
-		return data.size();
+		return data.length;
 	}
 	
 

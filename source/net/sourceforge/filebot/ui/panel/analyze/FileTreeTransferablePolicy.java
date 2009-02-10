@@ -4,11 +4,13 @@ package net.sourceforge.filebot.ui.panel.analyze;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Logger;
 
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.AbstractTreeNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -43,6 +45,12 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		}
 		
 		tree.getModel().reload();
+	}
+	
+
+	@Override
+	protected void process(Exception e) {
+		Logger.getLogger("ui").warning(ExceptionUtilities.getRootCause(e).getMessage());
 	}
 	
 

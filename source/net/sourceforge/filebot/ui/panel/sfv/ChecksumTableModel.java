@@ -75,7 +75,7 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 	}
 	
 
-	public List<File> getChecksumList() {
+	public List<File> getChecksumColumns() {
 		return Collections.unmodifiableList(columns);
 	}
 	
@@ -118,7 +118,7 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 				rows.add(row);
 			}
 			
-			row.add(entry);
+			row.put(entry);
 			
 			// listen to changes (progress, state)
 			entry.addPropertyChangeListener(progressListener);
@@ -139,10 +139,7 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 
 	public void remove(int... index) {
 		for (int i : index) {
-			for (ChecksumCell entry : rows.get(i).values()) {
-				entry.removePropertyChangeListener(progressListener);
-				entry.dispose();
-			}
+			rows.get(i).dispose();
 		}
 		
 		// remove rows

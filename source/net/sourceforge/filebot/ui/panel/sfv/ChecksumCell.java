@@ -49,7 +49,7 @@ public class ChecksumCell {
 			public void propertyChange(PropertyChangeEvent evt) {
 				super.propertyChange(evt);
 				
-				propertyChangeSupport.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+				pcs.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 			}
 			
 
@@ -95,17 +95,6 @@ public class ChecksumCell {
 	}
 	
 
-	public void dispose() {
-		if (task != null) {
-			task.cancel(true);
-		}
-		
-		hashes = null;
-		error = null;
-		task = null;
-	}
-	
-
 	public State getState() {
 		if (hashes != null)
 			return State.READY;
@@ -121,21 +110,38 @@ public class ChecksumCell {
 	}
 	
 
+	public void dispose() {
+		// clear property change support first
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners()) {
+			pcs.removePropertyChangeListener(listener);
+		}
+		
+		if (task != null) {
+			task.cancel(true);
+		}
+		
+		hashes = null;
+		error = null;
+		task = null;
+		pcs = null;
+	}
+	
+
 	@Override
 	public String toString() {
 		return String.format("%s %s", name, hashes);
 	}
 	
-	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
+		pcs.addPropertyChangeListener(listener);
 	}
 	
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(listener);
+		pcs.removePropertyChangeListener(listener);
 	}
 	
 }

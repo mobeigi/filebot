@@ -24,19 +24,19 @@ public class ChecksumTableExportHandler extends TextFileExportHandler {
 
 	@Override
 	public boolean canExport() {
-		return model.getRowCount() > 0 && model.getChecksumList().size() > 0;
+		return model.getRowCount() > 0 && model.getChecksumColumns().size() > 0;
 	}
 	
 
 	@Override
 	public void export(Formatter out) {
-		export(out, model.getChecksumList().get(0));
+		export(out, model.getChecksumColumns().get(0));
 	}
 	
 
 	@Override
 	public String getDefaultFileName() {
-		return getDefaultFileName(model.getChecksumList().get(0));
+		return getDefaultFileName(model.getChecksumColumns().get(0));
 	}
 	
 

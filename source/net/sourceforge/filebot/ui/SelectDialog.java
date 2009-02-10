@@ -44,10 +44,7 @@ public class SelectDialog<T> extends JDialog {
 		list = new JList(new ArrayListModel(options));
 		list.setSelectedIndex(0);
 		
-		DefaultFancyListCellRenderer cellRenderer = new DefaultFancyListCellRenderer(4);
-		cellRenderer.setHighlightingEnabled(false);
-		
-		list.setCellRenderer(cellRenderer);
+		list.setCellRenderer(new SelectListCellRenderer());
 		list.addMouseListener(mouseListener);
 		
 		JComponent c = (JComponent) getContentPane();
@@ -121,4 +118,20 @@ public class SelectDialog<T> extends JDialog {
 			}
 		}
 	};
+	
+	
+	protected class SelectListCellRenderer extends DefaultFancyListCellRenderer {
+		
+		public SelectListCellRenderer() {
+			super(4);
+			setHighlightingEnabled(false);
+		}
+		
+
+		@Override
+		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			super.configureListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
+		}
+	};
+	
 }
