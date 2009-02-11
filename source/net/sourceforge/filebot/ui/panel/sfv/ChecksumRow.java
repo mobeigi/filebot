@@ -16,7 +16,7 @@ import java.util.Set;
 import net.sourceforge.filebot.FileBotUtilities;
 
 
-public class ChecksumRow {
+class ChecksumRow {
 	
 	private String name;
 	

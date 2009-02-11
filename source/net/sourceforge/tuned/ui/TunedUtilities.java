@@ -8,8 +8,10 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -21,9 +23,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-
+import javax.swing.event.MouseInputListener;
+import javax.swing.plaf.basic.BasicTableUI;
 import net.sourceforge.tuned.ExceptionUtilities;
 
 
@@ -144,6 +148,33 @@ public final class TunedUtilities {
 			}
 		}
 		
+	}
+	
+
+	/**
+	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead
+	 * of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
+	 */
+	public static class DragDropRowTableUI extends BasicTableUI {
+		
+		@Override
+		protected MouseInputListener createMouseInputListener() {
+			return new DragDropRowMouseInputHandler();
+		}
+		
+		
+		protected class DragDropRowMouseInputHandler extends MouseInputHandler {
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// Only do special handling if we are drag enabled with multiple selection
+				if (table.getDragEnabled() && table.getSelectionModel().getSelectionMode() == ListSelectionModel.MULTIPLE_INTERVAL_SELECTION) {
+					table.getTransferHandler().exportAsDrag(table, e, DnDConstants.ACTION_COPY);
+				} else {
+					super.mouseDragged(e);
+				}
+			}
+		}
 	}
 	
 	

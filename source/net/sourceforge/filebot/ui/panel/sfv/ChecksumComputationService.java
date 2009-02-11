@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.sourceforge.tuned.DefaultThreadFactory;
 
 
-public class ChecksumComputationService {
+class ChecksumComputationService {
 	
 	public static final String TASK_COUNT_PROPERTY = "taskCount";
 	

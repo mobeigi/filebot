@@ -12,7 +12,7 @@ import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
 
-public class ChecksumCell {
+class ChecksumCell {
 	
 	private final String name;
 	private final File root;

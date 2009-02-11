@@ -12,7 +12,7 @@ import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.tuned.FileUtilities;
 
 
-public class ChecksumTableExportHandler extends TextFileExportHandler {
+class ChecksumTableExportHandler extends TextFileExportHandler {
 	
 	private final ChecksumTableModel model;
 	

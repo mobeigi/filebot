@@ -34,7 +34,7 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 		}
 	};
 	
-	private final List<File> columns = new ArrayList<File>();
+	private final List<File> columns = new ArrayList<File>(4);
 	
 	
 	@Override
@@ -138,6 +138,9 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 	
 
 	public void remove(int... index) {
+		// sort index array
+		Arrays.sort(index);
+		
 		for (int i : index) {
 			rows.get(i).dispose();
 		}

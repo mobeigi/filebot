@@ -8,28 +8,28 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import net.miginfocom.swing.MigLayout;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-class TotalProgressPanel extends Box {
+class TotalProgressPanel extends JComponent {
 	
 	private int millisToSetVisible = 200;
 	
 	private final JProgressBar progressBar = new JProgressBar(0, 0);
 	
-	private final ChecksumComputationService service;
+	private final ChecksumComputationService computationService;
 	
 	
-	public TotalProgressPanel(ChecksumComputationService checksumComputationService) {
-		super(BoxLayout.Y_AXIS);
+	public TotalProgressPanel(ChecksumComputationService computationService) {
+		this.computationService = computationService;
 		
-		this.service = checksumComputationService;
+		setLayout(new MigLayout());
 		
 		// invisible by default
 		setVisible(false);
@@ -40,9 +40,9 @@ class TotalProgressPanel extends Box {
 		
 		setBorder(BorderFactory.createTitledBorder("Total Progress"));
 		
-		add(progressBar);
+		add(progressBar, "growx");
 		
-		checksumComputationService.addPropertyChangeListener(TASK_COUNT_PROPERTY, progressListener);
+		computationService.addPropertyChangeListener(TASK_COUNT_PROPERTY, progressListener);
 	}
 	
 	private final PropertyChangeListener progressListener = new PropertyChangeListener() {
@@ -51,8 +51,8 @@ class TotalProgressPanel extends Box {
 		
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			final int completedTaskCount = service.getCompletedTaskCount();
-			final int totalTaskCount = service.getTotalTaskCount();
+			final int completedTaskCount = computationService.getCompletedTaskCount();
+			final int totalTaskCount = computationService.getTotalTaskCount();
 			
 			// invoke on EDT
 			SwingUtilities.invokeLater(new Runnable() {
@@ -65,7 +65,7 @@ class TotalProgressPanel extends Box {
 								
 								@Override
 								public void run() {
-									setVisible(service.getTaskCount() > service.getCompletedTaskCount());
+									setVisible(computationService.getTaskCount() > computationService.getCompletedTaskCount());
 								}
 							});
 						}
@@ -82,7 +82,7 @@ class TotalProgressPanel extends Box {
 					progressBar.setValue(completedTaskCount);
 					progressBar.setMaximum(totalTaskCount);
 					
-					progressBar.setString(completedTaskCount + " / " + totalTaskCount);
+					progressBar.setString(String.format("%d / %d", completedTaskCount, totalTaskCount));
 				};
 			});
 		}

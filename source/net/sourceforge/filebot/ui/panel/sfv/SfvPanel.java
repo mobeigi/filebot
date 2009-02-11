@@ -20,6 +20,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.FileUtilities;
@@ -29,29 +30,35 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 public class SfvPanel extends FileBotPanel {
 	
-	private final SfvTable sfvTable = new SfvTable();
+	private final ChecksumComputationService computationService = new ChecksumComputationService();
 	
-	private final TotalProgressPanel totalProgressPanel = new TotalProgressPanel(sfvTable.getChecksumComputationService());
+	private final SfvTable table = new SfvTable();
 	
-	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, sfvTable.getTransferablePolicy());
+	private final SfvTransferablePolicy transferablePolicy = new SfvTransferablePolicy(table.getModel(), computationService);
+	private final ChecksumTableExportHandler exportHandler = new ChecksumTableExportHandler(table.getModel());
+	
+	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, transferablePolicy);
 	
 	
 	public SfvPanel() {
 		super("SFV", ResourceManager.getIcon("panel.sfv"));
 		
+		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
+		table.setDragEnabled(true);
+		
 		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", null, "align bottom"));
-		contentPane.setBorder(new TitledBorder("SFV"));
+		contentPane.setBorder(new TitledBorder(getPanelName()));
 		
-		this.setLayout(new MigLayout("insets dialog, fill"));
-		this.add(contentPane, "grow");
+		setLayout(new MigLayout("insets dialog, fill"));
+		add(contentPane, "grow");
 		
-		contentPane.add(new JScrollPane(sfvTable), "grow, wrap 10px");
+		contentPane.add(new JScrollPane(table), "grow, wrap 10px");
 		
 		contentPane.add(new JButton(loadAction), "gap 15px, gap bottom 4px");
 		contentPane.add(new JButton(saveAction), "gap rel, gap bottom 4px");
 		contentPane.add(new JButton(clearAction), "gap rel, gap bottom 4px");
 		
-		contentPane.add(totalProgressPanel, "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
+		contentPane.add(new TotalProgressPanel(computationService), "gap left indent:push, gap bottom 2px, gap right 7px, hidemode 3");
 		
 		// Shortcut DELETE
 		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
@@ -65,43 +72,47 @@ public class SfvPanel extends FileBotPanel {
 	
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
 	
-	private final LoadAction loadAction = new LoadAction(sfvTable.getTransferablePolicy());
+	private final LoadAction loadAction = new LoadAction(transferablePolicy);
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 		
 		public void actionPerformed(ActionEvent e) {
-			sfvTable.clear();
+			transferablePolicy.reset();
+			computationService.reset();
+			
+			table.getModel().clear();
 		}
 	};
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {
 		
 		public void actionPerformed(ActionEvent e) {
-			if (sfvTable.getSelectedRowCount() < 1)
+			if (table.getSelectedRowCount() < 1)
 				return;
 			
-			int row = sfvTable.getSelectionModel().getMinSelectionIndex();
+			int firstSelectedRow = table.getSelectedRow();
 			
 			// remove selected rows
-			sfvTable.getModel().remove(sfvTable.getSelectedRows());
+			table.getModel().remove(table.getSelectedRows());
 			
-			int maxRow = sfvTable.getRowCount() - 1;
+			// update computation service task count
+			computationService.purge();
 			
-			if (row > maxRow)
-				row = maxRow;
+			// auto select next row
+			firstSelectedRow = Math.min(firstSelectedRow, table.getRowCount() - 1);
 			
-			sfvTable.getSelectionModel().setSelectionInterval(row, row);
+			table.getSelectionModel().setSelectionInterval(firstSelectedRow, firstSelectedRow);
 		}
 	};
 	
 	
-	private class ChecksumTableSaveAction extends SaveAction {
+	protected class ChecksumTableSaveAction extends SaveAction {
 		
 		private File selectedColumn = null;
 		
 		
 		public ChecksumTableSaveAction() {
-			super(sfvTable.getExportHandler());
+			super(exportHandler);
 		}
 		
 
@@ -138,7 +149,7 @@ public class SfvPanel extends FileBotPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			List<File> options = sfvTable.getModel().getChecksumColumns();
+			List<File> options = table.getModel().getChecksumColumns();
 			
 			this.selectedColumn = null;
 			
@@ -166,7 +177,6 @@ public class SfvPanel extends FileBotPanel {
 				super.actionPerformed(e);
 			}
 		}
-		
 	}
 	
 }
