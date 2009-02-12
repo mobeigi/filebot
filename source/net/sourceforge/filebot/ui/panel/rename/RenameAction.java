@@ -36,19 +36,18 @@ class RenameAction extends AbstractAction {
 		Deque<Match<File, File>> todoQueue = new ArrayDeque<Match<File, File>>();
 		Deque<Match<File, File>> doneQueue = new ArrayDeque<Match<File, File>>();
 		
-		for (Match<Object, FileEntry> match : model.matches()) {
-			File source = match.getCandidate().getFile();
-			
+		for (Match<Object, File> match : model.matches()) {
+			File source = match.getCandidate();
 			String extension = FileUtilities.getExtension(source);
 			
-			StringBuilder nameBuilder = new StringBuilder();
-			nameBuilder.append(match.getValue());
+			StringBuilder name = new StringBuilder();
+			name.append(match.getValue());
 			
 			if (extension != null) {
-				nameBuilder.append(".").append(extension);
+				name.append(".").append(extension);
 			}
 			
-			File target = new File(source.getParentFile(), nameBuilder.toString());
+			File target = new File(source.getParentFile(), name.toString());
 			
 			todoQueue.addLast(new Match<File, File>(source, target));
 		}

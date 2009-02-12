@@ -94,20 +94,6 @@ public final class FileUtilities {
 	}
 	
 
-	public static String getType(File file) {
-		if (file.isDirectory())
-			return "Folder";
-		
-		String extension = getExtension(file.getName());
-		
-		if (!extension.isEmpty())
-			return extension;
-		
-		// some file with no extension
-		return "File";
-	}
-	
-
 	public static boolean containsOnly(Iterable<File> files, FileFilter filter) {
 		for (File file : files) {
 			if (!filter.accept(file))

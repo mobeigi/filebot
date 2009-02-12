@@ -80,12 +80,13 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	protected void submit(List<StringEntry> entries) {
-		List<StringEntry> invalidEntries = new ArrayList<StringEntry>();
+	protected void submit(List<MutableString> entries) {
+		List<MutableString> invalidEntries = new ArrayList<MutableString>();
 		
-		for (StringEntry entry : entries) {
-			if (isInvalidFileName(entry.getValue()))
+		for (MutableString entry : entries) {
+			if (isInvalidFileName(entry.toString())) {
 				invalidEntries.add(entry);
+			}
 		}
 		
 		if (!invalidEntries.isEmpty()) {
@@ -103,7 +104,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	protected void load(String string) {
-		List<StringEntry> entries = new ArrayList<StringEntry>();
+		List<MutableString> entries = new ArrayList<MutableString>();
 		
 		Scanner scanner = new Scanner(string).useDelimiter(LINE_SEPARATOR);
 		
@@ -111,7 +112,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			String line = scanner.next();
 			
 			if (line.trim().length() > 0) {
-				entries.add(new StringEntry(line));
+				entries.add(new MutableString(line));
 			}
 		}
 		
@@ -145,7 +146,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	protected void loadListFiles(List<File> files) {
 		try {
-			List<StringEntry> entries = new ArrayList<StringEntry>();
+			List<MutableString> entries = new ArrayList<MutableString>();
 			
 			for (File file : files) {
 				Scanner scanner = new Scanner(file, "UTF-8").useDelimiter(LINE_SEPARATOR);
@@ -154,7 +155,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 					String line = scanner.next();
 					
 					if (line.trim().length() > 0) {
-						entries.add(new StringEntry(line));
+						entries.add(new MutableString(line));
 					}
 				}
 				

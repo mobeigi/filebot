@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.similarity;
 
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -35,8 +36,13 @@ public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
 	}
 	
 
-	protected Collection<SxE> parse(Object o) {
-		return seasonEpisodeMatcher.match(o.toString());
+	protected Collection<SxE> parse(Object object) {
+		if (object instanceof File) {
+			// parse file name
+			object = ((File) object).getName();
+		}
+		
+		return seasonEpisodeMatcher.match(object.toString());
 	}
 	
 

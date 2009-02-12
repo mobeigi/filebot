@@ -12,6 +12,7 @@ import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.FastFile;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -33,6 +34,8 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 
 	@Override
 	protected void clear() {
+		super.clear();
+		
 		tree.clear();
 	}
 	
@@ -59,7 +62,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	protected void load(List<File> files) {
 		try {
 			for (File file : files) {
-				AbstractTreeNode node = getTreeNode(file);
+				AbstractTreeNode node = getTreeNode(new FastFile(file.getPath()));
 				
 				// publish on EDT
 				publish(node);

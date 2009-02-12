@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import java.io.File;
 import java.util.AbstractList;
 import java.util.Collection;
 
@@ -13,7 +14,7 @@ import ca.odell.glazedlists.EventList;
 class RenameModel {
 	
 	private final EventList<Object> names = new BasicEventList<Object>();
-	private final EventList<FileEntry> files = new BasicEventList<FileEntry>();
+	private final EventList<File> files = new BasicEventList<File>();
 	
 	
 	public EventList<Object> names() {
@@ -21,7 +22,7 @@ class RenameModel {
 	}
 	
 
-	public EventList<FileEntry> files() {
+	public EventList<File> files() {
 		return files;
 	}
 	
@@ -37,19 +38,19 @@ class RenameModel {
 	}
 	
 
-	public Match<Object, FileEntry> getMatch(int index) {
+	public Match<Object, File> getMatch(int index) {
 		if (index >= matchCount())
 			throw new IndexOutOfBoundsException();
 		
-		return new Match<Object, FileEntry>(names.get(index), files.get(index));
+		return new Match<Object, File>(names.get(index), files.get(index));
 	}
 	
 
-	public Collection<Match<Object, FileEntry>> matches() {
-		return new AbstractList<Match<Object, FileEntry>>() {
+	public Collection<Match<Object, File>> matches() {
+		return new AbstractList<Match<Object, File>>() {
 			
 			@Override
-			public Match<Object, FileEntry> get(int index) {
+			public Match<Object, File> get(int index) {
 				return getMatch(index);
 			}
 			

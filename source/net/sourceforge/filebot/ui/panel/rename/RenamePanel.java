@@ -44,7 +44,7 @@ public class RenamePanel extends FileBotPanel {
 	
 	private RenameList<Object> namesList = new RenameList<Object>(model.names());
 	
-	private RenameList<FileEntry> filesList = new RenameList<FileEntry>(model.files());
+	private RenameList<File> filesList = new RenameList<File>(model.files());
 	
 	private MatchAction matchAction = new MatchAction(model);
 	
@@ -111,7 +111,7 @@ public class RenamePanel extends FileBotPanel {
 		
 		// repaint on change
 		model.names().addListEventListener(new RepaintHandler<Object>());
-		model.files().addListEventListener(new RepaintHandler<FileEntry>());
+		model.files().addListEventListener(new RepaintHandler<File>());
 	}
 	
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
@@ -164,14 +164,7 @@ public class RenamePanel extends FileBotPanel {
 			// clear names list
 			model.names().clear();
 			
-			// gather File objects from model
-			List<File> files = new ArrayList<File>();
-			
-			for (FileEntry entry : model.files()) {
-				files.add(entry.getFile());
-			}
-			
-			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(client, files, matchAction.getMetrics()) {
+			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(client, model.files(), matchAction.getMetrics()) {
 				
 				@Override
 				protected void done() {
@@ -179,20 +172,20 @@ public class RenamePanel extends FileBotPanel {
 					setAutoMatchInProgress(false);
 					
 					try {
-						List<StringEntry> names = new ArrayList<StringEntry>();
-						List<FileEntry> files = new ArrayList<FileEntry>();
+						List<MutableString> names = new ArrayList<MutableString>();
+						List<File> files = new ArrayList<File>();
 						
-						List<StringEntry> invalidNames = new ArrayList<StringEntry>();
+						List<MutableString> invalidNames = new ArrayList<MutableString>();
 						
 						for (Match<File, Episode> match : get()) {
-							StringEntry name = new StringEntry(match.getCandidate());
+							MutableString name = new MutableString(match.getCandidate());
 							
 							if (isInvalidFileName(name.toString())) {
 								invalidNames.add(name);
 							}
 							
 							names.add(name);
-							files.add(new FileEntry(match.getValue()));
+							files.add(match.getValue());
 						}
 						
 						if (!invalidNames.isEmpty()) {
@@ -205,15 +198,13 @@ public class RenamePanel extends FileBotPanel {
 							}
 						}
 						
-						// add remaining file entries
-						for (File file : remainingFiles()) {
-							files.add(new FileEntry(file));
-						}
-						
 						model.clear();
 						
 						model.names().addAll(names);
 						model.files().addAll(files);
+						
+						// add remaining file entries
+						model.files().addAll(remainingFiles());
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					}

@@ -41,13 +41,22 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	}
 	
 
+	@Override
+	protected void clear() {
+		// stop other workers on clear (before starting new worker)
+		reset();
+	}
+	
+
 	public void reset() {
 		synchronized (workers) {
-			for (BackgroundWorker worker : workers) {
-				worker.cancel(true);
+			if (workers.size() > 0) {
+				// avoid ConcurrentModificationException by iterating over a copy
+				for (BackgroundWorker worker : new ArrayList<BackgroundWorker>(workers)) {
+					// worker.cancel() will invoke worker.done() which will invoke workers.remove(worker)
+					worker.cancel(true);
+				}
 			}
-			
-			workers.clear();
 		}
 	}
 	
@@ -70,6 +79,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 		public BackgroundWorker(List<File> files) {
 			this.files = files;
+			
 			// register this worker
 			synchronized (workers) {
 				if (workers.add(this) && workers.size() == 1) {

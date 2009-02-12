@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
@@ -59,12 +61,12 @@ class MatchAction extends AbstractAction {
 		metrics[0] = new LengthEqualsMetric() {
 			
 			@Override
-			protected long getLength(Object o) {
-				if (o instanceof AbstractFileEntry) {
-					return ((AbstractFileEntry) o).getLength();
+			protected long getLength(Object object) {
+				if (object instanceof AbstractFileEntry) {
+					return ((AbstractFileEntry) object).getLength();
 				}
 				
-				return super.getLength(o);
+				return super.getLength(object);
 			}
 		};
 		
@@ -90,7 +92,18 @@ class MatchAction extends AbstractAction {
 		};
 		
 		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
-		metrics[2] = new NameSimilarityMetric();
+		metrics[2] = new NameSimilarityMetric() {
+			
+			@Override
+			protected String normalize(Object object) {
+				if (object instanceof File) {
+					// compare to filename without extension
+					object = FileUtilities.getName((File) object);
+				}
+				
+				return super.normalize(object);
+			}
+		};
 		
 		return Arrays.asList(metrics);
 	}
@@ -151,19 +164,19 @@ class MatchAction extends AbstractAction {
 	}
 	
 	
-	protected class BackgroundMatcher extends SwingWorker<List<Match<Object, FileEntry>>, Void> implements Cancellable {
+	protected class BackgroundMatcher extends SwingWorker<List<Match<Object, File>>, Void> implements Cancellable {
 		
-		private final Matcher<Object, FileEntry> matcher;
+		private final Matcher<Object, File> matcher;
 		
 		
 		public BackgroundMatcher(RenameModel model, Collection<SimilarityMetric> metrics) {
 			// match names against files
-			this.matcher = new Matcher<Object, FileEntry>(model.names(), model.files(), metrics);
+			this.matcher = new Matcher<Object, File>(model.names(), model.files(), metrics);
 		}
 		
 
 		@Override
-		protected List<Match<Object, FileEntry>> doInBackground() throws Exception {
+		protected List<Match<Object, File>> doInBackground() throws Exception {
 			return matcher.match();
 		}
 		
@@ -174,12 +187,12 @@ class MatchAction extends AbstractAction {
 				return;
 			
 			try {
-				List<Match<Object, FileEntry>> matches = get();
+				List<Match<Object, File>> matches = get();
 				
 				model.clear();
 				
 				// put new data into model
-				for (Match<Object, FileEntry> match : matches) {
+				for (Match<Object, File> match : matches) {
 					model.names().add(match.getValue());
 					model.files().add(match.getCandidate());
 				}

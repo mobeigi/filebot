@@ -178,7 +178,7 @@ public class Torrent {
 	public static class Entry {
 		
 		private final String name;
-		private final Long length;
+		private final long length;
 		private final String path;
 		
 		
@@ -194,7 +194,7 @@ public class Torrent {
 		}
 		
 
-		public Long getLength() {
+		public long getLength() {
 			return length;
 		}
 		

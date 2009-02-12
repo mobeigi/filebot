@@ -10,14 +10,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
+import net.sourceforge.tuned.FastFile;
 
 
 class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
-	private final List<? super FileEntry> model;
+	private final List<File> model;
 	
 	
-	public FilesListTransferablePolicy(List<? super FileEntry> model) {
+	public FilesListTransferablePolicy(List<File> model) {
 		this.model = model;
 	}
 	
@@ -48,7 +49,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 
 	protected void loadFiles(List<File> files) {
 		for (File file : files) {
-			model.add(new FileEntry(file));
+			model.add(new FastFile(file.getPath()));
 		}
 	}
 	

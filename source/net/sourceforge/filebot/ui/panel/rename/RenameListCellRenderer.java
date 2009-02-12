@@ -10,6 +10,7 @@ import java.awt.Insets;
 import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -18,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 
@@ -47,16 +49,18 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
 		// show extension label only for items of the files model
-		if (value instanceof FileEntry) {
-			FileEntry entry = (FileEntry) value;
+		if (value instanceof File) {
+			File file = (File) value;
 			
-			extension.setText(entry.getType());
+			this.setText(FileUtilities.getName(file));
+			
+			extension.setText(getType(file));
+			extension.setAlpha(1.0f);
+			
 			extension.setVisible(true);
 		} else {
 			extension.setVisible(false);
 		}
-		
-		extension.setAlpha(1.0f);
 		
 		if (index >= model.matchCount()) {
 			if (isSelected) {
@@ -66,6 +70,20 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 				extension.setAlpha(0.5f);
 			}
 		}
+	}
+	
+
+	protected String getType(File file) {
+		if (file.isDirectory())
+			return "Folder";
+		
+		String extension = FileUtilities.getExtension(file);
+		
+		if (!extension.isEmpty())
+			return extension;
+		
+		// some file with no extension
+		return "File";
 	}
 	
 	
