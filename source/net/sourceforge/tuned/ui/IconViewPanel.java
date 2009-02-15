@@ -62,6 +62,11 @@ public class IconViewPanel extends JPanel {
 	}
 	
 
+	public JList getList() {
+		return list;
+	}
+	
+
 	public JPanel getHeaderPanel() {
 		return headerPanel;
 	}

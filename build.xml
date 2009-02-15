@@ -29,7 +29,7 @@
 				<attribute name="Built-Date" value="${today}" />
 				<attribute name="Implementation-Title" value="${title}" />
 				<attribute name="Implementation-Version" value="${version}" />
-				<attribute name="Class-Path" value="args4j.jar miglayout.jar glazedlists.jar nekohtml.jar xercesImpl.jar simmetrics.jar xmlrpc-client.jar" />
+				<attribute name="Class-Path" value="args4j.jar miglayout.jar glazedlists.jar nekohtml.jar xercesImpl.jar ehcache.jar simmetrics.jar xmlrpc-client.jar" />
 				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
 			</manifest>
 		</jar>
@@ -53,13 +53,8 @@
 
 			<!-- include libs -->
 			<zipfileset src="${dir.lib}/xercesImpl.jar">
-				<include name="org/apache/html/dom/**" />
-				<include name="org/apache/xerces/dom/**" />
-				<include name="org/apache/xerces/impl/**" />
-				<include name="org/apache/xerces/parsers/**" />
-				<include name="org/apache/xerces/util/**" />
-				<include name="org/apache/xerces/xni/**" />
-				<include name="org/apache/xerces/xs/**" />
+				<include name="**/*.class" />
+				<include name="**/*.properties" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/nekohtml.jar">
@@ -68,14 +63,11 @@
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/simmetrics.jar">
-				<include name="uk/ac/shef/wit/simmetrics/math/**" />
-				<include name="uk/ac/shef/wit/simmetrics/similaritymetrics/**" />
-				<include name="uk/ac/shef/wit/simmetrics/tokenisers/**" />
-				<include name="uk/ac/shef/wit/simmetrics/wordhandlers/**" />
+				<include name="**/*.class" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/glazedlists.jar">
-				<include name="ca/odell/glazedlists/**" />
+				<include name="**/*.class" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/miglayout.jar">
@@ -94,7 +86,7 @@
 			</zipfileset>
 			
 			<zipfileset src="${dir.lib}/ehcache.jar">
-				<include name="net/sf/ehcache/**" />
+				<include name="**/*.class" />
 			</zipfileset>			
 		</jar>
 	</target>
@@ -153,6 +145,10 @@
 
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
+	</target>
+	
+	<target name="run-fatjar" depends="fatjar">
+		<java jar="${dir.dist}/fatjar/FileBot.jar" fork="true" />
 	</target>
 	
 </project>

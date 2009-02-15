@@ -2,12 +2,9 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
-import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
-
 import java.io.File;
 import java.util.ConcurrentModificationException;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,13 +15,11 @@ import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 abstract class Tool<M> extends JComponent {
 	
 	private UpdateModelTask updateTask = null;
-	private Semaphore updateSemaphore = new Semaphore(1);
 	
 	
 	public Tool(String name) {
@@ -32,16 +27,12 @@ abstract class Tool<M> extends JComponent {
 	}
 	
 
-	public synchronized void setSourceModel(FolderNode sourceModel) {
+	public void setSourceModel(FolderNode sourceModel) {
 		if (updateTask != null) {
 			updateTask.cancel(true);
 		}
 		
 		updateTask = new UpdateModelTask(sourceModel);
-		
-		// sync events for loading overlay
-		TunedUtilities.syncPropertyChangeEvents(boolean.class, LOADING_PROPERTY, updateTask, this);
-		
 		updateTask.execute();
 	}
 	
@@ -64,29 +55,14 @@ abstract class Tool<M> extends JComponent {
 
 		@Override
 		protected M doInBackground() throws Exception {
-			// acquire semaphore
-			updateSemaphore.acquireUninterruptibly();
-			
-			try {
-				M model = null;
-				
-				if (!isCancelled()) {
-					firePropertyChange(LOADING_PROPERTY, false, true);
-					model = createModelInBackground(sourceModel);
-					firePropertyChange(LOADING_PROPERTY, true, false);
-				}
-				
-				return model;
-			} finally {
-				updateSemaphore.release();
-			}
+			return createModelInBackground(sourceModel);
 		}
 		
 
 		@Override
 		protected void done() {
 			// update task will only be cancelled if a newer update task has been started
-			if (!isCancelled()) {
+			if (this == updateTask && !isCancelled()) {
 				try {
 					setModel(get());
 				} catch (Exception e) {

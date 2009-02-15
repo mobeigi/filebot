@@ -7,8 +7,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -23,7 +24,6 @@ import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 
 
@@ -38,17 +38,14 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		super("Split");
 		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
-		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
+		treeScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
 		
 		JSpinner spinner = new JSpinner(spinnerModel);
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
 		
-		LoadingOverlayPane loadingOverlayPane = new LoadingOverlayPane(treeScrollPane, this);
-		loadingOverlayPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
-		
 		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
 		
-		add(loadingOverlayPane, "grow, wrap");
+		add(treeScrollPane, "grow, wrap");
 		
 		add(new JLabel("Split every"));
 		add(spinner, "wmax 80, gap top rel, gap bottom unrel");
@@ -68,9 +65,16 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 	private FolderNode sourceModel = null;
 	
 	
-	public void stateChanged(ChangeEvent e) {
-		if (sourceModel != null)
-			setSourceModel(sourceModel);
+	public void stateChanged(ChangeEvent evt) {
+		if (sourceModel != null) {
+			try {
+				// update model in foreground, will be much faster than the initial load because length() is cached now
+				setModel(createModelInBackground(sourceModel));
+			} catch (InterruptedException e) {
+				// will not happen
+				Logger.getLogger("global").log(Level.SEVERE, e.getMessage(), e);
+			}
+		}
 	}
 	
 

@@ -20,7 +20,6 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
 public class TypeTool extends Tool<TreeModel> {
@@ -35,7 +34,8 @@ public class TypeTool extends Tool<TreeModel> {
 		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		add(new LoadingOverlayPane(treeScrollPane, this), "grow");
+		
+		add(treeScrollPane, "grow");
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
