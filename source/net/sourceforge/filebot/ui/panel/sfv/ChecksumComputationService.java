@@ -7,9 +7,10 @@ import static java.lang.Math.max;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +23,7 @@ class ChecksumComputationService {
 	
 	public static final String TASK_COUNT_PROPERTY = "taskCount";
 	
-	private final List<ThreadPoolExecutor> executors = new ArrayList<ThreadPoolExecutor>();
+	private final Set<ThreadPoolExecutor> executors = new HashSet<ThreadPoolExecutor>(4);
 	
 	private final AtomicInteger completedTaskCount = new AtomicInteger(0);
 	private final AtomicInteger totalTaskCount = new AtomicInteger(0);
@@ -36,7 +37,12 @@ class ChecksumComputationService {
 	public void reset() {
 		synchronized (executors) {
 			for (ExecutorService executor : executors) {
-				executor.shutdownNow();
+				for (Runnable runnable : executor.shutdownNow()) {
+					// cancel all remaining tasks
+					if (runnable instanceof Future) {
+						((Future<?>) runnable).cancel(false);
+					}
+				}
 			}
 			
 			totalTaskCount.set(0);
@@ -50,7 +56,7 @@ class ChecksumComputationService {
 	
 
 	public int getTaskCount() {
-		return getTotalTaskCount() - getCompletedTaskCount();
+		return totalTaskCount.get() - completedTaskCount.get();
 	}
 	
 
@@ -79,7 +85,10 @@ class ChecksumComputationService {
 			super(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
 			
 			synchronized (executors) {
-				executors.add(this);
+				if (executors.add(this) && executors.size() == 1) {
+					totalTaskCount.set(0);
+					completedTaskCount.set(0);
+				}
 			}
 			
 			prestartAllCoreThreads();
@@ -133,8 +142,22 @@ class ChecksumComputationService {
 		protected void afterExecute(Runnable r, Throwable t) {
 			super.afterExecute(r, t);
 			
-			completedTaskCount.incrementAndGet();
-			fireTaskCountChanged();
+			if (isValid()) {
+				if (r instanceof Future && ((Future<?>) r).isCancelled()) {
+					totalTaskCount.decrementAndGet();
+				} else {
+					completedTaskCount.incrementAndGet();
+				}
+				
+				fireTaskCountChanged();
+			}
+		}
+		
+
+		protected boolean isValid() {
+			synchronized (executors) {
+				return executors.contains(this);
+			}
 		}
 		
 

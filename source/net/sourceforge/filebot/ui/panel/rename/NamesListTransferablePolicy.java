@@ -13,6 +13,7 @@ import static net.sourceforge.tuned.FileUtilities.getNameWithoutExtension;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	public boolean accept(Transferable tr) {
+	public boolean accept(Transferable tr) throws Exception {
 		return tr.isDataFlavorSupported(stringFlavor) || super.accept(tr);
 	}
 	
@@ -57,7 +58,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	public void handleTransferable(Transferable tr, TransferAction action) {
+	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		if (action == TransferAction.PUT) {
 			clear();
 		}
@@ -121,7 +122,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected void load(List<File> files) {
+	protected void load(List<File> files) throws FileNotFoundException {
 		if (containsOnly(files, LIST_FILES)) {
 			loadListFiles(files);
 		} else if (containsOnly(files, TORRENT_FILES)) {
@@ -144,28 +145,24 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	protected void loadListFiles(List<File> files) {
-		try {
-			List<MutableString> entries = new ArrayList<MutableString>();
+	protected void loadListFiles(List<File> files) throws FileNotFoundException {
+		List<MutableString> entries = new ArrayList<MutableString>();
+		
+		for (File file : files) {
+			Scanner scanner = new Scanner(file, "UTF-8").useDelimiter(LINE_SEPARATOR);
 			
-			for (File file : files) {
-				Scanner scanner = new Scanner(file, "UTF-8").useDelimiter(LINE_SEPARATOR);
+			while (scanner.hasNext()) {
+				String line = scanner.next();
 				
-				while (scanner.hasNext()) {
-					String line = scanner.next();
-					
-					if (line.trim().length() > 0) {
-						entries.add(new MutableString(line));
-					}
+				if (line.trim().length() > 0) {
+					entries.add(new MutableString(line));
 				}
-				
-				scanner.close();
 			}
 			
-			submit(entries);
-		} catch (IOException e) {
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			scanner.close();
 		}
+		
+		submit(entries);
 	}
 	
 

@@ -62,6 +62,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	protected void load(List<File> files) {
 		try {
 			for (File file : files) {
+				// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
 				AbstractTreeNode node = getTreeNode(new FastFile(file.getPath()));
 				
 				// publish on EDT

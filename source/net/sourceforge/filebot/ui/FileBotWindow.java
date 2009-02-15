@@ -26,7 +26,7 @@ import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanel;
 import net.sourceforge.filebot.ui.panel.episodelist.EpisodeListPanel;
 import net.sourceforge.filebot.ui.panel.list.ListPanel;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanel;
-import net.sourceforge.filebot.ui.panel.sfv.SfvPanel;
+import net.sourceforge.filebot.ui.panel.sfv.ChecksumPanel;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanel;
 import net.sourceforge.tuned.MessageBus;
 import net.sourceforge.tuned.MessageHandler;
@@ -85,7 +85,7 @@ public class FileBotWindow extends JFrame implements ListSelectionListener {
 		panels.add(new AnalyzePanel());
 		panels.add(new EpisodeListPanel());
 		panels.add(new SubtitlePanel());
-		panels.add(new SfvPanel());
+		panels.add(new ChecksumPanel());
 		
 		return panels;
 	}

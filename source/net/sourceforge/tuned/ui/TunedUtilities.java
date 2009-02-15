@@ -93,7 +93,6 @@ public final class TunedUtilities {
 			public void actionPerformed(ActionEvent e) {
 				runnable.run();
 			}
-			
 		});
 		
 		timer.setRepeats(false);

@@ -11,7 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, ArgumentBeanTest.class })
+@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, MiscSuite.class })
 public class FileBotTestSuite {
 	
 }

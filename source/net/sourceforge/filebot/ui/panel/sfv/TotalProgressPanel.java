@@ -4,41 +4,36 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 import static net.sourceforge.filebot.ui.panel.sfv.ChecksumComputationService.TASK_COUNT_PROPERTY;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 class TotalProgressPanel extends JComponent {
 	
-	private int millisToSetVisible = 200;
-	
 	private final JProgressBar progressBar = new JProgressBar(0, 0);
 	
-	private final ChecksumComputationService computationService;
+	private final int millisToSetVisible = 200;
 	
 	
 	public TotalProgressPanel(ChecksumComputationService computationService) {
-		this.computationService = computationService;
+		setLayout(new MigLayout("insets 1px"));
 		
-		setLayout(new MigLayout());
+		setBorder(new TitledBorder("Total Progress"));
 		
 		// invisible by default
 		setVisible(false);
 		
 		progressBar.setStringPainted(true);
-		progressBar.setBorderPainted(false);
-		progressBar.setString("");
-		
-		setBorder(BorderFactory.createTitledBorder("Total Progress"));
 		
 		add(progressBar, "growx");
 		
@@ -47,45 +42,82 @@ class TotalProgressPanel extends JComponent {
 	
 	private final PropertyChangeListener progressListener = new PropertyChangeListener() {
 		
-		private Timer setVisibleTimer;
+		private static final String SHOW = "show";
+		private static final String HIDE = "hide";
+		
+		private final DelayedToggle delayed = new DelayedToggle();
 		
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			final int completedTaskCount = computationService.getCompletedTaskCount();
-			final int totalTaskCount = computationService.getTotalTaskCount();
+			final int completedTaskCount = getComputationService(evt).getCompletedTaskCount();
+			final int totalTaskCount = getComputationService(evt).getTotalTaskCount();
 			
 			// invoke on EDT
 			SwingUtilities.invokeLater(new Runnable() {
 				
 				@Override
 				public void run() {
-					if (completedTaskCount < totalTaskCount) {
-						if (setVisibleTimer == null) {
-							setVisibleTimer = TunedUtilities.invokeLater(millisToSetVisible, new Runnable() {
-								
-								@Override
-								public void run() {
-									setVisible(computationService.getTaskCount() > computationService.getCompletedTaskCount());
-								}
-							});
-						}
-					} else {
-						if (setVisibleTimer != null) {
-							setVisibleTimer.stop();
-							setVisibleTimer = null;
-						}
-						
-						// hide when not active
-						setVisible(false);
+					
+					if (completedTaskCount == totalTaskCount) {
+						// delayed hide on reset, immediate hide on finish
+						delayed.toggle(HIDE, totalTaskCount == 0 ? millisToSetVisible : 0, visibilityActionHandler);
+					} else if (totalTaskCount != 0) {
+						delayed.toggle(SHOW, millisToSetVisible, visibilityActionHandler);
 					}
 					
-					progressBar.setValue(completedTaskCount);
-					progressBar.setMaximum(totalTaskCount);
-					
-					progressBar.setString(String.format("%d / %d", completedTaskCount, totalTaskCount));
+					if (totalTaskCount != 0) {
+						progressBar.setValue(completedTaskCount);
+						progressBar.setMaximum(totalTaskCount);
+						
+						progressBar.setString(String.format("%d / %d", completedTaskCount, totalTaskCount));
+					}
 				};
 			});
 		}
+		
+
+		private ChecksumComputationService getComputationService(PropertyChangeEvent evt) {
+			return ((ChecksumComputationService) evt.getSource());
+		}
+		
+		private final ActionListener visibilityActionHandler = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				setVisible(e.getActionCommand() == SHOW);
+			}
+		};
+		
 	};
+	
+	
+	protected static class DelayedToggle {
+		
+		private Timer timer = null;
+		
+		
+		public void toggle(String action, int delay, final ActionListener actionHandler) {
+			if (timer != null) {
+				if (action.equals(timer.getActionCommand())) {
+					// action has not changed, don't stop existing timer
+					return;
+				}
+				
+				timer.stop();
+			}
+			
+			timer = new Timer(delay, new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					actionHandler.actionPerformed(e);
+				}
+			});
+			
+			timer.setActionCommand(action);
+			timer.setRepeats(false);
+			timer.start();
+		}
+		
+	}
 	
 }

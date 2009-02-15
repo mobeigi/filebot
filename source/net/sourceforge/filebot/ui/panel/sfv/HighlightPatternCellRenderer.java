@@ -39,7 +39,7 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		StringBuffer htmlText = new StringBuffer("<html><nobr>");
 		
 		while (matcher.find()) {
-			matcher.appendReplacement(htmlText, "<span style='font-size: " + cssFontSize + ";" + (!isSelected ? "color: " + cssColor + ";" : "") + "'>$0</span>");
+			matcher.appendReplacement(htmlText, createReplacement(isSelected));
 		}
 		
 		matcher.appendTail(htmlText);
@@ -50,4 +50,21 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		
 		return this;
 	}
+	
+
+	protected String createReplacement(boolean isSelected) {
+		// build replacement string like
+		// e.g. <span style='font-size: smaller; color: #009900;'>$0</span>
+		StringBuilder replacement = new StringBuilder(60);
+		
+		replacement.append("<span style='");
+		replacement.append("font-size:").append(cssFontSize).append(';');
+		
+		if (!isSelected) {
+			replacement.append("color:").append(cssColor).append(';');
+		}
+		
+		return replacement.append("'>$0</span>").toString();
+	}
+	
 }

@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.transfer;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,7 +26,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	
 	
 	@Override
-	public boolean accept(Transferable tr) {
+	public boolean accept(Transferable tr) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
 		
 		if (files.isEmpty())
@@ -38,48 +37,40 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	
 
 	@SuppressWarnings("unchecked")
-	protected List<File> getFilesFromTransferable(Transferable tr) {
-		try {
-			if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-				// file list flavor
-				return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
-			} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
-				// file URI list flavor
-				String transferData = (String) tr.getTransferData(FileTransferable.uriListFlavor);
+	protected List<File> getFilesFromTransferable(Transferable tr) throws Exception {
+		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+			// file list flavor
+			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+		} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
+			// file URI list flavor
+			String transferData = (String) tr.getTransferData(FileTransferable.uriListFlavor);
+			
+			Scanner scanner = new Scanner(transferData).useDelimiter(LINE_SEPARATOR);
+			
+			List<File> files = new ArrayList<File>();
+			
+			while (scanner.hasNext()) {
+				String uri = scanner.next();
 				
-				Scanner scanner = new Scanner(transferData).useDelimiter(LINE_SEPARATOR);
-				
-				ArrayList<File> files = new ArrayList<File>();
-				
-				while (scanner.hasNext()) {
-					String uri = scanner.next();
-					
-					if (uri.startsWith("#")) {
-						// the line is a comment (as per RFC 2483)
-						continue;
-					}
-					
-					try {
-						File file = new File(new URI(uri));
-						
-						if (!file.exists())
-							throw new FileNotFoundException(file.toString());
-						
-						files.add(file);
-					} catch (Exception e) {
-						// URISyntaxException, IllegalArgumentException, FileNotFoundException
-						Logger.getLogger("global").log(Level.WARNING, "Invalid file uri: " + uri);
-					}
+				if (uri.startsWith("#")) {
+					// the line is a comment (as per RFC 2483)
+					continue;
 				}
 				
-				return files;
+				try {
+					File file = new File(new URI(uri));
+					
+					if (!file.exists())
+						throw new FileNotFoundException(file.toString());
+					
+					files.add(file);
+				} catch (Exception e) {
+					// URISyntaxException, IllegalArgumentException, FileNotFoundException
+					Logger.getLogger("global").log(Level.WARNING, "Invalid file uri: " + uri);
+				}
 			}
-		} catch (UnsupportedFlavorException e) {
-			// should not happen
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			// should not happen
-			throw new RuntimeException(e);
+			
+			return files;
 		}
 		
 		return Collections.emptyList();
@@ -87,7 +78,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	
 
 	@Override
-	public void handleTransferable(Transferable tr, TransferAction action) {
+	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
 		
 		if (action == TransferAction.PUT) {
@@ -101,7 +92,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	protected abstract boolean accept(List<File> files);
 	
 
-	protected abstract void load(List<File> files);
+	protected abstract void load(List<File> files) throws IOException;
 	
 
 	protected abstract void clear();

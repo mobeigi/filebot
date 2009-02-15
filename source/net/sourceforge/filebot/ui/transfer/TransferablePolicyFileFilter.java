@@ -7,7 +7,6 @@ import java.io.File;
 import javax.swing.filechooser.FileFilter;
 
 
-
 public class TransferablePolicyFileFilter extends FileFilter {
 	
 	private final TransferablePolicy transferablePolicy;
@@ -23,7 +22,11 @@ public class TransferablePolicyFileFilter extends FileFilter {
 		if (f.isDirectory())
 			return true;
 		
-		return transferablePolicy.accept(new FileTransferable(f));
+		try {
+			return transferablePolicy.accept(new FileTransferable(f));
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 

@@ -36,8 +36,11 @@ public class DefaultThreadFactory implements ThreadFactory {
 	public Thread newThread(Runnable r) {
 		Thread thread = new Thread(group, r, String.format("%s-thread-%d", group.getName(), threadNumber.incrementAndGet()));
 		
-		thread.setDaemon(daemon);
-		thread.setPriority(priority);
+		if (daemon != thread.isDaemon())
+			thread.setDaemon(daemon);
+		
+		if (priority != thread.getPriority())
+			thread.setPriority(priority);
 		
 		return thread;
 	}

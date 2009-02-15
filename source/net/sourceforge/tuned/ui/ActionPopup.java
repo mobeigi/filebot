@@ -67,6 +67,11 @@ public class ActionPopup extends JPopupMenu {
 	}
 	
 
+	public void clear() {
+		actionPanel.removeAll();
+	}
+	
+
 	@Override
 	public void setLabel(String label) {
 		headerLabel.setText(label);

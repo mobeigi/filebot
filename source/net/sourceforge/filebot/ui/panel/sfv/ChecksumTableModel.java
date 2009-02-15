@@ -2,29 +2,25 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static javax.swing.event.TableModelEvent.UPDATE;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-
 import net.sourceforge.tuned.FileUtilities;
 
 
-class ChecksumTableModel extends AbstractTableModel implements Iterable<ChecksumRow> {
+class ChecksumTableModel extends AbstractTableModel {
 	
 	private final IndexedMap<String, ChecksumRow> rows = new IndexedMap<String, ChecksumRow>() {
 		
@@ -34,7 +30,10 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 		}
 	};
 	
-	private final List<File> columns = new ArrayList<File>(4);
+	private final List<File> checksumColumns = new ArrayList<File>(4);
+	
+	public static final String HASH_TYPE_PROPERTY = "hashType";
+	private HashType hashType = HashType.SFV;
 	
 	
 	@Override
@@ -64,25 +63,71 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 	}
 	
 
-	public File getColumnRoot(int columnIndex) {
-		return columns.get(columnIndex - 2);
+	protected int getColumnIndex(ChecksumCell cell) {
+		int index = checksumColumns.indexOf(cell.getRoot());
+		
+		if (index < 0)
+			return -1;
+		
+		// add checksum column offset
+		return index + 2;
+	}
+	
+
+	protected File getColumnRoot(int columnIndex) {
+		// substract checksum column offset
+		return checksumColumns.get(columnIndex - 2);
+	}
+	
+
+	public List<File> checksumColumns() {
+		return Collections.unmodifiableList(checksumColumns);
 	}
 	
 
 	@Override
 	public int getColumnCount() {
-		return columns.size() + 2;
+		// add checksum column offset
+		return checksumColumns.size() + 2;
 	}
 	
 
-	public List<File> getChecksumColumns() {
-		return Collections.unmodifiableList(columns);
+	protected int getRowIndex(ChecksumRow row) {
+		return rows.getIndexByKey(row.getName());
+	}
+	
+
+	protected int getRowIndex(ChecksumCell cell) {
+		return rows.getIndexByKey(cell.getName());
+	}
+	
+
+	public List<ChecksumRow> rows() {
+		return Collections.unmodifiableList(rows);
 	}
 	
 
 	@Override
 	public int getRowCount() {
 		return rows.size();
+	}
+	
+
+	public void setHashType(HashType hashType) {
+		HashType old = this.hashType;
+		
+		this.hashType = hashType;
+		
+		// update table
+		fireTableDataChanged();
+		
+		// notify listeners
+		pcs.firePropertyChange(HASH_TYPE_PROPERTY, old, hashType);
+	}
+	
+
+	public HashType getHashType() {
+		return hashType;
 	}
 	
 
@@ -95,44 +140,81 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 				return row.getState();
 			case 1:
 				return row.getName();
-			default:
-				return row.getChecksum(getColumnRoot(columnIndex));
+		}
+		
+		ChecksumCell cell = row.getChecksum(getColumnRoot(columnIndex));
+		
+		// empty cell
+		if (cell == null)
+			return null;
+		
+		switch (cell.getState()) {
+			case READY:
+				return cell.getChecksum(hashType);
+			case ERROR:
+				return cell.getError();
+			default: // PENDING or PROGRESS
+				return cell.getTask();
 		}
 	}
 	
 
-	@Override
-	public Iterator<ChecksumRow> iterator() {
-		return rows.iterator();
-	}
-	
-
-	public void addAll(List<ChecksumCell> list) {
-		int firstRow = getRowCount();
+	public void addAll(Collection<ChecksumCell> values) {
+		List<ChecksumCell> replacements = new ArrayList<ChecksumCell>();
 		
-		for (ChecksumCell entry : list) {
-			ChecksumRow row = rows.getByKey(entry.getName());
+		int rowCount = getRowCount();
+		int columnCount = getColumnCount();
+		
+		for (ChecksumCell cell : values) {
+			int rowIndex = getRowIndex(cell);
 			
-			if (row == null) {
-				row = new ChecksumRow(entry.getName());
+			ChecksumRow row;
+			
+			if (rowIndex >= 0) {
+				// get existing row
+				row = rows.get(rowIndex);
+			} else {
+				// add new row
+				row = new ChecksumRow(cell.getName());
+				row.addPropertyChangeListener(stateListener);
 				rows.add(row);
 			}
 			
-			row.put(entry);
+			// add cell to row
+			ChecksumCell old = row.put(cell);
+			
+			// dispose of old cell
+			if (old != null) {
+				old.dispose();
+				replacements.add(cell);
+			}
 			
 			// listen to changes (progress, state)
-			entry.addPropertyChangeListener(progressListener);
+			cell.addPropertyChangeListener(progressListener);
 			
-			if (!columns.contains(entry.getRoot())) {
-				columns.add(entry.getRoot());
-				fireTableStructureChanged();
+			if (!checksumColumns.contains(cell.getRoot())) {
+				checksumColumns.add(cell.getRoot());
 			}
 		}
 		
-		int lastRow = getRowCount() - 1;
+		// fire table events
+		if (columnCount != getColumnCount()) {
+			// number of columns has changed
+			fireTableStructureChanged();
+			return;
+		}
 		
-		if (lastRow >= firstRow) {
-			fireTableRowsInserted(firstRow, lastRow);
+		for (ChecksumCell replacement : replacements) {
+			int row = getRowIndex(replacement);
+			
+			// update this cell
+			fireTableCellUpdated(row, 0);
+			fireTableCellUpdated(row, getColumnIndex(replacement));
+		}
+		
+		if (rowCount != getRowCount()) {
+			// some rows have been inserted
+			fireTableRowsInserted(rowCount, getRowCount() - 1);
 		}
 	}
 	
@@ -153,46 +235,40 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 	
 
 	public void clear() {
-		columns.clear();
+		checksumColumns.clear();
 		rows.clear();
 		
 		fireTableStructureChanged();
 	}
 	
+	private final PropertyChangeListener stateListener = new PropertyChangeListener() {
+		
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			int row = getRowIndex((ChecksumRow) evt.getSource());
+			
+			if (row >= 0) {
+				// update only column 0 (state) 
+				fireTableCellUpdated(row, 0);
+			}
+		}
+	};
+	
 	private final PropertyChangeListener progressListener = new PropertyChangeListener() {
 		
-		private final MutableTableModelEvent mutableUpdateEvent = new MutableTableModelEvent(ChecksumTableModel.this, UPDATE);
-		
-		
 		public void propertyChange(PropertyChangeEvent evt) {
-			ChecksumCell entry = (ChecksumCell) evt.getSource();
+			ChecksumCell cell = (ChecksumCell) evt.getSource();
 			
-			int index = rows.getIndexByKey(entry.getName());
+			int row = getRowIndex(cell);
+			int column = getColumnIndex(cell);
 			
-			if (index >= 0) {
-				rows.get(index).updateState();
-				fireTableChanged(mutableUpdateEvent.setRow(index));
+			if (row >= 0 && column >= 0) {
+				fireTableCellUpdated(row, column);
 			}
 		}
 	};
 	
 	
-	protected static class MutableTableModelEvent extends TableModelEvent {
-		
-		public MutableTableModelEvent(TableModel source, int type) {
-			super(source, 0, 0, ALL_COLUMNS, type);
-		}
-		
-
-		public MutableTableModelEvent setRow(int row) {
-			this.firstRow = row;
-			this.lastRow = row;
-			
-			return this;
-		}
-	}
-	
-
 	protected static abstract class IndexedMap<K, V> extends AbstractList<V> implements Set<V> {
 		
 		private final Map<K, Integer> indexMap = new HashMap<K, Integer>(64);
@@ -205,16 +281,6 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 		@Override
 		public V get(int index) {
 			return list.get(index);
-		}
-		
-
-		public V getByKey(K key) {
-			Integer index = indexMap.get(key);
-			
-			if (index == null)
-				return null;
-			
-			return get(index);
 		}
 		
 
@@ -275,6 +341,18 @@ class ChecksumTableModel extends AbstractTableModel implements Iterable<Checksum
 			indexMap.clear();
 		}
 		
+	}
+	
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
 	}
 	
 }

@@ -22,7 +22,7 @@ public final class ExceptionUtilities {
 		String message = t.getMessage();
 		
 		if (message == null || message.isEmpty()) {
-			return t.toString();
+			message = t.toString().replaceAll(t.getClass().getName(), t.getClass().getSimpleName());
 		}
 		
 		return message;

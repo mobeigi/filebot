@@ -15,12 +15,12 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.sfv.ChecksumRow.State;
 
 
-class StateIconTableCellRenderer extends DefaultTableCellRenderer {
+class StateIconCellRenderer extends DefaultTableCellRenderer {
 	
 	private final Map<State, Icon> icons = new EnumMap<State, Icon>(State.class);
 	
 	
-	public StateIconTableCellRenderer() {
+	public StateIconCellRenderer() {
 		icons.put(State.UNKNOWN, ResourceManager.getIcon("status.unknown"));
 		icons.put(State.OK, ResourceManager.getIcon("status.ok"));
 		icons.put(State.WARNING, ResourceManager.getIcon("status.warning"));

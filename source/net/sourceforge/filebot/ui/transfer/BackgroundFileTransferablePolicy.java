@@ -3,41 +3,43 @@ package net.sourceforge.filebot.ui.transfer;
 
 
 import java.awt.datatransfer.Transferable;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.SwingPropertyChangeSupport;
 
 
 public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferablePolicy {
 	
 	public static final String LOADING_PROPERTY = "loading";
 	
-	private final ThreadLocal<BackgroundWorker> threadLocalWorker = new ThreadLocal<BackgroundWorker>() {
-		
-		@Override
-		protected BackgroundWorker initialValue() {
-			// fail if a non-background-worker thread is trying to access the thread-local worker object
-			throw new IllegalThreadStateException("Illegal access thread");
-		}
-	};
+	private final ThreadLocal<BackgroundWorker> threadLocalWorker = new ThreadLocal<BackgroundWorker>();
 	
 	private final List<BackgroundWorker> workers = new ArrayList<BackgroundWorker>(2);
 	
 	
 	@Override
-	public void handleTransferable(Transferable tr, TransferAction action) {
+	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
 		
-		if (action != TransferAction.ADD)
+		if (action != TransferAction.ADD) {
 			clear();
+		}
+		
+		prepare(files);
 		
 		// create and start worker
 		new BackgroundWorker(files).execute();
+	}
+	
+
+	protected void prepare(List<File> files) {
+		
 	}
 	
 
@@ -61,14 +63,39 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	}
 	
 
+	public boolean isLoading() {
+		synchronized (workers) {
+			return !workers.isEmpty();
+		}
+	}
+	
+
 	protected abstract void process(List<V> chunks);
 	
 
-	protected abstract void process(Exception e);
+	protected abstract void process(Exception exception);
 	
 
 	protected final void publish(V... chunks) {
-		threadLocalWorker.get().offer(chunks);
+		BackgroundWorker worker = threadLocalWorker.get();
+		
+		if (worker == null) {
+			// fail if a non-background-worker thread is trying to access the thread-local worker object
+			throw new IllegalThreadStateException("Illegal access thread");
+		}
+		
+		worker.offer(chunks);
+	}
+	
+
+	protected final void publish(final Exception exception) {
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				process(exception);
+			}
+		});
 	}
 	
 	
@@ -90,7 +117,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		
 
 		@Override
-		protected Object doInBackground() {
+		protected Object doInBackground() throws Exception {
 			// associate this worker with the current (background) thread
 			threadLocalWorker.set(this);
 			
@@ -121,13 +148,6 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 
 		@Override
 		protected void done() {
-			// unregister worker
-			synchronized (workers) {
-				if (workers.remove(this) && workers.isEmpty()) {
-					swingPropertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
-				}
-			}
-			
 			if (!isCancelled()) {
 				try {
 					// check for exception
@@ -136,27 +156,17 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 					BackgroundFileTransferablePolicy.this.process(e);
 				}
 			}
+			
+			// unregister worker
+			synchronized (workers) {
+				if (workers.remove(this) && workers.isEmpty()) {
+					swingPropertyChangeSupport.firePropertyChange(LOADING_PROPERTY, true, false);
+				}
+			}
 		}
 	}
 	
-	protected final PropertyChangeSupport swingPropertyChangeSupport = new PropertyChangeSupport(this) {
-		
-		@Override
-		public void firePropertyChange(final PropertyChangeEvent evt) {
-			if (SwingUtilities.isEventDispatchThread()) {
-				super.firePropertyChange(evt);
-			} else {
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						swingPropertyChangeSupport.firePropertyChange(evt);
-					}
-				});
-			}
-		}
-		
-	};
+	protected final PropertyChangeSupport swingPropertyChangeSupport = new SwingPropertyChangeSupport(this, true);
 	
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {

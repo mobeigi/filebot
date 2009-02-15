@@ -2,18 +2,17 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.tuned.ui.TunedUtilities.DragDropRowTableUI;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import net.sourceforge.filebot.FileBotUtilities;
 
-
-class SfvTable extends JTable {
+class ChecksumTable extends JTable {
 	
-	public SfvTable() {
+	public ChecksumTable() {
 		setFillsViewportHeight(true);
 		setAutoCreateRowSorter(true);
 		setAutoCreateColumnsFromModel(true);
@@ -23,12 +22,13 @@ class SfvTable extends JTable {
 		
 		setRowHeight(20);
 		
+		setDragEnabled(true);
 		setUI(new DragDropRowTableUI());
 		
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
 		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN, "#009900", "smaller"));
-		setDefaultRenderer(ChecksumRow.State.class, new StateIconTableCellRenderer());
-		setDefaultRenderer(ChecksumCell.class, new ChecksumTableCellRenderer());
+		setDefaultRenderer(ChecksumRow.State.class, new StateIconCellRenderer());
+		setDefaultRenderer(ChecksumCell.class, new ChecksumCellRenderer());
 	}
 	
 

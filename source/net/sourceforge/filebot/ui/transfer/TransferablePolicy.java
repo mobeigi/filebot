@@ -13,14 +13,13 @@ import javax.swing.TransferHandler.TransferSupport;
 
 public abstract class TransferablePolicy {
 	
-	public abstract boolean accept(Transferable tr);
+	public abstract boolean accept(Transferable tr) throws Exception;
 	
 
-	public abstract void handleTransferable(Transferable tr, TransferAction action);
+	public abstract void handleTransferable(Transferable tr, TransferAction action) throws Exception;
 	
 
 	public boolean canImport(TransferSupport support) {
-		
 		if (support.isDrop())
 			support.setShowDropLocation(false);
 		
@@ -32,6 +31,8 @@ public abstract class TransferablePolicy {
 			
 			// just assume that the transferable will be accepted, accept will be called in importData again anyway
 			return true;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 	

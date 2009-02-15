@@ -29,7 +29,7 @@ public class FileTransferableMessageHandler implements MessageHandler {
 	
 
 	@Override
-	public void handle(String topic, Object... messages) {
+	public void handle(String topic, Object... messages) throws Exception {
 		// switch to panel
 		MessageBus.getDefault().publish("panel", panel);
 		

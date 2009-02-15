@@ -4,9 +4,6 @@ package net.sourceforge.filebot.ui.transfer;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JTable;
@@ -16,56 +13,58 @@ import javax.swing.tree.TreePath;
 
 public class DefaultClipboardHandler implements ClipboardHandler {
 	
+	protected final String newLine = System.getProperty("line.separator");
+	
+	
 	@Override
 	public void exportToClipboard(JComponent component, Clipboard clip, int action) throws IllegalStateException {
-		StringWriter buffer = new StringWriter();
+		StringBuilder sb = new StringBuilder();
 		
 		if (component instanceof JList) {
-			export(new PrintWriter(buffer), (JList) component);
+			export(sb, (JList) component);
 		} else if (component instanceof JTree) {
-			export(new PrintWriter(buffer), (JTree) component);
+			export(sb, (JTree) component);
 		} else if (component instanceof JTable) {
-			export(new PrintWriter(buffer), (JTable) component);
+			export(sb, (JTable) component);
 		}
 		
-		clip.setContents(new StringSelection(buffer.toString()), null);
+		clip.setContents(new StringSelection(sb.toString()), null);
 	}
 	
 
-	protected void export(PrintWriter out, JList list) {
+	protected void export(StringBuilder sb, JList list) {
 		for (Object value : list.getSelectedValues()) {
-			out.println(valueToString(value));
+			sb.append(value == null ? "" : value).append(newLine);
 		}
 	}
 	
 
-	protected void export(PrintWriter out, JTree tree) {
+	protected void export(StringBuilder sb, JTree tree) {
 		for (TreePath path : tree.getSelectionPaths()) {
-			out.println(valueToString(path.getLastPathComponent()));
+			Object value = path.getLastPathComponent();
+			
+			sb.append(value == null ? "" : value).append(newLine);
 		}
 	}
 	
 
-	protected void export(PrintWriter out, JTable table) {
+	protected void export(StringBuilder sb, JTable table) {
 		for (int row : table.getSelectedRows()) {
-			for (int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) {
-				out.print(valueToString(table.getModel().getValueAt(row, columnIndex)));
+			int modelRow = table.getRowSorter().convertRowIndexToModel(row);
+			
+			for (int column = 0; column < table.getColumnCount(); column++) {
+				Object value = table.getModel().getValueAt(modelRow, column);
 				
-				if (columnIndex < table.getColumnCount() - 1)
-					out.print("\t");
+				if (value != null) {
+					sb.append(value);
+				}
+				
+				if (column < table.getColumnCount() - 1) {
+					sb.append("\t");
+				}
 			}
 			
-			out.println();
+			sb.append(newLine);
 		}
 	}
-	
-
-	protected String valueToString(Object value) {
-		// return empty string for null values
-		if (value == null)
-			return "";
-		
-		return value.toString();
-	}
-	
 }

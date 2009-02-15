@@ -11,9 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
@@ -44,7 +41,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected void load(List<File> files) {
+	protected void load(List<File> files) throws IOException {
 		// set title based on parent folder of first file
 		list.setTitle(FileUtilities.getFolderName(files.get(0).getParentFile()));
 		
@@ -70,26 +67,21 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	private void loadTorrents(List<File> torrentFiles) {
-		try {
-			List<Torrent> torrents = new ArrayList<Torrent>(torrentFiles.size());
-			
-			for (File file : torrentFiles) {
-				torrents.add(new Torrent(file));
+	private void loadTorrents(List<File> torrentFiles) throws IOException {
+		List<Torrent> torrents = new ArrayList<Torrent>(torrentFiles.size());
+		
+		for (File file : torrentFiles) {
+			torrents.add(new Torrent(file));
+		}
+		
+		if (torrentFiles.size() == 1) {
+			list.setTitle(FileUtilities.getNameWithoutExtension(torrents.get(0).getName()));
+		}
+		
+		for (Torrent torrent : torrents) {
+			for (Torrent.Entry entry : torrent.getFiles()) {
+				list.getModel().add(FileUtilities.getNameWithoutExtension(entry.getName()));
 			}
-			
-			if (torrentFiles.size() == 1) {
-				list.setTitle(FileUtilities.getNameWithoutExtension(torrents.get(0).getName()));
-			}
-			
-			for (Torrent torrent : torrents) {
-				for (Torrent.Entry entry : torrent.getFiles()) {
-					list.getModel().add(FileUtilities.getNameWithoutExtension(entry.getName()));
-				}
-			}
-		} catch (IOException e) {
-			// should not happen
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}
 	}
 	

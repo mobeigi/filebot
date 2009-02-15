@@ -13,6 +13,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.event.SwingPropertyChangeSupport;
+
 import net.sourceforge.filebot.FileBotUtilities;
 
 
@@ -53,38 +55,52 @@ class ChecksumRow {
 	}
 	
 
+	protected void setState(State newValue) {
+		State oldValue = this.state;
+		this.state = newValue;
+		
+		pcs.firePropertyChange("state", oldValue, newValue);
+	}
+	
+
 	public ChecksumCell getChecksum(File root) {
 		return hashes.get(root);
 	}
 	
 
-	public void put(ChecksumCell cell) {
-		ChecksumCell old = hashes.put(cell.getRoot(), cell);
-		
-		// dispose of old map entry 
-		if (old != null) {
-			old.dispose();
-		}
-		
-		// update state immediately
-		updateState();
-		
-		// keep state up-to-date
-		cell.addPropertyChangeListener(updateStateListener);
+	public Collection<ChecksumCell> values() {
+		return Collections.unmodifiableCollection(hashes.values());
 	}
 	
 
-	public void updateState() {
+	public ChecksumCell put(ChecksumCell cell) {
+		ChecksumCell old = hashes.put(cell.getRoot(), cell);
+		
+		// update state immediately, don't fire property change
 		state = getState(hashes.values());
+		
+		// keep state up-to-date
+		cell.addPropertyChangeListener(updateStateListener);
+		
+		return old;
 	}
 	
 
 	public void dispose() {
+		// clear property change support
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners()) {
+			pcs.removePropertyChangeListener(listener);
+		}
+		
 		for (ChecksumCell cell : hashes.values()) {
 			cell.dispose();
 		}
 		
-		hashes.clear();
+		name = null;
+		embeddedChecksum = null;
+		hashes = null;
+		state = null;
+		pcs = null;
 	}
 	
 
@@ -111,7 +127,7 @@ class ChecksumRow {
 				String checksum = cell.getChecksum(type);
 				
 				if (checksum != null) {
-					checksumSet.add(checksum);
+					checksumSet.add(checksum.toLowerCase());
 				}
 			}
 			
@@ -153,8 +169,22 @@ class ChecksumRow {
 	private final PropertyChangeListener updateStateListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			updateState();
+			if ("state".equals(evt.getPropertyName())) {
+				setState(getState(hashes.values()));
+			}
 		}
 	};
+	
+	private SwingPropertyChangeSupport pcs = new SwingPropertyChangeSupport(this, true);
+	
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
 	
 }

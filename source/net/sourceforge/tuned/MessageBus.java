@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
@@ -73,7 +75,11 @@ public class MessageBus {
 
 	private void publishDirect(String topic, Object... messages) {
 		for (MessageHandler handler : getHandlers(topic.toLowerCase())) {
-			handler.handle(topic.toLowerCase(), messages);
+			try {
+				handler.handle(topic.toLowerCase(), messages);
+			} catch (Exception e) {
+				Logger.getLogger("global").log(Level.SEVERE, e.getMessage(), e);
+			}
 		}
 	}
 	
