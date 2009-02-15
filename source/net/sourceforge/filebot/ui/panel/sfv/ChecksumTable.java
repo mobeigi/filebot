@@ -2,12 +2,14 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import net.sourceforge.filebot.FileBotUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities.DragDropRowTableUI;
+import static net.sourceforge.filebot.FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN;
+
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
+
+import net.sourceforge.tuned.ui.TunedUtilities.DragDropRowTableUI;
 
 
 class ChecksumTable extends JTable {
@@ -26,7 +28,7 @@ class ChecksumTable extends JTable {
 		setUI(new DragDropRowTableUI());
 		
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
-		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN, "#009900", "smaller"));
+		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(EMBEDDED_CHECKSUM_PATTERN));
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconCellRenderer());
 		setDefaultRenderer(ChecksumCell.class, new ChecksumCellRenderer());
 	}

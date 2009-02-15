@@ -2,6 +2,10 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import static java.awt.Font.BOLD;
+import static java.awt.Font.PLAIN;
+import static net.sourceforge.tuned.ui.TunedUtilities.derive;
+
 import java.awt.Color;
 import java.awt.Component;
 
@@ -32,9 +36,16 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 		// ignore focus
 		super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
 		
-		// restore text color
-		setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+		// check row state for ERROR 
+		boolean isError = (table.getValueAt(row, 0) == ChecksumRow.State.ERROR);
+		
+		// if row state is ERROR and if we are not selected use text color RED,
+		// else use default table colors
+		setForeground(isSelected ? table.getSelectionForeground() : isError ? Color.RED : table.getForeground());
 		setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+		
+		// use BOLD font on ERROR
+		setFont(getFont().deriveFont(isError ? BOLD : PLAIN));
 		
 		if (pendingWorker) {
 			setText("Pending...");
@@ -42,17 +53,8 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 			setBackground(derive(table.getGridColor(), 0.1f));
 		} else if (value instanceof Throwable) {
 			setText(ExceptionUtilities.getRootCauseMessage((Throwable) value));
-			
-			if (!isSelected) {
-				setForeground(Color.RED);
-			}
 		}
 		
 		return this;
-	}
-	
-
-	private Color derive(Color color, float alpha) {
-		return new Color(((((int) (alpha * 255)) & 0xFF) << 24) & (color.getRGB() | 0xFF000000), true);
 	}
 }

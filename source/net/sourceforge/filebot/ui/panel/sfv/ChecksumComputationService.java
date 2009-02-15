@@ -51,7 +51,21 @@ class ChecksumComputationService {
 			executors.clear();
 		}
 		
-		fireTaskCountChanged();
+		pcs.firePropertyChange(TASK_COUNT_PROPERTY, -1, getTaskCount());
+	}
+	
+
+	/**
+	 * Get the number of active executors that are associated with this
+	 * {@link ChecksumComputationService}.
+	 * 
+	 * @return number of active executors
+	 * @see {@link #newExecutor()}
+	 */
+	public int getActiveCount() {
+		synchronized (executors) {
+			return executors.size();
+		}
 	}
 	
 
@@ -86,6 +100,7 @@ class ChecksumComputationService {
 			
 			synchronized (executors) {
 				if (executors.add(this) && executors.size() == 1) {
+					// first executor of a new session, reset counts
 					totalTaskCount.set(0);
 					completedTaskCount.set(0);
 				}
@@ -116,7 +131,8 @@ class ChecksumComputationService {
 			}
 			
 			totalTaskCount.incrementAndGet();
-			fireTaskCountChanged();
+			
+			pcs.firePropertyChange(TASK_COUNT_PROPERTY, getTaskCount() - 1, getTaskCount());
 		}
 		
 
@@ -133,7 +149,8 @@ class ChecksumComputationService {
 			if (delta > 0) {
 				// subtract removed tasks from task count
 				totalTaskCount.addAndGet(-delta);
-				fireTaskCountChanged();
+				
+				pcs.firePropertyChange(TASK_COUNT_PROPERTY, getTaskCount() + delta, getTaskCount());
 			}
 		}
 		
@@ -149,7 +166,7 @@ class ChecksumComputationService {
 					completedTaskCount.incrementAndGet();
 				}
 				
-				fireTaskCountChanged();
+				pcs.firePropertyChange(TASK_COUNT_PROPERTY, getTaskCount() + 1, getTaskCount());
 			}
 		}
 		
@@ -167,24 +184,18 @@ class ChecksumComputationService {
 				executors.remove(this);
 			}
 		}
-		
 	}
 	
-	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	
-	private void fireTaskCountChanged() {
-		propertyChangeSupport.firePropertyChange(TASK_COUNT_PROPERTY, null, getTaskCount());
-	}
-	
-
-	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
 	}
 	
 
-	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
 	}
 	
 }

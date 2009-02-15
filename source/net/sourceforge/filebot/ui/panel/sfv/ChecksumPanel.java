@@ -2,8 +2,9 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.*;
-import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
+import static net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.HASH_TYPE_PROPERTY;
+import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.LOADING_PROPERTY;
+
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -24,6 +25,7 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
+
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;

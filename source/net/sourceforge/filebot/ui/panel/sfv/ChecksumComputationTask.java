@@ -66,4 +66,5 @@ class ChecksumComputationTask extends SwingWorker<Map<HashType, String>, Void> {
 		
 		return Collections.singletonMap(hashType, hash.digest());
 	}
+	
 }

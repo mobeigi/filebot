@@ -163,7 +163,7 @@ class ChecksumRow {
 
 	@Override
 	public String toString() {
-		return String.format("%s %s", name, hashes);
+		return String.format("%s %s %s", state, name, hashes);
 	}
 	
 	private final PropertyChangeListener updateStateListener = new PropertyChangeListener() {

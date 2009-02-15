@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.filebot.ui.panel.sfv.ChecksumComputationService.TASK_COUNT_PROPERTY;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -37,7 +35,7 @@ class TotalProgressPanel extends JComponent {
 		
 		add(progressBar, "growx");
 		
-		computationService.addPropertyChangeListener(TASK_COUNT_PROPERTY, progressListener);
+		computationService.addPropertyChangeListener(progressListener);
 	}
 	
 	private final PropertyChangeListener progressListener = new PropertyChangeListener() {

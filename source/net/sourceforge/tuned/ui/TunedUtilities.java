@@ -43,6 +43,11 @@ public final class TunedUtilities {
 	}
 	
 
+	public static Color derive(Color color, float alpha) {
+		return new Color(((int) ((alpha * 255)) << 24) | (color.getRGB() & 0x00FFFFFF), true);
+	}
+	
+
 	public static void putActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
 		Integer key = action.hashCode();
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
