@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import static java.lang.Math.min;
 import static net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.HASH_TYPE_PROPERTY;
 import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.LOADING_PROPERTY;
 
@@ -155,18 +156,31 @@ public class ChecksumPanel extends FileBotPanel {
 			if (table.getSelectedRowCount() < 1)
 				return;
 			
-			int firstSelectedRow = table.getSelectedRow();
+			int[] rows = table.getSelectedRows();
+			
+			if (rows.length <= 0) {
+				// no rows selected
+				return;
+			}
+			
+			// first selected row
+			int selectedRow = table.getSelectedRow();
+			
+			// convert view index to model index
+			for (int i = 0; i < rows.length; i++) {
+				rows[i] = table.getRowSorter().convertRowIndexToModel(rows[i]);
+			}
 			
 			// remove selected rows
-			table.getModel().remove(table.getSelectedRows());
+			table.getModel().remove(rows);
 			
 			// update computation service task count
 			computationService.purge();
 			
 			// auto select next row
-			firstSelectedRow = Math.min(firstSelectedRow, table.getRowCount() - 1);
+			selectedRow = min(selectedRow, table.getRowCount() - 1);
 			
-			table.getSelectionModel().setSelectionInterval(firstSelectedRow, firstSelectedRow);
+			table.getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
 		}
 	};
 	
