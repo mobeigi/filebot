@@ -47,6 +47,7 @@ class RenameAction extends AbstractAction {
 				name.append(".").append(extension);
 			}
 			
+			// same parent, different name
 			File target = new File(source.getParentFile(), name.toString());
 			
 			todoQueue.addLast(new Match<File, File>(source, target));
@@ -70,16 +71,14 @@ class RenameAction extends AbstractAction {
 			// rename failed
 			Logger.getLogger("ui").warning(ExceptionUtilities.getRootCauseMessage(e));
 			
-			boolean revertFailed = false;
+			boolean revertSuccess = true;
 			
 			// revert rename operations
 			for (Match<File, File> match : doneQueue) {
-				if (!match.getCandidate().renameTo(match.getValue())) {
-					revertFailed = true;
-				}
+				revertSuccess &= match.getCandidate().renameTo(match.getValue());
 			}
-			
-			if (revertFailed) {
+
+			if (!revertSuccess) {
 				Logger.getLogger("ui").severe("Failed to revert all rename operations.");
 			}
 		}

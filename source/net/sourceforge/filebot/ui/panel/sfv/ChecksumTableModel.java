@@ -208,9 +208,8 @@ class ChecksumTableModel extends AbstractTableModel {
 		for (ChecksumCell replacement : replacements) {
 			int row = getRowIndex(replacement);
 			
-			// update this cell
-			fireTableCellUpdated(row, 0);
-			fireTableCellUpdated(row, getColumnIndex(replacement));
+			// update this row
+			fireTableRowsUpdated(row, row);
 		}
 		
 		if (rowCount != getRowCount()) {
@@ -249,8 +248,8 @@ class ChecksumTableModel extends AbstractTableModel {
 			int row = getRowIndex((ChecksumRow) evt.getSource());
 			
 			if (row >= 0) {
-				// update only column 0 (state) 
-				fireTableCellUpdated(row, 0);
+				// update row
+				fireTableRowsUpdated(row, row);
 			}
 		}
 	};
