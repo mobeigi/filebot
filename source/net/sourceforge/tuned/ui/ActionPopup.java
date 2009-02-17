@@ -38,7 +38,7 @@ public class ActionPopup extends JPopupMenu {
 		
 		setLayout(new MigLayout("nogrid, fill, insets 0"));
 		
-		add(headerLabel, "gapx 4px 4px, gapy 1px, wrap 3px");
+		add(headerLabel, "gapx 5px 5px, gapy 1px, wrap 3px");
 		add(new JSeparator(), "growx, wrap 1px");
 		add(descriptionLabel, "gapx 4px, wrap 3px");
 		add(actionPanel, "gapx 12px 12px, wrap");

@@ -79,10 +79,10 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResultMany() throws Exception {
-		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(lostSearchResult, LanguageResolver.getDefault().getLocale("Vietnamese"));
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(lostSearchResult, LanguageResolver.getDefault().getLocale("Japanese"));
 		
-		// lots of subtitles, but only one is vietnamese
-		assertEquals(1, subtitleList.size());
+		// lots of subtitles, but only a few Japanese ones
+		assertEquals(16, subtitleList.size());
 	}
 	
 

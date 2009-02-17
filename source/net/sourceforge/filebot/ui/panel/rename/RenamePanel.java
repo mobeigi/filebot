@@ -3,10 +3,13 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static javax.swing.SwingUtilities.getWindowAncestor;
+import static net.sourceforge.filebot.FileBotUtilities.isInvalidFileName;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
-import static net.sourceforge.filebot.FileBotUtilities.*;
+
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +53,7 @@ public class RenamePanel extends FileBotPanel {
 	
 	private RenameAction renameAction = new RenameAction(model);
 	
-	private ActionPopup matchActionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.match.small"));
+	private ActionPopup matchActionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
 	
 	
 	public RenamePanel() {
@@ -98,7 +101,7 @@ public class RenamePanel extends FileBotPanel {
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", null, "align 33%"));
 		
-		add(new LoadingOverlayPane(namesList, this, "28px", "30px"), "grow, sizegroupx list");
+		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
 		
 		// make buttons larger
 		matchButton.setMargin(new Insets(3, 14, 2, 14));
@@ -108,6 +111,15 @@ public class RenamePanel extends FileBotPanel {
 		add(renameButton, "gapy 30px, sizegroupx button");
 		
 		add(filesList, "grow, sizegroupx list");
+		
+		// set action popup status message while episode list matcher is working 
+		namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				matchActionPopup.setStatus((Boolean) evt.getNewValue() ? "in progress" : null);
+			}
+		});
 		
 		// repaint on change
 		model.names().addListEventListener(new RepaintHandler<Object>());
@@ -128,20 +140,6 @@ public class RenamePanel extends FileBotPanel {
 		}
 	};
 	
-	private boolean autoMatchInProgress = false;
-	
-	
-	protected void setAutoMatchInProgress(boolean flag) {
-		this.autoMatchInProgress = flag;
-		firePropertyChange(LOADING_PROPERTY, !flag, flag);
-		matchActionPopup.setStatus(flag ? "in progress" : null);
-	}
-	
-
-	protected boolean isAutoMatchInProgress() {
-		return autoMatchInProgress;
-	}
-	
 	
 	protected class AutoFetchEpisodeListAction extends AbstractAction {
 		
@@ -152,14 +150,26 @@ public class RenamePanel extends FileBotPanel {
 			super(client.getName(), client.getIcon());
 			
 			this.client = client;
+			
+			// disable action while episode list matcher is working
+			namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					setEnabled(!(Boolean) evt.getNewValue());
+				}
+			});
 		}
 		
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			if (model.files().isEmpty() || isAutoMatchInProgress()) {
+			if (model.files().isEmpty()) {
 				return;
 			}
+			
+			// auto-match in progress
+			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			
 			// clear names list
 			model.names().clear();
@@ -168,9 +178,6 @@ public class RenamePanel extends FileBotPanel {
 				
 				@Override
 				protected void done() {
-					// background worker is finished
-					setAutoMatchInProgress(false);
-					
 					try {
 						List<MutableString> names = new ArrayList<MutableString>();
 						List<File> files = new ArrayList<File>();
@@ -208,14 +215,15 @@ public class RenamePanel extends FileBotPanel {
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					}
+					
+					// auto-match finished
+					namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 				}
 			};
 			
 			worker.execute();
-			
-			// background worker started
-			setAutoMatchInProgress(true);
 		}
+		
 	}
 	
 
