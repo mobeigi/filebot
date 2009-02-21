@@ -47,6 +47,11 @@ class RenameList<E> extends FileBotList<E> {
 	}
 	
 
+	public JViewport getViewPort() {
+		return listScrollPane.getViewport();
+	}
+	
+
 	@Override
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
 		super.setTransferablePolicy(transferablePolicy);
@@ -62,11 +67,6 @@ class RenameList<E> extends FileBotList<E> {
 		getModel().add(toIndex, getModel().remove(fromIndex));
 		
 		return true;
-	}
-	
-
-	public JViewport getViewPort() {
-		return listScrollPane.getViewport();
 	}
 	
 	private final LoadAction loadAction = new LoadAction(null);

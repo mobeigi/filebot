@@ -3,6 +3,7 @@ package net.sourceforge.tuned;
 
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.xpath.XPathConstants;
@@ -43,6 +44,11 @@ public final class XPathUtilities {
 	}
 	
 
+	public static boolean exists(String xpath, Object node) {
+		return selectNode(xpath, node) != null;
+	}
+	
+
 	/**
 	 * @param nodeName search for nodes with this name
 	 * @param parentNode search in the child nodes of this nodes
@@ -58,32 +64,51 @@ public final class XPathUtilities {
 	}
 	
 
+	public static List<Node> getChildren(String nodeName, Node parentNode) {
+		List<Node> children = new ArrayList<Node>();
+		
+		for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
+			if (nodeName.equals(child.getNodeName()))
+				children.add(child);
+		}
+		
+		return children;
+	}
+	
+
+	public static String getAttribute(String attribute, Node node) {
+		return node.getAttributes().getNamedItem(attribute).getNodeValue().trim();
+	}
+	
+
 	/**
 	 * Get text content of the first child node matching the given node name. Use this method
 	 * instead of {@link #selectString(String, Object)} whenever xpath support is not required,
 	 * because it is much faster, especially for large documents.
 	 * 
-	 * @param nodeName search for nodes with this name
+	 * @param childName search for nodes with this name
 	 * @param parentNode search in the child nodes of this nodes
 	 * @return text content of the child node or null if no child with the given name was found
 	 */
-	public static String getTextContent(String nodeName, Node parentNode) {
-		Node child = getChild(nodeName, parentNode);
+	public static String getTextContent(String childName, Node parentNode) {
+		Node child = getChild(childName, parentNode);
 		
-		if (child == null)
+		if (child == null) {
 			return null;
+		}
 		
-		return child.getTextContent();
+		return getTextContent(child);
 	}
 	
 
-	public static int selectInteger(String xpath, Object node) {
-		return Integer.parseInt(selectString(xpath, node));
-	}
-	
-
-	public static boolean exists(String xpath, Object node) {
-		return selectNode(xpath, node) != null;
+	public static String getTextContent(Node node) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (Node textNode : getChildren("#text", node)) {
+			sb.append(textNode.getNodeValue());
+		}
+		
+		return sb.toString().trim();
 	}
 	
 

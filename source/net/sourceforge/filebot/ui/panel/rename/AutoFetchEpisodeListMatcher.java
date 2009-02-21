@@ -59,7 +59,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		Collection<String> names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
 		
 		if (names.isEmpty())
-			throw new IllegalArgumentException("Cannot auto-detect series name.");
+			throw new IllegalArgumentException("Cannot determine series name.");
 		
 		return names;
 	}

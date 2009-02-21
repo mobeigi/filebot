@@ -4,7 +4,6 @@ package net.sourceforge.filebot.web;
 
 import static net.sourceforge.filebot.web.WebRequest.getDocument;
 import static net.sourceforge.tuned.XPathUtilities.getTextContent;
-import static net.sourceforge.tuned.XPathUtilities.selectInteger;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 import static net.sourceforge.tuned.XPathUtilities.selectString;
 
@@ -94,8 +93,8 @@ public class TheTVDBClient implements EpisodeListClient {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			int seriesId = selectInteger("seriesid", node);
-			String seriesName = selectString("SeriesName", node);
+			int seriesId = Integer.parseInt(getTextContent("seriesid", node));
+			String seriesName = getTextContent("SeriesName", node);
 			
 			searchResults.add(new TheTVDBSearchResult(seriesName, seriesId));
 		}
@@ -225,7 +224,7 @@ public class TheTVDBClient implements EpisodeListClient {
 				// get episode xml from first episode of given season
 				Document dom = getDocument(new URL("http", host, "/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml"));
 				
-				seasonId = selectInteger("Data/Episode/seasonid", dom);
+				seasonId = Integer.valueOf(selectString("Data/Episode/seasonid", dom));
 				
 				cache.putSeasonId(seriesId, season, seasonId);
 			}
@@ -261,8 +260,8 @@ public class TheTVDBClient implements EpisodeListClient {
 				// traverse all mirrors
 				for (Node node : selectNodes("Mirrors/Mirror", dom)) {
 					// mirror data
-					String mirror = selectString("mirrorpath", node);
-					int typeMask = selectInteger("typemask", node);
+					String mirror = getTextContent("mirrorpath", node);
+					int typeMask = Integer.parseInt(getTextContent("typemask", node));
 					
 					// add mirror to the according type lists
 					for (MirrorType type : MirrorType.fromTypeMask(typeMask)) {

@@ -3,6 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
+import static net.sourceforge.tuned.XPathUtilities.getAttribute;
+import static net.sourceforge.tuned.XPathUtilities.getTextContent;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 import static net.sourceforge.tuned.XPathUtilities.selectString;
 
@@ -64,8 +66,8 @@ public class TVDotComClient implements EpisodeListClient {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String title = node.getTextContent();
-			String href = selectString("@href", node);
+			String title = getTextContent(node);
+			String href = getAttribute("href", node);
 			
 			try {
 				URL episodeListingUrl = new URL(href.replaceFirst("summary.html\\?.*", "episode_listings.html"));

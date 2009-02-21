@@ -7,9 +7,9 @@ import static org.junit.Assert.assertEquals;
 import java.net.URL;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import net.sourceforge.filebot.ui.panel.subtitle.LanguageResolver;
-import net.sourceforge.filebot.web.SubsceneSubtitleClient.SubsceneSearchResult;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,18 +20,18 @@ public class SubsceneSubtitleClientTest {
 	/**
 	 * Twin Peaks - First Season, ~ 15 subtitles
 	 */
-	private static SubsceneSearchResult twinpeaksSearchResult;
+	private static HyperLink twinpeaksSearchResult;
 	
 	/**
 	 * Lost - Fourth Season, ~ 430 subtitles
 	 */
-	private static SubsceneSearchResult lostSearchResult;
+	private static HyperLink lostSearchResult;
 	
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"), 18);
-		lostSearchResult = new SubsceneSearchResult("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"), 420);
+		twinpeaksSearchResult = new HyperLink("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"));
+		lostSearchResult = new HyperLink("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"));
 	}
 	
 	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
@@ -41,11 +41,10 @@ public class SubsceneSubtitleClientTest {
 	public void search() throws Exception {
 		List<SearchResult> results = subscene.search("twin peaks");
 		
-		SubsceneSearchResult result = (SubsceneSearchResult) results.get(1);
+		HyperLink result = (HyperLink) results.get(1);
 		
 		assertEquals(twinpeaksSearchResult.getName(), result.getName());
 		assertEquals(twinpeaksSearchResult.getURL().toString(), result.getURL().toString());
-		assertEquals(twinpeaksSearchResult.getSubtitleCount(), result.getSubtitleCount());
 	}
 	
 
@@ -55,11 +54,10 @@ public class SubsceneSubtitleClientTest {
 		
 		assertEquals(1, results.size());
 		
-		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
+		HyperLink result = (HyperLink) results.get(0);
 		
 		assertEquals("Firefly - The Complete Series", result.getName());
 		assertEquals("http://subscene.com/Firefly-The-Complete-Series/subtitles-20008.aspx", result.getURL().toString());
-		assertEquals(16, result.getSubtitleCount());
 	}
 	
 
@@ -83,6 +81,17 @@ public class SubsceneSubtitleClientTest {
 		
 		// lots of subtitles, but only a few Japanese ones
 		assertEquals(16, subtitleList.size());
+	}
+	
+
+	@Test
+	public void getLanguageFilterMap() throws Exception {
+		Map<String, Integer> filters = subscene.getLanguageFilterMap(subscene.getSubtitleListDocument(new URL("http://subscene.com/none/subtitles-0.aspx"), null));
+		
+		assertEquals(01, filters.get("albanian"));
+		assertEquals(13, filters.get("english"));
+		assertEquals(17, filters.get("finnish"));
+		assertEquals(45, filters.get("vietnamese"));
 	}
 	
 

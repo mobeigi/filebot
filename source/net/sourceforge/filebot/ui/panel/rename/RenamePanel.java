@@ -156,6 +156,7 @@ public class RenamePanel extends FileBotPanel {
 				
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
+					// disable action while loading is in progress
 					setEnabled(!(Boolean) evt.getNewValue());
 				}
 			});
@@ -164,10 +165,6 @@ public class RenamePanel extends FileBotPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			if (model.files().isEmpty()) {
-				return;
-			}
-			
 			// auto-match in progress
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			

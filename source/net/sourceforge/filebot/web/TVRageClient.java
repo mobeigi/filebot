@@ -4,7 +4,6 @@ package net.sourceforge.filebot.web;
 
 import static net.sourceforge.filebot.web.WebRequest.getDocument;
 import static net.sourceforge.tuned.XPathUtilities.getTextContent;
-import static net.sourceforge.tuned.XPathUtilities.selectInteger;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 import static net.sourceforge.tuned.XPathUtilities.selectString;
 
@@ -67,9 +66,9 @@ public class TVRageClient implements EpisodeListClient {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			int showid = selectInteger("showid", node);
-			String name = selectString("name", node);
-			String link = selectString("link", node);
+			int showid = Integer.parseInt(getTextContent("showid", node));
+			String name = getTextContent("name", node);
+			String link = getTextContent("link", node);
 			
 			searchResults.add(new TVRageSearchResult(name, showid, link));
 		}

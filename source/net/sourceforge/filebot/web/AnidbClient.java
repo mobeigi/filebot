@@ -4,6 +4,8 @@ package net.sourceforge.filebot.web;
 
 import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
 import static net.sourceforge.tuned.XPathUtilities.exists;
+import static net.sourceforge.tuned.XPathUtilities.getAttribute;
+import static net.sourceforge.tuned.XPathUtilities.getTextContent;
 import static net.sourceforge.tuned.XPathUtilities.selectNode;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 import static net.sourceforge.tuned.XPathUtilities.selectString;
@@ -59,13 +61,11 @@ public class AnidbClient implements EpisodeListClient {
 		for (Node node : nodes) {
 			Node titleNode = selectNode("./TD[@class='name']/A", node);
 			
-			String title = selectString(".", titleNode);
-			String href = selectString("@href", titleNode);
-			
-			String path = "/perl-bin/" + href;
+			String title = getTextContent(titleNode);
+			String href = getAttribute("href", titleNode);
 			
 			try {
-				searchResults.add(new HyperLink(title, new URL("http", host, path)));
+				searchResults.add(new HyperLink(title, new URL("http", host, "/perl-bin/" + href)));
 			} catch (MalformedURLException e) {
 				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href);
 			}
