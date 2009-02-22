@@ -27,6 +27,7 @@ import javax.swing.SwingWorker;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
@@ -157,13 +158,13 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 					return;
 				}
 				
-				String title = requestProcessor.getTitle();
+				String historyEntry = requestProcessor.getHistoryEntry();
 				
-				if (!searchHistory.contains(title)) {
-					searchHistory.add(title);
+				if (historyEntry != null && !searchHistory.contains(historyEntry)) {
+					searchHistory.add(historyEntry);
 				}
 				
-				tab.setTitle(title);
+				tab.setTitle(requestProcessor.getTitle());
 				
 				// fetch elements of the selected search result
 				new FetchTask(requestProcessor).execute();
@@ -305,6 +306,15 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 				return searchResult.getName();
 			
 			return request.getSearchText();
+		}
+		
+
+		public String getHistoryEntry() {
+			SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
+			
+			// the common word sequence of query and search result 
+			// common name will maintain the exact word characters (incl. case) of the first argument
+			return nameMatcher.matchByFirstCommonWordSequence(searchResult.getName(), request.getSearchText());
 		}
 		
 

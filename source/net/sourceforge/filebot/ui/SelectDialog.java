@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
@@ -40,8 +41,11 @@ public class SelectDialog<T> extends JDialog {
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		// initialize list and select first element
+		// initialize list
 		list = new JList(new ArrayListModel(options));
+		
+		// select first element
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 		
 		list.setCellRenderer(new SelectListCellRenderer());

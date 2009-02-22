@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.Icon;
+
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import net.sourceforge.filebot.ResourceManager;
@@ -162,9 +164,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 
 		@Override
-		public String getTitle() {
-			// add additional information to default title
-			return String.format("%s [%s]", super.getTitle(), request.getLanguage().getDisplayName(Locale.ENGLISH));
+		public Icon getIcon() {
+			return request.client.getIcon();
 		}
 		
 

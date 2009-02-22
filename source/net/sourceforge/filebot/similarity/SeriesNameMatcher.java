@@ -231,9 +231,6 @@ public class SeriesNameMatcher {
 					if (i == 0 && len == seq1.length)
 						return seq1;
 					
-					if (j == 0 && len == seq2.length)
-						return seq2;
-					
 					return Arrays.copyOfRange(seq1, i, i + len);
 				}
 			}

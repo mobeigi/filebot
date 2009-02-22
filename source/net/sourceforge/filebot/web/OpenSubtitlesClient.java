@@ -183,7 +183,16 @@ public class OpenSubtitlesClient {
 		ArrayList<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
 		for (Map<String, String> movie : response.get("data")) {
-			movies.add(new MovieDescriptor(movie.get("title"), new Integer(movie.get("id"))));
+			String title = movie.get("title");
+			
+			// get end index of first non-aka title (aka titles are separated by Â)
+			int endIndex = title.indexOf('\u00C2');
+			
+			if (endIndex > 0) {
+				title = title.substring(0, endIndex);
+			}
+			
+			movies.add(new MovieDescriptor(title, new Integer(movie.get("id"))));
 		}
 		
 		return movies;
