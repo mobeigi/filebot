@@ -8,7 +8,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +33,7 @@ import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 
@@ -73,7 +73,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		searchTextField.getSelectButton().setModel(createSearchEngines());
 		searchTextField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
-		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory);
+		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
 		
 		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
@@ -150,13 +150,29 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 				return;
 			
 			try {
-				// choose search result
-				requestProcessor.setSearchResult(requestProcessor.selectSearchResult(get(), SwingUtilities.getWindowAncestor(AbstractSearchPanel.this)));
+				Collection<? extends SearchResult> results = get();
 				
-				if (requestProcessor.getSearchResult() == null) {
+				SearchResult selectedSearchResult = null;
+				
+				switch (results.size()) {
+					case 0:
+						Logger.getLogger("ui").log(Level.WARNING, String.format("'%s' has not been found.", requestProcessor.request.getSearchText()));
+						break;
+					case 1:
+						selectedSearchResult = results.iterator().next();
+						break;
+					default:
+						selectedSearchResult = requestProcessor.selectSearchResult(results, SwingUtilities.getWindowAncestor(AbstractSearchPanel.this));
+						break;
+				}
+				
+				if (selectedSearchResult == null) {
 					tab.close();
 					return;
 				}
+				
+				// set search result
+				requestProcessor.setSearchResult(selectedSearchResult);
 				
 				String historyEntry = requestProcessor.getHistoryEntry();
 				
@@ -324,28 +340,6 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		
 
 		protected SearchResult selectSearchResult(Collection<? extends SearchResult> searchResults, Window window) throws Exception {
-			
-			switch (searchResults.size()) {
-				case 0:
-					Logger.getLogger("ui").warning(String.format("'%s' has not been found.", request.getSearchText()));
-					return null;
-				case 1:
-					return searchResults.iterator().next();
-			}
-			
-			List<SearchResult> exactMatches = new LinkedList<SearchResult>();
-			
-			// find exact matches
-			for (SearchResult result : searchResults) {
-				if (result.getName().toLowerCase().startsWith(request.getSearchText().toLowerCase())) {
-					exactMatches.add(result);
-				}
-			}
-			
-			if (exactMatches.size() == 1) {
-				return exactMatches.get(0);
-			}
-			
 			// multiple results have been found, user must select one
 			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
 			
