@@ -21,6 +21,9 @@ import javax.swing.JButton;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -37,6 +40,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
+import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
@@ -74,7 +78,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 	@Override
 	protected List<EpisodeListClient> createSearchEngines() {
-		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(3);
+		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(4);
 		
 		engines.add(new TVRageClient());
 		engines.add(new AnidbClient());
@@ -88,6 +92,25 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	@Override
 	protected LabelProvider<EpisodeListClient> createSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(EpisodeListClient.class);
+	}
+	
+
+	@Override
+	protected EventList<String> createSearchHistory() {
+		// create in-memory list
+		BasicEventList<String> searchHistory = new BasicEventList<String>();
+		
+		//  get the preferences node that contains the history entries
+		//  and get a StringList that read and writes directly from and to the preferences
+		List<String> persistentSearchHistory = Settings.userRoot().node("episodelist/history").asList(String.class);
+		
+		// add history from the preferences to the current in-memory history (for completion)
+		searchHistory.addAll(persistentSearchHistory);
+		
+		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
+		ListChangeSynchronizer.syncEventListToList(searchHistory, persistentSearchHistory);
+		
+		return searchHistory;
 	}
 	
 

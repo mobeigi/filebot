@@ -24,7 +24,7 @@ public final class Settings {
 		return "1.9";
 	};
 	
-	private static final Settings userRoot = new Settings(Preferences.userRoot(), getApplicationName());
+	private static final Settings userRoot = new Settings(Preferences.userNodeForPackage(Settings.class));
 	
 	
 	public static Settings userRoot() {
@@ -34,13 +34,13 @@ public final class Settings {
 	private final Preferences prefs;
 	
 	
-	private Settings(Preferences parentNode, String name) {
-		this.prefs = parentNode.node(name.toLowerCase());
+	private Settings(Preferences prefs) {
+		this.prefs = prefs;
 	}
 	
 
 	public Settings node(String nodeName) {
-		return new Settings(prefs, nodeName);
+		return new Settings(prefs.node(nodeName.toLowerCase()));
 	}
 	
 

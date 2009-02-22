@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -33,16 +35,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 		historyPanel.setColumnHeader(0, "Show / Movie");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
-		
-		// get preferences node that contains the history entries
-		//  and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentSearchHistory = Settings.userRoot().node("subtitles/history").asList(String.class);
-		
-		// add history from the preferences to the current in-memory history (for completion)
-		getSearchHistory().addAll(persistentSearchHistory);
-		
-		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
-		ListChangeSynchronizer.syncEventListToList(getSearchHistory(), persistentSearchHistory);
 	}
 	
 
@@ -61,6 +53,25 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	@Override
 	protected LabelProvider<SubtitleClient> createSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(SubtitleClient.class);
+	}
+	
+
+	@Override
+	protected EventList<String> createSearchHistory() {
+		// create in-memory history
+		BasicEventList<String> history = new BasicEventList<String>();
+		
+		//  get the preferences node that contains the history entries
+		//  and get a StringList that read and writes directly from and to the preferences
+		List<String> persistentHistory = Settings.userRoot().node("subtitles/history").asList(String.class);
+		
+		// add history from the preferences to the current in-memory history (for completion)
+		history.addAll(persistentHistory);
+		
+		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
+		ListChangeSynchronizer.syncEventListToList(history, persistentHistory);
+		
+		return history;
 	}
 	
 

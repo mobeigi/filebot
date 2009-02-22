@@ -2,11 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
-import static javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
-import static javax.swing.SwingConstants.TOP;
-
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.net.URI;
@@ -34,7 +31,6 @@ import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.TunedUtilities;
-import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
@@ -43,13 +39,13 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 	
 	protected final JPanel tabbedPaneGroup = new JPanel(new MigLayout("nogrid, fill, insets 0"));
 	
-	protected final JTabbedPane tabbedPane = new JTabbedPane(TOP, SCROLL_TAB_LAYOUT);
+	protected final JTabbedPane tabbedPane = new JTabbedPane();
 	
 	protected final HistoryPanel historyPanel = new HistoryPanel();
 	
 	protected final SelectButtonTextField<S> searchTextField = new SelectButtonTextField<S>();
 	
-	private EventList<String> searchHistory = new BasicEventList<String>();
+	protected final EventList<String> searchHistory = createSearchHistory();
 	
 	
 	public AbstractSearchPanel(String title, Icon icon) {
@@ -96,12 +92,10 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
 	
 
-	protected abstract RequestProcessor<?, E> createRequestProcessor();
+	protected abstract EventList<String> createSearchHistory();
 	
 
-	public EventList<String> getSearchHistory() {
-		return searchHistory;
-	}
+	protected abstract RequestProcessor<?, E> createRequestProcessor();
 	
 
 	private void search(RequestProcessor<?, E> requestProcessor) {

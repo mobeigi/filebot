@@ -7,8 +7,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
-
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotPanel;
@@ -19,7 +17,7 @@ import net.sourceforge.tuned.MessageHandler;
 public class AnalyzePanel extends FileBotPanel {
 	
 	private final FileTreePanel fileTreePanel = new FileTreePanel();
-	private final JTabbedPane toolsPanel = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+	private final JTabbedPane toolsPanel = new JTabbedPane();
 	
 	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, fileTreePanel.getTransferablePolicy());
 	
