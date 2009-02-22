@@ -66,6 +66,7 @@ class ValidateNamesDialog extends JDialog {
 		c.add(new JButton(cancelAction), "gap 12mm");
 		
 		setSize(365, 280);
+		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		TunedUtilities.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}

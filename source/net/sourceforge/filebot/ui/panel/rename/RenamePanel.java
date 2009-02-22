@@ -12,7 +12,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,15 +28,18 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.FileBotPanel;
+import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -216,11 +224,52 @@ public class RenamePanel extends FileBotPanel {
 					// auto-match finished
 					namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 				}
+				
+
+				@Override
+				protected SearchResult selectSearchResult(String query, final Collection<SearchResult> searchResults) throws Exception {
+					if (searchResults.size() == 1) {
+						return searchResults.iterator().next();
+					}
+					
+					List<SearchResult> exactMatches = new LinkedList<SearchResult>();
+					
+					// find exact matches
+					for (SearchResult result : searchResults) {
+						if (result.getName().toLowerCase().startsWith(query.toLowerCase())) {
+							exactMatches.add(result);
+						}
+					}
+					
+					if (exactMatches.size() == 1) {
+						return exactMatches.get(0);
+					}
+					
+					// show selection dialog on EDT
+					final RunnableFuture<SearchResult> showSelectDialog = new FutureTask<SearchResult>(new Callable<SearchResult>() {
+						
+						@Override
+						public SearchResult call() throws Exception {
+							// multiple results have been found, user must select one
+							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), searchResults);
+							
+							selectDialog.setVisible(true);
+							
+							// selected value or null if the dialog was canceled by the user
+							return selectDialog.getSelectedValue();
+						}
+					});
+					
+					// run on EDT
+					SwingUtilities.invokeAndWait(showSelectDialog);
+					
+					// selected value or null
+					return showSelectDialog.get();
+				}
 			};
 			
 			worker.execute();
 		}
-		
 	}
 	
 

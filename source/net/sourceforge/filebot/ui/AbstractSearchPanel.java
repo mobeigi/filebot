@@ -8,6 +8,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,15 +67,6 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		add(new JButton(searchAction), "gap 18px, wrap 10px");
 		add(tabbedPaneGroup, "grow");
 		
-		/*
-		 * TODO: fetchHistory
-		// no need to care about thread-safety, history-lists are only accessed from the EDT
-		CompositeList<Object> completionList = new CompositeList<Object>();
-		
-		completionList.addMemberList((EventList) searchHistory);
-		completionList.addMemberList(fetchHistory);
-		*/
-
 		searchTextField.getEditor().setAction(searchAction);
 		
 		searchTextField.getSelectButton().setModel(createSearchEngines());
@@ -158,7 +150,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 			
 			try {
 				// choose search result
-				requestProcessor.setSearchResult(requestProcessor.chooseSearchResult(get(), SwingUtilities.getWindowAncestor(AbstractSearchPanel.this)));
+				requestProcessor.setSearchResult(requestProcessor.selectSearchResult(get(), SwingUtilities.getWindowAncestor(AbstractSearchPanel.this)));
 				
 				if (requestProcessor.getSearchResult() == null) {
 					tab.close();
@@ -215,7 +207,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 				return;
 			
 			try {
-				// check if exception occurred
+				// check if an exception occurred
 				Collection<E> elements = get();
 				
 				requestProcessor.process(elements);
@@ -321,7 +313,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		}
 		
 
-		protected SearchResult chooseSearchResult(Collection<? extends SearchResult> searchResults, Window window) throws Exception {
+		protected SearchResult selectSearchResult(Collection<? extends SearchResult> searchResults, Window window) throws Exception {
 			
 			switch (searchResults.size()) {
 				case 0:
@@ -331,10 +323,17 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 					return searchResults.iterator().next();
 			}
 			
-			// check if an exact match has been found
-			for (SearchResult searchResult : searchResults) {
-				if (request.getSearchText().equalsIgnoreCase(searchResult.getName()))
-					return searchResult;
+			List<SearchResult> exactMatches = new LinkedList<SearchResult>();
+			
+			// find exact matches
+			for (SearchResult result : searchResults) {
+				if (result.getName().toLowerCase().startsWith(request.getSearchText().toLowerCase())) {
+					exactMatches.add(result);
+				}
+			}
+			
+			if (exactMatches.size() == 1) {
+				return exactMatches.get(0);
 			}
 			
 			// multiple results have been found, user must select one

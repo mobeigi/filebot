@@ -65,6 +65,12 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	}
 	
 
+	protected SearchResult selectSearchResult(String query, Collection<SearchResult> searchResults) throws Exception {
+		// select first by default
+		return searchResults.iterator().next();
+	}
+	
+
 	protected List<Episode> fetchEpisodeList(Collection<String> seriesNames) throws Exception {
 		List<Callable<Collection<Episode>>> tasks = new ArrayList<Callable<Collection<Episode>>>();
 		
@@ -74,12 +80,17 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				
 				@Override
 				public Collection<Episode> call() throws Exception {
-					Collection<SearchResult> searchResults = client.search(seriesName);
+					Collection<SearchResult> results = client.search(seriesName);
 					
-					if (searchResults.isEmpty())
-						return Collections.emptyList();
+					if (results.size() > 0) {
+						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
+						
+						if (selectedSearchResult != null) {
+							return formatEpisodeNumbers(client.getEpisodeList(selectedSearchResult), 2);
+						}
+					}
 					
-					return formatEpisodeNumbers(client.getEpisodeList(searchResults.iterator().next()), 2);
+					return Collections.emptyList();
 				}
 			});
 		}
