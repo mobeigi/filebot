@@ -34,6 +34,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
@@ -227,22 +229,25 @@ public class RenamePanel extends FileBotPanel {
 				
 
 				@Override
-				protected SearchResult selectSearchResult(String query, final Collection<SearchResult> searchResults) throws Exception {
+				protected SearchResult selectSearchResult(final String query, final Collection<SearchResult> searchResults) throws Exception {
 					if (searchResults.size() == 1) {
 						return searchResults.iterator().next();
 					}
 					
-					List<SearchResult> exactMatches = new LinkedList<SearchResult>();
+					List<SearchResult> probableMatches = new LinkedList<SearchResult>();
 					
-					// find exact matches
+					// use name similarity metric
+					SimilarityMetric metric = new NameSimilarityMetric();
+					
+					// find probable matches using name similarity > 0.9
 					for (SearchResult result : searchResults) {
-						if (result.getName().toLowerCase().startsWith(query.toLowerCase())) {
-							exactMatches.add(result);
+						if (metric.getSimilarity(query, result.getName()) > 0.9) {
+							probableMatches.add(result);
 						}
 					}
 					
-					if (exactMatches.size() == 1) {
-						return exactMatches.get(0);
+					if (probableMatches.size() == 1) {
+						return probableMatches.get(0);
 					}
 					
 					// show selection dialog on EDT
@@ -252,6 +257,8 @@ public class RenamePanel extends FileBotPanel {
 						public SearchResult call() throws Exception {
 							// multiple results have been found, user must select one
 							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), searchResults);
+							
+							selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 							
 							selectDialog.setVisible(true);
 							
