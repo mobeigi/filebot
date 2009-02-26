@@ -2,12 +2,19 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
+import static java.lang.Math.log;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.signum;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -22,6 +29,7 @@ import javax.swing.JSpinner.NumberEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotPanel;
@@ -92,7 +100,6 @@ public class ListPanel extends FileBotPanel {
 	private AbstractAction createAction = new AbstractAction("Create") {
 		
 		public void actionPerformed(ActionEvent e) {
-			resetList();
 			
 			int from = fromSpinnerModel.getNumber().intValue();
 			int to = toSpinnerModel.getNumber().intValue();
@@ -104,37 +111,29 @@ public class ListPanel extends FileBotPanel {
 				return;
 			}
 			
-			NumberFormat format = NumberFormat.getInstance();
-			format.setGroupingUsed(false);
+			// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
+			NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+			numberFormat.setMinimumIntegerDigits(max(2, (int) (log(max(from, to)) / log(10))));
+			numberFormat.setGroupingUsed(false);
 			
-			format.setMinimumIntegerDigits(Math.max(Integer.toString(to).length(), 2));
+			List<String> names = new ArrayList<String>();
 			
-			Matcher titleMatcher = Pattern.compile("^([\\w\\s]+).*(\\s+\\w*" + Pattern.quote(INDEX_VARIABLE) + ").*").matcher(pattern);
-			
-			if (titleMatcher.matches()) {
-				list.setTitle(titleMatcher.group(1).trim());
+			for (int i = min(from, to); i <= max(from, to); i++) {
+				names.add(pattern.replaceAll(Pattern.quote(INDEX_VARIABLE), numberFormat.format(i)));
 			}
 			
-			ArrayList<String> entries = new ArrayList<String>();
+			if (signum(to - from) < 0) {
+				Collections.reverse(names);
+			}
 			
-			int increment = (int) Math.signum(to - from);
-			int index = from;
+			// try to match title from the first five names
+			Collection<String> title = new SeriesNameMatcher().matchAll((names.size() < 5 ? names : names.subList(0, 4)).toArray(new String[0]));
 			
-			do {
-				String entry = pattern.replaceAll(Pattern.quote(INDEX_VARIABLE), format.format(index));
-				entries.add(entry);
-				
-				index += increment;
-			} while (index != (to + increment));
+			list.setTitle(title.isEmpty() ? "List" : title.iterator().next());
 			
 			list.getModel().clear();
-			list.getModel().addAll(entries);
+			list.getModel().addAll(names);
 		}
 	};
 	
-	
-	private void resetList() {
-		list.setTitle("List");
-		list.getModel().clear();
-	}
 }

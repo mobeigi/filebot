@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 
 
 public class Episode implements Serializable {
@@ -97,11 +98,13 @@ public class Episode implements Serializable {
 		}
 		
 		// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
-		String numberFormat = "%0" + minDigits + "d";
+		NumberFormat numberFormat = NumberFormat.getIntegerInstance();
+		numberFormat.setMinimumIntegerDigits(minDigits);
+		numberFormat.setGroupingUsed(false);
 		
 		for (Episode episode : episodes) {
 			try {
-				episode.setEpisodeNumber(String.format(numberFormat, Integer.parseInt(episode.getEpisodeNumber())));
+				episode.setEpisodeNumber(numberFormat.format(Integer.parseInt(episode.getEpisodeNumber())));
 			} catch (NumberFormatException e) {
 				// ignore
 			}
