@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
-import static java.lang.Math.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.signum;
@@ -113,7 +112,7 @@ public class ListPanel extends FileBotPanel {
 			
 			// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
 			NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-			numberFormat.setMinimumIntegerDigits(max(2, (int) (log(max(from, to)) / log(10))));
+			numberFormat.setMinimumIntegerDigits(max(2, Integer.toString(max(from, to)).length()));
 			numberFormat.setGroupingUsed(false);
 			
 			List<String> names = new ArrayList<String>();

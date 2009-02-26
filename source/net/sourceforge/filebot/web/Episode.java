@@ -87,10 +87,10 @@ public class Episode implements Serializable {
 		// find max. episode number length
 		for (Episode episode : episodes) {
 			try {
-				int n = Integer.parseInt(episode.getEpisodeNumber());
+				String episodeNumber = episode.getEpisodeNumber();
 				
-				if (n > 0) {
-					minDigits = Math.max(minDigits, (int) (Math.log(n) / Math.log(10)));
+				if (episodeNumber.length() > minDigits && Integer.parseInt(episodeNumber) > 0) {
+					minDigits = episodeNumber.length();
 				}
 			} catch (NumberFormatException e) {
 				// ignore
