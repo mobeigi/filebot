@@ -30,7 +30,6 @@ import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
-import net.sourceforge.tuned.ui.SelectButtonTextField;
 import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;

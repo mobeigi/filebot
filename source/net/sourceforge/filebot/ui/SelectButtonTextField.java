@@ -1,5 +1,5 @@
 
-package net.sourceforge.tuned.ui;
+package net.sourceforge.filebot.ui;
 
 
 import java.awt.Component;
@@ -30,6 +30,8 @@ import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.tuned.ui.SelectButton;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class SelectButtonTextField<T> extends JComponent {

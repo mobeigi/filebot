@@ -4,14 +4,10 @@ package net.sourceforge.filebot.similarity;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
-
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 
 public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
-	
-	private final NumericSimilarityMetric fallbackMetric = new NumericSimilarityMetric();
 	
 	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
 	
@@ -23,16 +19,26 @@ public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
 		
 		if (sxeVector1 == null || sxeVector2 == null) {
 			// name does not match any known pattern, return numeric similarity
-			return fallbackMetric.getSimilarity(o1, o2);
-		}
-		
-		if (Collections.disjoint(sxeVector1, sxeVector2)) {
-			// vectors have no episode matches in common 
 			return 0;
 		}
 		
-		// vectors have at least one episode match in common
-		return 1;
+		float similarity = 0;
+		
+		for (SxE sxe1 : sxeVector1) {
+			for (SxE sxe2 : sxeVector2) {
+				if (sxe1.episode == sxe2.episode) {
+					if (sxe1.season == sxe2.season) {
+						// vectors have at least one perfect episode match in common
+						return 1;
+					}
+					
+					// at least we have a partial match
+					similarity = 0.5f;
+				}
+			}
+		}
+		
+		return similarity;
 	}
 	
 

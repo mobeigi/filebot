@@ -221,10 +221,10 @@ public class RenamePanel extends FileBotPanel {
 						model.files().addAll(remainingFiles());
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+					} finally {
+						// auto-match finished
+						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 					}
-					
-					// auto-match finished
-					namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 				}
 				
 
@@ -234,7 +234,7 @@ public class RenamePanel extends FileBotPanel {
 						return searchResults.iterator().next();
 					}
 					
-					List<SearchResult> probableMatches = new LinkedList<SearchResult>();
+					final List<SearchResult> probableMatches = new LinkedList<SearchResult>();
 					
 					// use name similarity metric
 					SimilarityMetric metric = new NameSimilarityMetric();
@@ -256,7 +256,7 @@ public class RenamePanel extends FileBotPanel {
 						@Override
 						public SearchResult call() throws Exception {
 							// multiple results have been found, user must select one
-							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), searchResults);
+							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), probableMatches.isEmpty() ? searchResults : probableMatches);
 							
 							selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 							

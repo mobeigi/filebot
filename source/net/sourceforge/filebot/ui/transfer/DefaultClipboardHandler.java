@@ -36,6 +36,9 @@ public class DefaultClipboardHandler implements ClipboardHandler {
 		for (Object value : list.getSelectedValues()) {
 			sb.append(value == null ? "" : value).append(newLine);
 		}
+		
+		// delete last newline
+		sb.delete(sb.length() - newLine.length(), sb.length());
 	}
 	
 
@@ -45,6 +48,9 @@ public class DefaultClipboardHandler implements ClipboardHandler {
 			
 			sb.append(value == null ? "" : value).append(newLine);
 		}
+		
+		// delete last newline
+		sb.delete(sb.length() - newLine.length(), sb.length());
 	}
 	
 
@@ -66,5 +72,8 @@ public class DefaultClipboardHandler implements ClipboardHandler {
 			
 			sb.append(newLine);
 		}
+		
+		// delete last newline
+		sb.delete(sb.length() - newLine.length(), sb.length());
 	}
 }
