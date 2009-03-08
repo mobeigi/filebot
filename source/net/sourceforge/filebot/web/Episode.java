@@ -3,7 +3,12 @@ package net.sourceforge.filebot.web;
 
 
 import java.io.Serializable;
-import java.text.NumberFormat;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Episode implements Serializable {
@@ -47,69 +52,78 @@ public class Episode implements Serializable {
 	}
 	
 
-	public void setSeriesName(String seriesName) {
-		this.seriesName = seriesName;
-	}
-	
-
-	public void setSeasonNumber(String seasonNumber) {
-		this.seasonNumber = seasonNumber;
-	}
-	
-
-	public void setEpisodeNumber(String episodeNumber) {
-		this.episodeNumber = episodeNumber;
-	}
-	
-
-	public void setTitle(String episodeName) {
-		this.title = episodeName;
-	}
-	
-
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(40);
-		
-		sb.append(seriesName).append(" - ");
-		
-		if (seasonNumber != null) {
-			sb.append(seasonNumber).append("x");
-		}
-		
-		sb.append(episodeNumber).append(" - ").append(title);
-		
-		return sb.toString();
+		return EpisodeFormat.getInstance().format(this);
 	}
 	
+	
+	public static class EpisodeFormat extends Format {
+		
+		private static final EpisodeFormat instance = new EpisodeFormat();
+		
+		
+		public static EpisodeFormat getInstance() {
+			return instance;
+		}
+		
 
-	public static <T extends Iterable<Episode>> T formatEpisodeNumbers(T episodes, int minDigits) {
-		// find max. episode number length
-		for (Episode episode : episodes) {
-			try {
-				String episodeNumber = episode.getEpisodeNumber();
-				
-				if (episodeNumber.length() > minDigits && Integer.parseInt(episodeNumber) > 0) {
-					minDigits = episodeNumber.length();
+		@Override
+		public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
+			Episode episode = (Episode) obj;
+			
+			sb.append(episode.getSeriesName()).append(" - ");
+			
+			if (episode.getSeasonNumber() != null) {
+				sb.append(episode.getSeasonNumber()).append('x');
+			}
+			
+			sb.append(formatEpisodeNumber(episode.getEpisodeNumber()));
+			
+			return sb.append(" - ").append(episode.getTitle());
+		}
+		
+
+		protected String formatEpisodeNumber(String number) {
+			if (number.length() < 2) {
+				try {
+					return String.format("%02d", Integer.parseInt(number));
+				} catch (NumberFormatException e) {
+					// ignore
 				}
-			} catch (NumberFormatException e) {
-				// ignore
 			}
+			
+			return number;
 		}
 		
-		// pad episode numbers with zeros (e.g. %02d) so all episode numbers have the same number of digits
-		NumberFormat numberFormat = NumberFormat.getIntegerInstance();
-		numberFormat.setMinimumIntegerDigits(minDigits);
-		numberFormat.setGroupingUsed(false);
-		
-		for (Episode episode : episodes) {
-			try {
-				episode.setEpisodeNumber(numberFormat.format(Integer.parseInt(episode.getEpisodeNumber())));
-			} catch (NumberFormatException e) {
-				// ignore
+
+		@Override
+		public Episode parseObject(String source, ParsePosition pos) {
+			Pattern pattern = Pattern.compile("(.*) - (?:(\\w+?)x)?(\\w+)? - (.*)");
+			
+			Matcher matcher = pattern.matcher(source).region(pos.getIndex(), source.length());
+			
+			if (!matcher.matches()) {
+				pos.setErrorIndex(matcher.regionStart());
+				return null;
 			}
+			
+			// episode number must not be null
+			if (matcher.group(3) == null) {
+				pos.setErrorIndex(matcher.start(3));
+				return null;
+			}
+			
+			pos.setIndex(matcher.end());
+			return new Episode(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4));
 		}
 		
-		return episodes;
+
+		@Override
+		public Episode parseObject(String source) throws ParseException {
+			return (Episode) super.parseObject(source);
+		}
+		
 	}
+	
 }

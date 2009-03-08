@@ -21,8 +21,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ca.odell.glazedlists.EventList;
-
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.tuned.FileUtilities;
@@ -30,10 +28,10 @@ import net.sourceforge.tuned.FileUtilities;
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
-	private final EventList<Object> model;
+	private final List<Object> model;
 	
 	
-	public NamesListTransferablePolicy(EventList<Object> model) {
+	public NamesListTransferablePolicy(List<Object> model) {
 		this.model = model;
 	}
 	
