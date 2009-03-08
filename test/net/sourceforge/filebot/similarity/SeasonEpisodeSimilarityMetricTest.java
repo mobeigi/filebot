@@ -27,12 +27,4 @@ public class SeasonEpisodeSimilarityMetricTest {
 		assertEquals(0.0, metric.getSimilarity("abc", "xyz"), 0);
 	}
 	
-
-	@Test
-	public void fallbackMetric() {
-		assertEquals(1.0, metric.getSimilarity("1x01", "sno=1, eno=1"), 0);
-		
-		assertEquals(1.0, metric.getSimilarity("1x02", "Dexter - Staffel 1 Episode 2"), 0);
-	}
-	
 }

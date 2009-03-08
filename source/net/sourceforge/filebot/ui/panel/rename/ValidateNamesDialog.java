@@ -7,11 +7,12 @@ import static net.sourceforge.filebot.FileBotUtilities.validateFileName;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.util.Collection;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -31,23 +33,26 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 class ValidateNamesDialog extends JDialog {
 	
-	private final Collection<MutableString> entries;
+	private final List<String> source;
+	private String[] validatedValues;
 	
 	private boolean cancelled = true;
+	
+	protected final JList list;
 	
 	protected final Action validateAction = new ValidateAction();
 	protected final Action continueAction = new ContinueAction();
 	protected final Action cancelAction = new CancelAction();
 	
 	
-	public ValidateNamesDialog(Window owner, Collection<MutableString> entries) {
+	public ValidateNamesDialog(Window owner, List<String> source) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
-		this.entries = entries;
+		this.source = source;
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		JList list = new JList(new ArrayListModel(entries));
+		list = new JList(new ArrayListModel(source));
 		list.setEnabled(false);
 		
 		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
@@ -82,6 +87,13 @@ class ValidateNamesDialog extends JDialog {
 		
 		setVisible(false);
 		dispose();
+		
+		if (validatedValues != null && !cancelled) {
+			// update source list
+			for (int i = 0; i < validatedValues.length; i++) {
+				source.set(i, validatedValues[i]);
+			}
+		}
 	}
 	
 	
@@ -95,8 +107,10 @@ class ValidateNamesDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for (MutableString entry : entries) {
-				entry.set(validateFileName(entry.toString()));
+			validatedValues = new String[source.size()];
+			
+			for (int i = 0; i < validatedValues.length; i++) {
+				validatedValues[i] = validateFileName(source.get(i));
 			}
 			
 			setEnabled(false);
@@ -104,8 +118,8 @@ class ValidateNamesDialog extends JDialog {
 			continueAction.putValue(SMALL_ICON, getValue(SMALL_ICON));
 			continueAction.putValue(ContinueAction.ALPHA, 1.0f);
 			
-			// render list entries again to display changes
-			repaint();
+			// update displayed values
+			list.setModel(new ArrayListModel(validatedValues));
 		}
 	};
 	
@@ -180,4 +194,12 @@ class ValidateNamesDialog extends JDialog {
 		}
 	}
 	
+	
+	public static boolean showDialog(Component parent, List<String> source) {
+		ValidateNamesDialog dialog = new ValidateNamesDialog(parent != null ? SwingUtilities.getWindowAncestor(parent) : null, source);
+		
+		dialog.setVisible(true);
+		
+		return !dialog.isCancelled();
+	}
 }

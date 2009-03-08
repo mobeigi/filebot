@@ -65,7 +65,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		
 		//  get the preferences node that contains the history entries
 		//  and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentHistory = Settings.userRoot().node("subtitles/history").asList(String.class);
+		List<String> persistentHistory = Settings.userRoot().node("subtitles/history").asList();
 		
 		// add history from the preferences to the current in-memory history (for completion)
 		history.addAll(persistentHistory);

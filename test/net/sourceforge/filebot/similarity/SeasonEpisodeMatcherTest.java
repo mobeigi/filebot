@@ -27,7 +27,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals("1x01", matcher.match("1x01").get(0).toString());
 		
 		// test multiple matches
-		assertEquals("1x02", matcher.match("Test - 1x01 and 1x02 - Multiple MatchCollection").get(1).toString());
+		assertEquals("1x02", matcher.match("Test - 1x01 and 1.02 - Multiple MatchCollection").get(1).toString());
 		
 		// test high values
 		assertEquals("12x345", matcher.match("Test - 12x345 - High Values").get(0).toString());

@@ -2,6 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.ListModel;
@@ -15,6 +16,11 @@ public class ArrayListModel implements ListModel {
 	
 	public ArrayListModel(Collection<? extends Object> data) {
 		this.data = data.toArray();
+	}
+	
+
+	public ArrayListModel(Object[] data) {
+		this.data = Arrays.copyOf(data, data.length);
 	}
 	
 

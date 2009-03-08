@@ -103,8 +103,8 @@ public class PreferencesList<T> extends AbstractList<T> {
 	}
 	
 
-	public static <T> PreferencesList<T> map(Preferences prefs, Class<T> type) {
-		return new PreferencesList<T>(PreferencesMap.map(prefs, type));
+	public static PreferencesList<String> map(Preferences prefs) {
+		return new PreferencesList<String>(PreferencesMap.map(prefs));
 	}
 	
 

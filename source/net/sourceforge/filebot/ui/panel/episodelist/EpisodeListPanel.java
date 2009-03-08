@@ -3,8 +3,6 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 
 
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.ALL_SEASONS;
-import static net.sourceforge.filebot.web.Episode.formatEpisodeNumbers;
-
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -20,9 +18,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
-
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
@@ -45,6 +40,8 @@ import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 import net.sourceforge.tuned.ui.TunedUtilities;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
 
 
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Episode> {
@@ -102,7 +99,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 		//  get the preferences node that contains the history entries
 		//  and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentSearchHistory = Settings.userRoot().node("episodelist/history").asList(String.class);
+		List<String> persistentSearchHistory = Settings.userRoot().node("episodelist/history").asList();
 		
 		// add history from the preferences to the current in-memory history (for completion)
 		searchHistory.addAll(persistentSearchHistory);
@@ -233,15 +230,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 		@Override
 		public Collection<Episode> fetch() throws Exception {
-			Collection<Episode> episodes;
-			
-			if (request.getSeason() != ALL_SEASONS) {
-				episodes = request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
-			} else {
-				episodes = request.getClient().getEpisodeList(getSearchResult());
-			}
-			
-			return formatEpisodeNumbers(episodes, 2);
+			if (request.getSeason() != ALL_SEASONS)
+				return request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
+			else
+				return request.getClient().getEpisodeList(getSearchResult());
 		}
 		
 

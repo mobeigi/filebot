@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static net.sourceforge.filebot.FileBotUtilities.MOVIE_FILES;
 import static net.sourceforge.filebot.FileBotUtilities.SUBTITLE_FILES;
-import static net.sourceforge.filebot.web.Episode.formatEpisodeNumbers;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -86,7 +85,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
 						
 						if (selectedSearchResult != null) {
-							return formatEpisodeNumbers(client.getEpisodeList(selectedSearchResult), 2);
+							return client.getEpisodeList(selectedSearchResult);
 						}
 					}
 					

@@ -5,14 +5,13 @@ package net.sourceforge.filebot.ui.panel.rename;
 import static java.awt.datatransfer.DataFlavor.stringFlavor;
 import static net.sourceforge.filebot.FileBotUtilities.LIST_FILES;
 import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.isInvalidFileName;
 import static net.sourceforge.tuned.FileUtilities.FOLDERS;
 import static net.sourceforge.tuned.FileUtilities.containsOnly;
 import static net.sourceforge.tuned.FileUtilities.getNameWithoutExtension;
 
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.SwingUtilities;
+import ca.odell.glazedlists.EventList;
 
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -31,17 +30,17 @@ import net.sourceforge.tuned.FileUtilities;
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
-	private final RenameList<Object> list;
+	private final EventList<Object> model;
 	
 	
-	public NamesListTransferablePolicy(RenameList<Object> list) {
-		this.list = list;
+	public NamesListTransferablePolicy(EventList<Object> model) {
+		this.model = model;
 	}
 	
 
 	@Override
 	protected void clear() {
-		list.getModel().clear();
+		model.clear();
 	}
 	
 
@@ -65,42 +64,11 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		
 		if (tr.isDataFlavorSupported(stringFlavor)) {
 			// string transferable
-			try {
-				load((String) tr.getTransferData(stringFlavor));
-			} catch (UnsupportedFlavorException e) {
-				// should not happen
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				// should not happen
-				throw new RuntimeException(e);
-			}
+			load((String) tr.getTransferData(stringFlavor));
 		} else if (super.accept(tr)) {
 			// file transferable
 			load(getFilesFromTransferable(tr));
 		}
-	}
-	
-
-	protected void submit(List<MutableString> entries) {
-		List<MutableString> invalidEntries = new ArrayList<MutableString>();
-		
-		for (MutableString entry : entries) {
-			if (isInvalidFileName(entry.toString())) {
-				invalidEntries.add(entry);
-			}
-		}
-		
-		if (!invalidEntries.isEmpty()) {
-			ValidateNamesDialog dialog = new ValidateNamesDialog(SwingUtilities.getWindowAncestor(list), invalidEntries);
-			dialog.setVisible(true);
-			
-			if (dialog.isCancelled()) {
-				// return immediately, don't add items to list
-				return;
-			}
-		}
-		
-		list.getModel().addAll(entries);
 	}
 	
 
@@ -117,7 +85,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			}
 		}
 		
-		submit(entries);
+		model.addAll(entries);
 	}
 	
 
@@ -140,29 +108,30 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	protected void loadFiles(List<File> files) {
 		for (File file : files) {
-			list.getModel().add(new AbstractFileEntry(FileUtilities.getName(file), file.length()));
+			model.add(new AbstractFileEntry(FileUtilities.getName(file), file.length()));
 		}
 	}
 	
 
 	protected void loadListFiles(List<File> files) throws FileNotFoundException {
-		List<MutableString> entries = new ArrayList<MutableString>();
+		List<String> values = new ArrayList<String>();
 		
 		for (File file : files) {
-			Scanner scanner = new Scanner(file, "UTF-8").useDelimiter(LINE_SEPARATOR);
+			// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
+			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8").useDelimiter(LINE_SEPARATOR);
 			
 			while (scanner.hasNext()) {
 				String line = scanner.next();
 				
 				if (line.trim().length() > 0) {
-					entries.add(new MutableString(line));
+					values.add(line);
 				}
 			}
 			
 			scanner.close();
 		}
 		
-		submit(entries);
+		model.addAll(values);
 	}
 	
 
@@ -179,7 +148,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			}
 			
 			// add torrent entries directly without checking file names for invalid characters
-			list.getModel().addAll(entries);
+			model.addAll(entries);
 		} catch (IOException e) {
 			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
 		}

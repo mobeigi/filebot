@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static javax.swing.SwingUtilities.getWindowAncestor;
-import static net.sourceforge.filebot.FileBotUtilities.isInvalidFileName;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
 
 import java.awt.Insets;
@@ -55,7 +53,7 @@ public class RenamePanel extends FileBotPanel {
 	
 	private RenameModel model = new RenameModel();
 	
-	private RenameList<Object> namesList = new RenameList<Object>(model.names());
+	private RenameList<String> namesList = new RenameList<String>(new NamesViewEventList(this, model.names()));
 	
 	private RenameList<File> filesList = new RenameList<File>(model.files());
 	
@@ -70,7 +68,7 @@ public class RenamePanel extends FileBotPanel {
 		super("Rename", ResourceManager.getIcon("panel.rename"));
 		
 		namesList.setTitle("Proposed");
-		namesList.setTransferablePolicy(new NamesListTransferablePolicy(namesList));
+		namesList.setTransferablePolicy(new NamesListTransferablePolicy(model.names()));
 		
 		filesList.setTitle("Current");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
@@ -186,35 +184,17 @@ public class RenamePanel extends FileBotPanel {
 				@Override
 				protected void done() {
 					try {
-						List<MutableString> names = new ArrayList<MutableString>();
+						List<Episode> episodes = new ArrayList<Episode>();
 						List<File> files = new ArrayList<File>();
 						
-						List<MutableString> invalidNames = new ArrayList<MutableString>();
-						
 						for (Match<File, Episode> match : get()) {
-							MutableString name = new MutableString(match.getCandidate());
-							
-							if (isInvalidFileName(name.toString())) {
-								invalidNames.add(name);
-							}
-							
-							names.add(name);
+							episodes.add(match.getCandidate());
 							files.add(match.getValue());
-						}
-						
-						if (!invalidNames.isEmpty()) {
-							ValidateNamesDialog dialog = new ValidateNamesDialog(getWindowAncestor(RenamePanel.this), invalidNames);
-							dialog.setVisible(true);
-							
-							if (dialog.isCancelled()) {
-								// don't touch model
-								return;
-							}
 						}
 						
 						model.clear();
 						
-						model.names().addAll(names);
+						model.names().addAll(episodes);
 						model.files().addAll(files);
 						
 						// add remaining file entries

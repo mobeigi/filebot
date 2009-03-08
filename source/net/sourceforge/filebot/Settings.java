@@ -4,6 +4,7 @@ package net.sourceforge.filebot;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -11,6 +12,8 @@ import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.PreferencesMap;
 import net.sourceforge.tuned.PreferencesMap.Adapter;
+import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
+import net.sourceforge.tuned.PreferencesMap.StringAdapter;
 
 
 public final class Settings {
@@ -66,8 +69,13 @@ public final class Settings {
 	}
 	
 
-	public <T> Map<String, T> asMap(Class<T> type) {
-		return PreferencesMap.map(prefs, type);
+	public Entry<String, String> entry(String key) {
+		return new PreferencesEntry<String>(prefs, key, new StringAdapter());
+	}
+	
+
+	public Map<String, String> asMap() {
+		return PreferencesMap.map(prefs);
 	}
 	
 
@@ -76,8 +84,8 @@ public final class Settings {
 	}
 	
 
-	public <T> List<T> asList(Class<T> type) {
-		return PreferencesList.map(prefs, type);
+	public List<String> asList() {
+		return PreferencesList.map(prefs);
 	}
 	
 

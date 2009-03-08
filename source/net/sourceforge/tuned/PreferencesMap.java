@@ -47,13 +47,10 @@ public class PreferencesMap<T> implements Map<String, T> {
 	public T put(String key, T value) {
 		adapter.put(prefs, key, value);
 		
-		return value;
+		return null;
 	}
 	
 
-	/**
-	 * @return always null
-	 */
 	@Override
 	public T remove(Object key) {
 		if (key instanceof String) {
@@ -107,7 +104,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		Set<Map.Entry<String, T>> entries = new LinkedHashSet<Map.Entry<String, T>>();
 		
 		for (String key : keys()) {
-			entries.add(new Entry(key));
+			entries.add(new PreferencesEntry<T>(prefs, key, adapter));
 		}
 		
 		return entries;
@@ -151,49 +148,9 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return values;
 	}
 	
-	
-	private class Entry implements Map.Entry<String, T> {
-		
-		private final String key;
-		
-		
-		public Entry(String key) {
-			this.key = key;
-		}
-		
 
-		@Override
-		public String getKey() {
-			return key;
-		}
-		
-
-		@Override
-		public T getValue() {
-			return get(key);
-		}
-		
-
-		@Override
-		public T setValue(T value) {
-			return put(key, value);
-		}
-		
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static <T> PreferencesMap<T> map(Preferences prefs, Class<T> type) {
-		Adapter<T> adapter;
-		
-		if (type == String.class) {
-			// prefer StringAdapter, because SimpleAdapter would use the copy constructor of String, instead of returning the values directly
-			adapter = (Adapter<T>) new StringAdapter();
-		} else {
-			adapter = new SimpleAdapter(type);
-		}
-		
-		return map(prefs, adapter);
+	public static PreferencesMap<String> map(Preferences prefs) {
+		return map(prefs, new StringAdapter());
 	}
 	
 
@@ -294,6 +251,11 @@ public class PreferencesMap<T> implements Map<String, T> {
 			prefs.put(key, value.toString());
 		}
 		
+
+		public static <T> SimpleAdapter<T> forClass(Class<T> type) {
+			return new SimpleAdapter<T>(type);
+		}
+		
 	}
 	
 
@@ -333,6 +295,44 @@ public class PreferencesMap<T> implements Map<String, T> {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
+
+	public static class PreferencesEntry<T> implements Entry<String, T> {
+		
+		private final String key;
+		
+		private final Preferences prefs;
+		
+		private final Adapter<T> adapter;
+		
+		
+		public PreferencesEntry(Preferences prefs, String key, Adapter<T> adapter) {
+			this.key = key;
+			this.prefs = prefs;
+			this.adapter = adapter;
+		}
+		
+
+		@Override
+		public String getKey() {
+			return key;
+		}
+		
+
+		@Override
+		public T getValue() {
+			return adapter.get(prefs, key);
+		}
+		
+
+		@Override
+		public T setValue(T value) {
+			adapter.put(prefs, key, value);
+			
+			return null;
+		}
+		
 	}
 	
 }

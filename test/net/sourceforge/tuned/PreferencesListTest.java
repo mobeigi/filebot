@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -51,7 +53,7 @@ public class PreferencesListTest {
 
 	@Test
 	public void get() {
-		List<String> list = PreferencesList.map(strings, String.class);
+		List<String> list = PreferencesList.map(strings);
 		
 		assertEquals("Rei", list.get(0));
 		assertEquals("Roswell", list.get(2));
@@ -61,7 +63,7 @@ public class PreferencesListTest {
 
 	@Test
 	public void add() {
-		List<Integer> list = PreferencesList.map(numbers, Integer.class);
+		List<Integer> list = PreferencesList.map(numbers, SimpleAdapter.forClass(Integer.class));
 		
 		list.add(3);
 		
@@ -80,7 +82,7 @@ public class PreferencesListTest {
 		compareValues.add("Gladiator 4");
 		compareValues.add("Gladiator 5");
 		
-		List<String> prefs = PreferencesList.map(temp, String.class);
+		List<String> prefs = PreferencesList.map(temp);
 		prefs.addAll(compareValues);
 		
 		for (int index : new int[] { 4, 0, 1 }) {
@@ -95,7 +97,7 @@ public class PreferencesListTest {
 
 	@Test
 	public void setEntry() {
-		List<String> list = PreferencesList.map(strings, String.class);
+		List<String> list = PreferencesList.map(strings);
 		
 		list.set(3, "Buffy");
 		
@@ -105,7 +107,7 @@ public class PreferencesListTest {
 
 	@Test
 	public void toArray() throws Exception {
-		List<String> list = PreferencesList.map(strings, String.class);
+		List<String> list = PreferencesList.map(strings);
 		
 		assertArrayEquals(list.subList(0, 3).toArray(), new Object[] { "Rei", "Firefly", "Roswell" });
 	}

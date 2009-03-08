@@ -14,6 +14,7 @@ import java.util.prefs.Preferences;
 
 import net.sourceforge.filebot.web.MovieDescriptor;
 import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -62,7 +63,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void get() {
-		Map<String, String> stringMap = PreferencesMap.map(strings, String.class);
+		Map<String, String> stringMap = PreferencesMap.map(strings);
 		
 		assertEquals("Firefly", stringMap.get("1"));
 	}
@@ -70,7 +71,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void put() {
-		Map<String, String> stringMap = PreferencesMap.map(temp, String.class);
+		Map<String, String> stringMap = PreferencesMap.map(temp);
 		
 		stringMap.put("key", "snake");
 		
@@ -80,7 +81,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void remove() throws Exception {
-		Map<String, Integer> map = PreferencesMap.map(numbers, Integer.class);
+		Map<String, Integer> map = PreferencesMap.map(numbers, SimpleAdapter.forClass(Integer.class));
 		
 		map.remove("A");
 		
@@ -90,7 +91,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void clear() throws Exception {
-		Map<String, Integer> map = PreferencesMap.map(temp, Integer.class);
+		Map<String, Integer> map = PreferencesMap.map(temp, SimpleAdapter.forClass(Integer.class));
 		
 		map.put("X", 42);
 		
@@ -104,7 +105,7 @@ public class PreferencesMapTest {
 	public void containsKey() {
 		temp.put("name", "kaya");
 		
-		Map<String, String> map = PreferencesMap.map(temp, String.class);
+		Map<String, String> map = PreferencesMap.map(temp);
 		
 		assertTrue(map.containsKey("name"));
 	}
@@ -113,7 +114,7 @@ public class PreferencesMapTest {
 	@Test
 	public void values() {
 		
-		Map<String, Integer> map = PreferencesMap.map(sequence, Integer.class);
+		Map<String, Integer> map = PreferencesMap.map(sequence, SimpleAdapter.forClass(Integer.class));
 		
 		Collection<Integer> list = map.values();
 		
@@ -125,7 +126,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void containsValue() {
-		Map<String, String> map = PreferencesMap.map(strings, String.class);
+		Map<String, String> map = PreferencesMap.map(strings);
 		
 		assertTrue(map.containsValue("Firefly"));
 	}
@@ -133,7 +134,7 @@ public class PreferencesMapTest {
 
 	@Test
 	public void entrySet() {
-		Map<String, Integer> map = PreferencesMap.map(numbers, Integer.class);
+		Map<String, Integer> map = PreferencesMap.map(numbers, SimpleAdapter.forClass(Integer.class));
 		
 		for (Entry<String, Integer> entry : map.entrySet()) {
 			Integer v = entry.getValue();
@@ -146,20 +147,20 @@ public class PreferencesMapTest {
 
 	@Test(expected = NumberFormatException.class)
 	public void adapterException() {
-		PreferencesMap.map(strings, Integer.class).values();
+		PreferencesMap.map(strings, SimpleAdapter.forClass(Integer.class)).values();
 	}
 	
 
 	@Test
 	public void containsKeyWithObjectKey() throws Exception {
-		Map<String, String> map = PreferencesMap.map(strings, String.class);
+		Map<String, String> map = PreferencesMap.map(strings);
 		
 		assertFalse(map.containsKey(new Object()));
 	}
 	
 
 	public void getWithObjectKey() throws Exception {
-		Map<String, String> map = PreferencesMap.map(strings, String.class);
+		Map<String, String> map = PreferencesMap.map(strings);
 		
 		assertEquals(null, map.get(new Object()));
 	}
