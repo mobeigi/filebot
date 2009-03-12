@@ -47,6 +47,7 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Episode.EpisodeFormat;
 import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LinkButton;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -58,13 +59,16 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private Format selectedFormat = null;
 	
-	protected JFormattedTextField preview = new JFormattedTextField(getPreviewSample());
+	protected final JFormattedTextField preview = new JFormattedTextField();
 	
-	protected JLabel errorMessage = new JLabel(ResourceManager.getIcon("dialog.cancel"));
-	protected JTextField editor = new JTextField();
+	protected final JLabel errorMessage = new JLabel(ResourceManager.getIcon("dialog.cancel"));
+	protected final JTextField editor = new JTextField();
 	
 	protected Color defaultColor = preview.getForeground();
 	protected Color errorColor = Color.red;
+	
+	protected final PreferencesEntry<String> persistentFormat = Settings.userRoot().entry("dialog.format");
+	protected final PreferencesEntry<String> persistentSample = Settings.userRoot().entry("dialog.sample");
 	
 	
 	public EpisodeFormatDialog(Window owner) {
@@ -73,7 +77,10 @@ public class EpisodeFormatDialog extends JDialog {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
-		editor.setText(Settings.userRoot().get("dialog.format"));
+		
+		// restore state
+		preview.setValue(getPreviewSample());
+		editor.setText(persistentFormat.getValue());
 		
 		preview.setBorder(BorderFactory.createEmptyBorder());
 		
@@ -201,7 +208,7 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	protected Episode getPreviewSample() {
-		String sample = Settings.userRoot().get("dialog.sample");
+		String sample = persistentSample.getValue();
 		
 		if (sample != null) {
 			try {
@@ -211,6 +218,7 @@ public class EpisodeFormatDialog extends JDialog {
 			}
 		}
 		
+		// default sample
 		return new Episode("Dark Angel", "3", "1", "Labyrinth");
 	}
 	
@@ -250,7 +258,7 @@ public class EpisodeFormatDialog extends JDialog {
 		Exception exception = null;
 		
 		try {
-			Format format = new EpisodeScriptFormat(editor.getText().trim());
+			Format format = new EpisodeExpressionFormat(editor.getText().trim());
 			
 			// check if format produces empty strings
 			if (format.format(preview.getValue()).trim().isEmpty()) {
@@ -285,11 +293,11 @@ public class EpisodeFormatDialog extends JDialog {
 		dispose();
 		
 		if (checkEpisodeFormat()) {
-			Settings.userRoot().put("dialog.format", editor.getText());
+			persistentFormat.setValue(editor.getText());
 		}
 		
 		if (checkPreviewSample()) {
-			Settings.userRoot().put("dialog.sample", preview.getValue().toString());
+			persistentSample.setValue(EpisodeFormat.getInstance().format(preview.getValue()));
 		}
 	}
 	
@@ -314,7 +322,7 @@ public class EpisodeFormatDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
-				finish(new EpisodeScriptFormat(editor.getText()));
+				finish(new EpisodeExpressionFormat(editor.getText()));
 			} catch (ScriptException e) {
 				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			}
@@ -369,7 +377,7 @@ public class EpisodeFormatDialog extends JDialog {
 
 		public void updateText(Object episode) {
 			try {
-				setText(new EpisodeScriptFormat(format).format(episode));
+				setText(new EpisodeExpressionFormat(format).format(episode));
 				setForeground(defaultColor);
 			} catch (Exception e) {
 				setText(ExceptionUtilities.getRootCauseMessage(e));

@@ -333,6 +333,11 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return null;
 		}
 		
+
+		public void remove() {
+			adapter.remove(prefs, key);
+		}
+		
 	}
 	
 }

@@ -19,14 +19,14 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 
-public abstract class ScriptFormat extends Format {
+public abstract class ExpressionFormat extends Format {
 	
 	private final String format;
 	
 	private final Object[] expressions;
 	
 	
-	public ScriptFormat(String format) throws ScriptException {
+	public ExpressionFormat(String format) throws ScriptException {
 		this.format = format;
 		this.expressions = compile(format, (Compilable) initScriptEngine());
 	}
@@ -35,7 +35,7 @@ public abstract class ScriptFormat extends Format {
 	protected ScriptEngine initScriptEngine() throws ScriptException {
 		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 		
-		engine.eval(new InputStreamReader(getClass().getResourceAsStream("ScriptFormat.global.js")));
+		engine.eval(new InputStreamReader(getClass().getResourceAsStream("ExpressionFormat.global.js")));
 		
 		return engine;
 	}
@@ -78,7 +78,7 @@ public abstract class ScriptFormat extends Format {
 	}
 	
 
-	protected abstract Bindings getBindings(Object object);
+	protected abstract Bindings getBindings(Object value);
 	
 
 	@Override

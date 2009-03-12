@@ -39,12 +39,12 @@ import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
 
 class MatchAction extends AbstractAction {
 	
-	private final RenameModel model;
+	private final RenameModel<Object, File> model;
 	
 	private final Collection<SimilarityMetric> metrics;
 	
 	
-	public MatchAction(RenameModel model) {
+	public MatchAction(RenameModel<Object, File> model) {
 		super("Match", ResourceManager.getIcon("action.match"));
 		
 		this.model = model;
@@ -169,7 +169,7 @@ class MatchAction extends AbstractAction {
 		private final Matcher<Object, File> matcher;
 		
 		
-		public BackgroundMatcher(RenameModel model, Collection<SimilarityMetric> metrics) {
+		public BackgroundMatcher(RenameModel<Object, File> model, Collection<SimilarityMetric> metrics) {
 			// match names against files
 			this.matcher = new Matcher<Object, File>(model.names(), model.files(), metrics);
 		}

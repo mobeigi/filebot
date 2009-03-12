@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import java.io.File;
 import java.util.AbstractList;
 import java.util.Collection;
 
@@ -11,18 +10,24 @@ import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 
 
-class RenameModel {
+class RenameModel<N, V> {
 	
-	private final EventList<Object> names = new BasicEventList<Object>();
-	private final EventList<File> files = new BasicEventList<File>();
+	private final EventList<N> names;
+	private final EventList<V> files;
 	
 	
-	public EventList<Object> names() {
+	public RenameModel(EventList<N> names, EventList<V> files) {
+		this.names = names;
+		this.files = files;
+	}
+	
+
+	public EventList<N> names() {
 		return names;
 	}
 	
 
-	public EventList<File> files() {
+	public EventList<V> files() {
 		return files;
 	}
 	
@@ -38,19 +43,19 @@ class RenameModel {
 	}
 	
 
-	public Match<Object, File> getMatch(int index) {
+	public Match<N, V> getMatch(int index) {
 		if (index >= matchCount())
 			throw new IndexOutOfBoundsException();
 		
-		return new Match<Object, File>(names.get(index), files.get(index));
+		return new Match<N, V>(names.get(index), files.get(index));
 	}
 	
 
-	public Collection<Match<Object, File>> matches() {
-		return new AbstractList<Match<Object, File>>() {
+	public Collection<Match<N, V>> matches() {
+		return new AbstractList<Match<N, V>>() {
 			
 			@Override
-			public Match<Object, File> get(int index) {
+			public Match<N, V> get(int index) {
 				return getMatch(index);
 			}
 			
@@ -62,4 +67,16 @@ class RenameModel {
 			
 		};
 	}
+	
+
+	@SuppressWarnings("unchecked")
+	public static <S, V> RenameModel<S, V> create() {
+		return new RenameModel<S, V>((EventList<S>) new BasicEventList<Object>(), (EventList<V>) new BasicEventList<Object>());
+	}
+	
+
+	public static <S, V> RenameModel<S, V> wrap(EventList<S> names, EventList<V> values) {
+		return new RenameModel<S, V>(names, values);
+	}
+	
 }

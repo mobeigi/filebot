@@ -4,8 +4,6 @@ package net.sourceforge.filebot;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.AbstractList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,23 +74,6 @@ public final class FileBotUtilities {
 		}
 		
 		return sb.toString();
-	}
-	
-
-	public static List<String> asFileNameList(final List<File> list) {
-		return new AbstractList<String>() {
-			
-			@Override
-			public String get(int index) {
-				return FileUtilities.getName(list.get(index));
-			}
-			
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-		};
 	}
 	
 	public static final FileFilter TORRENT_FILES = new ExtensionFileFilter("torrent");

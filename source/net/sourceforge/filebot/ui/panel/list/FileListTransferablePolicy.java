@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -50,7 +49,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		} else if (containsOnly(files, TORRENT_FILES)) {
 			loadTorrents(files);
 		} else {
-			list.getModel().addAll(FileBotUtilities.asFileNameList(files));
+			loadFiles(files);
 		}
 	}
 	
@@ -62,19 +61,19 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		}
 		
 		for (File folder : folders) {
-			list.getModel().addAll(FileBotUtilities.asFileNameList(Arrays.asList(folder.listFiles())));
+			loadFiles(Arrays.asList(folder.listFiles()));
 		}
 	}
 	
 
-	private void loadTorrents(List<File> torrentFiles) throws IOException {
-		List<Torrent> torrents = new ArrayList<Torrent>(torrentFiles.size());
+	private void loadTorrents(List<File> files) throws IOException {
+		List<Torrent> torrents = new ArrayList<Torrent>(files.size());
 		
-		for (File file : torrentFiles) {
+		for (File file : files) {
 			torrents.add(new Torrent(file));
 		}
 		
-		if (torrentFiles.size() == 1) {
+		if (torrents.size() == 1) {
 			list.setTitle(FileUtilities.getNameWithoutExtension(torrents.get(0).getName()));
 		}
 		
@@ -82,6 +81,13 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			for (Torrent.Entry entry : torrent.getFiles()) {
 				list.getModel().add(FileUtilities.getNameWithoutExtension(entry.getName()));
 			}
+		}
+	}
+	
+
+	private void loadFiles(List<File> files) {
+		for (File file : files) {
+			list.getModel().add(FileUtilities.getName(file));
 		}
 	}
 	

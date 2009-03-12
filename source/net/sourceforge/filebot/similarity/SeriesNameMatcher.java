@@ -19,7 +19,7 @@ import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import net.sourceforge.filebot.FileBotUtilities;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class SeriesNameMatcher {
@@ -261,10 +261,21 @@ public class SeriesNameMatcher {
 		Map<File, String[]> namesByFolder = new LinkedHashMap<File, String[]>();
 		
 		for (Entry<File, List<File>> entry : filesByFolder.entrySet()) {
-			namesByFolder.put(entry.getKey(), FileBotUtilities.asFileNameList(entry.getValue()).toArray(new String[0]));
+			namesByFolder.put(entry.getKey(), names(entry.getValue()));
 		}
 		
 		return namesByFolder;
+	}
+	
+
+	protected String[] names(List<File> files) {
+		String[] names = new String[files.size()];
+		
+		for (int i = 0; i < names.length; i++) {
+			names[i] = FileUtilities.getName(files.get(i));
+		}
+		
+		return names;
 	}
 	
 	

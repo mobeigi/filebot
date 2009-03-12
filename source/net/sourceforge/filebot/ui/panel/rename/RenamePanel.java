@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import javax.swing.Action;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -34,15 +36,20 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.ui.EpisodeExpressionFormat;
+import net.sourceforge.filebot.ui.EpisodeFormatDialog;
 import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.FileUtilities.FileNameFormat;
+import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import ca.odell.glazedlists.event.ListEvent;
@@ -51,17 +58,19 @@ import ca.odell.glazedlists.event.ListEventListener;
 
 public class RenamePanel extends FileBotPanel {
 	
-	private RenameModel model = new RenameModel();
+	protected final RenameModel<Object, File> model = RenameModel.create();
 	
-	private RenameList<String> namesList = new RenameList<String>(new NamesViewEventList(this, model.names()));
+	protected final NamesViewEventList namesView = new NamesViewEventList(this, model.names());
 	
-	private RenameList<File> filesList = new RenameList<File>(model.files());
+	protected final RenameList<String> namesList = new RenameList<String>(namesView);
 	
-	private MatchAction matchAction = new MatchAction(model);
+	protected final RenameList<File> filesList = new RenameList<File>(model.files());
 	
-	private RenameAction renameAction = new RenameAction(model);
+	protected final MatchAction matchAction = new MatchAction(model);
 	
-	private ActionPopup matchActionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
+	protected final RenameAction renameAction = new RenameAction(RenameModel.wrap(namesView, model.files()));
+	
+	protected final PreferencesEntry<String> persistentFormat = Settings.userRoot().entry("rename.format");
 	
 	
 	public RenamePanel() {
@@ -72,6 +81,11 @@ public class RenamePanel extends FileBotPanel {
 		
 		filesList.setTitle("Current");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
+		
+		namesView.setFormat(File.class, new FileNameFormat());
+		
+		// restore custom format
+		restoreEpisodeFormat();
 		
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(model);
 		
@@ -98,13 +112,8 @@ public class RenamePanel extends FileBotPanel {
 		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
 		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		// create actions for match popup
-		matchActionPopup.add(new AutoFetchEpisodeListAction(new TVRageClient()));
-		matchActionPopup.add(new AutoFetchEpisodeListAction(new AnidbClient()));
-		matchActionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))));
-		
-		// set match action popup
-		matchButton.setComponentPopupMenu(matchActionPopup);
+		// set fetch action popup
+		matchButton.setComponentPopupMenu(createFetchPopup());
 		matchButton.addActionListener(showPopupAction);
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", null, "align 33%"));
@@ -120,18 +129,56 @@ public class RenamePanel extends FileBotPanel {
 		
 		add(filesList, "grow, sizegroupx list");
 		
-		// set action popup status message while episode list matcher is working 
-		namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
-			
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				matchActionPopup.setStatus((Boolean) evt.getNewValue() ? "in progress" : null);
-			}
-		});
-		
 		// repaint on change
 		model.names().addListEventListener(new RepaintHandler<Object>());
 		model.files().addListEventListener(new RepaintHandler<File>());
+	}
+	
+
+	protected ActionPopup createFetchPopup() {
+		final ActionPopup actionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
+		
+		// create actions for match popup
+		actionPopup.add(new AutoFetchEpisodeListAction(new TVRageClient()));
+		actionPopup.add(new AutoFetchEpisodeListAction(new AnidbClient()));
+		actionPopup.add(new AutoFetchEpisodeListAction(new TVDotComClient()));
+		actionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))));
+		
+		actionPopup.addSeparator();
+		actionPopup.addDescription(new JLabel("Options:"));
+		
+		actionPopup.add(new AbstractAction("Edit Format", ResourceManager.getIcon("action.format")) {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Format format = EpisodeFormatDialog.showDialog(RenamePanel.this);
+				
+				if (format != null) {
+					if (format instanceof EpisodeExpressionFormat) {
+						persistentFormat.setValue(((EpisodeExpressionFormat) format).getFormat());
+					} else {
+						persistentFormat.remove();
+					}
+					
+					namesView.setFormat(Episode.class, format);
+				}
+			}
+		});
+		
+		return actionPopup;
+	}
+	
+
+	private void restoreEpisodeFormat() {
+		String format = persistentFormat.getValue();
+		
+		if (format != null) {
+			try {
+				namesView.setFormat(Episode.class, new EpisodeExpressionFormat(format));
+			} catch (Exception e) {
+				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+			}
+		}
 	}
 	
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
@@ -139,7 +186,7 @@ public class RenamePanel extends FileBotPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// show popup on actionPerformed only when names list is empty
-			if (model.names().isEmpty()) {
+			if (model.names().isEmpty() && !model.files().isEmpty()) {
 				JComponent source = (JComponent) e.getSource();
 				
 				// display popup below component

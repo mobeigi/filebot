@@ -25,12 +25,12 @@ import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
-	private final RenameModel model;
+	private final RenameModel<?, ?> model;
 	
 	private final ExtensionLabel extension = new ExtensionLabel();
 	
 	
-	public RenameListCellRenderer(RenameModel model) {
+	public RenameListCellRenderer(RenameModel<?, ?> model) {
 		this.model = model;
 		
 		setHighlightingEnabled(false);

@@ -19,10 +19,10 @@ import net.sourceforge.tuned.FileUtilities;
 
 class RenameAction extends AbstractAction {
 	
-	private final RenameModel model;
+	private final RenameModel<String, File> model;
 	
 	
-	public RenameAction(RenameModel model) {
+	public RenameAction(RenameModel<String, File> model) {
 		super("Rename", ResourceManager.getIcon("action.rename"));
 		
 		putValue(SHORT_DESCRIPTION, "Rename files");
@@ -36,12 +36,11 @@ class RenameAction extends AbstractAction {
 		Deque<Match<File, File>> todoQueue = new ArrayDeque<Match<File, File>>();
 		Deque<Match<File, File>> doneQueue = new ArrayDeque<Match<File, File>>();
 		
-		for (Match<Object, File> match : model.matches()) {
+		for (Match<String, File> match : model.matches()) {
 			File source = match.getCandidate();
 			String extension = FileUtilities.getExtension(source);
 			
-			StringBuilder name = new StringBuilder();
-			name.append(match.getValue());
+			StringBuilder name = new StringBuilder(match.getValue());
 			
 			if (extension != null) {
 				name.append(".").append(extension);
@@ -77,7 +76,7 @@ class RenameAction extends AbstractAction {
 			for (Match<File, File> match : doneQueue) {
 				revertSuccess &= match.getCandidate().renameTo(match.getValue());
 			}
-
+			
 			if (!revertSuccess) {
 				Logger.getLogger("ui").severe("Failed to revert all rename operations.");
 			}

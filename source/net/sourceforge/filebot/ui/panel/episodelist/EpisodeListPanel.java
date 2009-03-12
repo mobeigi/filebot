@@ -23,7 +23,6 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
@@ -296,7 +295,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		
 		public EpisodeListTab() {
 			// set export handler for episode list
-			setExportHandler(new FileBotListExportHandler(this));
+			setExportHandler(new EpisodeListExportHandler(this));
 			
 			// allow removal of episode list entries
 			getRemoveAction().setEnabled(true);

@@ -46,6 +46,12 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 	
 
+	public synchronized void write(ByteBuffer src) throws IOException {
+		ensureCapacity(buffer.position() + src.remaining());
+		buffer.put(src);
+	}
+	
+
 	@Override
 	public synchronized void write(byte[] src, int offset, int length) throws IOException {
 		ensureCapacity(buffer.position() + length);

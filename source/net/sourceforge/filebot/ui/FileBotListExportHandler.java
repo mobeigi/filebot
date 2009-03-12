@@ -9,7 +9,7 @@ import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 
 public class FileBotListExportHandler extends TextFileExportHandler {
 	
-	private final FileBotList<?> list;
+	protected final FileBotList<?> list;
 	
 	
 	public FileBotListExportHandler(FileBotList<?> list) {
@@ -19,7 +19,7 @@ public class FileBotListExportHandler extends TextFileExportHandler {
 
 	@Override
 	public boolean canExport() {
-		return !list.getModel().isEmpty();
+		return list.getModel().size() > 0;
 	}
 	
 

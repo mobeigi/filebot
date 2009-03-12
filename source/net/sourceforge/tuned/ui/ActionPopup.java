@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Action;
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -19,11 +20,11 @@ import net.miginfocom.swing.MigLayout;
 
 public class ActionPopup extends JPopupMenu {
 	
-	protected JLabel headerLabel = new JLabel();
-	protected JLabel descriptionLabel = new JLabel();
-	protected JLabel statusLabel = new JLabel();
+	protected final JLabel headerLabel = new JLabel();
+	protected final JLabel descriptionLabel = new JLabel();
+	protected final JLabel statusLabel = new JLabel();
 	
-	protected JPanel actionPanel = new JPanel(new MigLayout("insets 0, wrap 1"));
+	protected final JPanel actionPanel = new JPanel(new MigLayout("nogrid, insets 0, fill"));
 	
 	
 	public ActionPopup(String label, Icon icon) {
@@ -31,19 +32,34 @@ public class ActionPopup extends JPopupMenu {
 		headerLabel.setIcon(icon);
 		headerLabel.setIconTextGap(5);
 		
+		actionPanel.setOpaque(false);
+		
 		statusLabel.setFont(statusLabel.getFont().deriveFont(10f));
 		statusLabel.setForeground(Color.GRAY);
-		
-		actionPanel.setOpaque(false);
 		
 		setLayout(new MigLayout("nogrid, fill, insets 0"));
 		
 		add(headerLabel, "gapx 5px 5px, gapy 3px 1px, wrap 3px");
 		add(new JSeparator(), "growx, wrap 1px");
-		add(descriptionLabel, "gapx 4px, wrap 3px");
-		add(actionPanel, "gapx 12px 12px, wrap");
+		add(actionPanel, "growx, wrap 0px");
 		add(new JSeparator(), "growx, wrap 0px");
 		add(statusLabel, "growx, h 11px!, gapx 3px, wrap 1px");
+	}
+	
+
+	public void addDescription(JComponent component) {
+		actionPanel.add(component, "gapx 4px, wrap 3px");
+	}
+	
+
+	public void addAction(JComponent component) {
+		actionPanel.add(component, "gapx 12px 12px, wrap");
+	}
+	
+
+	@Override
+	public void addSeparator() {
+		actionPanel.add(new JSeparator(), "growx, wrap 1px");
 	}
 	
 
@@ -61,7 +77,7 @@ public class ActionPopup extends JPopupMenu {
 		link.setRolloverEnabled(false);
 		link.setColor(link.getRolloverColor());
 		
-		actionPanel.add(link);
+		addAction(link);
 		
 		return null;
 	}
@@ -81,16 +97,6 @@ public class ActionPopup extends JPopupMenu {
 	@Override
 	public String getLabel() {
 		return headerLabel.getText();
-	}
-	
-
-	public void setDescription(String string) {
-		descriptionLabel.setText(string);
-	}
-	
-
-	public String getDescription() {
-		return descriptionLabel.getText();
 	}
 	
 

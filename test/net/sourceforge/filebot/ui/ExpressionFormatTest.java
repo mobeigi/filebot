@@ -14,11 +14,11 @@ import javax.script.SimpleBindings;
 import org.junit.Test;
 
 
-public class ScriptFormatTest {
+public class ExpressionFormatTest {
 	
 	@Test
 	public void compile() throws Exception {
-		ScriptFormat format = new TestScriptFormat("");
+		ExpressionFormat format = new TestScriptFormat("");
 		
 		Object[] expression = format.compile("name: {name}, number: {number}", (Compilable) format.initScriptEngine());
 		
@@ -49,7 +49,7 @@ public class ScriptFormatTest {
 	}
 	
 	
-	protected static class TestScriptFormat extends ScriptFormat {
+	protected static class TestScriptFormat extends ExpressionFormat {
 		
 		public TestScriptFormat(String format) throws ScriptException {
 			super(format);

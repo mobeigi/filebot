@@ -4,7 +4,6 @@ package net.sourceforge.filebot;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -47,6 +46,16 @@ public final class Settings {
 	}
 	
 
+	public String get(String key) {
+		return get(key, null);
+	}
+	
+
+	public String get(String key, String def) {
+		return prefs.get(key, def);
+	}
+	
+
 	public void put(String key, String value) {
 		prefs.put(key, value);
 	}
@@ -59,18 +68,18 @@ public final class Settings {
 	}
 	
 
-	public String get(String key) {
-		return get(key, null);
+	public void remove(String key) {
+		prefs.remove(key);
 	}
 	
 
-	public String get(String key, String def) {
-		return prefs.get(key, def);
-	}
-	
-
-	public Entry<String, String> entry(String key) {
+	public PreferencesEntry<String> entry(String key) {
 		return new PreferencesEntry<String>(prefs, key, new StringAdapter());
+	}
+	
+
+	public <T> PreferencesEntry<T> entry(String key, Adapter<T> adapter) {
+		return new PreferencesEntry<T>(prefs, key, adapter);
 	}
 	
 
