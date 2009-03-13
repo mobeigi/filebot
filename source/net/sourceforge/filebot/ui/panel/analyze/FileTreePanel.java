@@ -35,7 +35,7 @@ class FileTreePanel extends JComponent {
 		
 		setBorder(BorderFactory.createTitledBorder("File Tree"));
 		
-		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
+		setLayout(new MigLayout("insets 0, nogrid, fill", "align center", "[fill][pref!]"));
 		add(new LoadingOverlayPane(new JScrollPane(fileTree), this), "grow, wrap 1.2mm");
 		add(new JButton(loadAction));
 		add(new JButton(clearAction), "gap 1.2mm, wrap 1.2mm");

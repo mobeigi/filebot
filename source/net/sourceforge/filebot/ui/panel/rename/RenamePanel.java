@@ -112,11 +112,14 @@ public class RenamePanel extends FileBotPanel {
 		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
 		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		// set fetch action popup
-		matchButton.setComponentPopupMenu(createFetchPopup());
+		// setup fetch action popup
+		ActionPopup fetchPopup = createFetchPopup();
+		
+		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
+		matchButton.setComponentPopupMenu(fetchPopup);
 		matchButton.addActionListener(showPopupAction);
 		
-		setLayout(new MigLayout("fill, insets dialog, gapx 10px", null, "align 33%"));
+		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		
 		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
 		

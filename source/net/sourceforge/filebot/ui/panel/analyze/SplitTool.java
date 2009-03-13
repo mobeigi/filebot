@@ -43,7 +43,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		JSpinner spinner = new JSpinner(spinnerModel);
 		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#"));
 		
-		setLayout(new MigLayout("insets 0, nogrid, fill", "align center"));
+		setLayout(new MigLayout("insets 0, nogrid, fill", "align center", "[fill][pref!]"));
 		
 		add(treeScrollPane, "grow, wrap");
 		

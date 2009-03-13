@@ -63,7 +63,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		// add after text field
 		add(seasonSpinner, 1);
 		// add after tabbed pane
-		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())), "align center, wrap 5px");
+		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())));
 		
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		

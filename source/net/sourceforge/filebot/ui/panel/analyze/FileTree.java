@@ -153,11 +153,10 @@ public class FileTree extends JTree {
 			}
 			
 
-			@SuppressWarnings("unchecked")
 			public void actionPerformed(ActionEvent event) {
 				try {
-					for (File file : (Collection<File>) getValue("files")) {
-						Desktop.getDesktop().open(file);
+					for (Object file : (Collection<?>) getValue("files")) {
+						Desktop.getDesktop().open((File) file);
 					}
 				} catch (Exception e) {
 					Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);

@@ -57,7 +57,7 @@ public class ChecksumPanel extends FileBotPanel {
 		
 		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		
-		JPanel contentPane = new JPanel(new MigLayout("insets 0, fill", "", "[fill]10px[nogrid, bottom]4px"));
+		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", "", "[fill]10px[bottom, pref!]4px"));
 		contentPane.setBorder(new TitledBorder(getPanelName()));
 		
 		setLayout(new MigLayout("insets dialog, fill"));

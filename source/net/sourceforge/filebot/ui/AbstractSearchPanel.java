@@ -38,7 +38,7 @@ import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 	
-	protected final JPanel tabbedPaneGroup = new JPanel(new MigLayout("nogrid, fill, insets 0"));
+	protected final JPanel tabbedPaneGroup = new JPanel(new MigLayout("nogrid, fill, insets 0", "align center", "[fill]8px[pref!]4px"));
 	
 	protected final JTabbedPane tabbedPane = new JTabbedPane();
 	
@@ -60,11 +60,12 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyScrollPane);
 		
 		tabbedPaneGroup.setBorder(BorderFactory.createTitledBorder("Search Results"));
-		tabbedPaneGroup.add(tabbedPane, "grow, wrap 8px");
+		tabbedPaneGroup.add(tabbedPane, "grow, wrap");
 		
-		setLayout(new MigLayout("nogrid, fill, insets 10px 10px 15px 10px"));
-		add(searchTextField, "alignx center, gapafter indent");
-		add(new JButton(searchAction), "gap 18px, wrap 10px");
+		setLayout(new MigLayout("nogrid, fill, insets 10px 10px 15px 10px", "align center", "[pref!]10px[fill]"));
+		
+		add(searchTextField, "gapafter indent");
+		add(new JButton(searchAction), "gap 18px, wrap");
 		add(tabbedPaneGroup, "grow");
 		
 		searchTextField.getEditor().setAction(searchAction);
