@@ -65,7 +65,7 @@ public class MainFrame extends JFrame {
 		headerPanel.getTitleLabel().setBorder(new EmptyBorder(8, 90, 10, 0));
 		
 		JComponent c = (JComponent) getContentPane();
-		c.setLayout(new MigLayout("insets 0, fill", "95px[fill]", "fill"));
+		c.setLayout(new MigLayout("insets 0, fill, hidemode 3", "95px[fill]", "fill"));
 		
 		c.add(selectionListScrollPane, "pos visual.x+6 visual.y+10 n visual.y2-12");
 		c.add(headerPanel, "growx, dock north");
@@ -105,36 +105,46 @@ public class MainFrame extends JFrame {
 	
 
 	protected void showPanel(final PanelBuilder selectedBuilder) {
-		headerPanel.setTitle(selectedBuilder.getName());
+		final JComponent contentPane = (JComponent) getContentPane();
 		
 		JComponent panel = null;
 		
-		for (int i = 0; i < getContentPane().getComponentCount(); i++) {
-			JComponent c = (JComponent) getContentPane().getComponent(i);
+		for (int i = 0; i < contentPane.getComponentCount(); i++) {
+			JComponent c = (JComponent) contentPane.getComponent(i);
 			PanelBuilder builder = (PanelBuilder) c.getClientProperty("panelBuilder");
 			
 			if (builder != null) {
-				c.setVisible(false);
-				
 				if (builder.equals(selectedBuilder)) {
 					panel = c;
+				} else {
+					c.setVisible(false);
 				}
 			}
 		}
-		
-		JComponent contentPane = (JComponent) getContentPane();
 		
 		if (panel == null) {
 			panel = selectedBuilder.create();
 			panel.putClientProperty("panelBuilder", selectedBuilder);
 			
-			contentPane.add(panel, "hidemode 3");
+			contentPane.add(panel);
+		} else if (panel.isVisible()) {
+			// no need to do anything
+			return;
 		}
 		
+		headerPanel.setTitle(selectedBuilder.getName());
 		panel.setVisible(true);
 		
-		// update layout now
 		contentPane.validate();
+		
+		// this seems to fix a very annoying layout/render issue, I've got no clue why
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				contentPane.validate();
+			}
+		});
 	}
 	
 	
@@ -179,7 +189,7 @@ public class MainFrame extends JFrame {
 						selectEnabled = true;
 						
 						// bring window to front when on dnd
-						SwingUtilities.getWindowAncestor((JComponent) dtde.getSource()).toFront();
+						SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
 					}
 				});
 			}
