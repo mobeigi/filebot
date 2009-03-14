@@ -15,7 +15,6 @@ import javax.swing.Icon;
 
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
-import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
@@ -33,8 +32,6 @@ import net.sourceforge.tuned.ui.SimpleLabelProvider;
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage> {
 	
 	public SubtitlePanel() {
-		super("Subtitles", ResourceManager.getIcon("panel.subtitle"));
-		
 		historyPanel.setColumnHeader(0, "Show / Movie");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
 	}

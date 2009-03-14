@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 
 
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.ALL_SEASONS;
+
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -19,7 +20,6 @@ import javax.swing.JButton;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
-import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
@@ -49,8 +49,6 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	
 	
 	public EpisodeListPanel() {
-		super("Episodes", ResourceManager.getIcon("panel.episodelist"));
-		
 		historyPanel.setColumnHeader(0, "Show");
 		historyPanel.setColumnHeader(1, "Number of Episodes");
 		

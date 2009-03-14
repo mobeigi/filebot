@@ -15,40 +15,23 @@ public class ArgumentBeanTest {
 	
 	@Test
 	public void clear() throws Exception {
-		ArgumentBean bean = parse("--sfv", "One Piece", "-clear");
+		ArgumentBean bean = parse("-clear", "--analyze", "One Piece", "Naruto");
 		
-		assertTrue(bean.isClear());
-		assertFalse(bean.isHelp());
-		assertEquals("One Piece", bean.getSfvPanelFile().getName());
+		assertTrue(bean.clear());
+		assertFalse(bean.help());
+		
+		assertEquals("One Piece", bean.arguments().get(0).toString());
+		assertEquals("Naruto", bean.arguments().get(1).toString());
 	}
 	
 
 	@Test
 	public void noClear() throws Exception {
-		ArgumentBean bean = parse("-help", "--sfv", "One Piece");
-		
-		assertTrue(bean.isHelp());
-		assertFalse(bean.isClear());
-		assertEquals("One Piece", bean.getSfvPanelFile().getName());
-	}
-	
-
-	@Test
-	public void oneArgument() throws Exception {
 		ArgumentBean bean = parse("--sfv", "One Piece.sfv");
 		
-		assertFalse(bean.isClear());
-		assertFalse(bean.isHelp());
-		assertEquals("One Piece.sfv", bean.getSfvPanelFile().getName());
-	}
-	
-
-	@Test
-	public void mixedArguments() throws Exception {
-		ArgumentBean bean = parse("--list", "Twin Peaks.txt", "--sfv", "Death Note.sfv");
-		
-		assertEquals("Twin Peaks.txt", bean.getListPanelFile().getName());
-		assertEquals("Death Note.sfv", bean.getSfvPanelFile().getName());
+		assertFalse(bean.help());
+		assertFalse(bean.clear());
+		assertEquals("One Piece.sfv", bean.arguments().get(0).toString());
 	}
 	
 

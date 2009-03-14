@@ -2,16 +2,21 @@
 package net.sourceforge.filebot;
 
 
+import static javax.swing.JFrame.*;
+
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import net.sourceforge.filebot.ui.FileBotWindow;
+import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
-
+import net.sourceforge.filebot.ui.SinglePanelFrame;
+import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanelBuilder;
+import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -25,14 +30,14 @@ public class Main {
 		
 		final ArgumentBean argumentBean = initializeArgumentBean(args);
 		
-		if (argumentBean.isHelp()) {
+		if (argumentBean.help()) {
 			printUsage(argumentBean);
 			
 			// just print help message and exit afterwards
 			System.exit(0);
 		}
 		
-		if (argumentBean.isClear()) {
+		if (argumentBean.clear()) {
 			// clear preferences
 			Settings.userRoot().clear();
 		}
@@ -56,13 +61,22 @@ public class Main {
 			
 			@Override
 			public void run() {
-				FileBotWindow window = new FileBotWindow();
+				JFrame frame;
 				
-				// publish messages from arguments to the newly created components
-				argumentBean.publishMessages();
+				if (argumentBean.analyze()) {
+					frame = new SinglePanelFrame(new AnalyzePanelBuilder()).publish(argumentBean.transferable());
+				} else if (argumentBean.sfv()) {
+					frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(argumentBean.transferable());
+				} else {
+					// default
+					frame = new MainFrame();
+				}
+				
+				frame.setLocationByPlatform(true);
+				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 				
 				// start
-				window.setVisible(true);
+				frame.setVisible(true);
 			}
 		});
 	}

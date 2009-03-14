@@ -91,7 +91,6 @@ public class EpisodeFormatDialog extends JDialog {
 		JLabel title = new JLabel(this.getTitle());
 		title.setFont(title.getFont().deriveFont(BOLD));
 		
-		//		status.setVisible(false);
 		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, fillx"));
 		
 		header.setBackground(Color.white);

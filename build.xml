@@ -106,8 +106,7 @@
 		<!-- copy resources -->
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
-				<include name="**/*.png" />
-				<include name="**/*.xml" />
+				<exclude name="**/*.java"/>
 			</fileset>
 		</copy>
 	</target>

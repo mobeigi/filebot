@@ -36,7 +36,7 @@ import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 
-public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
+public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	
 	protected final JPanel tabbedPaneGroup = new JPanel(new MigLayout("nogrid, fill, insets 0", "align center", "[fill]8px[pref!]4px"));
 	
@@ -49,8 +49,7 @@ public abstract class AbstractSearchPanel<S, E> extends FileBotPanel {
 	protected final EventList<String> searchHistory = createSearchHistory();
 	
 	
-	public AbstractSearchPanel(String title, Icon icon) {
-		super(title, icon);
+	public AbstractSearchPanel() {
 		
 		historyPanel.setColumnHeader(2, "Duration");
 		

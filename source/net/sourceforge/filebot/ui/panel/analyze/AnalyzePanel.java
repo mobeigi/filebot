@@ -6,25 +6,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
-import net.sourceforge.tuned.MessageHandler;
 
 
-public class AnalyzePanel extends FileBotPanel {
+public class AnalyzePanel extends JComponent {
 	
 	private final FileTreePanel fileTreePanel = new FileTreePanel();
 	private final JTabbedPane toolsPanel = new JTabbedPane();
 	
-	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, fileTreePanel.getTransferablePolicy());
-	
 	
 	public AnalyzePanel() {
-		super("Analyze", ResourceManager.getIcon("panel.analyze"));
-		
 		toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 		
 		setLayout(new MigLayout("insets dialog, gapx 50, fill"));
@@ -35,18 +28,14 @@ public class AnalyzePanel extends FileBotPanel {
 		addTool(new TypeTool());
 		addTool(new SplitTool());
 		
+		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());
+		
 		fileTreePanel.addPropertyChangeListener("filetree", filetreeListener);
 	}
 	
 
 	private void addTool(Tool<?> tool) {
 		toolsPanel.addTab(tool.getName(), tool);
-	}
-	
-
-	@Override
-	public MessageHandler getMessageHandler() {
-		return messageHandler;
 	}
 	
 	private final PropertyChangeListener filetreeListener = new PropertyChangeListener() {

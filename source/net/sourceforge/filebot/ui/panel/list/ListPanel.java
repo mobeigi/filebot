@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -27,19 +28,15 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.NumberEditor;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
-import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class ListPanel extends FileBotPanel {
+public class ListPanel extends JComponent {
 	
 	private static final String INDEX_VARIABLE = "<i>";
 	
@@ -49,11 +46,8 @@ public class ListPanel extends FileBotPanel {
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
 	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
 	
-	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, list.getTransferablePolicy());
-	
 	
 	public ListPanel() {
-		super("List", ResourceManager.getIcon("panel.list"));
 		
 		list.setTitle("Title");
 		
@@ -88,12 +82,6 @@ public class ListPanel extends FileBotPanel {
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
 		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
-	}
-	
-
-	@Override
-	public MessageHandler getMessageHandler() {
-		return messageHandler;
 	}
 	
 	private AbstractAction createAction = new AbstractAction("Create") {

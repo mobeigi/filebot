@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -29,18 +30,15 @@ import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotPanel;
-import net.sourceforge.filebot.ui.FileTransferableMessageHandler;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.MessageHandler;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class ChecksumPanel extends FileBotPanel {
+public class SfvPanel extends JComponent {
 	
 	private final ChecksumComputationService computationService = new ChecksumComputationService();
 	
@@ -49,16 +47,13 @@ public class ChecksumPanel extends FileBotPanel {
 	private final ChecksumTableTransferablePolicy transferablePolicy = new ChecksumTableTransferablePolicy(table.getModel(), computationService);
 	private final ChecksumTableExportHandler exportHandler = new ChecksumTableExportHandler(table.getModel());
 	
-	private final MessageHandler messageHandler = new FileTransferableMessageHandler(this, transferablePolicy);
 	
-	
-	public ChecksumPanel() {
-		super("SFV", ResourceManager.getIcon("panel.sfv"));
+	public SfvPanel() {
 		
 		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		
 		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", "", "[fill]10px[bottom, pref!]4px"));
-		contentPane.setBorder(new TitledBorder(getPanelName()));
+		contentPane.setBorder(new TitledBorder("SFV"));
 		
 		setLayout(new MigLayout("insets dialog, fill"));
 		add(contentPane, "grow");
@@ -91,6 +86,8 @@ public class ChecksumPanel extends FileBotPanel {
 				}
 			}
 		});
+		
+		putClientProperty("transferablePolicy", transferablePolicy);
 		
 		// Shortcut DELETE
 		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
@@ -128,12 +125,6 @@ public class ChecksumPanel extends FileBotPanel {
 		for (ExecutorService executor : executors.values()) {
 			executor.shutdown();
 		}
-	}
-	
-
-	@Override
-	public MessageHandler getMessageHandler() {
-		return messageHandler;
 	}
 	
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
@@ -281,7 +272,7 @@ public class ChecksumPanel extends FileBotPanel {
 					this.selectedColumn = options.get(0);
 				} else if (options.size() > 1) {
 					// user must select one option
-					SelectDialog<File> selectDialog = new SelectDialog<File>(SwingUtilities.getWindowAncestor(ChecksumPanel.this), options) {
+					SelectDialog<File> selectDialog = new SelectDialog<File>(SwingUtilities.getWindowAncestor(SfvPanel.this), options) {
 						
 						@Override
 						protected String convertValueToString(Object value) {

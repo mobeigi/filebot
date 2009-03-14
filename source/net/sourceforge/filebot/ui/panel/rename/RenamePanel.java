@@ -38,7 +38,6 @@ import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.EpisodeExpressionFormat;
 import net.sourceforge.filebot.ui.EpisodeFormatDialog;
-import net.sourceforge.filebot.ui.FileBotPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
@@ -56,7 +55,7 @@ import ca.odell.glazedlists.event.ListEvent;
 import ca.odell.glazedlists.event.ListEventListener;
 
 
-public class RenamePanel extends FileBotPanel {
+public class RenamePanel extends JComponent {
 	
 	protected final RenameModel<Object, File> model = RenameModel.create();
 	
@@ -74,7 +73,6 @@ public class RenamePanel extends FileBotPanel {
 	
 	
 	public RenamePanel() {
-		super("Rename", ResourceManager.getIcon("panel.rename"));
 		
 		namesList.setTitle("Proposed");
 		namesList.setTransferablePolicy(new NamesListTransferablePolicy(model.names()));

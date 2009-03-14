@@ -42,9 +42,6 @@ class HeaderPanel extends JComponent {
 		titleLabel.setForeground(new Color(0x101010));
 		titleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
 		
-		int margin = 9;
-		titleLabel.setBorder(new EmptyBorder(margin - 1, 90, margin + 1, 0));
-		
 		JLabel decorationLabel = new JLabel(ResourceManager.getIcon("decoration.header"));
 		decorationLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		decorationLabel.setVerticalAlignment(SwingConstants.CENTER);
@@ -61,6 +58,11 @@ class HeaderPanel extends JComponent {
 
 	public void setTitle(String title) {
 		titleLabel.setText(title);
+	}
+	
+
+	public JLabel getTitleLabel() {
+		return titleLabel;
 	}
 	
 
