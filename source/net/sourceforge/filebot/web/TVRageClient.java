@@ -99,7 +99,7 @@ public class TVRageClient implements EpisodeListClient {
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String title = getTextContent("title", node);
+			String title = getTextContent("title", node).replace("&amp;", "&");
 			String episodeNumber = getTextContent("seasonnum", node);
 			String seasonNumber = node.getParentNode().getAttributes().getNamedItem("no").getTextContent();
 			
@@ -134,7 +134,7 @@ public class TVRageClient implements EpisodeListClient {
 					maxSeason = seasonNumber;
 				}
 			} catch (NumberFormatException e) {
-				Logger.getLogger("global").log(Level.WARNING, "Illegal season number", e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal season number", e);
 			}
 		}
 		

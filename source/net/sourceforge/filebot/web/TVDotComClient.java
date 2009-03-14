@@ -61,7 +61,7 @@ public class TVDotComClient implements EpisodeListClient {
 		
 		Document dom = getHtmlDocument(searchUrl);
 		
-		List<Node> nodes = selectNodes("//H3[@class='title']/A", dom);
+		List<Node> nodes = selectNodes("//*[@class='title']//descendant-or-self::A", dom);
 		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
@@ -74,7 +74,7 @@ public class TVDotComClient implements EpisodeListClient {
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href, e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		
