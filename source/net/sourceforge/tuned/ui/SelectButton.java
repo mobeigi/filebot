@@ -128,6 +128,11 @@ public class SelectButton<T> extends JButton {
 	}
 	
 
+	public SingleSelectionModel getSelectionModel() {
+		return selectionModel;
+	}
+	
+
 	public void spinValue(int spin) {
 		int size = model.size();
 		

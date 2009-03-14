@@ -24,14 +24,19 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.TunedUtilities;
+import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
@@ -73,6 +78,22 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		searchTextField.getSelectButton().setModel(createSearchEngines());
 		searchTextField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
+		try {
+			// restore selected subtitle client
+			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("search")));
+		} catch (Exception e) {
+			// ignore
+		}
+		
+		// save selected client on change
+		searchTextField.getSelectButton().getSelectionModel().addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				getSettings().put("search", Integer.toString(searchTextField.getSelectButton().getSelectedIndex()));
+			}
+		});
+		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
 		
 		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
@@ -85,7 +106,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
 	
 
-	protected abstract EventList<String> createSearchHistory();
+	protected abstract Settings getSettings();
 	
 
 	protected abstract RequestProcessor<?, E> createRequestProcessor();
@@ -104,6 +125,24 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		// search in background
 		new SearchTask(requestProcessor).execute();
+	}
+	
+
+	protected EventList<String> createSearchHistory() {
+		// create in-memory history
+		BasicEventList<String> history = new BasicEventList<String>();
+		
+		//  get the preferences node that contains the history entries
+		//  and get a StringList that read and writes directly from and to the preferences
+		List<String> persistentHistory = getSettings().node("history").asList();
+		
+		// add history from the preferences to the current in-memory history (for completion)
+		history.addAll(persistentHistory);
+		
+		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
+		ListChangeSynchronizer.syncEventListToList(history, persistentHistory);
+		
+		return history;
 	}
 	
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {

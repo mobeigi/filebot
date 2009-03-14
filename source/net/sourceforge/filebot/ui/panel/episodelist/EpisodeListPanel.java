@@ -34,13 +34,10 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
-import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 import net.sourceforge.tuned.ui.TunedUtilities;
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 
 
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Episode> {
@@ -90,21 +87,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	
 
 	@Override
-	protected EventList<String> createSearchHistory() {
-		// create in-memory list
-		BasicEventList<String> searchHistory = new BasicEventList<String>();
-		
-		//  get the preferences node that contains the history entries
-		//  and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentSearchHistory = Settings.userRoot().node("episodelist/history").asList();
-		
-		// add history from the preferences to the current in-memory history (for completion)
-		searchHistory.addAll(persistentSearchHistory);
-		
-		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
-		ListChangeSynchronizer.syncEventListToList(searchHistory, persistentSearchHistory);
-		
-		return searchHistory;
+	protected Settings getSettings() {
+		return Settings.userRoot().node("episodelist");
 	}
 	
 

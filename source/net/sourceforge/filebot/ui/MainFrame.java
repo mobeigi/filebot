@@ -37,6 +37,7 @@ import net.sourceforge.filebot.ui.panel.episodelist.EpisodeListPanelBuilder;
 import net.sourceforge.filebot.ui.panel.list.ListPanelBuilder;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanelBuilder;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
+import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanelBuilder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.ArrayListModel;
@@ -79,7 +80,7 @@ public class MainFrame extends JFrame {
 		JComponent c = (JComponent) getContentPane();
 		c.setLayout(new MigLayout("insets 0, fill, hidemode 3", "95px[fill]", "fill"));
 		
-		c.add(selectionListScrollPane, "pos visual.x+6 visual.y+10 n visual.y2-12");
+		c.add(selectionListScrollPane, "pos 6px 10px n 100%-12px");
 		c.add(headerPanel, "growx, dock north");
 		
 		// show initial panel
@@ -94,15 +95,6 @@ public class MainFrame extends JFrame {
 				if (!e.getValueIsAdjusting()) {
 					persistentSelectedPanel.setValue(selectionList.getSelectedIndex());
 				}
-				
-				// this seems to fix a very annoying layout/render issue, I've got no clue why
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						getContentPane().validate();
-					}
-				});
 			}
 		});
 		
@@ -117,6 +109,7 @@ public class MainFrame extends JFrame {
 		builders.add(new RenamePanelBuilder());
 		builders.add(new AnalyzePanelBuilder());
 		builders.add(new EpisodeListPanelBuilder());
+		builders.add(new SubtitlePanelBuilder());
 		builders.add(new SfvPanelBuilder());
 		
 		return builders;
@@ -146,15 +139,10 @@ public class MainFrame extends JFrame {
 			panel.putClientProperty("panelBuilder", selectedBuilder);
 			
 			contentPane.add(panel);
-		} else if (panel.isVisible()) {
-			// no need to do anything
-			return;
 		}
 		
 		headerPanel.setTitle(selectedBuilder.getName());
 		panel.setVisible(true);
-		
-		contentPane.validate();
 	}
 	
 	

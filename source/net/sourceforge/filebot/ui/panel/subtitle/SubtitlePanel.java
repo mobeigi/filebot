@@ -22,11 +22,8 @@ import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleSourceClient;
-import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage> {
@@ -56,21 +53,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	
 
 	@Override
-	protected EventList<String> createSearchHistory() {
-		// create in-memory history
-		BasicEventList<String> history = new BasicEventList<String>();
-		
-		//  get the preferences node that contains the history entries
-		//  and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentHistory = Settings.userRoot().node("subtitles/history").asList();
-		
-		// add history from the preferences to the current in-memory history (for completion)
-		history.addAll(persistentHistory);
-		
-		// perform all insert/add/remove operations on the in-memory history on the preferences node as well 
-		ListChangeSynchronizer.syncEventListToList(history, persistentHistory);
-		
-		return history;
+	protected Settings getSettings() {
+		return Settings.userRoot().node("subtitle");
 	}
 	
 
