@@ -67,7 +67,7 @@ public class AnidbClient implements EpisodeListClient {
 			try {
 				searchResults.add(new HyperLink(title, new URL("http", host, "/perl-bin/" + href)));
 			} catch (MalformedURLException e) {
-				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href);
 			}
 		}
 		
@@ -84,7 +84,7 @@ public class AnidbClient implements EpisodeListClient {
 				try {
 					searchResults.add(new HyperLink(name, new URL(episodeListUrl)));
 				} catch (MalformedURLException e) {
-					Logger.getLogger("global").log(Level.WARNING, "Invalid location: " + episodeListUrl);
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + episodeListUrl);
 				}
 			}
 		}

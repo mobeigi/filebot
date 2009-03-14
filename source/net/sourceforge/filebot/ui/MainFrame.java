@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.ui;
 
 
-import static javax.swing.ScrollPaneConstants.*;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
+
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.dnd.DropTarget;
@@ -13,6 +15,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -35,6 +38,7 @@ import net.sourceforge.filebot.ui.panel.list.ListPanelBuilder;
 import net.sourceforge.filebot.ui.panel.rename.RenamePanelBuilder;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.ShadowBorder;
@@ -47,7 +51,7 @@ public class MainFrame extends JFrame {
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
-	private final PreferencesEntry<String> persistentSelectedPanel = Settings.userRoot().entry("selectedPanel");
+	private final PreferencesEntry<Integer> persistentSelectedPanel = Settings.userRoot().entry("selectedPanel", SimpleAdapter.forClass(Integer.class));
 	
 	
 	public MainFrame() {
@@ -57,6 +61,14 @@ public class MainFrame extends JFrame {
 		setIconImages(Arrays.asList(ResourceManager.getImage("window.icon.small"), ResourceManager.getImage("window.icon.big")));
 		
 		selectionList.setModel(new ArrayListModel(createPanelBuilders()));
+		
+		try {
+			// restore selected panel
+			selectionList.setSelectedIndex(persistentSelectedPanel.getValue());
+		} catch (Exception e) {
+			// select default panel
+			selectionList.setSelectedIndex(1);
+		}
 		
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
 		selectionListScrollPane.setBorder(new CompoundBorder(new ShadowBorder(), selectionListScrollPane.getBorder()));
@@ -70,24 +82,31 @@ public class MainFrame extends JFrame {
 		c.add(selectionListScrollPane, "pos visual.x+6 visual.y+10 n visual.y2-12");
 		c.add(headerPanel, "growx, dock north");
 		
-		setSize(760, 615);
+		// show initial panel
+		showPanel((PanelBuilder) selectionList.getSelectedValue());
 		
 		selectionList.addListSelectionListener(new ListSelectionListener() {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				showPanel((PanelBuilder) selectionList.getSelectedValue());
-				persistentSelectedPanel.setValue(Integer.toString(selectionList.getSelectedIndex()));
+				
+				if (!e.getValueIsAdjusting()) {
+					persistentSelectedPanel.setValue(selectionList.getSelectedIndex());
+				}
+				
+				// this seems to fix a very annoying layout/render issue, I've got no clue why
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						getContentPane().validate();
+					}
+				});
 			}
 		});
 		
-		try {
-			// restore selected panel
-			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
-		} catch (Exception e) {
-			// default panel
-			selectionList.setSelectedIndex(1);
-		}
+		setSize(760, 615);
 	}
 	
 
@@ -136,15 +155,6 @@ public class MainFrame extends JFrame {
 		panel.setVisible(true);
 		
 		contentPane.validate();
-		
-		// this seems to fix a very annoying layout/render issue, I've got no clue why
-		SwingUtilities.invokeLater(new Runnable() {
-			
-			@Override
-			public void run() {
-				contentPane.validate();
-			}
-		});
 	}
 	
 	

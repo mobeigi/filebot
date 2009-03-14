@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
@@ -53,5 +54,4 @@ public class SinglePanelFrame extends JFrame {
 		
 		return this;
 	}
-	
 }

@@ -13,8 +13,6 @@ import java.util.Locale;
 
 import javax.swing.Icon;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
@@ -27,6 +25,8 @@ import net.sourceforge.filebot.web.SubtitleSourceClient;
 import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage> {

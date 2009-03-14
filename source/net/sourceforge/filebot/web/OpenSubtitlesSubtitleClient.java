@@ -81,7 +81,7 @@ public class OpenSubtitlesSubtitleClient implements SubtitleClient {
 			try {
 				client.logout();
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.SEVERE, "Exception while deactivating session", e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Exception while deactivating session", e);
 			}
 		}
 	}

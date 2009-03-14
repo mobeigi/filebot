@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.transfer;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JTable;

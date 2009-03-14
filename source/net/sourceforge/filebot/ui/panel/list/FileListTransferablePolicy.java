@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;

@@ -23,7 +23,7 @@ public class FileTransferable implements Transferable {
 			return new DataFlavor("text/uri-list;class=java.lang.String");
 		} catch (ClassNotFoundException e) {
 			// will never happen
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger(FileTransferable.class.getName()).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		return null;

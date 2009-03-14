@@ -136,7 +136,7 @@ class MatchAction extends AbstractAction {
 			// display progress dialog and stop blocking EDT
 			progressDialog.setVisible(true);
 		} catch (Exception e) {
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getDefaultCursor());
@@ -201,7 +201,7 @@ class MatchAction extends AbstractAction {
 				model.names().addAll(matcher.remainingValues());
 				model.files().addAll(matcher.remainingCandidates());
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 			}
 		}
 		

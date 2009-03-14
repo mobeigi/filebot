@@ -4,6 +4,7 @@ package net.sourceforge.filebot.similarity;
 
 import java.io.File;
 import java.util.Collection;
+
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 

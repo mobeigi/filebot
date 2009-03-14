@@ -161,11 +161,15 @@ public final class FileUtilities {
 	}
 	
 
-	public static class FileNameFormat extends Format {
+	public static class NameWithoutExtensionFormat extends Format {
 		
 		@Override
-		public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-			return toAppendTo.append(FileUtilities.getName((File) obj));
+		public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
+			if (obj instanceof File) {
+				return sb.append(getName((File) obj));
+			}
+			
+			return sb.append(getNameWithoutExtension(obj.toString()));
 		}
 		
 

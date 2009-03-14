@@ -68,7 +68,7 @@ public class SaveAction extends AbstractAction {
 		try {
 			export(chooser.getSelectedFile());
 		} catch (IOException e) {
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 		}
 	}
 }

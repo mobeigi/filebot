@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 
 
 import java.awt.datatransfer.Transferable;
+
 import javax.swing.JComponent;
 
 import net.sourceforge.filebot.ui.FileBotList;

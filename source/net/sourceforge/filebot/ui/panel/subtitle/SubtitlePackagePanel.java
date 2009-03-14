@@ -9,9 +9,9 @@ import java.util.EventListener;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
+
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.DownloadTask;
-
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ObservableElementList;

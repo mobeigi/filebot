@@ -66,7 +66,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 					files.add(file);
 				} catch (Exception e) {
 					// URISyntaxException, IllegalArgumentException, FileNotFoundException
-					Logger.getLogger("global").log(Level.WARNING, "Invalid file uri: " + uri);
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid file uri: " + uri);
 				}
 			}
 			

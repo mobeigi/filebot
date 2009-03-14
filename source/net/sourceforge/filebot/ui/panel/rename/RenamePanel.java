@@ -47,7 +47,7 @@ import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FileUtilities.FileNameFormat;
+import net.sourceforge.tuned.FileUtilities.NameWithoutExtensionFormat;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
@@ -80,7 +80,7 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Current");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
 		
-		namesView.setFormat(File.class, new FileNameFormat());
+		namesView.setFormat(File.class, new NameWithoutExtensionFormat());
 		
 		// restore custom format
 		restoreEpisodeFormat();

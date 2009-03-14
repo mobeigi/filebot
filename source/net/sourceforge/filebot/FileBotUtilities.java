@@ -61,21 +61,6 @@ public final class FileBotUtilities {
 		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
 	}
 	
-
-	public static String join(Object[] values, String separator) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (int i = 0; i < values.length; i++) {
-			sb.append(values[i]);
-			
-			if (i < values.length - 1) {
-				sb.append(separator);
-			}
-		}
-		
-		return sb.toString();
-	}
-	
 	public static final FileFilter TORRENT_FILES = new ExtensionFileFilter("torrent");
 	public static final FileFilter SFV_FILES = new ExtensionFileFilter("sfv");
 	public static final FileFilter LIST_FILES = new ExtensionFileFilter("txt", "list", "");

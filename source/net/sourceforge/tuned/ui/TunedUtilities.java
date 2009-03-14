@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
+
 import net.sourceforge.tuned.ExceptionUtilities;
 
 

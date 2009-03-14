@@ -84,7 +84,7 @@ public final class WebRequest {
 				try {
 					return Charset.forName(charsetName);
 				} catch (Exception e) {
-					Logger.getLogger("global").log(Level.WARNING, e.getMessage());
+					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}
 		}

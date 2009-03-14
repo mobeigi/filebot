@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Formatter;
+
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.tuned.FileUtilities;

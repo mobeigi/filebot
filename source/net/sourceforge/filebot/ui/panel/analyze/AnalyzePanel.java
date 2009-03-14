@@ -8,6 +8,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
+
 import net.miginfocom.swing.MigLayout;
 
 

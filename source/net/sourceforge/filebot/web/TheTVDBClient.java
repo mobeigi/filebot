@@ -130,7 +130,7 @@ public class TheTVDBClient implements EpisodeListClient {
 					maxSeason = seasonNumber;
 				}
 			} catch (NumberFormatException e) {
-				Logger.getLogger("global").log(Level.WARNING, "Illegal season number", e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal season number", e);
 			}
 		}
 		
@@ -232,7 +232,7 @@ public class TheTVDBClient implements EpisodeListClient {
 			return new URI("http://" + host + "/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
 		} catch (IOException e) {
 			// log and ignore any IOException
-			Logger.getLogger("global").log(Level.WARNING, "Failed to retrieve season id", e);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve season id", e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

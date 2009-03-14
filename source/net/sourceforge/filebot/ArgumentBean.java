@@ -67,11 +67,11 @@ public class ArgumentBean {
 					// path may be relative, use absolute path
 					files.add(argument.getCanonicalFile());
 				} catch (IOException e) {
-					Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 				}
 			} else {
 				// file doesn't exist
-				Logger.getLogger("global").log(Level.WARNING, String.format("Invalid File: %s", argument));
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Invalid File: %s", argument));
 			}
 		}
 		

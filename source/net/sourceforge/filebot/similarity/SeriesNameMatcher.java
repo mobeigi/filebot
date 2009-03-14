@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.join;
-
 import java.io.File;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -238,6 +236,21 @@ public class SeriesNameMatcher {
 		
 		// no intersection at all
 		return null;
+	}
+	
+
+	private String join(Object[] values, String separator) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i = 0; i < values.length; i++) {
+			sb.append(values[i]);
+			
+			if (i < values.length - 1) {
+				sb.append(separator);
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 

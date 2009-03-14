@@ -72,7 +72,7 @@ abstract class Tool<M> extends JComponent {
 						// if it happens, it is supposed to
 					} else {
 						// should not happen
-						Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 					}
 				}
 			}

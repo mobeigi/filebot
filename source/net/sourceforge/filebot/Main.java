@@ -2,7 +2,7 @@
 package net.sourceforge.filebot;
 
 
-import static javax.swing.JFrame.*;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -17,6 +17,7 @@ import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanelBuilder;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
+
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -54,7 +55,7 @@ public class Main {
 			
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.toString(), e);
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {

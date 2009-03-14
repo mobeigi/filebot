@@ -230,19 +230,20 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 		@Override
 		public T get(Preferences prefs, String key) {
-			String stringValue = prefs.get(key, null);
+			String value = prefs.get(key, null);
 			
-			if (stringValue == null)
-				return null;
-			
-			try {
-				return constructor.newInstance(stringValue);
-			} catch (InvocationTargetException e) {
-				// try to throw the cause directly, e.g. NumberFormatException
-				throw ExceptionUtilities.asRuntimeException(e.getCause());
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			if (value != null) {
+				try {
+					return constructor.newInstance(value);
+				} catch (InvocationTargetException e) {
+					// try to throw the cause directly, e.g. NumberFormatException
+					throw ExceptionUtilities.asRuntimeException(e.getCause());
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
+			
+			return null;
 		}
 		
 

@@ -88,7 +88,7 @@ public class Unrar {
 				return new Command(command);
 			}
 		} catch (Exception e) {
-			Logger.getLogger("global").log(Level.WARNING, "Cannot initialize unrar facility: " + e.getMessage());
+			Logger.getLogger(Unrar.class.getName()).log(Level.WARNING, "Cannot initialize unrar facility: " + e.getMessage());
 		}
 		
 		return null;

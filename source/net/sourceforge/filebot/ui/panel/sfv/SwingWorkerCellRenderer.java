@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
+
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;

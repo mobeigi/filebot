@@ -116,7 +116,7 @@ public class LinkButton extends JButton {
 				}
 			} catch (Exception e) {
 				// should not happen
-				Logger.getLogger("global").log(Level.SEVERE, e.toString(), e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 			}
 		}
 	}

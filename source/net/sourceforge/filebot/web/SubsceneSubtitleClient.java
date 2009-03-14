@@ -73,7 +73,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 			try {
 				searchResults.add(new HyperLink(title, new URL("http", host, href)));
 			} catch (MalformedURLException e) {
-				Logger.getLogger("global").log(Level.WARNING, "Invalid href: " + href, e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}
 		
@@ -88,7 +88,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 				
 				searchResults.add(new HyperLink(name, new URL("http", host, file)));
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.WARNING, "Cannot parse subtitle page: " + searchUrl, e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot parse subtitle page: " + searchUrl, e);
 			}
 		}
 		
@@ -153,7 +153,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, typeId, downloadUrl, subtitleListUrl));
 				}
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.WARNING, "Cannot parse subtitle node", e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot parse subtitle node", e);
 			}
 		}
 		

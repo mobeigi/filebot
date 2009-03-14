@@ -72,7 +72,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 				setModel(createModelInBackground(sourceModel));
 			} catch (InterruptedException e) {
 				// will not happen
-				Logger.getLogger("global").log(Level.SEVERE, e.getMessage(), e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 			}
 		}
 	}

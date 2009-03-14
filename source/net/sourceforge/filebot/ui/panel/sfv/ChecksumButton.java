@@ -3,7 +3,9 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 
 import static java.awt.Color.WHITE;
-import static java.awt.Cursor.*;
+import static java.awt.Cursor.DEFAULT_CURSOR;
+import static java.awt.Cursor.HAND_CURSOR;
+import static java.awt.Cursor.getPredefinedCursor;
 import static java.awt.Font.DIALOG;
 import static java.awt.Font.PLAIN;
 import static java.awt.RenderingHints.KEY_RENDERING;

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -213,7 +214,7 @@ public class EpisodeFormatDialog extends JDialog {
 			try {
 				return EpisodeFormat.getInstance().parseObject(sample);
 			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 		
