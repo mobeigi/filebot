@@ -54,7 +54,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 
 	@Override
 	protected Settings getSettings() {
-		return Settings.userRoot().node("subtitle");
+		return Settings.userRoot().node("subtitles");
 	}
 	
 

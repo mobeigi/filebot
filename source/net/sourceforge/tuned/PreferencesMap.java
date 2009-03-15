@@ -35,11 +35,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	@Override
 	public T get(Object key) {
-		if (key instanceof String) {
-			return adapter.get(prefs, (String) key);
-		}
-		
-		return null;
+		return adapter.get(prefs, key.toString());
 	}
 	
 
@@ -47,16 +43,16 @@ public class PreferencesMap<T> implements Map<String, T> {
 	public T put(String key, T value) {
 		adapter.put(prefs, key, value);
 		
+		// don't know previous entry
 		return null;
 	}
 	
 
 	@Override
 	public T remove(Object key) {
-		if (key instanceof String) {
-			adapter.remove(prefs, (String) key);
-		}
+		adapter.remove(prefs, key.toString());
 		
+		// don't know removed entry
 		return null;
 	}
 	
@@ -100,7 +96,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 	
 
 	@Override
-	public Set<Map.Entry<String, T>> entrySet() {
+	public Set<Entry<String, T>> entrySet() {
 		Set<Map.Entry<String, T>> entries = new LinkedHashSet<Map.Entry<String, T>>();
 		
 		for (String key : keys()) {

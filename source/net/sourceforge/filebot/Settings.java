@@ -42,7 +42,7 @@ public final class Settings {
 	
 
 	public Settings node(String nodeName) {
-		return new Settings(prefs.node(nodeName.toLowerCase()));
+		return new Settings(prefs.node(nodeName));
 	}
 	
 

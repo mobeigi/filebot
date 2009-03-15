@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,12 +39,22 @@ public final class WebRequest {
 	
 
 	public static Reader getReader(URLConnection connection) throws IOException {
+		try {
+			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
+		} catch (IllegalStateException e) {
+			// too bad, can't request gzipped document anymore
+		}
+		
 		Charset charset = getCharset(connection.getContentType());
 		String encoding = connection.getContentEncoding();
+		
 		InputStream inputStream = connection.getInputStream();
 		
-		if ((encoding != null) && encoding.equalsIgnoreCase("gzip"))
+		if ("gzip".equalsIgnoreCase(encoding))
 			inputStream = new GZIPInputStream(inputStream);
+		else if ("deflate".equalsIgnoreCase(encoding)) {
+			inputStream = new InflaterInputStream(inputStream, new Inflater(true));
+		}
 		
 		return new InputStreamReader(inputStream, charset);
 	}

@@ -29,7 +29,9 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -40,7 +42,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	
 	private static final String host = "subscene.com";
 	
-	private final Map<String, Integer> languageFilterMap = new HashMap<String, Integer>(50);
+	private final Map<String, Integer> languageFilterMap = initLanguageFilterMap();
 	
 	
 	@Override
@@ -86,7 +88,9 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 				// get current location
 				String file = selectString("id('aspnetForm')/@action", dom);
 				
-				searchResults.add(new HyperLink(name, new URL("http", host, file)));
+				if (!name.isEmpty() && !file.isEmpty()) {
+					searchResults.add(new HyperLink(name, new URL("http", host, file)));
+				}
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot parse subtitle page: " + searchUrl, e);
 			}
@@ -172,13 +176,18 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 	}
 	
 
+	protected Map<String, Integer> initLanguageFilterMap() {
+		return Settings.userRoot().node("subtitles/subscene/languageFilterMap").asMap(SimpleAdapter.forClass(Integer.class));
+	}
+	
+
 	protected Map<String, Integer> getLanguageFilterMap(Document subtitleListDocument) {
 		Map<String, Integer> filters = new HashMap<String, Integer>(50);
 		
 		List<Node> nodes = selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
 		
 		for (Node node : nodes) {
-			// select INPUT/@onclick, ditch non-number-characters
+			// select INPUT/@onclick, then ditch non-number-characters
 			String filter = getAttribute("onclick", getChild("INPUT", node)).replaceAll("\\D+", "");
 			
 			if (filter != null) {
