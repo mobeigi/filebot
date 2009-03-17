@@ -10,7 +10,6 @@ import static net.sourceforge.tuned.XPathUtilities.selectString;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -205,11 +204,7 @@ public class TheTVDBClient implements EpisodeListClient {
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
 		
-		try {
-			return new URI("http://" + host + "/?tab=seasonall&id=" + seriesId);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		return URI.create("http://" + host + "/?tab=seasonall&id=" + seriesId);
 	}
 	
 
@@ -230,11 +225,9 @@ public class TheTVDBClient implements EpisodeListClient {
 			}
 			
 			return new URI("http://" + host + "/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// log and ignore any IOException
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve season id", e);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 		
 		return null;

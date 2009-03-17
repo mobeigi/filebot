@@ -117,7 +117,7 @@ public class SubsceneSubtitleClient implements SubtitleClient {
 		Document subtitleListDocument = getSubtitleListDocument(subtitleListUrl, languageFilter);
 		
 		// let's update language filters if they are not known yet
-		if (languageFilterMap.isEmpty()) {
+		if (languageName != null && languageFilter == null) {
 			synchronized (languageFilterMap) {
 				languageFilterMap.putAll(getLanguageFilterMap(subtitleListDocument));
 			}

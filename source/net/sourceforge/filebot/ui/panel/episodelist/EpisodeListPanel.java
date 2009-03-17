@@ -30,6 +30,7 @@ import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
@@ -74,6 +75,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 		engines.add(new TVRageClient());
 		engines.add(new AnidbClient());
 		engines.add(new TVDotComClient());
+		engines.add(new IMDbClient());
 		engines.add(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey")));
 		
 		return engines;
@@ -220,10 +222,11 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 		@Override
 		public URI getLink() {
-			if (request.getSeason() != ALL_SEASONS)
+			if (request.getSeason() != ALL_SEASONS) {
 				return request.getClient().getEpisodeListLink(getSearchResult(), request.getSeason());
-			else
-				return request.getClient().getEpisodeListLink(getSearchResult());
+			}
+			
+			return request.getClient().getEpisodeListLink(getSearchResult());
 		}
 		
 

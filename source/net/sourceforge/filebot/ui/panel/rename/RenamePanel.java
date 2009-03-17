@@ -42,6 +42,7 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
@@ -143,6 +144,7 @@ public class RenamePanel extends JComponent {
 		actionPopup.add(new AutoFetchEpisodeListAction(new TVRageClient()));
 		actionPopup.add(new AutoFetchEpisodeListAction(new AnidbClient()));
 		actionPopup.add(new AutoFetchEpisodeListAction(new TVDotComClient()));
+		actionPopup.add(new AutoFetchEpisodeListAction(new IMDbClient()));
 		actionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))));
 		
 		actionPopup.addSeparator();

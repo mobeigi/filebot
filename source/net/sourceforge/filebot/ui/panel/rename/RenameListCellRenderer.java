@@ -79,7 +79,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		String extension = FileUtilities.getExtension(file);
 		
-		if (!extension.isEmpty())
+		if (extension != null)
 			return extension;
 		
 		// some file with no extension

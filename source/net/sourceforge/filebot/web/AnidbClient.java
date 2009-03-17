@@ -141,7 +141,7 @@ public class AnidbClient implements EpisodeListClient {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		throw new UnsupportedOperationException();
+		return null;
 	}
 	
 }
