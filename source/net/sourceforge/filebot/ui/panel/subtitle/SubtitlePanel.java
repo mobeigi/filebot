@@ -19,14 +19,14 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
-import net.sourceforge.filebot.web.SubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.SubtitleSourceClient;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
 
-public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitlePackage> {
+public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 	
 	public SubtitlePanel() {
 		historyPanel.setColumnHeader(0, "Show / Movie");
@@ -35,8 +35,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	
 
 	@Override
-	protected List<SubtitleClient> createSearchEngines() {
-		List<SubtitleClient> engines = new ArrayList<SubtitleClient>(2);
+	protected List<SubtitleProvider> createSearchEngines() {
+		List<SubtitleProvider> engines = new ArrayList<SubtitleProvider>(2);
 		
 		engines.add(new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())));
 		engines.add(new SubsceneSubtitleClient());
@@ -47,8 +47,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 	
 
 	@Override
-	protected LabelProvider<SubtitleClient> createSearchEngineLabelProvider() {
-		return SimpleLabelProvider.forClass(SubtitleClient.class);
+	protected LabelProvider<SubtitleProvider> createSearchEngineLabelProvider() {
+		return SimpleLabelProvider.forClass(SubtitleProvider.class);
 	}
 	
 
@@ -60,31 +60,31 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 
 	@Override
 	protected SubtitleRequestProcessor createRequestProcessor() {
-		SubtitleClient client = searchTextField.getSelectButton().getSelectedValue();
+		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
 		
 		//TODO language selection combobox
 		Locale language = Locale.ENGLISH;
 		
-		return new SubtitleRequestProcessor(new SubtitleRequest(client, text, language));
+		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
 	}
 	
 	
 	protected static class SubtitleRequest extends Request {
 		
-		private final SubtitleClient client;
+		private final SubtitleProvider provider;
 		private final Locale language;
 		
 		
-		public SubtitleRequest(SubtitleClient client, String searchText, Locale language) {
+		public SubtitleRequest(SubtitleProvider provider, String searchText, Locale language) {
 			super(searchText);
-			this.client = client;
+			this.provider = provider;
 			this.language = language;
 		}
 		
 
-		public SubtitleClient getClient() {
-			return client;
+		public SubtitleProvider getProvider() {
+			return provider;
 		}
 		
 
@@ -104,7 +104,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 
 		@Override
 		public Collection<SearchResult> search() throws Exception {
-			return request.getClient().search(request.getSearchText());
+			return request.getProvider().search(request.getSearchText());
 		}
 		
 
@@ -112,7 +112,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 		public Collection<SubtitlePackage> fetch() throws Exception {
 			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>(20);
 			
-			for (SubtitleDescriptor subtitle : request.getClient().getSubtitleList(getSearchResult(), request.getLanguage())) {
+			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getLanguage())) {
 				packages.add(new SubtitlePackage(subtitle));
 			}
 			
@@ -122,7 +122,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 
 		@Override
 		public URI getLink() {
-			return request.getClient().getSubtitleListLink(getSearchResult(), request.getLanguage());
+			return request.getProvider().getSubtitleListLink(getSearchResult(), request.getLanguage());
 		}
 		
 
@@ -146,7 +146,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleClient, SubtitleP
 
 		@Override
 		public Icon getIcon() {
-			return request.client.getIcon();
+			return request.provider.getIcon();
 		}
 		
 

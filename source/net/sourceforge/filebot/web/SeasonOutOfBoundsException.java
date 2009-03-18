@@ -6,19 +6,19 @@ public class SeasonOutOfBoundsException extends IndexOutOfBoundsException {
 	
 	private final String seriesName;
 	private final int season;
-	private final int maxSeason;
+	private final int lastSeason;
 	
 	
-	public SeasonOutOfBoundsException(String seriesName, int season, int maxSeason) {
+	public SeasonOutOfBoundsException(String seriesName, int season, int lastSeason) {
 		this.seriesName = seriesName;
 		this.season = season;
-		this.maxSeason = maxSeason;
+		this.lastSeason = lastSeason;
 	}
 	
 
 	@Override
 	public String getMessage() {
-		return String.format("%s has only %d season%s.", seriesName, maxSeason, maxSeason != 1 ? "s" : "");
+		return String.format("%s has only %d season%s.", seriesName, lastSeason, lastSeason != 1 ? "s" : "");
 	}
 	
 
@@ -32,8 +32,8 @@ public class SeasonOutOfBoundsException extends IndexOutOfBoundsException {
 	}
 	
 
-	public int getMaxSeason() {
-		return maxSeason;
+	public int getLastSeason() {
+		return lastSeason;
 	}
 	
 }

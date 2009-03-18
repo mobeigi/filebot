@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class AnidbClient implements EpisodeListClient {
+public class AnidbClient implements EpisodeListProvider {
 	
 	private static final String host = "anidb.net";
 	

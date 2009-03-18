@@ -29,7 +29,7 @@ import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
@@ -41,7 +41,7 @@ import net.sourceforge.tuned.ui.SimpleLabelProvider;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Episode> {
+public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, Episode> {
 	
 	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
 	
@@ -69,8 +69,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	
 
 	@Override
-	protected List<EpisodeListClient> createSearchEngines() {
-		List<EpisodeListClient> engines = new ArrayList<EpisodeListClient>(4);
+	protected List<EpisodeListProvider> createSearchEngines() {
+		List<EpisodeListProvider> engines = new ArrayList<EpisodeListProvider>(4);
 		
 		engines.add(new TVRageClient());
 		engines.add(new AnidbClient());
@@ -83,8 +83,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 	
 
 	@Override
-	protected LabelProvider<EpisodeListClient> createSearchEngineLabelProvider() {
-		return SimpleLabelProvider.forClass(EpisodeListClient.class);
+	protected LabelProvider<EpisodeListProvider> createSearchEngineLabelProvider() {
+		return SimpleLabelProvider.forClass(EpisodeListProvider.class);
 	}
 	
 
@@ -96,20 +96,20 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 	@Override
 	protected EpisodeListRequestProcessor createRequestProcessor() {
-		EpisodeListClient client = searchTextField.getSelectButton().getSelectedValue();
+		EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
 		int season = seasonSpinnerModel.getSeason();
 		
-		return new EpisodeListRequestProcessor(new EpisodeListRequest(client, text, season));
+		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season));
 	};
 	
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
-			EpisodeListClient client = searchTextField.getSelectButton().getSelectedValue();
+			EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 			
-			// lock season spinner on "All Seasons" if client doesn't support fetching of single seasons
-			if (!client.hasSingleSeasonSupport()) {
+			// lock season spinner on "All Seasons" if provider doesn't support fetching of single seasons
+			if (!provider.hasSingleSeasonSupport()) {
 				seasonSpinnerModel.lock(ALL_SEASONS);
 			} else {
 				seasonSpinnerModel.unlock();
@@ -175,19 +175,19 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 	protected static class EpisodeListRequest extends Request {
 		
-		private final EpisodeListClient client;
+		private final EpisodeListProvider provider;
 		private final int season;
 		
 		
-		public EpisodeListRequest(EpisodeListClient client, String searchText, int season) {
+		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season) {
 			super(searchText);
-			this.client = client;
+			this.provider = provider;
 			this.season = season;
 		}
 		
 
-		public EpisodeListClient getClient() {
-			return client;
+		public EpisodeListProvider getProvider() {
+			return provider;
 		}
 		
 
@@ -207,26 +207,26 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 		@Override
 		public Collection<SearchResult> search() throws Exception {
-			return request.getClient().search(request.getSearchText());
+			return request.getProvider().search(request.getSearchText());
 		}
 		
 
 		@Override
 		public Collection<Episode> fetch() throws Exception {
 			if (request.getSeason() != ALL_SEASONS)
-				return request.getClient().getEpisodeList(getSearchResult(), request.getSeason());
+				return request.getProvider().getEpisodeList(getSearchResult(), request.getSeason());
 			else
-				return request.getClient().getEpisodeList(getSearchResult());
+				return request.getProvider().getEpisodeList(getSearchResult());
 		}
 		
 
 		@Override
 		public URI getLink() {
 			if (request.getSeason() != ALL_SEASONS) {
-				return request.getClient().getEpisodeListLink(getSearchResult(), request.getSeason());
+				return request.getProvider().getEpisodeListLink(getSearchResult(), request.getSeason());
 			}
 			
-			return request.getClient().getEpisodeListLink(getSearchResult());
+			return request.getProvider().getEpisodeListLink(getSearchResult());
 		}
 		
 
@@ -263,7 +263,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListClient, Epi
 
 		@Override
 		public Icon getIcon() {
-			return request.getClient().getIcon();
+			return request.getProvider().getIcon();
 		}
 		
 

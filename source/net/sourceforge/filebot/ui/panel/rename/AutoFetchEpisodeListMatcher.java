@@ -27,7 +27,7 @@ import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.FileUtilities;
 
@@ -36,13 +36,13 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	
 	private final List<File> files;
 	
-	private final EpisodeListClient client;
+	private final EpisodeListProvider provider;
 	
 	private final Collection<SimilarityMetric> metrics;
 	
 	
-	public AutoFetchEpisodeListMatcher(EpisodeListClient client, List<File> files, Collection<SimilarityMetric> metrics) {
-		this.client = client;
+	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, List<File> files, Collection<SimilarityMetric> metrics) {
+		this.provider = provider;
 		this.files = new LinkedList<File>(files);
 		this.metrics = new ArrayList<SimilarityMetric>(metrics);
 	}
@@ -79,13 +79,13 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				
 				@Override
 				public Collection<Episode> call() throws Exception {
-					Collection<SearchResult> results = client.search(seriesName);
+					Collection<SearchResult> results = provider.search(seriesName);
 					
 					if (results.size() > 0) {
 						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
 						
 						if (selectedSearchResult != null) {
-							return client.getEpisodeList(selectedSearchResult);
+							return provider.getEpisodeList(selectedSearchResult);
 						}
 					}
 					

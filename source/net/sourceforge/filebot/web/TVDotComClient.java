@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TVDotComClient implements EpisodeListClient {
+public class TVDotComClient implements EpisodeListProvider {
 	
 	private static final String host = "www.tv.com";
 	

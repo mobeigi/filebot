@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 
-public class SubtitleSourceClient implements SubtitleClient {
+public class SubtitleSourceClient implements SubtitleProvider {
 	
 	protected static final String HOST = "www.subtitlesource.org";
 	

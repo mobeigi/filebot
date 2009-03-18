@@ -8,7 +8,7 @@ import java.util.List;
 import javax.swing.Icon;
 
 
-public interface EpisodeListClient {
+public interface EpisodeListProvider {
 	
 	public List<SearchResult> search(String query) throws Exception;
 	

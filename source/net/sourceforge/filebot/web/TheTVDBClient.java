@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.EpisodeListUtilities.filterBySeason;
+import static net.sourceforge.filebot.web.EpisodeListUtilities.getLastSeason;
 import static net.sourceforge.filebot.web.WebRequest.getDocument;
 import static net.sourceforge.tuned.XPathUtilities.getTextContent;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
@@ -38,7 +40,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class TheTVDBClient implements EpisodeListClient {
+public class TheTVDBClient implements EpisodeListProvider {
 	
 	private static final String host = "www.thetvdb.com";
 	
@@ -110,34 +112,14 @@ public class TheTVDBClient implements EpisodeListClient {
 
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
+		List<Episode> all = getEpisodeList(searchResult);
+		List<Episode> eps = filterBySeason(all, season);
 		
-		List<Episode> episodes = new ArrayList<Episode>(25);
-		
-		// remember max. season, so we can throw a proper exception, in case an illegal season number was requested
-		int maxSeason = 0;
-		
-		// filter given season from all seasons
-		for (Episode episode : getEpisodeList(searchResult)) {
-			try {
-				int seasonNumber = Integer.parseInt(episode.getSeasonNumber());
-				
-				if (season == seasonNumber) {
-					episodes.add(episode);
-				}
-				
-				if (seasonNumber > maxSeason) {
-					maxSeason = seasonNumber;
-				}
-			} catch (NumberFormatException e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal season number", e);
-			}
+		if (eps.isEmpty()) {
+			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
 		}
 		
-		if (episodes.isEmpty()) {
-			throw new SeasonOutOfBoundsException(searchResult.getName(), season, maxSeason);
-		}
-		
-		return episodes;
+		return eps;
 	}
 	
 

@@ -9,7 +9,7 @@ import java.util.Locale;
 import javax.swing.Icon;
 
 
-public interface SubtitleClient {
+public interface SubtitleProvider {
 	
 	public List<SearchResult> search(String query) throws Exception;
 	

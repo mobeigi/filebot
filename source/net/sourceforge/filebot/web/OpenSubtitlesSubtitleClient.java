@@ -18,7 +18,7 @@ import net.sourceforge.tuned.Timer;
 /**
  * SubtitleClient for OpenSubtitles.
  */
-public class OpenSubtitlesSubtitleClient implements SubtitleClient {
+public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 	
 	private final OpenSubtitlesClient client;
 	

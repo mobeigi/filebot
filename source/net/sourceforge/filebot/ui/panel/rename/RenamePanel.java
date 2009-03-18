@@ -41,7 +41,7 @@ import net.sourceforge.filebot.ui.EpisodeFormatDialog;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeListClient;
+import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
@@ -201,13 +201,13 @@ public class RenamePanel extends JComponent {
 	
 	protected class AutoFetchEpisodeListAction extends AbstractAction {
 		
-		private final EpisodeListClient client;
+		private final EpisodeListProvider provider;
 		
 		
-		public AutoFetchEpisodeListAction(EpisodeListClient client) {
-			super(client.getName(), client.getIcon());
+		public AutoFetchEpisodeListAction(EpisodeListProvider provider) {
+			super(provider.getName(), provider.getIcon());
 			
-			this.client = client;
+			this.provider = provider;
 			
 			// disable action while episode list matcher is working
 			namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
@@ -229,7 +229,7 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			model.names().clear();
 			
-			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(client, model.files(), matchAction.getMetrics()) {
+			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, model.files(), matchAction.getMetrics()) {
 				
 				@Override
 				protected void done() {

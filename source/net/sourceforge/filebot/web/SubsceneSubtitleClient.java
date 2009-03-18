@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class SubsceneSubtitleClient implements SubtitleClient {
+public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 	private static final String host = "subscene.com";
 	
