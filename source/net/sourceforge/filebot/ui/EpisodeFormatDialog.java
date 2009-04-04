@@ -11,44 +11,51 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.text.Format;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.format.EpisodeExpressionFormat;
+import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Episode.EpisodeFormat;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LinkButton;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -60,16 +67,20 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private Format selectedFormat = null;
 	
-	protected final JFormattedTextField preview = new JFormattedTextField();
+	private JLabel preview = new JLabel();
 	
-	protected final JLabel errorMessage = new JLabel(ResourceManager.getIcon("dialog.cancel"));
-	protected final JTextField editor = new JTextField();
+	private JLabel warningMessage = new JLabel(ResourceManager.getIcon("status.warning"));
+	private JLabel errorMessage = new JLabel(ResourceManager.getIcon("status.error"));
 	
-	protected Color defaultColor = preview.getForeground();
-	protected Color errorColor = Color.red;
+	private Episode previewSampleEpisode = getPreviewSampleEpisode();
+	private File previewSampleMediaFile = getPreviewSampleMediaFile();
 	
-	protected final PreferencesEntry<String> persistentFormat = Settings.userRoot().entry("dialog.format");
-	protected final PreferencesEntry<String> persistentSample = Settings.userRoot().entry("dialog.sample");
+	private ExecutorService previewExecutor = createPreviewExecutor();
+	
+	private JTextField editor = new JTextField();
+	
+	private Color defaultColor = preview.getForeground();
+	private Color errorColor = Color.red;
 	
 	
 	public EpisodeFormatDialog(Window owner) {
@@ -77,16 +88,8 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
+		editor.setText(Settings.userRoot().get("dialog.format"));
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
-		
-		// restore state
-		preview.setValue(getPreviewSample());
-		editor.setText(persistentFormat.getValue());
-		
-		preview.setBorder(BorderFactory.createEmptyBorder());
-		
-		// update preview to current format
-		checkEpisodeFormat();
 		
 		// bold title label in header
 		JLabel title = new JLabel(this.getTitle());
@@ -97,9 +100,13 @@ public class EpisodeFormatDialog extends JDialog {
 		header.setBackground(Color.white);
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 		
+		errorMessage.setVisible(false);
+		warningMessage.setVisible(false);
+		
 		header.add(title, "wrap unrel:push");
-		header.add(errorMessage, "gap indent, hidemode 3");
-		header.add(preview, "gap indent, hidemode 3, growx");
+		header.add(preview, "gap indent, hidemode 3, wmax 90%");
+		header.add(errorMessage, "gap indent, hidemode 3, newline");
+		header.add(warningMessage, "gap indent, hidemode 3, newline");
 		
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 		
@@ -121,35 +128,31 @@ public class EpisodeFormatDialog extends JDialog {
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
 		
-		pack();
+		setSize(485, 390);
+		
+		header.setComponentPopupMenu(createPreviewSamplePopup());
+		
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		TunedUtilities.putActionForKeystroke(pane, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 		
+		// update preview to current format
+		checkFormatInBackground();
+		
 		// update format on change
-		editor.getDocument().addDocumentListener(new DocumentAdapter() {
+		editor.getDocument().addDocumentListener(new LazyDocumentAdapter() {
 			
 			@Override
-			public void update(DocumentEvent evt) {
-				checkEpisodeFormat();
+			public void update() {
+				checkFormatInBackground();
 			}
 		});
 		
-		// keep focus on preview, if current text doesn't fit episode format
-		preview.setInputVerifier(new InputVerifier() {
+		addPropertyChangeListener("previewSample", new PropertyChangeListener() {
 			
 			@Override
-			public boolean verify(JComponent input) {
-				return checkPreviewSample();
-			}
-		});
-		
-		// check edit format on change
-		preview.getDocument().addDocumentListener(new DocumentAdapter() {
-			
-			@Override
-			public void update(DocumentEvent evt) {
-				checkPreviewSample();
+			public void propertyChange(PropertyChangeEvent evt) {
+				checkFormatInBackground();
 			}
 		});
 		
@@ -164,7 +167,52 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	protected JPanel createSyntaxPanel() {
+	private JPopupMenu createPreviewSamplePopup() {
+		JPopupMenu actionPopup = new JPopupMenu("Sample");
+		
+		actionPopup.add(new AbstractAction("Change Episode") {
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				String episode = JOptionPane.showInputDialog(EpisodeFormatDialog.this, null, previewSampleEpisode);
+				
+				if (episode != null) {
+					try {
+						previewSampleEpisode = EpisodeFormat.getInstance().parseObject(episode);
+						Settings.userRoot().put("dialog.sample.episode", episode);
+						
+						EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
+					} catch (Exception e) {
+						Logger.getLogger("ui").warning(String.format("Cannot parse %s", episode));
+					}
+				}
+			}
+		});
+		
+		actionPopup.add(new AbstractAction("Change Media File") {
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setSelectedFile(previewSampleMediaFile);
+				fileChooser.setFileFilter(new FileNameExtensionFilter("Media files", "avi", "mkv", "mp4", "ogm"));
+				
+				if (fileChooser.showOpenDialog(EpisodeFormatDialog.this) == JFileChooser.APPROVE_OPTION) {
+					previewSampleMediaFile = fileChooser.getSelectedFile();
+					Settings.userRoot().put("dialog.sample.file", previewSampleMediaFile.getAbsolutePath());
+					
+					EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
+					
+					MediaInfoComponent.showDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
+				}
+			}
+		});
+		
+		return actionPopup;
+	}
+	
+
+	private JPanel createSyntaxPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
 		
 		panel.setBorder(new LineBorder(new Color(0xACA899)));
@@ -177,7 +225,7 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	protected JPanel createExamplesPanel() {
+	private JPanel createExamplesPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 		
 		panel.setBorder(new LineBorder(new Color(0xACA899)));
@@ -207,8 +255,13 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	protected Episode getPreviewSample() {
-		String sample = persistentSample.getValue();
+	private Match<Episode, File> previewSample() {
+		return new Match<Episode, File>(previewSampleEpisode, previewSampleMediaFile);
+	}
+	
+
+	private Episode getPreviewSampleEpisode() {
+		String sample = Settings.userRoot().get("dialog.sample.episode");
 		
 		if (sample != null) {
 			try {
@@ -223,61 +276,75 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	protected boolean checkPreviewSample() {
-		// check if field is being edited
-		if (preview.hasFocus()) {
+	private File getPreviewSampleMediaFile() {
+		String sample = Settings.userRoot().get("dialog.sample.file");
+		
+		if (sample != null) {
 			try {
-				// try to parse text
-				preview.getFormatter().stringToValue(preview.getText());
+				return new File(sample);
 			} catch (Exception e) {
-				preview.setForeground(errorColor);
-				// failed to parse text
-				return false;
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 		
-		preview.setForeground(defaultColor);
-		return true;
+		// default sample
+		return null;
 	}
 	
 
-	protected DefaultFormatterFactory createFormatterFactory(Format display) {
-		DefaultFormatterFactory factory = new DefaultFormatterFactory();
+	private ExecutorService createPreviewExecutor() {
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
 		
-		factory.setEditFormatter(new SimpleFormatter(EpisodeFormat.getInstance()));
+		// only keep the latest task in the queue 
+		executor.setRejectedExecutionHandler(new DiscardOldestPolicy());
 		
-		if (display != null) {
-			factory.setDisplayFormatter(new SimpleFormatter(display));
-		}
-		
-		return factory;
+		return executor;
 	}
 	
 
-	protected boolean checkEpisodeFormat() {
-		Exception exception = null;
-		
-		try {
-			Format format = new EpisodeExpressionFormat(editor.getText().trim());
+	private void checkFormatInBackground() {
+		previewExecutor.execute(new SwingWorker<String, Void>() {
 			
-			// check if format produces empty strings
-			if (format.format(preview.getValue()).trim().isEmpty()) {
-				throw new IllegalArgumentException("Format must not be empty.");
+			private ScriptException warning = null;
+			
+			
+			@Override
+			protected String doInBackground() throws Exception {
+				EpisodeExpressionFormat format = new EpisodeExpressionFormat(editor.getText().trim());
+				
+				String text = format.format(previewSample());
+				warning = format.scriptException();
+				
+				// check if format produces empty strings
+				if (text.trim().isEmpty()) {
+					throw new IllegalArgumentException("Format must not be empty.");
+				}
+				
+				return text;
 			}
 			
-			// update preview
-			preview.setFormatterFactory(createFormatterFactory(format));
-		} catch (Exception e) {
-			exception = e;
-		}
-		
-		errorMessage.setText(exception != null ? ExceptionUtilities.getRootCauseMessage(exception) : null);
-		errorMessage.setVisible(exception != null);
-		
-		preview.setVisible(exception == null);
-		editor.setForeground(exception == null ? defaultColor : errorColor);
-		
-		return exception == null;
+
+			@Override
+			protected void done() {
+				Exception error = null;
+				
+				try {
+					preview.setText(get());
+				} catch (Exception e) {
+					error = e;
+				}
+				
+				errorMessage.setText(error != null ? error.getCause().getMessage() : null);
+				errorMessage.setVisible(error != null);
+				
+				warningMessage.setText(warning != null ? warning.getCause().getMessage() : null);
+				warningMessage.setVisible(warning != null);
+				
+				preview.setVisible(error == null);
+				editor.setForeground(error == null ? defaultColor : errorColor);
+			}
+			
+		});
 	}
 	
 
@@ -291,14 +358,6 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		setVisible(false);
 		dispose();
-		
-		if (checkEpisodeFormat()) {
-			persistentFormat.setValue(editor.getText());
-		}
-		
-		if (checkPreviewSample()) {
-			persistentSample.setValue(EpisodeFormat.getInstance().format(preview.getValue()));
-		}
 	}
 	
 	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
@@ -323,6 +382,7 @@ public class EpisodeFormatDialog extends JDialog {
 		public void actionPerformed(ActionEvent evt) {
 			try {
 				finish(new EpisodeExpressionFormat(editor.getText()));
+				Settings.userRoot().put("dialog.format", editor.getText());
 			} catch (ScriptException e) {
 				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			}
@@ -331,7 +391,7 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	
 	public static Format showDialog(Component parent) {
-		EpisodeFormatDialog dialog = new EpisodeFormatDialog(parent != null ? SwingUtilities.getWindowAncestor(parent) : null);
+		EpisodeFormatDialog dialog = new EpisodeFormatDialog(TunedUtilities.getWindow(parent));
 		
 		dialog.setVisible(true);
 		
@@ -362,10 +422,10 @@ public class EpisodeFormatDialog extends JDialog {
 			this.format = format;
 			
 			// initialize text
-			updateText(preview.getValue());
+			updateText(previewSample());
 			
 			// bind text to preview
-			preview.addPropertyChangeListener("value", new PropertyChangeListener() {
+			EpisodeFormatDialog.this.addPropertyChangeListener("previewSample", new PropertyChangeListener() {
 				
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
@@ -387,53 +447,41 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	protected static class SimpleFormatter extends AbstractFormatter {
+	protected static abstract class LazyDocumentAdapter implements DocumentListener {
 		
-		private final Format format;
+		private final Timer timer = new Timer(200, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				update();
+			}
+		});
 		
 		
-		public SimpleFormatter(Format format) {
-			this.format = format;
+		public LazyDocumentAdapter() {
+			timer.setRepeats(false);
 		}
 		
 
-		@Override
-		public String valueToString(Object value) throws ParseException {
-			return format.format(value);
-		}
-		
-
-		@Override
-		public Object stringToValue(String text) throws ParseException {
-			return format.parseObject(text);
-		}
-		
-	}
-	
-
-	protected static class DocumentAdapter implements DocumentListener {
-		
 		@Override
 		public void changedUpdate(DocumentEvent e) {
-			update(e);
+			timer.restart();
 		}
 		
 
 		@Override
 		public void insertUpdate(DocumentEvent e) {
-			update(e);
+			timer.restart();
 		}
 		
 
 		@Override
 		public void removeUpdate(DocumentEvent e) {
-			update(e);
+			timer.restart();
 		}
 		
 
-		public void update(DocumentEvent e) {
-			
-		}
+		public abstract void update();
 		
 	}
 	

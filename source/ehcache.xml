@@ -122,7 +122,7 @@
             
 
     <!--
-    Simple memory cache named web. Time to live is 5 min. This cache is used by TheTVDBClient and TVRageClient.
+    Short-lived memory cache for web responses. Time to live is 5 min. This cache is used by TheTVDBClient and TVRageClient.
     -->
     <cache name="web"
            maxElementsInMemory="120"
@@ -130,7 +130,20 @@
            timeToIdleSeconds="300"
            timeToLiveSeconds="300"           
            diskPersistent="false"
-           memoryStoreEvictionPolicy="FIFO"
+           memoryStoreEvictionPolicy="LRU"
+           />
+           
+           
+    <!--
+    Simple memory cache for calculated checksums. Time to live is 2 hours. This cache is used in EpisodeFormatBindingBean
+    -->           
+    <cache name="checksum"
+           maxElementsInMemory="4200"
+           eternal="false"
+           timeToIdleSeconds="7200"
+           timeToLiveSeconds="7200"           
+           diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU"
            />
 
 </ehcache>

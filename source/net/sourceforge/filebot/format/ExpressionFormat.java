@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.sourceforge.filebot.format;
 
 
 import java.io.InputStreamReader;
@@ -14,16 +14,20 @@ import java.util.regex.Pattern;
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 
 
-public abstract class ExpressionFormat extends Format {
+public class ExpressionFormat extends Format {
 	
 	private final String format;
 	
 	private final Object[] expressions;
+	
+	private ScriptException lastException;
 	
 	
 	public ExpressionFormat(String format) throws ScriptException {
@@ -35,7 +39,7 @@ public abstract class ExpressionFormat extends Format {
 	protected ScriptEngine initScriptEngine() throws ScriptException {
 		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 		
-		engine.eval(new InputStreamReader(getClass().getResourceAsStream("ExpressionFormat.global.js")));
+		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.global.js")));
 		
 		return engine;
 	}
@@ -78,30 +82,50 @@ public abstract class ExpressionFormat extends Format {
 	}
 	
 
-	protected abstract Bindings getBindings(Object value);
+	protected Bindings getBindings(Object value) {
+		// no bindings by default
+		return null;
+	}
 	
 
 	@Override
 	public StringBuffer format(Object object, StringBuffer sb, FieldPosition pos) {
 		Bindings bindings = getBindings(object);
 		
+		ScriptContext context = new SimpleScriptContext();
+		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+		
 		try {
 			for (Object snipped : expressions) {
-				if (snipped instanceof String) {
-					sb.append(snipped);
-				} else {
-					Object value = ((CompiledScript) snipped).eval(bindings);
-					
-					if (value != null) {
-						sb.append(value);
+				if (snipped instanceof CompiledScript) {
+					try {
+						Object value = ((CompiledScript) snipped).eval(context);
+						
+						if (value != null) {
+							sb.append(value);
+						}
+					} catch (ScriptException e) {
+						lastException = e;
 					}
+				} else {
+					sb.append(snipped);
 				}
 			}
-		} catch (ScriptException e) {
-			throw new IllegalArgumentException(e);
+		} finally {
+			dispose(bindings);
 		}
 		
 		return sb;
+	}
+	
+
+	protected void dispose(Bindings bindings) {
+		
+	}
+	
+
+	public ScriptException scriptException() {
+		return lastException;
 	}
 	
 

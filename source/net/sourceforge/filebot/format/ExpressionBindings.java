@@ -1,0 +1,137 @@
+
+package net.sourceforge.filebot.format;
+
+
+import java.lang.reflect.Method;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.script.Bindings;
+
+import net.sourceforge.tuned.ExceptionUtilities;
+
+
+public class ExpressionBindings extends AbstractMap<String, Object> implements Bindings {
+	
+	protected final Object bean;
+	
+	protected final Map<String, Method> bindings = new HashMap<String, Method>();
+	
+	
+	public ExpressionBindings(Object bindingBean) {
+		bean = bindingBean;
+		
+		// get method bindings
+		for (Method method : bean.getClass().getMethods()) {
+			Define define = method.getAnnotation(Define.class);
+			
+			if (define != null) {
+				for (String name : define.value()) {
+					Method existingBinding = bindings.put(name, method);
+					
+					if (existingBinding != null)
+						throw new IllegalArgumentException(String.format("Illegal binding {%s} on %s", name, method.getName()));
+				}
+			}
+		}
+	}
+	
+
+	public Object getBindingBean() {
+		return bean;
+	}
+	
+
+	protected Object evaluate(Method method) throws Exception {
+		Object value = method.invoke(getBindingBean());
+		
+		if (value != null) {
+			return value;
+		}
+		
+		// invoke fallback method
+		return bindings.get(Define.undefined).invoke(getBindingBean());
+	}
+	
+
+	@Override
+	public Object get(Object key) {
+		Method method = bindings.get(key);
+		
+		if (method != null) {
+			try {
+				return evaluate(method);
+			} catch (Exception e) {
+				throw new BindingException(key.toString(), ExceptionUtilities.getRootCauseMessage(e), e);
+			}
+		}
+		
+		return null;
+	}
+	
+
+	@Override
+	public Object put(String key, Object value) {
+		// bindings are immutable
+		return null;
+	}
+	
+
+	@Override
+	public Object remove(Object key) {
+		// bindings are immutable
+		return null;
+	}
+	
+
+	@Override
+	public boolean containsKey(Object key) {
+		return bindings.containsKey(key);
+	}
+	
+
+	@Override
+	public Set<String> keySet() {
+		return bindings.keySet();
+	}
+	
+
+	@Override
+	public boolean isEmpty() {
+		return bindings.isEmpty();
+	}
+	
+
+	@Override
+	public Set<Entry<String, Object>> entrySet() {
+		Set<Entry<String, Object>> entrySet = new HashSet<Entry<String, Object>>();
+		
+		for (final String key : keySet()) {
+			entrySet.add(new Entry<String, Object>() {
+				
+				@Override
+				public String getKey() {
+					return key;
+				}
+				
+
+				@Override
+				public Object getValue() {
+					return get(key);
+				}
+				
+
+				@Override
+				public Object setValue(Object value) {
+					return put(key, value);
+				}
+			});
+		}
+		
+		return entrySet;
+	}
+	
+}

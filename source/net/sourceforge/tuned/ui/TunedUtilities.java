@@ -3,6 +3,7 @@ package net.sourceforge.tuned.ui;
 
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -53,6 +54,17 @@ public final class TunedUtilities {
 		Integer key = action.hashCode();
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
 		component.getActionMap().put(key, action);
+	}
+	
+
+	public static Window getWindow(Component component) {
+		if (component == null)
+			return null;
+		
+		if (component instanceof Window)
+			return (Window) component;
+		
+		return SwingUtilities.getWindowAncestor(component);
 	}
 	
 

@@ -8,6 +8,6 @@ String.prototype.pad = Number.prototype.pad = function(length, padding) {
 	while (s.length < length) {
 		s = p + s;
 	}
-			
+	
 	return s;
 }

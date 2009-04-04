@@ -23,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -196,7 +195,7 @@ class ValidateNamesDialog extends JDialog {
 	
 	
 	public static boolean showDialog(Component parent, List<String> source) {
-		ValidateNamesDialog dialog = new ValidateNamesDialog(parent != null ? SwingUtilities.getWindowAncestor(parent) : null, source);
+		ValidateNamesDialog dialog = new ValidateNamesDialog(TunedUtilities.getWindow(parent), source);
 		
 		dialog.setVisible(true);
 		
