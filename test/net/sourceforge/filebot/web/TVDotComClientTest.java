@@ -79,8 +79,8 @@ public class TVDotComClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("Pilot", first.getEpisodeNumber());
-		assertEquals(null, first.getSeasonNumber());
+		assertEquals("0", first.getEpisodeNumber());
+		assertEquals("1", first.getSeasonNumber());
 	}
 	
 

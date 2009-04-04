@@ -164,15 +164,11 @@ public class EpisodeFormatBindingBean {
 	
 
 	private String getMediaInfo(StreamKind streamKind, int streamNumber, String... keys) {
-		MediaInfo mediaInfo = getMediaInfo();
-		
-		if (mediaInfo != null) {
-			for (String key : keys) {
-				String value = mediaInfo.get(streamKind, streamNumber, key);
-				
-				if (value.length() > 0) {
-					return value;
-				}
+		for (String key : keys) {
+			String value = getMediaInfo().get(streamKind, streamNumber, key);
+			
+			if (value.length() > 0) {
+				return value;
 			}
 		}
 		

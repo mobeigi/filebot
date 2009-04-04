@@ -89,7 +89,7 @@ public class TVDotComClient implements EpisodeListProvider {
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, 1).toURL());
 		
 		// seasons are ordered in reverse, first element is latest season
-		String latestSeasonString = selectString("id('eps_table')//*[starts-with(text(),'Season:')]/*[1]/text()", dom);
+		String latestSeasonString = selectString("id('episode_list_header')//*[contains(@class, 'number')]", dom);
 		
 		if (latestSeasonString.isEmpty()) {
 			// assume single season series
@@ -138,33 +138,33 @@ public class TVDotComClient implements EpisodeListProvider {
 	}
 	
 
-	private List<Episode> getEpisodeList(SearchResult searchResult, int seasonNumber, Document dom) {
+	private List<Episode> getEpisodeList(SearchResult searchResult, int season, Document dom) {
 		
-		List<Node> nodes = selectNodes("id('eps_table')//TD[@class='ep_title']/parent::TR", dom);
+		List<Node> nodes = selectNodes("id('episode_listing')//*[@class='episode']", dom);
 		
 		Integer episodeOffset = null;
 		
-		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String episode = selectString("./TD[1]", node);
-			String title = selectString("./TD[2]//A", node);
-			String season = String.valueOf(seasonNumber);
+			String episodeNumber = selectString("./*[@class='number']", node);
+			String title = selectString("./*[@class='title']", node);
+			String seasonNumber = String.valueOf(season);
 			
 			try {
 				// convert the absolute episode number to the season episode number
-				int n = Integer.parseInt(episode);
+				int n = Integer.parseInt(episodeNumber);
 				
 				if (episodeOffset == null)
-					episodeOffset = n - 1;
+					episodeOffset = (n <= 1) ? 0 : n - 1;
 				
-				episode = String.valueOf(n - episodeOffset);
+				episodeNumber = String.valueOf(n - episodeOffset);
 			} catch (NumberFormatException e) {
 				// episode may be "Pilot", "Special", "TV Movie" ...
-				season = null;
+				seasonNumber = null;
 			}
 			
-			episodes.add(new Episode(searchResult.getName(), season, episode, title));
+			episodes.add(new Episode(searchResult.getName(), seasonNumber, episodeNumber, title));
 		}
 		
 		return episodes;
