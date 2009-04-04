@@ -27,6 +27,7 @@ import net.sourceforge.filebot.similarity.LengthEqualsMetric;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
@@ -55,7 +56,7 @@ class MatchAction extends AbstractAction {
 	
 
 	protected Collection<SimilarityMetric> createMetrics() {
-		SimilarityMetric[] metrics = new SimilarityMetric[3];
+		SimilarityMetric[] metrics = new SimilarityMetric[4];
 		
 		// 1. pass: match by file length (fast, but only works when matching torrents or files)
 		metrics[0] = new LengthEqualsMetric() {
@@ -93,6 +94,28 @@ class MatchAction extends AbstractAction {
 		
 		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		metrics[2] = new NameSimilarityMetric() {
+			
+			@Override
+			public float getSimilarity(Object o1, Object o2) {
+				// normalize absolute similarity to similarity rank (20 ranks in total),
+				// so we are less likely to fall for false positives
+				return (float) (Math.floor(super.getSimilarity(o1, o2) * 20) / 20);
+			}
+			
+
+			@Override
+			protected String normalize(Object object) {
+				if (object instanceof File) {
+					// compare to filename without extension
+					object = FileUtilities.getName((File) object);
+				}
+				
+				return super.normalize(object);
+			}
+		};
+		
+		// 4. pass: match by generic numeric similarity
+		metrics[3] = new NumericSimilarityMetric() {
 			
 			@Override
 			protected String normalize(Object object) {

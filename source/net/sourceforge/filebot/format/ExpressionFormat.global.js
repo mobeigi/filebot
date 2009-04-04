@@ -11,3 +11,8 @@ String.prototype.pad = Number.prototype.pad = function(length, padding) {
 	
 	return s;
 }
+
+
+String.prototype.space = function(replacement) {
+	return this.replace(/\s/g, replacement);
+}
