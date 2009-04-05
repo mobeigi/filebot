@@ -120,8 +120,14 @@ public class EpisodeFormatBindingBean {
 		
 		return null;
 	}
-	
 
+	
+	@Define("general")
+	public SortedMap<String, String> getGeneralMediaInfo() {
+		return getMediaInfo().snapshot(StreamKind.General, 0);
+	}
+
+	
 	@Define("video")
 	public SortedMap<String, String> getVideoInfo() {
 		return getMediaInfo().snapshot(StreamKind.Video, 0);
@@ -133,12 +139,18 @@ public class EpisodeFormatBindingBean {
 		return getMediaInfo().snapshot(StreamKind.Audio, 0);
 	}
 	
-
-	@Define("general")
-	public SortedMap<String, String> getGeneralMediaInfo() {
-		return getMediaInfo().snapshot(StreamKind.General, 0);
+	
+	@Define("text")
+	public SortedMap<String, String> getTextInfo() {
+		return getMediaInfo().snapshot(StreamKind.Text, 0);
 	}
 	
+	
+	@Define("image")
+	public SortedMap<String, String> getImageInfo() {
+		return getMediaInfo().snapshot(StreamKind.Image, 0);
+	}
+
 
 	public synchronized MediaInfo getMediaInfo() {
 		if (mediaFile == null) {

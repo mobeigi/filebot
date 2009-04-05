@@ -21,6 +21,8 @@ import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
+import com.sun.jna.Platform;
+
 
 public class Main {
 	
@@ -47,15 +49,15 @@ public class Main {
 		initializeSettings();
 		
 		try {
-			//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-			//			UIManager.setLookAndFeel("a03.swing.plaf.A03LookAndFeel");
-			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceBusinessBlueSteelLookAndFeel");
-			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceNebulaBrickWallLookAndFeel");
-			//			UIManager.setLookAndFeel("org.jvnet.substance.skin.SubstanceSaharaLookAndFeel");
-			
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			if (Platform.isWindows() || Platform.isMac()) {
+				// use native laf of windows and mac
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} else {
+				// use nimubs laf on linux, bsd, ...
+				UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+			}
 		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.toString(), e);
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {

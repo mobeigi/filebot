@@ -67,9 +67,9 @@ public class ListPanel extends JComponent {
 		add(new JLabel("Pattern:"), "gapbefore indent");
 		add(textField, "gap related, wmin 2cm");
 		add(new JLabel("From:"), "gap 5mm");
-		add(fromSpinner, "gap related, wmax 12mm, sizegroup spinner");
+		add(fromSpinner, "gap related, wmax 14mm, sizegroup spinner");
 		add(new JLabel("To:"), "gap 5mm");
-		add(toSpinner, "gap related, wmax 12mm, sizegroup spinner");
+		add(toSpinner, "gap related, wmax 14mm, sizegroup spinner");
 		add(new JButton(createAction), "gap 7mm, gapafter indent, wrap paragraph");
 		
 		add(list, "grow");
