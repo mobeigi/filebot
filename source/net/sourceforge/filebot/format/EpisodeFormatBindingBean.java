@@ -83,7 +83,7 @@ public class EpisodeFormatBindingBean {
 	@Define("hi")
 	public String getHeightAndInterlacement() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
-		String interlacement = getMediaInfo(StreamKind.Video, 0, "Interlacement");
+		String interlacement = getMediaInfo(StreamKind.Video, 0, "Interlacement/String");
 		
 		if (height == null || interlacement == null)
 			return null;

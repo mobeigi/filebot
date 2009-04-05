@@ -58,6 +58,7 @@ import net.sourceforge.filebot.web.Episode.EpisodeFormat;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LinkButton;
+import net.sourceforge.tuned.ui.ProgressIndicator;
 import net.sourceforge.tuned.ui.TunedUtilities;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
@@ -76,6 +77,8 @@ public class EpisodeFormatDialog extends JDialog {
 	private File previewSampleMediaFile = getPreviewSampleMediaFile();
 	
 	private ExecutorService previewExecutor = createPreviewExecutor();
+	
+	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	
 	private JTextField editor = new JTextField();
 	
@@ -102,7 +105,9 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		errorMessage.setVisible(false);
 		warningMessage.setVisible(false);
+		progressIndicator.setVisible(false);
 		
+		header.add(progressIndicator, "pos 1al 0al, hidemode 3");
 		header.add(title, "wrap unrel:push");
 		header.add(preview, "gap indent, hidemode 3, wmax 90%");
 		header.add(errorMessage, "gap indent, hidemode 3, newline");
@@ -203,7 +208,7 @@ public class EpisodeFormatDialog extends JDialog {
 					
 					EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
 					
-					MediaInfoComponent.showDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
+					MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
 				}
 			}
 		});
@@ -295,7 +300,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private ExecutorService createPreviewExecutor() {
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
 		
-		// only keep the latest task in the queue 
+		// only keep the latest task in the queue
 		executor.setRejectedExecutionHandler(new DiscardOldestPolicy());
 		
 		return executor;
@@ -303,6 +308,14 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	private void checkFormatInBackground() {
+		final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
+			
+			@Override
+			public void run() {
+				progressIndicator.setVisible(true);
+			}
+		});
+		
 		previewExecutor.execute(new SwingWorker<String, Void>() {
 			
 			private ScriptException warning = null;
@@ -326,6 +339,7 @@ public class EpisodeFormatDialog extends JDialog {
 
 			@Override
 			protected void done() {
+				
 				Exception error = null;
 				
 				try {
@@ -342,6 +356,9 @@ public class EpisodeFormatDialog extends JDialog {
 				
 				preview.setVisible(error == null);
 				editor.setForeground(error == null ? defaultColor : errorColor);
+				
+				progressIndicatorTimer.stop();
+				progressIndicator.setVisible(false);
 			}
 			
 		});
@@ -355,6 +372,8 @@ public class EpisodeFormatDialog extends JDialog {
 
 	private void finish(Format format) {
 		this.selectedFormat = format;
+		
+		previewExecutor.shutdownNow();
 		
 		setVisible(false);
 		dispose();

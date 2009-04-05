@@ -44,8 +44,9 @@ public class MediaInfoComponent extends JTabbedPane {
 	}
 	
 
-	public static void showDialog(Component parent, File file) {
+	public static void showMessageDialog(Component parent, File file) {
 		final JDialog dialog = new JDialog(TunedUtilities.getWindow(parent), "MediaInfo", ModalityType.DOCUMENT_MODAL);
+		dialog.setLocation(TunedUtilities.getPreferredLocation(dialog));
 		
 		JComponent c = (JComponent) dialog.getContentPane();
 		c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));

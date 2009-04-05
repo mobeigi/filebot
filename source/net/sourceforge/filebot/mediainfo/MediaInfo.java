@@ -26,7 +26,7 @@ public class MediaInfo implements Closeable {
 	
 
 	public boolean open(File file) {
-		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getPath())) > 0;
+		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getAbsolutePath())) > 0;
 	}
 	
 
