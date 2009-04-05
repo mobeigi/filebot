@@ -107,7 +107,7 @@ class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeabl
 	
 
 	protected boolean isComment(String line) {
-		return line.startsWith(";") || line.isEmpty();
+		return line.isEmpty() || line.startsWith(";");
 	}
 	
 

@@ -97,9 +97,9 @@ class MatchAction extends AbstractAction {
 			
 			@Override
 			public float getSimilarity(Object o1, Object o2) {
-				// normalize absolute similarity to similarity rank (20 ranks in total),
-				// so we are less likely to fall for false positives
-				return (float) (Math.floor(super.getSimilarity(o1, o2) * 20) / 20);
+				// normalize absolute similarity to similarity rank (10 ranks in total),
+				// so we are less likely to fall for false positives in this pass, and move on to the next one
+				return (float) (Math.floor(super.getSimilarity(o1, o2) * 10) / 10);
 			}
 			
 
