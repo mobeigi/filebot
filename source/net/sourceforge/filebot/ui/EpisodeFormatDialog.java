@@ -40,7 +40,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.LineBorder;
@@ -133,13 +132,11 @@ public class EpisodeFormatDialog extends JDialog {
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
 		
-		setSize(485, 390);
+		setSize(485, 415);
 		
 		header.setComponentPopupMenu(createPreviewSamplePopup());
 		
 		setLocation(TunedUtilities.getPreferredLocation(this));
-		
-		TunedUtilities.putActionForKeystroke(pane, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 		
 		// update preview to current format
 		checkFormatInBackground();
@@ -206,9 +203,17 @@ public class EpisodeFormatDialog extends JDialog {
 					previewSampleMediaFile = fileChooser.getSelectedFile();
 					Settings.userRoot().put("dialog.sample.file", previewSampleMediaFile.getAbsolutePath());
 					
-					EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
+					try {
+						MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
+					} catch (LinkageError e) {
+						// MediaInfo native library is missing -> notify user
+						Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
+
+						// rethrow error
+						throw e;
+					}
 					
-					MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
+					EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
 				}
 			}
 		});

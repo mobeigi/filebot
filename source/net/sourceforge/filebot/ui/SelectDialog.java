@@ -67,9 +67,6 @@ public class SelectDialog<T> extends JDialog {
 		
 		// Shortcut Enter
 		TunedUtilities.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
-		
-		// Shortcut Escape
-		TunedUtilities.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

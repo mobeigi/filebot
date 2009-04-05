@@ -9,8 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.SortedMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
@@ -143,19 +141,15 @@ public class EpisodeFormatBindingBean {
 	
 
 	public synchronized MediaInfo getMediaInfo() {
+		if (mediaFile == null) {
+			throw new NullPointerException("Media file is null");
+		}
+		
 		if (mediaInfo == null) {
-			try {
-				mediaInfo = new MediaInfo();
-				
-				if (mediaFile == null || !mediaInfo.open(mediaFile)) {
-					throw new RuntimeException(String.format("Cannot open file: %s", mediaFile));
-				}
-			} catch (UnsatisfiedLinkError e) {
-				// MediaInfo native library is missing -> notify user
-				Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
-				
-				// rethrow error
-				throw e;
+			mediaInfo = new MediaInfo();
+			
+			if (!mediaInfo.open(mediaFile)) {
+				throw new RuntimeException(String.format("Cannot open file: %s", mediaFile));
 			}
 		}
 		
