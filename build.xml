@@ -87,6 +87,11 @@
 			
 			<zipfileset src="${dir.lib}/ehcache.jar">
 				<include name="**/*.class" />
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/jna.jar">
+				<!-- include classes and native libraries -->
+				<include name="com/sun/jna/**" />
 			</zipfileset>			
 		</jar>
 	</target>
