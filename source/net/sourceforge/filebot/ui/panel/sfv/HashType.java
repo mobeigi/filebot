@@ -71,6 +71,19 @@ enum HashType {
 		public Hash newHash() {
 			return new MessageDigestHash("MD5");
 		}
+		
+
+		@Override
+		public VerificationFileScanner newScanner(Scanner scanner) {
+			return new VerificationFileScanner(scanner);
+		}
+		
+
+		@Override
+		public VerificationFilePrinter newPrinter(Formatter out) {
+			// e.g. 50e85fe18e17e3616774637a82968f4c *folder/file.txt
+			return new VerificationFilePrinter(out, null);
+		}
 	},
 	
 	SHA1 {
@@ -78,6 +91,19 @@ enum HashType {
 		@Override
 		public Hash newHash() {
 			return new MessageDigestHash("SHA-1");
+		}
+		
+
+		@Override
+		public VerificationFileScanner newScanner(Scanner scanner) {
+			return new VerificationFileScanner(scanner);
+		}
+		
+
+		@Override
+		public VerificationFilePrinter newPrinter(Formatter out) {
+			// e.g 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA1*folder/file.txt
+			return new VerificationFilePrinter(out, "SHA1");
 		}
 		
 
@@ -90,14 +116,10 @@ enum HashType {
 	public abstract Hash newHash();
 	
 
-	public VerificationFileScanner newScanner(Scanner scanner) {
-		return new VerificationFileScanner(scanner);
-	}
+	public abstract VerificationFileScanner newScanner(Scanner scanner);
 	
 
-	public VerificationFilePrinter newPrinter(Formatter out) {
-		return new VerificationFilePrinter(out, this.name());
-	}
+	public abstract VerificationFilePrinter newPrinter(Formatter out);
 	
 
 	public String getExtension() {

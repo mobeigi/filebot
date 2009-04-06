@@ -30,7 +30,7 @@ class VerificationFilePrinter implements Closeable {
 
 	protected void print(String path, String hash) {
 		// e.g. 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA1*folder/file.txt
-		out.format("%s ?%s*%s", hash, algorithm.toUpperCase(), path);
+		out.format("%s %s*%s", hash, algorithm == null ? "" : '?' + algorithm.toUpperCase(), path);
 	}
 	
 
