@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.SortedMap;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
@@ -81,7 +80,7 @@ public class EpisodeFormatBindingBean {
 	@Define("hi")
 	public String getHeightAndInterlacement() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
-		String interlacement = getMediaInfo(StreamKind.Video, 0, "Interlacement/String");
+		String interlacement = getMediaInfo(StreamKind.Video, 0, "Interlacement");
 		
 		if (height == null || interlacement == null)
 			return null;
@@ -120,37 +119,37 @@ public class EpisodeFormatBindingBean {
 		
 		return null;
 	}
-
 	
+
 	@Define("general")
-	public SortedMap<String, String> getGeneralMediaInfo() {
-		return getMediaInfo().snapshot(StreamKind.General, 0);
+	public Object getGeneralMediaInfo() {
+		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
 	}
-
 	
+
 	@Define("video")
-	public SortedMap<String, String> getVideoInfo() {
-		return getMediaInfo().snapshot(StreamKind.Video, 0);
+	public Object getVideoInfo() {
+		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Video, 0));
 	}
 	
 
 	@Define("audio")
-	public SortedMap<String, String> getAudioInfo() {
-		return getMediaInfo().snapshot(StreamKind.Audio, 0);
+	public Object getAudioInfo() {
+		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Audio, 0));
 	}
 	
-	
-	@Define("text")
-	public SortedMap<String, String> getTextInfo() {
-		return getMediaInfo().snapshot(StreamKind.Text, 0);
-	}
-	
-	
-	@Define("image")
-	public SortedMap<String, String> getImageInfo() {
-		return getMediaInfo().snapshot(StreamKind.Image, 0);
-	}
 
+	@Define("text")
+	public Object getTextInfo() {
+		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Text, 0));
+	}
+	
+
+	@Define("image")
+	public Object getImageInfo() {
+		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Image, 0));
+	}
+	
 
 	public synchronized MediaInfo getMediaInfo() {
 		if (mediaFile == null) {

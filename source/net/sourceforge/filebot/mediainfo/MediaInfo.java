@@ -6,10 +6,9 @@ import java.io.Closeable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
@@ -80,14 +79,14 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public Map<StreamKind, List<SortedMap<String, String>>> snapshot() {
-		Map<StreamKind, List<SortedMap<String, String>>> mediaInfo = new EnumMap<StreamKind, List<SortedMap<String, String>>>(StreamKind.class);
+	public Map<StreamKind, List<Map<String, String>>> snapshot() {
+		Map<StreamKind, List<Map<String, String>>> mediaInfo = new EnumMap<StreamKind, List<Map<String, String>>>(StreamKind.class);
 		
 		for (StreamKind streamKind : StreamKind.values()) {
 			int streamCount = streamCount(streamKind);
 			
 			if (streamCount > 0) {
-				List<SortedMap<String, String>> streamInfoList = new ArrayList<SortedMap<String, String>>(streamCount);
+				List<Map<String, String>> streamInfoList = new ArrayList<Map<String, String>>(streamCount);
 				
 				for (int i = 0; i < streamCount; i++) {
 					streamInfoList.add(snapshot(streamKind, i));
@@ -101,8 +100,8 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public SortedMap<String, String> snapshot(StreamKind streamKind, int streamNumber) {
-		TreeMap<String, String> streamInfo = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+	public Map<String, String> snapshot(StreamKind streamKind, int streamNumber) {
+		Map<String, String> streamInfo = new LinkedHashMap<String, String>();
 		
 		for (int i = 0, count = parameterCount(streamKind, streamNumber); i < count; i++) {
 			String value = get(streamKind, streamNumber, i, InfoKind.Text);

@@ -109,8 +109,8 @@ public class EpisodeFormatDialog extends JDialog {
 		header.add(progressIndicator, "pos 1al 0al, hidemode 3");
 		header.add(title, "wrap unrel:push");
 		header.add(preview, "gap indent, hidemode 3, wmax 90%");
-		header.add(errorMessage, "gap indent, hidemode 3, newline");
-		header.add(warningMessage, "gap indent, hidemode 3, newline");
+		header.add(errorMessage, "gap indent, hidemode 3, wmax 90%, newline");
+		header.add(warningMessage, "gap indent, hidemode 3, wmax 90%, newline");
 		
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 		
@@ -208,7 +208,7 @@ public class EpisodeFormatDialog extends JDialog {
 					} catch (LinkageError e) {
 						// MediaInfo native library is missing -> notify user
 						Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
-
+						
 						// rethrow error
 						throw e;
 					}
@@ -353,7 +353,7 @@ public class EpisodeFormatDialog extends JDialog {
 					error = e;
 				}
 				
-				errorMessage.setText(error != null ? error.getCause().getMessage() : null);
+				errorMessage.setText(error != null ? ExceptionUtilities.getRootCauseMessage(error) : null);
 				errorMessage.setVisible(error != null);
 				
 				warningMessage.setText(warning != null ? warning.getCause().getMessage() : null);

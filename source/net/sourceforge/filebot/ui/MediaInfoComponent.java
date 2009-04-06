@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
@@ -29,16 +28,24 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 public class MediaInfoComponent extends JTabbedPane {
 	
-	public MediaInfoComponent(Map<StreamKind, List<SortedMap<String, String>>> mediaInfo) {
+	public MediaInfoComponent(Map<StreamKind, List<Map<String, String>>> mediaInfo) {
 		insert(mediaInfo);
 	}
 	
 
-	public void insert(Map<StreamKind, List<SortedMap<String, String>>> mediaInfo) {
+	public void insert(Map<StreamKind, List<Map<String, String>>> mediaInfo) {
 		// create tabs for all streams
-		for (Entry<StreamKind, List<SortedMap<String, String>>> entry : mediaInfo.entrySet()) {
-			for (SortedMap<String, String> parameters : entry.getValue()) {
-				addTab(entry.getKey().toString(), new JScrollPane(new JTable(new ParameterTableModel(parameters))));
+		for (Entry<StreamKind, List<Map<String, String>>> entry : mediaInfo.entrySet()) {
+			for (Map<String, String> parameters : entry.getValue()) {
+				JTable table = new JTable(new ParameterTableModel(parameters));
+				
+				// allow sorting
+				table.setAutoCreateRowSorter(true);
+				
+				// sort by parameter name
+				table.getRowSorter().toggleSortOrder(0);
+				
+				addTab(entry.getKey().toString(), new JScrollPane(table));
 			}
 		}
 	}
@@ -75,11 +82,11 @@ public class MediaInfoComponent extends JTabbedPane {
 	
 	protected static class ParameterTableModel extends AbstractTableModel {
 		
-		private final List<Entry<?, ?>> data;
+		private final List<Entry<String, String>> data;
 		
 		
-		public ParameterTableModel(Map<?, ?> data) {
-			this.data = new ArrayList<Entry<?, ?>>(data.entrySet());
+		public ParameterTableModel(Map<String, String> data) {
+			this.data = new ArrayList<Entry<String, String>>(data.entrySet());
 		}
 		
 
