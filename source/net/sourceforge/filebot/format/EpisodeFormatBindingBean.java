@@ -17,6 +17,7 @@ import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class EpisodeFormatBindingBean {
@@ -115,6 +116,16 @@ public class EpisodeFormatBindingBean {
 			
 			// calculate checksum from file
 			return crc32(mediaFile);
+		}
+		
+		return null;
+	}
+	
+
+	@Define("ext")
+	public String getExtension() {
+		if (mediaFile != null) {
+			return FileUtilities.getExtension(mediaFile);
 		}
 		
 		return null;

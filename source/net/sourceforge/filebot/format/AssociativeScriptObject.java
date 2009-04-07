@@ -35,7 +35,7 @@ class AssociativeScriptObject implements Scriptable {
 
 	protected String definingKey(String s) {
 		// letters and digits are defining, everything else will be ignored
-		return s.replaceAll("[^\\p{Alnum}]", "").toLowerCase();
+		return s.replaceAll("\\p{Punct}", "").toLowerCase();
 	}
 	
 

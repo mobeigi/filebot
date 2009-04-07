@@ -29,6 +29,9 @@ public final class FileUtilities {
 	
 
 	public static String getExtension(File file) {
+		if (file.isDirectory())
+			return null;
+		
 		return getExtension(file.getName());
 	}
 	
