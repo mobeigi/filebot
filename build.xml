@@ -53,46 +53,50 @@
 
 			<!-- include libs -->
 			<zipfileset src="${dir.lib}/xercesImpl.jar">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
+				<include name="org/apache/**" />
+				<include name="org/w3c/dom/html/**" />
 			</zipfileset>
-
+			
 			<zipfileset src="${dir.lib}/nekohtml.jar">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
+				<include name="org/cyberneko/html/**" />
 			</zipfileset>
-
+			
 			<zipfileset src="${dir.lib}/simmetrics.jar">
-				<include name="**/*.class" />
+				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
-
+			
 			<zipfileset src="${dir.lib}/glazedlists.jar">
-				<include name="**/*.class" />
+				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/miglayout.jar">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
+				<include name="net/miginfocom/**" />
 			</zipfileset>
-
+			
 			<zipfileset src="${dir.lib}/xmlrpc-client.jar">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
+				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/args4j.jar">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
+				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
 			
 			<zipfileset src="${dir.lib}/ehcache.jar">
-				<include name="**/*.class" />
+				<include name="net/sf/ehcache/**" />
 			</zipfileset>
 			
 			<zipfileset src="${dir.lib}/jna.jar">
 				<!-- include classes and native libraries -->
 				<include name="com/sun/jna/**" />
-			</zipfileset>			
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/js-engine.jar">
+				<include name="com/sun/phobos/script/**" />
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/js.jar">
+				<include name="org/mozilla/**" />
+			</zipfileset>
 		</jar>
 	</target>
 
@@ -106,10 +110,6 @@
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
-			<bootclasspath>
-				<!-- specify bootclasspath explicitly so we can compile code that depends on sun.* classes -->
-				<fileset dir="${java.home}/lib" includes="*.jar" />
-			</bootclasspath>
 		</javac>
 		
 		<!-- copy resources -->

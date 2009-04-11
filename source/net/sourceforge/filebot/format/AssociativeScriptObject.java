@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import sun.org.mozilla.javascript.internal.Scriptable;
+import org.mozilla.javascript.Scriptable;
 
 
 class AssociativeScriptObject implements Scriptable {

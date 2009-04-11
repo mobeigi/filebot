@@ -16,9 +16,10 @@ import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
+
+import com.sun.phobos.script.javascript.RhinoScriptEngine;
 
 
 public class ExpressionFormat extends Format {
@@ -37,7 +38,8 @@ public class ExpressionFormat extends Format {
 	
 
 	protected ScriptEngine initScriptEngine() throws ScriptException {
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+		// don't use jdk rhino so we can use rhino specific features and classes (e.g. Scriptable)
+		ScriptEngine engine = new RhinoScriptEngine();
 		
 		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.global.js")));
 		
