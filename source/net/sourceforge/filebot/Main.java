@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
@@ -54,7 +55,11 @@ public class Main {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} else {
 				// use nimubs laf on linux, bsd, ...
-				UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+				for (LookAndFeelInfo laf : UIManager.getInstalledLookAndFeels()) {
+					if (laf.getName().equals("Nimbus")) {
+						UIManager.setLookAndFeel(laf.getClassName());
+					}
+				}
 			}
 		} catch (Exception e) {
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);

@@ -106,8 +106,12 @@
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
+			<bootclasspath>
+				<!-- specify bootclasspath explicitly so we can compile code that depends on sun.* classes -->
+				<fileset dir="${java.home}/lib" includes="*.jar" />
+			</bootclasspath>
 		</javac>
-
+		
 		<!-- copy resources -->
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
