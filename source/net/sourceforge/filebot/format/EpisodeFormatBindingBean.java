@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
@@ -17,7 +18,6 @@ import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.tuned.FileUtilities;
 
 
 public class EpisodeFormatBindingBean {
@@ -91,6 +91,15 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
+	@Define("ext")
+	public String getContainerExtension() {
+		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions");
+		
+		// get first token
+		return new Scanner(extensions).next();
+	}
+	
+
 	@Define("resolution")
 	public String getVideoResolution() {
 		String width = getMediaInfo(StreamKind.Video, 0, "Width");
@@ -116,16 +125,6 @@ public class EpisodeFormatBindingBean {
 			
 			// calculate checksum from file
 			return crc32(mediaFile);
-		}
-		
-		return null;
-	}
-	
-
-	@Define("ext")
-	public String getExtension() {
-		if (mediaFile != null) {
-			return FileUtilities.getExtension(mediaFile);
 		}
 		
 		return null;
@@ -162,6 +161,16 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
+	public Episode getEpisode() {
+		return episode;
+	}
+	
+
+	public File getMediaFile() {
+		return mediaFile;
+	}
+	
+
 	public synchronized MediaInfo getMediaInfo() {
 		if (mediaFile == null) {
 			throw new NullPointerException("Media file is null");
@@ -176,16 +185,6 @@ public class EpisodeFormatBindingBean {
 		}
 		
 		return mediaInfo;
-	}
-	
-
-	public synchronized void dispose() {
-		if (mediaInfo != null) {
-			mediaInfo.close();
-			mediaInfo.dispose();
-		}
-		
-		mediaInfo = null;
 	}
 	
 

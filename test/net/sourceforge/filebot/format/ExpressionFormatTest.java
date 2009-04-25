@@ -57,13 +57,14 @@ public class ExpressionFormatTest {
 		
 
 		@Override
-		protected Bindings getBindings(Object value) {
+		public Bindings getBindings(Object value) {
 			Bindings bindings = new SimpleBindings();
 			
 			bindings.put("value", value);
 			
 			return bindings;
 		}
+		
 	}
 	
 }

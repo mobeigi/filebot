@@ -84,45 +84,40 @@ public class ExpressionFormat extends Format {
 	}
 	
 
-	protected Bindings getBindings(Object value) {
-		// no bindings by default
-		return null;
+	public Bindings getBindings(Object value) {
+		return new ExpressionBindings(value);
 	}
 	
 
 	@Override
 	public StringBuffer format(Object object, StringBuffer sb, FieldPosition pos) {
-		Bindings bindings = getBindings(object);
-		
-		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-		
-		try {
-			for (Object snipped : expressions) {
-				if (snipped instanceof CompiledScript) {
-					try {
-						Object value = ((CompiledScript) snipped).eval(context);
-						
-						if (value != null) {
-							sb.append(value);
-						}
-					} catch (ScriptException e) {
-						lastException = e;
-					}
-				} else {
-					sb.append(snipped);
-				}
-			}
-		} finally {
-			dispose(bindings);
-		}
-		
-		return sb;
+		return format(getBindings(object), sb);
 	}
 	
 
-	protected void dispose(Bindings bindings) {
+	public StringBuffer format(Bindings bindings, StringBuffer sb) {
+		ScriptContext context = new SimpleScriptContext();
+		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
 		
+		for (Object snipped : expressions) {
+			if (snipped instanceof CompiledScript) {
+				try {
+					Object value = ((CompiledScript) snipped).eval(context);
+					
+					if (value != null) {
+						sb.append(value);
+					}
+				} catch (ScriptException e) {
+					lastException = e;
+				} catch (Exception e) {
+					lastException = new ScriptException(e);
+				}
+			} else {
+				sb.append(snipped);
+			}
+		}
+		
+		return sb;
 	}
 	
 

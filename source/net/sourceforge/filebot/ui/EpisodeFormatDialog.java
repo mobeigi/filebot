@@ -18,6 +18,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.Format;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -50,8 +51,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.format.EpisodeExpressionFormat;
-import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.format.EpisodeFormatBindingBean;
+import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Episode.EpisodeFormat;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -72,8 +73,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private JLabel warningMessage = new JLabel(ResourceManager.getIcon("status.warning"));
 	private JLabel errorMessage = new JLabel(ResourceManager.getIcon("status.error"));
 	
-	private Episode previewSampleEpisode = getPreviewSampleEpisode();
-	private File previewSampleMediaFile = getPreviewSampleMediaFile();
+	private EpisodeFormatBindingBean previewSample = new EpisodeFormatBindingBean(getPreviewSampleEpisode(), getPreviewSampleMediaFile());
 	
 	private ExecutorService previewExecutor = createPreviewExecutor();
 	
@@ -138,9 +138,6 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		
-		// update preview to current format
-		checkFormatInBackground();
-		
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentAdapter() {
 			
@@ -166,6 +163,9 @@ public class EpisodeFormatDialog extends JDialog {
 				editor.requestFocusInWindow();
 			}
 		});
+		
+		// update preview to current format
+		firePreviewSampleChanged();
 	}
 	
 
@@ -176,16 +176,18 @@ public class EpisodeFormatDialog extends JDialog {
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				String episode = JOptionPane.showInputDialog(EpisodeFormatDialog.this, null, previewSampleEpisode);
+				String episodeString = JOptionPane.showInputDialog(EpisodeFormatDialog.this, null, EpisodeFormat.getInstance().format(previewSample.getEpisode()));
 				
-				if (episode != null) {
+				if (episodeString != null) {
 					try {
-						previewSampleEpisode = EpisodeFormat.getInstance().parseObject(episode);
-						Settings.userRoot().put("dialog.sample.episode", episode);
+						Episode episode = EpisodeFormat.getInstance().parseObject(episodeString);
 						
-						EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
-					} catch (Exception e) {
-						Logger.getLogger("ui").warning(String.format("Cannot parse %s", episode));
+						// change episode
+						previewSample = new EpisodeFormatBindingBean(episode, previewSample.getMediaFile());
+						Settings.userRoot().put("dialog.sample.episode", episodeString);
+						firePreviewSampleChanged();
+					} catch (ParseException e) {
+						Logger.getLogger("ui").warning(String.format("Cannot parse %s", episodeString));
 					}
 				}
 			}
@@ -196,15 +198,14 @@ public class EpisodeFormatDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setSelectedFile(previewSampleMediaFile);
+				fileChooser.setSelectedFile(previewSample.getMediaFile());
 				fileChooser.setFileFilter(new FileNameExtensionFilter("Media files", "avi", "mkv", "mp4", "ogm"));
 				
 				if (fileChooser.showOpenDialog(EpisodeFormatDialog.this) == JFileChooser.APPROVE_OPTION) {
-					previewSampleMediaFile = fileChooser.getSelectedFile();
-					Settings.userRoot().put("dialog.sample.file", previewSampleMediaFile.getAbsolutePath());
+					File mediaFile = fileChooser.getSelectedFile();
 					
 					try {
-						MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, previewSampleMediaFile);
+						MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, mediaFile);
 					} catch (LinkageError e) {
 						// MediaInfo native library is missing -> notify user
 						Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
@@ -213,7 +214,10 @@ public class EpisodeFormatDialog extends JDialog {
 						throw e;
 					}
 					
-					EpisodeFormatDialog.this.firePropertyChange("previewSample", null, previewSample());
+					// change media file
+					previewSample = new EpisodeFormatBindingBean(previewSample.getEpisode(), mediaFile);
+					Settings.userRoot().put("dialog.sample.file", mediaFile.getAbsolutePath());
+					firePreviewSampleChanged();
 				}
 			}
 		});
@@ -262,11 +266,6 @@ public class EpisodeFormatDialog extends JDialog {
 		}
 		
 		return panel;
-	}
-	
-
-	private Match<Episode, File> previewSample() {
-		return new Match<Episode, File>(previewSampleEpisode, previewSampleMediaFile);
 	}
 	
 
@@ -328,9 +327,9 @@ public class EpisodeFormatDialog extends JDialog {
 			
 			@Override
 			protected String doInBackground() throws Exception {
-				EpisodeExpressionFormat format = new EpisodeExpressionFormat(editor.getText().trim());
+				ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 				
-				String text = format.format(previewSample());
+				String text = format.format(previewSample);
 				warning = format.scriptException();
 				
 				// check if format produces empty strings
@@ -344,7 +343,6 @@ public class EpisodeFormatDialog extends JDialog {
 
 			@Override
 			protected void done() {
-				
 				Exception error = null;
 				
 				try {
@@ -405,7 +403,7 @@ public class EpisodeFormatDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
-				finish(new EpisodeExpressionFormat(editor.getText()));
+				finish(new ExpressionFormat(editor.getText()));
 				Settings.userRoot().put("dialog.format", editor.getText());
 			} catch (ScriptException e) {
 				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
@@ -414,6 +412,11 @@ public class EpisodeFormatDialog extends JDialog {
 	};
 	
 	
+	protected void firePreviewSampleChanged() {
+		firePropertyChange("previewSample", null, previewSample);
+	}
+	
+
 	public static Format showDialog(Component parent) {
 		EpisodeFormatDialog dialog = new EpisodeFormatDialog(TunedUtilities.getWindow(parent));
 		
@@ -439,35 +442,23 @@ public class EpisodeFormatDialog extends JDialog {
 
 	protected class ExampleFormatLabel extends JLabel {
 		
-		private final String format;
-		
-		
-		public ExampleFormatLabel(String format) {
-			this.format = format;
-			
-			// initialize text
-			updateText(previewSample());
-			
+		public ExampleFormatLabel(final String format) {
 			// bind text to preview
 			EpisodeFormatDialog.this.addPropertyChangeListener("previewSample", new PropertyChangeListener() {
 				
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-					updateText(evt.getNewValue());
+					try {
+						setText(new ExpressionFormat(format).format(previewSample));
+						setForeground(defaultColor);
+					} catch (Exception e) {
+						setText(ExceptionUtilities.getRootCauseMessage(e));
+						setForeground(errorColor);
+					}
 				}
 			});
 		}
 		
-
-		public void updateText(Object episode) {
-			try {
-				setText(new EpisodeExpressionFormat(format).format(episode));
-				setForeground(defaultColor);
-			} catch (Exception e) {
-				setText(ExceptionUtilities.getRootCauseMessage(e));
-				setForeground(errorColor);
-			}
-		}
 	}
 	
 
