@@ -11,6 +11,7 @@ import static net.sourceforge.tuned.XPathUtilities.selectString;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -130,13 +131,16 @@ public class IMDbClient implements EpisodeListProvider {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://" + host + String.format("/title/tt%07d/episodes", ((MovieDescriptor) searchResult).getImdbId()));
+		return getEpisodeListLink(searchResult, 0);
 	}
 	
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return null;
+		try {
+			return new URI("http", host, String.format("/title/tt%07d/episodes", ((MovieDescriptor) searchResult).getImdbId()), season > 0 ? String.format("season-%d", season) : null);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
-	
 }

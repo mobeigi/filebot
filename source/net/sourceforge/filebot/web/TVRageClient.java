@@ -99,7 +99,7 @@ public class TVRageClient implements EpisodeListProvider {
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String title = getTextContent("title", node).replace("&amp;", "&");
+			String title = getTextContent("title", node);
 			String episodeNumber = getTextContent("seasonnum", node);
 			String seasonNumber = node.getParentNode().getAttributes().getNamedItem("no").getTextContent();
 			

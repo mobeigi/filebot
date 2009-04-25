@@ -20,6 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -70,7 +72,7 @@ public class TVDotComClient implements EpisodeListProvider {
 			String href = getAttribute("href", node);
 			
 			try {
-				URL episodeListingUrl = new URL(href.replaceFirst("summary.html\\?.*", "episode_listings.html"));
+				URL episodeListingUrl = new URL(href.replaceAll("summary\\.html\\?.*", "episode.html"));
 				
 				searchResults.add(new HyperLink(title, episodeListingUrl));
 			} catch (Exception e) {
@@ -118,7 +120,7 @@ public class TVDotComClient implements EpisodeListProvider {
 		List<Episode> episodes = new ArrayList<Episode>(25 * seasonCount);
 		
 		// get episode list from season 1 document
-		episodes.addAll(getEpisodeList(searchResult, 1, dom));
+		episodes.addAll(getEpisodeList(searchResult, dom));
 		
 		// get episodes from executor threads
 		for (Future<List<Episode>> future : futures) {
@@ -134,37 +136,31 @@ public class TVDotComClient implements EpisodeListProvider {
 		
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, season).toURL());
 		
-		return getEpisodeList(searchResult, season, dom);
+		return getEpisodeList(searchResult, dom);
 	}
 	
 
-	private List<Episode> getEpisodeList(SearchResult searchResult, int season, Document dom) {
+	private List<Episode> getEpisodeList(SearchResult searchResult, Document dom) {
 		
-		List<Node> nodes = selectNodes("id('episode_listing')//*[@class='episode']", dom);
+		List<Node> nodes = selectNodes("id('episode_guide_list')//*[@class='info']", dom);
 		
-		Integer episodeOffset = null;
+		Pattern seasonEpisodePattern = Pattern.compile("Season (\\d+), Episode (\\d+)");
 		
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String episodeNumber = selectString("./*[@class='number']", node);
-			String title = selectString("./*[@class='title']", node);
-			String seasonNumber = String.valueOf(season);
+			String meta = selectString("./*[@class='meta']", node);
 			
-			try {
-				// convert the absolute episode number to the season episode number
-				int n = Integer.parseInt(episodeNumber);
+			// normalize space and then match season and episode numbers
+			Matcher matcher = seasonEpisodePattern.matcher(meta.replaceAll("\\p{Space}+", " "));
+			
+			if (matcher.find()) {
+				String title = selectString("./H3/A/text()", node);
+				String season = matcher.group(1);
+				String episode = matcher.group(2);
 				
-				if (episodeOffset == null)
-					episodeOffset = (n <= 1) ? 0 : n - 1;
-				
-				episodeNumber = String.valueOf(n - episodeOffset);
-			} catch (NumberFormatException e) {
-				// episode may be "Pilot", "Special", "TV Movie" ...
-				seasonNumber = null;
+				episodes.add(new Episode(searchResult.getName(), season, episode, title));
 			}
-			
-			episodes.add(new Episode(searchResult.getName(), seasonNumber, episodeNumber, title));
 		}
 		
 		return episodes;

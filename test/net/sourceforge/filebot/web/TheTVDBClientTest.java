@@ -4,6 +4,7 @@ package net.sourceforge.filebot.web;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -65,7 +66,7 @@ public class TheTVDBClientTest {
 	public void getEpisodeListAll() throws Exception {
 		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327));
 		
-		assertEquals(147, list.size());
+		assertTrue(list.size() >= 144);
 		
 		Episode first = list.get(0);
 		
