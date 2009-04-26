@@ -24,16 +24,16 @@ import com.sun.phobos.script.javascript.RhinoScriptEngine;
 
 public class ExpressionFormat extends Format {
 	
-	private final String format;
+	private final String expression;
 	
-	private final Object[] expressions;
+	private final Object[] compilation;
 	
 	private ScriptException lastException;
 	
 	
-	public ExpressionFormat(String format) throws ScriptException {
-		this.format = format;
-		this.expressions = compile(format, (Compilable) initScriptEngine());
+	public ExpressionFormat(String expression) throws ScriptException {
+		this.expression = expression;
+		this.compilation = compile(expression, (Compilable) initScriptEngine());
 	}
 	
 
@@ -47,40 +47,40 @@ public class ExpressionFormat extends Format {
 	}
 	
 
-	public String getFormat() {
-		return format;
+	public String getExpression() {
+		return expression;
 	}
 	
 
-	protected Object[] compile(String format, Compilable engine) throws ScriptException {
-		List<Object> expression = new ArrayList<Object>();
+	protected Object[] compile(String expression, Compilable engine) throws ScriptException {
+		List<Object> compilation = new ArrayList<Object>();
 		
-		Matcher matcher = Pattern.compile("\\{([^\\{]*?)\\}").matcher(format);
+		Matcher matcher = Pattern.compile("\\{([^\\{]*?)\\}").matcher(expression);
 		
 		int position = 0;
 		
 		while (matcher.find()) {
 			if (position < matcher.start()) {
 				// literal before
-				expression.add(format.substring(position, matcher.start()));
+				compilation.add(expression.substring(position, matcher.start()));
 			}
 			
 			String script = matcher.group(1);
 			
 			if (script.length() > 0) {
 				// compiled script, or literal
-				expression.add(engine.compile(script));
+				compilation.add(engine.compile(script));
 			}
 			
 			position = matcher.end();
 		}
 		
-		if (position < format.length()) {
+		if (position < expression.length()) {
 			// tail
-			expression.add(format.substring(position, format.length()));
+			compilation.add(expression.substring(position, expression.length()));
 		}
 		
-		return expression.toArray();
+		return compilation.toArray();
 	}
 	
 
@@ -99,7 +99,7 @@ public class ExpressionFormat extends Format {
 		ScriptContext context = new SimpleScriptContext();
 		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
 		
-		for (Object snipped : expressions) {
+		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
 				try {
 					Object value = ((CompiledScript) snipped).eval(context);

@@ -19,10 +19,10 @@ import net.sourceforge.tuned.FileUtilities;
 
 class RenameAction extends AbstractAction {
 	
-	private final RenameModel<String, File> model;
+	private final RenameModel model;
 	
 	
-	public RenameAction(RenameModel<String, File> model) {
+	public RenameAction(RenameModel model) {
 		super("Rename", ResourceManager.getIcon("action.rename"));
 		
 		putValue(SHORT_DESCRIPTION, "Rename files");
@@ -32,11 +32,10 @@ class RenameAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		
 		Deque<Match<File, File>> todoQueue = new ArrayDeque<Match<File, File>>();
 		Deque<Match<File, File>> doneQueue = new ArrayDeque<Match<File, File>>();
 		
-		for (Match<String, File> match : model.matches()) {
+		for (Match<String, File> match : model.getMatchesForRenaming()) {
 			File source = match.getCandidate();
 			String extension = FileUtilities.getExtension(source);
 			

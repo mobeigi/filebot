@@ -7,7 +7,6 @@ import static java.awt.Font.MONOSPACED;
 import static java.awt.Font.PLAIN;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -17,7 +16,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.text.Format;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
@@ -66,7 +64,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 public class EpisodeFormatDialog extends JDialog {
 	
-	private Format selectedFormat = null;
+	private Option selectedOption = null;
 	
 	private JLabel preview = new JLabel();
 	
@@ -83,6 +81,13 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private Color defaultColor = preview.getForeground();
 	private Color errorColor = Color.red;
+	
+	
+	public enum Option {
+		APPROVE,
+		CANCEL,
+		USE_DEFAULT
+	}
 	
 	
 	public EpisodeFormatDialog(Window owner) {
@@ -123,7 +128,7 @@ public class EpisodeFormatDialog extends JDialog {
 		content.add(createExamplesPanel(), "gapx indent indent, wrap 25px:push");
 		
 		content.add(new JButton(useDefaultFormatAction), "tag left");
-		content.add(new JButton(useCustomFormatAction), "tag apply");
+		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
 		
 		JComponent pane = (JComponent) getContentPane();
@@ -312,69 +317,79 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	private void checkFormatInBackground() {
-		final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
+		try {
+			// check syntax in foreground
+			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 			
-			@Override
-			public void run() {
-				progressIndicator.setVisible(true);
-			}
-		});
-		
-		previewExecutor.execute(new SwingWorker<String, Void>() {
-			
-			private ScriptException warning = null;
-			
-			
-			@Override
-			protected String doInBackground() throws Exception {
-				ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
+			// format in background
+			final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
 				
-				String text = format.format(previewSample);
-				warning = format.scriptException();
+				@Override
+				public void run() {
+					progressIndicator.setVisible(true);
+				}
+			});
+			
+			previewExecutor.execute(new SwingWorker<String, Void>() {
 				
-				// check if format produces empty strings
-				if (text.trim().isEmpty()) {
-					throw new IllegalArgumentException("Format must not be empty.");
+				@Override
+				protected String doInBackground() throws Exception {
+					return format.format(previewSample);
 				}
 				
-				return text;
-			}
-			
 
-			@Override
-			protected void done() {
-				Exception error = null;
-				
-				try {
-					preview.setText(get());
-				} catch (Exception e) {
-					error = e;
+				@Override
+				protected void done() {
+					try {
+						preview.setText(get());
+						
+						// check internal script exception and empty output
+						if (format.scriptException() != null) {
+							warningMessage.setText(format.scriptException().getCause().getMessage());
+						} else if (get().trim().isEmpty()) {
+							warningMessage.setText("Formatted value is empty");
+						} else {
+							warningMessage.setText(null);
+						}
+					} catch (Exception e) {
+						Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
+					}
+					
+					preview.setVisible(true);
+					warningMessage.setVisible(warningMessage.getText() != null);
+					errorMessage.setVisible(false);
+					
+					editor.setForeground(defaultColor);
+					
+					progressIndicatorTimer.stop();
+					progressIndicator.setVisible(false);
 				}
-				
-				errorMessage.setText(error != null ? ExceptionUtilities.getRootCauseMessage(error) : null);
-				errorMessage.setVisible(error != null);
-				
-				warningMessage.setText(warning != null ? warning.getCause().getMessage() : null);
-				warningMessage.setVisible(warning != null);
-				
-				preview.setVisible(error == null);
-				editor.setForeground(error == null ? defaultColor : errorColor);
-				
-				progressIndicatorTimer.stop();
-				progressIndicator.setVisible(false);
-			}
+			});
+		} catch (ScriptException e) {
+			// incorrect syntax 
+			errorMessage.setText(ExceptionUtilities.getRootCauseMessage(e));
+			errorMessage.setVisible(true);
 			
-		});
+			preview.setVisible(false);
+			warningMessage.setVisible(false);
+			
+			editor.setForeground(errorColor);
+		}
 	}
 	
 
-	public Format getSelectedFormat() {
-		return selectedFormat;
+	public String getExpression() {
+		return editor.getText();
 	}
 	
 
-	private void finish(Format format) {
-		this.selectedFormat = format;
+	public Option getSelectedOption() {
+		return selectedOption;
+	}
+	
+
+	private void finish(Option option) {
+		selectedOption = option;
 		
 		previewExecutor.shutdownNow();
 		
@@ -386,7 +401,7 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			finish(null);
+			finish(Option.CANCEL);
 		}
 	};
 	
@@ -394,17 +409,22 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			finish(EpisodeFormat.getInstance());
+			finish(Option.USE_DEFAULT);
 		}
 	};
 	
-	protected final Action useCustomFormatAction = new AbstractAction("Use Format", ResourceManager.getIcon("dialog.continue")) {
+	protected final Action approveFormatAction = new AbstractAction("Use Format", ResourceManager.getIcon("dialog.continue")) {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
-				finish(new ExpressionFormat(editor.getText()));
+				// check syntax
+				new ExpressionFormat(editor.getText());
+				
+				// remember format
 				Settings.userRoot().put("dialog.format", editor.getText());
+				
+				finish(Option.APPROVE);
 			} catch (ScriptException e) {
 				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 			}
@@ -414,15 +434,6 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	protected void firePreviewSampleChanged() {
 		firePropertyChange("previewSample", null, previewSample);
-	}
-	
-
-	public static Format showDialog(Component parent) {
-		EpisodeFormatDialog dialog = new EpisodeFormatDialog(TunedUtilities.getWindow(parent));
-		
-		dialog.setVisible(true);
-		
-		return dialog.getSelectedFormat();
 	}
 	
 	

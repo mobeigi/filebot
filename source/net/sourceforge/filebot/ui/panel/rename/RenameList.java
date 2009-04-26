@@ -59,14 +59,13 @@ class RenameList<E> extends FileBotList<E> {
 	}
 	
 
-	protected boolean moveEntry(int fromIndex, int toIndex) {
-		if (toIndex < 0 || toIndex >= getModel().size())
-			return false;
+	public void swap(int index1, int index2) {
+		E e1 = model.get(index1);
+		E e2 = model.get(index2);
 		
-		// move element
-		getModel().add(toIndex, getModel().remove(fromIndex));
-		
-		return true;
+		// swap data
+		model.set(index1, e2);
+		model.set(index2, e1);
 	}
 	
 	private final LoadAction loadAction = new LoadAction(null);
@@ -76,7 +75,8 @@ class RenameList<E> extends FileBotList<E> {
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
 			
-			if (moveEntry(index, index - 1)) {
+			if (index > 0) {
+				swap(index, index - 1);
 				getListComponent().setSelectedIndex(index - 1);
 			}
 		}
@@ -87,7 +87,8 @@ class RenameList<E> extends FileBotList<E> {
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
 			
-			if (moveEntry(index, index + 1)) {
+			if (index < model.size() - 1) {
+				swap(index, index + 1);
 				getListComponent().setSelectedIndex(index + 1);
 			}
 		}
@@ -95,25 +96,23 @@ class RenameList<E> extends FileBotList<E> {
 	
 	private final MouseAdapter dndReorderMouseAdapter = new MouseAdapter() {
 		
-		private int fromIndex = -1;
+		private int lastIndex = -1;
 		
 		
 		@Override
 		public void mousePressed(MouseEvent m) {
-			fromIndex = getListComponent().getSelectedIndex();
+			lastIndex = getListComponent().getSelectedIndex();
 		}
 		
 
 		@Override
 		public void mouseDragged(MouseEvent m) {
-			int toIndex = getListComponent().getSelectedIndex();
+			int currentIndex = getListComponent().getSelectedIndex();
 			
-			if (toIndex == fromIndex)
-				return;
-			
-			moveEntry(fromIndex, toIndex);
-			
-			fromIndex = toIndex;
+			if (currentIndex != lastIndex) {
+				swap(lastIndex, currentIndex);
+				lastIndex = currentIndex;
+			}
 		}
 	};
 	

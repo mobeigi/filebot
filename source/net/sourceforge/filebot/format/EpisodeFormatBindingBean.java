@@ -114,7 +114,7 @@ public class EpisodeFormatBindingBean {
 	
 
 	@Define("crc32")
-	public String getCRC32() throws IOException {
+	public String getCRC32() throws IOException, InterruptedException {
 		if (mediaFile != null) {
 			// try to get checksum from file name
 			String embeddedChecksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
@@ -171,7 +171,7 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	public synchronized MediaInfo getMediaInfo() {
+	private synchronized MediaInfo getMediaInfo() {
 		if (mediaFile == null) {
 			throw new NullPointerException("Media file is null");
 		}
@@ -203,7 +203,7 @@ public class EpisodeFormatBindingBean {
 	private static final Cache checksumCache = CacheManager.getInstance().getCache("checksum");
 	
 	
-	private String crc32(File file) throws IOException {
+	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
 		Element cacheEntry = checksumCache.get(file);
 		
@@ -221,6 +221,10 @@ public class EpisodeFormatBindingBean {
 			
 			while ((len = in.read(buffer)) >= 0) {
 				crc.update(buffer, 0, len);
+				
+				// make this long-running operation interruptible
+				if (Thread.interrupted())
+					throw new InterruptedException();
 			}
 		} finally {
 			in.close();

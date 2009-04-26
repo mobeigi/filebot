@@ -3,6 +3,9 @@ package net.sourceforge.tuned;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class FastFile extends File {
@@ -52,4 +55,19 @@ public class FastFile extends File {
 		return files;
 	}
 	
+
+	public static List<FastFile> foreach(File... files) {
+		return foreach(Arrays.asList(files));
+	}
+	
+
+	public static List<FastFile> foreach(final List<File> files) {
+		List<FastFile> result = new ArrayList<FastFile>(files.size());
+		
+		for (File file : files) {
+			result.add(new FastFile(file.getPath()));
+		}
+		
+		return result;
+	}
 }

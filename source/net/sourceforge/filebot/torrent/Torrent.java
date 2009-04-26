@@ -2,10 +2,11 @@
 package net.sourceforge.filebot.torrent;
 
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sourceforge.tuned.ByteBufferInputStream;
 
 
 public class Torrent {
@@ -104,12 +107,13 @@ public class Torrent {
 	
 
 	private static Map<?, ?> decodeTorrent(File torrent) throws IOException {
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(torrent));
+		FileChannel fileChannel = new FileInputStream(torrent).getChannel();
 		
 		try {
-			return BDecoder.decode(in);
+			// memory-map and decode torrent
+			return BDecoder.decode(new ByteBufferInputStream(fileChannel.map(MapMode.READ_ONLY, 0, fileChannel.size())));
 		} finally {
-			in.close();
+			fileChannel.close();
 		}
 	}
 	

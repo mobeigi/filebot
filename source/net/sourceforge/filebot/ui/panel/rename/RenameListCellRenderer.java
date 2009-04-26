@@ -12,62 +12,77 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
+import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
+import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
-	private final RenameModel<?, ?> model;
+	private final RenameModel renameModel;
 	
-	private final ExtensionLabel extension = new ExtensionLabel();
-	
-	
-	public RenameListCellRenderer(RenameModel<?, ?> model) {
-		this.model = model;
-		
-		setHighlightingEnabled(false);
-		
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		add(Box.createHorizontalGlue());
-		add(extension);
-	}
+	private final TypeLabel typeLabel = new TypeLabel();
 	
 	private final Color noMatchGradientBeginColor = new Color(0xB7B7B7);
 	private final Color noMatchGradientEndColor = new Color(0x9A9A9A);
 	
 	
+	public RenameListCellRenderer(RenameModel renameModel) {
+		this.renameModel = renameModel;
+		
+		setHighlightingEnabled(false);
+		
+		setLayout(new MigLayout("fill, insets 0", "align left", "align center"));
+		add(typeLabel, "gap rel:push");
+	}
+	
+
 	@Override
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		// show extension label only for items of the files model
+		// reset
+		setIcon(null);
+		typeLabel.setText(null);
+		typeLabel.setAlpha(1.0f);
+		
 		if (value instanceof File) {
+			// display file extension
 			File file = (File) value;
 			
-			this.setText(FileUtilities.getName(file));
+			setText(FileUtilities.getName(file));
+			typeLabel.setText(getType(file));
+		} else if (value instanceof FormattedFuture) {
+			// progress icon and value type
+			FormattedFuture future = (FormattedFuture) value;
 			
-			extension.setText(getType(file));
-			extension.setAlpha(1.0f);
+			switch (future.getState()) {
+				case PENDING:
+					setIcon(ResourceManager.getIcon("worker.pending"));
+					break;
+				case STARTED:
+					setIcon(ResourceManager.getIcon("worker.started"));
+					break;
+			}
 			
-			extension.setVisible(true);
-		} else {
-			extension.setVisible(false);
+			typeLabel.setText(getType(future.getMatch()));
 		}
 		
-		if (index >= model.matchCount()) {
+		if (!renameModel.hasComplement(index)) {
 			if (isSelected) {
 				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
 			} else {
 				setForeground(noMatchGradientBeginColor);
-				extension.setAlpha(0.5f);
+				typeLabel.setAlpha(0.5f);
 			}
 		}
 	}
@@ -86,8 +101,23 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		return "File";
 	}
 	
+
+	protected String getType(Match<Object, File> match) {
+		Object source = match.getValue();
+		
+		if (source instanceof Episode) {
+			return "Episode";
+		} else if (source instanceof AbstractFileEntry) {
+			return "Torrent";
+		} else if (source instanceof File) {
+			return "File";
+		}
+		
+		return null;
+	}
 	
-	protected class ExtensionLabel extends JLabel {
+	
+	private class TypeLabel extends JLabel {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
 		private final Insets padding = new Insets(0, 6, 0, 5);
@@ -99,7 +129,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		private float alpha = 1.0f;
 		
 		
-		public ExtensionLabel() {
+		public TypeLabel() {
 			setOpaque(false);
 			setForeground(new Color(0x141414));
 			
@@ -125,6 +155,15 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			
 			Rectangle2D textBounds = g2d.getFontMetrics().getStringBounds(getText(), g2d);
 			g2d.drawString(getText(), (float) (shape.getCenterX() - textBounds.getX() - (textBounds.getWidth() / 2f)), (float) (shape.getCenterY() - textBounds.getY() - (textBounds.getHeight() / 2)));
+		}
+		
+
+		@Override
+		public void setText(String text) {
+			super.setText(text);
+			
+			// auto-hide if text is null
+			setVisible(text != null);
 		}
 		
 

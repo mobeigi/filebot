@@ -4,9 +4,6 @@ package net.sourceforge.tuned;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,26 +158,6 @@ public final class FileUtilities {
 		public String[] getExtensions() {
 			return extensions.clone();
 		}
-	}
-	
-
-	public static class NameWithoutExtensionFormat extends Format {
-		
-		@Override
-		public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
-			if (obj instanceof File) {
-				return sb.append(getName((File) obj));
-			}
-			
-			return sb.append(getNameWithoutExtension(obj.toString()));
-		}
-		
-
-		@Override
-		public Object parseObject(String source, ParsePosition pos) {
-			throw new UnsupportedOperationException();
-		}
-		
 	}
 	
 	

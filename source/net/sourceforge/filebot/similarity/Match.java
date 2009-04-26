@@ -2,24 +2,24 @@
 package net.sourceforge.filebot.similarity;
 
 
-public class Match<V, C> {
+public class Match<Value, Candidate> {
 	
-	private final V value;
-	private final C candidate;
+	private final Value value;
+	private final Candidate candidate;
 	
 	
-	public Match(V value, C candidate) {
+	public Match(Value value, Candidate candidate) {
 		this.value = value;
 		this.candidate = candidate;
 	}
 	
 
-	public V getValue() {
+	public Value getValue() {
 		return value;
 	}
 	
 
-	public C getCandidate() {
+	public Candidate getCandidate() {
 		return candidate;
 	}
 	
@@ -33,6 +33,23 @@ public class Match<V, C> {
 	 */
 	public boolean disjoint(Match<?, ?> match) {
 		return (value != match.value && candidate != match.candidate);
+	}
+	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Match) {
+			Match<?, ?> other = (Match<?, ?>) obj;
+			return value == other.value && candidate == other.candidate;
+		}
+		
+		return false;
+	}
+	
+
+	@Override
+	public int hashCode() {
+		return (value == null ? 0 : value.hashCode()) ^ (candidate == null ? 0 : candidate.hashCode());
 	}
 	
 

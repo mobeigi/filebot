@@ -78,22 +78,15 @@ public class Episode implements Serializable {
 				sb.append(episode.getSeasonNumber()).append('x');
 			}
 			
-			sb.append(formatEpisodeNumber(episode.getEpisodeNumber()));
-			
-			return sb.append(" - ").append(episode.getTitle());
-		}
-		
-
-		protected String formatEpisodeNumber(String number) {
-			if (number.length() < 2) {
-				try {
-					return String.format("%02d", Integer.parseInt(number));
-				} catch (NumberFormatException e) {
-					// ignore
-				}
+			try {
+				// try to format episode number
+				sb.append(String.format("%02d", Integer.parseInt(episode.getEpisodeNumber())));
+			} catch (NumberFormatException e) {
+				// use episode "number" as is
+				sb.append(episode.getEpisodeNumber());
 			}
 			
-			return number;
+			return sb.append(" - ").append(episode.getTitle());
 		}
 		
 

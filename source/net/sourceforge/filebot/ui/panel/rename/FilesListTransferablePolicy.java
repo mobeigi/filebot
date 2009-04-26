@@ -6,7 +6,6 @@ import static net.sourceforge.tuned.FileUtilities.FOLDERS;
 import static net.sourceforge.tuned.FileUtilities.containsOnly;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -39,17 +38,10 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	protected void load(List<File> files) {
 		if (containsOnly(files, FOLDERS)) {
 			for (File folder : files) {
-				loadFiles(Arrays.asList(folder.listFiles()));
+				model.addAll(FastFile.foreach(folder.listFiles()));
 			}
 		} else {
-			loadFiles(files);
-		}
-	}
-	
-
-	protected void loadFiles(List<File> files) {
-		for (File file : files) {
-			model.add(new FastFile(file.getPath()));
+			model.addAll(FastFile.foreach(files));
 		}
 	}
 	

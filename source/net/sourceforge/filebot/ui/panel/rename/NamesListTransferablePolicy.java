@@ -17,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -27,6 +26,7 @@ import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.tuned.FastFile;
 
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
@@ -106,10 +106,10 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		} else if (containsOnly(files, FOLDERS)) {
 			// load files from each folder
 			for (File folder : files) {
-				Collections.addAll(values, folder.listFiles());
+				values.addAll(FastFile.foreach(folder.listFiles()));
 			}
 		} else {
-			values.addAll(files);
+			values.addAll(FastFile.foreach(files));
 		}
 		
 		model.addAll(values);

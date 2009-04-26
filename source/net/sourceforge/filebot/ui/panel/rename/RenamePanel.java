@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -19,7 +18,9 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 
+import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultListSelectionModel;
@@ -33,12 +34,12 @@ import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.format.EpisodeExpressionFormat;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.EpisodeFormatDialog;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -48,7 +49,7 @@ import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FileUtilities.NameWithoutExtensionFormat;
+import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
@@ -58,35 +59,31 @@ import ca.odell.glazedlists.event.ListEventListener;
 
 public class RenamePanel extends JComponent {
 	
-	protected final RenameModel<Object, File> model = RenameModel.create();
+	protected final RenameModel renameModel = new RenameModel();
 	
-	protected final NamesViewEventList namesView = new NamesViewEventList(this, model.names());
+	protected final RenameList<FormattedFuture> namesList = new RenameList<FormattedFuture>(renameModel.names());
 	
-	protected final RenameList<String> namesList = new RenameList<String>(namesView);
+	protected final RenameList<File> filesList = new RenameList<File>(renameModel.files());
 	
-	protected final RenameList<File> filesList = new RenameList<File>(model.files());
+	protected final MatchAction matchAction = new MatchAction(renameModel);
 	
-	protected final MatchAction matchAction = new MatchAction(model);
-	
-	protected final RenameAction renameAction = new RenameAction(RenameModel.wrap(namesView, model.files()));
-	
-	protected final PreferencesEntry<String> persistentFormat = Settings.userRoot().entry("rename.format");
+	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
 	
 	public RenamePanel() {
+		namesList.setTitle("New Names");
+		namesList.setTransferablePolicy(new NamesListTransferablePolicy(renameModel.values()));
 		
-		namesList.setTitle("Proposed");
-		namesList.setTransferablePolicy(new NamesListTransferablePolicy(model.names()));
+		filesList.setTitle("Original Files");
+		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 		
-		filesList.setTitle("Current");
-		filesList.setTransferablePolicy(new FilesListTransferablePolicy(filesList.getModel()));
+		// filename formatter
+		renameModel.useFormatter(File.class, new FileNameFormatter());
 		
-		namesView.setFormat(File.class, new NameWithoutExtensionFormat());
+		// custom episode formatter, if any
+		renameModel.useFormatter(Episode.class, persistentFormatExpression.getValue());
 		
-		// restore custom format
-		restoreEpisodeFormat();
-		
-		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(model);
+		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
 		
 		namesList.getListComponent().setCellRenderer(cellrenderer);
 		filesList.getListComponent().setCellRenderer(cellrenderer);
@@ -120,7 +117,7 @@ public class RenamePanel extends JComponent {
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		
-		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
+		add(filesList, "grow, sizegroupx list");
 		
 		// make buttons larger
 		matchButton.setMargin(new Insets(3, 14, 2, 14));
@@ -129,11 +126,11 @@ public class RenamePanel extends JComponent {
 		add(matchButton, "split 2, flowy, sizegroupx button");
 		add(renameButton, "gapy 30px, sizegroupx button");
 		
-		add(filesList, "grow, sizegroupx list");
+		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
 		
 		// repaint on change
-		model.names().addListEventListener(new RepaintHandler<Object>());
-		model.files().addListEventListener(new RepaintHandler<File>());
+		renameModel.names().addListEventListener(new RepaintHandler<Object>());
+		renameModel.files().addListEventListener(new RepaintHandler<Object>());
 	}
 	
 
@@ -153,17 +150,26 @@ public class RenamePanel extends JComponent {
 		actionPopup.add(new AbstractAction("Edit Format", ResourceManager.getIcon("action.format")) {
 			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				Format format = EpisodeFormatDialog.showDialog(RenamePanel.this);
+			public void actionPerformed(ActionEvent evt) {
+				EpisodeFormatDialog dialog = new EpisodeFormatDialog(SwingUtilities.getWindowAncestor(RenamePanel.this));
 				
-				if (format != null) {
-					if (format instanceof EpisodeExpressionFormat) {
-						persistentFormat.setValue(((EpisodeExpressionFormat) format).getFormat());
-					} else {
-						persistentFormat.remove();
-					}
-					
-					namesView.setFormat(Episode.class, format);
+				dialog.setVisible(true);
+				
+				switch (dialog.getSelectedOption()) {
+					case APPROVE:
+						try {
+							EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getExpression());
+							renameModel.useFormatter(Episode.class, formatter);
+							persistentFormatExpression.setValue(formatter);
+						} catch (ScriptException e) {
+							// will not happen because illegal expressions cannot be approved in dialog
+							Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+						}
+						break;
+					case USE_DEFAULT:
+						renameModel.useFormatter(Episode.class, null);
+						persistentFormatExpression.remove();
+						break;
 				}
 			}
 		});
@@ -171,25 +177,12 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
-
-	private void restoreEpisodeFormat() {
-		String format = persistentFormat.getValue();
-		
-		if (format != null) {
-			try {
-				namesView.setFormat(Episode.class, new EpisodeExpressionFormat(format));
-			} catch (Exception e) {
-				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-	}
-	
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// show popup on actionPerformed only when names list is empty
-			if (model.names().isEmpty() && !model.files().isEmpty()) {
+			if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
 				JComponent source = (JComponent) e.getSource();
 				
 				// display popup below component
@@ -227,28 +220,25 @@ public class RenamePanel extends JComponent {
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			
 			// clear names list
-			model.names().clear();
+			renameModel.values().clear();
 			
-			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, model.files(), matchAction.getMetrics()) {
+			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, renameModel.files(), matchAction.getMetrics()) {
 				
 				@Override
 				protected void done() {
 					try {
-						List<Episode> episodes = new ArrayList<Episode>();
-						List<File> files = new ArrayList<File>();
+						List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>();
 						
 						for (Match<File, Episode> match : get()) {
-							episodes.add(match.getCandidate());
-							files.add(match.getValue());
+							matches.add(new Match<Object, File>(match.getCandidate(), match.getValue()));
 						}
 						
-						model.clear();
+						renameModel.clear();
 						
-						model.names().addAll(episodes);
-						model.files().addAll(files);
+						renameModel.addAll(matches);
 						
 						// add remaining file entries
-						model.files().addAll(remainingFiles());
+						renameModel.files().addAll(remainingFiles());
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					} finally {
@@ -319,5 +309,29 @@ public class RenamePanel extends JComponent {
 		}
 		
 	};
+	
+	protected final PreferencesEntry<EpisodeExpressionFormatter> persistentFormatExpression = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
+		
+		@Override
+		public EpisodeExpressionFormatter get(Preferences prefs, String key) {
+			String expression = prefs.get(key, null);
+			
+			if (expression != null) {
+				try {
+					return new EpisodeExpressionFormatter(expression);
+				} catch (Exception e) {
+					Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+				}
+			}
+			
+			return null;
+		}
+		
+
+		@Override
+		public void put(Preferences prefs, String key, EpisodeExpressionFormatter value) {
+			prefs.put(key, value.getExpression());
+		}
+	});
 	
 }

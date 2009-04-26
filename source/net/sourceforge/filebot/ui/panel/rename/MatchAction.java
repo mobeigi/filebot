@@ -40,12 +40,12 @@ import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
 
 class MatchAction extends AbstractAction {
 	
-	private final RenameModel<Object, File> model;
+	private final RenameModel model;
 	
 	private final Collection<SimilarityMetric> metrics;
 	
 	
-	public MatchAction(RenameModel<Object, File> model) {
+	public MatchAction(RenameModel model) {
 		super("Match", ResourceManager.getIcon("action.match"));
 		
 		this.model = model;
@@ -138,10 +138,6 @@ class MatchAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		if (model.names().isEmpty() || model.files().isEmpty()) {
-			return;
-		}
-		
 		JComponent eventSource = (JComponent) evt.getSource();
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -192,9 +188,9 @@ class MatchAction extends AbstractAction {
 		private final Matcher<Object, File> matcher;
 		
 		
-		public BackgroundMatcher(RenameModel<Object, File> model, Collection<SimilarityMetric> metrics) {
+		public BackgroundMatcher(MatchModel<Object, File> model, Collection<SimilarityMetric> metrics) {
 			// match names against files
-			this.matcher = new Matcher<Object, File>(model.names(), model.files(), metrics);
+			this.matcher = new Matcher<Object, File>(model.values(), model.candidates(), metrics);
 		}
 		
 
@@ -215,14 +211,10 @@ class MatchAction extends AbstractAction {
 				model.clear();
 				
 				// put new data into model
-				for (Match<Object, File> match : matches) {
-					model.names().add(match.getValue());
-					model.files().add(match.getCandidate());
-				}
+				model.addAll(matches);
 				
-				// insert objects that could not be matched at the end
-				model.names().addAll(matcher.remainingValues());
-				model.files().addAll(matcher.remainingCandidates());
+				// insert objects that could not be matched at the end of the model
+				model.addAll(matcher.remainingValues(), matcher.remainingCandidates());
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 			}

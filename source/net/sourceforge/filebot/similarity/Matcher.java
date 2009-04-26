@@ -172,19 +172,12 @@ public class Matcher<V, C> {
 	
 	protected static class DisjointMatchCollection<V, C> extends AbstractList<Match<V, C>> {
 		
-		private final List<Match<V, C>> matches;
+		private final List<Match<V, C>> matches = new ArrayList<Match<V, C>>();
 		
-		private final Map<V, Match<V, C>> values;
-		private final Map<C, Match<V, C>> candidates;
+		private final Map<V, Match<V, C>> values = new IdentityHashMap<V, Match<V, C>>();
+		private final Map<C, Match<V, C>> candidates = new IdentityHashMap<C, Match<V, C>>();
 		
 		
-		public DisjointMatchCollection() {
-			matches = new ArrayList<Match<V, C>>();
-			values = new IdentityHashMap<V, Match<V, C>>();
-			candidates = new IdentityHashMap<C, Match<V, C>>();
-		}
-		
-
 		@Override
 		public boolean add(Match<V, C> match) {
 			if (disjoint(match)) {

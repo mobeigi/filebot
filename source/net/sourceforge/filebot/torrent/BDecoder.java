@@ -23,8 +23,6 @@
 package net.sourceforge.filebot.torrent;
 
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -37,10 +35,10 @@ import java.util.Map;
 
 
 /**
- * A set of utility methods to decode a bencoded array of byte into a Map. integer are represented as Long, String as byte[], dictionnaries as Map, and list as List.
+ * A set of utility methods to decode a bencoded array of byte into a Map. integer are
+ * represented as Long, String as byte[], dictionnaries as Map, and list as List.
  * 
  * @author TdC_VgA
- * 
  */
 public class BDecoder {
 	
@@ -49,34 +47,12 @@ public class BDecoder {
 	private static final Charset BINARY_CHARSET = Charset.forName("ISO-8859-1");
 	
 	
-	public static Map<?, ?> decode(byte[] data)
-
-	throws IOException {
-		return (new BDecoder().decodeByteArray(data));
-	}
-	
-
-	public static Map<?, ?> decode(BufferedInputStream is)
-
-	throws IOException {
+	public static Map<?, ?> decode(InputStream is) throws IOException {
 		return (new BDecoder().decodeStream(is));
 	}
 	
 
-	public BDecoder() {
-	}
-	
-
-	public Map<?, ?> decodeByteArray(byte[] data)
-
-	throws IOException {
-		return (decode(new ByteArrayInputStream(data)));
-	}
-	
-
-	public Map<?, ?> decodeStream(BufferedInputStream data)
-
-	throws IOException {
+	public Map<?, ?> decodeStream(InputStream data) throws IOException {
 		Object res = decodeInputStream(data, 0);
 		
 		if (res == null)
@@ -88,23 +64,7 @@ public class BDecoder {
 	}
 	
 
-	private Map<?, ?> decode(ByteArrayInputStream data)
-
-	throws IOException {
-		Object res = decodeInputStream(data, 0);
-		
-		if (res == null)
-			throw (new IOException("BDecoder: zero length file"));
-		else if (!(res instanceof Map))
-			throw (new IOException("BDecoder: top level isn't a Map"));
-		
-		return ((Map<?, ?>) res);
-	}
-	
-
-	private Object decodeInputStream(InputStream bais, int nesting)
-
-	throws IOException {
+	private Object decodeInputStream(InputStream bais, int nesting) throws IOException {
 		if (!bais.markSupported())
 			throw new IOException("InputStream must support the mark() method");
 		
@@ -252,7 +212,6 @@ public class BDecoder {
 		bais.skip(1);
 		
 		// return the value
-		
 		CharBuffer cb = BINARY_CHARSET.decode(ByteBuffer.wrap(tempArray));
 		
 		String str_value = new String(cb.array(), 0, cb.limit());
@@ -270,13 +229,13 @@ public class BDecoder {
 		// note that torrent hashes can be big (consider a 55GB file with 2MB
 		// pieces
 		// this generates a pieces hash of 1/2 meg
-		
 		if (length > 8 * 1024 * 1024)
 			throw (new IOException("Byte array length too large (" + length + ")"));
 		
 		byte[] tempArray = new byte[length];
 		int count = 0;
 		int len = 0;
+		
 		// get the string
 		while ((count != length) && ((len = bais.read(tempArray, count, length - count)) > 0))
 			count += len;
