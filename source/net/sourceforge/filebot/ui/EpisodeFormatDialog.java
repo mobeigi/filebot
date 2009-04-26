@@ -64,7 +64,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 public class EpisodeFormatDialog extends JDialog {
 	
-	private Option selectedOption = null;
+	private Option selectedOption = Option.CANCEL;
 	
 	private JLabel preview = new JLabel();
 	

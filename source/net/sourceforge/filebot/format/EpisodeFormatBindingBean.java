@@ -200,12 +200,12 @@ public class EpisodeFormatBindingBean {
 		return null;
 	}
 	
-	private static final Cache checksumCache = CacheManager.getInstance().getCache("checksum");
-	
-	
+
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
-		Element cacheEntry = checksumCache.get(file);
+		Cache cache = CacheManager.getInstance().getCache("checksum");
+		
+		Element cacheEntry = cache.get(file);
 		
 		if (cacheEntry != null) {
 			return (String) cacheEntry.getValue();
@@ -232,7 +232,7 @@ public class EpisodeFormatBindingBean {
 		
 		String checksum = String.format("%08X", crc.getValue());
 		
-		checksumCache.put(new Element(file, checksum));
+		cache.put(new Element(file, checksum));
 		return checksum;
 	}
 	

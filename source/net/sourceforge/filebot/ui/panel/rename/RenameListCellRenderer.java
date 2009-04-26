@@ -19,9 +19,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
-import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 
@@ -73,8 +71,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 					setIcon(ResourceManager.getIcon("worker.started"));
 					break;
 			}
-			
-			typeLabel.setText(getType(future.getMatch()));
 		}
 		
 		if (!renameModel.hasComplement(index)) {
@@ -99,21 +95,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		// some file with no extension
 		return "File";
-	}
-	
-
-	protected String getType(Match<Object, File> match) {
-		Object source = match.getValue();
-		
-		if (source instanceof Episode) {
-			return "Episode";
-		} else if (source instanceof AbstractFileEntry) {
-			return "Torrent";
-		} else if (source instanceof File) {
-			return "File";
-		}
-		
-		return null;
 	}
 	
 	
