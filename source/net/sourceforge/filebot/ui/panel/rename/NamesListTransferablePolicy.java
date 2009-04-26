@@ -28,15 +28,17 @@ import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FastFile;
 
+import ca.odell.glazedlists.EventList;
+
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private static final DataFlavor episodeArrayFlavor = ArrayTransferable.flavor(Episode.class);
 	
-	private final List<Object> model;
+	private final EventList<Object> model;
 	
 	
-	public NamesListTransferablePolicy(List<Object> model) {
+	public NamesListTransferablePolicy(EventList<Object> model) {
 		this.model = model;
 	}
 	
@@ -68,12 +70,12 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		if (tr.isDataFlavorSupported(episodeArrayFlavor)) {
 			// episode array transferable
 			model.addAll(Arrays.asList((Episode[]) tr.getTransferData((episodeArrayFlavor))));
-		} else if (tr.isDataFlavorSupported(stringFlavor)) {
-			// string transferable
-			load((String) tr.getTransferData(stringFlavor));
 		} else if (super.accept(tr)) {
 			// file transferable
 			load(getFilesFromTransferable(tr));
+		} else if (tr.isDataFlavorSupported(stringFlavor)) {
+			// string transferable
+			load((String) tr.getTransferData(stringFlavor));
 		}
 	}
 	

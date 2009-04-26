@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
@@ -21,8 +20,6 @@ import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-
-import com.sun.jna.Platform;
 
 
 public class Main {
@@ -50,17 +47,8 @@ public class Main {
 		initializeSettings();
 		
 		try {
-			if (Platform.isWindows() || Platform.isMac()) {
-				// use native laf of windows and mac
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} else {
-				// use nimubs laf on linux, bsd, ...
-				for (LookAndFeelInfo laf : UIManager.getInstalledLookAndFeels()) {
-					if (laf.getName().equals("Nimbus")) {
-						UIManager.setLookAndFeel(laf.getClassName());
-					}
-				}
-			}
+			// use native laf an all platforms
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
