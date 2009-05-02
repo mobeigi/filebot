@@ -17,7 +17,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.ParseException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +55,7 @@ import net.sourceforge.filebot.format.EpisodeFormatBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Episode.EpisodeFormat;
+import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LinkButton;
@@ -68,8 +71,7 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private JLabel preview = new JLabel();
 	
-	private JLabel warningMessage = new JLabel(ResourceManager.getIcon("status.warning"));
-	private JLabel errorMessage = new JLabel(ResourceManager.getIcon("status.error"));
+	private JLabel status = new JLabel();
 	
 	private EpisodeFormatBindingBean previewSample = new EpisodeFormatBindingBean(getPreviewSampleEpisode(), getPreviewSampleMediaFile());
 	
@@ -107,15 +109,10 @@ public class EpisodeFormatDialog extends JDialog {
 		header.setBackground(Color.white);
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 		
-		errorMessage.setVisible(false);
-		warningMessage.setVisible(false);
-		progressIndicator.setVisible(false);
-		
 		header.add(progressIndicator, "pos 1al 0al, hidemode 3");
 		header.add(title, "wrap unrel:push");
-		header.add(preview, "gap indent, hidemode 3, wmax 90%");
-		header.add(errorMessage, "gap indent, hidemode 3, wmax 90%, newline");
-		header.add(warningMessage, "gap indent, hidemode 3, wmax 90%, newline");
+		header.add(preview, "hmin 16px, gap indent, hidemode 3, wmax 90%");
+		header.add(status, "hmin 16px, gap indent, hidemode 3, wmax 90%, newline");
 		
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 		
@@ -125,7 +122,7 @@ public class EpisodeFormatDialog extends JDialog {
 		content.add(createSyntaxPanel(), "gapx indent indent, wrap 8px");
 		
 		content.add(new JLabel("Examples"), "gap indent+unrel, wrap 0");
-		content.add(createExamplesPanel(), "gapx indent indent, wrap 25px:push");
+		content.add(createExamplesPanel(), "hmin 50px, gapx indent indent, wrap 25px:push");
 		
 		content.add(new JButton(useDefaultFormatAction), "tag left");
 		content.add(new JButton(approveFormatAction), "tag apply");
@@ -137,11 +134,7 @@ public class EpisodeFormatDialog extends JDialog {
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
 		
-		setSize(485, 415);
-		
 		header.setComponentPopupMenu(createPreviewSamplePopup());
-		
-		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		// update format on change
 		editor.getDocument().addDocumentListener(new LazyDocumentAdapter() {
@@ -171,6 +164,10 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		// update preview to current format
 		firePreviewSampleChanged();
+		
+		// initialize window properties
+		setLocation(TunedUtilities.getPreferredLocation(this));
+		pack();
 	}
 	
 
@@ -244,30 +241,58 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	private JPanel createExamplesPanel() {
+	private JComponent createExamplesPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 		
 		panel.setBorder(new LineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
-		panel.setOpaque(true);
 		
 		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
 		
-		// sort keys
-		String[] keys = bundle.keySet().toArray(new String[0]);
-		Arrays.sort(keys);
+		// collect example keys
+		List<String> examples = new ArrayList<String>();
 		
-		for (String key : keys) {
-			if (key.startsWith("example")) {
-				String format = bundle.getString(key);
+		for (String key : bundle.keySet()) {
+			if (key.startsWith("example"))
+				examples.add(key);
+		}
+		
+		// sort by example key
+		Collections.sort(examples);
+		
+		for (String key : examples) {
+			final String format = bundle.getString(key);
+			
+			LinkButton formatLink = new LinkButton(new AbstractAction(format) {
 				
-				LinkButton formatLink = new LinkButton(new ExampleFormatAction(format));
-				formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					editor.setText(format);
+				}
+			});
+			
+			formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
+			
+			final JLabel formatExample = new JLabel();
+			
+			// bind text to preview
+			addPropertyChangeListener("previewSample", new PropertyChangeListener() {
 				
-				panel.add(formatLink);
-				panel.add(new JLabel("..."));
-				panel.add(new ExampleFormatLabel(format));
-			}
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					try {
+						formatExample.setText(new ExpressionFormat(format).format(previewSample));
+						setForeground(defaultColor);
+					} catch (Exception e) {
+						formatExample.setText(ExceptionUtilities.getRootCauseMessage(e));
+						setForeground(errorColor);
+					}
+				}
+			});
+			
+			panel.add(formatLink);
+			panel.add(new JLabel("..."));
+			panel.add(formatExample);
 		}
 		
 		return panel;
@@ -307,7 +332,31 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	private ExecutorService createPreviewExecutor() {
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1));
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter")) {
+			
+			@SuppressWarnings("deprecation")
+			@Override
+			public List<Runnable> shutdownNow() {
+				List<Runnable> remaining = super.shutdownNow();
+				
+				try {
+					if (!awaitTermination(3, TimeUnit.SECONDS)) {
+						// if the thread has not terminated after 4 seconds, it is probably stuck
+						ThreadGroup threadGroup = ((DefaultThreadFactory) getThreadFactory()).getThreadGroup();
+						
+						// kill background thread by force
+						threadGroup.stop();
+						
+						// log access of potentially unsafe method
+						Logger.getLogger("global").warning("Thread was forcibly terminated");
+					}
+				} catch (InterruptedException e) {
+					Logger.getLogger("global").log(Level.WARNING, "Thread was not terminated", e);
+				}
+				
+				return remaining;
+			}
+		};
 		
 		// only keep the latest task in the queue
 		executor.setRejectedExecutionHandler(new DiscardOldestPolicy());
@@ -345,34 +394,33 @@ public class EpisodeFormatDialog extends JDialog {
 						
 						// check internal script exception and empty output
 						if (format.scriptException() != null) {
-							warningMessage.setText(format.scriptException().getCause().getMessage());
+							throw format.scriptException();
 						} else if (get().trim().isEmpty()) {
-							warningMessage.setText("Formatted value is empty");
-						} else {
-							warningMessage.setText(null);
+							throw new RuntimeException("Formatted value is empty");
 						}
+						
+						// no warning or error
+						status.setVisible(false);
 					} catch (Exception e) {
-						Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
+						status.setText(ExceptionUtilities.getMessage(e));
+						status.setIcon(ResourceManager.getIcon("status.warning"));
+						status.setVisible(true);
+					} finally {
+						preview.setVisible(true);
+						editor.setForeground(defaultColor);
+						
+						progressIndicatorTimer.stop();
+						progressIndicator.setVisible(false);
 					}
-					
-					preview.setVisible(true);
-					warningMessage.setVisible(warningMessage.getText() != null);
-					errorMessage.setVisible(false);
-					
-					editor.setForeground(defaultColor);
-					
-					progressIndicatorTimer.stop();
-					progressIndicator.setVisible(false);
 				}
 			});
 		} catch (ScriptException e) {
 			// incorrect syntax 
-			errorMessage.setText(ExceptionUtilities.getRootCauseMessage(e));
-			errorMessage.setVisible(true);
+			status.setText(ExceptionUtilities.getRootCauseMessage(e));
+			status.setIcon(ResourceManager.getIcon("status.error"));
+			status.setVisible(true);
 			
 			preview.setVisible(false);
-			warningMessage.setVisible(false);
-			
 			editor.setForeground(errorColor);
 		}
 	}
@@ -418,6 +466,9 @@ public class EpisodeFormatDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
+				if (progressIndicator.isVisible())
+					throw new IllegalStateException("Format has not been verified yet.");
+				
 				// check syntax
 				new ExpressionFormat(editor.getText());
 				
@@ -425,8 +476,8 @@ public class EpisodeFormatDialog extends JDialog {
 				Settings.userRoot().put("dialog.format", editor.getText());
 				
 				finish(Option.APPROVE);
-			} catch (ScriptException e) {
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+			} catch (Exception e) {
+				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
 			}
 		}
 	};
@@ -437,42 +488,6 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 	
-	protected class ExampleFormatAction extends AbstractAction {
-		
-		public ExampleFormatAction(String format) {
-			super(format);
-		}
-		
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			editor.setText(getValue(Action.NAME).toString());
-		}
-	}
-	
-
-	protected class ExampleFormatLabel extends JLabel {
-		
-		public ExampleFormatLabel(final String format) {
-			// bind text to preview
-			EpisodeFormatDialog.this.addPropertyChangeListener("previewSample", new PropertyChangeListener() {
-				
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) {
-					try {
-						setText(new ExpressionFormat(format).format(previewSample));
-						setForeground(defaultColor);
-					} catch (Exception e) {
-						setText(ExceptionUtilities.getRootCauseMessage(e));
-						setForeground(errorColor);
-					}
-				}
-			});
-		}
-		
-	}
-	
-
 	protected static abstract class LazyDocumentAdapter implements DocumentListener {
 		
 		private final Timer timer = new Timer(200, new ActionListener() {

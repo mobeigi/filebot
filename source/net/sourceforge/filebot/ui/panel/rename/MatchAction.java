@@ -51,7 +51,7 @@ class MatchAction extends AbstractAction {
 		this.model = model;
 		this.metrics = createMetrics();
 		
-		putValue(SHORT_DESCRIPTION, "Match names to files");
+		putValue(SHORT_DESCRIPTION, "Match files and names");
 	}
 	
 

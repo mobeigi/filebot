@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
 import java.math.BigInteger;
@@ -7,7 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-class MessageDigestHash implements Hash {
+public class MessageDigestHash implements Hash {
 	
 	private final MessageDigest md;
 	

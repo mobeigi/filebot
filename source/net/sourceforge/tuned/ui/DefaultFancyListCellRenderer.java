@@ -5,6 +5,7 @@ package net.sourceforge.tuned.ui;
 import java.awt.Color;
 import java.awt.Insets;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -12,7 +13,7 @@ import javax.swing.JList;
 
 public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer {
 	
-	private final JLabel label = new JLabel();
+	private final JLabel label = new DefaultListCellRenderer();
 	
 	
 	public DefaultFancyListCellRenderer() {

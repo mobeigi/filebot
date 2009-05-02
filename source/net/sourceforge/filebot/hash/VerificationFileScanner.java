@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
 import java.io.Closeable;
@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeable {
+public class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeable {
 	
 	private final Scanner scanner;
 	
@@ -48,7 +48,7 @@ class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeabl
 	
 
 	@Override
-	public Entry<File, String> next() {
+	public Entry<File, String> next() throws IllegalSyntaxException {
 		// cache next line
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -88,10 +88,10 @@ class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeabl
 	 * |               Group 1                |       |   Group 2   |
 	 * </pre>
 	 */
-	private final Pattern pattern = Pattern.compile("(\\p{XDigit}{8,})\\s+(?:\\?\\w+)?\\*(.+)");
+	private final Pattern pattern = Pattern.compile("(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*(.+)");
 	
 	
-	protected Entry<File, String> parseLine(String line) {
+	protected Entry<File, String> parseLine(String line) throws IllegalSyntaxException {
 		Matcher matcher = pattern.matcher(line);
 		
 		if (!matcher.matches())
@@ -125,20 +125,6 @@ class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeabl
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
-	}
-	
-	
-	public static class IllegalSyntaxException extends RuntimeException {
-		
-		public IllegalSyntaxException(int lineNumber, String line) {
-			this(String.format("Illegal syntax in line %d: %s", lineNumber, line));
-		}
-		
-
-		public IllegalSyntaxException(String message) {
-			super(message);
-		}
-		
 	}
 	
 }

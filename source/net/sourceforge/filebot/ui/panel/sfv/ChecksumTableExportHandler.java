@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.Formatter;
 
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.hash.VerificationFilePrinter;
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.tuned.FileUtilities;
 

@@ -1,8 +1,9 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.util.Scanner;

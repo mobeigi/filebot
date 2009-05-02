@@ -23,11 +23,9 @@ import java.util.prefs.Preferences;
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -53,8 +51,8 @@ import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
+import ca.odell.glazedlists.ListSelection;
+import ca.odell.glazedlists.swing.EventSelectionModel;
 
 
 public class RenamePanel extends JComponent {
@@ -88,8 +86,8 @@ public class RenamePanel extends JComponent {
 		namesList.getListComponent().setCellRenderer(cellrenderer);
 		filesList.getListComponent().setCellRenderer(cellrenderer);
 		
-		ListSelectionModel selectionModel = new DefaultListSelectionModel();
-		selectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		EventSelectionModel<Match<Object, File>> selectionModel = new EventSelectionModel<Match<Object, File>>(renameModel.matches());
+		selectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
 		
 		// use the same selection model for both lists to synchronize selection
 		namesList.getListComponent().setSelectionModel(selectionModel);
@@ -127,10 +125,6 @@ public class RenamePanel extends JComponent {
 		add(renameButton, "gapy 30px, sizegroupx button");
 		
 		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
-		
-		// repaint on change
-		renameModel.names().addListEventListener(new RepaintHandler<Object>());
-		renameModel.files().addListEventListener(new RepaintHandler<Object>());
 	}
 	
 
@@ -240,7 +234,7 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles());
 					} catch (Exception e) {
-						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+						Logger.getLogger("ui").warning(ExceptionUtilities.getRootCauseMessage(e));
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
@@ -278,7 +272,7 @@ public class RenamePanel extends JComponent {
 							// multiple results have been found, user must select one
 							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), probableMatches.isEmpty() ? searchResults : probableMatches);
 							
-							selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
+							selectDialog.getHeaderLabel().setText(String.format("Shows matching \"%s\":", query));
 							
 							selectDialog.setVisible(true);
 							
@@ -298,17 +292,6 @@ public class RenamePanel extends JComponent {
 			worker.execute();
 		}
 	}
-	
-
-	protected class RepaintHandler<E> implements ListEventListener<E> {
-		
-		@Override
-		public void listChanged(ListEvent<E> listChanges) {
-			namesList.repaint();
-			filesList.repaint();
-		}
-		
-	};
 	
 	protected final PreferencesEntry<EpisodeExpressionFormatter> persistentFormatExpression = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
 		

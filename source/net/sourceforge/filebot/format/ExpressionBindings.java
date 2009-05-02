@@ -16,16 +16,16 @@ import net.sourceforge.tuned.ExceptionUtilities;
 
 public class ExpressionBindings extends AbstractMap<String, Object> implements Bindings {
 	
-	protected final Object bean;
+	protected final Object bindingBean;
 	
 	protected final Map<String, Method> bindings = new HashMap<String, Method>();
 	
 	
 	public ExpressionBindings(Object bindingBean) {
-		bean = bindingBean;
+		this.bindingBean = bindingBean;
 		
 		// get method bindings
-		for (Method method : bean.getClass().getMethods()) {
+		for (Method method : bindingBean.getClass().getMethods()) {
 			Define define = method.getAnnotation(Define.class);
 			
 			if (define != null) {
@@ -41,19 +41,19 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 	
 
 	public Object getBindingBean() {
-		return bean;
+		return bindingBean;
 	}
 	
 
-	protected Object evaluate(Method method) throws Exception {
-		Object value = method.invoke(getBindingBean());
+	protected Object evaluate(final Method method) throws Exception {
+		Object value = method.invoke(bindingBean);
 		
 		if (value != null) {
 			return value;
 		}
 		
 		// invoke fallback method
-		return bindings.get(Define.undefined).invoke(getBindingBean());
+		return bindings.get(Define.undefined).invoke(bindingBean);
 	}
 	
 

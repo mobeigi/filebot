@@ -28,17 +28,15 @@ import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FastFile;
 
-import ca.odell.glazedlists.EventList;
-
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private static final DataFlavor episodeArrayFlavor = ArrayTransferable.flavor(Episode.class);
 	
-	private final EventList<Object> model;
+	private final List<Object> model;
 	
 	
-	public NamesListTransferablePolicy(EventList<Object> model) {
+	public NamesListTransferablePolicy(List<Object> model) {
 		this.model = model;
 	}
 	

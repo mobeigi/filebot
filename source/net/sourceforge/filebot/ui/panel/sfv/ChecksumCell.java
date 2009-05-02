@@ -12,6 +12,7 @@ import java.util.concurrent.CancellationException;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.SwingPropertyChangeSupport;
 
+import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.tuned.ExceptionUtilities;
 
 

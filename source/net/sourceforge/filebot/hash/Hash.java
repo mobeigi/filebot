@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
-interface Hash {
+public interface Hash {
 	
 	public void update(byte[] bytes, int off, int len);
 	

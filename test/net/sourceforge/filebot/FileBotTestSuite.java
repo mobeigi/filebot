@@ -3,9 +3,9 @@ package net.sourceforge.filebot;
 
 
 import net.sourceforge.filebot.format.ExpressionFormatTest;
+import net.sourceforge.filebot.hash.VerificationFileScannerTest;
 import net.sourceforge.filebot.similarity.SimilarityTestSuite;
 import net.sourceforge.filebot.ui.panel.rename.MatchModelTest;
-import net.sourceforge.filebot.ui.panel.sfv.VerificationFileScannerTest;
 import net.sourceforge.filebot.web.WebTestSuite;
 
 import org.junit.runner.RunWith;

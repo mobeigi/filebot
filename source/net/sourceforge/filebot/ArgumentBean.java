@@ -23,9 +23,6 @@ public class ArgumentBean {
 	@Option(name = "-clear", usage = "Clear history and settings")
 	private boolean clear = false;
 	
-	@Option(name = "--analyze", usage = "Open file in 'Analyze' panel", metaVar = "<file>")
-	private boolean analyze;
-	
 	@Option(name = "--sfv", usage = "Open file in 'SFV' panel", metaVar = "<file>")
 	private boolean sfv;
 	
@@ -45,11 +42,6 @@ public class ArgumentBean {
 
 	public boolean sfv() {
 		return sfv;
-	}
-	
-
-	public boolean analyze() {
-		return analyze;
 	}
 	
 

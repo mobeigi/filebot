@@ -2,12 +2,26 @@
 package net.sourceforge.filebot.format;
 
 
+import java.io.FilePermission;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.AccessController;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import java.security.ProtectionDomain;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PropertyPermission;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,6 +32,10 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
+
+import net.sourceforge.tuned.ExceptionUtilities;
+
+import org.mozilla.javascript.EcmaError;
 
 import com.sun.phobos.script.javascript.RhinoScriptEngine;
 
@@ -33,7 +51,7 @@ public class ExpressionFormat extends Format {
 	
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
-		this.compilation = compile(expression, (Compilable) initScriptEngine());
+		this.compilation = secure(compile(expression, (Compilable) initScriptEngine()));
 	}
 	
 
@@ -97,7 +115,9 @@ public class ExpressionFormat extends Format {
 
 	public StringBuffer format(Bindings bindings, StringBuffer sb) {
 		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+		
+		// use privileged bindings so we are not restricted by the script sandbox
+		context.setBindings(PrivilegedBindings.newProxy(bindings), ScriptContext.GLOBAL_SCOPE);
 		
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
@@ -108,9 +128,16 @@ public class ExpressionFormat extends Format {
 						sb.append(value);
 					}
 				} catch (ScriptException e) {
-					lastException = e;
-				} catch (Exception e) {
-					lastException = new ScriptException(e);
+					EcmaError ecmaError = ExceptionUtilities.findCause(e, EcmaError.class);
+					
+					// try to unwrap EcmaError
+					if (ecmaError != null) {
+						lastException = new ExpressionException(String.format("%s: %s", ecmaError.getName(), ecmaError.getErrorMessage()), e);
+					} else {
+						lastException = e;
+					}
+				} catch (RuntimeException e) {
+					lastException = new ExpressionException(e);
 				}
 			} else {
 				sb.append(snipped);
@@ -126,6 +153,123 @@ public class ExpressionFormat extends Format {
 	}
 	
 
+	private Object[] secure(Object[] compilation) {
+		// create sandbox AccessControlContext
+		AccessControlContext sandbox = new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, getSandboxPermissions()) });
+		
+		for (int i = 0; i < compilation.length; i++) {
+			Object snipped = compilation[i];
+			
+			if (snipped instanceof CompiledScript) {
+				compilation[i] = new SecureCompiledScript(sandbox, (CompiledScript) snipped);
+			}
+		}
+		
+		return compilation;
+	}
+	
+
+	private PermissionCollection getSandboxPermissions() {
+		Permissions permissions = new Permissions();
+		
+		permissions.add(new RuntimePermission("createClassLoader"));
+		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
+		permissions.add(new PropertyPermission("*", "read"));
+		permissions.add(new RuntimePermission("getenv.*"));
+		
+		return permissions;
+	}
+	
+	
+	private static class PrivilegedBindings implements InvocationHandler {
+		
+		private final Bindings bindings;
+		
+		
+		private PrivilegedBindings(Bindings bindings) {
+			this.bindings = bindings;
+		}
+		
+
+		@Override
+		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+			try {
+				return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+					
+					@Override
+					public Object run() throws Exception {
+						return method.invoke(bindings, args);
+					}
+				});
+			} catch (PrivilegedActionException e) {
+				Throwable cause = e.getException();
+				
+				// the underlying method may have throw an exception
+				if (cause instanceof InvocationTargetException) {
+					// get actual cause
+					cause = cause.getCause();
+				}
+				
+				// forward cause
+				throw cause;
+			}
+		}
+		
+
+		public static Bindings newProxy(Bindings bindings) {
+			PrivilegedBindings invocationHandler = new PrivilegedBindings(bindings);
+			
+			// create dynamic invocation proxy
+			return (Bindings) Proxy.newProxyInstance(PrivilegedBindings.class.getClassLoader(), new Class[] { Bindings.class }, invocationHandler);
+		}
+	}
+	
+
+	private static class SecureCompiledScript extends CompiledScript {
+		
+		private final AccessControlContext sandbox;
+		private final CompiledScript compiledScript;
+		
+		
+		private SecureCompiledScript(AccessControlContext sandbox, CompiledScript compiledScript) {
+			this.sandbox = sandbox;
+			this.compiledScript = compiledScript;
+		}
+		
+
+		@Override
+		public Object eval(final ScriptContext context) throws ScriptException {
+			try {
+				return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+					
+					@Override
+					public Object run() throws ScriptException {
+						return compiledScript.eval(context);
+					}
+				}, sandbox);
+			} catch (PrivilegedActionException e) {
+				AccessControlException accessException = ExceptionUtilities.findCause(e, AccessControlException.class);
+				
+				// try to unwrap AccessControlException
+				if (accessException != null)
+					throw new ExpressionException(accessException);
+				
+				// forward ScriptException
+				// e.getException() should be an instance of ScriptException,
+				// as only "checked" exceptions will be "wrapped" in a PrivilegedActionException
+				throw (ScriptException) e.getException();
+			}
+		}
+		
+
+		@Override
+		public ScriptEngine getEngine() {
+			return compiledScript.getEngine();
+		}
+		
+	}
+	
+	
 	@Override
 	public Object parseObject(String source, ParsePosition pos) {
 		throw new UnsupportedOperationException();

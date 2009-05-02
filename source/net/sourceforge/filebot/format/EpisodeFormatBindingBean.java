@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.format;
 
 
+import static net.sourceforge.filebot.FileBotUtilities.SFV_FILES;
 import static net.sourceforge.filebot.format.Define.undefined;
 
 import java.io.File;
@@ -9,15 +10,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.FileBotUtilities;
+import net.sourceforge.filebot.hash.IllegalSyntaxException;
+import net.sourceforge.filebot.hash.SfvFileScanner;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class EpisodeFormatBindingBean {
@@ -78,6 +85,16 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
+	@Define("cf")
+	public String getContainerFormat() {
+		// container format extension 
+		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions");
+		
+		// get first token
+		return new Scanner(extensions).next();
+	}
+	
+
 	@Define("hi")
 	public String getHeightAndInterlacement() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
@@ -88,15 +105,6 @@ public class EpisodeFormatBindingBean {
 		
 		// e.g. 720p
 		return height + Character.toLowerCase(interlacement.charAt(0));
-	}
-	
-
-	@Define("ext")
-	public String getContainerExtension() {
-		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions");
-		
-		// get first token
-		return new Scanner(extensions).next();
 	}
 	
 
@@ -117,17 +125,29 @@ public class EpisodeFormatBindingBean {
 	public String getCRC32() throws IOException, InterruptedException {
 		if (mediaFile != null) {
 			// try to get checksum from file name
-			String embeddedChecksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
+			String checksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
 			
-			if (embeddedChecksum != null) {
-				return embeddedChecksum;
-			}
+			if (checksum != null)
+				return checksum;
+			
+			// try to get checksum from sfv file
+			checksum = getChecksumFromSfvFile(mediaFile);
+			
+			if (checksum != null)
+				return checksum;
 			
 			// calculate checksum from file
 			return crc32(mediaFile);
 		}
 		
 		return null;
+	}
+	
+
+	@Define("ext")
+	public String getContainerExtension() {
+		// file extension
+		return FileUtilities.getExtension(mediaFile);
 	}
 	
 
@@ -161,11 +181,13 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
+	@Define("episode")
 	public Episode getEpisode() {
 		return episode;
 	}
 	
 
+	@Define("file")
 	public File getMediaFile() {
 		return mediaFile;
 	}
@@ -194,6 +216,33 @@ public class EpisodeFormatBindingBean {
 			
 			if (value.length() > 0) {
 				return value;
+			}
+		}
+		
+		return null;
+	}
+	
+
+	private String getChecksumFromSfvFile(File mediaFile) throws IOException {
+		File folder = mediaFile.getParentFile();
+		
+		for (File sfvFile : folder.listFiles(SFV_FILES)) {
+			SfvFileScanner scanner = new SfvFileScanner(sfvFile);
+			
+			try {
+				while (scanner.hasNext()) {
+					try {
+						Entry<File, String> entry = scanner.next();
+						
+						if (mediaFile.getName().equals(entry.getKey().getPath())) {
+							return entry.getValue();
+						}
+					} catch (IllegalSyntaxException e) {
+						Logger.getLogger("global").log(Level.WARNING, e.getMessage());
+					}
+				}
+			} finally {
+				scanner.close();
 			}
 		}
 		

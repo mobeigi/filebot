@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
 import java.util.zip.Checksum;
 
 
-class ChecksumHash implements Hash {
+public class ChecksumHash implements Hash {
 	
 	private final Checksum checksum;
 	

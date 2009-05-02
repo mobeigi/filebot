@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.sfv;
+package net.sourceforge.filebot.hash;
 
 
 import java.io.Closeable;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Formatter;
 
 
-class VerificationFilePrinter implements Closeable {
+public class VerificationFilePrinter implements Closeable {
 	
 	protected final Formatter out;
 	protected final String algorithm;
@@ -20,17 +20,8 @@ class VerificationFilePrinter implements Closeable {
 	
 
 	public void println(String path, String hash) {
-		// print entry
-		print(path, hash);
-		
-		// print line separator 
-		out.format("%n");
-	}
-	
-
-	protected void print(String path, String hash) {
 		// e.g. 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA1*folder/file.txt
-		out.format("%s %s*%s", hash, algorithm == null ? "" : '?' + algorithm.toUpperCase(), path);
+		out.format("%s %s*%s%n", hash, algorithm == null ? "" : '?' + algorithm.toUpperCase(), path);
 	}
 	
 

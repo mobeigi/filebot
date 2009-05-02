@@ -12,7 +12,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 
-import javax.swing.JLabel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -22,13 +22,14 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
+import net.sourceforge.tuned.ui.GradientStyle;
 
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
 	private final RenameModel renameModel;
 	
-	private final TypeLabel typeLabel = new TypeLabel();
+	private final TypeRenderer typeRenderer = new TypeRenderer();
 	
 	private final Color noMatchGradientBeginColor = new Color(0xB7B7B7);
 	private final Color noMatchGradientEndColor = new Color(0x9A9A9A);
@@ -39,8 +40,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		setHighlightingEnabled(false);
 		
-		setLayout(new MigLayout("fill, insets 0", "align left", "align center"));
-		add(typeLabel, "gap rel:push");
+		setLayout(new MigLayout("insets 0, fill", "align left", "align center"));
+		add(typeRenderer, "gap rel:push, hidemode 3");
 	}
 	
 
@@ -48,19 +49,24 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		// reset
+		// reset decoration
 		setIcon(null);
-		typeLabel.setText(null);
-		typeLabel.setAlpha(1.0f);
+		typeRenderer.setVisible(false);
+		typeRenderer.setAlpha(1.0f);
 		
 		if (value instanceof File) {
 			// display file extension
 			File file = (File) value;
 			
-			setText(FileUtilities.getName(file));
-			typeLabel.setText(getType(file));
+			if (renameModel.preserveExtension()) {
+				setText(FileUtilities.getName(file));
+				typeRenderer.setText(getType(file));
+				typeRenderer.setVisible(true);
+			} else {
+				setText(file.getName());
+			}
 		} else if (value instanceof FormattedFuture) {
-			// progress icon and value type
+			// display progress icon
 			FormattedFuture future = (FormattedFuture) value;
 			
 			switch (future.getState()) {
@@ -78,7 +84,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
 			} else {
 				setForeground(noMatchGradientBeginColor);
-				typeLabel.setAlpha(0.5f);
+				typeRenderer.setAlpha(0.5f);
 			}
 		}
 	}
@@ -98,7 +104,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 	
 	
-	private class TypeLabel extends JLabel {
+	private static class TypeRenderer extends DefaultListCellRenderer {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
 		private final Insets padding = new Insets(0, 6, 0, 5);
@@ -110,7 +116,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		private float alpha = 1.0f;
 		
 		
-		public TypeLabel() {
+		public TypeRenderer() {
 			setOpaque(false);
 			setForeground(new Color(0x141414));
 			
@@ -128,7 +134,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			
 			g2d.setComposite(AlphaComposite.SrcOver.derive(alpha));
 			
-			g2d.setPaint(getGradientStyle().getGradientPaint(shape, gradientBeginColor, gradientEndColor));
+			g2d.setPaint(GradientStyle.TOP_TO_BOTTOM.getGradientPaint(shape, gradientBeginColor, gradientEndColor));
 			g2d.fill(shape);
 			
 			g2d.setFont(getFont());
@@ -136,15 +142,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			
 			Rectangle2D textBounds = g2d.getFontMetrics().getStringBounds(getText(), g2d);
 			g2d.drawString(getText(), (float) (shape.getCenterX() - textBounds.getX() - (textBounds.getWidth() / 2f)), (float) (shape.getCenterY() - textBounds.getY() - (textBounds.getHeight() / 2)));
-		}
-		
-
-		@Override
-		public void setText(String text) {
-			super.setText(text);
-			
-			// auto-hide if text is null
-			setVisible(text != null);
 		}
 		
 

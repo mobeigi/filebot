@@ -4,6 +4,12 @@ package net.sourceforge.filebot;
 
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
+import java.security.CodeSource;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.security.Policy;
+import java.security.ProtectionDomain;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,10 +18,10 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
-import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanelBuilder;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 
 import org.kohsuke.args4j.CmdLineException;
@@ -45,6 +51,7 @@ public class Main {
 		
 		initializeLogging();
 		initializeSettings();
+		initializeSecurityManager();
 		
 		try {
 			// use native laf an all platforms
@@ -59,19 +66,18 @@ public class Main {
 			public void run() {
 				JFrame frame;
 				
-				if (argumentBean.analyze()) {
-					frame = new SinglePanelFrame(new AnalyzePanelBuilder()).publish(argumentBean.transferable());
-				} else if (argumentBean.sfv()) {
+				if (argumentBean.sfv()) {
+					// sfv frame
 					frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(argumentBean.transferable());
 				} else {
-					// default
+					// default frame
 					frame = new MainFrame();
 				}
 				
 				frame.setLocationByPlatform(true);
 				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 				
-				// start
+				// start application
 				frame.setVisible(true);
 			}
 		});
@@ -95,11 +101,51 @@ public class Main {
 	}
 	
 
+	/**
+	 * Preset the default thetvdb.apikey.
+	 */
 	private static void initializeSettings() {
 		Settings.userRoot().putDefault("thetvdb.apikey", "58B4AA94C59AD656");
 	}
 	
 
+	/**
+	 * Initialize default SecurityManager and grant all permissions via security policy.
+	 * Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
+	 */
+	private static void initializeSecurityManager() {
+		try {
+			// initialize security policy used by the default security manager
+			// because default the security policy is very restrictive (e.g. no FilePermission)
+			Policy.setPolicy(new Policy() {
+				
+				@Override
+				public boolean implies(ProtectionDomain domain, Permission permission) {
+					// all permissions
+					return true;
+				}
+				
+
+				@Override
+				public PermissionCollection getPermissions(CodeSource codesource) {
+					// VisualVM can't connect if this method does return 
+					// a checked immutable PermissionCollection
+					return new Permissions();
+				}
+			});
+			
+			// set default security manager
+			System.setSecurityManager(new SecurityManager());
+		} catch (Exception e) {
+			// security manager was probably set via system property
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
+		}
+	}
+	
+
+	/**
+	 * Parse command line arguments.
+	 */
 	private static ArgumentBean initializeArgumentBean(String... args) throws CmdLineException {
 		ArgumentBean argumentBean = new ArgumentBean();
 		
@@ -109,6 +155,9 @@ public class Main {
 	}
 	
 
+	/**
+	 * Print command line argument usage.
+	 */
 	private static void printUsage(ArgumentBean argumentBean) {
 		System.out.println("Options:");
 		

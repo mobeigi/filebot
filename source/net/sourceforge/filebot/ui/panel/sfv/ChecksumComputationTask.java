@@ -12,6 +12,9 @@ import java.util.concurrent.CancellationException;
 
 import javax.swing.SwingWorker;
 
+import net.sourceforge.filebot.hash.Hash;
+import net.sourceforge.filebot.hash.HashType;
+
 
 class ChecksumComputationTask extends SwingWorker<Map<HashType, String>, Void> {
 	

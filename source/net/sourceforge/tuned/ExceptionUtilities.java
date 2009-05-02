@@ -13,6 +13,19 @@ public final class ExceptionUtilities {
 	}
 	
 
+	@SuppressWarnings("unchecked")
+	public static <T extends Throwable> T findCause(Throwable t, Class<T> type) {
+		while (t != null) {
+			if (type.isInstance(t))
+				return (T) t;
+			
+			t = t.getCause();
+		}
+		
+		return null;
+	}
+	
+
 	public static String getRootCauseMessage(Throwable t) {
 		return getMessage(getRootCause(t));
 	}
@@ -22,7 +35,7 @@ public final class ExceptionUtilities {
 		String message = t.getMessage();
 		
 		if (message == null || message.isEmpty()) {
-			message = t.toString().replaceAll(t.getClass().getName(), t.getClass().getSimpleName());
+			message = t.toString();
 		}
 		
 		return message;

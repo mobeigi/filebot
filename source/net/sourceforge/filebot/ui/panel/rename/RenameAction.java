@@ -5,16 +5,15 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FileUtilities;
 
 
 class RenameAction extends AbstractAction {
@@ -32,52 +31,32 @@ class RenameAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		Deque<Match<File, File>> todoQueue = new ArrayDeque<Match<File, File>>();
-		Deque<Match<File, File>> doneQueue = new ArrayDeque<Match<File, File>>();
-		
-		for (Match<String, File> match : model.getMatchesForRenaming()) {
-			File source = match.getCandidate();
-			String extension = FileUtilities.getExtension(source);
-			
-			StringBuilder name = new StringBuilder(match.getValue());
-			
-			if (extension != null) {
-				name.append(".").append(extension);
-			}
-			
-			// same parent, different name
-			File target = new File(source.getParentFile(), name.toString());
-			
-			todoQueue.addLast(new Match<File, File>(source, target));
-		}
+		List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
 		try {
-			int renameCount = todoQueue.size();
-			
-			for (Match<File, File> match : todoQueue) {
+			for (Entry<File, File> mapping : model.getRenameMap().entrySet()) {
 				// rename file
-				if (!match.getValue().renameTo(match.getCandidate()))
-					throw new IOException(String.format("Failed to rename file: %s.", match.getValue().getName()));
+				if (!mapping.getKey().renameTo(mapping.getValue()))
+					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
 				
-				// revert in reverse order if renaming of all matches fails
-				doneQueue.addFirst(match);
+				// remember successfully renamed matches for possible revert
+				renameLog.add(mapping);
 			}
 			
 			// renamed all matches successfully
-			Logger.getLogger("ui").info(String.format("%d files renamed.", renameCount));
-		} catch (IOException e) {
-			// rename failed
-			Logger.getLogger("ui").warning(ExceptionUtilities.getRootCauseMessage(e));
+			Logger.getLogger("ui").info(String.format("%d files renamed.", renameLog.size()));
+		} catch (Exception e) {
+			// could not rename one of the files, revert all changes
+			Logger.getLogger("ui").warning(e.getMessage());
 			
-			boolean revertSuccess = true;
+			// revert in reverse order
+			Collections.reverse(renameLog);
 			
 			// revert rename operations
-			for (Match<File, File> match : doneQueue) {
-				revertSuccess &= match.getCandidate().renameTo(match.getValue());
-			}
-			
-			if (!revertSuccess) {
-				Logger.getLogger("ui").severe("Failed to revert all rename operations.");
+			for (Entry<File, File> mapping : renameLog) {
+				if (!mapping.getValue().renameTo(mapping.getKey())) {
+					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue().getName()));
+				}
 			}
 		}
 		

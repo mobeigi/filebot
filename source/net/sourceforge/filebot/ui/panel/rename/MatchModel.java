@@ -15,7 +15,7 @@ import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
 
 
-class MatchModel<Value, Candidate> {
+public class MatchModel<Value, Candidate> {
 	
 	private final EventList<Match<Value, Candidate>> source = new BasicEventList<Match<Value, Candidate>>();
 	

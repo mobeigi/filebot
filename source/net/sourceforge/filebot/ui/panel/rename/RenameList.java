@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static java.util.Collections.swap;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -58,16 +60,6 @@ class RenameList<E> extends FileBotList<E> {
 		loadAction.putValue(LoadAction.TRANSFERABLE_POLICY, transferablePolicy);
 	}
 	
-
-	public void swap(int index1, int index2) {
-		E e1 = model.get(index1);
-		E e2 = model.get(index2);
-		
-		// swap data
-		model.set(index1, e2);
-		model.set(index2, e1);
-	}
-	
 	private final LoadAction loadAction = new LoadAction(null);
 	
 	private final AbstractAction upAction = new AbstractAction(null, ResourceManager.getIcon("action.up")) {
@@ -76,7 +68,7 @@ class RenameList<E> extends FileBotList<E> {
 			int index = getListComponent().getSelectedIndex();
 			
 			if (index > 0) {
-				swap(index, index - 1);
+				swap(model, index, index - 1);
 				getListComponent().setSelectedIndex(index - 1);
 			}
 		}
@@ -88,7 +80,7 @@ class RenameList<E> extends FileBotList<E> {
 			int index = getListComponent().getSelectedIndex();
 			
 			if (index < model.size() - 1) {
-				swap(index, index + 1);
+				swap(model, index, index + 1);
 				getListComponent().setSelectedIndex(index + 1);
 			}
 		}
@@ -109,8 +101,8 @@ class RenameList<E> extends FileBotList<E> {
 		public void mouseDragged(MouseEvent m) {
 			int currentIndex = getListComponent().getSelectedIndex();
 			
-			if (currentIndex != lastIndex) {
-				swap(lastIndex, currentIndex);
+			if (currentIndex != lastIndex && lastIndex >= 0 && currentIndex >= 0) {
+				swap(model, lastIndex, currentIndex);
 				lastIndex = currentIndex;
 			}
 		}

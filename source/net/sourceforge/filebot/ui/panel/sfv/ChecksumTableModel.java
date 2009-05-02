@@ -18,6 +18,7 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.tuned.FileUtilities;
 
 

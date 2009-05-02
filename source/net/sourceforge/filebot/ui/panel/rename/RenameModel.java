@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -20,6 +21,7 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
@@ -52,19 +54,9 @@ public class RenameModel extends MatchModel<Object, File> {
 		}
 	};
 	
+	private boolean preserveExtension = true;
 	
-	public void useFormatter(Class<?> type, MatchFormatter formatter) {
-		if (formatter != null) {
-			formatters.put(type, formatter);
-		} else {
-			formatters.remove(type);
-		}
-		
-		// reformat matches
-		names.refresh();
-	}
 	
-
 	public EventList<FormattedFuture> names() {
 		return names;
 	}
@@ -75,16 +67,62 @@ public class RenameModel extends MatchModel<Object, File> {
 	}
 	
 
-	public List<Match<String, File>> getMatchesForRenaming() {
-		List<Match<String, File>> matches = new ArrayList<Match<String, File>>();
+	public boolean preserveExtension() {
+		return preserveExtension;
+	}
+	
+
+	public void setPreserveExtension(boolean preserveExtension) {
+		this.preserveExtension = preserveExtension;
+	}
+	
+
+	public Map<File, File> getRenameMap() {
+		Map<File, File> map = new LinkedHashMap<File, File>();
 		
-		for (int i = 0; i < size(); i++) {
-			if (hasComplement(i) && names.get(i).isDone()) {
-				matches.add(new Match<String, File>(names().get(i).toString(), files().get(i)));
+		for (int i = 0; i < names.size(); i++) {
+			if (hasComplement(i)) {
+				FormattedFuture future = names.get(i);
+				
+				// check if background formatter is done
+				if (!future.isDone()) {
+					throw new IllegalStateException(String.format("\"%s\" has not been formatted yet.", future.toString()));
+				}
+				
+				File originalFile = files().get(i);
+				StringBuilder newName = new StringBuilder(future.toString());
+				
+				if (preserveExtension) {
+					String extension = FileUtilities.getExtension(originalFile);
+					
+					if (extension != null) {
+						newName.append(".").append(extension);
+					}
+				}
+				
+				// same parent, different name
+				File newFile = new File(originalFile.getParentFile(), newName.toString());
+				
+				// insert mapping
+				if (map.put(originalFile, newFile) != null) {
+					throw new IllegalStateException(String.format("Duplicate file entry: \"%s\"", originalFile.getName()));
+				}
 			}
 		}
 		
-		return matches;
+		return map;
+	}
+	
+
+	public void useFormatter(Class<?> type, MatchFormatter formatter) {
+		if (formatter != null) {
+			formatters.put(type, formatter);
+		} else {
+			formatters.remove(type);
+		}
+		
+		// reformat matches
+		names.refresh();
 	}
 	
 

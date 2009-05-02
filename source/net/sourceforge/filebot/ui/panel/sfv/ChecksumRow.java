@@ -16,6 +16,7 @@ import java.util.Set;
 import javax.swing.event.SwingPropertyChangeSupport;
 
 import net.sourceforge.filebot.FileBotUtilities;
+import net.sourceforge.filebot.hash.HashType;
 
 
 class ChecksumRow {

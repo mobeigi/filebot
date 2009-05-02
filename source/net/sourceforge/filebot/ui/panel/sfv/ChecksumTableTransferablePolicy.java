@@ -15,7 +15,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.ui.panel.sfv.VerificationFileScanner.IllegalSyntaxException;
+import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.hash.IllegalSyntaxException;
+import net.sourceforge.filebot.hash.VerificationFileScanner;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;

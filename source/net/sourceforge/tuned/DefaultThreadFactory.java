@@ -26,7 +26,10 @@ public class DefaultThreadFactory implements ThreadFactory {
 	
 
 	public DefaultThreadFactory(String groupName, int priority, boolean daemon) {
-		group = new ThreadGroup(groupName);
+		SecurityManager sm = System.getSecurityManager();
+		ThreadGroup parentGroup = (sm != null) ? sm.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		
+		this.group = new ThreadGroup(parentGroup, groupName);
 		
 		this.daemon = daemon;
 		this.priority = priority;
@@ -43,6 +46,11 @@ public class DefaultThreadFactory implements ThreadFactory {
 			thread.setPriority(priority);
 		
 		return thread;
+	}
+	
+
+	public ThreadGroup getThreadGroup() {
+		return group;
 	}
 	
 }

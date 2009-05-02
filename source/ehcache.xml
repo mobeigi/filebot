@@ -106,7 +106,7 @@
 	
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches
-    created programmtically using CacheManager.add(String cacheName).
+    created pragmatically using CacheManager.add(String cacheName).
     -->
     <defaultCache
             maxElementsInMemory="100"
