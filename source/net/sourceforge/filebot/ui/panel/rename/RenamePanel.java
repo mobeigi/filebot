@@ -180,12 +180,12 @@ public class RenamePanel extends JComponent {
 	
 
 	protected ActionPopup createSettingsPopup() {
-		ActionPopup actionPopup = new ActionPopup("Settings", ResourceManager.getIcon("action.rename.small"));
+		ActionPopup actionPopup = new ActionPopup("Rename Settings", ResourceManager.getIcon("action.rename.small"));
 		
 		actionPopup.addDescription(new JLabel("Extension:"));
 		
 		actionPopup.add(new PreserveExtensionAction(true, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
-		actionPopup.add(new PreserveExtensionAction(false, "Include", ResourceManager.getIcon("action.extension.include")));
+		actionPopup.add(new PreserveExtensionAction(false, "Override", ResourceManager.getIcon("action.extension.override")));
 		
 		return actionPopup;
 	}

@@ -54,7 +54,7 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.format.EpisodeFormatBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.Episode.EpisodeFormat;
+import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
@@ -392,10 +392,13 @@ public class EpisodeFormatDialog extends JDialog {
 					try {
 						preview.setText(get());
 						
-						// check internal script exception and empty output
+						// check internal script exception
 						if (format.scriptException() != null) {
 							throw format.scriptException();
-						} else if (get().trim().isEmpty()) {
+						}
+						
+						// check empty output
+						if (get().trim().isEmpty()) {
 							throw new RuntimeException("Formatted value is empty");
 						}
 						
@@ -406,7 +409,7 @@ public class EpisodeFormatDialog extends JDialog {
 						status.setIcon(ResourceManager.getIcon("status.warning"));
 						status.setVisible(true);
 					} finally {
-						preview.setVisible(true);
+						preview.setVisible(preview.getText().trim().length() > 0);
 						editor.setForeground(defaultColor);
 						
 						progressIndicatorTimer.stop();

@@ -67,8 +67,8 @@ public class AnidbClientTest {
 		
 		assertEquals("Monster", first.getSeriesName());
 		assertEquals("Herr Dr. Tenma", first.getTitle());
-		assertEquals("1", first.getEpisodeNumber());
-		assertEquals(null, first.getSeasonNumber());
+		assertEquals("1", first.getEpisode());
+		assertEquals(null, first.getSeason());
 	}
 	
 
@@ -82,8 +82,8 @@ public class AnidbClientTest {
 		
 		assertEquals("Juuni Kokuki", first.getSeriesName());
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
-		assertEquals("1", first.getEpisodeNumber());
-		assertEquals(null, first.getSeasonNumber());
+		assertEquals("1", first.getEpisode());
+		assertEquals(null, first.getSeason());
 	}
 	
 

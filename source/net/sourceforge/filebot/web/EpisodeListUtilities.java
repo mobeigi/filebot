@@ -15,7 +15,7 @@ public final class EpisodeListUtilities {
 		// filter given season from all seasons
 		for (Episode episode : episodes) {
 			try {
-				if (season == Integer.parseInt(episode.getSeasonNumber())) {
+				if (season == Integer.parseInt(episode.getSeason())) {
 					results.add(episode);
 				}
 			} catch (NumberFormatException e) {
@@ -33,7 +33,7 @@ public final class EpisodeListUtilities {
 		// filter given season from all seasons
 		for (Episode episode : episodes) {
 			try {
-				lastSeason = Math.max(lastSeason, Integer.parseInt(episode.getSeasonNumber()));
+				lastSeason = Math.max(lastSeason, Integer.parseInt(episode.getSeason()));
 			} catch (NumberFormatException e) {
 				// ignore illegal episodes
 			}

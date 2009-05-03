@@ -64,6 +64,8 @@ public class SeasonEpisodeMatcher {
 	
 	public static class SxE {
 		
+		public static final int UNDEFINED = -1;
+		
 		public final int season;
 		public final int episode;
 		
@@ -81,7 +83,11 @@ public class SeasonEpisodeMatcher {
 		
 
 		protected int parse(String number) {
-			return number == null || number.isEmpty() ? 0 : Integer.parseInt(number);
+			try {
+				return Integer.parseInt(number);
+			} catch (Exception e) {
+				return UNDEFINED;
+			}
 		}
 		
 

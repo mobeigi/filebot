@@ -15,7 +15,7 @@ public class ArgumentBeanTest {
 	
 	@Test
 	public void clear() throws Exception {
-		ArgumentBean bean = parse("-clear", "--analyze", "One Piece", "Naruto");
+		ArgumentBean bean = parse("-clear", "--sfv", "One Piece", "Naruto");
 		
 		assertTrue(bean.clear());
 		assertFalse(bean.help());

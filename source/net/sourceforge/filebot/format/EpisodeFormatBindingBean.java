@@ -57,13 +57,13 @@ public class EpisodeFormatBindingBean {
 
 	@Define("s")
 	public String getSeasonNumber() {
-		return episode.getSeasonNumber();
+		return episode.getSeason();
 	}
 	
 
 	@Define("e")
 	public String getEpisodeNumber() {
-		return episode.getEpisodeNumber();
+		return episode.getEpisode();
 	}
 	
 
@@ -123,29 +123,31 @@ public class EpisodeFormatBindingBean {
 
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
-		if (mediaFile != null) {
-			// try to get checksum from file name
-			String checksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
-			
-			if (checksum != null)
-				return checksum;
-			
-			// try to get checksum from sfv file
-			checksum = getChecksumFromSfvFile(mediaFile);
-			
-			if (checksum != null)
-				return checksum;
-			
-			// calculate checksum from file
-			return crc32(mediaFile);
-		}
+		// make sure media file is defined
+		checkMediaFile();
 		
-		return null;
+		// try to get checksum from file name
+		String checksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
+		
+		if (checksum != null)
+			return checksum;
+		
+		// try to get checksum from sfv file
+		checksum = getChecksumFromSfvFile(mediaFile);
+		
+		if (checksum != null)
+			return checksum;
+		
+		// calculate checksum from file
+		return crc32(mediaFile);
 	}
 	
 
 	@Define("ext")
 	public String getContainerExtension() {
+		// make sure media file is defined
+		checkMediaFile();
+		
 		// file extension
 		return FileUtilities.getExtension(mediaFile);
 	}
@@ -193,12 +195,21 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	private synchronized MediaInfo getMediaInfo() {
-		if (mediaFile == null) {
-			throw new NullPointerException("Media file is null");
-		}
+	private void checkMediaFile() {
+		// make sure file is not null
+		if (mediaFile == null)
+			throw new NullPointerException("Media file is not defined");
 		
+		// file may not exist at this point but if an existing file is required, 
+		// an exception will be thrown later anyway
+	}
+	
+
+	private synchronized MediaInfo getMediaInfo() {
 		if (mediaInfo == null) {
+			// make sure media file is defined
+			checkMediaFile();
+			
 			mediaInfo = new MediaInfo();
 			
 			if (!mediaInfo.open(mediaFile)) {

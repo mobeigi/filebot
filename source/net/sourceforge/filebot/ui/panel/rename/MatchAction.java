@@ -79,13 +79,8 @@ class MatchAction extends AbstractAction {
 				if (o instanceof Episode) {
 					Episode episode = (Episode) o;
 					
-					try {
-						// create SxE from episode
-						return Collections.singleton(new SxE(episode.getSeasonNumber(), episode.getEpisodeNumber()));
-					} catch (NumberFormatException e) {
-						// some kind of special episode, no SxE
-						return null;
-					}
+					// create SxE from episode
+					return Collections.singleton(new SxE(episode.getSeason(), episode.getEpisode()));
 				}
 				
 				return super.parse(o);

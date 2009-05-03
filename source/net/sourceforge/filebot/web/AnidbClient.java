@@ -113,7 +113,7 @@ public class AnidbClient implements EpisodeListProvider {
 			// if number does not match, episode is probably some kind of special (S1, S2, ...)
 			if (number.matches("\\d+")) {
 				// no seasons for anime
-				episodes.add(new Episode(searchResult.getName(), number, title));
+				episodes.add(new Episode(searchResult.getName(), null, number, title));
 			}
 		}
 		

@@ -81,12 +81,14 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				public Collection<Episode> call() throws Exception {
 					Collection<SearchResult> results = provider.search(seriesName);
 					
-					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
-						
-						if (selectedSearchResult != null) {
-							return provider.getEpisodeList(selectedSearchResult);
-						}
+					if (results.isEmpty()) {
+						throw new RuntimeException(String.format("'%s' has not been found.", seriesName));
+					}
+					
+					SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
+					
+					if (selectedSearchResult != null) {
+						return provider.getEpisodeList(selectedSearchResult);
 					}
 					
 					return Collections.emptyList();

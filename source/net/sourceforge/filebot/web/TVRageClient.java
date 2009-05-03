@@ -5,6 +5,7 @@ package net.sourceforge.filebot.web;
 import static net.sourceforge.filebot.web.EpisodeListUtilities.filterBySeason;
 import static net.sourceforge.filebot.web.EpisodeListUtilities.getLastSeason;
 import static net.sourceforge.filebot.web.WebRequest.getDocument;
+import static net.sourceforge.tuned.XPathUtilities.getAttribute;
 import static net.sourceforge.tuned.XPathUtilities.getTextContent;
 import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 import static net.sourceforge.tuned.XPathUtilities.selectString;
@@ -94,14 +95,20 @@ public class TVRageClient implements EpisodeListProvider {
 		Document dom = getDocument(episodeListUrl);
 		
 		String seriesName = selectString("Show/name", dom);
-		List<Node> nodes = selectNodes("Show/Episodelist/Season/episode", dom);
 		
-		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(25);
 		
-		for (Node node : nodes) {
+		// episodes and specials
+		for (Node node : selectNodes("//episode", dom)) {
 			String title = getTextContent("title", node);
 			String episodeNumber = getTextContent("seasonnum", node);
-			String seasonNumber = node.getParentNode().getAttributes().getNamedItem("no").getTextContent();
+			String seasonNumber = getAttribute("no", node.getParentNode());
+			
+			// check if we have season and episode number, if not it must be a special episode
+			if (episodeNumber == null || seasonNumber == null) {
+				episodeNumber = "Special";
+				seasonNumber = getTextContent("season", node);
+			}
 			
 			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title));
 		}

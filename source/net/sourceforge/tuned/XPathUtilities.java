@@ -77,7 +77,12 @@ public final class XPathUtilities {
 	
 
 	public static String getAttribute(String attribute, Node node) {
-		return node.getAttributes().getNamedItem(attribute).getNodeValue().trim();
+		Node attributeNode = node.getAttributes().getNamedItem(attribute);
+		
+		if (attributeNode != null)
+			return attributeNode.getNodeValue().trim();
+		
+		return null;
 	}
 	
 

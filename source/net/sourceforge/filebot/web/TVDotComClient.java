@@ -144,23 +144,34 @@ public class TVDotComClient implements EpisodeListProvider {
 		
 		List<Node> nodes = selectNodes("id('episode_guide_list')//*[@class='info']", dom);
 		
-		Pattern seasonEpisodePattern = Pattern.compile("Season (\\d+), Episode (\\d+)");
+		Pattern episodePattern = Pattern.compile("Season (\\d+). Episode (\\d+)");
+		Pattern specialPattern = Pattern.compile("Special. Season (\\d+)");
 		
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String meta = selectString("./*[@class='meta']", node);
+			String title = selectString("./H3/A/text()", node);
+			String meta = selectString("./*[@class='meta']", node).replaceAll("\\p{Space}+", " ");
 			
-			// normalize space and then match season and episode numbers
-			Matcher matcher = seasonEpisodePattern.matcher(meta.replaceAll("\\p{Space}+", " "));
+			String season = null;
+			String episode = null;
 			
-			if (matcher.find()) {
-				String title = selectString("./H3/A/text()", node);
-				String season = matcher.group(1);
-				String episode = matcher.group(2);
-				
-				episodes.add(new Episode(searchResult.getName(), season, episode, title));
+			Matcher matcher;
+			
+			if ((matcher = episodePattern.matcher(meta)).find()) {
+				// matches episode
+				season = matcher.group(1);
+				episode = matcher.group(2);
+			} else if ((matcher = specialPattern.matcher(meta)).find()) {
+				// matches special 
+				season = matcher.group(1);
+				episode = "Special";
+			} else {
+				// no episode match
+				continue;
 			}
+			
+			episodes.add(new Episode(searchResult.getName(), season, episode, title));
 		}
 		
 		return episodes;

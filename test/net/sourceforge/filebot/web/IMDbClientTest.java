@@ -28,6 +28,20 @@ public class IMDbClientTest {
 	
 
 	@Test
+	public void searchResultPageRedirect() throws Exception {
+		List<SearchResult> results = imdb.search("my name is earl");
+		
+		// exactly one search result
+		assertEquals(1, results.size(), 0);
+		
+		MovieDescriptor movie = (MovieDescriptor) results.get(0);
+		
+		assertEquals("My Name Is Earl", movie.getName());
+		assertEquals(460091, movie.getImdbId(), 0);
+	}
+	
+
+	@Test
 	public void getEpisodeList() throws Exception {
 		List<Episode> list = imdb.getEpisodeList(new MovieDescriptor("Buffy", 118276));
 		
@@ -37,15 +51,15 @@ public class IMDbClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("0", first.getEpisodeNumber());
-		assertEquals("1", first.getSeasonNumber());
+		assertEquals("0", first.getEpisode());
+		assertEquals("1", first.getSeason());
 		
 		Episode last = list.get(144);
 		
 		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
 		assertEquals("Chosen", last.getTitle());
-		assertEquals("22", last.getEpisodeNumber());
-		assertEquals("7", last.getSeasonNumber());
+		assertEquals("22", last.getEpisode());
+		assertEquals("7", last.getSeason());
 	}
 	
 
@@ -59,8 +73,8 @@ public class IMDbClientTest {
 		
 		assertEquals("Mushishi", first.getSeriesName());
 		assertEquals("Midori no za", first.getTitle());
-		assertEquals("1", first.getEpisodeNumber());
-		assertEquals("1", first.getSeasonNumber());
+		assertEquals("1", first.getEpisode());
+		assertEquals("1", first.getSeason());
 	}
 	
 

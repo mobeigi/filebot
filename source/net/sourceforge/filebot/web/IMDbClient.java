@@ -18,6 +18,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -68,9 +70,16 @@ public class IMDbClient implements EpisodeListProvider {
 			String href = getAttribute("href", node);
 			
 			String nameAndYear = String.format("%s %s", name, year).trim();
-			int imdbId = new Scanner(href).useDelimiter("\\D+").nextInt();
 			
-			results.add(new MovieDescriptor(nameAndYear, imdbId));
+			results.add(new MovieDescriptor(nameAndYear, getImdbId(href)));
+		}
+		
+		// we might have been redirected to the movie page
+		if (results.isEmpty()) {
+			String name = removeQuotationMarks(selectString("//H1/text()", dom));
+			String url = selectString("//LINK[@rel='canonical']/@href", dom);
+			
+			results.add(new MovieDescriptor(name, getImdbId(url)));
 		}
 		
 		return results;
@@ -126,6 +135,30 @@ public class IMDbClient implements EpisodeListProvider {
 
 	protected String removeQuotationMarks(String name) {
 		return name.replaceAll("^\"|\"$", "");
+	}
+	
+
+	protected int getImdbId(String link) {
+		try {
+			// try to extract path
+			link = new URI(link).getPath();
+		} catch (URISyntaxException e) {
+			// cannot extract path component, just move on
+		}
+		
+		Matcher matcher = Pattern.compile("tt(\\d{7})").matcher(link);
+		
+		String imdbId = null;
+		
+		// find last match
+		while (matcher.find()) {
+			imdbId = matcher.group(1);
+		}
+		
+		if (imdbId == null)
+			throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
+		
+		return Integer.parseInt(imdbId);
 	}
 	
 

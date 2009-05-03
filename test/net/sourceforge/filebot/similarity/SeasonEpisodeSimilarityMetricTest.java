@@ -20,8 +20,8 @@ public class SeasonEpisodeSimilarityMetricTest {
 		// multiple pattern matches, single episode match
 		assertEquals(1.0, metric.getSimilarity("1x02a", "101 102 103"), 0);
 		
-		// multiple pattern matches, no episode match
-		assertEquals(0.0, metric.getSimilarity("1x03b", "104 105 106"), 0);
+		// multiple pattern matches, only partial match (season)
+		assertEquals(0.5, metric.getSimilarity("1x03b", "104 105 106"), 0);
 		
 		// no pattern match, no episode match
 		assertEquals(0.0, metric.getSimilarity("abc", "xyz"), 0);

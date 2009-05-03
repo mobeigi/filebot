@@ -18,6 +18,7 @@ import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.text.FieldPosition;
 import java.text.Format;
+import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,6 +126,11 @@ public class ExpressionFormat extends Format {
 					Object value = ((CompiledScript) snipped).eval(context);
 					
 					if (value != null) {
+						if (value instanceof Double && value.equals(Math.floor((Double) value))) {
+							// value is really an integer, not a decimal (number literals -1, 0 and 1 are interpreted as decimal by rhino)
+							value = NumberFormat.getIntegerInstance().format(value);
+						}
+						
 						sb.append(value);
 					}
 				} catch (ScriptException e) {

@@ -72,8 +72,8 @@ public class TheTVDBClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("1", first.getEpisodeNumber());
-		assertEquals("0", first.getSeasonNumber());
+		assertEquals("Special", first.getEpisode());
+		assertEquals("1", first.getSeason());
 	}
 	
 
@@ -87,8 +87,8 @@ public class TheTVDBClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
 		assertEquals("Chosen", chosen.getTitle());
-		assertEquals("22", chosen.getEpisodeNumber());
-		assertEquals("7", chosen.getSeasonNumber());
+		assertEquals("22", chosen.getEpisode());
+		assertEquals("7", chosen.getSeason());
 	}
 	
 
