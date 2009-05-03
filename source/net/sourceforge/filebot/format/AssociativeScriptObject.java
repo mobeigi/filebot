@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import org.mozilla.javascript.Scriptable;
 
 
-class AssociativeScriptObject implements Scriptable {
+public class AssociativeScriptObject implements Scriptable {
 	
 	/**
 	 * Map allowing look-up of values by a fault-tolerant key as specified by the defining key.

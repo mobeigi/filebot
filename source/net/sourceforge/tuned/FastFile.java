@@ -13,6 +13,7 @@ public class FastFile extends File {
 	private Long length;
 	private Boolean isDirectory;
 	private Boolean isFile;
+	private Boolean exists;
 	
 	
 	public FastFile(String path) {
@@ -28,6 +29,12 @@ public class FastFile extends File {
 	@Override
 	public long length() {
 		return length != null ? length : (length = super.length());
+	}
+	
+
+	@Override
+	public boolean exists() {
+		return exists != null ? exists : (exists = super.exists());
 	}
 	
 

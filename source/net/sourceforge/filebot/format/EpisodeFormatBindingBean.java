@@ -125,9 +125,7 @@ public class EpisodeFormatBindingBean {
 
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
-		// make sure media file is defined
-		checkMediaFile();
-		
+		// use inferred media file (e.g. actual movie file instead of subtitle file)
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// try to get checksum from file name
@@ -201,6 +199,9 @@ public class EpisodeFormatBindingBean {
 
 	@Define("inferredFile")
 	public File getInferredMediaFile() {
+		// make sure media file is defined
+		checkMediaFile();
+		
 		if (SUBTITLE_FILES.accept(mediaFile)) {
 			// file is a subtitle
 			String name = FileUtilities.getName(mediaFile);
@@ -234,6 +235,7 @@ public class EpisodeFormatBindingBean {
 			
 			MediaInfo newMediaInfo = new MediaInfo();
 			
+			// use inferred media file (e.g. actual movie file instead of subtitle file)
 			if (!newMediaInfo.open(getInferredMediaFile())) {
 				throw new RuntimeException(String.format("Cannot open media file: %s", mediaFile));
 			}
