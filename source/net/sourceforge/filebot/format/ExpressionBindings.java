@@ -4,10 +4,10 @@ package net.sourceforge.filebot.format;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.script.Bindings;
 
@@ -18,7 +18,7 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 	
 	protected final Object bindingBean;
 	
-	protected final Map<String, Method> bindings = new HashMap<String, Method>();
+	protected final Map<String, Method> bindings = new TreeMap<String, Method>(String.CASE_INSENSITIVE_ORDER);
 	
 	
 	public ExpressionBindings(Object bindingBean) {

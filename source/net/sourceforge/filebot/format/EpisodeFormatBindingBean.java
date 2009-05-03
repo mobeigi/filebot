@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.format;
 
 
+import static net.sourceforge.filebot.FileBotUtilities.MOVIE_FILES;
 import static net.sourceforge.filebot.FileBotUtilities.SFV_FILES;
+import static net.sourceforge.filebot.FileBotUtilities.SUBTITLE_FILES;
 import static net.sourceforge.filebot.format.Define.undefined;
 
 import java.io.File;
@@ -126,25 +128,27 @@ public class EpisodeFormatBindingBean {
 		// make sure media file is defined
 		checkMediaFile();
 		
+		File inferredMediaFile = getInferredMediaFile();
+		
 		// try to get checksum from file name
-		String checksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
+		String checksum = FileBotUtilities.getEmbeddedChecksum(inferredMediaFile.getName());
 		
 		if (checksum != null)
 			return checksum;
 		
 		// try to get checksum from sfv file
-		checksum = getChecksumFromSfvFile(mediaFile);
+		checksum = getChecksumFromSfvFile(inferredMediaFile);
 		
 		if (checksum != null)
 			return checksum;
 		
 		// calculate checksum from file
-		return crc32(mediaFile);
+		return crc32(inferredMediaFile);
 	}
 	
 
 	@Define("ext")
-	public String getContainerExtension() {
+	public String getExtension() {
 		// make sure media file is defined
 		checkMediaFile();
 		
@@ -153,7 +157,7 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	@Define("general")
+	@Define("media")
 	public Object getGeneralMediaInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
 	}
@@ -195,6 +199,24 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
+	@Define("inferredFile")
+	public File getInferredMediaFile() {
+		if (SUBTITLE_FILES.accept(mediaFile)) {
+			// file is a subtitle
+			String name = FileUtilities.getName(mediaFile);
+			
+			// find corresponding movie file
+			for (File movie : mediaFile.getParentFile().listFiles(MOVIE_FILES)) {
+				if (name.startsWith(FileUtilities.getName(movie))) {
+					return movie;
+				}
+			}
+		}
+		
+		return mediaFile;
+	}
+	
+
 	private void checkMediaFile() {
 		// make sure file is not null
 		if (mediaFile == null)
@@ -210,11 +232,13 @@ public class EpisodeFormatBindingBean {
 			// make sure media file is defined
 			checkMediaFile();
 			
-			mediaInfo = new MediaInfo();
+			MediaInfo newMediaInfo = new MediaInfo();
 			
-			if (!mediaInfo.open(mediaFile)) {
-				throw new RuntimeException(String.format("Cannot open file: %s", mediaFile));
+			if (!newMediaInfo.open(getInferredMediaFile())) {
+				throw new RuntimeException(String.format("Cannot open media file: %s", mediaFile));
 			}
+			
+			mediaInfo = newMediaInfo;
 		}
 		
 		return mediaInfo;
@@ -234,8 +258,8 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	private String getChecksumFromSfvFile(File mediaFile) throws IOException {
-		File folder = mediaFile.getParentFile();
+	private String getChecksumFromSfvFile(File file) throws IOException {
+		File folder = file.getParentFile();
 		
 		for (File sfvFile : folder.listFiles(SFV_FILES)) {
 			SfvFileScanner scanner = new SfvFileScanner(sfvFile);
@@ -245,7 +269,7 @@ public class EpisodeFormatBindingBean {
 					try {
 						Entry<File, String> entry = scanner.next();
 						
-						if (mediaFile.getName().equals(entry.getKey().getPath())) {
+						if (file.getName().equals(entry.getKey().getPath())) {
 							return entry.getValue();
 						}
 					} catch (IllegalSyntaxException e) {
