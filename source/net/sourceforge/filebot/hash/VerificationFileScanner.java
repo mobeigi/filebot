@@ -88,7 +88,7 @@ public class VerificationFileScanner implements Iterator<Entry<File, String>>, C
 	 * |               Group 1                |       |   Group 2   |
 	 * </pre>
 	 */
-	private final Pattern pattern = Pattern.compile("(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*(.+)");
+	private final Pattern pattern = Pattern.compile("(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*?(.+)");
 	
 	
 	protected Entry<File, String> parseLine(String line) throws IllegalSyntaxException {

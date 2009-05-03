@@ -23,6 +23,7 @@ import java.util.prefs.Preferences;
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -75,10 +76,13 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 		
+		// restore state
+		renameModel.setPreserveExtension(Boolean.valueOf(Settings.userRoot().get("rename.preserveExtension", "true")));
+		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter());
 		
-		// custom episode formatter, if any
+		// restore custom episode formatter
 		renameModel.useFormatter(Episode.class, persistentFormatExpression.getValue());
 		
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
@@ -106,12 +110,15 @@ public class RenamePanel extends JComponent {
 		renameButton.setVerticalTextPosition(SwingConstants.BOTTOM);
 		renameButton.setHorizontalTextPosition(SwingConstants.CENTER);
 		
-		// setup fetch action popup
+		// create fetch popup
 		ActionPopup fetchPopup = createFetchPopup();
 		
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		matchButton.setComponentPopupMenu(fetchPopup);
 		matchButton.addActionListener(showPopupAction);
+		
+		// create settings popup
+		renameButton.setComponentPopupMenu(createSettingsPopup());
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		
@@ -171,6 +178,18 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
+
+	protected ActionPopup createSettingsPopup() {
+		ActionPopup actionPopup = new ActionPopup("Settings", ResourceManager.getIcon("action.rename.small"));
+		
+		actionPopup.addDescription(new JLabel("Extension:"));
+		
+		actionPopup.add(new PreserveExtensionAction(true, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
+		actionPopup.add(new PreserveExtensionAction(false, "Include", ResourceManager.getIcon("action.extension.include")));
+		
+		return actionPopup;
+	}
+	
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
 		
 		@Override
@@ -186,6 +205,31 @@ public class RenamePanel extends JComponent {
 	};
 	
 	
+	protected class PreserveExtensionAction extends AbstractAction {
+		
+		private final boolean activate;
+		
+		
+		private PreserveExtensionAction(boolean activate, String name, Icon icon) {
+			super(name, icon);
+			this.activate = activate;
+		}
+		
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			renameModel.setPreserveExtension(activate);
+			
+			// display changed state
+			filesList.repaint();
+			
+			// save state
+			Settings.userRoot().put("rename.preserveExtension", Boolean.toString(activate));
+		}
+		
+	}
+	
+
 	protected class AutoFetchEpisodeListAction extends AbstractAction {
 		
 		private final EpisodeListProvider provider;
