@@ -85,7 +85,7 @@ public class TVDotComClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
+	public List<Episode> getEpisodeList(final SearchResult searchResult) throws Exception {
 		
 		// get document for season 1
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, 1).toURL());
@@ -110,7 +110,16 @@ public class TVDotComClient implements EpisodeListProvider {
 			
 			// we already have the document for season 1, start with season 2
 			for (int i = 2; i <= seasonCount; i++) {
-				futures.add(executor.submit(new GetEpisodeList(searchResult, i)));
+				// season used in anonymous class
+				final int season = i;
+				
+				futures.add(executor.submit(new Callable<List<Episode>>() {
+					
+					@Override
+					public List<Episode> call() throws Exception {
+						return getEpisodeList(searchResult, season);
+					}
+				}));
 			}
 			
 			// shutdown after all tasks are done
@@ -133,7 +142,6 @@ public class TVDotComClient implements EpisodeListProvider {
 
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
-		
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, season).toURL());
 		
 		return getEpisodeList(searchResult, dom);
@@ -180,34 +188,19 @@ public class TVDotComClient implements EpisodeListProvider {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return getEpisodeListLink(searchResult, 0);
+		return getEpisodeListLink(searchResult, "All");
 	}
 	
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		URL episodeListingUrl = ((HyperLink) searchResult).getURL();
-		
-		return URI.create(episodeListingUrl + "?season=" + season);
+		return getEpisodeListLink(searchResult, Integer.toString(season));
 	}
 	
-	
-	private class GetEpisodeList implements Callable<List<Episode>> {
-		
-		private final SearchResult searchResult;
-		private final int season;
-		
-		
-		public GetEpisodeList(SearchResult searchResult, int season) {
-			this.searchResult = searchResult;
-			this.season = season;
-		}
-		
 
-		@Override
-		public List<Episode> call() throws Exception {
-			return getEpisodeList(searchResult, season);
-		}
+	public URI getEpisodeListLink(SearchResult searchResult, String season) {
+		URL episodeGuide = ((HyperLink) searchResult).getURL();
+		
+		return URI.create(episodeGuide + "?season=" + season);
 	}
-	
 }

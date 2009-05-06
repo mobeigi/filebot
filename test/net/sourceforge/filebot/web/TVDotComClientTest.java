@@ -100,7 +100,7 @@ public class TVDotComClientTest {
 	public void getEpisodeListEncoding() throws Exception {
 		List<Episode> list = tvdotcom.getEpisodeList(tvdotcom.search("Lost").get(0), 3);
 		
-		Episode episode = list.get(13);
+		Episode episode = list.get(16);
 		
 		assertEquals("Lost", episode.getSeriesName());
 		assertEquals("Exposé", episode.getTitle());
