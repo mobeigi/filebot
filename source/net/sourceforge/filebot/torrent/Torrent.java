@@ -178,15 +178,21 @@ public class Torrent {
 	
 	public static class Entry {
 		
+		private final String path;
+		
 		private final String name;
 		private final long length;
-		private final String path;
 		
 		
 		public Entry(String name, long length, String path) {
 			this.name = name;
 			this.length = length;
 			this.path = path;
+		}
+		
+
+		public String getPath() {
+			return path;
 		}
 		
 
@@ -197,11 +203,6 @@ public class Torrent {
 
 		public long getLength() {
 			return length;
-		}
-		
-
-		public String getPath() {
-			return path;
 		}
 		
 

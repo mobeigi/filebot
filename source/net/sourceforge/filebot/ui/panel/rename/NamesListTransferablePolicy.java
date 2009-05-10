@@ -7,7 +7,6 @@ import static net.sourceforge.filebot.FileBotUtilities.LIST_FILES;
 import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
 import static net.sourceforge.tuned.FileUtilities.FOLDERS;
 import static net.sourceforge.tuned.FileUtilities.containsOnly;
-import static net.sourceforge.tuned.FileUtilities.getNameWithoutExtension;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -140,7 +139,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 				Torrent torrent = new Torrent(file);
 				
 				for (Torrent.Entry entry : torrent.getFiles()) {
-					values.add(new AbstractFileEntry(getNameWithoutExtension(entry.getName()), entry.getLength()));
+					values.add(new AbstractFile(entry.getName(), entry.getLength()));
 				}
 			}
 		} catch (IOException e) {

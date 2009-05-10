@@ -8,11 +8,19 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.tuned.FileUtilities;
 
 
-public class FileNameFormatter implements MatchFormatter {
+class FileNameFormatter implements MatchFormatter {
 	
+	private final boolean preserveExtension;
+	
+	
+	public FileNameFormatter(boolean preserveExtension) {
+		this.preserveExtension = preserveExtension;
+	}
+	
+
 	@Override
 	public boolean canFormat(Match<?, ?> match) {
-		return match.getValue() instanceof File;
+		return match.getValue() instanceof File || match.getValue() instanceof AbstractFile;
 	}
 	
 
@@ -24,9 +32,20 @@ public class FileNameFormatter implements MatchFormatter {
 
 	@Override
 	public String format(Match<?, ?> match) {
-		File file = (File) match.getValue();
+		if (match.getValue() instanceof File) {
+			File file = (File) match.getValue();
+			
+			return preserveExtension ? FileUtilities.getName(file) : file.getName();
+		}
 		
-		return FileUtilities.getName(file);
+		if (match.getValue() instanceof AbstractFile) {
+			AbstractFile file = (AbstractFile) match.getValue();
+			
+			return preserveExtension ? FileUtilities.getNameWithoutExtension(file.getName()) : file.getName();
+		}
+		
+		// type not supported
+		throw new IllegalArgumentException("Type not supported");
 	}
 	
 }

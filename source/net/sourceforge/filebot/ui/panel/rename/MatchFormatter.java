@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import net.sourceforge.filebot.similarity.Match;
 
 
-public interface MatchFormatter {
+interface MatchFormatter {
 	
 	public boolean canFormat(Match<?, ?> match);
 	

@@ -63,8 +63,8 @@ class MatchAction extends AbstractAction {
 			
 			@Override
 			protected long getLength(Object object) {
-				if (object instanceof AbstractFileEntry) {
-					return ((AbstractFileEntry) object).getLength();
+				if (object instanceof AbstractFile) {
+					return ((AbstractFile) object).getLength();
 				}
 				
 				return super.getLength(object);

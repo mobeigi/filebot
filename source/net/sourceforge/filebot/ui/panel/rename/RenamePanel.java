@@ -80,7 +80,7 @@ public class RenamePanel extends JComponent {
 		renameModel.setPreserveExtension(Boolean.valueOf(Settings.userRoot().get("rename.preserveExtension", "true")));
 		
 		// filename formatter
-		renameModel.useFormatter(File.class, new FileNameFormatter());
+		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		
 		// restore custom episode formatter
 		renameModel.useFormatter(Episode.class, persistentFormatExpression.getValue());
@@ -219,6 +219,9 @@ public class RenamePanel extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			renameModel.setPreserveExtension(activate);
+			
+			// use different file name formatter
+			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 			
 			// display changed state
 			filesList.repaint();

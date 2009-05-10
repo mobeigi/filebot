@@ -13,7 +13,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 
 
-public class EpisodeExpressionFormatter extends ExpressionFormat implements MatchFormatter {
+class EpisodeExpressionFormatter extends ExpressionFormat implements MatchFormatter {
 	
 	public EpisodeExpressionFormatter(String expression) throws ScriptException {
 		super(expression);

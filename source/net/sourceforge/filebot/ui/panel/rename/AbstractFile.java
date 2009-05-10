@@ -2,13 +2,13 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-class AbstractFileEntry {
+class AbstractFile {
 	
 	private final String name;
 	private final long length;
 	
 	
-	public AbstractFileEntry(String name, long length) {
+	public AbstractFile(String name, long length) {
 		this.name = name;
 		this.length = length;
 	}
