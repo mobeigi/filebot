@@ -70,26 +70,24 @@ public class Torrent {
 				Map<?, ?> fileMap = (Map<?, ?>) fileMapObject;
 				List<?> pathList = (List<?>) fileMap.get("path");
 				
-				StringBuilder pathBuilder = new StringBuilder(80);
-				String entryName = null;
+				StringBuilder path = new StringBuilder(80);
 				
 				Iterator<?> iterator = pathList.iterator();
 				
 				while (iterator.hasNext()) {
-					String pathElement = decodeString(iterator.next(), charset);
+					// append path element
+					path.append(decodeString(iterator.next(), charset));
 					
+					// append separator
 					if (iterator.hasNext()) {
-						pathBuilder.append(pathElement);
-						pathBuilder.append("/");
-					} else {
-						// the last element in the path list is the filename
-						entryName = pathElement;
+						path.append("/");
 					}
+					
 				}
 				
 				Long length = decodeLong(fileMap.get("length"));
 				
-				entries.add(new Entry(entryName, length, pathBuilder.toString()));
+				entries.add(new Entry(path.toString(), length));
 			}
 			
 			files = Collections.unmodifiableList(entries);
@@ -99,7 +97,7 @@ public class Torrent {
 			
 			Long length = decodeLong(infoMap.get("length"));
 			
-			files = Collections.singletonList(new Entry(name, length, ""));
+			files = Collections.singletonList(new Entry(name, length));
 		}
 	}
 	
@@ -180,14 +178,12 @@ public class Torrent {
 		
 		private final String path;
 		
-		private final String name;
 		private final long length;
 		
 		
-		public Entry(String name, long length, String path) {
-			this.name = name;
-			this.length = length;
+		public Entry(String path, long length) {
 			this.path = path;
+			this.length = length;
 		}
 		
 
@@ -197,7 +193,9 @@ public class Torrent {
 		
 
 		public String getName() {
-			return name;
+			// the last element in the path is the filename
+			// torrents don't contain directory entries, so there is always a non-empty name
+			return path.substring(path.lastIndexOf("/") + 1);
 		}
 		
 
