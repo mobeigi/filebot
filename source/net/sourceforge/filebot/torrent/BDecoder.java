@@ -40,9 +40,7 @@ import java.util.Map;
  * 
  * @author TdC_VgA
  */
-public class BDecoder {
-	
-	private boolean recovery_mode;
+class BDecoder {
 	
 	private static final Charset BINARY_CHARSET = Charset.forName("ISO-8859-1");
 	
@@ -80,37 +78,26 @@ public class BDecoder {
 				// create a new dictionary object
 				Map<String, Object> tempMap = new HashMap<String, Object>();
 				
-				try {
-					// get the key
-					byte[] tempByteArray = null;
+				// get the key
+				byte[] tempByteArray = null;
+				
+				while ((tempByteArray = (byte[]) decodeInputStream(bais, nesting + 1)) != null) {
 					
-					while ((tempByteArray = (byte[]) decodeInputStream(bais, nesting + 1)) != null) {
-						
-						// decode some more
-						
-						Object value = decodeInputStream(bais, nesting + 1);
-						
-						// add the value to the map
-						
-						CharBuffer cb = BINARY_CHARSET.decode(ByteBuffer.wrap(tempByteArray));
-						
-						String key = new String(cb.array(), 0, cb.limit());
-						
-						tempMap.put(key, value);
-					}
+					// decode some more
 					
-					if (bais.available() < nesting)
-						throw (new IOException("BDecoder: invalid input data, 'e' missing from end of dictionary"));
-				} catch (Throwable e) {
+					Object value = decodeInputStream(bais, nesting + 1);
 					
-					if (!recovery_mode) {
-						
-						if (e instanceof IOException)
-							throw ((IOException) e);
-						
-						throw (new IOException(e));
-					}
+					// add the value to the map
+					
+					CharBuffer cb = BINARY_CHARSET.decode(ByteBuffer.wrap(tempByteArray));
+					
+					String key = new String(cb.array(), 0, cb.limit());
+					
+					tempMap.put(key, value);
 				}
+				
+				if (bais.available() < nesting)
+					throw (new IOException("BDecoder: invalid input data, 'e' missing from end of dictionary"));
 				
 				// return the map
 				return tempMap;
@@ -119,25 +106,15 @@ public class BDecoder {
 				// create the list
 				List<Object> tempList = new ArrayList<Object>();
 				
-				try {
-					// create the key
-					Object tempElement = null;
-					while ((tempElement = decodeInputStream(bais, nesting + 1)) != null)
-						// add the element
-						tempList.add(tempElement);
-					
-					if (bais.available() < nesting)
-						throw (new IOException("BDecoder: invalid input data, 'e' missing from end of list"));
-				} catch (Throwable e) {
-					
-					if (!recovery_mode) {
-						
-						if (e instanceof IOException)
-							throw ((IOException) e);
-						
-						throw (new IOException(e));
-					}
-				}
+				// create the key
+				Object tempElement = null;
+				while ((tempElement = decodeInputStream(bais, nesting + 1)) != null)
+					// add the element
+					tempList.add(tempElement);
+				
+				if (bais.available() < nesting)
+					throw (new IOException("BDecoder: invalid input data, 'e' missing from end of list"));
+				
 				// return the list
 				return tempList;
 				
@@ -246,8 +223,4 @@ public class BDecoder {
 		return tempArray;
 	}
 	
-
-	public void setRecoveryMode(boolean r) {
-		recovery_mode = r;
-	}
 }

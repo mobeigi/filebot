@@ -42,12 +42,22 @@ public final class ExceptionUtilities {
 	}
 	
 
-	public static RuntimeException asRuntimeException(Throwable t) {
-		if (t instanceof RuntimeException) {
-			return (RuntimeException) t;
+	@SuppressWarnings("unchecked")
+	public static <T extends Throwable> T wrap(Throwable t, Class<T> type) {
+		if (type.isInstance(t)) {
+			return (T) t;
 		}
 		
-		return new RuntimeException(t);
+		try {
+			return type.getConstructor(Throwable.class).newInstance(t);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+
+	public static RuntimeException asRuntimeException(Throwable t) {
+		return wrap(t, RuntimeException.class);
 	}
 	
 
