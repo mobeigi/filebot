@@ -6,8 +6,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -49,16 +49,21 @@ class RenameAction extends AbstractAction {
 			// could not rename one of the files, revert all changes
 			Logger.getLogger("ui").warning(e.getMessage());
 			
-			// revert in reverse order
-			Collections.reverse(renameLog);
-			
-			// revert rename operations
-			for (Entry<File, File> mapping : renameLog) {
-				if (!mapping.getValue().renameTo(mapping.getKey())) {
+			// revert rename operations in reverse order
+			for (ListIterator<Entry<File, File>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
+				Entry<File, File> mapping = iterator.previous();
+				
+				if (mapping.getValue().renameTo(mapping.getKey())) {
+					// remove reverted rename operation from log
+					iterator.remove();
+				} else {
+					// failed to revert rename operation
 					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue().getName()));
 				}
 			}
 		}
 		
+		// update history
+		HistorySpooler.getInstance().append(renameLog);
 	}
 }

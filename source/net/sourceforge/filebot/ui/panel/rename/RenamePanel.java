@@ -50,6 +50,7 @@ import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import ca.odell.glazedlists.ListSelection;
@@ -68,6 +69,8 @@ public class RenamePanel extends JComponent {
 	
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
+	private final PreferencesEntry<Boolean> persistentPreserveExtension = Settings.userRoot().entry("rename.extension.preserve", SimpleAdapter.forClass(Boolean.class));
+	
 	
 	public RenamePanel() {
 		namesList.setTitle("New Names");
@@ -76,8 +79,13 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 		
-		// restore state
-		renameModel.setPreserveExtension(Boolean.valueOf(Settings.userRoot().get("rename.preserveExtension", "true")));
+		try {
+			// restore state
+			renameModel.setPreserveExtension(persistentPreserveExtension.getValue());
+		} catch (Exception e) {
+			// preserve extension by default
+			renameModel.setPreserveExtension(true);
+		}
 		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
@@ -227,9 +235,8 @@ public class RenamePanel extends JComponent {
 			filesList.repaint();
 			
 			// save state
-			Settings.userRoot().put("rename.preserveExtension", Boolean.toString(activate));
+			persistentPreserveExtension.setValue(activate);
 		}
-		
 	}
 	
 
@@ -340,7 +347,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 	
-	protected final PreferencesEntry<EpisodeExpressionFormatter> persistentFormatExpression = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
+	private final PreferencesEntry<EpisodeExpressionFormatter> persistentFormatExpression = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
 		
 		@Override
 		public EpisodeExpressionFormatter get(Preferences prefs, String key) {

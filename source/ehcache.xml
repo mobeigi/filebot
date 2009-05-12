@@ -39,8 +39,8 @@
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
     -->
-    <diskStore path="java.io.tmpdir/filebot-ehcache" />
-
+    <diskStore path="java.io.tmpdir/filebot-cache" />
+    
     <!--
     Cache configuration
     ===================
@@ -114,9 +114,7 @@
             timeToIdleSeconds="120"
             timeToLiveSeconds="120"
             overflowToDisk="false"
-            maxElementsOnDisk="1000"
             diskPersistent="false"
-            diskExpiryThreadIntervalSeconds="120"
             memoryStoreEvictionPolicy="LRU"
             />
             
@@ -129,6 +127,7 @@
            eternal="false"
            timeToIdleSeconds="300"
            timeToLiveSeconds="300"           
+           overflowToDisk="false"
            diskPersistent="false"
            memoryStoreEvictionPolicy="LRU"
            />
@@ -141,7 +140,8 @@
            maxElementsInMemory="4200"
            eternal="false"
            timeToIdleSeconds="7200"
-           timeToLiveSeconds="7200"           
+           timeToLiveSeconds="7200"
+           overflowToDisk="false"           
            diskPersistent="false"
            memoryStoreEvictionPolicy="LRU"
            />

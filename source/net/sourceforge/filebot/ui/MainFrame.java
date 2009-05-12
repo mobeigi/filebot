@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
-	private final PreferencesEntry<Integer> persistentSelectedPanel = Settings.userRoot().entry("selectedPanel", SimpleAdapter.forClass(Integer.class));
+	private final PreferencesEntry<Integer> persistentSelectedPanel = Settings.userRoot().entry("panel.selected", SimpleAdapter.forClass(Integer.class));
 	
 	
 	public MainFrame() {

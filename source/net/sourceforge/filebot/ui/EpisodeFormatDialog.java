@@ -368,7 +368,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private void checkFormatInBackground() {
 		try {
 			// check syntax in foreground
-			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
+			final ExpressionFormat format = new ExpressionFormat(getExpression());
 			
 			// format in background
 			final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
@@ -430,7 +430,7 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	public String getExpression() {
-		return editor.getText();
+		return editor.getText().trim();
 	}
 	
 
@@ -473,10 +473,10 @@ public class EpisodeFormatDialog extends JDialog {
 					throw new IllegalStateException("Format has not been verified yet.");
 				
 				// check syntax
-				new ExpressionFormat(editor.getText());
+				ExpressionFormat format = new ExpressionFormat(getExpression());
 				
 				// remember format
-				Settings.userRoot().put("dialog.format", editor.getText());
+				Settings.userRoot().put("dialog.format", format.getExpression());
 				
 				finish(Option.APPROVE);
 			} catch (Exception e) {

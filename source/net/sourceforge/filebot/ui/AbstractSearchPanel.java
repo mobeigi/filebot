@@ -90,7 +90,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				getSettings().put("search", Integer.toString(searchTextField.getSelectButton().getSelectedIndex()));
+				getSettings().put("engine.selected", Integer.toString(searchTextField.getSelectButton().getSelectedIndex()));
 			}
 		});
 		

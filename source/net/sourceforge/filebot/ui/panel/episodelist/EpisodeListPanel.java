@@ -58,6 +58,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 		// add after text field
 		add(seasonSpinner, 1);
+		
 		// add after tabbed pane
 		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())));
 		
