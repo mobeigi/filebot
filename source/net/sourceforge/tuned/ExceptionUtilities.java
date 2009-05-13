@@ -13,11 +13,10 @@ public final class ExceptionUtilities {
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	public static <T extends Throwable> T findCause(Throwable t, Class<T> type) {
 		while (t != null) {
 			if (type.isInstance(t))
-				return (T) t;
+				return type.cast(t);
 			
 			t = t.getCause();
 		}
@@ -42,10 +41,9 @@ public final class ExceptionUtilities {
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	public static <T extends Throwable> T wrap(Throwable t, Class<T> type) {
 		if (type.isInstance(t)) {
-			return (T) t;
+			return type.cast(t);
 		}
 		
 		try {

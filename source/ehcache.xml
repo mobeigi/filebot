@@ -145,5 +145,19 @@
            diskPersistent="false"
            memoryStoreEvictionPolicy="LRU"
            />
+              
+              
+	<!--
+	Short-lived memory cache for resources like icons. This cache is used by ResourceManager.
+    -->
+    <cache name="resource"
+           maxElementsInMemory="100"
+           eternal="false"
+           timeToIdleSeconds="120"
+           timeToLiveSeconds="120"
+           overflowToDisk="false"
+           diskPersistent="false"
+           memoryStoreEvictionPolicy="LRU"
+           />
 
 </ehcache>

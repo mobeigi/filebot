@@ -7,32 +7,45 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 
 public final class ResourceManager {
 	
-	public static ImageIcon getIcon(String name) {
+	private static final Cache cache = CacheManager.getInstance().getCache("resource");
+	
+	
+	public static Icon getIcon(String name) {
 		return getIcon(name, null);
 	}
 	
 
-	public static ImageIcon getIcon(String name, String def) {
-		URL resource = getImageResource(name, def);
+	public static Icon getIcon(String name, String def) {
+		Icon icon = probeCache(name, Icon.class);
 		
-		if (resource != null)
-			return new ImageIcon(resource);
+		if (icon == null) {
+			URL resource = getImageResource(name, def);
+			
+			if (resource != null) {
+				icon = populateCache(name, Icon.class, new ImageIcon(resource));
+			}
+		}
 		
-		return null;
+		return icon;
 	}
 	
 
-	public static ImageIcon getFlagIcon(String languageCode) {
+	public static Icon getFlagIcon(String languageCode) {
 		return getIcon(String.format("flags/%s", languageCode), "flags/default");
 	}
 	
 
-	public static ImageIcon getArchiveIcon(String type) {
+	public static Icon getArchiveIcon(String type) {
 		return getIcon(String.format("archives/%s", type), "archives/default");
 	}
 	
@@ -65,6 +78,24 @@ public final class ResourceManager {
 			resource = getImageResource(def);
 		
 		return resource;
+	}
+	
+
+	private static <T> T probeCache(String name, Class<T> type) {
+		Element entry = cache.get(type.getName() + ":" + name);
+		
+		if (entry != null) {
+			return type.cast(entry.getObjectValue());
+		}
+		
+		return null;
+	}
+	
+
+	private static <T> T populateCache(String name, Class<? super T> type, T value) {
+		cache.put(new Element(type.getName() + ":" + name, value));
+		
+		return value;
 	}
 	
 

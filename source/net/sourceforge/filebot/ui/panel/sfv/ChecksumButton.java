@@ -22,7 +22,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.Action;
-import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
 import net.sourceforge.filebot.ResourceManager;
@@ -30,8 +30,8 @@ import net.sourceforge.filebot.ResourceManager;
 
 public class ChecksumButton extends JToggleButton {
 	
-	private static final ImageIcon contentArea = ResourceManager.getIcon("button.checksum");
-	private static final ImageIcon contentAreaSelected = ResourceManager.getIcon("button.checksum.selected");
+	private static final Icon contentArea = ResourceManager.getIcon("button.checksum");
+	private static final Icon contentAreaSelected = ResourceManager.getIcon("button.checksum.selected");
 	
 	
 	public ChecksumButton(Action action) {
@@ -66,7 +66,7 @@ public class ChecksumButton extends JToggleButton {
 		
 		g2d.setRenderingHint(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setRenderingHint(KEY_RENDERING, VALUE_RENDER_QUALITY);
-
+		
 		// paint background image in the center
 		if (isSelected()) {
 			contentAreaSelected.paintIcon(this, g2d, (int) round((getWidth() - contentAreaSelected.getIconWidth()) / (double) 2), (int) round((getHeight() - contentAreaSelected.getIconHeight()) / (double) 2));
@@ -75,7 +75,7 @@ public class ChecksumButton extends JToggleButton {
 		}
 		
 		Rectangle2D textBounds = g2d.getFontMetrics().getStringBounds(getText(), g2d);
-
+		
 		// draw text in the center
 		g2d.drawString(getText(), round((getWidth() - textBounds.getWidth()) / 2) + 1, round(getHeight() / 2 - textBounds.getY() - textBounds.getHeight() / 2));
 	}

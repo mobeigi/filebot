@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
@@ -16,7 +15,7 @@ public class SubtitlePackage {
 	
 	private final ArchiveType archiveType;
 	
-	private final ImageIcon archiveIcon;
+	private final Icon archiveIcon;
 	
 	private final Language language;
 	
