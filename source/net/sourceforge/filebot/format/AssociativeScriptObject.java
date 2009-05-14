@@ -109,9 +109,8 @@ public class AssociativeScriptObject implements Scriptable {
 	/**
 	 * Returns the string value of this object.
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object getDefaultValue(Class typeHint) {
+	public Object getDefaultValue(Class<?> typeHint) {
 		return this.toString();
 	}
 	

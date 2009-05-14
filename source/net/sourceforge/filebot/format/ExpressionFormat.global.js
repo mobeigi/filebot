@@ -1,5 +1,7 @@
 /**
- * Convenience method to pad strings or numbers with given characters ('0' by default)
+ * Pad strings or numbers with given characters ('0' by default).
+ *
+ * e.g. "1" -> "01"
  */
 String.prototype.pad = Number.prototype.pad = function(length, padding) {
 	var s = this.toString();
@@ -16,8 +18,20 @@ String.prototype.pad = Number.prototype.pad = function(length, padding) {
 
 
 /**
- * Convenience method to replace space characters with a given characters 
+ * Replace space characters with a given characters.
+ *
+ * e.g. "Doctor Who" -> "Doctor_Who"
  */
 String.prototype.space = function(replacement) {
 	return this.replace(/\s/g, replacement);
+}
+
+
+/**
+ * Remove trailing parenthesis including any leading whitespace.
+ * 
+ * e.g. "Doctor Who (2005)" -> "Doctor Who"
+ */
+String.prototype.removeTrailingBraces = function() {
+	return this.replace(/\s*\([^\)]*\)$/, "");
 }
