@@ -44,7 +44,7 @@ public class FancyTreeCellRenderer extends DefaultTreeCellRenderer {
 		super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, false);
 		
 		setIconTextGap(5);
-
+		
 		if (selected) {
 			setPaintGradient(true);
 			setGradientBeginColor(backgroundSelectionColor.brighter());

@@ -30,8 +30,8 @@ public class SimpleLabelProvider<T> implements LabelProvider<T> {
 	
 
 	/**
-	 * Create a new LabelProvider which will use the <code>getText</code>, <code>getName</code>
-	 * or <code>toString</code> method for text and the <code>getIcon</code> method for the
+	 * Create a new LabelProvider which will use the <code>getText</code>, <code>getName</code> or <code>toString</code>
+	 * method for text and the <code>getIcon</code> method for the
 	 * icon.
 	 * 
 	 * @param type a class that has one of the text methods and the icon method

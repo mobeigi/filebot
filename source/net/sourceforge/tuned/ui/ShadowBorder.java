@@ -101,7 +101,10 @@ public class ShadowBorder extends AbstractBorder {
 	
 	
 	private static enum CornerGradientStyle {
-		TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT;
+		TOP_LEFT,
+		TOP_RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM_RIGHT;
 		
 		public RadialGradientPaint getGradientPaint(RectangularShape shape, float radius, Color gradientBeginColor, Color gradientEndColor) {
 			Point2D center = null;

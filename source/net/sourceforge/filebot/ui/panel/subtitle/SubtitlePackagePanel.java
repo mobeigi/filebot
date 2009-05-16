@@ -76,8 +76,7 @@ public class SubtitlePackagePanel extends JComponent {
 	private static class SubtitlePackageConnector implements ObservableElementList.Connector<SubtitlePackage> {
 		
 		/**
-		 * The list which contains the elements being observed via this
-		 * {@link ObservableElementList.Connector}.
+		 * The list which contains the elements being observed via this {@link ObservableElementList.Connector}.
 		 */
 		private ObservableElementList<SubtitlePackage> list = null;
 		

@@ -214,7 +214,7 @@ public class RenameModel extends MatchModel<Object, File> {
 						
 						cancel(obsolete);
 						
-						// Don't update view immediately, to avoid irritating flickering, 
+						// Don't update view immediately, to avoid irritating flickering,
 						// caused by a rapid succession of change events.
 						// The worker may only need a couple of milliseconds to complete,
 						// so the view will be notified of the change soon enough.

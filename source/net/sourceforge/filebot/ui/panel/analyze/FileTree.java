@@ -9,7 +9,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -142,11 +141,6 @@ public class FileTree extends JTree {
 		
 		private class OpenAction extends AbstractAction {
 			
-			public OpenAction(String text, File... files) {
-				this(text, Arrays.asList(files));
-			}
-			
-
 			public OpenAction(String text, Collection<File> files) {
 				super(text);
 				putValue("files", files);
@@ -263,7 +257,7 @@ public class FileTree extends JTree {
 
 		@Override
 		public boolean isLeaf() {
-			// if we have no children, tell the UI we are a leaf, 
+			// if we have no children, tell the UI we are a leaf,
 			// so that it won't display any good-for-nothing expand buttons
 			return getChildCount() == 0;
 		}

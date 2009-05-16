@@ -1,6 +1,5 @@
 /*
  * Created on 16.03.2005
- *
  */
 
 package net.sourceforge.tuned.ui.notification;

@@ -64,7 +64,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	}
 	
 
-	protected SearchResult selectSearchResult(String query, Collection<SearchResult> searchResults) throws Exception {
+	protected SearchResult selectSearchResult(String query, List<SearchResult> searchResults) throws Exception {
 		// select first by default
 		return searchResults.iterator().next();
 	}
@@ -79,7 +79,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				
 				@Override
 				public Collection<Episode> call() throws Exception {
-					Collection<SearchResult> results = provider.search(seriesName);
+					List<SearchResult> results = provider.search(seriesName);
 					
 					if (results.isEmpty()) {
 						throw new RuntimeException(String.format("'%s' has not been found.", seriesName));

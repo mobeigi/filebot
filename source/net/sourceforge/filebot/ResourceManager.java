@@ -60,8 +60,8 @@ public final class ResourceManager {
 	
 
 	/**
-	 * Get the URL of an image resource in this jar. Image must be located in
-	 * <code>resources/</code> and the file type is assumed to be png.
+	 * Get the URL of an image resource in this jar. Image must be located in <code>resources/</code> and the file type
+	 * is assumed to be png.
 	 * 
 	 * @param name simple name of the resource (without extension)
 	 * @return URL of the resource or null if resource does not exist

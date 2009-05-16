@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
+import static net.sourceforge.tuned.ui.TunedUtilities.getWindow;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -10,7 +11,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -297,7 +297,7 @@ public class RenamePanel extends JComponent {
 				
 
 				@Override
-				protected SearchResult selectSearchResult(final String query, final Collection<SearchResult> searchResults) throws Exception {
+				protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults) throws Exception {
 					if (searchResults.size() == 1) {
 						return searchResults.iterator().next();
 					}
@@ -323,8 +323,11 @@ public class RenamePanel extends JComponent {
 						
 						@Override
 						public SearchResult call() throws Exception {
+							// display only probable matches if any
+							List<SearchResult> selection = probableMatches.isEmpty() ? searchResults : probableMatches;
+							
 							// multiple results have been found, user must select one
-							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(SwingUtilities.getWindowAncestor(RenamePanel.this), probableMatches.isEmpty() ? searchResults : probableMatches);
+							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(getWindow(RenamePanel.this), selection);
 							
 							selectDialog.getHeaderLabel().setText(String.format("Shows matching \"%s\":", query));
 							

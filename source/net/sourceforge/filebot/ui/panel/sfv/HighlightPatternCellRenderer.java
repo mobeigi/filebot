@@ -29,7 +29,7 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
-
+		
 		// check for error or warning
 		boolean isError = (EnumSet.of(State.ERROR, State.WARNING).contains(table.getValueAt(row, 0)));
 		
@@ -71,7 +71,7 @@ class HighlightPatternCellRenderer extends DefaultTableCellRenderer {
 		
 		if (cssFontWeight != null) {
 			replacement.append("font-weight:").append(cssFontWeight).append(';');
-		}		
+		}
 		
 		return replacement.append("'>$0</span>").toString();
 	}

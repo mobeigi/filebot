@@ -30,5 +30,5 @@ public class ColorTintImageFilter extends RGBImageFilter {
 		
 		return new Color(red, green, blue, c.getAlpha()).getRGB();
 	}
-
+	
 }
