@@ -6,7 +6,7 @@ import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Formatter;
+import java.io.StringWriter;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -17,7 +17,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 	public abstract boolean canExport();
 	
 
-	public abstract void export(Formatter out);
+	public abstract void export(PrintWriter out);
 	
 
 	public abstract String getDefaultFileName();
@@ -28,7 +28,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 		PrintWriter out = new PrintWriter(file, "UTF-8");
 		
 		try {
-			export(new Formatter(out));
+			export(out);
 		} finally {
 			out.close();
 		}
@@ -47,8 +47,8 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 	@Override
 	public Transferable createTransferable(JComponent c) {
 		// get transfer data
-		StringBuilder buffer = new StringBuilder();
-		export(new Formatter(buffer));
+		StringWriter buffer = new StringWriter();
+		export(new PrintWriter(buffer));
 		
 		return new LazyTextFileTransferable(buffer.toString(), getDefaultFileName());
 	}

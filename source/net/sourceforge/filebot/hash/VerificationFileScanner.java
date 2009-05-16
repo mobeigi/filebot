@@ -7,97 +7,86 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class VerificationFileScanner implements Iterator<Entry<File, String>>, Closeable {
 	
 	private final Scanner scanner;
 	
-	private String cache;
+	private final VerificationFormat format;
+	
+	private Entry<File, String> buffer;
 	
 	private int lineNumber = 0;
 	
 	
-	public VerificationFileScanner(File file) throws FileNotFoundException {
+	public VerificationFileScanner(File file, VerificationFormat format) throws FileNotFoundException {
 		// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-		this(new Scanner(new FileInputStream(file), "UTF-8"));
+		this(new Scanner(new FileInputStream(file), "UTF-8"), format);
 	}
 	
 
-	public VerificationFileScanner(Scanner scanner) {
+	public VerificationFileScanner(Scanner scanner, VerificationFormat format) {
 		this.scanner = scanner;
+		this.format = format;
 	}
 	
 
 	@Override
 	public boolean hasNext() {
-		if (cache == null) {
-			// cache next line
-			cache = nextLine();
+		if (buffer == null) {
+			// cache next entry
+			buffer = nextEntry();
 		}
 		
-		return cache != null;
+		return buffer != null;
 	}
 	
 
 	@Override
-	public Entry<File, String> next() throws IllegalSyntaxException {
-		// cache next line
+	public Entry<File, String> next() {
+		// cache next entry
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
 		
 		try {
-			return parseLine(cache);
+			return buffer;
 		} finally {
 			// invalidate cache
-			cache = null;
+			buffer = null;
 		}
 	}
 	
 
-	protected String nextLine() {
-		String line = null;
+	protected Entry<File, String> nextEntry() {
+		Entry<File, String> entry = null;
 		
-		// get next non-comment line
-		while (scanner.hasNext() && (line == null || isComment(line))) {
-			line = scanner.nextLine().trim();
+		// get next valid entry
+		while (entry == null && scanner.hasNextLine()) {
+			String line = scanner.nextLine().trim();
+			
+			// ignore comments
+			if (!isComment(line)) {
+				try {
+					entry = format.parseObject(line);
+				} catch (ParseException e) {
+					// log and ignore
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Illegal format on line %d: %s", lineNumber, line));
+				}
+			}
+			
 			lineNumber++;
 		}
 		
-		return line;
-	}
-	
-	/**
-	 * Pattern used to parse the lines of a md5 or sha1 file.
-	 * 
-	 * <pre>
-	 * Sample MD5:
-	 * 50e85fe18e17e3616774637a82968f4c *folder/file.txt
-	 * |           Group 1               |   Group 2   |
-	 * 
-	 * Sample SHA-1:
-	 * 1a02a7c1e9ac91346d08829d5037b240f42ded07 ?SHA1*folder/file.txt
-	 * |               Group 1                |       |   Group 2   |
-	 * </pre>
-	 */
-	private final Pattern pattern = Pattern.compile("(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*?(.+)");
-	
-	
-	protected Entry<File, String> parseLine(String line) throws IllegalSyntaxException {
-		Matcher matcher = pattern.matcher(line);
-		
-		if (!matcher.matches())
-			throw new IllegalSyntaxException(getLineNumber(), line);
-		
-		return entry(new File(matcher.group(2)), matcher.group(1));
+		return entry;
 	}
 	
 
@@ -108,11 +97,6 @@ public class VerificationFileScanner implements Iterator<Entry<File, String>>, C
 
 	protected boolean isComment(String line) {
 		return line.isEmpty() || line.startsWith(";");
-	}
-	
-
-	protected Entry<File, String> entry(File file, String hash) {
-		return new SimpleEntry<File, String>(file, hash);
 	}
 	
 

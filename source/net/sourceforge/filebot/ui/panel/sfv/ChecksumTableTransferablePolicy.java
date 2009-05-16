@@ -5,18 +5,15 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import static net.sourceforge.tuned.FileUtilities.containsOnly;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.IllegalSyntaxException;
 import net.sourceforge.filebot.hash.VerificationFileScanner;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -85,30 +82,25 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	protected void loadVerificationFile(File file, HashType type) throws IOException {
 		// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-		VerificationFileScanner scanner = type.newScanner(new Scanner(new FileInputStream(file), "UTF-8"));
+		VerificationFileScanner scanner = new VerificationFileScanner(file, type.getFormat());
 		
 		try {
 			// root for relative file paths in verification file
 			File root = file.getParentFile();
 			
 			while (scanner.hasNext()) {
-				try {
-					Entry<File, String> entry = scanner.next();
-					
-					String name = normalizeRelativePath(entry.getKey());
-					String hash = entry.getValue();
-					
-					ChecksumCell correct = new ChecksumCell(name, file, Collections.singletonMap(type, hash));
-					ChecksumCell current = createComputationCell(name, root, type);
-					
-					publish(correct, current);
-					
-					if (Thread.interrupted()) {
-						break;
-					}
-				} catch (IllegalSyntaxException e) {
-					// tell user about illegal lines in verification file
-					publish(e);
+				Entry<File, String> entry = scanner.next();
+				
+				String name = normalizeRelativePath(entry.getKey());
+				String hash = entry.getValue();
+				
+				ChecksumCell correct = new ChecksumCell(name, file, Collections.singletonMap(type, hash));
+				ChecksumCell current = createComputationCell(name, root, type);
+				
+				publish(correct, current);
+				
+				if (Thread.interrupted()) {
+					break;
 				}
 			}
 		} finally {

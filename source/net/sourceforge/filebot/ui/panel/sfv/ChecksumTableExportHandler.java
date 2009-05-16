@@ -6,11 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.Formatter;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFilePrinter;
+import net.sourceforge.filebot.hash.VerificationFormat;
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
 import net.sourceforge.tuned.FileUtilities;
 
@@ -32,7 +31,7 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 	
 
 	@Override
-	public void export(Formatter out) {
+	public void export(PrintWriter out) {
 		export(out, defaultColumn());
 	}
 	
@@ -58,14 +57,14 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 		PrintWriter out = new PrintWriter(file, "UTF-8");
 		
 		try {
-			export(new Formatter(out), column);
+			export(out, column);
 		} finally {
 			out.close();
 		}
 	}
 	
 
-	public void export(Formatter out, File column) {
+	public void export(PrintWriter out, File column) {
 		HashType hashType = model.getHashType();
 		
 		// print header
@@ -74,7 +73,7 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 		out.format(";%n");
 		
 		// print data
-		VerificationFilePrinter printer = hashType.newPrinter(out);
+		VerificationFormat format = hashType.getFormat();
 		
 		for (ChecksumRow row : model.rows()) {
 			ChecksumCell cell = row.getChecksum(column);
@@ -83,7 +82,7 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 				String hash = cell.getChecksum(hashType);
 				
 				if (hash != null) {
-					printer.println(cell.getName(), hash);
+					out.println(format.format(cell.getName(), hash));
 				}
 			}
 		}

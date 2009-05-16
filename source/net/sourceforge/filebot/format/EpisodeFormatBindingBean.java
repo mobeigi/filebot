@@ -13,16 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.FileBotUtilities;
-import net.sourceforge.filebot.hash.IllegalSyntaxException;
-import net.sourceforge.filebot.hash.SfvFileScanner;
+import net.sourceforge.filebot.hash.SfvFormat;
+import net.sourceforge.filebot.hash.VerificationFileScanner;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
@@ -261,18 +259,14 @@ public class EpisodeFormatBindingBean {
 		File folder = file.getParentFile();
 		
 		for (File sfvFile : folder.listFiles(SFV_FILES)) {
-			SfvFileScanner scanner = new SfvFileScanner(sfvFile);
+			VerificationFileScanner scanner = new VerificationFileScanner(sfvFile, new SfvFormat());
 			
 			try {
 				while (scanner.hasNext()) {
-					try {
-						Entry<File, String> entry = scanner.next();
-						
-						if (file.getName().equals(entry.getKey().getPath())) {
-							return entry.getValue();
-						}
-					} catch (IllegalSyntaxException e) {
-						Logger.getLogger("global").log(Level.WARNING, e.getMessage());
+					Entry<File, String> entry = scanner.next();
+					
+					if (file.getName().equals(entry.getKey().getPath())) {
+						return entry.getValue();
 					}
 				}
 			} finally {
