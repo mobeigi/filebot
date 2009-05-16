@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -84,7 +83,7 @@ class History {
 	
 	
 	public List<Sequence> sequences() {
-		return Collections.unmodifiableList(sequences);
+		return sequences;
 	}
 	
 

@@ -53,7 +53,7 @@ class FileTreePanel extends JComponent {
 		});
 		
 		// Shortcut DELETE
-		TunedUtilities.putActionForKeystroke(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 

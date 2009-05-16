@@ -31,7 +31,11 @@ String.prototype.space = function(replacement) {
  * Remove trailing parenthesis including any leading whitespace.
  * 
  * e.g. "Doctor Who (2005)" -> "Doctor Who"
+ *	    "Bad Wolf (1)" -> "Bad Wolf, Part 1"
  */
-String.prototype.removeTrailingBraces = function() {
-	return this.replace(/\s*\([^\)]*\)$/, "");
+String.prototype.replaceTrailingBraces = function(replacement) {
+	// use empty string as default replacement
+	var r = replacement ? replacement : "";
+	
+	return this.replace(/\s*\(([^\)]*)\)$/, r);
 }

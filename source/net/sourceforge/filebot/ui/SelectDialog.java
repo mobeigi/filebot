@@ -66,7 +66,7 @@ public class SelectDialog<T> extends JDialog {
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		// Shortcut Enter
-		TunedUtilities.putActionForKeystroke(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
+		TunedUtilities.installAction(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
 	}
 	
 

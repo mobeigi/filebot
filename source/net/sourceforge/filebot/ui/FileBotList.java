@@ -50,7 +50,7 @@ public class FileBotList<E> extends JComponent {
 		// Shortcut DELETE, disabled by default
 		removeAction.setEnabled(false);
 		
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 

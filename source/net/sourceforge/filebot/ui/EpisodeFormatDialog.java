@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -45,8 +44,8 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.undo.UndoManager;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -58,6 +57,7 @@ import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.tuned.ui.LazyDocumentListener;
 import net.sourceforge.tuned.ui.LinkButton;
 import net.sourceforge.tuned.ui.ProgressIndicator;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -136,11 +136,18 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		header.setComponentPopupMenu(createPreviewSamplePopup());
 		
+		// setup undo support
+		final UndoManager undo = new UndoManager();
+		editor.getDocument().addUndoableEditListener(undo);
+		
+		// enable undo/redo
+		TunedUtilities.installUndoSupport(editor);
+		
 		// update format on change
-		editor.getDocument().addDocumentListener(new LazyDocumentAdapter() {
+		editor.getDocument().addDocumentListener(new LazyDocumentListener() {
 			
 			@Override
-			public void update() {
+			public void update(DocumentEvent e) {
 				checkFormatInBackground();
 			}
 		});
@@ -207,7 +214,7 @@ public class EpisodeFormatDialog extends JDialog {
 					File mediaFile = fileChooser.getSelectedFile();
 					
 					try {
-						MediaInfoComponent.showMessageDialog(EpisodeFormatDialog.this, mediaFile);
+						MediaInfoPane.showMessageDialog(EpisodeFormatDialog.this, mediaFile);
 					} catch (LinkageError e) {
 						// MediaInfo native library is missing -> notify user
 						Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
@@ -488,45 +495,6 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	protected void firePreviewSampleChanged() {
 		firePropertyChange("previewSample", null, previewSample);
-	}
-	
-	
-	protected static abstract class LazyDocumentAdapter implements DocumentListener {
-		
-		private final Timer timer = new Timer(200, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				update();
-			}
-		});
-		
-		
-		public LazyDocumentAdapter() {
-			timer.setRepeats(false);
-		}
-		
-
-		@Override
-		public void changedUpdate(DocumentEvent e) {
-			timer.restart();
-		}
-		
-
-		@Override
-		public void insertUpdate(DocumentEvent e) {
-			timer.restart();
-		}
-		
-
-		@Override
-		public void removeUpdate(DocumentEvent e) {
-			timer.restart();
-		}
-		
-
-		public abstract void update();
-		
 	}
 	
 }

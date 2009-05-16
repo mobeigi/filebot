@@ -72,7 +72,7 @@ class ValidateNamesDialog extends JDialog {
 		setSize(365, 280);
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		
-		TunedUtilities.putActionForKeystroke(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		TunedUtilities.installAction(c, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 	}
 	
 

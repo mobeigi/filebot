@@ -117,7 +117,7 @@ public class ExpressionFormat extends Format {
 		ScriptContext context = new SimpleScriptContext();
 		
 		// use privileged bindings so we are not restricted by the script sandbox
-		context.setBindings(PrivilegedBindings.newProxy(bindings), ScriptContext.GLOBAL_SCOPE);
+		context.setBindings(PrivilegedBindings.newProxy(bindings, AccessController.getContext()), ScriptContext.GLOBAL_SCOPE);
 		
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
@@ -161,7 +161,7 @@ public class ExpressionFormat extends Format {
 			Object snipped = compilation[i];
 			
 			if (snipped instanceof CompiledScript) {
-				compilation[i] = new SecureCompiledScript(sandbox, (CompiledScript) snipped);
+				compilation[i] = new SecureCompiledScript((CompiledScript) snipped, sandbox);
 			}
 		}
 		
@@ -184,10 +184,12 @@ public class ExpressionFormat extends Format {
 	private static class PrivilegedBindings implements InvocationHandler {
 		
 		private final Bindings bindings;
+		private final AccessControlContext context;
 		
 		
-		private PrivilegedBindings(Bindings bindings) {
+		private PrivilegedBindings(Bindings bindings, AccessControlContext context) {
 			this.bindings = bindings;
+			this.context = context;
 		}
 		
 
@@ -200,7 +202,7 @@ public class ExpressionFormat extends Format {
 					public Object run() throws Exception {
 						return method.invoke(bindings, args);
 					}
-				});
+				}, context);
 			} catch (PrivilegedActionException e) {
 				Throwable cause = e.getException();
 				
@@ -216,8 +218,8 @@ public class ExpressionFormat extends Format {
 		}
 		
 
-		public static Bindings newProxy(Bindings bindings) {
-			PrivilegedBindings invocationHandler = new PrivilegedBindings(bindings);
+		public static Bindings newProxy(Bindings bindings, AccessControlContext context) {
+			InvocationHandler invocationHandler = new PrivilegedBindings(bindings, context);
 			
 			// create dynamic invocation proxy
 			return (Bindings) Proxy.newProxyInstance(PrivilegedBindings.class.getClassLoader(), new Class[] { Bindings.class }, invocationHandler);
@@ -227,13 +229,13 @@ public class ExpressionFormat extends Format {
 
 	private static class SecureCompiledScript extends CompiledScript {
 		
-		private final AccessControlContext sandbox;
 		private final CompiledScript compiledScript;
+		private final AccessControlContext sandbox;
 		
 		
-		private SecureCompiledScript(AccessControlContext sandbox, CompiledScript compiledScript) {
-			this.sandbox = sandbox;
+		private SecureCompiledScript(CompiledScript compiledScript, AccessControlContext sandbox) {
 			this.compiledScript = compiledScript;
+			this.sandbox = sandbox;
 		}
 		
 

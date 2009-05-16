@@ -64,8 +64,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
 	}
 	
 
@@ -122,6 +122,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	private class SpinSeasonAction extends AbstractAction {
 		
 		public SpinSeasonAction(int spin) {
+			super(String.format("Spin%+d", spin));
 			putValue("spin", spin);
 		}
 		

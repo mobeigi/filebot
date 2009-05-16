@@ -53,8 +53,8 @@ public class SelectButtonTextField<T> extends JComponent {
 		editor.setRenderer(new CompletionCellRenderer());
 		editor.setUI(new TextFieldComboBoxUI());
 		
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl UP"), new SpinClientAction(-1));
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ctrl DOWN"), new SpinClientAction(1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ctrl UP"), new SpinClientAction(-1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ctrl DOWN"), new SpinClientAction(1));
 	}
 	
 
@@ -87,6 +87,7 @@ public class SelectButtonTextField<T> extends JComponent {
 		
 		
 		public SpinClientAction(int spin) {
+			super(String.format("Spin%+d", spin));
 			this.spin = spin;
 		}
 		

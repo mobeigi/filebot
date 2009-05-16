@@ -18,6 +18,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Method;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -29,6 +30,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
+import javax.swing.text.JTextComponent;
+import javax.swing.undo.UndoManager;
 
 import net.sourceforge.tuned.ExceptionUtilities;
 
@@ -50,10 +53,44 @@ public final class TunedUtilities {
 	}
 	
 
-	public static void putActionForKeystroke(JComponent component, KeyStroke keystroke, Action action) {
-		Integer key = action.hashCode();
+	public static void installAction(JComponent component, KeyStroke keystroke, Action action) {
+		Object key = action.getValue(Action.NAME);
+		
+		if (key == null)
+			throw new IllegalArgumentException("Action must have a name");
+		
 		component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keystroke, key);
 		component.getActionMap().put(key, action);
+	}
+	
+
+	public static UndoManager installUndoSupport(JTextComponent component) {
+		final UndoManager undoSupport = new UndoManager();
+		
+		// install undo listener
+		component.getDocument().addUndoableEditListener(undoSupport);
+		
+		// install undo action
+		installAction(component, KeyStroke.getKeyStroke("control Z"), new AbstractAction("Undo") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (undoSupport.canUndo())
+					undoSupport.undo();
+			}
+		});
+		
+		// install redo action
+		installAction(component, KeyStroke.getKeyStroke("control Y"), new AbstractAction("Redo") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (undoSupport.canRedo())
+					undoSupport.redo();
+			}
+		});
+		
+		return undoSupport;
 	}
 	
 

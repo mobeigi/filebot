@@ -96,7 +96,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
 		
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
 	
 

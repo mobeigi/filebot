@@ -88,7 +88,7 @@ public class ListPanel extends JComponent {
 		
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 	}
 	
 	private AbstractAction createAction = new AbstractAction("Create") {

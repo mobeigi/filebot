@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -26,61 +27,62 @@ import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class MediaInfoComponent extends JTabbedPane {
+public class MediaInfoPane extends JTabbedPane {
 	
-	public MediaInfoComponent(Map<StreamKind, List<Map<String, String>>> mediaInfo) {
-		insert(mediaInfo);
+	public MediaInfoPane(File file) {
+		// get media info
+		MediaInfo mediaInfo = new MediaInfo();
+		
+		if (!mediaInfo.open(file))
+			throw new IllegalArgumentException("Cannot open file: " + file);
+		
+		// create tab for each stream
+		for (Entry<StreamKind, List<Map<String, String>>> entry : mediaInfo.snapshot().entrySet()) {
+			for (Map<String, String> parameters : entry.getValue()) {
+				addTableTab(entry.getKey().toString(), parameters);
+			}
+		}
+		
+		mediaInfo.close();
 	}
 	
 
-	public void insert(Map<StreamKind, List<Map<String, String>>> mediaInfo) {
-		// create tabs for all streams
-		for (Entry<StreamKind, List<Map<String, String>>> entry : mediaInfo.entrySet()) {
-			for (Map<String, String> parameters : entry.getValue()) {
-				JTable table = new JTable(new ParameterTableModel(parameters));
-				
-				// allow sorting
-				table.setAutoCreateRowSorter(true);
-				
-				// sort by parameter name
-				table.getRowSorter().toggleSortOrder(0);
-				
-				addTab(entry.getKey().toString(), new JScrollPane(table));
-			}
-		}
+	public void addTableTab(String title, Map<String, String> data) {
+		JTable table = new JTable(new ParameterTableModel(data));
+		
+		// allow sorting
+		table.setAutoCreateRowSorter(true);
+		
+		// sort by parameter name
+		table.getRowSorter().toggleSortOrder(0);
+		
+		addTab(title, new JScrollPane(table));
 	}
 	
 
 	public static void showMessageDialog(Component parent, File file) {
 		final JDialog dialog = new JDialog(TunedUtilities.getWindow(parent), "MediaInfo", ModalityType.DOCUMENT_MODAL);
-		dialog.setLocation(TunedUtilities.getPreferredLocation(dialog));
+		dialog.setLocationByPlatform(true);
 		
-		JComponent c = (JComponent) dialog.getContentPane();
-		c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));
-		
-		MediaInfo mediaInfo = new MediaInfo();
-		mediaInfo.open(file);
-		
-		MediaInfoComponent mediaInfoComponent = new MediaInfoComponent(mediaInfo.snapshot());
-		
-		mediaInfo.close();
-		
-		c.add(mediaInfoComponent, "grow, wrap");
-		
-		c.add(new JButton(new AbstractAction("OK") {
+		Action closeAction = new AbstractAction("OK") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.setVisible(false);
 			}
-		}), "wmin 80px, hmin 25px");
+		};
+		
+		JComponent c = (JComponent) dialog.getContentPane();
+		c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));
+		c.add(new MediaInfoPane(file), "grow, wrap");
+		c.add(new JButton(closeAction), "wmin 80px, hmin 25px");
 		
 		dialog.pack();
 		dialog.setVisible(true);
 	}
 	
 	
-	protected static class ParameterTableModel extends AbstractTableModel {
+	private static class ParameterTableModel extends AbstractTableModel {
 		
 		private final List<Entry<String, String>> data;
 		

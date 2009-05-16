@@ -91,7 +91,7 @@ public class SfvPanel extends JComponent {
 		putClientProperty("transferablePolicy", transferablePolicy);
 		
 		// Shortcut DELETE
-		TunedUtilities.putActionForKeystroke(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
 	}
 	
 
