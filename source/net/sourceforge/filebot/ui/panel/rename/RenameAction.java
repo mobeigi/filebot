@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,8 +35,9 @@ class RenameAction extends AbstractAction {
 		try {
 			for (Entry<File, File> mapping : model.getRenameMap().entrySet()) {
 				// rename file
-				if (!mapping.getKey().renameTo(mapping.getValue()))
-					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
+				//DISABLE RENAME
+				//				if (!mapping.getKey().renameTo(mapping.getValue()))
+				//					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
 				
 				// remember successfully renamed matches for possible revert
 				renameLog.add(mapping);

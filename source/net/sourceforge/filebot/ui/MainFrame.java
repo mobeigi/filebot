@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER;
+import static javax.swing.ScrollPaneConstants.*;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -12,9 +11,7 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -47,7 +44,7 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 public class MainFrame extends JFrame {
 	
-	private JList selectionList = new PanelSelectionList();
+	private JList selectionList = new PanelSelectionList(createPanelBuilders());
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
@@ -99,21 +96,19 @@ public class MainFrame extends JFrame {
 	}
 	
 
-	protected List<PanelBuilder> createPanelBuilders() {
-		List<PanelBuilder> builders = new ArrayList<PanelBuilder>();
-		
-		builders.add(new ListPanelBuilder());
-		builders.add(new RenamePanelBuilder());
-		builders.add(new AnalyzePanelBuilder());
-		builders.add(new EpisodeListPanelBuilder());
-		builders.add(new SubtitlePanelBuilder());
-		builders.add(new SfvPanelBuilder());
-		
-		return builders;
+	protected PanelBuilder[] createPanelBuilders() {
+		return new PanelBuilder[] {
+				new ListPanelBuilder(),
+				new RenamePanelBuilder(),
+				new AnalyzePanelBuilder(),
+				new EpisodeListPanelBuilder(),
+				new SubtitlePanelBuilder(),
+				new SfvPanelBuilder()
+		};
 	}
 	
 
-	protected void showPanel(final PanelBuilder selectedBuilder) {
+	protected void showPanel(PanelBuilder selectedBuilder) {
 		final JComponent contentPane = (JComponent) getContentPane();
 		
 		JComponent panel = null;
@@ -148,7 +143,7 @@ public class MainFrame extends JFrame {
 		private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 		
 		
-		public PanelSelectionList(PanelBuilder... builders) {
+		public PanelSelectionList(PanelBuilder[] builders) {
 			super(builders);
 			
 			setCellRenderer(new PanelCellRenderer());

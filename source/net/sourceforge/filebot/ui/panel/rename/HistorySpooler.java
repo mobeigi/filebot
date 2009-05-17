@@ -2,8 +2,10 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.ui.panel.rename.History.*;
+
 import java.io.File;
-import java.util.Collection;
+import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,49 +20,52 @@ final class HistorySpooler {
 		return instance;
 	}
 	
-	private final History sessionHistory = new History();
-	
 	private final File file = new File("history.xml");
 	
+	private final History sessionHistory = new History();
 	
-	public synchronized History getHistory() {
+	
+	public synchronized History getCompleteHistory() {
 		History history = new History();
 		
 		// add persistent history
 		if (file.exists()) {
 			try {
-				history.load(file);
-			} catch (Exception e) {
+				history.addAll(importHistory(file).sequences());
+			} catch (IOException e) {
 				Logger.getLogger("global").log(Level.SEVERE, "Failed to load history", e);
 			}
 		}
 		
 		// add session history
-		history.add(sessionHistory);
+		history.addAll(sessionHistory.sequences());
 		
 		return history;
 	}
 	
 
-	public synchronized void append(Collection<Entry<File, File>> elements) {
-		if (elements.isEmpty())
-			return;
-		
+	public synchronized void append(Iterable<Entry<File, File>> elements) {
 		// append to session history
 		sessionHistory.add(elements);
 	}
 	
 
+	public synchronized void commit(History history) {
+		try {
+			exportHistory(history, file);
+			
+			// clear session history
+			sessionHistory.clear();
+		} catch (IOException e) {
+			Logger.getLogger("global").log(Level.SEVERE, "Failed to store history", e);
+		}
+	}
+	
+
 	public synchronized void commit() {
-		if (sessionHistory.size() > 0) {
-			try {
-				getHistory().store(file);
-				
-				// clear session history
-				sessionHistory.clear();
-			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.SEVERE, "Failed to store history", e);
-			}
+		// check if session history is not empty
+		if (sessionHistory.sequences().size() > 0) {
+			commit(getCompleteHistory());
 		}
 	}
 	

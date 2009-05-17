@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.tuned.ui.LoadingOverlayPane.LOADING_PROPERTY;
-import static net.sourceforge.tuned.ui.TunedUtilities.getWindow;
+import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -188,12 +188,34 @@ public class RenamePanel extends JComponent {
 	
 
 	protected ActionPopup createSettingsPopup() {
-		ActionPopup actionPopup = new ActionPopup("Rename Settings", ResourceManager.getIcon("action.rename.small"));
+		ActionPopup actionPopup = new ActionPopup("Rename Options", ResourceManager.getIcon("action.rename.small"));
 		
 		actionPopup.addDescription(new JLabel("Extension:"));
 		
 		actionPopup.add(new PreserveExtensionAction(true, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
 		actionPopup.add(new PreserveExtensionAction(false, "Override", ResourceManager.getIcon("action.extension.override")));
+		
+		actionPopup.addSeparator();
+		actionPopup.addDescription(new JLabel("History:"));
+		
+		actionPopup.add(new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				History model = HistorySpooler.getInstance().getCompleteHistory();
+				
+				HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
+				dialog.setModel(model);
+				
+				// show and block
+				dialog.setVisible(true);
+				
+				if (!model.equals(dialog.getModel())) {
+					// model was changed, switch to the new model
+					HistorySpooler.getInstance().commit(dialog.getModel());
+				}
+			}
+		});
 		
 		return actionPopup;
 	}

@@ -2,8 +2,12 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static java.util.Collections.*;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,7 +25,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 class History {
 	
 	@XmlElement(name = "sequence")
-	private List<Sequence> sequences = new ArrayList<Sequence>();
+	private List<Sequence> sequences;
+	
+	
+	public History() {
+		this.sequences = new ArrayList<Sequence>();
+	}
+	
+
+	public History(Collection<Sequence> sequences) {
+		this.sequences = new ArrayList<Sequence>(sequences);
+	}
 	
 	
 	public static class Sequence {
@@ -44,7 +58,18 @@ class History {
 		
 
 		public List<Element> elements() {
-			return elements;
+			return unmodifiableList(elements);
+		}
+		
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Sequence) {
+				Sequence other = (Sequence) obj;
+				return date.equals(other.date) && elements.equals(other.elements);
+			}
+			
+			return false;
 		}
 	}
 	
@@ -71,19 +96,30 @@ class History {
 		}
 		
 
-		public File from() {
-			return new File(dir, from);
+		public String from() {
+			return from;
 		}
 		
 
-		public File to() {
-			return new File(dir, to);
+		public String to() {
+			return to;
+		}
+		
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Element) {
+				Element element = (Element) obj;
+				return to.equals(element.to) && from.equals(element.from) && dir.getPath().equals(element.dir.getPath());
+			}
+			
+			return false;
 		}
 	}
 	
 	
 	public List<Sequence> sequences() {
-		return sequences;
+		return unmodifiableList(sequences);
 	}
 	
 
@@ -111,17 +147,26 @@ class History {
 			sequence.elements.add(element);
 		}
 		
-		sequences.add(sequence);
+		add(sequence);
 	}
 	
 
-	public void add(History other) {
-		this.sequences.addAll(other.sequences);
+	public void add(Sequence sequence) {
+		this.sequences.add(sequence);
 	}
 	
 
-	public int size() {
-		return sequences.size();
+	public void addAll(Collection<Sequence> sequences) {
+		this.sequences.addAll(sequences);
+	}
+	
+
+	public void merge(History history) {
+		for (Sequence sequence : history.sequences()) {
+			if (!sequences.contains(sequence)) {
+				add(sequence);
+			}
+		}
 	}
 	
 
@@ -130,20 +175,36 @@ class History {
 	}
 	
 
-	public void store(File file) throws JAXBException {
-		Marshaller marshaller = JAXBContext.newInstance(History.class).createMarshaller();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof History) {
+			History other = (History) obj;
+			return sequences.equals(other.sequences);
+		}
 		
-		marshaller.marshal(this, file);
+		return false;
 	}
 	
 
-	public void load(File file) throws JAXBException {
-		Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
-		
-		History history = ((History) unmarshaller.unmarshal(file));
-		
-		clear();
-		add(history);
+	public static void exportHistory(History history, File file) throws IOException {
+		try {
+			Marshaller marshaller = JAXBContext.newInstance(History.class).createMarshaller();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			
+			marshaller.marshal(history, file);
+		} catch (JAXBException e) {
+			throw new IOException(e);
+		}
+	}
+	
+
+	public static History importHistory(File file) throws IOException {
+		try {
+			Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
+			
+			return ((History) unmarshaller.unmarshal(file));
+		} catch (JAXBException e) {
+			throw new IOException(e);
+		}
 	}
 }
