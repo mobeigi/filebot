@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static java.util.Collections.swap;
+import static java.util.Collections.*;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

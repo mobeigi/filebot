@@ -2,12 +2,9 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.EpisodeListUtilities.filterBySeason;
-import static net.sourceforge.filebot.web.EpisodeListUtilities.getLastSeason;
-import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
-import static net.sourceforge.tuned.XPathUtilities.getAttribute;
-import static net.sourceforge.tuned.XPathUtilities.selectNodes;
-import static net.sourceforge.tuned.XPathUtilities.selectString;
+import static net.sourceforge.filebot.web.EpisodeListUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.IOException;
 import java.net.URI;

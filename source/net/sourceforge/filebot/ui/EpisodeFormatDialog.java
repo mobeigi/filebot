@@ -2,9 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
-import static java.awt.Font.BOLD;
-import static java.awt.Font.MONOSPACED;
-import static java.awt.Font.PLAIN;
+import static java.awt.Font.*;
 
 import java.awt.Color;
 import java.awt.Font;

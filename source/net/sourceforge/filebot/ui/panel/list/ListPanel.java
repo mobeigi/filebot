@@ -2,11 +2,8 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
-import static java.awt.Font.MONOSPACED;
-import static java.awt.Font.PLAIN;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.lang.Math.signum;
+import static java.awt.Font.*;
+import static java.lang.Math.*;
 
 import java.awt.BorderLayout;
 import java.awt.Font;

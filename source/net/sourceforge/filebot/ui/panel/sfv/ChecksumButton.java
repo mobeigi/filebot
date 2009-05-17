@@ -2,18 +2,11 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static java.awt.Color.WHITE;
-import static java.awt.Cursor.DEFAULT_CURSOR;
-import static java.awt.Cursor.HAND_CURSOR;
-import static java.awt.Cursor.getPredefinedCursor;
-import static java.awt.Font.DIALOG;
-import static java.awt.Font.PLAIN;
-import static java.awt.RenderingHints.KEY_RENDERING;
-import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
-import static java.awt.RenderingHints.VALUE_RENDER_QUALITY;
-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-import static java.lang.Math.max;
-import static java.lang.Math.round;
+import static java.awt.Color.*;
+import static java.awt.Cursor.*;
+import static java.awt.Font.*;
+import static java.awt.RenderingHints.*;
+import static java.lang.Math.*;
 
 import java.awt.Dimension;
 import java.awt.Font;

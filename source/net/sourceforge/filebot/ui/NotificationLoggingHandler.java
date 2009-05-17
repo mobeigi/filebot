@@ -2,9 +2,8 @@
 package net.sourceforge.filebot.ui;
 
 
-import static net.sourceforge.filebot.Settings.getApplicationName;
-import static net.sourceforge.tuned.ui.notification.Direction.NORTH;
-import static net.sourceforge.tuned.ui.notification.Direction.SOUTH;
+import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.tuned.ui.notification.Direction.*;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;

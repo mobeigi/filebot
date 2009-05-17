@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.Settings.getApplicationName;
-import static net.sourceforge.filebot.Settings.getApplicationVersion;
+import static net.sourceforge.filebot.Settings.*;
 
 import java.net.URI;
 import java.util.ArrayList;

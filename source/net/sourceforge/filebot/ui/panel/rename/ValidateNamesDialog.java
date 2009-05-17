@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.INVALID_CHARACTERS_PATTERN;
-import static net.sourceforge.filebot.FileBotUtilities.validateFileName;
+import static net.sourceforge.filebot.FileBotUtilities.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

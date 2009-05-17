@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.UNDEFINED;
-import static org.junit.Assert.assertEquals;
+import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
+import static org.junit.Assert.*;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;

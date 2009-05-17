@@ -2,7 +2,8 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.removeEmbeddedChecksum;
+import static net.sourceforge.filebot.FileBotUtilities.*;
+
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3Extended;

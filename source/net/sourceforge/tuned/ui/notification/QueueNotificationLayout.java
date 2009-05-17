@@ -5,8 +5,7 @@
 package net.sourceforge.tuned.ui.notification;
 
 
-import static net.sourceforge.tuned.ui.notification.Direction.SOUTH_EAST;
-import static net.sourceforge.tuned.ui.notification.Direction.WEST;
+import static net.sourceforge.tuned.ui.notification.Direction.*;
 
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;

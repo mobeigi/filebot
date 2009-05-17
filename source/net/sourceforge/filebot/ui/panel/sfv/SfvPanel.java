@@ -2,9 +2,9 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static java.lang.Math.min;
-import static net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.HASH_TYPE_PROPERTY;
-import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.LOADING_PROPERTY;
+import static java.lang.Math.*;
+import static net.sourceforge.filebot.ui.panel.sfv.ChecksumTableModel.*;
+import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;

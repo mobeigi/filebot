@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.mediainfo;
 
 
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.*;
 
 import java.lang.reflect.Method;
 

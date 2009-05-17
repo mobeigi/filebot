@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static java.lang.Math.log10;
-import static java.lang.Math.max;
+import static java.lang.Math.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.validateFileName;
-import static net.sourceforge.filebot.Settings.getApplicationName;
+import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.Settings.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

@@ -2,10 +2,8 @@
 package net.sourceforge.filebot.format;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.MOVIE_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.SFV_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.SUBTITLE_FILES;
-import static net.sourceforge.filebot.format.Define.undefined;
+import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.format.Define.*;
 
 import java.io.File;
 import java.io.FileInputStream;

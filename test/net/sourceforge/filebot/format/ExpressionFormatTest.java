@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.format;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import javax.script.Bindings;
 import javax.script.Compilable;

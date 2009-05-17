@@ -2,7 +2,7 @@
 package net.sourceforge.filebot;
 
 
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import static javax.swing.JFrame.*;
 
 import java.security.CodeSource;
 import java.security.Permission;

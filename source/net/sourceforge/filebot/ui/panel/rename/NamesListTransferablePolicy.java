@@ -2,11 +2,9 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static java.awt.datatransfer.DataFlavor.stringFlavor;
-import static net.sourceforge.filebot.FileBotUtilities.LIST_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
-import static net.sourceforge.tuned.FileUtilities.FOLDERS;
-import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static java.awt.datatransfer.DataFlavor.*;
+import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

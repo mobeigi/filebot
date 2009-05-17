@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.EMBEDDED_CHECKSUM_PATTERN;
+import static net.sourceforge.filebot.FileBotUtilities.*;
 
 import java.awt.Color;
 

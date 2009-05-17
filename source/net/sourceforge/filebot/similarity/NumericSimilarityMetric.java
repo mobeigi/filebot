@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.removeEmbeddedChecksum;
+import static net.sourceforge.filebot.FileBotUtilities.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -2,9 +2,8 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.TORRENT_FILES;
-import static net.sourceforge.tuned.FileUtilities.FOLDERS;
-import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;

@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;

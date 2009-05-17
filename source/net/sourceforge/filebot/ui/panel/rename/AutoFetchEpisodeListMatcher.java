@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.MOVIE_FILES;
-import static net.sourceforge.filebot.FileBotUtilities.SUBTITLE_FILES;
+import static net.sourceforge.filebot.FileBotUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;

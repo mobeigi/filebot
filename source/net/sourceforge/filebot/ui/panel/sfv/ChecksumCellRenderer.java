@@ -2,9 +2,8 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static java.awt.Font.BOLD;
-import static java.awt.Font.PLAIN;
-import static net.sourceforge.tuned.ui.TunedUtilities.derive;
+import static java.awt.Font.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;

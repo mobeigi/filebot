@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.SubtitleSourceClient.HOST;
+import static net.sourceforge.filebot.web.SubtitleSourceClient.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;

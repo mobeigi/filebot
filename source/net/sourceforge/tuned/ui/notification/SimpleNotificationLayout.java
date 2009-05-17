@@ -5,7 +5,7 @@
 package net.sourceforge.tuned.ui.notification;
 
 
-import static net.sourceforge.tuned.ui.notification.Direction.NORTH;
+import static net.sourceforge.tuned.ui.notification.Direction.*;
 
 import java.awt.Dimension;
 import java.awt.Insets;

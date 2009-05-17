@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
-import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.LOADING_PROPERTY;
+import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;

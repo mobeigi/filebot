@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.*;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;

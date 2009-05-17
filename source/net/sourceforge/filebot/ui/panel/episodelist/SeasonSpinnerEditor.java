@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.episodelist;
 
 
-import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.ALL_SEASONS;
+import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.*;
 
 import java.awt.Color;
 import java.text.ParseException;

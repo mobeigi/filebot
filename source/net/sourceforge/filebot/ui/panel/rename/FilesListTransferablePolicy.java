@@ -2,8 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.tuned.FileUtilities.FOLDERS;
-import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.util.List;
