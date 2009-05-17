@@ -83,7 +83,11 @@ public class MatchModel<Value, Candidate> {
 	
 
 	public boolean hasComplement(int index) {
-		return source.get(index).getValue() != null && source.get(index).getCandidate() != null;
+		if (index >= 0 && index < size()) {
+			return source.get(index).getValue() != null && source.get(index).getCandidate() != null;
+		}
+		
+		return false;
 	}
 	
 
