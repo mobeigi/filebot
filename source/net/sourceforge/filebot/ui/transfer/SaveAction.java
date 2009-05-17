@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
@@ -18,17 +19,23 @@ import net.sourceforge.filebot.ResourceManager;
 
 public class SaveAction extends AbstractAction {
 	
-	private final FileExportHandler exportHandler;
+	public static final String EXPORT_HANDLER = "exportHandler";
 	
 	
 	public SaveAction(FileExportHandler exportHandler) {
-		super("Save as ...", ResourceManager.getIcon("action.save"));
-		this.exportHandler = exportHandler;
+		this("Save as ...", ResourceManager.getIcon("action.save"), exportHandler);
+	}
+	
+
+	public SaveAction(String name, Icon icon, FileExportHandler exportHandler) {
+		putValue(NAME, name);
+		putValue(SMALL_ICON, icon);
+		putValue(EXPORT_HANDLER, exportHandler);
 	}
 	
 
 	public FileExportHandler getExportHandler() {
-		return exportHandler;
+		return (FileExportHandler) getValue(EXPORT_HANDLER);
 	}
 	
 

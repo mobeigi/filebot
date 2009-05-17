@@ -94,14 +94,14 @@ public final class TunedUtilities {
 	}
 	
 
-	public static Window getWindow(Component component) {
-		if (component == null)
-			return null;
-		
+	public static Window getWindow(Object component) {
 		if (component instanceof Window)
 			return (Window) component;
 		
-		return SwingUtilities.getWindowAncestor(component);
+		if (component instanceof Component)
+			return SwingUtilities.getWindowAncestor((Component) component);
+		
+		return null;
 	}
 	
 

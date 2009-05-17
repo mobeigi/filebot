@@ -22,7 +22,6 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
@@ -42,7 +41,7 @@ public class SelectDialog<T> extends JDialog {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		// initialize list
-		list = new JList(new ArrayListModel(options));
+		list = new JList(options.toArray());
 		
 		// select first element
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

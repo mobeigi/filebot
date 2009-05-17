@@ -95,8 +95,6 @@ public class EpisodeFormatDialog extends JDialog {
 	public EpisodeFormatDialog(Window owner) {
 		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
 		
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		
 		editor.setText(Settings.userRoot().get("dialog.format"));
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 		
@@ -173,6 +171,7 @@ public class EpisodeFormatDialog extends JDialog {
 		firePreviewSampleChanged();
 		
 		// initialize window properties
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		pack();
 	}

@@ -62,7 +62,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		JScrollPane historyScrollPane = new JScrollPane(historyPanel, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
 		historyScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
-		tabbedPane.addTab("History", ResourceManager.getIcon("tab.history"), historyScrollPane);
+		tabbedPane.addTab("History", ResourceManager.getIcon("action.find"), historyScrollPane);
 		
 		tabbedPaneGroup.setBorder(BorderFactory.createTitledBorder("Search Results"));
 		tabbedPaneGroup.add(tabbedPane, "grow, wrap");

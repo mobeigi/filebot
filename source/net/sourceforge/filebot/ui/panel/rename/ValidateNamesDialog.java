@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -26,7 +27,6 @@ import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
@@ -51,7 +51,7 @@ class ValidateNamesDialog extends JDialog {
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
-		list = new JList(new ArrayListModel(source));
+		list = new JList(source.toArray());
 		list.setEnabled(false);
 		
 		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
@@ -118,7 +118,19 @@ class ValidateNamesDialog extends JDialog {
 			continueAction.putValue(ContinueAction.ALPHA, 1.0f);
 			
 			// update displayed values
-			list.setModel(new ArrayListModel(validatedValues));
+			list.setModel(new AbstractListModel() {
+				
+				@Override
+				public Object getElementAt(int i) {
+					return validatedValues[i];
+				}
+				
+
+				@Override
+				public int getSize() {
+					return validatedValues.length;
+				}
+			});
 		}
 	};
 	

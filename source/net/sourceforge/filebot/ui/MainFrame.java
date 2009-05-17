@@ -40,7 +40,6 @@ import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanelBuilder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
-import net.sourceforge.tuned.ui.ArrayListModel;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.ShadowBorder;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -60,8 +59,6 @@ public class MainFrame extends JFrame {
 		
 		// set taskbar / taskswitch icons
 		setIconImages(Arrays.asList(ResourceManager.getImage("window.icon.small"), ResourceManager.getImage("window.icon.big")));
-		
-		selectionList.setModel(new ArrayListModel(createPanelBuilders()));
 		
 		try {
 			// restore selected panel
@@ -151,7 +148,9 @@ public class MainFrame extends JFrame {
 		private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 		
 		
-		public PanelSelectionList() {
+		public PanelSelectionList(PanelBuilder... builders) {
+			super(builders);
+			
 			setCellRenderer(new PanelCellRenderer());
 			setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			

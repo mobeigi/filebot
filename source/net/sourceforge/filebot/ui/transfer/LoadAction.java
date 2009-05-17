@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.ResourceManager;
@@ -15,13 +16,24 @@ import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
 
 public class LoadAction extends AbstractAction {
 	
-	public static final String TRANSFERABLE_POLICY = "transferable policy";
+	public static final String TRANSFERABLE_POLICY = "transferablePolicy";
 	
 	
 	public LoadAction(TransferablePolicy transferablePolicy) {
-		super("Load", ResourceManager.getIcon("action.load"));
-		
+		this("Load", ResourceManager.getIcon("action.load"), transferablePolicy);
+	}
+	
+
+	public LoadAction(String name, Icon icon, TransferablePolicy transferablePolicy) {
+		putValue(NAME, name);
+		putValue(SMALL_ICON, icon);
 		putValue(TRANSFERABLE_POLICY, transferablePolicy);
+	}
+	
+
+	public TransferAction getTransferAction(ActionEvent evt) {
+		// if CTRL was pressed when the button was clicked, assume ADD action (same as with dnd)
+		return ((evt.getModifiers() & ActionEvent.CTRL_MASK) != 0) ? TransferAction.ADD : TransferAction.PUT;
 	}
 	
 
@@ -44,16 +56,9 @@ public class LoadAction extends AbstractAction {
 		
 		FileTransferable transferable = new FileTransferable(chooser.getSelectedFiles());
 		
-		TransferAction action = TransferAction.PUT;
-		
-		// if CTRL was pressed when the button was clicked, assume ADD action (same as with dnd)
-		if ((evt.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
-			action = TransferAction.ADD;
-		}
-		
 		try {
 			if (transferablePolicy.accept(transferable)) {
-				transferablePolicy.handleTransferable(transferable, action);
+				transferablePolicy.handleTransferable(transferable, getTransferAction(evt));
 			}
 		} catch (Exception e) {
 			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
