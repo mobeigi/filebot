@@ -8,6 +8,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +42,10 @@ class RenameAction extends AbstractAction {
 		try {
 			for (Entry<File, File> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
 				// rename file
-				//DISABLE RENAME
-				//				if (!mapping.getKey().renameTo(mapping.getValue()))
-				//					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
+				if (!mapping.getKey().renameTo(mapping.getValue()))
+					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
 				
-				// remember successfully renamed matches for possible revert
+				// remember successfully renamed matches for history entry and possible revert 
 				renameLog.add(mapping);
 			}
 			
