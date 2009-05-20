@@ -20,7 +20,7 @@ final class HistorySpooler {
 		return instance;
 	}
 	
-	private final File file = new File("history.xml");
+	private final File file = new File("history.xml.gz");
 	
 	private final History sessionHistory = new History();
 	
