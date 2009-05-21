@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 
@@ -26,9 +25,9 @@ import org.w3c.dom.Node;
 
 public class SubtitleSourceClient implements SubtitleProvider {
 	
-	protected static final String HOST = "www.subtitlesource.org";
+	private static final String host = "www.subtitlesource.org";
 	
-	private static final int PAGE_SIZE = 20;
+	private static final int pageSize = 20;
 	
 	
 	@Override
@@ -51,29 +50,23 @@ public class SubtitleSourceClient implements SubtitleProvider {
 
 	public List<SearchResult> search(String query, String language) throws Exception {
 		// e.g. http://www.subtitlesource.org/api/xmlsearch/firefly/all/0
-		URL url = new URL("http", HOST, "/api/xmlsearch/" + URLEncoder.encode(query, "utf-8") + "/" + language + "/0");
+		URL url = new URL("http", host, "/api/xmlsearch/" + URLEncoder.encode(query, "utf-8") + "/" + language + "/0");
 		
 		Document dom = getDocument(url);
 		
-		Map<Integer, String> movieMap = new LinkedHashMap<Integer, String>();
+		Map<Integer, MovieDescriptor> movieMap = new LinkedHashMap<Integer, MovieDescriptor>();
 		
 		for (Node node : selectNodes("//sub", dom)) {
 			Integer imdb = Integer.valueOf(getTextContent("imdb", node));
 			
 			if (!movieMap.containsKey(imdb)) {
 				String title = getTextContent("title", node);
-				movieMap.put(imdb, title);
+				
+				movieMap.put(imdb, new MovieDescriptor(title, imdb));
 			}
 		}
 		
-		// create SearchResult collection
-		List<SearchResult> result = new ArrayList<SearchResult>();
-		
-		for (Entry<Integer, String> movie : movieMap.entrySet()) {
-			result.add(new MovieDescriptor(movie.getValue(), movie.getKey()));
-		}
-		
-		return result;
+		return new ArrayList<SearchResult>(movieMap.values());
 	}
 	
 
@@ -97,13 +90,13 @@ public class SubtitleSourceClient implements SubtitleProvider {
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult) throws Exception {
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
 		
-		for (int offset = 0; true; offset += PAGE_SIZE) {
+		for (int offset = 0; true; offset += pageSize) {
 			List<SubtitleDescriptor> page = getSubtitleList(searchResult, offset);
 			
 			// add new subtitles
 			subtitles.addAll(page);
 			
-			if (page.size() < PAGE_SIZE) {
+			if (page.size() < pageSize) {
 				// last page reached
 				return subtitles;
 			}
@@ -115,7 +108,7 @@ public class SubtitleSourceClient implements SubtitleProvider {
 		int imdb = ((MovieDescriptor) searchResult).getImdbId();
 		
 		// e.g. http://www.subtitlesource.org/api/xmlsearch/0303461/imdb/0
-		URL url = new URL("http", HOST, "/api/xmlsearch/" + imdb + "/imdb/" + offset);
+		URL url = new URL("http", host, "/api/xmlsearch/" + imdb + "/imdb/" + offset);
 		
 		Document dom = getDocument(url);
 		
@@ -129,7 +122,10 @@ public class SubtitleSourceClient implements SubtitleProvider {
 			int season = Integer.parseInt(getTextContent("season", node));
 			int episode = Integer.parseInt(getTextContent("episode", node));
 			
-			subtitles.add(new SubtitleSourceSubtitleDescriptor(id, releaseName, language, title, season, episode));
+			// e.g. http://www.subtitlesource.org/download/zip/760
+			URL downloadLink = new URL("http", host, "/download/zip/" + id);
+			
+			subtitles.add(new SubtitleSourceSubtitleDescriptor(releaseName, language, title, season, episode, downloadLink));
 		}
 		
 		return subtitles;
@@ -141,7 +137,7 @@ public class SubtitleSourceClient implements SubtitleProvider {
 		int imdb = ((MovieDescriptor) searchResult).getImdbId();
 		
 		try {
-			return new URI("http://" + HOST + "/title/" + String.format("tt%07d", imdb));
+			return new URI("http://" + host + "/title/" + String.format("tt%07d", imdb));
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}

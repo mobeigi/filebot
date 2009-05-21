@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="FileBot" default="jar">
-
+	
 	<property name="title" value="${ant.project.name}" />
 	<property name="version" value="1.9" />
 
@@ -13,7 +13,6 @@
 	<property name="dir.build" location="${basedir}/build" />
 	<property name="dir.dist" location="${basedir}/dist" />
 	<property name="dir.lib" location="${basedir}/lib" />
-
 
 
 	<target name="jar" depends="build">
@@ -154,6 +153,7 @@
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
 	</target>
+	
 	
 	<target name="run-fatjar" depends="fatjar">
 		<java jar="${dir.dist}/fatjar/FileBot.jar" fork="true" />

@@ -145,11 +145,11 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 						throw new IllegalArgumentException("Cannot parse download parameters: " + href);
 					
 					String subtitleId = matcher.group(1);
-					String typeId = matcher.group(2);
+					String archiveType = matcher.group(2);
 					
-					URL downloadUrl = getDownloadUrl(subtitleListUrl, subtitleId, typeId);
+					URL downloadUrl = getDownloadLink(subtitleListUrl, subtitleId, archiveType);
 					
-					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, typeId, downloadUrl, subtitleListUrl));
+					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, archiveType, downloadUrl, subtitleListUrl));
 				}
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot parse subtitle node", e);
@@ -197,7 +197,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	protected URL getDownloadUrl(URL referer, String subtitleId, String typeId) throws MalformedURLException {
+	protected URL getDownloadLink(URL referer, String subtitleId, String typeId) throws MalformedURLException {
 		String basePath = FileUtilities.getNameWithoutExtension(referer.getFile());
 		String path = String.format("%s-dlpath-%s/%s.zipx", basePath, subtitleId, typeId);
 		

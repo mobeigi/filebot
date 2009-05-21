@@ -2,17 +2,12 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.SubtitleSourceClient.*;
-
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import net.sourceforge.tuned.DownloadTask;
 
 
 public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
-	
-	private final int id;
 	
 	private final String releaseName;
 	private final String language;
@@ -21,14 +16,16 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 	private final int season;
 	private final int episode;
 	
+	private final URL downloadLink;
 	
-	public SubtitleSourceSubtitleDescriptor(int id, String releaseName, String language, String title, int season, int episode) {
-		this.id = id;
+	
+	public SubtitleSourceSubtitleDescriptor(String releaseName, String language, String title, int season, int episode, URL downloadLink) {
 		this.releaseName = releaseName;
 		this.language = language;
 		this.title = title;
 		this.season = season;
 		this.episode = episode;
+		this.downloadLink = downloadLink;
 	}
 	
 
@@ -67,12 +64,7 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public DownloadTask createDownloadTask() {
-		try {
-			// e.g. http://www.subtitlesource.org/download/zip/760
-			return new DownloadTask(new URL("http", HOST, "/download/zip/" + id));
-		} catch (MalformedURLException e) {
-			throw new UnsupportedOperationException(e);
-		}
+		return new DownloadTask(downloadLink);
 	}
 	
 
