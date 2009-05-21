@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 public final class FileBotUtilities {
@@ -61,20 +60,20 @@ public final class FileBotUtilities {
 		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
 	}
 	
-	public static final FileFilter TORRENT_FILES = new ExtensionFileFilter("torrent");
-	public static final FileFilter SFV_FILES = new ExtensionFileFilter("sfv");
-	public static final FileFilter LIST_FILES = new ExtensionFileFilter("txt", "list", "");
-	public static final FileFilter SUBTITLE_FILES = new ExtensionFileFilter("srt", "sub", "ssa", "ass", "smi");
+	public static final FileFilter TORRENT_FILES = MediaTypes.getDefault().filter("application/torrent");
+	public static final FileFilter LIST_FILES = MediaTypes.getDefault().filter("application/list");
+	public static final FileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
+	public static final FileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
+	public static final FileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
 	
 	/**
-	 * This filter does not filter by extension, but file size. All files larger than 10 MB
-	 * will be accepted.
+	 * This filter will accept all video files larger than 20 MB.
 	 */
 	public static final FileFilter MOVIE_FILES = new FileFilter() {
 		
 		@Override
 		public boolean accept(File file) {
-			return file.length() > 10 * FileUtilities.MEGA;
+			return VIDEO_FILES.accept(file) && file.length() > 20 * FileUtilities.MEGA;
 		}
 	};
 	
