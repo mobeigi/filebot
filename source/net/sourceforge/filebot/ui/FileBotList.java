@@ -32,8 +32,6 @@ public class FileBotList<E> extends JComponent {
 	
 	protected JScrollPane listScrollPane = new JScrollPane(list);
 	
-	private String title = null;
-	
 	
 	public FileBotList() {
 		setLayout(new BorderLayout());
@@ -70,6 +68,11 @@ public class FileBotList<E> extends JComponent {
 	}
 	
 
+	public JScrollPane getListScrollPane() {
+		return listScrollPane;
+	}
+	
+
 	@Override
 	public DefaultTransferHandler getTransferHandler() {
 		return (DefaultTransferHandler) list.getTransferHandler();
@@ -100,18 +103,17 @@ public class FileBotList<E> extends JComponent {
 	
 
 	public String getTitle() {
-		return title;
+		return (String) getClientProperty("title");
 	}
 	
 
 	public void setTitle(String title) {
-		this.title = title;
+		putClientProperty("title", title);
 		
 		if (getBorder() instanceof TitledBorder) {
-			TitledBorder titledBorder = (TitledBorder) getBorder();
-			titledBorder.setTitle(title);
+			TitledBorder border = (TitledBorder) getBorder();
+			border.setTitle(title);
 			
-			revalidate();
 			repaint();
 		}
 	}

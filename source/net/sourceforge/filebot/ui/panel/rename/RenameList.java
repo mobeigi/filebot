@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
@@ -35,8 +34,6 @@ class RenameList<E> extends FileBotList<E> {
 		list.addMouseListener(dndReorderMouseAdapter);
 		list.addMouseMotionListener(dndReorderMouseAdapter);
 		
-		getViewPort().setBackground(list.getBackground());
-		
 		getRemoveAction().setEnabled(true);
 		
 		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
@@ -46,11 +43,8 @@ class RenameList<E> extends FileBotList<E> {
 		buttonPanel.add(new JButton(loadAction), "gap 10px");
 		
 		add(buttonPanel, BorderLayout.SOUTH);
-	}
-	
-
-	public JViewport getViewPort() {
-		return listScrollPane.getViewport();
+		
+		listScrollPane.getViewport().setBackground(list.getBackground());
 	}
 	
 

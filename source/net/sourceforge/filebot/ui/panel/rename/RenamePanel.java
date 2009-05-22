@@ -91,7 +91,7 @@ public class RenamePanel extends JComponent {
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		
 		// restore custom episode formatter
-		renameModel.useFormatter(Episode.class, persistentFormatExpression.getValue());
+		renameModel.useFormatter(Episode.class, persistentExpressionFormatter.getValue());
 		
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
 		
@@ -106,7 +106,7 @@ public class RenamePanel extends JComponent {
 		filesList.getListComponent().setSelectionModel(selectionModel);
 		
 		// synchronize viewports
-		new ViewPortSynchronizer(namesList.getViewPort(), filesList.getViewPort());
+		new ScrollPaneSynchronizer(namesList, filesList);
 		
 		// create Match button
 		JButton matchButton = new JButton(matchAction);
@@ -169,7 +169,7 @@ public class RenamePanel extends JComponent {
 						try {
 							EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getExpression());
 							renameModel.useFormatter(Episode.class, formatter);
-							persistentFormatExpression.setValue(formatter);
+							persistentExpressionFormatter.setValue(formatter);
 						} catch (ScriptException e) {
 							// will not happen because illegal expressions cannot be approved in dialog
 							Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
@@ -177,7 +177,7 @@ public class RenamePanel extends JComponent {
 						break;
 					case USE_DEFAULT:
 						renameModel.useFormatter(Episode.class, null);
-						persistentFormatExpression.remove();
+						persistentExpressionFormatter.remove();
 						break;
 				}
 			}
@@ -372,7 +372,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 	
-	private final PreferencesEntry<EpisodeExpressionFormatter> persistentFormatExpression = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
+	private final PreferencesEntry<EpisodeExpressionFormatter> persistentExpressionFormatter = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
 		
 		@Override
 		public EpisodeExpressionFormatter get(Preferences prefs, String key) {
