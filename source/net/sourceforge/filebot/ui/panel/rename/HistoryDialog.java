@@ -548,7 +548,7 @@ class HistoryDialog extends JDialog {
 		
 		@Override
 		protected boolean accept(List<File> files) {
-			return FileUtilities.containsOnly(files, new ExtensionFileFilter("xml", "gz"));
+			return FileUtilities.containsOnly(files, new ExtensionFileFilter("xml"));
 		}
 		
 
@@ -575,7 +575,7 @@ class HistoryDialog extends JDialog {
 
 		@Override
 		public String getFileFilterDescription() {
-			return "history files (.xml.gz)";
+			return "history files (.xml)";
 		}
 	};
 	
@@ -596,7 +596,7 @@ class HistoryDialog extends JDialog {
 
 		@Override
 		public String getDefaultFileName() {
-			return "history.xml.gz";
+			return "history.xml";
 		}
 	};
 	

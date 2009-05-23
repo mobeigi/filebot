@@ -4,20 +4,13 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static java.util.Collections.*;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -198,14 +191,7 @@ class History {
 			Marshaller marshaller = JAXBContext.newInstance(History.class).createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			
-			// write gzipped xml
-			OutputStream out = new GZIPOutputStream(new FileOutputStream(file), 32 * 1024);
-			
-			try {
-				marshaller.marshal(history, out);
-			} finally {
-				out.close();
-			}
+			marshaller.marshal(history, file);
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
@@ -216,22 +202,7 @@ class History {
 		try {
 			Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
 			
-			// GZIPInputStream or BufferedInputStream
-			InputStream in;
-			
-			try {
-				// read gzipped xml
-				in = new GZIPInputStream(new FileInputStream(file), 32 * 1024);
-			} catch (IOException e) {
-				// file is not gzipped, read uncompressed xml instead
-				in = new BufferedInputStream(new FileInputStream(file));
-			}
-			
-			try {
-				return ((History) unmarshaller.unmarshal(in));
-			} finally {
-				in.close();
-			}
+			return ((History) unmarshaller.unmarshal(file));
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}

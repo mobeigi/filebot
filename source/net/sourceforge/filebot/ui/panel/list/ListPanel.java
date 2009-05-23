@@ -92,6 +92,9 @@ public class ListPanel extends JComponent {
 		
 		public void actionPerformed(ActionEvent evt) {
 			
+			// clear selection
+			list.getListComponent().clearSelection();
+			
 			int from = fromSpinnerModel.getNumber().intValue();
 			int to = toSpinnerModel.getNumber().intValue();
 			
