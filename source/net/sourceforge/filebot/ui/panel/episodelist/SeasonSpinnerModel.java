@@ -24,13 +24,25 @@ class SeasonSpinnerModel extends SpinnerNumberModel {
 	}
 	
 
+	@Override
+	public Integer getMinimum() {
+		return (Integer) super.getMinimum();
+	}
+	
+
+	@Override
+	public Integer getMaximum() {
+		return (Integer) super.getMaximum();
+	}
+	
+
 	public void spin(int steps) {
 		int next = getSeason() + steps;
 		
-		if (next < ALL_SEASONS)
-			next = ALL_SEASONS;
-		else if (next > MAX_VALUE)
-			next = MAX_VALUE;
+		if (next < getMinimum())
+			next = getMinimum();
+		else if (next > getMaximum())
+			next = getMaximum();
 		
 		setValue(next);
 	}

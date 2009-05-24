@@ -96,7 +96,7 @@ public class RenameModel extends MatchModel<Object, File> {
 					String extension = FileUtilities.getExtension(originalFile);
 					
 					if (extension != null) {
-						newName.append(".").append(extension);
+						newName.append(".").append(extension.toLowerCase());
 					}
 				}
 				

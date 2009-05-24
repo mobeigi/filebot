@@ -37,10 +37,10 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	
 	private final EpisodeListProvider provider;
 	
-	private final Collection<SimilarityMetric> metrics;
+	private final List<SimilarityMetric> metrics;
 	
 	
-	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, List<File> files, Collection<SimilarityMetric> metrics) {
+	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, Collection<File> files, Collection<SimilarityMetric> metrics) {
 		this.provider = provider;
 		this.files = new LinkedList<File>(files);
 		this.metrics = new ArrayList<SimilarityMetric>(metrics);
@@ -80,14 +80,13 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				public Collection<Episode> call() throws Exception {
 					List<SearchResult> results = provider.search(seriesName);
 					
-					if (results.isEmpty()) {
-						throw new RuntimeException(String.format("'%s' has not been found.", seriesName));
-					}
-					
-					SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
-					
-					if (selectedSearchResult != null) {
-						return provider.getEpisodeList(selectedSearchResult);
+					// select search result
+					if (results.size() > 0) {
+						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
+						
+						if (selectedSearchResult != null) {
+							return provider.getEpisodeList(selectedSearchResult);
+						}
 					}
 					
 					return Collections.emptyList();

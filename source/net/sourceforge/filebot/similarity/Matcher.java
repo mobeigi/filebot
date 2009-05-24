@@ -20,7 +20,7 @@ public class Matcher<V, C> {
 	private final List<V> values;
 	private final List<C> candidates;
 	
-	private final List<SimilarityMetric> metrics;
+	private final SimilarityMetric[] metrics;
 	
 	private final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
@@ -29,7 +29,7 @@ public class Matcher<V, C> {
 		this.values = new LinkedList<V>(values);
 		this.candidates = new LinkedList<C>(candidates);
 		
-		this.metrics = new ArrayList<SimilarityMetric>(metrics);
+		this.metrics = metrics.toArray(new SimilarityMetric[0]);
 		
 		this.disjointMatchCollection = new DisjointMatchCollection<V, C>();
 	}
@@ -85,13 +85,13 @@ public class Matcher<V, C> {
 	
 
 	protected void deepMatch(Collection<Match<V, C>> possibleMatches, int level) throws InterruptedException {
-		if (level >= metrics.size() || possibleMatches.isEmpty()) {
+		if (level >= metrics.length || possibleMatches.isEmpty()) {
 			// no further refinement possible
 			disjointMatchCollection.addAll(possibleMatches);
 			return;
 		}
 		
-		for (List<Match<V, C>> matchesWithEqualSimilarity : mapBySimilarity(possibleMatches, metrics.get(level)).values()) {
+		for (List<Match<V, C>> matchesWithEqualSimilarity : mapBySimilarity(possibleMatches, metrics[level]).values()) {
 			// some matches may already be unique
 			List<Match<V, C>> disjointMatches = disjointMatches(matchesWithEqualSimilarity);
 			

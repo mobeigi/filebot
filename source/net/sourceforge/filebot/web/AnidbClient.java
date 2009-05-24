@@ -44,8 +44,7 @@ public class AnidbClient implements EpisodeListProvider {
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
 		
-		// type=2 -> only TV Series
-		URL searchUrl = new URL("http", host, "/perl-bin/animedb.pl?type=2&show=animelist&orderby.name=0.1&orderbar=0&noalias=1&do.search=Search&adb.search=" + URLEncoder.encode(query, "UTF-8"));
+		URL searchUrl = new URL("http", host, "/perl-bin/animedb.pl?type.tvspecial=1&type.tvseries=1&type.ova=1&show=animelist&orderby.name=0.1&noalias=1&do.update=update&adb.search=" + URLEncoder.encode(query, "UTF-8"));
 		
 		Document dom = getHtmlDocument(searchUrl);
 		

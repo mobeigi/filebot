@@ -139,7 +139,7 @@ public class RenamePanel extends JComponent {
 		add(matchButton, "split 2, flowy, sizegroupx button");
 		add(renameButton, "gapy 30px, sizegroupx button");
 		
-		add(new LoadingOverlayPane(namesList, namesList, "28px", "30px"), "grow, sizegroupx list");
+		add(new LoadingOverlayPane(namesList, namesList, "32px", "30px"), "grow, sizegroupx list");
 	}
 	
 

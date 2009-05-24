@@ -52,16 +52,16 @@ public class MediaTypes {
 	}
 	
 
-	public FileFilter filter(String path) {
-		return new ExtensionFileFilter(extensions(path));
+	public FileFilter filter(String name) {
+		return new ExtensionFileFilter(extensions(name));
 	}
 	
 
-	public String[] extensions(String path) {
+	public String[] extensions(String name) {
 		List<String> extensions = new ArrayList<String>();
 		
 		for (Type type : types) {
-			if (type.name.startsWith(path)) {
+			if (type.name.startsWith(name)) {
 				addAll(extensions, type.extensions);
 			}
 		}

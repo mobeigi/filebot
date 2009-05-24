@@ -45,6 +45,23 @@ public class AnidbClientTest {
 	
 
 	@Test
+	public void searchHideSynonyms() throws Exception {
+		final List<SearchResult> results = anidb.search("one piece");
+		
+		int count = 0;
+		
+		for (SearchResult result : results) {
+			if ("one piece".equalsIgnoreCase(result.getName())) {
+				count++;
+			}
+		}
+		
+		// must only occur once
+		assertEquals(1, count, 0);
+	}
+	
+
+	@Test
 	public void searchResultPageRedirect() throws Exception {
 		List<SearchResult> results = anidb.search("twelve kingdoms");
 		
