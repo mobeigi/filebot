@@ -200,7 +200,7 @@ public class EpisodeFormatBindingBean {
 			String name = FileUtilities.getName(mediaFile);
 			
 			// find corresponding movie file
-			for (File movie : mediaFile.getParentFile().listFiles(MOVIE_FILES)) {
+			for (File movie : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
 				if (name.startsWith(FileUtilities.getName(movie))) {
 					return movie;
 				}

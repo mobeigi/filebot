@@ -23,7 +23,7 @@ String.prototype.pad = Number.prototype.pad = function(length, padding) {
  * e.g. "Doctor Who" -> "Doctor_Who"
  */
 String.prototype.space = function(replacement) {
-	return this.replace(/\s/g, replacement);
+	return this.replace(/\s+/g, replacement);
 }
 
 

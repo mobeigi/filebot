@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
@@ -51,6 +52,7 @@ public class Main {
 		
 		initializeLogging();
 		initializeSettings();
+		initializeCache();
 		initializeSecurityManager();
 		
 		try {
@@ -106,6 +108,21 @@ public class Main {
 	 */
 	private static void initializeSettings() {
 		Settings.userRoot().putDefault("thetvdb.apikey", "58B4AA94C59AD656");
+	}
+	
+
+	/**
+	 * Shutdown {@link CacheManager} in case there are any persistent caches that need to be stored.
+	 */
+	private static void initializeCache() {
+		// shutdown CacheManager
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				CacheManager.getInstance().shutdown();
+			}
+		}));
 	}
 	
 

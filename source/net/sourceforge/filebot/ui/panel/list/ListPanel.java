@@ -44,7 +44,7 @@ public class ListPanel extends JComponent {
 	
 	private FileBotList<String> list = new FileBotList<String>();
 	
-	private JTextField textField = new JTextField("Name - {i}", 25);
+	private JTextField textField = new JTextField("Name - {i}", 30);
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
 	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
 	

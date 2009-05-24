@@ -2,12 +2,9 @@
 package net.sourceforge.filebot;
 
 
-import java.io.File;
 import java.io.FileFilter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.sourceforge.tuned.FileUtilities;
 
 
 public final class FileBotUtilities {
@@ -65,17 +62,6 @@ public final class FileBotUtilities {
 	public static final FileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
 	public static final FileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
 	public static final FileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
-	
-	/**
-	 * This filter will accept all video files larger than 20 MB.
-	 */
-	public static final FileFilter MOVIE_FILES = new FileFilter() {
-		
-		@Override
-		public boolean accept(File file) {
-			return VIDEO_FILES.accept(file) && file.length() > 20 * FileUtilities.MEGA;
-		}
-	};
 	
 	
 	/**

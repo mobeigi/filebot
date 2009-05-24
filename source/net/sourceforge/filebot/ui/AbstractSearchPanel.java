@@ -55,7 +55,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	
 	
 	public AbstractSearchPanel() {
-		
 		historyPanel.setColumnHeader(2, "Duration");
 		
 		JScrollPane historyScrollPane = new JScrollPane(historyPanel, VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
