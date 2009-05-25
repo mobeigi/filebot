@@ -118,6 +118,12 @@ public class AnidbClientTest {
 	
 
 	@Test
+	public void getEpisodeListTrimRecap() throws Exception {
+		assertEquals("Sea God of the East, Azure Sea of the West - Transition Chapter", anidb.getEpisodeList(twelvekingdomsSearchResult).get(44).getTitle());
+	}
+	
+
+	@Test
 	public void selectTitle() throws Exception {
 		// use official english title
 		assertEquals("Banner of the Stars", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a4"))));

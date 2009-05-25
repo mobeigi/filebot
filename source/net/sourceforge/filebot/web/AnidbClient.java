@@ -131,13 +131,13 @@ public class AnidbClient implements EpisodeListProvider {
 		
 		List<Node> nodes = selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
-		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
 			List<Node> columns = getChildren("TD", node);
 			
-			String number = columns.get(0).getTextContent().trim();
-			String title = columns.get(1).getTextContent().trim();
+			String number = getTextContent("A", columns.get(0));
+			String title = getTextContent("LABEL", columns.get(1));
 			
 			// if number does not match, episode is probably some kind of special (S1, S2, ...)
 			if (number.matches("\\d+")) {
