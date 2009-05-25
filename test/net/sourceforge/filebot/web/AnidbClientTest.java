@@ -2,10 +2,12 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.WebRequest.*;
 import static org.junit.Assert.*;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,14 +64,25 @@ public class AnidbClientTest {
 	
 
 	@Test
-	public void searchResultPageRedirect() throws Exception {
+	public void searchReturnMatchingTitle() throws Exception {
+		// Seikai no Senki (main title), Banner of the Stars (official english title)
+		assertEquals("Banner of the Stars", anidb.search("banner of the stars").get(0).getName());
+		assertEquals("Seikai no Senki", anidb.search("seikai no senki").get(0).getName());
+		
+		// no matching title
+		assertEquals("Naruto", anidb.search("naruto").get(0).getName());
+	}
+	
+
+	@Test
+	public void searchPageRedirect() throws Exception {
 		List<SearchResult> results = anidb.search("twelve kingdoms");
 		
 		assertEquals(1, results.size());
 		
 		HyperLink result = (HyperLink) results.get(0);
 		
-		assertEquals("Juuni Kokuki", result.getName());
+		assertEquals("The Twelve Kingdoms", result.getName());
 		assertEquals("http://anidb.net/a26", result.getURL().toString());
 	}
 	
@@ -97,10 +110,26 @@ public class AnidbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Juuni Kokuki", first.getSeriesName());
+		assertEquals("The Twelve Kingdoms", first.getSeriesName());
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals(null, first.getSeason());
+	}
+	
+
+	@Test
+	public void selectTitle() throws Exception {
+		// use official english title
+		assertEquals("Banner of the Stars", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a4"))));
+		
+		// official english title not available -> use main title
+		assertEquals("Turn A Gundam", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a916"))));
+	}
+	
+
+	@Test
+	public void selectJapaneseTitle() throws Exception {
+		assertEquals("十二国記", anidb.selectOfficialTitle(getHtmlDocument(twelvekingdomsSearchResult.getURL()), Locale.JAPANESE));
 	}
 	
 

@@ -281,11 +281,14 @@ public class SeriesNameMatcher {
 	}
 	
 
-	protected String[] names(List<File> files) {
+	protected String[] names(Collection<File> files) {
 		String[] names = new String[files.size()];
 		
-		for (int i = 0; i < names.length; i++) {
-			names[i] = FileUtilities.getName(files.get(i));
+		int i = 0;
+		
+		// fill array
+		for (File file : files) {
+			names[i++] = FileUtilities.getName(file);
 		}
 		
 		return names;

@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,47 +44,80 @@ public class AnidbClient implements EpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
-		
+		// Air Status: ignore
+		// Anime Type: TV Series, TV Special, OVA
+		// Hide Synonyms: true
 		URL searchUrl = new URL("http", host, "/perl-bin/animedb.pl?type.tvspecial=1&type.tvseries=1&type.ova=1&show=animelist&orderby.name=0.1&noalias=1&do.update=update&adb.search=" + URLEncoder.encode(query, "UTF-8"));
 		
 		Document dom = getHtmlDocument(searchUrl);
 		
 		List<Node> nodes = selectNodes("//TABLE[@class='animelist']//TR/TD/ancestor::TR", dom);
 		
-		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
+		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			Node titleNode = selectNode("./TD[@class='name']/A", node);
+			Node link = selectNode("./TD[@class='name']/A", node);
 			
-			String title = getTextContent(titleNode);
-			String href = getAttribute("href", titleNode);
+			// prefer title that is similar to the search query
+			String title = selectString("./following-sibling::*[@class='match']", link);
+			
+			// remove leading and trailing parenthesis
+			title = title.replaceAll("(^\\()|(\\)$)", "");
+			
+			if (title.isEmpty()) {
+				// fallback: use main title
+				title = getTextContent(link);
+			}
+			
+			// anime page
+			String href = getAttribute("href", link);
 			
 			try {
-				searchResults.add(new HyperLink(title, new URL("http", host, "/perl-bin/" + href)));
+				results.add(new HyperLink(title, new URL("http", host, "/perl-bin/" + href)));
 			} catch (MalformedURLException e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href);
 			}
 		}
 		
 		// we might have been redirected to the episode list page
-		if (searchResults.isEmpty()) {
-			// check if current page contains an episode list
-			if (exists("//TABLE[@class='eplist']", dom)) {
-				// get show's name from the document
-				String header = selectString("id('layout-content')//H1[1]", dom);
-				String name = header.replaceFirst("Anime:\\s*", "");
-				
-				String episodeListUrl = selectString("id('layout-main')//DIV[@class='data']//A[@class='short_link']/@href", dom);
-				
-				try {
-					searchResults.add(new HyperLink(name, new URL(episodeListUrl)));
-				} catch (MalformedURLException e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + episodeListUrl);
-				}
+		if (results.isEmpty()) {
+			// get anime information from document
+			String title = selectTitle(dom);
+			String link = selectString("//*[@class='data']//A[@class='short_link']/@href", dom);
+			
+			try {
+				// insert single entry
+				results.add(new HyperLink(title, new URL(link)));
+			} catch (MalformedURLException e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + link);
 			}
 		}
 		
-		return searchResults;
+		return results;
+	}
+	
+
+	protected String selectTitle(Document animePage) {
+		// prefer official english title
+		String title = selectOfficialTitle(animePage, Locale.ENGLISH);
+		
+		if (title.isEmpty()) {
+			// fallback: extract name from header (e.g. "Anime: Naruto")
+			title = selectString("//H1", animePage).replaceFirst("Anime:\\s*", "");;
+		}
+		
+		return title;
+	}
+	
+
+	protected String selectOfficialTitle(Document animePage, Locale language) {
+		// create xpath query for official title of the given language
+		// e.g. //*[@class='data']//*[contains(@class, 'official') and .//*[contains(@title, 'english')]]//LABEL
+		
+		String condition = String.format(".//*[contains(@title, '%s')]", language.getDisplayLanguage(Locale.ENGLISH).toLowerCase());
+		String xpath = String.format("//*[@class='data']//*[contains(@class, 'official') and %s]//LABEL", condition);
+		
+		return selectString(xpath, animePage);
 	}
 	
 
@@ -92,22 +126,23 @@ public class AnidbClient implements EpisodeListProvider {
 		
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult).toURL());
 		
+		// use title from anime page
+		String animeTitle = selectTitle(dom);
+		
 		List<Node> nodes = selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
 		
 		ArrayList<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String number = selectString("./TD[contains(@class,'id')]/A", node);
-			String title = selectString("./TD[@class='title']/LABEL/text()", node);
+			List<Node> columns = getChildren("TD", node);
 			
-			if (title.startsWith("recap")) {
-				title = title.replaceFirst("recap", "");
-			}
+			String number = columns.get(0).getTextContent().trim();
+			String title = columns.get(1).getTextContent().trim();
 			
 			// if number does not match, episode is probably some kind of special (S1, S2, ...)
 			if (number.matches("\\d+")) {
 				// no seasons for anime
-				episodes.add(new Episode(searchResult.getName(), null, number, title));
+				episodes.add(new Episode(animeTitle, null, number, title));
 			}
 		}
 		
