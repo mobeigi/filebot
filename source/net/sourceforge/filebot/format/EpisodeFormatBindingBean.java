@@ -121,20 +121,23 @@ public class EpisodeFormatBindingBean {
 
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
+		// use inferred media file
+		File inferredMediaFile = getInferredMediaFile();
+		
 		// try to get checksum from file name
-		String checksum = FileBotUtilities.getEmbeddedChecksum(mediaFile.getName());
+		String checksum = FileBotUtilities.getEmbeddedChecksum(inferredMediaFile.getName());
 		
 		if (checksum != null)
 			return checksum;
 		
 		// try to get checksum from sfv file
-		checksum = getChecksumFromSfvFile(mediaFile);
+		checksum = getChecksumFromSfvFile(inferredMediaFile);
 		
 		if (checksum != null)
 			return checksum;
 		
 		// calculate checksum from file
-		return crc32(mediaFile);
+		return crc32(inferredMediaFile);
 	}
 	
 
