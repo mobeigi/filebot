@@ -46,7 +46,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		// restore state
 		languageModel.setSelectedItem(persistentSelectedLanguage.getValue());
-		languageModel.favorites().addAll(persistentFavorites.getValue());
+		languageModel.favorites().addAll(0, persistentFavorites.getValue());
 		
 		// guess favorite languages
 		if (languageModel.favorites().isEmpty()) {
