@@ -51,11 +51,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		// guess favorite languages
 		if (languageModel.favorites().isEmpty()) {
 			for (Locale locale : new Locale[] { Locale.getDefault(), Locale.ENGLISH }) {
-				Language language = Language.getLanguage(locale.getLanguage());
-				
-				if (language != null) {
-					languageModel.favorites().add(language);
-				}
+				languageModel.favorites().add(Language.getLanguage(locale.getLanguage()));
 			}
 		}
 		

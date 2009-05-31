@@ -2,40 +2,21 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Comparator;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 
 class Language {
 	
-	@XmlAttribute(name = "name")
-	private String name;
-	
-	@XmlAttribute(name = "code")
-	private String code;
-	
-	
-	protected Language() {
-		// used by JAXB
-	}
+	private final String code;
+	private final String name;
 	
 
-	public Language(String name, String code) {
-		this.name = name;
+	public Language(String code, String name) {
 		this.code = code;
-	}
-	
-
-	public String getName() {
-		return name;
+		this.name = name;
 	}
 	
 
@@ -44,9 +25,8 @@ class Language {
 	}
 	
 
-	@Override
-	public Language clone() {
-		return new Language(name, code);
+	public String getName() {
+		return name;
 	}
 	
 
@@ -56,50 +36,47 @@ class Language {
 	}
 	
 
-	public static Language getLanguage(String languageCode) {
-		for (Language language : Languages.getInstance().elements()) {
-			if (language.getCode().equalsIgnoreCase(languageCode))
-				return language;
+	@Override
+	public Language clone() {
+		return new Language(code, name);
+	}
+	
+
+	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
+		
+		@Override
+		public int compare(Language o1, Language o2) {
+			return o1.name.compareToIgnoreCase(o2.name);
+		}
+	};
+	
+
+	public static Language getLanguage(String code) {
+		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		
+		try {
+			return new Language(code, bundle.getString(code));
+		} catch (MissingResourceException e) {
+			// ignore
 		}
 		
 		return null;
 	}
 	
 
-	public static List<Language> availableLanguages() {
-		return Collections.unmodifiableList(Arrays.asList(Languages.getInstance().elements()));
-	}
-	
-	
-	@XmlRootElement(name = "languages")
-	private static class Languages {
+	public static Language[] availableLanguages() {
+		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		Set<String> languageCodeSet = bundle.keySet();
 		
-		@XmlElement(name = "language")
-		private Language[] elements;
+		Language[] languages = new Language[languageCodeSet.size()];
+		int size = 0;
 		
-		// keep singleton instance of all available languages
-		private static Languages instance;
-		
-		
-		public static Languages getInstance() {
-			if (instance == null) {
-				try {
-					Unmarshaller unmarshaller = JAXBContext.newInstance(Languages.class).createUnmarshaller();
-					
-					// load languages from xml files
-					return (Languages) unmarshaller.unmarshal(Language.class.getResource("languages.xml"));
-				} catch (JAXBException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			
-			return instance;
+		// fill languages array
+		for (String code : languageCodeSet) {
+			languages[size++] = new Language(code, bundle.getString(code));
 		}
 		
-
-		public Language[] elements() {
-			return elements;
-		}
+		return languages;
 	}
 	
 }
