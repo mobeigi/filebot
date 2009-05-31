@@ -5,7 +5,6 @@ package net.sourceforge.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ public class SubtitleSourceClientTest {
 
 	@Test
 	public void getSubtitleListAll() throws Exception {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Buffy", 118276), Locale.ENGLISH);
+		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Buffy", 118276), "English");
 		
 		SubtitleDescriptor sample = list.get(0);
 		

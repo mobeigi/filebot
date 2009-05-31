@@ -17,15 +17,12 @@ public class SubtitlePackage {
 	
 	private final Icon archiveIcon;
 	
-	private final Language language;
-	
 	private final DownloadTask downloadTask;
 	
 	
 	public SubtitlePackage(SubtitleDescriptor subtitleDescriptor) {
 		this.subtitleDescriptor = subtitleDescriptor;
 		
-		language = new Language(subtitleDescriptor.getLanguageName());
 		downloadTask = subtitleDescriptor.createDownloadTask();
 		
 		archiveType = ArchiveType.forName(subtitleDescriptor.getArchiveType());
@@ -43,8 +40,8 @@ public class SubtitlePackage {
 	}
 	
 
-	public Language getLanguage() {
-		return language;
+	public String getLanguageName() {
+		return subtitleDescriptor.getLanguageName();
 	}
 	
 

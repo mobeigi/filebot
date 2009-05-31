@@ -44,11 +44,6 @@ public final class XPathUtilities {
 	}
 	
 
-	public static boolean exists(String xpath, Object node) {
-		return selectNode(xpath, node) != null;
-	}
-	
-
 	/**
 	 * @param nodeName search for nodes with this name
 	 * @param parentNode search in the child nodes of this nodes

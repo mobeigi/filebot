@@ -4,7 +4,6 @@ package net.sourceforge.filebot.web;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,15 +50,15 @@ public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
+	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		login();
 		
-		return (List) client.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), language);
+		return (List) client.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageName);
 	}
 	
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult, Locale language) {
+	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		//TODO provide link
 		return null;
 	}

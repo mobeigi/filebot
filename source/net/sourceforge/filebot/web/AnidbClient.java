@@ -12,7 +12,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -99,7 +98,7 @@ public class AnidbClient implements EpisodeListProvider {
 
 	protected String selectTitle(Document animePage) {
 		// prefer official english title
-		String title = selectOfficialTitle(animePage, Locale.ENGLISH);
+		String title = selectOfficialTitle(animePage, "english");
 		
 		if (title.isEmpty()) {
 			// fallback: extract name from header (e.g. "Anime: Naruto")
@@ -110,11 +109,11 @@ public class AnidbClient implements EpisodeListProvider {
 	}
 	
 
-	protected String selectOfficialTitle(Document animePage, Locale language) {
+	protected String selectOfficialTitle(Document animePage, String languageName) {
 		// create xpath query for official title of the given language
 		// e.g. //*[@class='data']//*[contains(@class, 'official') and .//*[contains(@title, 'english')]]//LABEL
 		
-		String condition = String.format(".//*[contains(@title, '%s')]", language.getDisplayLanguage(Locale.ENGLISH).toLowerCase());
+		String condition = String.format(".//*[contains(@title, '%s')]", languageName.toLowerCase());
 		String xpath = String.format("//*[@class='data']//*[contains(@class, 'official') and %s]//LABEL", condition);
 		
 		return selectString(xpath, animePage);

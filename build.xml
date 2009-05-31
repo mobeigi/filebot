@@ -26,8 +26,8 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-Date" value="${today}" />
-				<attribute name="Implementation-Title" value="${title}" />
-				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Application-Name" value="${title}" />
+				<attribute name="Application-Version" value="${version}" />
 				<attribute name="Class-Path" value="args4j.jar miglayout.jar glazedlists.jar nekohtml.jar xercesImpl.jar ehcache.jar simmetrics.jar xmlrpc-client.jar" />
 				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
 			</manifest>

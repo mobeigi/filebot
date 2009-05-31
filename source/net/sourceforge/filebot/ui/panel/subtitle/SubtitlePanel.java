@@ -3,14 +3,18 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.*;
 
+import java.awt.event.ItemEvent;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
+import javax.swing.JComboBox;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -21,15 +25,57 @@ import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.SubtitleSourceClient;
+import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
+import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 	
+	private final LanguageComboBoxModel languageModel = new LanguageComboBoxModel();
+	
+	
 	public SubtitlePanel() {
 		historyPanel.setColumnHeader(0, "Show / Movie");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
+		
+		JComboBox languageComboBox = new JComboBox(languageModel);
+		
+		languageComboBox.setRenderer(new LanguageComboBoxCellRenderer());
+		
+		// restore state
+		languageModel.setSelectedItem(persistentSelectedLanguage.getValue());
+		languageModel.favorites().addAll(persistentFavorites.getValue());
+		
+		// guess favorite languages
+		if (languageModel.favorites().isEmpty()) {
+			for (Locale locale : new Locale[] { Locale.getDefault(), Locale.ENGLISH }) {
+				Language language = Language.getLanguage(locale.getLanguage());
+				
+				if (language != null) {
+					languageModel.favorites().add(language);
+				}
+			}
+		}
+		
+		// update favorites on change
+		languageComboBox.addPopupMenuListener(new PopupSelectionListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				Language language = (Language) e.getItem();
+				
+				if (languageModel.favorites().add(language)) {
+					persistentFavorites.setValue(languageModel.favorites());
+				}
+				
+				persistentSelectedLanguage.setValue(language);
+			}
+		});
+		
+		// add after text field
+		add(languageComboBox, 1);
 	}
 	
 
@@ -61,24 +107,26 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	protected SubtitleRequestProcessor createRequestProcessor() {
 		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
+		Language language = languageModel.getSelectedItem();
 		
-		//TODO language selection combobox
-		Locale language = Locale.ENGLISH;
+		// null or proper language name
+		String languageName = (language == ALL_LANGUAGES ? null : language.getName());
 		
-		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
+		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, languageName));
 	}
 	
 	
 	protected static class SubtitleRequest extends Request {
 		
 		private final SubtitleProvider provider;
-		private final Locale language;
+		private final String languageName;
 		
 		
-		public SubtitleRequest(SubtitleProvider provider, String searchText, Locale language) {
+		public SubtitleRequest(SubtitleProvider provider, String searchText, String languageName) {
 			super(searchText);
+			
 			this.provider = provider;
-			this.language = language;
+			this.languageName = languageName;
 		}
 		
 
@@ -87,8 +135,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		}
 		
 
-		public Locale getLanguage() {
-			return language;
+		public String getLanguageName() {
+			return languageName;
 		}
 		
 	}
@@ -97,7 +145,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	protected static class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest, SubtitlePackage> {
 		
 		public SubtitleRequestProcessor(SubtitleRequest request) {
-			super(request, new SubtitleDownloadPanel());
+			super(request, new SubtitleListComponent());
 		}
 		
 
@@ -109,9 +157,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 		@Override
 		public Collection<SubtitlePackage> fetch() throws Exception {
-			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>(20);
+			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
 			
-			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getLanguage())) {
+			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getLanguageName())) {
 				packages.add(new SubtitlePackage(subtitle));
 			}
 			
@@ -121,19 +169,20 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 		@Override
 		public URI getLink() {
-			return request.getProvider().getSubtitleListLink(getSearchResult(), request.getLanguage());
+			return request.getProvider().getSubtitleListLink(getSearchResult(), request.getLanguageName());
 		}
 		
 
 		@Override
 		public void process(Collection<SubtitlePackage> subtitles) {
-			getComponent().getPackagePanel().getModel().addAll(subtitles);
+			getComponent().setLanguageVisible(request.getLanguageName() == null);
+			getComponent().getModel().addAll(subtitles);
 		}
 		
 
 		@Override
-		public SubtitleDownloadPanel getComponent() {
-			return (SubtitleDownloadPanel) super.getComponent();
+		public SubtitleListComponent getComponent() {
+			return (SubtitleListComponent) super.getComponent();
 		}
 		
 
@@ -156,5 +205,49 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		}
 		
 	}
+	
+	private final PreferencesEntry<Language> persistentSelectedLanguage = getSettings().entry("language.selected", new AbstractAdapter<Language>() {
+		
+		@Override
+		public Language get(Preferences prefs, String key) {
+			return Language.getLanguage(prefs.get(key, ""));
+		}
+		
+
+		@Override
+		public void put(Preferences prefs, String key, Language value) {
+			prefs.put(key, value == null ? "undefined" : value.getCode());
+		}
+	});
+	
+	private final PreferencesEntry<List<Language>> persistentFavorites = getSettings().entry("language.favorites", new AbstractAdapter<List<Language>>() {
+		
+		@Override
+		public List<Language> get(Preferences prefs, String key) {
+			List<Language> languages = new ArrayList<Language>();
+			
+			for (String languageCode : prefs.get(key, "").split("\\W+")) {
+				languages.add(Language.getLanguage(languageCode));
+			}
+			
+			return languages;
+		}
+		
+
+		@Override
+		public void put(Preferences prefs, String key, List<Language> languages) {
+			StringBuilder sb = new StringBuilder();
+			
+			for (int i = 0; i < languages.size(); i++) {
+				sb.append(languages.get(i).getCode());
+				
+				if (i < languages.size() - 1) {
+					sb.append(",");
+				}
+			}
+			
+			prefs.put(key, sb.toString());
+		}
+	});
 	
 }

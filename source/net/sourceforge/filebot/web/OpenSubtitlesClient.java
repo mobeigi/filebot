@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -141,14 +140,14 @@ public class OpenSubtitlesClient {
 	
 
 	@SuppressWarnings("unchecked")
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, Locale language) throws XmlRpcFault {
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, String languageName) throws XmlRpcFault {
 		
 		Map<String, String> searchListEntry = new HashMap<String, String>(2);
 		
 		// pad imdbId with zeros
 		//TODO needed???
 		searchListEntry.put("imdbid", String.format("%07d", imdbid));
-		searchListEntry.put("sublanguageid", getSubLanguageID(language));
+		searchListEntry.put("sublanguageid", getSubLanguageID(languageName));
 		
 		List<Map<String, String>> searchList = Collections.singletonList(searchListEntry);
 		
@@ -169,9 +168,9 @@ public class OpenSubtitlesClient {
 	}
 	
 
-	private String getSubLanguageID(Locale locale) {
+	private String getSubLanguageID(String languageName) {
 		//TODO test if sublanguageid is really ISO3 language code
-		return locale.getISO3Language();
+		throw new UnsupportedOperationException("Not implemented");
 	}
 	
 

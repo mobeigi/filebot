@@ -7,7 +7,6 @@ import static org.junit.Assert.*;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -135,7 +134,7 @@ public class AnidbClientTest {
 
 	@Test
 	public void selectJapaneseTitle() throws Exception {
-		assertEquals("十二国記", anidb.selectOfficialTitle(getHtmlDocument(twelvekingdomsSearchResult.getURL()), Locale.JAPANESE));
+		assertEquals("十二国記", anidb.selectOfficialTitle(getHtmlDocument(twelvekingdomsSearchResult.getURL()), "Japanese"));
 	}
 	
 

@@ -14,7 +14,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,11 +95,9 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 
 	@Override
-	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
-		URL subtitleListUrl = getSubtitleListLink(searchResult, language).toURL();
+	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
+		URL subtitleListUrl = getSubtitleListLink(searchResult, languageName).toURL();
 		
-		// english language name or null
-		String languageName = (language == null || language.equals(Locale.ROOT) ? null : language.getDisplayLanguage(Locale.ENGLISH));
 		Integer languageFilter = null;
 		
 		if (languageName != null) {
@@ -206,7 +203,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult, Locale locale) {
+	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		return ((HyperLink) searchResult).toURI();
 	}
 	

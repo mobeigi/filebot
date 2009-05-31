@@ -6,13 +6,11 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -71,14 +69,11 @@ public class SubtitleSourceClient implements SubtitleProvider {
 	
 
 	@Override
-	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, Locale language) throws Exception {
-		// english language name or null
-		String languageFilter = (language == null || language == Locale.ROOT) ? null : language.getDisplayLanguage(Locale.ENGLISH);
-		
+	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
 		
 		for (SubtitleDescriptor subtitle : getSubtitleList(searchResult)) {
-			if (languageFilter == null || languageFilter.equalsIgnoreCase(subtitle.getLanguageName())) {
+			if (languageName == null || languageName.equalsIgnoreCase(subtitle.getLanguageName())) {
 				subtitles.add(subtitle);
 			}
 		}
@@ -133,14 +128,10 @@ public class SubtitleSourceClient implements SubtitleProvider {
 	
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult, Locale language) {
+	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		int imdb = ((MovieDescriptor) searchResult).getImdbId();
 		
-		try {
-			return new URI("http://" + host + "/title/" + String.format("tt%07d", imdb));
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		return URI.create("http://" + host + "/title/" + String.format("tt%07d", imdb));
 	}
 	
 }

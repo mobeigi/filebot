@@ -6,10 +6,7 @@ import static org.junit.Assert.*;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-import net.sourceforge.filebot.ui.panel.subtitle.LanguageResolver;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,7 +60,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResult() throws Exception {
-		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(twinpeaksSearchResult, Locale.ITALIAN);
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(twinpeaksSearchResult, "Italian");
 		
 		assertEquals(1, subtitleList.size());
 		
@@ -77,7 +74,7 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListSearchResultMany() throws Exception {
-		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(lostSearchResult, LanguageResolver.getDefault().getLocale("Japanese"));
+		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(lostSearchResult, "Japanese");
 		
 		// lots of subtitles, but only a few Japanese ones
 		assertEquals(16, subtitleList.size());
