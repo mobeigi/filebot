@@ -1,3 +1,9 @@
+// System, Math, Integer, etc.
+importPackage(java.lang);
+
+// Collection, Scanner, Random, UUID, etc.
+importPackage(java.util);
+
 /**
  * Pad strings or numbers with given characters ('0' by default).
  *
