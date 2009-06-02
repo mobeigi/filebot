@@ -2,9 +2,8 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.Settings.getApplicationName;
-import static net.sourceforge.filebot.Settings.getApplicationVersion;
-import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.ALL_LANGUAGES;
+import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.*;
 
 import java.awt.event.ItemEvent;
 import java.net.URI;
@@ -45,7 +44,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		JComboBox languageComboBox = new JComboBox(languageModel);
 		
 		languageComboBox.setRenderer(new LanguageComboBoxCellRenderer(languageComboBox.getRenderer()));
-
+		
 		// restore state
 		languageModel.setSelectedItem(persistentSelectedLanguage.getValue());
 		languageModel.favorites().addAll(0, persistentFavorites.getValue());

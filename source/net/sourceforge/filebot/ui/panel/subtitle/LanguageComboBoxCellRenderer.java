@@ -17,25 +17,22 @@ import net.sourceforge.filebot.ResourceManager;
 
 class LanguageComboBoxCellRenderer implements ListCellRenderer {
 	
-	private final Border padding = new EmptyBorder(2, 4, 2, 4);
+	private Border padding = new EmptyBorder(2, 2, 2, 2);
 	
-	private final Border favoritePadding = new EmptyBorder(0, 6, 0, 6);
+	private Border favoritePadding = new EmptyBorder(0, 6, 0, 6);
 	
-	private final ListCellRenderer base;
+	private ListCellRenderer base;
 	
-	
-	
-	
+
 	public LanguageComboBoxCellRenderer(final ListCellRenderer base) {
 		this.base = base;
+		this.padding = new CompoundBorder(padding, ((JLabel) base).getBorder());
 	}
-
-
-
+	
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		JLabel c = (JLabel)base.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		JLabel c = (JLabel) base.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
 		Language language = (Language) value;
 		c.setText(language.getName());
@@ -58,5 +55,4 @@ class LanguageComboBoxCellRenderer implements ListCellRenderer {
 		
 		return c;
 	}
-	
 }

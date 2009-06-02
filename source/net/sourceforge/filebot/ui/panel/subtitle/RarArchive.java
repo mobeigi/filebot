@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
@@ -37,11 +39,17 @@ class RarArchive implements Archive {
 				
 				ByteBufferOutputStream buffer = new ByteBufferOutputStream(header.getDataSize());
 				
-				// write contents to buffer
-				rar.extractFile(header, buffer);
-				
-				// add memory file
-				vfs.put(header.getFileNameString(), buffer.getByteBuffer());
+				try {
+					// write contents to buffer
+					rar.extractFile(header, buffer);
+					
+					// add memory file
+					vfs.put(header.getFileNameString(), buffer.getByteBuffer());
+				} catch (OutOfMemoryError e) {
+					// ignore, there seems to be bug with JUnRar allocating lots of memory for no apparent reason
+					// @see https://sourceforge.net/forum/forum.php?thread_id=2773018&forum_id=706772
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot extract " + header.getFileNameString());
+				}
 			}
 		} catch (RarException e) {
 			throw new IOException(e);
