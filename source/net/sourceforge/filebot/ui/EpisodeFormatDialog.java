@@ -82,14 +82,14 @@ public class EpisodeFormatDialog extends JDialog {
 	private Color defaultColor = preview.getForeground();
 	private Color errorColor = Color.red;
 	
-	
+
 	public enum Option {
 		APPROVE,
 		CANCEL,
 		USE_DEFAULT
 	}
 	
-	
+
 	public EpisodeFormatDialog(Window owner) {
 		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
 		
@@ -165,11 +165,20 @@ public class EpisodeFormatDialog extends JDialog {
 			}
 		});
 		
+		// finish dialog and close window manually
+		addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				finish(Option.CANCEL);
+			}
+		});
+		
 		// update preview to current format
 		firePreviewSampleChanged();
 		
 		// initialize window properties
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setLocation(TunedUtilities.getPreferredLocation(this));
 		pack();
 	}
@@ -446,12 +455,14 @@ public class EpisodeFormatDialog extends JDialog {
 	private void finish(Option option) {
 		selectedOption = option;
 		
+		// force shutdown
 		previewExecutor.shutdownNow();
 		
 		setVisible(false);
 		dispose();
 	}
 	
+
 	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
 		@Override
@@ -489,7 +500,7 @@ public class EpisodeFormatDialog extends JDialog {
 		}
 	};
 	
-	
+
 	protected void firePreviewSampleChanged() {
 		firePropertyChange("previewSample", null, previewSample);
 	}
