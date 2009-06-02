@@ -2,13 +2,15 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.swing.SwingWorker;
+
 import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.tuned.DownloadTask;
 
 
 public class SubtitlePackage {
@@ -17,14 +19,14 @@ public class SubtitlePackage {
 	
 	private final Language language;
 	
-	private final DownloadTask downloadTask;
+	private final SwingWorker<ByteBuffer, ?> download;
 	
 
 	public SubtitlePackage(SubtitleDescriptor subtitleDescriptor) {
 		this.subtitleDescriptor = subtitleDescriptor;
 		
 		this.language = new Language(languageCodeByName.get(subtitleDescriptor.getLanguageName()), subtitleDescriptor.getLanguageName());
-		this.downloadTask = subtitleDescriptor.createDownloadTask();
+		this.download = subtitleDescriptor.createDownloadTask();
 	}
 	
 
@@ -43,8 +45,8 @@ public class SubtitlePackage {
 	}
 	
 
-	public DownloadTask getDownloadTask() {
-		return downloadTask;
+	public SwingWorker<ByteBuffer, ?> getDownload() {
+		return download;
 	}
 	
 

@@ -2,17 +2,22 @@
 package net.sourceforge.filebot.web;
 
 
-import net.sourceforge.tuned.DownloadTask;
+import java.nio.ByteBuffer;
+
+import javax.swing.SwingWorker;
+
 import net.sublight.webservice.Subtitle;
 
 
 public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 	private final Subtitle subtitle;
+	private final SublightSubtitleClient source;
 	
 
-	public SublightSubtitleDescriptor(Subtitle subtitle) {
+	public SublightSubtitleDescriptor(Subtitle subtitle, SublightSubtitleClient source) {
 		this.subtitle = subtitle;
+		this.source = source;
 	}
 	
 
@@ -34,21 +39,26 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public String getArchiveType() {
-		return subtitle.getSubtitleType().value().toLowerCase();
-	}
-	
-
-	@Override
 	public String getLanguageName() {
 		return subtitle.getLanguage().value();
 	}
 	
 
 	@Override
-	public DownloadTask createDownloadTask() {
-		// TODO support
-		return new DownloadTask(null);
+	public String getArchiveType() {
+		return "zip";
+	}
+	
+
+	@Override
+	public SwingWorker<ByteBuffer, ?> createDownloadTask() {
+		return new SwingWorker<ByteBuffer, Void>() {
+			
+			@Override
+			protected ByteBuffer doInBackground() throws Exception {
+				return ByteBuffer.wrap(source.getZipArchive(subtitle));
+			}
+		};
 	}
 	
 

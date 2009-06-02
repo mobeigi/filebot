@@ -56,7 +56,7 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 		
 		//TODO download + progress
 		progressBar.setVisible(false);
-		progressBar.setString(subtitle.getDownloadTask().getState().toString().toLowerCase());
+		progressBar.setString(subtitle.getDownload().getState().toString().toLowerCase());
 		
 		titleLabel.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
 		languageLabel.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());

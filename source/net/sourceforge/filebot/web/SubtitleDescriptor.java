@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.web;
 
 
-import net.sourceforge.tuned.DownloadTask;
+import java.nio.ByteBuffer;
+
+import javax.swing.SwingWorker;
 
 
 public interface SubtitleDescriptor {
@@ -16,6 +18,6 @@ public interface SubtitleDescriptor {
 	public String getArchiveType();
 	
 
-	public DownloadTask createDownloadTask();
+	public SwingWorker<ByteBuffer, ?> createDownloadTask();
 	
 }

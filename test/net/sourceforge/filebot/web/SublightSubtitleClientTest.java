@@ -4,7 +4,10 @@ package net.sourceforge.filebot.web;
 
 import static org.junit.Assert.*;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import net.sublight.webservice.Subtitle;
 
@@ -79,6 +82,27 @@ public class SublightSubtitleClientTest {
 		assertEquals(22, sample.getEpisode(), 0);
 		assertEquals("Terminator.The.Sarah.Connor.Chronicles.S02E22.HDTV.XviD-2HD", sample.getRelease());
 		assertTrue(sample.isIsLinked());
+	}
+	
+
+	@Test
+	public void getZipArchive() throws Exception {
+		Subtitle subtitle = new Subtitle();
+		subtitle.setSubtitleID("1b4e9868-dded-49d0-b6e2-2d145328f6d4");
+		
+		byte[] zip = client.getZipArchive(subtitle);
+		
+		// read first zip entry
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(zip));
+		
+		try {
+			ZipEntry entry = zipInputStream.getNextEntry();
+			
+			assertEquals("Terminator The Sarah Connor Chronicles.srt", entry.getName());
+			assertEquals(38959, entry.getSize(), 0);
+		} finally {
+			zipInputStream.close();
+		}
 	}
 	
 

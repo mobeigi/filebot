@@ -16,6 +16,8 @@ import javax.swing.Icon;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
+import redstone.xmlrpc.util.Base64;
+
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.Timer;
 import net.sublight.webservice.ArrayOfGenre;
@@ -97,7 +99,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		
 		// retrieve subtitles by name and year
 		for (Subtitle subtitle : getSubtitleList(null, movie.getName(), movie.getYear(), languageName)) {
-			subtitles.add(new SublightSubtitleDescriptor(subtitle));
+			subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
 		}
 		
 		return subtitles;
@@ -111,7 +113,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		for (Subtitle subtitle : getSubtitleList(SublightVideoHasher.computeHash(videoFile), null, null, languageName)) {
 			// only keep linked subtitles
 			if (subtitle.isIsLinked()) {
-				subtitles.add(new SublightSubtitleDescriptor(subtitle));
+				subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
 			}
 		}
 		
@@ -186,8 +188,31 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		if (languageName.equalsIgnoreCase("Serbian"))
 			return SubtitleLanguage.SERBIAN_LATIN;
 		
-		// unkown language
+		// unknown language
 		throw new IllegalArgumentException("Illegal language: " + languageName);
+	}
+	
+
+	protected byte[] getZipArchive(Subtitle subtitle) throws WebServiceException {
+		// require login
+		login();
+		
+		Holder<String> ticket = new Holder<String>();
+		Holder<String> data = new Holder<String>();
+		Holder<String> error = new Holder<String>();
+		
+		webservice.getDownloadTicket(session, null, subtitle.getSubtitleID(), null, ticket, null, error);
+		
+		// abort if something went wrong
+		checkError(error);
+		
+		webservice.downloadByID3(session, subtitle.getSubtitleID(), -1, false, ticket.value, null, data, error);
+		
+		// abort if something went wrong
+		checkError(error);
+		
+		// return zip file bytes
+		return Base64.decode(data.value.getBytes());
 	}
 	
 

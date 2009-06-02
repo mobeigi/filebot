@@ -33,7 +33,7 @@ import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 public final class SublightVideoHasher {
 	
 	
-	public static String computeHash(File file) throws IOException {
+	public static String computeHash(File file) throws IOException, LinkageError {
 		byte[][] hash = new byte[4][];
 		
 		// 1 byte = 0 (reserved)
@@ -80,24 +80,20 @@ public final class SublightVideoHasher {
 	}
 	
 
-	protected static long getDuration(File file, TimeUnit unit) throws IOException {
-		try {
-			MediaInfo mediaInfo = new MediaInfo();
-			
-			if (!mediaInfo.open(file))
-				throw new IllegalArgumentException("Failed to open file: " + file);
-			
-			// get media info
-			String duration = mediaInfo.get(StreamKind.General, 0, "Duration");
-			
-			// close handle
-			mediaInfo.close();
-			
-			// convert from milliseconds to given unit
-			return unit.convert(Long.parseLong(duration), TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			throw new IOException("Failed to get video duration", e);
-		}
+	protected static long getDuration(File file, TimeUnit unit) throws IOException, LinkageError {
+		MediaInfo mediaInfo = new MediaInfo();
+		
+		if (!mediaInfo.open(file))
+			throw new IOException("Failed to open file: " + file);
+		
+		// get media info
+		String duration = mediaInfo.get(StreamKind.General, 0, "Duration");
+		
+		// close handle
+		mediaInfo.close();
+		
+		// convert from milliseconds to given unit
+		return unit.convert(Long.parseLong(duration), TimeUnit.MILLISECONDS);
 	}
 	
 
