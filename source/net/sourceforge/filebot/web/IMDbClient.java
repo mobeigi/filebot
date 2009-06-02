@@ -62,8 +62,8 @@ public class IMDbClient implements EpisodeListProvider {
 		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			String name = removeQuotationMarks(node.getTextContent().trim());
-			String year = node.getNextSibling().getTextContent().trim();
+			String name = normalizeName(node.getTextContent().trim());
+			String year = node.getNextSibling().getTextContent().trim().replaceAll("\\D+", ""); // remove non-number characters
 			String href = getAttribute("href", node);
 			
 			results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(href)));
@@ -71,7 +71,7 @@ public class IMDbClient implements EpisodeListProvider {
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
-			String name = removeQuotationMarks(selectString("//H1/text()", dom));
+			String name = normalizeName(selectString("//H1/text()", dom));
 			String year = selectString("//H1//A", dom);
 			String url = selectString("//LINK[@rel='canonical']/@href", dom);
 			
@@ -86,7 +86,7 @@ public class IMDbClient implements EpisodeListProvider {
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
 		Document dom = getHtmlDocument(openConnection(getEpisodeListLink(searchResult).toURL()));
 		
-		String seriesName = removeQuotationMarks(selectString("//H1/A", dom));
+		String seriesName = normalizeName(selectString("//H1/A", dom));
 		
 		List<Node> nodes = selectNodes("//TABLE//H3/A[preceding-sibling::text()]", dom);
 		
@@ -129,8 +129,9 @@ public class IMDbClient implements EpisodeListProvider {
 	}
 	
 
-	protected String removeQuotationMarks(String name) {
-		return name.replaceAll("^\"|\"$", "");
+	protected String normalizeName(String name) {
+		// remove quotation marks
+		return name.replaceAll("\"", "");
 	}
 	
 

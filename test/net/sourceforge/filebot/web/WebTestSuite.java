@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { TVDotComClientTest.class, AnidbClientTest.class, TVRageClientTest.class, TheTVDBClientTest.class, IMDbClientTest.class, SubsceneSubtitleClientTest.class, SubtitleSourceClientTest.class, OpenSubtitlesHasherTest.class })
+@SuiteClasses( { TVDotComClientTest.class, AnidbClientTest.class, TVRageClientTest.class, TheTVDBClientTest.class, IMDbClientTest.class, SubsceneSubtitleClientTest.class, SubtitleSourceClientTest.class, SublightSubtitleClientTest.class })
 public class WebTestSuite {
 	
 }

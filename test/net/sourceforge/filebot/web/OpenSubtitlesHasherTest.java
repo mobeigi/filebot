@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,13 +16,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 
 @RunWith(Parameterized.class)
-@Ignore("No test data")
 public class OpenSubtitlesHasherTest {
 	
 	private String expectedHash;
 	private File file;
 	
-	
+
 	public OpenSubtitlesHasherTest(String expectedHash, File file) {
 		this.file = file;
 		this.expectedHash = expectedHash;

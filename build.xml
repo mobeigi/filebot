@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="FileBot" default="jar">
-	
+
 	<property name="title" value="${ant.project.name}" />
 	<property name="version" value="1.9" />
 
@@ -22,15 +22,6 @@
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
 			<fileset dir="${dir.build}" excludes="**/*Test*" />
-
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Built-Date" value="${today}" />
-				<attribute name="Application-Name" value="${title}" />
-				<attribute name="Application-Version" value="${version}" />
-				<attribute name="Class-Path" value="args4j.jar miglayout.jar glazedlists.jar nekohtml.jar xercesImpl.jar ehcache.jar simmetrics.jar xmlrpc-client.jar" />
-				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
-			</manifest>
 		</jar>
 
 		<!-- extra jar containing all the unit tests -->
@@ -45,25 +36,31 @@
 		<mkdir dir="${dir.dist}/fatjar" />
 
 		<jar destfile="${dir.dist}/fatjar/FileBot.jar" filesetmanifest="merge" duplicate="fail">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-Date" value="${today}" />
+				<attribute name="Application-Name" value="${title}" />
+				<attribute name="Application-Version" value="${version}" />
+				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
+			</manifest>
 
-			<zipfileset src="${dir.dist}/filebot.jar">
-				<include name="**/*" />
-			</zipfileset>
+			<!-- include build -->
+			<fileset dir="${dir.build}" excludes="**/*Test*" />
 
 			<!-- include libs -->
 			<zipfileset src="${dir.lib}/xercesImpl.jar">
 				<include name="org/apache/**" />
 				<include name="org/w3c/dom/html/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="org/cyberneko/html/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/glazedlists.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
@@ -71,7 +68,7 @@
 			<zipfileset src="${dir.lib}/miglayout.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/xmlrpc-client.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
@@ -79,22 +76,26 @@
 			<zipfileset src="${dir.lib}/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/ehcache.jar">
 				<include name="net/sf/ehcache/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/jna.jar">
 				<!-- include classes and native libraries -->
 				<include name="com/sun/jna/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/js-engine.jar">
 				<include name="com/sun/phobos/script/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/js.jar">
 				<include name="org/mozilla/**" />
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/sublight-ws.jar">
+				<include name="net/sublight/webservice/**" />
 			</zipfileset>
 		</jar>
 	</target>
@@ -110,7 +111,7 @@
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>
 		</javac>
-		
+
 		<!-- copy resources -->
 		<copy todir="${dir.build}">
 			<fileset dir="${dir.source}">
@@ -139,7 +140,7 @@
 		</junit>
 	</target>
 
-	
+
 	<target name="test-fatjar" depends="fatjar">
 		<junit printsummary="yes" fork="true">
 			<classpath>
@@ -147,16 +148,16 @@
 				<pathelement location="${dir.dist}/filebot-test.jar" />
 				<pathelement location="${dir.lib}/junit.jar" />
 			</classpath>
-			
+
 			<formatter type="plain" />
 
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
 	</target>
-	
-	
+
+
 	<target name="run-fatjar" depends="fatjar">
 		<java jar="${dir.dist}/fatjar/FileBot.jar" fork="true" />
 	</target>
-	
+
 </project>

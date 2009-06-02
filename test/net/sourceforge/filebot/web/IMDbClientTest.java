@@ -87,8 +87,8 @@ public class IMDbClientTest {
 
 	@Test
 	public void removeQuotationMarks() throws Exception {
-		assertEquals("test", imdb.removeQuotationMarks("\"test\""));
+		assertEquals("test", imdb.normalizeName("\"test\""));
 		
-		assertEquals("inner \"quotation marks\"", imdb.removeQuotationMarks("\"inner \"quotation marks\"\""));
+		assertEquals("inner \"quotation marks\"", imdb.normalizeName("\"inner \"quotation marks\"\""));
 	}
 }
