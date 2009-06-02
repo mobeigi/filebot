@@ -14,7 +14,7 @@ public class EpisodeFormat extends Format {
 	
 	private static final EpisodeFormat instance = new EpisodeFormat();
 	
-	
+
 	public static EpisodeFormat getInstance() {
 		return instance;
 	}
@@ -24,18 +24,25 @@ public class EpisodeFormat extends Format {
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
 		Episode episode = (Episode) obj;
 		
-		sb.append(episode.getSeriesName()).append(" - ");
+		// try to format episode number, or use episode "number" string as is
+		String episodeNumber = (episode.getEpisodeNumber() != null ? String.format("%02d", episode.getEpisodeNumber()) : episode.getEpisode());
+		
+		// series name should not be empty or null
+		sb.append(episode.getSeriesName());
 		
 		if (episode.getSeason() != null) {
-			sb.append(episode.getSeason()).append('x');
+			// season and episode
+			sb.append(" - ").append(episode.getSeason()).append('x').append(episodeNumber);
+		} else if (episodeNumber != null) {
+			// episode, but no season
+			sb.append(" - ").append(episodeNumber);
 		}
 		
-		Integer episodeNumber = episode.getEpisodeNumber();
+		if (episode.getTitle() != null) {
+			sb.append(" - ").append(episode.getTitle());
+		}
 		
-		// try to format episode number, or use episode "number" string as is
-		sb.append(episodeNumber != null ? String.format("%02d", episodeNumber) : episode.getEpisode());
-		
-		return sb.append(" - ").append(episode.getTitle());
+		return sb;
 	}
 	
 

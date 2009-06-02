@@ -7,6 +7,7 @@ import static javax.swing.ScrollPaneConstants.*;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -53,7 +54,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	
 	protected final EventList<String> searchHistory = createSearchHistory();
 	
-	
+
 	public AbstractSearchPanel() {
 		historyPanel.setColumnHeader(2, "Duration");
 		
@@ -73,7 +74,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		searchTextField.getEditor().setAction(searchAction);
 		
-		searchTextField.getSelectButton().setModel(createSearchEngines());
+		searchTextField.getSelectButton().setModel(Arrays.asList(createSearchEngines()));
 		searchTextField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
 		
 		try {
@@ -98,7 +99,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	}
 	
 
-	protected abstract List<S> createSearchEngines();
+	protected abstract S[] createSearchEngines();
 	
 
 	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
@@ -143,6 +144,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		return history;
 	}
 	
+
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
 		
 		public void actionPerformed(ActionEvent e) {
@@ -155,12 +157,12 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		}
 	};
 	
-	
+
 	private class SearchTask extends SwingWorker<Collection<? extends SearchResult>, Void> {
 		
 		private final RequestProcessor<?, E> requestProcessor;
 		
-		
+
 		public SearchTask(RequestProcessor<?, E> requestProcessor) {
 			this.requestProcessor = requestProcessor;
 		}
@@ -235,7 +237,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		private final RequestProcessor<?, E> requestProcessor;
 		
-		
+
 		public FetchTask(RequestProcessor<?, E> requestProcessor) {
 			this.requestProcessor = requestProcessor;
 		}
@@ -292,7 +294,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		private final String searchText;
 		
-		
+
 		public Request(String searchText) {
 			this.searchText = searchText;
 		}
@@ -315,7 +317,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		private long duration = 0;
 		
-		
+
 		public RequestProcessor(R request, JComponent component) {
 			this.request = request;
 			this.tab = new FileBotTab<JComponent>(component);

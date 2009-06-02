@@ -24,13 +24,13 @@ public class OpenSubtitlesClient {
 	
 	private static final String url = "http://www.opensubtitles.org/xml-rpc";
 	
-	private final String useragent;
+	private final String clientInfo;
 	
 	private String token = null;
 	
-	
-	public OpenSubtitlesClient(String useragent) {
-		this.useragent = useragent;
+
+	public OpenSubtitlesClient(String clientInfo) {
+		this.clientInfo = clientInfo;
 	}
 	
 
@@ -70,7 +70,7 @@ public class OpenSubtitlesClient {
 	@SuppressWarnings("unchecked")
 	public synchronized void login(String username, String password, String language) throws XmlRpcFault {
 		
-		Map<String, String> response = (Map<String, String>) invoke("LogIn", username, password, language, useragent);
+		Map<String, String> response = (Map<String, String>) invoke("LogIn", username, password, language, clientInfo);
 		checkStatus(response.get("status"));
 		
 		token = response.get("token");
@@ -191,7 +191,7 @@ public class OpenSubtitlesClient {
 				title = title.substring(0, endIndex);
 			}
 			
-			movies.add(new MovieDescriptor(title, new Integer(movie.get("id"))));
+			movies.add(new MovieDescriptor(title, Integer.parseInt(movie.get("year")), Integer.parseInt(movie.get("id"))));
 		}
 		
 		return movies;

@@ -10,9 +10,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -70,16 +68,14 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	
 
 	@Override
-	protected List<EpisodeListProvider> createSearchEngines() {
-		List<EpisodeListProvider> engines = new ArrayList<EpisodeListProvider>(4);
-		
-		engines.add(new TVRageClient());
-		engines.add(new AnidbClient());
-		engines.add(new TVDotComClient());
-		engines.add(new IMDbClient());
-		engines.add(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey")));
-		
-		return engines;
+	protected EpisodeListProvider[] createSearchEngines() {
+		return new EpisodeListProvider[] {
+				new TVRageClient(),
+				new AnidbClient(),
+				new TVDotComClient(),
+				new IMDbClient(),
+				new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))
+		};
 	}
 	
 

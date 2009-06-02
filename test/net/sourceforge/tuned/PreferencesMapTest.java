@@ -27,7 +27,7 @@ public class PreferencesMapTest {
 	private static Preferences temp;
 	private static Preferences sequence;
 	
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		root = Preferences.userRoot().node("junit-test");
@@ -168,7 +168,7 @@ public class PreferencesMapTest {
 	public void serializableAdapter() {
 		Map<String, MovieDescriptor> map = PreferencesMap.map(temp, new SerializableAdapter<MovieDescriptor>());
 		
-		MovieDescriptor movie = new MovieDescriptor("The Hitchhiker's Guide to the Galaxy", 42);
+		MovieDescriptor movie = new MovieDescriptor("The Hitchhiker's Guide to the Galaxy", 1981, 42);
 		
 		map.put("movie", movie);
 		

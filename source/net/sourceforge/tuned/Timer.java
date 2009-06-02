@@ -14,7 +14,7 @@ public abstract class Timer implements Runnable {
 	private ScheduledFuture<?> scheduledFuture;
 	private Thread shutdownHook;
 	
-	
+
 	public Timer() {
 		executor = new ScheduledThreadPoolExecutor(1);
 		executor.setKeepAliveTime(200, TimeUnit.MILLISECONDS);

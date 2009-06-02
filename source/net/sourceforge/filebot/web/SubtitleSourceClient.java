@@ -27,7 +27,7 @@ public class SubtitleSourceClient implements SubtitleProvider {
 	
 	private static final int pageSize = 20;
 	
-	
+
 	@Override
 	public String getName() {
 		return "SubtitleSource";
@@ -59,8 +59,9 @@ public class SubtitleSourceClient implements SubtitleProvider {
 			
 			if (!movieMap.containsKey(imdb)) {
 				String title = getTextContent("title", node);
+				String year = getTextContent("year", node);
 				
-				movieMap.put(imdb, new MovieDescriptor(title, imdb));
+				movieMap.put(imdb, new MovieDescriptor(title, Integer.parseInt(year), imdb));
 			}
 		}
 		

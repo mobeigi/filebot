@@ -19,7 +19,7 @@ public final class ResourceManager {
 	
 	private static final Cache cache = CacheManager.getInstance().getCache("resource");
 	
-	
+
 	public static Icon getIcon(String name) {
 		return getIcon(name, null);
 	}
@@ -41,12 +41,7 @@ public final class ResourceManager {
 	
 
 	public static Icon getFlagIcon(String languageCode) {
-		return getIcon(String.format("flags/%s", languageCode), "flags/default");
-	}
-	
-
-	public static Icon getArchiveIcon(String type) {
-		return getIcon(String.format("archives/%s", type), "archives/default");
+		return getIcon(String.format("flags/%s", languageCode));
 	}
 	
 

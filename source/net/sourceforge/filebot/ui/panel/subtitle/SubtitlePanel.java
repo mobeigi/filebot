@@ -21,6 +21,7 @@ import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
@@ -35,7 +36,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	
 	private final LanguageComboBoxModel languageModel = new LanguageComboBoxModel();
 	
-	
+
 	public SubtitlePanel() {
 		historyPanel.setColumnHeader(0, "Show / Movie");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
@@ -76,14 +77,15 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	
 
 	@Override
-	protected List<SubtitleProvider> createSearchEngines() {
-		List<SubtitleProvider> engines = new ArrayList<SubtitleProvider>(2);
+	protected SubtitleProvider[] createSearchEngines() {
+		String clientInfo = String.format("%s v%s", getApplicationName(), getApplicationVersion());
 		
-		engines.add(new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())));
-		engines.add(new SubsceneSubtitleClient());
-		engines.add(new SubtitleSourceClient());
-		
-		return engines;
+		return new SubtitleProvider[] {
+				new OpenSubtitlesSubtitleClient(clientInfo),
+				new SubsceneSubtitleClient(),
+				new SublightSubtitleClient(clientInfo),
+				new SubtitleSourceClient()
+		};
 	}
 	
 
@@ -111,13 +113,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, languageName));
 	}
 	
-	
+
 	protected static class SubtitleRequest extends Request {
 		
 		private final SubtitleProvider provider;
 		private final String languageName;
 		
-		
+
 		public SubtitleRequest(SubtitleProvider provider, String searchText, String languageName) {
 			super(searchText);
 			
@@ -202,6 +204,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 	}
 	
+
 	private final PreferencesEntry<Language> persistentSelectedLanguage = getSettings().entry("language.selected", new AbstractAdapter<Language>() {
 		
 		@Override

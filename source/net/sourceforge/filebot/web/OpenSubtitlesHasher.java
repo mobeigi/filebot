@@ -19,14 +19,14 @@ import java.nio.channels.FileChannel.MapMode;
  * checksum of the first and last 64k (even if they overlap because the file is smaller than
  * 128k).
  */
-public class OpenSubtitlesHasher {
+public final class OpenSubtitlesHasher {
 	
 	/**
 	 * Size of the chunks that will be hashed in bytes (64 KB)
 	 */
 	private static final int HASH_CHUNK_SIZE = 64 * 1024;
 	
-	
+
 	public static String computeHash(File file) throws IOException {
 		long size = file.length();
 		long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);

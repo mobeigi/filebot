@@ -31,7 +31,7 @@ public class IMDbClient implements EpisodeListProvider {
 	
 	private static final String host = "www.imdb.com";
 	
-	
+
 	@Override
 	public String getName() {
 		return "IMDb";
@@ -66,17 +66,16 @@ public class IMDbClient implements EpisodeListProvider {
 			String year = node.getNextSibling().getTextContent().trim();
 			String href = getAttribute("href", node);
 			
-			String nameAndYear = String.format("%s %s", name, year).trim();
-			
-			results.add(new MovieDescriptor(nameAndYear, getImdbId(href)));
+			results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(href)));
 		}
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
 			String name = removeQuotationMarks(selectString("//H1/text()", dom));
+			String year = selectString("//H1//A", dom);
 			String url = selectString("//LINK[@rel='canonical']/@href", dom);
 			
-			results.add(new MovieDescriptor(name, getImdbId(url)));
+			results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(url)));
 		}
 		
 		return results;

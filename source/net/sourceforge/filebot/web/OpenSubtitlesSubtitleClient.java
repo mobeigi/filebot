@@ -21,7 +21,7 @@ public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 	
 	private final OpenSubtitlesClient client;
 	
-	
+
 	public OpenSubtitlesSubtitleClient(String useragent) {
 		this.client = new OpenSubtitlesClient(useragent);
 	}
@@ -39,21 +39,27 @@ public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<SearchResult> search(String query) throws Exception {
+		// require login
 		login();
 		
-		return (List) client.searchMoviesOnIMDB(query);
+		@SuppressWarnings("unchecked")
+		List<SearchResult> results = (List) client.searchMoviesOnIMDB(query);
+		
+		return results;
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
+		// require login
 		login();
 		
-		return (List) client.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageName);
+		@SuppressWarnings("unchecked")
+		List<SubtitleDescriptor> subtitles = (List) client.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageName);
+		
+		return subtitles;
 	}
 	
 
@@ -64,33 +70,33 @@ public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	private synchronized void login() throws Exception {
+	protected synchronized void login() throws Exception {
 		if (!client.isLoggedOn()) {
 			client.loginAnonymous();
 		}
 		
-		logoutTimer.set(12, TimeUnit.MINUTES, true);
+		logoutTimer.set(10, TimeUnit.MINUTES, true);
 	}
 	
 
-	private synchronized void logout() {
-		logoutTimer.cancel();
-		
+	protected synchronized void logout() {
 		if (client.isLoggedOn()) {
 			try {
 				client.logout();
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Exception while deactivating session", e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Logout failed", e);
 			}
 		}
+		
+		logoutTimer.cancel();
 	}
 	
-	private final Timer logoutTimer = new Timer() {
+
+	protected final Timer logoutTimer = new Timer() {
 		
 		@Override
 		public void run() {
 			logout();
 		}
-		
 	};
 }

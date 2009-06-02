@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -39,14 +41,14 @@ public class SelectButton<T> extends JButton {
 	
 	private final SelectIcon selectIcon = new SelectIcon();
 	
-	private List<T> model = new ArrayList<T>(0);
+	private List<T> model = Collections.emptyList();
 	private SingleSelectionModel selectionModel = new DefaultSingleSelectionModel();
 	
 	private LabelProvider<T> labelProvider = new NullLabelProvider<T>();
 	
 	private boolean hover = false;
 	
-	
+
 	public SelectButton() {
 		setContentAreaFilled(false);
 		setFocusable(false);
@@ -63,9 +65,8 @@ public class SelectButton<T> extends JButton {
 	}
 	
 
-	public void setModel(List<T> model) {
-		this.model.clear();
-		this.model.addAll(model);
+	public void setModel(Collection<T> model) {
+		this.model = new ArrayList<T>(model);
 		
 		setSelectedIndex(0);
 	}
@@ -180,7 +181,7 @@ public class SelectButton<T> extends JButton {
 		super.processMouseEvent(e);
 	}
 	
-	
+
 	private class OpenPopupOnClick implements ActionListener {
 		
 		@Override
@@ -205,7 +206,7 @@ public class SelectButton<T> extends JButton {
 		
 		private final T value;
 		
-		
+
 		public SelectPopupMenuItem(String text, Icon icon, T value) {
 			super(text, icon);
 			
@@ -236,7 +237,7 @@ public class SelectButton<T> extends JButton {
 		
 		private Icon icon;
 		
-		
+
 		public SelectIcon() {
 			arrow = new GeneralPath(Path2D.WIND_EVEN_ODD, 3);
 			int x = 25;

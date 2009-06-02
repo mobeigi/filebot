@@ -4,8 +4,6 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -23,8 +21,6 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 	private final JLabel languageLabel = new JLabel();
 	
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
-	
-	private final Map<String, String> languageCodeMap = mapLanguageCodeByName(Language.availableLanguages());
 	
 
 	public SubtitleListCellRenderer() {
@@ -54,8 +50,8 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 		titleLabel.setText(subtitle.getName());
 		
 		if (languageLabel.isVisible()) {
-			languageLabel.setText(subtitle.getLanguageName());
-			languageLabel.setIcon(ResourceManager.getFlagIcon(languageCodeMap.get(subtitle.getLanguageName())));
+			languageLabel.setText(subtitle.getLanguage().getName());
+			languageLabel.setIcon(ResourceManager.getFlagIcon(subtitle.getLanguage().getCode()));
 		}
 		
 		//TODO download + progress
@@ -67,17 +63,6 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 		
 		// don't paint border on last element
 		setBorderPainted(index < list.getModel().getSize() - 1);
-	}
-	
-
-	private Map<String, String> mapLanguageCodeByName(Language[] languages) {
-		Map<String, String> map = new HashMap<String, String>();
-		
-		for (Language language : languages) {
-			map.put(language.getName(), language.getCode());
-		}
-		
-		return map;
 	}
 	
 

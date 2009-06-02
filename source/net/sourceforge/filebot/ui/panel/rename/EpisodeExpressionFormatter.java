@@ -38,7 +38,7 @@ class EpisodeExpressionFormatter extends ExpressionFormat implements MatchFormat
 		Episode episode = (Episode) match.getValue();
 		File mediaFile = (File) match.getCandidate();
 		
-		return format(new EpisodeFormatBindingBean(episode, mediaFile));
+		return format(new EpisodeFormatBindingBean(episode, mediaFile)).trim();
 	}
 	
 }

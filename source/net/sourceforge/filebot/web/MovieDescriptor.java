@@ -4,12 +4,20 @@ package net.sourceforge.filebot.web;
 
 public class MovieDescriptor extends SearchResult {
 	
+	private final int year;
 	private final int imdbId;
 	
-	
-	public MovieDescriptor(String name, int imdbId) {
+
+	public MovieDescriptor(String name, int year, int imdbId) {
 		super(name);
+		
+		this.year = year;
 		this.imdbId = imdbId;
+	}
+	
+
+	public int getYear() {
+		return year;
 	}
 	
 
@@ -22,10 +30,16 @@ public class MovieDescriptor extends SearchResult {
 	public boolean equals(Object object) {
 		if (object instanceof MovieDescriptor) {
 			MovieDescriptor other = (MovieDescriptor) object;
-			return this.getImdbId() == other.getImdbId() && this.getName() == other.getName();
+			return getImdbId() == other.getImdbId() && getName().equals(other.getName()) && getYear() == other.getYear();
 		}
 		
-		return super.equals(object);
+		return false;
+	}
+	
+
+	@Override
+	public String toString() {
+		return String.format("%s (%d)", getName(), getYear());
 	}
 	
 }

@@ -12,9 +12,9 @@ public class Episode implements Serializable {
 	private final String episode;
 	private final String title;
 	
-	
-	public Episode(String seriesName, Integer season, Integer episode, String title) {
-		this(seriesName, season.toString(), episode.toString(), title);
+
+	public Episode(String seriesName, int season, int episode, String title) {
+		this(seriesName, String.valueOf(season), String.valueOf(episode), title);
 	}
 	
 

@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -18,7 +19,6 @@ import net.sourceforge.filebot.ResourceManager;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
-import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.swing.EventListModel;
@@ -34,10 +34,17 @@ public class SubtitleListComponent extends JComponent {
 	
 	private JTextField filterEditor = new JTextField();
 	
-	
+
 	public SubtitleListComponent() {
-		TextFilterator<SubtitlePackage> filterator = GlazedLists.toStringTextFilterator();
-		TextComponentMatcherEditor<SubtitlePackage> matcherEditor = new TextComponentMatcherEditor<SubtitlePackage>(filterEditor, filterator);
+		// allow filtering by language name and subtitle name
+		TextComponentMatcherEditor<SubtitlePackage> matcherEditor = new TextComponentMatcherEditor<SubtitlePackage>(filterEditor, new TextFilterator<SubtitlePackage>() {
+			
+			@Override
+			public void getFilterStrings(List<String> list, SubtitlePackage element) {
+				list.add(element.getLanguage().getName());
+				list.add(element.getName());
+			}
+		});
 		
 		JList list = new JList(new EventListModel<SubtitlePackage>(new FilterList<SubtitlePackage>(model, matcherEditor)));
 		list.setCellRenderer(renderer);
@@ -68,6 +75,7 @@ public class SubtitleListComponent extends JComponent {
 		renderer.getLanguageLabel().setVisible(visible);
 	}
 	
+
 	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
 		
 		@Override

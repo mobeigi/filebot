@@ -9,7 +9,7 @@ public abstract class SearchResult implements Serializable {
 	
 	private final String name;
 	
-	
+
 	public SearchResult(String name) {
 		this.name = name;
 	}

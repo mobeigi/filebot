@@ -13,7 +13,7 @@ public class SubtitleSourceClientTest {
 	
 	private static final SubtitleSourceClient client = new SubtitleSourceClient();
 	
-	
+
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> list = client.search("babylon 5");
@@ -31,7 +31,7 @@ public class SubtitleSourceClientTest {
 
 	@Test
 	public void getSubtitleListAll() throws Exception {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Buffy", 118276), "English");
+		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Buffy", 1997, 118276), "English");
 		
 		SubtitleDescriptor sample = list.get(0);
 		
@@ -46,7 +46,7 @@ public class SubtitleSourceClientTest {
 
 	@Test
 	public void getSubtitleListSinglePage() throws Exception {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Firefly", 303461), 0);
+		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Firefly", 2002, 303461), 0);
 		
 		SubtitleDescriptor sample = list.get(0);
 		
@@ -60,6 +60,6 @@ public class SubtitleSourceClientTest {
 
 	@Test
 	public void getSubtitleListLink() {
-		assertEquals("http://www.subtitlesource.org/title/tt0303461", client.getSubtitleListLink(new MovieDescriptor("Firefly", 303461), null).toString());
+		assertEquals("http://www.subtitlesource.org/title/tt0303461", client.getSubtitleListLink(new MovieDescriptor("Firefly", 2002, 303461), null).toString());
 	}
 }
