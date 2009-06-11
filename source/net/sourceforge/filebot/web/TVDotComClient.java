@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -22,18 +23,18 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class TVDotComClient implements EpisodeListProvider {
 	
 	private static final String host = "www.tv.com";
 	
-	
+
 	@Override
 	public String getName() {
 		return "TV.com";
@@ -178,6 +179,9 @@ public class TVDotComClient implements EpisodeListProvider {
 			
 			episodes.add(new Episode(searchResult.getName(), season, episode, title));
 		}
+		
+		// episodes are listed in reverse order
+		Collections.reverse(episodes);
 		
 		return episodes;
 	}
