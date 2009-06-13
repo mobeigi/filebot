@@ -33,7 +33,7 @@ public class EpisodeFormatBindingBean {
 	
 	private MediaInfo mediaInfo;
 	
-	
+
 	public EpisodeFormatBindingBean(Episode episode, File mediaFile) {
 		this.episode = episode;
 		this.mediaFile = mediaFile;
@@ -286,7 +286,7 @@ public class EpisodeFormatBindingBean {
 		Element cacheEntry = cache.get(file);
 		
 		if (cacheEntry != null) {
-			return (String) cacheEntry.getValue();
+			return String.format("%08X", cacheEntry.getValue());
 		}
 		
 		// calculate checksum
@@ -308,10 +308,10 @@ public class EpisodeFormatBindingBean {
 			in.close();
 		}
 		
-		String checksum = String.format("%08X", crc.getValue());
+		// cache calculated checksum 
+		cache.put(new Element(file, crc.getValue()));
 		
-		cache.put(new Element(file, checksum));
-		return checksum;
+		return String.format("%08X", crc.getValue());
 	}
 	
 }
