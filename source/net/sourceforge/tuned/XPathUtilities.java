@@ -124,12 +124,12 @@ public final class XPathUtilities {
 		throw new UnsupportedOperationException();
 	}
 	
-	
+
 	protected static class NodeListDecorator extends AbstractList<Node> {
 		
 		private final NodeList nodes;
 		
-		
+
 		public NodeListDecorator(NodeList nodes) {
 			this.nodes = nodes;
 		}

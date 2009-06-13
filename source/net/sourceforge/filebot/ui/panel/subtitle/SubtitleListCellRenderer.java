@@ -3,11 +3,11 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Insets;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JProgressBar;
 import javax.swing.border.CompoundBorder;
 
 import net.miginfocom.swing.MigLayout;
@@ -20,21 +20,15 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 	private final JLabel titleLabel = new JLabel();
 	private final JLabel languageLabel = new JLabel();
 	
-	private final JProgressBar progressBar = new JProgressBar(0, 100);
-	
 
 	public SubtitleListCellRenderer() {
+		super(new Insets(5, 5, 5, 5));
 		setHighlightingEnabled(false);
-		
-		progressBar.setStringPainted(true);
-		progressBar.setOpaque(false);
-		progressBar.setPreferredSize(new Dimension(80, 18));
 		
 		setLayout(new MigLayout("fill, nogrid, insets 0"));
 		
 		add(languageLabel, "hidemode 3, w 85px!");
-		add(titleLabel, "");
-		add(progressBar, "gap indent:push");
+		add(titleLabel);
 		
 		setBorder(new CompoundBorder(new DashedSeparator(2, 4, Color.lightGray, Color.white), getBorder()));
 	}
@@ -46,23 +40,36 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 		
 		SubtitlePackage subtitle = (SubtitlePackage) value;
 		
-		titleLabel.setIcon(ResourceManager.getIcon("status.archive"));
 		titleLabel.setText(subtitle.getName());
+		titleLabel.setIcon(getIcon(subtitle));
 		
 		if (languageLabel.isVisible()) {
 			languageLabel.setText(subtitle.getLanguage().getName());
 			languageLabel.setIcon(ResourceManager.getFlagIcon(subtitle.getLanguage().getCode()));
 		}
 		
-		//TODO download + progress
-		progressBar.setVisible(false);
-		progressBar.setString(subtitle.getDownload().getState().toString().toLowerCase());
-		
 		titleLabel.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
 		languageLabel.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
 		
 		// don't paint border on last element
 		setBorderPainted(index < list.getModel().getSize() - 1);
+	}
+	
+
+	private Icon getIcon(SubtitlePackage subtitle) {
+		switch (subtitle.getDownload().getPhase()) {
+			case PENDING:
+				return ResourceManager.getIcon(subtitle.getArchiveType() != ArchiveType.UNDEFINED ? "bullet.green" : "bullet.yellow");
+			case DOWNLOADING:
+				return ResourceManager.getIcon("package.fetch");
+			case EXTRACTING:
+				return ResourceManager.getIcon("package.extract");
+			case DONE:
+				return ResourceManager.getIcon("status.ok");
+		}
+		
+		// unreachable
+		return null;
 	}
 	
 

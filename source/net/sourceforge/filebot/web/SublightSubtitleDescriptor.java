@@ -3,8 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import java.nio.ByteBuffer;
-
-import javax.swing.SwingWorker;
+import java.util.Formatter;
+import java.util.concurrent.Callable;
 
 import net.sublight.webservice.Subtitle;
 
@@ -14,33 +14,63 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	private final Subtitle subtitle;
 	private final SublightSubtitleClient source;
 	
+	private final String name;
+	private final String languageName;
+	
 
 	public SublightSubtitleDescriptor(Subtitle subtitle, SublightSubtitleClient source) {
 		this.subtitle = subtitle;
 		this.source = source;
+		
+		this.name = getName(subtitle);
+		this.languageName = source.getLanguageName(subtitle.getLanguage());
+	}
+	
+
+	private String getName(Subtitle subtitle) {
+		String releaseName = subtitle.getRelease();
+		
+		// check if release name contains sufficient information to be used as display name
+		if (releaseName != null && !releaseName.isEmpty()) {
+			boolean isValid = true;
+			
+			if (subtitle.getSeason() != null) {
+				isValid &= releaseName.contains(subtitle.getSeason().toString());
+			}
+			
+			if (subtitle.getEpisode() != null) {
+				isValid &= releaseName.contains(subtitle.getEpisode().toString());
+			}
+			
+			if (isValid) {
+				return releaseName;
+			}
+		}
+		
+		// format proper display name
+		Formatter builder = new Formatter(new StringBuilder(subtitle.getTitle()));
+		
+		if (subtitle.getSeason() != null || subtitle.getEpisode() != null) {
+			builder.format(" - S%02dE%02d", subtitle.getSeason(), subtitle.getEpisode());
+		}
+		
+		if (subtitle.getRelease() != null && !subtitle.getRelease().isEmpty()) {
+			builder.format(" (%s)", subtitle.getRelease());
+		}
+		
+		return builder.out().toString();
 	}
 	
 
 	@Override
 	public String getName() {
-		// use release name by default
-		String releaseName = subtitle.getRelease();
-		
-		if (releaseName == null || releaseName.isEmpty()) {
-			// create name from subtitle information (name, season, episode, ...)
-			String season = subtitle.getSeason() != null ? subtitle.getSeason().toString() : null;
-			String episode = subtitle.getEpisode() != null ? subtitle.getEpisode().toString() : null;
-			
-			return EpisodeFormat.getInstance().format(new Episode(subtitle.getTitle(), season, episode, null));
-		}
-		
-		return releaseName;
+		return name;
 	}
 	
 
 	@Override
 	public String getLanguageName() {
-		return subtitle.getLanguage().value();
+		return languageName;
 	}
 	
 
@@ -51,11 +81,11 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public SwingWorker<ByteBuffer, ?> createDownloadTask() {
-		return new SwingWorker<ByteBuffer, Void>() {
+	public Callable<ByteBuffer> getDownloadFunction() {
+		return new Callable<ByteBuffer>() {
 			
 			@Override
-			protected ByteBuffer doInBackground() throws Exception {
+			public ByteBuffer call() throws Exception {
 				return ByteBuffer.wrap(source.getZipArchive(subtitle));
 			}
 		};

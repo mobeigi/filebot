@@ -78,12 +78,10 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	@Override
 	protected SubtitleProvider[] createSearchEngines() {
-		String clientInfo = String.format("%s v%s", getApplicationName(), getApplicationVersion());
-		
 		return new SubtitleProvider[] {
-				new OpenSubtitlesSubtitleClient(clientInfo),
+				new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())),
 				new SubsceneSubtitleClient(),
-				new SublightSubtitleClient(clientInfo),
+				new SublightSubtitleClient(getApplicationName(), Settings.userRoot().get("sublight.apikey")),
 				new SubtitleSourceClient()
 		};
 	}

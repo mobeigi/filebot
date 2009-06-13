@@ -3,8 +3,10 @@ package net.sourceforge.tuned;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 
@@ -14,15 +16,15 @@ public class ByteBufferOutputStream extends OutputStream {
 	
 	private final float loadFactor;
 	
-	
+
 	public ByteBufferOutputStream(int initialCapacity) {
 		this(initialCapacity, 1.0f);
 	}
 	
 
 	public ByteBufferOutputStream(int initialCapacity, float loadFactor) {
-		if (initialCapacity <= 0)
-			throw new IllegalArgumentException("initialCapacity must be greater than 0");
+		if (initialCapacity < 0)
+			throw new IllegalArgumentException("initialCapacity must not be negative");
 		
 		if (loadFactor <= 0 || Float.isNaN(loadFactor))
 			throw new IllegalArgumentException("loadFactor must be greater than 0");
@@ -33,33 +35,33 @@ public class ByteBufferOutputStream extends OutputStream {
 	
 
 	@Override
-	public synchronized void write(int b) throws IOException {
+	public void write(int b) throws IOException {
 		ensureCapacity(buffer.position() + 1);
 		buffer.put((byte) b);
 	}
 	
 
 	@Override
-	public synchronized void write(byte[] src) throws IOException {
+	public void write(byte[] src) throws IOException {
 		ensureCapacity(buffer.position() + src.length);
 		buffer.put(src);
 	}
 	
 
-	public synchronized void write(ByteBuffer src) throws IOException {
+	public void write(ByteBuffer src) throws IOException {
 		ensureCapacity(buffer.position() + src.remaining());
 		buffer.put(src);
 	}
 	
 
 	@Override
-	public synchronized void write(byte[] src, int offset, int length) throws IOException {
+	public void write(byte[] src, int offset, int length) throws IOException {
 		ensureCapacity(buffer.position() + length);
 		buffer.put(src, offset, length);
 	}
 	
 
-	public synchronized void ensureCapacity(int minCapacity) {
+	public void ensureCapacity(int minCapacity) {
 		if (minCapacity <= buffer.capacity())
 			return;
 		
@@ -81,7 +83,7 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 	
 
-	public synchronized ByteBuffer getByteBuffer() {
+	public ByteBuffer getByteBuffer() {
 		ByteBuffer result = buffer.duplicate();
 		
 		// flip buffer so it can be read
@@ -91,7 +93,7 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 	
 
-	public synchronized int transferFrom(ReadableByteChannel channel) throws IOException {
+	public int transferFrom(ReadableByteChannel channel) throws IOException {
 		// make sure buffer is not at its limit
 		ensureCapacity(buffer.position() + 1);
 		
@@ -99,17 +101,33 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 	
 
-	public synchronized int position() {
+	public int transferFully(InputStream inputStream) throws IOException {
+		return transferFully(Channels.newChannel(inputStream));
+	}
+	
+
+	public int transferFully(ReadableByteChannel channel) throws IOException {
+		int total = 0, read = 0;
+		
+		while ((read = transferFrom(channel)) >= 0) {
+			total += read;
+		}
+		
+		return total;
+	}
+	
+
+	public int position() {
 		return buffer.position();
 	}
 	
 
-	public synchronized int capacity() {
+	public int capacity() {
 		return buffer.capacity();
 	}
 	
 
-	public synchronized void rewind() {
+	public void rewind() {
 		buffer.rewind();
 	}
 	

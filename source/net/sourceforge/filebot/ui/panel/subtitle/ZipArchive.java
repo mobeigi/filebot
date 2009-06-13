@@ -2,10 +2,9 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -25,8 +24,8 @@ class ZipArchive implements Archive {
 	}
 	
 
-	public Map<String, ByteBuffer> extract() throws IOException {
-		Map<String, ByteBuffer> vfs = new LinkedHashMap<String, ByteBuffer>();
+	public Map<File, ByteBuffer> extract() throws IOException {
+		Map<File, ByteBuffer> vfs = new LinkedHashMap<File, ByteBuffer>();
 		
 		// read first zip entry
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteBufferInputStream(data.duplicate()));
@@ -34,14 +33,18 @@ class ZipArchive implements Archive {
 		
 		try {
 			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+				// ignore directory entries
+				if (zipEntry.isDirectory()) {
+					continue;
+				}
+				
 				ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) zipEntry.getSize());
-				ReadableByteChannel fileChannel = Channels.newChannel(zipInputStream);
 				
 				// write contents to buffer
-				while (buffer.transferFrom(fileChannel) >= 0);
+				buffer.transferFully(zipInputStream);
 				
 				// add memory file
-				vfs.put(zipEntry.getName(), buffer.getByteBuffer());
+				vfs.put(new File(zipEntry.getName()), buffer.getByteBuffer());
 			}
 		} finally {
 			zipInputStream.close();

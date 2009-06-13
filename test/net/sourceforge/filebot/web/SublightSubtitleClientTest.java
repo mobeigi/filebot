@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.sublight.webservice.Subtitle;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.sublight.webservice.Subtitle;
+
 
 public class SublightSubtitleClientTest {
 	
-	private static SublightSubtitleClient client = new SublightSubtitleClient("Test;0.0");
+	private static SublightSubtitleClient client = new SublightSubtitleClient("FileBot", "afa9ecb2-a3ee-42b1-9225-000b4038bc85");
 	
 
 	@BeforeClass

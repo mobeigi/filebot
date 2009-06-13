@@ -14,9 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.reflect.Method;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -33,14 +30,12 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
-import net.sourceforge.tuned.ExceptionUtilities;
-
 
 public final class TunedUtilities {
 	
 	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
 	
-	
+
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("Method must be accessed from the Swing Event Dispatch Thread, but was called on Thread \"" + Thread.currentThread().getName() + "\"");
@@ -157,54 +152,6 @@ public final class TunedUtilities {
 	}
 	
 
-	public static void syncPropertyChangeEvents(Class<?> propertyType, String property, Object from, Object to) {
-		PropertyChangeDelegate.create(propertyType, property, from, to);
-	}
-	
-	
-	private static class PropertyChangeDelegate implements PropertyChangeListener {
-		
-		private final String property;
-		
-		private final Object target;
-		private final Method firePropertyChange;
-		
-		
-		public static PropertyChangeDelegate create(Class<?> propertyType, String property, Object source, Object target) {
-			try {
-				
-				PropertyChangeDelegate listener = new PropertyChangeDelegate(propertyType, property, target);
-				source.getClass().getMethod("addPropertyChangeListener", PropertyChangeListener.class).invoke(source, listener);
-				
-				return listener;
-			} catch (Exception e) {
-				throw ExceptionUtilities.asRuntimeException(e);
-			}
-		}
-		
-
-		protected PropertyChangeDelegate(Class<?> propertyType, String property, Object target) throws SecurityException, NoSuchMethodException {
-			this.property = property;
-			this.target = target;
-			
-			this.firePropertyChange = target.getClass().getMethod("firePropertyChange", String.class, propertyType, propertyType);
-		}
-		
-
-		@Override
-		public void propertyChange(PropertyChangeEvent evt) {
-			if (property.equals(evt.getPropertyName())) {
-				try {
-					firePropertyChange.invoke(target, evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
-				} catch (Exception e) {
-					throw ExceptionUtilities.asRuntimeException(e);
-				}
-			}
-		}
-		
-	}
-	
-
 	/**
 	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead
 	 * of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
@@ -216,7 +163,7 @@ public final class TunedUtilities {
 			return new DragDropRowMouseInputHandler();
 		}
 		
-		
+
 		protected class DragDropRowMouseInputHandler extends MouseInputHandler {
 			
 			@Override
@@ -231,7 +178,7 @@ public final class TunedUtilities {
 		}
 	}
 	
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

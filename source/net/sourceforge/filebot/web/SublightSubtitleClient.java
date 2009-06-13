@@ -10,21 +10,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceException;
 
-import redstone.xmlrpc.util.Base64;
-
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.Timer;
 import net.sublight.webservice.ArrayOfGenre;
 import net.sublight.webservice.ArrayOfIMDB;
 import net.sublight.webservice.ArrayOfRelease;
+import net.sublight.webservice.ArrayOfString;
 import net.sublight.webservice.ArrayOfSubtitle;
 import net.sublight.webservice.ArrayOfSubtitleLanguage;
+import net.sublight.webservice.ClientInfo;
 import net.sublight.webservice.Genre;
 import net.sublight.webservice.IMDB;
 import net.sublight.webservice.Release;
@@ -38,16 +40,16 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	
 	private static final String iid = "42cc1701-3752-49e2-a148-332960073452";
 	
-	private final String clientInfo;
+	private final ClientInfo clientInfo = new ClientInfo();
 	
-	private final SubtitlesAPI2Soap webservice;
+	private SubtitlesAPI2Soap webservice;
 	
 	private String session;
 	
 
-	public SublightSubtitleClient(String clientInfo) {
-		this.clientInfo = clientInfo;
-		this.webservice = new SubtitlesAPI2().getSubtitlesAPI2Soap();
+	public SublightSubtitleClient(String clientIdentity, String apikey) {
+		clientInfo.setClientId(clientIdentity);
+		clientInfo.setApiKey(apikey);
 	}
 	
 
@@ -174,22 +176,41 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	}
 	
 
+	@SuppressWarnings("unchecked")
+	private static Entry<SubtitleLanguage, String>[] aliasList = new Entry[] {
+			new SimpleEntry(SubtitleLanguage.PORTUGUESE_BRAZIL, "Brazilian"), 
+			new SimpleEntry(SubtitleLanguage.BOSNIAN_LATIN, "Bosnian"), 
+			new SimpleEntry(SubtitleLanguage.SERBIAN_LATIN, "Serbian")
+	};
+	
+
 	protected SubtitleLanguage getSubtitleLanguage(String languageName) {
+		// check subtitle language enum
 		for (SubtitleLanguage language : SubtitleLanguage.values()) {
 			if (language.value().equalsIgnoreCase(languageName))
 				return language;
 		}
 		
-		// special language name handling
-		if (languageName.equalsIgnoreCase("Brazilian"))
-			return SubtitleLanguage.PORTUGUESE_BRAZIL;
-		if (languageName.equalsIgnoreCase("Bosnian"))
-			return SubtitleLanguage.BOSNIAN_LATIN;
-		if (languageName.equalsIgnoreCase("Serbian"))
-			return SubtitleLanguage.SERBIAN_LATIN;
+		// check alias list
+		for (Entry<SubtitleLanguage, String> alias : aliasList) {
+			if (alias.getValue().equalsIgnoreCase(languageName))
+				return alias.getKey();
+		}
 		
-		// unknown language
+		// illegal language name
 		throw new IllegalArgumentException("Illegal language: " + languageName);
+	}
+	
+
+	protected String getLanguageName(SubtitleLanguage language) {
+		// check alias list
+		for (Entry<SubtitleLanguage, String> alias : aliasList) {
+			if (language == alias.getKey())
+				return alias.getValue();
+		}
+		
+		// use language value by default
+		return language.value();
 	}
 	
 
@@ -198,7 +219,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		login();
 		
 		Holder<String> ticket = new Holder<String>();
-		Holder<String> data = new Holder<String>();
+		Holder<byte[]> data = new Holder<byte[]>();
 		Holder<String> error = new Holder<String>();
 		
 		webservice.getDownloadTicket(session, null, subtitle.getSubtitleID(), null, ticket, null, error);
@@ -212,7 +233,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		checkError(error);
 		
 		// return zip file bytes
-		return Base64.decode(data.value.getBytes());
+		return data.value;
 	}
 	
 
@@ -223,11 +244,20 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	
 
 	protected synchronized void login() throws WebServiceException {
+		if (webservice == null) {
+			// lazy initialize because all the jax-ws class loading will take longer than a few milliseconds
+			webservice = new SubtitlesAPI2().getSubtitlesAPI2Soap();
+		}
+		
 		if (session == null) {
+			// args contain only iid
+			ArrayOfString args = new ArrayOfString();
+			args.getString().add(iid);
+			
 			Holder<String> session = new Holder<String>();
 			Holder<String> error = new Holder<String>();
 			
-			webservice.logInAnonymous3(clientInfo, iid, session, null, error);
+			webservice.logInAnonymous4(clientInfo, args, session, null, error);
 			
 			// abort if something went wrong
 			checkError(error);
@@ -261,7 +291,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 
 	protected void checkError(Holder<?> error) throws WebServiceException {
 		if (error.value != null) {
-			throw new WebServiceException("Login failed: " + error.value);
+			throw new WebServiceException("Response indicates error: " + error.value);
 		}
 	}
 	

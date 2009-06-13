@@ -48,7 +48,7 @@ public class ListPanel extends JComponent {
 	private SpinnerNumberModel fromSpinnerModel = new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1);
 	private SpinnerNumberModel toSpinnerModel = new SpinnerNumberModel(20, 0, Integer.MAX_VALUE, 1);
 	
-	
+
 	public ListPanel() {
 		
 		list.setTitle("Title");
@@ -88,6 +88,7 @@ public class ListPanel extends JComponent {
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ENTER"), createAction);
 	}
 	
+
 	private AbstractAction createAction = new AbstractAction("Create") {
 		
 		public void actionPerformed(ActionEvent evt) {
@@ -119,8 +120,8 @@ public class ListPanel extends JComponent {
 					
 					// numbers
 					bindings.put("index", i);
-					bindings.put("min", min);
-					bindings.put("max", max);
+					bindings.put("from", from);
+					bindings.put("to", to);
 					
 					names.add(format.format(bindings, new StringBuffer()).toString());
 				}

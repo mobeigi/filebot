@@ -29,7 +29,7 @@ class FileTreePanel extends JComponent {
 	
 	private FileTreeTransferablePolicy transferablePolicy = new FileTreeTransferablePolicy(fileTree);
 	
-	
+
 	public FileTreePanel() {
 		fileTree.setTransferHandler(new DefaultTransferHandler(transferablePolicy, null));
 		
@@ -40,7 +40,16 @@ class FileTreePanel extends JComponent {
 		add(new JButton(loadAction));
 		add(new JButton(clearAction), "gap 1.2mm, wrap 1.2mm");
 		
-		TunedUtilities.syncPropertyChangeEvents(boolean.class, LOADING_PROPERTY, transferablePolicy, this);
+		// forward loading events
+		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (LOADING_PROPERTY.equals(evt.getPropertyName())) {
+					firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+				}
+			}
+		});
 		
 		// update tree when loading is finished
 		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
@@ -66,6 +75,7 @@ class FileTreePanel extends JComponent {
 		return transferablePolicy;
 	}
 	
+
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
@@ -98,7 +108,7 @@ class FileTreePanel extends JComponent {
 		}
 	};
 	
-	
+
 	private void fireFileTreeChange() {
 		firePropertyChange("filetree", null, fileTree);
 	}

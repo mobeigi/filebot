@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -16,6 +17,7 @@ enum ArchiveType {
 			return new ZipArchive(data);
 		}
 	},
+	
 	RAR {
 		
 		@Override
@@ -23,6 +25,7 @@ enum ArchiveType {
 			return new RarArchive(data);
 		}
 	},
+	
 	UNDEFINED {
 		
 		@Override
@@ -31,7 +34,7 @@ enum ArchiveType {
 			return new Archive() {
 				
 				@Override
-				public Map<String, ByteBuffer> extract() throws IOException {
+				public Map<File, ByteBuffer> extract() throws IOException {
 					return Collections.emptyMap();
 				}
 			};
@@ -40,13 +43,10 @@ enum ArchiveType {
 
 
 	public static ArchiveType forName(String name) {
-		if (name == null)
-			return UNDEFINED;
-		
-		if (name.equalsIgnoreCase("zip"))
+		if ("zip".equalsIgnoreCase(name))
 			return ZIP;
 		
-		if (name.equalsIgnoreCase("rar"))
+		if ("rar".equalsIgnoreCase(name))
 			return RAR;
 		
 		return UNDEFINED;
@@ -54,10 +54,5 @@ enum ArchiveType {
 	
 
 	public abstract Archive fromData(ByteBuffer data);
-	
-
-	public String getExtension() {
-		return toString().toLowerCase();
-	}
 	
 }

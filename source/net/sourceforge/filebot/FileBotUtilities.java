@@ -2,9 +2,10 @@
 package net.sourceforge.filebot;
 
 
-import java.io.FileFilter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 public final class FileBotUtilities {
@@ -15,7 +16,7 @@ public final class FileBotUtilities {
 	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
 	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
 	
-	
+
 	/**
 	 * Strip filename of invalid characters
 	 * 
@@ -32,6 +33,7 @@ public final class FileBotUtilities {
 		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
 	}
 	
+
 	/**
 	 * A {@link Pattern} that will match checksums enclosed in brackets ("[]" or "()"). A
 	 * checksum string is a hex number with at least 8 digits. Capturing group 0 will contain
@@ -39,7 +41,7 @@ public final class FileBotUtilities {
 	 */
 	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8,})(?=\\]|\\))");
 	
-	
+
 	public static String getEmbeddedChecksum(CharSequence string) {
 		Matcher matcher = EMBEDDED_CHECKSUM_PATTERN.matcher(string);
 		String embeddedChecksum = null;
@@ -57,13 +59,15 @@ public final class FileBotUtilities {
 		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
 	}
 	
-	public static final FileFilter TORRENT_FILES = MediaTypes.getDefault().filter("application/torrent");
-	public static final FileFilter LIST_FILES = MediaTypes.getDefault().filter("application/list");
-	public static final FileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
-	public static final FileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
-	public static final FileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
+
+	public static final ExtensionFileFilter TORRENT_FILES = MediaTypes.getDefault().filter("application/torrent");
+	public static final ExtensionFileFilter LIST_FILES = MediaTypes.getDefault().filter("application/list");
+	public static final ExtensionFileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
+	public static final ExtensionFileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
+	public static final ExtensionFileFilter ARCHIVE_FILES = MediaTypes.getDefault().filter("archive");
+	public static final ExtensionFileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
 	
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

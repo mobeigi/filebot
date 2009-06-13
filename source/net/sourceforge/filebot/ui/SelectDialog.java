@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -34,7 +35,7 @@ public class SelectDialog<T> extends JDialog {
 	
 	private boolean valueSelected = false;
 	
-	
+
 	public SelectDialog(Window owner, Collection<? extends T> options) {
 		super(owner, "Select", ModalityType.DOCUMENT_MODAL);
 		
@@ -47,7 +48,10 @@ public class SelectDialog<T> extends JDialog {
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 		
-		list.setCellRenderer(new SelectListCellRenderer());
+		DefaultFancyListCellRenderer renderer = new DefaultFancyListCellRenderer(4);
+		renderer.setHighlightingEnabled(false);
+		
+		list.setCellRenderer(renderer);
 		list.addMouseListener(mouseListener);
 		
 		JComponent c = (JComponent) getContentPane();
@@ -93,7 +97,8 @@ public class SelectDialog<T> extends JDialog {
 		dispose();
 	}
 	
-	private AbstractAction selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
+
+	private final Action selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
 		public void actionPerformed(ActionEvent e) {
 			valueSelected = true;
@@ -101,7 +106,7 @@ public class SelectDialog<T> extends JDialog {
 		}
 	};
 	
-	private AbstractAction cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+	private final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
 		public void actionPerformed(ActionEvent e) {
 			valueSelected = false;
@@ -109,28 +114,13 @@ public class SelectDialog<T> extends JDialog {
 		}
 	};
 	
-	private MouseAdapter mouseListener = new MouseAdapter() {
+	private final MouseAdapter mouseListener = new MouseAdapter() {
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
 				selectAction.actionPerformed(null);
 			}
-		}
-	};
-	
-	
-	protected class SelectListCellRenderer extends DefaultFancyListCellRenderer {
-		
-		public SelectListCellRenderer() {
-			super(4);
-			setHighlightingEnabled(false);
-		}
-		
-
-		@Override
-		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			super.configureListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
 		}
 	};
 	

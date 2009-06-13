@@ -27,7 +27,7 @@ class History {
 	@XmlElement(name = "sequence")
 	private List<Sequence> sequences;
 	
-	
+
 	public History() {
 		this.sequences = new ArrayList<Sequence>();
 	}
@@ -37,7 +37,7 @@ class History {
 		this.sequences = new ArrayList<Sequence>(sequences);
 	}
 	
-	
+
 	public static class Sequence {
 		
 		@XmlAttribute(name = "date", required = true)
@@ -46,7 +46,7 @@ class History {
 		@XmlElement(name = "rename", required = true)
 		private List<Element> elements;
 		
-		
+
 		private Sequence() {
 			// hide constructor
 		}
@@ -71,6 +71,12 @@ class History {
 			
 			return false;
 		}
+		
+
+		@Override
+		public int hashCode() {
+			return elements.hashCode() ^ date.hashCode();
+		}
 	}
 	
 
@@ -85,7 +91,7 @@ class History {
 		@XmlAttribute(name = "to", required = true)
 		private String to;
 		
-		
+
 		private Element() {
 			// hide constructor
 		}
@@ -115,9 +121,15 @@ class History {
 			
 			return false;
 		}
+		
+
+		@Override
+		public int hashCode() {
+			return to.hashCode() ^ from.hashCode() ^ dir.hashCode();
+		}
 	}
 	
-	
+
 	public List<Sequence> sequences() {
 		return unmodifiableList(sequences);
 	}
@@ -183,6 +195,12 @@ class History {
 		}
 		
 		return false;
+	}
+	
+
+	@Override
+	public int hashCode() {
+		return sequences.hashCode();
 	}
 	
 

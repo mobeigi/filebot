@@ -22,8 +22,8 @@ public class OpenSubtitlesSubtitleClient implements SubtitleProvider {
 	private final OpenSubtitlesClient client;
 	
 
-	public OpenSubtitlesSubtitleClient(String useragent) {
-		this.client = new OpenSubtitlesClient(useragent);
+	public OpenSubtitlesSubtitleClient(String clientInfo) {
+		this.client = new OpenSubtitlesClient(clientInfo);
 	}
 	
 

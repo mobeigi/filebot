@@ -8,7 +8,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -24,6 +27,8 @@ import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
 public final class WebRequest {
@@ -41,6 +46,7 @@ public final class WebRequest {
 	public static Reader getReader(URLConnection connection) throws IOException {
 		try {
 			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
+			connection.addRequestProperty("Accept-Charset", "UTF-8,ISO-8859-1");
 		} catch (IllegalStateException e) {
 			// too bad, can't request gzipped document anymore
 		}
@@ -81,6 +87,42 @@ public final class WebRequest {
 
 	public static Document getDocument(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
 		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
+	}
+	
+
+	public static ByteBuffer fetch(URL resource) throws IOException {
+		return fetch(resource, null);
+	}
+	
+
+	public static ByteBuffer fetch(URL url, Map<String, String> requestParameters) throws IOException {
+		URLConnection connection = url.openConnection();
+		
+		if (requestParameters != null) {
+			for (Entry<String, String> parameter : requestParameters.entrySet()) {
+				connection.addRequestProperty(parameter.getKey(), parameter.getValue());
+			}
+		}
+		
+		int contentLength = connection.getContentLength();
+		
+		InputStream in = connection.getInputStream();
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
+		
+		try {
+			// read all
+			buffer.transferFully(in);
+		} catch (IOException e) {
+			// if the content length is not known in advance an IOException (Premature EOF) 
+			// is always thrown after all the data has been read
+			if (contentLength >= 0) {
+				throw e;
+			}
+		} finally {
+			in.close();
+		}
+		
+		return buffer.getByteBuffer();
 	}
 	
 

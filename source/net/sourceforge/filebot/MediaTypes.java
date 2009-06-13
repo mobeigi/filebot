@@ -4,7 +4,6 @@ package net.sourceforge.filebot;
 
 import static java.util.Collections.*;
 
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +23,9 @@ public class MediaTypes {
 	@XmlElement(name = "type")
 	private Type[] types;
 	
-	
+
 	private static class Type {
+		
 		@XmlAttribute(name = "name")
 		private String name;
 		
@@ -33,9 +33,10 @@ public class MediaTypes {
 		private String[] extensions;
 	}
 	
+
 	private static MediaTypes instance;
 	
-	
+
 	public static synchronized MediaTypes getDefault() {
 		if (instance == null) {
 			try {
@@ -52,7 +53,7 @@ public class MediaTypes {
 	}
 	
 
-	public FileFilter filter(String name) {
+	public ExtensionFileFilter filter(String name) {
 		return new ExtensionFileFilter(extensions(name));
 	}
 	

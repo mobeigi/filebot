@@ -3,8 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import java.net.URL;
-
-import net.sourceforge.tuned.DownloadTask;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Callable;
 
 
 public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
@@ -18,7 +18,7 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 	
 	private final URL downloadLink;
 	
-	
+
 	public SubtitleSourceSubtitleDescriptor(String releaseName, String language, String title, int season, int episode, URL downloadLink) {
 		this.releaseName = releaseName;
 		this.language = language;
@@ -63,8 +63,14 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public DownloadTask createDownloadTask() {
-		return new DownloadTask(downloadLink);
+	public Callable<ByteBuffer> getDownloadFunction() {
+		return new Callable<ByteBuffer>() {
+			
+			@Override
+			public ByteBuffer call() throws Exception {
+				return WebRequest.fetch(downloadLink);
+			}
+		};
 	}
 	
 

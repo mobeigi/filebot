@@ -2,14 +2,13 @@
 package net.sourceforge.filebot.web;
 
 
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import net.sourceforge.tuned.DownloadTask;
+import java.util.concurrent.Callable;
 
 
 /**
@@ -21,7 +20,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 	private final Map<Property, String> properties;
 	
-	
+
 	public static enum Property {
 		IDSubMovieFile,
 		MovieHash,
@@ -71,7 +70,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		}
 	}
 	
-	
+
 	public OpenSubtitlesSubtitleDescriptor(Map<Property, String> properties) {
 		this.properties = new EnumMap<Property, String>(properties);
 	}
@@ -95,12 +94,14 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public DownloadTask createDownloadTask() {
-		try {
-			return new DownloadTask(new URL(properties.get(Property.ZipDownloadLink)));
-		} catch (MalformedURLException e) {
-			throw new UnsupportedOperationException(e);
-		}
+	public Callable<ByteBuffer> getDownloadFunction() {
+		return new Callable<ByteBuffer>() {
+			
+			@Override
+			public ByteBuffer call() throws Exception {
+				return WebRequest.fetch(new URL(properties.get(Property.ZipDownloadLink)));
+			}
+		};
 	}
 	
 

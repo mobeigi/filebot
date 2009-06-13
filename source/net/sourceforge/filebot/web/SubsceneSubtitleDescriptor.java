@@ -2,10 +2,11 @@
 package net.sourceforge.filebot.web;
 
 
-import java.net.URL;
-import java.util.Collections;
+import static java.util.Collections.*;
 
-import net.sourceforge.tuned.DownloadTask;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Callable;
 
 
 public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
@@ -18,7 +19,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private final URL downloadLink;
 	private final URL referer;
 	
-	
+
 	public SubsceneSubtitleDescriptor(String title, String language, String archiveType, URL downloadLink, URL referer) {
 		this.title = title;
 		this.language = language;
@@ -42,11 +43,14 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public DownloadTask createDownloadTask() {
-		DownloadTask downloadTask = new DownloadTask(downloadLink);
-		downloadTask.setRequestHeaders(Collections.singletonMap("Referer", referer.toString()));
-		
-		return downloadTask;
+	public Callable<ByteBuffer> getDownloadFunction() {
+		return new Callable<ByteBuffer>() {
+			
+			@Override
+			public ByteBuffer call() throws Exception {
+				return WebRequest.fetch(downloadLink, singletonMap("Referer", referer.toString()));
+			}
+		};
 	}
 	
 

@@ -14,7 +14,7 @@ public final class FileUtilities {
 	public static final long MEGA = KILO * 1024;
 	public static final long GIGA = MEGA * 1024;
 	
-	
+
 	public static String formatSize(long size) {
 		if (size >= MEGA)
 			return String.format("%,d MB", size / MEGA);
@@ -122,6 +122,7 @@ public final class FileUtilities {
 		return accepted;
 	}
 	
+
 	public static final FileFilter FOLDERS = new FileFilter() {
 		
 		@Override
@@ -138,12 +139,12 @@ public final class FileUtilities {
 		}
 	};
 	
-	
+
 	public static class ExtensionFileFilter implements FileFilter {
 		
 		private final String[] extensions;
 		
-		
+
 		public ExtensionFileFilter(String... extensions) {
 			this.extensions = extensions;
 		}
@@ -155,12 +156,17 @@ public final class FileUtilities {
 		}
 		
 
+		public boolean accept(String name) {
+			return hasExtension(name, extensions);
+		}
+		
+
 		public String[] getExtensions() {
 			return extensions.clone();
 		}
 	}
 	
-	
+
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

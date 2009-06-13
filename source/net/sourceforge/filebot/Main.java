@@ -18,15 +18,15 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
-
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 
 
 public class Main {
@@ -108,6 +108,7 @@ public class Main {
 	 */
 	private static void initializeSettings() {
 		Settings.userRoot().putDefault("thetvdb.apikey", "58B4AA94C59AD656");
+		Settings.userRoot().putDefault("sublight.apikey", "afa9ecb2-a3ee-42b1-9225-000b4038bc85");
 	}
 	
 

@@ -3,21 +3,20 @@ package net.sourceforge.filebot.web;
 
 
 import java.nio.ByteBuffer;
-
-import javax.swing.SwingWorker;
+import java.util.concurrent.Callable;
 
 
 public interface SubtitleDescriptor {
 	
-	public String getName();
+	String getName();
 	
 
-	public String getLanguageName();
+	String getLanguageName();
 	
 
-	public String getArchiveType();
+	String getArchiveType();
 	
 
-	public SwingWorker<ByteBuffer, ?> createDownloadTask();
+	Callable<ByteBuffer> getDownloadFunction();
 	
 }

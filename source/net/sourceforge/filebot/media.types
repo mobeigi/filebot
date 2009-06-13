@@ -32,6 +32,18 @@
 
 
 	<!-- 
+			Archive
+	-->
+	<type name="archive/zip">
+		<extension>zip</extension>
+	</type>
+
+	<type name="archive/rar">
+		<extension>rar</extension>
+	</type>
+
+
+	<!-- 
 			Audio
 	-->
 	<type name="audio/mp3">
@@ -42,20 +54,20 @@
 		<extension>mp4</extension>
 		<extension>m4a</extension>
 	</type>
-	
+
 	<type name="audio/flac">
 		<extension>flac</extension>
 	</type>
-	
+
 	<type name="audio/wma">
 		<extension>wma</extension>
 	</type>
-	
+
 	<type name="audio/ogg">
 		<extension>ogg</extension>
-	</type>	
-	
-	
+	</type>
+
+
 	<!-- 
 			Video
 	-->
@@ -86,6 +98,10 @@
 
 	<type name="video/wmv">
 		<extension>wmv</extension>
+	</type>
+
+	<type name="video/flash">
+		<extension>flv</extension>
 	</type>
 
 

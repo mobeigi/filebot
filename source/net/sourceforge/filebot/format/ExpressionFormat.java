@@ -33,11 +33,11 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
-import net.sourceforge.tuned.ExceptionUtilities;
-
 import org.mozilla.javascript.EcmaError;
 
 import com.sun.phobos.script.javascript.RhinoScriptEngine;
+
+import net.sourceforge.tuned.ExceptionUtilities;
 
 
 public class ExpressionFormat extends Format {
@@ -48,7 +48,7 @@ public class ExpressionFormat extends Format {
 	
 	private ScriptException lastException;
 	
-	
+
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
 		this.compilation = secure(compile(expression, (Compilable) initScriptEngine()));
@@ -180,13 +180,13 @@ public class ExpressionFormat extends Format {
 		return permissions;
 	}
 	
-	
+
 	private static class PrivilegedBindings implements InvocationHandler {
 		
 		private final Bindings bindings;
 		private final AccessControlContext context;
 		
-		
+
 		private PrivilegedBindings(Bindings bindings, AccessControlContext context) {
 			this.bindings = bindings;
 			this.context = context;
@@ -232,7 +232,7 @@ public class ExpressionFormat extends Format {
 		private final CompiledScript compiledScript;
 		private final AccessControlContext sandbox;
 		
-		
+
 		private SecureCompiledScript(CompiledScript compiledScript, AccessControlContext sandbox) {
 			this.compiledScript = compiledScript;
 			this.sandbox = sandbox;
@@ -271,7 +271,7 @@ public class ExpressionFormat extends Format {
 		
 	}
 	
-	
+
 	@Override
 	public Object parseObject(String source, ParsePosition pos) {
 		throw new UnsupportedOperationException();

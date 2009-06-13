@@ -30,7 +30,7 @@ public class MovieDescriptor extends SearchResult {
 	public boolean equals(Object object) {
 		if (object instanceof MovieDescriptor) {
 			MovieDescriptor other = (MovieDescriptor) object;
-			return getImdbId() == other.getImdbId() && getName().equals(other.getName()) && getYear() == other.getYear();
+			return imdbId == other.imdbId && name.equals(other.name) && year == other.year;
 		}
 		
 		return false;
@@ -38,8 +38,14 @@ public class MovieDescriptor extends SearchResult {
 	
 
 	@Override
+	public int hashCode() {
+		return name.hashCode() ^ year ^ imdbId;
+	}
+	
+
+	@Override
 	public String toString() {
-		return String.format("%s (%d)", getName(), getYear());
+		return String.format("%s (%d)", name, year);
 	}
 	
 }

@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
@@ -25,8 +26,8 @@ class RarArchive implements Archive {
 	}
 	
 
-	public Map<String, ByteBuffer> extract() throws IOException {
-		Map<String, ByteBuffer> vfs = new LinkedHashMap<String, ByteBuffer>();
+	public Map<File, ByteBuffer> extract() throws IOException {
+		Map<File, ByteBuffer> vfs = new LinkedHashMap<File, ByteBuffer>();
 		
 		try {
 			de.innosystec.unrar.Archive rar = new de.innosystec.unrar.Archive(data.duplicate());
@@ -44,7 +45,7 @@ class RarArchive implements Archive {
 					rar.extractFile(header, buffer);
 					
 					// add memory file
-					vfs.put(header.getFileNameString(), buffer.getByteBuffer());
+					vfs.put(new File(header.getFileNameString()), buffer.getByteBuffer());
 				} catch (OutOfMemoryError e) {
 					// ignore, there seems to be bug with JUnRar allocating lots of memory for no apparent reason
 					// @see https://sourceforge.net/forum/forum.php?thread_id=2773018&forum_id=706772

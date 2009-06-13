@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import net.sourceforge.filebot.web.MovieDescriptor;
-import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
-import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 
 
 public class PreferencesMapTest {
@@ -166,14 +166,12 @@ public class PreferencesMapTest {
 
 	@Test
 	public void serializableAdapter() {
-		Map<String, MovieDescriptor> map = PreferencesMap.map(temp, new SerializableAdapter<MovieDescriptor>());
+		Map<String, Episode> map = PreferencesMap.map(temp, new SerializableAdapter<Episode>());
 		
-		MovieDescriptor movie = new MovieDescriptor("The Hitchhiker's Guide to the Galaxy", 1981, 42);
+		Episode episode = new Episode("8 Simple Rules", 1, 1, "Pilot");
 		
-		map.put("movie", movie);
+		map.put("episode", episode);
 		
-		MovieDescriptor retrieved = map.get("movie");
-		
-		assertEquals(movie.getImdbId(), retrieved.getImdbId());
+		assertEquals(episode.toString(), map.get("episode").toString());
 	}
 }

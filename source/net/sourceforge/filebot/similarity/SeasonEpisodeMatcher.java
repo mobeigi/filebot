@@ -12,7 +12,7 @@ public class SeasonEpisodeMatcher {
 	
 	private final SeasonEpisodePattern[] patterns;
 	
-	
+
 	public SeasonEpisodeMatcher() {
 		patterns = new SeasonEpisodePattern[3];
 		
@@ -61,7 +61,7 @@ public class SeasonEpisodeMatcher {
 		return -1;
 	}
 	
-	
+
 	public static class SxE {
 		
 		public static final int UNDEFINED = -1;
@@ -69,7 +69,7 @@ public class SeasonEpisodeMatcher {
 		public final int season;
 		public final int episode;
 		
-		
+
 		public SxE(int season, int episode) {
 			this.season = season;
 			this.episode = episode;
@@ -103,6 +103,12 @@ public class SeasonEpisodeMatcher {
 		
 
 		@Override
+		public int hashCode() {
+			return season ^ episode;
+		}
+		
+
+		@Override
 		public String toString() {
 			return String.format("%dx%02d", season, episode);
 		}
@@ -116,7 +122,7 @@ public class SeasonEpisodeMatcher {
 		protected final int seasonGroup;
 		protected final int episodeGroup;
 		
-		
+
 		public SeasonEpisodePattern(String pattern) {
 			this(Pattern.compile(pattern), 1, 2);
 		}
