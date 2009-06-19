@@ -6,46 +6,42 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class FileTransferable implements Transferable {
 	
 	public static final DataFlavor uriListFlavor = createUriListFlavor();
 	
-	
+
 	private static DataFlavor createUriListFlavor() {
 		try {
 			return new DataFlavor("text/uri-list;class=java.lang.String");
 		} catch (ClassNotFoundException e) {
 			// will never happen
-			Logger.getLogger(FileTransferable.class.getName()).log(Level.SEVERE, e.toString(), e);
+			throw new RuntimeException(e);
 		}
-		
-		return null;
 	}
 	
-	private final Collection<File> files;
+
+	private final File[] files;
 	
-	
+
 	public FileTransferable(File... files) {
-		this(Arrays.asList(files));
+		this.files = files;
 	}
 	
 
 	public FileTransferable(Collection<File> files) {
-		this.files = new ArrayList<File>(files);
+		this.files = files.toArray(new File[0]);
 	}
 	
 
 	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 		if (flavor.isFlavorJavaFileListType())
-			return files;
+			return Arrays.asList(files);
 		else if (flavor.equals(uriListFlavor))
 			return getUriList();
 		else
@@ -57,10 +53,11 @@ public class FileTransferable implements Transferable {
 	 * @return line separated list of file URIs
 	 */
 	private String getUriList() {
-		StringBuilder sb = new StringBuilder(80 * files.size());
+		StringBuilder sb = new StringBuilder(80 * files.length);
 		
 		for (File file : files) {
-			sb.append("file://" + file.toURI().getPath());
+			// use URI encoded path
+			sb.append("file://").append(file.toURI().getRawPath());
 			sb.append("\r\n");
 		}
 		
