@@ -20,11 +20,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class IMDbClient implements EpisodeListProvider {

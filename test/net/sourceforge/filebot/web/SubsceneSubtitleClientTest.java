@@ -68,7 +68,7 @@ public class SubsceneSubtitleClientTest {
 		
 		assertEquals("Twin Peaks - First Season", subtitle.getName());
 		assertEquals("Italian", subtitle.getLanguageName());
-		assertEquals("zip", subtitle.getArchiveType());
+		assertEquals("zip", subtitle.getType());
 	}
 	
 

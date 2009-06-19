@@ -31,7 +31,7 @@ public class Torrent {
 	
 	private final boolean singleFileTorrent;
 	
-	
+
 	public Torrent(File torrent) throws IOException {
 		this(decodeTorrent(torrent));
 	}
@@ -82,7 +82,6 @@ public class Torrent {
 					if (iterator.hasNext()) {
 						path.append("/");
 					}
-					
 				}
 				
 				Long length = decodeLong(fileMap.get("length"));
@@ -173,14 +172,14 @@ public class Torrent {
 		return singleFileTorrent;
 	}
 	
-	
+
 	public static class Entry {
 		
 		private final String path;
 		
 		private final long length;
 		
-		
+
 		public Entry(String path, long length) {
 			this.path = path;
 			this.length = length;

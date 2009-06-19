@@ -5,6 +5,8 @@ package net.sourceforge.tuned;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -150,6 +152,11 @@ public final class FileUtilities {
 		}
 		
 
+		public ExtensionFileFilter(Collection<String> extensions) {
+			this.extensions = extensions.toArray(new String[0]);
+		}
+		
+
 		@Override
 		public boolean accept(File file) {
 			return hasExtension(file, extensions);
@@ -161,8 +168,8 @@ public final class FileUtilities {
 		}
 		
 
-		public String[] getExtensions() {
-			return extensions.clone();
+		public List<String> extensions() {
+			return Arrays.asList(extensions);
 		}
 	}
 	

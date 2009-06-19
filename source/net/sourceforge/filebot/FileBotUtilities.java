@@ -64,7 +64,6 @@ public final class FileBotUtilities {
 	public static final ExtensionFileFilter LIST_FILES = MediaTypes.getDefault().filter("application/list");
 	public static final ExtensionFileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
 	public static final ExtensionFileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
-	public static final ExtensionFileFilter ARCHIVE_FILES = MediaTypes.getDefault().filter("archive");
 	public static final ExtensionFileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
 	
 

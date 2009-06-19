@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import static net.sourceforge.filebot.FileBotUtilities.*;
+
 import java.awt.Color;
 import java.awt.Insets;
 
@@ -15,13 +17,13 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
 
 
-public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
+public class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {
 	
 	private final JLabel titleLabel = new JLabel();
 	private final JLabel languageLabel = new JLabel();
 	
 
-	public SubtitleListCellRenderer() {
+	public SubtitlePackageCellRenderer() {
 		super(new Insets(5, 5, 5, 5));
 		setHighlightingEnabled(false);
 		
@@ -59,7 +61,14 @@ public class SubtitleListCellRenderer extends AbstractFancyListCellRenderer {
 	private Icon getIcon(SubtitlePackage subtitle) {
 		switch (subtitle.getDownload().getPhase()) {
 			case PENDING:
-				return ResourceManager.getIcon(subtitle.getArchiveType() != ArchiveType.UNDEFINED ? "bullet.green" : "bullet.yellow");
+				if (ArchiveType.forName(subtitle.getType()) != ArchiveType.UNDEFINED || SUBTITLE_FILES.extensions().contains(subtitle.getType())) {
+					return ResourceManager.getIcon("bullet.green");
+				}
+				
+				// unsupported archive or unknown subtitle type
+				return ResourceManager.getIcon("bullet.yellow");
+			case WAITING:
+				return ResourceManager.getIcon("worker.pending");
 			case DOWNLOADING:
 				return ResourceManager.getIcon("package.fetch");
 			case EXTRACTING:

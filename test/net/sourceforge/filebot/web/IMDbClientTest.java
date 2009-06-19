@@ -84,11 +84,4 @@ public class IMDbClientTest {
 		assertEquals("http://www.imdb.com/title/tt0407362/episodes", imdb.getEpisodeListLink(new MovieDescriptor("Battlestar Galactica", 2004, 407362)).toString());
 	}
 	
-
-	@Test
-	public void removeQuotationMarks() throws Exception {
-		assertEquals("test", imdb.normalizeName("\"test\""));
-		
-		assertEquals("inner \"quotation marks\"", imdb.normalizeName("\"inner \"quotation marks\"\""));
-	}
 }

@@ -112,7 +112,7 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 		
-		content.add(editor, "wmin 120px, h 40px!, growx, wrap 8px");
+		content.add(editor, "w 120px:min(pref, 420px), h 40px!, growx, wrap 8px");
 		
 		content.add(new JLabel("Syntax"), "gap indent+unrel, wrap 0");
 		content.add(createSyntaxPanel(), "gapx indent indent, wrap 8px");

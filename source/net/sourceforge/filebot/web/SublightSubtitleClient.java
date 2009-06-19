@@ -177,7 +177,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	
 
 	@SuppressWarnings("unchecked")
-	private static Entry<SubtitleLanguage, String>[] aliasList = new Entry[] {
+	private static final Entry<SubtitleLanguage, String>[] aliasList = new Entry[] {
 			new SimpleEntry(SubtitleLanguage.PORTUGUESE_BRAZIL, "Brazilian"), 
 			new SimpleEntry(SubtitleLanguage.BOSNIAN_LATIN, "Bosnian"), 
 			new SimpleEntry(SubtitleLanguage.SERBIAN_LATIN, "Serbian")

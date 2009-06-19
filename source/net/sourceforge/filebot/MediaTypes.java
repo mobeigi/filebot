@@ -58,7 +58,7 @@ public class MediaTypes {
 	}
 	
 
-	public String[] extensions(String name) {
+	public List<String> extensions(String name) {
 		List<String> extensions = new ArrayList<String>();
 		
 		for (Type type : types) {
@@ -67,7 +67,7 @@ public class MediaTypes {
 			}
 		}
 		
-		return extensions.toArray(new String[0]);
+		return extensions;
 	}
 	
 }

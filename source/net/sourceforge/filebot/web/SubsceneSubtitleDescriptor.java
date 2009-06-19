@@ -6,7 +6,6 @@ import static java.util.Collections.*;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Callable;
 
 
 public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
@@ -43,19 +42,13 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public Callable<ByteBuffer> getDownloadFunction() {
-		return new Callable<ByteBuffer>() {
-			
-			@Override
-			public ByteBuffer call() throws Exception {
-				return WebRequest.fetch(downloadLink, singletonMap("Referer", referer.toString()));
-			}
-		};
+	public ByteBuffer fetch() throws Exception {
+		return WebRequest.fetch(downloadLink, singletonMap("Referer", referer.toString()));
 	}
 	
 
 	@Override
-	public String getArchiveType() {
+	public String getType() {
 		return archiveType;
 	}
 	

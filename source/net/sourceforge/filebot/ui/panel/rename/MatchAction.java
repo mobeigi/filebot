@@ -44,7 +44,7 @@ class MatchAction extends AbstractAction {
 	
 	private final Collection<SimilarityMetric> metrics;
 	
-	
+
 	public MatchAction(RenameModel model) {
 		super("Match", ResourceManager.getIcon("action.match"));
 		
@@ -71,7 +71,7 @@ class MatchAction extends AbstractAction {
 			}
 		};
 		
-		// 2. pass: match by season / episode numbers, or generic numeric similarity
+		// 2. pass: match by season / episode numbers
 		metrics[1] = new SeasonEpisodeSimilarityMetric() {
 			
 			@Override
@@ -177,12 +177,12 @@ class MatchAction extends AbstractAction {
 		return progressDialog;
 	}
 	
-	
+
 	protected class BackgroundMatcher extends SwingWorker<List<Match<Object, File>>, Void> implements Cancellable {
 		
 		private final Matcher<Object, File> matcher;
 		
-		
+
 		public BackgroundMatcher(MatchModel<Object, File> model, Collection<SimilarityMetric> metrics) {
 			// match names against files
 			this.matcher = new Matcher<Object, File>(model.values(), model.candidates(), metrics);

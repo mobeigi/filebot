@@ -3,7 +3,6 @@ package net.sourceforge.filebot.web;
 
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Callable;
 
 
 public interface SubtitleDescriptor {
@@ -14,9 +13,9 @@ public interface SubtitleDescriptor {
 	String getLanguageName();
 	
 
-	String getArchiveType();
+	String getType();
 	
 
-	Callable<ByteBuffer> getDownloadFunction();
+	ByteBuffer fetch() throws Exception;
 	
 }

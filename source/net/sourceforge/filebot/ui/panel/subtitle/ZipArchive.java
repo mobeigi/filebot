@@ -2,11 +2,11 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -14,7 +14,7 @@ import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
-class ZipArchive implements Archive {
+class ZipArchive implements Iterable<MemoryFile> {
 	
 	private final ByteBuffer data;
 	
@@ -24,8 +24,18 @@ class ZipArchive implements Archive {
 	}
 	
 
-	public Map<File, ByteBuffer> extract() throws IOException {
-		Map<File, ByteBuffer> vfs = new LinkedHashMap<File, ByteBuffer>();
+	@Override
+	public Iterator<MemoryFile> iterator() {
+		try {
+			return extract().iterator();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+
+	public List<MemoryFile> extract() throws IOException {
+		List<MemoryFile> vfs = new ArrayList<MemoryFile>();
 		
 		// read first zip entry
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteBufferInputStream(data.duplicate()));
@@ -44,7 +54,7 @@ class ZipArchive implements Archive {
 				buffer.transferFully(zipInputStream);
 				
 				// add memory file
-				vfs.put(new File(zipEntry.getName()), buffer.getByteBuffer());
+				vfs.add(new MemoryFile(zipEntry.getName(), buffer.getByteBuffer()));
 			}
 		} finally {
 			zipInputStream.close();

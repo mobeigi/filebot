@@ -38,7 +38,7 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	private static final Insets DEFAULT_PADDING = new Insets(7, 7, 7, 7);
 	private static final Insets DEFAULT_MARGIN = new Insets(1, 1, 0, 1);
 	
-	
+
 	public AbstractFancyListCellRenderer() {
 		this(DEFAULT_PADDING, DEFAULT_MARGIN, null);
 	}
@@ -121,9 +121,6 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	
 
 	protected void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		
-		setBackground(list.getBackground());
-		
 		setGradientPainted(isSelected);
 		setBorderPainted(isSelected);
 		

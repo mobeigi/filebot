@@ -32,18 +32,6 @@
 
 
 	<!-- 
-			Archive
-	-->
-	<type name="archive/zip">
-		<extension>zip</extension>
-	</type>
-
-	<type name="archive/rar">
-		<extension>rar</extension>
-	</type>
-
-
-	<!-- 
 			Audio
 	-->
 	<type name="audio/mp3">

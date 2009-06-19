@@ -141,7 +141,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	protected static class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest, SubtitlePackage> {
 		
 		public SubtitleRequestProcessor(SubtitleRequest request) {
-			super(request, new SubtitleListComponent());
+			super(request, new SubtitleDownloadComponent());
 		}
 		
 
@@ -172,13 +172,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		@Override
 		public void process(Collection<SubtitlePackage> subtitles) {
 			getComponent().setLanguageVisible(request.getLanguageName() == null);
-			getComponent().getModel().addAll(subtitles);
+			getComponent().getPackageModel().addAll(subtitles);
 		}
 		
 
 		@Override
-		public SubtitleListComponent getComponent() {
-			return (SubtitleListComponent) super.getComponent();
+		public SubtitleDownloadComponent getComponent() {
+			return (SubtitleDownloadComponent) super.getComponent();
 		}
 		
 

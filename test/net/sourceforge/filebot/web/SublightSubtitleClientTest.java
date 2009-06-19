@@ -59,15 +59,15 @@ public class SublightSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListAllLanguages() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Babylon 5", 1994, 105946), null);
+		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Terminator 2", 1991, 103064), null);
 		
 		SubtitleDescriptor sample = list.get(0);
 		
-		assertEquals("Babylon.5.S01E01.Midnight.on.the.Firing.Line.AC3.DVDRip.DivX-AMC", sample.getName());
-		assertEquals("Slovenian", sample.getLanguageName());
+		assertEquals("Terminator.2.Judgment.Day(1991)", sample.getName());
+		assertEquals("English", sample.getLanguageName());
 		
 		// check size
-		assertTrue(list.size() > 45);
+		assertTrue(list.size() > 20);
 	}
 	
 

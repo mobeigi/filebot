@@ -37,10 +37,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 
 	@Override
 	public int getSourceActions(JComponent c) {
-		if (!canExport())
-			return TransferHandler.NONE;
-		
-		return TransferHandler.MOVE | TransferHandler.COPY;
+		return canExport() ? TransferHandler.COPY_OR_MOVE : TransferHandler.NONE;
 	}
 	
 
@@ -50,7 +47,7 @@ public abstract class TextFileExportHandler implements TransferableExportHandler
 		StringWriter buffer = new StringWriter();
 		export(new PrintWriter(buffer));
 		
-		return new LazyTextFileTransferable(buffer.toString(), getDefaultFileName());
+		return new TextFileTransferable(getDefaultFileName(), buffer.toString());
 	}
 	
 

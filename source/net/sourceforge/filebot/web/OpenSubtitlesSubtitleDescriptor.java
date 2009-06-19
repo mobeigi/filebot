@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
 
 
 /**
@@ -94,19 +93,13 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public Callable<ByteBuffer> getDownloadFunction() {
-		return new Callable<ByteBuffer>() {
-			
-			@Override
-			public ByteBuffer call() throws Exception {
-				return WebRequest.fetch(new URL(properties.get(Property.ZipDownloadLink)));
-			}
-		};
+	public ByteBuffer fetch() throws Exception {
+		return WebRequest.fetch(new URL(properties.get(Property.ZipDownloadLink)));
 	}
 	
 
 	@Override
-	public String getArchiveType() {
+	public String getType() {
 		return "zip";
 	}
 	

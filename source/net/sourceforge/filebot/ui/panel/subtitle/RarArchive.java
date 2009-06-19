@@ -2,21 +2,22 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
+import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
 
 
-class RarArchive implements Archive {
+class RarArchive implements Iterable<MemoryFile> {
 	
 	private final ByteBuffer data;
 	
@@ -26,11 +27,24 @@ class RarArchive implements Archive {
 	}
 	
 
-	public Map<File, ByteBuffer> extract() throws IOException {
-		Map<File, ByteBuffer> vfs = new LinkedHashMap<File, ByteBuffer>();
+	@Override
+	public Iterator<MemoryFile> iterator() {
+		try {
+			// extract rar archives one at a time, because of JUnRar memory problems
+			synchronized (RarArchive.class) {
+				return extract().iterator();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+
+	public List<MemoryFile> extract() throws IOException {
+		List<MemoryFile> vfs = new ArrayList<MemoryFile>();
 		
 		try {
-			de.innosystec.unrar.Archive rar = new de.innosystec.unrar.Archive(data.duplicate());
+			Archive rar = new Archive(data.duplicate());
 			
 			for (FileHeader header : rar.getFileHeaders()) {
 				// ignore directory entries
@@ -45,7 +59,7 @@ class RarArchive implements Archive {
 					rar.extractFile(header, buffer);
 					
 					// add memory file
-					vfs.put(new File(header.getFileNameString()), buffer.getByteBuffer());
+					vfs.add(new MemoryFile(header.getFileNameString(), buffer.getByteBuffer()));
 				} catch (OutOfMemoryError e) {
 					// ignore, there seems to be bug with JUnRar allocating lots of memory for no apparent reason
 					// @see https://sourceforge.net/forum/forum.php?thread_id=2773018&forum_id=706772

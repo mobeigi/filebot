@@ -2,10 +2,13 @@
 package net.sourceforge.filebot.web;
 
 
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.util.Formatter;
-import java.util.concurrent.Callable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import net.sourceforge.tuned.ByteBufferOutputStream;
 import net.sublight.webservice.Subtitle;
 
 
@@ -75,20 +78,32 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public String getArchiveType() {
-		return "zip";
+	public String getType() {
+		return subtitle.getSubtitleType().value().toLowerCase();
 	}
 	
 
 	@Override
-	public Callable<ByteBuffer> getDownloadFunction() {
-		return new Callable<ByteBuffer>() {
+	public ByteBuffer fetch() throws Exception {
+		byte[] archive = source.getZipArchive(subtitle);
+		
+		// the zip archive will contain exactly one subtitle
+		ZipInputStream stream = new ZipInputStream(new ByteArrayInputStream(archive));
+		
+		try {
+			// move to subtitle entry
+			ZipEntry entry = stream.getNextEntry();
 			
-			@Override
-			public ByteBuffer call() throws Exception {
-				return ByteBuffer.wrap(source.getZipArchive(subtitle));
-			}
-		};
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) entry.getSize());
+			
+			// read subtitle data
+			buffer.transferFully(stream);
+			
+			// return plain subtitle data
+			return buffer.getByteBuffer();
+		} finally {
+			stream.close();
+		}
 	}
 	
 

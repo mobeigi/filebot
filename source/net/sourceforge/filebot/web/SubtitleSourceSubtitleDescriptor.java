@@ -4,7 +4,6 @@ package net.sourceforge.filebot.web;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.concurrent.Callable;
 
 
 public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
@@ -63,19 +62,13 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public Callable<ByteBuffer> getDownloadFunction() {
-		return new Callable<ByteBuffer>() {
-			
-			@Override
-			public ByteBuffer call() throws Exception {
-				return WebRequest.fetch(downloadLink);
-			}
-		};
+	public ByteBuffer fetch() throws Exception {
+		return WebRequest.fetch(downloadLink);
 	}
 	
 
 	@Override
-	public String getArchiveType() {
+	public String getType() {
 		return "zip";
 	}
 	
