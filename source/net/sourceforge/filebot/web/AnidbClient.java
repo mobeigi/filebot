@@ -17,18 +17,18 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class AnidbClient implements EpisodeListProvider {
 	
 	private static final String host = "anidb.net";
 	
-	
+
 	@Override
 	public String getName() {
 		return "AniDB";
@@ -97,15 +97,8 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	protected String selectTitle(Document animePage) {
-		// prefer official english title
-		String title = selectOfficialTitle(animePage, "english");
-		
-		if (title.isEmpty()) {
-			// fallback: extract name from header (e.g. "Anime: Naruto")
-			title = selectString("//H1", animePage).replaceFirst("Anime:\\s*", "");;
-		}
-		
-		return title;
+		// extract name from header (e.g. "Anime: Naruto")
+		return selectString("//H1", animePage).replaceFirst("Anime:\\s*", "");
 	}
 	
 

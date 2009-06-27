@@ -24,16 +24,17 @@ public class AnidbClientTest {
 	 */
 	private static HyperLink twelvekingdomsSearchResult;
 	
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		monsterSearchResult = new HyperLink("Monster", new URL("http://anidb.net/perl-bin/animedb.pl?show=anime&aid=1539"));
 		twelvekingdomsSearchResult = new HyperLink("Juuni Kokuki", new URL("http://anidb.net/a26"));
 	}
 	
+
 	private AnidbClient anidb = new AnidbClient();
 	
-	
+
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = anidb.search("one piece");
@@ -81,7 +82,7 @@ public class AnidbClientTest {
 		
 		HyperLink result = (HyperLink) results.get(0);
 		
-		assertEquals("The Twelve Kingdoms", result.getName());
+		assertEquals("Juuni Kokuki", result.getName());
 		assertEquals("http://anidb.net/a26", result.getURL().toString());
 	}
 	
@@ -109,7 +110,7 @@ public class AnidbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("The Twelve Kingdoms", first.getSeriesName());
+		assertEquals("Juuni Kokuki", first.getSeriesName());
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals(null, first.getSeason());
@@ -124,11 +125,13 @@ public class AnidbClientTest {
 
 	@Test
 	public void selectTitle() throws Exception {
-		// use official english title
-		assertEquals("Banner of the Stars", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a4"))));
-		
-		// official english title not available -> use main title
-		assertEquals("Turn A Gundam", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a916"))));
+		assertEquals("Seikai no Senki", anidb.selectTitle(getHtmlDocument(new URL("http://anidb.net/a4"))));
+	}
+	
+
+	@Test
+	public void selectEnglishTitle() throws Exception {
+		assertEquals("Banner of the Stars", anidb.selectOfficialTitle(getHtmlDocument(new URL("http://anidb.net/a4")), "English"));
 	}
 	
 
