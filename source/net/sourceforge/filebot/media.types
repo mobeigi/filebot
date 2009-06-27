@@ -92,25 +92,34 @@
 		<extension>flv</extension>
 	</type>
 
-
+	<type name="video/rmvb">
+		<extension>rmvb</extension>
+	</type>
+	
+	
 	<!-- 
 			Subtitles
 	-->
-	<type name="subtitle/srt">
+	<type name="subtitle/SubRip">
 		<extension>srt</extension>
 	</type>
-
-	<type name="subtitle/sub">
+	
+	<type name="subtitle/MicroDVD">
 		<extension>sub</extension>
 	</type>
 
-	<type name="subtitle/ssa">
+	<type name="subtitle/SubViewer">
+		<extension>sub</extension>
+	</type>
+	
+	<type name="subtitle/SubStationAlpha">
 		<extension>ssa</extension>
 		<extension>ass</extension>
 	</type>
-
-	<type name="subtitle/smi">
+	
+	<type name="subtitle/SAMI">
 		<extension>smi</extension>
+		<extension>sami</extension>
 	</type>
 
 </media-types>

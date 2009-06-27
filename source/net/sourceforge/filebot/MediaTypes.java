@@ -59,15 +59,15 @@ public class MediaTypes {
 	
 
 	public List<String> extensions(String name) {
-		List<String> extensions = new ArrayList<String>();
+		List<String> list = new ArrayList<String>();
 		
 		for (Type type : types) {
 			if (type.name.startsWith(name)) {
-				addAll(extensions, type.extensions);
+				addAll(list, type.extensions);
 			}
 		}
 		
-		return extensions;
+		return list;
 	}
 	
 }
