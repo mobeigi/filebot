@@ -4,6 +4,7 @@ importPackage(java.lang);
 // Collection, Scanner, Random, UUID, etc.
 importPackage(java.util);
 
+
 /**
  * Pad strings or numbers with given characters ('0' by default).
  *
@@ -34,14 +35,37 @@ String.prototype.space = function(replacement) {
 
 
 /**
- * Remove trailing parenthesis including any leading whitespace.
+ * Replace trailing parenthesis including any leading whitespace.
  * 
- * e.g. "Doctor Who (2005)" -> "Doctor Who"
- *	    "Bad Wolf (1)" -> "Bad Wolf, Part 1"
+ * e.g. "The IT Crowd (UK)" -> "The IT Crowd"
  */
 String.prototype.replaceTrailingBraces = function(replacement) {
 	// use empty string as default replacement
 	var r = replacement ? replacement : "";
 	
 	return this.replace(/\s*\(([^\)]*)\)$/, r);
+}
+
+
+/**
+ * Replace 'part section'.
+ * 
+ * e.g. "Today Is the Day: Part 1" -> "Today Is the Day, Part 1"
+ * 		"Today Is the Day (1)" -> "Today Is the Day, Part 1"
+ */
+String.prototype.replacePart = function (replacement) {
+	// use empty string as default replacement
+	var r = replacement ? replacement : "";
+	
+	// handle '(n)' and ': Part n' syntax
+	var pattern = [/\s*\((\w+)\)$/i, /\s*\W? Part (\w+)$/i];
+	
+	for (var i = 0; i < pattern.length; i++) {
+		if (pattern[i].test(this)) {
+			return this.replace(pattern[i], r);
+		}
+	}
+	
+	// no pattern matches, nothing to replace
+	return this;
 }
