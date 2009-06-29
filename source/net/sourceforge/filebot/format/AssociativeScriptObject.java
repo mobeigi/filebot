@@ -2,40 +2,25 @@
 package net.sourceforge.filebot.format;
 
 
-import java.util.Comparator;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.mozilla.javascript.Scriptable;
 
 
 public class AssociativeScriptObject implements Scriptable {
 	
-	/**
-	 * Map allowing look-up of values by a fault-tolerant key as specified by the defining key.
-	 * 
-	 * @see {@link #definingKey(String)}
-	 */
-	protected final TreeMap<String, Object> properties = new TreeMap<String, Object>(new Comparator<String>() {
-		
-		@Override
-		public int compare(String s1, String s2) {
-			return definingKey(s1).compareTo(definingKey(s2));
-		}
-	});
-	
-	
-	/**
-	 * The Java constructor
-	 */
-	public AssociativeScriptObject(Map<String, ?> properties) {
-		this.properties.putAll(properties);
-	}
+	private final Map<String, Object> properties;
 	
 
-	protected String definingKey(String s) {
-		// letters and digits are defining, everything else will be ignored
-		return s.replaceAll("\\p{Punct}", "").toLowerCase();
+	@SuppressWarnings("unchecked")
+	public AssociativeScriptObject(Map<String, ?> properties) {
+		this.properties = new LenientLookup((Map<String, Object>) properties);
 	}
 	
 
@@ -117,7 +102,8 @@ public class AssociativeScriptObject implements Scriptable {
 
 	@Override
 	public String toString() {
-		return getClassName() + properties.entrySet().toString();
+		// all the properties in alphabetic order
+		return new TreeSet<String>(properties.keySet()).toString();
 	}
 	
 
@@ -163,6 +149,68 @@ public class AssociativeScriptObject implements Scriptable {
 
 	public boolean hasInstance(Scriptable value) {
 		return false;
+	}
+	
+
+	/**
+	 * Map allowing look-up of values by a fault-tolerant key as specified by the defining key.
+	 * 
+	 */
+	protected class LenientLookup extends AbstractMap<String, Object> {
+		
+		private final Map<String, Entry<String, Object>> source;
+		
+
+		public LenientLookup(Map<String, Object> source) {
+			// initialize source map
+			this.source = new HashMap<String, Entry<String, Object>>(source.size());
+			
+			// populate source map
+			for (Entry<String, Object> entry : source.entrySet()) {
+				this.source.put(definingKey(entry.getKey()), entry);
+			}
+		}
+		
+
+		protected String definingKey(Object key) {
+			// letters and digits are defining, everything else will be ignored
+			return key.toString().replaceAll("[^\\p{Alnum}]", "").toLowerCase();
+		}
+		
+
+		@Override
+		public boolean containsKey(Object key) {
+			return source.containsKey(definingKey(key));
+		}
+		
+
+		@Override
+		public Object get(Object key) {
+			Entry<String, Object> entry = source.get(definingKey(key));
+			
+			if (entry != null)
+				return entry.getValue();
+			
+			return null;
+		}
+		
+
+		@Override
+		public Set<Entry<String, Object>> entrySet() {
+			return new AbstractSet<Entry<String, Object>>() {
+				
+				@Override
+				public Iterator<Entry<String, Object>> iterator() {
+					return source.values().iterator();
+				}
+				
+
+				@Override
+				public int size() {
+					return source.size();
+				}
+			};
+		}
 	}
 	
 }
