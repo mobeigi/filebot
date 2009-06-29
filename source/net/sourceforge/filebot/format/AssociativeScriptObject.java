@@ -156,16 +156,13 @@ public class AssociativeScriptObject implements Scriptable {
 	 * Map allowing look-up of values by a fault-tolerant key as specified by the defining key.
 	 * 
 	 */
-	protected class LenientLookup extends AbstractMap<String, Object> {
+	private class LenientLookup extends AbstractMap<String, Object> {
 		
-		private final Map<String, Entry<String, Object>> source;
+		private final Map<String, Entry<String, Object>> source = new HashMap<String, Entry<String, Object>>();
 		
 
 		public LenientLookup(Map<String, Object> source) {
-			// initialize source map
-			this.source = new HashMap<String, Entry<String, Object>>(source.size());
-			
-			// populate source map
+			// populate entry map
 			for (Entry<String, Object> entry : source.entrySet()) {
 				this.source.put(definingKey(entry.getKey()), entry);
 			}

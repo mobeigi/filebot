@@ -4,10 +4,6 @@ package net.sourceforge.filebot.format;
 
 import java.io.FilePermission;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.AccessController;
@@ -114,10 +110,12 @@ public class ExpressionFormat extends Format {
 	
 
 	public StringBuffer format(Bindings bindings, StringBuffer sb) {
-		ScriptContext context = new SimpleScriptContext();
-		
 		// use privileged bindings so we are not restricted by the script sandbox
-		context.setBindings(PrivilegedBindings.newProxy(bindings, AccessController.getContext()), ScriptContext.GLOBAL_SCOPE);
+		Bindings priviledgedBindings = PrivilegedInvocation.newProxy(Bindings.class, bindings, AccessController.getContext());
+		
+		// initialize script context with the privileged bindings
+		ScriptContext context = new SimpleScriptContext();
+		context.setBindings(priviledgedBindings, ScriptContext.GLOBAL_SCOPE);
 		
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
@@ -178,52 +176,6 @@ public class ExpressionFormat extends Format {
 		permissions.add(new RuntimePermission("getenv.*"));
 		
 		return permissions;
-	}
-	
-
-	private static class PrivilegedBindings implements InvocationHandler {
-		
-		private final Bindings bindings;
-		private final AccessControlContext context;
-		
-
-		private PrivilegedBindings(Bindings bindings, AccessControlContext context) {
-			this.bindings = bindings;
-			this.context = context;
-		}
-		
-
-		@Override
-		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			try {
-				return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-					
-					@Override
-					public Object run() throws Exception {
-						return method.invoke(bindings, args);
-					}
-				}, context);
-			} catch (PrivilegedActionException e) {
-				Throwable cause = e.getException();
-				
-				// the underlying method may have throw an exception
-				if (cause instanceof InvocationTargetException) {
-					// get actual cause
-					cause = cause.getCause();
-				}
-				
-				// forward cause
-				throw cause;
-			}
-		}
-		
-
-		public static Bindings newProxy(Bindings bindings, AccessControlContext context) {
-			InvocationHandler invocationHandler = new PrivilegedBindings(bindings, context);
-			
-			// create dynamic invocation proxy
-			return (Bindings) Proxy.newProxyInstance(PrivilegedBindings.class.getClassLoader(), new Class[] { Bindings.class }, invocationHandler);
-		}
 	}
 	
 
