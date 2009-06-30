@@ -32,7 +32,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private final List<Object> model;
 	
-	
+
 	public NamesListTransferablePolicy(List<Object> model) {
 		this.model = model;
 	}
@@ -78,10 +78,10 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	protected void load(String string) {
 		List<String> values = new ArrayList<String>();
 		
-		Scanner scanner = new Scanner(string).useDelimiter(LINE_SEPARATOR);
+		Scanner scanner = new Scanner(string);
 		
-		while (scanner.hasNext()) {
-			String line = scanner.next();
+		while (scanner.hasNextLine()) {
+			String line = scanner.nextLine();
 			
 			if (line.trim().length() > 0) {
 				values.add(line);
@@ -116,10 +116,10 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	protected void loadListFiles(List<File> files, List<Object> values) throws FileNotFoundException {
 		for (File file : files) {
 			// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8").useDelimiter(LINE_SEPARATOR);
+			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
 			
-			while (scanner.hasNext()) {
-				String line = scanner.next();
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
 				
 				if (line.trim().length() > 0) {
 					values.add(line);

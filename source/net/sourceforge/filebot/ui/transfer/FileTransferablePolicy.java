@@ -14,16 +14,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 
 public abstract class FileTransferablePolicy extends TransferablePolicy {
-	
-	/**
-	 * Pattern that will match Windows (\r\n), Unix (\n) and Mac (\r) line separators.
-	 */
-	public static final Pattern LINE_SEPARATOR = Pattern.compile("\r\n|[\r\n]");
-	
 	
 	@Override
 	public boolean accept(Transferable tr) throws Exception {
@@ -43,14 +36,14 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 		} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 			// file URI list flavor
-			String transferData = (String) tr.getTransferData(FileTransferable.uriListFlavor);
+			Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
 			
-			Scanner scanner = new Scanner(transferData).useDelimiter(LINE_SEPARATOR);
+			Scanner scanner = new Scanner(transferData);
 			
 			List<File> files = new ArrayList<File>();
 			
-			while (scanner.hasNext()) {
-				String uri = scanner.next();
+			while (scanner.hasNextLine()) {
+				String uri = scanner.nextLine();
 				
 				if (uri.startsWith("#")) {
 					// the line is a comment (as per RFC 2483)
