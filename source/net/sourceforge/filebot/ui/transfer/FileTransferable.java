@@ -6,6 +6,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -17,7 +18,7 @@ public class FileTransferable implements Transferable {
 
 	private static DataFlavor createUriListFlavor() {
 		try {
-			return new DataFlavor("text/uri-list;class=java.lang.String");
+			return new DataFlavor("text/uri-list;class=java.nio.CharBuffer");
 		} catch (ClassNotFoundException e) {
 			// will never happen
 			throw new RuntimeException(e);
@@ -43,7 +44,7 @@ public class FileTransferable implements Transferable {
 		if (flavor.isFlavorJavaFileListType())
 			return Arrays.asList(files);
 		else if (flavor.equals(uriListFlavor))
-			return getUriList();
+			return CharBuffer.wrap(getUriList());
 		else
 			throw new UnsupportedFlavorException(flavor);
 	}

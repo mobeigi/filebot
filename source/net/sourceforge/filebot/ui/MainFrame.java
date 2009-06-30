@@ -92,7 +92,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		setSize(760, 615);
+		setSize(760, 630);
 	}
 	
 
