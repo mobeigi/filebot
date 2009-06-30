@@ -97,6 +97,14 @@
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
 				<include name="net/sublight/webservice/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/junrar-custom.jar">
+				<include name="de/innosystec/unrar/**" />
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/commons-logging.jar">
+				<include name="org/apache/commons/logging/**" />
+			</zipfileset>
 		</jar>
 	</target>
 

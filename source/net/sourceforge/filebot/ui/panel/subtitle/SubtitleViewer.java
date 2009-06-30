@@ -74,7 +74,7 @@ class SubtitleViewer extends JFrame {
 		header.add(titleLabel, "wrap");
 		header.add(infoLabel, "gap indent*2, wrap paragraph:push");
 		
-		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid", "[grow]", "[pref!][grow]"));
+		JPanel content = new JPanel(new MigLayout("fill, insets dialog, nogrid", "[fill]", "[pref!][fill]"));
 		
 		content.add(new JLabel("Filter:"), "gap indent:push");
 		content.add(filterEditor, "wmin 120px, gap rel");

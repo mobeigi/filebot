@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.nio.ByteBuffer;
 import java.util.AbstractList;
@@ -14,10 +15,11 @@ import javax.swing.JList;
 import javax.swing.TransferHandler;
 
 import net.sourceforge.filebot.ui.transfer.ByteBufferTransferable;
+import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
 import net.sourceforge.filebot.ui.transfer.TransferableExportHandler;
 
 
-class MemoryFileListExportHandler implements TransferableExportHandler {
+class MemoryFileListExportHandler implements TransferableExportHandler, ClipboardHandler {
 	
 	public boolean canExport(JComponent component) {
 		JList list = (JList) component;
@@ -69,7 +71,14 @@ class MemoryFileListExportHandler implements TransferableExportHandler {
 	
 
 	@Override
+	public void exportToClipboard(JComponent component, Clipboard clip, int action) {
+		clip.setContents(createTransferable(component), null);
+	}
+	
+
+	@Override
 	public void exportDone(JComponent source, Transferable data, int action) {
 		
 	}
+	
 }

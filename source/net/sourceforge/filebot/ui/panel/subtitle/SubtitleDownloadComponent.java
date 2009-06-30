@@ -99,27 +99,26 @@ public class SubtitleDownloadComponent extends JComponent {
 			}
 		};
 		
+		// install dnd and clipboard export handler
+		MemoryFileListExportHandler memoryFileExportHandler = new MemoryFileListExportHandler();
+		fileList.setTransferHandler(new DefaultTransferHandler(null, memoryFileExportHandler, memoryFileExportHandler));
+		
 		fileList.setDragEnabled(true);
-		fileList.setTransferHandler(new DefaultTransferHandler(null, new MemoryFileListExportHandler()));
 		fileList.addMouseListener(fileListMouseHandler);
 		
 		JButton clearButton = new JButton(clearFilterAction);
 		clearButton.setOpaque(false);
 		
-		JButton exportButton = new JButton(exportToFolderAction);
-		exportButton.setOpaque(false);
-		
-		setLayout(new MigLayout("fill, nogrid", "[fill]", "[pref!][fill]"));
+		setLayout(new MigLayout("nogrid, fill", "[fill]", "[pref!][fill]"));
 		
 		add(new JLabel("Filter:"), "gap indent:push");
 		add(filterEditor, "wmin 120px, gap rel");
 		add(clearButton, "w 24px!, h 24px!");
-		add(new JScrollPane(packageList), "newline");
+		add(new JScrollPane(packageList), "newline, hmin 80px");
 		
 		JScrollPane scrollPane = new JScrollPane(fileList);
 		scrollPane.setViewportBorder(new LineBorder(fileList.getBackground()));
-		add(scrollPane, "newline");
-		add(exportButton, "w pref!, h pref!");
+		add(scrollPane, "newline, hmin max(80px, 30%)");
 	}
 	
 
@@ -225,35 +224,6 @@ public class SubtitleDownloadComponent extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			filterEditor.setText("");
-		}
-	};
-	
-	private final Action exportToFolderAction = new AbstractAction("Export") {
-		
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			JComponent source = (JComponent) evt.getSource();
-			
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			
-			if (fileChooser.showSaveDialog(source) == JFileChooser.APPROVE_OPTION) {
-				File folder = fileChooser.getSelectedFile();
-				
-				for (MemoryFile file : files) {
-					try {
-						FileChannel fileChannel = new FileOutputStream(new File(folder, file.getName())).getChannel();
-						
-						try {
-							fileChannel.write(file.getData());
-						} finally {
-							fileChannel.close();
-						}
-					} catch (IOException e) {
-						Logger.getLogger("ui").log(Level.SEVERE, e.getMessage(), e);
-					}
-				}
-			}
 		}
 	};
 	
@@ -382,7 +352,7 @@ public class SubtitleDownloadComponent extends JComponent {
 					
 					@Override
 					public void actionPerformed(ActionEvent evt) {
-						//						save()
+						save(selection);
 					}
 				});
 				
@@ -392,12 +362,12 @@ public class SubtitleDownloadComponent extends JComponent {
 		
 
 		private void open(Object[] selection) {
-			for (Object object : selection) {
-				try {
+			try {
+				for (Object object : selection) {
 					open((MemoryFile) object);
-				} catch (IOException e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 				}
+			} catch (Exception e) {
+				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 		
@@ -447,6 +417,48 @@ public class SubtitleDownloadComponent extends JComponent {
 			throw new IOException("Cannot read subtitle format");
 		}
 		
+
+		private void save(Object[] selection) {
+			try {
+				if (selection.length == 1) {
+					// single file
+					MemoryFile file = (MemoryFile) selection[0];
+					
+					JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setSelectedFile(new File(validateFileName(file.getName())));
+					
+					if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						write(file, fileChooser.getSelectedFile());
+					}
+				} else {
+					// multiple files
+					JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					
+					if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+						File folder = fileChooser.getSelectedFile();
+						
+						for (Object object : selection) {
+							MemoryFile file = (MemoryFile) object;
+							write(file, new File(folder, validateFileName(file.getName())));
+						}
+					}
+				}
+			} catch (IOException e) {
+				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		
+
+		private void write(MemoryFile source, File destination) throws IOException {
+			FileChannel fileChannel = new FileOutputStream(destination).getChannel();
+			
+			try {
+				fileChannel.write(source.getData());
+			} finally {
+				fileChannel.close();
+			}
+		}
 	};
 	
 }
