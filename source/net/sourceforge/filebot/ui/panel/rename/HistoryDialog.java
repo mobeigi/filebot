@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static java.awt.Font.*;
 import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
 
 import java.awt.Color;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -89,7 +91,7 @@ class HistoryDialog extends JDialog {
 	
 	private final JTable elementTable = createTable(elementModel);
 	
-	
+
 	public HistoryDialog(Window owner) {
 		super(owner, "Rename History", ModalityType.DOCUMENT_MODAL);
 		
@@ -174,7 +176,7 @@ class HistoryDialog extends JDialog {
 			
 			private final DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 			
-			
+
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				return super.getTableCellRendererComponent(table, format.format(value), isSelected, hasFocus, row, column);
@@ -306,6 +308,7 @@ class HistoryDialog extends JDialog {
 		return table;
 	}
 	
+
 	private final Action closeAction = new AbstractAction("Close") {
 		
 		@Override
@@ -376,13 +379,13 @@ class HistoryDialog extends JDialog {
 		}
 	};
 	
-	
+
 	private static class RevertAction extends AbstractAction {
 		
 		public static final String ELEMENTS = "elements";
 		public static final String PARENT = "parent";
 		
-		
+
 		public RevertAction(Collection<Element> elements, HistoryDialog parent) {
 			putValue(NAME, "Revert...");
 			putValue(ELEMENTS, elements.toArray(new Element[0]));
@@ -399,21 +402,24 @@ class HistoryDialog extends JDialog {
 			return (HistoryDialog) getValue(PARENT);
 		}
 		
-		
+
 		private enum Option {
 			Rename {
+				
 				@Override
 				public String toString() {
 					return "Rename";
 				}
 			},
 			ChangeDirectory {
+				
 				@Override
 				public String toString() {
 					return "Change Directory";
 				}
 			},
 			Cancel {
+				
 				@Override
 				public String toString() {
 					return "Cancel";
@@ -421,7 +427,7 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// use default directory
@@ -444,6 +450,7 @@ class HistoryDialog extends JDialog {
 				} else {
 					String text = String.format("Some files are missing. Please select a different directory.");
 					JList missingFilesComponent = new JList(missingFiles.toArray()) {
+						
 						@Override
 						public Dimension getPreferredScrollableViewportSize() {
 							// adjust component size
@@ -452,6 +459,7 @@ class HistoryDialog extends JDialog {
 					};
 					
 					missingFilesComponent.setCellRenderer(new DefaultListCellRenderer() {
+						
 						@Override
 						public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 							return super.getListCellRendererComponent(list, ((File) value).getName(), index, isSelected, false);
@@ -544,6 +552,7 @@ class HistoryDialog extends JDialog {
 		}
 	}
 	
+
 	private final FileTransferablePolicy importHandler = new FileTransferablePolicy() {
 		
 		@Override
@@ -600,14 +609,14 @@ class HistoryDialog extends JDialog {
 		}
 	};
 	
-	
+
 	private static class HistoryFilter extends RowFilter<Object, Integer> {
 		
-		private final String filter;
+		private final Pattern filter;
 		
-		
+
 		public HistoryFilter(String filter) {
-			this.filter = filter.toLowerCase();
+			this.filter = compile(quote(filter), CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 		}
 		
 
@@ -643,7 +652,7 @@ class HistoryDialog extends JDialog {
 		
 
 		private boolean include(String value) {
-			return value.toLowerCase().contains(filter);
+			return filter.matcher(value).find();
 		}
 	}
 	
@@ -652,7 +661,7 @@ class HistoryDialog extends JDialog {
 		
 		private List<Sequence> data = emptyList();
 		
-		
+
 		public void setData(List<Sequence> data) {
 			this.data = new ArrayList<Sequence>(data);
 			
@@ -758,7 +767,7 @@ class HistoryDialog extends JDialog {
 		
 		private List<Element> data = emptyList();
 		
-		
+
 		public void setData(List<Element> data) {
 			this.data = new ArrayList<Element>(data);
 			

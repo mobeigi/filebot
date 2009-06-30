@@ -13,7 +13,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
@@ -48,8 +53,12 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.subtitle.SubtitleElement;
+import net.sourceforge.filebot.subtitle.SubtitleFormat;
+import net.sourceforge.filebot.subtitle.SubtitleReader;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePackage.Download.Phase;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.ListView;
 
@@ -92,6 +101,7 @@ public class SubtitleDownloadComponent extends JComponent {
 		
 		fileList.setDragEnabled(true);
 		fileList.setTransferHandler(new DefaultTransferHandler(null, new MemoryFileListExportHandler()));
+		fileList.addMouseListener(fileListMouseHandler);
 		
 		JButton clearButton = new JButton(clearFilterAction);
 		clearButton.setOpaque(false);
@@ -315,6 +325,128 @@ public class SubtitleDownloadComponent extends JComponent {
 			
 			return false;
 		}
+	};
+	
+	private final MouseListener fileListMouseHandler = new MouseAdapter() {
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// open on double click
+			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
+				JList list = (JList) e.getSource();
+				
+				// open selection
+				open(list.getSelectedValues());
+			}
+		}
+		
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			maybeShowPopup(e);
+		}
+		
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			maybeShowPopup(e);
+		}
+		
+
+		private void maybeShowPopup(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				JList list = (JList) e.getSource();
+				
+				int index = list.locationToIndex(e.getPoint());
+				
+				if (index >= 0 && !list.isSelectedIndex(index)) {
+					// auto-select clicked element
+					list.setSelectedIndex(index);
+				}
+				
+				final Object[] selection = list.getSelectedValues();
+				
+				JPopupMenu contextMenu = new JPopupMenu();
+				
+				// Open
+				contextMenu.add(new AbstractAction("Open") {
+					
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						open(selection);
+					}
+				});
+				
+				// Save as ...
+				contextMenu.add(new AbstractAction("Save as ...") {
+					
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						//						save()
+					}
+				});
+				
+				contextMenu.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+		
+
+		private void open(Object[] selection) {
+			for (Object object : selection) {
+				try {
+					open((MemoryFile) object);
+				} catch (IOException e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+				}
+			}
+		}
+		
+
+		private void open(MemoryFile file) throws IOException {
+			Deque<SubtitleFormat> priorityList = new ArrayDeque<SubtitleFormat>(4);
+			
+			// gather all formats, put likely formats first
+			for (SubtitleFormat format : SubtitleFormat.values()) {
+				if (format.filter().accept(file.getName())) {
+					priorityList.addFirst(format);
+				} else {
+					priorityList.addLast(format);
+				}
+			}
+			
+			// decode subtitle file with the first reader that seems to work
+			for (SubtitleFormat format : priorityList) {
+				InputStream data = new ByteBufferInputStream(file.getData());
+				SubtitleReader reader = format.newReader(new InputStreamReader(data, "UTF-8"));
+				
+				try {
+					if (reader.hasNext()) {
+						// correct format
+						List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
+						
+						// read subtitle file
+						while (reader.hasNext()) {
+							list.add(reader.next());
+						}
+						
+						SubtitleViewer viewer = new SubtitleViewer(file.getName());
+						viewer.getTitleLabel().setText("Subtitle Viewer");
+						viewer.getInfoLabel().setText(file.getPath());
+						
+						viewer.setData(list);
+						viewer.setVisible(true);
+						
+						// done
+						return;
+					}
+				} finally {
+					reader.close();
+				}
+			}
+			
+			throw new IOException("Cannot read subtitle format");
+		}
+		
 	};
 	
 }
