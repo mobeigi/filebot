@@ -72,7 +72,9 @@ public class SubStationAlphaReader extends SubtitleReader {
 		
 		long start = timeFormat.parse(row[format.get("Start")]).getTime();
 		long end = timeFormat.parse(row[format.get("End")]).getTime();
-		String[] lines = row[format.get("Text")].trim().split(Pattern.quote("\\n"));
+		String text = row[format.get("Text")].trim();
+		
+		String[] lines = Pattern.compile(Pattern.quote("\\N"), Pattern.CASE_INSENSITIVE).split(text);
 		
 		return new SubtitleElement(start, end, join(Arrays.asList(lines), "\n"));
 	}

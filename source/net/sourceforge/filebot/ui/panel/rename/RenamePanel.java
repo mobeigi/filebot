@@ -30,6 +30,9 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import ca.odell.glazedlists.ListSelection;
+import ca.odell.glazedlists.swing.EventSelectionModel;
+
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
@@ -53,8 +56,6 @@ import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import ca.odell.glazedlists.ListSelection;
-import ca.odell.glazedlists.swing.EventSelectionModel;
 
 
 public class RenamePanel extends JComponent {
@@ -71,7 +72,7 @@ public class RenamePanel extends JComponent {
 	
 	private final PreferencesEntry<Boolean> persistentPreserveExtension = Settings.userRoot().entry("rename.extension.preserve", SimpleAdapter.forClass(Boolean.class));
 	
-	
+
 	public RenamePanel() {
 		namesList.setTitle("New Names");
 		namesList.setTransferablePolicy(new NamesListTransferablePolicy(renameModel.values()));
@@ -220,6 +221,7 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
+
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
 		
 		@Override
@@ -234,12 +236,12 @@ public class RenamePanel extends JComponent {
 		}
 	};
 	
-	
+
 	protected class PreserveExtensionAction extends AbstractAction {
 		
 		private final boolean activate;
 		
-		
+
 		private PreserveExtensionAction(boolean activate, String name, Icon icon) {
 			super(name, icon);
 			this.activate = activate;
@@ -266,7 +268,7 @@ public class RenamePanel extends JComponent {
 		
 		private final EpisodeListProvider provider;
 		
-		
+
 		public AutoFetchEpisodeListAction(EpisodeListProvider provider) {
 			super(provider.getName(), provider.getIcon());
 			
@@ -310,7 +312,7 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles());
 					} catch (Exception e) {
-						Logger.getLogger("ui").warning(ExceptionUtilities.getRootCauseMessage(e));
+						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
@@ -324,7 +326,7 @@ public class RenamePanel extends JComponent {
 						return searchResults.iterator().next();
 					}
 					
-					final List<SearchResult> probableMatches = new LinkedList<SearchResult>();
+					final LinkedList<SearchResult> probableMatches = new LinkedList<SearchResult>();
 					
 					// use name similarity metric
 					SimilarityMetric metric = new NameSimilarityMetric();
@@ -337,7 +339,7 @@ public class RenamePanel extends JComponent {
 					}
 					
 					if (probableMatches.size() == 1) {
-						return probableMatches.get(0);
+						return probableMatches.getFirst();
 					}
 					
 					// show selection dialog on EDT
@@ -351,8 +353,10 @@ public class RenamePanel extends JComponent {
 							// multiple results have been found, user must select one
 							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(getWindow(RenamePanel.this), selection);
 							
-							selectDialog.getHeaderLabel().setText(String.format("Shows matching \"%s\":", query));
+							selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
+							selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 							
+							// show dialog
 							selectDialog.setVisible(true);
 							
 							// selected value or null if the dialog was canceled by the user
@@ -372,6 +376,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 	
+
 	private final PreferencesEntry<EpisodeExpressionFormatter> persistentExpressionFormatter = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
 		
 		@Override

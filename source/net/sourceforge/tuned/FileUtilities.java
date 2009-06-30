@@ -168,6 +168,16 @@ public final class FileUtilities {
 		}
 		
 
+		public boolean acceptExtension(String extension) {
+			for (String other : extensions) {
+				if (other.equalsIgnoreCase(extension))
+					return true;
+			}
+			
+			return false;
+		}
+		
+
 		public List<String> extensions() {
 			return Arrays.asList(extensions);
 		}

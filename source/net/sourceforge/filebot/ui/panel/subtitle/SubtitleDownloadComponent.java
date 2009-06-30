@@ -285,7 +285,7 @@ public class SubtitleDownloadComponent extends JComponent {
 				
 				final Object[] selection = list.getSelectedValues();
 				
-				Action downloadAction = new AbstractAction("Download", ResourceManager.getIcon("action.fetch")) {
+				Action downloadAction = new AbstractAction("Download", ResourceManager.getIcon("package.fetch")) {
 					
 					@Override
 					public void actionPerformed(ActionEvent e) {

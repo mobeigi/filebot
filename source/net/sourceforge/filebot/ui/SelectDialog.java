@@ -98,6 +98,16 @@ public class SelectDialog<T> extends JDialog {
 	}
 	
 
+	public Action getSelectAction() {
+		return selectAction;
+	}
+	
+
+	public Action getCancelAction() {
+		return cancelAction;
+	}
+	
+
 	private final Action selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
 		public void actionPerformed(ActionEvent e) {
