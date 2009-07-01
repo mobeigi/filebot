@@ -27,6 +27,11 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.matchers.TextMatcherEditor;
+import ca.odell.glazedlists.swing.AutoCompleteSupport;
+
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
@@ -36,10 +41,6 @@ import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.TunedUtilities;
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.matchers.TextMatcherEditor;
-import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 
 public abstract class AbstractSearchPanel<S, E> extends JComponent {
@@ -79,9 +80,10 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		try {
 			// restore selected subtitle client
-			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("search")));
+			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("engine.selected")));
 		} catch (Exception e) {
-			// ignore
+			// log and ignore
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		// save selected client on change
