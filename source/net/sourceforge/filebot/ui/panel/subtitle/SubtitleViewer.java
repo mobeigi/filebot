@@ -82,7 +82,7 @@ class SubtitleViewer extends JFrame {
 		content.add(new JScrollPane(subtitleTable), "grow");
 		
 		JComponent pane = (JComponent) getContentPane();
-		pane.setLayout(new MigLayout("fill, insets 0"));
+		pane.setLayout(new MigLayout("fill, insets 0 0 rel 0"));
 		
 		pane.add(header, "hmin 20px, growx, dock north");
 		pane.add(content, "grow");

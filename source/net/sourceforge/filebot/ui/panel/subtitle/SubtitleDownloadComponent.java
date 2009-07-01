@@ -35,6 +35,7 @@ import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
@@ -61,6 +62,7 @@ import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.ListView;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class SubtitleDownloadComponent extends JComponent {
@@ -88,7 +90,7 @@ public class SubtitleDownloadComponent extends JComponent {
 		packageList.addMouseListener(packageListMouseHandler);
 		
 		// file list view
-		JList fileList = new ListView(createFileListModel()) {
+		final JList fileList = new ListView(createFileListModel()) {
 			
 			@Override
 			protected Icon convertValueToIcon(Object value) {
@@ -119,6 +121,15 @@ public class SubtitleDownloadComponent extends JComponent {
 		JScrollPane scrollPane = new JScrollPane(fileList);
 		scrollPane.setViewportBorder(new LineBorder(fileList.getBackground()));
 		add(scrollPane, "newline, hmin max(80px, 30%)");
+		
+		// install open action
+		TunedUtilities.installAction(fileList, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("Open") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				open(fileList.getSelectedValues());
+			}
+		});
 	}
 	
 
@@ -216,6 +227,106 @@ public class SubtitleDownloadComponent extends JComponent {
 		
 		// enqueue worker
 		subtitle.getDownload().start();
+	}
+	
+
+	private void open(Object[] selection) {
+		try {
+			for (Object object : selection) {
+				open((MemoryFile) object);
+			}
+		} catch (Exception e) {
+			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+	
+
+	private void open(MemoryFile file) throws IOException {
+		Deque<SubtitleFormat> priorityList = new ArrayDeque<SubtitleFormat>();
+		
+		// gather all formats, put likely formats first
+		for (SubtitleFormat format : SubtitleFormat.values()) {
+			if (format.filter().accept(file.getName())) {
+				priorityList.addFirst(format);
+			} else {
+				priorityList.addLast(format);
+			}
+		}
+		
+		// decode subtitle file with the first reader that seems to work
+		for (SubtitleFormat format : priorityList) {
+			InputStream data = new ByteBufferInputStream(file.getData());
+			SubtitleReader reader = format.newReader(new InputStreamReader(data, "UTF-8"));
+			
+			try {
+				if (reader.hasNext()) {
+					// correct format
+					List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
+					
+					// read subtitle file
+					while (reader.hasNext()) {
+						list.add(reader.next());
+					}
+					
+					SubtitleViewer viewer = new SubtitleViewer(file.getName());
+					viewer.getTitleLabel().setText("Subtitle Viewer");
+					viewer.getInfoLabel().setText(file.getPath());
+					
+					viewer.setData(list);
+					viewer.setVisible(true);
+					
+					// done
+					return;
+				}
+			} finally {
+				reader.close();
+			}
+		}
+		
+		throw new IOException("Cannot read subtitle format");
+	}
+	
+
+	private void save(Object[] selection) {
+		try {
+			if (selection.length == 1) {
+				// single file
+				MemoryFile file = (MemoryFile) selection[0];
+				
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setSelectedFile(new File(validateFileName(file.getName())));
+				
+				if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+					write(file, fileChooser.getSelectedFile());
+				}
+			} else {
+				// multiple files
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
+				if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+					File folder = fileChooser.getSelectedFile();
+					
+					for (Object object : selection) {
+						MemoryFile file = (MemoryFile) object;
+						write(file, new File(folder, validateFileName(file.getName())));
+					}
+				}
+			}
+		} catch (IOException e) {
+			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+	
+
+	private void write(MemoryFile source, File destination) throws IOException {
+		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
+		
+		try {
+			fileChannel.write(source.getData());
+		} finally {
+			fileChannel.close();
+		}
 	}
 	
 
@@ -360,105 +471,6 @@ public class SubtitleDownloadComponent extends JComponent {
 			}
 		}
 		
-
-		private void open(Object[] selection) {
-			try {
-				for (Object object : selection) {
-					open((MemoryFile) object);
-				}
-			} catch (Exception e) {
-				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		
-
-		private void open(MemoryFile file) throws IOException {
-			Deque<SubtitleFormat> priorityList = new ArrayDeque<SubtitleFormat>(4);
-			
-			// gather all formats, put likely formats first
-			for (SubtitleFormat format : SubtitleFormat.values()) {
-				if (format.filter().accept(file.getName())) {
-					priorityList.addFirst(format);
-				} else {
-					priorityList.addLast(format);
-				}
-			}
-			
-			// decode subtitle file with the first reader that seems to work
-			for (SubtitleFormat format : priorityList) {
-				InputStream data = new ByteBufferInputStream(file.getData());
-				SubtitleReader reader = format.newReader(new InputStreamReader(data, "UTF-8"));
-				
-				try {
-					if (reader.hasNext()) {
-						// correct format
-						List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
-						
-						// read subtitle file
-						while (reader.hasNext()) {
-							list.add(reader.next());
-						}
-						
-						SubtitleViewer viewer = new SubtitleViewer(file.getName());
-						viewer.getTitleLabel().setText("Subtitle Viewer");
-						viewer.getInfoLabel().setText(file.getPath());
-						
-						viewer.setData(list);
-						viewer.setVisible(true);
-						
-						// done
-						return;
-					}
-				} finally {
-					reader.close();
-				}
-			}
-			
-			throw new IOException("Cannot read subtitle format");
-		}
-		
-
-		private void save(Object[] selection) {
-			try {
-				if (selection.length == 1) {
-					// single file
-					MemoryFile file = (MemoryFile) selection[0];
-					
-					JFileChooser fileChooser = new JFileChooser();
-					fileChooser.setSelectedFile(new File(validateFileName(file.getName())));
-					
-					if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-						write(file, fileChooser.getSelectedFile());
-					}
-				} else {
-					// multiple files
-					JFileChooser fileChooser = new JFileChooser();
-					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-					
-					if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-						File folder = fileChooser.getSelectedFile();
-						
-						for (Object object : selection) {
-							MemoryFile file = (MemoryFile) object;
-							write(file, new File(folder, validateFileName(file.getName())));
-						}
-					}
-				}
-			} catch (IOException e) {
-				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		
-
-		private void write(MemoryFile source, File destination) throws IOException {
-			FileChannel fileChannel = new FileOutputStream(destination).getChannel();
-			
-			try {
-				fileChannel.write(source.getData());
-			} finally {
-				fileChannel.close();
-			}
-		}
 	};
 	
 }
