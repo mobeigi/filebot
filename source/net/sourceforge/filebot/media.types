@@ -11,7 +11,6 @@
 	<type name="application/list">
 		<extension>list</extension>
 		<extension>txt</extension>
-		<extension></extension>
 	</type>
 
 

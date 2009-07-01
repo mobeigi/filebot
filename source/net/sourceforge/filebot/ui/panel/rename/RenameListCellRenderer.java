@@ -36,6 +36,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
 	
 	public RenameListCellRenderer(RenameModel renameModel) {
+		super(new Insets(4, 7, 4, 7));
+		
 		this.renameModel = renameModel;
 		
 		setHighlightingEnabled(false);

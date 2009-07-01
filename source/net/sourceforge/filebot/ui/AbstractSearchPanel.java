@@ -80,7 +80,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		try {
 			// restore selected subtitle client
-			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("engine.selected")));
+			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("engine.selected", "0")));
 		} catch (Exception e) {
 			// log and ignore
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);

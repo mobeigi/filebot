@@ -19,13 +19,16 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	public DefaultFancyListCellRenderer() {
 		add(label);
 	}
-	
 
 	public DefaultFancyListCellRenderer(int padding) {
 		super(new Insets(padding, padding, padding, padding));
 		add(label);
 	}
-	
+
+	public DefaultFancyListCellRenderer(Insets padding) {
+		super(padding);
+		add(label);
+	}
 
 	protected DefaultFancyListCellRenderer(int padding, int margin, Color selectedBorderColor) {
 		super(new Insets(padding, padding, padding, padding), new Insets(margin, margin, margin, margin), selectedBorderColor);
