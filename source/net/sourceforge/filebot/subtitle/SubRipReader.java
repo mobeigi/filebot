@@ -29,10 +29,15 @@ public class SubRipReader extends SubtitleReader {
 	protected SubtitleElement readNext() throws Exception {
 		String number = scanner.nextLine();
 		
+		// ignore illegal lines
 		if (!number.matches("\\d+"))
 			return null;
 		
 		String[] interval = scanner.nextLine().split("-->", 2);
+		
+		// ignore illegal lines
+		if (interval.length < 2)
+			return null;
 		
 		long t1 = timeFormat.parse(interval[0].trim()).getTime();
 		long t2 = timeFormat.parse(interval[1].trim()).getTime();
