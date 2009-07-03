@@ -85,7 +85,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public String getName() {
-		return getProperty(Property.SubFileName);
+		return getProperty(Property.MovieReleaseName);
 	}
 	
 

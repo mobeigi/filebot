@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
 import java.io.File;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class SeriesNameMatcher {
 	
 	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
 	
-	
+
 	public String match(File file) {
 		return match(file.getName(), file.getParent());
 	}
@@ -239,21 +241,6 @@ public class SeriesNameMatcher {
 	}
 	
 
-	private String join(Object[] values, String separator) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (int i = 0; i < values.length; i++) {
-			sb.append(values[i]);
-			
-			if (i < values.length - 1) {
-				sb.append(separator);
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-
 	private Map<File, String[]> mapNamesByFolder(File... files) {
 		Map<File, List<File>> filesByFolder = new LinkedHashMap<File, List<File>>();
 		
@@ -294,12 +281,12 @@ public class SeriesNameMatcher {
 		return names;
 	}
 	
-	
+
 	protected static class SeriesNameCollection extends AbstractCollection<String> {
 		
 		private final Map<String, String> data = new LinkedHashMap<String, String>();
 		
-		
+
 		@Override
 		public boolean add(String value) {
 			String key = value.toLowerCase();
@@ -362,7 +349,7 @@ public class SeriesNameMatcher {
 		
 		private final int threshold;
 		
-		
+
 		public ThresholdCollection(int threshold, Comparator<E> equalityComparator) {
 			this.heaven = new ArrayList<E>();
 			this.limbo = new TreeMap<E, Collection<E>>(equalityComparator);

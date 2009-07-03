@@ -3,15 +3,14 @@ package net.sourceforge.filebot.web;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -29,7 +28,7 @@ import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
  */
 public class OpenSubtitlesXmlRpc {
 	
-	private static final String url = "http://www.opensubtitles.org/xml-rpc";
+	private final String url = "http://www.opensubtitles.org/xml-rpc";
 	
 	private final String useragent;
 	
@@ -107,6 +106,112 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getServerInfo() throws XmlRpcFault {
+		return (Map<String, String>) invoke("ServerInfo", token);
+	}
+	
+
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, String... sublanguageids) throws XmlRpcFault {
+		return searchSubtitles(null, null, imdbid, sublanguageids);
+	}
+	
+
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(String moviehash, long moviebytesize, String... sublanguageids) throws XmlRpcFault {
+		return searchSubtitles(moviehash, moviebytesize, null, sublanguageids);
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	protected List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(String moviehash, Long moviebytesize, Integer imdbid, String... sublanguageids) throws XmlRpcFault {
+		ParameterMap query = new ParameterMap(4);
+		
+		// put parameters, but ignore null or empty values
+		query.put("moviehash", moviehash);
+		query.put("moviebytesize", moviebytesize);
+		query.put("imdbid", imdbid);
+		query.put("sublanguageid", join(sublanguageids, ","));
+		
+		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, singletonList(query));
+		
+		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
+		
+		try {
+			for (Map<String, String> subtitleData : response.get("data")) {
+				subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(subtitleData)));
+			}
+		} catch (ClassCastException e) {
+			// if the response is an error message, generic types won't match 
+			throw new XmlRpcException("Illegal response: " + response.toString());
+		}
+		
+		return subtitles;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
+		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", token, query);
+		
+		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
+		
+		for (Map<String, String> movie : response.get("data")) {
+			try {
+				// get non-aka title (aka titles are separated by Â)
+				Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("\u00C2");
+				
+				movies.add(new MovieDescriptor(titleScanner.next(), Integer.parseInt(movie.get("id"))));
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		
+		return movies;
+	}
+	
+
+	public Map<String, String> getSubLanguages() throws XmlRpcFault {
+		return getSubLanguages("en");
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getSubLanguages(String languageCode) throws XmlRpcFault {
+		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("GetSubLanguages", languageCode);
+		
+		Map<String, String> subLanguageMap = new HashMap<String, String>();
+		
+		for (Map<String, String> language : response.get("data")) {
+			subLanguageMap.put(language.get("SubLanguageID"), language.get("LanguageName"));
+		}
+		
+		return subLanguageMap;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public boolean noOperation() {
+		try {
+			Map<String, String> response = (Map<String, String>) invoke("NoOperation", token);
+			checkStatus(response.get("status"));
+			
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+
+	private Object invoke(String method, Object... arguments) throws XmlRpcFault {
+		try {
+			XmlRpcClient rpc = new XmlRpcClient(url, false);
+			return rpc.invoke(method, arguments);
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+
 	/**
 	 * Check whether status is OK or not
 	 * 
@@ -126,108 +231,29 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
-	private Object invoke(String method, Object... arguments) throws XmlRpcFault {
-		try {
-			XmlRpcClient rpc = new XmlRpcClient(url, false);
-			return rpc.invoke(method, arguments);
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+	private static class ParameterMap extends HashMap<String, String> {
+		
+		public ParameterMap(int initialCapacity) {
+			super(initialCapacity);
 		}
-	}
-	
+		
 
-	/**
-	 * This simple function returns basic server info.
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<String, String> getServerInfo() throws XmlRpcFault {
-		return (Map<String, String>) invoke("ServerInfo", token);
-	}
-	
-
-	@SuppressWarnings("unchecked")
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, String languageName) throws XmlRpcFault {
-		Map<String, String> query = new HashMap<String, String>(2);
-		
-		query.put("imdbid", String.format("%07d", imdbid));
-		query.put("sublanguageid", getSubLanguageID(languageName));
-		
-		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, singletonList(query));
-		
-		List<OpenSubtitlesSubtitleDescriptor> subs = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-		
-		try {
-			for (Map<String, String> subtitleData : response.get("data")) {
-				subs.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(subtitleData)));
+		@Override
+		public String put(String key, String value) {
+			if (value != null && !value.isEmpty()) {
+				return super.put(key, value);
 			}
-		} catch (ClassCastException e) {
-			// if the response is an error message, generic types won't match 
-			throw new XmlRpcException("Illegal response: " + response.toString(), e);
-		}
-		
-		return subs;
-	}
-	
-
-	private final Map<String, String> languageMap = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-	
-
-	@SuppressWarnings("unchecked")
-	public String getSubLanguageID(String languageName) throws XmlRpcFault {
-		synchronized (languageMap) {
-			if (languageMap.isEmpty()) {
-				Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("GetSubLanguages", "en");
-				
-				for (Map<String, String> language : response.get("data")) {
-					languageMap.put(language.get("LanguageName"), language.get("SubLanguageID"));
-				}
-			}
-		}
-		
-		return languageMap.get(languageName);
-	}
-	
-
-	@SuppressWarnings("unchecked")
-	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
-		
-		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", token, query);
-		
-		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
-		Pattern moviePattern = Pattern.compile("(.+) \\((\\d{4})\\).*");
-		
-		for (Map<String, String> movie : response.get("data")) {
-			try {
-				// get non-aka title (aka titles are separated by Â)
-				Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("\u00C2");
-				
-				Matcher matcher = moviePattern.matcher(titleScanner.next().trim());
-				
-				if (!matcher.matches())
-					throw new InputMismatchException("Cannot parse movie: " + movie);
-				
-				String title = matcher.group(1);
-				String year = matcher.group(2);
-				
-				movies.add(new MovieDescriptor(title, Integer.parseInt(year), Integer.parseInt(movie.get("id"))));
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		
-		return movies;
-	}
-	
-
-	@SuppressWarnings("unchecked")
-	public boolean noOperation() {
-		try {
-			Map<String, String> response = (Map<String, String>) invoke("NoOperation", token);
-			checkStatus(response.get("status"));
 			
-			return true;
-		} catch (Exception e) {
-			return false;
+			return null;
+		}
+		
+
+		public String put(String key, Object value) {
+			if (value != null) {
+				return put(key, value.toString());
+			}
+			
+			return null;
 		}
 	}
 	

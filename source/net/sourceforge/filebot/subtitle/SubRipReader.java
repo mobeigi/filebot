@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.subtitle;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public class SubRipReader extends SubtitleReader {
 			lines.add(line);
 		}
 		
-		return new SubtitleElement(t1, t2, join(lines.toArray(), "\n"));
+		return new SubtitleElement(t1, t2, join(lines, "\n"));
 	}
 	
 }

@@ -4,6 +4,9 @@ package net.sourceforge.filebot.web;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,8 +59,11 @@ public class OpenSubtitlesClient implements SubtitleProvider {
 		// require login
 		login();
 		
+		// singleton array with or empty array
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		
 		@SuppressWarnings("unchecked")
-		List<SubtitleDescriptor> subtitles = (List) xmlrpc.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageName);
+		List<SubtitleDescriptor> subtitles = (List) xmlrpc.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageFilter);
 		
 		return subtitles;
 	}
@@ -99,4 +105,31 @@ public class OpenSubtitlesClient implements SubtitleProvider {
 			logout();
 		}
 	};
+	
+	/**
+	 * SubLanguageID by English language name
+	 */
+	private static final Map<String, String> subLanguageCache = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+	
+
+	private String getSubLanguageID(String languageName) throws Exception {
+		// fetch languages if necessary 
+		synchronized (subLanguageCache) {
+			if (subLanguageCache.isEmpty()) {
+				for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
+					// map id by name
+					subLanguageCache.put(entry.getValue(), entry.getKey());
+				}
+			}
+		}
+		
+		String id = subLanguageCache.get(languageName);
+		
+		if (id == null) {
+			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
+		}
+		
+		return id;
+	}
+	
 }

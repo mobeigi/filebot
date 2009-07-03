@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.subtitle;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.HashMap;

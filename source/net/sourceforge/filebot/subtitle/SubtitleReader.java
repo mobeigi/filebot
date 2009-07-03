@@ -65,21 +65,6 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 	}
 	
 
-	protected String join(Object[] values, String delimiter) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (int i = 0; i < values.length; i++) {
-			sb.append(values[i]);
-			
-			if (i < values.length - 1) {
-				sb.append(delimiter);
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-
 	@Override
 	public void close() throws IOException {
 		scanner.close();

@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.subtitle;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
