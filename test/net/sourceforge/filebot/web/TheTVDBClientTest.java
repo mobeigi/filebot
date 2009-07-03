@@ -8,19 +8,19 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
+import org.junit.After;
+import org.junit.Test;
+
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
-
-import org.junit.After;
-import org.junit.Test;
 
 
 public class TheTVDBClientTest {
 	
 	private TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
 	
-	
+
 	@After
 	public void clearCache() {
 		CacheManager.getInstance().clearAll();
@@ -77,16 +77,16 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void getEpisodeListSingleSeason() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), 7);
+		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845), 1);
 		
-		assertEquals(22, list.size());
+		assertEquals(13, list.size());
 		
-		Episode chosen = list.get(21);
+		Episode chosen = list.get(0);
 		
-		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
-		assertEquals("Chosen", chosen.getTitle());
-		assertEquals("22", chosen.getEpisode());
-		assertEquals("7", chosen.getSeason());
+		assertEquals("Wonderfalls", chosen.getSeriesName());
+		assertEquals("Wax Lion", chosen.getTitle());
+		assertEquals("1", chosen.getEpisode());
+		assertEquals("1", chosen.getSeason());
 	}
 	
 

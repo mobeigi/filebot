@@ -17,7 +17,7 @@ public class TVDotComClientTest {
 	
 	private static HyperLink buffySearchResult;
 	
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		buffySearchResult = new HyperLink("Buffy the Vampire Slayer", new URL("http://www.tv.com/buffy-the-vampire-slayer/show/10/episode.html"));
@@ -87,8 +87,8 @@ public class TVDotComClientTest {
 
 	@Test
 	public void getEpisodeListAllManySeasons() throws Exception {
-		// more than 700 episodes / 26 seasons (on going)
-		List<Episode> list = tvdotcom.getEpisodeList(tvdotcom.search("Doctor Who").get(0));
+		// more than 700 episodes / 26 seasons
+		List<Episode> list = tvdotcom.getEpisodeList(tvdotcom.search("Doctor Who (1963)").get(0));
 		
 		// there are still new episodes coming out
 		assertTrue(list.size() > 700);
