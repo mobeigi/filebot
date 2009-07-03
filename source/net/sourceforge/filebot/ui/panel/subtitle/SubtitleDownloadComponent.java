@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -46,6 +47,7 @@ import ca.odell.glazedlists.FilterList;
 import ca.odell.glazedlists.GlazedLists;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.ObservableElementList;
+import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TextFilterator;
 import ca.odell.glazedlists.matchers.MatcherEditor;
 import ca.odell.glazedlists.swing.EventListModel;
@@ -77,7 +79,7 @@ public class SubtitleDownloadComponent extends JComponent {
 	
 
 	public SubtitleDownloadComponent() {
-		JList packageList = new JList(createPackageListModel());
+		final JList packageList = new JList(createPackageListModel());
 		packageList.setFixedCellHeight(32);
 		packageList.setCellRenderer(renderer);
 		
@@ -122,6 +124,15 @@ public class SubtitleDownloadComponent extends JComponent {
 		scrollPane.setViewportBorder(new LineBorder(fileList.getBackground()));
 		add(scrollPane, "newline, hmin max(80px, 30%)");
 		
+		// install fetch action
+		TunedUtilities.installAction(packageList, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("Fetch") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fetchAll(packageList.getSelectedValues());
+			}
+		});
+		
 		// install open action
 		TunedUtilities.installAction(fileList, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("Open") {
 			
@@ -159,8 +170,20 @@ public class SubtitleDownloadComponent extends JComponent {
 	
 
 	protected ListModel createFileListModel() {
+		// source list
+		EventList<MemoryFile> source = getFileModel();
+		
+		// sort by name
+		source = new SortedList<MemoryFile>(source, new Comparator<MemoryFile>() {
+			
+			@Override
+			public int compare(MemoryFile m1, MemoryFile m2) {
+				return m1.getName().compareToIgnoreCase(m2.getName());
+			}
+		});
+		
 		// as list model
-		return new EventListModel<MemoryFile>(getFileModel());
+		return new EventListModel<MemoryFile>(source);
 	}
 	
 
@@ -233,7 +256,12 @@ public class SubtitleDownloadComponent extends JComponent {
 	private void open(Object[] selection) {
 		try {
 			for (Object object : selection) {
-				open((MemoryFile) object);
+				MemoryFile file = (MemoryFile) object;
+				
+				// only open subtitle files
+				if (SUBTITLE_FILES.accept(file.getName())) {
+					open(file);
+				}
 			}
 		} catch (Exception e) {
 			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
@@ -260,7 +288,7 @@ public class SubtitleDownloadComponent extends JComponent {
 			
 			try {
 				if (reader.hasNext()) {
-					// correct format
+					// correct format found
 					List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
 					
 					// read subtitle file
@@ -275,15 +303,13 @@ public class SubtitleDownloadComponent extends JComponent {
 					viewer.setData(list);
 					viewer.setVisible(true);
 					
-					// done
+					// we're done
 					return;
 				}
 			} finally {
 				reader.close();
 			}
 		}
-		
-		throw new IOException("Cannot read subtitle format");
 	}
 	
 
@@ -447,27 +473,29 @@ public class SubtitleDownloadComponent extends JComponent {
 				
 				final Object[] selection = list.getSelectedValues();
 				
-				JPopupMenu contextMenu = new JPopupMenu();
-				
-				// Open
-				contextMenu.add(new AbstractAction("Open") {
+				if (selection.length > 0) {
+					JPopupMenu contextMenu = new JPopupMenu();
 					
-					@Override
-					public void actionPerformed(ActionEvent evt) {
-						open(selection);
-					}
-				});
-				
-				// Save as ...
-				contextMenu.add(new AbstractAction("Save as ...") {
+					// Open
+					contextMenu.add(new AbstractAction("Open") {
+						
+						@Override
+						public void actionPerformed(ActionEvent evt) {
+							open(selection);
+						}
+					});
 					
-					@Override
-					public void actionPerformed(ActionEvent evt) {
-						save(selection);
-					}
-				});
-				
-				contextMenu.show(e.getComponent(), e.getX(), e.getY());
+					// Save as ...
+					contextMenu.add(new AbstractAction("Save as ...") {
+						
+						@Override
+						public void actionPerformed(ActionEvent evt) {
+							save(selection);
+						}
+					});
+					
+					contextMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
 			}
 		}
 		

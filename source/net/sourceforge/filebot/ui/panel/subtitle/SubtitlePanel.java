@@ -19,7 +19,7 @@ import javax.swing.JComboBox;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.web.OpenSubtitlesSubtitleClient;
+import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
@@ -79,7 +79,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	@Override
 	protected SubtitleProvider[] createSearchEngines() {
 		return new SubtitleProvider[] {
-				new OpenSubtitlesSubtitleClient(String.format("%s v%s", getApplicationName(), getApplicationVersion())),
+				new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion())),
 				new SubsceneSubtitleClient(),
 				new SublightSubtitleClient(getApplicationName(), Settings.userRoot().get("sublight.apikey")),
 				new SubtitleSourceClient()

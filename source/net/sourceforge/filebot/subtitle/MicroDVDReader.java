@@ -3,7 +3,6 @@ package net.sourceforge.filebot.subtitle;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -40,8 +39,10 @@ public class MicroDVDReader extends SubtitleReader {
 			from = to + 1;
 		}
 		
-		if (properties.size() < 2)
+		if (properties.size() < 2) {
+			// ignore illegal lines
 			return null;
+		}
 		
 		long startFrame = Long.parseLong(properties.get(0));
 		long endFrame = Long.parseLong(properties.get(1));
@@ -56,7 +57,7 @@ public class MicroDVDReader extends SubtitleReader {
 		}
 		
 		// translate '|' to new lines
-		List<String> lines = Arrays.asList(text.split(Pattern.quote("|")));
+		String[] lines = text.split(Pattern.quote("|"));
 		
 		// convert frame interval to time interval 
 		return new SubtitleElement(Math.round(startFrame * fps), Math.round(endFrame * fps), join(lines, "\n"));

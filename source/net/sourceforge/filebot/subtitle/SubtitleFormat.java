@@ -40,14 +40,6 @@ public enum SubtitleFormat {
 		public SubtitleReader newReader(Readable readable) {
 			return new SubStationAlphaReader(new Scanner(readable));
 		}
-	},
-	
-	SAMI {
-		
-		@Override
-		public SubtitleReader newReader(Readable readable) {
-			throw new UnsupportedOperationException("SAMI reader not implemented");
-		}
 	};
 	
 	public abstract SubtitleReader newReader(Readable readable);

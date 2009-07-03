@@ -44,7 +44,7 @@ public class SubRipReader extends SubtitleReader {
 			lines.add(line);
 		}
 		
-		return new SubtitleElement(t1, t2, join(lines, "\n"));
+		return new SubtitleElement(t1, t2, join(lines.toArray(), "\n"));
 	}
 	
 }

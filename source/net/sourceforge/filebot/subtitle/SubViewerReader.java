@@ -3,8 +3,7 @@ package net.sourceforge.filebot.subtitle;
 
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -24,20 +23,22 @@ public class SubViewerReader extends SubtitleReader {
 		// element starts with interval (e.g. 00:42:16.33,00:42:19.39)
 		String[] interval = scanner.nextLine().split(",", 2);
 		
-		if (interval.length < 2 || interval[0].startsWith("["))
+		if (interval.length < 2 || interval[0].startsWith("[")) {
+			// ignore property lines
 			return null;
-		
-		long t1 = timeFormat.parse(interval[0]).getTime();
-		long t2 = timeFormat.parse(interval[1]).getTime();
-		
-		// append subtitle line
-		List<String> lines = new ArrayList<String>(2);
-		
-		for (String text : scanner.nextLine().split(Pattern.quote("[br]"))) {
-			lines.add(text);
 		}
 		
-		return new SubtitleElement(t1, t2, join(lines, "\n"));
+		try {
+			long t1 = timeFormat.parse(interval[0]).getTime();
+			long t2 = timeFormat.parse(interval[1]).getTime();
+			
+			// translate [br] to new lines
+			String[] lines = scanner.nextLine().split(Pattern.quote("[br]"));
+			
+			return new SubtitleElement(t1, t2, join(lines, "\n"));
+		} catch (InputMismatchException e) {
+			// can't parse interval, ignore line
+			return null;
+		}
 	}
-	
 }

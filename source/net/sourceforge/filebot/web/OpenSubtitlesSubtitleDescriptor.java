@@ -2,18 +2,21 @@
 package net.sourceforge.filebot.web;
 
 
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+
+import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
 /**
  * Describes a subtitle on OpenSubtitles.
  * 
- * @see OpenSubtitlesClient
+ * @see OpenSubtitlesXmlRpc
  */
 public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
@@ -75,32 +78,49 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
-	public Map<Property, String> getProperties() {
-		return Collections.unmodifiableMap(properties);
+	public String getProperty(Property key) {
+		return properties.get(key);
 	}
 	
 
 	@Override
 	public String getName() {
-		return properties.get(Property.SubFileName);
+		return getProperty(Property.SubFileName);
 	}
 	
 
 	@Override
 	public String getLanguageName() {
-		return properties.get(Property.LanguageName);
-	}
-	
-
-	@Override
-	public ByteBuffer fetch() throws Exception {
-		return WebRequest.fetch(new URL(properties.get(Property.ZipDownloadLink)));
+		return getProperty(Property.LanguageName);
 	}
 	
 
 	@Override
 	public String getType() {
-		return "zip";
+		return getProperty(Property.SubFormat);
+	}
+	
+
+	public int getSize() {
+		return Integer.parseInt(getProperty(Property.SubSize));
+	}
+	
+
+	@Override
+	public ByteBuffer fetch() throws Exception {
+		URL resource = new URL(getProperty(Property.SubDownloadLink));
+		InputStream stream = new GZIPInputStream(resource.openStream());
+		
+		try {
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getSize());
+			
+			// read all
+			buffer.transferFully(stream);
+			
+			return buffer.getByteBuffer();
+		} finally {
+			stream.close();
+		}
 	}
 	
 

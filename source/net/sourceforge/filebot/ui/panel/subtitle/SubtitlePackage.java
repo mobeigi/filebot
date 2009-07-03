@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.FileBotUtilities.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -181,15 +182,17 @@ public class SubtitlePackage {
 			List<MemoryFile> vfs = new ArrayList<MemoryFile>();
 			
 			for (MemoryFile file : archiveType.fromData(data)) {
-				// check if file is a supported archive
-				ArchiveType type = ArchiveType.forName(FileUtilities.getExtension(file.getName()));
-				
-				if (type == ArchiveType.UNDEFINED) {
-					// add subtitle file
+				if (SUBTITLE_FILES.accept(file.getName())) {
+					// add subtitle files, ignore non-subtitle files
 					vfs.add(file);
 				} else {
-					// extract nested archives recursively
-					vfs.addAll(extract(type, file.getData()));
+					// check if file is a supported archive
+					ArchiveType type = ArchiveType.forName(FileUtilities.getExtension(file.getName()));
+					
+					if (type != ArchiveType.UNDEFINED) {
+						// extract nested archives recursively
+						vfs.addAll(extract(type, file.getData()));
+					}
 				}
 			}
 			

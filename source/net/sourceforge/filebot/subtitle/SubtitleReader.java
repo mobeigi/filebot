@@ -65,13 +65,13 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 	}
 	
 
-	protected String join(Iterable<?> values, String delimiter) {
+	protected String join(Object[] values, String delimiter) {
 		StringBuilder sb = new StringBuilder();
 		
-		for (Iterator<?> iterator = values.iterator(); iterator.hasNext();) {
-			sb.append(iterator.next());
+		for (int i = 0; i < values.length; i++) {
+			sb.append(values[i]);
 			
-			if (iterator.hasNext()) {
+			if (i < values.length - 1) {
 				sb.append(delimiter);
 			}
 		}
