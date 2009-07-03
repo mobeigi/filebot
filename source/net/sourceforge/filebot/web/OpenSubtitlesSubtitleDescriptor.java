@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.tuned.ByteBufferOutputStream;
+import net.sourceforge.tuned.FileUtilities;
 
 
 /**
@@ -85,7 +86,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public String getName() {
-		return getProperty(Property.MovieReleaseName);
+		return FileUtilities.getNameWithoutExtension(getProperty(Property.SubFileName));
 	}
 	
 

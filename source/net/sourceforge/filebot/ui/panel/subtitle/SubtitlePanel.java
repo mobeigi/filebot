@@ -105,24 +105,21 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		String text = searchTextField.getText().trim();
 		Language language = languageModel.getSelectedItem();
 		
-		// null or proper language name
-		String languageName = (language == ALL_LANGUAGES ? null : language.getName());
-		
-		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, languageName));
+		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
 	}
 	
 
 	protected static class SubtitleRequest extends Request {
 		
 		private final SubtitleProvider provider;
-		private final String languageName;
+		private final Language language;
 		
 
-		public SubtitleRequest(SubtitleProvider provider, String searchText, String languageName) {
+		public SubtitleRequest(SubtitleProvider provider, String searchText, Language language) {
 			super(searchText);
 			
 			this.provider = provider;
-			this.languageName = languageName;
+			this.language = language;
 		}
 		
 
@@ -132,7 +129,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 
 		public String getLanguageName() {
-			return languageName;
+			return language == ALL_LANGUAGES ? null : language.getName();
 		}
 		
 	}

@@ -141,8 +141,7 @@ public class OpenSubtitlesXmlRpc {
 				subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(subtitleData)));
 			}
 		} catch (ClassCastException e) {
-			// if the response is an error message, generic types won't match 
-			throw new XmlRpcException("Illegal response: " + response.toString());
+			// error response, no subtitles, ignore
 		}
 		
 		return subtitles;

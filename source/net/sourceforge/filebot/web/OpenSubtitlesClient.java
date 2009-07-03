@@ -71,8 +71,18 @@ public class OpenSubtitlesClient implements SubtitleProvider {
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
-		//TODO provide link
-		return null;
+		MovieDescriptor movie = (MovieDescriptor) searchResult;
+		String sublanguageid = "all";
+		
+		if (languageName != null) {
+			try {
+				sublanguageid = getSubLanguageID(languageName);
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		
+		return URI.create(String.format("http://www.opensubtitles.org/en/search/imdbid-%d/sublanguageid-%s", movie.getImdbId(), sublanguageid));
 	}
 	
 
