@@ -5,8 +5,11 @@ package net.sourceforge.filebot.web;
 import static java.util.Collections.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ import java.util.regex.Pattern;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
+import redstone.xmlrpc.util.Base64;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 
@@ -166,6 +170,26 @@ public class OpenSubtitlesXmlRpc {
 		}
 		
 		return movies;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public Collection<String> detectLanguage(String text) throws XmlRpcFault {
+		try {
+			// base64 encoded text
+			String parameter = new String(Base64.encode(text.getBytes("utf-8")));
+			
+			Map<String, Map<String, String>> response = (Map<String, Map<String, String>>) invoke("DetectLanguage", token, new Object[] { parameter });
+			
+			if (response.containsKey("data")) {
+				return response.get("data").values();
+			}
+			
+			return Collections.emptySet();
+		} catch (UnsupportedEncodingException e) {
+			// will not happen
+			throw new RuntimeException(e);
+		}
 	}
 	
 

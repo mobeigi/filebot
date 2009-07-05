@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -11,15 +12,8 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.channels.FileChannel;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
@@ -33,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -56,18 +51,14 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.subtitle.SubtitleElement;
-import net.sourceforge.filebot.subtitle.SubtitleFormat;
-import net.sourceforge.filebot.subtitle.SubtitleReader;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePackage.Download.Phase;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.ListView;
 import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class SubtitleDownloadComponent extends JComponent {
+class SubtitleDownloadComponent extends JComponent {
 	
 	private EventList<SubtitlePackage> packages = new BasicEventList<SubtitlePackage>();
 	
@@ -129,7 +120,7 @@ public class SubtitleDownloadComponent extends JComponent {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fetchAll(packageList.getSelectedValues());
+				fetch(packageList.getSelectedValues());
 			}
 		});
 		
@@ -212,7 +203,7 @@ public class SubtitleDownloadComponent extends JComponent {
 	}
 	
 
-	private void fetchAll(Object[] selection) {
+	private void fetch(Object[] selection) {
 		for (Object value : selection) {
 			fetch((SubtitlePackage) value);
 		}
@@ -270,46 +261,12 @@ public class SubtitleDownloadComponent extends JComponent {
 	
 
 	private void open(MemoryFile file) throws IOException {
-		Deque<SubtitleFormat> priorityList = new ArrayDeque<SubtitleFormat>();
+		SubtitleViewer viewer = new SubtitleViewer(file.getName());
+		viewer.getTitleLabel().setText("Subtitle Viewer");
+		viewer.getInfoLabel().setText(file.getPath());
 		
-		// gather all formats, put likely formats first
-		for (SubtitleFormat format : SubtitleFormat.values()) {
-			if (format.filter().accept(file.getName())) {
-				priorityList.addFirst(format);
-			} else {
-				priorityList.addLast(format);
-			}
-		}
-		
-		// decode subtitle file with the first reader that seems to work
-		for (SubtitleFormat format : priorityList) {
-			InputStream data = new ByteBufferInputStream(file.getData());
-			SubtitleReader reader = format.newReader(new InputStreamReader(data, "UTF-8"));
-			
-			try {
-				if (reader.hasNext()) {
-					// correct format found
-					List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
-					
-					// read subtitle file
-					while (reader.hasNext()) {
-						list.add(reader.next());
-					}
-					
-					SubtitleViewer viewer = new SubtitleViewer(file.getName());
-					viewer.getTitleLabel().setText("Subtitle Viewer");
-					viewer.getInfoLabel().setText(file.getPath());
-					
-					viewer.setData(list);
-					viewer.setVisible(true);
-					
-					// we're done
-					return;
-				}
-			} finally {
-				reader.close();
-			}
-		}
+		viewer.setData(decode(file));
+		viewer.setVisible(true);
 	}
 	
 
@@ -345,17 +302,6 @@ public class SubtitleDownloadComponent extends JComponent {
 	}
 	
 
-	private void write(MemoryFile source, File destination) throws IOException {
-		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
-		
-		try {
-			fileChannel.write(source.getData());
-		} finally {
-			fileChannel.close();
-		}
-	}
-	
-
 	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
 		
 		@Override
@@ -372,7 +318,7 @@ public class SubtitleDownloadComponent extends JComponent {
 			if (SwingUtilities.isLeftMouseButton(e) && (e.getClickCount() == 2)) {
 				JList list = (JList) e.getSource();
 				
-				fetchAll(list.getSelectedValues());
+				fetch(list.getSelectedValues());
 			}
 		}
 		
@@ -402,20 +348,22 @@ public class SubtitleDownloadComponent extends JComponent {
 				
 				final Object[] selection = list.getSelectedValues();
 				
-				Action downloadAction = new AbstractAction("Download", ResourceManager.getIcon("package.fetch")) {
+				if (selection.length > 0) {
+					JPopupMenu contextMenu = new JPopupMenu();
 					
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						fetchAll(selection);
-					}
-				};
-				
-				downloadAction.setEnabled(isPending(selection));
-				
-				JPopupMenu contextMenu = new JPopupMenu();
-				contextMenu.add(downloadAction);
-				
-				contextMenu.show(e.getComponent(), e.getX(), e.getY());
+					JMenuItem item = contextMenu.add(new AbstractAction("Download", ResourceManager.getIcon("package.fetch")) {
+						
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							fetch(selection);
+						}
+					});
+					
+					// disable menu item if all selected elements have been fetched already
+					item.setEnabled(isPending(selection));
+					
+					contextMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
 			}
 		}
 		

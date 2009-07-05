@@ -24,7 +24,7 @@ import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.FileUtilities;
 
 
-public class SubtitlePackage {
+class SubtitlePackage {
 	
 	private final SubtitleDescriptor subtitle;
 	

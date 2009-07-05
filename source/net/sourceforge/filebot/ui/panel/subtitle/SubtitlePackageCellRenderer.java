@@ -17,7 +17,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
 
 
-public class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {
+class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {
 	
 	private final JLabel titleLabel = new JLabel();
 	private final JLabel languageLabel = new JLabel();

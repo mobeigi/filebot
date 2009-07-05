@@ -130,6 +130,9 @@ public class OpenSubtitlesClient implements SubtitleProvider {
 					// map id by name
 					subLanguageCache.put(entry.getValue(), entry.getKey());
 				}
+				
+				// some additional special handling
+				subLanguageCache.put("Brazilian", "pob");
 			}
 		}
 		

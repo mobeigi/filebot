@@ -49,6 +49,7 @@ public class MediaInfoPane extends JTabbedPane {
 
 	public void addTableTab(String title, Map<String, String> data) {
 		JTable table = new JTable(new ParameterTableModel(data));
+		table.setFillsViewportHeight(true);
 		
 		// allow sorting
 		table.setAutoCreateRowSorter(true);
@@ -69,6 +70,7 @@ public class MediaInfoPane extends JTabbedPane {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.setVisible(false);
+				dialog.dispose();
 			}
 		};
 		
@@ -81,12 +83,12 @@ public class MediaInfoPane extends JTabbedPane {
 		dialog.setVisible(true);
 	}
 	
-	
+
 	private static class ParameterTableModel extends AbstractTableModel {
 		
 		private final List<Entry<String, String>> data;
 		
-		
+
 		public ParameterTableModel(Map<String, String> data) {
 			this.data = new ArrayList<Entry<String, String>>(data.entrySet());
 		}
