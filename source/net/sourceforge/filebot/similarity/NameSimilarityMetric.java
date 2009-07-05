@@ -3,20 +3,19 @@ package net.sourceforge.filebot.similarity;
 
 
 import static net.sourceforge.filebot.FileBotUtilities.*;
-
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
-import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3Extended;
+import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
+import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3;
 
 
 public class NameSimilarityMetric implements SimilarityMetric {
 	
 	private final AbstractStringMetric metric;
 	
-	
+
 	public NameSimilarityMetric() {
-		// MongeElkan metric with a QGram3Extended tokenizer seems to work best for similarity of names
-		metric = new MongeElkan(new TokeniserQGram3Extended());
+		// QGramsDistance with a word tokenizer seems to work best for similarity of names
+		metric = new QGramsDistance(new TokeniserQGram3());
 	}
 	
 
