@@ -12,7 +12,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 
-public class PrivilegedInvocation implements InvocationHandler {
+public final class PrivilegedInvocation implements InvocationHandler {
 	
 	private final Object object;
 	private final AccessControlContext context;
@@ -49,11 +49,11 @@ public class PrivilegedInvocation implements InvocationHandler {
 	}
 	
 
-	public static <I> I newProxy(Class<I> type, I object, AccessControlContext context) {
+	public static <I> I newProxy(Class<I> interfaceClass, I object, AccessControlContext context) {
 		InvocationHandler invocationHandler = new PrivilegedInvocation(object, context);
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		
 		// create dynamic invocation proxy
-		return type.cast(Proxy.newProxyInstance(classLoader, new Class[] { type }, invocationHandler));
+		return interfaceClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { interfaceClass }, invocationHandler));
 	}
 }

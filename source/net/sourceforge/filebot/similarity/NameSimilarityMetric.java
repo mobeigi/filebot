@@ -14,7 +14,7 @@ public class NameSimilarityMetric implements SimilarityMetric {
 	
 
 	public NameSimilarityMetric() {
-		// QGramsDistance with a word tokenizer seems to work best for similarity of names
+		// QGramsDistance with a QGram tokenizer seems to work best for similarity of names
 		metric = new QGramsDistance(new TokeniserQGram3());
 	}
 	
@@ -53,4 +53,5 @@ public class NameSimilarityMetric implements SimilarityMetric {
 	public String toString() {
 		return getClass().getName();
 	}
+	
 }

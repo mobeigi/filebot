@@ -88,7 +88,9 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	protected abstract void load(List<File> files) throws IOException;
 	
 
-	protected abstract void clear();
+	protected void clear() {
+		// do nothing
+	}
 	
 
 	public String getFileFilterDescription() {

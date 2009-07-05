@@ -20,8 +20,9 @@ public abstract class TransferablePolicy {
 	
 
 	public boolean canImport(TransferSupport support) {
-		if (support.isDrop())
+		if (support.isDrop()) {
 			support.setShowDropLocation(false);
+		}
 		
 		try {
 			return accept(support.getTransferable());
@@ -63,7 +64,7 @@ public abstract class TransferablePolicy {
 		return TransferAction.PUT;
 	}
 	
-	
+
 	public static enum TransferAction {
 		PUT(TransferHandler.MOVE),
 		ADD(TransferHandler.COPY),
@@ -71,7 +72,7 @@ public abstract class TransferablePolicy {
 		
 		private final int dndConstant;
 		
-		
+
 		private TransferAction(int dndConstant) {
 			this.dndConstant = dndConstant;
 		}
