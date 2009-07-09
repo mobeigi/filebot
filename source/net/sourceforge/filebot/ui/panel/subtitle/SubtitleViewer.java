@@ -46,7 +46,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 
-class SubtitleViewer extends JFrame {
+public class SubtitleViewer extends JFrame {
 	
 	private final JLabel titleLabel = new JLabel();
 	

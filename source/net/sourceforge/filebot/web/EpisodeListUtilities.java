@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class EpisodeListUtilities {
+final class EpisodeListUtilities {
 	
 	public static List<Episode> filterBySeason(Iterable<Episode> episodes, int season) {
 		

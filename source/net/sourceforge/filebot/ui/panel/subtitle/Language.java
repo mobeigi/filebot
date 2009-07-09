@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 
-class Language {
+public class Language {
 	
 	private final String code;
 	private final String name;

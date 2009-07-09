@@ -6,9 +6,17 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
 import java.nio.CharBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class FileTransferable implements Transferable {
@@ -82,4 +90,50 @@ public class FileTransferable implements Transferable {
 		return flavor.isFlavorJavaFileListType() || flavor.equals(uriListFlavor);
 	}
 	
+
+	public static boolean hasFileListFlavor(Transferable tr) {
+		return tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) || tr.isDataFlavorSupported(FileTransferable.uriListFlavor);
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
+		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+			// file list flavor
+			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+		} else if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
+			// file URI list flavor
+			Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
+			
+			Scanner scanner = new Scanner(transferData);
+			
+			List<File> files = new ArrayList<File>();
+			
+			while (scanner.hasNextLine()) {
+				String uri = scanner.nextLine();
+				
+				if (uri.startsWith("#")) {
+					// the line is a comment (as per RFC 2483)
+					continue;
+				}
+				
+				try {
+					File file = new File(new URI(uri));
+					
+					if (!file.exists())
+						throw new FileNotFoundException(file.toString());
+					
+					files.add(file);
+				} catch (Exception e) {
+					// URISyntaxException, IllegalArgumentException, FileNotFoundException
+					Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Invalid file uri: " + uri);
+				}
+			}
+			
+			return files;
+		}
+		
+		// cannot get files from transferable
+		throw new UnsupportedFlavorException(DataFlavor.javaFileListFlavor);
+	}
 }

@@ -93,6 +93,17 @@ public class ByteBufferOutputStream extends OutputStream {
 	}
 	
 
+	public byte[] getByteArray() {
+		ByteBuffer data = getByteBuffer();
+		
+		// copy data to byte array
+		byte[] bytes = new byte[data.remaining()];
+		data.get(bytes);
+		
+		return bytes;
+	}
+	
+
 	public int transferFrom(ReadableByteChannel channel) throws IOException {
 		// make sure buffer is not at its limit
 		ensureCapacity(buffer.position() + 1);

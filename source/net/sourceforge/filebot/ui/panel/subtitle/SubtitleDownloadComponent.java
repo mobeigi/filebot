@@ -86,6 +86,13 @@ class SubtitleDownloadComponent extends JComponent {
 		final JList fileList = new ListView(createFileListModel()) {
 			
 			@Override
+			protected String convertValueToText(Object value) {
+				MemoryFile file = (MemoryFile) value;
+				return file.getName();
+			}
+			
+
+			@Override
 			protected Icon convertValueToIcon(Object value) {
 				if (SUBTITLE_FILES.accept(value.toString()))
 					return ResourceManager.getIcon("file.subtitle");
@@ -280,7 +287,7 @@ class SubtitleDownloadComponent extends JComponent {
 				fileChooser.setSelectedFile(new File(validateFileName(file.getName())));
 				
 				if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-					write(file, fileChooser.getSelectedFile());
+					write(file.getData(), fileChooser.getSelectedFile());
 				}
 			} else {
 				// multiple files
@@ -292,7 +299,7 @@ class SubtitleDownloadComponent extends JComponent {
 					
 					for (Object object : selection) {
 						MemoryFile file = (MemoryFile) object;
-						write(file, new File(folder, validateFileName(file.getName())));
+						write(file.getData(), new File(folder, validateFileName(file.getName())));
 					}
 				}
 			}

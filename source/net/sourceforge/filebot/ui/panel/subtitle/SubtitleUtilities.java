@@ -3,10 +3,12 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -60,11 +62,31 @@ final class SubtitleUtilities {
 	}
 	
 
-	public static void write(MemoryFile source, File destination) throws IOException {
+	public static byte[] read(File source) throws IOException {
+		InputStream in = new FileInputStream(source);
+		
+		try {
+			byte[] data = new byte[(int) source.length()];
+			
+			int position = 0;
+			int read = 0;
+			
+			while (position < data.length && (read = in.read(data, position, data.length - position)) >= 0) {
+				position += read;
+			}
+			
+			return data;
+		} finally {
+			in.close();
+		}
+	}
+	
+
+	public static void write(ByteBuffer data, File destination) throws IOException {
 		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
 		
 		try {
-			fileChannel.write(source.getData());
+			fileChannel.write(data);
 		} finally {
 			fileChannel.close();
 		}

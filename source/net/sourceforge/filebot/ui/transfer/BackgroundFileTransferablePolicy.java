@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
+import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
+
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -22,7 +24,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	
 	private final List<BackgroundWorker> workers = new ArrayList<BackgroundWorker>(2);
 	
-	
+
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
@@ -98,12 +100,12 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		});
 	}
 	
-	
+
 	protected class BackgroundWorker extends SwingWorker<Object, V> {
 		
 		private final List<File> files;
 		
-		
+
 		public BackgroundWorker(List<File> files) {
 			this.files = files;
 			
@@ -166,9 +168,10 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 		}
 	}
 	
+
 	protected final PropertyChangeSupport swingPropertyChangeSupport = new SwingPropertyChangeSupport(this, true);
 	
-	
+
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		swingPropertyChangeSupport.addPropertyChangeListener(listener);
 	}

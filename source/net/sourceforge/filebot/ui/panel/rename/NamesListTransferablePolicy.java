@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
 import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
@@ -46,7 +47,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public boolean accept(Transferable tr) throws Exception {
-		return tr.isDataFlavorSupported(stringFlavor) || super.accept(tr);
+		return tr.isDataFlavorSupported(stringFlavor) || hasFileListFlavor(tr);
 	}
 	
 
@@ -65,7 +66,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		if (tr.isDataFlavorSupported(episodeArrayFlavor)) {
 			// episode array transferable
 			model.addAll(Arrays.asList((Episode[]) tr.getTransferData((episodeArrayFlavor))));
-		} else if (super.accept(tr)) {
+		} else if (hasFileListFlavor(tr)) {
 			// file transferable
 			load(getFilesFromTransferable(tr));
 		} else if (tr.isDataFlavorSupported(stringFlavor)) {
