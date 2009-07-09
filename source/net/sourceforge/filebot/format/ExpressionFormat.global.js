@@ -43,7 +43,7 @@ String.prototype.replaceTrailingBraces = function(replacement) {
 	// use empty string as default replacement
 	var r = replacement ? replacement : "";
 	
-	return this.replace(/\s*\(([^\)]*)\)$/, r);
+	return this.replace(/\s*[(]([^)]*)[)]$/, r);
 }
 
 
@@ -57,9 +57,8 @@ String.prototype.replacePart = function (replacement) {
 	// use empty string as default replacement
 	var r = replacement ? replacement : "";
 	
-	// handle '(n)' and ': Part n' syntax
-	var pattern = [/\s*\((\w+)\)$/i, /\s*\W? Part (\w+)$/i];
-	
+	// handle '(n)', '(Part n)' and ': Part n' like syntax
+	var pattern = [/\s*[(](\w+)[)]$/i, /\W*Part (\w+)\W*$/i];
 	for (var i = 0; i < pattern.length; i++) {
 		if (pattern[i].test(this)) {
 			return this.replace(pattern[i], r);
