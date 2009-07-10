@@ -17,6 +17,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.FileBotUtilities;
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.hash.SfvFormat;
 import net.sourceforge.filebot.hash.VerificationFileScanner;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
@@ -259,7 +260,7 @@ public class EpisodeFormatBindingBean {
 	private String getChecksumFromSfvFile(File file) throws IOException {
 		File folder = file.getParentFile();
 		
-		for (File sfvFile : folder.listFiles(SFV_FILES)) {
+		for (File sfvFile : folder.listFiles(MediaTypes.getFilter("verification/sfv"))) {
 			VerificationFileScanner scanner = new VerificationFileScanner(sfvFile, new SfvFormat());
 			
 			try {

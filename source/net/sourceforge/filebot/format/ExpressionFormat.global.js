@@ -35,6 +35,28 @@ String.prototype.space = function(replacement) {
 
 
 /**
+ * Return substring before the given delimiter.
+ */
+String.prototype.before = function(delimiter) {
+	var endIndex = this.indexOf(delimiter);
+	
+	// delimiter was found, return leading substring, else return original value
+	return endIndex >= 0 ? this.substring(0, endIndex) : this;
+}
+
+
+/**
+ * Return substring after the given delimiter.
+ */
+String.prototype.after = function(delimiter) {
+	var startIndex = this.indexOf(delimiter);
+	
+	// delimiter was found, return trailing substring, else return original value
+	return startIndex >= 0 ? this.substring(startIndex + delimiter.length, this.length) : this;
+}
+
+
+/**
  * Replace trailing parenthesis including any leading whitespace.
  * 
  * e.g. "The IT Crowd (UK)" -> "The IT Crowd"

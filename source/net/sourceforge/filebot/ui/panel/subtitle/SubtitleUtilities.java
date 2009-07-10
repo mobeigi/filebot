@@ -8,8 +8,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -28,7 +31,7 @@ final class SubtitleUtilities {
 		
 		// gather all formats, put likely formats first
 		for (SubtitleFormat format : SubtitleFormat.values()) {
-			if (format.filter().accept(file.getName())) {
+			if (format.getFilter().accept(file.getName())) {
 				priorityList.addFirst(format);
 			} else {
 				priorityList.addLast(format);
@@ -59,6 +62,20 @@ final class SubtitleUtilities {
 		
 		// unsupported subtitle format
 		throw new IOException("Cannot read subtitle format");
+	}
+	
+
+	public static String md5(ByteBuffer data) {
+		try {
+			MessageDigest hash = MessageDigest.getInstance("md-5");
+			hash.update(data);
+			
+			// return hex string
+			return String.format("%032x", new BigInteger(1, hash.digest()));
+		} catch (NoSuchAlgorithmException e) {
+			// will not happen
+			throw new UnsupportedOperationException(e);
+		}
 	}
 	
 

@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.list;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -11,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -21,7 +21,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	
 	private FileBotList<? super String> list;
 	
-	
+
 	public FileListTransferablePolicy(FileBotList<? super String> list) {
 		this.list = list;
 	}
@@ -46,7 +46,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		
 		if (containsOnly(files, FOLDERS)) {
 			loadFolders(files);
-		} else if (containsOnly(files, TORRENT_FILES)) {
+		} else if (containsOnly(files, MediaTypes.getFilter("application/torrent"))) {
 			loadTorrents(files);
 		} else {
 			loadFiles(files);

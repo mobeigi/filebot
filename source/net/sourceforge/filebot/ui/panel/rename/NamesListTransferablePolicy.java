@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.awt.datatransfer.DataFlavor.*;
-import static net.sourceforge.filebot.FileBotUtilities.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -17,9 +16,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.hash.VerificationFileScanner;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -94,12 +94,17 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	@Override
-	protected void load(List<File> files) throws FileNotFoundException {
+	protected void load(List<File> files) throws IOException {
 		List<Object> values = new ArrayList<Object>();
 		
-		if (containsOnly(files, LIST_FILES)) {
+		if (containsOnly(files, MediaTypes.getFilter("application/list"))) {
+			// list files
 			loadListFiles(files, values);
-		} else if (containsOnly(files, TORRENT_FILES)) {
+		} else if (containsOnly(files, MediaTypes.getFilter("verification"))) {
+			// verification files
+			loadVerificationFiles(files, values);
+		} else if (containsOnly(files, MediaTypes.getFilter("application/torrent"))) {
+			// torrent files
 			loadTorrentFiles(files, values);
 		} else if (containsOnly(files, FOLDERS)) {
 			// load files from each folder
@@ -107,6 +112,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 				values.addAll(FastFile.foreach(folder.listFiles()));
 			}
 		} else {
+			// just add all given files
 			values.addAll(FastFile.foreach(files));
 		}
 		
@@ -132,24 +138,42 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	protected void loadTorrentFiles(List<File> files, List<Object> values) {
-		try {
-			for (File file : files) {
-				Torrent torrent = new Torrent(file);
-				
-				for (Torrent.Entry entry : torrent.getFiles()) {
-					values.add(new AbstractFile(entry.getName(), entry.getLength()));
+	protected void loadVerificationFiles(List<File> files, List<Object> values) throws IOException {
+		for (File file : files) {
+			HashType format = HashType.forName(getExtension(file));
+			
+			// check if format is valid
+			if (format == null)
+				continue;
+			
+			// add all file names from verification file
+			VerificationFileScanner scanner = new VerificationFileScanner(file, format.getFormat());
+			
+			try {
+				while (scanner.hasNext()) {
+					values.add(scanner.next().getKey().getName());
 				}
+			} finally {
+				scanner.close();
 			}
-		} catch (IOException e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+		}
+	}
+	
+
+	protected void loadTorrentFiles(List<File> files, List<Object> values) throws IOException {
+		for (File file : files) {
+			Torrent torrent = new Torrent(file);
+			
+			for (Torrent.Entry entry : torrent.getFiles()) {
+				values.add(new AbstractFile(entry.getName(), entry.getLength()));
+			}
 		}
 	}
 	
 
 	@Override
 	public String getFileFilterDescription() {
-		return "text files and torrent files";
+		return "text files, verification files, torrent files";
 	}
 	
 }

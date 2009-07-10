@@ -71,4 +71,16 @@ public enum HashType {
 		return name().toLowerCase();
 	}
 	
+
+	public static HashType forName(String name) {
+		for (HashType value : HashType.values()) {
+			if (value.name().equalsIgnoreCase(name)) {
+				return value;
+			}
+		}
+		
+		// value not found
+		return null;
+	}
+	
 }

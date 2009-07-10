@@ -45,8 +45,8 @@ public enum SubtitleFormat {
 	public abstract SubtitleReader newReader(Readable readable);
 	
 
-	public ExtensionFileFilter filter() {
-		return MediaTypes.getDefault().filter("subtitle/" + this);
+	public ExtensionFileFilter getFilter() {
+		return MediaTypes.getFilter("subtitle/" + this);
 	}
 	
 }

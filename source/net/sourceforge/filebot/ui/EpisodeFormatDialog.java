@@ -202,7 +202,7 @@ public class EpisodeFormatDialog extends JDialog {
 						Settings.userRoot().put("dialog.sample.episode", episodeString);
 						firePreviewSampleChanged();
 					} catch (ParseException e) {
-						Logger.getLogger("ui").warning(String.format("Cannot parse %s", episodeString));
+						Logger.getLogger("ui").warning(String.format("Cannot parse '%s'", episodeString));
 					}
 				}
 			}
@@ -319,7 +319,7 @@ public class EpisodeFormatDialog extends JDialog {
 			try {
 				return EpisodeFormat.getInstance().parseObject(sample);
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(getClass().getName()).warning(e.getMessage());
 			}
 		}
 		
@@ -332,11 +332,7 @@ public class EpisodeFormatDialog extends JDialog {
 		String sample = Settings.userRoot().get("dialog.sample.file");
 		
 		if (sample != null) {
-			try {
-				return new File(sample);
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-			}
+			return new File(sample);
 		}
 		
 		// default sample

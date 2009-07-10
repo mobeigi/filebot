@@ -34,34 +34,29 @@ public class MediaTypes {
 	}
 	
 
-	private static MediaTypes instance;
+	private static final MediaTypes data = unmarshal();
 	
 
-	public static synchronized MediaTypes getDefault() {
-		if (instance == null) {
-			try {
-				Unmarshaller unmarshaller = JAXBContext.newInstance(MediaTypes.class).createUnmarshaller();
-				
-				// initialize singleton instance
-				instance = (MediaTypes) unmarshaller.unmarshal(MediaTypes.class.getResource("media.types"));
-			} catch (JAXBException e) {
-				throw new RuntimeException(e);
-			}
+	private static MediaTypes unmarshal() {
+		try {
+			Unmarshaller unmarshaller = JAXBContext.newInstance(MediaTypes.class).createUnmarshaller();
+			
+			return (MediaTypes) unmarshaller.unmarshal(MediaTypes.class.getResource("media.types"));
+		} catch (JAXBException e) {
+			throw new RuntimeException(e);
 		}
-		
-		return instance;
 	}
 	
 
-	public ExtensionFileFilter filter(String name) {
-		return new ExtensionFileFilter(extensions(name));
+	public static ExtensionFileFilter getFilter(String name) {
+		return new ExtensionFileFilter(getExtensionList(name));
 	}
 	
 
-	public List<String> extensions(String name) {
+	public static List<String> getExtensionList(String name) {
 		List<String> list = new ArrayList<String>();
 		
-		for (Type type : types) {
+		for (Type type : data.types) {
 			if (type.name.startsWith(name)) {
 				addAll(list, type.extensions);
 			}

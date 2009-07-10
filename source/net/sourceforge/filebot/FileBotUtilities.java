@@ -60,11 +60,8 @@ public final class FileBotUtilities {
 	}
 	
 
-	public static final ExtensionFileFilter TORRENT_FILES = MediaTypes.getDefault().filter("application/torrent");
-	public static final ExtensionFileFilter LIST_FILES = MediaTypes.getDefault().filter("application/list");
-	public static final ExtensionFileFilter VIDEO_FILES = MediaTypes.getDefault().filter("video");
-	public static final ExtensionFileFilter SUBTITLE_FILES = MediaTypes.getDefault().filter("subtitle");
-	public static final ExtensionFileFilter SFV_FILES = MediaTypes.getDefault().filter("verification/sfv");
+	public static final ExtensionFileFilter VIDEO_FILES = MediaTypes.getFilter("video");
+	public static final ExtensionFileFilter SUBTITLE_FILES = MediaTypes.getFilter("subtitle");
 	
 
 	/**

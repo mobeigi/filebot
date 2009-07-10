@@ -6,8 +6,6 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class EpisodeFormat extends Format {
@@ -48,23 +46,39 @@ public class EpisodeFormat extends Format {
 
 	@Override
 	public Episode parseObject(String source, ParsePosition pos) {
-		Pattern pattern = Pattern.compile("(.*) - (?:(\\w+?)x)?(\\w+)? - (.*)");
+		String[] section = source.substring(pos.getIndex()).split(" - ", 3);
 		
-		Matcher matcher = pattern.matcher(source).region(pos.getIndex(), source.length());
-		
-		if (!matcher.matches()) {
-			pos.setErrorIndex(matcher.regionStart());
+		// series name and episode identifier are required
+		if (section.length < 2) {
+			pos.setErrorIndex(0);
 			return null;
 		}
 		
-		// episode number must not be null
-		if (matcher.group(3) == null) {
-			pos.setErrorIndex(matcher.start(3));
-			return null;
+		// normalize and check
+		for (int i = 0; i < section.length; i++) {
+			section[i] = section[i].trim();
+			
+			if (section[i].isEmpty()) {
+				pos.setErrorIndex(0);
+				return null;
+			}
 		}
 		
-		pos.setIndex(matcher.end());
-		return new Episode(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4));
+		String[] sxe = section[1].split("x", 2);
+		
+		// series name
+		String name = section[0];
+		
+		// season number and episode number
+		String season = (sxe.length == 2) ? sxe[0] : null;
+		String episode = (sxe.length == 2) ? sxe[1] : section[1];
+		
+		// episode title
+		String title = (section.length == 3) ? section[2] : null;
+		
+		// did parse input
+		pos.setIndex(source.length());
+		return new Episode(name, season, episode, title);
 	}
 	
 
