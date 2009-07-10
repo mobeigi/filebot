@@ -38,7 +38,7 @@ String.prototype.space = function(replacement) {
  * Return substring before the given delimiter.
  */
 String.prototype.before = function(delimiter) {
-	var endIndex = this.indexOf(delimiter);
+	var endIndex = delimiter instanceof RegExp ? this.search(delimiter) : this.indexOf(delimiter);
 	
 	// delimiter was found, return leading substring, else return original value
 	return endIndex >= 0 ? this.substring(0, endIndex) : this;
@@ -49,10 +49,28 @@ String.prototype.before = function(delimiter) {
  * Return substring after the given delimiter.
  */
 String.prototype.after = function(delimiter) {
+	if (delimiter instanceof RegExp) {
+		var match = this.match(delimiter);
+		
+		if (match == null)
+			return this;
+		
+		// use pattern match as delimiter
+		delimiter = match[0];
+	}
+	
 	var startIndex = this.indexOf(delimiter);
 	
 	// delimiter was found, return trailing substring, else return original value
 	return startIndex >= 0 ? this.substring(startIndex + delimiter.length, this.length) : this;
+}
+
+
+/**
+ * Remove leading and trailing whitespace.
+ */
+String.prototype.trim = function() {
+	return this.replace(/^\s+|\s+$/g, "");
 }
 
 
