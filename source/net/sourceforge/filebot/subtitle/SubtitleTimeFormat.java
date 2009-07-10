@@ -8,8 +8,8 @@ import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Scanner;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 
 class SubtitleTimeFormat extends DateFormat {
@@ -36,24 +36,32 @@ class SubtitleTimeFormat extends DateFormat {
 	}
 	
 
+	private final Pattern delimiter = Pattern.compile("[:.]");
+	
+
 	@Override
 	public Date parse(String source, ParsePosition pos) {
-		Scanner scanner = new Scanner(source).useDelimiter(":|\\.");
+		String[] split = delimiter.split(source, 4);
 		
 		// reset state
 		calendar.clear();
 		
-		// handle hours:minutes:seconds
-		calendar.set(Calendar.HOUR_OF_DAY, scanner.nextInt());
-		calendar.set(Calendar.MINUTE, scanner.nextInt());
-		calendar.set(Calendar.SECOND, scanner.nextInt());
-		
-		// handle hundredth seconds
-		calendar.set(Calendar.MILLISECOND, scanner.nextInt() * 10);
+		try {
+			// handle hours:minutes:seconds
+			calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(split[0]));
+			calendar.set(Calendar.MINUTE, Integer.parseInt(split[1]));
+			calendar.set(Calendar.SECOND, Integer.parseInt(split[2]));
+			
+			// handle hundredth seconds
+			calendar.set(Calendar.MILLISECOND, Integer.parseInt(split[3]) * 10);
+		} catch (Exception e) {
+			// cannot parse input
+			pos.setErrorIndex(0);
+			return null;
+		}
 		
 		// update position
-		pos.setIndex(scanner.match().end());
-		
+		pos.setIndex(source.length());
 		return calendar.getTime();
 	}
 }

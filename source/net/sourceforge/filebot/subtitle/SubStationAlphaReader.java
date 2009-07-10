@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public class SubStationAlphaReader extends SubtitleReader {
 	
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
+	private final Pattern newline = Pattern.compile(Pattern.quote("\\n"), Pattern.CASE_INSENSITIVE);
 	
 	private Map<String, Integer> format;
 	
@@ -77,7 +78,7 @@ public class SubStationAlphaReader extends SubtitleReader {
 		String text = row[format.get("Text")].trim();
 		
 		// translate "\\n" to new lines 
-		String[] lines = Pattern.compile(Pattern.quote("\\N"), Pattern.CASE_INSENSITIVE).split(text);
+		String[] lines = newline.split(text);
 		
 		return new SubtitleElement(start, end, join(lines, "\n"));
 	}

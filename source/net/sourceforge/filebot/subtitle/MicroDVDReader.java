@@ -7,7 +7,6 @@ import static net.sourceforge.tuned.StringUtilities.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 
 public class MicroDVDReader extends SubtitleReader {
@@ -46,8 +45,8 @@ public class MicroDVDReader extends SubtitleReader {
 			return null;
 		}
 		
-		long startFrame = Long.parseLong(properties.get(0));
-		long endFrame = Long.parseLong(properties.get(1));
+		int startFrame = Integer.parseInt(properties.get(0));
+		int endFrame = Integer.parseInt(properties.get(1));
 		String text = line.substring(from).trim();
 		
 		if (startFrame == 1 && endFrame == 1) {
@@ -59,7 +58,7 @@ public class MicroDVDReader extends SubtitleReader {
 		}
 		
 		// translate '|' to new lines
-		String[] lines = text.split(Pattern.quote("|"));
+		String[] lines = text.split("[|]");
 		
 		// convert frame interval to time interval 
 		return new SubtitleElement(Math.round(startFrame * fps), Math.round(endFrame * fps), join(lines, "\n"));

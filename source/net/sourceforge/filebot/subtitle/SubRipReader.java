@@ -46,8 +46,8 @@ public class SubRipReader extends SubtitleReader {
 		
 		List<String> lines = new ArrayList<String>(2);
 		
-		// read text
-		for (String line = scanner.nextLine(); !line.isEmpty() && scanner.hasNextLine(); line = scanner.nextLine()) {
+		// read all lines until the next empty line
+		for (String line = scanner.nextLine(); line.length() > 0; line = scanner.hasNextLine() ? scanner.nextLine() : "") {
 			lines.add(line);
 		}
 		
