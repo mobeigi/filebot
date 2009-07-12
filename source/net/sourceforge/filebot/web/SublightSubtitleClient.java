@@ -227,7 +227,7 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		// abort if something went wrong
 		checkError(error);
 		
-		webservice.downloadByID3(session, subtitle.getSubtitleID(), -1, false, ticket.value, null, data, error);
+		webservice.downloadByID4(session, subtitle.getSubtitleID(), -1, false, ticket.value, null, data, null, error);
 		
 		// abort if something went wrong
 		checkError(error);
@@ -245,12 +245,12 @@ public class SublightSubtitleClient implements SubtitleProvider {
 
 	protected synchronized void login() throws WebServiceException {
 		if (webservice == null) {
-			// lazy initialize because all the jax-ws class loading will take longer than a few milliseconds
+			// lazy initialize because all the JAX-WS class loading can take quite some time
 			webservice = new SubtitlesAPI2().getSubtitlesAPI2Soap();
 		}
 		
 		if (session == null) {
-			// args contain only iid
+			// args contains only iid
 			ArrayOfString args = new ArrayOfString();
 			args.getString().add(iid);
 			
