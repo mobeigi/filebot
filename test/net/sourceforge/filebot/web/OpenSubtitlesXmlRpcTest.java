@@ -2,14 +2,20 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.util.Collections.*;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 
 
 public class OpenSubtitlesXmlRpcTest {
@@ -56,8 +62,9 @@ public class OpenSubtitlesXmlRpcTest {
 		
 		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
 		
-		assertTrue(sample.getName().startsWith("Wonderfalls"));
-		assertEquals("Hungarian", sample.getLanguageName());
+		assertEquals("\"Wonderfalls\"", sample.getProperty(Property.MovieName));
+		assertEquals("Hungarian", sample.getProperty(Property.LanguageName));
+		assertEquals("imdbid", sample.getProperty(Property.MatchedBy));
 		
 		// check size
 		assertTrue(list.size() > 70);
@@ -65,8 +72,62 @@ public class OpenSubtitlesXmlRpcTest {
 	
 
 	@Test
-	public void getSubtitleListMovieHash() {
-		//TODO not implemented yet
+	public void getSubtitleListMovieHash() throws Exception {
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forHash("2bba5c34b007153b", 717565952, "eng")));
+		
+		OpenSubtitlesSubtitleDescriptor sample = list.get(0);
+		
+		assertEquals("firefly.s01e01.serenity.pilot.dvdrip.xvid.srt", sample.getProperty(Property.SubFileName));
+		assertEquals("English", sample.getProperty(Property.LanguageName));
+		assertEquals("moviehash", sample.getProperty(Property.MatchedBy));
+	}
+	
+
+	@Test
+	public void checkSubHash() throws Exception {
+		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("e12715f466ee73c86694b7ab9f311285"));
+		
+		assertEquals("247060", subHashMap.values().iterator().next().toString());
+		assertTrue(1 == subHashMap.size());
+	}
+	
+
+	@Test
+	public void checkSubHashInvalid() throws Exception {
+		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("0123456789abcdef0123456789abcdef"));
+		
+		assertEquals("0", subHashMap.values().iterator().next().toString());
+		assertTrue(1 == subHashMap.size());
+	}
+	
+
+	@Test
+	public void checkMovieHash() throws Exception {
+		Map<String, Map<Property, String>> movieHashMap = xmlrpc.checkMovieHash(singleton("2bba5c34b007153b"));
+		Map<Property, String> movie = movieHashMap.values().iterator().next();
+		
+		assertEquals("\"Firefly\"", movie.get(Property.MovieName));
+		assertEquals("2002", movie.get(Property.MovieYear));
+	}
+	
+
+	@Test
+	public void checkMovieHashInvalid() throws Exception {
+		Map<String, Map<Property, String>> movieHashMap = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
+		
+		// no movie info
+		assertTrue(movieHashMap.isEmpty());
+	}
+	
+
+	@Test
+	public void detectLanguage() throws Exception {
+		String text = "Only those that are prepared to fire should be fired at.";
+		
+		List<String> languages = xmlrpc.detectLanguage(Charset.forName("utf-8").encode(text));
+		
+		assertEquals("eng", languages.get(0));
+		assertTrue(1 == languages.size());
 	}
 	
 

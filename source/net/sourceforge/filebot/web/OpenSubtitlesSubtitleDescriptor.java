@@ -21,46 +21,46 @@ import net.sourceforge.tuned.FileUtilities;
  */
 public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
-	private final Map<Property, String> properties;
-	
-
 	public static enum Property {
-		IDSubMovieFile,
-		MovieHash,
-		MovieByteSize,
-		MovieTimeMS,
-		MovieFrames,
-		IDSubtitleFile,
-		SubFileName,
-		SubActualCD,
-		SubSize,
-		SubHash,
 		IDSubtitle,
-		UserID,
-		SubLanguageID,
-		SubFormat,
-		SubSumCD,
-		SubAuthorComment,
-		SubAddDate,
-		SubBad,
-		SubRating,
-		SubDownloadsCnt,
-		MovieReleaseName,
+		IDSubtitleFile,
+		IDSubMovieFile,
 		IDMovie,
 		IDMovieImdb,
+		SubFileName,
+		SubFormat,
+		SubHash,
+		SubSize,
+		MovieHash,
+		MovieByteSize,
 		MovieName,
 		MovieNameEng,
 		MovieYear,
+		MovieReleaseName,
+		MovieTimeMS,
 		MovieImdbRating,
-		UserNickName,
+		SubLanguageID,
 		ISO639,
 		LanguageName,
+		UserID,
+		UserNickName,
+		SubAddDate,
+		SubAuthorComment,
+		SubComments,
+		SubDownloadsCnt,
+		SubRating,
+		SubBad,
+		SubActualCD,
+		SubSumCD,
+		MatchedBy,
+		SubtitlesLink,
 		SubDownloadLink,
 		ZipDownloadLink;
 		
 		public static <V> EnumMap<Property, V> asEnumMap(Map<String, V> stringMap) {
 			EnumMap<Property, V> enumMap = new EnumMap<Property, V>(Property.class);
 			
+			// copy entry set to enum map
 			for (Entry<String, V> entry : stringMap.entrySet()) {
 				try {
 					enumMap.put(Property.valueOf(entry.getKey()), entry.getValue());
@@ -74,8 +74,11 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
+	private final Map<Property, String> properties;
+	
+
 	public OpenSubtitlesSubtitleDescriptor(Map<Property, String> properties) {
-		this.properties = new EnumMap<Property, String>(properties);
+		this.properties = properties;
 	}
 	
 
@@ -104,6 +107,16 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 
 	public int getSize() {
 		return Integer.parseInt(getProperty(Property.SubSize));
+	}
+	
+
+	public String getMovieHash() {
+		return getProperty(Property.MovieHash);
+	}
+	
+
+	public long getMovieByteSize() {
+		return Long.parseLong(getProperty(Property.MovieByteSize));
 	}
 	
 

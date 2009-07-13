@@ -5,19 +5,20 @@ package net.sourceforge.filebot.web;
 import static java.util.Collections.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map.Entry;
+import java.util.zip.DeflaterInputStream;
 
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
@@ -25,14 +26,11 @@ import redstone.xmlrpc.XmlRpcFault;
 import redstone.xmlrpc.util.Base64;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
+import net.sourceforge.tuned.ByteBufferInputStream;
+import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
-/**
- * Client for the OpenSubtitles XML-RPC API.
- */
 public class OpenSubtitlesXmlRpc {
-	
-	private final String url = "http://www.opensubtitles.org/xml-rpc";
 	
 	private final String useragent;
 	
@@ -46,8 +44,6 @@ public class OpenSubtitlesXmlRpc {
 
 	/**
 	 * Login as anonymous user
-	 * 
-	 * @throws XmlRpcFault
 	 */
 	public void loginAnonymous() throws XmlRpcFault {
 		login("", "");
@@ -57,9 +53,8 @@ public class OpenSubtitlesXmlRpc {
 	/**
 	 * Login as user and use English as language
 	 * 
-	 * @param username
-	 * @param password
-	 * @throws XmlRpcFault
+	 * @param username username (blank for anonymous user)
+	 * @param password password (blank for anonymous user)
 	 */
 	public void login(String username, String password) throws XmlRpcFault {
 		login(username, password, "en");
@@ -72,40 +67,33 @@ public class OpenSubtitlesXmlRpc {
 	 * 
 	 * @param username username (blank for anonymous user)
 	 * @param password password (blank for anonymous user)
-	 * @param language <a
-	 *            href="http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes">ISO639</a>
-	 *            2-letter codes as language and later communication will be done in this
-	 *            language if applicable (error codes and so on).
+	 * @param language ISO639 2-letter codes as language and later communication will be done in this language if
+	 *            applicable (error codes and so on).
 	 */
-	@SuppressWarnings("unchecked")
 	public synchronized void login(String username, String password, String language) throws XmlRpcFault {
-		Map<String, String> response = (Map<String, String>) invoke("LogIn", username, password, language, useragent);
-		checkStatus(response.get("status"));
+		Map<?, ?> response = invoke("LogIn", username, password, language, useragent);
 		
-		token = response.get("token");
+		// set session token
+		token = response.get("token").toString();
 	}
 	
 
 	/**
-	 * This will logout user (ends session id). Good call this function is before ending
-	 * (closing) clients program.
-	 * 
-	 * @throws XmlRpcFault
+	 * This will logout user (ends session id). Call this function is before closing the client program.
 	 */
 	public synchronized void logout() throws XmlRpcFault {
 		try {
 			invoke("LogOut", token);
-			
-			// anonymous users will always get a 401 Unauthorized when trying to logout
-			// do not check status for logout response
-			// checkStatus(response.get("status"));
+		} catch (XmlRpcFault e) {
+			// anonymous users will always get an 401 Unauthorized when trying to logout,
+			// so we ignore the status of the logout response
 		} finally {
 			token = null;
 		}
 	}
 	
 
-	public synchronized boolean isLoggedOn() {
+	public boolean isLoggedOn() {
 		return token != null;
 	}
 	
@@ -117,35 +105,19 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, String... sublanguageids) throws XmlRpcFault {
-		return searchSubtitles(null, null, imdbid, sublanguageids);
-	}
-	
-
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(String moviehash, long moviebytesize, String... sublanguageids) throws XmlRpcFault {
-		return searchSubtitles(moviehash, moviebytesize, null, sublanguageids);
+		return searchSubtitles(singleton(Query.forImdbId(imdbid, sublanguageids)));
 	}
 	
 
 	@SuppressWarnings("unchecked")
-	protected List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(String moviehash, Long moviebytesize, Integer imdbid, String... sublanguageids) throws XmlRpcFault {
-		ParameterMap query = new ParameterMap(4);
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
+		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
 		
-		// put parameters, but ignore null or empty values
-		query.put("moviehash", moviehash);
-		query.put("moviebytesize", moviebytesize);
-		query.put("imdbid", imdbid);
-		query.put("sublanguageid", join(sublanguageids, ","));
-		
-		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchSubtitles", token, singletonList(query));
-		
+		List<Map<String, String>> subtitleData = (List<Map<String, String>>) response.get("data");
 		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		
-		try {
-			for (Map<String, String> subtitleData : response.get("data")) {
-				subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(subtitleData)));
-			}
-		} catch (ClassCastException e) {
-			// error response, no subtitles, ignore
+		for (Map<String, String> propertyMap : subtitleData) {
+			subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(propertyMap)));
 		}
 		
 		return subtitles;
@@ -154,42 +126,115 @@ public class OpenSubtitlesXmlRpc {
 
 	@SuppressWarnings("unchecked")
 	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
-		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("SearchMoviesOnIMDB", token, query);
+		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 		
+		List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
 		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
-		for (Map<String, String> movie : response.get("data")) {
-			try {
-				// get non-aka title (aka titles are separated by Â)
-				Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("\u00C2");
-				
-				movies.add(new MovieDescriptor(titleScanner.next(), Integer.parseInt(movie.get("id"))));
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-			}
+		for (Map<String, String> movie : movieData) {
+			// get non-aka title (aka titles are separated by Â)
+			Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("\u00C2");
+			
+			movies.add(new MovieDescriptor(titleScanner.next().trim(), Integer.parseInt(movie.get("id"))));
 		}
 		
 		return movies;
 	}
 	
 
+	public TryUploadResponse tryUploadSubtitles(SubFile subtitle) throws XmlRpcFault {
+		return tryUploadSubtitles(singleton(subtitle));
+	}
+	
+
 	@SuppressWarnings("unchecked")
-	public Collection<String> detectLanguage(String text) throws XmlRpcFault {
-		try {
-			// base64 encoded text
-			String parameter = new String(Base64.encode(text.getBytes("utf-8")));
-			
-			Map<String, Map<String, String>> response = (Map<String, Map<String, String>>) invoke("DetectLanguage", token, new Object[] { parameter });
-			
-			if (response.containsKey("data")) {
-				return response.get("data").values();
-			}
-			
-			return Collections.emptySet();
-		} catch (UnsupportedEncodingException e) {
-			// will not happen
-			throw new RuntimeException(e);
+	public TryUploadResponse tryUploadSubtitles(Collection<SubFile> subtitles) throws XmlRpcFault {
+		Map<String, SubFile> struct = new HashMap<String, SubFile>();
+		
+		// put cd1, cd2, ...
+		for (SubFile cd : subtitles) {
+			struct.put(String.format("cd%d", struct.size() + 1), cd);
 		}
+		
+		Map<?, ?> response = invoke("TryUploadSubtitles", token, struct);
+		
+		boolean uploadRequired = response.get("alreadyindb").equals("0");
+		Map<String, String> subtitleData = (Map<String, String>) response.get("data");
+		
+		return new TryUploadResponse(uploadRequired, Property.asEnumMap(subtitleData));
+	}
+	
+
+	public URI uploadSubtitles(BaseInfo baseInfo, SubFile subtitle) throws XmlRpcFault {
+		return uploadSubtitles(baseInfo, singleton(subtitle));
+	}
+	
+
+	public URI uploadSubtitles(BaseInfo baseInfo, Collection<SubFile> subtitles) throws XmlRpcFault {
+		Map<String, Object> struct = new HashMap<String, Object>();
+		
+		// put cd1, cd2, ...
+		for (SubFile cd : subtitles) {
+			struct.put(String.format("cd%d", struct.size() + 1), cd);
+		}
+		
+		// put baseinfo
+		struct.put("baseinfo", baseInfo);
+		
+		Map<?, ?> response = invoke("UploadSubtitles", token, struct);
+		
+		// subtitle link
+		return URI.create(response.get("data").toString());
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public List<String> detectLanguage(ByteBuffer data) throws XmlRpcFault {
+		// compress and base64 encode
+		String parameter = encodeData(data);
+		
+		Map<String, Map<String, String>> response = (Map<String, Map<String, String>>) invoke("DetectLanguage", token, singleton(parameter));
+		List<String> languages = new ArrayList<String>(2);
+		
+		if (response.containsKey("data")) {
+			languages.addAll(response.get("data").values());
+		}
+		
+		return languages;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Integer> checkSubHash(Collection<String> hashes) throws XmlRpcFault {
+		Map<?, ?> response = invoke("CheckSubHash", token, hashes);
+		
+		Map<String, ?> subHashData = (Map<String, ?>) response.get("data");
+		Map<String, Integer> subHashMap = new HashMap<String, Integer>();
+		
+		for (Entry<String, ?> entry : subHashData.entrySet()) {
+			// non-existing subtitles are represented as Integer 0, not String "0"
+			subHashMap.put(entry.getKey(), Integer.parseInt(entry.getValue().toString()));
+		}
+		
+		return subHashMap;
+	}
+	
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Map<Property, String>> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
+		Map<?, ?> response = invoke("CheckMovieHash", token, hashes);
+		
+		Map<String, ?> movieHashData = (Map<String, ?>) response.get("data");
+		Map<String, Map<Property, String>> movieHashMap = new HashMap<String, Map<Property, String>>();
+		
+		for (Entry<String, ?> entry : movieHashData.entrySet()) {
+			// empty associative arrays are deserialized as array, not as map
+			if (entry.getValue() instanceof Map) {
+				movieHashMap.put(entry.getKey(), Property.asEnumMap((Map<String, String>) entry.getValue()));
+			}
+		}
+		
+		return movieHashMap;
 	}
 	
 
@@ -212,24 +257,52 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
-	@SuppressWarnings("unchecked")
-	public boolean noOperation() {
+	public void noOperation() throws XmlRpcFault {
+		invoke("NoOperation", token);
+	}
+	
+
+	protected Map<?, ?> invoke(String method, Object... arguments) throws XmlRpcFault {
 		try {
-			Map<String, String> response = (Map<String, String>) invoke("NoOperation", token);
-			checkStatus(response.get("status"));
+			XmlRpcClient rpc = new XmlRpcClient(getXmlRpcUrl(), false);
 			
-			return true;
-		} catch (Exception e) {
-			return false;
+			Map<?, ?> response = (Map<?, ?>) rpc.invoke(method, arguments);
+			checkResponse(response);
+			
+			return response;
+		} catch (XmlRpcFault e) {
+			// invalidate session token if session has expired
+			if (e.getErrorCode() == 406)
+				token = null;
+			
+			// rethrow exception
+			throw e;
 		}
 	}
 	
 
-	private Object invoke(String method, Object... arguments) throws XmlRpcFault {
+	protected URL getXmlRpcUrl() {
 		try {
-			XmlRpcClient rpc = new XmlRpcClient(url, false);
-			return rpc.invoke(method, arguments);
+			return new URL("http://www.opensubtitles.org/xml-rpc");
 		} catch (MalformedURLException e) {
+			// will never happen
+			throw new RuntimeException(e);
+		}
+	}
+	
+
+	protected static String encodeData(ByteBuffer data) {
+		try {
+			DeflaterInputStream compressedDataStream = new DeflaterInputStream(new ByteBufferInputStream(data));
+			
+			// compress data
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(data.remaining());
+			buffer.transferFully(compressedDataStream);
+			
+			// base64 encode
+			return new String(Base64.encode(buffer.getByteArray()));
+		} catch (IOException e) {
+			// will never happen
 			throw new RuntimeException(e);
 		}
 	}
@@ -241,42 +314,144 @@ public class OpenSubtitlesXmlRpc {
 	 * @param status status code and message (e.g. 200 OK, 401 Unauthorized, ...)
 	 * @throws XmlRpcFault thrown if status code is not OK
 	 */
-	private void checkStatus(String status) throws XmlRpcFault {
-		if (status.equals("200 OK"))
+	protected static void checkResponse(Map<?, ?> response) throws XmlRpcFault {
+		String status = (String) response.get("status");
+		
+		// if there is no status at all, assume everything was OK
+		if (status == null || status.equals("200 OK")) {
 			return;
+		}
 		
-		Matcher m = Pattern.compile("(\\d+).*").matcher(status);
-		
-		if (!m.matches())
+		try {
+			throw new XmlRpcFault(new Scanner(status).nextInt(), status);
+		} catch (NoSuchElementException e) {
 			throw new XmlRpcException("Illegal status code: " + status);
-		
-		throw new XmlRpcFault(Integer.parseInt(m.group(1)), status);
+		}
 	}
 	
 
-	private static class ParameterMap extends HashMap<String, String> {
+	public static final class Query extends HashMap<String, Object> {
 		
-		public ParameterMap(int initialCapacity) {
-			super(initialCapacity);
+		private Query(String imdbid, String... sublanguageids) {
+			put("imdbid", imdbid);
+			put("sublanguageid", join(sublanguageids, ","));
 		}
 		
 
-		@Override
-		public String put(String key, String value) {
-			if (value != null && !value.isEmpty()) {
-				return super.put(key, value);
-			}
-			
-			return null;
+		private Query(String moviehash, String moviebytesize, String... sublanguageids) {
+			put("moviehash", moviehash);
+			put("moviebytesize", moviebytesize);
+			put("sublanguageid", join(sublanguageids, ","));
 		}
 		
 
-		public String put(String key, Object value) {
-			if (value != null) {
-				return put(key, value.toString());
-			}
-			
-			return null;
+		public static Query forHash(String moviehash, long moviebytesize, String... sublanguageids) {
+			return new Query(moviehash, Long.toString(moviebytesize), sublanguageids);
+		}
+		
+
+		public static Query forImdbId(int imdbid, String... sublanguageids) {
+			return new Query(Integer.toString(imdbid), sublanguageids);
+		}
+	}
+	
+
+	public static final class BaseInfo extends HashMap<String, Object> {
+		
+		public void setIDMovieImdb(int imdb) {
+			put("idmovieimdb", Integer.toString(imdb));
+		}
+		
+
+		public void setSubLanguageID(String sublanguageid) {
+			put("sublanguageid", sublanguageid);
+		}
+		
+
+		public void setMovieReleaseName(String moviereleasename) {
+			put("moviereleasename", moviereleasename);
+		}
+		
+
+		public void setMovieAka(String movieaka) {
+			put("movieaka", movieaka);
+		}
+		
+
+		public void setSubAuthorComment(String subauthorcomment) {
+			put("subauthorcomment", subauthorcomment);
+		}
+	}
+	
+
+	public static final class SubFile extends HashMap<String, Object> {
+		
+		public void setSubHash(String subhash) {
+			put("subhash", subhash);
+		}
+		
+
+		public void setSubFileName(String subfilename) {
+			put("subfilename", subfilename);
+		}
+		
+
+		public void setMovieHash(String moviehash) {
+			put("moviehash", moviehash);
+		}
+		
+
+		public void setMovieByteSize(long moviebytesize) {
+			put("moviebytesize", Long.toString(moviebytesize));
+		}
+		
+
+		public void setMovieTimeMS(int movietimems) {
+			put("movietimems", movietimems);
+		}
+		
+
+		public void setMovieFrames(int movieframes) {
+			put("movieframes", movieframes);
+		}
+		
+
+		public void setMovieFPS(double moviefps) {
+			put("moviefps", moviefps);
+		}
+		
+
+		public void setMovieFileName(String moviefilename) {
+			put("moviefilename", moviefilename);
+		}
+		
+
+		public void setSubContent(ByteBuffer data) {
+			put("subcontent", encodeData(data));
+		}
+	}
+	
+
+	public static final class TryUploadResponse {
+		
+		private final boolean uploadRequired;
+		
+		private final Map<Property, String> subtitleData;
+		
+
+		private TryUploadResponse(boolean uploadRequired, Map<Property, String> subtitleData) {
+			this.uploadRequired = uploadRequired;
+			this.subtitleData = subtitleData;
+		}
+		
+
+		public boolean isUploadRequired() {
+			return uploadRequired;
+		}
+		
+
+		public Map<Property, String> getSubtitleData() {
+			return subtitleData;
 		}
 	}
 	
