@@ -130,18 +130,6 @@ public class AnidbClientTest {
 	
 
 	@Test
-	public void selectEnglishTitle() throws Exception {
-		assertEquals("Banner of the Stars", anidb.selectOfficialTitle(getHtmlDocument(new URL("http://anidb.net/a4")), "English"));
-	}
-	
-
-	@Test
-	public void selectJapaneseTitle() throws Exception {
-		assertEquals("十二国記", anidb.selectOfficialTitle(getHtmlDocument(twelvekingdomsSearchResult.getURL()), "Japanese"));
-	}
-	
-
-	@Test
 	public void getEpisodeListLink() throws Exception {
 		assertEquals(monsterSearchResult.getURL().toString(), anidb.getEpisodeListLink(monsterSearchResult).toURL().toString());
 	}

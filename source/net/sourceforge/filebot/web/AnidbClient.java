@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -102,20 +104,45 @@ public class AnidbClient implements EpisodeListProvider {
 	}
 	
 
-	protected String selectOfficialTitle(Document animePage, String languageName) {
-		// create xpath query for official title of the given language
-		// e.g. //*[@class='data']//*[contains(@class, 'official') and .//*[contains(@title, 'english')]]//LABEL
+	@Override
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
+		int aid = getAnimeID(getEpisodeListLink(searchResult));
 		
-		String condition = String.format(".//*[contains(@title, '%s')]", languageName.toLowerCase());
-		String xpath = String.format("//*[@class='data']//*[contains(@class, 'official') and %s]//LABEL", condition);
+		// get anime page as xml
+		Document dom = getDocument(new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + aid));
 		
-		return selectString(xpath, animePage);
+		// select main title
+		String animeTitle = selectString("//anime/titles/title[@type='main']/text()", dom);
+		
+		List<Episode> episodes = new ArrayList<Episode>(25);
+		
+		for (Node node : selectNodes("//anime/eps/ep", dom)) {
+			String flags = getTextContent("flags", node);
+			
+			// allow only normal and recap episodes
+			if (flags == null || flags.equals("2")) {
+				String number = getTextContent("epno", node);
+				String title = selectString(".//title[@lang='en']", node);
+				
+				// no seasons for anime
+				episodes.add(new Episode(animeTitle, null, number, title));
+			}
+		}
+		
+		// sanity check 
+		if (episodes.isEmpty()) {
+			// anime page xml doesn't work sometimes
+			Logger.getLogger(getClass().getName()).warning(String.format("Failed to parse episode data from xml: %s (%d)", searchResult, aid));
+			
+			// fall back to good old page scraper
+			return scrapeEpisodeList(searchResult);
+		}
+		
+		return episodes;
 	}
 	
 
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
-		
+	protected List<Episode> scrapeEpisodeList(SearchResult searchResult) throws IOException, SAXException {
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult).toURL());
 		
 		// use title from anime page
@@ -139,6 +166,30 @@ public class AnidbClient implements EpisodeListProvider {
 		}
 		
 		return episodes;
+	}
+	
+
+	protected int getAnimeID(URI uri) {
+		// e.g. http://anidb.net/perl-bin/animedb.pl?show=anime&aid=26
+		if (uri.getQuery() != null) {
+			Matcher query = Pattern.compile("aid=(\\d+)").matcher(uri.getQuery());
+			
+			if (query.find()) {
+				return Integer.parseInt(query.group(1));
+			}
+		}
+		
+		// e.g. http://anidb.net/a26
+		if (uri.getPath() != null) {
+			Matcher path = Pattern.compile("/a(\\d+)$").matcher(uri.getPath());
+			
+			if (path.find()) {
+				return Integer.parseInt(path.group(1));
+			}
+		}
+		
+		// no aid found
+		throw new IllegalArgumentException("URI does not contain an aid: " + uri);
 	}
 	
 

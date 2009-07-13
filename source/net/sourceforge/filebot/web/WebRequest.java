@@ -75,18 +75,23 @@ public final class WebRequest {
 	}
 	
 
-	public static Document getDocument(URL url) throws SAXException, IOException, ParserConfigurationException {
-		return getDocument(url.toString());
-	}
-	
-
-	public static Document getDocument(String url) throws SAXException, IOException, ParserConfigurationException {
-		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url);
+	public static Document getDocument(URL url) throws IOException, SAXException {
+		return getDocument(new InputSource(getReader(url.openConnection())));
 	}
 	
 
 	public static Document getDocument(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
-		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
+		return getDocument(new InputSource(inputStream));
+	}
+	
+
+	public static Document getDocument(InputSource source) throws IOException, SAXException {
+		try {
+			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(source);
+		} catch (ParserConfigurationException e) {
+			// will never happen
+			throw new RuntimeException(e);
+		}
 	}
 	
 
@@ -129,15 +134,12 @@ public final class WebRequest {
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
-			Pattern pattern = Pattern.compile(".*;\\s*charset=(\\S+).*", Pattern.CASE_INSENSITIVE);
-			Matcher matcher = pattern.matcher(contentType);
+			Matcher matcher = Pattern.compile("charset=(\\p{Graph}+)").matcher(contentType);
 			
-			if (matcher.matches()) {
-				String charsetName = matcher.group(1);
-				
+			if (matcher.find()) {
 				try {
-					return Charset.forName(charsetName);
-				} catch (Exception e) {
+					return Charset.forName(matcher.group(1));
+				} catch (IllegalArgumentException e) {
 					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}
@@ -148,6 +150,9 @@ public final class WebRequest {
 	}
 	
 
+	/**
+	 * Dummy constructor to prevent instantiation.
+	 */
 	private WebRequest() {
 		throw new UnsupportedOperationException();
 	}
