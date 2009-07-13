@@ -3,11 +3,9 @@ package net.sourceforge.filebot.web;
 
 
 import static net.sourceforge.filebot.web.EpisodeListUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -25,16 +23,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.Icon;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 
 public class TheTVDBClient implements EpisodeListProvider {
@@ -47,7 +44,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 	
 	private final TheTVDBCache cache = new TheTVDBCache(CacheManager.getInstance().getCache("web"));
 	
-	
+
 	public TheTVDBClient(String apikey) {
 		if (apikey == null)
 			throw new NullPointerException("apikey must not be null");
@@ -82,12 +79,9 @@ public class TheTVDBClient implements EpisodeListProvider {
 
 	public List<SearchResult> search(String query, Locale language) throws Exception {
 		
-		URL searchUrl = new URL("http", host, "/api/GetSeries.php?seriesname=" + URLEncoder.encode(query, "UTF-8") + "&language=" + language.getLanguage());
-		
-		Document dom = getDocument(searchUrl);
+		Document dom = getXmlDocument("/api/GetSeries.php?seriesname=" + URLEncoder.encode(query, "UTF-8") + "&language=" + language.getLanguage());
 		
 		List<Node> nodes = selectNodes("Data/Series", dom);
-		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -133,7 +127,6 @@ public class TheTVDBClient implements EpisodeListProvider {
 		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
 		
 		List<Node> nodes = selectNodes("Data/Episode", seriesRecord);
-		
 		episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -162,11 +155,11 @@ public class TheTVDBClient implements EpisodeListProvider {
 	}
 	
 
-	public Document getSeriesRecord(TheTVDBSearchResult searchResult, Locale language) throws IOException, SAXException, ParserConfigurationException {
+	public Document getSeriesRecord(TheTVDBSearchResult searchResult, Locale language) throws Exception {
 		
-		URL seriesRecordUrl = new URL(getMirror(MirrorType.ZIP) + "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + language.getLanguage() + ".zip");
+		URL seriesRecord = new URL(getMirror(MirrorType.ZIP) + "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + language.getLanguage() + ".zip");
 		
-		ZipInputStream zipInputStream = new ZipInputStream(seriesRecordUrl.openStream());
+		ZipInputStream zipInputStream = new ZipInputStream(seriesRecord.openStream());
 		ZipEntry zipEntry;
 		
 		try {
@@ -174,12 +167,12 @@ public class TheTVDBClient implements EpisodeListProvider {
 			
 			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 				if (seriesRecordName.equals(zipEntry.getName())) {
-					return getDocument(zipInputStream);
+					return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(zipInputStream);
 				}
 			}
 			
 			// zip file must contain the series record
-			throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, seriesRecordUrl));
+			throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, seriesRecord));
 		} finally {
 			zipInputStream.close();
 		}
@@ -203,7 +196,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 			
 			if (seasonId == null) {
 				// get episode xml from first episode of given season
-				Document dom = getDocument(new URL("http", host, "/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml"));
+				Document dom = getXmlDocument("/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml");
 				
 				seasonId = Integer.valueOf(selectString("Data/Episode/seasonid", dom));
 				
@@ -220,13 +213,11 @@ public class TheTVDBClient implements EpisodeListProvider {
 	}
 	
 
-	protected String getMirror(MirrorType mirrorType) throws IOException, SAXException, ParserConfigurationException {
+	protected String getMirror(MirrorType mirrorType) throws Exception {
 		synchronized (mirrors) {
 			if (mirrors.isEmpty()) {
 				// initialize mirrors
-				URL mirrorUrl = new URL("http", host, "/api/" + apikey + "/mirrors.xml");
-				
-				Document dom = getDocument(mirrorUrl);
+				Document dom = getXmlDocument("/api/" + apikey + "/mirrors.xml");
 				
 				// all mirrors by type
 				Map<MirrorType, List<String>> mirrorListMap = new EnumMap<MirrorType, List<String>>(MirrorType.class);
@@ -264,12 +255,18 @@ public class TheTVDBClient implements EpisodeListProvider {
 		}
 	}
 	
+
+	protected Document getXmlDocument(String path) throws Exception {
+		URL url = new URL("http", host, path);
+		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openStream());
+	}
 	
+
 	public static class TheTVDBSearchResult extends SearchResult {
 		
 		private final int seriesId;
 		
-		
+
 		public TheTVDBSearchResult(String seriesName, int seriesId) {
 			super(seriesName);
 			this.seriesId = seriesId;
@@ -290,7 +287,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 		private final int bitMask;
 		
-		
+
 		private MirrorType(int bitMask) {
 			this.bitMask = bitMask;
 		}
@@ -317,7 +314,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 		private final Cache cache;
 		
-		
+
 		public TheTVDBCache(Cache cache) {
 			this.cache = cache;
 		}
