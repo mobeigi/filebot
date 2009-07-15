@@ -11,11 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -37,16 +33,12 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.EpisodeFormatDialog;
-import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
-import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
@@ -317,58 +309,6 @@ public class RenamePanel extends JComponent {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
 					}
-				}
-				
-
-				@Override
-				protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults) throws Exception {
-					if (searchResults.size() == 1) {
-						return searchResults.iterator().next();
-					}
-					
-					final LinkedList<SearchResult> probableMatches = new LinkedList<SearchResult>();
-					
-					// use name similarity metric
-					SimilarityMetric metric = new NameSimilarityMetric();
-					
-					// find probable matches using name similarity > 0.9
-					for (SearchResult result : searchResults) {
-						if (metric.getSimilarity(query, result.getName()) > 0.9) {
-							probableMatches.add(result);
-						}
-					}
-					
-					if (probableMatches.size() == 1) {
-						return probableMatches.getFirst();
-					}
-					
-					// show selection dialog on EDT
-					final RunnableFuture<SearchResult> showSelectDialog = new FutureTask<SearchResult>(new Callable<SearchResult>() {
-						
-						@Override
-						public SearchResult call() throws Exception {
-							// display only probable matches if any
-							List<SearchResult> selection = probableMatches.isEmpty() ? searchResults : probableMatches;
-							
-							// multiple results have been found, user must select one
-							SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(getWindow(RenamePanel.this), selection);
-							
-							selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
-							selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
-							
-							// show dialog
-							selectDialog.setVisible(true);
-							
-							// selected value or null if the dialog was canceled by the user
-							return selectDialog.getSelectedValue();
-						}
-					});
-					
-					// run on EDT
-					SwingUtilities.invokeAndWait(showSelectDialog);
-					
-					// selected value or null
-					return showSelectDialog.get();
 				}
 			};
 			

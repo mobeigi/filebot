@@ -103,8 +103,15 @@ public final class TunedUtilities {
 	public static Point getPreferredLocation(JDialog dialog) {
 		Window owner = dialog.getOwner();
 		
-		if (owner == null)
-			return new Point(120, 80);
+		if (owner == null) {
+			Window[] toplevel = Window.getOwnerlessWindows();
+			
+			if (toplevel.length == 0)
+				return new Point(120, 80);
+			
+			// assume first top-level window as point of reference
+			owner = toplevel[0];
+		}
 		
 		Point p = owner.getLocation();
 		Dimension d = owner.getSize();

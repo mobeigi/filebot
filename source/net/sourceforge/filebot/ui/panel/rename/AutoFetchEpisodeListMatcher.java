@@ -18,13 +18,19 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
+import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
+import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
@@ -39,7 +45,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	
 	private final List<SimilarityMetric> metrics;
 	
-	
+
 	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, Collection<File> files, Collection<SimilarityMetric> metrics) {
 		this.provider = provider;
 		this.files = new LinkedList<File>(files);
@@ -63,9 +69,56 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	}
 	
 
-	protected SearchResult selectSearchResult(String query, List<SearchResult> searchResults) throws Exception {
-		// select first by default
-		return searchResults.iterator().next();
+	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults) throws Exception {
+		if (searchResults.size() == 1) {
+			return searchResults.iterator().next();
+		}
+		
+		final LinkedList<SearchResult> probableMatches = new LinkedList<SearchResult>();
+		
+		// use name similarity metric
+		SimilarityMetric metric = new NameSimilarityMetric();
+		
+		// find probable matches using name similarity > 0.9
+		for (SearchResult result : searchResults) {
+			if (metric.getSimilarity(query, result.getName()) > 0.9) {
+				probableMatches.add(result);
+			}
+		}
+		
+		if (probableMatches.size() == 1) {
+			return probableMatches.getFirst();
+		}
+		
+		// show selection dialog on EDT
+		final RunnableFuture<SearchResult> showSelectDialog = new FutureTask<SearchResult>(new Callable<SearchResult>() {
+			
+			@Override
+			public SearchResult call() throws Exception {
+				// display only probable matches if any
+				List<SearchResult> selection = probableMatches.isEmpty() ? searchResults : probableMatches;
+				
+				// multiple results have been found, user must select one
+				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(null, selection);
+				
+				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
+				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+				
+				// show dialog
+				selectDialog.setVisible(true);
+				
+				// selected value or null if the dialog was canceled by the user
+				return selectDialog.getSelectedValue();
+			}
+		});
+		
+		// allow only one select dialog at a time
+		synchronized (this) {
+			SwingUtilities.invokeAndWait(showSelectDialog);
+		}
+		
+		// selected value or null
+		return showSelectDialog.get();
 	}
 	
 
