@@ -2,12 +2,15 @@
 package net.sourceforge.filebot.similarity;
 
 
+import java.util.Arrays;
+
+
 public class Match<Value, Candidate> {
 	
 	private final Value value;
 	private final Candidate candidate;
 	
-	
+
 	public Match(Value value, Candidate candidate) {
 		this.value = value;
 		this.candidate = candidate;
@@ -49,7 +52,7 @@ public class Match<Value, Candidate> {
 
 	@Override
 	public int hashCode() {
-		return (value == null ? 0 : value.hashCode()) ^ (candidate == null ? 0 : candidate.hashCode());
+		return Arrays.hashCode(new Object[] { value, candidate });
 	}
 	
 

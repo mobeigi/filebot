@@ -204,7 +204,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
-		return ((HyperLink) searchResult).toURI();
+		return ((HyperLink) searchResult).getURI();
 	}
 	
 }

@@ -225,7 +225,7 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	private synchronized MediaInfo getMediaInfo() {
+	private MediaInfo getMediaInfo() {
 		if (mediaInfo == null) {
 			// make sure media file is defined
 			checkMediaFile();

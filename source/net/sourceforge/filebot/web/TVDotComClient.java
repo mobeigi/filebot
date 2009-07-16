@@ -6,6 +6,7 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -70,10 +71,9 @@ public class TVDotComClient implements EpisodeListProvider {
 			String href = getAttribute("href", node);
 			
 			try {
-				URL episodeListingUrl = new URL(href.replaceAll("summary\\.html\\?.*", "episode.html"));
-				
-				searchResults.add(new HyperLink(title, episodeListingUrl));
-			} catch (Exception e) {
+				URL episodeGuideLocation = new URL(href.replaceAll("summary\\.html\\?.*", "episode.html"));
+				searchResults.add(new HyperLink(title, episodeGuideLocation));
+			} catch (MalformedURLException e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href, e);
 			}
 		}

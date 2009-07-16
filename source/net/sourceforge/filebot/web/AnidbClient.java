@@ -195,7 +195,7 @@ public class AnidbClient implements EpisodeListProvider {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return ((HyperLink) searchResult).toURI();
+		return ((HyperLink) searchResult).getURI();
 	}
 	
 

@@ -6,7 +6,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,7 +18,7 @@ public class SubStationAlphaReader extends SubtitleReader {
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = Pattern.compile(Pattern.quote("\\n"), Pattern.CASE_INSENSITIVE);
 	
-	private Map<String, Integer> format;
+	private Map<EventProperty, Integer> format;
 	
 
 	public SubStationAlphaReader(Scanner scanner) {
@@ -37,10 +37,14 @@ public class SubStationAlphaReader extends SubtitleReader {
 		String[] columns = event[1].split(",");
 		
 		// map column name to column index
-		format = new HashMap<String, Integer>(columns.length);
+		format = new EnumMap<EventProperty, Integer>(EventProperty.class);
 		
 		for (int i = 0; i < columns.length; i++) {
-			format.put(columns[i].trim(), i);
+			try {
+				format.put(EventProperty.valueOf(columns[i].trim()), i);
+			} catch (IllegalArgumentException e) {
+				// ignore
+			}
 		}
 	}
 	
@@ -71,16 +75,30 @@ public class SubStationAlphaReader extends SubtitleReader {
 			throw new InputMismatchException("Illegal dialogue event: " + Arrays.toString(event));
 		
 		// extract information
-		String[] row = event[1].split(",", format.size());
+		String[] values = event[1].split(",", format.size());
 		
-		long start = timeFormat.parse(row[format.get("Start")]).getTime();
-		long end = timeFormat.parse(row[format.get("End")]).getTime();
-		String text = row[format.get("Text")].trim();
+		long start = timeFormat.parse(values[format.get(EventProperty.Start)]).getTime();
+		long end = timeFormat.parse(values[format.get(EventProperty.End)]).getTime();
+		String text = values[format.get(EventProperty.Text)].trim();
 		
 		// translate "\\n" to new lines 
 		String[] lines = newline.split(text);
 		
 		return new SubtitleElement(start, end, join(lines, "\n"));
+	}
+	
+
+	private enum EventProperty {
+		Layer,
+		Start,
+		End,
+		Style,
+		Name,
+		MarginL,
+		MarginR,
+		MarginV,
+		Effect,
+		Text
 	}
 	
 }

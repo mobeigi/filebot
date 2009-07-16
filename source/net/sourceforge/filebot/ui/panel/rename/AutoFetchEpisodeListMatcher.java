@@ -71,10 +71,11 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 
 	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults) throws Exception {
 		if (searchResults.size() == 1) {
-			return searchResults.iterator().next();
+			return searchResults.get(0);
 		}
 		
-		final LinkedList<SearchResult> probableMatches = new LinkedList<SearchResult>();
+		// auto-select most probable search result
+		final List<SearchResult> probableMatches = new LinkedList<SearchResult>();
 		
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
@@ -86,8 +87,9 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 			}
 		}
 		
+		// auto-select first and only probable search result
 		if (probableMatches.size() == 1) {
-			return probableMatches.getFirst();
+			return probableMatches.get(0);
 		}
 		
 		// show selection dialog on EDT
@@ -95,11 +97,11 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 			
 			@Override
 			public SearchResult call() throws Exception {
-				// display only probable matches if any
-				List<SearchResult> selection = probableMatches.isEmpty() ? searchResults : probableMatches;
+				// display only probable matches if possible
+				List<SearchResult> options = probableMatches.isEmpty() ? searchResults : probableMatches;
 				
 				// multiple results have been found, user must select one
-				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(null, selection);
+				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(null, options);
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
@@ -149,7 +151,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		
 		// fetch episode lists concurrently
 		List<Episode> episodes = new ArrayList<Episode>();
-		ExecutorService executor = Executors.newFixedThreadPool(tasks.size());
+		ExecutorService executor = Executors.newCachedThreadPool();
 		
 		for (Future<Collection<Episode>> future : executor.invokeAll(tasks)) {
 			episodes.addAll(future.get());

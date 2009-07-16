@@ -11,14 +11,14 @@ public class ByteBufferInputStream extends InputStream {
 	
 	private final ByteBuffer buffer;
 	
-	
+
 	public ByteBufferInputStream(ByteBuffer buffer) {
 		this.buffer = buffer;
 	}
 	
 
 	@Override
-	public synchronized int read() throws IOException {
+	public int read() throws IOException {
 		if (buffer.remaining() <= 0)
 			return -1;
 		
@@ -27,7 +27,7 @@ public class ByteBufferInputStream extends InputStream {
 	
 
 	@Override
-	public synchronized int read(byte[] b, int off, int len) throws IOException {
+	public int read(byte[] b, int off, int len) throws IOException {
 		if (buffer.remaining() <= 0)
 			return -1;
 		
@@ -40,7 +40,7 @@ public class ByteBufferInputStream extends InputStream {
 	
 
 	@Override
-	public synchronized int available() throws IOException {
+	public int available() throws IOException {
 		return buffer.remaining();
 	}
 	
@@ -52,13 +52,13 @@ public class ByteBufferInputStream extends InputStream {
 	
 
 	@Override
-	public synchronized void mark(int readlimit) {
+	public void mark(int readlimit) {
 		buffer.mark();
 	}
 	
 
 	@Override
-	public synchronized void reset() throws IOException {
+	public void reset() throws IOException {
 		buffer.reset();
 	}
 	

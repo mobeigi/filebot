@@ -7,6 +7,7 @@ import static java.util.Collections.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +76,7 @@ class History {
 
 		@Override
 		public int hashCode() {
-			return elements.hashCode() ^ date.hashCode();
+			return Arrays.hashCode(new Object[] { elements, date });
 		}
 	}
 	
@@ -125,7 +126,7 @@ class History {
 
 		@Override
 		public int hashCode() {
-			return to.hashCode() ^ from.hashCode() ^ dir.hashCode();
+			return Arrays.hashCode(new Object[] { to, from, dir });
 		}
 	}
 	
