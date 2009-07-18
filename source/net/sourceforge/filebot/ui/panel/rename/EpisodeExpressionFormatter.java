@@ -13,10 +13,18 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 
 
-class EpisodeExpressionFormatter extends ExpressionFormat implements MatchFormatter {
+class EpisodeExpressionFormatter implements MatchFormatter {
 	
-	public EpisodeExpressionFormatter(String expression) throws ScriptException {
-		super(expression);
+	private final ExpressionFormat format;
+	
+
+	public EpisodeExpressionFormatter(ExpressionFormat format) {
+		this.format = format;
+	}
+	
+
+	public ExpressionFormat getFormat() {
+		return format;
 	}
 	
 
@@ -34,11 +42,17 @@ class EpisodeExpressionFormatter extends ExpressionFormat implements MatchFormat
 	
 
 	@Override
-	public String format(Match<?, ?> match) {
+	public synchronized String format(Match<?, ?> match) throws ScriptException {
 		Episode episode = (Episode) match.getValue();
 		File mediaFile = (File) match.getCandidate();
 		
-		return format(new EpisodeFormatBindingBean(episode, mediaFile)).trim();
+		String result = format.format(new EpisodeFormatBindingBean(episode, mediaFile)).trim();
+		
+		// if result is empty, check for script exceptions
+		if (result.isEmpty() && format.caughtScriptException() != null)
+			throw format.caughtScriptException();
+		
+		return result;
 	}
 	
 }

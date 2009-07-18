@@ -15,16 +15,17 @@ final class HistorySpooler {
 	
 	private static final HistorySpooler instance = new HistorySpooler();
 	
-	
+
 	public static HistorySpooler getInstance() {
 		return instance;
 	}
 	
+
 	private final File file = new File("history.xml");
 	
 	private final History sessionHistory = new History();
 	
-	
+
 	public synchronized History getCompleteHistory() {
 		History history = new History();
 		
@@ -33,7 +34,7 @@ final class HistorySpooler {
 			try {
 				history.addAll(importHistory(file).sequences());
 			} catch (IOException e) {
-				Logger.getLogger("global").log(Level.SEVERE, "Failed to load history", e);
+				Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load history", e);
 			}
 		}
 		
@@ -57,7 +58,7 @@ final class HistorySpooler {
 			// clear session history
 			sessionHistory.clear();
 		} catch (IOException e) {
-			Logger.getLogger("global").log(Level.SEVERE, "Failed to store history", e);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to store history", e);
 		}
 	}
 	

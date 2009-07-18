@@ -16,6 +16,8 @@ import org.junit.Test;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
 
 
 public class OpenSubtitlesXmlRpcTest {
@@ -80,6 +82,23 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals("firefly.s01e01.serenity.pilot.dvdrip.xvid.srt", sample.getProperty(Property.SubFileName));
 		assertEquals("English", sample.getProperty(Property.LanguageName));
 		assertEquals("moviehash", sample.getProperty(Property.MatchedBy));
+	}
+	
+
+	@Test
+	public void tryUploadSubtitles() throws Exception {
+		SubFile subtitle = new SubFile();
+		subtitle.setSubFileName("firefly.s01e01.serenity.pilot.dvdrip.xvid.srt");
+		subtitle.setSubHash("6d9c600fb8b07f87ffcf156e4ed308ca");
+		subtitle.setMovieFileName("firefly.s01e01.serenity.pilot.dvdrip.xvid.avi");
+		subtitle.setMovieHash("2bba5c34b007153b");
+		subtitle.setMovieByteSize(717565952);
+		
+		TryUploadResponse response = xmlrpc.tryUploadSubtitles(subtitle);
+		
+		assertFalse(response.isUploadRequired());
+		assertEquals("100705", response.getSubtitleData().get(Property.IDSubtitle));
+		assertEquals("eng", response.getSubtitleData().get(Property.SubLanguageID));
 	}
 	
 

@@ -34,7 +34,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private final Color noMatchGradientBeginColor = new Color(0xB7B7B7);
 	private final Color noMatchGradientEndColor = new Color(0x9A9A9A);
 	
-	
+
 	public RenameListCellRenderer(RenameModel renameModel) {
 		super(new Insets(4, 7, 4, 7));
 		
@@ -56,6 +56,16 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		typeRenderer.setVisible(false);
 		typeRenderer.setAlpha(1.0f);
 		
+		// render unmatched values differently
+		if (!renameModel.hasComplement(index)) {
+			if (isSelected) {
+				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
+			} else {
+				setForeground(noMatchGradientBeginColor);
+				typeRenderer.setAlpha(0.5f);
+			}
+		}
+		
 		if (value instanceof File) {
 			// display file extension
 			File file = (File) value;
@@ -69,24 +79,15 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			}
 		} else if (value instanceof FormattedFuture) {
 			// display progress icon
-			FormattedFuture future = (FormattedFuture) value;
+			FormattedFuture formattedFuture = (FormattedFuture) value;
 			
-			switch (future.getState()) {
+			switch (formattedFuture.getState()) {
 				case PENDING:
 					setIcon(ResourceManager.getIcon("worker.pending"));
 					break;
 				case STARTED:
 					setIcon(ResourceManager.getIcon("worker.started"));
 					break;
-			}
-		}
-		
-		if (!renameModel.hasComplement(index)) {
-			if (isSelected) {
-				setGradientColors(noMatchGradientBeginColor, noMatchGradientEndColor);
-			} else {
-				setForeground(noMatchGradientBeginColor);
-				typeRenderer.setAlpha(0.5f);
 			}
 		}
 	}
@@ -105,7 +106,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		return "File";
 	}
 	
-	
+
 	private static class TypeRenderer extends DefaultListCellRenderer {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
@@ -117,7 +118,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		private float alpha = 1.0f;
 		
-		
+
 		public TypeRenderer() {
 			setOpaque(false);
 			setForeground(new Color(0x141414));

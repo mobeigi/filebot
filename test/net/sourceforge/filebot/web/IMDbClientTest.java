@@ -29,6 +29,14 @@ public class IMDbClientTest {
 	
 
 	@Test
+	public void searchNoMatch() throws Exception {
+		List<SearchResult> results = imdb.search("i will not find anything for this query string");
+		
+		assertTrue(results.isEmpty());
+	}
+	
+
+	@Test
 	public void searchResultPageRedirect() throws Exception {
 		List<SearchResult> results = imdb.search("my name is earl");
 		

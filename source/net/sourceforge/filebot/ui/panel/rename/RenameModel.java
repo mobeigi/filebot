@@ -10,22 +10,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
+
+import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public class RenameModel extends MatchModel<Object, File> {
@@ -56,7 +57,7 @@ public class RenameModel extends MatchModel<Object, File> {
 	
 	private boolean preserveExtension = true;
 	
-	
+
 	public EventList<FormattedFuture> names() {
 		return names;
 	}
@@ -82,26 +83,33 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 		for (int i = 0; i < names.size(); i++) {
 			if (hasComplement(i)) {
-				FormattedFuture future = names.get(i);
+				File originalFile = files().get(i);
+				FormattedFuture formattedFuture = names.get(i);
 				
-				// check if background formatter is done
-				if (!future.isDone()) {
-					throw new IllegalStateException(String.format("\"%s\" has not been formatted yet.", future.toString()));
+				StringBuilder nameBuilder = new StringBuilder();
+				
+				// append formatted name, throw exception if not ready
+				try {
+					nameBuilder.append(formattedFuture.get(0, TimeUnit.SECONDS));
+				} catch (ExecutionException e) {
+					throw new IllegalStateException(String.format("\"%s\" could not be formatted: %s.", formattedFuture.preview(), e.getCause().getMessage()));
+				} catch (TimeoutException e) {
+					throw new IllegalStateException(String.format("\"%s\" has not been formatted yet.", formattedFuture.preview()));
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
 				}
 				
-				File originalFile = files().get(i);
-				StringBuilder newName = new StringBuilder(future.toString());
-				
+				// append extension, if desired
 				if (preserveExtension) {
 					String extension = FileUtilities.getExtension(originalFile);
 					
 					if (extension != null) {
-						newName.append(".").append(extension.toLowerCase());
+						nameBuilder.append('.').append(extension.toLowerCase());
 					}
 				}
 				
 				// same parent, different name
-				File newFile = new File(originalFile.getParentFile(), newName.toString());
+				File newFile = new File(originalFile.getParentFile(), nameBuilder.toString());
 				
 				// insert mapping
 				if (map.put(originalFile, newFile) != null) {
@@ -136,14 +144,14 @@ public class RenameModel extends MatchModel<Object, File> {
 		return defaultFormatter;
 	}
 	
-	
+
 	private class FormattedFutureEventList extends TransformedList<Object, FormattedFuture> {
 		
 		private final List<FormattedFuture> futures = new ArrayList<FormattedFuture>();
 		
 		private final Executor backgroundFormatter = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		
-		
+
 		public FormattedFutureEventList() {
 			super(values());
 			
@@ -278,6 +286,7 @@ public class RenameModel extends MatchModel<Object, File> {
 			future.cancel(true);
 		}
 		
+
 		private final PropertyChangeListener futureListener = new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -302,20 +311,20 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 		private final MatchFormatter formatter;
 		
-		private String display;
-		
-		
+
 		private FormattedFuture(Match<Object, File> match, MatchFormatter formatter) {
 			this.match = match;
 			this.formatter = formatter;
-			
-			// initial display value
-			this.display = formatter.preview(match);
 		}
 		
 
 		public Match<Object, File> getMatch() {
 			return match;
+		}
+		
+
+		public String preview() {
+			return formatter.preview(match);
 		}
 		
 
@@ -326,22 +335,17 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 
 		@Override
-		protected void done() {
-			if (isCancelled()) {
-				return;
+		public String toString() {
+			if (isDone()) {
+				try {
+					return get(0, TimeUnit.SECONDS);
+				} catch (Exception e) {
+					return String.format("[%s] %s", e instanceof ExecutionException ? e.getCause().getMessage() : e, preview());
+				}
 			}
 			
-			try {
-				this.display = get();
-			} catch (Exception e) {
-				Logger.getLogger("global").log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		
-
-		@Override
-		public String toString() {
-			return display;
+			// use preview if we are not ready yet
+			return preview();
 		}
 	}
 	

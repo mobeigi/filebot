@@ -1,8 +1,9 @@
 
-package net.sourceforge.filebot.ui;
+package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.awt.Font.*;
+import static javax.swing.BorderFactory.*;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -16,8 +17,10 @@ import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,16 +37,16 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.undo.UndoManager;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -54,6 +57,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.ui.GradientStyle;
 import net.sourceforge.tuned.ui.LazyDocumentListener;
 import net.sourceforge.tuned.ui.LinkButton;
@@ -67,6 +71,8 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private Option selectedOption = Option.CANCEL;
 	
+	private ExpressionFormat selectedFormat = null;
+	
 	private JLabel preview = new JLabel();
 	
 	private JLabel status = new JLabel();
@@ -78,6 +84,8 @@ public class EpisodeFormatDialog extends JDialog {
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	
 	private JTextField editor = new JTextField();
+	
+	private PreferencesList<String> persistentFormatHistory = Settings.userRoot().node("rename/format.recent").asList();
 	
 	private Color defaultColor = preview.getForeground();
 	private Color errorColor = Color.red;
@@ -93,7 +101,6 @@ public class EpisodeFormatDialog extends JDialog {
 	public EpisodeFormatDialog(Window owner) {
 		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
 		
-		editor.setText(Settings.userRoot().get("dialog.format"));
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 		
 		// bold title label in header
@@ -132,10 +139,6 @@ public class EpisodeFormatDialog extends JDialog {
 		
 		header.setComponentPopupMenu(createPreviewSamplePopup());
 		
-		// setup undo support
-		final UndoManager undo = new UndoManager();
-		editor.getDocument().addUndoableEditListener(undo);
-		
 		// enable undo/redo
 		TunedUtilities.installUndoSupport(editor);
 		
@@ -173,6 +176,12 @@ public class EpisodeFormatDialog extends JDialog {
 				finish(Option.CANCEL);
 			}
 		});
+		
+		// install editor suggestions popup
+		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("DOWN"), displayRecentFormatHistory);
+		
+		// restore editor state
+		editor.setText(persistentFormatHistory.isEmpty() ? "" : persistentFormatHistory.get(0));
 		
 		// update preview to current format
 		firePreviewSampleChanged();
@@ -244,7 +253,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private JPanel createSyntaxPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
 		
-		panel.setBorder(new LineBorder(new Color(0xACA899)));
+		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 		panel.setOpaque(true);
 		
@@ -257,7 +266,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private JComponent createExamplesPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 		
-		panel.setBorder(new LineBorder(new Color(0xACA899)));
+		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 		
 		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
@@ -357,10 +366,10 @@ public class EpisodeFormatDialog extends JDialog {
 						threadGroup.stop();
 						
 						// log access of potentially unsafe method
-						Logger.getLogger("global").warning("Thread was forcibly terminated");
+						Logger.getLogger(getClass().getName()).warning("Thread was forcibly terminated");
 					}
 				} catch (InterruptedException e) {
-					Logger.getLogger("global").log(Level.WARNING, "Thread was not terminated", e);
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Thread was not terminated", e);
 				}
 				
 				return remaining;
@@ -377,7 +386,7 @@ public class EpisodeFormatDialog extends JDialog {
 	private void checkFormatInBackground() {
 		try {
 			// check syntax in foreground
-			final ExpressionFormat format = new ExpressionFormat(getExpression());
+			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 			
 			// format in background
 			final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
@@ -402,8 +411,8 @@ public class EpisodeFormatDialog extends JDialog {
 						preview.setText(get());
 						
 						// check internal script exception
-						if (format.scriptException() != null) {
-							throw format.scriptException();
+						if (format.caughtScriptException() != null) {
+							throw format.caughtScriptException();
 						}
 						
 						// check empty output
@@ -438,13 +447,13 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	public String getExpression() {
-		return editor.getText().trim();
+	public Option getSelectedOption() {
+		return selectedOption;
 	}
 	
 
-	public Option getSelectedOption() {
-		return selectedOption;
+	public ExpressionFormat getSelectedFormat() {
+		return selectedFormat;
 	}
 	
 
@@ -459,6 +468,29 @@ public class EpisodeFormatDialog extends JDialog {
 	}
 	
 
+	protected final Action displayRecentFormatHistory = new AbstractAction("Recent") {
+		
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			JPopupMenu popup = new JPopupMenu();
+			
+			for (final String expression : persistentFormatHistory) {
+				JMenuItem item = popup.add(new AbstractAction(expression) {
+					
+					@Override
+					public void actionPerformed(ActionEvent evt) {
+						editor.setText(expression);
+					}
+				});
+				
+				item.setFont(new Font(MONOSPACED, PLAIN, 11));
+			}
+			
+			// display popup below format editor
+			popup.show(editor, 0, editor.getHeight() + 3);
+		}
+	};
+	
 	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
 		@Override
@@ -480,17 +512,25 @@ public class EpisodeFormatDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
-				if (progressIndicator.isVisible())
-					throw new IllegalStateException("Format has not been verified yet.");
-				
 				// check syntax
-				ExpressionFormat format = new ExpressionFormat(getExpression());
+				selectedFormat = new ExpressionFormat(editor.getText().trim());
 				
-				// remember format
-				Settings.userRoot().put("dialog.format", format.getExpression());
+				// create new recent history and ignore duplicates
+				Set<String> recent = new LinkedHashSet<String>();
+				
+				// add new format first
+				recent.add(selectedFormat.getExpression());
+				
+				// add next 4 most recent formats
+				for (int i = 0, limit = Math.min(4, persistentFormatHistory.size()); i < limit; i++) {
+					recent.add(persistentFormatHistory.get(i));
+				}
+				
+				// update persistent history
+				persistentFormatHistory.set(recent);
 				
 				finish(Option.APPROVE);
-			} catch (Exception e) {
+			} catch (ScriptException e) {
 				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
 			}
 		}

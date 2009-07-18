@@ -39,6 +39,14 @@ public class TVDotComClientTest {
 	
 
 	@Test
+	public void searchNoMatch() throws Exception {
+		List<SearchResult> results = tvdotcom.search("i will not find anything for this query string");
+		
+		assertTrue(results.isEmpty());
+	}
+	
+
+	@Test
 	public void getEpisodeList() throws Exception {
 		List<Episode> list = tvdotcom.getEpisodeList(buffySearchResult, 7);
 		

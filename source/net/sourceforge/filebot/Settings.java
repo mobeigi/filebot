@@ -2,8 +2,6 @@
 package net.sourceforge.filebot;
 
 
-import java.util.List;
-import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -26,16 +24,18 @@ public final class Settings {
 		return "1.9";
 	};
 	
+
 	private static final Settings userRoot = new Settings(Preferences.userNodeForPackage(Settings.class));
 	
-	
+
 	public static Settings userRoot() {
 		return userRoot;
 	}
 	
+
 	private final Preferences prefs;
 	
-	
+
 	private Settings(Preferences prefs) {
 		this.prefs = prefs;
 	}
@@ -83,22 +83,22 @@ public final class Settings {
 	}
 	
 
-	public Map<String, String> asMap() {
+	public PreferencesMap<String> asMap() {
 		return PreferencesMap.map(prefs);
 	}
 	
 
-	public <T> Map<String, T> asMap(Adapter<T> adapter) {
+	public <T> PreferencesMap<T> asMap(Adapter<T> adapter) {
 		return PreferencesMap.map(prefs, adapter);
 	}
 	
 
-	public List<String> asList() {
+	public PreferencesList<String> asList() {
 		return PreferencesList.map(prefs);
 	}
 	
 
-	public <T> List<T> asList(Adapter<T> adapter) {
+	public <T> PreferencesList<T> asList(Adapter<T> adapter) {
 		return PreferencesList.map(prefs, adapter);
 	}
 	

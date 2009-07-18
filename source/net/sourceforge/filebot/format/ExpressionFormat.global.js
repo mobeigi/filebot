@@ -6,6 +6,13 @@ importPackage(java.util);
 
 
 /**
+ * Convenience methods for String.toLowerCase() and String.toUpperCase().
+ */
+String.prototype.lower = String.prototype.toLowerCase;
+String.prototype.upper = String.prototype.toUpperCase;
+
+
+/**
  * Pad strings or numbers with given characters ('0' by default).
  *
  * e.g. "1" -> "01"

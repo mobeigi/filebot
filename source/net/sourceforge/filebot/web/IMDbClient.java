@@ -71,11 +71,15 @@ public class IMDbClient implements EpisodeListProvider {
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
-			String name = normalizeName(selectString("//H1/text()", dom));
-			String year = selectString("//H1//A", dom);
-			String url = selectString("//LINK[@rel='canonical']/@href", dom);
-			
-			results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(url)));
+			try {
+				String name = normalizeName(selectString("//H1/text()", dom));
+				String year = selectString("//H1//A", dom);
+				String url = selectString("//LINK[@rel='canonical']/@href", dom);
+				
+				results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(url)));
+			} catch (Exception e) {
+				// ignore, we probably got redirected to an error page
+			}
 		}
 		
 		return results;
@@ -136,26 +140,14 @@ public class IMDbClient implements EpisodeListProvider {
 	
 
 	protected int getImdbId(String link) {
-		try {
-			// try to extract path
-			link = new URI(link).getPath();
-		} catch (URISyntaxException e) {
-			// cannot extract path component, just move on
-		}
-		
 		Matcher matcher = Pattern.compile("tt(\\d{7})").matcher(link);
 		
-		String imdbId = null;
-		
-		// find last match
-		while (matcher.find()) {
-			imdbId = matcher.group(1);
+		if (matcher.find()) {
+			return Integer.parseInt(matcher.group(1));
 		}
 		
-		if (imdbId == null)
-			throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
-		
-		return Integer.parseInt(imdbId);
+		// pattern not found
+		throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
 	}
 	
 

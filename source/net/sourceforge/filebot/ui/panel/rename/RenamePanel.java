@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
-import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -32,8 +31,8 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.ui.EpisodeFormatDialog;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
@@ -159,14 +158,9 @@ public class RenamePanel extends JComponent {
 				
 				switch (dialog.getSelectedOption()) {
 					case APPROVE:
-						try {
-							EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getExpression());
-							renameModel.useFormatter(Episode.class, formatter);
-							persistentExpressionFormatter.setValue(formatter);
-						} catch (ScriptException e) {
-							// will not happen because illegal expressions cannot be approved in dialog
-							Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
-						}
+						EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getSelectedFormat());
+						renameModel.useFormatter(Episode.class, formatter);
+						persistentExpressionFormatter.setValue(formatter);
 						break;
 					case USE_DEFAULT:
 						renameModel.useFormatter(Episode.class, null);
@@ -325,7 +319,7 @@ public class RenamePanel extends JComponent {
 			
 			if (expression != null) {
 				try {
-					return new EpisodeExpressionFormatter(expression);
+					return new EpisodeExpressionFormatter(new ExpressionFormat(expression));
 				} catch (Exception e) {
 					Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
 				}
@@ -337,7 +331,7 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void put(Preferences prefs, String key, EpisodeExpressionFormatter value) {
-			prefs.put(key, value.getExpression());
+			prefs.put(key, value.getFormat().getExpression());
 		}
 	});
 	

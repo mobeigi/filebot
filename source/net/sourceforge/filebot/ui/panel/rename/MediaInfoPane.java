@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.sourceforge.filebot.ui.panel.rename;
 
 
 import java.awt.Component;

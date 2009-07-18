@@ -13,6 +13,6 @@ public interface MatchFormatter {
 	public String preview(Match<?, ?> match);
 	
 
-	public String format(Match<?, ?> match);
+	public String format(Match<?, ?> match) throws Exception;
 	
 }

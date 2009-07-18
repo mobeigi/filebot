@@ -117,6 +117,9 @@ public class ExpressionFormat extends Format {
 		ScriptContext context = new SimpleScriptContext();
 		context.setBindings(priviledgedBindings, ScriptContext.GLOBAL_SCOPE);
 		
+		// reset exception state
+		lastException = null;
+		
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
 				try {
@@ -146,7 +149,7 @@ public class ExpressionFormat extends Format {
 	}
 	
 
-	public ScriptException scriptException() {
+	public ScriptException caughtScriptException() {
 		return lastException;
 	}
 	

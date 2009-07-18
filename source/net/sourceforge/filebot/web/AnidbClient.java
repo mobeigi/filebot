@@ -83,14 +83,15 @@ public class AnidbClient implements EpisodeListProvider {
 		// we might have been redirected to the episode list page
 		if (results.isEmpty()) {
 			// get anime information from document
-			String title = selectTitle(dom);
 			String link = selectString("//*[@class='data']//A[@class='short_link']/@href", dom);
 			
-			try {
-				// insert single entry
-				results.add(new HyperLink(title, new URL(link)));
-			} catch (MalformedURLException e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + link);
+			// check if page is an anime page, are an empty search result page
+			if (!link.isEmpty()) {
+				try {
+					results.add(new HyperLink(selectTitle(dom), new URL(link)));
+				} catch (MalformedURLException e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + link);
+				}
 			}
 		}
 		
@@ -100,7 +101,7 @@ public class AnidbClient implements EpisodeListProvider {
 
 	protected String selectTitle(Document animePage) {
 		// extract name from header (e.g. "Anime: Naruto")
-		return selectString("//H1", animePage).replaceFirst("Anime:\\s*", "");
+		return selectString("//H1", animePage).replaceFirst("^Anime:\\s*", "");
 	}
 	
 

@@ -4,17 +4,19 @@ package net.sourceforge.tuned;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.prefs.Preferences;
 
 import net.sourceforge.tuned.PreferencesMap.Adapter;
 
 
-public class PreferencesList<T> extends AbstractList<T> {
+public class PreferencesList<T> extends AbstractList<T> implements RandomAccess {
 	
 	private final PreferencesMap<T> prefs;
 	
-	
+
 	public PreferencesList(PreferencesMap<T> preferencesMap) {
 		this.prefs = preferencesMap;
 	}
@@ -93,6 +95,25 @@ public class PreferencesList<T> extends AbstractList<T> {
 		
 		for (int i = newStartIndex, n = 0; n < count; i++, n++) {
 			setImpl(i, copy.get(n));
+		}
+	}
+	
+
+	public void trimToSize(int limit) {
+		for (int i = size() - 1; i >= limit; i--) {
+			remove(i);
+		}
+	}
+	
+
+	public void set(Collection<T> data) {
+		// remove all elements beyond data.size
+		trimToSize(data.size());
+		
+		// override elements
+		int i = 0;
+		for (T element : data) {
+			setImpl(i++, element);
 		}
 	}
 	

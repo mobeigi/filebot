@@ -47,6 +47,14 @@ public class AnidbClientTest {
 	
 
 	@Test
+	public void searchNoMatch() throws Exception {
+		List<SearchResult> results = anidb.search("i will not find anything for this query string");
+		
+		assertTrue(results.isEmpty());
+	}
+	
+
+	@Test
 	public void searchHideSynonyms() throws Exception {
 		final List<SearchResult> results = anidb.search("one piece");
 		
