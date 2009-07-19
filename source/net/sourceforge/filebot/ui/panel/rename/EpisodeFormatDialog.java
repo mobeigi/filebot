@@ -21,8 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
@@ -81,6 +82,8 @@ public class EpisodeFormatDialog extends JDialog {
 	
 	private ExecutorService previewExecutor = createPreviewExecutor();
 	
+	private RunnableFuture<String> currentPreviewFuture = null;
+	
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	
 	private JTextField editor = new JTextField();
@@ -102,6 +105,7 @@ public class EpisodeFormatDialog extends JDialog {
 		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
 		
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
+		progressIndicator.setVisible(false);
 		
 		// bold title label in header
 		JLabel title = new JLabel(this.getTitle());
@@ -350,7 +354,7 @@ public class EpisodeFormatDialog extends JDialog {
 	
 
 	private ExecutorService createPreviewExecutor() {
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter")) {
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter")) {
 			
 			@SuppressWarnings("deprecation")
 			@Override
@@ -368,7 +372,7 @@ public class EpisodeFormatDialog extends JDialog {
 						// log access of potentially unsafe method
 						Logger.getLogger(getClass().getName()).warning("Thread was forcibly terminated");
 					}
-				} catch (InterruptedException e) {
+				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Thread was not terminated", e);
 				}
 				
@@ -388,7 +392,7 @@ public class EpisodeFormatDialog extends JDialog {
 			// check syntax in foreground
 			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 			
-			// format in background
+			// activate delayed to avoid flickering when formatting takes only a couple of milliseconds
 			final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
 				
 				@Override
@@ -397,7 +401,8 @@ public class EpisodeFormatDialog extends JDialog {
 				}
 			});
 			
-			previewExecutor.execute(new SwingWorker<String, Void>() {
+			// create new worker
+			currentPreviewFuture = new SwingWorker<String, Void>() {
 				
 				@Override
 				protected String doInBackground() throws Exception {
@@ -430,11 +435,19 @@ public class EpisodeFormatDialog extends JDialog {
 						preview.setVisible(preview.getText().trim().length() > 0);
 						editor.setForeground(defaultColor);
 						
+						// stop progress indicator from becoming visible, if we have been fast enough
 						progressIndicatorTimer.stop();
-						progressIndicator.setVisible(false);
+						
+						// hide progress indicator, if this still is the current worker
+						if (this == currentPreviewFuture) {
+							progressIndicator.setVisible(false);
+						}
 					}
 				}
-			});
+			};
+			
+			// submit new worker
+			previewExecutor.execute(currentPreviewFuture);
 		} catch (ScriptException e) {
 			// incorrect syntax 
 			status.setText(ExceptionUtilities.getRootCauseMessage(e));
