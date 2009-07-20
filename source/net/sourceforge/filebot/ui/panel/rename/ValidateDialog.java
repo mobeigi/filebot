@@ -6,11 +6,8 @@ import static java.util.Collections.*;
 import static net.sourceforge.filebot.FileBotUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.util.AbstractList;
@@ -37,15 +34,11 @@ class ValidateDialog extends JDialog {
 	
 	private final JList list;
 	
-	private final Action validateAction = new ValidateAction();
-	private final Action continueAction = new ContinueAction();
-	private final Action cancelAction = new CancelAction();
-	
 	private String[] model;
 	
 	private boolean cancelled = true;
 	
-	
+
 	public ValidateDialog(Window owner, Collection<String> source) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
@@ -66,7 +59,7 @@ class ValidateDialog extends JDialog {
 		content.add(new JScrollPane(list), "grow, wrap 2mm");
 		
 		content.add(new JButton(validateAction), "align center");
-		content.add(new AlphaButton(continueAction), "gap related");
+		content.add(new JButton(continueAction), "gap related");
 		content.add(new JButton(cancelAction), "gap 12mm");
 		
 		installAction(content, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
@@ -94,16 +87,9 @@ class ValidateDialog extends JDialog {
 		dispose();
 	}
 	
-	
-	private class ValidateAction extends AbstractAction {
-		
-		public ValidateAction() {
-			putValue(NAME, "Validate");
-			putValue(SMALL_ICON, ResourceManager.getIcon("dialog.continue"));
-			putValue(SHORT_DESCRIPTION, "Remove invalid characters");
-		}
-		
 
+	private final Action validateAction = new AbstractAction("Validate", ResourceManager.getIcon("dialog.continue")) {
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// validate names
@@ -114,96 +100,31 @@ class ValidateDialog extends JDialog {
 			// update view
 			list.repaint();
 			
+			// switch icon
 			continueAction.putValue(SMALL_ICON, getValue(SMALL_ICON));
-			continueAction.putValue(ContinueAction.ALPHA, 1.0f);
 			
-			// disable action
+			// disable this action
 			setEnabled(false);
 		}
-	}
+	};
 	
-
-	private class ContinueAction extends AbstractAction {
+	private final Action continueAction = new AbstractAction("Continue", ResourceManager.getIcon("dialog.continue.invalid")) {
 		
-		public static final String ALPHA = "alpha";
-		
-		
-		public ContinueAction() {
-			putValue(NAME, "Continue");
-			putValue(SMALL_ICON, ResourceManager.getIcon("dialog.continue.invalid"));
-			putValue(ALPHA, 0.75f);
-		}
-		
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			finish(false);
 		}
-	}
+	};
 	
-
-	protected class CancelAction extends AbstractAction {
+	private final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
-		public CancelAction() {
-			putValue(NAME, "Cancel");
-			putValue(SMALL_ICON, ResourceManager.getIcon("dialog.cancel"));
-		}
-		
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			finish(true);
 		}
-	}
+	};
 	
 
-	protected static class AlphaButton extends JButton {
-		
-		private float alpha;
-		
-		
-		public AlphaButton(Action action) {
-			super(action);
-			
-		}
-		
-
-		@Override
-		protected void configurePropertiesFromAction(Action action) {
-			super.configurePropertiesFromAction(action);
-			
-			alpha = getAlpha(action);
-		}
-		
-
-		@Override
-		protected void actionPropertyChanged(Action action, String propertyName) {
-			super.actionPropertyChanged(action, propertyName);
-			
-			if (propertyName.equals(ContinueAction.ALPHA)) {
-				alpha = getAlpha(action);
-			}
-		}
-		
-
-		private float getAlpha(Action action) {
-			Object value = action.getValue(ContinueAction.ALPHA);
-			
-			if (value instanceof Float) {
-				return (Float) value;
-			}
-			
-			return 1.0f;
-		}
-		
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.setComposite(AlphaComposite.SrcOver.derive(alpha));
-			super.paintComponent(g2d);
-		}
-	}
-	
-	
 	public static boolean validate(Component parent, List<String> source) {
 		IndexView<String> invalid = new IndexView<String>(source);
 		
@@ -240,14 +161,14 @@ class ValidateDialog extends JDialog {
 		return true;
 	}
 	
-	
+
 	private static class IndexView<E> extends AbstractList<E> {
 		
 		private final List<Integer> mapping = new ArrayList<Integer>();
 		
 		private final List<E> source;
 		
-		
+
 		public IndexView(List<E> source) {
 			this.source = source;
 		}
