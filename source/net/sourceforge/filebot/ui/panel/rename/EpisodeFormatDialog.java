@@ -317,7 +317,7 @@ public class EpisodeFormatDialog extends JDialog {
 			});
 			
 			panel.add(formatLink);
-			panel.add(new JLabel("..."));
+			panel.add(new JLabel("…"));
 			panel.add(formatExample);
 		}
 		

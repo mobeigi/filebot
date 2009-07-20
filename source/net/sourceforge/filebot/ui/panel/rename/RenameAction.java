@@ -60,16 +60,14 @@ class RenameAction extends AbstractAction {
 			for (ListIterator<Entry<File, String>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
 				Entry<File, String> mapping = iterator.previous();
 				
-				try {
-					File source = mapping.getKey();
-					File destination = new File(source.getParentFile(), mapping.getValue());
-					
-					// revert rename
-					rename(destination, source.getName());
-					
+				// revert rename
+				File original = mapping.getKey();
+				File current = new File(original.getParentFile(), mapping.getValue());
+				
+				if (current.renameTo(original)) {
 					// remove reverted rename operation from log
 					iterator.remove();
-				} catch (IOException ioe) {
+				} else {
 					// failed to revert rename operation
 					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue()));
 				}

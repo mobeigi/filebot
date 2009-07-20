@@ -47,7 +47,7 @@ class ValidateDialog extends JDialog {
 		list = new JList(model);
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS_PATTERN, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
+		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		

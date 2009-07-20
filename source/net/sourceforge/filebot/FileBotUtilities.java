@@ -11,10 +11,9 @@ import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 public final class FileBotUtilities {
 	
 	/**
-	 * Invalid characters in filenames: \, /, :, *, ?, ", <, >, |, \r and \n
+	 * Invalid filename characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
-	public static final String INVALID_CHARACTERS = "\\/:*?\"<>|\r\n";
-	public static final Pattern INVALID_CHARACTERS_PATTERN = Pattern.compile(String.format("[%s]+", Pattern.quote(INVALID_CHARACTERS)));
+	public static final Pattern INVALID_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]");
 	
 
 	/**
@@ -25,12 +24,12 @@ public final class FileBotUtilities {
 	 */
 	public static String validateFileName(CharSequence filename) {
 		// strip invalid characters from filename
-		return INVALID_CHARACTERS_PATTERN.matcher(filename).replaceAll("");
+		return INVALID_CHARACTERS.matcher(filename).replaceAll("");
 	}
 	
 
 	public static boolean isInvalidFileName(CharSequence filename) {
-		return INVALID_CHARACTERS_PATTERN.matcher(filename).find();
+		return INVALID_CHARACTERS.matcher(filename).find();
 	}
 	
 
