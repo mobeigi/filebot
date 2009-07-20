@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -93,8 +92,15 @@ class History {
 		private String to;
 		
 
-		private Element() {
-			// hide constructor
+		public Element() {
+			// used by JAXB
+		}
+		
+
+		public Element(String from, String to, File dir) {
+			this.from = from;
+			this.to = to;
+			this.dir = dir;
 		}
 		
 
@@ -136,29 +142,10 @@ class History {
 	}
 	
 
-	public void add(Iterable<Entry<File, File>> elements) {
+	public void add(Collection<Element> elements) {
 		Sequence sequence = new Sequence();
-		
 		sequence.date = new Date();
-		sequence.elements = new ArrayList<Element>();
-		
-		for (Entry<File, File> entry : elements) {
-			File from = entry.getKey();
-			File to = entry.getValue();
-			
-			// sanity check, parent folder must be the same for both files
-			if (!from.getParentFile().equals(to.getParentFile())) {
-				throw new IllegalArgumentException(String.format("Illegal entry: ", entry));
-			}
-			
-			Element element = new Element();
-			
-			element.dir = from.getParentFile();
-			element.from = from.getName();
-			element.to = to.getName();
-			
-			sequence.elements.add(element);
-		}
+		sequence.elements = new ArrayList<Element>(elements);
 		
 		add(sequence);
 	}

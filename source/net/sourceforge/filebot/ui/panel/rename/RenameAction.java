@@ -26,7 +26,7 @@ class RenameAction extends AbstractAction {
 	
 	private final RenameModel model;
 	
-	
+
 	public RenameAction(RenameModel model) {
 		this.model = model;
 		
@@ -37,13 +37,12 @@ class RenameAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
+		List<Entry<File, String>> renameLog = new ArrayList<Entry<File, String>>();
 		
 		try {
-			for (Entry<File, File> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
-				// rename file
-				if (!mapping.getKey().renameTo(mapping.getValue()))
-					throw new IOException(String.format("Failed to rename file: \"%s\".", mapping.getKey().getName()));
+			for (Entry<File, String> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
+				// rename file, throw exception on failure
+				rename(mapping.getKey(), mapping.getValue());
 				
 				// remember successfully renamed matches for history entry and possible revert 
 				renameLog.add(mapping);
@@ -58,21 +57,27 @@ class RenameAction extends AbstractAction {
 			Logger.getLogger("ui").warning(e.getMessage());
 			
 			// revert rename operations in reverse order
-			for (ListIterator<Entry<File, File>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
-				Entry<File, File> mapping = iterator.previous();
+			for (ListIterator<Entry<File, String>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
+				Entry<File, String> mapping = iterator.previous();
 				
-				if (mapping.getValue().renameTo(mapping.getKey())) {
+				try {
+					File source = mapping.getKey();
+					File destination = new File(source.getParentFile(), mapping.getValue());
+					
+					// revert rename
+					rename(destination, source.getName());
+					
 					// remove reverted rename operation from log
 					iterator.remove();
-				} else {
+				} catch (IOException ioe) {
 					// failed to revert rename operation
-					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue().getName()));
+					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue()));
 				}
 			}
 		}
 		
 		// remove renamed matches
-		for (Entry<File, File> entry : renameLog) {
+		for (Entry<File, ?> entry : renameLog) {
 			// find index of source file
 			int index = model.files().indexOf(entry.getKey());
 			
@@ -87,26 +92,40 @@ class RenameAction extends AbstractAction {
 	}
 	
 
-	private Iterable<Entry<File, File>> validate(Map<File, File> renameMap, Window parent) {
-		final List<Entry<File, File>> source = new ArrayList<Entry<File, File>>(renameMap.entrySet());
+	private File rename(File file, String name) throws IOException {
+		// same folder, different name
+		File destination = new File(file.getParentFile(), name);
+		File destinationFolder = destination.getParentFile();
+		
+		// create parent folder if necessary
+		if (!destinationFolder.isDirectory()) {
+			if (!destinationFolder.mkdirs()) {
+				throw new IOException("Failed to create folder: " + destinationFolder);
+			}
+		}
+		
+		if (!file.renameTo(destination)) {
+			throw new IOException("Failed to rename file: " + file.getName());
+		}
+		
+		return destination;
+	}
+	
+
+	private Iterable<Entry<File, String>> validate(Map<File, String> renameMap, Window parent) {
+		final List<Entry<File, String>> source = new ArrayList<Entry<File, String>>(renameMap.entrySet());
 		
 		List<String> destinationFileNameView = new AbstractList<String>() {
 			
 			@Override
 			public String get(int index) {
-				return source.get(index).getValue().getName();
+				return source.get(index).getValue();
 			}
 			
 
 			@Override
 			public String set(int index, String name) {
-				Entry<File, File> entry = source.get(index);
-				File old = entry.getValue();
-				
-				// update name
-				entry.setValue(new File(old.getParent(), name));
-				
-				return old.getName();
+				return source.get(index).setValue(name);
 			}
 			
 

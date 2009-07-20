@@ -6,9 +6,13 @@ import static net.sourceforge.filebot.ui.panel.rename.History.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.sourceforge.filebot.ui.panel.rename.History.Element;
 
 
 final class HistorySpooler {
@@ -45,9 +49,15 @@ final class HistorySpooler {
 	}
 	
 
-	public synchronized void append(Iterable<Entry<File, File>> elements) {
+	public synchronized void append(Iterable<Entry<File, String>> elements) {
+		List<Element> sequence = new ArrayList<Element>();
+		
+		for (Entry<File, String> element : elements) {
+			sequence.add(new Element(element.getKey().getName(), element.getValue(), element.getKey().getParentFile()));
+		}
+		
 		// append to session history
-		sessionHistory.add(elements);
+		sessionHistory.add(sequence);
 	}
 	
 

@@ -78,8 +78,8 @@ public class RenameModel extends MatchModel<Object, File> {
 	}
 	
 
-	public Map<File, File> getRenameMap() {
-		Map<File, File> map = new LinkedHashMap<File, File>();
+	public Map<File, String> getRenameMap() {
+		Map<File, String> map = new LinkedHashMap<File, String>();
 		
 		for (int i = 0; i < names.size(); i++) {
 			if (hasComplement(i)) {
@@ -108,11 +108,8 @@ public class RenameModel extends MatchModel<Object, File> {
 					}
 				}
 				
-				// same parent, different name
-				File newFile = new File(originalFile.getParentFile(), nameBuilder.toString());
-				
 				// insert mapping
-				if (map.put(originalFile, newFile) != null) {
+				if (map.put(originalFile, nameBuilder.toString()) != null) {
 					throw new IllegalStateException(String.format("Duplicate file entry: \"%s\"", originalFile.getName()));
 				}
 			}

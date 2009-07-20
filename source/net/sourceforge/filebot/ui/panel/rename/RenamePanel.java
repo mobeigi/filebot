@@ -91,7 +91,7 @@ public class RenamePanel extends JComponent {
 		filesList.getListComponent().setCellRenderer(cellrenderer);
 		
 		EventSelectionModel<Match<Object, File>> selectionModel = new EventSelectionModel<Match<Object, File>>(renameModel.matches());
-		selectionModel.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+		selectionModel.setSelectionMode(ListSelection.SINGLE_SELECTION);
 		
 		// use the same selection model for both lists to synchronize selection
 		namesList.getListComponent().setSelectionModel(selectionModel);
