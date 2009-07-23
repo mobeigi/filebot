@@ -4,7 +4,10 @@ package net.sourceforge.filebot.similarity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +27,19 @@ public class SeasonEpisodeMatcher {
 		patterns[1] = new SeasonEpisodePattern("(?<!\\p{Alnum})(\\d{1,2})[x\\.](\\d{1,3})(?!\\p{Digit})");
 		
 		// match patterns like 01, 102, 1003 (enclosed in separators)
-		patterns[2] = new SeasonEpisodePattern("(?<=^|[\\._ ])([0-1]?\\d?)(\\d{2})(?=[\\._ ]|$)");
+		patterns[2] = new SeasonEpisodePattern("(?<=^|[\\._ ])([0-1]?\\d?)(\\d{2})(?=[\\._ ]|$)") {
+			
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				// interpret match as season and episode
+				SxE seasonEpisode = new SxE(match.group(1), match.group(2));
+				
+				// interpret match as episode number only
+				SxE episodeOnly = new SxE(null, match.group(1) + match.group(2));
+				
+				return Arrays.asList(seasonEpisode, episodeOnly);
+			}
+		};
 	}
 	
 
@@ -49,9 +64,9 @@ public class SeasonEpisodeMatcher {
 	}
 	
 
-	public int find(CharSequence name) {
+	public int find(CharSequence name, int fromIndex) {
 		for (SeasonEpisodePattern pattern : patterns) {
-			int index = pattern.find(name);
+			int index = pattern.find(name, fromIndex);
 			
 			if (index >= 0) {
 				// current pattern did match
@@ -120,40 +135,35 @@ public class SeasonEpisodeMatcher {
 		
 		protected final Pattern pattern;
 		
-		protected final int seasonGroup;
-		protected final int episodeGroup;
-		
 
 		public SeasonEpisodePattern(String pattern) {
-			this(Pattern.compile(pattern), 1, 2);
+			this.pattern = Pattern.compile(pattern);
 		}
 		
 
-		public SeasonEpisodePattern(Pattern pattern, int seasonGroup, int episodeGroup) {
-			this.pattern = pattern;
-			this.seasonGroup = seasonGroup;
-			this.episodeGroup = episodeGroup;
+		protected Collection<SxE> process(MatchResult match) {
+			return Collections.singleton(new SxE(match.group(1), match.group(2)));
 		}
 		
 
 		public List<SxE> match(CharSequence name) {
-			// name will probably contain no more than one match, but may contain more
-			List<SxE> matches = new ArrayList<SxE>(1);
+			// name will probably contain no more than two matches
+			List<SxE> matches = new ArrayList<SxE>(2);
 			
 			Matcher matcher = pattern.matcher(name);
 			
 			while (matcher.find()) {
-				matches.add(new SxE(matcher.group(seasonGroup), matcher.group(episodeGroup)));
+				matches.addAll(process(matcher));
 			}
 			
 			return matches;
 		}
 		
 
-		public int find(CharSequence name) {
+		public int find(CharSequence name, int fromIndex) {
 			Matcher matcher = pattern.matcher(name);
 			
-			if (matcher.find())
+			if (matcher.find(fromIndex))
 				return matcher.start();
 			
 			return -1;

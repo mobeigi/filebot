@@ -152,7 +152,7 @@ public class SeriesNameMatcher {
 	 *         episode pattern, or null if there is no such pattern
 	 */
 	public String matchBySeasonEpisodePattern(String name) {
-		int seasonEpisodePosition = seasonEpisodeMatcher.find(name);
+		int seasonEpisodePosition = seasonEpisodeMatcher.find(name, 0);
 		
 		if (seasonEpisodePosition > 0) {
 			// series name ends at the first season episode pattern

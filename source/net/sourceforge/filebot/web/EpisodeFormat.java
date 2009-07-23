@@ -22,8 +22,15 @@ public class EpisodeFormat extends Format {
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
 		Episode episode = (Episode) obj;
 		
-		// try to format episode number, or use episode "number" string as is
-		String episodeNumber = (episode.getEpisodeNumber() != null ? String.format("%02d", episode.getEpisodeNumber()) : episode.getEpisode());
+		// episode number is most likely a number but could also be some kind of special identifier (e.g. Special)
+		String episodeNumber = episode.getEpisode();
+		
+		// try to format episode number, if possible
+		try {
+			episodeNumber = String.format("%02d", Integer.parseInt(episodeNumber));
+		} catch (NumberFormatException e) {
+			// ignore
+		}
 		
 		// series name should not be empty or null
 		sb.append(episode.getSeriesName());

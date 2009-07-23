@@ -2,18 +2,20 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static java.util.Arrays.*;
 import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
 import static org.junit.Assert.*;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;
+
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 
 public class SeasonEpisodeMatcherTest {
 	
 	private static SeasonEpisodeMatcher matcher = new SeasonEpisodeMatcher();
 	
-	
+
 	@Test
 	public void patternPrecedence() {
 		// S01E01 pattern has highest precedence
@@ -34,7 +36,7 @@ public class SeasonEpisodeMatcherTest {
 		// test high values
 		assertEquals(new SxE(12, 345), matcher.match("Test - 12x345 - High Values").get(0));
 		
-		// test lookahead and lookbehind
+		// test look-ahead and look-behind
 		assertEquals(new SxE(1, 3), matcher.match("Test_-_103_[1280x720]").get(0));
 	}
 	
@@ -64,11 +66,14 @@ public class SeasonEpisodeMatcherTest {
 		// test high values
 		assertEquals(new SxE(10, 1), matcher.match("[Test]_1001_High_Values").get(0));
 		
-		// first two digits <= 29
+		// test season digits <= 19
 		assertEquals(null, matcher.match("The 4400"));
 		
-		// test lookbehind
+		// test look-behind
 		assertEquals(null, matcher.match("720p"));
+		
+		// test ambiguous match processing
+		assertEquals(asList(new SxE(1, 1), new SxE(UNDEFINED, 101)), matcher.match("Test.101"));
 	}
 	
 }

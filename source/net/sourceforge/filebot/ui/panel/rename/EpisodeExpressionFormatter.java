@@ -49,8 +49,9 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 		String result = format.format(new EpisodeFormatBindingBean(episode, mediaFile)).trim();
 		
 		// if result is empty, check for script exceptions
-		if (result.isEmpty() && format.caughtScriptException() != null)
+		if (result.isEmpty() && format.caughtScriptException() != null) {
 			throw format.caughtScriptException();
+		}
 		
 		return result;
 	}

@@ -69,7 +69,7 @@ class RenameAction extends AbstractAction {
 					iterator.remove();
 				} else {
 					// failed to revert rename operation
-					Logger.getLogger("ui").severe(String.format("Failed to revert file: \"%s\".", mapping.getValue()));
+					Logger.getLogger("ui").severe("Failed to revert file: " + mapping.getValue());
 				}
 			}
 		}
@@ -90,16 +90,16 @@ class RenameAction extends AbstractAction {
 	}
 	
 
-	private File rename(File file, String name) throws IOException {
+	private File rename(File file, String path) throws IOException {
 		// same folder, different name
-		File destination = new File(file.getParentFile(), name);
+		File destination = new File(file.getParentFile(), path);
+		
+		// name may be a relative path, so we can't use file.getParentFile()
 		File destinationFolder = destination.getParentFile();
 		
 		// create parent folder if necessary
-		if (!destinationFolder.isDirectory()) {
-			if (!destinationFolder.mkdirs()) {
-				throw new IOException("Failed to create folder: " + destinationFolder);
-			}
+		if (!destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
+			throw new IOException("Failed to create folder: " + destinationFolder);
 		}
 		
 		if (!file.renameTo(destination)) {

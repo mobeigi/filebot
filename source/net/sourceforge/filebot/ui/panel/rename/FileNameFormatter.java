@@ -12,7 +12,7 @@ class FileNameFormatter implements MatchFormatter {
 	
 	private final boolean preserveExtension;
 	
-	
+
 	public FileNameFormatter(boolean preserveExtension) {
 		this.preserveExtension = preserveExtension;
 	}
@@ -34,18 +34,16 @@ class FileNameFormatter implements MatchFormatter {
 	public String format(Match<?, ?> match) {
 		if (match.getValue() instanceof File) {
 			File file = (File) match.getValue();
-			
 			return preserveExtension ? FileUtilities.getName(file) : file.getName();
 		}
 		
 		if (match.getValue() instanceof AbstractFile) {
 			AbstractFile file = (AbstractFile) match.getValue();
-			
 			return preserveExtension ? FileUtilities.getNameWithoutExtension(file.getName()) : file.getName();
 		}
 		
-		// type not supported
-		throw new IllegalArgumentException("Type not supported");
+		// cannot format value
+		throw new IllegalArgumentException("Illegal value: " + match.getValue());
 	}
 	
 }

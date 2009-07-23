@@ -133,6 +133,9 @@ class MatchAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
+		if (model.names().isEmpty() || model.files().isEmpty())
+			return;
+		
 		JComponent eventSource = (JComponent) evt.getSource();
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

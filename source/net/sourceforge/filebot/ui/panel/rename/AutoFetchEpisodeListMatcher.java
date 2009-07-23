@@ -11,9 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,9 +41,9 @@ import net.sourceforge.tuned.FileUtilities;
 
 class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Void> {
 	
-	private final List<File> files;
-	
 	private final EpisodeListProvider provider;
+	
+	private final List<File> files;
 	
 	private final List<SimilarityMetric> metrics;
 	
@@ -124,20 +126,20 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	}
 	
 
-	protected List<Episode> fetchEpisodeList(Collection<String> seriesNames) throws Exception {
-		List<Callable<Collection<Episode>>> tasks = new ArrayList<Callable<Collection<Episode>>>();
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames) throws Exception {
+		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
-		for (final String seriesName : seriesNames) {
-			tasks.add(new Callable<Collection<Episode>>() {
+		for (final String query : seriesNames) {
+			tasks.add(new Callable<List<Episode>>() {
 				
 				@Override
-				public Collection<Episode> call() throws Exception {
-					List<SearchResult> results = provider.search(seriesName);
+				public List<Episode> call() throws Exception {
+					List<SearchResult> results = provider.search(query);
 					
 					// select search result
 					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(seriesName, results);
+						SearchResult selectedSearchResult = selectSearchResult(query, results);
 						
 						if (selectedSearchResult != null) {
 							return provider.getEpisodeList(selectedSearchResult);
@@ -150,17 +152,22 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		}
 		
 		// fetch episode lists concurrently
-		List<Episode> episodes = new ArrayList<Episode>();
 		ExecutorService executor = Executors.newCachedThreadPool();
 		
-		for (Future<Collection<Episode>> future : executor.invokeAll(tasks)) {
-			episodes.addAll(future.get());
+		try {
+			// merge all episodes
+			Set<Episode> episodes = new LinkedHashSet<Episode>();
+			
+			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
+				episodes.addAll(future.get());
+			}
+			
+			// all background workers have finished
+			return episodes;
+		} finally {
+			// destroy background threads
+			executor.shutdown();
 		}
-		
-		// destroy background threads
-		executor.shutdown();
-		
-		return episodes;
 	}
 	
 
@@ -171,7 +178,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// detect series name and fetch episode list
-		List<Episode> episodes = fetchEpisodeList(detectSeriesNames(mediaFiles));
+		Set<Episode> episodes = fetchEpisodeSet(detectSeriesNames(mediaFiles));
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
 		
@@ -221,4 +228,5 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		
 		return map;
 	}
+	
 }
