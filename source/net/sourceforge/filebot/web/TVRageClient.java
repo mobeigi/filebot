@@ -16,23 +16,18 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sourceforge.filebot.ResourceManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import net.sourceforge.filebot.ResourceManager;
+
 
 public class TVRageClient implements EpisodeListProvider {
 	
-	private static final String host = "www.tvrage.com";
+	private static final String host = "services.tvrage.com";
 	
-	private final Cache cache = CacheManager.getInstance().getCache("web");
-	
-	
+
 	@Override
 	public String getName() {
 		return "TVRage";
@@ -74,19 +69,11 @@ public class TVRageClient implements EpisodeListProvider {
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException, ParserConfigurationException {
 		int showId = ((TVRageSearchResult) searchResult).getShowId();
 		
 		URL episodeListUrl = new URL("http", host, "/feeds/episode_list.php?sid=" + showId);
-		
-		// try to load from cache
-		Element cacheEntry = cache.get(episodeListUrl.toString());
-		
-		if (cacheEntry != null) {
-			return (List<Episode>) cacheEntry.getValue();
-		}
 		
 		Document dom = getDocument(episodeListUrl);
 		
@@ -108,9 +95,6 @@ public class TVRageClient implements EpisodeListProvider {
 			
 			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title));
 		}
-		
-		// populate cache
-		cache.put(new Element(episodeListUrl.toString(), episodes));
 		
 		return episodes;
 	}
@@ -147,13 +131,13 @@ public class TVRageClient implements EpisodeListProvider {
 		return URI.create(base + "/episode_list/" + seasonString);
 	}
 	
-	
+
 	public static class TVRageSearchResult extends SearchResult {
 		
 		private final int showId;
 		private final String link;
 		
-		
+
 		public TVRageSearchResult(String name, int showId, String link) {
 			super(name);
 			this.showId = showId;
