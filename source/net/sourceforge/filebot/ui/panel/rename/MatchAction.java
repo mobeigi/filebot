@@ -62,6 +62,13 @@ class MatchAction extends AbstractAction {
 		metrics[0] = new LengthEqualsMetric() {
 			
 			@Override
+			public float getSimilarity(Object o1, Object o2) {
+				// order of arguments is logically irrelevant, but we might be able to save us a call to File.length() this way
+				return o1 instanceof File ? super.getSimilarity(o2, o1) : super.getSimilarity(o1, o2);
+			}
+			
+
+			@Override
 			protected long getLength(Object object) {
 				if (object instanceof AbstractFile) {
 					return ((AbstractFile) object).getLength();
