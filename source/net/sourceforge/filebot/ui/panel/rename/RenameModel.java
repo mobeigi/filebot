@@ -51,7 +51,7 @@ public class RenameModel extends MatchModel<Object, File> {
 
 		@Override
 		public String format(Match<?, ?> match) {
-			return String.valueOf(match.getValue());
+			return String.valueOf(match.getValue()).trim();
 		}
 	};
 	

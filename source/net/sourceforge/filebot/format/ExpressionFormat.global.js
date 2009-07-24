@@ -4,6 +4,9 @@ importPackage(java.lang);
 // Collection, Scanner, Random, UUID, etc.
 importPackage(java.util);
 
+// SeriesNameMatcher
+importClass(net.sourceforge.filebot.similarity.SeriesNameMatcher);
+
 
 /**
  * Convenience methods for String.toLowerCase() and String.toUpperCase().
@@ -114,4 +117,40 @@ String.prototype.replacePart = function (replacement) {
 	
 	// no pattern matches, nothing to replace
 	return this;
+}
+
+
+/**
+ * Upper-case all initials.
+ * 
+ * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
+ */
+String.prototype.upperInitial = function() {
+	return this.replace(/\b[a-z]/g, function(letter) { return letter.toUpperCase() });
+}
+
+
+/**
+ * Lower-case all letters that are not initials.
+ * 
+ * e.g. "Gundam SEED" -> "Gundam Seed"
+ */
+String.prototype.lowerTrail = function() {
+	return this.replace(/\b([a-z])([a-z]+)\b/gi, function(match, initial, trail) { return initial + trail.toLowerCase() });
+}
+
+
+/**
+ * Return first common word sequence.
+ * 
+ * e.g. "Kidou Senshi Gundam Seed" intersect "Mobile Suite Gundam Seed") -> "Gundam Seed"
+ */
+String.prototype.intersect = function (other) {
+	var matcher = new SeriesNameMatcher();
+	
+	// find common word sequence
+	var common = matcher.matchByFirstCommonWordSequence(this, other);
+	
+	// return common word sequence, if there is one
+	return common != null ? common : this;
 }

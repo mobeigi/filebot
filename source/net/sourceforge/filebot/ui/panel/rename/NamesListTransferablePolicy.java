@@ -82,9 +82,9 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		Scanner scanner = new Scanner(string);
 		
 		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
+			String line = scanner.nextLine().trim();
 			
-			if (line.trim().length() > 0) {
+			if (line.length() > 0) {
 				values.add(line);
 			}
 		}
@@ -126,9 +126,9 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
 			
 			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
+				String line = scanner.nextLine().trim();
 				
-				if (line.trim().length() > 0) {
+				if (line.length() > 0) {
 					values.add(line);
 				}
 			}

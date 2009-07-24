@@ -89,15 +89,8 @@ public class SubStationAlphaReader extends SubtitleReader {
 	
 
 	private enum EventProperty {
-		Layer,
 		Start,
 		End,
-		Style,
-		Name,
-		MarginL,
-		MarginR,
-		MarginV,
-		Effect,
 		Text
 	}
 	
