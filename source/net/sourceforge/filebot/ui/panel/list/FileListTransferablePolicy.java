@@ -44,6 +44,9 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		// set title based on parent folder of first file
 		list.setTitle(FileUtilities.getFolderName(files.get(0).getParentFile()));
 		
+		// clear selection
+		list.getListComponent().clearSelection();
+		
 		if (containsOnly(files, FOLDERS)) {
 			loadFolders(files);
 		} else if (containsOnly(files, MediaTypes.getFilter("application/torrent"))) {

@@ -123,7 +123,7 @@ public class AnidbClient implements EpisodeListProvider {
 			// allow only normal and recap episodes
 			if (flags == null || flags.equals("2")) {
 				String number = getTextContent("epno", node);
-				String title = selectString(".//title[@lang='en']", node);
+				String title = selectString("./titles/title[@lang='en']", node);
 				
 				// no seasons for anime
 				episodes.add(new Episode(animeTitle, null, number, title));

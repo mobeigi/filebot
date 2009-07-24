@@ -22,14 +22,14 @@ public final class StringUtilities {
 	}
 	
 
-	public static String join(Iterable<?> values, CharSequence separator) {
+	public static String join(Iterable<?> values, CharSequence delimiter) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (Iterator<?> iterator = values.iterator(); iterator.hasNext();) {
 			sb.append(iterator.next());
 			
 			if (iterator.hasNext()) {
-				sb.append(separator);
+				sb.append(delimiter);
 			}
 		}
 		

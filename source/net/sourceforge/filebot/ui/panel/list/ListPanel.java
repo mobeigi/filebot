@@ -50,7 +50,6 @@ public class ListPanel extends JComponent {
 	
 
 	public ListPanel() {
-		
 		list.setTitle("Title");
 		
 		textField.setFont(new Font(MONOSPACED, PLAIN, 11));
