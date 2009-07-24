@@ -6,11 +6,14 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -24,7 +27,7 @@ public class Matcher<V, C> {
 	
 	private final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
-	
+
 	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, Collection<? extends SimilarityMetric> metrics) {
 		this.values = new LinkedList<V>(values);
 		this.candidates = new LinkedList<C>(candidates);
@@ -36,7 +39,6 @@ public class Matcher<V, C> {
 	
 
 	public synchronized List<Match<V, C>> match() throws InterruptedException {
-		
 		// list of all combinations of values and candidates
 		List<Match<V, C>> possibleMatches = new ArrayList<Match<V, C>>(values.size() * candidates.size());
 		
@@ -91,7 +93,7 @@ public class Matcher<V, C> {
 			return;
 		}
 		
-		for (List<Match<V, C>> matchesWithEqualSimilarity : mapBySimilarity(possibleMatches, metrics[level]).values()) {
+		for (Set<Match<V, C>> matchesWithEqualSimilarity : mapBySimilarity(possibleMatches, metrics[level]).values()) {
 			// some matches may already be unique
 			List<Match<V, C>> disjointMatches = disjointMatches(matchesWithEqualSimilarity);
 			
@@ -120,22 +122,22 @@ public class Matcher<V, C> {
 	}
 	
 
-	protected SortedMap<Float, List<Match<V, C>>> mapBySimilarity(Collection<Match<V, C>> possibleMatches, SimilarityMetric metric) throws InterruptedException {
+	protected SortedMap<Float, Set<Match<V, C>>> mapBySimilarity(Collection<Match<V, C>> possibleMatches, SimilarityMetric metric) throws InterruptedException {
 		// map sorted by similarity descending
-		SortedMap<Float, List<Match<V, C>>> similarityMap = new TreeMap<Float, List<Match<V, C>>>(Collections.reverseOrder());
+		SortedMap<Float, Set<Match<V, C>>> similarityMap = new TreeMap<Float, Set<Match<V, C>>>(Collections.reverseOrder());
 		
 		// use metric on all matches
 		for (Match<V, C> possibleMatch : possibleMatches) {
 			float similarity = metric.getSimilarity(possibleMatch.getValue(), possibleMatch.getCandidate());
 			
-			List<Match<V, C>> list = similarityMap.get(similarity);
+			Set<Match<V, C>> matchSet = similarityMap.get(similarity);
 			
-			if (list == null) {
-				list = new ArrayList<Match<V, C>>();
-				similarityMap.put(similarity, list);
+			if (matchSet == null) {
+				matchSet = new LinkedHashSet<Match<V, C>>();
+				similarityMap.put(similarity, matchSet);
 			}
 			
-			list.add(possibleMatch);
+			matchSet.add(possibleMatch);
 			
 			// unwind this thread if we have been interrupted
 			if (Thread.interrupted()) {
@@ -148,28 +150,49 @@ public class Matcher<V, C> {
 	
 
 	protected List<Match<V, C>> disjointMatches(Collection<Match<V, C>> collection) {
-		List<Match<V, C>> disjointMatches = new ArrayList<Match<V, C>>();
+		Map<V, List<Match<V, C>>> matchesByValue = new HashMap<V, List<Match<V, C>>>();
+		Map<C, List<Match<V, C>>> matchesByCandidate = new HashMap<C, List<Match<V, C>>>();
 		
-		for (Match<V, C> m1 : collection) {
-			boolean disjoint = true;
+		// map matches by value and candidate respectively
+		for (Match<V, C> match : collection) {
+			List<Match<V, C>> matchListForValue = matchesByValue.get(match.getValue());
+			List<Match<V, C>> matchListForCandidate = matchesByCandidate.get(match.getCandidate());
 			
-			for (Match<V, C> m2 : collection) {
-				// ignore same element
-				if (m1 != m2 && !m1.disjoint(m2)) {
-					disjoint = false;
-					break;
-				}
+			// create list if necessary
+			if (matchListForValue == null) {
+				matchListForValue = new ArrayList<Match<V, C>>();
+				matchesByValue.put(match.getValue(), matchListForValue);
 			}
 			
-			if (disjoint) {
-				disjointMatches.add(m1);
+			// create list if necessary
+			if (matchListForCandidate == null) {
+				matchListForCandidate = new ArrayList<Match<V, C>>();
+				matchesByCandidate.put(match.getCandidate(), matchListForCandidate);
+			}
+			
+			// add match to both lists
+			matchListForValue.add(match);
+			matchListForCandidate.add(match);
+		}
+		
+		// collect disjoint matches
+		List<Match<V, C>> disjointMatches = new ArrayList<Match<V, C>>();
+		
+		for (Match<V, C> match : collection) {
+			List<Match<V, C>> matchListForValue = matchesByValue.get(match.getValue());
+			List<Match<V, C>> matchListForCandidate = matchesByCandidate.get(match.getCandidate());
+			
+			// check if match is the only element in both lists
+			if (matchListForValue.size() == 1 && matchListForValue.equals(matchListForCandidate)) {
+				// match is disjoint :)
+				disjointMatches.add(matchListForValue.get(0));
 			}
 		}
 		
 		return disjointMatches;
 	}
 	
-	
+
 	protected static class DisjointMatchCollection<V, C> extends AbstractList<Match<V, C>> {
 		
 		private final List<Match<V, C>> matches = new ArrayList<Match<V, C>>();
@@ -177,7 +200,7 @@ public class Matcher<V, C> {
 		private final Map<V, Match<V, C>> values = new IdentityHashMap<V, Match<V, C>>();
 		private final Map<C, Match<V, C>> candidates = new IdentityHashMap<C, Match<V, C>>();
 		
-		
+
 		@Override
 		public boolean add(Match<V, C> match) {
 			if (disjoint(match)) {

@@ -27,18 +27,6 @@ public class Match<Value, Candidate> {
 	}
 	
 
-	/**
-	 * Check if the given match has the same value or the same candidate. This method uses an
-	 * <b>identity equality test</b>.
-	 * 
-	 * @param match a match
-	 * @return Returns <code>true</code> if the specified match has no value common.
-	 */
-	public boolean disjoint(Match<?, ?> match) {
-		return (value != match.value && candidate != match.candidate);
-	}
-	
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Match) {
