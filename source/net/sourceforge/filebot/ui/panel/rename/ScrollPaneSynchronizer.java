@@ -8,16 +8,15 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoundedRangeModel;
 import javax.swing.Timer;
-
-import ca.odell.glazedlists.event.ListEvent;
-import ca.odell.glazedlists.event.ListEventListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 
 class ScrollPaneSynchronizer {
 	
 	private final RenameList[] components;
 	
-	
+
 	public ScrollPaneSynchronizer(RenameList... components) {
 		this.components = components;
 		
@@ -26,23 +25,34 @@ class ScrollPaneSynchronizer {
 		BoundedRangeModel verticalScrollBarModel = components[0].getListScrollPane().getVerticalScrollBar().getModel();
 		
 		// recalculate common size on change
-		ListEventListener<Object> resizeListener = new ListEventListener<Object>() {
+		ListDataListener resizeListener = new ListDataListener() {
 			
 			private final Timer timer = new Timer(50, new ActionListener() {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					syncSize();
+					updatePreferredSize();
 					
-					// run only once
+					// fire only once
 					timer.stop();
 				}
 			});
 			
-			
+
 			@Override
-			public void listChanged(ListEvent<Object> evt) {
-				// sync size when there are no more events coming in
+			public void intervalAdded(ListDataEvent e) {
+				timer.restart();
+			}
+			
+
+			@Override
+			public void intervalRemoved(ListDataEvent e) {
+				timer.restart();
+			}
+			
+
+			@Override
+			public void contentsChanged(ListDataEvent e) {
 				timer.restart();
 			}
 		};
@@ -52,12 +62,15 @@ class ScrollPaneSynchronizer {
 			component.getListScrollPane().getHorizontalScrollBar().setModel(horizontalScrollBarModel);
 			component.getListScrollPane().getVerticalScrollBar().setModel(verticalScrollBarModel);
 			
-			component.getModel().addListEventListener(resizeListener);
+			component.getListComponent().getModel().addListDataListener(resizeListener);
 		}
+		
+		// initial sync of component sizes
+		updatePreferredSize();
 	}
 	
 
-	public void syncSize() {
+	public void updatePreferredSize() {
 		Dimension max = new Dimension();
 		
 		for (RenameList component : components) {
@@ -79,6 +92,7 @@ class ScrollPaneSynchronizer {
 			component.getListComponent().setPreferredSize(max);
 			
 			// update scrollbars
+			component.getListComponent().revalidate();
 			component.getListScrollPane().revalidate();
 		}
 	}
