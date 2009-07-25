@@ -26,10 +26,10 @@ public class TVDotComClientTest {
 
 	@Test
 	public void search() throws Exception {
-		List<SearchResult> results = tvdotcom.search("Buffy");
+		List<SearchResult> results = tvdotcom.search("buffy the vampire slayer");
 		
 		// if this fails, there is probably a problem with the xpath query
-		assertEquals(10, results.size());
+		assertEquals(4, results.size());
 		
 		HyperLink result = (HyperLink) results.get(0);
 		

@@ -62,16 +62,14 @@ public class TVDotComClient implements EpisodeListProvider {
 		
 		Document dom = getHtmlDocument(searchUrl);
 		
-		List<Node> nodes = selectNodes("//*[@class='title']//descendant-or-self::A", dom);
+		List<SearchResult> searchResults = new ArrayList<SearchResult>();
 		
-		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
-		
-		for (Node node : nodes) {
+		for (Node node : selectNodes("//H2/A", dom)) {
 			String title = getTextContent(node);
 			String href = getAttribute("href", node);
 			
 			try {
-				URL episodeGuideLocation = new URL(href.replaceAll("summary\\.html\\?.*", "episode.html"));
+				URL episodeGuideLocation = new URL(href.replaceAll("summary[.]html[?].*", "episode.html"));
 				searchResults.add(new HyperLink(title, episodeGuideLocation));
 			} catch (MalformedURLException e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href, e);
