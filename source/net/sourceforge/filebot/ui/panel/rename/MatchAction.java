@@ -7,9 +7,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -23,16 +20,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.LengthEqualsMetric;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
-import net.sourceforge.filebot.similarity.SeasonEpisodeSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
@@ -42,100 +32,13 @@ class MatchAction extends AbstractAction {
 	
 	private final RenameModel model;
 	
-	private final Collection<SimilarityMetric> metrics;
-	
 
 	public MatchAction(RenameModel model) {
-		super("Match", ResourceManager.getIcon("action.match"));
-		
 		this.model = model;
-		this.metrics = createMetrics();
 		
+		putValue(NAME, "Match");
+		putValue(SMALL_ICON, ResourceManager.getIcon("action.match"));
 		putValue(SHORT_DESCRIPTION, "Match files and names");
-	}
-	
-
-	protected Collection<SimilarityMetric> createMetrics() {
-		SimilarityMetric[] metrics = new SimilarityMetric[4];
-		
-		// 1. pass: match by file length (fast, but only works when matching torrents or files)
-		metrics[0] = new LengthEqualsMetric() {
-			
-			@Override
-			public float getSimilarity(Object o1, Object o2) {
-				// order of arguments is logically irrelevant, but we might be able to save us a call to File.length() this way
-				return o1 instanceof File ? super.getSimilarity(o2, o1) : super.getSimilarity(o1, o2);
-			}
-			
-
-			@Override
-			protected long getLength(Object object) {
-				if (object instanceof AbstractFile) {
-					return ((AbstractFile) object).getLength();
-				}
-				
-				return super.getLength(object);
-			}
-		};
-		
-		// 2. pass: match by season / episode numbers
-		metrics[1] = new SeasonEpisodeSimilarityMetric() {
-			
-			@Override
-			protected Collection<SxE> parse(Object o) {
-				if (o instanceof Episode) {
-					Episode episode = (Episode) o;
-					
-					// create SxE from episode
-					return Collections.singleton(new SxE(episode.getSeason(), episode.getEpisode()));
-				}
-				
-				return super.parse(o);
-			}
-		};
-		
-		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
-		metrics[2] = new NameSimilarityMetric() {
-			
-			@Override
-			public float getSimilarity(Object o1, Object o2) {
-				// normalize absolute similarity to similarity rank (10 ranks in total),
-				// so we are less likely to fall for false positives in this pass, and move on to the next one
-				return (float) (Math.floor(super.getSimilarity(o1, o2) * 10) / 10);
-			}
-			
-
-			@Override
-			protected String normalize(Object object) {
-				if (object instanceof File) {
-					// compare to filename without extension
-					object = FileUtilities.getName((File) object);
-				}
-				
-				return super.normalize(object);
-			}
-		};
-		
-		// 4. pass: match by generic numeric similarity
-		metrics[3] = new NumericSimilarityMetric() {
-			
-			@Override
-			protected String normalize(Object object) {
-				if (object instanceof File) {
-					// compare to filename without extension
-					object = FileUtilities.getName((File) object);
-				}
-				
-				return super.normalize(object);
-			}
-		};
-		
-		return Arrays.asList(metrics);
-	}
-	
-
-	public Collection<SimilarityMetric> getMetrics() {
-		return Collections.unmodifiableCollection(metrics);
 	}
 	
 
@@ -147,7 +50,7 @@ class MatchAction extends AbstractAction {
 		
 		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, metrics);
+		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, MatchSimilarityMetric.defaultSequence());
 		backgroundMatcher.execute();
 		
 		try {
@@ -193,7 +96,7 @@ class MatchAction extends AbstractAction {
 		private final Matcher<Object, File> matcher;
 		
 
-		public BackgroundMatcher(MatchModel<Object, File> model, Collection<SimilarityMetric> metrics) {
+		public BackgroundMatcher(MatchModel<Object, File> model, SimilarityMetric[] metrics) {
 			// match names against files
 			this.matcher = new Matcher<Object, File>(model.values(), model.candidates(), metrics);
 		}

@@ -45,13 +45,13 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	
 	private final List<File> files;
 	
-	private final List<SimilarityMetric> metrics;
+	private final SimilarityMetric[] metrics;
 	
 
-	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, Collection<File> files, Collection<SimilarityMetric> metrics) {
+	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, Collection<File> files, SimilarityMetric[] metrics) {
 		this.provider = provider;
 		this.files = new LinkedList<File>(files);
-		this.metrics = new ArrayList<SimilarityMetric>(metrics);
+		this.metrics = metrics.clone();
 	}
 	
 

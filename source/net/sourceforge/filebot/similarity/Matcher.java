@@ -28,11 +28,11 @@ public class Matcher<V, C> {
 	private final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
 
-	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, Collection<? extends SimilarityMetric> metrics) {
+	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, SimilarityMetric[] metrics) {
 		this.values = new LinkedList<V>(values);
 		this.candidates = new LinkedList<C>(candidates);
 		
-		this.metrics = metrics.toArray(new SimilarityMetric[0]);
+		this.metrics = metrics.clone();
 		
 		this.disjointMatchCollection = new DisjointMatchCollection<V, C>();
 	}

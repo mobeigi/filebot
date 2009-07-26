@@ -12,7 +12,7 @@ public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
 	
 	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
 	
-	
+
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Collection<SxE> sxeVector1 = parse(o1);
@@ -50,24 +50,6 @@ public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
 		}
 		
 		return seasonEpisodeMatcher.match(object.toString());
-	}
-	
-
-	@Override
-	public String getDescription() {
-		return "Similarity of season and episode numbers";
-	}
-	
-
-	@Override
-	public String getName() {
-		return "Season and Episode";
-	}
-	
-
-	@Override
-	public String toString() {
-		return getClass().getName();
 	}
 	
 }

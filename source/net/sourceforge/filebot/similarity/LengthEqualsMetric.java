@@ -28,22 +28,4 @@ public class LengthEqualsMetric implements SimilarityMetric {
 		return -1;
 	}
 	
-
-	@Override
-	public String getDescription() {
-		return "Check whether file size is equal or not";
-	}
-	
-
-	@Override
-	public String getName() {
-		return "Length";
-	}
-	
-
-	@Override
-	public String toString() {
-		return getClass().getName();
-	}
-	
 }

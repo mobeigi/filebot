@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3;
@@ -26,32 +25,14 @@ public class NameSimilarityMetric implements SimilarityMetric {
 	
 
 	protected String normalize(Object object) {
-		// remove embedded checksum from name, if any
-		String name = removeEmbeddedChecksum(object.toString());
+		// use string representation
+		String name = object.toString();
 		
 		// normalize separators
 		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
 		
 		// normalize case and trim
 		return name.trim().toLowerCase();
-	}
-	
-
-	@Override
-	public String getDescription() {
-		return "Similarity of names";
-	}
-	
-
-	@Override
-	public String getName() {
-		return metric.getShortDescriptionString();
-	}
-	
-
-	@Override
-	public String toString() {
-		return getClass().getName();
 	}
 	
 }

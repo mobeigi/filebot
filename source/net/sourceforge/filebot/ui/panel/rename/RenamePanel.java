@@ -280,7 +280,7 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			renameModel.values().clear();
 			
-			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, renameModel.files(), matchAction.getMetrics()) {
+			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, renameModel.files(), MatchSimilarityMetric.defaultSequence()) {
 				
 				@Override
 				protected void done() {

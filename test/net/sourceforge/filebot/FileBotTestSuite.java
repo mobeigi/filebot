@@ -11,11 +11,12 @@ import net.sourceforge.filebot.hash.VerificationFormatTest;
 import net.sourceforge.filebot.similarity.SimilarityTestSuite;
 import net.sourceforge.filebot.subtitle.SubtitleReaderTestSuite;
 import net.sourceforge.filebot.ui.panel.rename.MatchModelTest;
+import net.sourceforge.filebot.ui.panel.rename.MatchSimilarityMetricTest;
 import net.sourceforge.filebot.web.WebTestSuite;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, ArgumentBeanTest.class, ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, SubtitleReaderTestSuite.class })
+@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, ArgumentBeanTest.class, ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, MatchSimilarityMetricTest.class, SubtitleReaderTestSuite.class })
 public class FileBotTestSuite {
 	
 }

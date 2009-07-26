@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public final class FileUtilities {
@@ -27,6 +29,14 @@ public final class FileUtilities {
 	}
 	
 
+	/**
+	 * Pattern used for matching file extensions.
+	 * 
+	 * e.g. "file.txt" -> match "txt", ".hidden" -> no match
+	 */
+	private static final Pattern extension = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
+	
+
 	public static String getExtension(File file) {
 		if (file.isDirectory())
 			return null;
@@ -36,13 +46,14 @@ public final class FileUtilities {
 	
 
 	public static String getExtension(String name) {
-		int dotIndex = name.lastIndexOf(".");
+		Matcher matcher = extension.matcher(name);
 		
-		// .hidden -> no extension, just hidden
-		if (dotIndex > 0 && dotIndex < name.length() - 1) {
-			return name.substring(dotIndex + 1);
+		if (matcher.find()) {
+			// extension without leading '.'
+			return matcher.group();
 		}
 		
+		// no extension
 		return null;
 	}
 	
@@ -70,10 +81,11 @@ public final class FileUtilities {
 	
 
 	public static String getNameWithoutExtension(String name) {
-		int dotIndex = name.lastIndexOf(".");
+		Matcher matcher = extension.matcher(name);
 		
-		if (dotIndex > 0)
-			return name.substring(0, dotIndex);
+		if (matcher.find()) {
+			return name.substring(0, matcher.start() - 1);
+		}
 		
 		// no extension, return given name
 		return name;
