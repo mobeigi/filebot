@@ -13,9 +13,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.sourceforge.filebot.subtitle.SubtitleElement;
@@ -26,8 +25,11 @@ import net.sourceforge.tuned.ByteBufferInputStream;
 
 final class SubtitleUtilities {
 	
+	/**
+	 * Decode subtitle file even if extension is invalid.
+	 */
 	public static List<SubtitleElement> decode(MemoryFile file) throws IOException {
-		Deque<SubtitleFormat> priorityList = new ArrayDeque<SubtitleFormat>();
+		LinkedList<SubtitleFormat> priorityList = new LinkedList<SubtitleFormat>();
 		
 		// gather all formats, put likely formats first
 		for (SubtitleFormat format : SubtitleFormat.values()) {
@@ -65,9 +67,12 @@ final class SubtitleUtilities {
 	}
 	
 
+	/**
+	 * Calculate MD5 hash.
+	 */
 	public static String md5(ByteBuffer data) {
 		try {
-			MessageDigest hash = MessageDigest.getInstance("md-5");
+			MessageDigest hash = MessageDigest.getInstance("MD5");
 			hash.update(data);
 			
 			// return hex string
@@ -99,6 +104,9 @@ final class SubtitleUtilities {
 	}
 	
 
+	/**
+	 * Write {@link ByteBuffer} to {@link File}.
+	 */
 	public static void write(ByteBuffer data, File destination) throws IOException {
 		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
 		

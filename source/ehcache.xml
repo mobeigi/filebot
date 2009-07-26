@@ -120,13 +120,13 @@
             
 
     <!--
-    Short-lived memory cache for web responses. Time to live is 5 min. This cache is used by TheTVDBClient and TVRageClient.
+    Short-lived memory cache for web responses. Time to live is 10 min. This cache is used by TheTVDBClient.
     -->
     <cache name="web"
            maxElementsInMemory="120"
            eternal="false"
-           timeToIdleSeconds="300"
-           timeToLiveSeconds="300"           
+           timeToIdleSeconds="600"
+           timeToLiveSeconds="600"           
            overflowToDisk="false"
            diskPersistent="false"
            memoryStoreEvictionPolicy="LRU"

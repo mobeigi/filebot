@@ -178,12 +178,9 @@ public class Matcher<V, C> {
 		// collect disjoint matches
 		List<Match<V, C>> disjointMatches = new ArrayList<Match<V, C>>();
 		
-		for (Match<V, C> match : collection) {
-			List<Match<V, C>> matchListForValue = matchesByValue.get(match.getValue());
-			List<Match<V, C>> matchListForCandidate = matchesByCandidate.get(match.getCandidate());
-			
+		for (List<Match<V, C>> matchListForValue : matchesByValue.values()) {
 			// check if match is the only element in both lists
-			if (matchListForValue.size() == 1 && matchListForValue.equals(matchListForCandidate)) {
+			if (matchListForValue.size() == 1 && matchListForValue.equals(matchesByCandidate.get(matchListForValue.get(0).getCandidate()))) {
 				// match is disjoint :)
 				disjointMatches.add(matchListForValue.get(0));
 			}
