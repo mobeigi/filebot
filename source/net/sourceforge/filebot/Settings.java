@@ -2,6 +2,9 @@
 package net.sourceforge.filebot;
 
 
+import java.io.File;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -16,13 +19,37 @@ import net.sourceforge.tuned.PreferencesMap.StringAdapter;
 public final class Settings {
 	
 	public static String getApplicationName() {
-		return "FileBot";
+		return getApplicationProperty("application.name");
 	};
 	
 
 	public static String getApplicationVersion() {
-		return "1.9";
+		return getApplicationProperty("application.version");
 	};
+	
+
+	public static String getApplicationProperty(String key) {
+		return ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT).getString(key);
+	}
+	
+
+	public static File getApplicationFolder() {
+		// special handling for web start
+		if (System.getProperty("javawebstart.version") != null) {
+			// can't use working directory for web start applications
+			File folder = new File(System.getProperty("user.home"), ".filebot");
+			
+			// create folder if necessary 
+			if (!folder.exists()) {
+				folder.mkdir();
+			}
+			
+			return folder;
+		}
+		
+		// use working directory
+		return new File(System.getProperty("user.dir"));
+	}
 	
 
 	private static final Settings userRoot = new Settings(Preferences.userNodeForPackage(Settings.class));

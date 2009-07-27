@@ -5,14 +5,16 @@ package net.sourceforge.filebot;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.ui.transfer.FileTransferable;
-
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+
+import net.sourceforge.filebot.ui.transfer.FileTransferable;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class ArgumentBean {
@@ -20,16 +22,19 @@ public class ArgumentBean {
 	@Option(name = "-help", usage = "Print this help message")
 	private boolean help = false;
 	
-	@Option(name = "-clear", usage = "Clear history and settings")
+	@Option(name = "-clear", usage = "Clear application settings")
 	private boolean clear = false;
 	
-	@Option(name = "--sfv", usage = "Open file in 'SFV' panel", metaVar = "<file>")
-	private boolean sfv;
+	@Option(name = "-open", usage = "Open file", metaVar = "<file>")
+	private boolean open = false;
+	
+	@Option(name = "--sfv", usage = "Open SFV panel", metaVar = "<file>")
+	private boolean sfv = false;
 	
 	@Argument
-	private List<File> arguments;
+	private List<File> arguments = new LinkedList<File>();
 	
-	
+
 	public boolean help() {
 		return help;
 	}
@@ -40,8 +45,13 @@ public class ArgumentBean {
 	}
 	
 
+	public boolean open() {
+		return open;
+	}
+	
+
 	public boolean sfv() {
-		return sfv;
+		return sfv || (open && FileUtilities.containsOnly(arguments, MediaTypes.getFilter("verification")));
 	}
 	
 

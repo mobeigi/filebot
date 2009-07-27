@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.lib.jnlp">
+	<information>
+		<title>Unsigned libs for FileBot</title>
+		<vendor>rednoah</vendor>
+
+		<offline-allowed />
+	</information>
+
+	<update check="timeout" policy="always" />
+
+	<resources>
+		<property name="jnlp.packEnabled" value="true" />
+
+		<jar href="miglayout.jar" />
+		<jar href="glazedlists.jar" />
+		<jar href="nekohtml.jar" />
+		<jar href="xercesImpl.jar" />
+		<jar href="ehcache.jar" />
+		<jar href="simmetrics.jar" />
+		<jar href="args4j.jar" />
+		<jar href="jna.jar" />
+		<jar href="js-engine.jar" />
+		<jar href="js.jar" />
+		<jar href="junrar-custom.jar" />
+		<jar href="sublight-ws.jar" />
+		<jar href="xmlrpc-client.jar" />
+		<jar href="commons-logging.jar" />
+	</resources>
+
+	<component-desc />
+</jnlp>

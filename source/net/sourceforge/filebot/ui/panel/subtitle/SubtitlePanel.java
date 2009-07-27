@@ -81,7 +81,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		return new SubtitleProvider[] {
 				new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion())),
 				new SubsceneSubtitleClient(),
-				new SublightSubtitleClient(getApplicationName(), Settings.userRoot().get("sublight.apikey")),
+				new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey")),
 				new SubtitleSourceClient()
 		};
 	}

@@ -9,16 +9,32 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import com.sun.jna.NativeLibrary;
+import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
 
 public class MediaInfo implements Closeable {
 	
+	static {
+		// libmediainfo for linux depends on libzen
+		if (Platform.isLinux()) {
+			try {
+				// We need to load dependencies first, because we know where our native libs are (e.g. Java Web Start Cache).
+				// If we do not, the system will look for dependencies, but only in the library path.
+				NativeLibrary.getInstance("zen");
+			} catch (Exception e) {
+				Logger.getLogger(MediaInfo.class.getName()).warning("Failed to preload libzen");
+			}
+		}
+	}
+	
 	private Pointer handle;
 	
-	
+
 	public MediaInfo() {
 		handle = MediaInfoLibrary.INSTANCE.New();
 	}
@@ -137,7 +153,7 @@ public class MediaInfo implements Closeable {
 		}
 	}
 	
-	
+
 	public enum StreamKind {
 		General,
 		Video,
@@ -194,7 +210,7 @@ public class MediaInfo implements Closeable {
 		Domain;
 	}
 	
-	
+
 	public static String version() {
 		return staticOption("Info_Version");
 	}

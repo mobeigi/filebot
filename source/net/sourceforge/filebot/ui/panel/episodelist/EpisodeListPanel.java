@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.episodelist;
 
 
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.*;
 
 import java.awt.event.ActionEvent;
@@ -43,7 +44,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	
 	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
 	
-	
+
 	public EpisodeListPanel() {
 		historyPanel.setColumnHeader(0, "Show");
 		historyPanel.setColumnHeader(1, "Number of Episodes");
@@ -74,7 +75,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 				new AnidbClient(),
 				new TVDotComClient(),
 				new IMDbClient(),
-				new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))
+				new TheTVDBClient(getApplicationProperty("thetvdb.apikey"))
 		};
 	}
 	
@@ -100,6 +101,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season));
 	};
 	
+
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -114,7 +116,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		}
 	};
 	
-	
+
 	private class SpinSeasonAction extends AbstractAction {
 		
 		public SpinSeasonAction(int spin) {
@@ -176,7 +178,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		private final EpisodeListProvider provider;
 		private final int season;
 		
-		
+
 		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season) {
 			super(searchText);
 			this.provider = provider;

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
+	<information>
+		<title>FileBot</title>
+		<vendor>rednoah</vendor>
+		<homepage href="http://sourceforge.net/projects/filebot/" />
+		<description>A cross-platform tool for tv renaming, subtitle download and file verification</description>
+
+		<icon href="nosplash.png" kind="splash" />
+		<icon href="icon48.png" width="48" height="48" />
+		<icon href="icon32.png" width="32" height="32" />
+		<icon href="icon16.png" width="16" height="16" />
+		<icon href="shortcut.ico" kind="shortcut" />
+
+		<shortcut>
+			<desktop />
+			<menu />
+		</shortcut>
+
+		<offline-allowed />
+	</information>
+
+	<update check="timeout" policy="always" />
+
+	<security>
+		<all-permissions />
+	</security>
+
+	<resources>
+		<property name="jnlp.packEnabled" value="true" />
+
+		<java version="1.6+" />
+		<jar href="filebot.jar" main="true" />
+		<extension name="lib" href="filebot.lib.jnlp" />
+	</resources>
+
+	<resources os="Windows" arch="x86">
+		<nativelib href="native/win32-x86.jar" />
+	</resources>
+	<resources os="Windows" arch="amd64">
+		<nativelib href="native/win32-amd64.jar" />
+	</resources>
+	<resources os="Linux" arch="i386">
+		<nativelib href="native/linux-i386.jar" />
+	</resources>
+	<resources os="Linux" arch="amd64">
+		<nativelib href="native/linux-amd64.jar" />
+	</resources>
+	<resources os="Mac">
+		<nativelib href="native/darwin.jar" />
+	</resources>
+
+	<application-desc main-class="net.sourceforge.filebot.Main" />
+</jnlp>

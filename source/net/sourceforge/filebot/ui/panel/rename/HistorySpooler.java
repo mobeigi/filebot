@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.panel.rename.History.*;
 
 import java.io.File;
@@ -25,7 +26,7 @@ final class HistorySpooler {
 	}
 	
 
-	private final File file = new File("history.xml");
+	private final File file = new File(getApplicationFolder(), "history.xml");
 	
 	private final History sessionHistory = new History();
 	

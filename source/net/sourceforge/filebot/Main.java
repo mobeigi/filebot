@@ -18,10 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
-import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
@@ -35,7 +33,11 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String... args) throws Exception {
+		// initialize this stuff before anything else
+		initializeLogging();
+		initializeSecurityManager();
 		
+		// parse arguments
 		final ArgumentBean argumentBean = initializeArgumentBean(args);
 		
 		if (argumentBean.help()) {
@@ -50,16 +52,11 @@ public class Main {
 			Settings.userRoot().clear();
 		}
 		
-		initializeLogging();
-		initializeSettings();
-		initializeCache();
-		initializeSecurityManager();
-		
 		try {
 			// use native laf an all platforms
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -69,7 +66,7 @@ public class Main {
 				JFrame frame;
 				
 				if (argumentBean.sfv()) {
-					// sfv frame
+					// single panel frame
 					frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(argumentBean.transferable());
 				} else {
 					// default frame
@@ -100,30 +97,6 @@ public class Main {
 		consoleHandler.setLevel(Level.WARNING);
 		
 		uiLogger.addHandler(consoleHandler);
-	}
-	
-
-	/**
-	 * Preset the default thetvdb.apikey.
-	 */
-	private static void initializeSettings() {
-		Settings.userRoot().putDefault("thetvdb.apikey", "58B4AA94C59AD656");
-		Settings.userRoot().putDefault("sublight.apikey", "afa9ecb2-a3ee-42b1-9225-000b4038bc85");
-	}
-	
-
-	/**
-	 * Shutdown {@link CacheManager} in case there are any persistent caches that need to be stored.
-	 */
-	private static void initializeCache() {
-		// shutdown CacheManager
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				CacheManager.getInstance().shutdown();
-			}
-		}));
 	}
 	
 
@@ -164,10 +137,15 @@ public class Main {
 	/**
 	 * Parse command line arguments.
 	 */
-	private static ArgumentBean initializeArgumentBean(String... args) throws CmdLineException {
+	private static ArgumentBean initializeArgumentBean(String... args) {
 		ArgumentBean argumentBean = new ArgumentBean();
 		
-		new CmdLineParser(argumentBean).parseArgument(args);
+		try {
+			CmdLineParser parser = new CmdLineParser(argumentBean);
+			parser.parseArgument(args);
+		} catch (Exception e) {
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
 		
 		return argumentBean;
 	}
@@ -179,7 +157,8 @@ public class Main {
 	private static void printUsage(ArgumentBean argumentBean) {
 		System.out.println("Options:");
 		
-		new CmdLineParser(argumentBean).printUsage(System.out);
+		CmdLineParser parser = new CmdLineParser(argumentBean);
+		parser.printUsage(System.out);
 	}
 	
 }

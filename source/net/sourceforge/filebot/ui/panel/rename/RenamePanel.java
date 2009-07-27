@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -143,7 +144,7 @@ public class RenamePanel extends JComponent {
 		actionPopup.add(new AutoFetchEpisodeListAction(new AnidbClient()));
 		actionPopup.add(new AutoFetchEpisodeListAction(new TVDotComClient()));
 		actionPopup.add(new AutoFetchEpisodeListAction(new IMDbClient()));
-		actionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(Settings.userRoot().get("thetvdb.apikey"))));
+		actionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(getApplicationProperty("thetvdb.apikey"))));
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
