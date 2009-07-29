@@ -40,12 +40,12 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public boolean open(File file) {
+	public synchronized boolean open(File file) {
 		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getAbsolutePath())) > 0;
 	}
 	
 
-	public String inform() {
+	public synchronized String inform() {
 		return MediaInfoLibrary.INSTANCE.Inform(handle).toString();
 	}
 	
@@ -55,7 +55,7 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public String option(String option, String value) {
+	public synchronized String option(String option, String value) {
 		return MediaInfoLibrary.INSTANCE.Option(handle, new WString(option), new WString(value)).toString();
 	}
 	
@@ -70,7 +70,7 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public String get(StreamKind streamKind, int streamNumber, String parameter, InfoKind infoKind, InfoKind searchKind) {
+	public synchronized String get(StreamKind streamKind, int streamNumber, String parameter, InfoKind infoKind, InfoKind searchKind) {
 		return MediaInfoLibrary.INSTANCE.Get(handle, streamKind.ordinal(), streamNumber, new WString(parameter), infoKind.ordinal(), searchKind.ordinal()).toString();
 	}
 	
@@ -80,17 +80,17 @@ public class MediaInfo implements Closeable {
 	}
 	
 
-	public String get(StreamKind streamKind, int streamNumber, int parameterIndex, InfoKind infoKind) {
+	public synchronized String get(StreamKind streamKind, int streamNumber, int parameterIndex, InfoKind infoKind) {
 		return MediaInfoLibrary.INSTANCE.GetI(handle, streamKind.ordinal(), streamNumber, parameterIndex, infoKind.ordinal()).toString();
 	}
 	
 
-	public int streamCount(StreamKind streamKind) {
+	public synchronized int streamCount(StreamKind streamKind) {
 		return MediaInfoLibrary.INSTANCE.Count_Get(handle, streamKind.ordinal(), -1);
 	}
 	
 
-	public int parameterCount(StreamKind streamKind, int streamNumber) {
+	public synchronized int parameterCount(StreamKind streamKind, int streamNumber) {
 		return MediaInfoLibrary.INSTANCE.Count_Get(handle, streamKind.ordinal(), streamNumber);
 	}
 	
@@ -132,25 +132,24 @@ public class MediaInfo implements Closeable {
 	
 
 	@Override
-	public void close() {
+	public synchronized void close() {
 		MediaInfoLibrary.INSTANCE.Close(handle);
 	}
 	
 
-	public void dispose() {
+	public synchronized void dispose() {
 		if (handle == null)
-			throw new IllegalStateException();
+			return;
 		
+		// delete handle
 		MediaInfoLibrary.INSTANCE.Delete(handle);
 		handle = null;
 	}
 	
 
 	@Override
-	protected void finalize() throws Throwable {
-		if (handle != null) {
-			dispose();
-		}
+	protected void finalize() {
+		dispose();
 	}
 	
 

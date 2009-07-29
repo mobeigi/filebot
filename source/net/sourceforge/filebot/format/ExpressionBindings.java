@@ -20,7 +20,9 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 	
 	protected final Map<String, Method> bindings = new TreeMap<String, Method>(String.CASE_INSENSITIVE_ORDER);
 	
+	protected final Method undefined;
 	
+
 	public ExpressionBindings(Object bindingBean) {
 		this.bindingBean = bindingBean;
 		
@@ -37,6 +39,9 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 				}
 			}
 		}
+		
+		// extract mapping that handles undefined bindings
+		undefined = bindings.remove(Define.undefined);
 	}
 	
 
@@ -53,7 +58,7 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 		}
 		
 		// invoke fallback method
-		return bindings.get(Define.undefined).invoke(bindingBean);
+		return undefined.invoke(bindingBean);
 	}
 	
 

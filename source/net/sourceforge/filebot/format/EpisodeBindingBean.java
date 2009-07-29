@@ -26,7 +26,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 
 
-public class EpisodeFormatBindingBean {
+public class EpisodeBindingBean {
 	
 	private final Episode episode;
 	
@@ -35,7 +35,7 @@ public class EpisodeFormatBindingBean {
 	private MediaInfo mediaInfo;
 	
 
-	public EpisodeFormatBindingBean(Episode episode, File mediaFile) {
+	public EpisodeBindingBean(Episode episode, File mediaFile) {
 		this.episode = episode;
 		this.mediaFile = mediaFile;
 	}
@@ -176,12 +176,6 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	@Define("image")
-	public Object getImageInfo() {
-		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Image, 0));
-	}
-	
-
 	@Define("episode")
 	public Episode getEpisode() {
 		return episode;
@@ -194,8 +188,7 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	@Define("inferredFile")
-	public File getInferredMediaFile() {
+	private File getInferredMediaFile() {
 		// make sure media file is defined
 		checkMediaFile();
 		
@@ -215,13 +208,10 @@ public class EpisodeFormatBindingBean {
 	}
 	
 
-	private void checkMediaFile() {
-		// make sure file is not null
-		if (mediaFile == null)
-			throw new NullPointerException("Media file is not defined");
-		
-		// file may not exist at this point but if an existing file is required, 
-		// an exception will be thrown later anyway
+	private void checkMediaFile() throws RuntimeException {
+		// make sure file is not null, and that it is an existing file
+		if (mediaFile == null || !mediaFile.isFile())
+			throw new RuntimeException(String.format("Illegal media file: %s", mediaFile));
 	}
 	
 

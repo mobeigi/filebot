@@ -7,11 +7,11 @@ import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.*;
 
 import java.awt.event.ItemEvent;
 import java.net.URI;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
@@ -26,7 +26,7 @@ import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.SubtitleSourceClient;
-import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
+import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
@@ -35,6 +35,9 @@ import net.sourceforge.tuned.ui.SimpleLabelProvider;
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 	
 	private final LanguageComboBoxModel languageModel = new LanguageComboBoxModel();
+	
+	private final PreferencesEntry<String> persistentSelectedLanguage = Settings.forPackage(this).entry("language.selected");
+	private final PreferencesList<String> persistentFavoriteLanguages = Settings.forPackage(this).node("language.favorites").asList();
 	
 
 	public SubtitlePanel() {
@@ -45,9 +48,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		languageComboBox.setRenderer(new LanguageComboBoxCellRenderer(languageComboBox.getRenderer()));
 		
-		// restore state
-		languageModel.setSelectedItem(persistentSelectedLanguage.getValue());
-		languageModel.favorites().addAll(0, persistentFavorites.getValue());
+		// restore selected language
+		languageModel.setSelectedItem(Language.getLanguage(persistentSelectedLanguage.getValue()));
+		
+		// restore favorite languages
+		for (String favoriteLanguage : persistentFavoriteLanguages) {
+			languageModel.favorites().add(0, Language.getLanguage(favoriteLanguage));
+		}
 		
 		// guess favorite languages
 		if (languageModel.favorites().isEmpty()) {
@@ -64,10 +71,22 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 				Language language = (Language) e.getItem();
 				
 				if (languageModel.favorites().add(language)) {
-					persistentFavorites.setValue(languageModel.favorites());
+					persistentFavoriteLanguages.set(new AbstractList<String>() {
+						
+						@Override
+						public String get(int index) {
+							return languageModel.favorites().get(0).getCode();
+						}
+						
+
+						@Override
+						public int size() {
+							return languageModel.favorites().size();
+						}
+					});
 				}
 				
-				persistentSelectedLanguage.setValue(language);
+				persistentSelectedLanguage.setValue(language.getCode());
 			}
 		});
 		
@@ -95,7 +114,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	@Override
 	protected Settings getSettings() {
-		return Settings.userRoot().node("subtitles");
+		return Settings.forPackage(this);
 	}
 	
 
@@ -198,50 +217,5 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		}
 		
 	}
-	
-
-	private final PreferencesEntry<Language> persistentSelectedLanguage = getSettings().entry("language.selected", new AbstractAdapter<Language>() {
-		
-		@Override
-		public Language get(Preferences prefs, String key) {
-			return Language.getLanguage(prefs.get(key, ""));
-		}
-		
-
-		@Override
-		public void put(Preferences prefs, String key, Language value) {
-			prefs.put(key, value == null ? "undefined" : value.getCode());
-		}
-	});
-	
-	private final PreferencesEntry<List<Language>> persistentFavorites = getSettings().entry("language.favorites", new AbstractAdapter<List<Language>>() {
-		
-		@Override
-		public List<Language> get(Preferences prefs, String key) {
-			List<Language> languages = new ArrayList<Language>();
-			
-			for (String languageCode : prefs.get(key, "").split("\\W+")) {
-				languages.add(Language.getLanguage(languageCode));
-			}
-			
-			return languages;
-		}
-		
-
-		@Override
-		public void put(Preferences prefs, String key, List<Language> languages) {
-			StringBuilder sb = new StringBuilder();
-			
-			for (int i = 0; i < languages.size(); i++) {
-				sb.append(languages.get(i).getCode());
-				
-				if (i < languages.size() - 1) {
-					sb.append(",");
-				}
-			}
-			
-			prefs.put(key, sb.toString());
-		}
-	});
 	
 }

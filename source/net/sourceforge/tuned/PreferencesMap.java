@@ -26,7 +26,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 	private final Preferences prefs;
 	private final Adapter<T> adapter;
 	
-	
+
 	public PreferencesMap(Preferences prefs, Adapter<T> adapter) {
 		this.prefs = prefs;
 		this.adapter = adapter;
@@ -154,7 +154,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return new PreferencesMap<T>(prefs, adapter);
 	}
 	
-	
+
 	public static interface Adapter<T> {
 		
 		public String[] keys(Preferences prefs) throws BackingStoreException;
@@ -214,7 +214,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		
 		private final Constructor<T> constructor;
 		
-		
+
 		public SimpleAdapter(Class<T> type) {
 			try {
 				constructor = type.getConstructor(String.class);
@@ -303,7 +303,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		
 		private final Adapter<T> adapter;
 		
-		
+
 		public PreferencesEntry(Preferences prefs, String key, Adapter<T> adapter) {
 			this.key = key;
 			this.prefs = prefs;
@@ -326,8 +326,20 @@ public class PreferencesMap<T> implements Map<String, T> {
 		@Override
 		public T setValue(T value) {
 			adapter.put(prefs, key, value);
-			
 			return null;
+		}
+		
+
+		public PreferencesEntry<T> defaultValue(T value) {
+			try {
+				// check if value valid and not null
+				getValue().getClass();
+			} catch (Exception e) {
+				// illegal value or null, just override
+				setValue(value);
+			}
+			
+			return this;
 		}
 		
 

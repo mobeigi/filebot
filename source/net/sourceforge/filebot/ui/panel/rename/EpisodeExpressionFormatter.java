@@ -6,7 +6,7 @@ import java.io.File;
 
 import javax.script.ScriptException;
 
-import net.sourceforge.filebot.format.EpisodeFormatBindingBean;
+import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.web.Episode;
@@ -46,7 +46,7 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 		Episode episode = (Episode) match.getValue();
 		File mediaFile = (File) match.getCandidate();
 		
-		String result = format.format(new EpisodeFormatBindingBean(episode, mediaFile)).trim();
+		String result = format.format(new EpisodeBindingBean(episode, mediaFile)).trim();
 		
 		// if result is empty, check for script exceptions
 		if (result.isEmpty() && format.caughtScriptException() != null) {

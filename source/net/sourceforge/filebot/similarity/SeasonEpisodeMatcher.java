@@ -78,6 +78,21 @@ public class SeasonEpisodeMatcher {
 	}
 	
 
+	public Matcher matcher(CharSequence name) {
+		for (SeasonEpisodePattern pattern : patterns) {
+			Matcher matcher = pattern.matcher(name);
+			
+			// check if current pattern matches 
+			if (matcher.find()) {
+				// reset matcher state
+				return matcher.reset();
+			}
+		}
+		
+		return null;
+	}
+	
+
 	public static class SxE {
 		
 		public static final int UNDEFINED = -1;
@@ -141,6 +156,11 @@ public class SeasonEpisodeMatcher {
 		}
 		
 
+		public Matcher matcher(CharSequence name) {
+			return pattern.matcher(name);
+		}
+		
+
 		protected Collection<SxE> process(MatchResult match) {
 			return Collections.singleton(new SxE(match.group(1), match.group(2)));
 		}
@@ -150,7 +170,7 @@ public class SeasonEpisodeMatcher {
 			// name will probably contain no more than two matches
 			List<SxE> matches = new ArrayList<SxE>(2);
 			
-			Matcher matcher = pattern.matcher(name);
+			Matcher matcher = matcher(name);
 			
 			while (matcher.find()) {
 				matches.addAll(process(matcher));
@@ -161,10 +181,11 @@ public class SeasonEpisodeMatcher {
 		
 
 		public int find(CharSequence name, int fromIndex) {
-			Matcher matcher = pattern.matcher(name);
+			Matcher matcher = matcher(name);
 			
-			if (matcher.find(fromIndex))
+			if (matcher.find(fromIndex)) {
 				return matcher.start();
+			}
 			
 			return -1;
 		}

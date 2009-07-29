@@ -88,7 +88,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 	@Override
 	protected Settings getSettings() {
-		return Settings.userRoot().node("episodelist");
+		return Settings.forPackage(this);
 	}
 	
 

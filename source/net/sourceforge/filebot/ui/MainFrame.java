@@ -36,7 +36,6 @@ import net.sourceforge.filebot.ui.panel.rename.RenamePanelBuilder;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePanelBuilder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
-import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.ShadowBorder;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -48,9 +47,9 @@ public class MainFrame extends JFrame {
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
-	private final PreferencesEntry<Integer> persistentSelectedPanel = Settings.userRoot().entry("panel.selected", SimpleAdapter.forClass(Integer.class));
+	private PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(this).entry("panel.selected").defaultValue("1");
 	
-	
+
 	public MainFrame() {
 		super(Settings.getApplicationName());
 		
@@ -59,10 +58,9 @@ public class MainFrame extends JFrame {
 		
 		try {
 			// restore selected panel
-			selectionList.setSelectedIndex(persistentSelectedPanel.getValue());
-		} catch (Exception e) {
-			// select default panel
-			selectionList.setSelectedIndex(1);
+			selectionList.setSelectedIndex(Integer.parseInt(persistentSelectedPanel.getValue()));
+		} catch (NumberFormatException e) {
+			// ignore
 		}
 		
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
@@ -87,7 +85,7 @@ public class MainFrame extends JFrame {
 				showPanel((PanelBuilder) selectionList.getSelectedValue());
 				
 				if (!e.getValueIsAdjusting()) {
-					persistentSelectedPanel.setValue(selectionList.getSelectedIndex());
+					persistentSelectedPanel.setValue(Integer.toString(selectionList.getSelectedIndex()));
 				}
 			}
 		});
@@ -137,12 +135,12 @@ public class MainFrame extends JFrame {
 		panel.setVisible(true);
 	}
 	
-	
+
 	private static class PanelSelectionList extends JList {
 		
 		private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 		
-		
+
 		public PanelSelectionList(PanelBuilder[] builders) {
 			super(builders);
 			
@@ -155,14 +153,14 @@ public class MainFrame extends JFrame {
 			new DropTarget(this, new DragDropListener());
 		}
 		
-		
+
 		private class DragDropListener extends DropTargetAdapter {
 			
 			private boolean selectEnabled = false;
 			
 			private Timer dragEnterTimer;
 			
-			
+
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {
 				if (selectEnabled) {

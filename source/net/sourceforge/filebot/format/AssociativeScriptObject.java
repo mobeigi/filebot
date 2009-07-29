@@ -164,11 +164,7 @@ public class AssociativeScriptObject implements Scriptable {
 		public LenientLookup(Map<String, Object> source) {
 			// populate entry map
 			for (Entry<String, Object> entry : source.entrySet()) {
-				String key = definingKey(entry.getKey());
-				
-				if (key.length() > 0) {
-					this.source.put(key, entry);
-				}
+				this.source.put(definingKey(entry.getKey()), entry);
 			}
 		}
 		

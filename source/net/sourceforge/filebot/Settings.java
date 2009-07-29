@@ -11,7 +11,6 @@ import java.util.prefs.Preferences;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.PreferencesMap;
-import net.sourceforge.tuned.PreferencesMap.Adapter;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.PreferencesMap.StringAdapter;
 
@@ -52,11 +51,13 @@ public final class Settings {
 	}
 	
 
-	private static final Settings userRoot = new Settings(Preferences.userNodeForPackage(Settings.class));
+	public static Settings forPackage(Class<?> type) {
+		return new Settings(Preferences.userNodeForPackage(type));
+	}
 	
 
-	public static Settings userRoot() {
-		return userRoot;
+	public static Settings forPackage(Object object) {
+		return forPackage(object.getClass());
 	}
 	
 
@@ -88,13 +89,6 @@ public final class Settings {
 	}
 	
 
-	public void putDefault(String key, String value) {
-		if (get(key) == null) {
-			put(key, value);
-		}
-	}
-	
-
 	public void remove(String key) {
 		prefs.remove(key);
 	}
@@ -105,28 +99,13 @@ public final class Settings {
 	}
 	
 
-	public <T> PreferencesEntry<T> entry(String key, Adapter<T> adapter) {
-		return new PreferencesEntry<T>(prefs, key, adapter);
-	}
-	
-
 	public PreferencesMap<String> asMap() {
 		return PreferencesMap.map(prefs);
 	}
 	
 
-	public <T> PreferencesMap<T> asMap(Adapter<T> adapter) {
-		return PreferencesMap.map(prefs, adapter);
-	}
-	
-
 	public PreferencesList<String> asList() {
 		return PreferencesList.map(prefs);
-	}
-	
-
-	public <T> PreferencesList<T> asList(Adapter<T> adapter) {
-		return PreferencesList.map(prefs, adapter);
 	}
 	
 

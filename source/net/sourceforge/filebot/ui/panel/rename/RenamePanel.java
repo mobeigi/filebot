@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -43,9 +42,7 @@ import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.PreferencesMap.AbstractAdapter;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
-import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
@@ -62,7 +59,8 @@ public class RenamePanel extends JComponent {
 	
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
-	private final PreferencesEntry<Boolean> persistentPreserveExtension = Settings.userRoot().entry("rename.extension.preserve", SimpleAdapter.forClass(Boolean.class));
+	private final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(this).entry("rename.extension.preserve").defaultValue("true");
+	private final PreferencesEntry<String> persistentFormatExpression = Settings.forPackage(this).entry("rename.format");
 	
 
 	public RenamePanel() {
@@ -72,19 +70,19 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 		
-		try {
-			// restore state
-			renameModel.setPreserveExtension(persistentPreserveExtension.getValue());
-		} catch (Exception e) {
-			// preserve extension by default
-			renameModel.setPreserveExtension(true);
-		}
+		// restore state
+		renameModel.setPreserveExtension(Boolean.parseBoolean(persistentPreserveExtension.getValue()));
 		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		
-		// restore custom episode formatter
-		renameModel.useFormatter(Episode.class, persistentExpressionFormatter.getValue());
+		try {
+			// restore custom episode formatter
+			ExpressionFormat format = new ExpressionFormat(persistentFormatExpression.getValue());
+			renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(format));
+		} catch (Exception e) {
+			// illegal format, ignore
+		}
 		
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
 		
@@ -161,11 +159,11 @@ public class RenamePanel extends JComponent {
 					case APPROVE:
 						EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getSelectedFormat());
 						renameModel.useFormatter(Episode.class, formatter);
-						persistentExpressionFormatter.setValue(formatter);
+						persistentFormatExpression.setValue(formatter.getFormat().getExpression());
 						break;
 					case USE_DEFAULT:
 						renameModel.useFormatter(Episode.class, null);
-						persistentExpressionFormatter.remove();
+						persistentFormatExpression.remove();
 						break;
 				}
 			}
@@ -246,7 +244,7 @@ public class RenamePanel extends JComponent {
 			filesList.repaint();
 			
 			// save state
-			persistentPreserveExtension.setValue(activate);
+			persistentPreserveExtension.setValue(Boolean.toString(activate));
 		}
 	}
 	
@@ -310,30 +308,5 @@ public class RenamePanel extends JComponent {
 			worker.execute();
 		}
 	}
-	
-
-	private final PreferencesEntry<EpisodeExpressionFormatter> persistentExpressionFormatter = Settings.userRoot().entry("rename.format", new AbstractAdapter<EpisodeExpressionFormatter>() {
-		
-		@Override
-		public EpisodeExpressionFormatter get(Preferences prefs, String key) {
-			String expression = prefs.get(key, null);
-			
-			if (expression != null) {
-				try {
-					return new EpisodeExpressionFormatter(new ExpressionFormat(expression));
-				} catch (Exception e) {
-					Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
-				}
-			}
-			
-			return null;
-		}
-		
-
-		@Override
-		public void put(Preferences prefs, String key, EpisodeExpressionFormatter value) {
-			prefs.put(key, value.getFormat().getExpression());
-		}
-	});
 	
 }

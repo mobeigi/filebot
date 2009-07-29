@@ -24,16 +24,17 @@ public class SubsceneSubtitleClientTest {
 	 */
 	private static HyperLink lostSearchResult;
 	
-	
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		twinpeaksSearchResult = new HyperLink("Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"));
 		lostSearchResult = new HyperLink("Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"));
 	}
 	
+
 	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
 	
-	
+
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = subscene.search("twin peaks");
@@ -83,12 +84,12 @@ public class SubsceneSubtitleClientTest {
 
 	@Test
 	public void getLanguageFilterMap() throws Exception {
-		Map<String, Integer> filters = subscene.getLanguageFilterMap(subscene.getSubtitleListDocument(new URL("http://subscene.com/none/subtitles-0.aspx"), null));
+		Map<String, String> filters = subscene.getLanguageFilterMap(subscene.getSubtitleListDocument(new URL("http://subscene.com/none/subtitles-0.aspx"), null));
 		
-		assertEquals(01, filters.get("albanian"), 0);
-		assertEquals(13, filters.get("english"), 0);
-		assertEquals(17, filters.get("finnish"), 0);
-		assertEquals(45, filters.get("vietnamese"), 0);
+		assertEquals("1", filters.get("albanian"));
+		assertEquals("13", filters.get("english"));
+		assertEquals("17", filters.get("finnish"));
+		assertEquals("45", filters.get("vietnamese"));
 	}
 	
 

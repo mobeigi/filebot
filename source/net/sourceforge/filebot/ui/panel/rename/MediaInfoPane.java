@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import java.awt.Component;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
+
+import java.awt.Window;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -24,10 +26,9 @@ import javax.swing.table.AbstractTableModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
-import net.sourceforge.tuned.ui.TunedUtilities;
 
 
-public class MediaInfoPane extends JTabbedPane {
+class MediaInfoPane extends JTabbedPane {
 	
 	public MediaInfoPane(File file) {
 		// get media info
@@ -61,9 +62,8 @@ public class MediaInfoPane extends JTabbedPane {
 	}
 	
 
-	public static void showMessageDialog(Component parent, File file) {
-		final JDialog dialog = new JDialog(TunedUtilities.getWindow(parent), "MediaInfo", ModalityType.DOCUMENT_MODAL);
-		dialog.setLocationByPlatform(true);
+	public static void showMessageDialog(Window parent, File file) {
+		final JDialog dialog = new JDialog(parent, "MediaInfo", ModalityType.DOCUMENT_MODAL);
 		
 		Action closeAction = new AbstractAction("OK") {
 			
@@ -79,7 +79,9 @@ public class MediaInfoPane extends JTabbedPane {
 		c.add(new MediaInfoPane(file), "grow, wrap");
 		c.add(new JButton(closeAction), "wmin 80px, hmin 25px");
 		
+		dialog.setLocation(getPreferredLocation(dialog));
 		dialog.pack();
+		
 		dialog.setVisible(true);
 	}
 	

@@ -49,7 +49,7 @@ public class Main {
 		
 		if (argumentBean.clear()) {
 			// clear preferences
-			Settings.userRoot().clear();
+			Settings.forPackage(Main.class).clear();
 		}
 		
 		try {

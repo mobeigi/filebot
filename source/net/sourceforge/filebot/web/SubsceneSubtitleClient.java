@@ -22,23 +22,22 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 	private static final String host = "subscene.com";
 	
-	private final Map<String, Integer> languageFilterMap = initLanguageFilterMap();
+	private final Map<String, String> languageFilterMap = initLanguageFilterMap();
 	
-	
+
 	@Override
 	public String getName() {
 		return "Subscene";
@@ -98,7 +97,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		URL subtitleListUrl = getSubtitleListLink(searchResult, languageName).toURL();
 		
-		Integer languageFilter = null;
+		String languageFilter = null;
 		
 		if (languageName != null) {
 			synchronized (languageFilterMap) {
@@ -157,7 +156,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	protected Document getSubtitleListDocument(URL subtitleListUrl, Integer languageFilter) throws IOException, SAXException {
+	protected Document getSubtitleListDocument(URL subtitleListUrl, String languageFilter) throws IOException, SAXException {
 		URLConnection connection = subtitleListUrl.openConnection();
 		
 		if (languageFilter != null) {
@@ -168,13 +167,13 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	protected Map<String, Integer> initLanguageFilterMap() {
-		return Settings.userRoot().node("subtitles/subscene/languageFilterMap").asMap(SimpleAdapter.forClass(Integer.class));
+	protected Map<String, String> initLanguageFilterMap() {
+		return Settings.forPackage(this).node("subtitles/subscene/languageFilterMap").asMap();
 	}
 	
 
-	protected Map<String, Integer> getLanguageFilterMap(Document subtitleListDocument) {
-		Map<String, Integer> filters = new HashMap<String, Integer>(50);
+	protected Map<String, String> getLanguageFilterMap(Document subtitleListDocument) {
+		Map<String, String> filters = new HashMap<String, String>(50);
 		
 		List<Node> nodes = selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
 		
@@ -186,7 +185,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 				// select LABEL/text()
 				String name = getTextContent("LABEL", node);
 				
-				filters.put(name.toLowerCase(), Integer.valueOf(filter));
+				filters.put(name.toLowerCase(), filter);
 			}
 		}
 		

@@ -3,7 +3,6 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import java.util.Comparator;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -56,11 +55,9 @@ public class Language {
 		
 		try {
 			return new Language(code, bundle.getString(code));
-		} catch (MissingResourceException e) {
-			// ignore
+		} catch (Exception e) {
+			return null;
 		}
-		
-		return null;
 	}
 	
 
