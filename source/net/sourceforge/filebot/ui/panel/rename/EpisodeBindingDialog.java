@@ -290,15 +290,15 @@ class EpisodeBindingDialog extends JDialog {
 				File selectedFile = chooser.getSelectedFile();
 				
 				if (selectedFile.isFile()) {
-					// update text field
-					mediaFileTextField.setText(selectedFile.getAbsolutePath());
-					
-					// display media info
 					try {
+						// display media info
 						MediaInfoPane.showMessageDialog(getWindow(evt.getSource()), selectedFile);
 					} catch (LinkageError e) {
 						Logger.getLogger("ui").log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
 					}
+					
+					// update text field
+					mediaFileTextField.setText(selectedFile.getAbsolutePath());
 				}
 			}
 		}
