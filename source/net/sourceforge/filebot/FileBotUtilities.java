@@ -38,7 +38,7 @@ public final class FileBotUtilities {
 	 * checksum string is a hex number with at least 8 digits. Capturing group 0 will contain
 	 * the matched checksum string.
 	 */
-	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8,})(?=\\]|\\))");
+	public static final Pattern EMBEDDED_CHECKSUM_PATTERN = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8})(?=\\]|\\))");
 	
 
 	public static String getEmbeddedChecksum(CharSequence string) {
@@ -55,6 +55,7 @@ public final class FileBotUtilities {
 	
 
 	public static String removeEmbeddedChecksum(String string) {
+		// match embedded checksum and surrounding brackets 
 		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
 	}
 	

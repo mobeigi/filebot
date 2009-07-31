@@ -21,14 +21,6 @@
 
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Built-Date" value="${today}" />
-				<attribute name="Application-Name" value="${title}" />
-				<attribute name="Application-Version" value="${version}" />
-				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
-			</manifest>
-					
 			<fileset dir="${dir.build}" excludes="**/*Test*" />
 		</jar>
 
@@ -44,9 +36,17 @@
 		<mkdir dir="${dir.dist}/fatjar" />
 
 		<jar destfile="${dir.dist}/fatjar/FileBot.jar" filesetmanifest="merge" duplicate="fail">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-Date" value="${today}" />
+				<attribute name="Application-Name" value="${title}" />
+				<attribute name="Application-Version" value="${version}" />
+				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
+			</manifest>
+
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
-			
+
 			<!-- include libs -->
 			<zipfileset src="${dir.lib}/xercesImpl.jar">
 				<include name="org/apache/**" />

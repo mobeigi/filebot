@@ -101,6 +101,11 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 		};
 		
+		// better selection behaviour
+		EventSelectionModel<MemoryFile> fileSelection = new EventSelectionModel<MemoryFile>(files);
+		fileSelection.setSelectionMode(ListSelection.MULTIPLE_INTERVAL_SELECTION_DEFENSIVE);
+		fileList.setSelectionModel(fileSelection);
+		
 		// install dnd and clipboard export handler
 		MemoryFileListExportHandler memoryFileExportHandler = new MemoryFileListExportHandler();
 		fileList.setTransferHandler(new DefaultTransferHandler(null, memoryFileExportHandler, memoryFileExportHandler));

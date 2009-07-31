@@ -53,7 +53,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		// restore favorite languages
 		for (String favoriteLanguage : persistentFavoriteLanguages) {
-			languageModel.favorites().add(0, Language.getLanguage(favoriteLanguage));
+			languageModel.favorites().add(languageModel.favorites().size(), Language.getLanguage(favoriteLanguage));
 		}
 		
 		// guess favorite languages
@@ -75,7 +75,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 						
 						@Override
 						public String get(int index) {
-							return languageModel.favorites().get(0).getCode();
+							return languageModel.favorites().get(index).getCode();
 						}
 						
 
