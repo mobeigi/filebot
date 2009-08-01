@@ -132,7 +132,7 @@ public class EpisodeBindingBean {
 			return checksum;
 		
 		// try to get checksum from sfv file
-		checksum = getChecksumFromSfvFile(inferredMediaFile);
+		checksum = getChecksumFromSfvFile(inferredMediaFile.getParentFile(), inferredMediaFile, 0, 3);
 		
 		if (checksum != null)
 			return checksum;
@@ -247,9 +247,12 @@ public class EpisodeBindingBean {
 	}
 	
 
-	private String getChecksumFromSfvFile(File file) throws IOException {
-		File folder = file.getParentFile();
+	private String getChecksumFromSfvFile(File folder, File target, int depth, int maxDepth) throws IOException {
+		// stop if we reached max depth or the file system root
+		if (folder == null || depth > maxDepth)
+			return null;
 		
+		// scan all sfv files in this folder
 		for (File sfvFile : folder.listFiles(MediaTypes.getFilter("verification/sfv"))) {
 			VerificationFileScanner scanner = new VerificationFileScanner(sfvFile, new SfvFormat());
 			
@@ -257,7 +260,10 @@ public class EpisodeBindingBean {
 				while (scanner.hasNext()) {
 					Entry<File, String> entry = scanner.next();
 					
-					if (file.getName().equals(entry.getKey().getPath())) {
+					// resolve relative file path
+					File file = new File(folder, entry.getKey().getPath());
+					
+					if (target.equals(file)) {
 						return entry.getValue();
 					}
 				}
@@ -266,7 +272,7 @@ public class EpisodeBindingBean {
 			}
 		}
 		
-		return null;
+		return getChecksumFromSfvFile(folder.getParentFile(), target, depth + 1, maxDepth);
 	}
 	
 
