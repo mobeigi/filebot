@@ -151,7 +151,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			
 			try {
 				while (scanner.hasNext()) {
-					values.add(scanner.next().getKey().getName());
+					values.add(new AbstractFile(scanner.next().getKey().getName(), -1));
 				}
 			} finally {
 				scanner.close();

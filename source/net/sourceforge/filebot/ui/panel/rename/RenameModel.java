@@ -6,7 +6,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class RenameModel extends MatchModel<Object, File> {
 	
 	private final FormattedFutureEventList names = new FormattedFutureEventList();
 	
-	private final Map<Class<?>, MatchFormatter> formatters = new HashMap<Class<?>, MatchFormatter>();
+	private final Map<Object, MatchFormatter> formatters = new LinkedHashMap<Object, MatchFormatter>();
 	
 	private final MatchFormatter defaultFormatter = new MatchFormatter() {
 		
@@ -119,11 +118,11 @@ public class RenameModel extends MatchModel<Object, File> {
 	}
 	
 
-	public void useFormatter(Class<?> type, MatchFormatter formatter) {
+	public void useFormatter(Object key, MatchFormatter formatter) {
 		if (formatter != null) {
-			formatters.put(type, formatter);
+			formatters.put(key, formatter);
 		} else {
-			formatters.remove(type);
+			formatters.remove(key);
 		}
 		
 		// reformat matches
