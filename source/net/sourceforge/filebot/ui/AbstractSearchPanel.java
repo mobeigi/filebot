@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui;
 
 
 import static javax.swing.ScrollPaneConstants.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -40,7 +41,6 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
-import net.sourceforge.tuned.ui.TunedUtilities;
 
 
 public abstract class AbstractSearchPanel<S, E> extends JComponent {
@@ -97,7 +97,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		installAction(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
 	}
 	
 
@@ -383,7 +383,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		protected SearchResult selectSearchResult(Collection<? extends SearchResult> searchResults, Window window) throws Exception {
 			// multiple results have been found, user must select one
 			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
-			
 			configureSelectDialog(selectDialog);
 			
 			selectDialog.setVisible(true);
@@ -394,7 +393,8 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
-			selectDialog.setIconImage(TunedUtilities.getImage(getIcon()));
+			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
+			selectDialog.setIconImage(getImage(getIcon()));
 		}
 		
 

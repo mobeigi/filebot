@@ -48,9 +48,8 @@ public class SfvPanel extends JComponent {
 	private final ChecksumTableTransferablePolicy transferablePolicy = new ChecksumTableTransferablePolicy(table.getModel(), computationService);
 	private final ChecksumTableExportHandler exportHandler = new ChecksumTableExportHandler(table.getModel());
 	
-	
+
 	public SfvPanel() {
-		
 		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		
 		JPanel contentPane = new JPanel(new MigLayout("insets 0, nogrid, fill", "", "[fill]10px[bottom, pref!]4px"));
@@ -128,6 +127,7 @@ public class SfvPanel extends JComponent {
 		}
 	}
 	
+
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
 	
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
@@ -176,7 +176,7 @@ public class SfvPanel extends JComponent {
 		}
 	};
 	
-	
+
 	protected class ChangeHashTypeAction extends AbstractAction implements PropertyChangeListener {
 		
 		private ChangeHashTypeAction(HashType hash) {
@@ -215,7 +215,7 @@ public class SfvPanel extends JComponent {
 		
 		private File selectedColumn = null;
 		
-		
+
 		public ChecksumTableSaveAction() {
 			super(exportHandler);
 		}
@@ -282,6 +282,7 @@ public class SfvPanel extends JComponent {
 					};
 					
 					selectDialog.getHeaderLabel().setText("Select checksum column:");
+					selectDialog.setLocationRelativeTo(SfvPanel.this);
 					selectDialog.setVisible(true);
 					
 					this.selectedColumn = selectDialog.getSelectedValue();

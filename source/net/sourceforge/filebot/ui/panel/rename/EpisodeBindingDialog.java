@@ -14,8 +14,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,6 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -45,12 +48,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.mediainfo.MediaInfo;
+import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
@@ -76,11 +82,6 @@ class EpisodeBindingDialog extends JDialog {
 	public EpisodeBindingDialog(Window owner) {
 		super(owner, "Episode Bindings", ModalityType.DOCUMENT_MODAL);
 		
-		// create image button from action
-		JButton selectFileButton = new JButton(selectFileAction);
-		selectFileButton.setHideActionText(true);
-		selectFileButton.setOpaque(false);
-		
 		JComponent root = (JComponent) getContentPane();
 		root.setLayout(new MigLayout("nogrid, fill, insets dialog"));
 		
@@ -96,7 +97,8 @@ class EpisodeBindingDialog extends JDialog {
 		
 		inputPanel.add(new JLabel("Media File:"), "wrap 2px");
 		inputPanel.add(mediaFileTextField, "hmin 20px, growx");
-		inputPanel.add(selectFileButton, "gap rel, w 26px!, h 24px!, wrap paragraph");
+		inputPanel.add(createImageButton(mediaInfoAction), "gap rel, w 26px!, h 24px!");
+		inputPanel.add(createImageButton(selectFileAction), "gap rel, w 26px!, h 24px!, wrap paragraph");
 		
 		inputContainer.add("Episode Bindings", inputPanel);
 		root.add(inputContainer, "growx, wrap paragraph");
@@ -120,8 +122,33 @@ class EpisodeBindingDialog extends JDialog {
 			}
 		};
 		
+		// update example bindings on change
 		episodeTextField.getDocument().addDocumentListener(changeListener);
 		mediaFileTextField.getDocument().addDocumentListener(changeListener);
+		
+		// disabled by default
+		mediaInfoAction.setEnabled(false);
+		
+		// disable media info action if media file is invalid
+		mediaFileTextField.getDocument().addDocumentListener(new DocumentListener() {
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				mediaInfoAction.setEnabled(getMediaFile() != null && getMediaFile().isFile());
+			}
+			
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				changedUpdate(e);
+			}
+			
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				changedUpdate(e);
+			}
+		});
 		
 		// finish dialog and close window manually
 		addWindowListener(new WindowAdapter() {
@@ -134,15 +161,22 @@ class EpisodeBindingDialog extends JDialog {
 		
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setLocation(getPreferredLocation(this));
 		setSize(420, 520);
+	}
+	
+
+	private JButton createImageButton(Action action) {
+		JButton button = new JButton(action);
+		button.setHideActionText(true);
+		button.setOpaque(false);
+		
+		return button;
 	}
 	
 
 	private JTable createBindingTable(TableModel model) {
 		JTable table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
-		
 		table.setFillsViewportHeight(true);
 		table.setBackground(Color.white);
 		
@@ -270,6 +304,87 @@ class EpisodeBindingDialog extends JDialog {
 		}
 	};
 	
+	protected final Action mediaInfoAction = new AbstractAction("Info", ResourceManager.getIcon("action.properties")) {
+		
+		private Map<StreamKind, List<Map<String, String>>> getMediaInfo(File file) {
+			try {
+				MediaInfo mediaInfo = new MediaInfo();
+				
+				// read all media info
+				if (mediaInfo.open(file)) {
+					try {
+						return mediaInfo.snapshot();
+					} finally {
+						mediaInfo.close();
+					}
+				}
+			} catch (LinkageError e) {
+				Logger.getLogger("ui").log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
+			}
+			
+			// could not retrieve media info
+			return null;
+		}
+		
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			Map<StreamKind, List<Map<String, String>>> mediaInfo = getMediaInfo(getMediaFile());
+			
+			// check if we could get some info
+			if (mediaInfo == null)
+				return;
+			
+			// create table tab for each stream
+			JTabbedPane tabbedPane = new JTabbedPane();
+			
+			ResourceBundle bundle = ResourceBundle.getBundle(EpisodeBindingDialog.class.getName());
+			RowFilter<Object, Object> excludeRowFilter = RowFilter.notFilter(RowFilter.regexFilter(bundle.getString("parameter.exclude")));
+			
+			for (StreamKind streamKind : mediaInfo.keySet()) {
+				for (Map<String, String> parameters : mediaInfo.get(streamKind)) {
+					JPanel panel = new JPanel(new MigLayout("fill"));
+					panel.setOpaque(false);
+					
+					JTable table = new JTable(new ParameterTableModel(parameters));
+					table.setAutoCreateRowSorter(true);
+					table.setFillsViewportHeight(true);
+					table.setBackground(Color.white);
+					
+					// set media info exclude filter
+					TableRowSorter<?> sorter = (TableRowSorter<?>) table.getRowSorter();
+					sorter.setRowFilter(excludeRowFilter);
+					
+					panel.add(new JScrollPane(table), "grow");
+					tabbedPane.addTab(streamKind.toString(), panel);
+				}
+			}
+			
+			// show media info dialog
+			final JDialog dialog = new JDialog(getWindow(evt.getSource()), "MediaInfo", ModalityType.DOCUMENT_MODAL);
+			
+			Action closeAction = new AbstractAction("OK") {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dialog.setVisible(false);
+					dialog.dispose();
+				}
+			};
+			
+			JComponent c = (JComponent) dialog.getContentPane();
+			c.setLayout(new MigLayout("fill", "[align center]", "[fill][pref!]"));
+			c.add(tabbedPane, "grow, wrap");
+			c.add(new JButton(closeAction), "wmin 80px, hmin 25px");
+			
+			dialog.pack();
+			dialog.setLocationRelativeTo(EpisodeBindingDialog.this);
+			
+			dialog.setVisible(true);
+		}
+		
+	};
+	
 	protected final Action selectFileAction = new AbstractAction("Select File", ResourceManager.getIcon("action.load")) {
 		
 		@Override
@@ -287,22 +402,53 @@ class EpisodeBindingDialog extends JDialog {
 			chooser.setMultiSelectionEnabled(false);
 			
 			if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
-				File selectedFile = chooser.getSelectedFile();
-				
-				if (selectedFile.isFile()) {
-					try {
-						// display media info
-						MediaInfoPane.showMessageDialog(getWindow(evt.getSource()), selectedFile);
-					} catch (LinkageError e) {
-						Logger.getLogger("ui").log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
-					}
-					
-					// update text field
-					mediaFileTextField.setText(selectedFile.getAbsolutePath());
-				}
+				// update text field
+				mediaFileTextField.setText(chooser.getSelectedFile().getAbsolutePath());
 			}
 		}
 	};
+	
+
+	private static class Evaluator extends SwingWorker<String, Void> {
+		
+		private final String expression;
+		private final Object bindingBean;
+		
+
+		private Evaluator(String expression, Object bindingBean) {
+			this.expression = expression;
+			this.bindingBean = bindingBean;
+		}
+		
+
+		public String getExpression() {
+			return expression;
+		}
+		
+
+		@Override
+		protected String doInBackground() throws Exception {
+			ExpressionFormat format = new ExpressionFormat(expression) {
+				
+				@Override
+				protected Object[] compile(String expression, Compilable engine) throws ScriptException {
+					// simple expression format, everything as one expression
+					return new Object[] { engine.compile(expression) };
+				}
+			};
+			
+			// evaluate expression with given bindings
+			String value = format.format(bindingBean);
+			
+			// check for script exceptions
+			if (format.caughtScriptException() != null) {
+				throw format.caughtScriptException();
+			}
+			
+			return value;
+		}
+		
+	}
 	
 
 	private static class BindingTableModel extends AbstractTableModel {
@@ -410,45 +556,52 @@ class EpisodeBindingDialog extends JDialog {
 	}
 	
 
-	private static class Evaluator extends SwingWorker<String, Void> {
+	private static class ParameterTableModel extends AbstractTableModel {
 		
-		private final String expression;
-		private final Object bindingBean;
-		
-
-		private Evaluator(String expression, Object bindingBean) {
-			this.expression = expression;
-			this.bindingBean = bindingBean;
-		}
+		private final List<Entry<?, ?>> data;
 		
 
-		public String getExpression() {
-			return expression;
+		public ParameterTableModel(Map<?, ?> data) {
+			this.data = new ArrayList<Entry<?, ?>>(data.entrySet());
 		}
 		
 
 		@Override
-		protected String doInBackground() throws Exception {
-			ExpressionFormat format = new ExpressionFormat(expression) {
-				
-				@Override
-				protected Object[] compile(String expression, Compilable engine) throws ScriptException {
-					// simple expression format, everything as one expression
-					return new Object[] { engine.compile(expression) };
-				}
-			};
-			
-			// evaluate expression with given bindings
-			String value = format.format(bindingBean);
-			
-			// check for script exceptions
-			if (format.caughtScriptException() != null) {
-				throw format.caughtScriptException();
-			}
-			
-			return value;
+		public int getRowCount() {
+			return data.size();
 		}
 		
+
+		@Override
+		public int getColumnCount() {
+			return 2;
+		}
+		
+
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+				case 0:
+					return "Parameter";
+				case 1:
+					return "Value";
+				default:
+					return null;
+			}
+		}
+		
+
+		@Override
+		public Object getValueAt(int row, int column) {
+			switch (column) {
+				case 0:
+					return data.get(row).getKey();
+				case 1:
+					return data.get(row).getValue();
+				default:
+					return null;
+			}
+		}
 	}
 	
 }

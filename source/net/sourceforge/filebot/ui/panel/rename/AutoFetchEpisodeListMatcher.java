@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -109,6 +110,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 				
 				// show dialog
+				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 				selectDialog.setVisible(true);
 				
 				// selected value or null if the dialog was canceled by the user

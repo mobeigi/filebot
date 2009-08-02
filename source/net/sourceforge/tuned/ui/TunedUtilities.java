@@ -20,7 +20,6 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -100,9 +99,7 @@ public final class TunedUtilities {
 	}
 	
 
-	public static Point getPreferredLocation(JDialog dialog) {
-		Window owner = dialog.getOwner();
-		
+	public static Point getOffsetLocation(Window owner) {
 		if (owner == null) {
 			Window[] toplevel = Window.getOwnerlessWindows();
 			

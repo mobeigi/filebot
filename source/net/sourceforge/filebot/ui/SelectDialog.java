@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,14 @@ public class SelectDialog<T> extends JDialog {
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setSelectedIndex(0);
 		
-		DefaultFancyListCellRenderer renderer = new DefaultFancyListCellRenderer(4);
+		DefaultFancyListCellRenderer renderer = new DefaultFancyListCellRenderer(4) {
+			
+			@Override
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list, convertValueToString(value), index, isSelected, cellHasFocus);
+			}
+		};
+		
 		renderer.setHighlightingEnabled(false);
 		
 		list.setCellRenderer(renderer);
@@ -66,7 +74,6 @@ public class SelectDialog<T> extends JDialog {
 		
 		// set default size and location
 		setSize(new Dimension(210, 210));
-		setLocation(TunedUtilities.getPreferredLocation(this));
 		
 		// Shortcut Enter
 		TunedUtilities.installAction(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);

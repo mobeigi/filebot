@@ -110,10 +110,8 @@ public abstract class AbstractFancyListCellRenderer extends JPanel implements Li
 	
 
 	@Override
-	public final Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		
+	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		
 		validate();
 		
 		return this;

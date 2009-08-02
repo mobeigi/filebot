@@ -18,9 +18,8 @@ public class AssociativeScriptObject implements Scriptable {
 	private final Map<String, Object> properties;
 	
 
-	@SuppressWarnings("unchecked")
 	public AssociativeScriptObject(Map<String, ?> properties) {
-		this.properties = new LenientLookup((Map<String, Object>) properties);
+		this.properties = new LenientLookup(properties);
 	}
 	
 
@@ -156,15 +155,15 @@ public class AssociativeScriptObject implements Scriptable {
 	 * Map allowing look-up of values by a fault-tolerant key as specified by the defining key.
 	 * 
 	 */
-	private class LenientLookup extends AbstractMap<String, Object> {
+	private static class LenientLookup extends AbstractMap<String, Object> {
 		
-		private final Map<String, Entry<String, Object>> source = new HashMap<String, Entry<String, Object>>();
+		private final Map<String, Entry<String, ?>> lookup = new HashMap<String, Entry<String, ?>>();
 		
 
-		public LenientLookup(Map<String, Object> source) {
-			// populate entry map
-			for (Entry<String, Object> entry : source.entrySet()) {
-				this.source.put(definingKey(entry.getKey()), entry);
+		public LenientLookup(Map<String, ?> source) {
+			// populate lookup map
+			for (Entry<String, ?> entry : source.entrySet()) {
+				lookup.put(definingKey(entry.getKey()), entry);
 			}
 		}
 		
@@ -177,13 +176,13 @@ public class AssociativeScriptObject implements Scriptable {
 
 		@Override
 		public boolean containsKey(Object key) {
-			return source.containsKey(definingKey(key));
+			return lookup.containsKey(definingKey(key));
 		}
 		
 
 		@Override
 		public Object get(Object key) {
-			Entry<String, Object> entry = source.get(definingKey(key));
+			Entry<String, ?> entry = lookup.get(definingKey(key));
 			
 			if (entry != null)
 				return entry.getValue();
@@ -198,13 +197,15 @@ public class AssociativeScriptObject implements Scriptable {
 				
 				@Override
 				public Iterator<Entry<String, Object>> iterator() {
-					return source.values().iterator();
+					@SuppressWarnings("unchecked")
+					Iterator<Entry<String, Object>> iterator = (Iterator) lookup.values().iterator();
+					return iterator;
 				}
 				
 
 				@Override
 				public int size() {
-					return source.size();
+					return lookup.size();
 				}
 			};
 		}

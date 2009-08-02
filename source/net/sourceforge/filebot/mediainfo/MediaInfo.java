@@ -41,7 +41,7 @@ public class MediaInfo implements Closeable {
 	
 
 	public synchronized boolean open(File file) {
-		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getAbsolutePath())) > 0;
+		return file.isFile() && MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getAbsolutePath())) > 0;
 	}
 	
 

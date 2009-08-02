@@ -211,11 +211,11 @@ public class EpisodeBindingBean {
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null || !mediaFile.isFile())
-			throw new RuntimeException(String.format("Illegal media file: %s", mediaFile));
+			throw new RuntimeException(String.format("Invalid media file: %s", mediaFile));
 	}
 	
 
-	private MediaInfo getMediaInfo() {
+	private synchronized MediaInfo getMediaInfo() {
 		if (mediaInfo == null) {
 			// make sure media file is defined
 			checkMediaFile();

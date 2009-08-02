@@ -7,6 +7,7 @@ import static javax.swing.BorderFactory.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -194,7 +195,6 @@ class EpisodeFormatDialog extends JDialog {
 		
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setLocation(getPreferredLocation(this));
 		pack();
 	}
 	
@@ -423,6 +423,7 @@ class EpisodeFormatDialog extends JDialog {
 			dialog.setMediaFile(sample.getMediaFile());
 			
 			// open dialog
+			dialog.setLocationRelativeTo((Component) evt.getSource());
 			dialog.setVisible(true);
 			
 			if (dialog.getSelectedOption() == EpisodeBindingDialog.Option.APPROVE) {

@@ -25,7 +25,7 @@ public class ProgressDialog extends JDialog {
 	
 	private final Cancellable cancellable;
 	
-	
+
 	public ProgressDialog(Window owner, Cancellable cancellable) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 		
@@ -39,7 +39,6 @@ public class ProgressDialog extends JDialog {
 		progressBar.setStringPainted(true);
 		
 		JPanel c = (JPanel) getContentPane();
-		
 		c.setLayout(new MigLayout("insets dialog, nogrid, fill"));
 		
 		c.add(iconLabel, "h pref!, w pref!");
@@ -49,8 +48,6 @@ public class ProgressDialog extends JDialog {
 		c.add(new JButton(cancelAction), "align center");
 		
 		setSize(240, 155);
-		
-		setLocation(TunedUtilities.getPreferredLocation(this));
 	}
 	
 
@@ -81,6 +78,7 @@ public class ProgressDialog extends JDialog {
 		dispose();
 	}
 	
+
 	protected final Action cancelAction = new AbstractAction("Cancel") {
 		
 		@Override
@@ -89,7 +87,7 @@ public class ProgressDialog extends JDialog {
 		}
 	};
 	
-	
+
 	public static interface Cancellable {
 		
 		boolean isCancelled();

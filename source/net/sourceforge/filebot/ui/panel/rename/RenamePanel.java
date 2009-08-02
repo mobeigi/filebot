@@ -152,7 +152,7 @@ public class RenamePanel extends JComponent {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				EpisodeFormatDialog dialog = new EpisodeFormatDialog(SwingUtilities.getWindowAncestor(RenamePanel.this));
-				
+				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 				dialog.setVisible(true);
 				
 				switch (dialog.getSelectedOption()) {
@@ -191,6 +191,7 @@ public class RenamePanel extends JComponent {
 				History model = HistorySpooler.getInstance().getCompleteHistory();
 				
 				HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
+				dialog.setLocationRelativeTo(RenamePanel.this);
 				dialog.setModel(model);
 				
 				// show and block

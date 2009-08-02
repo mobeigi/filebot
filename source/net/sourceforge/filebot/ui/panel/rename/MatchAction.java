@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
+
 import java.awt.Cursor;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -15,8 +17,6 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ResourceManager;
@@ -46,9 +46,8 @@ class MatchAction extends AbstractAction {
 		if (model.names().isEmpty() || model.files().isEmpty())
 			return;
 		
-		JComponent eventSource = (JComponent) evt.getSource();
-		
-		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Window window = getWindow(evt.getSource());
+		window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
 		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, MatchSimilarityMetric.defaultSequence());
 		backgroundMatcher.execute();
@@ -58,15 +57,16 @@ class MatchAction extends AbstractAction {
 			backgroundMatcher.get(2, TimeUnit.SECONDS);
 		} catch (TimeoutException ex) {
 			// matcher will probably take a while
-			ProgressDialog progressDialog = createProgressDialog(SwingUtilities.getWindowAncestor(eventSource), backgroundMatcher);
+			ProgressDialog dialog = createProgressDialog(window, backgroundMatcher);
+			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 			
 			// display progress dialog and stop blocking EDT
-			progressDialog.setVisible(true);
+			dialog.setVisible(true);
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 		}
 		
-		SwingUtilities.getRoot(eventSource).setCursor(Cursor.getDefaultCursor());
+		window.setCursor(Cursor.getDefaultCursor());
 	}
 	
 
