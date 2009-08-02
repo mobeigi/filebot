@@ -28,6 +28,12 @@
 		<jar destfile="${dir.dist}/filebot-test.jar">
 			<fileset dir="${dir.build}" includes="**/*Test*" />
 		</jar>
+
+		<!-- source zip -->
+		<zip destfile="${dir.dist}/filebot-${version}-src.zip">
+			<fileset dir="source" />
+			<fileset dir="test" />
+		</zip>
 	</target>
 
 
@@ -35,7 +41,7 @@
 		<!-- create dist/fatjar dir -->
 		<mkdir dir="${dir.dist}/fatjar" />
 
-		<jar destfile="${dir.dist}/fatjar/FileBot.jar" filesetmanifest="merge" duplicate="fail">
+		<jar destfile="${dir.dist}/fatjar/FileBot_${version}.jar" filesetmanifest="merge" duplicate="fail">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-Date" value="${today}" />
@@ -118,7 +124,7 @@
 			<fileset dir="${dir.dist}" includes="filebot.jar" />
 			<fileset dir="${dir.lib}" includes="*.jar" excludes="junit.jar, jna.jar" />
 		</copy>
-		
+
 		<!-- copy jna.jar without native libs -->
 		<jar destfile="${dir.dist}/webstart/jna.jar">
 			<zipfileset src="${dir.lib}/jna.jar" includes="**/*.class" />
