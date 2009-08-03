@@ -36,8 +36,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	
 	private final LanguageComboBoxModel languageModel = new LanguageComboBoxModel();
 	
-	private final PreferencesEntry<String> persistentSelectedLanguage = Settings.forPackage(this).entry("language.selected");
-	private final PreferencesList<String> persistentFavoriteLanguages = Settings.forPackage(this).node("language.favorites").asList();
+	private static final PreferencesEntry<String> persistentSelectedLanguage = Settings.forPackage(SubtitlePanel.class).entry("language.selected");
+	private static final PreferencesList<String> persistentFavoriteLanguages = Settings.forPackage(SubtitlePanel.class).node("language.favorites").asList();
 	
 
 	public SubtitlePanel() {
@@ -114,7 +114,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	@Override
 	protected Settings getSettings() {
-		return Settings.forPackage(this);
+		return Settings.forPackage(SubtitlePanel.class);
 	}
 	
 

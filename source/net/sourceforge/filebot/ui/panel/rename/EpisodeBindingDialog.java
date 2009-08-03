@@ -165,15 +165,6 @@ class EpisodeBindingDialog extends JDialog {
 	}
 	
 
-	private JButton createImageButton(Action action) {
-		JButton button = new JButton(action);
-		button.setHideActionText(true);
-		button.setOpaque(false);
-		
-		return button;
-	}
-	
-
 	private JTable createBindingTable(TableModel model) {
 		JTable table = new JTable(model);
 		table.setAutoCreateRowSorter(true);

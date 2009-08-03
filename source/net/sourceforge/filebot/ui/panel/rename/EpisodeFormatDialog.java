@@ -45,6 +45,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
+import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -72,9 +73,9 @@ class EpisodeFormatDialog extends JDialog {
 	
 	private ExpressionFormat selectedFormat;
 	
-	private EpisodeBindingBean sample;
+	private EpisodeBindingBean sample = restoreSample();
 	
-	private ExecutorService executor;
+	private ExecutorService executor = createExecutor();
 	
 	private RunnableFuture<String> currentPreviewFuture;
 	
@@ -84,11 +85,11 @@ class EpisodeFormatDialog extends JDialog {
 	
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	
-	private JTextField editor = new JTextField();
+	private JTextComponent editor = createEditor();
 	
-	private PreferencesEntry<String> persistentSampleEpisode = Settings.forPackage(this).entry("format.sample.episode");
-	private PreferencesEntry<String> persistentSampleFile = Settings.forPackage(this).entry("format.sample.file");
-	private PreferencesList<String> persistentFormatHistory = Settings.forPackage(this).node("format.recent").asList();
+	private static final PreferencesEntry<String> persistentSampleEpisode = Settings.forPackage(EpisodeFormatDialog.class).entry("format.sample.episode");
+	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(EpisodeFormatDialog.class).entry("format.sample.file");
+	private static final PreferencesList<String> persistentFormatHistory = Settings.forPackage(EpisodeFormatDialog.class).node("format.recent").asList();
 	
 
 	public enum Option {
@@ -101,15 +102,8 @@ class EpisodeFormatDialog extends JDialog {
 	public EpisodeFormatDialog(Window owner) {
 		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
 		
-		sample = restoreSample();
-		executor = createExecutor();
-		
-		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
+		// initialize hidden
 		progressIndicator.setVisible(false);
-		
-		// image button
-		JButton changeSampleButton = new JButton(changeSampleAction);
-		changeSampleButton.setHideActionText(true);
 		
 		// bold title label in header
 		JLabel title = new JLabel(this.getTitle());
@@ -128,7 +122,7 @@ class EpisodeFormatDialog extends JDialog {
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 		
 		content.add(editor, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
-		content.add(changeSampleButton, "w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
+		content.add(createImageButton(changeSampleAction), "w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
 		
 		content.add(new JLabel("Syntax"), "gap indent+unrel, wrap 0");
 		content.add(createSyntaxPanel(), "gapx indent indent, wrap 8px");
@@ -145,18 +139,6 @@ class EpisodeFormatDialog extends JDialog {
 		
 		pane.add(header, "h 60px, growx, dock north");
 		pane.add(content, "grow");
-		
-		// enable undo/redo
-		TunedUtilities.installUndoSupport(editor);
-		
-		// update format on change
-		editor.getDocument().addDocumentListener(new LazyDocumentListener() {
-			
-			@Override
-			public void update(DocumentEvent e) {
-				checkFormatInBackground();
-			}
-		});
 		
 		addPropertyChangeListener("sample", new PropertyChangeListener() {
 			
@@ -187,15 +169,50 @@ class EpisodeFormatDialog extends JDialog {
 		// install editor suggestions popup
 		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("DOWN"), displayRecentFormatHistory);
 		
-		// restore editor state
-		editor.setText(persistentFormatHistory.isEmpty() ? "" : persistentFormatHistory.get(0));
-		
 		// update preview to current format
 		fireSampleChanged();
 		
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		pack();
+	}
+	
+
+	private JTextComponent createEditor() {
+		final JTextComponent editor = new JTextField(new ExpressionFormatDocument(), null, 0);
+		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
+		
+		// restore editor state
+		editor.setText(persistentFormatHistory.isEmpty() ? "" : persistentFormatHistory.get(0));
+		
+		// enable undo/redo
+		installUndoSupport(editor);
+		
+		// update format on change
+		editor.getDocument().addDocumentListener(new LazyDocumentListener() {
+			
+			@Override
+			public void update(DocumentEvent e) {
+				checkFormatInBackground();
+			}
+		});
+		
+		// improved cursor behaviour, use delayed listener, so we apply our cursor updates, after the text component is finished with its own
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(0) {
+			
+			@Override
+			public void update(DocumentEvent evt) {
+				if (evt.getType() == DocumentEvent.EventType.INSERT) {
+					ExpressionFormatDocument document = (ExpressionFormatDocument) evt.getDocument();
+					
+					if (document.getLastCompletion() != null) {
+						editor.setCaretPosition(editor.getCaretPosition() - 1);
+					}
+				}
+			}
+		});
+		
+		return editor;
 	}
 	
 

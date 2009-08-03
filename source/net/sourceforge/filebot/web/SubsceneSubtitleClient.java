@@ -168,7 +168,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 
 	protected Map<String, String> initLanguageFilterMap() {
-		return Settings.forPackage(this).node("subtitles/subscene/languageFilterMap").asMap();
+		return Settings.forPackage(SublightSubtitleClient.class).node("subtitles/subscene/languageFilterMap").asMap();
 	}
 	
 

@@ -19,6 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -44,6 +45,15 @@ public final class TunedUtilities {
 
 	public static Color derive(Color color, float alpha) {
 		return new Color(((int) ((alpha * 255)) << 24) | (color.getRGB() & 0x00FFFFFF), true);
+	}
+	
+
+	public static JButton createImageButton(Action action) {
+		JButton button = new JButton(action);
+		button.setHideActionText(true);
+		button.setOpaque(false);
+		
+		return button;
 	}
 	
 

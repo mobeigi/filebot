@@ -56,11 +56,6 @@ public final class Settings {
 	}
 	
 
-	public static Settings forPackage(Object object) {
-		return forPackage(object.getClass());
-	}
-	
-
 	private final Preferences prefs;
 	
 

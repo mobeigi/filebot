@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
 	
 	private HeaderPanel headerPanel = new HeaderPanel();
 	
-	private PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(this).entry("panel.selected").defaultValue("1");
+	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("1");
 	
 
 	public MainFrame() {

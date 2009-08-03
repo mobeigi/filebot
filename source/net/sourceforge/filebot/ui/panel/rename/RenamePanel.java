@@ -59,8 +59,8 @@ public class RenamePanel extends JComponent {
 	
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
-	private final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(this).entry("rename.extension.preserve").defaultValue("true");
-	private final PreferencesEntry<String> persistentFormatExpression = Settings.forPackage(this).entry("rename.format");
+	private static final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.preserve").defaultValue("true");
+	private static final PreferencesEntry<String> persistentFormatExpression = Settings.forPackage(RenamePanel.class).entry("rename.format");
 	
 
 	public RenamePanel() {
