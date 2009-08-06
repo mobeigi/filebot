@@ -5,25 +5,34 @@ package net.sourceforge.filebot.ui.panel.episodelist;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.*;
 
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
+import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
+import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
+import net.sourceforge.filebot.ui.transfer.CompositeTranserable;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.AnidbClient;
@@ -34,6 +43,7 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
+import net.sourceforge.tuned.StringUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
@@ -279,8 +289,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	protected static class EpisodeListTab extends FileBotList<Episode> {
 		
 		public EpisodeListTab() {
-			// set export handler for episode list
-			setExportHandler(new EpisodeListExportHandler(this));
+			// initialize dnd and clipboard export handler for episode list
+			EpisodeListExportHandler exportHandler = new EpisodeListExportHandler(this);
+			getTransferHandler().setExportHandler(exportHandler);
+			getTransferHandler().setClipboardHandler(exportHandler);
 			
 			// allow removal of episode list entries
 			getRemoveAction().setEnabled(true);
@@ -290,6 +302,35 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			setBorder(null);
 		}
 		
+	}
+	
+
+	protected static class EpisodeListExportHandler extends FileBotListExportHandler implements ClipboardHandler {
+		
+		public EpisodeListExportHandler(FileBotList<Episode> list) {
+			super(list);
+		}
+		
+
+		@Override
+		public Transferable createTransferable(JComponent c) {
+			Transferable episodeArray = new ArrayTransferable<Episode>(list.getModel().toArray(new Episode[0]));
+			Transferable textFile = super.createTransferable(c);
+			
+			return new CompositeTranserable(episodeArray, textFile);
+		}
+		
+
+		@Override
+		public void exportToClipboard(JComponent c, Clipboard clipboard, int action) throws IllegalStateException {
+			Object[] selection = list.getListComponent().getSelectedValues();
+			Episode[] episodes = Arrays.copyOf(selection, selection.length, Episode[].class);
+			
+			Transferable episodeArray = new ArrayTransferable<Episode>(episodes);
+			Transferable stringSelection = new StringSelection(StringUtilities.join(episodes, "\n"));
+			
+			clipboard.setContents(new CompositeTranserable(episodeArray, stringSelection), null);
+		}
 	}
 	
 }
