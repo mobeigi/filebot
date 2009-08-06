@@ -4,6 +4,10 @@ importPackage(java.lang);
 // Collection, Scanner, Random, UUID, etc.
 importPackage(java.util);
 
+// other useful classes
+importClass(net.sourceforge.filebot.similarity.SeriesNameMatcher);
+importClass(net.sourceforge.filebot.similarity.SeasonEpisodeMatcher);
+
 
 /**
  * Convenience methods for String.toLowerCase() and String.toUpperCase().

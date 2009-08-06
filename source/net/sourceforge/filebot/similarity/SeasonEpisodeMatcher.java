@@ -37,7 +37,8 @@ public class SeasonEpisodeMatcher {
 				// interpret match as episode number only
 				SxE episodeOnly = new SxE(null, match.group(1) + match.group(2));
 				
-				return Arrays.asList(seasonEpisode, episodeOnly);
+				// return both matches, unless they are one and the same
+				return seasonEpisode.equals(episodeOnly) ? Collections.singleton(episodeOnly) : Arrays.asList(seasonEpisode, episodeOnly);
 			}
 		};
 	}
@@ -141,7 +142,7 @@ public class SeasonEpisodeMatcher {
 
 		@Override
 		public String toString() {
-			return String.format("%dx%02d", season, episode);
+			return season >= 0 ? String.format("%dx%02d", season, episode) : String.format("%02d", episode);
 		}
 	}
 	
