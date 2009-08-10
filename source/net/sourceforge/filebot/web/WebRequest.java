@@ -145,8 +145,8 @@ public final class WebRequest {
 			}
 		}
 		
-		// use UTF-8 if charset cannot be determined
-		return Charset.forName("UTF-8");
+		// use http default encoding if charset cannot be determined
+		return Charset.forName("ISO-8859-1");
 	}
 	
 
