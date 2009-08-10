@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Scanner;
 import java.util.TimeZone;
 
 
@@ -18,8 +17,8 @@ public class SubRipReader extends SubtitleReader {
 	private final DateFormat timeFormat;
 	
 
-	public SubRipReader(Scanner scanner) {
-		super(scanner);
+	public SubRipReader(Readable source) {
+		super(source);
 		
 		// format used to parse time stamps (e.g. 00:02:26,407 --> 00:02:31,356)
 		timeFormat = new SimpleDateFormat("HH:mm:ss,SSS", Locale.ROOT);

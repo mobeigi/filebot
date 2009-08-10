@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.InputMismatchException;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 
@@ -21,8 +20,8 @@ public class SubStationAlphaReader extends SubtitleReader {
 	private Map<EventProperty, Integer> format;
 	
 
-	public SubStationAlphaReader(Scanner scanner) {
-		super(scanner);
+	public SubStationAlphaReader(Readable source) {
+		super(source);
 	}
 	
 

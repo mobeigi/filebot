@@ -4,16 +4,16 @@ package net.sourceforge.filebot.subtitle;
 
 import static org.junit.Assert.*;
 
-import java.util.*;
+import java.io.StringReader;
 
-import org.junit.*;
+import org.junit.Test;
 
 
 public class MicroDVDReaderTest {
 	
 	@Test
 	public void parse() throws Exception {
-		MicroDVDReader reader = new MicroDVDReader(new Scanner("{856}{900}what's the plan?"));
+		MicroDVDReader reader = new MicroDVDReader(new StringReader("{856}{900}what's the plan?"));
 		
 		SubtitleElement element = reader.next();
 		
@@ -25,7 +25,7 @@ public class MicroDVDReaderTest {
 
 	@Test
 	public void fps() throws Exception {
-		MicroDVDReader reader = new MicroDVDReader(new Scanner("{1}{1}100\n{300}{400} trim me "));
+		MicroDVDReader reader = new MicroDVDReader(new StringReader("{1}{1}100\n{300}{400} trim me "));
 		
 		SubtitleElement element = reader.next();
 		
@@ -37,7 +37,7 @@ public class MicroDVDReaderTest {
 
 	@Test
 	public void newline() throws Exception {
-		MicroDVDReader reader = new MicroDVDReader(new Scanner("\n\n{300}{400} l1|l2|l3| \n\n"));
+		MicroDVDReader reader = new MicroDVDReader(new StringReader("\n\n{300}{400} l1|l2|l3| \n\n"));
 		
 		String[] lines = reader.next().getText().split("\\n");
 		

@@ -17,7 +17,7 @@ public class VerificationFormat extends Format {
 	
 	private final String hashTypeHint;
 	
-	
+
 	public VerificationFormat() {
 		this.hashTypeHint = "";
 	}
@@ -45,6 +45,7 @@ public class VerificationFormat extends Format {
 		return String.format("%s %s*%s", hash, hashTypeHint, path);
 	}
 	
+
 	/**
 	 * Pattern used to parse the lines of a md5 or sha1 file.
 	 * 
@@ -58,9 +59,9 @@ public class VerificationFormat extends Format {
 	 * |               Group 1                |       |   Group 2   |
 	 * </pre>
 	 */
-	private final Pattern pattern = Pattern.compile("(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*?(.+)");
+	private final Pattern pattern = Pattern.compile("^(\\p{XDigit}+)\\s+(?:\\?\\w+)?\\*?(.+)$");
 	
-	
+
 	@Override
 	public Entry<File, String> parseObject(String line) throws ParseException {
 		Matcher matcher = pattern.matcher(line);

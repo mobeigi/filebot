@@ -6,7 +6,6 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.text.DateFormat;
 import java.util.InputMismatchException;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 
@@ -16,8 +15,8 @@ public class SubViewerReader extends SubtitleReader {
 	private final Pattern newline = Pattern.compile(Pattern.quote("[br]"), Pattern.CASE_INSENSITIVE);
 	
 
-	public SubViewerReader(Scanner scanner) {
-		super(scanner);
+	public SubViewerReader(Readable source) {
+		super(source);
 	}
 	
 

@@ -6,7 +6,6 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class MicroDVDReader extends SubtitleReader {
@@ -14,8 +13,8 @@ public class MicroDVDReader extends SubtitleReader {
 	private double fps = 23.976;
 	
 
-	public MicroDVDReader(Scanner scanner) {
-		super(scanner);
+	public MicroDVDReader(Readable source) {
+		super(source);
 	}
 	
 

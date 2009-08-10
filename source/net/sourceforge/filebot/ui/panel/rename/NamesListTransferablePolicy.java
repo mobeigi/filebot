@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.awt.datatransfer.DataFlavor.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -19,7 +20,7 @@ import java.util.Scanner;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFileScanner;
+import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -97,13 +98,13 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	protected void load(List<File> files) throws IOException {
 		List<Object> values = new ArrayList<Object>();
 		
-		if (containsOnly(files, MediaTypes.getFilter("application/list"))) {
+		if (containsOnly(files, MediaTypes.getDefaultFilter("application/list"))) {
 			// list files
 			loadListFiles(files, values);
-		} else if (containsOnly(files, MediaTypes.getFilter("verification"))) {
+		} else if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
 			// verification files
 			loadVerificationFiles(files, values);
-		} else if (containsOnly(files, MediaTypes.getFilter("application/torrent"))) {
+		} else if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
 			// torrent files
 			loadTorrentFiles(files, values);
 		} else if (containsOnly(files, FOLDERS)) {
@@ -139,15 +140,15 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	
 
 	protected void loadVerificationFiles(List<File> files, List<Object> values) throws IOException {
-		for (File file : files) {
-			HashType format = HashType.forName(getExtension(file));
+		for (File verificationFile : files) {
+			HashType type = getHashType(verificationFile);
 			
-			// check if format is valid
-			if (format == null)
+			// check if type is supported
+			if (type == null)
 				continue;
 			
 			// add all file names from verification file
-			VerificationFileScanner scanner = new VerificationFileScanner(file, format.getFormat());
+			VerificationFileReader scanner = new VerificationFileReader(verificationFile, type.getFormat());
 			
 			try {
 				while (scanner.hasNext()) {

@@ -49,7 +49,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		
 		if (containsOnly(files, FOLDERS)) {
 			loadFolders(files);
-		} else if (containsOnly(files, MediaTypes.getFilter("application/torrent"))) {
+		} else if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
 			loadTorrents(files);
 		} else {
 			loadFiles(files);

@@ -3,9 +3,6 @@ package net.sourceforge.filebot.subtitle;
 
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -21,14 +18,8 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 	protected SubtitleElement current;
 	
 
-	public SubtitleReader(File file) throws FileNotFoundException {
-		// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-		this(new Scanner(new FileInputStream(file), "UTF-8"));
-	}
-	
-
-	public SubtitleReader(Scanner scanner) {
-		this.scanner = scanner;
+	public SubtitleReader(Readable source) {
+		this.scanner = new Scanner(source);
 	}
 	
 

@@ -51,7 +51,7 @@ public class ArgumentBean {
 	
 
 	public boolean sfv() {
-		return sfv || (open && FileUtilities.containsOnly(arguments, MediaTypes.getFilter("verification")));
+		return sfv || (open && FileUtilities.containsOnly(arguments, MediaTypes.getDefaultFilter("verification")));
 	}
 	
 

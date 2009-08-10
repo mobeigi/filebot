@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

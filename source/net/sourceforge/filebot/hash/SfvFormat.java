@@ -17,6 +17,7 @@ public class SfvFormat extends VerificationFormat {
 		return String.format("%s %s", path, hash);
 	}
 	
+
 	/**
 	 * Pattern used to parse the lines of a sfv file.
 	 * 
@@ -26,9 +27,9 @@ public class SfvFormat extends VerificationFormat {
 	 * |  Group 1    | | Gr.2 |
 	 * </pre>
 	 */
-	private final Pattern pattern = Pattern.compile("(.+)\\s+(\\p{XDigit}{8})");
+	private final Pattern pattern = Pattern.compile("^(.+)\\s+(\\p{XDigit}{8})$");
 	
-	
+
 	@Override
 	public Entry<File, String> parseObject(String line) throws ParseException {
 		Matcher matcher = pattern.matcher(line);

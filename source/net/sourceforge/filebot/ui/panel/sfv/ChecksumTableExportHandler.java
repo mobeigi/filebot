@@ -18,7 +18,7 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 	
 	private final ChecksumTableModel model;
 	
-	
+
 	public ChecksumTableExportHandler(ChecksumTableModel model) {
 		this.model = model;
 	}
@@ -92,11 +92,12 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 	public String getDefaultFileName(File column) {
 		StringBuilder sb = new StringBuilder();
 		
-		if (column != null)
-			sb.append(FileUtilities.getName(column));
-		else
-			sb.append("name");
+		// append file name
+		sb.append(column != null ? FileUtilities.getName(column) : "name");
 		
-		return sb.append(".").append(model.getHashType().getExtension()).toString();
+		// append file extension
+		sb.append('.').append(model.getHashType().name().toLowerCase());
+		
+		return sb.toString();
 	}
 }

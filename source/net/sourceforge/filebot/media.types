@@ -21,12 +21,13 @@
 		<extension>sfv</extension>
 	</type>
 
-	<type name="verification/md5">
+	<type name="verification/md5sum">
 		<extension>md5</extension>
 	</type>
-
-	<type name="verification/sha-1">
+	
+	<type name="verification/sha1sum">
 		<extension>sha1</extension>
+		<extension>sha</extension>
 	</type>
 
 

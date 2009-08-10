@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
+import static net.sourceforge.tuned.FileUtilities.*;
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +15,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
-import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.ResourceManager;
 
 
@@ -21,7 +22,7 @@ public class SaveAction extends AbstractAction {
 	
 	public static final String EXPORT_HANDLER = "exportHandler";
 	
-	
+
 	public SaveAction(FileExportHandler exportHandler) {
 		this("Save as ...", ResourceManager.getIcon("action.save"), exportHandler);
 	}
@@ -67,7 +68,7 @@ public class SaveAction extends AbstractAction {
 		
 		chooser.setMultiSelectionEnabled(false);
 		
-		chooser.setSelectedFile(new File(getDefaultFolder(), FileBotUtilities.validateFileName(getDefaultFileName())));
+		chooser.setSelectedFile(new File(getDefaultFolder(), validateFileName(getDefaultFileName())));
 		
 		if (chooser.showSaveDialog((JComponent) evt.getSource()) != JFileChooser.APPROVE_OPTION)
 			return;

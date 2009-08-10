@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.io.FileNotFoundException;
 
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
@@ -20,7 +21,7 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 	
 	private final SwingWorkerCellRenderer progressRenderer = new SwingWorkerCellRenderer();
 	
-	
+
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		boolean pendingWorker = false;
@@ -50,6 +51,8 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 			setText("Pending...");
 		} else if (value == null && !isSelected) {
 			setBackground(derive(table.getGridColor(), 0.1f));
+		} else if (value instanceof FileNotFoundException) {
+			setText("File not found");
 		} else if (value instanceof Throwable) {
 			setText(ExceptionUtilities.getRootCauseMessage((Throwable) value));
 		}

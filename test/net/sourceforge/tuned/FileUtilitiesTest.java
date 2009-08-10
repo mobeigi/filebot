@@ -10,6 +10,14 @@ import org.junit.Test;
 public class FileUtilitiesTest {
 	
 	@Test
+	public void hasExtension() {
+		assertTrue(FileUtilities.hasExtension("abc.txt", null, "txt"));
+		assertTrue(FileUtilities.hasExtension(".hidden", null, "txt"));
+		assertFalse(FileUtilities.hasExtension(".hidden", "txt"));
+	}
+	
+
+	@Test
 	public void getExtension() {
 		assertEquals("txt", FileUtilities.getExtension("abc.txt"));
 		assertEquals("out", FileUtilities.getExtension("a.out"));

@@ -5,7 +5,6 @@ package net.sourceforge.tuned;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -14,27 +13,12 @@ import java.util.regex.Pattern;
 
 public final class FileUtilities {
 	
-	public static final long KILO = 1024;
-	public static final long MEGA = KILO * 1024;
-	public static final long GIGA = MEGA * 1024;
-	
-
-	public static String formatSize(long size) {
-		if (size >= MEGA)
-			return String.format("%,d MB", size / MEGA);
-		else if (size >= KILO)
-			return String.format("%,d KB", size / KILO);
-		else
-			return String.format("%,d Byte", size);
-	}
-	
-
 	/**
 	 * Pattern used for matching file extensions.
 	 * 
 	 * e.g. "file.txt" -> match "txt", ".hidden" -> no match
 	 */
-	private static final Pattern extension = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
+	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
 	
 
 	public static String getExtension(File file) {
@@ -46,7 +30,7 @@ public final class FileUtilities {
 	
 
 	public static String getExtension(String name) {
-		Matcher matcher = extension.matcher(name);
+		Matcher matcher = EXTENSION.matcher(name);
 		
 		if (matcher.find()) {
 			// extension without leading '.'
@@ -59,21 +43,17 @@ public final class FileUtilities {
 	
 
 	public static boolean hasExtension(File file, String... extensions) {
-		if (file.isDirectory())
-			return false;
-		
-		return hasExtension(file.getName(), extensions);
+		// avoid native call for speed, if possible
+		return hasExtension(file.getName(), extensions) && !file.isDirectory();
 	}
 	
 
 	public static boolean hasExtension(String filename, String... extensions) {
 		String extension = getExtension(filename);
 		
-		if (extension != null) {
-			for (String entry : extensions) {
-				if (extension.equalsIgnoreCase(entry))
-					return true;
-			}
+		for (String value : extensions) {
+			if ((extension == null && value == null) || (extension != null && extension.equalsIgnoreCase(value)))
+				return true;
 		}
 		
 		return false;
@@ -81,7 +61,7 @@ public final class FileUtilities {
 	
 
 	public static String getNameWithoutExtension(String name) {
-		Matcher matcher = extension.matcher(name);
+		Matcher matcher = EXTENSION.matcher(name);
 		
 		if (matcher.find()) {
 			return name.substring(0, matcher.start() - 1);
@@ -134,6 +114,44 @@ public final class FileUtilities {
 		}
 		
 		return accepted;
+	}
+	
+
+	/**
+	 * Invalid filename characters: \, /, :, *, ?, ", <, >, |, \r and \n
+	 */
+	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]");
+	
+
+	/**
+	 * Strip filename of invalid characters
+	 * 
+	 * @param filename original filename
+	 * @return valid filename stripped of invalid characters
+	 */
+	public static String validateFileName(CharSequence filename) {
+		// strip invalid characters from filename
+		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("");
+	}
+	
+
+	public static boolean isInvalidFileName(CharSequence filename) {
+		return ILLEGAL_CHARACTERS.matcher(filename).find();
+	}
+	
+
+	public static final long KILO = 1024;
+	public static final long MEGA = KILO * 1024;
+	public static final long GIGA = MEGA * 1024;
+	
+
+	public static String formatSize(long size) {
+		if (size >= MEGA)
+			return String.format("%,d MB", size / MEGA);
+		else if (size >= KILO)
+			return String.format("%,d KB", size / KILO);
+		else
+			return String.format("%,d Byte", size);
 	}
 	
 
@@ -190,8 +208,8 @@ public final class FileUtilities {
 		}
 		
 
-		public List<String> extensions() {
-			return Arrays.asList(extensions);
+		public String[] extensions() {
+			return extensions.clone();
 		}
 	}
 	

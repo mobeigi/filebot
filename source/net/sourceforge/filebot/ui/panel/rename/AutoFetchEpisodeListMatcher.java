@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.io.File;

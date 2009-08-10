@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.awt.Color;
 
@@ -33,7 +33,7 @@ class ChecksumTable extends JTable {
 		setBackground(Color.WHITE);
 		
 		// highlight CRC32 patterns in filenames in green and with smaller font-size
-		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(EMBEDDED_CHECKSUM_PATTERN));
+		setDefaultRenderer(String.class, new HighlightPatternCellRenderer(EMBEDDED_CHECKSUM));
 		setDefaultRenderer(ChecksumRow.State.class, new StateIconCellRenderer());
 		setDefaultRenderer(ChecksumCell.class, new ChecksumCellRenderer());
 	}

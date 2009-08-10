@@ -2,11 +2,12 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 
-import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.similarity.LengthEqualsMetric;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
@@ -109,7 +110,7 @@ enum MatchSimilarityMetric implements SimilarityMetric {
 		}
 		
 		// remove embedded checksum from name, if any
-		return FileBotUtilities.removeEmbeddedChecksum(name);
+		return removeEmbeddedChecksum(name);
 	}
 	
 

@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
@@ -23,7 +22,7 @@ class ChecksumComputationTask extends SwingWorker<Map<HashType, String>, Void> {
 	private final File file;
 	private final HashType hashType;
 	
-	
+
 	public ChecksumComputationTask(File file, HashType hashType) {
 		this.file = file;
 		this.hashType = hashType;
@@ -32,9 +31,6 @@ class ChecksumComputationTask extends SwingWorker<Map<HashType, String>, Void> {
 
 	@Override
 	protected Map<HashType, String> doInBackground() throws Exception {
-		if (!file.exists())
-			throw new FileNotFoundException("File not found");
-		
 		// create hash instance
 		Hash hash = hashType.newHash();
 		

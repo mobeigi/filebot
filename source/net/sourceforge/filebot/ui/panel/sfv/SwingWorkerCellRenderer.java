@@ -18,12 +18,12 @@ class SwingWorkerCellRenderer extends JPanel implements TableCellRenderer {
 	
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
 	
-	
+
 	public SwingWorkerCellRenderer() {
 		super(new BorderLayout());
 		
-		// create margin for progress bar, 
-		// because setting margin for progress bar directly does not work (border size is not respected in the paint method)
+		// set margin for progress bar on parent component, 
+		// because setting it on the progress bar itself does not work (border size is not respected in the paint method)
 		setBorder(new EmptyBorder(2, 2, 2, 2));
 		
 		progressBar.setStringPainted(true);

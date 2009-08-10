@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -15,7 +17,6 @@ import java.util.Set;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 
-import net.sourceforge.filebot.FileBotUtilities;
 import net.sourceforge.filebot.hash.HashType;
 
 
@@ -31,7 +32,7 @@ class ChecksumRow {
 	 */
 	private String embeddedChecksum;
 	
-	
+
 	public static enum State {
 		UNKNOWN,
 		OK,
@@ -39,10 +40,10 @@ class ChecksumRow {
 		ERROR
 	}
 	
-	
+
 	public ChecksumRow(String name) {
 		this.name = name;
-		this.embeddedChecksum = FileBotUtilities.getEmbeddedChecksum(name);
+		this.embeddedChecksum = getEmbeddedChecksum(name);
 	}
 	
 
@@ -167,6 +168,7 @@ class ChecksumRow {
 		return String.format("%s %s %s", state, name, hashes);
 	}
 	
+
 	private final PropertyChangeListener updateStateListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -178,7 +180,7 @@ class ChecksumRow {
 	
 	private SwingPropertyChangeSupport pcs = new SwingPropertyChangeSupport(this, true);
 	
-	
+
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}

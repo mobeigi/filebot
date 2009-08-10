@@ -4,6 +4,9 @@ package net.sourceforge.filebot.hash;
 
 import java.util.zip.CRC32;
 
+import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
+
 
 public enum HashType {
 	
@@ -21,6 +24,12 @@ public enum HashType {
 			return new SfvFormat();
 		}
 		
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getDefaultFilter("verification/sfv");
+		}
+		
 	},
 	
 	MD5 {
@@ -35,6 +44,12 @@ public enum HashType {
 		public VerificationFormat getFormat() {
 			// e.g. 50e85fe18e17e3616774637a82968f4c *folder/file.txt
 			return new VerificationFormat();
+		}
+		
+
+		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getDefaultFilter("verification/md5sum");
 		}
 		
 	},
@@ -55,6 +70,12 @@ public enum HashType {
 		
 
 		@Override
+		public ExtensionFileFilter getFilter() {
+			return MediaTypes.getDefaultFilter("verification/sha1sum");
+		}
+		
+
+		@Override
 		public String toString() {
 			return "SHA-1";
 		}
@@ -67,20 +88,6 @@ public enum HashType {
 	public abstract VerificationFormat getFormat();
 	
 
-	public String getExtension() {
-		return name().toLowerCase();
-	}
-	
-
-	public static HashType forName(String name) {
-		for (HashType value : HashType.values()) {
-			if (value.name().equalsIgnoreCase(name)) {
-				return value;
-			}
-		}
-		
-		// value not found
-		return null;
-	}
+	public abstract ExtensionFileFilter getFilter();
 	
 }

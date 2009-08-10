@@ -2,24 +2,21 @@
 package net.sourceforge.filebot.format;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
-import java.util.Map.Entry;
 import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sourceforge.filebot.FileBotUtilities;
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.hash.SfvFormat;
-import net.sourceforge.filebot.hash.VerificationFileScanner;
+import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Episode;
@@ -126,13 +123,13 @@ public class EpisodeBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// try to get checksum from file name
-		String checksum = FileBotUtilities.getEmbeddedChecksum(inferredMediaFile.getName());
+		String checksum = getEmbeddedChecksum(inferredMediaFile.getName());
 		
 		if (checksum != null)
 			return checksum;
 		
 		// try to get checksum from sfv file
-		checksum = getChecksumFromSfvFile(inferredMediaFile.getParentFile(), inferredMediaFile, 0, 3);
+		checksum = getHashFromVerificationFile(inferredMediaFile, HashType.SFV, 3);
 		
 		if (checksum != null)
 			return checksum;
@@ -247,43 +244,14 @@ public class EpisodeBindingBean {
 	}
 	
 
-	private String getChecksumFromSfvFile(File folder, File target, int depth, int maxDepth) throws IOException {
-		// stop if we reached max depth or the file system root
-		if (folder == null || depth > maxDepth)
-			return null;
-		
-		// scan all sfv files in this folder
-		for (File sfvFile : folder.listFiles(MediaTypes.getFilter("verification/sfv"))) {
-			VerificationFileScanner scanner = new VerificationFileScanner(sfvFile, new SfvFormat());
-			
-			try {
-				while (scanner.hasNext()) {
-					Entry<File, String> entry = scanner.next();
-					
-					// resolve relative file path
-					File file = new File(folder, entry.getKey().getPath());
-					
-					if (target.equals(file)) {
-						return entry.getValue();
-					}
-				}
-			} finally {
-				scanner.close();
-			}
-		}
-		
-		return getChecksumFromSfvFile(folder.getParentFile(), target, depth + 1, maxDepth);
-	}
-	
-
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
 		Cache cache = CacheManager.getInstance().getCache("checksum");
 		
-		Element cacheEntry = cache.get(file);
-		
-		if (cacheEntry != null) {
-			return String.format("%08X", cacheEntry.getValue());
+		try {
+			return String.format("%08X", cache.get(file).getValue());
+		} catch (Exception e) {
+			// checksum is not cached
 		}
 		
 		// calculate checksum

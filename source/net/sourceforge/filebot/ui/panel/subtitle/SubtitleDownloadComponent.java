@@ -2,8 +2,9 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;

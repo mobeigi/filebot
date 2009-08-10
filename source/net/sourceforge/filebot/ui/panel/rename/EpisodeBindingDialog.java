@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -13,6 +14,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -51,7 +53,6 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
@@ -385,9 +386,9 @@ class EpisodeBindingDialog extends JDialog {
 			
 			// collect media file extensions (video, audio and subtitle files)
 			List<String> extensions = new ArrayList<String>();
-			extensions.addAll(MediaTypes.getExtensionList("video"));
-			extensions.addAll(MediaTypes.getExtensionList("audio"));
-			extensions.addAll(MediaTypes.getExtensionList("subtitle"));
+			Collections.addAll(extensions, VIDEO_FILES.extensions());
+			Collections.addAll(extensions, AUDIO_FILES.extensions());
+			Collections.addAll(extensions, SUBTITLE_FILES.extensions());
 			
 			chooser.setFileFilter(new FileNameExtensionFilter("Media files", extensions.toArray(new String[0])));
 			chooser.setMultiSelectionEnabled(false);

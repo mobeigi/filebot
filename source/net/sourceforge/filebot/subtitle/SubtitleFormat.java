@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.subtitle;
 
 
-import java.util.Scanner;
-
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
@@ -14,7 +12,7 @@ public enum SubtitleFormat {
 		
 		@Override
 		public SubtitleReader newReader(Readable readable) {
-			return new SubRipReader(new Scanner(readable));
+			return new SubRipReader(readable);
 		}
 	},
 	
@@ -22,7 +20,7 @@ public enum SubtitleFormat {
 		
 		@Override
 		public SubtitleReader newReader(Readable readable) {
-			return new MicroDVDReader(new Scanner(readable));
+			return new MicroDVDReader(readable);
 		}
 	},
 	
@@ -30,7 +28,7 @@ public enum SubtitleFormat {
 		
 		@Override
 		public SubtitleReader newReader(Readable readable) {
-			return new SubViewerReader(new Scanner(readable));
+			return new SubViewerReader(readable);
 		}
 	},
 	
@@ -38,7 +36,7 @@ public enum SubtitleFormat {
 		
 		@Override
 		public SubtitleReader newReader(Readable readable) {
-			return new SubStationAlphaReader(new Scanner(readable));
+			return new SubStationAlphaReader(readable);
 		}
 	};
 	
@@ -46,7 +44,7 @@ public enum SubtitleFormat {
 	
 
 	public ExtensionFileFilter getFilter() {
-		return MediaTypes.getFilter("subtitle/" + this);
+		return MediaTypes.getDefaultFilter("subtitle/" + this);
 	}
 	
 }

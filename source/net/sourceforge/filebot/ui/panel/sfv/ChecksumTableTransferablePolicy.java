@@ -2,22 +2,24 @@
 package net.sourceforge.filebot.ui.panel.sfv;
 
 
-import static net.sourceforge.tuned.FileUtilities.*;
+import static java.util.Collections.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFileScanner;
+import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {
@@ -25,7 +27,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	private final ChecksumTableModel model;
 	private final ChecksumComputationService computationService;
 	
-	
+
 	public ChecksumTableTransferablePolicy(ChecksumTableModel model, ChecksumComputationService checksumComputationService) {
 		this.model = model;
 		this.computationService = checksumComputationService;
@@ -49,10 +51,8 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void prepare(List<File> files) {
-		HashType type = getVerificationType(files);
-		
-		if (type != null) {
-			model.setHashType(type);
+		if (files.size() == 1 && getHashType(files.get(0)) != null) {
+			model.setHashType(getHashType(files.get(0)));
 		}
 	}
 	
@@ -69,86 +69,75 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	}
 	
 
-	protected HashType getVerificationType(List<File> files) {
-		for (HashType hash : HashType.values()) {
-			if (containsOnly(files, new ExtensionFileFilter(hash.getExtension()))) {
-				return hash;
-			}
-		}
-		
-		return null;
-	}
+	private final ThreadLocal<ExecutorService> executor = new ThreadLocal<ExecutorService>();
+	private final ThreadLocal<VerificationTracker> verificationTracker = new ThreadLocal<VerificationTracker>();
 	
 
-	protected void loadVerificationFile(File file, HashType type) throws IOException {
-		// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-		VerificationFileScanner scanner = new VerificationFileScanner(file, type.getFormat());
-		
-		try {
-			// root for relative file paths in verification file
-			File root = file.getParentFile();
-			
-			while (scanner.hasNext()) {
-				Entry<File, String> entry = scanner.next();
-				
-				String name = normalizeRelativePath(entry.getKey());
-				String hash = entry.getValue();
-				
-				ChecksumCell correct = new ChecksumCell(name, file, Collections.singletonMap(type, hash));
-				ChecksumCell current = createComputationCell(name, root, type);
-				
-				publish(correct, current);
-				
-				if (Thread.interrupted()) {
-					break;
-				}
-			}
-		} finally {
-			scanner.close();
-		}
-	}
-	
-	private final ThreadLocal<ExecutorService> executor = new ThreadLocal<ExecutorService>();
-	
-	
 	@Override
 	protected void load(List<File> files) throws IOException {
 		// initialize drop parameters
 		executor.set(computationService.newExecutor());
+		verificationTracker.set(new VerificationTracker(3));
 		
 		try {
-			HashType verificationType = getVerificationType(files);
-			
-			if (verificationType != null) {
+			// handle single verification file drop
+			if (files.size() == 1 && getHashType(files.get(0)) != null) {
+				loadVerificationFile(files.get(0), getHashType(files.get(0)));
+			}
+			// handle single folder drop
+			else if (files.size() == 1 && files.get(0).isDirectory()) {
+				for (File file : files.get(0).listFiles()) {
+					load(file, null, files.get(0));
+				}
+			}
+			// handle all other drops
+			else {
 				for (File file : files) {
-					loadVerificationFile(file, verificationType);
-				}
-			} else if ((files.size() == 1) && files.get(0).isDirectory()) {
-				// one single folder
-				File file = files.get(0);
-				
-				for (File f : file.listFiles()) {
-					load(f, null, file);
-				}
-			} else {
-				// bunch of files
-				for (File f : files) {
-					load(f, null, f.getParentFile());
+					load(file, null, file.getParentFile());
 				}
 			}
 		} catch (InterruptedException e) {
-			// supposed to happen if background execution was aborted
+			// supposed to happen if background execution is aborted
 		} finally {
 			// shutdown executor after all tasks have been completed
 			executor.get().shutdown();
 			
 			// remove drop parameters
 			executor.remove();
+			verificationTracker.remove();
 		}
 	}
 	
 
-	protected void load(File file, File relativeFile, File root) throws InterruptedException {
+	protected void loadVerificationFile(File file, HashType type) throws IOException, InterruptedException {
+		VerificationFileReader scanner = new VerificationFileReader(file, type.getFormat());
+		
+		try {
+			// root for relative file paths in verification file
+			File baseFolder = file.getParentFile();
+			
+			while (scanner.hasNext()) {
+				Entry<File, String> entry = scanner.next();
+				
+				String name = normalizePath(entry.getKey());
+				String hash = new String(entry.getValue());
+				
+				ChecksumCell correct = new ChecksumCell(name, file, singletonMap(type, hash));
+				ChecksumCell current = createComputationCell(name, baseFolder, type);
+				
+				publish(correct, current);
+				
+				// make this long-running operation interruptible
+				if (Thread.interrupted())
+					throw new InterruptedException();
+			}
+		} finally {
+			scanner.close();
+		}
+	}
+	
+
+	protected void load(File file, File relativeFile, File root) throws IOException, InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
 		
@@ -161,7 +150,18 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 				load(child, relativeFile, root);
 			}
 		} else {
-			publish(createComputationCell(normalizeRelativePath(relativeFile), root, model.getHashType()));
+			String name = normalizePath(relativeFile);
+			
+			// publish computation cell first
+			publish(createComputationCell(name, root, model.getHashType()));
+			
+			// publish verification cell, if we can
+			Map<File, String> hashByVerificationFile = verificationTracker.get().getHashByVerificationFile(file);
+			
+			for (Entry<File, String> entry : hashByVerificationFile.entrySet()) {
+				HashType hashType = verificationTracker.get().getVerificationFileType(entry.getKey());
+				publish(new ChecksumCell(name, entry.getKey(), singletonMap(hashType, entry.getValue())));
+			}
 		}
 	}
 	
@@ -176,10 +176,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	}
 	
 
-	protected String normalizeRelativePath(File file) {
-		if (file.isAbsolute())
-			throw new IllegalArgumentException("Path must be relative");
-		
+	protected String normalizePath(File file) {
 		return file.getPath().replace('\\', '/');
 	}
 	
@@ -187,6 +184,99 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	@Override
 	public String getFileFilterDescription() {
 		return "files, folders and sfv files";
+	}
+	
+
+	private static class VerificationTracker {
+		
+		private final Map<File, Integer> seen = new HashMap<File, Integer>();
+		private final Map<File, Map<File, String>> cache = new HashMap<File, Map<File, String>>();
+		private final Map<File, HashType> types = new HashMap<File, HashType>();
+		
+		private final int maxDepth;
+		
+
+		public VerificationTracker(int maxDepth) {
+			this.maxDepth = maxDepth;
+		}
+		
+
+		public Map<File, String> getHashByVerificationFile(File file) throws IOException {
+			// cache all verification files
+			File folder = file.getParentFile();
+			int depth = 0;
+			
+			while (folder != null && depth <= maxDepth) {
+				Integer seenLevel = seen.get(folder);
+				
+				if (seenLevel != null && seenLevel <= depth) {
+					// we have completely seen this parent tree before 
+					break;
+				}
+				
+				if (seenLevel == null) {
+					// folder we have never encountered before
+					for (File verificationFile : folder.listFiles(MediaTypes.getDefaultFilter("verification"))) {
+						HashType hashType = getHashType(verificationFile);
+						cache.put(verificationFile, importVerificationFile(verificationFile, hashType, verificationFile.getParentFile()));
+						types.put(verificationFile, hashType);
+					}
+				}
+				
+				// update
+				seen.put(folder, depth);
+				
+				// step down
+				folder = folder.getParentFile();
+				depth++;
+			}
+			
+			// just return if we know we won't find anything
+			if (cache.isEmpty()) {
+				return emptyMap();
+			}
+			
+			// search all cached verification files
+			Map<File, String> result = new HashMap<File, String>(2);
+			
+			for (Entry<File, Map<File, String>> entry : cache.entrySet()) {
+				String hash = entry.getValue().get(file);
+				
+				if (hash != null) {
+					result.put(entry.getKey(), hash);
+				}
+			}
+			
+			return result;
+		}
+		
+
+		public HashType getVerificationFileType(File verificationFile) {
+			return types.get(verificationFile);
+		}
+		
+
+		/**
+		 * Completely read a verification file and resolve all relative file paths against a given base folder
+		 */
+		private Map<File, String> importVerificationFile(File verificationFile, HashType hashType, File baseFolder) throws IOException {
+			VerificationFileReader reader = new VerificationFileReader(verificationFile, hashType.getFormat());
+			Map<File, String> content = new HashMap<File, String>();
+			
+			try {
+				while (reader.hasNext()) {
+					Entry<File, String> entry = reader.next();
+					
+					// resolve relative path, the hash is probably a substring, so we compact it, for memory reasons
+					content.put(new File(baseFolder, entry.getKey().getPath()), new String(entry.getValue()));
+				}
+			} finally {
+				reader.close();
+			}
+			
+			return content;
+		}
+		
 	}
 	
 }

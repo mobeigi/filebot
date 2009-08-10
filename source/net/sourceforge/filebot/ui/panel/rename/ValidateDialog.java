@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.FileBotUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -47,7 +47,7 @@ class ValidateDialog extends JDialog {
 		list = new JList(model);
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(INVALID_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
+		list.setCellRenderer(new HighlightListCellRenderer(ILLEGAL_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		

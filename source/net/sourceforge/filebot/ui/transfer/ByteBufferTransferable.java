@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.FileBotUtilities.*;
 import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -90,9 +90,7 @@ public class ByteBufferTransferable implements Transferable {
 
 	@Override
 	public DataFlavor[] getTransferDataFlavors() {
-		return new DataFlavor[] {
-				DataFlavor.javaFileListFlavor, FileTransferable.uriListFlavor
-		};
+		return new DataFlavor[] { DataFlavor.javaFileListFlavor, FileTransferable.uriListFlavor };
 	}
 	
 

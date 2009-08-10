@@ -26,7 +26,7 @@ public class MediaInfo implements Closeable {
 				// We need to load dependencies first, because we know where our native libs are (e.g. Java Web Start Cache).
 				// If we do not, the system will look for dependencies, but only in the library path.
 				NativeLibrary.getInstance("zen");
-			} catch (Exception e) {
+			} catch (LinkageError e) {
 				Logger.getLogger(MediaInfo.class.getName()).warning("Failed to preload libzen");
 			}
 		}
