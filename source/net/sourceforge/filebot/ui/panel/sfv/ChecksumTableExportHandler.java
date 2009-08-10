@@ -44,7 +44,7 @@ class ChecksumTableExportHandler extends TextFileExportHandler {
 
 	protected File defaultColumn() {
 		// select first column that is not a verification file column
-		for (File root : model.checksumColumns()) {
+		for (File root : model.getChecksumColumns()) {
 			if (root.isDirectory())
 				return root;
 		}

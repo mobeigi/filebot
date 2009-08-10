@@ -5,11 +5,12 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.awt.Color;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 
 import net.sourceforge.tuned.ui.TunedUtilities.DragDropRowTableUI;
 
@@ -40,8 +41,29 @@ class ChecksumTable extends JTable {
 	
 
 	@Override
-	protected TableModel createDefaultDataModel() {
+	protected ChecksumTableModel createDefaultDataModel() {
 		return new ChecksumTableModel();
+	}
+	
+
+	@Override
+	protected JTableHeader createDefaultTableHeader() {
+		return new JTableHeader(columnModel) {
+			
+			@Override
+			public String getToolTipText(MouseEvent evt) {
+				try {
+					int columnIndex = columnModel.getColumnIndexAtX(evt.getX());
+					int modelIndex = columnModel.getColumn(columnIndex).getModelIndex();
+					
+					// display column root of checksum column
+					return getModel().getColumnRoot(modelIndex).getPath();
+				} catch (Exception e) {
+					// ignore, column is not a checksum column
+					return null;
+				}
+			};
+		};
 	}
 	
 

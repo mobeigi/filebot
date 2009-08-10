@@ -257,7 +257,7 @@ public class SfvPanel extends JComponent {
 			List<File> options = new ArrayList<File>();
 			
 			// filter out verification file columns
-			for (File file : table.getModel().checksumColumns()) {
+			for (File file : table.getModel().getChecksumColumns()) {
 				if (file.isDirectory())
 					options.add(file);
 			}

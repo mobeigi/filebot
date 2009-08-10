@@ -19,6 +19,7 @@ import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
 import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.tuned.FastFile;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -37,7 +38,7 @@ class ChecksumTableModel extends AbstractTableModel {
 	public static final String HASH_TYPE_PROPERTY = "hashType";
 	private HashType hashType = HashType.SFV;
 	
-	
+
 	@Override
 	public String getColumnName(int columnIndex) {
 		switch (columnIndex) {
@@ -76,13 +77,18 @@ class ChecksumTableModel extends AbstractTableModel {
 	}
 	
 
-	protected File getColumnRoot(int columnIndex) {
+	public File getColumnRoot(int columnIndex) {
 		// substract checksum column offset
 		return checksumColumns.get(columnIndex - 2);
 	}
 	
 
-	public List<File> checksumColumns() {
+	public boolean isVerificationColumn(int columnIndex) {
+		return columnIndex >= 2 && getColumnRoot(columnIndex).isFile();
+	}
+	
+
+	public List<File> getChecksumColumns() {
 		return Collections.unmodifiableList(checksumColumns);
 	}
 	
@@ -195,7 +201,7 @@ class ChecksumTableModel extends AbstractTableModel {
 			cell.addPropertyChangeListener(progressListener);
 			
 			if (!checksumColumns.contains(cell.getRoot())) {
-				checksumColumns.add(cell.getRoot());
+				checksumColumns.add(new FastFile(cell.getRoot().getPath()));
 			}
 		}
 		
@@ -242,6 +248,7 @@ class ChecksumTableModel extends AbstractTableModel {
 		fireTableStructureChanged();
 	}
 	
+
 	private final PropertyChangeListener stateListener = new PropertyChangeListener() {
 		
 		@Override
@@ -269,13 +276,13 @@ class ChecksumTableModel extends AbstractTableModel {
 		}
 	};
 	
-	
+
 	protected static abstract class IndexedMap<K, V> extends AbstractList<V> implements Set<V> {
 		
 		private final Map<K, Integer> indexMap = new HashMap<K, Integer>(64);
 		private final List<V> list = new ArrayList<V>(64);
 		
-		
+
 		public abstract K key(V value);
 		
 
@@ -344,9 +351,10 @@ class ChecksumTableModel extends AbstractTableModel {
 		
 	}
 	
+
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
-	
+
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}

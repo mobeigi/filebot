@@ -21,6 +21,8 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 	
 	private final SwingWorkerCellRenderer progressRenderer = new SwingWorkerCellRenderer();
 	
+	private final Color verificationForeground = new Color(0x009900);
+	
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -41,7 +43,7 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 		
 		// if row state is ERROR and if we are not selected use text color RED,
 		// else use default table colors
-		setForeground(isSelected ? table.getSelectionForeground() : isError ? Color.RED : table.getForeground());
+		setForeground(isSelected ? table.getSelectionForeground() : isError ? Color.RED : isVerificationColumn(table, column) ? verificationForeground : table.getForeground());
 		setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 		
 		// use BOLD font on ERROR
@@ -59,4 +61,13 @@ public class ChecksumCellRenderer extends DefaultTableCellRenderer {
 		
 		return this;
 	}
+	
+
+	private boolean isVerificationColumn(JTable table, int column) {
+		ChecksumTableModel model = (ChecksumTableModel) table.getModel();
+		int modelColumn = table.getColumnModel().getColumn(column).getModelIndex();
+		
+		return model.isVerificationColumn(modelColumn);
+	}
+	
 }
