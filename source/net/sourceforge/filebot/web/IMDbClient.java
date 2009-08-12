@@ -57,7 +57,7 @@ public class IMDbClient implements EpisodeListProvider {
 		
 		Document dom = getHtmlDocument(openConnection(searchUrl));
 		
-		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'TV series')]]", dom);
+		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'series')]]", dom);
 		
 		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
 		

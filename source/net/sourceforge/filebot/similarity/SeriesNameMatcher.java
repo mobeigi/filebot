@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static java.util.Collections.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sourceforge.tuned.FileUtilities;
 
@@ -25,11 +27,9 @@ import net.sourceforge.tuned.FileUtilities;
 public class SeriesNameMatcher {
 	
 	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
+	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
-
-	public String match(File file) {
-		return match(file.getName(), file.getParent());
-	}
+	protected final int commonWordSequenceMaxStartIndex = 3;
 	
 
 	public Collection<String> matchAll(File[] files) {
@@ -42,9 +42,10 @@ public class SeriesNameMatcher {
 			
 			for (String nameMatch : matchAll(names)) {
 				String commonMatch = matchByFirstCommonWordSequence(nameMatch, parent);
+				float similarity = commonMatch == null ? 0 : nameSimilarityMetric.getSimilarity(commonMatch, nameMatch);
 				
-				// prefer common match, but use name match if there is no matching word sequence
-				seriesNames.add(commonMatch != null ? commonMatch : nameMatch);
+				// prefer common match, but only if it's very similar to the original match
+				seriesNames.add(similarity > 0.7 ? commonMatch : nameMatch);
 			}
 		}
 		
@@ -58,11 +59,15 @@ public class SeriesNameMatcher {
 		// allow matching of a small number of episodes, by setting threshold = length if length < 5
 		int threshold = Math.min(names.length, 5);
 		
-		// 1. use pattern matching with frequency threshold
-		seriesNames.addAll(flatMatchAll(names, threshold));
+		// match common word sequences (likely series names)
+		SeriesNameCollection whitelist = new SeriesNameCollection();
+		whitelist.addAll(deepMatchAll(names, threshold));
 		
-		// 2. match common word sequences
-		seriesNames.addAll(deepMatchAll(names, threshold));
+		// 1. use pattern matching
+		seriesNames.addAll(flatMatchAll(names, threshold, Pattern.compile(join(whitelist, "|"), Pattern.CASE_INSENSITIVE)));
+		
+		// 2. use common word sequences
+		seriesNames.addAll(whitelist);
 		
 		return seriesNames;
 	}
@@ -75,18 +80,22 @@ public class SeriesNameMatcher {
 	 * @return series names that have been matched one or multiple times depending on the
 	 *         threshold
 	 */
-	private Collection<String> flatMatchAll(String[] names, int threshold) {
-		ThresholdCollection<String> seriesNames = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
+	private Collection<String> flatMatchAll(String[] names, int threshold, Pattern whitelist) {
+		ThresholdCollection<String> results = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
 		
 		for (String name : names) {
-			String match = matchBySeasonEpisodePattern(name);
+			// use normalized name
+			name = normalize(name);
 			
-			if (match != null) {
-				seriesNames.add(match);
+			Matcher matcher = whitelist.matcher(name);
+			int seasonEpisodePosition = seasonEpisodeMatcher.find(name, matcher.find() ? matcher.end() : 0);
+			
+			if (seasonEpisodePosition > 0) {
+				results.add(name.substring(0, seasonEpisodePosition).trim());
 			}
 		}
 		
-		return seriesNames;
+		return results;
 	}
 	
 
@@ -99,14 +108,14 @@ public class SeriesNameMatcher {
 	private Collection<String> deepMatchAll(String[] names, int threshold) {
 		// can't use common word sequence matching for less than 2 names
 		if (names.length < 2 || names.length < threshold) {
-			return Collections.emptySet();
+			return emptySet();
 		}
 		
 		String common = matchByFirstCommonWordSequence(names);
 		
 		if (common != null) {
 			// common word sequence found
-			return Collections.singleton(common);
+			return singleton(common);
 		}
 		
 		// recursive divide and conquer
@@ -117,29 +126,6 @@ public class SeriesNameMatcher {
 		results.addAll(deepMatchAll(Arrays.copyOfRange(names, names.length / 2, names.length), threshold));
 		
 		return results;
-	}
-	
-
-	/**
-	 * Match series name using season episode pattern and then try to find a common word
-	 * sequence between the first match and the given parent.
-	 * 
-	 * @param name episode name
-	 * @param parent a string that contains the series name
-	 * @return a likely series name
-	 */
-	public String match(String name, String parent) {
-		String nameMatch = matchBySeasonEpisodePattern(name);
-		
-		if (nameMatch != null) {
-			String commonMatch = matchByFirstCommonWordSequence(nameMatch, parent);
-			
-			if (commonMatch != null) {
-				return commonMatch;
-			}
-		}
-		
-		return nameMatch;
 	}
 	
 
@@ -185,7 +171,7 @@ public class SeriesNameMatcher {
 				common = words;
 			} else {
 				// find common sequence
-				common = firstCommonSequence(common, words, String.CASE_INSENSITIVE_ORDER);
+				common = firstCommonSequence(common, words, commonWordSequenceMaxStartIndex, String.CASE_INSENSITIVE_ORDER);
 				
 				if (common == null) {
 					// no common sequence
@@ -202,11 +188,9 @@ public class SeriesNameMatcher {
 	
 
 	protected String normalize(String name) {
-		// normalize brackets, convert (...) to [...]
-		name = name.replace('(', '[').replace(')', ']');
-		
-		// remove group names, any [...]
-		name = name.replaceAll("\\[[^\\[]+\\]", "");
+		// remove group names and checksums, any [...] or (...)
+		name = name.replaceAll("\\([^\\(]*\\)", "");
+		name = name.replaceAll("\\[[^\\[]*\\]", "");
 		
 		// remove special characters
 		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
@@ -215,9 +199,9 @@ public class SeriesNameMatcher {
 	}
 	
 
-	protected <T> T[] firstCommonSequence(T[] seq1, T[] seq2, Comparator<T> equalsComparator) {
-		for (int i = 0; i < seq1.length; i++) {
-			for (int j = 0; j < seq2.length; j++) {
+	protected <T> T[] firstCommonSequence(T[] seq1, T[] seq2, int maxStartIndex, Comparator<T> equalsComparator) {
+		for (int i = 0; i < seq1.length && i <= maxStartIndex; i++) {
+			for (int j = 0; j < seq2.length && j <= maxStartIndex; j++) {
 				// common sequence length
 				int len = 0;
 				
@@ -289,16 +273,20 @@ public class SeriesNameMatcher {
 
 		@Override
 		public boolean add(String value) {
-			String key = value.toLowerCase();
-			String current = data.get(key);
+			String current = data.get(key(value));
 			
 			// prefer strings with similar upper/lower case ration (e.g. prefer Roswell over roswell) 
 			if (current == null || firstCharacterCaseBalance(current) < firstCharacterCaseBalance(value)) {
-				data.put(key, value);
+				data.put(key(value), value);
 				return true;
 			}
 			
 			return false;
+		}
+		
+
+		protected String key(Object value) {
+			return value.toString().toLowerCase();
 		}
 		
 
@@ -323,8 +311,8 @@ public class SeriesNameMatcher {
 		
 
 		@Override
-		public boolean contains(Object o) {
-			return data.containsKey(o.toString().toLowerCase());
+		public boolean contains(Object value) {
+			return data.containsKey(key(value));
 		}
 		
 

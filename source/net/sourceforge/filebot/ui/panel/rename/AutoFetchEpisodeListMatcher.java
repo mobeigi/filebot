@@ -78,7 +78,7 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 		}
 		
 		// auto-select most probable search result
-		final List<SearchResult> probableMatches = new LinkedList<SearchResult>();
+		List<SearchResult> probableMatches = new LinkedList<SearchResult>();
 		
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
@@ -100,11 +100,8 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 			
 			@Override
 			public SearchResult call() throws Exception {
-				// display only probable matches if possible
-				List<SearchResult> options = probableMatches.isEmpty() ? searchResults : probableMatches;
-				
 				// multiple results have been found, user must select one
-				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(null, options);
+				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(null, searchResults);
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");

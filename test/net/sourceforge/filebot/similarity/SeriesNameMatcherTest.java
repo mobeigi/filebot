@@ -3,19 +3,32 @@ package net.sourceforge.filebot.similarity;
 
 
 import static org.junit.Assert.*;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 import org.junit.Test;
+
+import net.sourceforge.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 
 public class SeriesNameMatcherTest {
 	
 	private static SeriesNameMatcher matcher = new SeriesNameMatcher();
 	
-	
+
 	@Test
-	public void match() {
-		assertEquals("Test Series", matcher.match("My Test Series - 1x01", "Test Series - Season 1"));
+	public void whitelist() {
+		// ignore recurring word sequences when matching episode patterns 
+		String[] names = new String[] { "Test 101 - 01", "Test 101 - 02" };
+		
+		assertArrayEquals(new String[] { "Test 101" }, matcher.matchAll(names).toArray());
+	}
+	
+
+	@Test
+	public void threshold() {
+		// ignore recurring word sequences when matching episode patterns 
+		String[] names = new String[] { "Test 1 of 101", "Test 2 of 101", "Test 3 of 101" };
+		
+		assertArrayEquals(new String[] { "Test" }, matcher.matchAll(names).toArray());
 	}
 	
 
@@ -34,7 +47,7 @@ public class SeriesNameMatcherTest {
 		assertEquals("The Test", matcher.normalize("_The_Test_-_ ..."));
 		
 		// brackets
-		assertEquals("Luffy", matcher.normalize("[strawhat] Luffy [D.] [#Monkey]"));
+		assertEquals("Luffy", matcher.normalize("[strawhat] Luffy (D.) [#Monkey]"));
 		
 		// invalid brackets
 		assertEquals("strawhat Luffy", matcher.normalize("(strawhat [Luffy (#Monkey)"));
@@ -43,10 +56,15 @@ public class SeriesNameMatcherTest {
 
 	@Test
 	public void firstCommonSequence() {
-		String[] seq1 = "[abc] Common Name 1".split("\\s");
-		String[] seq2 = "[xyz] Common Name 2".split("\\s");
+		String[] seq1 = "Common Name 1 Any Title".split("\\s");
+		String[] seq2 = "abc xyz Common Name 2 Any Title".split("\\s");
 		
-		assertArrayEquals(new String[] { "Common", "Name" }, matcher.firstCommonSequence(seq1, seq2, String.CASE_INSENSITIVE_ORDER));
+		// check if common sequence can be determined
+		assertArrayEquals(new String[] { "Common", "Name" }, matcher.firstCommonSequence(seq1, seq2, 2, String.CASE_INSENSITIVE_ORDER));
+		
+		// check if max start index is working
+		assertArrayEquals(null, matcher.firstCommonSequence(seq1, seq2, 0, String.CASE_INSENSITIVE_ORDER));
+		assertArrayEquals(null, matcher.firstCommonSequence(seq2, seq1, 1, String.CASE_INSENSITIVE_ORDER));
 	}
 	
 

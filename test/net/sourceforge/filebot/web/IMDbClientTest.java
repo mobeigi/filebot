@@ -29,6 +29,18 @@ public class IMDbClientTest {
 	
 
 	@Test
+	public void searchMiniSeries() throws Exception {
+		List<SearchResult> results = imdb.search("generation kill");
+		
+		MovieDescriptor movie = (MovieDescriptor) results.get(0);
+		
+		assertEquals("Generation Kill", movie.getName());
+		assertEquals(2008, movie.getYear());
+		assertEquals(995832, movie.getImdbId(), 0);
+	}
+	
+
+	@Test
 	public void searchNoMatch() throws Exception {
 		List<SearchResult> results = imdb.search("i will not find anything for this query string");
 		
