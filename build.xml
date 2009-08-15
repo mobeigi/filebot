@@ -148,18 +148,22 @@
 		</antcall>
 
 		<!-- sign main jar and native lib jars -->
-		<fileset id="signjar" dir="${dir.dist}/webstart" includes="filebot.jar, native/*.jar" />
 		<apply executable="pack200">
+			<!-- workaround for bug 6575373, see http://bugs.sun.com/view_bug.do?bug_id=6575373 -->
+			<arg line="--segment-limit=-1" />
 			<arg line="--repack" />
 			<srcfile />
-			<fileset refid="signjar" />
+			<fileset dir="${dir.dist}/webstart" includes="filebot.jar" />
 		</apply>
+
 		<signjar alias="filebot" keystore="filebot.keystore" storepass="secret">
-			<fileset refid="signjar" />
+			<fileset id="signjar" dir="${dir.dist}/webstart" includes="filebot.jar, native/*.jar" />
 		</signjar>
 
 		<!-- pack200 all jars -->
 		<apply executable="pack200" dest="${dir.dist}/webstart">
+			<!-- workaround for bug 6575373, see http://bugs.sun.com/view_bug.do?bug_id=6575373 -->
+			<arg line="--segment-limit=-1" />
 			<targetfile />
 			<srcfile />
 			<fileset dir="${dir.dist}/webstart" includes="*.jar" />
