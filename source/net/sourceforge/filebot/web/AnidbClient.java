@@ -59,18 +59,7 @@ public class AnidbClient implements EpisodeListProvider {
 		for (Node node : nodes) {
 			Node link = selectNode("./TD[@class='name']/A", node);
 			
-			// prefer title that is similar to the search query
-			String title = selectString("./following-sibling::*[@class='match']", link);
-			
-			// remove leading and trailing parenthesis
-			title = title.replaceAll("(^\\()|(\\)$)", "");
-			
-			if (title.isEmpty()) {
-				// fallback: use main title
-				title = getTextContent(link);
-			}
-			
-			// anime page
+			String title = getTextContent(link);
 			String href = getAttribute("href", link);
 			
 			try {

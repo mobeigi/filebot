@@ -72,9 +72,9 @@ public class AnidbClientTest {
 	
 
 	@Test
-	public void searchReturnMatchingTitle() throws Exception {
-		// Seikai no Senki (main title), Banner of the Stars (official english title)
-		assertEquals("Banner of the Stars", anidb.search("banner of the stars").get(0).getName());
+	public void searchTitleAlias() throws Exception {
+		// Seikai no Senki (main title), Banner of the Stars (official English title)
+		assertEquals("Seikai no Senki", anidb.search("banner of the stars").get(0).getName());
 		assertEquals("Seikai no Senki", anidb.search("seikai no senki").get(0).getName());
 		
 		// no matching title
