@@ -2,13 +2,10 @@
 package net.sourceforge.filebot.subtitle;
 
 
-import static net.sourceforge.tuned.StringUtilities.*;
-
 import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.InputMismatchException;
-import java.util.Map;
+import java.util.List;
 import java.util.regex.Pattern;
 
 
@@ -16,8 +13,13 @@ public class SubStationAlphaReader extends SubtitleReader {
 	
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = Pattern.compile(Pattern.quote("\\n"), Pattern.CASE_INSENSITIVE);
+	private final Pattern tag = Pattern.compile("[{]\\\\[^}]+[}]");
+	private final Pattern separator = Pattern.compile("\\s*,\\s*");
 	
-	private Map<EventProperty, Integer> format;
+	private String[] format;
+	private int formatIndexStart;
+	private int formatIndexEnd;
+	private int formatIndexText;
 	
 
 	public SubStationAlphaReader(Readable source) {
@@ -33,18 +35,13 @@ public class SubStationAlphaReader extends SubtitleReader {
 		if (!event[0].equals("Format"))
 			throw new InputMismatchException("Illegal format header: " + Arrays.toString(event));
 		
-		String[] columns = event[1].split(",");
+		// read columns
+		format = separator.split(event[1]);
 		
-		// map column name to column index
-		format = new EnumMap<EventProperty, Integer>(EventProperty.class);
-		
-		for (int i = 0; i < columns.length; i++) {
-			try {
-				format.put(EventProperty.valueOf(columns[i].trim()), i);
-			} catch (IllegalArgumentException e) {
-				// ignore
-			}
-		}
+		List<String> lookup = Arrays.asList(format);
+		formatIndexStart = lookup.indexOf("Start");
+		formatIndexEnd = lookup.indexOf("End");
+		formatIndexText = lookup.indexOf("Text");
 	}
 	
 
@@ -74,23 +71,22 @@ public class SubStationAlphaReader extends SubtitleReader {
 			throw new InputMismatchException("Illegal dialogue event: " + Arrays.toString(event));
 		
 		// extract information
-		String[] values = event[1].split(",", format.size());
+		String[] values = separator.split(event[1], format.length);
 		
-		long start = timeFormat.parse(values[format.get(EventProperty.Start)]).getTime();
-		long end = timeFormat.parse(values[format.get(EventProperty.End)]).getTime();
-		String text = values[format.get(EventProperty.Text)].trim();
+		long start = timeFormat.parse(values[formatIndexStart]).getTime();
+		long end = timeFormat.parse(values[formatIndexEnd]).getTime();
+		String text = values[formatIndexText];
 		
-		// translate "\\n" to new lines 
-		String[] lines = newline.split(text);
-		
-		return new SubtitleElement(start, end, join(lines, "\n"));
+		return new SubtitleElement(start, end, resolve(text));
 	}
 	
 
-	private enum EventProperty {
-		Start,
-		End,
-		Text
+	protected String resolve(String text) {
+		// remove tags
+		text = tag.matcher(text).replaceAll("");
+		
+		// resolve line breaks 
+		return newline.matcher(text).replaceAll("\n");
 	}
 	
 }
