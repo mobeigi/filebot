@@ -75,7 +75,7 @@
 				<include name="net/miginfocom/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/xmlrpc-client.jar">
+			<zipfileset src="${dir.lib}/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
 
@@ -106,10 +106,6 @@
 
 			<zipfileset src="${dir.lib}/junrar-custom.jar">
 				<include name="de/innosystec/unrar/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/commons-logging.jar">
-				<include name="org/apache/commons/logging/**" />
 			</zipfileset>
 		</jar>
 	</target>
@@ -238,7 +234,7 @@
 	<target name="test-fatjar" depends="fatjar">
 		<junit printsummary="yes" fork="true">
 			<classpath>
-				<pathelement location="${dir.dist}/fatjar/FileBot.jar" />
+				<pathelement location="${dir.dist}/fatjar/FileBot_${version}.jar" />
 				<pathelement location="${dir.dist}/filebot-test.jar" />
 				<pathelement location="${dir.lib}/junit.jar" />
 			</classpath>
@@ -251,7 +247,7 @@
 
 
 	<target name="run-fatjar" depends="fatjar">
-		<java jar="${dir.dist}/fatjar/FileBot.jar" fork="true" />
+		<java jar="${dir.dist}/fatjar/FileBot_${version}.jar" fork="true" />
 	</target>
 
 </project>
