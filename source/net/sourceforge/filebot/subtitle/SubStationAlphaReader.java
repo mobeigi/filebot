@@ -14,7 +14,6 @@ public class SubStationAlphaReader extends SubtitleReader {
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
 	private final Pattern newline = Pattern.compile(Pattern.quote("\\n"), Pattern.CASE_INSENSITIVE);
 	private final Pattern tag = Pattern.compile("[{]\\\\[^}]+[}]");
-	private final Pattern separator = Pattern.compile("\\s*,\\s*");
 	
 	private String[] format;
 	private int formatIndexStart;
@@ -36,12 +35,17 @@ public class SubStationAlphaReader extends SubtitleReader {
 			throw new InputMismatchException("Illegal format header: " + Arrays.toString(event));
 		
 		// read columns
-		format = separator.split(event[1]);
+		format = event[1].split(",");
+		
+		// normalize column names
+		for (int i = 0; i < format.length; i++) {
+			format[i] = format[i].trim().toLowerCase();
+		}
 		
 		List<String> lookup = Arrays.asList(format);
-		formatIndexStart = lookup.indexOf("Start");
-		formatIndexEnd = lookup.indexOf("End");
-		formatIndexText = lookup.indexOf("Text");
+		formatIndexStart = lookup.indexOf("start");
+		formatIndexEnd = lookup.indexOf("end");
+		formatIndexText = lookup.indexOf("text");
 	}
 	
 
@@ -71,11 +75,11 @@ public class SubStationAlphaReader extends SubtitleReader {
 			throw new InputMismatchException("Illegal dialogue event: " + Arrays.toString(event));
 		
 		// extract information
-		String[] values = separator.split(event[1], format.length);
+		String[] values = event[1].split(",", format.length);
 		
-		long start = timeFormat.parse(values[formatIndexStart]).getTime();
-		long end = timeFormat.parse(values[formatIndexEnd]).getTime();
-		String text = values[formatIndexText];
+		long start = timeFormat.parse(values[formatIndexStart].trim()).getTime();
+		long end = timeFormat.parse(values[formatIndexEnd].trim()).getTime();
+		String text = values[formatIndexText].trim();
 		
 		return new SubtitleElement(start, end, resolve(text));
 	}

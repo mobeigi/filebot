@@ -63,7 +63,7 @@ class RarArchive implements Iterable<MemoryFile> {
 				} catch (OutOfMemoryError e) {
 					// ignore, there seems to be bug with JUnRar allocating lots of memory for no apparent reason
 					// @see https://sourceforge.net/forum/forum.php?thread_id=2773018&forum_id=706772
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot extract " + header.getFileNameString());
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to extract " + header.getFileNameString(), e);
 				}
 			}
 		} catch (RarException e) {
