@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 
 public class SubRipReader extends SubtitleReader {
 	
 	private final DateFormat timeFormat;
+	private final Pattern tag;
 	
 
 	public SubRipReader(Readable source) {
@@ -23,6 +25,9 @@ public class SubRipReader extends SubtitleReader {
 		// format used to parse time stamps (e.g. 00:02:26,407 --> 00:02:31,356)
 		timeFormat = new SimpleDateFormat("HH:mm:ss,SSS", Locale.ROOT);
 		timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		// pattern for <b>, <u>, <i>, <font color="#ccffee"> and corresponding end tags
+		tag = Pattern.compile("</?(b|u|i|font[^<>]*)>", Pattern.CASE_INSENSITIVE);
 	}
 	
 
@@ -50,7 +55,13 @@ public class SubRipReader extends SubtitleReader {
 			lines.add(line);
 		}
 		
-		return new SubtitleElement(t1, t2, join(lines, "\n"));
+		return new SubtitleElement(t1, t2, resolve(join(lines, "\n")));
+	}
+	
+
+	protected String resolve(String text) {
+		// remove tags
+		return tag.matcher(text).replaceAll("");
 	}
 	
 }
