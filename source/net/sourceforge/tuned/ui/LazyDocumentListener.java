@@ -14,7 +14,7 @@ public abstract class LazyDocumentListener implements DocumentListener {
 	
 	private DocumentEvent lastEvent;
 	
-	private final Timer timer;
+	private Timer timer;
 	
 
 	public LazyDocumentListener() {
@@ -23,24 +23,33 @@ public abstract class LazyDocumentListener implements DocumentListener {
 	
 
 	public LazyDocumentListener(int delay) {
-		timer = new Timer(delay, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				update(lastEvent);
+		if (delay >= 0) {
+			timer = new Timer(delay, new ActionListener() {
 				
-				// we don't need it anymore
-				lastEvent = null;
-			}
-		});
-		
-		timer.setRepeats(false);
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					update(lastEvent);
+					
+					// we don't need it anymore
+					lastEvent = null;
+				}
+			});
+			
+			timer.setRepeats(false);
+		}
 	}
 	
 
-	private void defer(DocumentEvent e) {
+	public void defer(DocumentEvent e) {
 		lastEvent = e;
-		timer.restart();
+		
+		if (timer != null) {
+			// defer update
+			timer.restart();
+		} else {
+			// update immediately
+			update(lastEvent);
+		}
 	}
 	
 

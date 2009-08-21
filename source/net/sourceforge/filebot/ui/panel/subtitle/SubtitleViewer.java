@@ -5,10 +5,14 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,9 +32,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.MouseInputAdapter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -49,14 +56,15 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 public class SubtitleViewer extends JFrame {
 	
 	private final JLabel titleLabel = new JLabel();
-	
 	private final JLabel infoLabel = new JLabel();
 	
 	private final SubtitleTableModel model = new SubtitleTableModel();
-	
-	private final JTextField filterEditor = new JTextField();
-	
 	private final JTable subtitleTable = createTable(model);
+	
+	private final JTextField filterEditor = createFilterEditor();
+	
+	private Color defaultFilterForeground = filterEditor.getForeground();
+	private Color disabledFilterForeground = Color.lightGray;
 	
 
 	public SubtitleViewer(String title) {
@@ -87,47 +95,6 @@ public class SubtitleViewer extends JFrame {
 		pane.add(header, "hmin 20px, growx, dock north");
 		pane.add(content, "grow");
 		
-		// initialize selection modes
-		subtitleTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		
-		final DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.ROOT);
-		timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-		
-		// change time stamp format
-		subtitleTable.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
-			
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				return super.getTableCellRendererComponent(table, timeFormat.format(value), isSelected, hasFocus, row, column);
-			}
-		});
-		
-		// change text format
-		subtitleTable.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
-			
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				return super.getTableCellRendererComponent(table, value.toString().replaceAll("\\s+", " "), isSelected, hasFocus, row, column);
-			}
-		});
-		
-		// update sequence and element filter on change
-		filterEditor.getDocument().addDocumentListener(new LazyDocumentListener() {
-			
-			@Override
-			public void update(DocumentEvent e) {
-				List<SubtitleFilter> filterList = new ArrayList<SubtitleFilter>();
-				
-				// filter by all words
-				for (String word : filterEditor.getText().split("\\s+")) {
-					filterList.add(new SubtitleFilter(word));
-				}
-				
-				TableRowSorter<?> sorter = (TableRowSorter<?>) subtitleTable.getRowSorter();
-				sorter.setRowFilter(RowFilter.andFilter(filterList));
-			}
-		});
-		
 		// initialize window properties
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationByPlatform(true);
@@ -136,13 +103,8 @@ public class SubtitleViewer extends JFrame {
 	}
 	
 
-	public void setData(List<SubtitleElement> data) {
-		model.setData(data);
-	}
-	
-
 	private JTable createTable(TableModel model) {
-		JTable table = new JTable(model);
+		final JTable table = new JTable(model);
 		table.setBackground(Color.white);
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
@@ -154,7 +116,123 @@ public class SubtitleViewer extends JFrame {
 		m.getColumn(1).setMaxWidth(60);
 		m.getColumn(2).setMaxWidth(60);
 		
+		// initialize selection modes
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
+		final DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.ROOT);
+		timeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		
+		// change time stamp format
+		table.setDefaultRenderer(Date.class, new DefaultTableCellRenderer() {
+			
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				return super.getTableCellRendererComponent(table, timeFormat.format(value), isSelected, hasFocus, row, column);
+			}
+		});
+		
+		// change text format
+		table.setDefaultRenderer(String.class, new DefaultTableCellRenderer() {
+			
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				return super.getTableCellRendererComponent(table, value.toString().replaceAll("\\s+", " "), isSelected, hasFocus, row, column);
+			}
+		});
+		
+		// focus around selected time stamp
+		installAction(table, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("focus") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// disable row filter
+				setTableFilter(null);
+				
+				// ensure selected row is visible and roughly in the center of the table
+				Rectangle focus = table.getCellRect(Math.max(table.getSelectedRow() - 7, 0), 0, true);
+				focus.height = table.getSize().height;
+				table.scrollRectToVisible(focus);
+			}
+		});
+		
+		table.addMouseListener(new MouseInputAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+					table.getActionMap().get("focus").actionPerformed(null);
+				}
+			}
+		});
+		
 		return table;
+	}
+	
+
+	private JTextField createFilterEditor() {
+		final JTextField editor = new JTextField() {
+			
+			@Override
+			protected void processKeyEvent(KeyEvent evt) {
+				int vk = evt.getKeyCode();
+				
+				// redirect navigation events to subtitle table
+				if (vk == KeyEvent.VK_UP || vk == KeyEvent.VK_DOWN || vk == KeyEvent.VK_ENTER) {
+					subtitleTable.dispatchEvent(evt);
+					return;
+				}
+				
+				// enable filter again
+				if (vk == KeyEvent.VK_BACK_SPACE && !filterEditor.getText().isEmpty() && getTableFilter() == null) {
+					setTableFilter(getText());
+					return;
+				}
+				
+				// default key processing
+				super.processKeyEvent(evt);
+			}
+		};
+		
+		// update sequence and element filter on change
+		editor.getDocument().addDocumentListener(new LazyDocumentListener(0) {
+			
+			@Override
+			public void update(DocumentEvent e) {
+				setTableFilter(editor.getText());
+			}
+		});
+		
+		return editor;
+	}
+	
+
+	private RowFilter<?, ?> getTableFilter() {
+		TableRowSorter<?> sorter = (TableRowSorter<?>) subtitleTable.getRowSorter();
+		return sorter.getRowFilter();
+	}
+	
+
+	private void setTableFilter(String filter) {
+		// filter by words
+		List<SubtitleFilter> filterList = new ArrayList<SubtitleFilter>();
+		
+		if (filter != null) {
+			for (String word : filter.split("\\s+")) {
+				if (word.length() > 0) {
+					filterList.add(new SubtitleFilter(word));
+				}
+			}
+		}
+		
+		TableRowSorter<?> sorter = (TableRowSorter<?>) subtitleTable.getRowSorter();
+		sorter.setRowFilter(filterList.isEmpty() ? null : RowFilter.andFilter(filterList));
+		
+		filterEditor.setForeground(filterList.isEmpty() ? disabledFilterForeground : defaultFilterForeground);
+	}
+	
+
+	public void setData(List<SubtitleElement> data) {
+		model.setData(data);
 	}
 	
 
