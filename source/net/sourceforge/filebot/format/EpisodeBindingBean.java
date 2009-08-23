@@ -71,36 +71,44 @@ public class EpisodeBindingBean {
 
 	@Define("vc")
 	public String getVideoCodec() {
-		return getMediaInfo(StreamKind.Video, 0, "Encoded_Library/Name", "CodecID/Hint", "Codec/String");
+		// e.g. XviD, x264, DivX 5, MPEG-4 Visual, AVC, etc.
+		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library/Name", "CodecID/Hint", "Format");
+		
+		// get first token (e.g. DivX 5 => DivX)
+		return new Scanner(codec).next();
 	}
 	
 
 	@Define("ac")
 	public String getAudioCodec() {
-		return getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Codec/String");
+		// e.g. AC-3, DTS, AAC, Vorbis, MP3, etc.
+		String codec = getMediaInfo(StreamKind.Audio, 0, "CodecID/Hint", "Format");
+		
+		// remove punctuation (e.g. AC-3 => AC3)
+		return codec.replaceAll("\\p{Punct}", "");
 	}
 	
 
 	@Define("cf")
 	public String getContainerFormat() {
-		// container format extension 
-		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions");
+		// container format extensions (e.g. avi, mkv mka mks, OGG, etc.)
+		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions", "Format");
 		
-		// get first token
-		return new Scanner(extensions).next();
+		// get first extension
+		return new Scanner(extensions).next().toLowerCase();
 	}
 	
 
-	@Define("hi")
-	public String getHeightAndInterlacement() {
+	@Define("vf")
+	public String getVideoFormat() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
-		String interlacement = getMediaInfo(StreamKind.Video, 0, "Interlacement");
+		String scanType = getMediaInfo(StreamKind.Video, 0, "ScanType");
 		
-		if (height == null || interlacement == null)
+		if (height == null || scanType == null)
 			return null;
 		
 		// e.g. 720p
-		return height + Character.toLowerCase(interlacement.charAt(0));
+		return height + Character.toLowerCase(scanType.charAt(0));
 	}
 	
 
