@@ -31,7 +31,6 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AnidbClient;
@@ -78,8 +77,7 @@ public class RenamePanel extends JComponent {
 		
 		try {
 			// restore custom episode formatter
-			ExpressionFormat format = new ExpressionFormat(persistentFormatExpression.getValue());
-			renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(format));
+			renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(persistentFormatExpression.getValue()));
 		} catch (Exception e) {
 			// illegal format, ignore
 		}
@@ -157,9 +155,8 @@ public class RenamePanel extends JComponent {
 				
 				switch (dialog.getSelectedOption()) {
 					case APPROVE:
-						EpisodeExpressionFormatter formatter = new EpisodeExpressionFormatter(dialog.getSelectedFormat());
-						renameModel.useFormatter(Episode.class, formatter);
-						persistentFormatExpression.setValue(formatter.getFormat().getExpression());
+						renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(dialog.getSelectedFormat().getExpression()));
+						persistentFormatExpression.setValue(dialog.getSelectedFormat().getExpression());
 						break;
 					case USE_DEFAULT:
 						renameModel.useFormatter(Episode.class, null);

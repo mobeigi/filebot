@@ -15,16 +15,16 @@ import net.sourceforge.filebot.web.EpisodeFormat;
 
 class EpisodeExpressionFormatter implements MatchFormatter {
 	
-	private final ExpressionFormat format;
+	private final String expression;
+	
+	private ExpressionFormat format;
 	
 
-	public EpisodeExpressionFormatter(ExpressionFormat format) {
-		this.format = format;
-	}
-	
-
-	public ExpressionFormat getFormat() {
-		return format;
+	public EpisodeExpressionFormatter(String expression) {
+		if (expression == null || expression.isEmpty())
+			throw new IllegalArgumentException("Expression must not be null or empty");
+		
+		this.expression = expression;
 	}
 	
 
@@ -45,6 +45,11 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 	public synchronized String format(Match<?, ?> match) throws ScriptException {
 		Episode episode = (Episode) match.getValue();
 		File mediaFile = (File) match.getCandidate();
+		
+		// lazy initialize script engine
+		if (format == null) {
+			format = new ExpressionFormat(expression);
+		}
 		
 		String result = format.format(new EpisodeBindingBean(episode, mediaFile)).trim();
 		
