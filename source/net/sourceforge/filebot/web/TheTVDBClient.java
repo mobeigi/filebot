@@ -137,7 +137,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 			if (seasonNumber.equals("0")) {
 				String airsBefore = getTextContent("airsbefore_season", node);
 				
-				seasonNumber = airsBefore.isEmpty() ? null : airsBefore;
+				seasonNumber = airsBefore == null || airsBefore.isEmpty() ? null : airsBefore;
 				episodeNumber = "Special";
 			}
 			

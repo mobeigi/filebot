@@ -140,11 +140,13 @@ public class Main {
 	private static ArgumentBean initializeArgumentBean(String... args) {
 		ArgumentBean argumentBean = new ArgumentBean();
 		
-		try {
-			CmdLineParser parser = new CmdLineParser(argumentBean);
-			parser.parseArgument(args);
-		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		if (args != null && args.length > 0) {
+			try {
+				CmdLineParser parser = new CmdLineParser(argumentBean);
+				parser.parseArgument(args);
+			} catch (Exception e) {
+				Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 		
 		return argumentBean;

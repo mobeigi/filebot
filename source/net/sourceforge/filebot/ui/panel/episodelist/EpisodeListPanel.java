@@ -290,9 +290,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 		public EpisodeListTab() {
 			// initialize dnd and clipboard export handler for episode list
-			EpisodeListExportHandler exportHandler = new EpisodeListExportHandler(this);
-			getTransferHandler().setExportHandler(exportHandler);
-			getTransferHandler().setClipboardHandler(exportHandler);
+			setExportHandler(new EpisodeListExportHandler(this));
+			getTransferHandler().setClipboardHandler(new EpisodeListExportHandler(this));
 			
 			// allow removal of episode list entries
 			getRemoveAction().setEnabled(true);
