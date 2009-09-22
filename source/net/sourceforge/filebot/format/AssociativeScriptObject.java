@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.format;
 
 
+import groovy.lang.GroovyObject;
+import groovy.lang.MetaClass;
+
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -10,10 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.mozilla.javascript.Scriptable;
 
-
-public class AssociativeScriptObject implements Scriptable {
+public class AssociativeScriptObject implements GroovyObject {
 	
 	private final Map<String, Object> properties;
 	
@@ -24,23 +25,13 @@ public class AssociativeScriptObject implements Scriptable {
 	
 
 	/**
-	 * Defines properties available by name.
-	 * 
-	 * @param name the name of the property
-	 * @param start the object where lookup began
-	 */
-	public boolean has(String name, Scriptable start) {
-		return properties.containsKey(name);
-	}
-	
-
-	/**
 	 * Get the property with the given name.
 	 * 
 	 * @param name the property name
 	 * @param start the object where the lookup began
 	 */
-	public Object get(String name, Scriptable start) {
+	@Override
+	public Object getProperty(String name) {
 		Object value = properties.get(name);
 		
 		if (value == null)
@@ -50,52 +41,28 @@ public class AssociativeScriptObject implements Scriptable {
 	}
 	
 
-	/**
-	 * Defines properties available by index.
-	 * 
-	 * @param index the index of the property
-	 * @param start the object where lookup began
-	 */
-	public boolean has(int index, Scriptable start) {
-		// get property by index not supported
-		return false;
-	}
-	
-
-	/**
-	 * Get property by index.
-	 * 
-	 * @param index the index of the property
-	 * @param start the object where the lookup began
-	 */
-	public Object get(int index, Scriptable start) {
-		// get property by index not supported
-		throw new BindingException(String.valueOf(index), "undefined");
-	}
-	
-
-	/**
-	 * Get property names.
-	 */
-	public Object[] getIds() {
-		return properties.keySet().toArray();
-	}
-	
-
-	/**
-	 * Returns the name of this JavaScript class.
-	 */
-	public String getClassName() {
-		return getClass().getSimpleName();
-	}
-	
-
-	/**
-	 * Returns the string value of this object.
-	 */
 	@Override
-	public Object getDefaultValue(Class<?> typeHint) {
-		return this.toString();
+	public void setProperty(String name, Object value) {
+		// ignore, object is immutable
+	}
+	
+
+	@Override
+	public Object invokeMethod(String name, Object args) {
+		// ignore, object is merely a structure
+		return null;
+	}
+	
+
+	@Override
+	public MetaClass getMetaClass() {
+		return null;
+	}
+	
+
+	@Override
+	public void setMetaClass(MetaClass clazz) {
+		// ignore, don't care about MetaClass
 	}
 	
 
@@ -103,51 +70,6 @@ public class AssociativeScriptObject implements Scriptable {
 	public String toString() {
 		// all the properties in alphabetic order
 		return new TreeSet<String>(properties.keySet()).toString();
-	}
-	
-
-	public void put(String name, Scriptable start, Object value) {
-		// ignore, object is immutable
-	}
-	
-
-	public void put(int index, Scriptable start, Object value) {
-		// ignore, object is immutable
-	}
-	
-
-	public void delete(String id) {
-		// ignore, object is immutable
-	}
-	
-
-	public void delete(int index) {
-		// ignore, object is immutable
-	}
-	
-
-	public Scriptable getPrototype() {
-		return null;
-	}
-	
-
-	public void setPrototype(Scriptable prototype) {
-		// ignore, don't care about prototype
-	}
-	
-
-	public Scriptable getParentScope() {
-		return null;
-	}
-	
-
-	public void setParentScope(Scriptable parent) {
-		// ignore, don't care about scope
-	}
-	
-
-	public boolean hasInstance(Scriptable value) {
-		return false;
 	}
 	
 

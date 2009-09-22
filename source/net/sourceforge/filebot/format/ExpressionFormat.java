@@ -2,6 +2,10 @@
 package net.sourceforge.filebot.format;
 
 
+import static net.sourceforge.tuned.ExceptionUtilities.*;
+import groovy.lang.GroovyRuntimeException;
+import groovy.lang.MissingPropertyException;
+
 import java.io.FilePermission;
 import java.io.InputStreamReader;
 import java.security.AccessControlContext;
@@ -18,8 +22,6 @@ import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PropertyPermission;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -29,9 +31,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
-import org.mozilla.javascript.EcmaError;
-
-import com.sun.phobos.script.javascript.RhinoScriptEngine;
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
 import net.sourceforge.tuned.ExceptionUtilities;
 
@@ -52,10 +53,10 @@ public class ExpressionFormat extends Format {
 	
 
 	protected ScriptEngine initScriptEngine() throws ScriptException {
-		// don't use jdk rhino so we can use rhino specific features and classes (e.g. Scriptable)
-		ScriptEngine engine = new RhinoScriptEngine();
+		// use groovy script engine
+		ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
 		
-		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.global.js")));
+		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
 		
 		return engine;
 	}
@@ -69,29 +70,71 @@ public class ExpressionFormat extends Format {
 	protected Object[] compile(String expression, Compilable engine) throws ScriptException {
 		List<Object> compilation = new ArrayList<Object>();
 		
-		Matcher matcher = Pattern.compile("\\{([^\\{]*?)\\}").matcher(expression);
+		char open = '{';
+		char close = '}';
 		
-		int position = 0;
+		StringBuilder token = new StringBuilder();
+		int level = 0;
 		
-		while (matcher.find()) {
-			if (position < matcher.start()) {
-				// literal before
-				compilation.add(expression.substring(position, matcher.start()));
+		// parse expressions and literals
+		for (int i = 0; i < expression.length(); i++) {
+			char c = expression.charAt(i);
+			
+			if (c == open) {
+				if (level == 0) {
+					if (token.length() > 0) {
+						compilation.add(token.toString());
+						token.setLength(0);
+					}
+				} else {
+					token.append(c);
+				}
+				
+				level++;
+			} else if (c == close) {
+				if (level == 1) {
+					if (token.length() > 0) {
+						try {
+							compilation.add(engine.compile(token.toString()));
+						} catch (ScriptException e) {
+							// try to extract syntax exception
+							ScriptException illegalSyntax = e;
+							
+							try {
+								String message = findCause(e, MultipleCompilationErrorsException.class).getErrorCollector().getSyntaxError(0).getOriginalMessage();
+								illegalSyntax = new ScriptException("SyntaxError: " + message);
+							} catch (Exception ignore) {
+								// ignore, just use original exception
+							}
+							
+							throw illegalSyntax;
+						} finally {
+							token.setLength(0);
+						}
+					}
+				} else {
+					token.append(c);
+				}
+				
+				level--;
+			} else {
+				token.append(c);
 			}
 			
-			String script = matcher.group(1);
-			
-			if (script.length() > 0) {
-				// compiled script, or literal
-				compilation.add(engine.compile(script));
+			// sanity check
+			if (level < 0) {
+				throw new ScriptException("SyntaxError: unexpected token: " + close);
 			}
-			
-			position = matcher.end();
 		}
 		
-		if (position < expression.length()) {
-			// tail
-			compilation.add(expression.substring(position, expression.length()));
+		// sanity check
+		if (level != 0) {
+			throw new ScriptException("SyntaxError: missing token: " + close);
+		}
+		
+		// append tail
+		if (token.length() > 0) {
+			compilation.add(token.toString());
 		}
 		
 		return compilation.toArray();
@@ -129,16 +172,7 @@ public class ExpressionFormat extends Format {
 						sb.append(value);
 					}
 				} catch (ScriptException e) {
-					EcmaError ecmaError = ExceptionUtilities.findCause(e, EcmaError.class);
-					
-					// try to unwrap EcmaError
-					if (ecmaError != null) {
-						lastException = new ExpressionException(String.format("%s: %s", ecmaError.getName(), ecmaError.getErrorMessage()), e);
-					} else {
-						lastException = e;
-					}
-				} catch (RuntimeException e) {
-					lastException = new ExpressionException(e);
+					handleException(e);
 				}
 			} else {
 				sb.append(snipped);
@@ -146,6 +180,17 @@ public class ExpressionFormat extends Format {
 		}
 		
 		return sb;
+	}
+	
+
+	protected void handleException(ScriptException exception) {
+		if (findCause(exception, MissingPropertyException.class) != null) {
+			lastException = new ExpressionException(new BindingException(findCause(exception, MissingPropertyException.class).getProperty(), "undefined", exception));
+		} else if (findCause(exception, GroovyRuntimeException.class) != null) {
+			lastException = new ExpressionException(findCause(exception, GroovyRuntimeException.class).getMessage(), exception);
+		} else {
+			lastException = exception;
+		}
 	}
 	
 

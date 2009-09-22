@@ -92,12 +92,9 @@
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/js-engine.jar">
-				<include name="com/sun/phobos/script/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/js.jar">
-				<include name="org/mozilla/**" />
+			<zipfileset src="${dir.lib}/groovy.jar">
+				<include name="groovy*/**" />
+				<include name="org/codehaus/groovy/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
