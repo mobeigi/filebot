@@ -145,8 +145,8 @@ public final class WebRequest {
 			}
 		}
 		
-		// use http default encoding if charset cannot be determined
-		return Charset.forName("ISO-8859-1");
+		// use http default encoding only for text/html, use UTF-8 for everything else (e.g. XML)
+		return Charset.forName(contentType.equals("text/html") ? "ISO-8859-1" : "UTF-8");
 	}
 	
 

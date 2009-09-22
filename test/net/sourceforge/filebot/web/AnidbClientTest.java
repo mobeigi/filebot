@@ -24,11 +24,17 @@ public class AnidbClientTest {
 	 */
 	private static HyperLink twelvekingdomsSearchResult;
 	
+	/**
+	 * 38 episodes, lots of special characters
+	 */
+	private static HyperLink princessTutuSearchResult;
+	
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		monsterSearchResult = new HyperLink("Monster", new URL("http://anidb.net/perl-bin/animedb.pl?show=anime&aid=1539"));
 		twelvekingdomsSearchResult = new HyperLink("Juuni Kokuki", new URL("http://anidb.net/a26"));
+		princessTutuSearchResult = new HyperLink("Princess Tutu", new URL("http://anidb.net/a516"));
 	}
 	
 
@@ -122,6 +128,12 @@ public class AnidbClientTest {
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals(null, first.getSeason());
+	}
+	
+
+	@Test
+	public void getEpisodeListEncoding() throws Exception {
+		assertEquals("Raven Princess - An der schönen blauen Donau", anidb.getEpisodeList(princessTutuSearchResult).get(6).getTitle());
 	}
 	
 
