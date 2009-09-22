@@ -26,7 +26,7 @@ public class ChecksumButton extends JToggleButton {
 	private static final Icon contentArea = ResourceManager.getIcon("button.checksum");
 	private static final Icon contentAreaSelected = ResourceManager.getIcon("button.checksum.selected");
 	
-	
+
 	public ChecksumButton(Action action) {
 		super(action);
 		
@@ -37,6 +37,8 @@ public class ChecksumButton extends JToggleButton {
 		setForeground(WHITE);
 		setFont(new Font(DIALOG, PLAIN, 11));
 		
+		// as image button
+		setBorderPainted(false);
 		setContentAreaFilled(false);
 		setFocusPainted(false);
 		
