@@ -10,6 +10,13 @@ String.metaClass.upper = { toUpperCase() }
 
 
 /**
+ * Allow comparison of Strings and Numbers (overloading of comparison operators is not supported yet though)
+ */
+String.metaClass.compareTo = { Number other -> delegate.compareTo(other.toString()) }
+Number.metaClass.compareTo = { String other -> delegate.toString().compareTo(other) }
+
+
+/**
  * Pad strings or numbers with given characters ('0' by default).
  *
  * e.g. "1" -> "01"

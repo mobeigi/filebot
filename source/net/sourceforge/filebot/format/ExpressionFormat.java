@@ -8,6 +8,7 @@ import groovy.lang.MissingPropertyException;
 
 import java.io.FilePermission;
 import java.io.InputStreamReader;
+import java.net.SocketPermission;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.AccessController;
@@ -220,6 +221,7 @@ public class ExpressionFormat extends Format {
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
+		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
 		
