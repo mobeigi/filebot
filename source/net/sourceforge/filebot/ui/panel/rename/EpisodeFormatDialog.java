@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -350,6 +352,9 @@ class EpisodeFormatDialog extends JDialog {
 				}
 			});
 			
+			// cancel old worker later
+			Future<String> obsoletePreviewFuture = currentPreviewFuture;
+			
 			// create new worker
 			currentPreviewFuture = new SwingWorker<String, Void>() {
 				
@@ -376,6 +381,8 @@ class EpisodeFormatDialog extends JDialog {
 						
 						// no warning or error
 						status.setVisible(false);
+					} catch (CancellationException e) {
+						// ignore, cancelled tasks are obsolete anyway
 					} catch (Exception e) {
 						status.setText(ExceptionUtilities.getMessage(e));
 						status.setIcon(ResourceManager.getIcon("status.warning"));
@@ -394,6 +401,11 @@ class EpisodeFormatDialog extends JDialog {
 					}
 				}
 			};
+			
+			// cancel old worker, after new worker has been created, because done() might be called from within cancel()
+			if (obsoletePreviewFuture != null) {
+				obsoletePreviewFuture.cancel(true);
+			}
 			
 			// submit new worker
 			executor.execute(currentPreviewFuture);

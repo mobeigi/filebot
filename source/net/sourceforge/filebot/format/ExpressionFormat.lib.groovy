@@ -25,6 +25,12 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 
 
 /**
+ * Use empty string as default replacement.
+ */
+String.metaClass.replaceAll = { String pattern -> replaceAll(pattern, "") }
+
+
+/**
  * Replace space characters with a given characters.
  *
  * e.g. "Doctor Who" -> "Doctor_Who"
