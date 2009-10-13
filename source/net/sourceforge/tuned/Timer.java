@@ -16,9 +16,7 @@ public abstract class Timer implements Runnable {
 	
 
 	public Timer() {
-		executor = new ScheduledThreadPoolExecutor(1);
-		executor.setKeepAliveTime(200, TimeUnit.MILLISECONDS);
-		executor.allowCoreThreadTimeOut(true);
+		executor = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("Timer", Thread.NORM_PRIORITY, true));
 	}
 	
 

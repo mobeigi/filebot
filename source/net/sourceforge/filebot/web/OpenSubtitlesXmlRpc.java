@@ -142,13 +142,8 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
-	public TryUploadResponse tryUploadSubtitles(SubFile subtitle) throws XmlRpcFault {
-		return tryUploadSubtitles(singleton(subtitle));
-	}
-	
-
 	@SuppressWarnings("unchecked")
-	public TryUploadResponse tryUploadSubtitles(Collection<SubFile> subtitles) throws XmlRpcFault {
+	public TryUploadResponse tryUploadSubtitles(SubFile... subtitles) throws XmlRpcFault {
 		Map<String, SubFile> struct = new HashMap<String, SubFile>();
 		
 		// put cd1, cd2, ...
@@ -165,12 +160,7 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
-	public URI uploadSubtitles(BaseInfo baseInfo, SubFile subtitle) throws XmlRpcFault {
-		return uploadSubtitles(baseInfo, singleton(subtitle));
-	}
-	
-
-	public URI uploadSubtitles(BaseInfo baseInfo, Collection<SubFile> subtitles) throws XmlRpcFault {
+	public URI uploadSubtitles(BaseInfo baseInfo, SubFile... subtitles) throws XmlRpcFault {
 		Map<String, Object> struct = new HashMap<String, Object>();
 		
 		// put cd1, cd2, ...
@@ -283,7 +273,7 @@ public class OpenSubtitlesXmlRpc {
 
 	protected URL getXmlRpcUrl() {
 		try {
-			return new URL("http://www.opensubtitles.org/xml-rpc");
+			return new URL("http://api.opensubtitles.org/xml-rpc");
 		} catch (MalformedURLException e) {
 			// will never happen
 			throw new RuntimeException(e);

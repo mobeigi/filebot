@@ -91,8 +91,9 @@
 	<type name="video/flash">
 		<extension>flv</extension>
 	</type>
-
-	<type name="video/rmvb">
+	
+	<type name="video/realmedia">
+		<extension>rm</extension>
 		<extension>rmvb</extension>
 	</type>
 	

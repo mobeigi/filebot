@@ -67,7 +67,7 @@ public class SublightSubtitleClientTest {
 		assertEquals("English", sample.getLanguageName());
 		
 		// check size
-		assertTrue(list.size() > 20);
+		assertTrue(list.size() > 15);
 	}
 	
 
