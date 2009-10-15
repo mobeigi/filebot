@@ -4,39 +4,44 @@ package net.sourceforge.tuned;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 
 public abstract class Timer implements Runnable {
 	
-	private final ScheduledThreadPoolExecutor executor;
+	private final ThreadFactory threadFactory = new DefaultThreadFactory("Timer", Thread.NORM_PRIORITY, true);
 	
+	private ScheduledThreadPoolExecutor executor;
 	private ScheduledFuture<?> scheduledFuture;
 	private Thread shutdownHook;
 	
 
-	public Timer() {
-		executor = new ScheduledThreadPoolExecutor(1, new DefaultThreadFactory("Timer", Thread.NORM_PRIORITY, true));
-	}
-	
-
 	public synchronized void set(long delay, TimeUnit unit, boolean runBeforeShutdown) {
-		removeScheduledFuture();
+		// create executor if necessary
+		if (executor == null) {
+			executor = new ScheduledThreadPoolExecutor(1, threadFactory);
+		}
 		
-		Runnable r = this;
+		// cancel existing future task
+		if (scheduledFuture != null) {
+			scheduledFuture.cancel(true);
+		}
+		
+		Runnable runnable = this;
 		
 		if (runBeforeShutdown) {
 			addShutdownHook();
 			
 			// remove shutdown hook after execution
-			r = new Runnable() {
+			runnable = new Runnable() {
 				
 				@Override
 				public void run() {
 					try {
 						Timer.this.run();
 					} finally {
-						removeShutdownHook();
+						cancel();
 					}
 				}
 			};
@@ -45,25 +50,18 @@ public abstract class Timer implements Runnable {
 			removeShutdownHook();
 		}
 		
-		scheduledFuture = executor.schedule(r, delay, unit);
+		scheduledFuture = executor.schedule(runnable, delay, unit);
 	}
 	
 
 	public synchronized void cancel() {
-		removeScheduledFuture();
 		removeShutdownHook();
-	}
-	
-
-	private synchronized void removeScheduledFuture() {
-		if (scheduledFuture != null) {
-			try {
-				scheduledFuture.cancel(true);
-				executor.purge();
-			} finally {
-				scheduledFuture = null;
-			}
-		}
+		
+		// stop executor
+		executor.shutdownNow();
+		
+		scheduledFuture = null;
+		executor = null;
 	}
 	
 
