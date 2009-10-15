@@ -27,8 +27,6 @@
 		<offline-allowed />
 	</information>
 
-	<update check="background" policy="always" />
-
 	<security>
 		<all-permissions />
 	</security>
@@ -38,6 +36,7 @@
 
 		<java version="1.6+" max-heap-size="256m" />
 		<jar href="filebot.jar" main="true" />
+
 		<extension name="lib" href="filebot.lib.jnlp" />
 	</resources>
 

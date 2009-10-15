@@ -7,8 +7,6 @@
 		<offline-allowed />
 	</information>
 
-	<update check="timeout" policy="always" />
-
 	<resources>
 		<property name="jnlp.packEnabled" value="true" />
 
@@ -20,12 +18,10 @@
 		<jar href="simmetrics.jar" />
 		<jar href="args4j.jar" />
 		<jar href="jna.jar" />
-		<jar href="js-engine.jar" />
-		<jar href="js.jar" />
+		<jar href="groovy.jar" />
 		<jar href="junrar-custom.jar" />
 		<jar href="sublight-ws.jar" />
-		<jar href="xmlrpc-client.jar" />
-		<jar href="commons-logging.jar" />
+		<jar href="xmlrpc.jar" />
 	</resources>
 
 	<component-desc />

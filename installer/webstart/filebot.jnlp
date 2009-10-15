@@ -3,7 +3,7 @@
 	<information>
 		<title>FileBot</title>
 		<vendor>rednoah</vendor>
-		<homepage href="http://sourceforge.net/projects/filebot/" />
+		<homepage href="http://filebot.sourceforge.net" />
 		<description>A cross-platform tool for tv renaming, subtitle download and file verification</description>
 
 		<icon href="nosplash.png" kind="splash" />
@@ -12,15 +12,8 @@
 		<icon href="icon16.png" width="16" height="16" />
 		<icon href="shortcut.ico" kind="shortcut" />
 
-		<shortcut>
-			<desktop />
-			<menu />
-		</shortcut>
-
 		<offline-allowed />
 	</information>
-
-	<update check="timeout" policy="always" />
 
 	<security>
 		<all-permissions />
@@ -31,6 +24,7 @@
 
 		<java version="1.6+" max-heap-size="256m" />
 		<jar href="filebot.jar" main="true" />
+
 		<extension name="lib" href="filebot.lib.jnlp" />
 	</resources>
 
