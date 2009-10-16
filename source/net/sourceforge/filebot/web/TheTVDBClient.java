@@ -339,7 +339,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 
 		public void putEpisodeList(int seriesId, Locale language, List<Episode> episodes) {
-			cache.put(new Element(key(host, seriesId, language, "EpisodeList"), episodes));
+			cache.put(new Element(key(host, seriesId, language.getLanguage(), "EpisodeList"), episodes));
 		}
 		
 

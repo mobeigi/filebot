@@ -32,8 +32,26 @@ public class Episode implements Serializable {
 	}
 	
 
+	public Integer getEpisodeNumber() {
+		try {
+			return new Integer(episode);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+
 	public String getSeason() {
 		return season;
+	}
+	
+
+	public Integer getSeasonNumber() {
+		try {
+			return new Integer(season);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 	
 
