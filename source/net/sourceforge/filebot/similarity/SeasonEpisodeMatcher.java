@@ -27,7 +27,7 @@ public class SeasonEpisodeMatcher {
 		patterns[1] = new SeasonEpisodePattern("(?<!\\p{Alnum})(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
 		
 		// match patterns like 01, 102, 1003 (enclosed in separators)
-		patterns[2] = new SeasonEpisodePattern("(?<=^|[._ ])([0-1]?\\d?)(\\d{2})(?=[._ ]|$)") {
+		patterns[2] = new SeasonEpisodePattern("(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
