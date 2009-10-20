@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +35,7 @@ import net.sublight.webservice.SubtitlesAPI2;
 import net.sublight.webservice.SubtitlesAPI2Soap;
 
 
-public class SublightSubtitleClient implements SubtitleProvider {
+public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtitleService {
 	
 	private static final String iid = "42cc1701-3752-49e2-a148-332960073452";
 	
@@ -108,15 +107,31 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	}
 	
 
+	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, final String languageName) throws Exception {
+		Map<File, List<SubtitleDescriptor>> subtitles = new HashMap<File, List<SubtitleDescriptor>>(files.length);
+		
+		for (final File file : files) {
+			subtitles.put(file, getSubtitleList(file, languageName));
+		}
+		
+		return subtitles;
+	}
+	
+
 	public List<SubtitleDescriptor> getSubtitleList(File videoFile, String languageName) throws WebServiceException, IOException {
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
 		
-		// retrieve subtitles by video hash
-		for (Subtitle subtitle : getSubtitleList(SublightVideoHasher.computeHash(videoFile), null, null, languageName)) {
-			// only keep linked subtitles
-			if (subtitle.isIsLinked()) {
-				subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
+		try {
+			// retrieve subtitles by video hash
+			for (Subtitle subtitle : getSubtitleList(SublightVideoHasher.computeHash(videoFile), null, null, languageName)) {
+				// only keep linked subtitles
+				if (subtitle.isIsLinked()) {
+					subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
+				}
 			}
+		} catch (LinkageError e) {
+			// MediaInfo native lib not available
+			throw new UnsupportedOperationException(e);
 		}
 		
 		return subtitles;
@@ -176,12 +191,50 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	}
 	
 
-	@SuppressWarnings("unchecked")
-	private static final Entry<SubtitleLanguage, String>[] aliasList = new Entry[] {
-			new SimpleEntry(SubtitleLanguage.PORTUGUESE_BRAZIL, "Brazilian"), 
-			new SimpleEntry(SubtitleLanguage.BOSNIAN_LATIN, "Bosnian"), 
-			new SimpleEntry(SubtitleLanguage.SERBIAN_LATIN, "Serbian")
-	};
+	@Override
+	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
+		//TODO implement upload feature
+		return false;
+	}
+	
+
+	public void publishSubtitle(int imdbid, String videoHash, String languageName, String releaseName, byte[] data) {
+		// require login
+		login();
+		
+		Subtitle subtitle = new Subtitle();
+		subtitle.setIMDB(String.format("http://www.imdb.com/title/tt%07d", imdbid));
+		subtitle.setLanguage(getSubtitleLanguage(languageName));
+		subtitle.setRelease(releaseName);
+		
+		Holder<Boolean> result = new Holder<Boolean>();
+		Holder<String> subid = new Holder<String>();
+		Holder<String> error = new Holder<String>();
+		
+		// upload subtitle
+		webservice.publishSubtitle2(session, subtitle, data, result, subid, null, error);
+		
+		// abort if something went wrong
+		checkError(error);
+		
+		// link subtitle to video file
+		webservice.addHashLink3(session, subid.value, videoHash, null, null, error);
+		
+		// abort if something went wrong
+		checkError(error);
+	}
+	
+
+	protected Map<String, SubtitleLanguage> getLanguageAliasMap() {
+		Map<String, SubtitleLanguage> languages = new HashMap<String, SubtitleLanguage>(4);
+		
+		// insert special some additional special handling
+		languages.put("Brazilian", SubtitleLanguage.PORTUGUESE_BRAZIL);
+		languages.put("Bosnian", SubtitleLanguage.BOSNIAN_LATIN);
+		languages.put("Serbian", SubtitleLanguage.SERBIAN_LATIN);
+		
+		return languages;
+	}
 	
 
 	protected SubtitleLanguage getSubtitleLanguage(String languageName) {
@@ -192,9 +245,9 @@ public class SublightSubtitleClient implements SubtitleProvider {
 		}
 		
 		// check alias list
-		for (Entry<SubtitleLanguage, String> alias : aliasList) {
-			if (alias.getValue().equalsIgnoreCase(languageName))
-				return alias.getKey();
+		for (Entry<String, SubtitleLanguage> alias : getLanguageAliasMap().entrySet()) {
+			if (alias.getKey().equalsIgnoreCase(languageName))
+				return alias.getValue();
 		}
 		
 		// illegal language name
@@ -203,10 +256,10 @@ public class SublightSubtitleClient implements SubtitleProvider {
 	
 
 	protected String getLanguageName(SubtitleLanguage language) {
-		// check alias list
-		for (Entry<SubtitleLanguage, String> alias : aliasList) {
-			if (language == alias.getKey())
-				return alias.getValue();
+		// check alias list first
+		for (Entry<String, SubtitleLanguage> alias : getLanguageAliasMap().entrySet()) {
+			if (language == alias.getValue())
+				return alias.getKey();
 		}
 		
 		// use language value by default

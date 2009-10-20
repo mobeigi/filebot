@@ -2,7 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
+import java.io.File;
+import java.math.BigInteger;
 import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,13 +21,14 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.tuned.Timer;
 
 
 /**
  * SubtitleClient for OpenSubtitles.
  */
-public class OpenSubtitlesClient implements SubtitleProvider {
+public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleService, MovieIdentificationService {
 	
 	private final OpenSubtitlesXmlRpc xmlrpc;
 	
@@ -56,16 +64,105 @@ public class OpenSubtitlesClient implements SubtitleProvider {
 
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
-		// require login
-		login();
-		
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		
+		// require login
+		login();
 		
 		@SuppressWarnings("unchecked")
 		List<SubtitleDescriptor> subtitles = (List) xmlrpc.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageFilter);
 		
 		return subtitles;
+	}
+	
+
+	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, String languageName) throws Exception {
+		// singleton array with or empty array
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		
+		// remember hash for each file
+		Map<String, File> hashMap = new HashMap<String, File>(files.length);
+		Map<File, List<SubtitleDescriptor>> resultMap = new HashMap<File, List<SubtitleDescriptor>>(files.length);
+		
+		// create hash query for each file
+		List<Query> queryList = new ArrayList<Query>(files.length);
+		
+		for (File file : files) {
+			String movieHash = OpenSubtitlesHasher.computeHash(file);
+			
+			// add query
+			queryList.add(Query.forHash(movieHash, file.length(), languageFilter));
+			
+			// prepare result map
+			hashMap.put(movieHash, file);
+			resultMap.put(file, new LinkedList<SubtitleDescriptor>());
+		}
+		
+		// require login
+		login();
+		
+		// submit query and map results to given files
+		for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(queryList)) {
+			// get file for hash
+			File file = hashMap.get(subtitle.getMovieHash());
+			
+			// add subtitle
+			resultMap.get(file).add(subtitle);
+		}
+		
+		return resultMap;
+	}
+	
+
+	@Override
+	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
+		//TODO implement upload feature
+		return false;
+	}
+	
+
+	/**
+	 * Calculate MD5 hash.
+	 */
+	private String md5(byte[] data) {
+		try {
+			MessageDigest hash = MessageDigest.getInstance("MD5");
+			hash.update(data);
+			
+			// return hex string
+			return String.format("%032x", new BigInteger(1, hash.digest()));
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+
+	@Override
+	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles) throws Exception {
+		// create result array
+		MovieDescriptor[] result = new MovieDescriptor[movieFiles.length];
+		
+		// compute movie hashes
+		Map<String, Integer> indexMap = new HashMap<String, Integer>(movieFiles.length);
+		
+		for (int i = 0; i < movieFiles.length; i++) {
+			String hash = OpenSubtitlesHasher.computeHash(movieFiles[i]);
+			
+			// remember original index
+			indexMap.put(hash, i);
+		}
+		
+		// require login
+		login();
+		
+		// dispatch single query for all hashes
+		for (Entry<String, MovieDescriptor> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
+			int index = indexMap.get(entry.getKey());
+			result[index] = entry.getValue();
+		}
+		
+		return result;
 	}
 	
 

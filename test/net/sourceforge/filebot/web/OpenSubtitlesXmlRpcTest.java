@@ -6,7 +6,6 @@ import static java.util.Collections.*;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -122,20 +121,21 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHash() throws Exception {
-		Map<String, Map<Property, String>> movieHashMap = xmlrpc.checkMovieHash(singleton("2bba5c34b007153b"));
-		Map<Property, String> movie = movieHashMap.values().iterator().next();
+		Map<String, MovieDescriptor> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"));
+		MovieDescriptor movie = results.get("d7aa0275cace4410");
 		
-		assertEquals("\"Firefly\"", movie.get(Property.MovieName));
-		assertEquals("2002", movie.get(Property.MovieYear));
+		assertEquals("Iron Man", movie.getName());
+		assertEquals(2008, movie.getYear());
+		assertEquals(371746, movie.getImdbId());
 	}
 	
 
 	@Test
 	public void checkMovieHashInvalid() throws Exception {
-		Map<String, Map<Property, String>> movieHashMap = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
+		Map<String, MovieDescriptor> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
 		
 		// no movie info
-		assertTrue(movieHashMap.isEmpty());
+		assertTrue(results.isEmpty());
 	}
 	
 
@@ -143,7 +143,7 @@ public class OpenSubtitlesXmlRpcTest {
 	public void detectLanguage() throws Exception {
 		String text = "Only those that are prepared to fire should be fired at.";
 		
-		List<String> languages = xmlrpc.detectLanguage(Charset.forName("utf-8").encode(text));
+		List<String> languages = xmlrpc.detectLanguage(text.getBytes("UTF-8"));
 		
 		assertEquals("eng", languages.get(0));
 		assertTrue(1 == languages.size());

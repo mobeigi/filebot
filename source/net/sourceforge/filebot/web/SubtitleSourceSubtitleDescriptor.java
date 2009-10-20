@@ -62,14 +62,14 @@ public class SubtitleSourceSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
-	public ByteBuffer fetch() throws Exception {
-		return WebRequest.fetch(downloadLink);
+	public String getType() {
+		return "zip";
 	}
 	
 
 	@Override
-	public String getType() {
-		return "zip";
+	public ByteBuffer fetch() throws Exception {
+		return WebRequest.fetch(downloadLink);
 	}
 	
 

@@ -36,20 +36,21 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
+	@Override
 	public String getLanguageName() {
 		return language;
 	}
 	
 
 	@Override
-	public ByteBuffer fetch() throws Exception {
-		return WebRequest.fetch(downloadLink, singletonMap("Referer", referer.toString()));
+	public String getType() {
+		return archiveType;
 	}
 	
 
 	@Override
-	public String getType() {
-		return archiveType;
+	public ByteBuffer fetch() throws Exception {
+		return WebRequest.fetch(downloadLink, singletonMap("Referer", referer.toString()));
 	}
 	
 

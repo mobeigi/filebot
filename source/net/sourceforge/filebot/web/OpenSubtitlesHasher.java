@@ -45,7 +45,6 @@ public final class OpenSubtitlesHasher {
 	
 
 	public static String computeHash(InputStream stream, long length) throws IOException {
-		
 		int chunkSizeForFile = (int) Math.min(HASH_CHUNK_SIZE, length);
 		
 		// buffer that will contain the head and the tail chunk, chunks will overlap if length is smaller than two chunks
@@ -73,7 +72,6 @@ public final class OpenSubtitlesHasher {
 	
 
 	private static long computeHashForChunk(ByteBuffer buffer) {
-		
 		LongBuffer longBuffer = buffer.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
 		long hash = 0;
 		

@@ -4,6 +4,9 @@ package net.sourceforge.tuned;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +16,26 @@ import java.util.regex.Pattern;
 
 public final class FileUtilities {
 	
+	public static byte[] readAll(File source) throws IOException {
+		InputStream in = new FileInputStream(source);
+		
+		try {
+			byte[] data = new byte[(int) source.length()];
+			
+			int position = 0;
+			int read = 0;
+			
+			while (position < data.length && (read = in.read(data, position, data.length - position)) >= 0) {
+				position += read;
+			}
+			
+			return data;
+		} finally {
+			in.close();
+		}
+	}
+	
+
 	/**
 	 * Pattern used for matching file extensions.
 	 * 

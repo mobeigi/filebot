@@ -5,11 +5,11 @@ package net.sourceforge.filebot.web;
 import static java.util.Collections.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import redstone.xmlrpc.XmlRpcFault;
 import redstone.xmlrpc.util.Base64;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
-import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
@@ -111,13 +110,17 @@ public class OpenSubtitlesXmlRpc {
 
 	@SuppressWarnings("unchecked")
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
+		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
 		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
 		
-		List<Map<String, String>> subtitleData = (List<Map<String, String>>) response.get("data");
-		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-		
-		for (Map<String, String> propertyMap : subtitleData) {
-			subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(propertyMap)));
+		try {
+			List<Map<String, String>> subtitleData = (List<Map<String, String>>) response.get("data");
+			
+			for (Map<String, String> propertyMap : subtitleData) {
+				subtitles.add(new OpenSubtitlesSubtitleDescriptor(Property.asEnumMap(propertyMap)));
+			}
+		} catch (ClassCastException e) {
+			// no subtitle have been found
 		}
 		
 		return subtitles;
@@ -179,7 +182,7 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
-	public List<String> detectLanguage(ByteBuffer data) throws XmlRpcFault {
+	public List<String> detectLanguage(byte[] data) throws XmlRpcFault {
 		// compress and base64 encode
 		String parameter = encodeData(data);
 		
@@ -211,16 +214,23 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
-	public Map<String, Map<Property, String>> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
+	public Map<String, MovieDescriptor> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
 		Map<?, ?> response = invoke("CheckMovieHash", token, hashes);
 		
 		Map<String, ?> movieHashData = (Map<String, ?>) response.get("data");
-		Map<String, Map<Property, String>> movieHashMap = new HashMap<String, Map<Property, String>>();
+		Map<String, MovieDescriptor> movieHashMap = new HashMap<String, MovieDescriptor>();
 		
 		for (Entry<String, ?> entry : movieHashData.entrySet()) {
 			// empty associative arrays are deserialized as array, not as map
 			if (entry.getValue() instanceof Map) {
-				movieHashMap.put(entry.getKey(), Property.asEnumMap((Map<String, String>) entry.getValue()));
+				Map<String, String> info = (Map<String, String>) entry.getValue();
+				
+				String hash = info.get("MovieHash");
+				String name = info.get("MovieName");
+				int year = Integer.parseInt(info.get("MovieYear"));
+				int imdb = Integer.parseInt(info.get("MovieImdbID"));
+				
+				movieHashMap.put(hash, new MovieDescriptor(name, year, imdb));
 			}
 		}
 		
@@ -281,12 +291,12 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 
-	protected static String encodeData(ByteBuffer data) {
+	protected static String encodeData(byte[] data) {
 		try {
-			DeflaterInputStream compressedDataStream = new DeflaterInputStream(new ByteBufferInputStream(data));
+			DeflaterInputStream compressedDataStream = new DeflaterInputStream(new ByteArrayInputStream(data));
 			
 			// compress data
-			ByteBufferOutputStream buffer = new ByteBufferOutputStream(data.remaining());
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(data.length);
 			buffer.transferFully(compressedDataStream);
 			
 			// base64 encode
@@ -416,7 +426,7 @@ public class OpenSubtitlesXmlRpc {
 		}
 		
 
-		public void setSubContent(ByteBuffer data) {
+		public void setSubContent(byte[] data) {
 			put("subcontent", encodeData(data));
 		}
 	}
