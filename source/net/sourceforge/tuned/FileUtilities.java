@@ -140,6 +140,32 @@ public final class FileUtilities {
 	}
 	
 
+	public static List<File> listFiles(Iterable<File> folders, int maxDepth) {
+		List<File> files = new ArrayList<File>();
+		
+		// collect files from directory tree
+		for (File folder : folders) {
+			listFiles(folder, 0, files, maxDepth);
+		}
+		
+		return files;
+	}
+	
+
+	private static void listFiles(File folder, int depth, List<File> files, int maxDepth) {
+		if (depth > maxDepth)
+			return;
+		
+		for (File file : folder.listFiles()) {
+			if (file.isDirectory()) {
+				listFiles(file, depth + 1, files, maxDepth);
+			} else {
+				files.add(file);
+			}
+		}
+	}
+	
+
 	/**
 	 * Invalid filename characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */

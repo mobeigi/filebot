@@ -45,6 +45,12 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 
 	@Override
+	public URI getLink() {
+		return URI.create("http://subscene.com");
+	}
+	
+
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.subscene");
 	}

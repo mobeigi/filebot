@@ -59,6 +59,12 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	
 
 	@Override
+	public URI getLink() {
+		return URI.create("http://www.sublight.si");
+	}
+	
+
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.sublight");
 	}
@@ -131,7 +137,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 			}
 		} catch (LinkageError e) {
 			// MediaInfo native lib not available
-			throw new UnsupportedOperationException(e);
+			throw new UnsupportedOperationException(e.getMessage(), e);
 		}
 		
 		return subtitles;
@@ -292,7 +298,8 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
-		return null;
+		// note that sublight can only be accessed via the soap API
+		return URI.create("http://www.sublight.si/SearchSubtitles.aspx");
 	}
 	
 

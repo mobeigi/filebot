@@ -79,7 +79,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	
 
 	@Override
-	protected EpisodeListProvider[] createSearchEngines() {
+	protected EpisodeListProvider[] getSearchEngines() {
 		return new EpisodeListProvider[] {
 				new TVRageClient(),
 				new AnidbClient(),
@@ -91,7 +91,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	
 
 	@Override
-	protected LabelProvider<EpisodeListProvider> createSearchEngineLabelProvider() {
+	protected LabelProvider<EpisodeListProvider> getSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(EpisodeListProvider.class);
 	}
 	

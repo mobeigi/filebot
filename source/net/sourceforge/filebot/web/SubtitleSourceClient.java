@@ -15,10 +15,10 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class SubtitleSourceClient implements SubtitleProvider {
@@ -31,6 +31,12 @@ public class SubtitleSourceClient implements SubtitleProvider {
 	@Override
 	public String getName() {
 		return "SubtitleSource";
+	}
+	
+
+	@Override
+	public URI getLink() {
+		return URI.create("http://www.subtitlesource.org");
 	}
 	
 

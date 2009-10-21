@@ -2,10 +2,14 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.*;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ItemEvent;
+import java.awt.geom.Path2D;
 import java.net.URI;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -19,13 +23,10 @@ import javax.swing.JComboBox;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SublightSubtitleClient;
-import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.SubtitleSourceClient;
+import net.sourceforge.filebot.web.VideoHashSubtitleService;
 import net.sourceforge.tuned.PreferencesList;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.LabelProvider;
@@ -92,22 +93,60 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		// add after text field
 		add(languageComboBox, 1);
+		
+		// add at the top right corner
+		add(dropTarget, "width 1.6cm, height 1.2cm, pos n 0% 100% n", 0);
+	}
+	
+
+	private final SubtitleDropTarget dropTarget = new SubtitleDropTarget() {
+		
+		@Override
+		public VideoHashSubtitleService[] getServices() {
+			return SubtitleServices.getVideoHashSubtitleServices();
+		}
+		
+
+		@Override
+		public String getQueryLanguage() {
+			// use currently selected language for drop target
+			return languageModel.getSelectedItem() == ALL_LANGUAGES ? null : languageModel.getSelectedItem().getName();
+		}
+		
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			Graphics2D g2d = (Graphics2D) g.create();
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			Path2D path = new Path2D.Float();
+			path.moveTo(0, 0);
+			path.lineTo(0, getHeight() - 1 - 12);
+			path.quadTo(0, getHeight() - 1, 12, getHeight() - 1);
+			path.lineTo(getWidth(), getHeight() - 1);
+			path.lineTo(getWidth(), 0);
+			
+			g2d.setPaint(getBackground());
+			g2d.fill(path);
+			
+			g2d.setPaint(Color.gray);
+			g2d.draw(path);
+			
+			g2d.translate(2, 0);
+			super.paintComponent(g2d);
+			g2d.dispose();
+		}
+	};
+	
+
+	@Override
+	protected SubtitleProvider[] getSearchEngines() {
+		return SubtitleServices.getSubtitleProviders();
 	}
 	
 
 	@Override
-	protected SubtitleProvider[] createSearchEngines() {
-		return new SubtitleProvider[] {
-				new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion())),
-				new SubsceneSubtitleClient(),
-				new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey")),
-				new SubtitleSourceClient()
-		};
-	}
-	
-
-	@Override
-	protected LabelProvider<SubtitleProvider> createSearchEngineLabelProvider() {
+	protected LabelProvider<SubtitleProvider> getSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(SubtitleProvider.class);
 	}
 	

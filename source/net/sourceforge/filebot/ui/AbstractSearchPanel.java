@@ -75,8 +75,8 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		searchTextField.getEditor().setAction(searchAction);
 		
-		searchTextField.getSelectButton().setModel(Arrays.asList(createSearchEngines()));
-		searchTextField.getSelectButton().setLabelProvider(createSearchEngineLabelProvider());
+		searchTextField.getSelectButton().setModel(Arrays.asList(getSearchEngines()));
+		searchTextField.getSelectButton().setLabelProvider(getSearchEngineLabelProvider());
 		
 		try {
 			// restore selected subtitle client
@@ -101,10 +101,10 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	}
 	
 
-	protected abstract S[] createSearchEngines();
+	protected abstract S[] getSearchEngines();
 	
 
-	protected abstract LabelProvider<S> createSearchEngineLabelProvider();
+	protected abstract LabelProvider<S> getSearchEngineLabelProvider();
 	
 
 	protected abstract Settings getSettings();

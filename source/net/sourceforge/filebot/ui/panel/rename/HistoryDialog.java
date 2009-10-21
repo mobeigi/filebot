@@ -449,7 +449,7 @@ class HistoryDialog extends JDialog {
 					type = QUESTION_MESSAGE;
 					options = EnumSet.of(Option.Rename, Option.ChangeDirectory, Option.Cancel);
 				} else {
-					String text = String.format("Some files are missing. Please select a different directory.");
+					String text = "Some files are missing. Please select a different directory.";
 					JList missingFilesComponent = new JList(missingFiles.toArray()) {
 						
 						@Override

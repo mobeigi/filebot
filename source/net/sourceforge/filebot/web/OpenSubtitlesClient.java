@@ -45,6 +45,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
+	public URI getLink() {
+		return URI.create("http://www.opensubtitles.org");
+	}
+	
+
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.opensubtitles");
 	}

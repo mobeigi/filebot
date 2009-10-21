@@ -22,6 +22,9 @@ public interface SubtitleProvider {
 	public String getName();
 	
 
+	public URI getLink();
+	
+
 	public Icon getIcon();
 	
 }
