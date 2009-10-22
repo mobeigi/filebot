@@ -143,10 +143,15 @@ public final class WebRequest {
 					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}
+			
+			// use http default encoding only for text/html
+			if (contentType.equals("text/html")) {
+				return Charset.forName("ISO-8859-1");
+			}
 		}
 		
-		// use http default encoding only for text/html, use UTF-8 for everything else (e.g. XML)
-		return Charset.forName(contentType.equals("text/html") ? "ISO-8859-1" : "UTF-8");
+		// use UTF-8 if we don't know any better
+		return Charset.forName("UTF-8");
 	}
 	
 
