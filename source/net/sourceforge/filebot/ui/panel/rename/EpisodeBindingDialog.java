@@ -176,7 +176,7 @@ class EpisodeBindingDialog extends JDialog {
 			
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				super.getTableCellRendererComponent(table, null, isSelected, hasFocus, row, column);
 				
 				@SuppressWarnings("unchecked")
 				Future<String> future = (Future<String>) value;
@@ -440,6 +440,15 @@ class EpisodeBindingDialog extends JDialog {
 			return value;
 		}
 		
+
+		@Override
+		public String toString() {
+			try {
+				return get(0, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				return null;
+			}
+		}
 	}
 	
 
