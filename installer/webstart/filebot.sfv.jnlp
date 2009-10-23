@@ -5,7 +5,6 @@
 		<vendor>rednoah</vendor>
 		<homepage href="http://sourceforge.net/projects/filebot/" />
 
-		<icon href="nosplash.png" kind="splash" />
 		<icon href="sfv48.png" width="48" height="48" />
 		<icon href="sfv32.png" width="32" height="32" />
 		<icon href="sfv16.png" width="16" height="16" />
