@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -153,13 +154,14 @@ public class SelectButton<T> extends JButton {
 	@Override
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
+		Rectangle bounds = new Rectangle(getSize());
 		
 		if (hover)
-			g2d.setPaint(GradientStyle.TOP_TO_BOTTOM.getGradientPaint(getBounds(), beginColorHover, endColorHover));
+			g2d.setPaint(GradientStyle.TOP_TO_BOTTOM.getGradientPaint(bounds, beginColorHover, endColorHover));
 		else
-			g2d.setPaint(GradientStyle.TOP_TO_BOTTOM.getGradientPaint(getBounds(), beginColor, endColor));
+			g2d.setPaint(GradientStyle.TOP_TO_BOTTOM.getGradientPaint(bounds, beginColor, endColor));
 		
-		g2d.fill(getBounds());
+		g2d.fill(bounds);
 		
 		super.paintComponent(g);
 	}
