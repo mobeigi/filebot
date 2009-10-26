@@ -95,7 +95,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		add(languageComboBox, 1);
 		
 		// add at the top right corner
-		add(dropTarget, "width 1.6cm, height 1.2cm, pos n 0% 100% n", 0);
+		add(dropTarget, "width 1.6cm!, height 1.2cm!, pos n 0% 100% n", 0);
 	}
 	
 

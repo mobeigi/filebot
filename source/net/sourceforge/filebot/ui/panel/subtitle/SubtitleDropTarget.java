@@ -132,7 +132,11 @@ abstract class SubtitleDropTarget extends JButton {
 		
 		if (containsOnly(files, FOLDERS)) {
 			// collect all video files from the dropped folders 
-			return handleDownload(filter(listFiles(files, 0), VIDEO_FILES));
+			List<File> videoFiles = filter(listFiles(files, 0), VIDEO_FILES);
+			
+			if (videoFiles.size() > 0) {
+				return handleDownload(videoFiles);
+			}
 		}
 		
 		if (containsOnly(files, SUBTITLE_FILES)) {
@@ -149,14 +153,25 @@ abstract class SubtitleDropTarget extends JButton {
 	}
 	
 
+	private boolean containsOnlyVideoSubtitleMatches(List<File> files) {
+		List<File> subtitles = filter(files, SUBTITLE_FILES);
+		
+		if (subtitles.isEmpty())
+			return false;
+		
+		// number of subtitle files must match the number of video files
+		return subtitles.size() == filter(files, VIDEO_FILES).size();
+	}
+	
+
 	private DropAction getDropAction(List<File> files) {
 		// video files only, or any folder, containing video files
 		if (containsOnly(files, VIDEO_FILES) || (containsOnly(files, FOLDERS) && filter(listFiles(files, 0), VIDEO_FILES).size() > 0)) {
 			return DropAction.Download;
 		}
 		
-		// subtitle files only, or video/subtitle pairs
-		if (containsOnly(files, SUBTITLE_FILES) || filter(files, VIDEO_FILES).size() == filter(files, SUBTITLE_FILES).size()) {
+		// subtitle files only, or video/subtitle matches
+		if (containsOnly(files, SUBTITLE_FILES) || containsOnlyVideoSubtitleMatches(files)) {
 			return DropAction.Upload;
 		}
 		

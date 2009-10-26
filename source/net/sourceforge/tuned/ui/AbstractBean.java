@@ -15,6 +15,7 @@ public abstract class AbstractBean {
 	
 
 	public AbstractBean() {
+		// always notify on EDT
 		pcs = new SwingPropertyChangeSupport(this, true);
 	}
 	

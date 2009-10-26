@@ -35,7 +35,6 @@ import javax.swing.Action;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -58,6 +57,7 @@ import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.AbstractBean;
+import net.sourceforge.tuned.ui.EmptySelectionModel;
 import net.sourceforge.tuned.ui.LinkButton;
 import net.sourceforge.tuned.ui.RoundBorder;
 
@@ -103,6 +103,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 		JComboBox editor = new SimpleComboBox();
 		editor.setRenderer(new SubtitleOptionRenderer());
+		
+		// disable selection
+		table.setSelectionModel(new EmptySelectionModel());
 		editor.setFocusable(false);
 		
 		table.setDefaultEditor(SubtitleMapping.class, new DefaultCellEditor(editor) {
@@ -116,33 +119,6 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 				editor.setSelectedItem(mapping.getSelectedOption());
 				
 				return editor;
-			}
-		});
-		
-		// disable selection
-		table.setSelectionModel(new DefaultListSelectionModel() {
-			
-			@Override
-			public void addSelectionInterval(int from, int to) {
-				// ignore
-			}
-			
-
-			@Override
-			public void setSelectionInterval(int from, int to) {
-				// ignore
-			}
-			
-
-			@Override
-			public void setAnchorSelectionIndex(int anchorIndex) {
-				// ignore
-			}
-			
-
-			@Override
-			public void setLeadSelectionIndex(int leadIndex) {
-				// ignore
 			}
 		});
 		
@@ -429,6 +405,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public void setOptionColumnVisible(boolean optionColumnVisible) {
+			if (this.optionColumnVisible == optionColumnVisible)
+				return;
+			
 			this.optionColumnVisible = optionColumnVisible;
 			
 			// update columns
@@ -512,9 +491,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				// update state and subtitle options
-				if (optionColumnVisible) {
-					fireTableCellUpdated(index, 1);
-				}
+				fireTableRowsUpdated(index, index);
 			}
 		}
 	}
@@ -539,6 +516,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public File getSubtitleFile() {
+			if (selectedOption == null)
+				throw new IllegalStateException("Selected option must not be null");
+			
 			return new File(videoFile.getParentFile(), FileUtilities.getName(videoFile) + '.' + selectedOption.getType());
 		}
 		
