@@ -20,6 +20,7 @@ import javax.swing.UIManager;
 
 import org.kohsuke.args4j.CmdLineParser;
 
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.NotificationLoggingHandler;
@@ -35,6 +36,7 @@ public class Main {
 	public static void main(String... args) throws Exception {
 		// initialize this stuff before anything else
 		initializeLogging();
+		initializeCache();
 		initializeSecurityManager();
 		
 		// parse arguments
@@ -97,6 +99,20 @@ public class Main {
 		consoleHandler.setLevel(Level.WARNING);
 		
 		uiLogger.addHandler(consoleHandler);
+	}
+	
+
+	/**
+	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
+	 */
+	private static void initializeCache() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			
+			@Override
+			public void run() {
+				CacheManager.getInstance().shutdown();
+			}
+		});
 	}
 	
 

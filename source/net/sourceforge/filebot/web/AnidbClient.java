@@ -6,16 +6,27 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
+import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import javax.swing.Icon;
 
@@ -23,12 +34,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
+import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
 public class AnidbClient implements EpisodeListProvider {
 	
 	private static final String host = "anidb.net";
+	
+	private static final Cache cache = CacheManager.getInstance().getCache("anidb");
 	
 
 	@Override
@@ -45,74 +64,81 @@ public class AnidbClient implements EpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
-		// Air Status: ignore
-		// Anime Type: TV Series, TV Special, OVA
-		// Hide Synonyms: true
-		URL searchUrl = new URL("http", host, "/perl-bin/animedb.pl?type.tvspecial=1&type.tvseries=1&type.ova=1&show=animelist&orderby.name=0.1&noalias=1&do.update=update&adb.search=" + URLEncoder.encode(query, "UTF-8"));
+		// normalize
+		query = query.toLowerCase();
 		
-		Document dom = getHtmlDocument(searchUrl);
+		AbstractStringMetric metric = new QGramsDistance();
 		
-		List<Node> nodes = selectNodes("//TABLE[@class='animelist']//TR/TD/ancestor::TR", dom);
+		final List<Entry<SearchResult, Float>> resultSet = new ArrayList<Entry<SearchResult, Float>>();
 		
-		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
-		
-		for (Node node : nodes) {
-			Node link = selectNode("./TD[@class='name']/A", node);
-			
-			String title = getTextContent(link);
-			String href = getAttribute("href", link);
-			
-			try {
-				results.add(new HyperLink(title, new URL("http", host, "/perl-bin/" + href)));
-			} catch (MalformedURLException e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href);
-			}
-		}
-		
-		// we might have been redirected to the episode list page
-		if (results.isEmpty()) {
-			// get anime information from document
-			String link = selectString("//*[@class='data']//A[@class='short_link']/@href", dom);
-			
-			// check if page is an anime page, are an empty search result page
-			if (!link.isEmpty()) {
-				try {
-					results.add(new HyperLink(selectTitle(dom), new URL(link)));
-				} catch (MalformedURLException e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid location: " + link);
+		for (AnidbSearchResult anime : getAnimeTitles()) {
+			for (String name : new String[] { anime.getMainTitle(), anime.getEnglishTitle() }) {
+				if (name != null) {
+					float similarity = metric.getSimilarity(name.toLowerCase(), query);
+					
+					if (similarity > 0.5 || name.toLowerCase().contains(query)) {
+						resultSet.add(new SimpleEntry<SearchResult, Float>(anime, similarity));
+						
+						// add only once
+						break;
+					}
 				}
 			}
 		}
 		
-		return results;
-	}
-	
+		// sort by similarity descending (best matches first)
+		Collections.sort(resultSet, new Comparator<Entry<SearchResult, Float>>() {
+			
+			@Override
+			public int compare(Entry<SearchResult, Float> o1, Entry<SearchResult, Float> o2) {
+				return o2.getValue().compareTo(o1.getValue());
+			}
+		});
+		
+		// view for the first 20 search results
+		return new AbstractList<SearchResult>() {
+			
+			@Override
+			public SearchResult get(int index) {
+				return resultSet.get(index).getKey();
+			}
+			
 
-	protected String selectTitle(Document animePage) {
-		// extract name from header (e.g. "Anime: Naruto")
-		return selectString("//H1", animePage).replaceFirst("^Anime:\\s*", "");
+			@Override
+			public int size() {
+				return Math.min(20, resultSet.size());
+			}
+		};
 	}
 	
 
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
-		int aid = getAnimeID(getEpisodeListLink(searchResult));
+		int aid = ((AnidbSearchResult) searchResult).getAnimeId();
+		URL url = new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + aid);
+		
+		// try cache first
+		try {
+			return Arrays.asList((Episode[]) cache.get(url.toString()).getValue());
+		} catch (Exception e) {
+			// ignore
+		}
 		
 		// get anime page as xml
-		Document dom = getDocument(new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + aid));
+		Document dom = getDocument(url);
 		
 		// select main title
-		String animeTitle = selectString("//anime/titles/title[@type='main']/text()", dom);
+		String animeTitle = selectString("//title[@type='main']", dom);
 		
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		
-		for (Node node : selectNodes("//anime/eps/ep", dom)) {
+		for (Node node : selectNodes("//ep", dom)) {
 			String flags = getTextContent("flags", node);
 			
 			// allow only normal and recap episodes
 			if (flags == null || flags.equals("2")) {
 				String number = getTextContent("epno", node);
-				String title = selectString("./titles/title[@lang='en']", node);
+				String title = selectString(".//title[@lang='en']", node);
 				
 				// no seasons for anime
 				episodes.add(new Episode(animeTitle, null, number, title));
@@ -120,72 +146,27 @@ public class AnidbClient implements EpisodeListProvider {
 		}
 		
 		// sanity check 
-		if (episodes.isEmpty()) {
+		if (episodes.size() > 0) {
+			// populate cache
+			cache.put(new Element(url.toString(), episodes.toArray(new Episode[0])));
+		} else {
 			// anime page xml doesn't work sometimes
 			Logger.getLogger(getClass().getName()).warning(String.format("Failed to parse episode data from xml: %s (%d)", searchResult, aid));
-			
-			// fall back to good old page scraper
-			return scrapeEpisodeList(searchResult);
 		}
 		
 		return episodes;
-	}
-	
-
-	protected List<Episode> scrapeEpisodeList(SearchResult searchResult) throws IOException, SAXException {
-		Document dom = getHtmlDocument(getEpisodeListLink(searchResult).toURL());
-		
-		// use title from anime page
-		String animeTitle = selectTitle(dom);
-		
-		List<Node> nodes = selectNodes("id('eplist')//TR/TD/SPAN/ancestor::TR", dom);
-		
-		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
-		
-		for (Node node : nodes) {
-			List<Node> columns = getChildren("TD", node);
-			
-			String number = getTextContent("A", columns.get(0));
-			String title = getTextContent("LABEL", columns.get(1));
-			
-			// if number does not match, episode is probably some kind of special (S1, S2, ...)
-			if (number.matches("\\d+")) {
-				// no seasons for anime
-				episodes.add(new Episode(animeTitle, null, number, title));
-			}
-		}
-		
-		return episodes;
-	}
-	
-
-	protected int getAnimeID(URI uri) {
-		// e.g. http://anidb.net/perl-bin/animedb.pl?show=anime&aid=26
-		if (uri.getQuery() != null) {
-			Matcher query = Pattern.compile("aid=(\\d+)").matcher(uri.getQuery());
-			
-			if (query.find()) {
-				return Integer.parseInt(query.group(1));
-			}
-		}
-		
-		// e.g. http://anidb.net/a26
-		if (uri.getPath() != null) {
-			Matcher path = Pattern.compile("/a(\\d+)$").matcher(uri.getPath());
-			
-			if (path.find()) {
-				return Integer.parseInt(path.group(1));
-			}
-		}
-		
-		// no aid found
-		throw new IllegalArgumentException("URI does not contain an aid: " + uri);
 	}
 	
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return ((HyperLink) searchResult).getURI();
+		int aid = ((AnidbSearchResult) searchResult).getAnimeId();
+		
+		try {
+			return new URI("http", host, "/a" + aid, null);
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 
@@ -204,6 +185,97 @@ public class AnidbClient implements EpisodeListProvider {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		return null;
+	}
+	
+
+	private AnidbSearchResult[] getAnimeTitles() throws MalformedURLException, IOException, SAXException {
+		URL url = new URL("http", host, "/api/animetitles.dat.gz");
+		
+		// try cache first
+		try {
+			return (AnidbSearchResult[]) cache.get(url.toString()).getValue();
+		} catch (Exception e) {
+			// ignore
+		}
+		
+		// <aid>|<type>|<language>|<title>
+		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
+		Pattern pattern = Pattern.compile("^(?!#)(\\d+)[|](\\d)[|]([\\w-]+)[|](.+)$");
+		
+		Map<Integer, String> primaryTitleMap = new TreeMap<Integer, String>();
+		Map<Integer, String> englishTitleMap = new HashMap<Integer, String>();
+		
+		// fetch data
+		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
+		
+		try {
+			while (scanner.hasNextLine()) {
+				Matcher matcher = pattern.matcher(scanner.nextLine());
+				
+				if (matcher.matches()) {
+					if (matcher.group(2).equals("1")) {
+						primaryTitleMap.put(Integer.parseInt(matcher.group(1)), matcher.group(4));
+					} else if (matcher.group(2).equals("4") && matcher.group(3).equals("en")) {
+						englishTitleMap.put(Integer.parseInt(matcher.group(1)), matcher.group(4));
+					}
+				}
+			}
+		} finally {
+			scanner.close();
+		}
+		
+		List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
+		
+		for (Entry<Integer, String> entry : primaryTitleMap.entrySet()) {
+			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), englishTitleMap.get(entry.getKey())));
+		}
+		
+		// populate cache
+		AnidbSearchResult[] result = anime.toArray(new AnidbSearchResult[0]);
+		cache.put(new Element(url.toString(), result));
+		
+		return result;
+	}
+	
+
+	public static class AnidbSearchResult extends SearchResult implements Serializable {
+		
+		protected int aid;
+		protected String mainTitle;
+		protected String englishTitle;
+		
+
+		protected AnidbSearchResult() {
+			// used by serializer
+		}
+		
+
+		public AnidbSearchResult(int aid, String mainTitle, String englishTitle) {
+			this.aid = aid;
+			this.mainTitle = mainTitle;
+			this.englishTitle = englishTitle;
+		}
+		
+
+		public int getAnimeId() {
+			return aid;
+		}
+		
+
+		@Override
+		public String getName() {
+			return mainTitle;
+		}
+		
+
+		public String getMainTitle() {
+			return mainTitle;
+		}
+		
+
+		public String getEnglishTitle() {
+			return englishTitle;
+		}
 	}
 	
 }

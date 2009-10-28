@@ -8,10 +8,15 @@ import java.util.Arrays;
 
 public class Episode implements Serializable {
 	
-	private final String seriesName;
-	private final String season;
-	private final String episode;
-	private final String title;
+	private String seriesName;
+	private String season;
+	private String episode;
+	private String title;
+	
+
+	protected Episode() {
+		// used by serializer
+	}
 	
 
 	public Episode(String seriesName, int season, int episode, String title) {

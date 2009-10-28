@@ -2,11 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
-
-
 public abstract class SearchResult {
 	
 	protected final String name;
+	
+
+	protected SearchResult() {
+		this.name = null;
+	}
 	
 
 	public SearchResult(String name) {
@@ -21,7 +24,7 @@ public abstract class SearchResult {
 
 	@Override
 	public String toString() {
-		return name;
+		return getName();
 	}
 	
 }

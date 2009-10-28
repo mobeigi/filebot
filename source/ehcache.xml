@@ -132,6 +132,17 @@
            memoryStoreEvictionPolicy="LRU"
            />
            
+	<!--
+	Very long-lived cache (one month!) for AniDB anime list and episode information.
+    -->
+    <cache name="anidb"
+           maxElementsInMemory="20"
+           timeToIdleSeconds="2628000"
+           timeToLiveSeconds="2628000"
+           diskPersistent="true"
+           memoryStoreEvictionPolicy="LRU"
+           />
+           
            
     <!--
     Simple memory cache for calculated checksums. Time to live is 2 hours. This cache is used in EpisodeFormatBindingBean
