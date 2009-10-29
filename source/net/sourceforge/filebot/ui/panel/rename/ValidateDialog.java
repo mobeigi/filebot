@@ -10,11 +10,15 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -25,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.text.BadLocationException;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -47,13 +52,37 @@ class ValidateDialog extends JDialog {
 		list = new JList(model);
 		list.setEnabled(false);
 		
-		list.setCellRenderer(new HighlightListCellRenderer(ILLEGAL_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4));
+		list.setCellRenderer(new HighlightListCellRenderer(ILLEGAL_CHARACTERS, new CharacterHighlightPainter(new Color(0xFF4200), new Color(0xFF1200)), 4) {
+			
+			@Override
+			protected void updateHighlighter() {
+				textComponent.getHighlighter().removeAllHighlights();
+				
+				Matcher matcher = pattern.matcher(textComponent.getText());
+				File file = new File(textComponent.getText());
+				
+				// highlight path components separately to ignore "illegal characters" that are either path separators or part of the drive letter (e.g. ':' in 'E:')
+				for (File element : listPath(file)) {
+					int limit = element.getPath().length();
+					matcher.region(limit - element.getName().length(), limit);
+					
+					while (matcher.find()) {
+						try {
+							textComponent.getHighlighter().addHighlight(matcher.start(0), matcher.end(0), highlightPainter);
+						} catch (BadLocationException e) {
+							//should not happen
+							Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
+						}
+					}
+				}
+			}
+		});
 		
 		JLabel label = new JLabel("Some names contain invalid characters:");
 		
 		JComponent content = (JComponent) getContentPane();
 		
-		content.setLayout(new MigLayout("insets dialog, nogrid, fill"));
+		content.setLayout(new MigLayout("insets dialog, nogrid, fill", "", "[pref!][fill][pref!]"));
 		
 		content.add(label, "wrap");
 		content.add(new JScrollPane(list), "grow, wrap 2mm");
@@ -94,7 +123,8 @@ class ValidateDialog extends JDialog {
 		public void actionPerformed(ActionEvent e) {
 			// validate names
 			for (int i = 0; i < model.length; i++) {
-				model[i] = validateFileName(model[i]);
+				// remove illegal characters
+				model[i] = validateFilePath(new File(model[i])).getPath();
 			}
 			
 			// update view
@@ -126,22 +156,23 @@ class ValidateDialog extends JDialog {
 	
 
 	public static boolean validate(Component parent, List<String> source) {
-		IndexView<String> invalid = new IndexView<String>(source);
+		IndexView<String> invalidFilePaths = new IndexView<String>(source);
 		
 		for (int i = 0; i < source.size(); i++) {
-			String name = source.get(i);
+			String path = source.get(i);
 			
-			if (isInvalidFileName(name)) {
-				invalid.addIndex(i);
+			// invalid file names are also invalid file paths
+			if (isInvalidFilePath(new File(path))) {
+				invalidFilePaths.addIndex(i);
 			}
 		}
 		
-		if (invalid.isEmpty()) {
-			// nothing to do
+		// check if there is anything to do in the first place
+		if (invalidFilePaths.isEmpty()) {
 			return true;
 		}
 		
-		ValidateDialog dialog = new ValidateDialog(getWindow(parent), invalid);
+		ValidateDialog dialog = new ValidateDialog(getWindow(parent), invalidFilePaths);
 		
 		// show and block
 		dialog.setVisible(true);
@@ -151,11 +182,11 @@ class ValidateDialog extends JDialog {
 			return false;
 		}
 		
-		List<String> valid = dialog.getModel();
+		List<String> validatedFilePaths = dialog.getModel();
 		
 		// validate source list via index view
-		for (int i = 0; i < invalid.size(); i++) {
-			invalid.set(i, valid.get(i));
+		for (int i = 0; i < invalidFilePaths.size(); i++) {
+			invalidFilePaths.set(i, validatedFilePaths.get(i));
 		}
 		
 		return true;

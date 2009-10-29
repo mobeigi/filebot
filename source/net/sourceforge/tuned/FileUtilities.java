@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,6 +142,17 @@ public final class FileUtilities {
 	}
 	
 
+	public static List<File> listPath(File file) {
+		LinkedList<File> nodes = new LinkedList<File>();
+		
+		for (File node = file; node != null; node = node.getParentFile()) {
+			nodes.addFirst(node);
+		}
+		
+		return nodes;
+	}
+	
+
 	public static List<File> listFiles(Iterable<File> folders, int maxDepth) {
 		List<File> files = new ArrayList<File>();
 		
@@ -167,25 +180,62 @@ public final class FileUtilities {
 	
 
 	/**
-	 * Invalid filename characters: \, /, :, *, ?, ", <, >, |, \r and \n
+	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
 	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]");
 	
 
 	/**
-	 * Strip filename of invalid characters
+	 * Strip file name of invalid characters
 	 * 
 	 * @param filename original filename
-	 * @return valid filename stripped of invalid characters
+	 * @return valid file name stripped of invalid characters
 	 */
 	public static String validateFileName(CharSequence filename) {
-		// strip invalid characters from filename
+		// strip invalid characters from file name
 		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("");
 	}
 	
 
 	public static boolean isInvalidFileName(CharSequence filename) {
+		// check if file name contains any illegal characters
 		return ILLEGAL_CHARACTERS.matcher(filename).find();
+	}
+	
+
+	public static File validateFileName(File file) {
+		// windows drives (e.g. c:, d:, etc.) are never invalid because name will be an empty string
+		if (!isInvalidFileName(file.getName()))
+			return file;
+		
+		// validate file name only
+		return new File(file.getParentFile(), validateFileName(file.getName()));
+	}
+	
+
+	public static File validateFilePath(File path) {
+		Iterator<File> nodes = listPath(path).iterator();
+		
+		// initialize with root node, keep original root object if possible (so we don't loose the drive on windows)
+		File validatedPath = validateFileName(nodes.next());
+		
+		// validate the rest of the path
+		while (nodes.hasNext()) {
+			validatedPath = new File(validatedPath, validateFileName(nodes.next().getName()));
+		}
+		
+		return validatedPath;
+	}
+	
+
+	public static boolean isInvalidFilePath(File path) {
+		// check if file name contains any illegal characters
+		for (File node = path; node != null; node = node.getParentFile()) {
+			if (isInvalidFileName(node.getName()))
+				return true;
+		}
+		
+		return false;
 	}
 	
 

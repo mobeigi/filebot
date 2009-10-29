@@ -25,12 +25,12 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 	
-	private final JTextComponent textComponent = new JTextField();
+	protected final JTextComponent textComponent = new JTextField();
 	
-	private Pattern pattern;
-	private Highlighter.HighlightPainter highlightPainter;
+	protected final Pattern pattern;
+	protected final Highlighter.HighlightPainter highlightPainter;
 	
-	
+
 	public HighlightListCellRenderer(Pattern pattern, Highlighter.HighlightPainter highlightPainter, int padding) {
 		super(new Insets(0, 0, 0, 0));
 		
@@ -84,7 +84,7 @@ class HighlightListCellRenderer extends AbstractFancyListCellRenderer {
 		}
 	}
 	
-	
+
 	private class HighlightUpdateListener implements DocumentListener {
 		
 		@Override

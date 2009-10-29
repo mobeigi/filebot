@@ -91,10 +91,15 @@ class RenameAction extends AbstractAction {
 	
 
 	private File rename(File file, String path) throws IOException {
-		// same folder, different name
-		File destination = new File(file.getParentFile(), path);
+		File destination = new File(path);
 		
-		// name may be a relative path, so we can't use file.getParentFile()
+		// resolve destination
+		if (!destination.isAbsolute()) {
+			// same folder, different name
+			destination = new File(file.getParentFile(), path);
+		}
+		
+		// make sure we that we can create the destination folder structure
 		File destinationFolder = destination.getParentFile();
 		
 		// create parent folder if necessary

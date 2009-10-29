@@ -531,8 +531,14 @@ class HistoryDialog extends JDialog {
 				File dir = directory != null ? directory : element.dir();
 				
 				// reverse
-				File from = new File(dir, element.to());
-				File to = new File(dir, element.from());
+				File from = new File(element.to());
+				File to = new File(element.from());
+				
+				// resolve against given directory or against the original base directory if the path is not absolute
+				if (!from.isAbsolute())
+					from = new File(dir, directory == null ? from.getPath() : from.getName());
+				if (!to.isAbsolute())
+					to = new File(dir, directory == null ? to.getPath() : to.getName());
 				
 				renameMap.put(from, to);
 			}
@@ -847,7 +853,12 @@ class HistoryDialog extends JDialog {
 
 		public boolean isBroken(int row) {
 			Element element = data.get(row);
-			File file = new File(element.dir(), element.to());
+			
+			File file = new File(element.to());
+			
+			// resolve relative path
+			if (!file.isAbsolute())
+				file = new File(element.dir(), file.getPath());
 			
 			return !file.exists();
 		}

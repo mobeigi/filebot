@@ -49,7 +49,6 @@ class ExpressionFormatDocument extends PlainDocument {
 		RoundBrackets("()"),
 		SquareBrackets("[]"),
 		CurlyBrackets("{}"),
-		RegexLiteral("//"),
 		SingleQuoteStringLiteral("''"),
 		DoubleQuoteStringLiteral("\"\"");
 		
