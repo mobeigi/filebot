@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
@@ -21,7 +22,7 @@ import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
 
 public class OpenSubtitlesXmlRpcTest {
 	
-	private static OpenSubtitlesXmlRpc xmlrpc = new OpenSubtitlesXmlRpc("FileBot 0.0");
+	private static OpenSubtitlesXmlRpc xmlrpc = new OpenSubtitlesXmlRpc(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 	
 
 	@BeforeClass

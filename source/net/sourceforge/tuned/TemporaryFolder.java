@@ -13,11 +13,11 @@ import java.util.UUID;
 
 public final class TemporaryFolder {
 	
-	private static final String tmpdir = System.getProperty("java.io.tmpdir");
+	private static final File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 	
 	private static final Map<String, TemporaryFolder> folders = new HashMap<String, TemporaryFolder>();
 	
-	
+
 	/**
 	 * Get a {@link TemporaryFolder} instance for a given name. The actual directory will be
 	 * created lazily (e.g. when a file is created). The name of the directory will start with
@@ -43,6 +43,7 @@ public final class TemporaryFolder {
 		}
 	}
 	
+
 	/**
 	 * Delete all temporary folders on shutdown
 	 */
@@ -62,7 +63,7 @@ public final class TemporaryFolder {
 	
 	private final File root;
 	
-	
+
 	private TemporaryFolder(File root) {
 		this.root = root;
 	}

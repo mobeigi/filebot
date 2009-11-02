@@ -144,7 +144,7 @@ abstract class SubtitleDropTarget extends JButton {
 			throw new UnsupportedOperationException("Not implemented yet");
 		}
 		
-		if (filter(files, VIDEO_FILES).size() == filter(files, SUBTITLE_FILES).size()) {
+		if (containsOnlyVideoSubtitleMatches(files)) {
 			// TODO implement upload
 			throw new UnsupportedOperationException("Not implemented yet");
 		}

@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +19,7 @@ import net.sublight.webservice.Subtitle;
 
 public class SublightSubtitleClientTest {
 	
-	private static SublightSubtitleClient client = new SublightSubtitleClient("FileBot", "afa9ecb2-a3ee-42b1-9225-000b4038bc85");
+	private static SublightSubtitleClient client = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
 	
 
 	@BeforeClass

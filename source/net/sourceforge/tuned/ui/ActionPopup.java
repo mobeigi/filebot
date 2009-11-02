@@ -26,7 +26,7 @@ public class ActionPopup extends JPopupMenu {
 	
 	protected final JPanel actionPanel = new JPanel(new MigLayout("nogrid, insets 0, fill"));
 	
-	
+
 	public ActionPopup(String label, Icon icon) {
 		headerLabel.setText(label);
 		headerLabel.setIcon(icon);
@@ -53,7 +53,7 @@ public class ActionPopup extends JPopupMenu {
 	
 
 	public void addAction(JComponent component) {
-		actionPanel.add(component, "gapx 12px 12px, wrap");
+		actionPanel.add(component, "gapx 12px 12px, growx, wrap");
 	}
 	
 
@@ -109,6 +109,7 @@ public class ActionPopup extends JPopupMenu {
 		return statusLabel.getText();
 	}
 	
+
 	private final ActionListener closeListener = new ActionListener() {
 		
 		@Override

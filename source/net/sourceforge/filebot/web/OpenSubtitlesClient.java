@@ -8,6 +8,7 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,25 +62,26 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// require login
 		login();
 		
-		@SuppressWarnings("unchecked")
-		List<SearchResult> results = (List) xmlrpc.searchMoviesOnIMDB(query);
+		// search for movies / series
+		SearchResult[] result = xmlrpc.searchMoviesOnIMDB(query).toArray(new SearchResult[0]);
 		
-		return results;
+		return Arrays.asList(result);
 	}
 	
 
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		// singleton array with or empty array
+		int imdbid = ((MovieDescriptor) searchResult).getImdbId();
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 		
 		// require login
 		login();
 		
-		@SuppressWarnings("unchecked")
-		List<SubtitleDescriptor> subtitles = (List) xmlrpc.searchSubtitles(((MovieDescriptor) searchResult).getImdbId(), languageFilter);
+		// get subtitle list
+		SubtitleDescriptor[] subtitles = xmlrpc.searchSubtitles(imdbid, languageFilter).toArray(new SubtitleDescriptor[0]);
 		
-		return subtitles;
+		return Arrays.asList(subtitles);
 	}
 	
 

@@ -55,23 +55,23 @@ String.metaClass.lowerTrail = { replaceAll(/\b(\p{Alpha})(\p{Alpha}+)\b/, { matc
 
 
 /**
- * Return substring before the given delimiter.
+ * Return substring before the given pattern.
  */
 String.metaClass.before = {
 	def matcher = delegate =~ it
 	
-	// delimiter was found, return leading substring, else return original value
+	// pattern was found, return leading substring, else return original value
 	return matcher.find() ? delegate.substring(0, matcher.start()) : delegate
 }
 
 
 /**
- * Return substring after the given delimiter.
+ * Return substring after the given pattern.
  */
 String.metaClass.after = {
 	def matcher = delegate =~ it
 	
-	// delimiter was found, return trailing substring, else return original value
+	// pattern was found, return trailing substring, else return original value
 	return matcher.find() ? delegate.substring(matcher.end(), delegate.length()) : delegate
 }
 
@@ -85,7 +85,7 @@ String.metaClass.replaceTrailingBraces = { replacement = "" -> replaceAll(/\s*[(
 
 
 /**
- * Replace 'part section'.
+ * Replace 'part identifier'.
  * 
  * e.g. "Today Is the Day: Part 1" -> "Today Is the Day, Part 1"
  * 		"Today Is the Day (1)" -> "Today Is the Day, Part 1"

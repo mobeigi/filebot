@@ -8,7 +8,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.sf.ehcache.CacheManager;
@@ -19,12 +20,6 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 public class TheTVDBClientTest {
 	
 	private TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
-	
-
-	@After
-	public void clearCache() {
-		CacheManager.getInstance().clearAll();
-	}
 	
 
 	@Test
@@ -120,6 +115,13 @@ public class TheTVDBClientTest {
 		
 		// all flags set
 		assertEquals(EnumSet.allOf(MirrorType.class), MirrorType.fromTypeMask(7));
+	}
+	
+
+	@BeforeClass
+	@AfterClass
+	public static void clearCache() {
+		CacheManager.getInstance().clearAll();
 	}
 	
 }

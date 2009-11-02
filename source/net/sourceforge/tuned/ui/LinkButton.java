@@ -25,7 +25,7 @@ public class LinkButton extends JButton {
 	private Color color = getForeground();
 	private Color rolloverColor = SystemColor.textHighlight;
 	
-	
+
 	public LinkButton(String text, Icon icon, URI uri) {
 		this(new OpenUriAction(text, icon, uri));
 	}
@@ -39,6 +39,7 @@ public class LinkButton extends JButton {
 		setContentAreaFilled(false);
 		setBorder(null);
 		
+		setHorizontalAlignment(LEFT);
 		setIconTextGap(6);
 		setRolloverEnabled(true);
 		
@@ -80,6 +81,7 @@ public class LinkButton extends JButton {
 		this.rolloverColor = rolloverColor;
 	}
 	
+
 	protected final MouseListener rolloverListener = new MouseAdapter() {
 		
 		@Override
@@ -94,12 +96,12 @@ public class LinkButton extends JButton {
 		}
 	};
 	
-	
+
 	protected static class OpenUriAction extends AbstractAction {
 		
 		public static final String URI = "uri";
 		
-		
+
 		public OpenUriAction(String text, Icon icon, URI uri) {
 			super(text, icon);
 			putValue(URI, uri);

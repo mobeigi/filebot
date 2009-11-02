@@ -137,8 +137,11 @@
     -->
     <cache name="anidb"
            maxElementsInMemory="20"
+           maxElementsOnDisk="120"
+           eternal="false"
            timeToIdleSeconds="2628000"
            timeToLiveSeconds="2628000"
+           overflowToDisk="true"
            diskPersistent="true"
            memoryStoreEvictionPolicy="LRU"
            />
@@ -152,7 +155,7 @@
            eternal="false"
            timeToIdleSeconds="7200"
            timeToLiveSeconds="7200"
-           overflowToDisk="false"           
+           overflowToDisk="false"
            diskPersistent="false"
            memoryStoreEvictionPolicy="LRU"
            />
@@ -162,7 +165,7 @@
 	Short-lived memory cache for resources like icons. This cache is used by ResourceManager.
     -->
     <cache name="resource"
-           maxElementsInMemory="100"
+           maxElementsInMemory="40"
            eternal="false"
            timeToIdleSeconds="120"
            timeToLiveSeconds="120"

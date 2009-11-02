@@ -74,9 +74,12 @@ public class AnidbClient implements EpisodeListProvider {
 		for (AnidbSearchResult anime : getAnimeTitles()) {
 			for (String name : new String[] { anime.getMainTitle(), anime.getEnglishTitle() }) {
 				if (name != null) {
-					float similarity = metric.getSimilarity(name.toLowerCase(), query);
+					// normalize
+					name = name.toLowerCase();
 					
-					if (similarity > 0.5 || name.toLowerCase().contains(query)) {
+					float similarity = metric.getSimilarity(name, query);
+					
+					if (similarity > 0.5 || name.contains(query)) {
 						resultSet.add(new SimpleEntry<SearchResult, Float>(anime, similarity));
 						
 						// add only once
