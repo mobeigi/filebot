@@ -50,8 +50,9 @@ public class Main {
 		}
 		
 		if (argumentBean.clear()) {
-			// clear preferences
+			// clear preferences and cache
 			Settings.forPackage(Main.class).clear();
+			CacheManager.getInstance().clearAll();
 		}
 		
 		try {
