@@ -136,11 +136,10 @@ public class AnidbClient implements EpisodeListProvider {
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		
 		for (Node node : selectNodes("//ep", dom)) {
-			String flags = getTextContent("flags", node);
+			String number = getTextContent("epno", node);
 			
-			// allow only normal and recap episodes
-			if (flags == null || flags.equals("2")) {
-				String number = getTextContent("epno", node);
+			// ignore special episodes
+			if (number != null && number.matches("\\d+")) {
 				String title = selectString(".//title[@lang='en']", node);
 				
 				// no seasons for anime

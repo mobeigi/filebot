@@ -12,6 +12,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
@@ -37,6 +40,8 @@ import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
+import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
@@ -74,6 +79,9 @@ public class RenamePanel extends JComponent {
 		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
+		
+		// movie formatter
+		renameModel.useFormatter(MovieDescriptor.class, new MovieFormatter());
 		
 		try {
 			// restore custom episode formatter
@@ -135,12 +143,17 @@ public class RenamePanel extends JComponent {
 	protected ActionPopup createFetchPopup() {
 		final ActionPopup actionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
 		
-		// create actions for match popup
-		actionPopup.add(new AutoFetchEpisodeListAction(new TVRageClient()));
-		actionPopup.add(new AutoFetchEpisodeListAction(new AnidbClient()));
-		actionPopup.add(new AutoFetchEpisodeListAction(new TVDotComClient()));
-		actionPopup.add(new AutoFetchEpisodeListAction(new IMDbClient()));
-		actionPopup.add(new AutoFetchEpisodeListAction(new TheTVDBClient(getApplicationProperty("thetvdb.apikey"))));
+		// create actions for match popup episode list completion
+		for (EpisodeListProvider provider : Arrays.asList(new TVRageClient(), new AnidbClient(), new TVDotComClient(), new IMDbClient(), new TheTVDBClient(getApplicationProperty("thetvdb.apikey")))) {
+			actionPopup.add(new AutoCompleteAction(provider.getName(), provider.getIcon(), new EpisodeListMatcher(provider)));
+		}
+		
+		actionPopup.addSeparator();
+		actionPopup.addDescription(new JLabel("Movie Identification:"));
+		
+		// create action for movie name completion
+		TMDbClient tmdb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+		actionPopup.add(new AutoCompleteAction(tmdb.getName(), tmdb.getIcon(), new MovieHashMatcher(tmdb)));
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
@@ -247,15 +260,15 @@ public class RenamePanel extends JComponent {
 	}
 	
 
-	protected class AutoFetchEpisodeListAction extends AbstractAction {
+	protected class AutoCompleteAction extends AbstractAction {
 		
-		private final EpisodeListProvider provider;
+		private final AutoCompleteMatcher matcher;
 		
 
-		public AutoFetchEpisodeListAction(EpisodeListProvider provider) {
-			super(provider.getName(), provider.getIcon());
+		public AutoCompleteAction(String name, Icon icon, AutoCompleteMatcher matcher) {
+			super(name, icon);
 			
-			this.provider = provider;
+			this.matcher = matcher;
 			
 			// disable action while episode list matcher is working
 			namesList.addPropertyChangeListener(LOADING_PROPERTY, new PropertyChangeListener() {
@@ -277,23 +290,38 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			renameModel.values().clear();
 			
-			AutoFetchEpisodeListMatcher worker = new AutoFetchEpisodeListMatcher(provider, renameModel.files(), MatchSimilarityMetric.defaultSequence()) {
+			SwingWorker<List<Match<File, ?>>, Void> worker = new SwingWorker<List<Match<File, ?>>, Void>() {
 				
+				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
+				
+
+				@Override
+				protected List<Match<File, ?>> doInBackground() throws Exception {
+					List<Match<File, ?>> matches = matcher.match(remainingFiles);
+					
+					// remove matched files
+					for (Match<File, ?> match : matches) {
+						remainingFiles.remove(match.getValue());
+					}
+					
+					return matches;
+				}
+				
+
 				@Override
 				protected void done() {
 					try {
 						List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>();
 						
-						for (Match<File, Episode> match : get()) {
+						for (Match<File, ?> match : get()) {
 							matches.add(new Match<Object, File>(match.getCandidate(), match.getValue()));
 						}
 						
 						renameModel.clear();
-						
 						renameModel.addAll(matches);
 						
 						// add remaining file entries
-						renameModel.files().addAll(remainingFiles());
+						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
 						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					} finally {

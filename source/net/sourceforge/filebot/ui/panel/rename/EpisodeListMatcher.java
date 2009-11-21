@@ -26,7 +26,6 @@ import java.util.concurrent.RunnableFuture;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -40,24 +39,13 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.FileUtilities;
 
 
-class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>, Void> {
+class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 	private final EpisodeListProvider provider;
 	
-	private final List<File> files;
-	
-	private final SimilarityMetric[] metrics;
-	
 
-	public AutoFetchEpisodeListMatcher(EpisodeListProvider provider, Collection<File> files, SimilarityMetric[] metrics) {
+	public EpisodeListMatcher(EpisodeListProvider provider) {
 		this.provider = provider;
-		this.files = new LinkedList<File>(files);
-		this.metrics = metrics.clone();
-	}
-	
-
-	public List<File> remainingFiles() {
-		return Collections.unmodifiableList(files);
 	}
 	
 
@@ -171,35 +159,29 @@ class AutoFetchEpisodeListMatcher extends SwingWorker<List<Match<File, Episode>>
 	
 
 	@Override
-	protected List<Match<File, Episode>> doInBackground() throws Exception {
-		
+	public List<Match<File, ?>> match(final List<File> files) throws Exception {
 		// focus on movie and subtitle files
 		List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// detect series name and fetch episode list
 		Set<Episode> episodes = fetchEpisodeSet(detectSeriesNames(mediaFiles));
 		
-		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		// group by subtitles first and then by files in general
 		for (List<File> filesPerType : mapByFileType(mediaFiles, VIDEO_FILES, SUBTITLE_FILES).values()) {
-			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, metrics);
+			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, MatchSimilarityMetric.defaultSequence());
 			matches.addAll(matcher.match());
 		}
 		
 		// restore original order
-		Collections.sort(matches, new Comparator<Match<File, Episode>>() {
+		Collections.sort(matches, new Comparator<Match<File, ?>>() {
 			
 			@Override
-			public int compare(Match<File, Episode> o1, Match<File, Episode> o2) {
+			public int compare(Match<File, ?> o1, Match<File, ?> o2) {
 				return files.indexOf(o1.getValue()) - files.indexOf(o2.getValue());
 			}
 		});
-		
-		// update remaining files
-		for (Match<File, Episode> match : matches) {
-			files.remove(match.getValue());
-		}
 		
 		return matches;
 	}

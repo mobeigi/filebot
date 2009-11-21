@@ -13,8 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.Icon;
+
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+
+import net.sourceforge.filebot.ResourceManager;
 
 
 public class TMDbClient implements MovieIdentificationService {
@@ -27,6 +31,16 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public TMDbClient(String apikey) {
 		this.apikey = apikey;
+	}
+	
+
+	public String getName() {
+		return "TheMovieDB";
+	}
+	
+
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.themoviedb");
 	}
 	
 
