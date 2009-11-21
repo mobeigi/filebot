@@ -85,6 +85,8 @@
 
 			<zipfileset src="${dir.lib}/ehcache.jar">
 				<include name="net/sf/ehcache/**" />
+				<include name="ehcache-failsafe.xml" />
+				<include name="ehcache-version.properties" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/jna.jar">
