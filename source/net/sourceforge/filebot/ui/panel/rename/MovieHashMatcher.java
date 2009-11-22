@@ -3,11 +3,14 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
@@ -23,7 +26,6 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.MovieDescriptor;
 import net.sourceforge.filebot.web.MovieIdentificationService;
-import net.sourceforge.tuned.FileUtilities;
 
 
 class MovieHashMatcher implements AutoCompleteMatcher {
@@ -37,9 +39,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(List<File> files) throws Exception {
-		// focus on movie and subtitle files
-		File[] movieFiles = FileUtilities.filter(files, VIDEO_FILES).toArray(new File[0]);
+	public List<Match<File, ?>> match(final List<File> files) throws Exception {
+		// handle movie files
+		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles);
 		
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
@@ -57,6 +59,30 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		
+		// handle subtitle files
+		for (File subtitle : filter(files, SUBTITLE_FILES)) {
+			// check if subtitle corresponds to a movie file (same name, different extension)
+			for (Match<File, ?> movieMatch : matches) {
+				String subtitleName = getName(subtitle);
+				String movieName = getName(movieMatch.getValue());
+				
+				if (subtitleName.equalsIgnoreCase(movieName)) {
+					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
+					// movie match found, we're done
+					break;
+				}
+			}
+		}
+		
+		// restore original order
+		Collections.sort(matches, new Comparator<Match<File, ?>>() {
+			
+			@Override
+			public int compare(Match<File, ?> o1, Match<File, ?> o2) {
+				return files.indexOf(o1.getValue()) - files.indexOf(o2.getValue());
+			}
+		});
+		
 		return matches;
 	}
 	
@@ -66,11 +92,16 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		for (File file : files) {
 			Scanner scanner = new Scanner(file);
-			String imdb = null;
 			
-			// scan for imdb id patterns like tt1234567
-			while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 32 * 1024)) != null) {
-				collection.add(Integer.parseInt(imdb));
+			try {
+				// scan for imdb id patterns like tt1234567
+				String imdb = null;
+				
+				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 32 * 1024)) != null) {
+					collection.add(Integer.parseInt(imdb));
+				}
+			} finally {
+				scanner.close();
 			}
 		}
 		

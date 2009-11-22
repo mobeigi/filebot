@@ -22,8 +22,8 @@ class MovieFormatter implements MatchFormatter {
 
 	@Override
 	public String format(Match<?, ?> match) {
-		MovieDescriptor movie = (MovieDescriptor) match.getValue();
-		return movie.getName();
+		// use default format for the time being
+		return match.getValue().toString();
 	}
 	
 }
