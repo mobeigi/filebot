@@ -244,6 +244,25 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
+	public MovieDescriptor getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
+		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
+		
+		try {
+			Map<String, String> data = (Map<String, String>) response.get("data");
+			
+			String name = data.get("title");
+			int year = Integer.parseInt(data.get("year"));
+			
+			return new MovieDescriptor(name, year, imdbid);
+		} catch (RuntimeException e) {
+			// ignore, invalid response
+		}
+		
+		return null;
+	}
+	
+
+	@SuppressWarnings("unchecked")
 	public Map<String, String> getSubLanguages(String languageCode) throws XmlRpcFault {
 		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("GetSubLanguages", languageCode);
 		

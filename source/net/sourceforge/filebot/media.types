@@ -13,7 +13,11 @@
 		<extension>txt</extension>
 	</type>
 
-
+	<type name="application/nfo">
+		<extension>nfo</extension>
+	</type>
+	
+	
 	<!-- 
 			Verification
 	-->

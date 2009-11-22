@@ -141,6 +141,26 @@ public class OpenSubtitlesXmlRpcTest {
 	
 
 	@Test
+	public void getIMDBMovieDetails() throws Exception {
+		MovieDescriptor movie = xmlrpc.getIMDBMovieDetails(371746);
+		
+		assertEquals("Iron Man", movie.getName());
+		assertEquals(2008, movie.getYear());
+		assertEquals(371746, movie.getImdbId());
+	}
+	
+
+	@Test
+	public void getIMDBMovieDetailsInvalid() throws Exception {
+		MovieDescriptor movie = xmlrpc.getIMDBMovieDetails(371746);
+		
+		assertEquals("Iron Man", movie.getName());
+		assertEquals(2008, movie.getYear());
+		assertEquals(371746, movie.getImdbId());
+	}
+	
+
+	@Test
 	public void detectLanguage() throws Exception {
 		String text = "Only those that are prepared to fire should be fired at.";
 		

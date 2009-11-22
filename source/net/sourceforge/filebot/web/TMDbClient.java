@@ -54,6 +54,20 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
+	public MovieDescriptor getMovieDescriptor(int imdbid) throws Exception {
+		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid));
+		Node movie = selectNode("//movie", getDocument(resource));
+		
+		if (movie == null)
+			return null;
+		
+		String name = getTextContent("name", movie);
+		int year = new Scanner(getTextContent("released", movie)).useDelimiter("\\D+").nextInt();
+		
+		return new MovieDescriptor(name, year, imdbid);
+	}
+	
+
 	@Override
 	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles) throws Exception {
 		MovieDescriptor[] movies = new MovieDescriptor[movieFiles.length];

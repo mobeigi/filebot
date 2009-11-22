@@ -36,4 +36,14 @@ public class TMDbClientTest {
 		assertEquals(371746, movie.getImdbId());
 	}
 	
+
+	@Test
+	public void searchByIMDB() throws Exception {
+		MovieDescriptor movie = tmdb.getMovieDescriptor(418279);
+		
+		assertEquals("Transformers", movie.getName());
+		assertEquals(2007, movie.getYear());
+		assertEquals(418279, movie.getImdbId());
+	}
+	
 }
