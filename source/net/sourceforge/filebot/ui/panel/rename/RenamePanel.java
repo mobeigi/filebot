@@ -149,7 +149,7 @@ public class RenamePanel extends JComponent {
 		}
 		
 		actionPopup.addSeparator();
-		actionPopup.addDescription(new JLabel("Movie Identification:"));
+		actionPopup.addDescription(new JLabel("Movie Mode:"));
 		
 		// create action for movie name completion
 		TMDbClient tmdb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
