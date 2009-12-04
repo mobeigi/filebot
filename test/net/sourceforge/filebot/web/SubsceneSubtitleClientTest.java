@@ -50,11 +50,11 @@ public class SubsceneSubtitleClientTest {
 	public void searchResultPageRedirect() throws Exception {
 		List<SearchResult> results = subscene.search("firefly");
 		
-		assertEquals(1, results.size());
+		assertEquals(2, results.size());
 		
 		HyperLink result = (HyperLink) results.get(0);
 		
-		assertEquals("Firefly - The Complete Series", result.getName());
+		assertEquals("Firefly - The Complete Series (2002)", result.getName());
 		assertEquals("http://subscene.com/Firefly-The-Complete-Series/subtitles-20008.aspx", result.getURL().toString());
 	}
 	

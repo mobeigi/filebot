@@ -24,7 +24,7 @@ public class IMDbClientTest {
 		assertEquals(2004, movie.getYear());
 		assertEquals(407362, movie.getImdbId(), 0);
 		
-		assertEquals(6, results.size(), 0);
+		assertEquals(7, results.size(), 0);
 	}
 	
 

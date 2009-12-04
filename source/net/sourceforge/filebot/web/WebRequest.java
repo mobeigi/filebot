@@ -76,12 +76,12 @@ public final class WebRequest {
 	
 
 	public static Document getDocument(URL url) throws IOException, SAXException {
-		return getDocument(new InputSource(getReader(url.openConnection())));
+		return getDocument(url.openConnection());
 	}
 	
 
-	public static Document getDocument(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
-		return getDocument(new InputSource(inputStream));
+	public static Document getDocument(URLConnection connection) throws IOException, SAXException {
+		return getDocument(new InputSource(getReader(connection)));
 	}
 	
 

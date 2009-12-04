@@ -28,12 +28,12 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByHash() throws Exception {
-		List<MovieDescriptor> results = tmdb.getMovies("Hash.getInfo", "d7aa0275cace4410");
+		List<MovieDescriptor> results = tmdb.getMovies("Hash.getInfo", "2bba5c34b007153b");
 		MovieDescriptor movie = results.get(0);
 		
-		assertEquals("Iron Man", movie.getName());
-		assertEquals(2008, movie.getYear());
-		assertEquals(371746, movie.getImdbId());
+		assertEquals("Season 1", movie.getName());
+		assertEquals(2002, movie.getYear());
+		assertEquals(303461, movie.getImdbId());
 	}
 	
 

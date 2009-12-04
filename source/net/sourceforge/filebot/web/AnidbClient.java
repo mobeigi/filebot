@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,8 +128,12 @@ public class AnidbClient implements EpisodeListProvider {
 			// ignore
 		}
 		
+		// set request headers to resemble an ajax request
+		URLConnection connection = url.openConnection();
+		connection.setRequestProperty("X-LControl", "x-no-cache");
+		
 		// get anime page as xml
-		Document dom = getDocument(url);
+		Document dom = getDocument(connection);
 		
 		// select main title
 		String animeTitle = selectString("//title[@type='main']", dom);
