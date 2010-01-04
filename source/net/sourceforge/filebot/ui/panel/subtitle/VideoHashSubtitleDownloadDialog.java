@@ -223,6 +223,11 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
+			// disable any active cell editor
+			if (subtitleMappingTable.getCellEditor() != null) {
+				subtitleMappingTable.getCellEditor().cancelCellEditing();
+			}
+			
 			// don't allow restart of download as long as there are still unfinished download tasks
 			if (downloadService != null && !downloadService.isTerminated()) {
 				return;
@@ -269,7 +274,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			
 			// start download
 			if (downloadQueue.size() > 0) {
-				downloadService = Executors.newSingleThreadExecutor();
+				downloadService = Executors.newFixedThreadPool(2);
 				
 				for (DownloadTask downloadTask : downloadQueue) {
 					downloadTask.getSubtitleBean().setState(StateValue.PENDING);
