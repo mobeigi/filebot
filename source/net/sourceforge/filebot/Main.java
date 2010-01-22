@@ -4,6 +4,9 @@ package net.sourceforge.filebot;
 
 import static javax.swing.JFrame.*;
 
+import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -79,10 +82,39 @@ public class Main {
 				frame.setLocationByPlatform(true);
 				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 				
+				try {
+					// restore previous size and location
+					restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
+				} catch (Exception e) {
+					// don't care, doesn't make a difference
+				}
+				
 				// start application
 				frame.setVisible(true);
 			}
 		});
+	}
+	
+
+	private static void restoreWindowBounds(Window window, final Settings settings) {
+		// store bounds on close
+		window.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				settings.put("window.x", String.valueOf(e.getWindow().getX()));
+				settings.put("window.y", String.valueOf(e.getWindow().getY()));
+				settings.put("window.width", String.valueOf(e.getWindow().getWidth()));
+				settings.put("window.height", String.valueOf(e.getWindow().getHeight()));
+			}
+		});
+		
+		// restore bounds
+		int x = Integer.parseInt(settings.get("window.x"));
+		int y = Integer.parseInt(settings.get("window.y"));
+		int width = Integer.parseInt(settings.get("window.width"));
+		int height = Integer.parseInt(settings.get("window.height"));
+		window.setBounds(x, y, width, height);
 	}
 	
 

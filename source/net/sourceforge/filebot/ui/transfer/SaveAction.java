@@ -16,6 +16,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 
 
 public class SaveAction extends AbstractAction {
@@ -56,7 +57,12 @@ public class SaveAction extends AbstractAction {
 	
 
 	protected File getDefaultFolder() {
-		return null;
+		String lastLocation = Settings.forPackage(SaveAction.class).get("save.location");
+		
+		if (lastLocation == null || lastLocation.isEmpty())
+			return null;
+		
+		return new File(lastLocation);
 	}
 	
 
@@ -78,5 +84,8 @@ public class SaveAction extends AbstractAction {
 		} catch (IOException e) {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 		}
+		
+		// remember last location
+		Settings.forPackage(SaveAction.class).put("save.location", chooser.getCurrentDirectory().getPath());
 	}
 }

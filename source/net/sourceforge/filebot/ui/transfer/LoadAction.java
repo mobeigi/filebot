@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.transfer;
 
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +12,7 @@ import javax.swing.Icon;
 import javax.swing.JFileChooser;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
 
 
@@ -18,7 +20,7 @@ public class LoadAction extends AbstractAction {
 	
 	public static final String TRANSFERABLE_POLICY = "transferablePolicy";
 	
-	
+
 	public LoadAction(TransferablePolicy transferablePolicy) {
 		this("Load", ResourceManager.getIcon("action.load"), transferablePolicy);
 	}
@@ -37,6 +39,16 @@ public class LoadAction extends AbstractAction {
 	}
 	
 
+	protected File getDefaultFolder() {
+		String lastLocation = Settings.forPackage(LoadAction.class).get("load.location");
+		
+		if (lastLocation == null || lastLocation.isEmpty())
+			return null;
+		
+		return new File(lastLocation);
+	}
+	
+
 	public void actionPerformed(ActionEvent evt) {
 		// get transferable policy from action properties
 		TransferablePolicy transferablePolicy = (TransferablePolicy) getValue(TRANSFERABLE_POLICY);
@@ -44,7 +56,7 @@ public class LoadAction extends AbstractAction {
 		if (transferablePolicy == null)
 			return;
 		
-		JFileChooser chooser = new JFileChooser();
+		JFileChooser chooser = new JFileChooser(getDefaultFolder());
 		
 		chooser.setFileFilter(new TransferablePolicyFileFilter(transferablePolicy));
 		
@@ -63,6 +75,9 @@ public class LoadAction extends AbstractAction {
 		} catch (Exception e) {
 			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
 		}
+		
+		// remember last location
+		Settings.forPackage(LoadAction.class).put("load.location", chooser.getCurrentDirectory().getPath());
 	}
 	
 }
