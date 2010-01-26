@@ -195,7 +195,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" source="1.6" encoding="utf-8">
+		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" source="1.6" encoding="utf-8" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 			</classpath>

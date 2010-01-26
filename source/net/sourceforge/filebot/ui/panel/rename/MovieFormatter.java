@@ -2,15 +2,16 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import java.util.Formatter;
+
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.web.MovieDescriptor;
 
 
 class MovieFormatter implements MatchFormatter {
 	
 	@Override
 	public boolean canFormat(Match<?, ?> match) {
-		return match.getValue() instanceof MovieDescriptor;
+		return match.getValue() instanceof MoviePart;
 	}
 	
 
@@ -22,8 +23,15 @@ class MovieFormatter implements MatchFormatter {
 
 	@Override
 	public String format(Match<?, ?> match) {
-		// use default format for the time being
-		return match.getValue().toString();
+		MoviePart video = (MoviePart) match.getValue();
+		Formatter name = new Formatter(new StringBuilder());
+		
+		// format as single-file or multi-part movie
+		name.format("%s (%d)", video.getMovie().getName(), video.getMovie().getYear());
+		
+		if (video.getPartCount() > 1)
+			name.format(" CD%d", video.getPartIndex() + 1);
+		
+		return name.out().toString();
 	}
-	
 }

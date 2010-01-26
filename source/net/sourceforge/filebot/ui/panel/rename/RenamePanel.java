@@ -41,6 +41,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
@@ -152,6 +153,9 @@ public class RenamePanel extends JComponent {
 		actionPopup.addDescription(new JLabel("Movie Mode:"));
 		
 		// create action for movie name completion
+		OpenSubtitlesClient osdb = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
+		actionPopup.add(new AutoCompleteAction(osdb.getName(), osdb.getIcon(), new MovieHashMatcher(osdb)));
+		
 		TMDbClient tmdb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
 		actionPopup.add(new AutoCompleteAction(tmdb.getName(), tmdb.getIcon(), new MovieHashMatcher(tmdb)));
 		

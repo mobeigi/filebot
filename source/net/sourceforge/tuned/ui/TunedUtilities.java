@@ -5,6 +5,7 @@ package net.sourceforge.tuned.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
@@ -95,6 +96,11 @@ public final class TunedUtilities {
 		});
 		
 		return undoSupport;
+	}
+	
+
+	public static boolean isMaximized(Frame frame) {
+		return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
 	}
 	
 

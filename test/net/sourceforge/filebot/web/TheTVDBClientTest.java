@@ -44,8 +44,7 @@ public class TheTVDBClientTest {
 		
 		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
 		
-		// test encoding (umlauts)
-		assertEquals("Buffy - Im Bann der Dämonen", first.getName());
+		assertEquals("Buffy", first.getName());
 		assertEquals(70327, first.getSeriesId());
 		
 		TheTVDBSearchResult second = (TheTVDBSearchResult) results.get(1);

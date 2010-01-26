@@ -11,10 +11,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -44,18 +49,44 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles);
 		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<MovieDescriptor, SortedSet<File>> filesByMovie = new HashMap<MovieDescriptor, SortedSet<File>>();
+		
+		// map all files by movie
+		for (int i = 0; i < movieFiles.length; i++) {
+			MovieDescriptor movie = movieDescriptors[i];
+			
+			// unknown hash, try via imdb id from nfo file
+			if (movie == null) {
+				movie = determineMovie(movieFiles[i]);
+			}
+			
+			// check if we managed to lookup the movie descriptor
+			if (movie != null) {
+				// get file list for movie
+				SortedSet<File> movieParts = filesByMovie.get(movie);
+				
+				if (movieParts == null) {
+					movieParts = new TreeSet<File>();
+					filesByMovie.put(movie, movieParts);
+				}
+				
+				movieParts.add(movieFiles[i]);
+			}
+		}
+		
+		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
-		for (int i = 0; i < movieDescriptors.length; i++) {
-			if (movieDescriptors[i] != null) {
-				matches.add(new Match<File, MovieDescriptor>(movieFiles[i], movieDescriptors[i]));
-			} else {
-				// unknown hash, try via imdb id from nfo file
-				MovieDescriptor movie = determineMovie(movieFiles[i]);
-				
-				if (movie != null) {
-					matches.add(new Match<File, MovieDescriptor>(movieFiles[i], movie));
-				}
+		for (Entry<MovieDescriptor, SortedSet<File>> entry : filesByMovie.entrySet()) {
+			MovieDescriptor movie = entry.getKey();
+			
+			int partIndex = 0;
+			int partCount = entry.getValue().size();
+			
+			// add all movie parts
+			for (File file : entry.getValue()) {
+				matches.add(new Match<File, MoviePart>(file, new MoviePart(movie, partIndex++, partCount)));
 			}
 		}
 		

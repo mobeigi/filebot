@@ -3,8 +3,8 @@ package net.sourceforge.filebot;
 
 
 import static javax.swing.JFrame.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
-import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.CodeSource;
@@ -96,16 +96,19 @@ public class Main {
 	}
 	
 
-	private static void restoreWindowBounds(Window window, final Settings settings) {
+	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
 		// store bounds on close
 		window.addWindowListener(new WindowAdapter() {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				settings.put("window.x", String.valueOf(e.getWindow().getX()));
-				settings.put("window.y", String.valueOf(e.getWindow().getY()));
-				settings.put("window.width", String.valueOf(e.getWindow().getWidth()));
-				settings.put("window.height", String.valueOf(e.getWindow().getHeight()));
+				// don't save window bounds if window is maximized
+				if (!isMaximized(window)) {
+					settings.put("window.x", String.valueOf(window.getX()));
+					settings.put("window.y", String.valueOf(window.getY()));
+					settings.put("window.width", String.valueOf(window.getWidth()));
+					settings.put("window.height", String.valueOf(window.getHeight()));
+				}
 			}
 		});
 		
