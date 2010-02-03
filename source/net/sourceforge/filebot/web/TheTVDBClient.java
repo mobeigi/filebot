@@ -131,15 +131,8 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			String episodeNumber = getTextContent("EpisodeNumber", node);
-			String seasonNumber = getTextContent("SeasonNumber", node);
-			
-			if (seasonNumber.equals("0")) {
-				String airsBefore = getTextContent("airsbefore_season", node);
-				
-				seasonNumber = airsBefore == null || airsBefore.isEmpty() ? null : airsBefore;
-				episodeNumber = "Special";
-			}
+			String episodeNumber = getTextContent("Combined_episodenumber", node);
+			String seasonNumber = getTextContent("Combined_season", node);
 			
 			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName));
 			
