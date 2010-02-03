@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.tuned.FileUtilities.*;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -50,7 +52,8 @@ public class RenameModel extends MatchModel<Object, File> {
 
 		@Override
 		public String format(Match<?, ?> match) {
-			return String.valueOf(match.getValue()).trim();
+			// clean up path separators like / or \
+			return removePathSeparators(String.valueOf(match.getValue()).trim());
 		}
 	};
 	

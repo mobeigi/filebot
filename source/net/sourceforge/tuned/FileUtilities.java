@@ -183,6 +183,7 @@ public final class FileUtilities {
 	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
 	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]");
+	public static final Pattern PATH_SEPARATORS = Pattern.compile("[\\\\/]");
 	
 
 	/**
@@ -236,6 +237,11 @@ public final class FileUtilities {
 		}
 		
 		return false;
+	}
+	
+
+	public static String removePathSeparators(CharSequence path) {
+		return PATH_SEPARATORS.matcher(path).replaceAll("");
 	}
 	
 

@@ -5,6 +5,7 @@ package net.sourceforge.filebot.format;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +48,8 @@ public class EpisodeBindingBean {
 
 	@Define("n")
 	public String getSeriesName() {
-		return episode.getSeriesName();
+		// clean up series name just in case there are any path separators like / or \
+		return removePathSeparators(episode.getSeriesName());
 	}
 	
 
@@ -65,7 +67,8 @@ public class EpisodeBindingBean {
 
 	@Define("t")
 	public String getTitle() {
-		return episode.getTitle();
+		// clean up episode title just in case there are any path separators like / or \
+		return removePathSeparators(episode.getTitle());
 	}
 	
 
