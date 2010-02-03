@@ -127,21 +127,43 @@ public class TheTVDBClient implements EpisodeListProvider {
 		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
 		
 		List<Node> nodes = selectNodes("Data/Episode", seriesRecord);
+		
 		episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> specials = new ArrayList<Episode>(5);
 		
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			String episodeNumber = getTextContent("Combined_episodenumber", node);
-			String seasonNumber = getTextContent("Combined_season", node);
+			String episodeNumber = getTextContent("EpisodeNumber", node);
+			String seasonNumber = getTextContent("SeasonNumber", node);
 			
-			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName));
+			if (seasonNumber.equals("0")) {
+				// handle as special episode
+				String airsBefore = getTextContent("airsbefore_season", node);
+				
+				if (airsBefore != null && airsBefore.matches("\\d+")) {
+					seasonNumber = airsBefore;
+				}
+				
+				int specialNumber = filterBySeason(specials, Integer.parseInt(seasonNumber)).size() + 1;
+				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, episodeName, Integer.toString(specialNumber)));
+			} else {
+				// handle as normal episode
+				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName));
+			}
 			
 			if (episodeNumber.equals("1")) {
-				// cache seasonId for each season (always when we are at the first episode)
-				// because it might be required by getEpisodeListLink
-				cache.putSeasonId(searchResult.getSeriesId(), Integer.parseInt(seasonNumber), Integer.parseInt(getTextContent("seasonid", node)));
+				try {
+					// cache seasonId for each season (always when we are at the first episode)
+					// because it might be required by getEpisodeListLink
+					cache.putSeasonId(searchResult.getSeriesId(), Integer.parseInt(seasonNumber), Integer.parseInt(getTextContent("seasonid", node)));
+				} catch (NumberFormatException e) {
+					// season/episode is not a number, just ignore
+				}
 			}
 		}
+		
+		// add specials at the end
+		episodes.addAll(specials);
 		
 		cache.putEpisodeList(searchResult.getSeriesId(), language, episodes);
 		return episodes;

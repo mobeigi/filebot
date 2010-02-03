@@ -12,6 +12,7 @@ public class Episode implements Serializable {
 	private String season;
 	private String episode;
 	private String title;
+	private String special;
 	
 
 	protected Episode() {
@@ -20,15 +21,21 @@ public class Episode implements Serializable {
 	
 
 	public Episode(String seriesName, int season, int episode, String title) {
-		this(seriesName, String.valueOf(season), String.valueOf(episode), title);
+		this(seriesName, String.valueOf(season), String.valueOf(episode), title, null);
 	}
 	
 
 	public Episode(String seriesName, String season, String episode, String title) {
+		this(seriesName, season, episode, title, null);
+	}
+	
+
+	public Episode(String seriesName, String season, String episode, String title, String special) {
 		this.seriesName = seriesName;
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
+		this.special = special;
 	}
 	
 
@@ -60,6 +67,20 @@ public class Episode implements Serializable {
 	}
 	
 
+	public String getSpecial() {
+		return special;
+	}
+	
+
+	public Integer getSpecialNumber() {
+		try {
+			return new Integer(special);
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+
 	public String getSeriesName() {
 		return seriesName;
 	}
@@ -74,7 +95,7 @@ public class Episode implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof Episode) {
 			Episode other = (Episode) obj;
-			return equals(season, other.season) && equals(episode, other.episode) && equals(seriesName, other.seriesName) && equals(title, other.title);
+			return equals(season, other.season) && equals(episode, other.episode) && equals(seriesName, other.seriesName) && equals(title, other.title) && equals(special, other.special);
 		}
 		
 		return false;
@@ -91,7 +112,7 @@ public class Episode implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { seriesName, season, episode, title });
+		return Arrays.hashCode(new Object[] { seriesName, season, episode, title, special });
 	}
 	
 

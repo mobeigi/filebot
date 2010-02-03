@@ -80,6 +80,7 @@ public class TVRageClient implements EpisodeListProvider {
 		String seriesName = selectString("Show/name", dom);
 		
 		List<Episode> episodes = new ArrayList<Episode>(25);
+		List<Episode> specials = new ArrayList<Episode>(5);
 		
 		// episodes and specials
 		for (Node node : selectNodes("//episode", dom)) {
@@ -89,12 +90,18 @@ public class TVRageClient implements EpisodeListProvider {
 			
 			// check if we have season and episode number, if not it must be a special episode
 			if (episodeNumber == null || seasonNumber == null) {
-				episodeNumber = "Special";
+				// handle as special episode
 				seasonNumber = getTextContent("season", node);
+				int specialNumber = filterBySeason(specials, Integer.parseInt(seasonNumber)).size() + 1;
+				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, title, Integer.toString(specialNumber)));
+			} else {
+				// handle as normal episode
+				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title));
 			}
-			
-			episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title));
 		}
+		
+		// add specials at the end
+		episodes.addAll(specials);
 		
 		return episodes;
 	}
