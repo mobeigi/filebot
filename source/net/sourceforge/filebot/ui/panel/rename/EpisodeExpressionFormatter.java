@@ -64,7 +64,7 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 							
 							// if the binding value is a String, remove illegal characters
 							if (value instanceof CharSequence) {
-								return removePathSeparators(value.toString()).trim();
+								return replacePathSeparators(value.toString()).trim();
 							}
 							
 							// if the binding value is an Object, just leave it

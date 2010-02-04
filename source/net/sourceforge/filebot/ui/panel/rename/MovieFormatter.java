@@ -35,6 +35,6 @@ class MovieFormatter implements MatchFormatter {
 			name.format(" CD%d", video.getPartIndex() + 1);
 		
 		// remove path separators if the name contains any / or \
-		return removePathSeparators(name.out().toString());
+		return replacePathSeparators(name.out().toString());
 	}
 }

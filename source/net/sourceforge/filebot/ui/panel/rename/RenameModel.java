@@ -53,7 +53,7 @@ public class RenameModel extends MatchModel<Object, File> {
 		@Override
 		public String format(Match<?, ?> match) {
 			// clean up path separators like / or \
-			return removePathSeparators(String.valueOf(match.getValue()).trim());
+			return replacePathSeparators(String.valueOf(match.getValue()).trim());
 		}
 	};
 	
