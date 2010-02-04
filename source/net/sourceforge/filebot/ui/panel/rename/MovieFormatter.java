@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.tuned.FileUtilities.*;
+
 import java.util.Formatter;
 
 import net.sourceforge.filebot.similarity.Match;
@@ -32,6 +34,7 @@ class MovieFormatter implements MatchFormatter {
 		if (video.getPartCount() > 1)
 			name.format(" CD%d", video.getPartIndex() + 1);
 		
-		return name.out().toString();
+		// remove path separators if the name contains any / or \
+		return removePathSeparators(name.out().toString());
 	}
 }
