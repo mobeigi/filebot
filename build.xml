@@ -2,7 +2,7 @@
 <project name="FileBot" default="jar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.9" />
+	<property name="version" value="r420" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
@@ -247,6 +247,35 @@
 
 	<target name="run-fatjar" depends="fatjar">
 		<java jar="${dir.dist}/fatjar/FileBot_${version}.jar" fork="true" />
+	</target>
+	
+	<target name="deploy">
+		<!-- ask for sourceforge password -->
+		<input message="Please enter password:" addproperty="sf.password" />
+		
+		<!-- create fatjar release folder -->
+		<mkdir dir="${dir.dist}/release" />
+		
+		<!-- copy fatjar and source -->
+		<copy todir="${dir.dist}/release/FileBot_${version}">
+			<fileset dir="${dir.dist}" includes="*-src.zip" />
+			<fileset dir="${dir.dist}/fatjar" includes="*.jar" />
+		</copy>
+		
+		<!-- deploy source zip first-->
+		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+			<fileset dir="${dir.dist}/release" includes="**/*-src.zip" />
+		</scp>
+		
+		<!-- deploy fatjar afterwards so it will be the latest file release -->
+		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+			<fileset dir="${dir.dist}/release" includes="**/*.jar"/>
+		</scp>
+		
+		<!-- deploy webstart jars -->
+		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:htdocs/webstart" trust="yes">
+			<fileset dir="${dir.dist}/webstart" />
+		</scp>
 	</target>
 
 </project>

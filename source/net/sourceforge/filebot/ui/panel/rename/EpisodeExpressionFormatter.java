@@ -2,11 +2,15 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static net.sourceforge.tuned.FileUtilities.*;
+
 import java.io.File;
 
+import javax.script.Bindings;
 import javax.script.ScriptException;
 
 import net.sourceforge.filebot.format.EpisodeBindingBean;
+import net.sourceforge.filebot.format.ExpressionBindings;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.web.Episode;
@@ -48,9 +52,30 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 		
 		// lazy initialize script engine
 		if (format == null) {
-			format = new ExpressionFormat(expression);
+			format = new ExpressionFormat(expression) {
+				
+				@Override
+				public Bindings getBindings(Object value) {
+					return new ExpressionBindings(value) {
+						
+						@Override
+						public Object get(Object key) {
+							Object value = super.get(key);
+							
+							// if the binding value is a String, remove illegal characters
+							if (value instanceof CharSequence) {
+								return removePathSeparators(value.toString()).trim();
+							}
+							
+							// if the binding value is an Object, just leave it
+							return value;
+						}
+					};
+				}
+			};
 		}
 		
+		// evaluate the expression using the given bindings
 		String result = format.format(new EpisodeBindingBean(episode, mediaFile)).trim();
 		
 		// if result is empty, check for script exceptions
