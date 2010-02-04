@@ -60,12 +60,19 @@ public class TheTVDBClientTest {
 		
 		assertTrue(list.size() >= 144);
 		
+		// check ordinary episode
 		Episode first = list.get(0);
-		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
-		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("Special", first.getEpisode());
+		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
+		assertEquals("1", first.getEpisode());
 		assertEquals("1", first.getSeason());
+		
+		// check special episode
+		Episode last = list.get(list.size() - 1);
+		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
+		assertEquals("Season 5 Overview", last.getTitle());
+		assertEquals("Special 17", last.getEpisode());
+		assertEquals("0", last.getSeason());
 	}
 	
 
