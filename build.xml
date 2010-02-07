@@ -139,7 +139,7 @@
 			<param name="arch" value="linux-amd64" />
 		</antcall>
 		<antcall target="webstart-nativelib">
-			<param name="arch" value="darwin" />
+			<param name="arch" value="mac-x86_64" />
 		</antcall>
 
 		<!-- sign main jar and native lib jars -->
@@ -268,6 +268,7 @@
 		</scp>
 		
 		<!-- deploy fatjar afterwards so it will be the latest file release -->
+		<sleep minutes="1" />
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar"/>
 		</scp>

@@ -39,8 +39,8 @@
 	<resources os="Linux" arch="amd64">
 		<nativelib href="native/linux-amd64.jar" />
 	</resources>
-	<resources os="Mac">
-		<nativelib href="native/darwin.jar" />
+	<resources os="Mac" arch="x86_64">
+		<nativelib href="native/mac-x86_64.jar" />
 	</resources>
 
 	<application-desc main-class="net.sourceforge.filebot.Main" />
