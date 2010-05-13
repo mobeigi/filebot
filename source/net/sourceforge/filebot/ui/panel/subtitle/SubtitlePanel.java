@@ -21,6 +21,7 @@ import javax.swing.Icon;
 import javax.swing.JComboBox;
 
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.SearchResult;
@@ -103,7 +104,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		@Override
 		public VideoHashSubtitleService[] getServices() {
-			return SubtitleServices.getVideoHashSubtitleServices();
+			return WebServices.getVideoHashSubtitleServices();
 		}
 		
 
@@ -141,7 +142,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	@Override
 	protected SubtitleProvider[] getSearchEngines() {
-		return SubtitleServices.getSubtitleProviders();
+		return WebServices.getSubtitleProviders();
 	}
 	
 

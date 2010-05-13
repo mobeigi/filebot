@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.ui.panel.episodelist;
 
 
-import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.panel.episodelist.SeasonSpinnerModel.*;
 
 import java.awt.datatransfer.Clipboard;
@@ -25,6 +24,7 @@ import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
@@ -35,14 +35,9 @@ import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
 import net.sourceforge.filebot.ui.transfer.CompositeTranserable;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.TVDotComClient;
-import net.sourceforge.filebot.web.TVRageClient;
-import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.StringUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
@@ -80,13 +75,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 	@Override
 	protected EpisodeListProvider[] getSearchEngines() {
-		return new EpisodeListProvider[] {
-				new TVRageClient(),
-				new AnidbClient(),
-				new TVDotComClient(),
-				new IMDbClient(),
-				new TheTVDBClient(getApplicationProperty("thetvdb.apikey"))
-		};
+		return WebServices.getEpisodeListProviders();
 	}
 	
 

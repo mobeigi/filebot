@@ -12,7 +12,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,18 +33,14 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
-import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.MovieDescriptor;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.TMDbClient;
-import net.sourceforge.filebot.web.TVDotComClient;
-import net.sourceforge.filebot.web.TVRageClient;
-import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
@@ -145,7 +140,7 @@ public class RenamePanel extends JComponent {
 		final ActionPopup actionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
 		
 		// create actions for match popup episode list completion
-		for (EpisodeListProvider provider : Arrays.asList(new TVRageClient(), new AnidbClient(), new TVDotComClient(), new IMDbClient(), new TheTVDBClient(getApplicationProperty("thetvdb.apikey")))) {
+		for (EpisodeListProvider provider : WebServices.getEpisodeListProviders()) {
 			actionPopup.add(new AutoCompleteAction(provider.getName(), provider.getIcon(), new EpisodeListMatcher(provider)));
 		}
 		
