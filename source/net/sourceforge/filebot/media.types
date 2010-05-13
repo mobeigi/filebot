@@ -83,9 +83,10 @@
 		<extension>mov</extension>
 	</type>
 
-	<type name="video/mpg">
+	<type name="video/mpeg">
 		<extension>mpg</extension>
 		<extension>mpeg</extension>
+		<extension>ts</extension>
 	</type>
 
 	<type name="video/wmv">
