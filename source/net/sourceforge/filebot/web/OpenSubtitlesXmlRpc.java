@@ -135,8 +135,8 @@ public class OpenSubtitlesXmlRpc {
 		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
 		for (Map<String, String> movie : movieData) {
-			// get non-aka title (aka titles are separated by Â)
-			Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("\u00C2");
+			// get non-aka title (aka titles were separated by Â, and then aka later on)
+			Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("(\u00C2)|(\\s+aka\\s+)");
 			
 			movies.add(new MovieDescriptor(titleScanner.next().trim(), Integer.parseInt(movie.get("id"))));
 		}
