@@ -127,5 +127,10 @@
 		<extension>smi</extension>
 		<extension>sami</extension>
 	</type>
+	
+	<type name="subtitle/VobSub">
+		<extension>sub</extension>	
+		<extension>idx</extension>
+	</type>
 
 </media-types>
