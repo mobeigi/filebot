@@ -5,6 +5,7 @@ package net.sourceforge.filebot.web;
 import static org.junit.Assert.*;
 
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -96,6 +97,18 @@ public class SubsceneSubtitleClientTest {
 	@Test
 	public void getSubtitleListLink() throws Exception {
 		assertEquals(twinpeaksSearchResult.getURL().toString(), subscene.getSubtitleListLink(twinpeaksSearchResult, null).toURL().toString());
+	}
+	
+
+	@Test
+	public void downloadSubtitleArchive() throws Exception {
+		SearchResult selectedResult = subscene.search("firefly").get(0);
+		SubtitleDescriptor subtitleDescriptor = subscene.getSubtitleList(selectedResult, "English").get(1);
+		
+		assertEquals(subtitleDescriptor.getName(), "Firefly - The Complete Series");
+		
+		ByteBuffer archive = subtitleDescriptor.fetch();
+		assertEquals(254549, archive.remaining());
 	}
 	
 }

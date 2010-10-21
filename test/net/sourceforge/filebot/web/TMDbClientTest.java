@@ -17,8 +17,8 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByName() throws Exception {
-		List<MovieDescriptor> result = tmdb.searchMovie("transformers");
-		MovieDescriptor movie = result.get(0);
+		List<MovieDescriptor> result = tmdb.searchMovie("Transformers");
+		MovieDescriptor movie = result.get(1);
 		
 		assertEquals("Transformers", movie.getName());
 		assertEquals(2007, movie.getYear());

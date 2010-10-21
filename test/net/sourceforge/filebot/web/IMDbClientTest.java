@@ -24,7 +24,7 @@ public class IMDbClientTest {
 		assertEquals(2004, movie.getYear());
 		assertEquals(407362, movie.getImdbId(), 0);
 		
-		assertEquals(7, results.size(), 0);
+		assertEquals(8, results.size(), 0);
 	}
 	
 
@@ -92,7 +92,7 @@ public class IMDbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Mushishi", first.getSeriesName());
+		assertEquals("Mushi-Shi", first.getSeriesName());
 		assertEquals("Midori no za", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals("1", first.getSeason());

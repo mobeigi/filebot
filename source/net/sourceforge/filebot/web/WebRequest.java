@@ -5,9 +5,13 @@ package net.sourceforge.filebot.web;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -131,6 +135,44 @@ public final class WebRequest {
 	}
 	
 
+	public static ByteBuffer post(HttpURLConnection connection, Map<String, String> parameters) throws IOException {
+		byte[] postData = encodeParameters(parameters).getBytes("UTF-8");
+		
+		// add content type and content length headers
+		connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		connection.addRequestProperty("Content-Length", String.valueOf(postData.length));
+		
+		connection.setRequestMethod("POST");
+		connection.setDoOutput(true);
+		
+		// write post data
+		OutputStream out = connection.getOutputStream();
+		out.write(postData);
+		out.close();
+		
+		// read response
+		int contentLength = connection.getContentLength();
+		
+		InputStream in = connection.getInputStream();
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
+		
+		try {
+			// read all
+			buffer.transferFully(in);
+		} catch (IOException e) {
+			// if the content length is not known in advance an IOException (Premature EOF) 
+			// is always thrown after all the data has been read
+			if (contentLength >= 0) {
+				throw e;
+			}
+		} finally {
+			in.close();
+		}
+		
+		return buffer.getByteBuffer();
+	}
+	
+
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
@@ -152,6 +194,28 @@ public final class WebRequest {
 		
 		// use UTF-8 if we don't know any better
 		return Charset.forName("UTF-8");
+	}
+	
+
+	public static String encodeParameters(Map<String, String> parameters) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			if (sb.length() > 0)
+				sb.append("&");
+			
+			sb.append(entry.getKey());
+			sb.append("=");
+			
+			try {
+				sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				// will never happen
+				throw new RuntimeException(e);
+			}
+		}
+		
+		return sb.toString();
 	}
 	
 

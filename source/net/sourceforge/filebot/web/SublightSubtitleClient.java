@@ -29,10 +29,10 @@ import net.sublight.webservice.ClientInfo;
 import net.sublight.webservice.Genre;
 import net.sublight.webservice.IMDB;
 import net.sublight.webservice.Release;
+import net.sublight.webservice.Sublight;
+import net.sublight.webservice.SublightSoap;
 import net.sublight.webservice.Subtitle;
 import net.sublight.webservice.SubtitleLanguage;
-import net.sublight.webservice.SubtitlesAPI2;
-import net.sublight.webservice.SubtitlesAPI2Soap;
 
 
 public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtitleService {
@@ -41,7 +41,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	
 	private final ClientInfo clientInfo = new ClientInfo();
 	
-	private SubtitlesAPI2Soap webservice;
+	private SublightSoap webservice;
 	
 	private String session;
 	
@@ -273,18 +273,22 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	}
 	
 
-	protected byte[] getZipArchive(Subtitle subtitle) throws WebServiceException {
+	protected byte[] getZipArchive(Subtitle subtitle) throws WebServiceException, InterruptedException {
 		// require login
 		login();
 		
 		Holder<String> ticket = new Holder<String>();
+		Holder<Short> que = new Holder<Short>();
 		Holder<byte[]> data = new Holder<byte[]>();
 		Holder<String> error = new Holder<String>();
 		
-		webservice.getDownloadTicket(session, null, subtitle.getSubtitleID(), null, ticket, null, error);
+		webservice.getDownloadTicket2(session, null, subtitle.getSubtitleID(), null, ticket, que, null, error);
 		
 		// abort if something went wrong
 		checkError(error);
+		
+		// wait x seconds as specified by the download ticket response, download ticket is not valid until then
+		Thread.sleep(que.value * 1000);
 		
 		webservice.downloadByID4(session, subtitle.getSubtitleID(), -1, false, ticket.value, null, data, null, error);
 		
@@ -306,7 +310,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	protected synchronized void login() throws WebServiceException {
 		if (webservice == null) {
 			// lazy initialize because all the JAX-WS class loading can take quite some time
-			webservice = new SubtitlesAPI2().getSubtitlesAPI2Soap();
+			webservice = new Sublight().getSublightSoap();
 		}
 		
 		if (session == null) {

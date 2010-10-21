@@ -40,7 +40,7 @@ public class TheTVDBClientTest {
 	public void searchGerman() throws Exception {
 		List<SearchResult> results = thetvdb.search("buffy", Locale.GERMAN);
 		
-		assertEquals(3, results.size());
+		assertEquals(4, results.size());
 		
 		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
 		
@@ -70,9 +70,9 @@ public class TheTVDBClientTest {
 		// check special episode
 		Episode last = list.get(list.size() - 1);
 		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
-		assertEquals("Season 5 Overview", last.getTitle());
-		assertEquals("Special 17", last.getEpisode());
-		assertEquals("0", last.getSeason());
+		assertEquals("Unaired Pilot", last.getTitle());
+		assertEquals("Special 1", last.getEpisode());
+		assertEquals("1", last.getSeason());
 	}
 	
 

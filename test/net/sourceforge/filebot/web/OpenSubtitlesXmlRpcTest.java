@@ -39,7 +39,7 @@ public class OpenSubtitlesXmlRpcTest {
 		MovieDescriptor sample = (MovieDescriptor) list.get(0);
 		
 		// check sample entry
-		assertEquals("\"Babylon 5\" (1994) (TV series)", sample.getName());
+		assertEquals("\"Babylon 5\" (1994)", sample.getName());
 		assertEquals(105946, sample.getImdbId());
 	}
 	
@@ -182,7 +182,7 @@ public class OpenSubtitlesXmlRpcTest {
 		ByteBuffer data = list.get(0).fetch();
 		
 		// check size
-		assertEquals(48550, data.remaining(), 0);
+		assertEquals(48707, data.remaining(), 0);
 	}
 	
 

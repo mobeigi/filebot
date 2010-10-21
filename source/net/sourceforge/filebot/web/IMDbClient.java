@@ -73,7 +73,7 @@ public class IMDbClient implements EpisodeListProvider {
 		if (results.isEmpty()) {
 			try {
 				String name = normalizeName(selectString("//H1/text()", dom));
-				String year = selectString("//H1//A", dom);
+				String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
 				String url = selectString("//LINK[@rel='canonical']/@href", dom);
 				
 				results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(url)));

@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -28,7 +26,6 @@ import org.xml.sax.SAXException;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.tuned.FileUtilities;
 
 
 public class SubsceneSubtitleClient implements SubtitleProvider {
@@ -128,9 +125,6 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		
 		List<Node> nodes = selectNodes("//TABLE[@class='filmSubtitleList']//A[@class='a1']", subtitleListDocument);
 		
-		// match subtitleId and typeId 
-		Pattern hrefPattern = Pattern.compile("javascript:Subtitle\\((\\d+), '(\\w+)', .*");
-		
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -140,18 +134,9 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 				if (languageName == null || languageName.equalsIgnoreCase(lang)) {
 					String name = getTextContent(getChildren("SPAN", node).get(1));
 					String href = getAttribute("href", node);
+					URL subtitlePage = new URL(subtitleListUrl.getProtocol(), subtitleListUrl.getHost(), href);
 					
-					Matcher matcher = hrefPattern.matcher(href);
-					
-					if (!matcher.matches())
-						throw new IllegalArgumentException("Cannot parse download parameters: " + href);
-					
-					String subtitleId = matcher.group(1);
-					String archiveType = matcher.group(2);
-					
-					URL downloadUrl = getDownloadLink(subtitleListUrl, subtitleId, archiveType);
-					
-					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, archiveType, downloadUrl, subtitleListUrl));
+					subtitles.add(new SubsceneSubtitleDescriptor(name, lang, subtitlePage));
 				}
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot parse subtitle node", e);
@@ -196,14 +181,6 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		}
 		
 		return filters;
-	}
-	
-
-	protected URL getDownloadLink(URL referer, String subtitleId, String typeId) throws MalformedURLException {
-		String basePath = FileUtilities.getNameWithoutExtension(referer.getFile());
-		String path = String.format("%s-dlpath-%s/%s.zipx", basePath, subtitleId, typeId);
-		
-		return new URL(referer.getProtocol(), referer.getHost(), path);
 	}
 	
 
