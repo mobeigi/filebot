@@ -7,7 +7,6 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sourceforge.filebot.MediaTypes;
@@ -47,24 +46,18 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		// clear selection
 		list.getListComponent().clearSelection();
 		
-		if (containsOnly(files, FOLDERS)) {
-			loadFolders(files);
-		} else if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
+		if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
 			loadTorrents(files);
 		} else {
-			loadFiles(files);
-		}
-	}
-	
-
-	private void loadFolders(List<File> folders) {
-		if (folders.size() == 1) {
 			// if only one folder was dropped, use its name as title
-			list.setTitle(FileUtilities.getFolderName(folders.get(0)));
-		}
-		
-		for (File folder : folders) {
-			loadFiles(Arrays.asList(folder.listFiles()));
+			if (files.size() == 1 && files.get(0).isDirectory()) {
+				list.setTitle(FileUtilities.getFolderName(files.get(0)));
+			}
+			
+			// load all files from the given folders recursively up do a depth of 5
+			for (File file : flatten(files, 5)) {
+				list.getModel().add(FileUtilities.getName(file));
+			}
 		}
 	}
 	
@@ -84,13 +77,6 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			for (Torrent.Entry entry : torrent.getFiles()) {
 				list.getModel().add(FileUtilities.getNameWithoutExtension(entry.getName()));
 			}
-		}
-	}
-	
-
-	private void loadFiles(List<File> files) {
-		for (File file : files) {
-			list.getModel().add(FileUtilities.getName(file));
 		}
 	}
 	

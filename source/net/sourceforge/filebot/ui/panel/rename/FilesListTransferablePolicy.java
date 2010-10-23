@@ -15,7 +15,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 	private final List<File> model;
 	
-	
+
 	public FilesListTransferablePolicy(List<File> model) {
 		this.model = model;
 	}
@@ -35,13 +35,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		if (containsOnly(files, FOLDERS)) {
-			for (File folder : files) {
-				model.addAll(FastFile.foreach(folder.listFiles()));
-			}
-		} else {
-			model.addAll(FastFile.foreach(files));
-		}
+		model.addAll(FastFile.foreach(flatten(files, 5)));
 	}
 	
 

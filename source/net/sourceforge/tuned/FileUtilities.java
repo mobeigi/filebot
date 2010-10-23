@@ -142,6 +142,22 @@ public final class FileUtilities {
 	}
 	
 
+	public static List<File> flatten(Iterable<File> roots, int maxDepth) {
+		List<File> files = new ArrayList<File>();
+		
+		// unfold/flatten file tree
+		for (File root : roots) {
+			if (root.isDirectory()) {
+				listFiles(root, 0, files, maxDepth);
+			} else {
+				files.add(root);
+			}
+		}
+		
+		return files;
+	}
+	
+
 	public static List<File> listPath(File file) {
 		LinkedList<File> nodes = new LinkedList<File>();
 		

@@ -107,14 +107,9 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		} else if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
 			// torrent files
 			loadTorrentFiles(files, values);
-		} else if (containsOnly(files, FOLDERS)) {
-			// load files from each folder
-			for (File folder : files) {
-				values.addAll(FastFile.foreach(folder.listFiles()));
-			}
 		} else {
-			// just add all given files
-			values.addAll(FastFile.foreach(files));
+			// load all files from the given folders recursively up do a depth of 5
+			values.addAll(FastFile.foreach(flatten(files, 5)));
 		}
 		
 		model.addAll(values);
