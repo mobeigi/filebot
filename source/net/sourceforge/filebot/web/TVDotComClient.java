@@ -148,8 +148,9 @@ public class TVDotComClient implements EpisodeListProvider {
 		
 		List<Node> nodes = selectNodes("id('episode_guide_list')//*[@class='info']", dom);
 		
-		Pattern episodePattern = Pattern.compile("Season (\\d+). Episode (\\d+)");
-		Pattern specialPattern = Pattern.compile("Special. Season (\\d+)");
+		Pattern episodePattern = Pattern.compile("Season.(\\d+).+Episode.(\\d+)");
+		Pattern specialPattern = Pattern.compile("Special..Season.(\\d+)");
+		Pattern airdatePattern = Pattern.compile("(\\d{1,2}).(\\d{1,2}).(\\d{4})");
 		
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
@@ -159,9 +160,11 @@ public class TVDotComClient implements EpisodeListProvider {
 			
 			String season = null;
 			String episode = null;
+			Date airdate = null;
 			
 			Matcher matcher;
 			
+			// try to match episode information
 			if ((matcher = episodePattern.matcher(meta)).find()) {
 				// matches episode
 				season = matcher.group(1);
@@ -170,12 +173,17 @@ public class TVDotComClient implements EpisodeListProvider {
 				// matches special 
 				season = matcher.group(1);
 				episode = "Special";
-			} else {
-				// no episode match
-				continue;
 			}
 			
-			episodes.add(new Episode(searchResult.getName(), season, episode, title));
+			// try to match airdate information
+			if ((matcher = airdatePattern.matcher(meta)).find()) {
+				airdate = Date.parse(matcher.group(), "MM/dd/yyyy"); // e.g. 5/20/2003
+			}
+			
+			// add episode if SxE info has been found
+			if (season != null && episode != null) {
+				episodes.add(new Episode(searchResult.getName(), season, episode, title, null, airdate));
+			}
 		}
 		
 		// episodes are listed in reverse order

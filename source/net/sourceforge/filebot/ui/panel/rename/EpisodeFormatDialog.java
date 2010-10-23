@@ -54,6 +54,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
@@ -290,7 +291,7 @@ class EpisodeFormatDialog extends JDialog {
 			episode = EpisodeFormat.getInstance().parseObject(persistentSampleEpisode.getValue());
 		} catch (Exception e) {
 			// default sample
-			episode = new Episode("Dark Angel", 3, 1, "Labyrinth");
+			episode = new Episode("Dark Angel", "3", "1", "Labyrinth", null, new Date(2009, 6, 1));
 		}
 		
 		// restore media file

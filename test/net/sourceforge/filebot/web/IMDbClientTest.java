@@ -74,6 +74,7 @@ public class IMDbClientTest {
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("0", first.getEpisode());
 		assertEquals("1", first.getSeason());
+		assertEquals(null, first.airdate());
 		
 		Episode last = list.get(144);
 		
@@ -81,6 +82,7 @@ public class IMDbClientTest {
 		assertEquals("Chosen", last.getTitle());
 		assertEquals("22", last.getEpisode());
 		assertEquals("7", last.getSeason());
+		assertEquals("2003-05-20", last.airdate().toString());
 	}
 	
 
@@ -92,7 +94,7 @@ public class IMDbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Mushi-Shi", first.getSeriesName());
+		assertEquals("Mushishi", first.getSeriesName());
 		assertEquals("Midori no za", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals("1", first.getSeason());

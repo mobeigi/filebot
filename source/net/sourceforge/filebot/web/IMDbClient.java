@@ -97,13 +97,16 @@ public class IMDbClient implements EpisodeListProvider {
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
-			String title = node.getTextContent().trim();
+			String title = getTextContent(node);
 			
 			Scanner numberScanner = new Scanner(node.getPreviousSibling().getTextContent()).useDelimiter("\\D+");
 			String season = numberScanner.next();
 			String episode = numberScanner.next();
 			
-			episodes.add(new Episode(seriesName, season, episode, title));
+			// e.g. 20 May 2003
+			String airdate = selectString("./following::STRONG", node);
+			
+			episodes.add(new Episode(seriesName, season, episode, title, null, Date.parse(airdate, "dd MMMMM yyyyy")));
 		}
 		
 		return episodes;

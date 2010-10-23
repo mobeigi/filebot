@@ -135,6 +135,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 			String episodeName = getTextContent("EpisodeName", node);
 			String episodeNumber = getTextContent("EpisodeNumber", node);
 			String seasonNumber = getTextContent("SeasonNumber", node);
+			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 			
 			if (seasonNumber.equals("0")) {
 				// handle as special episode
@@ -145,10 +146,10 @@ public class TheTVDBClient implements EpisodeListProvider {
 				}
 				
 				int specialNumber = filterBySeason(specials, Integer.parseInt(seasonNumber)).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, episodeName, Integer.toString(specialNumber)));
+				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, episodeName, Integer.toString(specialNumber), airdate));
 			} else {
 				// handle as normal episode
-				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName));
+				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName, null, airdate));
 			}
 			
 			if (episodeNumber.equals("1")) {

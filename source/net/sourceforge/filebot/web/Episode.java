@@ -12,7 +12,12 @@ public class Episode implements Serializable {
 	private String season;
 	private String episode;
 	private String title;
+	
+	// special number
 	private String special;
+	
+	// episode airdate
+	private Date airdate;
 	
 
 	protected Episode() {
@@ -20,22 +25,23 @@ public class Episode implements Serializable {
 	}
 	
 
-	public Episode(String seriesName, int season, int episode, String title) {
-		this(seriesName, String.valueOf(season), String.valueOf(episode), title, null);
-	}
-	
-
 	public Episode(String seriesName, String season, String episode, String title) {
-		this(seriesName, season, episode, title, null);
+		this(seriesName, season, episode, title, null, null);
 	}
 	
 
-	public Episode(String seriesName, String season, String episode, String title, String special) {
+	public Episode(String seriesName, String season, String episode, String title, String special, Date airdate) {
 		this.seriesName = seriesName;
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
 		this.special = special;
+		this.airdate = airdate;
+	}
+	
+
+	public String getSeriesName() {
+		return seriesName;
 	}
 	
 
@@ -67,6 +73,11 @@ public class Episode implements Serializable {
 	}
 	
 
+	public String getTitle() {
+		return title;
+	}
+	
+
 	public String getSpecial() {
 		return special;
 	}
@@ -81,13 +92,8 @@ public class Episode implements Serializable {
 	}
 	
 
-	public String getSeriesName() {
-		return seriesName;
-	}
-	
-
-	public String getTitle() {
-		return title;
+	public Date airdate() {
+		return airdate;
 	}
 	
 

@@ -6,9 +6,9 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-import net.sourceforge.filebot.web.TVRageClient.TVRageSearchResult;
-
 import org.junit.Test;
+
+import net.sourceforge.filebot.web.TVRageClient.TVRageSearchResult;
 
 
 public class TVRageClientTest {
@@ -18,7 +18,7 @@ public class TVRageClientTest {
 	 */
 	private static TVRageSearchResult buffySearchResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
 	
-	
+
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = tvrage.search("Buffy");
@@ -30,9 +30,10 @@ public class TVRageClientTest {
 		assertEquals(buffySearchResult.getLink(), result.getLink());
 	}
 	
+
 	private TVRageClient tvrage = new TVRageClient();
 	
-	
+
 	@Test
 	public void getEpisodeList() throws Exception {
 		List<Episode> list = tvrage.getEpisodeList(buffySearchResult, 7);
@@ -45,6 +46,7 @@ public class TVRageClientTest {
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisode());
 		assertEquals("7", chosen.getSeason());
+		assertEquals("2003-05-20", chosen.airdate().toString());
 	}
 	
 
@@ -60,6 +62,7 @@ public class TVRageClientTest {
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("00", first.getEpisode());
 		assertEquals("0", first.getSeason());
+		assertEquals(null, first.airdate());
 	}
 	
 

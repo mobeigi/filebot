@@ -168,7 +168,7 @@ public class PreferencesMapTest {
 	public void serializableAdapter() {
 		Map<String, Episode> map = PreferencesMap.map(temp, new SerializableAdapter<Episode>());
 		
-		Episode episode = new Episode("8 Simple Rules", 1, 1, "Pilot");
+		Episode episode = new Episode("8 Simple Rules", "1", "1", "Pilot", null, null);
 		
 		map.put("episode", episode);
 		

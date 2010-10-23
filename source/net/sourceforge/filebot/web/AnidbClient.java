@@ -146,9 +146,10 @@ public class AnidbClient implements EpisodeListProvider {
 			// ignore special episodes
 			if (number != null && number.matches("\\d+")) {
 				String title = selectString(".//title[@lang='en']", node);
+				String airdate = selectString(".//date/@rel", node);
 				
 				// no seasons for anime
-				episodes.add(new Episode(animeTitle, null, number, title));
+				episodes.add(new Episode(animeTitle, null, number, title, null, Date.parse(airdate, "yyyy-MM-dd")));
 			}
 		}
 		

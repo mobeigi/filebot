@@ -19,6 +19,7 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 
@@ -66,6 +67,12 @@ public class EpisodeBindingBean {
 	@Define("t")
 	public String getTitle() {
 		return episode.getTitle();
+	}
+	
+
+	@Define("air")
+	public Date airdate() {
+		return episode.airdate();
 	}
 	
 

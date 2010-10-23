@@ -58,6 +58,7 @@ public class TVDotComClientTest {
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisode());
 		assertEquals("7", chosen.getSeason());
+		assertEquals("2003-05-20", chosen.airdate().toString());
 	}
 	
 
@@ -74,6 +75,7 @@ public class TVDotComClientTest {
 		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals("1", first.getSeason());
+		assertEquals("1997-03-10", first.airdate().toString());
 	}
 	
 
@@ -90,6 +92,7 @@ public class TVDotComClientTest {
 		assertEquals("Jaynestown", fourth.getTitle());
 		assertEquals("4", fourth.getEpisode());
 		assertEquals("1", fourth.getSeason());
+		assertEquals("2002-10-18", fourth.airdate().toString());
 	}
 	
 
@@ -113,6 +116,7 @@ public class TVDotComClientTest {
 		assertEquals("Exposé", episode.getTitle());
 		assertEquals("14", episode.getEpisode());
 		assertEquals("3", episode.getSeason());
+		assertEquals("2007-03-28", episode.airdate().toString());
 	}
 	
 

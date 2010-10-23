@@ -66,6 +66,7 @@ public class TheTVDBClientTest {
 		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
 		assertEquals("1", first.getEpisode());
 		assertEquals("1", first.getSeason());
+		assertEquals("1997-03-10", first.airdate().toString());
 		
 		// check special episode
 		Episode last = list.get(list.size() - 1);
@@ -73,6 +74,7 @@ public class TheTVDBClientTest {
 		assertEquals("Unaired Pilot", last.getTitle());
 		assertEquals("Special 1", last.getEpisode());
 		assertEquals("1", last.getSeason());
+		assertEquals(null, last.airdate());
 	}
 	
 
@@ -82,12 +84,13 @@ public class TheTVDBClientTest {
 		
 		assertEquals(13, list.size());
 		
-		Episode chosen = list.get(0);
+		Episode first = list.get(0);
 		
-		assertEquals("Wonderfalls", chosen.getSeriesName());
-		assertEquals("Wax Lion", chosen.getTitle());
-		assertEquals("1", chosen.getEpisode());
-		assertEquals("1", chosen.getSeason());
+		assertEquals("Wonderfalls", first.getSeriesName());
+		assertEquals("Wax Lion", first.getTitle());
+		assertEquals("1", first.getEpisode());
+		assertEquals("1", first.getSeason());
+		assertEquals("2004-03-12", first.airdate().toString());
 	}
 	
 
