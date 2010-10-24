@@ -133,30 +133,29 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			String episodeNumber = getTextContent("EpisodeNumber", node);
-			String seasonNumber = getTextContent("SeasonNumber", node);
+			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
+			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
 			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 			
-			if (seasonNumber.equals("0")) {
+			if (seasonNumber == 0) {
 				// handle as special episode
-				String airsBefore = getTextContent("airsbefore_season", node);
-				
-				if (airsBefore != null && airsBefore.matches("\\d+")) {
+				Integer airsBefore = getIntegerContent("airsbefore_season", node);
+				if (airsBefore != null) {
 					seasonNumber = airsBefore;
 				}
 				
-				int specialNumber = filterBySeason(specials, Integer.parseInt(seasonNumber)).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, episodeName, Integer.toString(specialNumber), airdate));
+				Integer specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
+				specials.add(new Episode(seriesName, seasonNumber, null, episodeName, specialNumber, airdate));
 			} else {
 				// handle as normal episode
 				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName, null, airdate));
 			}
 			
-			if (episodeNumber.equals("1")) {
+			if (episodeNumber == 1) {
 				try {
 					// cache seasonId for each season (always when we are at the first episode)
 					// because it might be required by getEpisodeListLink
-					cache.putSeasonId(searchResult.getSeriesId(), Integer.parseInt(seasonNumber), Integer.parseInt(getTextContent("seasonid", node)));
+					cache.putSeasonId(searchResult.getSeriesId(), seasonNumber, getIntegerContent("seasonid", node));
 				} catch (NumberFormatException e) {
 					// season/episode is not a number, just ignore
 				}

@@ -44,8 +44,8 @@ public class TVRageClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
 		assertEquals("Chosen", chosen.getTitle());
-		assertEquals("22", chosen.getEpisode());
-		assertEquals("7", chosen.getSeason());
+		assertEquals("22", chosen.getEpisode().toString());
+		assertEquals("7", chosen.getSeason().toString());
 		assertEquals("2003-05-20", chosen.airdate().toString());
 	}
 	
@@ -60,8 +60,8 @@ public class TVRageClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("00", first.getEpisode());
-		assertEquals("0", first.getSeason());
+		assertEquals("0", first.getEpisode().toString());
+		assertEquals("0", first.getSeason().toString());
 		assertEquals(null, first.airdate());
 	}
 	

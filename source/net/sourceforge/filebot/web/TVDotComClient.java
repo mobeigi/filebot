@@ -149,8 +149,7 @@ public class TVDotComClient implements EpisodeListProvider {
 		List<Node> nodes = selectNodes("id('episode_guide_list')//*[@class='info']", dom);
 		
 		Pattern episodePattern = Pattern.compile("Season.(\\d+).+Episode.(\\d+)");
-		Pattern specialPattern = Pattern.compile("Special..Season.(\\d+)");
-		Pattern airdatePattern = Pattern.compile("(\\d{1,2}).(\\d{1,2}).(\\d{4})");
+		Pattern airdatePattern = Pattern.compile("\\d{1,2}.\\d{1,2}.\\d{4}");
 		
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
@@ -158,26 +157,22 @@ public class TVDotComClient implements EpisodeListProvider {
 			String title = selectString("./H3/A/text()", node);
 			String meta = selectString("./*[@class='meta']", node).replaceAll("\\p{Space}+", " ");
 			
-			String season = null;
-			String episode = null;
+			Integer season = null;
+			Integer episode = null;
 			Date airdate = null;
 			
-			Matcher matcher;
+			Matcher m;
 			
 			// try to match episode information
-			if ((matcher = episodePattern.matcher(meta)).find()) {
+			if ((m = episodePattern.matcher(meta)).find()) {
 				// matches episode
-				season = matcher.group(1);
-				episode = matcher.group(2);
-			} else if ((matcher = specialPattern.matcher(meta)).find()) {
-				// matches special 
-				season = matcher.group(1);
-				episode = "Special";
+				season = new Integer(m.group(1));
+				episode = new Integer(m.group(2));
 			}
 			
 			// try to match airdate information
-			if ((matcher = airdatePattern.matcher(meta)).find()) {
-				airdate = Date.parse(matcher.group(), "MM/dd/yyyy"); // e.g. 5/20/2003
+			if ((m = airdatePattern.matcher(meta)).find()) {
+				airdate = Date.parse(m.group(), "MM/dd/yyyy"); // e.g. 5/20/2003
 			}
 			
 			// add episode if SxE info has been found

@@ -64,8 +64,8 @@ public class TheTVDBClientTest {
 		Episode first = list.get(0);
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
-		assertEquals("1", first.getEpisode());
-		assertEquals("1", first.getSeason());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
 		assertEquals("1997-03-10", first.airdate().toString());
 		
 		// check special episode
@@ -88,8 +88,8 @@ public class TheTVDBClientTest {
 		
 		assertEquals("Wonderfalls", first.getSeriesName());
 		assertEquals("Wax Lion", first.getTitle());
-		assertEquals("1", first.getEpisode());
-		assertEquals("1", first.getSeason());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
 		assertEquals("2004-03-12", first.airdate().toString());
 	}
 	

@@ -41,7 +41,7 @@ class EpisodeExpressionFormatter implements MatchFormatter {
 
 	@Override
 	public String preview(Match<?, ?> match) {
-		return EpisodeFormat.getInstance().format(match.getValue());
+		return EpisodeFormat.getSeasonEpisodeInstance().format(match.getValue());
 	}
 	
 

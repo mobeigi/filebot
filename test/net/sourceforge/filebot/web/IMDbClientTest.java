@@ -72,8 +72,8 @@ public class IMDbClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
 		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("0", first.getEpisode());
-		assertEquals("1", first.getSeason());
+		assertEquals("0", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.airdate());
 		
 		Episode last = list.get(144);
@@ -96,8 +96,8 @@ public class IMDbClientTest {
 		
 		assertEquals("Mushishi", first.getSeriesName());
 		assertEquals("Midori no za", first.getTitle());
-		assertEquals("1", first.getEpisode());
-		assertEquals("1", first.getSeason());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
 	}
 	
 

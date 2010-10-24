@@ -85,16 +85,17 @@ public class TVRageClient implements EpisodeListProvider {
 		// episodes and specials
 		for (Node node : selectNodes("//episode", dom)) {
 			String title = getTextContent("title", node);
-			String episodeNumber = getTextContent("seasonnum", node);
-			String seasonNumber = getAttribute("no", node.getParentNode());
+			Integer episodeNumber = getIntegerContent("seasonnum", node);
+			String seasonIdentifier = getAttribute("no", node.getParentNode());
+			Integer seasonNumber = seasonIdentifier == null ? null : new Integer(seasonIdentifier);
 			Date airdate = Date.parse(getTextContent("airdate", node), "yyyy-MM-dd");
 			
 			// check if we have season and episode number, if not it must be a special episode
 			if (episodeNumber == null || seasonNumber == null) {
 				// handle as special episode
-				seasonNumber = getTextContent("season", node);
-				int specialNumber = filterBySeason(specials, Integer.parseInt(seasonNumber)).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, "Special " + specialNumber, title, Integer.toString(specialNumber), airdate));
+				seasonNumber = getIntegerContent("season", node);
+				int specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
+				specials.add(new Episode(seriesName, seasonNumber, null, title, specialNumber, airdate));
 			} else {
 				// handle as normal episode
 				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title, null, airdate));

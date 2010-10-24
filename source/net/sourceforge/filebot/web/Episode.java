@@ -9,12 +9,12 @@ import java.util.Arrays;
 public class Episode implements Serializable {
 	
 	private String seriesName;
-	private String season;
-	private String episode;
+	private Integer season;
+	private Integer episode;
 	private String title;
 	
 	// special number
-	private String special;
+	private Integer special;
 	
 	// episode airdate
 	private Date airdate;
@@ -25,12 +25,12 @@ public class Episode implements Serializable {
 	}
 	
 
-	public Episode(String seriesName, String season, String episode, String title) {
+	public Episode(String seriesName, Integer season, Integer episode, String title) {
 		this(seriesName, season, episode, title, null, null);
 	}
 	
 
-	public Episode(String seriesName, String season, String episode, String title, String special, Date airdate) {
+	public Episode(String seriesName, Integer season, Integer episode, String title, Integer special, Date airdate) {
 		this.seriesName = seriesName;
 		this.season = season;
 		this.episode = episode;
@@ -45,31 +45,13 @@ public class Episode implements Serializable {
 	}
 	
 
-	public String getEpisode() {
+	public Integer getEpisode() {
 		return episode;
 	}
 	
 
-	public Integer getEpisodeNumber() {
-		try {
-			return new Integer(episode);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-	
-
-	public String getSeason() {
+	public Integer getSeason() {
 		return season;
-	}
-	
-
-	public Integer getSeasonNumber() {
-		try {
-			return new Integer(season);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 	
 
@@ -78,17 +60,8 @@ public class Episode implements Serializable {
 	}
 	
 
-	public String getSpecial() {
+	public Integer getSpecial() {
 		return special;
-	}
-	
-
-	public Integer getSpecialNumber() {
-		try {
-			return new Integer(special);
-		} catch (NumberFormatException e) {
-			return null;
-		}
 	}
 	
 
@@ -124,7 +97,7 @@ public class Episode implements Serializable {
 
 	@Override
 	public String toString() {
-		return EpisodeFormat.getInstance().format(this);
+		return EpisodeFormat.getSeasonEpisodeInstance().format(this);
 	}
 	
 }

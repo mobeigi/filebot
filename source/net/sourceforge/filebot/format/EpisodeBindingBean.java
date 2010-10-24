@@ -53,13 +53,13 @@ public class EpisodeBindingBean {
 	
 
 	@Define("s")
-	public String getSeasonNumber() {
+	public Integer getSeasonNumber() {
 		return episode.getSeason();
 	}
 	
 
 	@Define("e")
-	public String getEpisodeNumber() {
+	public Integer getEpisodeNumber() {
 		return episode.getEpisode();
 	}
 	
@@ -151,6 +151,16 @@ public class EpisodeBindingBean {
 		
 		// calculate checksum from file
 		return crc32(inferredMediaFile);
+	}
+	
+
+	@Define("fn")
+	public String getFileName() {
+		// make sure media file is defined
+		checkMediaFile();
+		
+		// file extension
+		return FileUtilities.getName(mediaFile);
 	}
 	
 

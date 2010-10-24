@@ -112,6 +112,15 @@ public final class XPathUtilities {
 	}
 	
 
+	public static Integer getIntegerContent(String childName, Node parentNode) {
+		try {
+			return new Integer(getTextContent(childName, parentNode));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+
 	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
 		return XPathFactory.newInstance().newXPath().compile(xpath);
 	}

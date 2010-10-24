@@ -55,6 +55,12 @@ String.metaClass.lowerTrail = { replaceAll(/\b(\p{Alpha})(\p{Alpha}+)\b/, { matc
 
 
 /**
+ * Return substring that matches the given pattern.
+ */
+String.metaClass.match = { def matcher = delegate =~ it; matcher.find() ? matcher[0] : "" }
+
+
+/**
  * Return substring before the given pattern.
  */
 String.metaClass.before = {

@@ -288,10 +288,10 @@ class EpisodeFormatDialog extends JDialog {
 		
 		// restore episode
 		try {
-			episode = EpisodeFormat.getInstance().parseObject(persistentSampleEpisode.getValue());
+			episode = EpisodeFormat.getDefaultInstance().parseObject(persistentSampleEpisode.getValue());
 		} catch (Exception e) {
 			// default sample
-			episode = new Episode("Dark Angel", "3", "1", "Labyrinth", null, new Date(2009, 6, 1));
+			episode = new Episode("Dark Angel", 3, 1, "Labyrinth", null, new Date(2009, 6, 1));
 		}
 		
 		// restore media file
@@ -464,7 +464,7 @@ class EpisodeFormatDialog extends JDialog {
 				sample = new EpisodeBindingBean(episode, file);
 				
 				// remember
-				persistentSampleEpisode.setValue(episode == null ? "" : EpisodeFormat.getInstance().format(sample.getEpisode()));
+				persistentSampleEpisode.setValue(episode == null ? "" : EpisodeFormat.getDefaultInstance().format(sample.getEpisode()));
 				persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
 				
 				// reevaluate everything

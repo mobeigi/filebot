@@ -141,10 +141,10 @@ public class AnidbClient implements EpisodeListProvider {
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		
 		for (Node node : selectNodes("//ep", dom)) {
-			String number = getTextContent("epno", node);
+			Integer number = getIntegerContent("epno", node);
 			
 			// ignore special episodes
-			if (number != null && number.matches("\\d+")) {
+			if (number != null) {
 				String title = selectString(".//title[@lang='en']", node);
 				String airdate = selectString(".//date/@rel", node);
 				

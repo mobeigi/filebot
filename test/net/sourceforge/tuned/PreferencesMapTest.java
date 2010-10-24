@@ -14,6 +14,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
 import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
@@ -167,8 +168,7 @@ public class PreferencesMapTest {
 	@Test
 	public void serializableAdapter() {
 		Map<String, Episode> map = PreferencesMap.map(temp, new SerializableAdapter<Episode>());
-		
-		Episode episode = new Episode("8 Simple Rules", "1", "1", "Pilot", null, null);
+		Episode episode = new Episode("Dark Angel", 3, 1, "Labyrinth", null, new Date(2009, 6, 1));
 		
 		map.put("episode", episode);
 		

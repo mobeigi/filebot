@@ -244,7 +244,7 @@ class EpisodeBindingDialog extends JDialog {
 	
 
 	public void setEpisode(Episode episode) {
-		episodeTextField.setText(episode == null ? "" : EpisodeFormat.getInstance().format(episode));
+		episodeTextField.setText(episode == null ? "" : EpisodeFormat.getDefaultInstance().format(episode));
 	}
 	
 
@@ -255,7 +255,7 @@ class EpisodeBindingDialog extends JDialog {
 
 	public Episode getEpisode() {
 		try {
-			return EpisodeFormat.getInstance().parseObject(episodeTextField.getText());
+			return EpisodeFormat.getDefaultInstance().parseObject(episodeTextField.getText());
 		} catch (Exception e) {
 			return null;
 		}

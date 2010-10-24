@@ -6,86 +6,108 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class EpisodeFormat extends Format {
 	
-	private static final EpisodeFormat instance = new EpisodeFormat();
+	private boolean includeAirdate = true;
+	private boolean includeSpecial = true;
 	
 
-	public static EpisodeFormat getInstance() {
-		return instance;
+	public static EpisodeFormat getSeasonEpisodeInstance() {
+		return new EpisodeFormat(true, false);
+	}
+	
+
+	public static EpisodeFormat getDefaultInstance() {
+		return new EpisodeFormat(true, true);
+	}
+	
+
+	public EpisodeFormat(boolean includeSpecial, boolean includeAirdate) {
+		this.includeSpecial = includeSpecial;
+		this.includeAirdate = includeAirdate;
 	}
 	
 
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
+		// format episode object, e.g. Dark Angel - 3x01 - Labyrinth [2009-06-01]
 		Episode episode = (Episode) obj;
 		
 		// episode number is most likely a number but could also be some kind of special identifier (e.g. Special)
-		String episodeNumber = episode.getEpisode();
-		
-		// try to format episode number, if possible
-		try {
-			episodeNumber = String.format("%02d", Integer.parseInt(episodeNumber));
-		} catch (NumberFormatException e) {
-			// ignore
-		}
+		String episodeNumber = episode.getEpisode() != null ? String.format("%02d", episode.getEpisode()) : null;
 		
 		// series name should not be empty or null
 		sb.append(episode.getSeriesName());
 		
 		if (episode.getSeason() != null) {
 			// season and episode
-			sb.append(" - ").append(episode.getSeason()).append('x').append(episodeNumber);
-		} else if (episodeNumber != null) {
+			sb.append(" - ").append(episode.getSeason()).append('x');
+			
+			if (episode.getEpisode() != null) {
+				sb.append(String.format("%02d", episode.getEpisode()));
+			} else if (includeSpecial && episode.getSpecial() != null) {
+				sb.append("Special " + episode.getSpecial());
+			}
+		} else {
 			// episode, but no season
 			sb.append(" - ").append(episodeNumber);
 		}
 		
-		if (episode.getTitle() != null) {
-			sb.append(" - ").append(episode.getTitle());
+		sb.append(" - ").append(episode.getTitle());
+		
+		if (includeAirdate && episode.airdate() != null) {
+			sb.append(" [").append(episode.airdate().format("yyyy-MM-dd")).append("]");
 		}
 		
 		return sb;
 	}
 	
 
+	private final Pattern sxePattern = Pattern.compile("- (?:(\\d{1,2})x)?(Special )?(\\d{1,3}) -");
+	private final Pattern airdatePattern = Pattern.compile("\\[(\\d{4}-\\d{1,2}-\\d{1,2})\\]");
+	
+
 	@Override
-	public Episode parseObject(String source, ParsePosition pos) {
-		String[] section = source.substring(pos.getIndex()).split(" - ", 3);
+	public Episode parseObject(String s, ParsePosition pos) {
+		StringBuilder source = new StringBuilder(s);
 		
-		// series name and episode identifier are required
-		if (section.length < 2) {
-			pos.setErrorIndex(0);
-			return null;
+		Integer season = null;
+		Integer episode = null;
+		Integer special = null;
+		Date airdate = null;
+		
+		Matcher m;
+		
+		if ((m = airdatePattern.matcher(source)).find()) {
+			airdate = Date.parse(m.group(1), "yyyy-MM-dd");
+			source.replace(m.start(), m.end(), ""); // remove matched part from text
 		}
 		
-		// normalize and check
-		for (int i = 0; i < section.length; i++) {
-			section[i] = section[i].trim();
+		if ((m = sxePattern.matcher(source)).find()) {
+			season = new Integer(m.group(1));
+			if (m.group(2) == null)
+				episode = new Integer(m.group(3));
+			else
+				special = new Integer(m.group(3));
 			
-			if (section[i].isEmpty()) {
-				pos.setErrorIndex(0);
-				return null;
-			}
+			source.replace(m.start(), m.end(), ""); // remove matched part from text
+			
+			// assume that all the remaining text is series name and title
+			String name = source.substring(0, m.start()).trim();
+			String title = source.substring(m.start()).trim();
+			
+			// did parse input
+			pos.setIndex(source.length());
+			return new Episode(name, season, episode, title, special, airdate);
 		}
 		
-		String[] sxe = section[1].split("x", 2);
-		
-		// series name
-		String name = section[0];
-		
-		// season number and episode number
-		String season = (sxe.length == 2) ? sxe[0] : null;
-		String episode = (sxe.length == 2) ? sxe[1] : section[1];
-		
-		// episode title
-		String title = (section.length == 3) ? section[2] : null;
-		
-		// did parse input
-		pos.setIndex(source.length());
-		return new Episode(name, season, episode, title);
+		// failed to parse input
+		pos.setErrorIndex(0);
+		return null;
 	}
 	
 
