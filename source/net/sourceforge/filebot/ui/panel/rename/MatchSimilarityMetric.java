@@ -47,7 +47,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			return SeasonEpisode.getSimilarity(o1, o2) + AirDate.getSimilarity(o1, o2);
+			return Math.max(SeasonEpisode.getSimilarity(o1, o2), AirDate.getSimilarity(o1, o2));
 		}
 		
 	}),
