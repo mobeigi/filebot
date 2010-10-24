@@ -15,6 +15,8 @@
 		<jar href="nekohtml.jar" />
 		<jar href="xercesImpl.jar" />
 		<jar href="ehcache.jar" />
+		<jar href="slf4j.jar" />
+		<jar href="slf4j-jdk.jar" />
 		<jar href="simmetrics.jar" />
 		<jar href="args4j.jar" />
 		<jar href="jna.jar" />

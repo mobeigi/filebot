@@ -89,6 +89,14 @@
 				<include name="ehcache-version.properties" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/slf4j.jar">
+				<include name="org/slf4j/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/slf4j-jdk.jar">
+				<include name="org/slf4j/**" />
+			</zipfileset>
+
 			<zipfileset src="${dir.lib}/jna.jar">
 				<!-- include classes and native libraries -->
 				<include name="com/sun/jna/**" />
@@ -248,31 +256,31 @@
 	<target name="run-fatjar" depends="fatjar">
 		<java jar="${dir.dist}/fatjar/FileBot_${version}.jar" fork="true" />
 	</target>
-	
+
 	<target name="deploy">
 		<!-- ask for sourceforge password -->
 		<input message="Please enter password:" addproperty="sf.password" />
-		
+
 		<!-- create fatjar release folder -->
 		<mkdir dir="${dir.dist}/release" />
-		
+
 		<!-- copy fatjar and source -->
 		<copy todir="${dir.dist}/release/FileBot_${version}">
 			<fileset dir="${dir.dist}" includes="*-src.zip" />
 			<fileset dir="${dir.dist}/fatjar" includes="*.jar" />
 		</copy>
-		
+
 		<!-- deploy source zip first-->
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*-src.zip" />
 		</scp>
-		
+
 		<!-- deploy fatjar afterwards so it will be the latest file release -->
 		<sleep minutes="1" />
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
-			<fileset dir="${dir.dist}/release" includes="**/*.jar"/>
+			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
 		</scp>
-		
+
 		<!-- deploy webstart jars -->
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:htdocs/webstart" trust="yes">
 			<fileset dir="${dir.dist}/webstart" />
