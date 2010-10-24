@@ -72,8 +72,9 @@ public class TheTVDBClientTest {
 		Episode last = list.get(list.size() - 1);
 		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
 		assertEquals("Unaired Pilot", last.getTitle());
-		assertEquals("Special 1", last.getEpisode());
-		assertEquals("1", last.getSeason());
+		assertEquals("1", last.getSeason().toString());
+		assertEquals(null, last.getEpisode());
+		assertEquals("1", last.getSpecial().toString());
 		assertEquals(null, last.airdate());
 	}
 	

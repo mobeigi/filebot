@@ -80,8 +80,8 @@ public class IMDbClientTest {
 		
 		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
 		assertEquals("Chosen", last.getTitle());
-		assertEquals("22", last.getEpisode());
-		assertEquals("7", last.getSeason());
+		assertEquals("22", last.getEpisode().toString());
+		assertEquals("7", last.getSeason().toString());
 		assertEquals("2003-05-20", last.airdate().toString());
 	}
 	

@@ -116,16 +116,6 @@ public class ExpressionFormatTest {
 	}
 	
 
-	@Test
-	public void illegalMethod() throws Exception {
-		TestScriptFormat format = new TestScriptFormat("{value.xyz()}");
-		format.format("test");
-		
-		// check message
-		assertEquals("No signature of method: java.lang.String.xyz() is applicable for argument types: () values: []", format.caughtScriptException().getMessage());
-	}
-	
-
 	protected static class TestScriptFormat extends ExpressionFormat {
 		
 		public TestScriptFormat(String format) throws ScriptException {
