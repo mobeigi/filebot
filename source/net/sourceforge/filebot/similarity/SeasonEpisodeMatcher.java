@@ -102,9 +102,9 @@ public class SeasonEpisodeMatcher {
 		public final int episode;
 		
 
-		public SxE(int season, int episode) {
-			this.season = season;
-			this.episode = episode;
+		public SxE(Integer season, Integer episode) {
+			this.season = season != null ? season : UNDEFINED;
+			this.episode = episode != null ? episode : UNDEFINED;
 		}
 		
 

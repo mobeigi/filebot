@@ -7,6 +7,7 @@ import static java.util.Calendar.*;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -49,13 +50,30 @@ public class Date implements Serializable {
 	
 
 	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Date) {
+			Date other = (Date) obj;
+			return year == other.year && month == other.month && day == other.day;
+		}
+		
+		return false;
+	}
+	
+
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(new Object[] { year, month, day });
+	}
+	
+
+	@Override
 	public String toString() {
 		return String.format("%04d-%02d-%02d", year, month, day);
 	}
 	
 
 	public String format(String pattern) {
-		return new SimpleDateFormat(pattern).format(new GregorianCalendar(year, month, day).getTime());
+		return new SimpleDateFormat(pattern).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
 	}
 	
 
@@ -66,7 +84,7 @@ public class Date implements Serializable {
 		try {
 			Calendar date = new GregorianCalendar(Locale.ROOT);
 			date.setTime(formatter.parse(string));
-			return new Date(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH));
+			return new Date(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
 		} catch (ParseException e) {
 			// no result if date is invalid
 			Logger.getLogger(Date.class.getName()).log(Level.WARNING, e.getMessage());

@@ -7,11 +7,11 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 
-public class SeasonEpisodeSimilarityMetricTest {
+public class SeasonEpisodeMetricTest {
 	
-	private static SeasonEpisodeSimilarityMetric metric = new SeasonEpisodeSimilarityMetric();
+	private static SeasonEpisodeMetric metric = new SeasonEpisodeMetric();
 	
-	
+
 	@Test
 	public void getSimilarity() {
 		// single pattern match, single episode match

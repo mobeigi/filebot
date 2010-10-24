@@ -2,26 +2,28 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 
-import net.sourceforge.filebot.similarity.LengthEqualsMetric;
+import net.sourceforge.filebot.similarity.DateMetric;
+import net.sourceforge.filebot.similarity.FileSizeMetric;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
-import net.sourceforge.filebot.similarity.SeasonEpisodeSimilarityMetric;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 
 
-enum MatchSimilarityMetric implements SimilarityMetric {
+public enum MatchSimilarityMetric implements SimilarityMetric {
 	
 	// Match by file length (only works when matching torrents or files)
-	Length(new LengthEqualsMetric() {
+	FileSize(new FileSizeMetric() {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
@@ -40,8 +42,18 @@ enum MatchSimilarityMetric implements SimilarityMetric {
 		}
 	}),
 	
+	// Match by season/episode and airdate combined
+	EpisodeIdentifier(new SimilarityMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			return SeasonEpisode.getSimilarity(o1, o2) + AirDate.getSimilarity(o1, o2);
+		}
+		
+	}),
+	
 	// Match by season / episode numbers
-	SeasonEpisode(new SeasonEpisodeSimilarityMetric() {
+	SeasonEpisode(new SeasonEpisodeMetric() {
 		
 		@Override
 		protected Collection<SxE> parse(Object object) {
@@ -49,7 +61,23 @@ enum MatchSimilarityMetric implements SimilarityMetric {
 				Episode episode = (Episode) object;
 				
 				// create SxE from episode
-				return Collections.singleton(new SxE(episode.getSeason(), episode.getEpisode()));
+				return singleton(new SxE(episode.getSeason(), episode.getEpisode()));
+			}
+			
+			return super.parse(object);
+		}
+	}),
+	
+	// Match episode airdate
+	AirDate(new DateMetric() {
+		
+		@Override
+		protected Date parse(Object object) {
+			if (object instanceof Episode) {
+				Episode episode = (Episode) object;
+				
+				// create SxE from episode
+				return episode.airdate();
 			}
 			
 			return super.parse(object);
@@ -119,7 +147,7 @@ enum MatchSimilarityMetric implements SimilarityMetric {
 		// 2. pass: match by season / episode numbers
 		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		// 4. pass: match by generic numeric similarity
-		return new SimilarityMetric[] { Length, SeasonEpisode, Name, Numeric };
+		return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Name, Numeric };
 	}
 	
 }

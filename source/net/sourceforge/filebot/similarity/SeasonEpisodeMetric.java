@@ -8,7 +8,7 @@ import java.util.Collection;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 
-public class SeasonEpisodeSimilarityMetric implements SimilarityMetric {
+public class SeasonEpisodeMetric implements SimilarityMetric {
 	
 	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
 	

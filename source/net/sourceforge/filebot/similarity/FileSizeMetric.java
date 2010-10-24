@@ -5,7 +5,7 @@ package net.sourceforge.filebot.similarity;
 import java.io.File;
 
 
-public class LengthEqualsMetric implements SimilarityMetric {
+public class FileSizeMetric implements SimilarityMetric {
 	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
