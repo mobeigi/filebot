@@ -105,6 +105,7 @@
 			<zipfileset src="${dir.lib}/groovy.jar">
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
+				<include name="META-INF/dgminfo" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
