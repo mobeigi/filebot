@@ -2,7 +2,7 @@
 <project name="FileBot" default="jar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="r420" />
+	<property name="version" value="r440" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
