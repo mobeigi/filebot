@@ -132,7 +132,8 @@
 
 		<!-- application bundle folder as zip -->
 		<zip destfile="${path.appbundle.zip}">
-			<fileset dir="${dir.dist}" includes="${title}.app/**" />
+			<zipfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/JavaApplicationStub" />
+			<zipfileset dir="${dir.dist}" includes="${title}.app/**/JavaApplicationStub" filemode="744" /> <!-- application stub must be executable!! -->
 		</zip>
 	</target>
 
