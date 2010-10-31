@@ -122,7 +122,9 @@
 
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" />
+		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler">
+			<classpath path="${dir.installer}/appbundle/jarbundler.jar" />
+		</taskdef>
 
 		<!-- build app bundle folder and add native libs -->
 		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${path.fatjar}" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m" />
