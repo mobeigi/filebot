@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -64,7 +65,7 @@ public class SeriesNameMatcher {
 		whitelist.addAll(deepMatchAll(names, threshold));
 		
 		// 1. use pattern matching
-		seriesNames.addAll(flatMatchAll(names, threshold, Pattern.compile(join(whitelist, "|"), Pattern.CASE_INSENSITIVE)));
+		seriesNames.addAll(flatMatchAll(names, Pattern.compile(join(whitelist, "|"), Pattern.CASE_INSENSITIVE), threshold, false));
 		
 		// 2. use common word sequences
 		seriesNames.addAll(whitelist);
@@ -80,22 +81,31 @@ public class SeriesNameMatcher {
 	 * @return series names that have been matched one or multiple times depending on the
 	 *         threshold
 	 */
-	private Collection<String> flatMatchAll(String[] names, int threshold, Pattern whitelist) {
-		ThresholdCollection<String> results = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
+	private Collection<String> flatMatchAll(String[] names, Pattern prefixPattern, int threshold, boolean strict) {
+		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
 		
 		for (String name : names) {
 			// use normalized name
 			name = normalize(name);
 			
-			Matcher matcher = whitelist.matcher(name);
-			int seasonEpisodePosition = seasonEpisodeMatcher.find(name, matcher.find() ? matcher.end() : 0);
+			Matcher prefix = prefixPattern.matcher(name);
+			int sxePosition = seasonEpisodeMatcher.find(name, prefix.find() ? prefix.end() : 0);
 			
-			if (seasonEpisodePosition > 0) {
-				results.add(name.substring(0, seasonEpisodePosition).trim());
+			if (sxePosition > 0) {
+				String hit = name.substring(0, sxePosition).trim();
+				List<SxE> sxe = seasonEpisodeMatcher.match(name.substring(sxePosition));
+				
+				if (!strict && sxe.size() == 1 && sxe.get(0).season >= 0) {
+					// bypass threshold if hit is likely to be genuine
+					thresholdCollection.addDirect(hit);
+				} else {
+					// require multiple matches, if hit might be a false match
+					thresholdCollection.add(hit);
+				}
 			}
 		}
 		
-		return results;
+		return thresholdCollection;
 	}
 	
 
@@ -375,6 +385,11 @@ public class SeriesNameMatcher {
 			
 			return false;
 		};
+		
+
+		public boolean addDirect(E element) {
+			return heaven.add(element);
+		}
 		
 
 		@Override
