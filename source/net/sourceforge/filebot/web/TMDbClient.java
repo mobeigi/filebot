@@ -50,7 +50,12 @@ public class TMDbClient implements MovieIdentificationService {
 	
 
 	public List<MovieDescriptor> searchMovie(File file) throws IOException, SAXException {
-		return getMovies("Hash.getInfo", OpenSubtitlesHasher.computeHash(file));
+		return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length());
+	}
+	
+
+	public List<MovieDescriptor> searchMovie(String hash, long bytesize) throws IOException, SAXException {
+		return getMovies("Media.getInfo", hash + "/" + bytesize);
 	}
 	
 
