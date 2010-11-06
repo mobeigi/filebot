@@ -318,8 +318,8 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.zip}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dist}/FileBot-${version}-x86.msi" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dist}/FileBot-${version}-x64.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot-${version}-x86.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot-${version}-x64.msi" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
