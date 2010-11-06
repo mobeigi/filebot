@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+	<Product Name='FileBot' Manufacturer='rednoah' Version='1.9.6' Id='C171FBBE-E471-4509-AA63-DB2FB61F778E' UpgradeCode='FD96D8C9-9194-4C7B-9DE7-9437D0F57330' Language='1033' Codepage='1252'>
+
+		<Package Id='*' Keywords='Installer' Description="FileBot Installer" Manufacturer='rednoah' InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' />
+
+		<Directory Id='TARGETDIR' Name='SourceDir'>
+			<Directory Id='ProgramFilesFolder' Name='PFiles'>
+				<Directory Id='INSTALLDIR' Name='FileBot'>
+
+					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E'>
+						<File Id='FileBot.exe' Name='FileBot.exe' Source='FileBot.exe' KeyPath='yes'>
+							<Shortcut Id="programsLink" Directory="ProgramMenuDir" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
+							<Shortcut Id="desktopLink" Directory="DesktopFolder" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
+						</File>
+					</Component>
+
+					<Component Id='MainJar' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E'>
+						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
+						<RemoveFile Id='History' On='uninstall' Name='history.xml' />
+					</Component>
+
+					<Component Id='MediaInfoLib' Guid='6ADF25D9-937D-46FD-A84B-2C155A6C6CA7'>
+						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' KeyPath='yes' />
+					</Component>
+				</Directory>
+			</Directory>
+
+			<Directory Id="ProgramMenuFolder" Name="Programs">
+				<Directory Id="ProgramMenuDir" Name="FileBot">
+					<Component Id="ProgramMenuDir" Guid="F3F0F1CB-E282-473A-BE8E-B7D325B3B4B0">
+						<RemoveFolder Id='ProgramMenuDir' On='uninstall' />
+						<RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
+					</Component>
+				</Directory>
+			</Directory>
+
+			<Directory Id="DesktopFolder" Name="Desktop" />
+		</Directory>
+
+
+		<Feature Id='Complete' Title='FileBot' Description='The complete package.' Display='expand' ConfigurableDirectory='INSTALLDIR' Level='1'>
+			<ComponentRef Id='ApplicationStub' />
+			<ComponentRef Id='MainJar' />
+			<ComponentRef Id='MediaInfoLib' />
+			<ComponentRef Id='ProgramMenuDir' />
+		</Feature>
+
+		<UIRef Id="WixUI_InstallDir" />
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+
+		<WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="dialog.bmp" />
+		<WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+
+		<Icon Id="icon.ico" SourceFile="../icons/shortcut.ico" />
+		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<Property Id="LicenseAccepted" Value="1" />
+	</Product>
+</Wix>

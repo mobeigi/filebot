@@ -140,6 +140,28 @@
 	</target>
 
 
+	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
+		<antcall target="msi-wix">
+			<param name="arch" value="x86" />
+		</antcall>
+		<antcall target="msi-wix">
+			<param name="arch" value="x64" />
+		</antcall>
+	</target>
+
+	<target name="msi-wix">
+		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
+		<property name="installer" location="${dir.dist}/FileBot-${version}-${arch}.msi" />
+
+		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo}" />
+		</exec>
+		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
+		</exec>
+	</target>
+
+
 	<target name="webstart" depends="jar" description="Build and compress jars used for webstart deployment">
 		<!-- create dirs -->
 		<mkdir dir="${dir.dist}/webstart" />
@@ -166,7 +188,7 @@
 			<param name="arch" value="win32-x86" />
 		</antcall>
 		<antcall target="webstart-nativelib">
-			<param name="arch" value="win32-amd64" />
+			<param name="arch" value="win32-x64" />
 		</antcall>
 		<antcall target="webstart-nativelib">
 			<param name="arch" value="linux-i386" />
@@ -296,6 +318,8 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.zip}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dist}/FileBot-${version}-x86.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dist}/FileBot-${version}-x64.msi" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
@@ -306,6 +330,12 @@
 		<sleep seconds="20" />
 		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
+		</scp>
+
+		<!-- deploy windows installers -->
+		<sleep seconds="20" />
+		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+			<fileset dir="${dir.dist}/release" includes="**/*.msi" />
 		</scp>
 
 		<!-- deploy osx app bundle -->

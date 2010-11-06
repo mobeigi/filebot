@@ -31,7 +31,7 @@
 		<nativelib href="native/win32-x86.jar" />
 	</resources>
 	<resources os="Windows" arch="amd64">
-		<nativelib href="native/win32-amd64.jar" />
+		<nativelib href="native/win32-x64.jar" />
 	</resources>
 	<resources os="Linux" arch="i386">
 		<nativelib href="native/linux-i386.jar" />
