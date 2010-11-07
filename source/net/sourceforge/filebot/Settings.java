@@ -34,7 +34,7 @@ public final class Settings {
 
 	public static File getApplicationFolder() {
 		// special handling for web start
-		if (System.getProperty("javawebstart.version") != null) {
+		if (System.getProperty("application.deployment") != null || System.getProperty("javawebstart.version") != null) {
 			// can't use working directory for web start applications
 			File folder = new File(System.getProperty("user.home"), "." + getApplicationName().toLowerCase());
 			

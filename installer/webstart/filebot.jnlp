@@ -19,6 +19,7 @@
 	</security>
 
 	<resources>
+		<property name="application.deployment" value="webstart" />
 		<property name="jnlp.packEnabled" value="true" />
 
 		<java version="1.6+" max-heap-size="256m" />
