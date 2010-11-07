@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Name=FileBot
+Comment=The ultimate tv renamer / subtitle downloader / sfv validator
+Exec=/usr/share/filebot/bin/filebot.sh
+Icon=/usr/share/filebot/icon48.png
+Categories=AudioVideo;Video;Renamer

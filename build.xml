@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project name="FileBot" default="jar">
+<project name="FileBot" default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
 	<property name="version" value="r440" />
@@ -122,9 +122,7 @@
 
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler">
-			<classpath path="${dir.installer}/appbundle/jarbundler.jar" />
-		</taskdef>
+		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.installer}/appbundle/jarbundler.jar" />
 
 		<!-- build app bundle folder and add native libs -->
 		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${path.fatjar}" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m" />
@@ -135,23 +133,47 @@
 		<!-- application bundle folder as zip -->
 		<zip destfile="${path.appbundle.zip}">
 			<zipfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/JavaApplicationStub" />
-			<zipfileset dir="${dir.dist}" includes="${title}.app/**/JavaApplicationStub" filemode="744" /> <!-- application stub must be executable!! -->
+			<zipfileset dir="${dir.dist}" includes="${title}.app/**/JavaApplicationStub" filemode="755" /> <!-- application stub must be executable!! -->
 		</zip>
 	</target>
 
 
+	<target name="deb" depends="fatjar" description="Build debian package for i386 and amd64">
+		<taskdef resource="ant_deb_task.properties" classpath="${dir.installer}/deb/ant-deb.jar" />
+
+		<antcall target="deb-arch">
+			<param name="arch" value="i386" />
+		</antcall>
+		<antcall target="deb-arch">
+			<param name="arch" value="amd64" />
+		</antcall>
+	</target>
+
+	<target name="deb-arch">
+		<deb todir="${dir.dist}" package="filebot" version="r440" architecture="${arch}" section="misc" depends="openjdk-6-jre" homepage="http://filebot.sourceforge.net" priority="optional">
+			<maintainer email="rednoah" name="rednoah@users.sourceforge.net" />
+			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
+			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
+			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
+			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
+			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
+		</deb>
+	</target>
+
+
 	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
-		<antcall target="msi-wix">
+		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
 		</antcall>
-		<antcall target="msi-wix">
+		<antcall target="msi-arch">
 			<param name="arch" value="x64" />
 		</antcall>
 	</target>
 
-	<target name="msi-wix">
+	<target name="msi-arch">
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
-		<property name="installer" location="${dir.dist}/FileBot-${version}-${arch}.msi" />
+		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo}" />
@@ -307,8 +329,13 @@
 		<java jar="${path.fatjar}" fork="true" />
 	</target>
 
-	<target name="deploy">
+
+	<target name="deploy" depends="fatjar, appbundle, deb, msi">
+		<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
+		<property name="deploy.webstart" value="web.sourceforge.net:htdocs/webstart" />
+
 		<!-- ask for sourceforge password -->
+		<property name="sf.user" value="rednoah,filebot" />
 		<input message="Please enter password:" addproperty="sf.password" />
 
 		<!-- create fatjar release folder -->
@@ -318,34 +345,42 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.zip}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot-${version}-x86.msi" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot-${version}-x64.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i386.deb" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_amd64.deb" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
-		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*-src.zip" />
 		</scp>
 
 		<!-- deploy fatjar -->
-		<sleep seconds="20" />
-		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
 		</scp>
 
 		<!-- deploy windows installers -->
-		<sleep seconds="20" />
-		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*.msi" />
 		</scp>
 
+		<!-- deploy debian packages -->
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
+		</scp>
+
 		<!-- deploy osx app bundle -->
-		<sleep seconds="20" />
-		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" trust="yes">
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
 			<fileset dir="${dir.dist}/release" includes="**/*.app.zip" />
 		</scp>
 
 		<!-- deploy webstart jars and jnlp descriptors -->
-		<scp todir="rednoah,filebot:${sf.password}@web.sourceforge.net:htdocs/webstart" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.webstart}" trust="yes">
 			<fileset dir="${dir.dist}/webstart" />
 		</scp>
 	</target>
