@@ -4,6 +4,7 @@ package net.sourceforge.tuned;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -14,8 +15,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.sourceforge.filebot.web.Date;
-import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
 import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 
@@ -167,11 +166,10 @@ public class PreferencesMapTest {
 
 	@Test
 	public void serializableAdapter() {
-		Map<String, Episode> map = PreferencesMap.map(temp, new SerializableAdapter<Episode>());
-		Episode episode = new Episode("Dark Angel", 3, 1, "Labyrinth", null, new Date(2009, 6, 1));
+		Map<String, Color> map = PreferencesMap.map(temp, new SerializableAdapter<Color>());
+		Color color = new Color(0.25f, 0.50f, 1.00f);
 		
-		map.put("episode", episode);
-		
-		assertEquals(episode.toString(), map.get("episode").toString());
+		map.put("color", color);
+		assertEquals(color, map.get("color"));
 	}
 }
