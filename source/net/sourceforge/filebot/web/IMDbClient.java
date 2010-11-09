@@ -106,7 +106,7 @@ public class IMDbClient implements EpisodeListProvider {
 			// e.g. 20 May 2003
 			String airdate = selectString("./following::STRONG", node);
 			
-			episodes.add(new Episode(seriesName, season, episode, title, null, Date.parse(airdate, "dd MMMMM yyyyy")));
+			episodes.add(new Episode(seriesName, season, episode, title, null, null, Date.parse(airdate, "dd MMMMM yyyyy")));
 		}
 		
 		return episodes;

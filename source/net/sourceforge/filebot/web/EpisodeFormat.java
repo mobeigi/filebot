@@ -88,7 +88,7 @@ public class EpisodeFormat extends Format {
 		}
 		
 		if ((m = sxePattern.matcher(source)).find()) {
-			season = new Integer(m.group(1));
+			season = (m.group(1) == null) ? null : new Integer(m.group(1));
 			if (m.group(2) == null)
 				episode = new Integer(m.group(3));
 			else
@@ -102,7 +102,7 @@ public class EpisodeFormat extends Format {
 			
 			// did parse input
 			pos.setIndex(source.length());
-			return new Episode(name, season, episode, title, special, airdate);
+			return new Episode(name, season, episode, title, season == null ? episode : null, special, airdate);
 		}
 		
 		// failed to parse input

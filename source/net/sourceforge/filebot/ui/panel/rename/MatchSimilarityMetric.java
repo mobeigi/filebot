@@ -2,11 +2,12 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
-import static java.util.Collections.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import net.sourceforge.filebot.similarity.DateMetric;
 import net.sourceforge.filebot.similarity.FileSizeMetric;
@@ -27,7 +28,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// order of arguments is logically irrelevant, but we might be able to save us a call to File.length() this way
+			// order of arguments is logically irrelevant, but we might be able to save us a call to File.length() which is quite costly
 			return o1 instanceof File ? super.getSimilarity(o2, o1) : super.getSimilarity(o1, o2);
 		}
 		
@@ -47,7 +48,13 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			return Math.max(SeasonEpisode.getSimilarity(o1, o2), AirDate.getSimilarity(o1, o2));
+			float sxeSimilarity = SeasonEpisode.getSimilarity(o1, o2);
+			
+			// break if SxE is a perfect match already
+			if (sxeSimilarity >= 1)
+				return sxeSimilarity;
+			
+			return Math.max(sxeSimilarity, AirDate.getSimilarity(o1, o2));
 		}
 		
 	}),
@@ -60,8 +67,11 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				
-				// create SxE from episode
-				return singleton(new SxE(episode.getSeason(), episode.getEpisode()));
+				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
+				SxE seasonEpisode = new SxE(episode.getSeason(), episode.getEpisode());
+				SxE absoluteEpisode = new SxE(null, episode.getAbsolute());
+				
+				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(absoluteEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
 			}
 			
 			return super.parse(object);

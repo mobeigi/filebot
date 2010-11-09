@@ -291,7 +291,7 @@ class EpisodeFormatDialog extends JDialog {
 			episode = EpisodeFormat.getDefaultInstance().parseObject(persistentSampleEpisode.getValue());
 		} catch (Exception e) {
 			// default sample
-			episode = new Episode("Dark Angel", 3, 1, "Labyrinth", null, new Date(2009, 6, 1));
+			episode = new Episode("Dark Angel", 3, 1, "Labyrinth", 42, null, new Date(2009, 6, 1));
 		}
 		
 		// restore media file

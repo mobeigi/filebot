@@ -66,6 +66,7 @@ public class TheTVDBClientTest {
 		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
+		assertEquals("1", first.getAbsolute().toString());
 		assertEquals("1997-03-10", first.airdate().toString());
 		
 		// check special episode
@@ -74,6 +75,7 @@ public class TheTVDBClientTest {
 		assertEquals("Unaired Pilot", last.getTitle());
 		assertEquals("1", last.getSeason().toString());
 		assertEquals(null, last.getEpisode());
+		assertEquals("1", first.getAbsolute().toString());
 		assertEquals("1", last.getSpecial().toString());
 		assertEquals(null, last.airdate());
 	}
@@ -91,6 +93,7 @@ public class TheTVDBClientTest {
 		assertEquals("Wax Lion", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
+		assertEquals(null, first.getAbsolute()); // should be "1" but data has not yet been entered
 		assertEquals("2004-03-12", first.airdate().toString());
 	}
 	

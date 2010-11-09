@@ -13,6 +13,9 @@ public class Episode implements Serializable {
 	private Integer episode;
 	private String title;
 	
+	// absolute episode number
+	private Integer absolute;
+	
 	// special number
 	private Integer special;
 	
@@ -26,15 +29,16 @@ public class Episode implements Serializable {
 	
 
 	public Episode(String seriesName, Integer season, Integer episode, String title) {
-		this(seriesName, season, episode, title, null, null);
+		this(seriesName, season, episode, title, null, null, null);
 	}
 	
 
-	public Episode(String seriesName, Integer season, Integer episode, String title, Integer special, Date airdate) {
+	public Episode(String seriesName, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate) {
 		this.seriesName = seriesName;
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
+		this.absolute = absolute;
 		this.special = special;
 		this.airdate = airdate;
 	}
@@ -57,6 +61,11 @@ public class Episode implements Serializable {
 
 	public String getTitle() {
 		return title;
+	}
+	
+
+	public Integer getAbsolute() {
+		return absolute;
 	}
 	
 

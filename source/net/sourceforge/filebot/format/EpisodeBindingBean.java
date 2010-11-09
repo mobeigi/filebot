@@ -70,9 +70,21 @@ public class EpisodeBindingBean {
 	}
 	
 
-	@Define("air")
+	@Define("airdate")
 	public Date airdate() {
 		return episode.airdate();
+	}
+	
+
+	@Define("absolute")
+	public Integer getAbsoluteEpisodeNumber() {
+		return episode.getAbsolute();
+	}
+	
+
+	@Define("special")
+	public Integer getSpecialNumber() {
+		return episode.getSpecial();
 	}
 	
 

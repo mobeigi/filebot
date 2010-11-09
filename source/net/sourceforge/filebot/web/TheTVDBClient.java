@@ -79,6 +79,13 @@ public class TheTVDBClient implements EpisodeListProvider {
 	
 
 	public List<SearchResult> search(String query, Locale language) throws Exception {
+		// check if the exact series name is already cached
+		Integer cachedResult = cache.getSeriesId(query, language);
+		
+		if (cachedResult != null)
+			return Arrays.asList(new SearchResult[] { new TheTVDBSearchResult(query, cachedResult) });
+		
+		// perform online search
 		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + URLEncoder.encode(query, "UTF-8") + "&language=" + language.getLanguage());
 		Document dom = getDocument(url);
 		
@@ -86,10 +93,11 @@ public class TheTVDBClient implements EpisodeListProvider {
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
-			int seriesId = Integer.parseInt(getTextContent("seriesid", node));
+			int seriesId = getIntegerContent("seriesid", node);
 			String seriesName = getTextContent("SeriesName", node);
 			
 			searchResults.add(new TheTVDBSearchResult(seriesName, seriesId));
+			cache.putSeriesId(seriesName, language, seriesId);
 		}
 		
 		return searchResults;
@@ -134,6 +142,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
 			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
+			Integer absoluteNumber = getIntegerContent("absolute_number", node);
 			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
 			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 			
@@ -145,10 +154,10 @@ public class TheTVDBClient implements EpisodeListProvider {
 				}
 				
 				Integer specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, null, episodeName, specialNumber, airdate));
+				specials.add(new Episode(seriesName, seasonNumber, null, episodeName, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
-				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName, null, airdate));
+				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
 			}
 			
 			if (episodeNumber == 1) {
@@ -338,13 +347,28 @@ public class TheTVDBClient implements EpisodeListProvider {
 		}
 		
 
+		public void putSeriesId(String seriesName, Locale language, int seriesId) {
+			cache.put(new Element(key(host, "SeriesId", seriesName, language.getLanguage()), seriesId));
+		}
+		
+
+		public Integer getSeriesId(String seriesName, Locale language) {
+			Element element = cache.get(key(host, "SeriesId", seriesName, language.getLanguage()));
+			
+			if (element != null)
+				return (Integer) element.getValue();
+			
+			return null;
+		}
+		
+
 		public void putSeasonId(int seriesId, int seasonNumber, int seasonId) {
-			cache.put(new Element(key(host, seriesId, seasonNumber, "SeasonId"), seasonId));
+			cache.put(new Element(key(host, "SeasonId", seriesId, seasonNumber), seasonId));
 		}
 		
 
 		public Integer getSeasonId(int seriesId, int seasonNumber) {
-			Element element = cache.get(key(host, seriesId, seasonNumber, "SeasonId"));
+			Element element = cache.get(key(host, "SeasonId", seriesId, seasonNumber));
 			
 			if (element != null)
 				return (Integer) element.getValue();
@@ -354,13 +378,13 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 
 		public void putEpisodeList(int seriesId, Locale language, List<Episode> episodes) {
-			cache.put(new Element(key(host, seriesId, language.getLanguage(), "EpisodeList"), episodes));
+			cache.put(new Element(key(host, "EpisodeList", seriesId, language.getLanguage()), episodes));
 		}
 		
 
 		@SuppressWarnings("unchecked")
 		public List<Episode> getEpisodeList(int seriesId, Locale language) {
-			Element element = cache.get(key(host, seriesId, language.getLanguage(), "EpisodeList"));
+			Element element = cache.get(key(host, "EpisodeList", seriesId, language.getLanguage()));
 			
 			if (element != null)
 				return (List<Episode>) element.getValue();

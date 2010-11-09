@@ -177,7 +177,7 @@ public class TVDotComClient implements EpisodeListProvider {
 			
 			// add episode if SxE info has been found
 			if (season != null && episode != null) {
-				episodes.add(new Episode(searchResult.getName(), season, episode, title, null, airdate));
+				episodes.add(new Episode(searchResult.getName(), season, episode, title, null, null, airdate));
 			}
 		}
 		

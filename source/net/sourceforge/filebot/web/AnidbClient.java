@@ -149,7 +149,7 @@ public class AnidbClient implements EpisodeListProvider {
 				String airdate = selectString(".//date/@rel", node);
 				
 				// no seasons for anime
-				episodes.add(new Episode(animeTitle, null, number, title, null, Date.parse(airdate, "yyyy-MM-dd")));
+				episodes.add(new Episode(animeTitle, null, number, title, number, null, Date.parse(airdate, "yyyy-MM-dd")));
 			}
 		}
 		

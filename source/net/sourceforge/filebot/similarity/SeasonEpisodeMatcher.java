@@ -35,10 +35,10 @@ public class SeasonEpisodeMatcher {
 				SxE seasonEpisode = new SxE(match.group(1), match.group(2));
 				
 				// interpret match as episode number only
-				SxE episodeOnly = new SxE(null, match.group(1) + match.group(2));
+				SxE absoluteEpisode = new SxE(null, match.group(1) + match.group(2));
 				
 				// return both matches, unless they are one and the same
-				return seasonEpisode.equals(episodeOnly) ? Collections.singleton(episodeOnly) : Arrays.asList(seasonEpisode, episodeOnly);
+				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(absoluteEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
 			}
 		};
 	}
