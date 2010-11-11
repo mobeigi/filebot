@@ -11,7 +11,6 @@ import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.SubtitleSourceClient;
 import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
@@ -34,7 +33,6 @@ public final class WebServices {
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
-	public static final SubtitleSourceClient SubtitleSource = new SubtitleSourceClient();
 	
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
@@ -43,7 +41,7 @@ public final class WebServices {
 	
 
 	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles, Subscene, Sublight, SubtitleSource };
+		return new SubtitleProvider[] { OpenSubtitles, Subscene, Sublight };
 	}
 	
 
