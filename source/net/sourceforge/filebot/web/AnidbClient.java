@@ -5,9 +5,7 @@ package net.sourceforge.filebot.web;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -15,16 +13,17 @@ import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -33,7 +32,6 @@ import javax.swing.Icon;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
@@ -48,7 +46,7 @@ public class AnidbClient implements EpisodeListProvider {
 	
 	private static final String host = "anidb.net";
 	
-	private static final Cache cache = CacheManager.getInstance().getCache("anidb");
+	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("anidb"));
 	
 
 	@Override
@@ -64,7 +62,7 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query) throws IOException, SAXException {
+	public List<SearchResult> search(String query) throws Exception {
 		// normalize
 		query = query.toLowerCase();
 		
@@ -117,16 +115,18 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException {
-		int aid = ((AnidbSearchResult) searchResult).getAnimeId();
-		URL url = new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + aid);
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
+		return getEpisodeList((AnidbSearchResult) searchResult, Locale.ENGLISH);
+	}
+	
+
+	public List<Episode> getEpisodeList(AnidbSearchResult anime, Locale language) throws Exception {
+		URL url = new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + anime.getAnimeId());
 		
 		// try cache first
-		try {
-			return Arrays.asList((Episode[]) cache.get(url.toString()).getValue());
-		} catch (Exception e) {
-			// ignore
-		}
+		List<Episode> episodes = cache.getEpisodeList(anime.getAnimeId(), language.getLanguage());
+		if (episodes != null)
+			return episodes;
 		
 		// set request headers to resemble an ajax request
 		URLConnection connection = url.openConnection();
@@ -138,14 +138,14 @@ public class AnidbClient implements EpisodeListProvider {
 		// select main title
 		String animeTitle = selectString("//title[@type='main']", dom);
 		
-		List<Episode> episodes = new ArrayList<Episode>(25);
+		episodes = new ArrayList<Episode>(25);
 		
 		for (Node node : selectNodes("//ep", dom)) {
 			Integer number = getIntegerContent("epno", node);
 			
 			// ignore special episodes
 			if (number != null) {
-				String title = selectString(".//title[@lang='en']", node);
+				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
 				String airdate = selectString(".//date/@rel", node);
 				
 				// no seasons for anime
@@ -156,10 +156,10 @@ public class AnidbClient implements EpisodeListProvider {
 		// sanity check 
 		if (episodes.size() > 0) {
 			// populate cache
-			cache.put(new Element(url.toString(), episodes.toArray(new Episode[0])));
+			cache.putEpisodeList(episodes, anime.getAnimeId(), language.getLanguage());
 		} else {
 			// anime page xml doesn't work sometimes
-			Logger.getLogger(getClass().getName()).warning(String.format("Failed to parse episode data from xml: %s (%d)", searchResult, aid));
+			throw new RuntimeException(String.format("Failed to parse episode data from xml: %s (%d)", anime, anime.getAnimeId()));
 		}
 		
 		return episodes;
@@ -196,15 +196,13 @@ public class AnidbClient implements EpisodeListProvider {
 	}
 	
 
-	private AnidbSearchResult[] getAnimeTitles() throws MalformedURLException, IOException, SAXException {
+	private List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
 		
 		// try cache first
-		try {
-			return (AnidbSearchResult[]) cache.get(url.toString()).getValue();
-		} catch (Exception e) {
-			// ignore
-		}
+		List<AnidbSearchResult> anime = cache.getAnimeList();
+		if (anime != null)
+			return anime;
 		
 		// <aid>|<type>|<language>|<title>
 		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
@@ -232,17 +230,17 @@ public class AnidbClient implements EpisodeListProvider {
 			scanner.close();
 		}
 		
-		List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
+		// build up a list of all possible anidb search results
+		anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
 		
 		for (Entry<Integer, String> entry : primaryTitleMap.entrySet()) {
 			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), englishTitleMap.get(entry.getKey())));
 		}
 		
 		// populate cache
-		AnidbSearchResult[] result = anime.toArray(new AnidbSearchResult[0]);
-		cache.put(new Element(url.toString(), result));
+		cache.putAnimeList(anime);
 		
-		return result;
+		return anime;
 	}
 	
 
@@ -284,6 +282,48 @@ public class AnidbClient implements EpisodeListProvider {
 		public String getEnglishTitle() {
 			return englishTitle;
 		}
+	}
+	
+
+	private static class AnidbCache {
+		
+		private final Cache cache;
+		
+
+		public AnidbCache(Cache cache) {
+			this.cache = cache;
+		}
+		
+
+		public void putAnimeList(Collection<AnidbSearchResult> anime) {
+			cache.put(new Element(host + "AnimeList", anime.toArray(new AnidbSearchResult[0])));
+		}
+		
+
+		public List<AnidbSearchResult> getAnimeList() {
+			Element element = cache.get(host + "AnimeList");
+			
+			if (element != null)
+				return Arrays.asList((AnidbSearchResult[]) element.getValue());
+			
+			return null;
+		}
+		
+
+		public void putEpisodeList(Collection<Episode> episodes, int aid, String lang) {
+			cache.put(new Element(host + "EpisodeList" + aid + lang, episodes.toArray(new Episode[0])));
+		}
+		
+
+		public List<Episode> getEpisodeList(int aid, String lang) {
+			Element element = cache.get(host + "EpisodeList" + aid + lang);
+			
+			if (element != null)
+				return Arrays.asList((Episode[]) element.getValue());
+			
+			return null;
+		}
+		
 	}
 	
 }

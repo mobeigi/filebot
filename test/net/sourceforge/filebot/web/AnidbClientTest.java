@@ -5,6 +5,7 @@ package net.sourceforge.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -110,6 +111,20 @@ public class AnidbClientTest {
 	@Test
 	public void getEpisodeListEncoding() throws Exception {
 		assertEquals("Raven Princess - An der schönen blauen Donau", anidb.getEpisodeList(princessTutuSearchResult).get(6).getTitle());
+	}
+	
+
+	@Test
+	public void getEpisodeListI18N() throws Exception {
+		List<Episode> list = anidb.getEpisodeList(monsterSearchResult, Locale.JAPANESE);
+		
+		Episode last = list.get(73);
+		assertEquals("Monster", last.getSeriesName());
+		assertEquals("本当の怪物", last.getTitle());
+		assertEquals("74", last.getEpisode().toString());
+		assertEquals("74", last.getAbsolute().toString());
+		assertEquals(null, last.getSeason());
+		assertEquals("2005-09-28", last.airdate().toString());
 	}
 	
 
