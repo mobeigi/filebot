@@ -99,6 +99,22 @@ public class TheTVDBClientTest {
 	
 
 	@Test
+	public void getEpisodeListNumbering() throws Exception {
+		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Firefly", 78874), 1);
+		
+		assertEquals(14, list.size());
+		
+		Episode first = list.get(0);
+		assertEquals("Firefly", first.getSeriesName());
+		assertEquals("Serenity", first.getTitle());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
+		assertEquals("1", first.getAbsolute().toString());
+		assertEquals("2002-12-20", first.airdate().toString());
+	}
+	
+
+	@Test
 	public void getEpisodeListLink() {
 		assertEquals("http://www.thetvdb.com/?tab=seasonall&id=78874", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Firefly", 78874)).toString());
 	}

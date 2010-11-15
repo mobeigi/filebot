@@ -3,6 +3,8 @@ package net.sourceforge.filebot.web;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -23,6 +25,11 @@ final class EpisodeListUtilities {
 	}
 	
 
+	public static void sortEpisodes(List<Episode> episodes) {
+		Collections.sort(episodes, episodeComparator());
+	}
+	
+
 	public static int getLastSeason(Iterable<Episode> episodes) {
 		int lastSeason = 0;
 		
@@ -34,6 +41,41 @@ final class EpisodeListUtilities {
 		}
 		
 		return lastSeason;
+	}
+	
+
+	public static Comparator<Episode> episodeComparator() {
+		return new Comparator<Episode>() {
+			
+			@Override
+			public int compare(Episode a, Episode b) {
+				int diff = compareValue(a.getSeriesName(), b.getSeriesName());
+				if (diff != 0)
+					return diff;
+				
+				diff = compareValue(a.getSeason(), b.getSeason());
+				if (diff != 0)
+					return diff;
+				
+				diff = compareValue(a.getEpisode(), b.getEpisode());
+				if (diff != 0)
+					return diff;
+				
+				return compareValue(a.getTitle(), b.getTitle());
+			}
+			
+
+			private <T> int compareValue(Comparable<T> o1, T o2) {
+				if (o1 == null && o1 == null)
+					return 0;
+				if (o1 == null && o1 != null)
+					return Integer.MAX_VALUE;
+				if (o1 != null && o2 == null)
+					return Integer.MIN_VALUE;
+				
+				return o1.compareTo(o2);
+			}
+		};
 	}
 	
 

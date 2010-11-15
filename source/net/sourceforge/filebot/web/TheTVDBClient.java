@@ -141,12 +141,24 @@ public class TheTVDBClient implements EpisodeListProvider {
 		
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
+			String dvdSeasonNumber = getTextContent("DVD_season", node);
+			String dvdEpisodeNumber = getTextContent("DVD_episodenumber", node);
 			Integer absoluteNumber = getIntegerContent("absolute_number", node);
-			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
 			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 			
-			if (seasonNumber == 0) {
+			// prefer DVD SxE numbers if available
+			Integer seasonNumber;
+			Integer episodeNumber;
+			
+			try {
+				seasonNumber = new Integer(dvdSeasonNumber);
+				episodeNumber = new Float(dvdEpisodeNumber).intValue();
+			} catch (Exception e) {
+				seasonNumber = getIntegerContent("SeasonNumber", node);
+				episodeNumber = getIntegerContent("EpisodeNumber", node);
+			}
+			
+			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
 				Integer airsBefore = getIntegerContent("airsbefore_season", node);
 				if (airsBefore != null) {
@@ -170,6 +182,9 @@ public class TheTVDBClient implements EpisodeListProvider {
 				}
 			}
 		}
+		
+		// episodes my not be ordered by DVD episode number
+		sortEpisodes(episodes);
 		
 		// add specials at the end
 		episodes.addAll(specials);
