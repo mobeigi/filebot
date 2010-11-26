@@ -44,6 +44,7 @@ public class SeasonEpisodeMatcherTest {
 	@Test
 	public void pattern_S01E01() {
 		assertEquals(new SxE(1, 1), matcher.match("S01E01").get(0));
+		assertEquals(new SxE(2010, 0), matcher.match("S2010E00").get(0));
 		
 		// test multiple matches
 		assertEquals(new SxE(1, 2), matcher.match("S01E01 and S01E02 - Multiple MatchCollection").get(1));
