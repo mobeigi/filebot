@@ -184,12 +184,14 @@ abstract class SubtitleDropTarget extends JButton {
 		
 		@Override
 		public void dragEnter(DropTargetDragEvent dtde) {
-			DropAction dropAction = DropAction.Cancel;
+			DropAction dropAction = DropAction.Download;
 			
 			try {
 				dropAction = getDropAction(getFilesFromTransferable(dtde.getTransferable()));
 			} catch (Exception e) {
-				// ignore
+				// just accept the drag if we can't access the transferable,
+				// because on some implementations we can't access transferable data before we accept the drag,
+				// but accepting or rejecting the drag depends on the files dragged
 			}
 			
 			// update visual representation
@@ -197,7 +199,7 @@ abstract class SubtitleDropTarget extends JButton {
 			
 			// accept or reject
 			if (dropAction != DropAction.Cancel) {
-				dtde.acceptDrag(DnDConstants.ACTION_COPY);
+				dtde.acceptDrag(DnDConstants.ACTION_REFERENCE);
 			} else {
 				dtde.rejectDrag();
 			}

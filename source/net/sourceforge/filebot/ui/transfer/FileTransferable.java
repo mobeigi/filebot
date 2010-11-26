@@ -134,6 +134,6 @@ public class FileTransferable implements Transferable {
 		}
 		
 		// cannot get files from transferable
-		throw new UnsupportedFlavorException(DataFlavor.javaFileListFlavor);
+		throw new UnsupportedFlavorException(null);
 	}
 }
