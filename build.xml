@@ -2,7 +2,7 @@
 <project name="FileBot" default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="r440" />
+	<property name="version" value="r465" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
@@ -150,7 +150,7 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="r440" architecture="${arch}" section="misc" depends="openjdk-6-jre" homepage="http://filebot.sourceforge.net" priority="optional">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="openjdk-6-jre" homepage="http://filebot.sourceforge.net" priority="optional">
 			<maintainer email="rednoah" name="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
 			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
