@@ -39,7 +39,7 @@
 
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
     -->
-    <diskStore path="java.io.tmpdir/filebot-cache" />
+    <diskStore path="user.home/.filebot/cache" />
     
     <!--
     Cache configuration

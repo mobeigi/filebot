@@ -36,7 +36,7 @@ public final class Settings {
 		// special handling for web start
 		if (System.getProperty("application.deployment") != null || System.getProperty("javawebstart.version") != null) {
 			// can't use working directory for web start applications
-			File folder = new File(System.getProperty("user.home"), "." + getApplicationName().toLowerCase());
+			File folder = new File(System.getProperty("user.home"), ".filebot");
 			
 			// create folder if necessary 
 			if (!folder.exists()) {
