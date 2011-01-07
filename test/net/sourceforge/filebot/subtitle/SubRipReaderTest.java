@@ -33,12 +33,12 @@ public class SubRipReaderTest {
 			reader.close();
 		}
 		
-		assertEquals(501, list.size(), 0);
+		assertEquals(499, list.size(), 0);
 		
 		assertEquals(3455, list.get(0).getStart(), 0);
 		assertEquals(6799, list.get(0).getEnd(), 0);
 		
-		assertEquals("Come with me if you want to live.", list.get(254).getText());
+		assertEquals("Come with me if you want to live.", list.get(253).getText());
 	}
 	
 }

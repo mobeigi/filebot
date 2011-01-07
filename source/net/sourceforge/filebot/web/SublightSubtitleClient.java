@@ -159,6 +159,10 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 			Collections.addAll(languages.getSubtitleLanguage(), SubtitleLanguage.values());
 		}
 		
+		// hash singleton array
+		ArrayOfString videoHashes = new ArrayOfString();
+		videoHashes.getString().add(videoHash);
+		
 		// all genres
 		ArrayOfGenre genres = new ArrayOfGenre();
 		Collections.addAll(genres.getGenre(), Genre.values());
@@ -168,7 +172,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		Holder<ArrayOfRelease> releases = new Holder<ArrayOfRelease>();
 		Holder<String> error = new Holder<String>();
 		
-		webservice.searchSubtitles3(session, videoHash, name, year, null, null, languages, genres, null, null, null, subtitles, releases, null, error);
+		webservice.searchSubtitles4(session, videoHashes, name, year, null, null, languages, genres, null, null, null, subtitles, releases, null, error);
 		
 		// abort if something went wrong
 		checkError(error);

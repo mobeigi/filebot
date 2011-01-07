@@ -182,7 +182,7 @@ public class OpenSubtitlesXmlRpcTest {
 		ByteBuffer data = list.get(0).fetch();
 		
 		// check size
-		assertEquals(48707, data.remaining(), 0);
+		assertEquals(48550, data.remaining(), 0);
 	}
 	
 

@@ -64,8 +64,8 @@ public class SublightSubtitleClientTest {
 		
 		SubtitleDescriptor sample = list.get(0);
 		
-		assertEquals("Terminator.2.Judgment.Day(1991)", sample.getName());
-		assertEquals("English", sample.getLanguageName());
+		assertEquals("Terminator.2.1991.ULTIMATE.EDITION.DC.DVDXvID.AC3.CDx-HLS", sample.getName());
+		assertEquals("Slovenian", sample.getLanguageName());
 		
 		// check size
 		assertTrue(list.size() > 15);

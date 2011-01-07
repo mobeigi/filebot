@@ -94,7 +94,7 @@ public class IMDbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Mushishi", first.getSeriesName());
+		assertEquals("Mushi-Shi", first.getSeriesName());
 		assertEquals("Midori no za", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());

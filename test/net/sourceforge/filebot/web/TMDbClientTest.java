@@ -17,12 +17,12 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByName() throws Exception {
-		List<MovieDescriptor> result = tmdb.searchMovie("Transformers");
-		MovieDescriptor movie = result.get(1);
+		List<MovieDescriptor> result = tmdb.searchMovie("Serenity");
+		MovieDescriptor movie = result.get(0);
 		
-		assertEquals("Transformers", movie.getName());
-		assertEquals(2007, movie.getYear());
-		assertEquals(418279, movie.getImdbId());
+		assertEquals("Serenity", movie.getName());
+		assertEquals(2005, movie.getYear());
+		assertEquals(379786, movie.getImdbId());
 	}
 	
 
