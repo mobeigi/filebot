@@ -24,7 +24,7 @@ public final class WebServices {
 	
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
-	public static final AnidbClient AniDB = new AnidbClient();
+	public static final AnidbClient AniDB = new AnidbClient("filebot", 1);
 	public static final TVDotComClient TVDotCom = new TVDotComClient();
 	public static final IMDbClient IMDb = new IMDbClient();
 	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApplicationProperty("thetvdb.apikey"));
