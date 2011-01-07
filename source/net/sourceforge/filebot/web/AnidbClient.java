@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.filebot.web.EpisodeListUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
@@ -9,7 +10,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +47,15 @@ public class AnidbClient implements EpisodeListProvider {
 	private static final String host = "anidb.net";
 	
 	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("anidb"));
+	
+	private final String client;
+	private final int clientver;
+	
+
+	public AnidbClient(String client, int clientver) {
+		this.client = client;
+		this.clientver = clientver;
+	}
 	
 
 	@Override
@@ -121,37 +130,37 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	public List<Episode> getEpisodeList(AnidbSearchResult anime, Locale language) throws Exception {
-		URL url = new URL("http", host, "/perl-bin/animedb.pl?show=xml&t=anime&aid=" + anime.getAnimeId());
+		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
+		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
 		
 		// try cache first
 		List<Episode> episodes = cache.getEpisodeList(anime.getAnimeId(), language.getLanguage());
 		if (episodes != null)
 			return episodes;
 		
-		// set request headers to resemble an ajax request
-		URLConnection connection = url.openConnection();
-		connection.setRequestProperty("X-LControl", "x-no-cache");
-		
 		// get anime page as xml
-		Document dom = getDocument(connection);
+		Document dom = getDocument(url);
 		
 		// select main title
-		String animeTitle = selectString("//title[@type='main']", dom);
+		String animeTitle = selectString("//titles/title[@type='main']", dom);
 		
 		episodes = new ArrayList<Episode>(25);
 		
-		for (Node node : selectNodes("//ep", dom)) {
+		for (Node node : selectNodes("//episode", dom)) {
 			Integer number = getIntegerContent("epno", node);
 			
 			// ignore special episodes
 			if (number != null) {
 				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
-				String airdate = selectString(".//date/@rel", node);
+				String airdate = getTextContent("airdate", node);
 				
 				// no seasons for anime
 				episodes.add(new Episode(animeTitle, null, number, title, number, null, Date.parse(airdate, "yyyy-MM-dd")));
 			}
 		}
+		
+		// make sure episodes are in ordered correctly
+		sortEpisodes(episodes);
 		
 		// sanity check 
 		if (episodes.size() > 0) {

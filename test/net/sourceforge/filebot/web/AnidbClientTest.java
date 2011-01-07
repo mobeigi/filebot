@@ -41,7 +41,7 @@ public class AnidbClientTest {
 	}
 	
 
-	private AnidbClient anidb = new AnidbClient();
+	private AnidbClient anidb = new AnidbClient("filebot", 1);
 	
 
 	@Test
