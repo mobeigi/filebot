@@ -330,7 +330,7 @@
 	</target>
 
 
-	<target name="deploy" depends="fatjar, appbundle, deb, msi">
+	<target name="deploy" depends="fatjar, appbundle, deb, msi, webstart">
 		<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
 		<property name="deploy.webstart" value="web.sourceforge.net:htdocs/webstart" />
 
