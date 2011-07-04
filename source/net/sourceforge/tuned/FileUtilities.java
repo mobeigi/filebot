@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -192,6 +194,28 @@ public final class FileUtilities {
 				files.add(file);
 			}
 		}
+	}
+	
+
+	public static Map<String, List<File>> mapByExtension(Iterable<File> files) {
+		HashMap<String, List<File>> map = new HashMap<String, List<File>>();
+		
+		for (File file : files) {
+			String key = getExtension(file);
+			if (key != null) {
+				key = key.toLowerCase();
+			}
+			
+			List<File> valueList = map.get(key);
+			if (valueList == null) {
+				valueList = new ArrayList<File>();
+				map.put(key, valueList);
+			}
+			
+			valueList.add(file);
+		}
+		
+		return map;
 	}
 	
 

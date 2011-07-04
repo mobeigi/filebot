@@ -3,19 +3,17 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -169,8 +167,8 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		// group by subtitles first and then by files in general
-		for (List<File> filesPerType : mapByFileType(mediaFiles, VIDEO_FILES, SUBTITLE_FILES).values()) {
-			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, MatchSimilarityMetric.defaultSequence());
+		for (List<File> filesPerType : mapByExtension(mediaFiles).values()) {
+			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, MatchSimilarityMetric.defaultSequence());
 			matches.addAll(matcher.match());
 		}
 		
@@ -184,30 +182,6 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		});
 		
 		return matches;
-	}
-	
-
-	protected Map<FileFilter, List<File>> mapByFileType(Collection<File> files, FileFilter... filters) {
-		// initialize map, keep filter order
-		Map<FileFilter, List<File>> map = new LinkedHashMap<FileFilter, List<File>>(filters.length);
-		
-		// initialize value lists
-		for (FileFilter filter : filters) {
-			map.put(filter, new ArrayList<File>());
-		}
-		
-		for (File file : files) {
-			for (FileFilter filter : filters) {
-				if (filter.accept(file)) {
-					map.get(filter).add(file);
-					
-					// put each value into one group only
-					break;
-				}
-			}
-		}
-		
-		return map;
 	}
 	
 }

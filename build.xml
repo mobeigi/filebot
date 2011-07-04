@@ -2,7 +2,7 @@
 <project name="FileBot" default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.96.470" />
+	<property name="version" value="1.96.471" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
