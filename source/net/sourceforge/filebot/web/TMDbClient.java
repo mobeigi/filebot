@@ -10,8 +10,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -44,8 +47,15 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	public List<MovieDescriptor> searchMovie(String query) throws IOException, SAXException {
-		return getMovies("Movie.search", query);
+	@Override
+	public List<MovieDescriptor> searchMovie(String query) throws IOException {
+		try {
+			return getMovies("Movie.search", query);
+		} catch (SAXException e) {
+			// TMDb output is sometimes malformed xml
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+			return Collections.emptyList();
+		}
 	}
 	
 
@@ -59,6 +69,7 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
+	@Override
 	public MovieDescriptor getMovieDescriptor(int imdbid) throws Exception {
 		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid));
 		Node movie = selectNode("//movie", getDocument(resource));

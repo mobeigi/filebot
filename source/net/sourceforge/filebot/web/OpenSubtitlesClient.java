@@ -147,6 +147,15 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
+	public List<MovieDescriptor> searchMovie(String query) throws Exception {
+		// require login
+		login();
+		
+		return xmlrpc.searchMoviesOnIMDB(query);
+	}
+	
+
+	@Override
 	public MovieDescriptor getMovieDescriptor(int imdbid) throws Exception {
 		// require login
 		login();

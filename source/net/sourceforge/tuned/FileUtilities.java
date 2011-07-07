@@ -198,7 +198,7 @@ public final class FileUtilities {
 	
 
 	public static Map<String, List<File>> mapByExtension(Iterable<File> files) {
-		HashMap<String, List<File>> map = new HashMap<String, List<File>>();
+		Map<String, List<File>> map = new HashMap<String, List<File>>();
 		
 		for (File file : files) {
 			String key = getExtension(file);

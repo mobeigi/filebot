@@ -143,11 +143,24 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	protected MovieDescriptor determineMovie(File movieFile) throws Exception {
 		List<MovieDescriptor> options = new ArrayList<MovieDescriptor>();
 		
+		// try to grep imdb id from nfo files
 		for (int imdbid : grepImdbId(movieFile.getParentFile().listFiles(getDefaultFilter("application/nfo")))) {
 			MovieDescriptor movie = service.getMovieDescriptor(imdbid);
 			
 			if (movie != null) {
 				options.add(movie);
+			}
+		}
+		
+		// search by file name
+		if (options.isEmpty()) {
+			String query = getName(movieFile).replaceAll("\\p{Punct}", "").trim();
+			options = service.searchMovie(query);
+			
+			// search by folder name
+			if (options.isEmpty()) {
+				query = getName(movieFile.getParentFile()).replaceAll("\\p{Punct}", "").trim();
+				options = service.searchMovie(query);
 			}
 		}
 		
