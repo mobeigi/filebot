@@ -154,12 +154,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// search by file name
 		if (options.isEmpty()) {
-			String query = getName(movieFile).replaceAll("\\p{Punct}", "").trim();
+			String query = getName(movieFile).replaceAll("\\p{Punct}+", " ").trim();
 			options = service.searchMovie(query);
 			
 			// search by folder name
 			if (options.isEmpty()) {
-				query = getName(movieFile.getParentFile()).replaceAll("\\p{Punct}", "").trim();
+				query = getName(movieFile.getParentFile()).replaceAll("\\p{Punct}+", " ").trim();
 				options = service.searchMovie(query);
 			}
 		}
