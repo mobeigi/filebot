@@ -110,28 +110,23 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 			return seriesList;
 		
 		// fetch series data
-		Reader reader = getReader(createConnection("allseries.php?d=" + apikey));
 		seriesList = new ArrayList<SerienjunkiesSearchResult>();
 		
-		try {
-			JSONObject data = (JSONObject) JSONValue.parse(reader);
-			JSONArray list = (JSONArray) data.get("allseries");
+		JSONObject data = (JSONObject) request("allseries.php?d=" + apikey);
+		JSONArray list = (JSONArray) data.get("allseries");
+		
+		for (Object element : list) {
+			JSONObject obj = (JSONObject) element;
 			
-			for (Object element : list) {
-				JSONObject obj = (JSONObject) element;
-				
-				String sid = (String) obj.get("id");
-				String mainTitle = (String) obj.get("short");
-				String germanTitle = (String) obj.get("short_german");
-				
-				seriesList.add(new SerienjunkiesSearchResult(Integer.parseInt(sid), mainTitle, germanTitle != null && germanTitle.length() > 0 ? germanTitle : null));
-			}
+			String sid = (String) obj.get("id");
+			String mainTitle = (String) obj.get("short");
+			String germanTitle = (String) obj.get("short_german");
 			
-			// populate cache
-			cache.putSeriesList(seriesList);
-		} finally {
-			reader.close();
+			seriesList.add(new SerienjunkiesSearchResult(Integer.parseInt(sid), mainTitle, germanTitle != null && germanTitle.length() > 0 ? germanTitle : null));
 		}
+		
+		// populate cache
+		cache.putSeriesList(seriesList);
 		
 		return seriesList;
 	}
@@ -146,29 +141,24 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		if (episodes != null)
 			return episodes;
 		
-		// fetch series data
-		Reader reader = getReader(createConnection("allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId()));
+		// fetch episode data
 		episodes = new ArrayList<Episode>(25);
 		
-		try {
-			JSONObject data = (JSONObject) JSONValue.parse(reader);
-			JSONArray list = (JSONArray) data.get("allepisodes");
+		JSONObject data = (JSONObject) request("allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId());
+		JSONArray list = (JSONArray) data.get("allepisodes");
+		
+		for (int i = 0; i < list.size(); i++) {
+			JSONObject obj = (JSONObject) list.get(i);
 			
-			for (int i = 0; i < list.size(); i++) {
-				JSONObject obj = (JSONObject) list.get(i);
-				
-				String season = (String) obj.get("season");
-				String episode = (String) obj.get("episode");
-				String title = (String) obj.get("german");
-				
-				episodes.add(new Episode(series.getName(), new Integer(season), new Integer(episode), title, i + 1, null, null));
-			}
+			String season = (String) obj.get("season");
+			String episode = (String) obj.get("episode");
+			String title = (String) obj.get("german");
 			
-			// populate cache
-			cache.putEpisodeList(episodes, series.getSeriesId());
-		} finally {
-			reader.close();
+			episodes.add(new Episode(series.getName(), new Integer(season), new Integer(episode), title, i + 1, null, null));
 		}
+		
+		// populate cache
+		cache.putEpisodeList(episodes, series.getSeriesId());
 		
 		// make sure episodes are in ordered correctly
 		sortEpisodes(episodes);
@@ -177,14 +167,20 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	}
 	
 
-	private HttpsURLConnection createConnection(String resource) throws IOException, GeneralSecurityException {
+	private Object request(String resource) throws IOException, GeneralSecurityException {
 		URL url = new URL("https", host, resource);
 		HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 		
 		// disable SSL certificate validation
 		connection.setSSLSocketFactory(createIgnoreCertificateSocketFactory());
 		
-		return connection;
+		// fetch and parse json data
+		Reader reader = getReader(connection);
+		try {
+			return JSONValue.parse(reader);
+		} finally {
+			reader.close();
+		}
 	}
 	
 
