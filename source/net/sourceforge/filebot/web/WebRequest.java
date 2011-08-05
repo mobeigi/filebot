@@ -14,6 +14,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -24,6 +27,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -216,6 +223,29 @@ public final class WebRequest {
 		}
 		
 		return sb.toString();
+	}
+	
+
+	public static SSLSocketFactory createIgnoreCertificateSocketFactory() throws GeneralSecurityException {
+		// create a trust manager that does not validate certificate chains
+		TrustManager trustAnyCertificate = new X509TrustManager() {
+			
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+			
+
+			public void checkClientTrusted(X509Certificate[] certs, String authType) {
+			}
+			
+
+			public void checkServerTrusted(X509Certificate[] certs, String authType) {
+			}
+		};
+		
+		SSLContext sc = SSLContext.getInstance("SSL");
+		sc.init(null, new TrustManager[] { trustAnyCertificate }, new SecureRandom());
+		return sc.getSocketFactory();
 	}
 	
 

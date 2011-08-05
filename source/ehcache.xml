@@ -133,11 +133,11 @@
            />
            
 	<!--
-	Very long-lived cache (one month!) for AniDB anime list and episode information.
+	Very long-lived cache (one month!) for AniDB and Serienjunkies anime list and episode information.
     -->
-    <cache name="anidb"
+    <cache name="web-persistent-datasource"
            maxElementsInMemory="20"
-           maxElementsOnDisk="120"
+           maxElementsOnDisk="240"
            eternal="false"
            timeToIdleSeconds="2628000"
            timeToLiveSeconds="2628000"

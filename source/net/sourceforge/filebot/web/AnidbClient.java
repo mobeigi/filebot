@@ -45,8 +45,7 @@ import net.sourceforge.filebot.ResourceManager;
 public class AnidbClient implements EpisodeListProvider {
 	
 	private static final String host = "anidb.net";
-	
-	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("anidb"));
+	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("web-persistent-datasource"));
 	
 	private final String client;
 	private final int clientver;
@@ -205,7 +204,7 @@ public class AnidbClient implements EpisodeListProvider {
 	}
 	
 
-	private List<AnidbSearchResult> getAnimeTitles() throws Exception {
+	protected List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
 		
 		// try cache first

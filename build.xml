@@ -2,7 +2,7 @@
 <project name="FileBot" default="fatjar">
 
 	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.96.471" />
+	<property name="version" value="1.97" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
@@ -64,6 +64,10 @@
 			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="org/cyberneko/html/**" />
 			</zipfileset>
+
+			<zipfileset src="${dir.lib}/json-simple.jar">
+				<include name="org/json/simple/**" />
+			</zipfileset>			
 
 			<zipfileset src="${dir.lib}/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
