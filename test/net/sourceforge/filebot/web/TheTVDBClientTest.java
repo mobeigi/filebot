@@ -75,7 +75,7 @@ public class TheTVDBClientTest {
 		assertEquals("Unaired Pilot", last.getTitle());
 		assertEquals("1", last.getSeason().toString());
 		assertEquals(null, last.getEpisode());
-		assertEquals("1", first.getAbsolute().toString());
+		assertEquals("1", last.getAbsolute().toString());
 		assertEquals("1", last.getSpecial().toString());
 		assertEquals(null, last.airdate());
 	}
