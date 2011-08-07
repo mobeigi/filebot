@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import java.security.GeneralSecurityException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +50,25 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query) throws Exception {
+	public String getName() {
+		return "Serienjunkies";
+	}
+	
+
+	@Override
+	public Icon getIcon() {
+		return ResourceManager.getIcon("search.serienjunkies");
+	}
+	
+
+	@Override
+	public boolean hasSingleSeasonSupport() {
+		return true;
+	}
+	
+
+	@Override
+	public List<SearchResult> search(String query) throws IOException {
 		// normalize
 		query = query.toLowerCase();
 		
@@ -103,7 +120,7 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	}
 	
 
-	protected List<SerienjunkiesSearchResult> getSeriesTitles() throws Exception {
+	protected List<SerienjunkiesSearchResult> getSeriesTitles() throws IOException {
 		// try cache first
 		List<SerienjunkiesSearchResult> seriesList = cache.getSeriesList();
 		if (seriesList != null)
@@ -118,11 +135,12 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		for (Object element : list) {
 			JSONObject obj = (JSONObject) element;
 			
-			String sid = (String) obj.get("id");
+			Integer sid = new Integer((String) obj.get("id"));
+			String link = (String) obj.get("link");
 			String mainTitle = (String) obj.get("short");
 			String germanTitle = (String) obj.get("short_german");
 			
-			seriesList.add(new SerienjunkiesSearchResult(Integer.parseInt(sid), mainTitle, germanTitle != null && germanTitle.length() > 0 ? germanTitle : null));
+			seriesList.add(new SerienjunkiesSearchResult(sid, link, mainTitle, germanTitle != null && germanTitle.length() > 0 ? germanTitle : null));
 		}
 		
 		// populate cache
@@ -133,7 +151,7 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
+	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
 		
 		// try cache first
@@ -150,11 +168,12 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		for (int i = 0; i < list.size(); i++) {
 			JSONObject obj = (JSONObject) list.get(i);
 			
-			String season = (String) obj.get("season");
-			String episode = (String) obj.get("episode");
+			Integer season = new Integer((String) obj.get("season"));
+			Integer episode = new Integer((String) obj.get("episode"));
 			String title = (String) obj.get("german");
+			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 			
-			episodes.add(new Episode(series.getName(), new Integer(season), new Integer(episode), title, i + 1, null, null));
+			episodes.add(new Episode(series.getName(), season, episode, title, i + 1, null, airdate));
 		}
 		
 		// populate cache
@@ -167,7 +186,20 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	}
 	
 
-	private Object request(String resource) throws IOException, GeneralSecurityException {
+	@Override
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException {
+		List<Episode> all = getEpisodeList(searchResult);
+		List<Episode> eps = filterBySeason(all, season);
+		
+		if (eps.isEmpty()) {
+			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
+		}
+		
+		return eps;
+	}
+	
+
+	protected Object request(String resource) throws IOException {
 		URL url = new URL("https", host, resource);
 		HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 		
@@ -185,44 +217,26 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
-		return null;
-	}
-	
-
-	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return null;
+		return getEpisodeListLink(searchResult, "alle-serien-staffeln");
 	}
 	
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return null;
+		return getEpisodeListLink(searchResult, "season" + season);
 	}
 	
 
-	@Override
-	public String getName() {
-		return "Serienjunkies";
-	}
-	
-
-	@Override
-	public Icon getIcon() {
-		return ResourceManager.getIcon("search.serienjunkies");
-	}
-	
-
-	@Override
-	public boolean hasSingleSeasonSupport() {
-		return false;
+	public URI getEpisodeListLink(SearchResult searchResult, String page) {
+		return URI.create(String.format("http://www.serienjunkies.de/%s/%s.html", ((SerienjunkiesSearchResult) searchResult).getLink(), page));
 	}
 	
 
 	public static class SerienjunkiesSearchResult extends SearchResult implements Serializable {
 		
 		protected int sid;
+		protected String link;
 		protected String mainTitle;
 		protected String germanTitle;
 		
@@ -232,10 +246,17 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		}
 		
 
-		public SerienjunkiesSearchResult(int sid, String mainTitle, String germanTitle) {
+		public SerienjunkiesSearchResult(int sid, String link, String mainTitle, String germanTitle) {
 			this.sid = sid;
+			this.link = link;
 			this.mainTitle = mainTitle;
 			this.germanTitle = germanTitle;
+		}
+		
+
+		@Override
+		public String getName() {
+			return germanTitle != null ? germanTitle : mainTitle; // prefer german title
 		}
 		
 
@@ -244,9 +265,8 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		}
 		
 
-		@Override
-		public String getName() {
-			return germanTitle != null ? germanTitle : mainTitle; // prefer german title
+		public String getLink() {
+			return link;
 		}
 		
 

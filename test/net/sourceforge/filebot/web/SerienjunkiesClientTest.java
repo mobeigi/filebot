@@ -26,6 +26,7 @@ public class SerienjunkiesClientTest {
 		
 		SerienjunkiesSearchResult first = (SerienjunkiesSearchResult) results.get(0);
 		assertEquals(34, first.getSeriesId());
+		assertEquals("Alias", first.getLink());
 		assertEquals("Alias - Die Agentin", first.getName());
 		assertEquals("Alias", first.getMainTitle());
 		assertEquals("Alias - Die Agentin", first.getGermanTitle());
@@ -34,7 +35,7 @@ public class SerienjunkiesClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "Grey's Anatomy", null));
+		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "greys-anatomy", "Grey's Anatomy", null));
 		
 		// check ordinary episode
 		Episode eps = list.get(0);
@@ -43,6 +44,7 @@ public class SerienjunkiesClientTest {
 		assertEquals("1", eps.getEpisode().toString());
 		assertEquals("1", eps.getSeason().toString());
 		assertEquals("1", eps.getAbsolute().toString());
+		assertEquals("2005-03-27", eps.airdate().toString());
 		
 		// check umlaut in title
 		eps = list.get(2);
@@ -50,6 +52,7 @@ public class SerienjunkiesClientTest {
 		assertEquals("1", eps.getSeason().toString());
 		assertEquals("3", eps.getEpisode().toString());
 		assertEquals("3", eps.getAbsolute().toString());
+		assertEquals("2005-04-10", eps.airdate().toString());
 	}
 	
 

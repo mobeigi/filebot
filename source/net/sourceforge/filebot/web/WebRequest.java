@@ -226,7 +226,7 @@ public final class WebRequest {
 	}
 	
 
-	public static SSLSocketFactory createIgnoreCertificateSocketFactory() throws GeneralSecurityException {
+	public static SSLSocketFactory createIgnoreCertificateSocketFactory() {
 		// create a trust manager that does not validate certificate chains
 		TrustManager trustAnyCertificate = new X509TrustManager() {
 			
@@ -243,9 +243,13 @@ public final class WebRequest {
 			}
 		};
 		
-		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, new TrustManager[] { trustAnyCertificate }, new SecureRandom());
-		return sc.getSocketFactory();
+		try {
+			SSLContext sc = SSLContext.getInstance("SSL");
+			sc.init(null, new TrustManager[] { trustAnyCertificate }, new SecureRandom());
+			return sc.getSocketFactory();
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 
