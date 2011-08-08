@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.ui;
 
 
 import java.util.Comparator;

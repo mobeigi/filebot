@@ -13,6 +13,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +32,7 @@ import org.xml.sax.SAXException;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class TVDotComClient implements EpisodeListProvider {
+public class TVDotComClient extends AbstractEpisodeListProvider {
 	
 	private static final String host = "www.tv.com";
 	
@@ -49,14 +50,7 @@ public class TVDotComClient implements EpisodeListProvider {
 	
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
-		return true;
-	}
-	
-
-	@Override
-	public List<SearchResult> search(String query) throws IOException, SAXException {
-		
+	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
 		// use ajax search request, because we don't need the whole search result page
 		URL searchUrl = new URL("http", host, "/search.php?type=Search&stype=ajax_search&search_type=program&qs=" + URLEncoder.encode(query, "UTF-8"));
 		
@@ -81,8 +75,7 @@ public class TVDotComClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(final SearchResult searchResult) throws Exception {
-		
+	public List<Episode> getEpisodeList(final SearchResult searchResult, final Locale locale) throws Exception {
 		// get document for season 1
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, 1).toURL());
 		
@@ -113,7 +106,7 @@ public class TVDotComClient implements EpisodeListProvider {
 					
 					@Override
 					public List<Episode> call() throws Exception {
-						return getEpisodeList(searchResult, season);
+						return getEpisodeList(searchResult, season, locale);
 					}
 				}));
 			}
@@ -137,9 +130,8 @@ public class TVDotComClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season, Locale locale) throws IOException, SAXException {
 		Document dom = getHtmlDocument(getEpisodeListLink(searchResult, season).toURL());
-		
 		return getEpisodeList(searchResult, dom);
 	}
 	

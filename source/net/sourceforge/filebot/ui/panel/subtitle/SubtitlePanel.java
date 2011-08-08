@@ -23,6 +23,7 @@ import javax.swing.JComboBox;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
+import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;

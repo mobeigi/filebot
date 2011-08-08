@@ -42,7 +42,7 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class AnidbClient implements EpisodeListProvider {
+public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	private static final String host = "anidb.net";
 	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("web-persistent-datasource"));
@@ -70,7 +70,19 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query) throws Exception {
+	public boolean hasSingleSeasonSupport() {
+		return false;
+	}
+	
+
+	@Override
+	public boolean hasLocaleSupport() {
+		return true;
+	}
+	
+
+	@Override
+	public List<SearchResult> search(String query, Locale locale) throws Exception {
 		// normalize
 		query = query.toLowerCase();
 		
@@ -123,12 +135,9 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeList((AnidbSearchResult) searchResult, Locale.ENGLISH);
-	}
-	
-
-	public List<Episode> getEpisodeList(AnidbSearchResult anime, Locale language) throws Exception {
+	public List<Episode> getEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
+		
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
 		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
 		
@@ -141,7 +150,10 @@ public class AnidbClient implements EpisodeListProvider {
 		Document dom = getDocument(url);
 		
 		// select main title
-		String animeTitle = selectString("//titles/title[@type='main']", dom);
+		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + language.getLanguage() + "']", dom);
+		if (animeTitle.isEmpty()) {
+			animeTitle = selectString("//titles/title[@type='main']", dom);
+		}
 		
 		episodes = new ArrayList<Episode>(25);
 		
@@ -151,6 +163,10 @@ public class AnidbClient implements EpisodeListProvider {
 			// ignore special episodes
 			if (number != null) {
 				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
+				if (title.isEmpty()) { // English language fall-back
+					title = selectString(".//title[@lang='en']", node);
+				}
+				
 				String airdate = getTextContent("airdate", node);
 				
 				// no seasons for anime
@@ -187,13 +203,7 @@ public class AnidbClient implements EpisodeListProvider {
 	
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
-		return false;
-	}
-	
-
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
+	public List<Episode> getEpisodeList(SearchResult searchResult, int season, Locale locale) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 	

@@ -64,7 +64,7 @@ public class OpenSubtitlesXmlRpcTest {
 		
 		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
 		
-		assertEquals("\"Wonderfalls\"", sample.getProperty(Property.MovieName));
+		assertEquals("Wonderfalls", sample.getProperty(Property.MovieName));
 		assertEquals("Hungarian", sample.getProperty(Property.LanguageName));
 		assertEquals("imdbid", sample.getProperty(Property.MatchedBy));
 		

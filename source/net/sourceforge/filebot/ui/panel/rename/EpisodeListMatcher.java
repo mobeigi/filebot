@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -91,6 +92,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+				selectDialog.pack();
 				
 				// show dialog
 				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
@@ -111,7 +113,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames) throws Exception {
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final Locale locale) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
@@ -120,14 +122,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				
 				@Override
 				public List<Episode> call() throws Exception {
-					List<SearchResult> results = provider.search(query);
+					List<SearchResult> results = provider.search(query, locale);
 					
 					// select search result
 					if (results.size() > 0) {
 						SearchResult selectedSearchResult = selectSearchResult(query, results);
 						
 						if (selectedSearchResult != null) {
-							return provider.getEpisodeList(selectedSearchResult);
+							return provider.getEpisodeList(selectedSearchResult, locale);
 						}
 					}
 					
@@ -157,12 +159,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, Locale locale) throws Exception {
 		// focus on movie and subtitle files
 		List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// detect series name and fetch episode list
-		Set<Episode> episodes = fetchEpisodeSet(detectSeriesNames(mediaFiles));
+		Set<Episode> episodes = fetchEpisodeSet(detectSeriesNames(mediaFiles), locale);
 		
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		

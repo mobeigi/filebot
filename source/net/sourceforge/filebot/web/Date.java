@@ -78,6 +78,9 @@ public class Date implements Serializable {
 	
 
 	public static Date parse(String string, String pattern) {
+		if (string == null || string.isEmpty())
+			return null;
+		
 		SimpleDateFormat formatter = new SimpleDateFormat(pattern, Locale.ROOT);
 		formatter.setLenient(false); // enable strict mode (e.g. fail on invalid dates like 0000-00-00)
 		

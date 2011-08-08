@@ -2,29 +2,38 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static javax.swing.JOptionPane.*;
+import static javax.swing.SwingUtilities.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
+import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import ca.odell.glazedlists.ListSelection;
@@ -35,6 +44,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -61,6 +71,7 @@ public class RenamePanel extends JComponent {
 	
 	private static final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.preserve").defaultValue("true");
 	private static final PreferencesEntry<String> persistentFormatExpression = Settings.forPackage(RenamePanel.class).entry("rename.format");
+	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	
 
 	public RenamePanel() {
@@ -161,7 +172,7 @@ public class RenamePanel extends JComponent {
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				EpisodeFormatDialog dialog = new EpisodeFormatDialog(SwingUtilities.getWindowAncestor(RenamePanel.this));
+				EpisodeFormatDialog dialog = new EpisodeFormatDialog(getWindowAncestor(RenamePanel.this));
 				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 				dialog.setVisible(true);
 				
@@ -174,6 +185,51 @@ public class RenamePanel extends JComponent {
 						renameModel.useFormatter(Episode.class, null);
 						persistentFormatExpression.remove();
 						break;
+				}
+			}
+		});
+		
+		actionPopup.add(new AbstractAction("Preferences", ResourceManager.getIcon("action.preferences")) {
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				List<Language> languages = new LinkedList<Language>();
+				
+				// all languages
+				Language[] availableLanguages = Language.availableLanguages();
+				Arrays.sort(availableLanguages, Language.ALPHABETIC_ORDER);
+				Collections.addAll(languages, availableLanguages);
+				
+				// guess preferred language
+				if (!Locale.getDefault().equals(Locale.ENGLISH)) {
+					languages.add(0, Language.getLanguage(Locale.getDefault().getLanguage()));
+				}
+				languages.add(0, Language.getLanguage("en"));
+				
+				JList message = new JList(languages.toArray());
+				message.setCellRenderer(new DefaultListCellRenderer() {
+					
+					@Override
+					public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+						super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+						setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
+						return this;
+					}
+				});
+				
+				// pre-select current language preferences
+				for (Language language : languages) {
+					if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
+						message.setSelectedValue(language, true);
+						break;
+					}
+				}
+				
+				JOptionPane pane = new JOptionPane(new JScrollPane(message), PLAIN_MESSAGE, OK_CANCEL_OPTION);
+				pane.createDialog(getWindowAncestor(RenamePanel.this), "Language Preference").setVisible(true);
+				
+				if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
+					persistentPreferredLanguage.setValue(((Language) message.getSelectedValue()).getCode());
 				}
 			}
 		});
@@ -292,11 +348,12 @@ public class RenamePanel extends JComponent {
 			SwingWorker<List<Match<File, ?>>, Void> worker = new SwingWorker<List<Match<File, ?>>, Void>() {
 				
 				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
+				private final Locale locale = new Locale(persistentPreferredLanguage.getValue());
 				
 
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles);
+					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale);
 					
 					// remove matched files
 					for (Match<File, ?> match : matches) {

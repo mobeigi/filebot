@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
@@ -36,7 +37,7 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class SerienjunkiesClient implements EpisodeListProvider {
+public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	private static final String host = "api.serienjunkies.de";
 	private static final SerienjunkiesCache cache = new SerienjunkiesCache(CacheManager.getInstance().getCache("web-persistent-datasource"));
@@ -62,13 +63,7 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
-		return true;
-	}
-	
-
-	@Override
-	public List<SearchResult> search(String query) throws IOException {
+	public List<SearchResult> search(String query, Locale locale) throws IOException {
 		// normalize
 		query = query.toLowerCase();
 		
@@ -151,7 +146,7 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
 		
 		// try cache first
@@ -183,19 +178,6 @@ public class SerienjunkiesClient implements EpisodeListProvider {
 		sortEpisodes(episodes);
 		
 		return episodes;
-	}
-	
-
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException {
-		List<Episode> all = getEpisodeList(searchResult);
-		List<Episode> eps = filterBySeason(all, season);
-		
-		if (eps.isEmpty()) {
-			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
-		}
-		
-		return eps;
 	}
 	
 

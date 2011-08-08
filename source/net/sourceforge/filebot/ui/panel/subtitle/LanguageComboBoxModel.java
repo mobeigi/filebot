@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
-import static net.sourceforge.filebot.ui.panel.subtitle.Language.*;
+import static net.sourceforge.filebot.ui.Language.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -13,6 +13,8 @@ import java.util.Set;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
+
+import net.sourceforge.filebot.ui.Language;
 
 
 class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {

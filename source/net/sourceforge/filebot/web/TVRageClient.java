@@ -12,9 +12,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class TVRageClient implements EpisodeListProvider {
+public class TVRageClient extends AbstractEpisodeListProvider {
 	
 	private static final String host = "services.tvrage.com";
 	
@@ -41,13 +41,7 @@ public class TVRageClient implements EpisodeListProvider {
 	
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
-		return true;
-	}
-	
-
-	@Override
-	public List<SearchResult> search(String query) throws SAXException, IOException, ParserConfigurationException {
+	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
 		
 		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + URLEncoder.encode(query, "UTF-8"));
 		
@@ -70,7 +64,7 @@ public class TVRageClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws IOException, SAXException, ParserConfigurationException {
+	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
 		int showId = ((TVRageSearchResult) searchResult).getShowId();
 		
 		URL episodeListUrl = new URL("http", host, "/feeds/episode_list.php?sid=" + showId);
@@ -107,19 +101,6 @@ public class TVRageClient implements EpisodeListProvider {
 		episodes.addAll(specials);
 		
 		return episodes;
-	}
-	
-
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws IOException, SAXException, ParserConfigurationException {
-		List<Episode> all = getEpisodeList(searchResult);
-		List<Episode> eps = filterBySeason(all, season);
-		
-		if (eps.isEmpty()) {
-			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
-		}
-		
-		return eps;
 	}
 	
 

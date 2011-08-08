@@ -99,7 +99,7 @@ public class AnidbClientTest {
 		
 		Episode first = list.get(0);
 		
-		assertEquals("Juuni Kokki", first.getSeriesName());
+		assertEquals("The Twelve Kingdoms", first.getSeriesName());
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getAbsolute().toString());
@@ -119,7 +119,7 @@ public class AnidbClientTest {
 		List<Episode> list = anidb.getEpisodeList(monsterSearchResult, Locale.JAPANESE);
 		
 		Episode last = list.get(73);
-		assertEquals("Monster", last.getSeriesName());
+		assertEquals("モンスター", last.getSeriesName());
 		assertEquals("本当の怪物", last.getTitle());
 		assertEquals("74", last.getEpisode().toString());
 		assertEquals("74", last.getAbsolute().toString());

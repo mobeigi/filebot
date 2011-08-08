@@ -13,6 +13,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.ui.Language;
 
 
 class LanguageComboBoxCellRenderer implements ListCellRenderer {

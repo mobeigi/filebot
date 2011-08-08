@@ -35,7 +35,7 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class TheTVDBClient implements EpisodeListProvider {
+public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	private static final String host = "www.thetvdb.com";
 	
@@ -73,11 +73,12 @@ public class TheTVDBClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query) throws Exception {
-		return search(query, Locale.ENGLISH);
+	public boolean hasLocaleSupport() {
+		return true;
 	}
 	
 
+	@Override
 	public List<SearchResult> search(String query, Locale language) throws Exception {
 		// check if the exact series name is already cached
 		Integer cachedResult = cache.getSeriesId(query, language);
@@ -105,31 +106,14 @@ public class TheTVDBClient implements EpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeList((TheTVDBSearchResult) searchResult, Locale.ENGLISH);
-	}
-	
-
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
-		List<Episode> all = getEpisodeList(searchResult);
-		List<Episode> eps = filterBySeason(all, season);
-		
-		if (eps.isEmpty()) {
-			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
-		}
-		
-		return eps;
-	}
-	
-
-	public List<Episode> getEpisodeList(TheTVDBSearchResult searchResult, Locale language) throws Exception {
-		List<Episode> episodes = cache.getEpisodeList(searchResult.getSeriesId(), language);
+	public List<Episode> getEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
+		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), language);
 		
 		if (episodes != null)
 			return episodes;
 		
-		Document seriesRecord = getSeriesRecord(searchResult, language);
+		Document seriesRecord = getSeriesRecord(series, language);
 		
 		// we could get the series name from the search result, but the language may not match the given parameter
 		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
@@ -176,7 +160,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 				try {
 					// cache seasonId for each season (always when we are at the first episode)
 					// because it might be required by getEpisodeListLink
-					cache.putSeasonId(searchResult.getSeriesId(), seasonNumber, getIntegerContent("seasonid", node));
+					cache.putSeasonId(series.getSeriesId(), seasonNumber, getIntegerContent("seasonid", node));
 				} catch (NumberFormatException e) {
 					// season/episode is not a number, just ignore
 				}
@@ -189,7 +173,7 @@ public class TheTVDBClient implements EpisodeListProvider {
 		// add specials at the end
 		episodes.addAll(specials);
 		
-		cache.putEpisodeList(searchResult.getSeriesId(), language, episodes);
+		cache.putEpisodeList(series.getSeriesId(), language, episodes);
 		return episodes;
 	}
 	

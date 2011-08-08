@@ -75,7 +75,7 @@ public class TheTVDBClientTest {
 		assertEquals("Unaired Pilot", last.getTitle());
 		assertEquals("1", last.getSeason().toString());
 		assertEquals(null, last.getEpisode());
-		assertEquals("1", last.getAbsolute().toString());
+		assertEquals(null, last.getAbsolute());
 		assertEquals("1", last.getSpecial().toString());
 		assertEquals(null, last.airdate());
 	}
@@ -85,7 +85,7 @@ public class TheTVDBClientTest {
 	public void getEpisodeListSingleSeason() throws Exception {
 		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845), 1);
 		
-		assertEquals(13, list.size());
+		assertEquals(14, list.size());
 		
 		Episode first = list.get(0);
 		

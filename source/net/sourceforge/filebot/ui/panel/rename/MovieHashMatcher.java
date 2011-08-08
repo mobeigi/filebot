@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -44,7 +45,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, Locale locale) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles);
