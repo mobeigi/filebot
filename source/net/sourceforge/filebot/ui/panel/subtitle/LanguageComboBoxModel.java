@@ -6,8 +6,6 @@ import static net.sourceforge.filebot.ui.Language.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -25,15 +23,7 @@ class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	
 	private List<Language> favorites = new Favorites(2);
 	
-	private List<Language> values;
-	
-
-	public LanguageComboBoxModel() {
-		values = Arrays.asList(availableLanguages());
-		
-		// sort languages by name
-		Collections.sort(values, ALPHABETIC_ORDER);
-	}
+	private List<Language> values = availableLanguages();
 	
 
 	@Override

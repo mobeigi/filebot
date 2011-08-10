@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import static net.sourceforge.filebot.ui.Language.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.LanguageComboBoxModel.*;
 
 import java.awt.Color;
@@ -56,13 +57,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		
 		// restore favorite languages
 		for (String favoriteLanguage : persistentFavoriteLanguages) {
-			languageModel.favorites().add(languageModel.favorites().size(), Language.getLanguage(favoriteLanguage));
+			languageModel.favorites().add(languageModel.favorites().size(), getLanguage(favoriteLanguage));
 		}
 		
 		// guess favorite languages
 		if (languageModel.favorites().isEmpty()) {
 			for (Locale locale : new Locale[] { Locale.getDefault(), Locale.ENGLISH }) {
-				languageModel.favorites().add(Language.getLanguage(locale.getLanguage()));
+				languageModel.favorites().add(getLanguage(locale.getLanguage()));
 			}
 		}
 		

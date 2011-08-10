@@ -15,8 +15,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -193,18 +191,9 @@ public class RenamePanel extends JComponent {
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				List<Language> languages = new LinkedList<Language>();
-				
-				// all languages
-				Language[] availableLanguages = Language.availableLanguages();
-				Arrays.sort(availableLanguages, Language.ALPHABETIC_ORDER);
-				Collections.addAll(languages, availableLanguages);
-				
-				// guess preferred language
-				if (!Locale.getDefault().equals(Locale.ENGLISH)) {
-					languages.add(0, Language.getLanguage(Locale.getDefault().getLanguage()));
-				}
-				languages.add(0, Language.getLanguage("en"));
+				List<Language> languages = new ArrayList<Language>();
+				languages.addAll(Language.preferredLanguages()); // add preferred languages first
+				languages.addAll(Language.availableLanguages()); // then others
 				
 				JList message = new JList(languages.toArray());
 				message.setCellRenderer(new DefaultListCellRenderer() {

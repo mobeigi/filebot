@@ -2,7 +2,13 @@
 package net.sourceforge.filebot.ui;
 
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+
 import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -54,26 +60,46 @@ public class Language {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		
 		try {
-			return new Language(code, bundle.getString(code));
+			return new Language(code, bundle.getString(code + ".name"));
 		} catch (Exception e) {
 			return null;
 		}
 	}
 	
 
-	public static Language[] availableLanguages() {
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-		Set<String> languageCodeSet = bundle.keySet();
+	public static List<Language> getLanguages(String... codes) {
+		Language[] languages = new Language[codes.length];
 		
-		Language[] languages = new Language[languageCodeSet.size()];
-		int size = 0;
-		
-		// fill languages array
-		for (String code : languageCodeSet) {
-			languages[size++] = new Language(code, bundle.getString(code));
+		for (int i = 0; i < codes.length; i++) {
+			languages[i] = getLanguage(codes[i]);
 		}
 		
-		return languages;
+		return asList(languages);
 	}
 	
+
+	public static List<Language> availableLanguages() {
+		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		return getLanguages(bundle.getString("languages.all").split(","));
+	}
+	
+
+	public static List<Language> commonLanguages() {
+		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		return getLanguages(bundle.getString("languages.common").split(","));
+	}
+	
+
+	public static List<Language> preferredLanguages() {
+		Set<String> codes = new LinkedHashSet<String>();
+		
+		// English | System language | common languages
+		codes.add("en");
+		codes.add(Locale.getDefault().getLanguage());
+		
+		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		addAll(codes, bundle.getString("languages.common").split(","));
+		
+		return getLanguages(codes.toArray(new String[0]));
+	}
 }
