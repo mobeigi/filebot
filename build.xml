@@ -67,7 +67,7 @@
 
 			<zipfileset src="${dir.lib}/json-simple.jar">
 				<include name="org/json/simple/**" />
-			</zipfileset>			
+			</zipfileset>
 
 			<zipfileset src="${dir.lib}/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
@@ -355,38 +355,49 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*-src.zip" />
 		</scp>
 
 		<!-- deploy fatjar -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
 		</scp>
 
 		<!-- deploy windows installers -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.msi" />
 		</scp>
 
 		<!-- deploy debian packages -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
 		</scp>
 
 		<!-- deploy osx app bundle -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.app.zip" />
 		</scp>
 
 		<!-- deploy webstart jars and jnlp descriptors -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.webstart}" trust="yes">
+		<scp todir="${sf.user}:${sf.password}@${deploy.webstart}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/webstart" />
 		</scp>
+	</target>
+
+
+	<target name="deploy-test-package" depends="fatjar">
+		<!-- ask for sourceforge password -->
+		<property name="sf.user" value="rednoah" />
+		<input message="Please enter password:" addproperty="sf.password" />
+		<input message="Mark:" addproperty="mark" />
+
+		<!-- deploy fatjar -->
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@web.sourceforge.net:/home/user-web/r/re/rednoah/htdocs/test/filebot/filebot-${version}-${mark}.jar" trust="yes" verbose="true" />
 	</target>
 
 </project>
