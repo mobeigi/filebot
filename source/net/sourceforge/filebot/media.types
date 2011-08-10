@@ -83,6 +83,10 @@
 	<type name="video/mov">
 		<extension>mov</extension>
 	</type>
+	
+	<type name="video/divx">
+		<extension>divx</extension>
+	</type>
 
 	<type name="video/mpeg">
 		<extension>mpg</extension>
