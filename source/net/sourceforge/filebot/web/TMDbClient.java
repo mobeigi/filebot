@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,9 +49,9 @@ public class TMDbClient implements MovieIdentificationService {
 	
 
 	@Override
-	public List<MovieDescriptor> searchMovie(String query) throws IOException {
+	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws IOException {
 		try {
-			return getMovies("Movie.search", query);
+			return getMovies("Movie.search", query, locale);
 		} catch (SAXException e) {
 			// TMDb output is sometimes malformed xml
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
@@ -59,19 +60,19 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	public List<MovieDescriptor> searchMovie(File file) throws IOException, SAXException {
-		return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length());
+	public List<MovieDescriptor> searchMovie(File file, Locale locale) throws IOException, SAXException {
+		return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length(), locale);
 	}
 	
 
-	public List<MovieDescriptor> searchMovie(String hash, long bytesize) throws IOException, SAXException {
-		return getMovies("Media.getInfo", hash + "/" + bytesize);
+	public List<MovieDescriptor> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
+		return getMovies("Media.getInfo", hash + "/" + bytesize, locale);
 	}
 	
 
 	@Override
-	public MovieDescriptor getMovieDescriptor(int imdbid) throws Exception {
-		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid));
+	public MovieDescriptor getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
 		Node movie = selectNode("//movie", getDocument(resource));
 		
 		if (movie == null)
@@ -85,11 +86,11 @@ public class TMDbClient implements MovieIdentificationService {
 	
 
 	@Override
-	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles) throws Exception {
+	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
 		MovieDescriptor[] movies = new MovieDescriptor[movieFiles.length];
 		
 		for (int i = 0; i < movies.length; i++) {
-			List<MovieDescriptor> options = searchMovie(movieFiles[i]);
+			List<MovieDescriptor> options = searchMovie(movieFiles[i], locale);
 			
 			// just use first result, if possible
 			movies[i] = options.isEmpty() ? null : options.get(0);
@@ -99,10 +100,10 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	protected List<MovieDescriptor> getMovies(String method, String parameter) throws IOException, SAXException {
+	protected List<MovieDescriptor> getMovies(String method, String parameter, Locale locale) throws IOException, SAXException {
 		List<MovieDescriptor> result = new ArrayList<MovieDescriptor>();
 		
-		for (Node node : selectNodes("//movie", getDocument(getResource(method, parameter)))) {
+		for (Node node : selectNodes("//movie", getDocument(getResource(method, parameter, locale)))) {
 			try {
 				String name = getTextContent("name", node);
 				
@@ -122,9 +123,9 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	protected URL getResource(String method, String parameter) throws MalformedURLException {
+	protected URL getResource(String method, String parameter, Locale locale) throws MalformedURLException {
 		// e.g. http://api.themoviedb.org/2.1/Movie.search/en/xml/{apikey}/serenity
-		return new URL("http", host, "/" + version + "/" + method + "/en/xml/" + apikey + "/" + parameter);
+		return new URL("http", host, "/" + version + "/" + method + "/" + locale.getLanguage() + "/xml/" + apikey + "/" + parameter);
 	}
 	
 }

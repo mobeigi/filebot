@@ -48,7 +48,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	public List<Match<File, ?>> match(final List<File> files, Locale locale) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
-		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles);
+		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles, locale);
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<MovieDescriptor, SortedSet<File>> filesByMovie = new HashMap<MovieDescriptor, SortedSet<File>>();
@@ -59,7 +59,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
-				movie = determineMovie(movieFiles[i]);
+				movie = determineMovie(movieFiles[i], locale);
 			}
 			
 			// check if we managed to lookup the movie descriptor
@@ -141,12 +141,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected MovieDescriptor determineMovie(File movieFile) throws Exception {
+	protected MovieDescriptor determineMovie(File movieFile, Locale locale) throws Exception {
 		List<MovieDescriptor> options = new ArrayList<MovieDescriptor>();
 		
 		// try to grep imdb id from nfo files
 		for (int imdbid : grepImdbId(movieFile.getParentFile().listFiles(getDefaultFilter("application/nfo")))) {
-			MovieDescriptor movie = service.getMovieDescriptor(imdbid);
+			MovieDescriptor movie = service.getMovieDescriptor(imdbid, locale);
 			
 			if (movie != null) {
 				options.add(movie);
@@ -156,12 +156,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// search by file name
 		if (options.isEmpty()) {
 			String query = getName(movieFile).replaceAll("\\p{Punct}+", " ").trim();
-			options = service.searchMovie(query);
+			options = service.searchMovie(query, locale);
 			
 			// search by folder name
 			if (options.isEmpty()) {
 				query = getName(movieFile.getParentFile()).replaceAll("\\p{Punct}+", " ").trim();
-				options = service.searchMovie(query);
+				options = service.searchMovie(query, locale);
 			}
 		}
 		

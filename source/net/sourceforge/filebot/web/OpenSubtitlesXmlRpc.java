@@ -45,18 +45,7 @@ public class OpenSubtitlesXmlRpc {
 	 * Login as anonymous user
 	 */
 	public void loginAnonymous() throws XmlRpcFault {
-		login("", "");
-	}
-	
-
-	/**
-	 * Login as user and use English as language
-	 * 
-	 * @param username username (blank for anonymous user)
-	 * @param password password (blank for anonymous user)
-	 */
-	public void login(String username, String password) throws XmlRpcFault {
-		login(username, password, "en");
+		login("", "", "en");
 	}
 	
 

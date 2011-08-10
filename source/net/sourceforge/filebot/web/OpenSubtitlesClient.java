@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -147,7 +148,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public List<MovieDescriptor> searchMovie(String query) throws Exception {
+	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws Exception {
 		// require login
 		login();
 		
@@ -156,7 +157,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public MovieDescriptor getMovieDescriptor(int imdbid) throws Exception {
+	public MovieDescriptor getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		// require login
 		login();
 		
@@ -165,7 +166,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles) throws Exception {
+	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
 		// create result array
 		MovieDescriptor[] result = new MovieDescriptor[movieFiles.length];
 		
