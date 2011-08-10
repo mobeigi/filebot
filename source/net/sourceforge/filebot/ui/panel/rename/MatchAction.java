@@ -98,7 +98,7 @@ class MatchAction extends AbstractAction {
 
 		public BackgroundMatcher(MatchModel<Object, File> model, SimilarityMetric[] metrics) {
 			// match names against files
-			this.matcher = new Matcher<Object, File>(model.values(), model.candidates(), metrics);
+			this.matcher = new Matcher<Object, File>(model.values(), model.candidates(), false, metrics);
 		}
 		
 

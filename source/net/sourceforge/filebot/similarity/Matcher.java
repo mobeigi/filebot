@@ -23,15 +23,17 @@ public class Matcher<V, C> {
 	private final List<V> values;
 	private final List<C> candidates;
 	
+	private final boolean strict;
 	private final SimilarityMetric[] metrics;
 	
 	private final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
 
-	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, SimilarityMetric[] metrics) {
+	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, boolean strict, SimilarityMetric[] metrics) {
 		this.values = new LinkedList<V>(values);
 		this.candidates = new LinkedList<C>(candidates);
 		
+		this.strict = strict;
 		this.metrics = metrics.clone();
 		
 		this.disjointMatchCollection = new DisjointMatchCollection<V, C>();
@@ -88,8 +90,12 @@ public class Matcher<V, C> {
 
 	protected void deepMatch(Collection<Match<V, C>> possibleMatches, int level) throws InterruptedException {
 		if (level >= metrics.length || possibleMatches.isEmpty()) {
+			// add the first possible match if non-strict, otherwise ignore ambiguous matches
+			if (!strict) {
+				disjointMatchCollection.addAll(possibleMatches);
+			}
+			
 			// no further refinement possible
-			disjointMatchCollection.addAll(possibleMatches);
 			return;
 		}
 		
