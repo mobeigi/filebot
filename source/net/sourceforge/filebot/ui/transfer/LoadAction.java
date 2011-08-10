@@ -2,10 +2,11 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -73,7 +74,7 @@ public class LoadAction extends AbstractAction {
 				transferablePolicy.handleTransferable(transferable, getTransferAction(evt));
 			}
 		} catch (Exception e) {
-			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		// remember last location

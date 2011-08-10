@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
+
 import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -18,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -101,7 +102,7 @@ public class FileTree extends JTree {
 		}
 	}
 	
-	
+
 	private class OpenExpandCollapsePopup extends JPopupMenu {
 		
 		public OpenExpandCollapsePopup() {
@@ -138,7 +139,7 @@ public class FileTree extends JTree {
 			add(collapseAction);
 		}
 		
-		
+
 		private class OpenAction extends AbstractAction {
 			
 			public OpenAction(String text, Collection<File> files) {
@@ -153,11 +154,12 @@ public class FileTree extends JTree {
 						Desktop.getDesktop().open((File) file);
 					}
 				} catch (Exception e) {
-					Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+					UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 				}
 			}
 		}
 		
+
 		private final Action expandAction = new AbstractAction("Expand all", ResourceManager.getIcon("tree.expand")) {
 			
 			@Override
@@ -213,7 +215,7 @@ public class FileTree extends JTree {
 		
 		private TreeNode parent;
 		
-		
+
 		@Override
 		public TreeNode getParent() {
 			return parent;
@@ -269,7 +271,7 @@ public class FileTree extends JTree {
 		
 		private final File file;
 		
-		
+
 		public FileNode(File file) {
 			this.file = file;
 		}
@@ -293,7 +295,7 @@ public class FileTree extends JTree {
 		private List<AbstractTreeNode> children;
 		private String title;
 		
-		
+
 		/**
 		 * Creates a root node (no parent, no title, empty list of children)
 		 */

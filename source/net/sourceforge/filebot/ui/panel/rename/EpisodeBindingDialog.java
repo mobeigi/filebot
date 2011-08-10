@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -26,7 +27,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.script.Compilable;
 import javax.script.ScriptException;
@@ -277,10 +277,10 @@ class EpisodeBindingDialog extends JDialog {
 			// check episode and media file
 			if (getEpisode() == null) {
 				// illegal episode string
-				Logger.getLogger("ui").warning(String.format("Failed to parse episode: '%s'", episodeTextField.getText()));
+				UILogger.warning(String.format("Failed to parse episode: '%s'", episodeTextField.getText()));
 			} else if (getMediaFile() == null && !mediaFileTextField.getText().isEmpty()) {
 				// illegal file path
-				Logger.getLogger("ui").warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
+				UILogger.warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
 			} else {
 				// everything seems to be in order
 				finish(Option.APPROVE);
@@ -311,7 +311,7 @@ class EpisodeBindingDialog extends JDialog {
 					}
 				}
 			} catch (LinkageError e) {
-				Logger.getLogger("ui").log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
+				UILogger.log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
 			}
 			
 			// could not retrieve media info

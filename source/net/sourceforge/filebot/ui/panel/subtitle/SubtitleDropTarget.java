@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -24,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -219,7 +219,7 @@ abstract class SubtitleDropTarget extends JButton {
 			try {
 				dtde.dropComplete(handleDrop(getFilesFromTransferable(dtde.getTransferable())));
 			} catch (Exception e) {
-				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+				UILogger.log(Level.WARNING, e.getMessage(), e);
 			}
 			
 			// reset to default state

@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.SwingUtilities.*;
 import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -19,7 +20,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -368,7 +368,7 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
-						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+						UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);

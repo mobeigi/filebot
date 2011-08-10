@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 
 import java.awt.Color;
@@ -715,7 +716,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 				
 				return destination;
 			} catch (Exception e) {
-				Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+				UILogger.log(Level.WARNING, e.getMessage(), e);
 			}
 			
 			return null;

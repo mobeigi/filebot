@@ -5,9 +5,11 @@ package net.sourceforge.filebot.ui;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.notification.Direction.*;
 
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
@@ -19,18 +21,39 @@ import net.sourceforge.tuned.ui.notification.NotificationManager;
 import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;
 
 
-public class NotificationLoggingHandler extends Handler {
+public class NotificationLogging extends Handler {
 	
+	public static final Logger UILogger = createNotificationLogger("net.sourceforge.filebot.ui");
+	
+
+	private static Logger createNotificationLogger(String name) {
+		Logger log = Logger.getLogger(name);
+		
+		// don't use parent handlers
+		log.setUseParentHandlers(false);
+		
+		// ui handler
+		log.addHandler(new NotificationLogging());
+		
+		// console handler (for warnings and errors only)
+		ConsoleHandler console = new ConsoleHandler();
+		console.setLevel(Level.WARNING);
+		log.addHandler(console);
+		
+		return log;
+	}
+	
+
 	public final NotificationManager notificationManager;
 	public final int timeout = 2500;
 	
-	
-	public NotificationLoggingHandler() {
+
+	public NotificationLogging() {
 		this(new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
 	
 
-	public NotificationLoggingHandler(NotificationManager notificationManager) {
+	public NotificationLogging(NotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
 	}
 	

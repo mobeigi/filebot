@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Window;
@@ -15,7 +16,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 
@@ -50,11 +50,11 @@ class RenameAction extends AbstractAction {
 			
 			// renamed all matches successfully
 			if (renameLog.size() > 0) {
-				Logger.getLogger("ui").info(String.format("%d files renamed.", renameLog.size()));
+				UILogger.info(String.format("%d files renamed.", renameLog.size()));
 			}
 		} catch (Exception e) {
 			// could not rename one of the files, revert all changes
-			Logger.getLogger("ui").warning(e.getMessage());
+			UILogger.warning(e.getMessage());
 			
 			// revert rename operations in reverse order
 			for (ListIterator<Entry<File, String>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
@@ -69,7 +69,7 @@ class RenameAction extends AbstractAction {
 					iterator.remove();
 				} else {
 					// failed to revert rename operation
-					Logger.getLogger("ui").severe("Failed to revert file: " + mapping.getValue());
+					UILogger.severe("Failed to revert file: " + mapping.getValue());
 				}
 			}
 		}

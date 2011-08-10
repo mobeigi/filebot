@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.hash.HashType;
@@ -65,7 +65,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void process(Exception e) {
-		Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 	
 

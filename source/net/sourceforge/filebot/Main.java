@@ -13,7 +13,6 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +25,6 @@ import org.kohsuke.args4j.CmdLineParser;
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
-import net.sourceforge.filebot.ui.NotificationLoggingHandler;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
 
@@ -38,7 +36,6 @@ public class Main {
 	 */
 	public static void main(String... args) throws Exception {
 		// initialize this stuff before anything else
-		initializeLogging();
 		initializeCache();
 		initializeSecurityManager();
 		
@@ -118,23 +115,6 @@ public class Main {
 		int width = Integer.parseInt(settings.get("window.width"));
 		int height = Integer.parseInt(settings.get("window.height"));
 		window.setBounds(x, y, width, height);
-	}
-	
-
-	private static void initializeLogging() {
-		Logger uiLogger = Logger.getLogger("ui");
-		
-		// don't use parent handlers
-		uiLogger.setUseParentHandlers(false);
-		
-		// ui handler
-		uiLogger.addHandler(new NotificationLoggingHandler());
-		
-		// console handler (for warnings and errors only)
-		ConsoleHandler consoleHandler = new ConsoleHandler();
-		consoleHandler.setLevel(Level.WARNING);
-		
-		uiLogger.addHandler(consoleHandler);
 	}
 	
 

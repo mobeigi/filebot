@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -536,7 +537,7 @@ class EpisodeFormatDialog extends JDialog {
 				
 				finish(Option.APPROVE);
 			} catch (ScriptException e) {
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
+				UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
 			}
 		}
 	};

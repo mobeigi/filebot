@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.panel.list;
 
 import static java.awt.Font.*;
 import static java.lang.Math.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -14,7 +15,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
@@ -137,7 +137,7 @@ public class ListPanel extends JComponent {
 				list.getModel().clear();
 				list.getModel().addAll(names);
 			} catch (Exception e) {
-				Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
+				UILogger.log(Level.WARNING, ExceptionUtilities.getMessage(e), e);
 			}
 		}
 	};

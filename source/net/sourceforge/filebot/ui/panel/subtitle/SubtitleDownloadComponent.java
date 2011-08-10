@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -18,7 +19,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -240,7 +240,7 @@ class SubtitleDownloadComponent extends JComponent {
 					} catch (CancellationException e) {
 						// ignore cancellation
 					} catch (Exception e) {
-						Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+						UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 						
 						// reset download
 						subtitle.reset();
@@ -268,7 +268,7 @@ class SubtitleDownloadComponent extends JComponent {
 				}
 			}
 		} catch (Exception e) {
-			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 	
@@ -310,7 +310,7 @@ class SubtitleDownloadComponent extends JComponent {
 				}
 			}
 		} catch (IOException e) {
-			Logger.getLogger("ui").log(Level.WARNING, e.getMessage(), e);
+			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 	

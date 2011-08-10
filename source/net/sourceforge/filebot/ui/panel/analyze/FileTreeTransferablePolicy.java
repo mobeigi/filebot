@@ -2,10 +2,11 @@
 package net.sourceforge.filebot.ui.panel.analyze;
 
 
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
+
 import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.AbstractTreeNode;
 import net.sourceforge.filebot.ui.panel.analyze.FileTree.FileNode;
@@ -20,7 +21,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	
 	private final FileTree tree;
 	
-	
+
 	public FileTreeTransferablePolicy(FileTree tree) {
 		this.tree = tree;
 	}
@@ -54,7 +55,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 
 	@Override
 	protected void process(Exception e) {
-		Logger.getLogger("ui").log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 	
 
