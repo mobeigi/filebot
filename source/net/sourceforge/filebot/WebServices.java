@@ -12,7 +12,6 @@ import net.sourceforge.filebot.web.SerienjunkiesClient;
 import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.TVDotComClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -26,7 +25,6 @@ public final class WebServices {
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
 	public static final AnidbClient AniDB = new AnidbClient("filebot", 1);
-	public static final TVDotComClient TVDotCom = new TVDotComClient();
 	public static final IMDbClient IMDb = new IMDbClient();
 	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApplicationProperty("thetvdb.apikey"));
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
@@ -38,7 +36,7 @@ public final class WebServices {
 	
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TVRage, AniDB, TVDotCom, IMDb, TheTVDB, Serienjunkies };
+		return new EpisodeListProvider[] { TVRage, AniDB, IMDb, TheTVDB, Serienjunkies };
 	}
 	
 
