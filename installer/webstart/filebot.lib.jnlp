@@ -24,6 +24,7 @@
 		<jar href="junrar-custom.jar" />
 		<jar href="sublight-ws.jar" />
 		<jar href="xmlrpc.jar" />
+		<jar href="json-simple.jar" />
 	</resources>
 
 	<component-desc />
