@@ -2,11 +2,13 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,21 +47,26 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, Locale locale) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
-		MovieDescriptor[] movieDescriptors = service.getMovieDescriptors(movieFiles, locale);
+		MovieDescriptor[] movieByFileHash = new MovieDescriptor[movieFiles.length];
+		
+		// match movie hashes online
+		if (autodetect) {
+			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+		}
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<MovieDescriptor, SortedSet<File>> filesByMovie = new HashMap<MovieDescriptor, SortedSet<File>>();
 		
 		// map all files by movie
 		for (int i = 0; i < movieFiles.length; i++) {
-			MovieDescriptor movie = movieDescriptors[i];
+			MovieDescriptor movie = movieByFileHash[i];
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
-				movie = determineMovie(movieFiles[i], locale);
+				movie = grabMovieName(movieFiles[i], locale, autodetect);
 			}
 			
 			// check if we managed to lookup the movie descriptor
@@ -119,17 +126,17 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Set<Integer> grepImdbId(File... files) throws IOException {
+	private Set<Integer> grepImdbId(File... files) throws IOException {
 		Set<Integer> collection = new HashSet<Integer>();
 		
 		for (File file : files) {
-			Scanner scanner = new Scanner(file);
+			Scanner scanner = new Scanner(new FileInputStream(file));
 			
 			try {
 				// scan for imdb id patterns like tt1234567
 				String imdb = null;
 				
-				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 32 * 1024)) != null) {
+				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 64 * 1024)) != null) {
 					collection.add(Integer.parseInt(imdb));
 				}
 			} finally {
@@ -141,7 +148,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected MovieDescriptor determineMovie(File movieFile, Locale locale) throws Exception {
+	private String normalizeMovieName(File movie) {
+		return getName(movie).replaceAll("\\p{Punct}+", " ").trim();
+	}
+	
+
+	protected MovieDescriptor grabMovieName(File movieFile, Locale locale, boolean autodetect) throws Exception {
 		List<MovieDescriptor> options = new ArrayList<MovieDescriptor>();
 		
 		// try to grep imdb id from nfo files
@@ -153,15 +165,20 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		
-		// search by file name
-		if (options.isEmpty()) {
-			String query = getName(movieFile).replaceAll("\\p{Punct}+", " ").trim();
-			options = service.searchMovie(query, locale);
+		// search by file name or folder name
+		for (File it : new File[] { movieFile, movieFile.getParentFile() }) {
+			if (autodetect && options.isEmpty()) {
+				options = service.searchMovie(normalizeMovieName(it), locale);
+			}
+		}
+		
+		// allow manual user input
+		if (options.isEmpty() || !autodetect) {
+			String suggestion = options.isEmpty() ? normalizeMovieName(movieFile) : options.get(0).getName();
+			String input = showInputDialog(null, "Enter movie name:", suggestion);
 			
-			// search by folder name
-			if (options.isEmpty()) {
-				query = getName(movieFile.getParentFile()).replaceAll("\\p{Punct}+", " ").trim();
-				options = service.searchMovie(query, locale);
+			if (input != null) {
+				options = service.searchMovie(input, locale);
 			}
 		}
 		

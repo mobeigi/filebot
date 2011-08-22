@@ -327,7 +327,7 @@ public class RenamePanel extends JComponent {
 		
 
 		@Override
-		public void actionPerformed(ActionEvent evt) {
+		public void actionPerformed(final ActionEvent evt) {
 			// auto-match in progress
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			
@@ -338,11 +338,12 @@ public class RenamePanel extends JComponent {
 				
 				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
 				private final Locale locale = new Locale(persistentPreferredLanguage.getValue());
+				private final boolean autodetection = !isShiftDown(evt); // skip name auto-detection if SHIFT is pressed
 				
-
+				
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale);
+					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale, autodetection);
 					
 					// remove matched files
 					for (Match<File, ?> match : matches) {

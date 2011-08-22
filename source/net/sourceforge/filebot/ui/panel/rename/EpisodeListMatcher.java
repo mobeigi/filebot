@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.panel.rename;
 
 
+import static java.util.Collections.*;
+import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -48,12 +50,23 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Collection<String> detectSeriesNames(Collection<File> files) {
-		// detect series name(s) from files
-		Collection<String> names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+	protected Collection<String> grabSeriesNames(Collection<File> files, boolean autodetect) {
+		Collection<String> names = null;
 		
-		if (names.isEmpty())
-			throw new IllegalArgumentException("Cannot determine series name.");
+		// auto-detect series name(s) from files
+		if (autodetect) {
+			names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+		}
+		
+		// require user input if auto-detection fails
+		if (names == null || names.isEmpty()) {
+			String suggestion = new SeriesNameMatcher().matchBySeasonEpisodePattern(getName(files.iterator().next()));
+			String input = showInputDialog(null, "Enter series name:", suggestion);
+			
+			if (input != null) {
+				names = singleton(input);
+			}
+		}
 		
 		return names;
 	}
@@ -159,12 +172,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, Locale locale) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetection) throws Exception {
 		// focus on movie and subtitle files
 		List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// detect series name and fetch episode list
-		Set<Episode> episodes = fetchEpisodeSet(detectSeriesNames(mediaFiles), locale);
+		Set<Episode> episodes = fetchEpisodeSet(grabSeriesNames(mediaFiles, autodetection), locale);
 		
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		

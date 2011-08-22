@@ -49,6 +49,16 @@ public final class TunedUtilities {
 	}
 	
 
+	public static boolean isShiftDown(ActionEvent evt) {
+		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK);
+	}
+	
+
+	public static boolean checkModifiers(int modifiers, int mask) {
+		return ((modifiers & mask) == mask);
+	}
+	
+
 	public static JButton createImageButton(Action action) {
 		JButton button = new JButton(action);
 		button.setHideActionText(true);

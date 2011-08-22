@@ -18,6 +18,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.DeflaterInputStream;
 
 import redstone.xmlrpc.XmlRpcClient;
@@ -123,11 +127,22 @@ public class OpenSubtitlesXmlRpc {
 		List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
 		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
+		// title pattern
+		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})[)]");
+		
 		for (Map<String, String> movie : movieData) {
-			// get non-aka title (aka titles were separated by Â, and then aka later on)
-			Scanner titleScanner = new Scanner(movie.get("title")).useDelimiter("(\u00C2)|(\\s+aka\\s+)");
+			// match movie name and movie year from search result
+			Matcher matcher = pattern.matcher(movie.get("title"));
 			
-			movies.add(new MovieDescriptor(titleScanner.next().trim(), Integer.parseInt(movie.get("id"))));
+			if (matcher.find()) {
+				String name = matcher.group(1).trim();
+				int year = Integer.parseInt(matcher.group(2));
+				int imdbid = Integer.parseInt(movie.get("id"));
+				
+				movies.add(new MovieDescriptor(name, year, imdbid));
+			} else {
+				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.WARNING, "Error parsing title: " + movie);
+			}
 		}
 		
 		return movies;

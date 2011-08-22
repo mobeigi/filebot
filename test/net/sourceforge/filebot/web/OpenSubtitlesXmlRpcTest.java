@@ -35,11 +35,11 @@ public class OpenSubtitlesXmlRpcTest {
 	@Test
 	public void search() throws Exception {
 		List<MovieDescriptor> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
-		
 		MovieDescriptor sample = (MovieDescriptor) list.get(0);
 		
 		// check sample entry
-		assertEquals("\"Babylon 5\" (1994)", sample.getName());
+		assertEquals("\"Babylon 5\"", sample.getName());
+		assertEquals(1994, sample.getYear());
 		assertEquals(105946, sample.getImdbId());
 	}
 	

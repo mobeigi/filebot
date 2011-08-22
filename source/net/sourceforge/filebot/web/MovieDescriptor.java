@@ -11,11 +11,6 @@ public class MovieDescriptor extends SearchResult {
 	private final int imdbId;
 	
 
-	public MovieDescriptor(String name, int imdbId) {
-		this(name, -1, imdbId);
-	}
-	
-
 	public MovieDescriptor(String name, int year, int imdbId) {
 		super(name);
 		

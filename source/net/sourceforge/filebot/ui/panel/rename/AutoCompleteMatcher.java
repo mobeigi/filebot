@@ -11,5 +11,5 @@ import net.sourceforge.filebot.similarity.Match;
 
 interface AutoCompleteMatcher {
 	
-	List<Match<File, ?>> match(List<File> files, Locale locale) throws Exception;
+	List<Match<File, ?>> match(List<File> files, Locale locale, boolean autodetection) throws Exception;
 }
