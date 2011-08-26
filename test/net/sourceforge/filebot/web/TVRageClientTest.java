@@ -46,7 +46,7 @@ public class TVRageClientTest {
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisode().toString());
 		assertEquals("7", chosen.getSeason().toString());
-		assertEquals("144", chosen.getAbsolute().toString());
+		assertEquals(null, chosen.getAbsolute());
 		assertEquals("2003-05-20", chosen.airdate().toString());
 	}
 	
@@ -63,7 +63,7 @@ public class TVRageClientTest {
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("0", first.getEpisode().toString());
 		assertEquals("0", first.getSeason().toString());
-		assertEquals("0", first.getAbsolute().toString());
+		assertEquals(null, first.getAbsolute());
 		assertEquals(null, first.airdate());
 	}
 	

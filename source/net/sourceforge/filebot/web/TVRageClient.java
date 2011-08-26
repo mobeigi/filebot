@@ -80,7 +80,6 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		for (Node node : selectNodes("//episode", dom)) {
 			String title = getTextContent("title", node);
 			Integer episodeNumber = getIntegerContent("seasonnum", node);
-			Integer absoluteNumber = getIntegerContent("epnum", node);
 			String seasonIdentifier = getAttribute("no", node.getParentNode());
 			Integer seasonNumber = seasonIdentifier == null ? null : new Integer(seasonIdentifier);
 			Date airdate = Date.parse(getTextContent("airdate", node), "yyyy-MM-dd");
@@ -93,7 +92,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 				specials.add(new Episode(seriesName, seasonNumber, null, title, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
-				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title, absoluteNumber, null, airdate));
+				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title, null, null, airdate));
 			}
 		}
 		
