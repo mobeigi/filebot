@@ -50,12 +50,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
-		MovieDescriptor[] movieByFileHash = new MovieDescriptor[movieFiles.length];
 		
 		// match movie hashes online
-		if (autodetect) {
-			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-		}
+		MovieDescriptor[] movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<MovieDescriptor, SortedSet<File>> filesByMovie = new HashMap<MovieDescriptor, SortedSet<File>>();
@@ -65,8 +62,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			MovieDescriptor movie = movieByFileHash[i];
 			
 			// unknown hash, try via imdb id from nfo file
-			if (movie == null) {
-				movie = grabMovieName(movieFiles[i], locale, autodetect);
+			if (movie == null || !autodetect) {
+				movie = grabMovieName(movieFiles[i], locale, autodetect, movie);
 			}
 			
 			// check if we managed to lookup the movie descriptor
@@ -153,8 +150,15 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected MovieDescriptor grabMovieName(File movieFile, Locale locale, boolean autodetect) throws Exception {
+	protected MovieDescriptor grabMovieName(File movieFile, Locale locale, boolean autodetect, MovieDescriptor... suggestions) throws Exception {
 		List<MovieDescriptor> options = new ArrayList<MovieDescriptor>();
+		
+		// add default value if any
+		for (MovieDescriptor it : suggestions) {
+			if (it != null) {
+				options.add(it);
+			}
+		}
 		
 		// try to grep imdb id from nfo files
 		for (int imdbid : grepImdbId(movieFile.getParentFile().listFiles(getDefaultFilter("application/nfo")))) {
@@ -179,6 +183,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			if (input != null) {
 				options = service.searchMovie(input, locale);
+			} else {
+				options.clear(); // cancel search
 			}
 		}
 		

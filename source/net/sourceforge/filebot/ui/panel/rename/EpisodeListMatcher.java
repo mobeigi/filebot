@@ -50,28 +50,6 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Collection<String> grabSeriesNames(Collection<File> files, boolean autodetect) {
-		Collection<String> names = null;
-		
-		// auto-detect series name(s) from files
-		if (autodetect) {
-			names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
-		}
-		
-		// require user input if auto-detection fails
-		if (names == null || names.isEmpty()) {
-			String suggestion = new SeriesNameMatcher().matchBySeasonEpisodePattern(getName(files.iterator().next()));
-			String input = showInputDialog(null, "Enter series name:", suggestion);
-			
-			if (input != null) {
-				names = singleton(input);
-			}
-		}
-		
-		return names;
-	}
-	
-
 	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults) throws Exception {
 		if (searchResults.size() == 1) {
 			return searchResults.get(0);
@@ -175,10 +153,28 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetection) throws Exception {
 		// focus on movie and subtitle files
 		List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
-		Set<Episode> episodes = fetchEpisodeSet(grabSeriesNames(mediaFiles, autodetection), locale);
+		if (autodetection) {
+			Collection<String> names = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+			
+			if (names.size() > 0) {
+				episodes = fetchEpisodeSet(names, locale);
+			}
+		}
 		
+		// require user input if auto-detection has failed or has been disabled 
+		if (episodes.isEmpty()) {
+			String suggestion = new SeriesNameMatcher().matchBySeasonEpisodePattern(getName(files.iterator().next()));
+			String input = showInputDialog(null, "Enter series name:", suggestion);
+			
+			if (input != null) {
+				episodes = fetchEpisodeSet(singleton(input), locale);
+			}
+		}
+		
+		// find file/episode matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		// group by subtitles first and then by files in general
@@ -198,5 +194,4 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		return matches;
 	}
-	
 }
