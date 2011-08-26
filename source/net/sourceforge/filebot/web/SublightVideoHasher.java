@@ -32,7 +32,6 @@ import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
  */
 public final class SublightVideoHasher {
 	
-	
 	public static String computeHash(File file) throws IOException, LinkageError {
 		byte[][] hash = new byte[4][];
 		
@@ -91,6 +90,10 @@ public final class SublightVideoHasher {
 		
 		// close handle
 		mediaInfo.close();
+		
+		// sanity check
+		if (duration.isEmpty())
+			throw new IOException("Failed to read video duration");
 		
 		// convert from milliseconds to given unit
 		return unit.convert(Long.parseLong(duration), TimeUnit.MILLISECONDS);

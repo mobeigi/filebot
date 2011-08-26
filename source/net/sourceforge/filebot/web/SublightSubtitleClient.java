@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.lang.Math.*;
+import static java.util.Collections.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -11,7 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
 import javax.xml.ws.Holder;
@@ -116,35 +125,74 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, final String languageName) throws Exception {
 		Map<File, List<SubtitleDescriptor>> subtitles = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 		
-		for (final File file : files) {
-			subtitles.put(file, getSubtitleList(file, languageName));
-		}
-		
-		return subtitles;
-	}
-	
-
-	public List<SubtitleDescriptor> getSubtitleList(File videoFile, String languageName) throws WebServiceException, IOException {
-		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
+		ExecutorService executor = Executors.newFixedThreadPool(min(files.length, 10));
+		List<Future<List<SubtitleDescriptor>>> requests = new ArrayList<Future<List<SubtitleDescriptor>>>();
 		
 		try {
-			// retrieve subtitles by video hash
-			for (Subtitle subtitle : getSubtitleList(SublightVideoHasher.computeHash(videoFile), null, null, languageName)) {
-				// only keep linked subtitles
-				if (subtitle.isIsLinked()) {
-					subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
+			// queue and execute requests
+			for (int i = 0; i < files.length; i++) {
+				Future<List<SubtitleDescriptor>> request = null;
+				
+				try {
+					// make call interruptible
+					if (Thread.interrupted())
+						throw new InterruptedException();
+					
+					// compute video hash and execute query in parallel
+					final String videoHash = SublightVideoHasher.computeHash(files[i]);
+					
+					request = executor.submit(new Callable<List<SubtitleDescriptor>>() {
+						
+						@Override
+						public List<SubtitleDescriptor> call() throws Exception {
+							return getSubtitleList(videoHash, languageName);
+						}
+					});
+				} catch (IOException e) {
+					Logger.getLogger(SublightSubtitleClient.class.getName()).log(Level.WARNING, "Error computing video hash: " + e.getMessage());
+				} catch (LinkageError e) {
+					// MediaInfo native lib not available
+					throw new UnsupportedOperationException(e.getMessage(), e);
 				}
+				
+				requests.add(i, request);
 			}
-		} catch (LinkageError e) {
-			// MediaInfo native lib not available
-			throw new UnsupportedOperationException(e.getMessage(), e);
+			
+			// collect results
+			for (int i = 0; i < files.length; i++) {
+				List<SubtitleDescriptor> response = emptyList();
+				
+				if (requests.get(i) != null) {
+					response = requests.get(i).get();
+				}
+				
+				subtitles.put(files[i], response);
+			}
+			
+			return subtitles;
+		} finally {
+			// shutdown after all tasks are done or an exception was thrown 
+			executor.shutdownNow();
+		}
+	}
+	
+
+	public List<SubtitleDescriptor> getSubtitleList(String videoHash, String languageName) throws WebServiceException {
+		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
+		
+		// retrieve subtitles by video hash
+		for (Subtitle subtitle : getSubtitleList(videoHash, null, null, languageName)) {
+			// only keep linked subtitles
+			if (subtitle.isIsLinked()) {
+				subtitles.add(new SublightSubtitleDescriptor(subtitle, this));
+			}
 		}
 		
 		return subtitles;
 	}
 	
 
-	protected List<Subtitle> getSubtitleList(String videoHash, String name, Integer year, String languageName) throws WebServiceException {
+	public List<Subtitle> getSubtitleList(String videoHash, String name, Integer year, String languageName) throws WebServiceException {
 		// require login
 		login();
 		
@@ -277,7 +325,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	}
 	
 
-	protected byte[] getZipArchive(Subtitle subtitle) throws WebServiceException, InterruptedException {
+	protected synchronized byte[] getZipArchive(Subtitle subtitle) throws WebServiceException, InterruptedException {
 		// require login
 		login();
 		

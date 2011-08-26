@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 
 import java.awt.Color;
@@ -70,6 +69,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 	
 	private final JTable subtitleMappingTable = createTable();
 	
+	private ExecutorService queryService;
 	private ExecutorService downloadService;
 	
 
@@ -158,7 +158,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 	public void startQuery(String languageName) {
 		final SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
 		
-		// query services concurrently
+		// query services sequentially
+		queryService = Executors.newFixedThreadPool(1);
+		
 		for (VideoHashSubtitleServiceBean service : services) {
 			QueryTask task = new QueryTask(service, mappingModel.getVideoFiles(), languageName) {
 				
@@ -179,13 +181,13 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 						// make subtitle column visible
 						mappingModel.setOptionColumnVisible(true);
 					} catch (Exception e) {
-						Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+						Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
 					}
 				}
 			};
 			
 			// start background worker
-			task.execute();
+			queryService.submit(task);
 		}
 	}
 	
@@ -292,6 +294,10 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
+			if (queryService != null) {
+				queryService.shutdownNow();
+			}
+			
 			if (downloadService != null) {
 				downloadService.shutdownNow();
 			}
@@ -716,7 +722,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 				
 				return destination;
 			} catch (Exception e) {
-				UILogger.log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 			
 			return null;
