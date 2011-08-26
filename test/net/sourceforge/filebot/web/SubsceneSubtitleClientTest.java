@@ -105,7 +105,7 @@ public class SubsceneSubtitleClientTest {
 		SearchResult selectedResult = subscene.search("firefly").get(0);
 		SubtitleDescriptor subtitleDescriptor = subscene.getSubtitleList(selectedResult, "English").get(1);
 		
-		assertEquals(subtitleDescriptor.getName(), "Firefly - The Complete Series");
+		assertEquals("Firefly - The Complete Series", subtitleDescriptor.getName());
 		
 		ByteBuffer archive = subtitleDescriptor.fetch();
 		assertEquals(254549, archive.remaining());

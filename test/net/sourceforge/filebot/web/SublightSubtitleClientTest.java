@@ -73,16 +73,13 @@ public class SublightSubtitleClientTest {
 	
 
 	@Test
-	public void getSubtitleListVideoHash() {
-		List<Subtitle> list = client.getSubtitleList("000a20000045eacfebd3c2c83bfb4ea1598b14e9be7db38316fd", null, null, "English");
+	public void getSubtitleListVideoHash() throws Exception {
+		List<Subtitle> list = client.getSubtitleList("001c6e0000320458004ee6f6859e5b7844767d44336e5624edbb", null, null, "English");
 		
 		Subtitle sample = list.get(0);
-		
-		assertEquals("Terminator: The Sarah Connor Chronicles", sample.getTitle());
-		assertEquals(2, sample.getSeason(), 0);
-		assertEquals(22, sample.getEpisode(), 0);
-		assertEquals("Terminator.The.Sarah.Connor.Chronicles.S02E22.HDTV.XviD-2HD", sample.getRelease());
-		assertTrue(sample.isIsLinked());
+		assertEquals("Jurassic Park", sample.getTitle());
+		assertEquals("Jurassic.Park[1993]DvDrip-aXXo", sample.getRelease());
+		assertEquals(true, sample.isIsLinked());
 	}
 	
 
