@@ -166,6 +166,7 @@ div.screencast:hover .play {
 
 .section p {
 	margin-left: 10px;
+	margin-right: 0px;
 }
 
 .section .quote {
@@ -237,7 +238,7 @@ div.screencast:hover .play {
 
 .metrics {
 	margin: 25px;
-	min-height: 15px;
+	min-height: 25px;
 	text-align: center;
 }
 
