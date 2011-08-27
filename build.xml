@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project name="FileBot" default="fatjar">
+<project name="filebot" default="fatjar">
 
-	<property name="title" value="${ant.project.name}" />
-	<property name="version" value="1.98" />
+	<!-- include application properties -->
+	<property file="source/net/sourceforge/filebot/Settings.properties" />
+	<property name="title" value="${application.name}" />
+	<property name="version" value="${application.version}" />
 
 	<tstamp>
 		<format property="today" pattern="yyyy-MM-dd" />
@@ -13,11 +15,15 @@
 	<property name="dir.build" location="${basedir}/build" />
 	<property name="dir.dist" location="${basedir}/dist" />
 	<property name="dir.lib" location="${basedir}/lib" />
+	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
 
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
 	<property name="path.appbundle.zip" location="${dir.dist}/${title}_${version}.app.zip" />
 	<property name="path.source.zip" location="${dir.dist}/filebot-${version}-src.zip" />
+
+	<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
+	<property name="deploy.website" value="web.sourceforge.net:htdocs" />
 
 
 	<target name="jar" depends="build">
@@ -329,15 +335,7 @@
 	</target>
 
 
-	<target name="run-fatjar" depends="fatjar">
-		<java jar="${path.fatjar}" fork="true" />
-	</target>
-
-
-	<target name="deploy" depends="fatjar, appbundle, deb, msi, webstart">
-		<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
-		<property name="deploy.webstart" value="web.sourceforge.net:htdocs/webstart" />
-
+	<target name="deploy-release" depends="fatjar, appbundle, deb, msi, webstart">
 		<!-- ask for sourceforge password -->
 		<property name="sf.user" value="rednoah,filebot" />
 		<input message="Please enter password:" addproperty="sf.password" />
@@ -384,8 +382,39 @@
 		</scp>
 
 		<!-- deploy webstart jars and jnlp descriptors -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.webstart}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}/webstart" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/webstart" />
+		</scp>
+	</target>
+
+
+	<target name="deploy-website">
+		<!-- prepare website resource -->
+		<copy todir="${dir.dist}/website">
+			<fileset dir="${dir.website}">
+				<include name="*.html" />
+				<include name="*.css" />
+				<include name="*.js" />
+				<include name="*.png" />
+				<include name="*.ico" />
+				<include name="images/**" />
+				<include name="screenshots/**" />
+			</fileset>
+		</copy>
+
+		<!-- replace variables for new release -->
+		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
+			<include name="**/*.html" />
+			<replacefilter token="@{version}" value="${version}" />
+		</replace>
+
+		<!-- ask for sourceforge password -->
+		<property name="sf.user" value="rednoah,filebot" />
+		<input message="Please enter password:" addproperty="sf.password" />
+
+		<!-- upload -->
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
+			<fileset dir="${dir.dist}/website" />
 		</scp>
 	</target>
 

@@ -1,0 +1,262 @@
+body {
+	font-family: arial, dejavu sans, freesans;
+	font-size: 16px;
+	background-color: #e6e6e6;
+}
+
+a,acronym {
+	color: #5c7684;
+	text-decoration: none;
+	border: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a img {
+	border: none;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 5px 20px;
+}
+
+td {
+	border-top: thin dotted lavender;
+}
+
+code {
+	display: block;
+	font: Arial, Helvetica, sans-serif;
+	line-height: 1.2em;
+	background-color: #f5f5f5;
+	border: thin dashed #a2a2a2;
+	padding: 5px;
+	margin: 5px 0px;
+}
+
+.page {
+	position: relative;
+	margin: 20px auto;
+	width: 760px;
+	min-height: 800px;
+	padding: 20px;
+	background: white;
+	border: 1px solid #a2a2a2;
+	margin: 20px auto;
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+	box-shadow: 0px 2px 5px #a2a2a2;
+	-moz-box-shadow: 0px 2px 5px #a2a2a2;
+}
+
+.header {
+	margin-left: 25px;
+	margin-right: 80px;
+	margin-bottom: 50px;
+}
+
+.header img {
+	float: left;
+	margin-top: 2px;
+}
+
+img.logo {
+	float: left;
+}
+
+h1 {
+	font-size: 24px;
+	font-weight: bold;
+	margin-left: 65px;
+	letter-spacing: 0.03em;
+}
+
+h1 .description {
+	display: block;
+	color: #888888;
+	font-size: 70%;
+	font-weight: normal;
+	font-style: italic;
+	letter-spacing: normal;
+}
+
+.screenshot {
+	float: right;
+	background-color: #E6E6E6;
+	border: 1px solid lightgray;
+	box-shadow: 0px 2px 5px #a2a2a2;
+	-moz-box-shadow: 0px 2px 5px #a2a2a2;
+}
+
+.screenshot a {
+	display: block;
+	border: none;
+	outline: none;
+}
+
+.screencast {
+	position: relative;
+}
+
+div.screencast .play {
+	position: absolute;
+	top: 2px;
+	right: 4px;
+	opacity: 0.2;
+}
+
+div.screencast:hover .play {
+	opacity: 1.0;
+}
+
+.content>.screenshot {
+	margin-top: 10px;
+	margin-left: 20px;
+}
+
+.webstart {
+	margin: 15px;
+	min-height: 25px;
+	text-align: center;
+}
+
+.comment {
+	font-size:xx-small;
+	color: lightgray;
+	margin-left: 2px;
+}
+
+.webstart a img {
+	box-shadow: 0px 0px 5px lightgray;
+	-moz-box-shadow: 0px 0px 5px lightgray;
+}
+
+.webstart a:hover img {
+	box-shadow: 0px 1px 8px darkorange;
+	-moz-box-shadow: 0px 1px 8px darkorange;
+}
+
+.section.features {
+	clear: both;
+	margin-top: 20px;
+}
+
+.section.download,.section.contact {
+	clear: both;
+	margin-top: 40px;
+}
+
+.section .icon {
+	float: left;
+	margin-right: 10px;
+}
+
+.section h2 {
+	font-size: 20px;
+	padding-top: 12px;
+	margin-bottom: 20px;
+}
+
+.section p {
+	margin-left: 10px;
+}
+
+.section .quote {
+	float: right;
+	margin-top: 12px;
+	color: #888;
+	font-size: 11px;
+}
+
+.quote:before {
+	content: open-quote;
+}
+
+.quote:after {
+	content: close-quote;
+}
+
+.section>ul>li {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.section>ul>li li {
+	margin-top: 2px;
+}
+
+.note {
+	font-size: 80%;
+	font-style: italic;
+}
+
+.note.mediainfo {
+	color: #3E8D39;
+}
+
+.note.mediainfo:before {
+	content: url("images/plugin.png");
+	position: relative;
+	top: 2px;
+	margin-right: 2px;
+}
+
+.note.anime {
+	color: #D76F04;
+}
+
+.note.anime:before {
+	content: url("images/asterisk.png");
+	position: relative;
+	top: 3px;
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
+.section.features>ul.next {
+	clear: both;
+	padding-top: 5px;
+	border-top: 1px dashed lightgray;
+}
+
+.section.features .screenshot {
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.section.features .screenshot.dialog {
+	position: absolute;
+}
+
+.metrics {
+	margin: 25px;
+	min-height: 15px;
+	text-align: center;
+}
+
+.footer {
+	font-size: 60%;
+	text-align: center;
+}
+
+#sflogo {
+	position: relative;
+	text-align: right;
+	height: 0px;
+	top: -10px;
+}
+
+#donate {
+	position: relative;
+	text-align: left;
+	height: 0px;
+	left: 20px;
+	top: -57px;
+}

@@ -1,0 +1,218 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Episode Format Expression</title>
+		<link rel="stylesheet" href="base.css" type="text/css" />
+		<link rel="icon" href="favicon.png" />
+	</head>
+	<body>
+		<div class="page">
+			<div class="header">
+				<img class="logo" alt="logo" src="images/icon.png" />
+				<h1>
+					Episode Format Expressions
+					<span class="description">User defined episode naming scheme</span>
+				</h1>
+			</div>
+			
+			<div class="content">
+				<div class="screenshot">
+					<a href="gallery.html#screenshots/original/dialog.format.png" title="Episode Format Dialog" target="_blank">
+						<img alt="screenshot" src="screenshots/medium/dialog.format.png" />
+					</a>
+				</div>			
+				<div class="section about">
+					<h2>About</h2>
+					<p>
+					You can easily define your own episode naming scheme. It uses Groovy expressions, 
+					which means that you can do pretty much anything, especially if you know a little bit about programming. 
+					You even get media info bindings. 
+					</p>
+					<h2>Examples</h2>
+					<p>
+					<code>{n} - {s}.{e} - {t}</code>
+					Dark Angel - 3.1 - Labyrinth
+					</p>
+					<p>
+					<code>{n} - {'S'+s.pad(2)}E{e.pad(2)} - {t}</code>Dark Angel - S03E01 - Labyrinth
+					</p>
+					<p>
+					<code>{n} - {s+'x'}{e.pad(2)}</code>Dark Angel - 3x01 - Labyrinth
+					</p>
+					<p>
+					<code>{n.space('.').lower()}.{s}{e.pad(2)}</code>dark.angel.301
+					</p>
+					<h2>Advanced Examples</h2>
+					<p>
+					<code>{n.space('_')}_-_{e.pad(2)}_[{resolution}_{vc}_{ac}][{crc32}]</code>Juuni_Kokuki_-_01_[1280x720_XviD_MP3][3E16AF40]
+					</p>
+					<p>
+					<code>{n.space('.')}.{'s'+s.pad(2)}e{e.pad(2)}.{t.space('.')}.{vf}.{vc.lower()}.{ac.lower()}</code>Firefly.s01e01.Serenity.720p.x264.ac3
+					</p>
+					<p>
+					<code>{n} [{airdate.format("yyyy.MM.dd")}] {t}</code>The Daily Show [2010.01.05] George Lucas
+					</p>					
+					<p>
+					<code>E:/Complete/{n}{'/Season '+s}/{s+'x'}{e.pad(2)} - {t}</code>Rename and move. The directory structure is completely up to you.
+					</p>
+					<p>
+					<code>{n.replaceTrailingBraces()} - {s+'x'}{e.pad(2)} - {t.replaceAll(/[!?.]+$/).replaceAll(/[`´]/, "'").lowerTrail().replacePart(', Part $1')}</code>My personal favorite. Pretty much 1x01, but with lots of cleanup operations.
+					</p>
+					<h2>Binding Reference</h2>
+					<table>
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Example</th>
+						</tr>
+						<tr>
+							<td>n</td>
+							<td>series name</td>
+							<td>Dark Angel</td>
+						</tr>
+						<tr>
+							<td>s</td>
+							<td>season number</td>
+							<td>3</td>
+						</tr>
+						<tr>
+							<td>e</td>
+							<td>episode number</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>t</td>
+							<td>episode title</td>
+							<td>Labyrinth</td>
+						</tr>
+						<tr>
+							<td>airdate</td>
+							<td>episode airdate</td>
+							<td>2009-06-01</td>
+						</tr>	
+						<tr>
+							<td>absolute</td>
+							<td>absolute episode number</td>
+							<td>42</td>
+						</tr>
+						<tr>
+							<td>special</td>
+							<td>special epsiode number</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>vc</td>
+							<td>video codec</td>
+							<td>x264</td>
+						</tr>
+						<tr>
+							<td>ac</td>
+							<td>audio codec</td>
+							<td>ac3</td>
+						</tr>
+						<tr>
+							<td>cf</td>
+							<td>container format</td>
+							<td>mkv</td>
+						</tr>
+						<tr>
+							<td>vf</td>
+							<td>video format</td>
+							<td>720p</td>
+						</tr>
+						<tr>
+							<td>resolution</td>
+							<td>video size</td>
+							<td>1280x720</td>
+						</tr>
+						<tr>
+							<td>crc32</td>
+							<td>crc32 checksum</td>
+							<td>3E16AF40</td>
+						</tr>
+						<tr>
+							<td>fn</td>
+							<td>file name</td>
+							<td>Serenity</td>
+						</tr>						
+						<tr>
+							<td>ext</td>
+							<td>file extension</td>
+							<td>mkv</td>
+						</tr>
+						<tr>
+							<td>episode</td>
+							<td>episode object</td>
+							<td>&lt;default name&gt;</td>
+						</tr>
+						<tr>
+							<td>file</td>
+							<td>file object</td>
+							<td>&lt;file path&gt;</td>
+						</tr>						
+						<tr>
+							<td>media</td>
+							<td>general media info object</td>
+							<td>&lt;any general media parameter&gt;</td>
+						</tr>
+						<tr>
+							<td>video</td>
+							<td>video object [stream 0]</td>
+							<td>&lt;any video parameter&gt;</td>
+						</tr>
+						<tr>
+							<td>audio</td>
+							<td>audio object [stream 0]</td>
+							<td>&lt;any audio parameter&gt;</td>
+						</tr>
+						<tr>
+							<td>text</td>
+							<td>subtitle object [stream 0]</td>
+							<td>&lt;any subtitle parameter&gt;</td>
+						</tr>						
+					</table>
+					<h2>Function Reference</h2>
+					<p>
+					<code>pad(length, padding = "0")</code>Pad strings or numbers with given characters ('0' by default).
+					</p>
+					<p>
+					<code>replaceAll(pattern, replacement = "")</code>Replace or remove all occurrences of the pattern.
+					</p>
+					<p>
+					<code>space(replacement)</code>Replace all spaces (e.g. "Doctor Who" -> "Doctor_Who").
+					</p>		
+					<p>
+					<code>upperInitial()</code>Upper-case all initials (e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born").
+					</p>
+					<p>
+					<code>lowerTrail()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
+					</p>
+					<p>
+					<code>match(pattern)</code>Get a substring matching the given pattern or nothing at all.
+					</p>
+					<p>
+					<code>before(pattern)</code>Get the substring before the given pattern or the original value.
+					</p>		
+					<p>
+					<code>after(pattern)</code>Get the substring after the given pattern or the original value.
+					</p>
+					<p>
+					<code>replaceTrailingBraces(replacement = "")</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" -> "The IT Crowd").
+					</p>
+					<p>
+					<code>replacePart(replacement = "")</code>Replace part identifier (e.g. "Today Is the Day (1)" -> "Today Is the Day, Part 1").
+					</p>
+				</div>
+				<div class="footer" style="margin-top: 100px">
+					<div id="sflogo">
+						<a href="http://sourceforge.net/projects/filebot">
+							<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
+						</a>
+					</div>
+					Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
+					| Creative Commons License: Attribution-NonCommercial-ShareAlike. &copy; 2011
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
