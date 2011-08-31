@@ -3,6 +3,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>Episode Format Expression</title>
 		<link rel="stylesheet" href="base.css" type="text/css" />
+		<link rel="stylesheet" href="code.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
 		
 		<script type="text/javascript">
@@ -36,39 +37,39 @@
 				<div class="section about">
 					<h2>About</h2>
 					<p>
-					You can easily define your own episode naming scheme. It uses Groovy expressions, 
+					You can easily define your own episode naming scheme. It uses <a href="http://groovy.codehaus.org">Groovy</a> expressions, 
 					which means that you can do pretty much anything, especially if you know a little bit about programming. 
 					You even get media info bindings. 
 					</p>
 					<h2>Examples</h2>
 					<p>
-					<code>{n} - {s}.{e} - {t}</code>
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="variable">s</span><span class="block end">}</span>.<span class="block start">{</span><span class="variable">e</span><span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>
 					Dark Angel - 3.1 - Labyrinth
 					</p>
 					<p>
-					<code>{n} - {'S'+s.pad(2)}E{e.pad(2)} - {t}</code>Dark Angel - S03E01 - Labyrinth
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="string">'S'</span>+<span class="variable">s</span>.<span class="method"><span class="method">pad</span></span>(<span class="numeral">2</span>)<span class="block end">}</span>E<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>Dark Angel - S03E01 - Labyrinth
 					</p>
 					<p>
-					<code>{n} - {s+'x'}{e.pad(2)}</code>Dark Angel - 3x01 - Labyrinth
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span></code>Dark Angel - 3x01 - Labyrinth
 					</p>
 					<p>
-					<code>{n.space('.').lower()}.{s}{e.pad(2)}</code>dark.angel.301
+					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">space</span>(<span class="string">'.'</span>).<span class="method">lower</span>()<span class="block end">}</span>.<span class="block start">{</span><span class="variable">s</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span></code>dark.angel.301
 					</p>
 					<h2>Advanced Examples</h2>
 					<p>
-					<code>{n.space('_')}_-_{e.pad(2)}_[{resolution}_{vc}_{ac}][{crc32}]</code>Juuni_Kokuki_-_01_[1280x720_XviD_MP3][3E16AF40]
+					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">space</span>(<span class="string">'_'</span>)<span class="block end">}</span>_-_<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span>_[<span class="block start">{</span><span class="variable">resolution</span><span class="block end">}</span>_<span class="block start">{</span><span class="variable">vc</span><span class="block end">}</span>_<span class="block start">{</span><span class="variable">ac</span><span class="block end">}</span>][<span class="block start">{</span><span class="variable">crc32</span><span class="block end">}</span>]</code>Juuni_Kokuki_-_01_[1280x720_XviD_MP3][3E16AF40]
 					</p>
 					<p>
-					<code>{n.space('.')}.{'s'+s.pad(2)}e{e.pad(2)}.{t.space('.')}.{vf}.{vc.lower()}.{ac.lower()}</code>Firefly.s01e01.Serenity.720p.x264.ac3
+					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">space</span>(<span class="string">'.'</span>)<span class="block end">}</span>.<span class="block start">{</span><span class="string">'s'</span>+<span class="variable">s</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span>e<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span>.<span class="block start">{</span><span class="variable">t</span>.<span class="method">space</span>(<span class="string">'.'</span>)<span class="block end">}</span>.<span class="block start">{</span><span class="variable">vf</span><span class="block end">}</span>.<span class="block start">{</span><span class="variable">vc</span>.<span class="method">lower</span>()<span class="block end">}</span>.<span class="block start">{</span><span class="variable">ac</span>.<span class="method">lower</span>()<span class="block end">}</span></code>Firefly.s01e01.Serenity.720p.x264.ac3
 					</p>
 					<p>
-					<code>{n} [{airdate.format("yyyy.MM.dd")}] {t}</code>The Daily Show [2010.01.05] George Lucas
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> [<span class="block start">{</span><span class="variable">airdate</span>.<span class="method">format</span>(<span class="string">'yyyy.MM.dd'</span>)<span class="block end">}</span>] <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>The Daily Show [2010.01.05] George Lucas
 					</p>					
 					<p>
-					<code>E:/Complete/{n}{'/Season '+s}/{s+'x'}{e.pad(2)} - {t}</code>Rename and move. The directory structure is completely up to you.
+					<code>E:/Complete/<span class="block start">{</span><span class="variable">n</span><span class="block end">}</span><span class="block start">{</span><span class="string">'/Season '</span>+<span class="variable">s</span><span class="block end">}</span>/<span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>Rename and move. The directory structure is completely up to you.
 					</p>
 					<p>
-					<code>{n.replaceTrailingBraces()} - {s+'x'}{e.pad(2)} - {t.replaceAll(/[!?.]+$/).replaceAll(/[`´]/, "'").lowerTrail().replacePart(', Part $1')}</code>My personal favorite. Pretty much 1x01, but with lots of cleanup operations.
+					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">replaceTrailingBraces</span>()<span class="block end">}</span> - <span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span>.<span class="method">replaceAll</span>(<span class="regex">/[!?.]+$/</span>).<span class="method">replaceAll</span>(<span class="regex">/[`´]/</span>, <span class="string">"'"</span>).<span class="method">lowerTrail</span>().<span class="method">replacePart</span>(<span class="string">', Part $1'</span>)<span class="block end">}</span></code>My personal favorite. Pretty much 1x01, but with lots of cleanup operations.
 					</p>
 					<h2>Binding Reference</h2>
 					<table>
@@ -185,34 +186,34 @@
 					</table>
 					<h2>Function Reference</h2>
 					<p>
-					<code>pad(length, padding = "0")</code>Pad strings or numbers with given characters ('0' by default).
+					<code><span class="method">pad</span>(<span class="numeral">length</span>, <span class="string">padding</span> = <span class="string">"0"</span>)</code>Pad strings or numbers with given characters ('0' by default).
 					</p>
 					<p>
-					<code>replaceAll(pattern, replacement = "")</code>Replace or remove all occurrences of the pattern.
+					<code><span class="method">replaceAll</span>(<span class="regex">pattern</span>, <span class="string">replacement</span> = <span class="string">""</span>)</code>Replace or remove all occurrences of the pattern.
 					</p>
 					<p>
-					<code>space(replacement)</code>Replace all spaces (e.g. "Doctor Who" -> "Doctor_Who").
+					<code><span class="method">space</span>(<span class="string">replacement</span>)</code>Replace all spaces (e.g. "Doctor Who" -> "Doctor_Who").
 					</p>		
 					<p>
-					<code>upperInitial()</code>Upper-case all initials (e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born").
+					<code><span class="method">upperInitial</span>()</code>Upper-case all initials (e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born").
 					</p>
 					<p>
-					<code>lowerTrail()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
+					<code><span class="method">lowerTrail</span>()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
 					</p>
 					<p>
-					<code>match(pattern)</code>Get a substring matching the given pattern or nothing at all.
+					<code><span class="method">match</span>(<span class="regex">pattern</span>)</code>Get a substring matching the given pattern or nothing at all.
 					</p>
 					<p>
-					<code>before(pattern)</code>Get the substring before the given pattern or the original value.
+					<code><span class="method">before</span>(<span class="regex">pattern</span>)</code>Get the substring before the given pattern or the original value.
 					</p>		
 					<p>
-					<code>after(pattern)</code>Get the substring after the given pattern or the original value.
+					<code><span class="method">after</span>(<span class="regex">pattern</span>)</code>Get the substring after the given pattern or the original value.
 					</p>
 					<p>
-					<code>replaceTrailingBraces(replacement = "")</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" -> "The IT Crowd").
+					<code><span class="method">replaceTrailingBraces</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" -> "The IT Crowd").
 					</p>
 					<p>
-					<code>replacePart(replacement = "")</code>Replace part identifier (e.g. "Today Is the Day (1)" -> "Today Is the Day, Part 1").
+					<code><span class="method">replacePart</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace part identifier (e.g. "Today Is the Day (1)" -> "Today Is the Day, Part 1").
 					</p>
 				</div>
 				<div class="footer" style="margin-top: 100px">
@@ -222,7 +223,7 @@
 						</a>
 					</div>
 					Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
-					| Creative Commons License: Attribution-NonCommercial-ShareAlike. &copy; 2011
+					| Creative Commons License: Attribution-NonCommercial-ShareAlike. © 2011
 				</div>
 			</div>
 		</div>
