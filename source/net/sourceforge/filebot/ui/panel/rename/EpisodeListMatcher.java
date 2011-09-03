@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,6 +84,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+				selectDialog.setMinimumSize(new Dimension(250, 150));
 				selectDialog.pack();
 				
 				// show dialog

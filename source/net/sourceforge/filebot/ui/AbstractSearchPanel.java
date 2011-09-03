@@ -6,6 +6,7 @@ import static javax.swing.ScrollPaneConstants.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.net.URI;
@@ -394,6 +395,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 			selectDialog.setIconImage(getImage(getIcon()));
+			selectDialog.setMinimumSize(new Dimension(250, 150));
 		}
 		
 
