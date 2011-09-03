@@ -77,6 +77,13 @@ h1 .description {
 	letter-spacing: normal;
 }
 
+.social {
+	float: right;
+	position: relative;
+	right: 0px;
+	top: -15px;
+}
+
 .screenshot {
 	float: right;
 	background-color: #E6E6E6;
@@ -118,7 +125,7 @@ div.screencast:hover .play {
 }
 
 .comment {
-	font-size:xx-small;
+	font-size: xx-small;
 	color: lightgray;
 	margin-left: 2px;
 }
