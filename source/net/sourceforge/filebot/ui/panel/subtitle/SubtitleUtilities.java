@@ -28,6 +28,7 @@ final class SubtitleUtilities {
 	public static List<SubtitleElement> decode(MemoryFile file) throws IOException {
 		// detect charset and read text content 
 		CharsetDetector detector = new CharsetDetector();
+		detector.setDeclaredEncoding("UTF-8");
 		detector.enableInputFilter(true);
 		
 		detector.setText(new ByteBufferInputStream(file.getData()));

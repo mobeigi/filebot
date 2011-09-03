@@ -4,9 +4,7 @@ package net.sourceforge.filebot.hash;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -25,11 +23,6 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 	private Entry<File, String> buffer;
 	
 	private int lineNumber = 0;
-	
-
-	public VerificationFileReader(File file, VerificationFormat format) throws IOException {
-		this(new InputStreamReader(new FileInputStream(file), "UTF-8"), format);
-	}
 	
 
 	public VerificationFileReader(Readable source, VerificationFormat format) {

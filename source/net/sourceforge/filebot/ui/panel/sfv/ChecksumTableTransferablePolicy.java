@@ -110,14 +110,18 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	
 
 	protected void loadVerificationFile(File file, HashType type) throws IOException, InterruptedException {
-		VerificationFileReader scanner = new VerificationFileReader(file, type.getFormat());
+		VerificationFileReader parser = createVerificationFileReader(file, type);
 		
 		try {
 			// root for relative file paths in verification file
 			File baseFolder = file.getParentFile();
 			
-			while (scanner.hasNext()) {
-				Entry<File, String> entry = scanner.next();
+			while (parser.hasNext()) {
+				// make this possibly long-running operation interruptible
+				if (Thread.interrupted())
+					throw new InterruptedException();
+				
+				Entry<File, String> entry = parser.next();
 				
 				String name = normalizePath(entry.getKey());
 				String hash = new String(entry.getValue());
@@ -126,13 +130,9 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 				ChecksumCell current = createComputationCell(name, baseFolder, type);
 				
 				publish(correct, current);
-				
-				// make this long-running operation interruptible
-				if (Thread.interrupted())
-					throw new InterruptedException();
 			}
 		} finally {
-			scanner.close();
+			parser.close();
 		}
 	}
 	
@@ -260,21 +260,21 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 		 * Completely read a verification file and resolve all relative file paths against a given base folder
 		 */
 		private Map<File, String> importVerificationFile(File verificationFile, HashType hashType, File baseFolder) throws IOException {
-			VerificationFileReader reader = new VerificationFileReader(verificationFile, hashType.getFormat());
-			Map<File, String> content = new HashMap<File, String>();
+			VerificationFileReader parser = createVerificationFileReader(verificationFile, hashType);
+			Map<File, String> result = new HashMap<File, String>();
 			
 			try {
-				while (reader.hasNext()) {
-					Entry<File, String> entry = reader.next();
+				while (parser.hasNext()) {
+					Entry<File, String> entry = parser.next();
 					
 					// resolve relative path, the hash is probably a substring, so we compact it, for memory reasons
-					content.put(new File(baseFolder, entry.getKey().getPath()), new String(entry.getValue()));
+					result.put(new File(baseFolder, entry.getKey().getPath()), new String(entry.getValue()));
 				}
 			} finally {
-				reader.close();
+				parser.close();
 			}
 			
-			return content;
+			return result;
 		}
 		
 	}

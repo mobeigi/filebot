@@ -143,14 +143,14 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 				continue;
 			
 			// add all file names from verification file
-			VerificationFileReader scanner = new VerificationFileReader(verificationFile, type.getFormat());
+			VerificationFileReader parser = createVerificationFileReader(verificationFile, type);
 			
 			try {
-				while (scanner.hasNext()) {
-					values.add(new AbstractFile(scanner.next().getKey().getName(), -1));
+				while (parser.hasNext()) {
+					values.add(new AbstractFile(parser.next().getKey().getName(), -1));
 				}
 			} finally {
-				scanner.close();
+				parser.close();
 			}
 		}
 	}
