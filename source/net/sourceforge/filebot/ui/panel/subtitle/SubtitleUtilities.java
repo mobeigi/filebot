@@ -5,13 +5,14 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.ibm.icu.text.CharsetDetector;
 
 import net.sourceforge.filebot.subtitle.SubtitleElement;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
@@ -22,12 +23,19 @@ import net.sourceforge.tuned.ByteBufferInputStream;
 final class SubtitleUtilities {
 	
 	/**
-	 * Decode subtitle file even if extension is invalid.
+	 * Detect charset and parse subtitle file even if extension is invalid
 	 */
 	public static List<SubtitleElement> decode(MemoryFile file) throws IOException {
-		LinkedList<SubtitleFormat> priorityList = new LinkedList<SubtitleFormat>();
+		// detect charset and read text content 
+		CharsetDetector detector = new CharsetDetector();
+		detector.enableInputFilter(true);
+		
+		detector.setText(new ByteBufferInputStream(file.getData()));
+		String textfile = detector.detect().getString();
 		
 		// gather all formats, put likely formats first
+		LinkedList<SubtitleFormat> priorityList = new LinkedList<SubtitleFormat>();
+		
 		for (SubtitleFormat format : SubtitleFormat.values()) {
 			if (format.getFilter().accept(file.getName())) {
 				priorityList.addFirst(format);
@@ -38,23 +46,19 @@ final class SubtitleUtilities {
 		
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : priorityList) {
-			InputStream data = new ByteBufferInputStream(file.getData());
-			SubtitleReader reader = format.newReader(new InputStreamReader(data, "UTF-8"));
+			// reset reader to position 0
+			SubtitleReader parser = format.newReader(new StringReader(textfile));
 			
-			try {
-				if (reader.hasNext()) {
-					// correct format found
-					List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
-					
-					// read subtitle file
-					while (reader.hasNext()) {
-						list.add(reader.next());
-					}
-					
-					return list;
+			if (parser.hasNext()) {
+				// correct format found
+				List<SubtitleElement> list = new ArrayList<SubtitleElement>(500);
+				
+				// read subtitle file
+				while (parser.hasNext()) {
+					list.add(parser.next());
 				}
-			} finally {
-				reader.close();
+				
+				return list;
 			}
 		}
 		

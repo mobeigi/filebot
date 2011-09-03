@@ -119,6 +119,10 @@
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/icu4j.jar">
+				<include name="com/ibm/icu/text/**" />
+			</zipfileset>			
 
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
 				<include name="net/sublight/webservice/**" />

@@ -25,6 +25,7 @@
 		<jar href="sublight-ws.jar" />
 		<jar href="xmlrpc.jar" />
 		<jar href="json-simple.jar" />
+		<jar href="icu4j.jar" />
 	</resources>
 
 	<component-desc />
