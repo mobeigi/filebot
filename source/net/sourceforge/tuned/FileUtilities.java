@@ -2,11 +2,14 @@
 package net.sourceforge.tuned;
 
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 
 public final class FileUtilities {
@@ -37,6 +43,20 @@ public final class FileUtilities {
 		} finally {
 			in.close();
 		}
+	}
+	
+
+	public static Reader createTextReader(File file) throws IOException {
+		CharsetDetector detector = new CharsetDetector();
+		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
+		detector.setText(new BufferedInputStream(new FileInputStream(file)));
+		
+		CharsetMatch charset = detector.detect();
+		if (charset != null)
+			return charset.getReader();
+		
+		// assume UTF-8 by default
+		return new InputStreamReader(new FileInputStream(file), "UTF-8");
 	}
 	
 

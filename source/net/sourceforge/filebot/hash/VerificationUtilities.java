@@ -2,18 +2,13 @@
 package net.sourceforge.filebot.hash;
 
 
-import java.io.BufferedInputStream;
+import static net.sourceforge.tuned.FileUtilities.*;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 
 
 public final class VerificationUtilities {
@@ -50,19 +45,6 @@ public final class VerificationUtilities {
 	}
 	
 
-	public static VerificationFileReader createVerificationFileReader(File file, HashType type) throws IOException {
-		// detect charset and read text content
-		CharsetDetector detector = new CharsetDetector();
-		detector.setDeclaredEncoding("UTF-8");
-		detector.setText(new BufferedInputStream(new FileInputStream(file)));
-		
-		CharsetMatch charset = detector.detect();
-		Reader source = (charset != null) ? charset.getReader() : new InputStreamReader(new FileInputStream(file), "UTF-8");
-		
-		return new VerificationFileReader(source, type.getFormat());
-	}
-	
-
 	private static String getHashFromVerificationFile(File folder, File target, HashType type, int depth, int maxDepth) throws IOException {
 		// stop if we reached max depth or the file system root
 		if (folder == null || depth > maxDepth)
@@ -70,7 +52,7 @@ public final class VerificationUtilities {
 		
 		// scan all sfv files in this folder
 		for (File verificationFile : folder.listFiles(type.getFilter())) {
-			VerificationFileReader parser = createVerificationFileReader(verificationFile, type);
+			VerificationFileReader parser = new VerificationFileReader(createTextReader(verificationFile), type.getFormat());
 			
 			try {
 				while (parser.hasNext()) {

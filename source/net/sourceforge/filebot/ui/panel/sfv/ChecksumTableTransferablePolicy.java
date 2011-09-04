@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.sfv;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,7 +111,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	
 
 	protected void loadVerificationFile(File file, HashType type) throws IOException, InterruptedException {
-		VerificationFileReader parser = createVerificationFileReader(file, type);
+		VerificationFileReader parser = new VerificationFileReader(createTextReader(file), type.getFormat());
 		
 		try {
 			// root for relative file paths in verification file
@@ -260,7 +261,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 		 * Completely read a verification file and resolve all relative file paths against a given base folder
 		 */
 		private Map<File, String> importVerificationFile(File verificationFile, HashType hashType, File baseFolder) throws IOException {
-			VerificationFileReader parser = createVerificationFileReader(verificationFile, hashType);
+			VerificationFileReader parser = new VerificationFileReader(createTextReader(verificationFile), hashType.getFormat());
 			Map<File, String> result = new HashMap<File, String>();
 			
 			try {
@@ -276,7 +277,6 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 			
 			return result;
 		}
-		
 	}
 	
 }

@@ -10,8 +10,6 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,10 +114,10 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	}
 	
 
-	protected void loadListFiles(List<File> files, List<Object> values) throws FileNotFoundException {
+	protected void loadListFiles(List<File> files, List<Object> values) throws IOException {
 		for (File file : files) {
 			// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
+			Scanner scanner = new Scanner(createTextReader(file));
 			
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine().trim();
@@ -143,7 +141,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 				continue;
 			
 			// add all file names from verification file
-			VerificationFileReader parser = createVerificationFileReader(verificationFile, type);
+			VerificationFileReader parser = new VerificationFileReader(createTextReader(verificationFile), type.getFormat());
 			
 			try {
 				while (parser.hasNext()) {

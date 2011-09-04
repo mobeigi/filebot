@@ -127,7 +127,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		Set<Integer> collection = new HashSet<Integer>();
 		
 		for (File file : files) {
-			Scanner scanner = new Scanner(new FileInputStream(file));
+			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
 			
 			try {
 				// scan for imdb id patterns like tt1234567
