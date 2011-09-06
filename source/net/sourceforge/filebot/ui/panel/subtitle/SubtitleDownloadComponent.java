@@ -343,7 +343,12 @@ class SubtitleDownloadComponent extends JComponent {
 					
 					for (Object object : selection) {
 						MemoryFile file = (MemoryFile) object;
-						File destination = new File(folder, validateFileName(file.getName()));
+						
+						// normalize name and auto-adjust extension
+						String ext = sf.getSelectedFormat().getFilter().extensions()[0];
+						String name = validateFileName(getNameWithoutExtension(file.getName()));
+						File destination = new File(folder, name + "." + ext);
+						
 						exportSubtitles(decodeSubtitles(file), destination, sf.getSelectedEncoding(), sf.getSelectedFormat(), sf.getTimingOffset());
 					}
 				}
