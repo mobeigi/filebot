@@ -44,7 +44,7 @@ public enum SubtitleFormat {
 	
 
 	public ExtensionFileFilter getFilter() {
-		return MediaTypes.getDefaultFilter("subtitle/" + this);
+		return MediaTypes.getDefaultFilter("subtitle/" + this.name());
 	}
 	
 }

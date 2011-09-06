@@ -2,18 +2,23 @@
 package net.sourceforge.filebot.ui.panel.subtitle;
 
 
+import static java.lang.Math.*;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.ibm.icu.text.CharsetDetector;
 
+import net.sourceforge.filebot.subtitle.SubRipWriter;
 import net.sourceforge.filebot.subtitle.SubtitleElement;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleReader;
@@ -25,7 +30,7 @@ final class SubtitleUtilities {
 	/**
 	 * Detect charset and parse subtitle file even if extension is invalid
 	 */
-	public static List<SubtitleElement> decode(MemoryFile file) throws IOException {
+	public static List<SubtitleElement> decodeSubtitles(MemoryFile file) throws IOException {
 		// detect charset and read text content 
 		CharsetDetector detector = new CharsetDetector();
 		detector.setDeclaredEncoding("UTF-8");
@@ -65,6 +70,28 @@ final class SubtitleUtilities {
 		
 		// unsupported subtitle format
 		throw new IOException("Cannot read subtitle format");
+	}
+	
+
+	/**
+	 * Write a subtitle file to disk
+	 */
+	public static void exportSubtitles(List<SubtitleElement> data, File destination, Charset encoding, SubtitleFormat format, long timingOffset) throws IOException {
+		if (format != SubtitleFormat.SubRip)
+			throw new IllegalArgumentException("Format not supported");
+		
+		StringBuilder buffer = new StringBuilder(4 * 1024);
+		SubRipWriter out = new SubRipWriter(buffer);
+		
+		for (SubtitleElement it : data) {
+			if (timingOffset != 0)
+				it = new SubtitleElement(max(0, it.getStart() + timingOffset), max(0, it.getEnd() + timingOffset), it.getText());
+			
+			out.write(it);
+		}
+		
+		// write to file
+		write(encoding.encode(CharBuffer.wrap(buffer)), destination);
 	}
 	
 

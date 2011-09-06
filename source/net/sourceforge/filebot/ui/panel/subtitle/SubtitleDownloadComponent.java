@@ -6,6 +6,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -278,7 +279,7 @@ class SubtitleDownloadComponent extends JComponent {
 		viewer.getTitleLabel().setText("Subtitle Viewer");
 		viewer.getInfoLabel().setText(file.getPath());
 		
-		viewer.setData(decode(file));
+		viewer.setData(decodeSubtitles(file));
 		viewer.setVisible(true);
 	}
 	
@@ -289,23 +290,61 @@ class SubtitleDownloadComponent extends JComponent {
 				// single file
 				MemoryFile file = (MemoryFile) selection[0];
 				
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setSelectedFile(new File(validateFileName(file.getName())));
+				JFileChooser fc = new JFileChooser();
+				fc.setSelectedFile(new File(validateFileName(file.getName())));
 				
-				if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-					write(file.getData(), fileChooser.getSelectedFile());
+				if (fc.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
+					write(file.getData(), fc.getSelectedFile());
 				}
 			} else {
 				// multiple files
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				
-				if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-					File folder = fileChooser.getSelectedFile();
+				if (fc.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
+					File folder = fc.getSelectedFile();
 					
 					for (Object object : selection) {
 						MemoryFile file = (MemoryFile) object;
-						write(file.getData(), new File(folder, validateFileName(file.getName())));
+						File destination = new File(folder, validateFileName(file.getName()));
+						write(file.getData(), destination);
+					}
+				}
+			}
+		} catch (IOException e) {
+			UILogger.log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+	
+
+	private void export(Object[] selection) {
+		try {
+			if (selection.length == 1) {
+				// single file
+				MemoryFile file = (MemoryFile) selection[0];
+				
+				SubtitleFileChooser sf = new SubtitleFileChooser();
+				
+				// normalize name and auto-adjust extension
+				String ext = sf.getSelectedFormat().getFilter().extensions()[0];
+				String name = validateFileName(getNameWithoutExtension(file.getName()));
+				sf.setSelectedFile(new File(name + "." + ext));
+				
+				if (sf.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
+					exportSubtitles(decodeSubtitles(file), sf.getSelectedFile(), sf.getSelectedEncoding(), sf.getSelectedFormat(), sf.getTimingOffset());
+				}
+			} else {
+				// multiple files
+				SubtitleFileChooser sf = new SubtitleFileChooser();
+				sf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				
+				if (sf.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
+					File folder = sf.getSelectedFile();
+					
+					for (Object object : selection) {
+						MemoryFile file = (MemoryFile) object;
+						File destination = new File(folder, validateFileName(file.getName()));
+						exportSubtitles(decodeSubtitles(file), destination, sf.getSelectedEncoding(), sf.getSelectedFormat(), sf.getTimingOffset());
 					}
 				}
 			}
@@ -446,12 +485,21 @@ class SubtitleDownloadComponent extends JComponent {
 						}
 					});
 					
-					// Save as ...
-					contextMenu.add(new AbstractAction("Save as ...") {
+					// Save As...
+					contextMenu.add(new AbstractAction("Save As...", ResourceManager.getIcon("action.save")) {
 						
 						@Override
 						public void actionPerformed(ActionEvent evt) {
 							save(selection);
+						}
+					});
+					
+					// Export...
+					contextMenu.add(new AbstractAction("Export...", ResourceManager.getIcon("action.export")) {
+						
+						@Override
+						public void actionPerformed(ActionEvent evt) {
+							export(selection);
 						}
 					});
 					

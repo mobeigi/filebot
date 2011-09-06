@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.subtitle;
 
 
+import static java.util.regex.Pattern.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.text.DateFormat;
@@ -12,7 +13,7 @@ import java.util.regex.Pattern;
 public class SubViewerReader extends SubtitleReader {
 	
 	private final DateFormat timeFormat = new SubtitleTimeFormat();
-	private final Pattern newline = Pattern.compile(Pattern.quote("[br]"), Pattern.CASE_INSENSITIVE);
+	private final Pattern newline = compile(quote("[br]"), CASE_INSENSITIVE);
 	
 
 	public SubViewerReader(Readable source) {

@@ -14,7 +14,6 @@ import java.util.logging.Logger;
 public abstract class SubtitleReader implements Iterator<SubtitleElement>, Closeable {
 	
 	protected final Scanner scanner;
-	
 	protected SubtitleElement current;
 	
 
