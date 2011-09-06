@@ -128,7 +128,7 @@ public class OpenSubtitlesXmlRpc {
 		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
 		
 		// title pattern
-		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})[)]");
+		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
 		
 		for (Map<String, String> movie : movieData) {
 			// match movie name and movie year from search result
