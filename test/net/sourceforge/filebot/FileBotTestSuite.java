@@ -16,7 +16,7 @@ import net.sourceforge.filebot.web.WebTestSuite;
 
 
 @RunWith(Suite.class)
-@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, ArgumentBeanTest.class, ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, MatchSimilarityMetricTest.class, SubtitleReaderTestSuite.class })
+@SuiteClasses( { SimilarityTestSuite.class, WebTestSuite.class, ExpressionFormatTest.class, VerificationFormatTest.class, MatchModelTest.class, MatchSimilarityMetricTest.class, SubtitleReaderTestSuite.class })
 public class FileBotTestSuite {
 	
 }

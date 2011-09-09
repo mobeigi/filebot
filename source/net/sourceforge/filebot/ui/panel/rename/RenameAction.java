@@ -4,12 +4,12 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,31 +87,6 @@ class RenameAction extends AbstractAction {
 		if (renameLog.size() > 0) {
 			HistorySpooler.getInstance().append(renameLog);
 		}
-	}
-	
-
-	private File rename(File file, String path) throws IOException {
-		File destination = new File(path);
-		
-		// resolve destination
-		if (!destination.isAbsolute()) {
-			// same folder, different name
-			destination = new File(file.getParentFile(), path);
-		}
-		
-		// make sure we that we can create the destination folder structure
-		File destinationFolder = destination.getParentFile();
-		
-		// create parent folder if necessary
-		if (!destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
-			throw new IOException("Failed to create folder: " + destinationFolder);
-		}
-		
-		if (!file.renameTo(destination)) {
-			throw new IOException("Failed to rename file: " + file.getName());
-		}
-		
-		return destination;
 	}
 	
 

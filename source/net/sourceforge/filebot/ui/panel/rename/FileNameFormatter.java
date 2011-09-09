@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import java.io.File;
 
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.vfs.AbstractFile;
 import net.sourceforge.tuned.FileUtilities;
 
 

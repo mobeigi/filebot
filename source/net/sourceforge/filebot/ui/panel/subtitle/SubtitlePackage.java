@@ -21,6 +21,8 @@ import javax.swing.SwingWorker;
 import javax.swing.event.SwingPropertyChangeSupport;
 
 import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.vfs.ArchiveType;
+import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.tuned.FileUtilities;
 

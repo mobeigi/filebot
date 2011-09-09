@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.vfs;
 
 
 import java.io.IOException;
@@ -14,7 +14,7 @@ import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
-class ZipArchive implements Iterable<MemoryFile> {
+public class ZipArchive implements Iterable<MemoryFile> {
 	
 	private final ByteBuffer data;
 	

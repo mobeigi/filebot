@@ -1,12 +1,13 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.vfs;
 
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
 
 
-enum ArchiveType {
+public enum ArchiveType {
+	
 	ZIP {
 		
 		@Override
@@ -31,8 +32,7 @@ enum ArchiveType {
 			return Collections.emptySet();
 		}
 	};
-
-
+	
 	public static ArchiveType forName(String name) {
 		if ("zip".equalsIgnoreCase(name))
 			return ZIP;

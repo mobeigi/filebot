@@ -41,6 +41,11 @@ public class Language {
 	}
 	
 
+	public Locale toLocale() {
+		return new Locale(getCode());
+	}
+	
+
 	@Override
 	public Language clone() {
 		return new Language(code, name);
@@ -102,4 +107,5 @@ public class Language {
 		
 		return getLanguages(codes.toArray(new String[0]));
 	}
+	
 }

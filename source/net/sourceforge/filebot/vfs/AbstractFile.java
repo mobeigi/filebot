@@ -1,13 +1,13 @@
 
-package net.sourceforge.filebot.ui.panel.rename;
+package net.sourceforge.filebot.vfs;
 
 
-class AbstractFile {
+public class AbstractFile {
 	
 	private final String name;
 	private final long length;
 	
-	
+
 	public AbstractFile(String name, long length) {
 		this.name = name;
 		this.length = length;

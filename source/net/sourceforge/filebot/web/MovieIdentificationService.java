@@ -9,6 +9,9 @@ import java.util.Locale;
 
 public interface MovieIdentificationService {
 	
+	public String getName();
+	
+
 	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws Exception;
 	
 

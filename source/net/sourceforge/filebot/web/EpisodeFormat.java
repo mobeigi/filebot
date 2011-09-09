@@ -12,18 +12,11 @@ import java.util.regex.Pattern;
 
 public class EpisodeFormat extends Format {
 	
-	private boolean includeAirdate = true;
-	private boolean includeSpecial = true;
+	public static final EpisodeFormat SeasonEpisode = new EpisodeFormat(true, false);
+	public static final EpisodeFormat Default = new EpisodeFormat(true, true);
 	
-
-	public static EpisodeFormat getSeasonEpisodeInstance() {
-		return new EpisodeFormat(true, false);
-	}
-	
-
-	public static EpisodeFormat getDefaultInstance() {
-		return new EpisodeFormat(true, true);
-	}
+	private final boolean includeAirdate;
+	private final boolean includeSpecial;
 	
 
 	public EpisodeFormat(boolean includeSpecial, boolean includeAirdate) {

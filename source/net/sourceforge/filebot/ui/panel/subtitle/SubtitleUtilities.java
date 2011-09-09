@@ -3,14 +3,12 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static java.lang.Math.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -22,6 +20,7 @@ import net.sourceforge.filebot.subtitle.SubRipWriter;
 import net.sourceforge.filebot.subtitle.SubtitleElement;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleReader;
+import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.tuned.ByteBufferInputStream;
 
 
@@ -91,21 +90,7 @@ final class SubtitleUtilities {
 		}
 		
 		// write to file
-		write(encoding.encode(CharBuffer.wrap(buffer)), destination);
-	}
-	
-
-	/**
-	 * Write {@link ByteBuffer} to {@link File}.
-	 */
-	public static void write(ByteBuffer data, File destination) throws IOException {
-		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
-		
-		try {
-			fileChannel.write(data);
-		} finally {
-			fileChannel.close();
-		}
+		writeFile(encoding.encode(CharBuffer.wrap(buffer)), destination);
 	}
 	
 

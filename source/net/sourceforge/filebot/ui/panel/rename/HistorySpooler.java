@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.ui.panel.rename.History.Element;
 
 
-final class HistorySpooler {
+public final class HistorySpooler {
 	
 	private static final HistorySpooler instance = new HistorySpooler();
 	
@@ -58,7 +58,9 @@ final class HistorySpooler {
 		}
 		
 		// append to session history
-		sessionHistory.add(sequence);
+		if (sequence.size() > 0) {
+			sessionHistory.add(sequence);
+		}
 	}
 	
 

@@ -58,6 +58,9 @@ class History {
 		
 
 		public List<Element> elements() {
+			if (elements == null)
+				return emptyList();
+			
 			return unmodifiableList(elements);
 		}
 		

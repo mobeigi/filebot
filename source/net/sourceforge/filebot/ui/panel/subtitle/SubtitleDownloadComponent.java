@@ -55,6 +55,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePackage.Download.Phase;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ui.ListView;
 import net.sourceforge.tuned.ui.TunedUtilities;
@@ -294,7 +295,7 @@ class SubtitleDownloadComponent extends JComponent {
 				fc.setSelectedFile(new File(validateFileName(file.getName())));
 				
 				if (fc.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
-					write(file.getData(), fc.getSelectedFile());
+					writeFile(file.getData(), fc.getSelectedFile());
 				}
 			} else {
 				// multiple files
@@ -307,7 +308,7 @@ class SubtitleDownloadComponent extends JComponent {
 					for (Object object : selection) {
 						MemoryFile file = (MemoryFile) object;
 						File destination = new File(folder, validateFileName(file.getName()));
-						write(file.getData(), destination);
+						writeFile(file.getData(), destination);
 					}
 				}
 			}

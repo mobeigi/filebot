@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.vfs;
 
 
 import java.nio.ByteBuffer;
 
 
-class MemoryFile {
+public class MemoryFile {
 	
 	private final String path;
 	

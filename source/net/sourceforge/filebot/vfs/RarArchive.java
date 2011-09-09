@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.panel.subtitle;
+package net.sourceforge.filebot.vfs;
 
 
 import java.io.IOException;
@@ -17,7 +17,7 @@ import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
 
 
-class RarArchive implements Iterable<MemoryFile> {
+public class RarArchive implements Iterable<MemoryFile> {
 	
 	private final ByteBuffer data;
 	

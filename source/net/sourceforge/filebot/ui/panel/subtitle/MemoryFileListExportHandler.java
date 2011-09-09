@@ -17,6 +17,7 @@ import javax.swing.TransferHandler;
 import net.sourceforge.filebot.ui.transfer.ByteBufferTransferable;
 import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
 import net.sourceforge.filebot.ui.transfer.TransferableExportHandler;
+import net.sourceforge.filebot.vfs.MemoryFile;
 
 
 class MemoryFileListExportHandler implements TransferableExportHandler, ClipboardHandler {

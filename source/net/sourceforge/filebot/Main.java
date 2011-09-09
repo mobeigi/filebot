@@ -23,10 +23,13 @@ import javax.swing.UIManager;
 import org.kohsuke.args4j.CmdLineParser;
 
 import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.cli.ArgumentBean;
+import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
+import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
 public class Main {
@@ -42,54 +45,66 @@ public class Main {
 		// parse arguments
 		final ArgumentBean argumentBean = initializeArgumentBean(args);
 		
-		if (argumentBean.help()) {
-			printUsage(argumentBean);
+		if (argumentBean.printHelp()) {
+			new CmdLineParser(argumentBean).printUsage(System.out);
 			
 			// just print help message and exit afterwards
 			System.exit(0);
 		}
 		
-		if (argumentBean.clear()) {
+		if (argumentBean.clearUserData()) {
 			// clear preferences and cache
 			Settings.forPackage(Main.class).clear();
 			CacheManager.getInstance().clearAll();
 		}
 		
-		try {
-			// use native laf an all platforms
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		if (argumentBean.runCLI()) {
+			// run cmdline interface and then exit
+			System.exit(new ArgumentProcessor().process(argumentBean));
 		}
 		
+		// Start user interface
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override
 			public void run() {
-				JFrame frame;
-				
-				if (argumentBean.sfv()) {
-					// single panel frame
-					frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(argumentBean.transferable());
-				} else {
-					// default frame
-					frame = new MainFrame();
-				}
-				
-				frame.setLocationByPlatform(true);
-				frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
-				
 				try {
-					// restore previous size and location
-					restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
+					// use native laf an all platforms
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
-					// don't care, doesn't make a difference
+					Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
 				}
 				
-				// start application
-				frame.setVisible(true);
+				startUserInterface(argumentBean);
 			}
 		});
+	}
+	
+
+	private static void startUserInterface(ArgumentBean args) {
+		JFrame frame;
+		
+		if (args.openSFV()) {
+			// single panel frame
+			FileTransferable files = new FileTransferable(args.getFiles(false));
+			frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(files);
+		} else {
+			// default frame
+			frame = new MainFrame();
+		}
+		
+		frame.setLocationByPlatform(true);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		try {
+			// restore previous size and location
+			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
+		} catch (Exception e) {
+			// don't care, doesn't make a difference
+		}
+		
+		// start application
+		frame.setVisible(true);
 	}
 	
 
@@ -182,17 +197,6 @@ public class Main {
 		}
 		
 		return argumentBean;
-	}
-	
-
-	/**
-	 * Print command line argument usage.
-	 */
-	private static void printUsage(ArgumentBean argumentBean) {
-		System.out.println("Options:");
-		
-		CmdLineParser parser = new CmdLineParser(argumentBean);
-		parser.printUsage(System.out);
 	}
 	
 }

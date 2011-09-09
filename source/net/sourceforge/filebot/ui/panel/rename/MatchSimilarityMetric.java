@@ -16,6 +16,7 @@ import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.sourceforge.filebot.vfs.AbstractFile;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;

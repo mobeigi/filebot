@@ -106,7 +106,7 @@ public class Episode implements Serializable {
 
 	@Override
 	public String toString() {
-		return EpisodeFormat.getSeasonEpisodeInstance().format(this);
+		return EpisodeFormat.SeasonEpisode.format(this);
 	}
 	
 }
