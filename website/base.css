@@ -80,7 +80,7 @@ h1 .description {
 .social {
 	float: right;
 	position: relative;
-	right: 0px;
+	right: -25px;
 	top: -15px;
 }
 
