@@ -16,9 +16,12 @@
 						</File>
 					</Component>
 
+					<Component Id='ApplicationStubCmd' Guid='D2B1A845-3B5C-4B59-B0D0-A4E80C173220'>
+						<File Id='FileBotCmd.exe' Name='FileBotCmd.exe' Source='FileBotCmd.exe' KeyPath='yes' />
+					</Component>
+
 					<Component Id='MainJar' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E'>
 						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
-						<RemoveFile Id='History' On='uninstall' Name='history.xml' />
 					</Component>
 
 					<Component Id='MediaInfoLib' Guid='6ADF25D9-937D-46FD-A84B-2C155A6C6CA7'>
@@ -42,6 +45,7 @@
 
 		<Feature Id='Complete' Title='FileBot' Description='The complete package.' Display='expand' ConfigurableDirectory='INSTALLDIR' Level='1'>
 			<ComponentRef Id='ApplicationStub' />
+			<ComponentRef Id='ApplicationStubCmd' />
 			<ComponentRef Id='MainJar' />
 			<ComponentRef Id='MediaInfoLib' />
 			<ComponentRef Id='ProgramMenuDir' />
