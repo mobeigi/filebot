@@ -29,7 +29,7 @@ import com.ibm.icu.text.CharsetMatch;
 
 public final class FileUtilities {
 	
-	public static File rename(File source, String newPath) throws IOException {
+	public static File renameFile(File source, String newPath) throws IOException {
 		File destination = new File(newPath);
 		
 		// resolve destination
@@ -203,13 +203,13 @@ public final class FileUtilities {
 	}
 	
 
-	public static List<File> flatten(Iterable<File> roots, int maxDepth) {
+	public static List<File> flatten(Iterable<File> roots, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 		
 		// unfold/flatten file tree
 		for (File root : roots) {
 			if (root.isDirectory()) {
-				listFiles(root, 0, files, maxDepth);
+				listFiles(root, 0, files, maxDepth, listHiddenFiles);
 			} else {
 				files.add(root);
 			}
@@ -230,25 +230,28 @@ public final class FileUtilities {
 	}
 	
 
-	public static List<File> listFiles(Iterable<File> folders, int maxDepth) {
+	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 		
 		// collect files from directory tree
 		for (File folder : folders) {
-			listFiles(folder, 0, files, maxDepth);
+			listFiles(folder, 0, files, maxDepth, listHiddenFiles);
 		}
 		
 		return files;
 	}
 	
 
-	private static void listFiles(File folder, int depth, List<File> files, int maxDepth) {
+	private static void listFiles(File folder, int depth, List<File> files, int maxDepth, boolean listHiddenFiles) {
 		if (depth > maxDepth)
 			return;
 		
 		for (File file : folder.listFiles()) {
+			if (!listHiddenFiles && file.isHidden()) // ignore hidden files
+				continue;
+			
 			if (file.isDirectory()) {
-				listFiles(file, depth + 1, files, maxDepth);
+				listFiles(file, depth + 1, files, maxDepth, listHiddenFiles);
 			} else {
 				files.add(file);
 			}
@@ -335,6 +338,11 @@ public final class FileUtilities {
 		}
 		
 		return false;
+	}
+	
+
+	public static String normalizePathSeparators(String path) {
+		return path.replace('\\', '/');
 	}
 	
 

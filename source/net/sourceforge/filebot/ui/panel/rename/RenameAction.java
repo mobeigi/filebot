@@ -42,7 +42,7 @@ class RenameAction extends AbstractAction {
 		try {
 			for (Entry<File, String> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
 				// rename file, throw exception on failure
-				rename(mapping.getKey(), mapping.getValue());
+				renameFile(mapping.getKey(), mapping.getValue());
 				
 				// remember successfully renamed matches for history entry and possible revert 
 				renameLog.add(mapping);

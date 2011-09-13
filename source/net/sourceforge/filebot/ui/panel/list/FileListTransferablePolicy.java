@@ -55,7 +55,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 			}
 			
 			// load all files from the given folders recursively up do a depth of 5
-			for (File file : flatten(files, 5)) {
+			for (File file : flatten(files, 5, false)) {
 				list.getModel().add(FileUtilities.getName(file));
 			}
 		}

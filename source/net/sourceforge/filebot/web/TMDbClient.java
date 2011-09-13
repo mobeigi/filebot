@@ -38,11 +38,13 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
+	@Override
 	public String getName() {
 		return "TheMovieDB";
 	}
 	
 
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.themoviedb");
 	}

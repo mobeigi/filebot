@@ -35,7 +35,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	protected void load(List<File> files) {
-		model.addAll(FastFile.foreach(flatten(files, 5)));
+		model.addAll(FastFile.foreach(flatten(files, 5, false)));
 	}
 	
 

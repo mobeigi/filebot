@@ -7,11 +7,13 @@ import static net.sourceforge.filebot.Settings.*;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.IMDbClient;
+import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
 import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
+import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -34,9 +36,17 @@ public final class WebServices {
 	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	
+	// movie dbs
+	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
 		return new EpisodeListProvider[] { TVRage, AniDB, IMDb, TheTVDB, Serienjunkies };
+	}
+	
+
+	public static MovieIdentificationService[] getMovieIdentificationServices() {
+		return new MovieIdentificationService[] { OpenSubtitles, TMDb };
 	}
 	
 
@@ -47,6 +57,26 @@ public final class WebServices {
 
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
 		return new VideoHashSubtitleService[] { OpenSubtitles, Sublight };
+	}
+	
+
+	public static EpisodeListProvider getEpisodeListProvider(String name) {
+		for (EpisodeListProvider it : WebServices.getEpisodeListProviders()) {
+			if (it.getName().equalsIgnoreCase(name))
+				return it;
+		}
+		
+		return null; // default
+	}
+	
+
+	public static MovieIdentificationService getMovieIdentificationService(String name) {
+		for (MovieIdentificationService it : getMovieIdentificationServices()) {
+			if (it.getName().equalsIgnoreCase(name))
+				return it;
+		}
+		
+		return null; // default
 	}
 	
 

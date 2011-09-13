@@ -31,6 +31,9 @@ public class CLILogging extends Handler {
 
 	@Override
 	public void publish(LogRecord record) {
+		if (record.getLevel().intValue() <= getLevel().intValue())
+			return;
+		
 		// print messages to stdout
 		out.println(record.getMessage());
 		if (record.getThrown() != null) {

@@ -124,7 +124,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 				
 				Entry<File, String> entry = parser.next();
 				
-				String name = normalizePath(entry.getKey());
+				String name = normalizePathSeparators(entry.getKey().getPath());
 				String hash = new String(entry.getValue());
 				
 				ChecksumCell correct = new ChecksumCell(name, file, singletonMap(type, hash));
@@ -138,26 +138,30 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	}
 	
 
-	protected void load(File file, File relativeFile, File root) throws IOException, InterruptedException {
+	protected void load(File absoluteFile, File relativeFile, File root) throws IOException, InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
 		
-		// add next name to relative path
-		relativeFile = new File(relativeFile, file.getName());
+		// ignore hidden files/folders
+		if (absoluteFile.isHidden())
+			return;
 		
-		if (file.isDirectory()) {
+		// add next name to relative path
+		relativeFile = new File(relativeFile, absoluteFile.getName());
+		
+		if (absoluteFile.isDirectory()) {
 			// load all files in the file tree
-			for (File child : file.listFiles()) {
+			for (File child : absoluteFile.listFiles()) {
 				load(child, relativeFile, root);
 			}
 		} else {
-			String name = normalizePath(relativeFile);
+			String name = normalizePathSeparators(relativeFile.getPath());
 			
 			// publish computation cell first
 			publish(createComputationCell(name, root, model.getHashType()));
 			
 			// publish verification cell, if we can
-			Map<File, String> hashByVerificationFile = verificationTracker.get().getHashByVerificationFile(file);
+			Map<File, String> hashByVerificationFile = verificationTracker.get().getHashByVerificationFile(absoluteFile);
 			
 			for (Entry<File, String> entry : hashByVerificationFile.entrySet()) {
 				HashType hashType = verificationTracker.get().getVerificationFileType(entry.getKey());
@@ -174,11 +178,6 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 		executor.get().execute(cell.getTask());
 		
 		return cell;
-	}
-	
-
-	protected String normalizePath(File file) {
-		return file.getPath().replace('\\', '/');
 	}
 	
 

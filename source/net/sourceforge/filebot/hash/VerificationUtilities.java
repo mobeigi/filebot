@@ -86,6 +86,16 @@ public final class VerificationUtilities {
 	}
 	
 
+	public static HashType getHashTypeByExtension(String extension) {
+		for (HashType hashType : HashType.values()) {
+			if (hashType.getFilter().acceptExtension(extension))
+				return hashType;
+		}
+		
+		return null;
+	}
+	
+
 	public static String computeHash(File file, HashType type) throws IOException, InterruptedException {
 		Hash hash = type.newHash();
 		

@@ -4,7 +4,9 @@ package net.sourceforge.filebot.cli;
 
 import static java.lang.String.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -13,19 +15,23 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.hash.VerificationFileReader;
+import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -50,37 +56,84 @@ public class ArgumentProcessor {
 	
 	public int process(ArgumentBean args) throws Exception {
 		try {
-			SortedSet<File> files = new TreeSet<File>(args.getFiles(true));
+			CLILogger.setLevel(args.getLogLevel());
+			Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 			
 			if (args.getSubtitles) {
 				List<File> subtitles = getSubtitles(files, args.query, args.getLanguage());
 				files.addAll(subtitles);
 			}
 			
-			if (args.renameSeries) {
-				renameSeries(files, args.query, args.getEpisodeFormat(), args.getEpisodeListProvider(), args.getLanguage().toLocale());
+			if (args.rename) {
+				rename(files, args.query, args.getEpisodeFormat(), args.db, args.getLanguage().toLocale(), !args.nonStrict);
 			}
 			
-			if (args.renameMovie) {
-				renameMovie(files, args.getMovieIdentificationService(), args.getLanguage().toLocale());
+			if (args.check) {
+				check(files, args.output);
 			}
 			
-			CLILogger.fine("Done ヾ(＠⌒ー⌒＠)ノ");
+			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Exception e) {
 			CLILogger.severe(e.getMessage());
-			CLILogger.fine("Failure (°_°)");
+			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
 	}
 	
 
-	public void renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider datasource, Locale locale) throws Exception {
-		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+	public Set<File> rename(Collection<File> files, String query, ExpressionFormat format, String db, Locale locale, boolean strict) throws Exception {
+		List<File> videoFiles = filter(files, VIDEO_FILES);
 		
-		if (mediaFiles.isEmpty()) {
-			throw new IllegalArgumentException("No video or subtitle files: " + files);
+		if (videoFiles.isEmpty()) {
+			throw new IllegalArgumentException("No video files: " + files);
 		}
+		
+		if (getEpisodeListProvider(db) != null) {
+			// tv series mode
+			return renameSeries(files, query, format, getEpisodeListProvider(db), locale, strict);
+		}
+		
+		if (getMovieIdentificationService(db) != null) {
+			// movie mode
+			return renameMovie(files, getMovieIdentificationService(db), locale);
+		}
+		
+		// auto-determine mode
+		int sxe = 0; // SxE
+		int cws = 0; // common word sequence
+		double max = videoFiles.size();
+		
+		SeriesNameMatcher matcher = new SeriesNameMatcher();
+		String[] cwsList = (max >= 5) ? matcher.matchAll(videoFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
+		
+		for (File f : videoFiles) {
+			// count SxE matches
+			if (matcher.matchBySeasonEpisodePattern(f.getName()) != null) {
+				sxe++;
+			}
+			
+			// count CWS matches
+			for (String base : cwsList) {
+				if (base.equalsIgnoreCase(matcher.matchByFirstCommonWordSequence(base, f.getName()))) {
+					cws++;
+					break;
+				}
+			}
+		}
+		
+		CLILogger.finest(format(Locale.ROOT, "Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
+		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
+			return renameSeries(files, query, format, getEpisodeListProviders()[0], locale, strict); // use default episode db
+		} else {
+			return renameMovie(files, getMovieIdentificationServices()[0], locale); // use default movie db
+		}
+	}
+	
+
+	public Set<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
+		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
+		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// auto-detect series name if not given
 		if (query == null) {
@@ -94,17 +147,17 @@ public class ArgumentProcessor {
 			}
 		}
 		
-		CLILogger.fine(format("Fetching episode data for [%s] from [%s]", query, datasource.getName()));
+		CLILogger.fine(format("Fetching episode data for [%s]", query));
 		
 		// find series on the web
-		SearchResult hit = selectSearchResult(query, datasource.search(query, locale));
+		SearchResult hit = selectSearchResult(query, db.search(query, locale));
 		
 		// fetch episode list
-		List<Episode> episodes = datasource.getEpisodeList(hit, locale);
+		List<Episode> episodes = db.getEpisodeList(hit, locale);
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
-		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes));
-		matches.addAll(match(filter(mediaFiles, SUBTITLE_FILES), episodes));
+		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes, strict));
+		matches.addAll(match(filter(mediaFiles, SUBTITLE_FILES), episodes, strict));
 		
 		if (matches.isEmpty()) {
 			throw new RuntimeException("Unable to match files to episode data");
@@ -126,21 +179,18 @@ public class ArgumentProcessor {
 		}
 		
 		// rename episodes
-		renameAll(renameMap);
+		return renameAll(renameMap);
 	}
 	
 
-	public void renameMovie(Collection<File> files, MovieIdentificationService datasource, Locale locale) throws Exception {
-		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
+	public Set<File> renameMovie(Collection<File> mediaFiles, MovieIdentificationService db, Locale locale) throws Exception {
+		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
-		if (movieFiles.length <= 0) {
-			throw new IllegalArgumentException("No video files: " + files);
-		}
-		
-		CLILogger.fine(format("Looking up movie by filehash via [%s]", datasource.getName()));
+		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
+		CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
 		
 		// match movie hashes online
-		MovieDescriptor[] movieByFileHash = datasource.getMovieDescriptors(movieFiles, locale);
+		MovieDescriptor[] movieByFileHash = db.getMovieDescriptors(movieFiles, locale);
 		
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, String> renameMap = new LinkedHashMap<File, String>();
@@ -161,7 +211,7 @@ public class ArgumentProcessor {
 		}
 		
 		// handle subtitle files
-		for (File subtitleFile : filter(files, SUBTITLE_FILES)) {
+		for (File subtitleFile : filter(mediaFiles, SUBTITLE_FILES)) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (int i = 0; i < movieByFileHash.length; i++) {
 				if (movieByFileHash != null) {
@@ -180,7 +230,7 @@ public class ArgumentProcessor {
 		}
 		
 		// rename episodes
-		renameAll(renameMap);
+		return renameAll(renameMap);
 	}
 	
 
@@ -278,15 +328,15 @@ public class ArgumentProcessor {
 	}
 	
 
-	private void renameAll(Map<File, String> renameMap) {
+	private Set<File> renameAll(Map<File, String> renameMap) throws Exception {
 		// rename files
-		List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
+		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
 		try {
 			for (Entry<File, String> it : renameMap.entrySet()) {
 				try {
 					// rename file, throw exception on failure
-					File destination = rename(it.getKey(), it.getValue());
+					File destination = renameFile(it.getKey(), it.getValue());
 					CLILogger.info(format("Renamed [%s] to [%s]", it.getKey(), it.getValue()));
 					
 					// remember successfully renamed matches for history entry and possible revert 
@@ -313,30 +363,46 @@ public class ArgumentProcessor {
 					CLILogger.severe("Failed to revert filename: " + mapping.getValue());
 				}
 			}
+			
+			throw new Exception("Renaming failed", e);
+		} finally {
+			if (renameLog.size() > 0) {
+				// update rename history
+				HistorySpooler.getInstance().append(renameMap.entrySet());
+				
+				// printer number of renamed files if any
+				CLILogger.fine(format("Renamed %d files", renameLog.size()));
+			}
 		}
 		
-		if (renameLog.size() > 0) {
-			// update rename history
-			HistorySpooler.getInstance().append(renameMap.entrySet());
-			
-			// printer number of renamed files if any
-			CLILogger.fine(format("Renamed %d files", renameLog.size()));
-		}
+		// new file names
+		Set<File> newFiles = new LinkedHashSet<File>();
+		for (Entry<File, File> it : renameLog)
+			newFiles.add(it.getValue());
+		
+		return newFiles;
 	}
 	
 
-	private List<Match<File, Episode>> match(List<File> files, List<Episode> episodes) throws Exception {
-		// strict SxE metric, don't allow in-between values
-		SimilarityMetric metric = new SimilarityMetric() {
-			
-			@Override
-			public float getSimilarity(Object o1, Object o2) {
-				return MatchSimilarityMetric.EpisodeIdentifier.getSimilarity(o1, o2) >= 1 ? 1 : 0;
-			}
-		};
+	private List<Match<File, Episode>> match(List<File> files, List<Episode> episodes, boolean strict) throws Exception {
+		SimilarityMetric[] sequence = MatchSimilarityMetric.defaultSequence();
 		
-		// fail-fast matcher
-		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, new SimilarityMetric[] { metric });
+		if (strict) {
+			// strict SxE metric, don't allow in-between values
+			SimilarityMetric strictEpisodeMetric = new SimilarityMetric() {
+				
+				@Override
+				public float getSimilarity(Object o1, Object o2) {
+					return MatchSimilarityMetric.EpisodeIdentifier.getSimilarity(o1, o2) >= 1 ? 1 : 0;
+				}
+			};
+			
+			// use only strict SxE metric
+			sequence = new SimilarityMetric[] { strictEpisodeMetric };
+		}
+		
+		// always use strict fail-fast matcher
+		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
 		List<Match<File, Episode>> matches = matcher.match();
 		
 		for (File failedMatch : matcher.remainingValues()) {
@@ -368,4 +434,116 @@ public class ArgumentProcessor {
 		return probableMatches.get(0);
 	}
 	
+
+	public void check(Collection<File> files, String output) throws Exception {
+		// check verification file
+		if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
+			// only check existing hashes
+			boolean ok = true;
+			
+			for (File it : files) {
+				ok &= check(it, it.getParentFile());
+			}
+			
+			if (!ok) {
+				throw new Exception("Data corruption detected"); // one or more hashes mismatch
+			}
+			
+			// all hashes match
+			return;
+		}
+		
+		// check common parent for all given files
+		File root = null;
+		for (File it : files) {
+			if (root == null || root.getPath().startsWith(it.getParent()))
+				root = it.getParentFile();
+			
+			if (!it.getParent().startsWith(root.getPath()))
+				throw new IllegalArgumentException("Path don't share a common root: " + files);
+		}
+		
+		// create verification file
+		File outputFile;
+		HashType hashType;
+		
+		if (output != null && getExtension(output) != null) {
+			// use given filename
+			hashType = getHashTypeByExtension(getExtension(output));
+			outputFile = new File(root, output);
+		} else {
+			// auto-select the filename based on folder and type
+			hashType = (output != null) ? getHashTypeByExtension(output) : HashType.SFV;
+			outputFile = new File(root, root.getName() + "." + hashType.getFilter().extensions()[0]);
+		}
+		
+		CLILogger.config("Using output file: " + outputFile);
+		if (hashType == null) {
+			throw new IllegalArgumentException("Illegal output type: " + output);
+		}
+		
+		compute(root.getPath(), files, outputFile, hashType);
+	}
+	
+
+	public boolean check(File verificationFile, File parent) throws Exception {
+		HashType type = getHashType(verificationFile);
+		
+		// check if type is supported
+		if (type == null)
+			throw new IllegalArgumentException("Unsupported format: " + verificationFile);
+		
+		// add all file names from verification file
+		CLILogger.fine(format("Checking [%s]", verificationFile.getName()));
+		VerificationFileReader parser = new VerificationFileReader(createTextReader(verificationFile), type.getFormat());
+		boolean status = true;
+		
+		try {
+			while (parser.hasNext()) {
+				try {
+					Entry<File, String> it = parser.next();
+					
+					File file = new File(parent, it.getKey().getPath()).getAbsoluteFile();
+					String current = computeHash(new File(parent, it.getKey().getPath()), type);
+					CLILogger.info(format("%s %s", current, file));
+					
+					if (current.compareToIgnoreCase(it.getValue()) != 0) {
+						throw new IOException(format("Corrupted file found: %s [hash mismatch: %s vs %s]", it.getKey(), current, it.getValue()));
+					}
+				} catch (IOException e) {
+					status = false;
+					CLILogger.warning(e.getMessage());
+				}
+			}
+		} finally {
+			parser.close();
+		}
+		
+		return status;
+	}
+	
+
+	private void compute(String root, Collection<File> files, File outputFile, HashType hashType) throws IOException, Exception {
+		// compute hashes recursively and write to file
+		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), "UTF-8");
+		
+		try {
+			CLILogger.fine("Computing hashes");
+			for (File it : files) {
+				if (it.isHidden() || MediaTypes.getDefaultFilter("verification").accept(it))
+					continue;
+				
+				String relativePath = normalizePathSeparators(it.getPath().replace(root, "")).substring(1);
+				String hash = computeHash(it, hashType);
+				CLILogger.info(format("%s %s", hash, relativePath));
+				
+				out.write(relativePath, hash);
+			}
+		} catch (Exception e) {
+			outputFile.deleteOnExit(); // delete only partially written files
+			throw e;
+		} finally {
+			out.close();
+		}
+	}
 }

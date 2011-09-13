@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.panel.rename;
 
 import static javax.swing.JOptionPane.*;
 import static javax.swing.SwingUtilities.*;
-import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -47,8 +46,7 @@ import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieDescriptor;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
-import net.sourceforge.filebot.web.TMDbClient;
+import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
@@ -157,11 +155,9 @@ public class RenamePanel extends JComponent {
 		actionPopup.addDescription(new JLabel("Movie Mode:"));
 		
 		// create action for movie name completion
-		OpenSubtitlesClient osdb = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
-		actionPopup.add(new AutoCompleteAction(osdb.getName(), osdb.getIcon(), new MovieHashMatcher(osdb)));
-		
-		TMDbClient tmdb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
-		actionPopup.add(new AutoCompleteAction(tmdb.getName(), tmdb.getIcon(), new MovieHashMatcher(tmdb)));
+		for (MovieIdentificationService it : WebServices.getMovieIdentificationServices()) {
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new MovieHashMatcher(it)));
+		}
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));

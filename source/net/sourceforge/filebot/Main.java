@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import net.sf.ehcache.CacheManager;
@@ -43,7 +44,19 @@ public class Main {
 		initializeSecurityManager();
 		
 		// parse arguments
-		final ArgumentBean argumentBean = initializeArgumentBean(args);
+		final ArgumentBean argumentBean = new ArgumentBean();
+		
+		if (args != null && args.length > 0) {
+			try {
+				CmdLineParser parser = new CmdLineParser(argumentBean);
+				parser.parseArgument(args);
+			} catch (CmdLineException e) {
+				System.out.println(e.getMessage());
+				
+				// just print CLI error message and stop
+				System.exit(-1);
+			}
+		}
 		
 		if (argumentBean.printHelp()) {
 			new CmdLineParser(argumentBean).printUsage(System.out);
@@ -178,25 +191,6 @@ public class Main {
 			// security manager was probably set via system property
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
-	}
-	
-
-	/**
-	 * Parse command line arguments.
-	 */
-	private static ArgumentBean initializeArgumentBean(String... args) {
-		ArgumentBean argumentBean = new ArgumentBean();
-		
-		if (args != null && args.length > 0) {
-			try {
-				CmdLineParser parser = new CmdLineParser(argumentBean);
-				parser.parseArgument(args);
-			} catch (Exception e) {
-				Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-			}
-		}
-		
-		return argumentBean;
 	}
 	
 }

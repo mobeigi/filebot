@@ -6,10 +6,15 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.Icon;
+
 
 public interface MovieIdentificationService {
 	
 	public String getName();
+	
+
+	public Icon getIcon();
 	
 
 	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws Exception;

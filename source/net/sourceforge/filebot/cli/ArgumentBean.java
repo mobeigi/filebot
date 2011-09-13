@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.script.ScriptException;
 
@@ -16,40 +17,46 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.Language;
-import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.MovieIdentificationService;
 
 
 public class ArgumentBean {
 	
-	@Option(name = "-rename-series", usage = "Rename episodes", metaVar = "folder")
-	public boolean renameSeries;
+	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
+	public boolean rename = false;
 	
-	@Option(name = "-rename-movie", usage = "Rename movie", metaVar = "folder")
-	public boolean renameMovie;
-	
-	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "folder")
-	public boolean getSubtitles;
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
+	public String db = null;
 	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
 	public String format = "{n} - {s+'x'}{e.pad(2)} - {t}";
 	
-	@Option(name = "--q", usage = "Search query", metaVar = "name")
+	@Option(name = "-non-strict", usage = "Use less strict matching")
+	public boolean nonStrict = false;
+	
+	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "fileset")
+	public boolean getSubtitles;
+	
+	@Option(name = "--q", usage = "Search query", metaVar = "title")
 	public String query = null;
 	
-	@Option(name = "--db", usage = "Episode database")
-	public String db = null;
-	
-	@Option(name = "--lang", usage = "Language", metaVar = "language code")
+	@Option(name = "--lang", usage = "Language", metaVar = "2-letter language code")
 	public String lang = "en";
+	
+	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
+	public boolean check;
+	
+	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1]")
+	public String output = "sfv";
+	
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
+	public String log = "all";
 	
 	@Option(name = "-help", usage = "Print this help message")
 	public boolean help = false;
 	
-	@Option(name = "-open", usage = "Open file", metaVar = "<file>")
+	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;
 	
 	@Option(name = "-clear", usage = "Clear application settings")
@@ -60,12 +67,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return getSubtitles || renameSeries || renameMovie;
-	}
-	
-
-	public boolean printHelp() {
-		return help;
+		return getSubtitles || rename || check;
 	}
 	
 
@@ -74,27 +76,13 @@ public class ArgumentBean {
 	}
 	
 
-	public boolean clearUserData() {
-		return clear;
+	public boolean printHelp() {
+		return help;
 	}
 	
 
-	public List<File> getFiles(boolean resolveFolders) {
-		List<File> files = new ArrayList<File>();
-		
-		// resolve given paths
-		for (String argument : arguments) {
-			try {
-				File file = new File(argument).getCanonicalFile();
-				
-				// resolve folders
-				files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), 0) : singleton(file));
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
-		
-		return files;
+	public boolean clearUserData() {
+		return clear;
 	}
 	
 
@@ -113,19 +101,27 @@ public class ArgumentBean {
 	}
 	
 
-	public EpisodeListProvider getEpisodeListProvider() throws Exception {
-		if (db == null)
-			return WebServices.TVRage;
-		
-		return (EpisodeListProvider) WebServices.class.getField(db).get(null);
+	public Level getLogLevel() {
+		return Level.parse(log.toUpperCase());
 	}
 	
 
-	public MovieIdentificationService getMovieIdentificationService() throws Exception {
-		if (db == null)
-			return WebServices.OpenSubtitles;
+	public List<File> getFiles(boolean resolveFolders) {
+		List<File> files = new ArrayList<File>();
 		
-		return (MovieIdentificationService) WebServices.class.getField(db).get(null);
+		// resolve given paths
+		for (String argument : arguments) {
+			try {
+				File file = new File(argument).getCanonicalFile();
+				
+				// resolve folders
+				files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), 0, false) : singleton(file));
+			} catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+		
+		return files;
 	}
 	
 }
