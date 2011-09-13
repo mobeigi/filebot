@@ -124,8 +124,9 @@ div.screencast:hover .play {
 	text-align: center;
 }
 
-.comment {
+.comment, a.source {
 	font-size: xx-small;
+	font-weight: normal;
 	color: lightgray;
 	margin-left: 2px;
 }
