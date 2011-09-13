@@ -7,11 +7,8 @@ import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Scanner;
-import java.util.zip.CRC32;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -245,7 +242,7 @@ public class EpisodeBindingBean {
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null || !mediaFile.isFile())
-			throw new RuntimeException(String.format("Invalid media file: %s", mediaFile));
+			throw new RuntimeException("Invalid media file: " + mediaFile);
 	}
 	
 
@@ -258,7 +255,7 @@ public class EpisodeBindingBean {
 			
 			// use inferred media file (e.g. actual movie file instead of subtitle file)
 			if (!newMediaInfo.open(getInferredMediaFile())) {
-				throw new RuntimeException(String.format("Cannot open media file: %s", mediaFile));
+				throw new RuntimeException("Cannot open media file: " + mediaFile);
 			}
 			
 			mediaInfo = newMediaInfo;
@@ -272,9 +269,8 @@ public class EpisodeBindingBean {
 		for (String key : keys) {
 			String value = getMediaInfo().get(streamKind, streamNumber, key);
 			
-			if (value.length() > 0) {
+			if (value.length() > 0)
 				return value;
-			}
 		}
 		
 		return null;
@@ -284,36 +280,13 @@ public class EpisodeBindingBean {
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
 		Cache cache = CacheManager.getInstance().getCache("checksum");
+		Element element = cache.get(file);
+		if (element != null)
+			return (String) element.getValue();
 		
-		try {
-			return String.format("%08X", cache.get(file).getValue());
-		} catch (Exception e) {
-			// checksum is not cached
-		}
-		
-		// calculate checksum
-		InputStream in = new FileInputStream(file);
-		CRC32 crc = new CRC32();
-		
-		try {
-			byte[] buffer = new byte[32 * 1024];
-			int len = 0;
-			
-			while ((len = in.read(buffer)) >= 0) {
-				crc.update(buffer, 0, len);
-				
-				// make this long-running operation interruptible
-				if (Thread.interrupted())
-					throw new InterruptedException();
-			}
-		} finally {
-			in.close();
-		}
-		
-		// cache calculated checksum 
-		cache.put(new Element(file, crc.getValue()));
-		
-		return String.format("%08X", crc.getValue());
+		// compute and cache checksum
+		String hash = computeHash(file, HashType.SFV);
+		cache.put(new Element(file, hash));
+		return hash;
 	}
-	
 }

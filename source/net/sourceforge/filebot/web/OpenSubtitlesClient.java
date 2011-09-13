@@ -138,11 +138,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		try {
 			MessageDigest hash = MessageDigest.getInstance("MD5");
 			hash.update(data);
-			
-			// return hex string
-			return String.format("%032x", new BigInteger(1, hash.digest()));
+			return String.format("%032x", new BigInteger(1, hash.digest())); // as hex string
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(e); // won't happen
 		}
 	}
 	
