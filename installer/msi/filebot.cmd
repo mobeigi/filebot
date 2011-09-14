@@ -1,0 +1,1 @@
+java -Dapplication.deployment=msi -Xmx256m -jar FileBot.jar %*
