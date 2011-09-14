@@ -27,7 +27,7 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 	
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "TVRage, AniDB, TheTVDB, OpenSubtitles, TheMovieDB")
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
 	public String db;
 	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
@@ -48,13 +48,13 @@ public class ArgumentBean {
 	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
 	public boolean check;
 	
-	@Option(name = "--output", usage = "Output options", metaVar = "sfv, md5, sha1")
+	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1]")
 	public String output;
 	
-	@Option(name = "--encoding", usage = "Character encoding", metaVar = "UTF-8, windows-1252, GB18030")
+	@Option(name = "--encoding", usage = "Character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
 	public String encoding;
 	
-	@Option(name = "--log", usage = "Log level", metaVar = "all, config, info, warning")
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
 	
 	@Option(name = "-help", usage = "Print this help message")

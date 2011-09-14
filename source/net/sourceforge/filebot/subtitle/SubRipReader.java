@@ -61,7 +61,7 @@ public class SubRipReader extends SubtitleReader {
 
 	protected String resolve(String text) {
 		// remove tags
-		return tag.matcher(text).replaceAll("");
+		return tag.matcher(text).replaceAll("").trim();
 	}
 	
 }

@@ -23,6 +23,7 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
@@ -154,7 +155,7 @@ public class ArgumentProcessor {
 		CLILogger.fine(format("Fetching episode data for [%s]", query));
 		
 		// find series on the web
-		SearchResult hit = selectSearchResult(query, db.search(query, locale));
+		SearchResult hit = selectSearchResult(query, db.search(query, locale), strict);
 		
 		// fetch episode list
 		List<Episode> episodes = db.getEpisodeList(hit, locale);
@@ -241,10 +242,10 @@ public class ArgumentProcessor {
 
 	public List<File> getSubtitles(Collection<File> files, String query, Language language, String output, Charset outputEncoding) throws Exception {
 		// match movie hashes online
-		Set<File> videos = new TreeSet<File>(filter(files, VIDEO_FILES));
+		Set<File> remainingVideos = new TreeSet<File>(filter(files, VIDEO_FILES));
 		List<File> downloadedSubtitles = new ArrayList<File>();
 		
-		if (videos.isEmpty()) {
+		if (remainingVideos.isEmpty()) {
 			throw new IllegalArgumentException("No video files: " + files);
 		}
 		
@@ -261,43 +262,47 @@ public class ArgumentProcessor {
 		
 		// lookup subtitles by hash
 		for (VideoHashSubtitleService service : WebServices.getVideoHashSubtitleServices()) {
-			if (videos.isEmpty())
+			if (remainingVideos.isEmpty()) {
 				break;
+			}
 			
 			CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
 			
-			for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videos.toArray(new File[0]), language.getName()).entrySet()) {
+			for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(remainingVideos.toArray(new File[0]), language.getName()).entrySet()) {
 				if (it.getValue() != null && it.getValue().size() > 0) {
 					// auto-select first element if there are multiple hash matches for the same video files
 					File subtitle = fetchSubtitle(it.getValue().get(0), it.getKey(), outputFormat, outputEncoding);
 					
 					// download complete, cross this video off the list
-					videos.remove(it.getKey());
+					remainingVideos.remove(it.getKey());
 					downloadedSubtitles.add(subtitle);
 				}
 			}
 		}
 		
 		// lookup subtitles by query and filename
-		if (query != null && videos.size() > 0) {
+		if (query != null && remainingVideos.size() > 0) {
 			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
+				if (remainingVideos.isEmpty()) {
+					break;
+				}
+				
 				try {
 					CLILogger.fine(format("Searching for [%s] at [%s]", query, service.getName()));
-					SearchResult searchResult = selectSearchResult(query, service.search(query));
+					SearchResult searchResult = selectSearchResult(query, service.search(query), false);
 					
-					CLILogger.config("Retrieving subtitles for " + searchResult.getName());
+					CLILogger.config(format("Retrieving subtitles for [%s]", searchResult.getName()));
 					List<SubtitleDescriptor> subtitles = service.getSubtitleList(searchResult, language.getName());
 					
-					for (File video : videos.toArray(new File[0])) {
-						String filename = getName(video); // get name without extension
-						
+					for (File video : remainingVideos.toArray(new File[0])) {
 						for (SubtitleDescriptor descriptor : subtitles) {
-							if (filename.equalsIgnoreCase(descriptor.getName())) {
+							if (isDerived(descriptor.getName(), video)) {
 								File subtitle = fetchSubtitle(descriptor, video, outputFormat, outputEncoding);
 								
 								// download complete, cross this video off the list
-								videos.remove(video);
+								remainingVideos.remove(video);
 								downloadedSubtitles.add(subtitle);
+								break;
 							}
 						}
 					}
@@ -308,7 +313,7 @@ public class ArgumentProcessor {
 		}
 		
 		// no subtitles for remaining video files
-		for (File video : videos) {
+		for (File video : remainingVideos) {
 			CLILogger.warning("No matching subtitles found: " + video);
 		}
 		
@@ -436,9 +441,9 @@ public class ArgumentProcessor {
 	}
 	
 
-	private SearchResult selectSearchResult(String query, Iterable<SearchResult> searchResults) throws IllegalArgumentException {
+	private SearchResult selectSearchResult(String query, Iterable<SearchResult> searchResults, boolean strict) throws IllegalArgumentException {
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
+		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
@@ -446,15 +451,18 @@ public class ArgumentProcessor {
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
 			if (metric.getSimilarity(query, result.getName()) > 0.9) {
-				probableMatches.add(result);
+				if (!probableMatches.containsKey(result.getName())) {
+					probableMatches.put(result.getName(), result);
+				}
 			}
 		}
 		
-		if (probableMatches.size() != 1) {
-			throw new IllegalArgumentException("Failed to auto-select search result: " + probableMatches);
+		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
+			throw new IllegalArgumentException("Failed to auto-select search result: " + probableMatches.values());
 		}
 		
-		return probableMatches.get(0);
+		// return first and only value
+		return probableMatches.values().iterator().next();
 	}
 	
 
