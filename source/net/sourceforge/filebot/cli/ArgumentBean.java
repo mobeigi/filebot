@@ -57,14 +57,14 @@ public class ArgumentBean {
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
 	
-	@Option(name = "-help", usage = "Print this help message")
-	public boolean help = false;
+	@Option(name = "-clear", usage = "Clear cache and application settings")
+	public boolean clear = false;
 	
 	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;
 	
-	@Option(name = "-clear", usage = "Clear application settings")
-	public boolean clear = false;
+	@Option(name = "-help", usage = "Print this help message")
+	public boolean help = false;
 	
 	@Argument
 	public List<String> arguments = new ArrayList<String>();
