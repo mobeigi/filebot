@@ -26,3 +26,16 @@ code .block {
 	color: #225577;
 	font-weight: bold;
 }
+
+code .cmd {
+	color: #5C7684;
+}
+
+code .option {
+	color: #225577;
+	font-weight: bold;
+}
+
+code .argument {
+	color: #008800;
+}

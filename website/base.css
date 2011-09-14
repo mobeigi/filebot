@@ -18,16 +18,21 @@ a img {
 	border: none;
 }
 
-table {
+table.reference  {
 	border-collapse: collapse;
 }
 
-th, td {
+table.reference th, table.reference td {
 	padding: 5px 20px;
 }
 
-td {
+table.reference td {
 	border-top: thin dotted lavender;
+}
+
+table.reference table td {
+	border-top: none;
+	padding-left: 0px;
 }
 
 .page {
@@ -80,7 +85,7 @@ h1 .description {
 .social {
 	float: right;
 	position: relative;
-	right: -25px;
+	right: -10px;
 	top: -15px;
 }
 

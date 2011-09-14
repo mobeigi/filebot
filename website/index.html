@@ -6,7 +6,8 @@
 		<title>FileBot - The ultimate tv renamer / subtitle downloader / sfv validator</title>
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
-
+		
+		<!-- google analytics -->
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
 			_gaq.push(['_setAccount', 'UA-25379256-1']);
@@ -19,14 +20,30 @@
 			})();
 		</script>
 		
-		<!-- Place this tag in your head or just before your close body tag -->
-		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+		<!-- google plus one -->
+		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>		
+		
+		<!-- flattr -->
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		    (function() {
+		        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+		        s.type = 'text/javascript';
+		        s.async = true;
+		        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+		        t.parentNode.insertBefore(s, t);
+		    })();
+		/* ]]> */
+		</script>		
 	</head>
 	<body>
 		<div class="page">
 			<div class="social">
-				<!-- Place this tag where you want the +1 button to render -->
+				<!-- google plus one -->
 				<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
+				
+				<!-- flattr -->
+				<a onclick="_gaq.push(['_trackEvent','Social networking','flattr',document.title])" class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
 			</div>
 
 			<div class="header">
@@ -70,7 +87,7 @@
 					<ul>
 						<li>A simple user-interface tuned for drag-n-drop <small class="comment">(no need to bother with file dialogs)</small></li>
 						<li>Platform-independent and straight-forward application deployment</li>
-						<li>Powerful and full-featured <acronym title="command-line interface">CLI</acronym> for scripts and automation</li>
+						<li>Powerful and full-featured <a href="cli.html"><acronym title="command-line interface">CLI</acronym></a> for <a href="cli.html">scripts and automation</a></li>
 					</ul>
 					<ul class="next">
 						<li>
