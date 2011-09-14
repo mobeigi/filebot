@@ -3,8 +3,8 @@ package net.sourceforge.filebot.ui.panel.subtitle;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.ui.panel.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -327,12 +327,12 @@ class SubtitleDownloadComponent extends JComponent {
 				SubtitleFileChooser sf = new SubtitleFileChooser();
 				
 				// normalize name and auto-adjust extension
-				String ext = sf.getSelectedFormat().getFilter().extensions()[0];
+				String ext = sf.getSelectedFormat().getFilter().extension();
 				String name = validateFileName(getNameWithoutExtension(file.getName()));
 				sf.setSelectedFile(new File(name + "." + ext));
 				
 				if (sf.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
-					exportSubtitles(decodeSubtitles(file), sf.getSelectedFile(), sf.getSelectedEncoding(), sf.getSelectedFormat(), sf.getTimingOffset());
+					writeFile(exportSubtitles(file, sf.getSelectedFormat(), sf.getTimingOffset(), sf.getSelectedEncoding()), sf.getSelectedFile());
 				}
 			} else {
 				// multiple files
@@ -346,11 +346,11 @@ class SubtitleDownloadComponent extends JComponent {
 						MemoryFile file = (MemoryFile) object;
 						
 						// normalize name and auto-adjust extension
-						String ext = sf.getSelectedFormat().getFilter().extensions()[0];
+						String ext = sf.getSelectedFormat().getFilter().extension();
 						String name = validateFileName(getNameWithoutExtension(file.getName()));
 						File destination = new File(folder, name + "." + ext);
 						
-						exportSubtitles(decodeSubtitles(file), destination, sf.getSelectedEncoding(), sf.getSelectedFormat(), sf.getTimingOffset());
+						writeFile(exportSubtitles(file, sf.getSelectedFormat(), sf.getTimingOffset(), sf.getSelectedEncoding()), destination);
 					}
 				}
 			}

@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -96,6 +97,20 @@ public final class FileUtilities {
 		
 		// assume UTF-8 by default
 		return new InputStreamReader(new FileInputStream(file), "UTF-8");
+	}
+	
+
+	public static String getText(ByteBuffer data) throws IOException {
+		CharsetDetector detector = new CharsetDetector();
+		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
+		detector.setText(new ByteBufferInputStream(data));
+		
+		CharsetMatch charset = detector.detect();
+		if (charset != null)
+			return charset.getString();
+		
+		// assume UTF-8 by default
+		return Charset.forName("UTF-8").decode(data).toString();
 	}
 	
 
@@ -416,6 +431,11 @@ public final class FileUtilities {
 			}
 			
 			return false;
+		}
+		
+
+		public String extension() {
+			return extensions[0];
 		}
 		
 

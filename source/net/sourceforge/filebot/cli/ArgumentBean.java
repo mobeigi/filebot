@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -26,11 +27,11 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 	
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
-	public String db = null;
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "TVRage, AniDB, TheTVDB, OpenSubtitles, TheMovieDB")
+	public String db;
 	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
-	public String format = "{n} - {s+'x'}{e.pad(2)} - {t}";
+	public String format;
 	
 	@Option(name = "-non-strict", usage = "Use less strict matching")
 	public boolean nonStrict = false;
@@ -39,7 +40,7 @@ public class ArgumentBean {
 	public boolean getSubtitles;
 	
 	@Option(name = "--q", usage = "Search query", metaVar = "title")
-	public String query = null;
+	public String query;
 	
 	@Option(name = "--lang", usage = "Language", metaVar = "2-letter language code")
 	public String lang = "en";
@@ -47,10 +48,13 @@ public class ArgumentBean {
 	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
 	public boolean check;
 	
-	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1]")
-	public String output = "sfv";
+	@Option(name = "--output", usage = "Output options", metaVar = "sfv, md5, sha1")
+	public String output;
 	
-	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
+	@Option(name = "--encoding", usage = "Character encoding", metaVar = "UTF-8, windows-1252, GB18030")
+	public String encoding;
+	
+	@Option(name = "--log", usage = "Log level", metaVar = "all, config, info, warning")
 	public String log = "all";
 	
 	@Option(name = "-help", usage = "Print this help message")
@@ -87,7 +91,7 @@ public class ArgumentBean {
 	
 
 	public ExpressionFormat getEpisodeFormat() throws ScriptException {
-		return new ExpressionFormat(format);
+		return format != null ? new ExpressionFormat(format) : null;
 	}
 	
 
@@ -98,6 +102,11 @@ public class ArgumentBean {
 			throw new IllegalArgumentException("Illegal language code: " + lang);
 		
 		return language;
+	}
+	
+
+	public Charset getEncoding() {
+		return encoding != null ? Charset.forName(encoding) : null;
 	}
 	
 

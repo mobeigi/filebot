@@ -7,11 +7,13 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -37,12 +39,14 @@ import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.panel.rename.HistorySpooler;
 import net.sourceforge.filebot.ui.panel.rename.MatchSimilarityMetric;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieDescriptor;
 import net.sourceforge.filebot.web.MovieIdentificationService;
@@ -60,7 +64,7 @@ public class ArgumentProcessor {
 			Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 			
 			if (args.getSubtitles) {
-				List<File> subtitles = getSubtitles(files, args.query, args.getLanguage());
+				List<File> subtitles = getSubtitles(files, args.query, args.getLanguage(), args.output, args.getEncoding());
 				files.addAll(subtitles);
 			}
 			
@@ -69,7 +73,7 @@ public class ArgumentProcessor {
 			}
 			
 			if (args.check) {
-				check(files, args.output);
+				check(files, args.output, args.getEncoding());
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
@@ -168,7 +172,8 @@ public class ArgumentProcessor {
 		
 		for (Match<File, Episode> match : matches) {
 			File file = match.getValue();
-			String newName = format.format(new EpisodeBindingBean(match.getCandidate(), file));
+			Episode episode = match.getCandidate();
+			String newName = (format != null) ? format.format(new EpisodeBindingBean(episode, file)) : EpisodeFormat.SeasonEpisode.format(episode);
 			
 			if (isInvalidFileName(newName)) {
 				CLILogger.config("Stripping invalid characters from new name: " + newName);
@@ -234,13 +239,24 @@ public class ArgumentProcessor {
 	}
 	
 
-	public List<File> getSubtitles(Collection<File> files, String query, Language language) throws Exception {
+	public List<File> getSubtitles(Collection<File> files, String query, Language language, String output, Charset outputEncoding) throws Exception {
 		// match movie hashes online
 		Set<File> videos = new TreeSet<File>(filter(files, VIDEO_FILES));
 		List<File> downloadedSubtitles = new ArrayList<File>();
 		
 		if (videos.isEmpty()) {
 			throw new IllegalArgumentException("No video files: " + files);
+		}
+		
+		SubtitleFormat outputFormat = null;
+		if (output != null) {
+			outputFormat = getSubtitleFormatByName(output);
+			
+			// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
+			if (outputEncoding == null)
+				outputEncoding = Charset.forName("UTF-8");
+			
+			CLILogger.config(format("Export as: %s (%s)", outputFormat, outputEncoding.displayName(Locale.ROOT)));
 		}
 		
 		// lookup subtitles by hash
@@ -253,7 +269,7 @@ public class ArgumentProcessor {
 			for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videos.toArray(new File[0]), language.getName()).entrySet()) {
 				if (it.getValue() != null && it.getValue().size() > 0) {
 					// auto-select first element if there are multiple hash matches for the same video files
-					File subtitle = fetchSubtitle(it.getValue().get(0), it.getKey());
+					File subtitle = fetchSubtitle(it.getValue().get(0), it.getKey(), outputFormat, outputEncoding);
 					
 					// download complete, cross this video off the list
 					videos.remove(it.getKey());
@@ -277,7 +293,7 @@ public class ArgumentProcessor {
 						
 						for (SubtitleDescriptor descriptor : subtitles) {
 							if (filename.equalsIgnoreCase(descriptor.getName())) {
-								File subtitle = fetchSubtitle(descriptor, video);
+								File subtitle = fetchSubtitle(descriptor, video, outputFormat, outputEncoding);
 								
 								// download complete, cross this video off the list
 								videos.remove(video);
@@ -300,30 +316,37 @@ public class ArgumentProcessor {
 	}
 	
 
-	private File fetchSubtitle(SubtitleDescriptor descriptor, File movieFile) throws Exception {
+	private File fetchSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
 		// fetch subtitle archive
 		CLILogger.info(format("Fetching [%s.%s]", descriptor.getName(), descriptor.getType()));
 		ByteBuffer downloadedData = descriptor.fetch();
 		
 		// extract subtitles from archive
 		ArchiveType type = ArchiveType.forName(descriptor.getType());
-		MemoryFile subtitleData;
+		MemoryFile subtitleFile;
 		
 		if (type != ArchiveType.UNDEFINED) {
 			// extract subtitle from archive
-			subtitleData = type.fromData(downloadedData).iterator().next();
+			subtitleFile = type.fromData(downloadedData).iterator().next();
 		} else {
 			// assume that the fetched data is the subtitle
-			subtitleData = new MemoryFile(descriptor.getName() + "." + descriptor.getType(), downloadedData);
+			subtitleFile = new MemoryFile(descriptor.getName() + "." + descriptor.getType(), downloadedData);
 		}
 		
 		// subtitle filename is based on movie filename
-		String subtitleFileName = getNameWithoutExtension(movieFile.getName()) + "." + getExtension(subtitleData.getName());
-		File destination = new File(movieFile.getParentFile(), validateFileName(subtitleFileName));
+		String name = getName(movieFile);
+		String ext = getExtension(subtitleFile.getName());
+		ByteBuffer data = subtitleFile.getData();
 		
-		CLILogger.config(format("Writing [%s] to [%s]", subtitleData.getName(), destination.getName()));
-		writeFile(subtitleData.getData(), destination);
+		if (outputFormat != null || outputEncoding != null) {
+			ext = outputFormat.getFilter().extension(); // adjust extension of the output file
+			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
+		}
 		
+		File destination = new File(movieFile.getParentFile(), name + "." + ext);
+		CLILogger.config(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
+		
+		writeFile(data, destination);
 		return destination;
 	}
 	
@@ -435,7 +458,7 @@ public class ArgumentProcessor {
 	}
 	
 
-	public void check(Collection<File> files, String output) throws Exception {
+	public void check(Collection<File> files, String output, Charset outputEncoding) throws Exception {
 		// check verification file
 		if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
 			// only check existing hashes
@@ -474,19 +497,19 @@ public class ArgumentProcessor {
 		} else {
 			// auto-select the filename based on folder and type
 			hashType = (output != null) ? getHashTypeByExtension(output) : HashType.SFV;
-			outputFile = new File(root, root.getName() + "." + hashType.getFilter().extensions()[0]);
+			outputFile = new File(root, root.getName() + "." + hashType.getFilter().extension());
 		}
 		
-		CLILogger.config("Using output file: " + outputFile);
 		if (hashType == null) {
 			throw new IllegalArgumentException("Illegal output type: " + output);
 		}
 		
-		compute(root.getPath(), files, outputFile, hashType);
+		CLILogger.config("Using output file: " + outputFile);
+		compute(root.getPath(), files, outputFile, hashType, outputEncoding);
 	}
 	
 
-	public boolean check(File verificationFile, File parent) throws Exception {
+	private boolean check(File verificationFile, File root) throws Exception {
 		HashType type = getHashType(verificationFile);
 		
 		// check if type is supported
@@ -503,8 +526,8 @@ public class ArgumentProcessor {
 				try {
 					Entry<File, String> it = parser.next();
 					
-					File file = new File(parent, it.getKey().getPath()).getAbsoluteFile();
-					String current = computeHash(new File(parent, it.getKey().getPath()), type);
+					File file = new File(root, it.getKey().getPath()).getAbsoluteFile();
+					String current = computeHash(new File(root, it.getKey().getPath()), type);
 					CLILogger.info(format("%s %s", current, file));
 					
 					if (current.compareToIgnoreCase(it.getValue()) != 0) {
@@ -523,9 +546,9 @@ public class ArgumentProcessor {
 	}
 	
 
-	private void compute(String root, Collection<File> files, File outputFile, HashType hashType) throws IOException, Exception {
+	private void compute(String root, Collection<File> files, File outputFile, HashType hashType, Charset outputEncoding) throws IOException, Exception {
 		// compute hashes recursively and write to file
-		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), "UTF-8");
+		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), outputEncoding != null ? outputEncoding.name() : "UTF-8");
 		
 		try {
 			CLILogger.fine("Computing hashes");
