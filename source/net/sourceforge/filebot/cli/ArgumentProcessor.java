@@ -260,10 +260,9 @@ public class ArgumentProcessor {
 			outputFormat = getSubtitleFormatByName(output);
 			
 			// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
-			if (outputEncoding == null)
+			if (outputEncoding == null) {
 				outputEncoding = Charset.forName("UTF-8");
-			
-			CLILogger.config(format("Export as: %s (%s)", outputFormat, outputEncoding.displayName(Locale.ROOT)));
+			}
 		}
 		
 		// lookup subtitles by hash
@@ -354,6 +353,7 @@ public class ArgumentProcessor {
 				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
 			}
 			
+			CLILogger.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 		
