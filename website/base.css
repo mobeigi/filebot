@@ -18,6 +18,10 @@ a img {
 	border: none;
 }
 
+.section h2.reference {
+	padding-top: 25px;
+}
+
 table.reference  {
 	border-collapse: collapse;
 }

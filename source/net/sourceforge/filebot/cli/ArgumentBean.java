@@ -48,7 +48,7 @@ public class ArgumentBean {
 	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
 	public boolean check;
 	
-	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1]")
+	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1] or [srt]")
 	public String output;
 	
 	@Option(name = "--encoding", usage = "Character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
@@ -71,7 +71,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return getSubtitles || rename || check;
+		return rename || getSubtitles || check;
 	}
 	
 

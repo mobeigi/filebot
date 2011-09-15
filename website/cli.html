@@ -42,49 +42,49 @@
 					<h2>Examples</h2>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">path/to/episodes</span></code>
-					
+					Rename given episodes or movies.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"One Piece"</span> <span class="option">--db</span> <span class="argument">anidb</span></code>
-					
+					Rename given episodes using AniDB episode info.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"Generation Kill"</span> <span class="option">--format</span> <span class="argument">"{n} E{e} [{t}]"</span> <span class="option">-non-strict</span></code>
-					
+					Rename given episodes according to the given format. Enable comprehensive Episode/File matching.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"1x01.avi"</span> <span class="option">--q</span> <span class="argument">"Dexter"</span> <span class="option">--db</span> <span class="argument">thetvdb</span> <span class="option">--lang</span> <span class="argument">de</span></code>
-					
+					Rename a single episode forcing the series name. Use German language episode info.
 					</p>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
-					
+					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">-q</span> <span class="argument">Avatar</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
+					Rename a single movie looking up movie info via file hash or using the given movie title.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/episodes</span></code>
-					
+					Fetch subtitles for the given files. Lookup matching subtitles via file hash.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/movie</span> <span class="option">--q</span> <span class="argument">Avatar</span> <span class="option">--lang</span> <span class="argument">zh</span> <span class="option">--output</span> <span class="argument">srt</span> <span class="option">--encoding</span> <span class="argument">utf8</span></code>
-					
+					Fetch subtitles and force output format. Lookup subtitles via file hash and given search query.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/files</span></code>
-					
+					Compute SFV file and automatically determine output file.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/files</span> <span class="option">--output</span> <span class="argument">checksum.md5</span></code>
-					
+					Compute checksums according to the given output file.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/checksum.md5</span></code>
-					
+					Check file intergrity using the given checksum file.
 					</p>
-				</div>
-				<h2>
-					Argument Reference
-					<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ArgumentBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/ArgumentBean.java'])" target="_blank">source</a>
-				</h2>
+					
+					<h2 class="reference">
+						Argument Reference
+						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ArgumentBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/ArgumentBean.java'])" target="_blank">source</a>
+					</h2>
 					<table class="reference cli">
 					<tr>
 						<th>Name</th>
@@ -175,16 +175,15 @@
 						<td></td>
 					</tr>
 				</table>
-				
-				<div class="footer" style="margin-top: 100px">
-					<div id="sflogo">
-						<a href="http://sourceforge.net/projects/filebot">
-							<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
-						</a>
-					</div>
-					Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
-					| Creative Commons License: Attribution-NonCommercial-ShareAlike. © 2011
+			</div>
+			<div class="footer" style="margin-top: 100px">
+				<div id="sflogo">
+					<a href="http://sourceforge.net/projects/filebot">
+						<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
+					</a>
 				</div>
+				Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
+				| Creative Commons License: Attribution-NonCommercial-ShareAlike. © 2011
 			</div>
 		</div>
 	</body>
