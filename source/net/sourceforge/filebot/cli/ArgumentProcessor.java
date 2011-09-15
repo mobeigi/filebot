@@ -101,7 +101,7 @@ public class ArgumentProcessor {
 		
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
-			return renameMovie(files, getMovieIdentificationService(db), locale);
+			return renameMovie(files, getMovieIdentificationService(db), locale, query, strict);
 		}
 		
 		// auto-determine mode
@@ -131,7 +131,7 @@ public class ArgumentProcessor {
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
 			return renameSeries(files, query, format, getEpisodeListProviders()[0], locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, getMovieIdentificationServices()[0], locale); // use default movie db
+			return renameMovie(files, getMovieIdentificationServices()[0], locale, query, strict); // use default movie db
 		}
 	}
 	
@@ -189,21 +189,27 @@ public class ArgumentProcessor {
 	}
 	
 
-	public Set<File> renameMovie(Collection<File> mediaFiles, MovieIdentificationService db, Locale locale) throws Exception {
+	public Set<File> renameMovie(Collection<File> mediaFiles, MovieIdentificationService db, Locale locale, String query, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
 		CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
 		
 		// match movie hashes online
-		MovieDescriptor[] movieByFileHash = db.getMovieDescriptors(movieFiles, locale);
+		MovieDescriptor[] movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
+		
+		// use user query if search by hash did not return any results, only one query for one movie though
+		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
+			CLILogger.fine(format("Looking up movie by query [%s]", query));
+			movieDescriptors[0] = (MovieDescriptor) selectSearchResult(query, new ArrayList<SearchResult>(db.searchMovie(query, locale)), strict);
+		}
 		
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, String> renameMap = new LinkedHashMap<File, String>();
 		
 		for (int i = 0; i < movieFiles.length; i++) {
-			if (movieByFileHash[i] != null) {
-				String newName = movieByFileHash[i].toString();
+			if (movieDescriptors[i] != null) {
+				String newName = movieDescriptors[i].toString();
 				
 				if (isInvalidFileName(newName)) {
 					CLILogger.config("Stripping invalid characters from new path: " + newName);
@@ -219,8 +225,8 @@ public class ArgumentProcessor {
 		// handle subtitle files
 		for (File subtitleFile : filter(mediaFiles, SUBTITLE_FILES)) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
-			for (int i = 0; i < movieByFileHash.length; i++) {
-				if (movieByFileHash != null) {
+			for (int i = 0; i < movieDescriptors.length; i++) {
+				if (movieDescriptors != null) {
 					String subtitleName = getName(subtitleFile);
 					String movieName = getName(movieFiles[i]);
 					
