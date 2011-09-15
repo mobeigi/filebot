@@ -350,7 +350,10 @@ public class ArgumentProcessor {
 		ByteBuffer data = subtitleFile.getData();
 		
 		if (outputFormat != null || outputEncoding != null) {
-			ext = outputFormat.getFilter().extension(); // adjust extension of the output file
+			if (outputFormat != null) {
+				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
+			}
+			
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 		
