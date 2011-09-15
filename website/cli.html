@@ -85,11 +85,11 @@
 					Argument Reference
 					<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ArgumentBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/ArgumentBean.java'])" target="_blank">source</a>
 				</h2>
-					<table class="reference">
+					<table class="reference cli">
 					<tr>
 						<th>Name</th>
 						<th>Description</th>
-						<th>Value</th>
+						<th>Usage</th>
 					</tr>
 					<tr>
 						<td>-rename</td>
@@ -112,7 +112,7 @@
 					</tr>
 					<tr>
 						<td>--format</td>
-						<td><a href="naming.html">naming scheme</a></td>
+						<td><a href="naming.html">episode format expression</a></td>
 						<td><code st><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="string">'S'</span>+<span class="variable">s</span>.<span class="method"><span class="method">pad</span></span>(<span class="numeral">2</span>)<span class="block end">}</span>E<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code></td>
 					</tr>
 					<tr>
@@ -137,7 +137,7 @@
 					</tr>
 					<tr>
 						<td>-check</td>
-						<td>create/check verification</td>
+						<td>create/check verification file</td>
 						<td>folder or sfv file</td>
 					</tr>
 					<tr>
@@ -146,10 +146,10 @@
 						<td>
 						<table>
 							<tr>
-								<td>-check: sfv, md5, sha1 or checksum filename</td>
+								<td>Checksum mode: sfv, md5, sha1 or filename</td>
 							</tr>
 							<tr>
-								<td>-get-subtitles: srt or subrip</td>
+								<td>Subtitle mode: srt <small class="comment">(re-encode subtitles in SubRip format)</small></td>
 							</tr>
 						</table>
 						</td>

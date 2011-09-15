@@ -22,17 +22,19 @@ table.reference  {
 	border-collapse: collapse;
 }
 
-table.reference th, table.reference td {
+table.reference > * > * > th, table.reference > * > * > td {
 	padding: 5px 20px;
 }
 
-table.reference td {
+table.reference > * > * > td {
 	border-top: thin dotted lavender;
 }
 
-table.reference table td {
-	border-top: none;
-	padding-left: 0px;
+table.reference.cli > * > * > td:first-child {
+	color: #225577;
+	font-family: Andale Mono, monospace;
+	font-size: 10.5pt;
+	font-weight: bold;
 }
 
 .page {
