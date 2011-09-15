@@ -53,6 +53,7 @@ import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePackage.Download.Phase;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.vfs.MemoryFile;
@@ -332,7 +333,8 @@ class SubtitleDownloadComponent extends JComponent {
 				sf.setSelectedFile(new File(name + "." + ext));
 				
 				if (sf.showSaveDialog(getWindow(this)) == JFileChooser.APPROVE_OPTION) {
-					writeFile(exportSubtitles(file, sf.getSelectedFormat(), sf.getTimingOffset(), sf.getSelectedEncoding()), sf.getSelectedFile());
+					SubtitleFormat targetFormat = sf.getSelectedFormat().getFilter().accept(file.getName()) ? null : sf.getSelectedFormat();
+					writeFile(exportSubtitles(file, targetFormat, sf.getTimingOffset(), sf.getSelectedEncoding()), sf.getSelectedFile());
 				}
 			} else {
 				// multiple files
@@ -350,7 +352,8 @@ class SubtitleDownloadComponent extends JComponent {
 						String name = validateFileName(getNameWithoutExtension(file.getName()));
 						File destination = new File(folder, name + "." + ext);
 						
-						writeFile(exportSubtitles(file, sf.getSelectedFormat(), sf.getTimingOffset(), sf.getSelectedEncoding()), destination);
+						SubtitleFormat targetFormat = sf.getSelectedFormat().getFilter().accept(file.getName()) ? null : sf.getSelectedFormat();
+						writeFile(exportSubtitles(file, targetFormat, sf.getTimingOffset(), sf.getSelectedEncoding()), destination);
 					}
 				}
 			}
