@@ -34,20 +34,21 @@
 		        t.parentNode.insertBefore(s, t);
 		    })();
 		/* ]]> */
-		</script>		
+		</script>
 	</head>
 	<body>
 		<div class="page">
 			<div class="social">
-				<!-- google plus one -->
-				<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
-				
-				<!-- flattr -->
-				<a onclick="_gaq.push(['_trackEvent','Social networking','flattr',document.title])" class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
+				<div class="plusone" style="display:inline; position:relative; left:25px; top:1px">
+					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
+				</div>
+				<div class="flattr" style="display:inline">
+					<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
+				</div>
 			</div>
 
 			<div class="header">
-				<img class="logo" alt="logo" src="images/icon.png" width="48" height="48" />
+				<a href="http://filebot.sourceforge.net"><img class="logo" alt="logo" src="images/icon.png" width="48" height="48" /></a>
 				<h1>
 					FileBot
 					<span class="description">The ultimate tv renamer / subtitle downloader / sfv validator</span>
@@ -144,15 +145,15 @@
 					<span class="quote">Today is the day</span>
 					<h2>Download</h2>
 					<ul>
-						<li>Executable Jar: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.jar'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}.jar/download">FileBot_@{version}.jar</a> (<strong>10.5MB</strong>) <small class="comment">for Windows, Linux, Mac OS X, BSD and Solaris</small>
+						<li>Executable Jar: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.jar'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}.jar/download">FileBot_@{version}.jar</a> (<strong>12.5MB</strong>) <small class="comment">for Windows, Linux, Mac OS X, BSD and Solaris</small>
 							<ul>
 								<li>This package does not include the <a href="http://mediainfo.sourceforge.net/en/Download" target="_blank">MediaInfo native libraries</a>.</li>
 							</ul>
 						</li>
-						<li>Mac OS X app bundle: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.app'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}.app.zip/download">FileBot_@{version}.app</a> (<strong>12MB</strong>)</li>
-						<li>Windows installer: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_x86.msi'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}_x86.msi/download">FileBot_@{version}_x86.msi</a> or <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_x64.msi'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}_x64.msi/download">FileBot_@{version}_x64.msi</a> (<strong>11.5MB</strong>)</li>
-						<li>Debian packages: <a onclick="_gaq.push(['_trackPageview', '/download/filebot_i386.deb'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot_@{version}_i386.deb/download">filebot_@{version}_i386.deb</a> or <a onclick="_gaq.push(['_trackPageview', '/download/filebot_amd64.deb'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot_@{version}_amd64.deb/download">filebot_@{version}_amd64.deb</a> (<strong>10.5MB</strong>)</li>
-						<li>Source Zip: <a onclick="_gaq.push(['_trackPageview', '/download/filebot-src.zip'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot-@{version}-src.zip/download">filebot-@{version}-src.zip</a> (<strong>450KB</strong>)</li>
+						<li>Mac OS X app bundle: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.app'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}.app.zip/download">FileBot_@{version}.app</a> (<strong>15MB</strong>)</li>
+						<li>Windows installer: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_x86.msi'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}_x86.msi/download">FileBot_@{version}_x86.msi</a> or <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_x64.msi'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/FileBot_@{version}_x64.msi/download">FileBot_@{version}_x64.msi</a> (<strong>13.2MB</strong>)</li>
+						<li>Debian packages: <a onclick="_gaq.push(['_trackPageview', '/download/filebot_i386.deb'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot_@{version}_i386.deb/download">filebot_@{version}_i386.deb</a> or <a onclick="_gaq.push(['_trackPageview', '/download/filebot_amd64.deb'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot_@{version}_amd64.deb/download">filebot_@{version}_amd64.deb</a> (<strong>13.2MB</strong>)</li>
+						<li>Source Zip: <a onclick="_gaq.push(['_trackPageview', '/download/filebot-src.zip'])" target="_blank" href="http://sourceforge.net/projects/filebot/files/filebot/FileBot_@{version}/filebot-@{version}-src.zip/download">filebot-@{version}-src.zip</a> (<strong>450kB</strong>)</li>
 					</ul>
 				</div>
 
@@ -184,7 +185,7 @@
 					</form>
 				</div>
 				Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
-				| Creative Commons License: Attribution-NonCommercial-ShareAlike. &copy; 2011
+				| Creative Commons License: Attribution-NonCommercial-ShareAlike © 2011
 			</div>
 		</div>
 	</body>

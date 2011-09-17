@@ -6,22 +6,48 @@
 		<link rel="stylesheet" href="code.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
 		
+		<!-- google analytics -->
 		<script type="text/javascript">
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-25379256-1']);
-		  _gaq.push(['_trackPageview']);
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-25379256-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
 		
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
+		<!-- google plus one -->
+		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>		
+		
+		<!-- flattr -->
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		    (function() {
+		        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+		        s.type = 'text/javascript';
+		        s.async = true;
+		        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+		        t.parentNode.insertBefore(s, t);
+		    })();
+		/* ]]> */
 		</script>
 	</head>
 	<body>
 		<div class="page">
+			<div class="social">
+				<div class="plusone" style="display:inline; position:relative; left:25px; top:1px">
+					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
+				</div>
+				<div class="flattr" style="display:inline">
+					<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
+				</div>
+			</div>
+			
 			<div class="header">
-				<img class="logo" alt="logo" src="images/icon.png" />
+				<a href="http://filebot.sourceforge.net"><img class="logo" alt="logo" src="images/icon.png" width="48" height="48" /></a>
 				<h1>
 					FileBot CLI
 					<span class="description">Command-line interface usage manual</span>
@@ -86,104 +112,105 @@
 						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ArgumentBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/ArgumentBean.java'])" target="_blank">source</a>
 					</h2>
 					<table class="reference cli">
-					<tr>
-						<th>Name</th>
-						<th>Description</th>
-						<th>Usage</th>
-					</tr>
-					<tr>
-						<td>-rename</td>
-						<td>rename episode/movie files</td>
-						<td>media folder or episode/movie file</td>
-					</tr>					
-					<tr>
-						<td>--db</td>
-						<td>episode/movie datasource</td>
-						<td>
-						<table>
-							<tr>
-								<td>TV Series mode: TVRage, AniDB, TheTVDB</td>
-							</tr>
-							<tr>
-								<td>Movie mode: OpenSubtitles, TheMovieDB</td>
-							</tr>
-						</table>
-						</td>
-					</tr>
-					<tr>
-						<td>--format</td>
-						<td><a href="naming.html">episode format expression</a></td>
-						<td><code st><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="string">'S'</span>+<span class="variable">s</span>.<span class="method"><span class="method">pad</span></span>(<span class="numeral">2</span>)<span class="block end">}</span>E<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code></td>
-					</tr>
-					<tr>
-						<td>-non-strict</td>
-						<td>use less strict matching</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td>-get-subtitles</td>
-						<td>fetch subtitles</td>
-						<td>media folder or episode/movie file</td>
-					</tr>
-					<tr>
-						<td>--q</td>
-						<td>search query</td>
-						<td>tv series or movie title</td>
-					</tr>
-					<tr>
-						<td>--lang</td>
-						<td><a href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">2-letter language code</a></td>
-						<td>en, de, fr, es, ja, zh, etc</td>
-					</tr>
-					<tr>
-						<td>-check</td>
-						<td>create/check verification file</td>
-						<td>folder or sfv file</td>
-					</tr>
-					<tr>
-						<td>--output</td>
-						<td>output format and/or path</td>
-						<td>
-						<table>
-							<tr>
-								<td>Checksum mode: sfv, md5, sha1 or filename</td>
-							</tr>
-							<tr>
-								<td>Subtitle mode: srt <small class="comment">(re-encode subtitles in SubRip format)</small></td>
-							</tr>
-						</table>
-						</td>
-					</tr>
-					<tr>
-						<td>--encoding</td>
-						<td>output charset</td>
-						<td>UTF-8, windows-1252, GB18030, etc</td>
-					</tr>
-					<tr>
-						<td>--log</td>
-						<td>log level</td>
-						<td>all, config, info, warning</td>
-					</tr>
-					<tr>
-						<td>-clear</td>
-						<td>clear cache and settings</td>
-						<td></td>
-					</tr>
-					<tr>
-						<td> -help</td>
-						<td>print help message</td>
-						<td></td>
-					</tr>
-				</table>
-			</div>
-			<div class="footer" style="margin-top: 100px">
-				<div id="sflogo">
-					<a href="http://sourceforge.net/projects/filebot">
-						<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
-					</a>
+						<tr>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Usage</th>
+						</tr>
+						<tr>
+							<td>-rename</td>
+							<td>rename episode/movie files</td>
+							<td>media folder or episode/movie file</td>
+						</tr>					
+						<tr>
+							<td>--db</td>
+							<td>episode/movie datasource</td>
+							<td>
+							<table>
+								<tr>
+									<td>TV Series mode: TVRage, AniDB, TheTVDB</td>
+								</tr>
+								<tr>
+									<td>Movie mode: OpenSubtitles, TheMovieDB</td>
+								</tr>
+							</table>
+							</td>
+						</tr>
+						<tr>
+							<td>--format</td>
+							<td><a href="naming.html">episode format expression</a></td>
+							<td><code st><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="string">'S'</span>+<span class="variable">s</span>.<span class="method"><span class="method">pad</span></span>(<span class="numeral">2</span>)<span class="block end">}</span>E<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code></td>
+						</tr>
+						<tr>
+							<td>-non-strict</td>
+							<td>use less strict matching</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>-get-subtitles</td>
+							<td>fetch subtitles</td>
+							<td>media folder or episode/movie file</td>
+						</tr>
+						<tr>
+							<td>--q</td>
+							<td>search query</td>
+							<td>tv series or movie title</td>
+						</tr>
+						<tr>
+							<td>--lang</td>
+							<td><a href="http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">2-letter language code</a></td>
+							<td>en, de, fr, es, ja, zh, etc</td>
+						</tr>
+						<tr>
+							<td>-check</td>
+							<td>create/check verification file</td>
+							<td>folder or sfv file</td>
+						</tr>
+						<tr>
+							<td>--output</td>
+							<td>output format and/or path</td>
+							<td>
+							<table>
+								<tr>
+									<td>Checksum mode: sfv, md5, sha1 or filename</td>
+								</tr>
+								<tr>
+									<td>Subtitle mode: srt <small class="comment">(re-encode subtitles in SubRip format)</small></td>
+								</tr>
+							</table>
+							</td>
+						</tr>
+						<tr>
+							<td>--encoding</td>
+							<td>output charset</td>
+							<td>UTF-8, windows-1252, GB18030, etc</td>
+						</tr>
+						<tr>
+							<td>--log</td>
+							<td>log level</td>
+							<td>all, config, info, warning</td>
+						</tr>
+						<tr>
+							<td>-clear</td>
+							<td>clear cache and settings</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td> -help</td>
+							<td>print help message</td>
+							<td></td>
+						</tr>
+					</table>
 				</div>
-				Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
-				| Creative Commons License: Attribution-NonCommercial-ShareAlike. © 2011
+				<div class="footer" style="margin-top: 100px">
+					<div id="sflogo">
+						<a href="http://sourceforge.net/projects/filebot">
+							<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
+						</a>
+					</div>
+					Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
+					| Creative Commons License: Attribution-NonCommercial-ShareAlike © 2011
+				</div>
 			</div>
 		</div>
 	</body>
