@@ -402,6 +402,7 @@
 				<include name="*.ico" />
 				<include name="images/**" />
 				<include name="screenshots/**" />
+				<include name="data/**" />
 			</fileset>
 		</copy>
 
