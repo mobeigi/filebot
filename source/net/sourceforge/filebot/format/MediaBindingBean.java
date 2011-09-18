@@ -2,13 +2,21 @@
 package net.sourceforge.filebot.format;
 
 
+import static java.util.Arrays.*;
+import static java.util.ResourceBundle.*;
+import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -16,72 +24,95 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.tuned.FileUtilities;
 
 
-public class EpisodeBindingBean {
+public class MediaBindingBean {
 	
-	private final Episode episode;
-	
+	private final Object infoObject;
 	private final File mediaFile;
-	
 	private MediaInfo mediaInfo;
 	
 
-	public EpisodeBindingBean(Episode episode, File mediaFile) {
-		this.episode = episode;
+	public MediaBindingBean(Object infoObject, File mediaFile) {
+		this.infoObject = infoObject;
 		this.mediaFile = mediaFile;
 	}
 	
 
 	@Define(undefined)
-	public String undefined() {
+	public <T> T undefined() {
 		// omit expressions that depend on undefined values
 		throw new RuntimeException("undefined");
 	}
 	
 
 	@Define("n")
-	public String getSeriesName() {
-		return episode.getSeriesName();
+	public String getName() {
+		if (infoObject instanceof Episode)
+			return getEpisode().getSeriesName();
+		if (infoObject instanceof MovieDescriptor)
+			return getMovie().getName();
+		
+		return null;
+	}
+	
+
+	@Define("y")
+	public Integer getYear() {
+		if (infoObject instanceof Episode)
+			return getEpisode().airdate().getYear();
+		if (infoObject instanceof MovieDescriptor)
+			return getMovie().getYear();
+		
+		return null;
 	}
 	
 
 	@Define("s")
 	public Integer getSeasonNumber() {
-		return episode.getSeason();
+		return getEpisode().getSeason();
 	}
 	
 
 	@Define("e")
 	public Integer getEpisodeNumber() {
-		return episode.getEpisode();
+		return getEpisode().getEpisode();
 	}
 	
 
 	@Define("t")
 	public String getTitle() {
-		return episode.getTitle();
+		return getEpisode().getTitle();
 	}
 	
 
 	@Define("airdate")
 	public Date airdate() {
-		return episode.airdate();
+		return getEpisode().airdate();
 	}
 	
 
 	@Define("absolute")
 	public Integer getAbsoluteEpisodeNumber() {
-		return episode.getAbsolute();
+		return getEpisode().getAbsolute();
 	}
 	
 
 	@Define("special")
 	public Integer getSpecialNumber() {
-		return episode.getSpecial();
+		return getEpisode().getSpecial();
+	}
+	
+
+	@Define("imdb")
+	public Integer getImdbId() {
+		return getMovie().getImdbId();
 	}
 	
 
@@ -125,6 +156,18 @@ public class EpisodeBindingBean {
 		
 		// e.g. 720p
 		return height + Character.toLowerCase(scanType.charAt(0));
+	}
+	
+
+	@Define("af")
+	public String getAudioChannels() {
+		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
+		
+		if (channels == null)
+			return null;
+		
+		// e.g. 6ch
+		return channels + "ch";
 	}
 	
 
@@ -183,6 +226,48 @@ public class EpisodeBindingBean {
 	}
 	
 
+	@Define("source")
+	public String getVideoSource() {
+		// use inferred media file
+		File inferredMediaFile = getInferredMediaFile();
+		
+		// pattern matching any video source name
+		Pattern source = compile(getBundle(getClass().getName()).getString("pattern.video.source"), CASE_INSENSITIVE);
+		
+		// look for video source patterns in media file and it's parent folder
+		String lastMatch = null;
+		for (File it : asList(inferredMediaFile.getParentFile(), inferredMediaFile)) {
+			for (String part : it.getName().split("[^\\p{Alnum}]")) {
+				if (source.matcher(part).matches()) {
+					lastMatch = part;
+				}
+			}
+		}
+		
+		return lastMatch;
+	}
+	
+
+	@Define("group")
+	public String getReleaseGroup() throws IOException {
+		// use inferred media file
+		File inferredMediaFile = getInferredMediaFile();
+		
+		// pattern matching any release group name enclosed in separators
+		Pattern groups = compile("(?<!\\p{Alnum})(" + join(releaseGroups.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		
+		// look for release group names in media file and it's parent folder
+		String lastMatch = null;
+		for (File it : asList(inferredMediaFile.getParentFile(), inferredMediaFile)) {
+			for (Matcher matcher = groups.matcher(it.getName()); matcher.find();) {
+				lastMatch = matcher.group();
+			}
+		}
+		
+		return lastMatch;
+	}
+	
+
 	@Define("media")
 	public Object getGeneralMediaInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
@@ -209,13 +294,42 @@ public class EpisodeBindingBean {
 
 	@Define("episode")
 	public Episode getEpisode() {
-		return episode;
+		return (Episode) infoObject;
+	}
+	
+
+	@Define("movie")
+	public MovieDescriptor getMovie() {
+		return (MovieDescriptor) infoObject;
 	}
 	
 
 	@Define("file")
 	public File getMediaFile() {
 		return mediaFile;
+	}
+	
+
+	@Define("part")
+	public MoviePart getMoviePart() {
+		return (MoviePart) infoObject;
+	}
+	
+
+	@Define("pi")
+	public Integer getPart() {
+		return getMoviePart().getPartIndex();
+	}
+	
+
+	@Define("pn")
+	public Integer getPartCount() {
+		return getMoviePart().getPartCount();
+	}
+	
+
+	public Object getInfoObject() {
+		return infoObject;
 	}
 	
 
@@ -289,4 +403,15 @@ public class EpisodeBindingBean {
 		cache.put(new Element(file, hash));
 		return hash;
 	}
+	
+
+	// fetch release group names online and try to update the data once per day
+	private final CachedResource<String[]> releaseGroups = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), 24 * 60 * 60 * 1000) {
+		
+		@Override
+		public String[] process(ByteBuffer data) {
+			return compile("\\s").split(Charset.forName("UTF-8").decode(data));
+		}
+	};
+	
 }

@@ -34,6 +34,7 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.MovieDescriptor;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+import net.sourceforge.filebot.web.MoviePart;
 
 
 class MovieHashMatcher implements AutoCompleteMatcher {
@@ -91,7 +92,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			// add all movie parts
 			for (File file : entry.getValue()) {
-				matches.add(new Match<File, MoviePart>(file, new MoviePart(movie, partIndex++, partCount)));
+				MovieDescriptor part = movie;
+				if (partCount > 1) {
+					part = new MoviePart(movie, ++partIndex, partCount);
+				}
+				
+				matches.add(new Match<File, MovieDescriptor>(file, part));
 			}
 		}
 		

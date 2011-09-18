@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 public class EpisodeFormat extends Format {
 	
 	public static final EpisodeFormat SeasonEpisode = new EpisodeFormat(true, false);
-	public static final EpisodeFormat Default = new EpisodeFormat(true, true);
 	
 	private final boolean includeAirdate;
 	private final boolean includeSpecial;

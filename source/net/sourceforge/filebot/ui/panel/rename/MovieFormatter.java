@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.util.Formatter;
 
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.web.MoviePart;
 
 
 class MovieFormatter implements MatchFormatter {
@@ -29,7 +30,7 @@ class MovieFormatter implements MatchFormatter {
 		Formatter name = new Formatter(new StringBuilder());
 		
 		// format as single-file or multi-part movie
-		name.format("%s (%d)", video.getMovie().getName(), video.getMovie().getYear());
+		name.format("%s (%d)", video.getName(), video.getYear());
 		
 		if (video.getPartCount() > 1)
 			name.format(" CD%d", video.getPartIndex() + 1);

@@ -44,8 +44,10 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.panel.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
@@ -66,7 +68,8 @@ public class RenamePanel extends JComponent {
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
 	private static final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.preserve").defaultValue("true");
-	private static final PreferencesEntry<String> persistentFormatExpression = Settings.forPackage(RenamePanel.class).entry("rename.format");
+	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
+	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	
 
@@ -88,7 +91,14 @@ public class RenamePanel extends JComponent {
 		
 		try {
 			// restore custom episode formatter
-			renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(persistentFormatExpression.getValue()));
+			renameModel.useFormatter(Episode.class, new ExpressionFormatter(persistentEpisodeFormat.getValue(), EpisodeFormat.SeasonEpisode, Episode.class));
+		} catch (Exception e) {
+			// illegal format, ignore
+		}
+		
+		try {
+			// restore custom movie formatter
+			renameModel.useFormatter(MovieDescriptor.class, new ExpressionFormatter(persistentMovieFormat.getValue(), MovieFormat.NameYear, MovieDescriptor.class));
 		} catch (Exception e) {
 			// illegal format, ignore
 		}
@@ -166,19 +176,21 @@ public class RenamePanel extends JComponent {
 			
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				EpisodeFormatDialog dialog = new EpisodeFormatDialog(getWindowAncestor(RenamePanel.this));
+				FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this));
 				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 				dialog.setVisible(true);
 				
-				switch (dialog.getSelectedOption()) {
-					case APPROVE:
-						renameModel.useFormatter(Episode.class, new EpisodeExpressionFormatter(dialog.getSelectedFormat().getExpression()));
-						persistentFormatExpression.setValue(dialog.getSelectedFormat().getExpression());
-						break;
-					case USE_DEFAULT:
-						renameModel.useFormatter(Episode.class, null);
-						persistentFormatExpression.remove();
-						break;
+				if (dialog.submit()) {
+					switch (dialog.getMode()) {
+						case Episode:
+							renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+							persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
+							break;
+						case Movie:
+							renameModel.useFormatter(MovieDescriptor.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, MovieDescriptor.class));
+							persistentMovieFormat.setValue(dialog.getFormat().getExpression());
+							break;
+					}
 				}
 			}
 		});

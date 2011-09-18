@@ -106,13 +106,14 @@ public final class WebRequest {
 	}
 	
 
-	public static ByteBuffer fetch(URL resource) throws IOException {
-		return fetch(resource, null);
+	public static ByteBuffer fetchIfModified(URL resource, long ifModifiedSince) throws IOException {
+		return fetch(resource, ifModifiedSince, null);
 	}
 	
 
-	public static ByteBuffer fetch(URL url, Map<String, String> requestParameters) throws IOException {
+	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters) throws IOException {
 		URLConnection connection = url.openConnection();
+		connection.setIfModifiedSince(ifModifiedSince);
 		
 		if (requestParameters != null) {
 			for (Entry<String, String> parameter : requestParameters.entrySet()) {
@@ -123,7 +124,7 @@ public final class WebRequest {
 		int contentLength = connection.getContentLength();
 		
 		InputStream in = connection.getInputStream();
-		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 4 * 1024);
 		
 		try {
 			// read all
@@ -137,6 +138,10 @@ public final class WebRequest {
 		} finally {
 			in.close();
 		}
+		
+		// no data, e.g. If-Modified-Since requests
+		if (contentLength < 0 && buffer.getByteBuffer().remaining() == 0)
+			return null;
 		
 		return buffer.getByteBuffer();
 	}

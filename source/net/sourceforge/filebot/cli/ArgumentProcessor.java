@@ -30,7 +30,7 @@ import java.util.Map.Entry;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.format.EpisodeBindingBean;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
@@ -101,7 +101,7 @@ public class ArgumentProcessor {
 		
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
-			return renameMovie(files, getMovieIdentificationService(db), locale, query, strict);
+			return renameMovie(files, query, format, getMovieIdentificationService(db), locale, strict);
 		}
 		
 		// auto-determine mode
@@ -131,7 +131,7 @@ public class ArgumentProcessor {
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
 			return renameSeries(files, query, format, getEpisodeListProviders()[0], locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, getMovieIdentificationServices()[0], locale, query, strict); // use default movie db
+			return renameMovie(files, query, format, getMovieIdentificationServices()[0], locale, strict); // use default movie db
 		}
 	}
 	
@@ -174,7 +174,7 @@ public class ArgumentProcessor {
 		for (Match<File, Episode> match : matches) {
 			File file = match.getValue();
 			Episode episode = match.getCandidate();
-			String newName = (format != null) ? format.format(new EpisodeBindingBean(episode, file)) : EpisodeFormat.SeasonEpisode.format(episode);
+			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : EpisodeFormat.SeasonEpisode.format(episode);
 			
 			if (isInvalidFileName(newName)) {
 				CLILogger.config("Stripping invalid characters from new name: " + newName);
@@ -189,7 +189,7 @@ public class ArgumentProcessor {
 	}
 	
 
-	public Set<File> renameMovie(Collection<File> mediaFiles, MovieIdentificationService db, Locale locale, String query, boolean strict) throws Exception {
+	public Set<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
@@ -209,14 +209,16 @@ public class ArgumentProcessor {
 		
 		for (int i = 0; i < movieFiles.length; i++) {
 			if (movieDescriptors[i] != null) {
-				String newName = movieDescriptors[i].toString();
+				MovieDescriptor movie = movieDescriptors[i];
+				File file = movieFiles[i];
+				String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
 				
 				if (isInvalidFileName(newName)) {
 					CLILogger.config("Stripping invalid characters from new path: " + newName);
 					newName = validateFileName(newName);
 				}
 				
-				renameMap.put(movieFiles[i], newName + "." + getExtension(movieFiles[i]));
+				renameMap.put(file, newName + "." + getExtension(file));
 			} else {
 				CLILogger.warning("No matching movie: " + movieFiles[i]);
 			}

@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.panel.rename;
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -17,6 +18,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.text.Format;
+import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -53,11 +56,11 @@ import javax.swing.text.JTextComponent;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.format.EpisodeBindingBean;
+import net.sourceforge.filebot.format.BindingException;
 import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.web.Date;
-import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.web.EpisodeFormat;
+import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesList;
@@ -71,49 +74,77 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 
 
-class EpisodeFormatDialog extends JDialog {
+class FormatDialog extends JDialog {
 	
-	private Option selectedOption = Option.CANCEL;
+	private boolean submit = false;
 	
-	private ExpressionFormat selectedFormat;
+	private Mode mode;
+	private ExpressionFormat format;
 	
-	private EpisodeBindingBean sample = restoreSample();
-	
+	private MediaBindingBean sample;
 	private ExecutorService executor = createExecutor();
-	
 	private RunnableFuture<String> currentPreviewFuture;
 	
 	private JLabel preview = new JLabel();
-	
 	private JLabel status = new JLabel();
 	
+	private JTextComponent editor = createEditor();
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 	
-	private JTextComponent editor = createEditor();
+	private JLabel title = new JLabel();
+	private JPanel help = new JPanel(new MigLayout("insets 0, nogrid, fillx"));
 	
-	private static final PreferencesEntry<String> persistentSampleEpisode = Settings.forPackage(EpisodeFormatDialog.class).entry("format.sample.episode");
-	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(EpisodeFormatDialog.class).entry("format.sample.file");
-	private static final PreferencesList<String> persistentFormatHistory = Settings.forPackage(EpisodeFormatDialog.class).node("format.recent").asList();
+	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 	
 
-	public enum Option {
-		APPROVE,
-		CANCEL,
-		USE_DEFAULT
+	public enum Mode {
+		Episode,
+		Movie;
+		
+		public Mode next() {
+			if (ordinal() < values().length - 1)
+				return values()[ordinal() + 1];
+			
+			return values()[0];
+		}
+		
+
+		public String key() {
+			return this.name().toLowerCase();
+		}
+		
+
+		public Format getFormat() {
+			switch (this) {
+				case Episode:
+					return new EpisodeFormat(true, true);
+				default: // case Movie
+					return new MovieFormat(true, true, false);
+			}
+		}
+		
+
+		public PreferencesEntry<String> persistentSample() {
+			return Settings.forPackage(FormatDialog.class).entry("format.sample." + key());
+		}
+		
+
+		public PreferencesList<String> persistentFormatHistory() {
+			return Settings.forPackage(FormatDialog.class).node("format.recent." + key()).asList();
+		}
 	}
 	
 
-	public EpisodeFormatDialog(Window owner) {
-		super(owner, "Episode Format", ModalityType.DOCUMENT_MODAL);
+	public FormatDialog(Window owner) {
+		super(owner, ModalityType.DOCUMENT_MODAL);
 		
 		// initialize hidden
 		progressIndicator.setVisible(false);
 		
 		// bold title label in header
-		JLabel title = new JLabel(this.getTitle());
 		title.setFont(title.getFont().deriveFont(BOLD));
 		
-		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid, fillx"));
+		JPanel header = new JPanel(new MigLayout("insets dialog, nogrid"));
 		
 		header.setBackground(Color.white);
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
@@ -128,13 +159,9 @@ class EpisodeFormatDialog extends JDialog {
 		content.add(editor, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
 		
-		content.add(new JLabel("Syntax"), "gap indent+unrel, wrap 0");
-		content.add(createSyntaxPanel(), "gapx indent indent, wrap 8px");
+		content.add(help, "growx, wrap 25px:push");
 		
-		content.add(new JLabel("Examples"), "gap indent+unrel, wrap 0");
-		content.add(createExamplesPanel(), "h pref!, gapx indent indent, wrap 25px:push");
-		
-		content.add(new JButton(useDefaultFormatAction), "tag left");
+		content.add(new JButton(switchEditModeAction), "tag left");
 		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
 		
@@ -166,28 +193,59 @@ class EpisodeFormatDialog extends JDialog {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				finish(Option.CANCEL);
+				finish(false);
 			}
 		});
 		
 		// install editor suggestions popup
 		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("DOWN"), displayRecentFormatHistory);
 		
-		// update preview to current format
-		fireSampleChanged();
+		// episode mode by default
+		setMode(Mode.Episode);
 		
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		pack();
+		setSize(520, 400);
+	}
+	
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+		
+		this.setTitle(String.format("%s Format", mode));
+		title.setText(this.getTitle());
+		status.setVisible(false);
+		
+		switchEditModeAction.putValue(Action.NAME, String.format("%s Format", mode.next()));
+		updateHelpPanel(mode);
+		
+		// update preview to current format
+		sample = restoreSample(mode);
+		
+		// restore editor state
+		editor.setText(mode.persistentFormatHistory().isEmpty() ? "" : mode.persistentFormatHistory().get(0));
+		
+		// update examples
+		fireSampleChanged();
+	}
+	
+
+	private JComponent updateHelpPanel(Mode mode) {
+		help.removeAll();
+		
+		help.add(new JLabel("Syntax"), "gap indent+unrel, wrap 0");
+		help.add(createSyntaxPanel(mode), "gapx indent indent, wrap 8px");
+		
+		help.add(new JLabel("Examples"), "gap indent+unrel, wrap 0");
+		help.add(createExamplesPanel(mode), "growx, h pref!, gapx indent indent");
+		
+		return help;
 	}
 	
 
 	private JTextComponent createEditor() {
 		final JTextComponent editor = new JTextField(new ExpressionFormatDocument(), null, 0);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
-		
-		// restore editor state
-		editor.setText(persistentFormatHistory.isEmpty() ? "" : persistentFormatHistory.get(0));
 		
 		// enable undo/redo
 		installUndoSupport(editor);
@@ -220,20 +278,20 @@ class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	private JComponent createSyntaxPanel() {
+	private JComponent createSyntaxPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
 		
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 		panel.setOpaque(true);
 		
-		panel.add(new JLabel(ResourceBundle.getBundle(getClass().getName()).getString("syntax")));
+		panel.add(new JLabel(ResourceBundle.getBundle(getClass().getName()).getString(mode.key() + ".syntax")));
 		
 		return panel;
 	}
 	
 
-	private JComponent createExamplesPanel() {
+	private JComponent createExamplesPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 		
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
@@ -244,7 +302,7 @@ class EpisodeFormatDialog extends JDialog {
 		
 		// extract all example entries and sort by key
 		for (String key : bundle.keySet()) {
-			if (key.startsWith("example"))
+			if (key.startsWith(mode.key() + ".example"))
 				examples.put(key, bundle.getString(key));
 		}
 		
@@ -259,18 +317,31 @@ class EpisodeFormatDialog extends JDialog {
 			
 			formatLink.setFont(new Font(MONOSPACED, PLAIN, 11));
 			
-			final JLabel formatExample = new JLabel();
+			// compute format label in background
+			final JLabel formatExample = new JLabel("[evaluate]");
 			
 			// bind text to preview
 			addPropertyChangeListener("sample", new PropertyChangeListener() {
 				
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-					try {
-						formatExample.setText(new ExpressionFormat(format).format(sample));
-					} catch (Exception e) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-					}
+					new SwingWorker<String, Void>() {
+						
+						@Override
+						protected String doInBackground() throws Exception {
+							return new ExpressionFormat(format).format(sample);
+						}
+						
+
+						@Override
+						protected void done() {
+							try {
+								formatExample.setText(get());
+							} catch (Exception e) {
+								Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+							}
+						}
+					}.execute();
 				}
 			});
 			
@@ -283,26 +354,33 @@ class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	private EpisodeBindingBean restoreSample() {
-		Episode episode = null;
-		File mediaFile = null;
+	private MediaBindingBean restoreSample(Mode mode) {
+		Object info = null;
+		File media = null;
 		
-		// restore episode
 		try {
-			episode = EpisodeFormat.Default.parseObject(persistentSampleEpisode.getValue());
+			// restore sample from user preferences
+			String sample = mode.persistentSample().getValue();
+			info = mode.getFormat().parseObject(sample);
 		} catch (Exception e) {
-			// default sample
-			episode = new Episode("Dark Angel", 3, 1, "Labyrinth", 42, null, new Date(2009, 6, 1));
+			try {
+				// restore sample from application properties
+				ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
+				String sample = bundle.getString(mode.key() + ".sample");
+				info = mode.getFormat().parseObject(sample);
+			} catch (ParseException illegalSample) {
+				throw new RuntimeException(illegalSample); // won't happen
+			}
 		}
 		
 		// restore media file
 		String path = persistentSampleFile.getValue();
 		
 		if (path != null && !path.isEmpty()) {
-			mediaFile = new File(path);
+			media = new File(path);
 		}
 		
-		return new EpisodeBindingBean(episode, mediaFile);
+		return new MediaBindingBean(info, media);
 	}
 	
 
@@ -386,7 +464,8 @@ class EpisodeFormatDialog extends JDialog {
 					} catch (CancellationException e) {
 						// ignore, cancelled tasks are obsolete anyway
 					} catch (Exception e) {
-						status.setText(ExceptionUtilities.getMessage(e));
+						Exception cause = findCause(e, BindingException.class);
+						status.setText(getMessage(cause != null ? cause : e));
 						status.setIcon(ResourceManager.getIcon("status.warning"));
 						status.setVisible(true);
 					} finally {
@@ -423,18 +502,23 @@ class EpisodeFormatDialog extends JDialog {
 	}
 	
 
-	public Option getSelectedOption() {
-		return selectedOption;
+	public boolean submit() {
+		return submit;
 	}
 	
 
-	public ExpressionFormat getSelectedFormat() {
-		return selectedFormat;
+	public Mode getMode() {
+		return mode;
 	}
 	
 
-	private void finish(Option option) {
-		selectedOption = option;
+	public ExpressionFormat getFormat() {
+		return format;
+	}
+	
+
+	private void finish(boolean submit) {
+		this.submit = submit;
 		
 		// force shutdown
 		executor.shutdownNow();
@@ -448,24 +532,24 @@ class EpisodeFormatDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			EpisodeBindingDialog dialog = new EpisodeBindingDialog(getWindow(evt.getSource()));
+			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat());
 			
-			dialog.setEpisode(sample.getEpisode());
+			dialog.setInfoObject(sample.getInfoObject());
 			dialog.setMediaFile(sample.getMediaFile());
 			
 			// open dialog
 			dialog.setLocationRelativeTo((Component) evt.getSource());
 			dialog.setVisible(true);
 			
-			if (dialog.getSelectedOption() == EpisodeBindingDialog.Option.APPROVE) {
-				Episode episode = dialog.getEpisode();
+			if (dialog.submit()) {
+				Object info = dialog.getInfoObject();
 				File file = dialog.getMediaFile();
 				
 				// change sample
-				sample = new EpisodeBindingBean(episode, file);
+				sample = new MediaBindingBean(info, file);
 				
 				// remember
-				persistentSampleEpisode.setValue(episode == null ? "" : EpisodeFormat.Default.format(sample.getEpisode()));
+				mode.persistentSample().setValue(info == null ? "" : mode.getFormat().format(info));
 				persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
 				
 				// reevaluate everything
@@ -480,7 +564,7 @@ class EpisodeFormatDialog extends JDialog {
 		public void actionPerformed(ActionEvent evt) {
 			JPopupMenu popup = new JPopupMenu();
 			
-			for (final String expression : persistentFormatHistory) {
+			for (final String expression : mode.persistentFormatHistory()) {
 				JMenuItem item = popup.add(new AbstractAction(expression) {
 					
 					@Override
@@ -501,15 +585,15 @@ class EpisodeFormatDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			finish(Option.CANCEL);
+			finish(false);
 		}
 	};
 	
-	protected final Action useDefaultFormatAction = new AbstractAction("Default", ResourceManager.getIcon("dialog.default")) {
+	protected final Action switchEditModeAction = new AbstractAction(null, ResourceManager.getIcon("dialog.switch")) {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			finish(Option.USE_DEFAULT);
+			setMode(mode.next());
 		}
 	};
 	
@@ -519,23 +603,23 @@ class EpisodeFormatDialog extends JDialog {
 		public void actionPerformed(ActionEvent evt) {
 			try {
 				// check syntax
-				selectedFormat = new ExpressionFormat(editor.getText().trim());
+				format = new ExpressionFormat(editor.getText().trim());
 				
 				// create new recent history and ignore duplicates
 				Set<String> recent = new LinkedHashSet<String>();
 				
 				// add new format first
-				recent.add(selectedFormat.getExpression());
+				recent.add(format.getExpression());
 				
 				// add next 4 most recent formats
-				for (int i = 0, limit = Math.min(4, persistentFormatHistory.size()); i < limit; i++) {
-					recent.add(persistentFormatHistory.get(i));
+				for (int i = 0, limit = Math.min(4, mode.persistentFormatHistory().size()); i < limit; i++) {
+					recent.add(mode.persistentFormatHistory().get(i));
 				}
 				
 				// update persistent history
-				persistentFormatHistory.set(recent);
+				mode.persistentFormatHistory().set(recent);
 				
-				finish(Option.APPROVE);
+				finish(true);
 			} catch (ScriptException e) {
 				UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e));
 			}

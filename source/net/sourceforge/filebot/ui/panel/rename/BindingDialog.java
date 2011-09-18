@@ -13,13 +13,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.text.Format;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,34 +55,28 @@ import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.format.EpisodeBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ui.LazyDocumentListener;
 
 
-class EpisodeBindingDialog extends JDialog {
+class BindingDialog extends JDialog {
 	
-	private final JTextField episodeTextField = new JTextField();
+	private final JTextField infoTextField = new JTextField();
 	private final JTextField mediaFileTextField = new JTextField();
 	
+	private final Format infoObjectFormat;
 	private final BindingTableModel bindingModel = new BindingTableModel();
 	
-	private Option selectedOption = Option.CANCEL;
+	private boolean submit = false;
 	
 
-	public enum Option {
-		APPROVE,
-		CANCEL
-	}
-	
-
-	public EpisodeBindingDialog(Window owner) {
-		super(owner, "Episode Bindings", ModalityType.DOCUMENT_MODAL);
+	public BindingDialog(Window owner, String title, Format infoObjectFormat) {
+		super(owner, title, ModalityType.DOCUMENT_MODAL);
+		this.infoObjectFormat = infoObjectFormat;
 		
 		JComponent root = (JComponent) getContentPane();
 		root.setLayout(new MigLayout("nogrid, fill, insets dialog"));
@@ -94,7 +89,7 @@ class EpisodeBindingDialog extends JDialog {
 		inputPanel.setOpaque(false);
 		
 		inputPanel.add(new JLabel("Episode:"), "wrap 2px");
-		inputPanel.add(episodeTextField, "hmin 20px, growx, wrap paragraph");
+		inputPanel.add(infoTextField, "hmin 20px, growx, wrap paragraph");
 		
 		inputPanel.add(new JLabel("Media File:"), "wrap 2px");
 		inputPanel.add(mediaFileTextField, "hmin 20px, growx");
@@ -119,12 +114,12 @@ class EpisodeBindingDialog extends JDialog {
 				if (bindingModel.executor.isShutdown())
 					return;
 				
-				bindingModel.setModel(getSampleExpressions(), new EpisodeBindingBean(getEpisode(), getMediaFile()));
+				bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile()));
 			}
 		};
 		
 		// update example bindings on change
-		episodeTextField.getDocument().addDocumentListener(changeListener);
+		infoTextField.getDocument().addDocumentListener(changeListener);
 		mediaFileTextField.getDocument().addDocumentListener(changeListener);
 		
 		// disabled by default
@@ -156,7 +151,7 @@ class EpisodeBindingDialog extends JDialog {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				finish(Option.CANCEL);
+				finish(false);
 			}
 		});
 		
@@ -213,27 +208,19 @@ class EpisodeBindingDialog extends JDialog {
 	}
 	
 
-	private Collection<String> getSampleExpressions() {
+	private List<String> getSampleExpressions() {
 		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
-		TreeMap<String, String> expressions = new TreeMap<String, String>();
-		
-		// extract all expression entries and sort by key
-		for (String key : bundle.keySet()) {
-			if (key.startsWith("expr"))
-				expressions.put(key, bundle.getString(key));
-		}
-		
-		return expressions.values();
+		return Arrays.asList(bundle.getString("expressions").split(","));
 	}
 	
 
-	public Option getSelectedOption() {
-		return selectedOption;
+	public boolean submit() {
+		return submit;
 	}
 	
 
-	private void finish(Option option) {
-		this.selectedOption = option;
+	private void finish(boolean submit) {
+		this.submit = submit;
 		
 		// cancel background evaluators
 		bindingModel.executor.shutdownNow();
@@ -243,8 +230,8 @@ class EpisodeBindingDialog extends JDialog {
 	}
 	
 
-	public void setEpisode(Episode episode) {
-		episodeTextField.setText(episode == null ? "" : EpisodeFormat.SeasonEpisode.format(episode));
+	public void setInfoObject(Object info) {
+		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
 	}
 	
 
@@ -253,9 +240,9 @@ class EpisodeBindingDialog extends JDialog {
 	}
 	
 
-	public Episode getEpisode() {
+	public Object getInfoObject() {
 		try {
-			return EpisodeFormat.Default.parseObject(episodeTextField.getText());
+			return infoObjectFormat.parseObject(infoTextField.getText());
 		} catch (Exception e) {
 			return null;
 		}
@@ -275,15 +262,15 @@ class EpisodeBindingDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			// check episode and media file
-			if (getEpisode() == null) {
+			if (getInfoObject() == null) {
 				// illegal episode string
-				UILogger.warning(String.format("Failed to parse episode: '%s'", episodeTextField.getText()));
+				UILogger.warning(String.format("Failed to parse episode: '%s'", infoTextField.getText()));
 			} else if (getMediaFile() == null && !mediaFileTextField.getText().isEmpty()) {
 				// illegal file path
 				UILogger.warning(String.format("Invalid media file: '%s'", mediaFileTextField.getText()));
 			} else {
 				// everything seems to be in order
-				finish(Option.APPROVE);
+				finish(true);
 			}
 		}
 	};
@@ -292,7 +279,7 @@ class EpisodeBindingDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			finish(Option.CANCEL);
+			finish(true);
 		}
 	};
 	
@@ -330,7 +317,7 @@ class EpisodeBindingDialog extends JDialog {
 			// create table tab for each stream
 			JTabbedPane tabbedPane = new JTabbedPane();
 			
-			ResourceBundle bundle = ResourceBundle.getBundle(EpisodeBindingDialog.class.getName());
+			ResourceBundle bundle = ResourceBundle.getBundle(BindingDialog.class.getName());
 			RowFilter<Object, Object> excludeRowFilter = RowFilter.notFilter(RowFilter.regexFilter(bundle.getString("parameter.exclude")));
 			
 			for (StreamKind streamKind : mediaInfo.keySet()) {
@@ -370,7 +357,7 @@ class EpisodeBindingDialog extends JDialog {
 			c.add(new JButton(closeAction), "wmin 80px, hmin 25px");
 			
 			dialog.pack();
-			dialog.setLocationRelativeTo(EpisodeBindingDialog.this);
+			dialog.setLocationRelativeTo(BindingDialog.this);
 			
 			dialog.setVisible(true);
 		}
