@@ -76,12 +76,18 @@
 					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="string">'S'</span>+<span class="variable">s</span>.<span class="method"><span class="method">pad</span></span>(<span class="numeral">2</span>)<span class="block end">}</span>E<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>Dark Angel - S03E01 - Labyrinth
 					</p>
 					<p>
-					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> - <span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span></code>Dark Angel - 3x01 - Labyrinth
-					</p>
-					<p>
 					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">space</span>(<span class="string">'.'</span>).<span class="method">lower</span>()<span class="block end">}</span>.<span class="block start">{</span><span class="variable">s</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span></code>dark.angel.301
 					</p>
+					<p>
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> (<span class="block start">{</span><span class="variable">y</span><span class="block end">}</span>) (<span class="block start">{</span><span class="string">" CD<span class="variable">$pi</span>"</span><span class="block end">}</span>)</code>The Man from Earth (2007) CD1
+					</p>
+					<p>
+					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> [<span class="block start">{</span><span class="variable">y</span><span class="block end">}</span>] <span class="block start">{</span><span class="variable">vf</span><span class="block end">}</span> <span class="block start">{</span><span class="variable">af</span><span class="block end">}</span></code>The Man from Earth [2007] 720p 6ch
+					</p>			
 					<h2>Advanced Examples</h2>
+					<p>
+					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">upperInitial</span>().<span class="method">space</span>(<span class="string">'.'</span>)<span class="block end">}</span>.<span class="block start">{</span><span class="variable">y</span><span class="block end">}</span>.<span class="block start">{</span><span class="variable">source</span><span class="block end">}</span>.<span class="block start">{</span><span class="variable">vc</span><span class="block end">}</span>-<span class="block start">{</span><span class="variable">group</span><span class="block end">}</span></code>The.Man.From.Earth.2007.DVDRip.XviD-ALLiANCE
+					</p>
 					<p>
 					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">space</span>(<span class="string">'_'</span>)<span class="block end">}</span>_-_<span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span>_[<span class="block start">{</span><span class="variable">resolution</span><span class="block end">}</span>_<span class="block start">{</span><span class="variable">vc</span><span class="block end">}</span>_<span class="block start">{</span><span class="variable">ac</span><span class="block end">}</span>][<span class="block start">{</span><span class="variable">crc32</span><span class="block end">}</span>]</code>Juuni_Kokuki_-_01_[1280x720_XviD_MP3][3E16AF40]
 					</p>
@@ -92,7 +98,7 @@
 					<code><span class="block start">{</span><span class="variable">n</span><span class="block end">}</span> [<span class="block start">{</span><span class="variable">airdate</span>.<span class="method">format</span>(<span class="string">'yyyy.MM.dd'</span>)<span class="block end">}</span>] <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>The Daily Show [2010.01.05] George Lucas
 					</p>					
 					<p>
-					<code>E:/Complete/<span class="block start">{</span><span class="variable">n</span><span class="block end">}</span><span class="block start">{</span><span class="string">'/Season '</span>+<span class="variable">s</span><span class="block end">}</span>/<span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>Rename and move. The directory structure is completely up to you.
+					<code>E:/Complete/<span class="block start">{</span><span class="variable">n</span><span class="block end">}</span><span class="block start">{</span><span class="string">'/Season '</span>+<span class="variable">s</span><span class="block end">}</span>/<span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span><span class="block end">}</span></code>Rename and <b>move</b> files. The directory structure is completely up to you.
 					</p>
 					<p>
 					<code><span class="block start">{</span><span class="variable">n</span>.<span class="method">replaceTrailingBraces</span>()<span class="block end">}</span> - <span class="block start">{</span><span class="variable">s</span>+<span class="string">'x'</span><span class="block end">}</span><span class="block start">{</span><span class="variable">e</span>.<span class="method">pad</span>(<span class="numeral">2</span>)<span class="block end">}</span> - <span class="block start">{</span><span class="variable">t</span>.<span class="method">replaceAll</span>(<span class="regex">/[!?.]+$/</span>).<span class="method">replaceAll</span>(<span class="regex">/[`´]/</span>, <span class="string">"'"</span>).<span class="method">lowerTrail</span>().<span class="method">replacePart</span>(<span class="string">', Part $1'</span>)<span class="block end">}</span></code>My personal favorite. Pretty much 1x01, but with lots of cleanup operations.
@@ -100,7 +106,7 @@
 					
 					<h2 class="reference">
 						Binding Reference
-						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/format/EpisodeBindingBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/EpisodeBindingBean.java'])" target="_blank">source</a>
+						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/format/MediaBindingBean.java?view=markup" class="source" onclick="_gaq.push(['_trackPageview', '/source/EpisodeBindingBean.java'])" target="_blank">source</a>
 					</h2>
 					<table class="reference binding">
 						<tr>
@@ -144,6 +150,11 @@
 							<td>1</td>
 						</tr>
 						<tr>
+							<td>imdb</td>
+							<td>imdb id</td>
+							<td>0756683</td>
+						</tr>
+						<tr>
 							<td>vc</td>
 							<td>video codec</td>
 							<td>x264</td>
@@ -164,9 +175,24 @@
 							<td>720p</td>
 						</tr>
 						<tr>
+							<td>af</td>
+							<td>audio channels</td>
+							<td>6ch</td>
+						</tr>
+						<tr>
 							<td>resolution</td>
 							<td>video size</td>
 							<td>1280x720</td>
+						</tr>
+						<tr>
+							<td>source</td>
+							<td>source medium</td>
+							<td>BluRay</td>
+						</tr>
+						<tr>
+							<td>group</td>
+							<td><a href="http://sourceforge.net/projects/filebot/forums/forum/723389/topic/4713917" target="_blank">release group</a></td>
+							<td>ALLiANCE</td>
 						</tr>
 						<tr>
 							<td>crc32</td>
@@ -186,13 +212,28 @@
 						<tr>
 							<td>episode</td>
 							<td>episode object</td>
-							<td>&lt;default name&gt;</td>
+							<td>&lt;default episode name&gt;</td>
+						</tr>
+						<tr>
+							<td>movie</td>
+							<td>movie object</td>
+							<td>&lt;default movie name&gt;</td>
+						</tr>						
+						<tr>
+							<td>pi</td>
+							<td>part index</td>
+							<td>1</td>
+						</tr>
+						<tr>
+							<td>pn</td>
+							<td>number of parts</td>
+							<td>2</td>
 						</tr>
 						<tr>
 							<td>file</td>
 							<td>file object</td>
 							<td>&lt;file path&gt;</td>
-						</tr>						
+						</tr>
 						<tr>
 							<td>media</td>
 							<td>general media info object</td>
