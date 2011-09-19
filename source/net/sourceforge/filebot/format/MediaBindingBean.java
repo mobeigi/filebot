@@ -8,7 +8,6 @@ import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -111,8 +110,13 @@ public class MediaBindingBean {
 	
 
 	@Define("imdb")
-	public Integer getImdbId() {
-		return getMovie().getImdbId();
+	public String getImdbId() {
+		int imdb = getMovie().getImdbId();
+		
+		if (imdb < 0)
+			return null;
+		
+		return String.format("%07d", imdb);
 	}
 	
 
@@ -254,7 +258,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// pattern matching any release group name enclosed in separators
-		Pattern groups = compile("(?<!\\p{Alnum})(" + join(releaseGroups.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		Pattern groups = compile("(?<!\\p{Alnum})(" + releaseGroups.get() + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 		
 		// look for release group names in media file and it's parent folder
 		String lastMatch = null;
@@ -310,21 +314,15 @@ public class MediaBindingBean {
 	}
 	
 
-	@Define("part")
-	public MoviePart getMoviePart() {
-		return (MoviePart) infoObject;
-	}
-	
-
 	@Define("pi")
 	public Integer getPart() {
-		return getMoviePart().getPartIndex();
+		return ((MoviePart) infoObject).getPartIndex();
 	}
 	
 
 	@Define("pn")
 	public Integer getPartCount() {
-		return getMoviePart().getPartCount();
+		return ((MoviePart) infoObject).getPartCount();
 	}
 	
 
@@ -406,11 +404,11 @@ public class MediaBindingBean {
 	
 
 	// fetch release group names online and try to update the data once per day
-	private final CachedResource<String[]> releaseGroups = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), 24 * 60 * 60 * 1000) {
+	private final CachedResource<String> releaseGroups = new CachedResource<String>(getBundle(getClass().getName()).getString("url.release-groups"), 24 * 60 * 60 * 1000) {
 		
 		@Override
-		public String[] process(ByteBuffer data) {
-			return compile("\\s").split(Charset.forName("UTF-8").decode(data));
+		public String process(ByteBuffer data) {
+			return compile("\\s").matcher(Charset.forName("UTF-8").decode(data)).replaceAll("|");
 		}
 	};
 	
