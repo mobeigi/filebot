@@ -131,6 +131,10 @@
 			<zipfileset src="${dir.lib}/junrar-custom.jar">
 				<include name="de/innosystec/unrar/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/jgat-custom.jar">
+				<include name="com/dmurph/tracking/**" />
+			</zipfileset>
 		</jar>
 	</target>
 
