@@ -52,6 +52,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -161,7 +162,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		// query services sequentially
 		queryService = Executors.newFixedThreadPool(1);
 		
-		for (VideoHashSubtitleServiceBean service : services) {
+		for (final VideoHashSubtitleServiceBean service : services) {
 			QueryTask task = new QueryTask(service, mappingModel.getVideoFiles(), languageName) {
 				
 				@Override
@@ -179,6 +180,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 						}
 						
 						// make subtitle column visible
+						Analytics.trackEvent(service.getName(), "HashLookup", "Movie", subtitles.size()); // number of positive hash lookups
 						mappingModel.setOptionColumnVisible(true);
 					} catch (Exception e) {
 						Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
@@ -584,7 +586,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 	private static class SubtitleDescriptorBean extends AbstractBean {
 		
 		private final SubtitleDescriptor subtitle;
-		private final VideoHashSubtitleServiceBean source;
+		private final VideoHashSubtitleServiceBean service;
 		
 		private StateValue state;
 		private Exception error;
@@ -592,7 +594,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 
 		public SubtitleDescriptorBean(SubtitleDescriptor subtitle, VideoHashSubtitleServiceBean source) {
 			this.subtitle = subtitle;
-			this.source = source;
+			this.service = source;
 		}
 		
 
@@ -602,7 +604,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public Icon getIcon() {
-			return source.getIcon();
+			return service.getIcon();
 		}
 		
 
@@ -615,6 +617,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			setState(StateValue.STARTED);
 			
 			try {
+				Analytics.trackEvent(service.getName(), "DownloadSubtitle", subtitle.getLanguageName(), 1);
 				return subtitle.fetch();
 			} catch (Exception e) {
 				// remember exception

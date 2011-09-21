@@ -52,6 +52,7 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.panel.subtitle.SubtitlePackage.Download.Phase;
@@ -239,7 +240,9 @@ class SubtitleDownloadComponent extends JComponent {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getNewValue() == Phase.DONE) {
 					try {
-						files.addAll(subtitle.getDownload().get());
+						List<MemoryFile> subtitles = subtitle.getDownload().get();
+						Analytics.trackEvent(subtitle.getProvider().getName(), "DownloadSubtitle", subtitle.getLanguage().getName(), subtitles.size());
+						files.addAll(subtitles);
 					} catch (CancellationException e) {
 						// ignore cancellation
 					} catch (Exception e) {

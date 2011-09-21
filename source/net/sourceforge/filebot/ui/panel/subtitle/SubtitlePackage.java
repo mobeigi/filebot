@@ -24,19 +24,20 @@ import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.tuned.FileUtilities;
 
 
 public class SubtitlePackage {
 	
+	private final SubtitleProvider provider;
 	private final SubtitleDescriptor subtitle;
-	
 	private final Language language;
-	
 	private Download download;
 	
 
-	public SubtitlePackage(SubtitleDescriptor subtitle) {
+	public SubtitlePackage(SubtitleProvider provider, SubtitleDescriptor subtitle) {
+		this.provider = provider;
 		this.subtitle = subtitle;
 		
 		// resolve language name
@@ -55,6 +56,11 @@ public class SubtitlePackage {
 				}
 			}
 		});
+	}
+	
+
+	public SubtitleProvider getProvider() {
+		return provider;
 	}
 	
 

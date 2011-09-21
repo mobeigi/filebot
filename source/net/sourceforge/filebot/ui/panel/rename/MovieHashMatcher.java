@@ -30,6 +30,7 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.MovieDescriptor;
@@ -65,6 +66,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null || !autodetect) {
 				movie = grabMovieName(movieFiles[i], locale, autodetect, movie);
+				
+				if (movie != null) {
+					Analytics.trackEvent(service.getName(), "SearchMovie", movie.getName());
+				}
 			}
 			
 			// check if we managed to lookup the movie descriptor
@@ -80,6 +85,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				movieParts.add(movieFiles[i]);
 			}
 		}
+		
+		Analytics.trackEvent(service.getName(), "HashLookup", "Movie", filesByMovie.size()); // number of positive hash lookups
 		
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
@@ -125,6 +132,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		});
 		
+		Analytics.trackEvent(service.getName(), "Match", "Movie", matches.size());
 		return matches;
 	}
 	

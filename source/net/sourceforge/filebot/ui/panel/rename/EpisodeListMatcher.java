@@ -29,6 +29,7 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -122,6 +123,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 						SearchResult selectedSearchResult = selectSearchResult(query, results);
 						
 						if (selectedSearchResult != null) {
+							Analytics.trackEvent(provider.getName(), "FetchEpisodeList", selectedSearchResult.getName());
 							return provider.getEpisodeList(selectedSearchResult, locale);
 						}
 					}
@@ -194,6 +196,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			}
 		});
 		
+		Analytics.trackEvent(provider.getName(), "Match", "Episode", matches.size());
 		return matches;
 	}
 }

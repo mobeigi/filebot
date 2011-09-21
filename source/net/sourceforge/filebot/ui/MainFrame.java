@@ -27,6 +27,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.panel.analyze.AnalyzePanelBuilder;
@@ -131,6 +132,7 @@ public class MainFrame extends JFrame {
 			contentPane.add(panel);
 		}
 		
+		Analytics.trackView(panel.getClass(), selectedBuilder.getName());
 		headerPanel.setTitle(selectedBuilder.getName());
 		panel.setVisible(true);
 	}

@@ -214,7 +214,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
 			
 			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getLanguageName())) {
-				packages.add(new SubtitlePackage(subtitle));
+				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 			
 			return packages;

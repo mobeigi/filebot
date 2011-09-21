@@ -71,12 +71,16 @@ public class Main {
 			CacheManager.getInstance().clearAll();
 		}
 		
+		// initialize analytics
+		Analytics.setEnabled(!argumentBean.disableAnalytics);
+		
+		// run command-line interface and then exit
 		if (argumentBean.runCLI()) {
-			// run cmdline interface and then exit
-			System.exit(new ArgumentProcessor().process(argumentBean));
+			int status = new ArgumentProcessor().process(argumentBean);
+			System.exit(status);
 		}
 		
-		// Start user interface
+		// start user interface
 		SwingUtilities.invokeLater(new Runnable() {
 			
 			@Override

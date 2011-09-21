@@ -32,9 +32,21 @@ public final class Settings {
 	}
 	
 
+	public static String getApplicationDeployment() {
+		String deployment = System.getProperty("application.deployment");
+		if (deployment != null)
+			return deployment;
+		
+		if (System.getProperty("javawebstart.version") != null)
+			return "webstart";
+		
+		return null;
+	}
+	
+
 	public static File getApplicationFolder() {
 		// special handling for web start
-		if (System.getProperty("application.deployment") != null || System.getProperty("javawebstart.version") != null) {
+		if (getApplicationDeployment() != null) {
 			// can't use working directory for web start applications
 			File folder = new File(System.getProperty("user.home"), ".filebot");
 			

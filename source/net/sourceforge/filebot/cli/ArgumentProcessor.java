@@ -28,10 +28,11 @@ import java.util.TreeSet;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
@@ -60,8 +61,10 @@ import net.sourceforge.filebot.web.VideoHashSubtitleService;
 public class ArgumentProcessor {
 	
 	public int process(ArgumentBean args) throws Exception {
+		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
+		CLILogger.setLevel(args.getLogLevel());
+		
 		try {
-			CLILogger.setLevel(args.getLogLevel());
 			Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 			
 			if (args.getSubtitles) {
@@ -185,6 +188,7 @@ public class ArgumentProcessor {
 		}
 		
 		// rename episodes
+		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
 		return renameAll(renameMap);
 	}
 	
@@ -243,7 +247,8 @@ public class ArgumentProcessor {
 			}
 		}
 		
-		// rename episodes
+		// rename movies
+		Analytics.trackEvent("CLI", "Rename", "Movie", renameMap.size());
 		return renameAll(renameMap);
 	}
 	
@@ -279,6 +284,7 @@ public class ArgumentProcessor {
 				if (it.getValue() != null && it.getValue().size() > 0) {
 					// auto-select first element if there are multiple hash matches for the same video files
 					File subtitle = fetchSubtitle(it.getValue().get(0), it.getKey(), outputFormat, outputEncoding);
+					Analytics.trackEvent(service.getName(), "DownloadSubtitle", it.getValue().get(0).getLanguageName(), 1);
 					
 					// download complete, cross this video off the list
 					remainingVideos.remove(it.getKey());
@@ -305,6 +311,7 @@ public class ArgumentProcessor {
 						for (SubtitleDescriptor descriptor : subtitles) {
 							if (isDerived(descriptor.getName(), video)) {
 								File subtitle = fetchSubtitle(descriptor, video, outputFormat, outputEncoding);
+								Analytics.trackEvent(service.getName(), "DownloadSubtitle", descriptor.getLanguageName(), 1);
 								
 								// download complete, cross this video off the list
 								remainingVideos.remove(video);
@@ -324,6 +331,7 @@ public class ArgumentProcessor {
 			CLILogger.warning("No matching subtitles found: " + video);
 		}
 		
+		Analytics.trackEvent("CLI", "Download", "Subtitle", downloadedSubtitles.size());
 		return downloadedSubtitles;
 	}
 	

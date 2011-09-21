@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.AbstractList;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 
 
@@ -74,10 +76,14 @@ class RenameAction extends AbstractAction {
 			}
 		}
 		
+		// collect renamed types
+		List<Class> types = new ArrayList<Class>();
+		
 		// remove renamed matches
 		for (Entry<File, ?> entry : renameLog) {
 			// find index of source file
 			int index = model.files().indexOf(entry.getKey());
+			types.add(model.values().get(index).getClass());
 			
 			// remove complete match
 			model.matches().remove(index);
@@ -86,6 +92,10 @@ class RenameAction extends AbstractAction {
 		// update history
 		if (renameLog.size() > 0) {
 			HistorySpooler.getInstance().append(renameLog);
+			
+			for (Class it : new HashSet<Class>(types)) {
+				Analytics.trackEvent("GUI", "Rename", it.getSimpleName(), frequency(types, it));
+			}
 		}
 	}
 	
