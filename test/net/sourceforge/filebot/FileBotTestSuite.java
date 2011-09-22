@@ -10,8 +10,8 @@ import net.sourceforge.filebot.format.ExpressionFormatTest;
 import net.sourceforge.filebot.hash.VerificationFormatTest;
 import net.sourceforge.filebot.similarity.SimilarityTestSuite;
 import net.sourceforge.filebot.subtitle.SubtitleReaderTestSuite;
-import net.sourceforge.filebot.ui.panel.rename.MatchModelTest;
-import net.sourceforge.filebot.ui.panel.rename.MatchSimilarityMetricTest;
+import net.sourceforge.filebot.ui.rename.MatchModelTest;
+import net.sourceforge.filebot.ui.rename.MatchSimilarityMetricTest;
 import net.sourceforge.filebot.web.WebTestSuite;
 
 

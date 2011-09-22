@@ -29,7 +29,7 @@ import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
-import net.sourceforge.filebot.ui.panel.sfv.SfvPanelBuilder;
+import net.sourceforge.filebot.ui.sfv.SfvPanelBuilder;
 import net.sourceforge.filebot.ui.transfer.FileTransferable;
 
 
