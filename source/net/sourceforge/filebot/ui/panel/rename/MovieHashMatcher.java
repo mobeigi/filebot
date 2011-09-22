@@ -132,7 +132,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		});
 		
-		Analytics.trackEvent(service.getName(), "Match", "Movie", matches.size());
 		return matches;
 	}
 	

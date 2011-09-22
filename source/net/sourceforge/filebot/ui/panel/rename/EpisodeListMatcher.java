@@ -196,7 +196,6 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			}
 		});
 		
-		Analytics.trackEvent(provider.getName(), "Match", "Episode", matches.size());
 		return matches;
 	}
 }
