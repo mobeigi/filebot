@@ -17,12 +17,12 @@ public interface MovieIdentificationService {
 	public Icon getIcon();
 	
 
-	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws Exception;
+	public List<Movie> searchMovie(String query, Locale locale) throws Exception;
 	
 
-	public MovieDescriptor getMovieDescriptor(int imdbid, Locale locale) throws Exception;
+	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception;
 	
 
-	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception;
+	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception;
 	
 }

@@ -2,13 +2,13 @@
 package net.sourceforge.filebot.web;
 
 
-public class MoviePart extends MovieDescriptor {
+public class MoviePart extends Movie {
 	
 	protected final int partIndex;
 	protected final int partCount;
 	
 
-	public MoviePart(MovieDescriptor movie, int partIndex, int partCount) {
+	public MoviePart(Movie movie, int partIndex, int partCount) {
 		super(movie.name, movie.year, movie.imdbId);
 		this.partIndex = partIndex;
 		this.partCount = partCount;

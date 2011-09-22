@@ -26,7 +26,7 @@ import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.tuned.FileUtilities;
 
@@ -55,7 +55,7 @@ public class MediaBindingBean {
 	public String getName() {
 		if (infoObject instanceof Episode)
 			return getEpisode().getSeriesName();
-		if (infoObject instanceof MovieDescriptor)
+		if (infoObject instanceof Movie)
 			return getMovie().getName();
 		
 		return null;
@@ -66,7 +66,7 @@ public class MediaBindingBean {
 	public Integer getYear() {
 		if (infoObject instanceof Episode)
 			return getEpisode().airdate().getYear();
-		if (infoObject instanceof MovieDescriptor)
+		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		
 		return null;
@@ -303,8 +303,8 @@ public class MediaBindingBean {
 	
 
 	@Define("movie")
-	public MovieDescriptor getMovie() {
-		return (MovieDescriptor) infoObject;
+	public Movie getMovie() {
+		return (Movie) infoObject;
 	}
 	
 

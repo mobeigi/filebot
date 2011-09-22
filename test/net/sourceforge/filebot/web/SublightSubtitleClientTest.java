@@ -33,7 +33,7 @@ public class SublightSubtitleClientTest {
 	public void search() {
 		List<SearchResult> list = client.search("babylon 5");
 		
-		MovieDescriptor sample = (MovieDescriptor) list.get(0);
+		Movie sample = (Movie) list.get(0);
 		
 		// check sample entry
 		assertEquals("Babylon 5", sample.getName());
@@ -46,7 +46,7 @@ public class SublightSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListEnglish() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Heroes", 2006, 813715), "English");
+		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Heroes", 2006, 813715), "English");
 		
 		SubtitleDescriptor sample = list.get(0);
 		
@@ -60,7 +60,7 @@ public class SublightSubtitleClientTest {
 
 	@Test
 	public void getSubtitleListAllLanguages() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new MovieDescriptor("Terminator 2", 1991, 103064), null);
+		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064), null);
 		
 		SubtitleDescriptor sample = list.get(0);
 		

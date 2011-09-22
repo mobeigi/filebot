@@ -60,7 +60,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 			String year = node.getNextSibling().getTextContent().trim().replaceAll("\\D+", ""); // remove non-number characters
 			String href = getAttribute("href", node);
 			
-			results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(href)));
+			results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
 		}
 		
 		// we might have been redirected to the movie page
@@ -70,7 +70,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 				String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
 				String url = selectString("//LINK[@rel='canonical']/@href", dom);
 				
-				results.add(new MovieDescriptor(name, Integer.parseInt(year), getImdbId(url)));
+				results.add(new Movie(name, Integer.parseInt(year), getImdbId(url)));
 			} catch (Exception e) {
 				// ignore, we probably got redirected to an error page
 			}
@@ -144,7 +144,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		try {
-			return new URI("http", host, String.format("/title/tt%07d/episodes", ((MovieDescriptor) searchResult).getImdbId()), season > 0 ? String.format("season-%d", season) : null);
+			return new URI("http", host, String.format("/title/tt%07d/episodes", ((Movie) searchResult).getImdbId()), season > 0 ? String.format("season-%d", season) : null);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}

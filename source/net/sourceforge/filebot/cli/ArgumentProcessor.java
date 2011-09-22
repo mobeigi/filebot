@@ -50,7 +50,7 @@ import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
@@ -200,12 +200,12 @@ public class ArgumentProcessor {
 		CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
 		
 		// match movie hashes online
-		MovieDescriptor[] movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
+		Movie[] movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
 		
 		// use user query if search by hash did not return any results, only one query for one movie though
 		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
-			movieDescriptors[0] = (MovieDescriptor) selectSearchResult(query, new ArrayList<SearchResult>(db.searchMovie(query, locale)), strict);
+			movieDescriptors[0] = (Movie) selectSearchResult(query, new ArrayList<SearchResult>(db.searchMovie(query, locale)), strict);
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
@@ -213,7 +213,7 @@ public class ArgumentProcessor {
 		
 		for (int i = 0; i < movieFiles.length; i++) {
 			if (movieDescriptors[i] != null) {
-				MovieDescriptor movie = movieDescriptors[i];
+				Movie movie = movieDescriptors[i];
 				File file = movieFiles[i];
 				String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
 				

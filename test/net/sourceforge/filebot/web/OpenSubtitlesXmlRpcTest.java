@@ -34,8 +34,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void search() throws Exception {
-		List<MovieDescriptor> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
-		MovieDescriptor sample = (MovieDescriptor) list.get(0);
+		List<Movie> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
+		Movie sample = (Movie) list.get(0);
 		
 		// check sample entry
 		assertEquals("\"Babylon 5\"", sample.getName());
@@ -122,8 +122,8 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHash() throws Exception {
-		Map<String, MovieDescriptor> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"));
-		MovieDescriptor movie = results.get("d7aa0275cace4410");
+		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"));
+		Movie movie = results.get("d7aa0275cace4410");
 		
 		assertEquals("Iron Man", movie.getName());
 		assertEquals(2008, movie.getYear());
@@ -133,7 +133,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void checkMovieHashInvalid() throws Exception {
-		Map<String, MovieDescriptor> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
+		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
 		
 		// no movie info
 		assertTrue(results.isEmpty());
@@ -142,7 +142,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getIMDBMovieDetails() throws Exception {
-		MovieDescriptor movie = xmlrpc.getIMDBMovieDetails(371746);
+		Movie movie = xmlrpc.getIMDBMovieDetails(371746);
 		
 		assertEquals("Iron Man", movie.getName());
 		assertEquals(2008, movie.getYear());
@@ -152,7 +152,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getIMDBMovieDetailsInvalid() throws Exception {
-		MovieDescriptor movie = xmlrpc.getIMDBMovieDetails(371746);
+		Movie movie = xmlrpc.getIMDBMovieDetails(371746);
 		
 		assertEquals("Iron Man", movie.getName());
 		assertEquals(2008, movie.getYear());

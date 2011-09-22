@@ -121,11 +121,11 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
-	public List<MovieDescriptor> searchMoviesOnIMDB(String query) throws XmlRpcFault {
+	public List<Movie> searchMoviesOnIMDB(String query) throws XmlRpcFault {
 		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 		
 		List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
-		List<MovieDescriptor> movies = new ArrayList<MovieDescriptor>();
+		List<Movie> movies = new ArrayList<Movie>();
 		
 		// title pattern
 		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
@@ -139,7 +139,7 @@ public class OpenSubtitlesXmlRpc {
 				int year = Integer.parseInt(matcher.group(2));
 				int imdbid = Integer.parseInt(movie.get("id"));
 				
-				movies.add(new MovieDescriptor(name, year, imdbid));
+				movies.add(new Movie(name, year, imdbid));
 			} else {
 				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.WARNING, "Error parsing title: " + movie);
 			}
@@ -218,11 +218,11 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
-	public Map<String, MovieDescriptor> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
+	public Map<String, Movie> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
 		Map<?, ?> response = invoke("CheckMovieHash", token, hashes);
 		
 		Map<String, ?> movieHashData = (Map<String, ?>) response.get("data");
-		Map<String, MovieDescriptor> movieHashMap = new HashMap<String, MovieDescriptor>();
+		Map<String, Movie> movieHashMap = new HashMap<String, Movie>();
 		
 		for (Entry<String, ?> entry : movieHashData.entrySet()) {
 			// empty associative arrays are deserialized as array, not as map
@@ -234,7 +234,7 @@ public class OpenSubtitlesXmlRpc {
 				int year = Integer.parseInt(info.get("MovieYear"));
 				int imdb = Integer.parseInt(info.get("MovieImdbID"));
 				
-				movieHashMap.put(hash, new MovieDescriptor(name, year, imdb));
+				movieHashMap.put(hash, new Movie(name, year, imdb));
 			}
 		}
 		
@@ -248,7 +248,7 @@ public class OpenSubtitlesXmlRpc {
 	
 
 	@SuppressWarnings("unchecked")
-	public MovieDescriptor getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
+	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
 		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
 		
 		try {
@@ -257,7 +257,7 @@ public class OpenSubtitlesXmlRpc {
 			String name = data.get("title");
 			int year = Integer.parseInt(data.get("year"));
 			
-			return new MovieDescriptor(name, year, imdbid);
+			return new Movie(name, year, imdbid);
 		} catch (RuntimeException e) {
 			// ignore, invalid response
 		}

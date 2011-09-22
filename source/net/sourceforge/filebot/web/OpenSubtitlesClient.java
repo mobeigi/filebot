@@ -73,7 +73,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		// singleton array with or empty array
-		int imdbid = ((MovieDescriptor) searchResult).getImdbId();
+		int imdbid = ((Movie) searchResult).getImdbId();
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 		
 		// require login
@@ -146,7 +146,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws Exception {
+	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
 		// require login
 		login();
 		
@@ -155,7 +155,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public MovieDescriptor getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		// require login
 		login();
 		
@@ -164,9 +164,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 
 	@Override
-	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
+	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
 		// create result array
-		MovieDescriptor[] result = new MovieDescriptor[movieFiles.length];
+		Movie[] result = new Movie[movieFiles.length];
 		
 		// compute movie hashes
 		Map<String, Integer> indexMap = new HashMap<String, Integer>(movieFiles.length);
@@ -182,7 +182,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		login();
 		
 		// dispatch single query for all hashes
-		for (Entry<String, MovieDescriptor> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
+		for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
 			int index = indexMap.get(entry.getKey());
 			result[index] = entry.getValue();
 		}
@@ -193,7 +193,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
-		MovieDescriptor movie = (MovieDescriptor) searchResult;
+		Movie movie = (Movie) searchResult;
 		String sublanguageid = "all";
 		
 		if (languageName != null) {

@@ -46,7 +46,7 @@ import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -87,7 +87,7 @@ public class RenamePanel extends JComponent {
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		
 		// movie formatter
-		renameModel.useFormatter(MovieDescriptor.class, new MovieFormatter());
+		renameModel.useFormatter(Movie.class, new MovieFormatter());
 		
 		try {
 			// restore custom episode formatter
@@ -98,7 +98,7 @@ public class RenamePanel extends JComponent {
 		
 		try {
 			// restore custom movie formatter
-			renameModel.useFormatter(MovieDescriptor.class, new ExpressionFormatter(persistentMovieFormat.getValue(), MovieFormat.NameYear, MovieDescriptor.class));
+			renameModel.useFormatter(Movie.class, new ExpressionFormatter(persistentMovieFormat.getValue(), MovieFormat.NameYear, Movie.class));
 		} catch (Exception e) {
 			// illegal format, ignore
 		}
@@ -187,7 +187,7 @@ public class RenamePanel extends JComponent {
 							persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
 							break;
 						case Movie:
-							renameModel.useFormatter(MovieDescriptor.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, MovieDescriptor.class));
+							renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
 							persistentMovieFormat.setValue(dialog.getFormat().getExpression());
 							break;
 					}

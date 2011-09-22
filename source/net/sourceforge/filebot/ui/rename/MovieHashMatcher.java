@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.web.MovieDescriptor;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 
@@ -54,14 +54,14 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		
 		// match movie hashes online
-		MovieDescriptor[] movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+		Movie[] movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
 		
 		// map movies to (possibly multiple) files (in natural order) 
-		Map<MovieDescriptor, SortedSet<File>> filesByMovie = new HashMap<MovieDescriptor, SortedSet<File>>();
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// map all files by movie
 		for (int i = 0; i < movieFiles.length; i++) {
-			MovieDescriptor movie = movieByFileHash[i];
+			Movie movie = movieByFileHash[i];
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null || !autodetect) {
@@ -91,20 +91,20 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
-		for (Entry<MovieDescriptor, SortedSet<File>> entry : filesByMovie.entrySet()) {
-			MovieDescriptor movie = entry.getKey();
+		for (Entry<Movie, SortedSet<File>> entry : filesByMovie.entrySet()) {
+			Movie movie = entry.getKey();
 			
 			int partIndex = 0;
 			int partCount = entry.getValue().size();
 			
 			// add all movie parts
 			for (File file : entry.getValue()) {
-				MovieDescriptor part = movie;
+				Movie part = movie;
 				if (partCount > 1) {
 					part = new MoviePart(movie, ++partIndex, partCount);
 				}
 				
-				matches.add(new Match<File, MovieDescriptor>(file, part));
+				matches.add(new Match<File, Movie>(file, part));
 			}
 		}
 		
@@ -163,11 +163,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected MovieDescriptor grabMovieName(File movieFile, Locale locale, boolean autodetect, MovieDescriptor... suggestions) throws Exception {
-		List<MovieDescriptor> options = new ArrayList<MovieDescriptor>();
+	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Movie... suggestions) throws Exception {
+		List<Movie> options = new ArrayList<Movie>();
 		
 		// add default value if any
-		for (MovieDescriptor it : suggestions) {
+		for (Movie it : suggestions) {
 			if (it != null) {
 				options.add(it);
 			}
@@ -175,7 +175,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// try to grep imdb id from nfo files
 		for (int imdbid : grepImdbId(movieFile.getParentFile().listFiles(getDefaultFilter("application/nfo")))) {
-			MovieDescriptor movie = service.getMovieDescriptor(imdbid, locale);
+			Movie movie = service.getMovieDescriptor(imdbid, locale);
 			
 			if (movie != null) {
 				options.add(movie);
@@ -205,18 +205,18 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected MovieDescriptor selectMovie(final List<MovieDescriptor> options) throws Exception {
+	protected Movie selectMovie(final List<Movie> options) throws Exception {
 		if (options.size() == 1) {
 			return options.get(0);
 		}
 		
 		// show selection dialog on EDT
-		final RunnableFuture<MovieDescriptor> showSelectDialog = new FutureTask<MovieDescriptor>(new Callable<MovieDescriptor>() {
+		final RunnableFuture<Movie> showSelectDialog = new FutureTask<Movie>(new Callable<Movie>() {
 			
 			@Override
-			public MovieDescriptor call() throws Exception {
+			public Movie call() throws Exception {
 				// multiple results have been found, user must select one
-				SelectDialog<MovieDescriptor> selectDialog = new SelectDialog<MovieDescriptor>(null, options);
+				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(null, options);
 				
 				selectDialog.getHeaderLabel().setText("Select Movie:");
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");

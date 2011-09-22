@@ -18,7 +18,7 @@ public class IMDbClientTest {
 	public void search() throws Exception {
 		List<SearchResult> results = imdb.search("battlestar");
 		
-		MovieDescriptor movie = (MovieDescriptor) results.get(0);
+		Movie movie = (Movie) results.get(0);
 		
 		assertEquals("Battlestar Galactica", movie.getName());
 		assertEquals(2004, movie.getYear());
@@ -32,7 +32,7 @@ public class IMDbClientTest {
 	public void searchMiniSeries() throws Exception {
 		List<SearchResult> results = imdb.search("generation kill");
 		
-		MovieDescriptor movie = (MovieDescriptor) results.get(0);
+		Movie movie = (Movie) results.get(0);
 		
 		assertEquals("Generation Kill", movie.getName());
 		assertEquals(2008, movie.getYear());
@@ -55,7 +55,7 @@ public class IMDbClientTest {
 		// exactly one search result
 		assertEquals(1, results.size(), 0);
 		
-		MovieDescriptor movie = (MovieDescriptor) results.get(0);
+		Movie movie = (Movie) results.get(0);
 		
 		assertEquals("My Name Is Earl", movie.getName());
 		assertEquals(460091, movie.getImdbId(), 0);
@@ -64,7 +64,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = imdb.getEpisodeList(new MovieDescriptor("Buffy", 1997, 118276));
+		List<Episode> list = imdb.getEpisodeList(new Movie("Buffy", 1997, 118276));
 		
 		assertEquals(145, list.size());
 		
@@ -88,7 +88,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getEpisodeListWithUnknownSeason() throws Exception {
-		List<Episode> list = imdb.getEpisodeList(new MovieDescriptor("Mushishi", 2005, 807832));
+		List<Episode> list = imdb.getEpisodeList(new Movie("Mushishi", 2005, 807832));
 		
 		assertEquals(26, list.size());
 		
@@ -103,7 +103,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getEpisodeListLink() throws Exception {
-		assertEquals("http://www.imdb.com/title/tt0407362/episodes", imdb.getEpisodeListLink(new MovieDescriptor("Battlestar Galactica", 2004, 407362)).toString());
+		assertEquals("http://www.imdb.com/title/tt0407362/episodes", imdb.getEpisodeListLink(new Movie("Battlestar Galactica", 2004, 407362)).toString());
 	}
 	
 }

@@ -51,7 +51,7 @@ public class TMDbClient implements MovieIdentificationService {
 	
 
 	@Override
-	public List<MovieDescriptor> searchMovie(String query, Locale locale) throws IOException {
+	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
 		try {
 			return getMovies("Movie.search", query, locale);
 		} catch (SAXException e) {
@@ -62,18 +62,18 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	public List<MovieDescriptor> searchMovie(File file, Locale locale) throws IOException, SAXException {
+	public List<Movie> searchMovie(File file, Locale locale) throws IOException, SAXException {
 		return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length(), locale);
 	}
 	
 
-	public List<MovieDescriptor> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
+	public List<Movie> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
 		return getMovies("Media.getInfo", hash + "/" + bytesize, locale);
 	}
 	
 
 	@Override
-	public MovieDescriptor getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
 		Node movie = selectNode("//movie", getDocument(resource));
 		
@@ -83,16 +83,16 @@ public class TMDbClient implements MovieIdentificationService {
 		String name = getTextContent("name", movie);
 		int year = new Scanner(getTextContent("released", movie)).useDelimiter("\\D+").nextInt();
 		
-		return new MovieDescriptor(name, year, imdbid);
+		return new Movie(name, year, imdbid);
 	}
 	
 
 	@Override
-	public MovieDescriptor[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
-		MovieDescriptor[] movies = new MovieDescriptor[movieFiles.length];
+	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
+		Movie[] movies = new Movie[movieFiles.length];
 		
 		for (int i = 0; i < movies.length; i++) {
-			List<MovieDescriptor> options = searchMovie(movieFiles[i], locale);
+			List<Movie> options = searchMovie(movieFiles[i], locale);
 			
 			// just use first result, if possible
 			movies[i] = options.isEmpty() ? null : options.get(0);
@@ -102,8 +102,8 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 
-	protected List<MovieDescriptor> getMovies(String method, String parameter, Locale locale) throws IOException, SAXException {
-		List<MovieDescriptor> result = new ArrayList<MovieDescriptor>();
+	protected List<Movie> getMovies(String method, String parameter, Locale locale) throws IOException, SAXException {
+		List<Movie> result = new ArrayList<Movie>();
 		
 		for (Node node : selectNodes("//movie", getDocument(getResource(method, parameter, locale)))) {
 			try {
@@ -115,7 +115,7 @@ public class TMDbClient implements MovieIdentificationService {
 				// imdb id will be tt1234567, but we only care about the number
 				int imdbid = new Scanner(getTextContent("imdb_id", node)).useDelimiter("\\D+").nextInt();
 				
-				result.add(new MovieDescriptor(name, year, imdbid));
+				result.add(new Movie(name, year, imdbid));
 			} catch (RuntimeException e) {
 				// release date or imdb id are undefined
 			}

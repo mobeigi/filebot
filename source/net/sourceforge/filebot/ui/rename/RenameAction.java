@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -94,7 +95,7 @@ class RenameAction extends AbstractAction {
 			HistorySpooler.getInstance().append(renameLog);
 			
 			for (Class it : new HashSet<Class>(types)) {
-				Analytics.trackEvent("GUI", "Rename", it.getSimpleName(), frequency(types, it));
+				Analytics.trackEvent(getApplicationName(), "Rename", it.getSimpleName(), frequency(types, it));
 			}
 		}
 	}

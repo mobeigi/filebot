@@ -29,7 +29,7 @@ public class MovieFormat extends Format {
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
 		// format episode object, e.g. Avatar (2009), Part 1
-		MovieDescriptor movie = (MovieDescriptor) obj;
+		Movie movie = (Movie) obj;
 		
 		sb.append(movie.getName());
 		
@@ -56,7 +56,7 @@ public class MovieFormat extends Format {
 	
 
 	@Override
-	public MovieDescriptor parseObject(String source, ParsePosition pos) {
+	public Movie parseObject(String source, ParsePosition pos) {
 		String s = source;
 		Matcher m;
 		
@@ -73,7 +73,7 @@ public class MovieFormat extends Format {
 			String name = m.group(1).trim();
 			int year = Integer.parseInt(m.group(2));
 			
-			MovieDescriptor movie = new MovieDescriptor(name, year, -1);
+			Movie movie = new Movie(name, year, -1);
 			if (partIndex >= 0) {
 				movie = new MoviePart(movie, partIndex, partCount);
 			}
@@ -90,8 +90,8 @@ public class MovieFormat extends Format {
 	
 
 	@Override
-	public MovieDescriptor parseObject(String source) throws ParseException {
-		return (MovieDescriptor) super.parseObject(source);
+	public Movie parseObject(String source) throws ParseException {
+		return (Movie) super.parseObject(source);
 	}
 	
 }
