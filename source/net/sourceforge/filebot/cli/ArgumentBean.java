@@ -99,10 +99,18 @@ public class ArgumentBean {
 	
 
 	public Language getLanguage() {
+		// try to look up by language code
 		Language language = Language.getLanguage(lang);
 		
-		if (language == null)
-			throw new IllegalArgumentException("Illegal language code: " + lang);
+		if (language == null) {
+			// try too look up by language name
+			language = Language.getLanguageByName(lang);
+			
+			if (language == null) {
+				// unable to lookup language
+				throw new IllegalArgumentException("Illegal language code: " + lang);
+			}
+		}
 		
 		return language;
 	}

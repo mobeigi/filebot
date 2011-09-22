@@ -83,6 +83,16 @@ public class Language {
 	}
 	
 
+	public static Language getLanguageByName(String name) {
+		for (Language it : availableLanguages()) {
+			if (name.equalsIgnoreCase(it.getName()))
+				return it;
+		}
+		
+		return null;
+	}
+	
+
 	public static List<Language> availableLanguages() {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		return getLanguages(bundle.getString("languages.all").split(","));
