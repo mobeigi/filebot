@@ -31,7 +31,7 @@ public class Analytics {
 	
 
 	public static void trackView(Class<?> view, String title) {
-		trackView(view.getName().replace(',', '/'), title);
+		trackView(view.getName().replace('.', '/'), title);
 	}
 	
 
