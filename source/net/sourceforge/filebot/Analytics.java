@@ -147,9 +147,9 @@ public class Analytics {
 
 	private static String getColorDepth(GraphicsDevice[] display) {
 		if (display[0] == null)
-			return null;
+			throw new HeadlessException();
 		
-		String colorDepth = display[0].getDisplayMode().getBitDepth() + "";
+		String colorDepth = "" + display[0].getDisplayMode().getBitDepth();
 		for (int i = 1; i < display.length; i++) {
 			colorDepth += ", " + display[i].getDisplayMode().getBitDepth();
 		}
