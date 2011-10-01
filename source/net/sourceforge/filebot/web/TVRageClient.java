@@ -66,13 +66,12 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
 		int showId = ((TVRageSearchResult) searchResult).getShowId();
-		
-		URL episodeListUrl = new URL("http", host, "/feeds/episode_list.php?sid=" + showId);
+		URL episodeListUrl = new URL("http", host, "/feeds/full_show_info.php?sid=" + showId);
 		
 		Document dom = getDocument(episodeListUrl);
 		
 		String seriesName = selectString("Show/name", dom);
-		Date seriesStartDate = Date.parse(selectString("//started", dom), "MMM/dd/yyyy");
+		Date seriesStartDate = Date.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
 		
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
