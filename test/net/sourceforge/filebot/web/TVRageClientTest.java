@@ -43,6 +43,7 @@ public class TVRageClientTest {
 		Episode chosen = list.get(21);
 		
 		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
+		assertEquals("2002-04-09", chosen.getSeriesStartDate().toString());
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisode().toString());
 		assertEquals("7", chosen.getSeason().toString());

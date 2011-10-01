@@ -56,7 +56,7 @@ public class Date implements Serializable {
 			return year == other.year && month == other.month && day == other.day;
 		}
 		
-		return false;
+		return super.equals(obj);
 	}
 	
 

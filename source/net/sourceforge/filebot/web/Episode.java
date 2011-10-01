@@ -9,6 +9,8 @@ import java.util.Arrays;
 public class Episode implements Serializable {
 	
 	private String seriesName;
+	private Date seriesStartDate;
+	
 	private Integer season;
 	private Integer episode;
 	private String title;
@@ -28,13 +30,14 @@ public class Episode implements Serializable {
 	}
 	
 
-	public Episode(String seriesName, Integer season, Integer episode, String title) {
-		this(seriesName, season, episode, title, null, null, null);
+	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title) {
+		this(seriesName, seriesStartDate, season, episode, title, null, null, null);
 	}
 	
 
-	public Episode(String seriesName, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate) {
+	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate) {
 		this.seriesName = seriesName;
+		this.seriesStartDate = seriesStartDate;
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
@@ -46,6 +49,11 @@ public class Episode implements Serializable {
 
 	public String getSeriesName() {
 		return seriesName;
+	}
+	
+
+	public Date getSeriesStartDate() {
+		return seriesStartDate;
 	}
 	
 

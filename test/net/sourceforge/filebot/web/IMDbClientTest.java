@@ -71,6 +71,7 @@ public class IMDbClientTest {
 		Episode first = list.get(0);
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
+		assertEquals("1997-00-00", first.getSeriesStartDate().toString());
 		assertEquals("Unaired Pilot", first.getTitle());
 		assertEquals("0", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
@@ -79,6 +80,7 @@ public class IMDbClientTest {
 		Episode last = list.get(144);
 		
 		assertEquals("Buffy the Vampire Slayer", last.getSeriesName());
+		assertEquals("1997-00-00", first.getSeriesStartDate().toString());
 		assertEquals("Chosen", last.getTitle());
 		assertEquals("22", last.getEpisode().toString());
 		assertEquals("7", last.getSeason().toString());
@@ -95,6 +97,7 @@ public class IMDbClientTest {
 		Episode first = list.get(0);
 		
 		assertEquals("Mushi-Shi", first.getSeriesName());
+		assertEquals("2005-00-00", first.getSeriesStartDate().toString());
 		assertEquals("Midori no za", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());

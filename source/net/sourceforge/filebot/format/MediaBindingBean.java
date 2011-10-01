@@ -65,7 +65,7 @@ public class MediaBindingBean {
 	@Define("y")
 	public Integer getYear() {
 		if (infoObject instanceof Episode)
-			return getEpisode().airdate().getYear();
+			return getEpisode().getSeriesStartDate().getYear();
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		
@@ -94,6 +94,12 @@ public class MediaBindingBean {
 	@Define("airdate")
 	public Date airdate() {
 		return getEpisode().airdate();
+	}
+	
+
+	@Define("startdate")
+	public Date startdate() {
+		return getEpisode().getSeriesStartDate();
 	}
 	
 

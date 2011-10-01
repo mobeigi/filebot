@@ -95,7 +95,6 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				if (name != null) {
 					// normalize
 					name = name.toLowerCase();
-					
 					float similarity = metric.getSimilarity(name, query);
 					
 					if (similarity > 0.5 || name.contains(query)) {
@@ -149,7 +148,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// get anime page as xml
 		Document dom = getDocument(url);
 		
-		// select main title
+		// select main title and anime start date
+		Date seriesStartDate = Date.parse(selectString("//startdate", dom), "yyyy-MM-dd");
 		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + language.getLanguage() + "']", dom);
 		if (animeTitle.isEmpty()) {
 			animeTitle = selectString("//titles/title[@type='main']", dom);
@@ -162,15 +162,14 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			
 			// ignore special episodes
 			if (number != null) {
+				Date airdate = Date.parse(getTextContent("airdate", node), "yyyy-MM-dd");
 				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
 				if (title.isEmpty()) { // English language fall-back
 					title = selectString(".//title[@lang='en']", node);
 				}
 				
-				String airdate = getTextContent("airdate", node);
-				
 				// no seasons for anime
-				episodes.add(new Episode(animeTitle, null, number, title, number, null, Date.parse(airdate, "yyyy-MM-dd")));
+				episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, airdate));
 			}
 		}
 		

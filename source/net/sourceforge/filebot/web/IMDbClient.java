@@ -46,9 +46,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
-		
 		URL searchUrl = new URL("http", host, "/find?s=tt&q=" + URLEncoder.encode(query, "UTF-8"));
-		
 		Document dom = getHtmlDocument(openConnection(searchUrl));
 		
 		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'series')]]", dom);
@@ -85,6 +83,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 		Document dom = getHtmlDocument(openConnection(getEpisodeListLink(searchResult).toURL()));
 		
 		String seriesName = normalizeName(selectString("//H1/A", dom));
+		Date year = new Date(((Movie) searchResult).getYear(), 0, 0);
 		
 		List<Node> nodes = selectNodes("//TABLE//H3/A[preceding-sibling::text()]", dom);
 		
@@ -98,9 +97,9 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 			Integer episode = numberScanner.nextInt();
 			
 			// e.g. 20 May 2003
-			String airdate = selectString("./following::STRONG", node);
+			Date airdate = Date.parse(selectString("./following::STRONG", node), "dd MMMMM yyyyy");
 			
-			episodes.add(new Episode(seriesName, season, episode, title, null, null, Date.parse(airdate, "dd MMMMM yyyyy")));
+			episodes.add(new Episode(seriesName, year, season, episode, title, null, null, airdate));
 		}
 		
 		return episodes;

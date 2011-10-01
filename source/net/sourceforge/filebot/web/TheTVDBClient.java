@@ -117,6 +117,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		// we could get the series name from the search result, but the language may not match the given parameter
 		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
+		Date seriesStartDate = Date.parse(selectString("Data/Series/FirstAired", seriesRecord), "yyyy-MM-dd");
 		
 		List<Node> nodes = selectNodes("Data/Episode", seriesRecord);
 		
@@ -150,10 +151,10 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				}
 				
 				Integer specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, null, episodeName, null, specialNumber, airdate));
+				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
-				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
+				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
 			}
 			
 			if (episodeNumber == 1) {

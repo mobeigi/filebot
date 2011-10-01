@@ -106,6 +106,11 @@ public final class WebRequest {
 	}
 	
 
+	public static ByteBuffer fetch(URL resource) throws IOException {
+		return fetch(resource, 0, null);
+	}
+	
+
 	public static ByteBuffer fetchIfModified(URL resource, long ifModifiedSince) throws IOException {
 		return fetch(resource, ifModifiedSince, null);
 	}

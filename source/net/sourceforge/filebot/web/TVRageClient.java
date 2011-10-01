@@ -72,6 +72,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		Document dom = getDocument(episodeListUrl);
 		
 		String seriesName = selectString("Show/name", dom);
+		Date seriesStartDate = Date.parse(selectString("//started", dom), "MMM/dd/yyyy");
 		
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
@@ -89,10 +90,10 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 				// handle as special episode
 				seasonNumber = getIntegerContent("season", node);
 				int specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seasonNumber, null, title, null, specialNumber, airdate));
+				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, title, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
-				episodes.add(new Episode(seriesName, seasonNumber, episodeNumber, title, null, null, airdate));
+				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, title, null, null, airdate));
 			}
 		}
 		

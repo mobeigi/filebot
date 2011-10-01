@@ -38,19 +38,14 @@ public class TheTVDBClientTest {
 
 	@Test
 	public void searchGerman() throws Exception {
-		List<SearchResult> results = thetvdb.search("buffy", Locale.GERMAN);
+		List<SearchResult> results = thetvdb.search("Buffy the Vampire Slayer", Locale.GERMAN);
 		
-		assertEquals(4, results.size());
+		assertEquals(2, results.size());
 		
 		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
 		
-		assertEquals("Buffy", first.getName());
+		assertEquals("Buffy the Vampire Slayer", first.getName());
 		assertEquals(70327, first.getSeriesId());
-		
-		TheTVDBSearchResult second = (TheTVDBSearchResult) results.get(1);
-		
-		assertEquals("Buffy the Vampire Slayer", second.getName());
-		assertEquals(70327, second.getSeriesId());
 	}
 	
 
@@ -63,6 +58,7 @@ public class TheTVDBClientTest {
 		// check ordinary episode
 		Episode first = list.get(0);
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
+		assertEquals("1997-03-10", first.getSeriesStartDate().toString());
 		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
@@ -90,6 +86,7 @@ public class TheTVDBClientTest {
 		Episode first = list.get(0);
 		
 		assertEquals("Wonderfalls", first.getSeriesName());
+		assertEquals("2004-03-12", first.getSeriesStartDate().toString());
 		assertEquals("Wax Lion", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
@@ -106,6 +103,7 @@ public class TheTVDBClientTest {
 		
 		Episode first = list.get(0);
 		assertEquals("Firefly", first.getSeriesName());
+		assertEquals("2002-09-20", first.getSeriesStartDate().toString());
 		assertEquals("Serenity", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());

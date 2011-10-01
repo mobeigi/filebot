@@ -41,7 +41,7 @@ public class AnidbClientTest {
 	}
 	
 
-	private AnidbClient anidb = new AnidbClient("filebot", 1);
+	private AnidbClient anidb = new AnidbClient("filebot", 2);
 	
 
 	@Test
@@ -83,6 +83,7 @@ public class AnidbClientTest {
 		Episode first = list.get(0);
 		
 		assertEquals("Monster", first.getSeriesName());
+		assertEquals("2004-04-07", first.getSeriesStartDate().toString());
 		assertEquals("Herr Dr. Tenma", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getAbsolute().toString());
@@ -100,6 +101,7 @@ public class AnidbClientTest {
 		Episode first = list.get(0);
 		
 		assertEquals("The Twelve Kingdoms", first.getSeriesName());
+		assertEquals("2002-04-09", first.getSeriesStartDate().toString());
 		assertEquals("Shadow of the Moon, The Sea of Shadow - Chapter 1", first.getTitle());
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getAbsolute().toString());
@@ -120,6 +122,7 @@ public class AnidbClientTest {
 		
 		Episode last = list.get(73);
 		assertEquals("モンスター", last.getSeriesName());
+		assertEquals("2004-04-07", last.getSeriesStartDate().toString());
 		assertEquals("本当の怪物", last.getTitle());
 		assertEquals("74", last.getEpisode().toString());
 		assertEquals("74", last.getAbsolute().toString());
