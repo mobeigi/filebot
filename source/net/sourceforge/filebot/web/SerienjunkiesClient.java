@@ -168,7 +168,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			String title = (String) obj.get("german");
 			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 			
-			episodes.add(new Episode(series.getName(), season, episode, title, i + 1, null, airdate));
+			episodes.add(new Episode(series.getName(), null, season, episode, title, i + 1, null, airdate));
 		}
 		
 		// populate cache
