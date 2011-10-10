@@ -172,19 +172,20 @@ public class ArgumentProcessor {
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, String> renameMap = new LinkedHashMap<File, String>();
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
 		for (Match<File, Episode> match : matches) {
 			File file = match.getValue();
 			Episode episode = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : EpisodeFormat.SeasonEpisode.format(episode);
+			File newFile = new File(newName + "." + getExtension(file));
 			
-			if (isInvalidFileName(newName)) {
+			if (isInvalidFilePath(newFile)) {
 				CLILogger.config("Stripping invalid characters from new name: " + newName);
-				newName = validateFileName(newName);
+				newFile = validateFilePath(newFile);
 			}
 			
-			renameMap.put(file, newName + "." + getExtension(file));
+			renameMap.put(file, newFile);
 		}
 		
 		// rename episodes
@@ -209,20 +210,21 @@ public class ArgumentProcessor {
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, String> renameMap = new LinkedHashMap<File, String>();
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
 		for (int i = 0; i < movieFiles.length; i++) {
 			if (movieDescriptors[i] != null) {
 				Movie movie = movieDescriptors[i];
 				File file = movieFiles[i];
 				String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
+				File newFile = new File(newName + "." + getExtension(file));
 				
-				if (isInvalidFileName(newName)) {
+				if (isInvalidFilePath(newFile)) {
 					CLILogger.config("Stripping invalid characters from new path: " + newName);
-					newName = validateFileName(newName);
+					newFile = validateFilePath(newFile);
 				}
 				
-				renameMap.put(file, newName + "." + getExtension(file));
+				renameMap.put(file, newFile);
 			} else {
 				CLILogger.warning("No matching movie: " + movieFiles[i]);
 			}
@@ -237,8 +239,9 @@ public class ArgumentProcessor {
 					String movieName = getName(movieFiles[i]);
 					
 					if (subtitleName.equalsIgnoreCase(movieName)) {
-						String movieDestinationName = renameMap.get(movieFiles[i]);
-						renameMap.put(subtitleFile, getNameWithoutExtension(movieDestinationName) + "." + getExtension(subtitleFile));
+						File movieDestination = renameMap.get(movieFiles[i]);
+						File subtitleDestination = new File(movieDestination.getParentFile(), getName(movieDestination) + "." + getExtension(subtitleFile));
+						renameMap.put(subtitleFile, subtitleDestination);
 						
 						// movie match found, we're done
 						break;
@@ -375,12 +378,12 @@ public class ArgumentProcessor {
 	}
 	
 
-	private Set<File> renameAll(Map<File, String> renameMap) throws Exception {
+	private Set<File> renameAll(Map<File, File> renameMap) throws Exception {
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
 		try {
-			for (Entry<File, String> it : renameMap.entrySet()) {
+			for (Entry<File, File> it : renameMap.entrySet()) {
 				try {
 					// rename file, throw exception on failure
 					File destination = renameFile(it.getKey(), it.getValue());

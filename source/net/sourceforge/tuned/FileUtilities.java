@@ -30,13 +30,11 @@ import com.ibm.icu.text.CharsetMatch;
 
 public final class FileUtilities {
 	
-	public static File renameFile(File source, String newPath) throws IOException {
-		File destination = new File(newPath);
-		
+	public static File renameFile(File source, File destination) throws IOException {
 		// resolve destination
 		if (!destination.isAbsolute()) {
 			// same folder, different name
-			destination = new File(source.getParentFile(), newPath);
+			destination = new File(source.getParentFile(), destination.getPath());
 		}
 		
 		// make sure we that we can create the destination folder structure

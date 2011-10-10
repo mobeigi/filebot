@@ -39,15 +39,15 @@ class ValidateDialog extends JDialog {
 	
 	private final JList list;
 	
-	private String[] model;
+	private File[] model;
 	
 	private boolean cancelled = true;
 	
 
-	public ValidateDialog(Window owner, Collection<String> source) {
+	public ValidateDialog(Window owner, Collection<File> source) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
-		model = source.toArray(new String[0]);
+		model = source.toArray(new File[0]);
 		
 		list = new JList(model);
 		list.setEnabled(false);
@@ -99,7 +99,7 @@ class ValidateDialog extends JDialog {
 	}
 	
 
-	public List<String> getModel() {
+	public List<File> getModel() {
 		return unmodifiableList(Arrays.asList(model));
 	}
 	
@@ -124,7 +124,7 @@ class ValidateDialog extends JDialog {
 			// validate names
 			for (int i = 0; i < model.length; i++) {
 				// remove illegal characters
-				model[i] = validateFilePath(new File(model[i])).getPath();
+				model[i] = validateFilePath(model[i]);
 			}
 			
 			// update view
@@ -155,14 +155,12 @@ class ValidateDialog extends JDialog {
 	};
 	
 
-	public static boolean validate(Component parent, List<String> source) {
-		IndexView<String> invalidFilePaths = new IndexView<String>(source);
+	public static boolean validate(Component parent, List<File> source) {
+		IndexView<File> invalidFilePaths = new IndexView<File>(source);
 		
 		for (int i = 0; i < source.size(); i++) {
-			String path = source.get(i);
-			
 			// invalid file names are also invalid file paths
-			if (isInvalidFilePath(new File(path))) {
+			if (isInvalidFilePath(source.get(i))) {
 				invalidFilePaths.addIndex(i);
 			}
 		}
@@ -182,7 +180,7 @@ class ValidateDialog extends JDialog {
 			return false;
 		}
 		
-		List<String> validatedFilePaths = dialog.getModel();
+		List<File> validatedFilePaths = dialog.getModel();
 		
 		// validate source list via index view
 		for (int i = 0; i < invalidFilePaths.size(); i++) {

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
@@ -39,10 +40,10 @@ class RenameAction extends AbstractAction {
 	
 
 	public void actionPerformed(ActionEvent evt) {
-		List<Entry<File, String>> renameLog = new ArrayList<Entry<File, String>>();
+		List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
 		try {
-			for (Entry<File, String> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
+			for (Entry<File, File> mapping : validate(model.getRenameMap(), getWindow(evt.getSource()))) {
 				// rename file, throw exception on failure
 				renameFile(mapping.getKey(), mapping.getValue());
 				
@@ -59,12 +60,12 @@ class RenameAction extends AbstractAction {
 			UILogger.warning(e.getMessage());
 			
 			// revert rename operations in reverse order
-			for (ListIterator<Entry<File, String>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
-				Entry<File, String> mapping = iterator.previous();
+			for (ListIterator<Entry<File, File>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
+				Entry<File, File> mapping = iterator.previous();
 				
 				// revert rename
 				File original = mapping.getKey();
-				File current = new File(original.getParentFile(), mapping.getValue());
+				File current = new File(original.getParentFile(), mapping.getValue().getPath());
 				
 				if (current.renameTo(original)) {
 					// remove reverted rename operation from log
@@ -100,19 +101,22 @@ class RenameAction extends AbstractAction {
 	}
 	
 
-	private Iterable<Entry<File, String>> validate(Map<File, String> renameMap, Window parent) {
-		final List<Entry<File, String>> source = new ArrayList<Entry<File, String>>(renameMap.entrySet());
+	private Iterable<Entry<File, File>> validate(Map<File, String> renameMap, Window parent) {
+		final List<Entry<File, File>> source = new ArrayList<Entry<File, File>>(renameMap.size());
+		for (Entry<File, String> entry : renameMap.entrySet()) {
+			source.add(new SimpleEntry<File, File>(entry.getKey(), new File(entry.getValue())));
+		}
 		
-		List<String> destinationFileNameView = new AbstractList<String>() {
+		List<File> destinationFileNameView = new AbstractList<File>() {
 			
 			@Override
-			public String get(int index) {
+			public File get(int index) {
 				return source.get(index).getValue();
 			}
 			
 
 			@Override
-			public String set(int index, String name) {
+			public File set(int index, File name) {
 				return source.get(index).setValue(name);
 			}
 			
@@ -131,5 +135,4 @@ class RenameAction extends AbstractAction {
 		// return empty list if validation was cancelled
 		return emptyList();
 	}
-	
 }

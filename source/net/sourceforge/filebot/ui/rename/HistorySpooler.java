@@ -50,11 +50,11 @@ public final class HistorySpooler {
 	}
 	
 
-	public synchronized void append(Iterable<Entry<File, String>> elements) {
+	public synchronized void append(Iterable<Entry<File, File>> elements) {
 		List<Element> sequence = new ArrayList<Element>();
 		
-		for (Entry<File, String> element : elements) {
-			sequence.add(new Element(element.getKey().getName(), element.getValue(), element.getKey().getParentFile()));
+		for (Entry<File, File> element : elements) {
+			sequence.add(new Element(element.getKey().getName(), element.getValue().getPath(), element.getKey().getParentFile()));
 		}
 		
 		// append to session history
