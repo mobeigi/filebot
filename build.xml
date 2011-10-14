@@ -143,7 +143,10 @@
 		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.installer}/appbundle/jarbundler.jar" />
 
 		<!-- build app bundle folder and add native libs -->
-		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${path.fatjar}" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m" />
+		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${path.fatjar}" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
+			<javaproperty name="application.deployment" value="app"/>
+		</jarbundler>
+		
 		<copy todir="${dir.dist}/${title}.app/Contents/Resources/Java">
 			<fileset dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
 		</copy>
