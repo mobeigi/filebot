@@ -82,8 +82,8 @@ public class Analytics {
 			GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 			config.setScreenResolution(getScreenResolution(display));
 			config.setColorDepth(getColorDepth(display));
-		} catch (HeadlessException e) {
-			Logger.getLogger(Analytics.class.getName()).warning(e.getMessage());
+		} catch (Throwable e) {
+			Logger.getLogger(Analytics.class.getName()).finest("Headless: " + e.getMessage());
 			config.setScreenResolution("80x25");
 			config.setColorDepth("1");
 		}
