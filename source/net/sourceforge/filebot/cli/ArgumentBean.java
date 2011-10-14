@@ -27,6 +27,9 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 	
+	@Option(name = "-list", usage = "Fetch episode list")
+	public boolean list = false;
+	
 	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
 	public String db;
 	
@@ -74,7 +77,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return rename || getSubtitles || check;
+		return rename || getSubtitles || check || list;
 	}
 	
 

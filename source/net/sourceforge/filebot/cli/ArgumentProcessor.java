@@ -64,6 +64,13 @@ public class ArgumentProcessor {
 		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
 		CLILogger.setLevel(args.getLogLevel());
 		
+		// print operations
+		if (args.list) {
+			printEpisodeList(args.query, args.getEpisodeFormat(), args.db, args.getLanguage().toLocale());
+			return 0;
+		}
+		
+		// file operations
 		try {
 			Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 			
@@ -597,6 +604,19 @@ public class ArgumentProcessor {
 			throw e;
 		} finally {
 			out.close();
+		}
+	}
+	
+
+	private void printEpisodeList(String query, ExpressionFormat format, String db, Locale locale) throws Exception {
+		// find series on the web and fetch episode list
+		EpisodeListProvider service = db != null ? getEpisodeListProvider(db) : TVRage;
+		SearchResult hit = selectSearchResult(query, service.search(query, locale), false);
+		
+		Analytics.trackEvent("CLI", "PrintEpisodeList", hit.getName());
+		for (Episode it : service.getEpisodeList(hit, locale)) {
+			String string = (format != null) ? format.format(new MediaBindingBean(it, null)) : EpisodeFormat.SeasonEpisode.format(it);
+			System.out.println(string);
 		}
 	}
 }
