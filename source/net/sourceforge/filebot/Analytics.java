@@ -63,7 +63,16 @@ public class Analytics {
 		if (!tracker.isEnabled())
 			return;
 		
-		tracker.trackEvent(category, action, label, value);
+		tracker.trackEvent(normalize(category), normalize(action), normalize(label), value);
+	}
+	
+
+	private static String normalize(String label) {
+		if (label == null)
+			return null;
+		
+		// trim braces
+		return label.replaceAll("[*()]", "").trim();
 	}
 	
 
