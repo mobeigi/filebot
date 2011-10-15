@@ -65,7 +65,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(query, result.getName()) > 0.9) {
+			if (metric.getSimilarity(normalize(query), normalize(result.getName())) > 0.9) {
 				probableMatches.add(result);
 			}
 		}
@@ -104,6 +104,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// selected value or null
 		return showSelectDialog.get();
+	}
+	
+
+	private String normalize(String value) {
+		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
+		return value.replaceAll("[(]([^)]*)[)]", "").trim().toLowerCase();
 	}
 	
 
