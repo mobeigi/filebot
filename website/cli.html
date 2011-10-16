@@ -106,6 +106,10 @@
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/checksum.md5</span></code>
 					Check file intergrity using the given checksum file.
 					</p>
+					<p>
+					<code><span class="cmd">filebot</span> <span class="option">-list</span> <span class="option">--db</span> <span class="argument">thetvdb</span> <span class="option">--q</span> <span class="argument">Dexter</span> <span class="option">--format</span> <span class="argument">"{s}x{e.pad(2)} {t}"</span></code>
+					Fetch episode list and print to console.
+					</p>
 					
 					<h2 class="reference" id="arguments">
 						Argument Reference
@@ -196,12 +200,17 @@
 							<td></td>
 						</tr>
 						<tr>
+							<td>-list</td>
+							<td>Print episode list</td>
+							<td></td>
+						</tr>
+						<tr>
 							<td>-no-analytics</td>
 							<td>disable <a href="https://sourceforge.net/projects/filebot/forums/forum/723389/topic/4719727" target="_blank">analytics</a></td>
 							<td></td>
 						</tr>
 						<tr>
-							<td> -help</td>
+							<td>-help</td>
 							<td>print help message</td>
 							<td></td>
 						</tr>
