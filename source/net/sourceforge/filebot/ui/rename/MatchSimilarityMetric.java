@@ -121,6 +121,23 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			// simplify file name, if possible
 			return super.normalize(normalizeFile(object));
 		}
+	}),
+	
+	StrictEpisodeIdentifier(new SimilarityMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			// strict SxE metric, don't allow in-between values
+			return EpisodeIdentifier.getSimilarity(o1, o2) >= 1 ? 1 : 0;
+		}
+	}),
+	
+	StrictName(new SimilarityMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			return (float) (Math.floor(Name.getSimilarity(o1, o2) * 2) / 2);
+		}
 	});
 	
 	// inner metric

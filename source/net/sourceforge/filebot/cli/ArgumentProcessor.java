@@ -3,11 +3,13 @@ package net.sourceforge.filebot.cli;
 
 
 import static java.lang.String.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
+import static net.sourceforge.filebot.ui.rename.MatchSimilarityMetric.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -16,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,6 +30,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
@@ -44,7 +51,6 @@ import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.HistorySpooler;
-import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
@@ -149,30 +155,35 @@ public class ArgumentProcessor {
 	public Set<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		Collection<String> seriesNames;
 		
 		// auto-detect series name if not given
 		if (query == null) {
-			Collection<String> possibleNames = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
+			seriesNames = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
 			
-			if (possibleNames.size() == 1) {
-				query = possibleNames.iterator().next();
-				CLILogger.config("Auto-detected series name: " + possibleNames);
-			} else {
-				throw new Exception("Failed to auto-detect series name: " + possibleNames);
+			if (seriesNames.isEmpty() || (strict && seriesNames.size() > 1)) {
+				throw new Exception("Failed to auto-detect series name: " + seriesNames);
 			}
+			
+			query = seriesNames.iterator().next();
+			CLILogger.config("Auto-detected series name: " + seriesNames);
+		} else {
+			seriesNames = singleton(query);
 		}
 		
-		CLILogger.fine(format("Fetching episode data for [%s]", query));
+		Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
 		
-		// find series on the web
-		SearchResult hit = selectSearchResult(query, db.search(query, locale), strict);
-		
-		// fetch episode list
-		List<Episode> episodes = db.getEpisodeList(hit, locale);
+		// similarity metrics for matching
+		SimilarityMetric[] sequence;
+		if (strict) {
+			sequence = new SimilarityMetric[] { StrictEpisodeIdentifier, StrictName }; // use SEI for matching and SN for excluding false positives
+		} else {
+			sequence = new SimilarityMetric[] { EpisodeIdentifier, Name, Numeric }; // same as in GUI
+		}
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
-		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes, strict));
-		matches.addAll(match(filter(mediaFiles, SUBTITLE_FILES), episodes, strict));
+		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
+		matches.addAll(match(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
 		
 		if (matches.isEmpty()) {
 			throw new RuntimeException("Unable to match files to episode data");
@@ -198,6 +209,57 @@ public class ArgumentProcessor {
 		// rename episodes
 		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
 		return renameAll(renameMap);
+	}
+	
+
+	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final Locale locale, final boolean strict) throws Exception {
+		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
+		
+		// detect series names and create episode list fetch tasks
+		for (final String query : names) {
+			tasks.add(new Callable<List<Episode>>() {
+				
+				@Override
+				public List<Episode> call() throws Exception {
+					List<SearchResult> results = db.search(query, locale);
+					
+					// select search result
+					if (results.size() > 0) {
+						SearchResult selectedSearchResult = selectSearchResult(query, results, strict);
+						
+						if (selectedSearchResult != null) {
+							CLILogger.fine(format("Fetching episode data for [%s]", selectedSearchResult.getName()));
+							Analytics.trackEvent(db.getName(), "FetchEpisodeList", selectedSearchResult.getName());
+							return db.getEpisodeList(selectedSearchResult, locale);
+						}
+					}
+					
+					return Collections.emptyList();
+				}
+			});
+		}
+		
+		// fetch episode lists concurrently
+		ExecutorService executor = Executors.newCachedThreadPool();
+		
+		try {
+			// merge all episodes
+			Set<Episode> episodes = new LinkedHashSet<Episode>();
+			
+			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
+				try {
+					episodes.addAll(future.get());
+				} catch (Exception e) {
+					CLILogger.finest(e.getMessage());
+				}
+			}
+			
+			// all background workers have finished
+			return episodes;
+		} finally {
+			// destroy background threads
+			executor.shutdown();
+		}
 	}
 	
 
@@ -441,23 +503,7 @@ public class ArgumentProcessor {
 	}
 	
 
-	private List<Match<File, Episode>> match(List<File> files, List<Episode> episodes, boolean strict) throws Exception {
-		SimilarityMetric[] sequence = MatchSimilarityMetric.defaultSequence();
-		
-		if (strict) {
-			// strict SxE metric, don't allow in-between values
-			SimilarityMetric strictEpisodeMetric = new SimilarityMetric() {
-				
-				@Override
-				public float getSimilarity(Object o1, Object o2) {
-					return MatchSimilarityMetric.EpisodeIdentifier.getSimilarity(o1, o2) >= 1 ? 1 : 0;
-				}
-			};
-			
-			// use only strict SxE metric
-			sequence = new SimilarityMetric[] { strictEpisodeMetric };
-		}
-		
+	private List<Match<File, Episode>> match(Collection<File> files, Collection<Episode> episodes, SimilarityMetric[] sequence) throws Exception {
 		// always use strict fail-fast matcher
 		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
 		List<Match<File, Episode>> matches = matcher.match();
