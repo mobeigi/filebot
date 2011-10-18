@@ -171,7 +171,12 @@ public class ArgumentProcessor {
 			seriesNames = singleton(query);
 		}
 		
+		// fetch episode data
 		Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
+		
+		if (episodes.isEmpty()) {
+			throw new RuntimeException("Failed to fetch episode data");
+		}
 		
 		// similarity metrics for matching
 		SimilarityMetric[] sequence;
@@ -656,7 +661,7 @@ public class ArgumentProcessor {
 
 	private void printEpisodeList(String query, ExpressionFormat format, String db, Locale locale) throws Exception {
 		// find series on the web and fetch episode list
-		EpisodeListProvider service = db != null ? getEpisodeListProvider(db) : TVRage;
+		EpisodeListProvider service = (db == null) ? TVRage : getEpisodeListProvider(db);
 		SearchResult hit = selectSearchResult(query, service.search(query, locale), false);
 		
 		Analytics.trackEvent("CLI", "PrintEpisodeList", hit.getName());
