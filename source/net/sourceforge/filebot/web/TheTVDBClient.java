@@ -150,7 +150,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 					seasonNumber = airsBefore;
 				}
 				
-				Integer specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
+				// use given episode number as special number or count specials by ourselves
+				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
 				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
