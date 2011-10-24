@@ -30,8 +30,6 @@ public class Analytics {
 	private static final VisitorData visitorData = restoreVisitorData();
 	private static final JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker(getConfig(getApplicationProperty("analytics.WebPropertyID"), visitorData), V_4_7_2);
 	
-	private static String currentView = null;
-	
 
 	public static void trackView(Class<?> view, String title) {
 		trackView(view.getName().replace('.', '/'), title);
@@ -42,15 +40,8 @@ public class Analytics {
 		if (!tracker.isEnabled())
 			return;
 		
-		if (currentView == null) {
-			// track application startup
-			tracker.trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
-		} else {
-			// track view change
-			tracker.trackPageView(view, title, host);
-		}
-		
-		currentView = view;
+		// track application startup
+		tracker.trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
 	}
 	
 
