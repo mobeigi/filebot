@@ -21,6 +21,7 @@ import java.util.Locale;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -217,6 +218,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 			
+			Analytics.trackEvent("GUI", "LookupSubtitleByName", request.getLanguageName(), 1);
 			return packages;
 		}
 		

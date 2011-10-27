@@ -32,6 +32,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
 
@@ -114,6 +115,7 @@ abstract class SubtitleDropTarget extends JButton {
 		dialog.setVisible(true);
 		
 		// now it's up to the user
+		Analytics.trackEvent("GUI", "LookupSubtitleByHash", getQueryLanguage(), videoFiles.size());
 		return true;
 	}
 	
