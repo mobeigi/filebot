@@ -8,10 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 
 
-final class EpisodeListUtilities {
+public final class EpisodeUtilities {
 	
+	public static String removeTrailingBraces(String name) {
+		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
+		return name.replaceAll("[(]([^)]*)[)]", "").trim();
+	}
+	
+
 	public static List<Episode> filterBySeason(Iterable<Episode> episodes, int season) {
-		
 		List<Episode> results = new ArrayList<Episode>(25);
 		
 		// filter given season from all seasons
@@ -22,11 +27,6 @@ final class EpisodeListUtilities {
 		}
 		
 		return results;
-	}
-	
-
-	public static void sortEpisodes(List<Episode> episodes) {
-		Collections.sort(episodes, episodeComparator());
 	}
 	
 
@@ -41,6 +41,11 @@ final class EpisodeListUtilities {
 		}
 		
 		return lastSeason;
+	}
+	
+
+	public static void sortEpisodes(List<Episode> episodes) {
+		Collections.sort(episodes, episodeComparator());
 	}
 	
 
@@ -79,7 +84,7 @@ final class EpisodeListUtilities {
 	}
 	
 
-	private EpisodeListUtilities() {
+	private EpisodeUtilities() {
 		throw new UnsupportedOperationException();
 	}
 }
