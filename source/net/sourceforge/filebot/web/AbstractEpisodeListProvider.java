@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.EpisodeListUtilities.*;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 
 import java.util.List;
 import java.util.Locale;

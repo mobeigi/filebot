@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -65,7 +66,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(normalize(query), normalize(result.getName())) > 0.9) {
+			if (metric.getSimilarity(normalizeName(query), normalizeName(result.getName())) > 0.9) {
 				probableMatches.add(result);
 			}
 		}
@@ -107,9 +108,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	private String normalize(String value) {
+	private String normalizeName(String value) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
-		return value.replaceAll("[(]([^)]*)[)]", "").trim().toLowerCase();
+		return removeTrailingBraces(value).toLowerCase();
 	}
 	
 

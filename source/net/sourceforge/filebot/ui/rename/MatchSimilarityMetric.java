@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.lang.Math.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -22,6 +23,7 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.AbstractFile;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.Movie;
 
 
 public enum MatchSimilarityMetric implements SimilarityMetric {
@@ -121,13 +123,23 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 
 		protected String[] fields(Object object) {
 			if (object instanceof Episode) {
-				Episode e = (Episode) object;
-				return new String[] { e.getSeriesName(), e.getTitle() };
+				Episode episode = (Episode) object;
+				return new String[] { removeTrailingBraces(episode.getSeriesName()), episode.getTitle() };
 			}
 			
 			if (object instanceof File) {
 				File file = (File) object;
 				return new String[] { getName(file.getParentFile()), getName(file) };
+			}
+			
+			if (object instanceof Movie) {
+				Movie movie = (Movie) object;
+				return new String[] { movie.getName(), Integer.toString(movie.getYear()) };
+			}
+			
+			if (object instanceof AbstractFile) {
+				AbstractFile file = (AbstractFile) object;
+				return new String[] { getNameWithoutExtension(file.getName()) };
 			}
 			
 			return new String[] { object.toString() };

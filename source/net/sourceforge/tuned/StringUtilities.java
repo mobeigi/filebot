@@ -37,11 +37,6 @@ public final class StringUtilities {
 	}
 	
 
-	public static boolean isNullOrEmpty(String value) {
-		return value == null || value.isEmpty();
-	}
-	
-
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
