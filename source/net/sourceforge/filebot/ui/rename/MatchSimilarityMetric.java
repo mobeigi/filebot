@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.ui.rename;
 
 
+import static java.lang.Math.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -15,11 +17,11 @@ import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.similarity.SubstringMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.AbstractFile;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.tuned.FileUtilities;
 
 
 public enum MatchSimilarityMetric implements SimilarityMetric {
@@ -55,7 +57,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			if (sxeSimilarity >= 1)
 				return sxeSimilarity;
 			
-			return Math.max(sxeSimilarity, AirDate.getSimilarity(o1, o2));
+			return max(sxeSimilarity, AirDate.getSimilarity(o1, o2));
 		}
 		
 	}),
@@ -95,6 +97,44 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		}
 	}),
 	
+	// Match series title and episode title against folder structure and file name
+	Title(new SubstringMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			String[] f1 = fields(o1);
+			String[] f2 = fields(o2);
+			
+			// match all fields and average similarity
+			float sum = 0;
+			for (String s1 : f1) {
+				for (String s2 : f2) {
+					sum += super.getSimilarity(s1, s2);
+				}
+			}
+			sum /= f1.length * f2.length;
+			
+			// normalize into 3 similarity levels
+			return (float) (ceil(sum * 3) / 3);
+		}
+		
+
+		protected String[] fields(Object object) {
+			if (object instanceof Episode) {
+				Episode e = (Episode) object;
+				return new String[] { e.getSeriesName(), e.getTitle() };
+			}
+			
+			if (object instanceof File) {
+				File file = (File) object;
+				return new String[] { getName(file.getParentFile()), getName(file) };
+			}
+			
+			return new String[] { object.toString() };
+		}
+		
+	}),
+	
 	// Match by generic name similarity
 	Name(new NameSimilarityMetric() {
 		
@@ -102,7 +142,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		public float getSimilarity(Object o1, Object o2) {
 			// normalize absolute similarity to similarity rank (10 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (Math.floor(super.getSimilarity(o1, o2) * 10) / 10);
+			return (float) (floor(super.getSimilarity(o1, o2) * 10) / 10);
 		}
 		
 
@@ -120,23 +160,6 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		protected String normalize(Object object) {
 			// simplify file name, if possible
 			return super.normalize(normalizeFile(object));
-		}
-	}),
-	
-	StrictEpisodeIdentifier(new SimilarityMetric() {
-		
-		@Override
-		public float getSimilarity(Object o1, Object o2) {
-			// strict SxE metric, don't allow in-between values
-			return EpisodeIdentifier.getSimilarity(o1, o2) >= 1 ? 1 : 0;
-		}
-	}),
-	
-	StrictName(new SimilarityMetric() {
-		
-		@Override
-		public float getSimilarity(Object o1, Object o2) {
-			return (float) (Math.floor(Name.getSimilarity(o1, o2) * 2) / 2);
 		}
 	});
 	
@@ -160,9 +183,9 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		
 		// use name without extension
 		if (object instanceof File) {
-			name = FileUtilities.getName((File) object);
+			name = getName((File) object);
 		} else if (object instanceof AbstractFile) {
-			name = FileUtilities.getNameWithoutExtension(((AbstractFile) object).getName());
+			name = getNameWithoutExtension(((AbstractFile) object).getName());
 		}
 		
 		// remove embedded checksum from name, if any
@@ -173,9 +196,10 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	public static SimilarityMetric[] defaultSequence() {
 		// 1. pass: match by file length (fast, but only works when matching torrents or files)
 		// 2. pass: match by season / episode numbers
-		// 3. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
-		// 4. pass: match by generic numeric similarity
-		return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Name, Numeric };
+		// 3. pass: match by checking series/episode title against the file path
+		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
+		// 5. pass: match by generic numeric similarity
+		return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Title, Name, Numeric };
 	}
 	
 }

@@ -9,7 +9,6 @@ import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.filebot.ui.rename.MatchSimilarityMetric.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -51,6 +50,7 @@ import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.HistorySpooler;
+import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
@@ -181,9 +181,9 @@ public class ArgumentProcessor {
 		// similarity metrics for matching
 		SimilarityMetric[] sequence;
 		if (strict) {
-			sequence = new SimilarityMetric[] { StrictEpisodeIdentifier, StrictName }; // use SEI for matching and SN for excluding false positives
+			sequence = new SimilarityMetric[] { StrictMetric.EpisodeIdentifier, StrictMetric.Title, StrictMetric.Name }; // use SEI for matching and SN for excluding false positives
 		} else {
-			sequence = new SimilarityMetric[] { EpisodeIdentifier, Name, Numeric }; // same as in GUI
+			sequence = MatchSimilarityMetric.defaultSequence(); // same as in GUI
 		}
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
@@ -670,4 +670,5 @@ public class ArgumentProcessor {
 			System.out.println(string);
 		}
 	}
+	
 }

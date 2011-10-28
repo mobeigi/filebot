@@ -10,7 +10,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 
-public class CLILogging extends Handler {
+class CLILogging extends Handler {
 	
 	public static final Logger CLILogger = createCommandlineLogger("net.sourceforge.filebot.cli");
 	
