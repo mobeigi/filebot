@@ -6,7 +6,9 @@ import static java.util.Collections.*;
 
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -48,6 +50,9 @@ public class MediaTypes {
 	}
 	
 
+	private Map<String, ExtensionFileFilter> filters = synchronizedMap(new HashMap<String, ExtensionFileFilter>());
+	
+
 	public List<String> getExtensionList(String name) {
 		List<String> list = new ArrayList<String>();
 		
@@ -62,7 +67,14 @@ public class MediaTypes {
 	
 
 	public FileFilter getFilter(String name) {
-		return new ExtensionFileFilter(getExtensionList(name));
+		ExtensionFileFilter filter = filters.get(name);
+		
+		if (filter == null) {
+			filter = new ExtensionFileFilter(getExtensionList(name));
+			filters.put(name, filter);
+		}
+		
+		return filter;
 	}
 	
 

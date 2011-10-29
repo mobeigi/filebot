@@ -54,11 +54,9 @@ public class ExpressionFormat extends Format {
 	
 
 	protected ScriptEngine initScriptEngine() throws ScriptException {
-		// use groovy script engine
+		// use Groovy script engine
 		ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
-		
 		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
-		
 		return engine;
 	}
 	
@@ -159,7 +157,7 @@ public class ExpressionFormat extends Format {
 		
 		// initialize script context with the privileged bindings
 		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(priviledgedBindings, ScriptContext.GLOBAL_SCOPE);
+		context.setBindings(priviledgedBindings, ScriptContext.ENGINE_SCOPE);
 		
 		// reset exception state
 		lastException = null;

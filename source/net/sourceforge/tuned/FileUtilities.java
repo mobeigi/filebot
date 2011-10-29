@@ -73,6 +73,19 @@ public final class FileUtilities {
 	}
 	
 
+	public static String readAll(Reader source) throws IOException {
+		StringBuilder text = new StringBuilder();
+		char[] buffer = new char[2048];
+		
+		int read = 0;
+		while ((read = source.read(buffer)) >= 0) {
+			text.append(buffer, 0, read);
+		}
+		
+		return text.toString();
+	}
+	
+
 	public static void writeFile(ByteBuffer data, File destination) throws IOException {
 		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
 		
