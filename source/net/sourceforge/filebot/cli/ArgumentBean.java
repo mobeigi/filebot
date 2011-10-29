@@ -6,20 +6,18 @@ import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-
-import javax.script.ScriptException;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 
 import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.ui.Language;
 
 
 public class ArgumentBean {
@@ -66,6 +64,9 @@ public class ArgumentBean {
 	@Option(name = "-clear", usage = "Clear cache and application settings")
 	public boolean clear = false;
 	
+	@Option(name = "-script", usage = "Run Groovy script")
+	public String script = null;
+	
 	@Option(name = "-no-analytics", usage = "Disable analytics")
 	public boolean disableAnalytics = false;
 	
@@ -77,7 +78,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return rename || getSubtitles || check || list;
+		return rename || getSubtitles || check || list || script != null;
 	}
 	
 
@@ -93,39 +94,6 @@ public class ArgumentBean {
 
 	public boolean clearUserData() {
 		return clear;
-	}
-	
-
-	public ExpressionFormat getEpisodeFormat() throws ScriptException {
-		return format != null ? new ExpressionFormat(format) : null;
-	}
-	
-
-	public Language getLanguage() {
-		// try to look up by language code
-		Language language = Language.getLanguage(lang);
-		
-		if (language == null) {
-			// try too look up by language name
-			language = Language.getLanguageByName(lang);
-			
-			if (language == null) {
-				// unable to lookup language
-				throw new IllegalArgumentException("Illegal language code: " + lang);
-			}
-		}
-		
-		return language;
-	}
-	
-
-	public Charset getEncoding() {
-		return encoding != null ? Charset.forName(encoding) : null;
-	}
-	
-
-	public Level getLogLevel() {
-		return Level.parse(log.toUpperCase());
 	}
 	
 
@@ -145,6 +113,28 @@ public class ArgumentBean {
 		}
 		
 		return files;
+	}
+	
+
+	public URL getScriptLocation() {
+		try {
+			return new URL(script);
+		} catch (MalformedURLException eu) {
+			try {
+				File file = new File(script);
+				if (!file.exists())
+					throw new FileNotFoundException(file.getPath());
+				
+				return file.toURI().toURL();
+			} catch (Exception e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+	}
+	
+
+	public Level getLogLevel() {
+		return Level.parse(log.toUpperCase());
 	}
 	
 }

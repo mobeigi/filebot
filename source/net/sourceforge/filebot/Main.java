@@ -21,11 +21,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
 
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.cli.ArgumentProcessor;
+import net.sourceforge.filebot.cli.CmdlineOperations;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
@@ -43,58 +43,52 @@ public class Main {
 		initializeCache();
 		initializeSecurityManager();
 		
-		// parse arguments
-		final ArgumentBean argumentBean = new ArgumentBean();
-		
-		if (args != null && args.length > 0) {
-			try {
-				CmdLineParser parser = new CmdLineParser(argumentBean);
-				parser.parseArgument(args);
-			} catch (CmdLineException e) {
-				System.out.println(e.getMessage());
-				
-				// just print CLI error message and stop
-				System.exit(-1);
+		try {
+			// parse arguments
+			final ArgumentProcessor cli = new ArgumentProcessor();
+			final ArgumentBean argumentBean = cli.parse(args);
+			
+			// initialize analytics
+			Analytics.setEnabled(!argumentBean.disableAnalytics);
+			
+			if (argumentBean.printHelp()) {
+				// just print help message and exit afterwards
+				cli.printHelp(argumentBean);
+				System.exit(0);
 			}
-		}
-		
-		if (argumentBean.printHelp()) {
-			new CmdLineParser(argumentBean).printUsage(System.out);
 			
-			// just print help message and exit afterwards
-			System.exit(0);
-		}
-		
-		if (argumentBean.clearUserData()) {
-			// clear preferences and cache
-			Settings.forPackage(Main.class).clear();
-			CacheManager.getInstance().clearAll();
-		}
-		
-		// initialize analytics
-		Analytics.setEnabled(!argumentBean.disableAnalytics);
-		
-		// run command-line interface and then exit
-		if (argumentBean.runCLI()) {
-			int status = new ArgumentProcessor().process(argumentBean);
-			System.exit(status);
-		}
-		
-		// start user interface
-		SwingUtilities.invokeLater(new Runnable() {
+			if (argumentBean.clearUserData()) {
+				// clear preferences and cache
+				Settings.forPackage(Main.class).clear();
+				CacheManager.getInstance().clearAll();
+			}
 			
-			@Override
-			public void run() {
-				try {
-					// use native laf an all platforms
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch (Exception e) {
-					Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			// CLI mode => run command-line interface and then exit
+			if (argumentBean.runCLI()) {
+				int status = cli.process(argumentBean, new CmdlineOperations());
+				System.exit(status);
+			}
+			
+			// GUI mode => start user interface
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						// use native laf an all platforms
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch (Exception e) {
+						Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					}
+					
+					startUserInterface(argumentBean);
 				}
-				
-				startUserInterface(argumentBean);
-			}
-		});
+			});
+		} catch (CmdLineException e) {
+			// illegal arguments => just print CLI error message and stop
+			System.err.println(e.getMessage());
+			System.exit(-1);
+		}
 	}
 	
 
