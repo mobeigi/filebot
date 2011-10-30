@@ -8,11 +8,13 @@ import groovy.io.*
 import groovy.util.*
 
 // our own functionality that might be useful
+import net.sourceforge.tuned.FileUtilities
 import net.sourceforge.filebot.WebServices
 import net.sourceforge.filebot.MediaTypes
-import net.sourceforge.tuned.FileUtilities
+import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 
 import net.sourceforge.filebot.mediainfo.*
+import net.sourceforge.filebot.hash.*
 import net.sourceforge.filebot.similarity.*
 import net.sourceforge.filebot.web.*
 

@@ -28,7 +28,7 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
 
 
-public class ScriptShell {
+class ScriptShell {
 	
 	private final ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();;
 	

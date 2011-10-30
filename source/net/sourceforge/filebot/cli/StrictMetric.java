@@ -8,7 +8,7 @@ import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 
 
-enum StrictMetric implements SimilarityMetric {
+public enum StrictMetric implements SimilarityMetric {
 	
 	EpisodeIdentifier(MatchSimilarityMetric.EpisodeIdentifier, 1), // only allow 0 or 1
 	Title(MatchSimilarityMetric.Title, 2), // allow 0 or .5 or 1
