@@ -26,9 +26,11 @@ public class Analytics {
 	private static final String TIMESTAMP_LAST = "timestampLast";
 	private static final String VISITS = "visits";
 	
-	private static final String host = "filebot.sourceforge.net";
 	private static final VisitorData visitorData = restoreVisitorData();
 	private static final JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker(getConfig(getApplicationProperty("analytics.WebPropertyID"), visitorData), V_4_7_2);
+	
+	private static final String host = "filebot.sourceforge.net";
+	private static String currentView = null;
 	
 
 	public static void trackView(Class<?> view, String title) {
@@ -40,8 +42,15 @@ public class Analytics {
 		if (!tracker.isEnabled())
 			return;
 		
-		// track application startup
-		tracker.trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
+		if (currentView == null) {
+			// track application startup
+			tracker.trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
+		} else {
+			// track application state change
+			tracker.trackPageViewFromReferrer(view, title, host, host, currentView);
+		}
+		
+		currentView = view;
 	}
 	
 
@@ -211,7 +220,7 @@ public class Analytics {
 	
 
 	/**
-	 * Dummy constructor to prevent instantiation.
+	 * Dummy constructor to prevent instantiation
 	 */
 	private Analytics() {
 		throw new UnsupportedOperationException();
