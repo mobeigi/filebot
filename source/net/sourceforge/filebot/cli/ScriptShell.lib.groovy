@@ -1,25 +1,6 @@
 // static imports for this script
 import static groovy.io.FileType.*
 
-// File, Collection, Scanner, Random, UUID, etc.
-import java.io.*
-import java.util.*
-import groovy.io.*
-import groovy.util.*
-
-// our own functionality that might be useful
-import net.sourceforge.tuned.FileUtilities
-import net.sourceforge.filebot.WebServices
-import net.sourceforge.filebot.MediaTypes
-import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
-
-import net.sourceforge.filebot.mediainfo.*
-import net.sourceforge.filebot.hash.*
-import net.sourceforge.filebot.similarity.*
-import net.sourceforge.filebot.web.*
-
-
-
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }

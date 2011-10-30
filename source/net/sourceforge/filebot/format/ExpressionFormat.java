@@ -157,7 +157,7 @@ public class ExpressionFormat extends Format {
 		
 		// initialize script context with the privileged bindings
 		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(priviledgedBindings, ScriptContext.ENGINE_SCOPE);
+		context.setBindings(priviledgedBindings, ScriptContext.GLOBAL_SCOPE);
 		
 		// reset exception state
 		lastException = null;
