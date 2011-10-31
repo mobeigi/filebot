@@ -336,6 +336,10 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(final ActionEvent evt) {
+			if (renameModel.files().isEmpty()) {
+				return;
+			}
+			
 			// auto-match in progress
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			
