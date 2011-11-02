@@ -194,6 +194,15 @@ public class MediaBindingBean {
 	}
 	
 
+	@Define("sdhd")
+	public String getVideoDefinitionCategory() {
+		String height = getMediaInfo(StreamKind.Video, 0, "Height");
+		
+		// SD (less than 720 lines) or HD (more than 720 lines)
+		return Integer.parseInt(height) < 720 ? "SD" : "HD";
+	}
+	
+
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
 		// use inferred media file
