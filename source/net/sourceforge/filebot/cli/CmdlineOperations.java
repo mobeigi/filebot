@@ -637,8 +637,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		Locale locale = getLanguage(languageName).toLocale();
 		
 		SearchResult hit = selectSearchResult(query, service.search(query, locale), false);
-		
-		Analytics.trackEvent("CLI", "PrintEpisodeList", hit.getName());
 		List<String> episodes = new ArrayList<String>();
 		
 		for (Episode it : service.getEpisodeList(hit, locale)) {
@@ -647,6 +645,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		return episodes;
+	}
+	
+
+	@Override
+	public String getMediaInfo(File file, String expression) throws Exception {
+		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
+		return format.format(new MediaBindingBean(file, file));
 	}
 	
 

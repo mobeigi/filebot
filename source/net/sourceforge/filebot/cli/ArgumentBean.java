@@ -28,6 +28,9 @@ public class ArgumentBean {
 	@Option(name = "-list", usage = "Fetch episode list")
 	public boolean list = false;
 	
+	@Option(name = "-mediainfo", usage = "Get media info")
+	public boolean mediaInfo = false;
+	
 	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
 	public String db;
 	
@@ -78,7 +81,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return rename || getSubtitles || check || list || script != null;
+		return rename || getSubtitles || check || list || mediaInfo || script != null;
 	}
 	
 

@@ -24,4 +24,7 @@ public interface CmdlineInterface {
 
 	List<String> fetchEpisodeList(String query, String format, String db, String lang) throws Exception;
 	
+
+	String getMediaInfo(File file, String format) throws Exception;
+	
 }

@@ -3,6 +3,7 @@ import static groovy.io.FileType.*
 
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
+File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
@@ -35,6 +36,13 @@ def compute(args) { args = _defaults(args)
 	_guarded { _cli.compute(_files(args), args.output, args.encoding) }
 }
 
+def fetchEpisodeList(args) { args = _defaults(args)
+	_guarded { _cli.fetchEpisodeList(args.query, args.format, args.db, args.lang) }
+}
+
+def getMediaInfo(args) { args = _defaults(args)
+	_guarded { _cli.getMediaInfo(args.file, args.format) }
+}
 
 
 /**

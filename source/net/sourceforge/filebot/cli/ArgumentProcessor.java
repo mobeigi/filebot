@@ -41,7 +41,7 @@ public class ArgumentProcessor {
 		CLILogger.setLevel(args.getLogLevel());
 		
 		try {
-			// print operations
+			// print episode info
 			if (args.list) {
 				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.lang)) {
 					System.out.println(eps);
@@ -49,6 +49,15 @@ public class ArgumentProcessor {
 				return 0;
 			}
 			
+			// print media info
+			if (args.mediaInfo) {
+				for (File file : args.getFiles(true)) {
+					System.out.println(cli.getMediaInfo(file, args.format));
+				}
+				return 0;
+			}
+			
+			// execute CLI operations
 			if (args.script == null) {
 				// file operations
 				Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
