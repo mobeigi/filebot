@@ -24,18 +24,19 @@ public class SerienjunkiesClientTest {
 		List<SearchResult> results = serienjunkies.search("alias die agentin");
 		assertEquals(1, results.size());
 		
-		SerienjunkiesSearchResult first = (SerienjunkiesSearchResult) results.get(0);
-		assertEquals(34, first.getSeriesId());
-		assertEquals("Alias", first.getLink());
-		assertEquals("Alias - Die Agentin", first.getName());
-		assertEquals("Alias", first.getMainTitle());
-		assertEquals("Alias - Die Agentin", first.getGermanTitle());
+		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) results.get(0);
+		assertEquals(34, series.getSeriesId());
+		assertEquals("Alias", series.getLink());
+		assertEquals("Alias - Die Agentin", series.getName());
+		assertEquals("Alias", series.getMainTitle());
+		assertEquals("Alias - Die Agentin", series.getGermanTitle());
+		assertEquals("2001-09-30", series.getStartDate().toString());
 	}
 	
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "greys-anatomy", "Grey's Anatomy", null));
+		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "greys-anatomy", "Grey's Anatomy", null, null));
 		
 		// check ordinary episode
 		Episode eps = list.get(0);

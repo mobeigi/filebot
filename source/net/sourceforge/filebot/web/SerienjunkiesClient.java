@@ -124,7 +124,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		// fetch series data
 		seriesList = new ArrayList<SerienjunkiesSearchResult>();
 		
-		JSONObject data = (JSONObject) request("allseries.php?d=" + apikey);
+		JSONObject data = (JSONObject) request("/allseries.php?d=" + apikey);
 		JSONArray list = (JSONArray) data.get("allseries");
 		
 		for (Object element : list) {
@@ -134,8 +134,9 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			String link = (String) obj.get("link");
 			String mainTitle = (String) obj.get("short");
 			String germanTitle = (String) obj.get("short_german");
+			Date startDate = Date.parse((String) obj.get("firstepisode"), "yyyy-MM-dd");
 			
-			seriesList.add(new SerienjunkiesSearchResult(sid, link, mainTitle, germanTitle != null && germanTitle.length() > 0 ? germanTitle : null));
+			seriesList.add(new SerienjunkiesSearchResult(sid, link, mainTitle, germanTitle != null && !germanTitle.isEmpty() ? germanTitle : null, startDate));
 		}
 		
 		// populate cache
@@ -157,7 +158,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		// fetch episode data
 		episodes = new ArrayList<Episode>(25);
 		
-		JSONObject data = (JSONObject) request("allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId());
+		JSONObject data = (JSONObject) request("/allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId());
 		JSONArray list = (JSONArray) data.get("allepisodes");
 		
 		for (int i = 0; i < list.size(); i++) {
@@ -168,7 +169,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			String title = (String) obj.get("german");
 			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 			
-			episodes.add(new Episode(series.getName(), null, season, episode, title, i + 1, null, airdate));
+			episodes.add(new Episode(series.getName(), series.getStartDate(), season, episode, title, i + 1, null, airdate));
 		}
 		
 		// populate cache
@@ -188,7 +189,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		// disable SSL certificate validation
 		connection.setSSLSocketFactory(createIgnoreCertificateSocketFactory());
 		
-		// fetch and parse json data
+		// fetch and parse JSON data
 		Reader reader = getReader(connection);
 		try {
 			return JSONValue.parse(reader);
@@ -221,6 +222,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		protected String link;
 		protected String mainTitle;
 		protected String germanTitle;
+		protected Date startDate;
 		
 
 		protected SerienjunkiesSearchResult() {
@@ -228,11 +230,12 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		}
 		
 
-		public SerienjunkiesSearchResult(int sid, String link, String mainTitle, String germanTitle) {
+		public SerienjunkiesSearchResult(int sid, String link, String mainTitle, String germanTitle, Date startDate) {
 			this.sid = sid;
 			this.link = link;
 			this.mainTitle = mainTitle;
 			this.germanTitle = germanTitle;
+			this.startDate = startDate;
 		}
 		
 
@@ -259,6 +262,11 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 
 		public String getGermanTitle() {
 			return germanTitle;
+		}
+		
+
+		public Date getStartDate() {
+			return startDate;
 		}
 	}
 	
