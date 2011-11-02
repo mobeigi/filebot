@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sourceforge.net/data/shell/rsam.groovy" <folder>
+// filebot -script "http://filebot.sourceforge.net/data/shell/rsam.groovy" <options> <folder>
 
 import net.sourceforge.filebot.similarity.*
 
