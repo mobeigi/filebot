@@ -8,6 +8,7 @@ File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find{ c.call(it) }}
+File.metaClass.plus = { path -> new File(delegate, path) }
 
 File.metaClass.getFiles = { def files = []; traverse(type:FILES) { files += it }; return files }
 List.metaClass.getFiles = { findResults{ it.getFiles() }.flatten().unique() }
@@ -15,9 +16,12 @@ List.metaClass.getFiles = { findResults{ it.getFiles() }.flatten().unique() }
 File.metaClass.getFolders = { def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return folders }
 List.metaClass.getFolders = { findResults{ it.getFolders() }.flatten().unique() }
 
+File.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 
-
+def require(cond) {
+	if (!cond()) throw new Exception('Require failed')
+}
 
 
 def rename(args) { args = _defaults(args)
