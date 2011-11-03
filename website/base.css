@@ -18,6 +18,13 @@ a img {
 	border: none;
 }
 
+h3 {
+	font-size: 14px;
+	margin-top: 25px;
+	margin-left: 15px;
+	margin-bottom: -8px;
+}
+
 .section h2.reference {
 	padding-top: 25px;
 }

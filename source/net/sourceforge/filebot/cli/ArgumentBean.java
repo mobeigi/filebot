@@ -52,9 +52,6 @@ public class ArgumentBean {
 	@Option(name = "--encoding", usage = "Character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
 	public String encoding;
 	
-	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
-	public String log = "all";
-	
 	@Option(name = "-list", usage = "Fetch episode list")
 	public boolean list = false;
 	
@@ -63,6 +60,9 @@ public class ArgumentBean {
 	
 	@Option(name = "-script", usage = "Run Groovy script")
 	public String script = null;
+	
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
+	public String log = "all";
 	
 	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;

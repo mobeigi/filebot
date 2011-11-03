@@ -66,6 +66,7 @@
 					tv shows and movies, fetching subtitles or checking sfv files.
 					</p>
 					<h2 id="examples">Examples</h2>
+					<h3 id="rename">Rename</h3>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">path/to/episodes</span></code>
 					Rename given episodes or movies.
@@ -86,6 +87,7 @@
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">-q</span> <span class="argument">Avatar</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
 					Rename a single movie looking up movie info via file hash or using the given movie title.
 					</p>
+					<h3 id="subtitles">Fetch Subtitles</h3>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/episodes</span></code>
 					Fetch subtitles for the given files. Lookup matching subtitles via file hash.
@@ -94,6 +96,7 @@
 					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/movie</span> <span class="option">--q</span> <span class="argument">Avatar</span> <span class="option">--lang</span> <span class="argument">zh</span> <span class="option">--output</span> <span class="argument">srt</span> <span class="option">--encoding</span> <span class="argument">utf8</span></code>
 					Fetch subtitles and force output format. Lookup subtitles via file hash and given search query.
 					</p>
+					<h3 id="verification">File Verification</h3>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/files</span></code>
 					Compute SFV file and automatically determine output file.
@@ -106,9 +109,18 @@
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/checksum.md5</span></code>
 					Check file integrity using the given checksum file.
 					</p>
+					<h3 id="scripting">Scripting</h3>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-list</span> <span class="option">--db</span> <span class="argument">thetvdb</span> <span class="option">--q</span> <span class="argument">Dexter</span> <span class="option">--format</span> <span class="argument">"{s}x{e.pad(2)} {t}"</span></code>
 					Fetch episode list and print to console.
+					</p>
+					<p>
+					<code><span class="cmd">filebot</span> <span class="option">-mediainfo</span> <span class="argument">path/to/files</span> <span class="option">--format</span> <span class="argument">"{fn} {resolution} {vc} {af}"</span></code>
+					Read media info and print to console.
+					</p>
+					<p>
+					<code><span class="cmd">filebot</span> <span class="option">-script</span> <span class="argument">"path/to/script.groovy"</span> <span class="argument">args...</span></code>
+					Execute custom Groovy script.
 					</p>
 					
 					<h2 class="reference" id="arguments">
@@ -193,6 +205,16 @@
 						<tr>
 							<td>-list</td>
 							<td>print episode list</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>-mediainfo</td>
+							<td>print media info</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>-script</td>
+							<td><a href="script.html">execute script</a></td>
 							<td></td>
 						</tr>
 						<tr>
