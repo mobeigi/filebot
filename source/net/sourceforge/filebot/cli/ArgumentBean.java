@@ -25,12 +25,6 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 	
-	@Option(name = "-list", usage = "Fetch episode list")
-	public boolean list = false;
-	
-	@Option(name = "-mediainfo", usage = "Get media info")
-	public boolean mediaInfo = false;
-	
 	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
 	public String db;
 	
@@ -61,14 +55,20 @@ public class ArgumentBean {
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
 	
+	@Option(name = "-list", usage = "Fetch episode list")
+	public boolean list = false;
+	
+	@Option(name = "-mediainfo", usage = "Get media info")
+	public boolean mediaInfo = false;
+	
+	@Option(name = "-script", usage = "Run Groovy script")
+	public String script = null;
+	
 	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;
 	
 	@Option(name = "-clear", usage = "Clear cache and application settings")
 	public boolean clear = false;
-	
-	@Option(name = "-script", usage = "Run Groovy script")
-	public String script = null;
 	
 	@Option(name = "-no-analytics", usage = "Disable analytics")
 	public boolean disableAnalytics = false;

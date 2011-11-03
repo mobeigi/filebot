@@ -132,6 +132,9 @@ public class Analytics {
 		} else if (Platform.isMac()) {
 			wm = "Macintosh";
 			os = System.getProperty("os.name");
+		} else {
+			wm = System.getProperty("os.name");
+			os = System.getProperty("os.name") + " " + System.getProperty("os.version");
 		}
 		
 		return String.format("%s/%s (%s; U; %s; JRE %s)", getApplicationName(), getApplicationVersion(), wm, os, System.getProperty("java.version"));
