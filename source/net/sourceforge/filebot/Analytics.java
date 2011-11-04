@@ -102,7 +102,7 @@ public class Analytics {
 			GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 			config.setScreenResolution(getScreenResolution(display));
 			config.setColorDepth(getColorDepth(display));
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			Logger.getLogger(Analytics.class.getName()).finest("Headless: " + e.getMessage());
 			config.setScreenResolution("80x25");
 			config.setColorDepth("1");
@@ -142,11 +142,18 @@ public class Analytics {
 	
 
 	private static String getUserLanguage() {
+		String language = System.getProperty("user.language");
+		
+		// user region or country
 		String region = System.getProperty("user.region");
 		if (region == null)
 			region = System.getProperty("user.country");
 		
-		return System.getProperty("user.language") + "-" + region;
+		// return language string user language with or without user region
+		if (region == null)
+			return language;
+		
+		return language + "-" + region;
 	}
 	
 
@@ -161,7 +168,7 @@ public class Analytics {
 			screenHeight += dm.getHeight();
 		}
 		
-		if (screenHeight <= 0 && screenWidth <= 0)
+		if (screenHeight <= 0 || screenWidth <= 0)
 			throw new HeadlessException("Illegal screen size");
 		
 		return screenWidth + "x" + screenHeight;
@@ -172,12 +179,13 @@ public class Analytics {
 		if (display[0] == null)
 			throw new HeadlessException();
 		
-		String colorDepth = "" + display[0].getDisplayMode().getBitDepth();
+		StringBuilder sb = new StringBuilder();
+		sb.append(display[0].getDisplayMode().getBitDepth());
 		for (int i = 1; i < display.length; i++) {
-			colorDepth += ", " + display[i].getDisplayMode().getBitDepth();
+			sb.append(", ").append(display[i].getDisplayMode().getBitDepth());
 		}
 		
-		return colorDepth;
+		return sb.toString();
 	}
 	
 
