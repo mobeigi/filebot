@@ -22,19 +22,16 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	}
 	
 
-	@Override
 	public List<SearchResult> search(String query) throws Exception {
 		return search(query, Locale.ENGLISH);
 	}
 	
 
-	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
 		return getEpisodeList(searchResult, Locale.ENGLISH);
 	}
 	
 
-	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
 		return getEpisodeList(searchResult, season, Locale.ENGLISH);
 	}

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -29,6 +30,8 @@ import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
+import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
@@ -48,6 +51,7 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, Episode> {
 	
 	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
+	private LanguageComboBox languageComboBox = new LanguageComboBox(this, Language.getLanguage("en"));
 	
 
 	public EpisodeListPanel() {
@@ -61,7 +65,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		seasonSpinner.setMinimumSize(seasonSpinner.getPreferredSize());
 		
 		// add after text field
-		add(seasonSpinner, 1);
+		add(seasonSpinner, "gap indent", 1);
+		add(languageComboBox, "gap indent+5", 2);
 		
 		// add after tabbed pane
 		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())));
@@ -96,8 +101,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
 		int season = seasonSpinnerModel.getSeason();
+		Locale language = languageComboBox.getModel().getSelectedItem().toLocale();
 		
-		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season));
+		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season, language));
 	};
 	
 
@@ -176,12 +182,14 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 		private final EpisodeListProvider provider;
 		private final int season;
+		private final Locale language;
 		
 
-		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season) {
+		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season, Locale language) {
 			super(searchText);
 			this.provider = provider;
 			this.season = season;
+			this.language = language;
 		}
 		
 
@@ -194,6 +202,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			return season;
 		}
 		
+
+		public Locale getLanguage() {
+			return language;
+		}
 	}
 	
 
@@ -206,16 +218,16 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		@Override
 		public Collection<SearchResult> search() throws Exception {
-			return request.getProvider().search(request.getSearchText());
+			return request.getProvider().search(request.getSearchText(), request.getLanguage());
 		}
 		
 
 		@Override
 		public Collection<Episode> fetch() throws Exception {
 			if (request.getSeason() != ALL_SEASONS)
-				return request.getProvider().getEpisodeList(getSearchResult(), request.getSeason());
+				return request.getProvider().getEpisodeList(getSearchResult(), request.getSeason(), request.getLanguage());
 			else
-				return request.getProvider().getEpisodeList(getSearchResult());
+				return request.getProvider().getEpisodeList(getSearchResult(), request.getLanguage());
 		}
 		
 

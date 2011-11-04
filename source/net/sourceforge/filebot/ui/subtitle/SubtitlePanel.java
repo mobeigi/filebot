@@ -2,101 +2,46 @@
 package net.sourceforge.filebot.ui.subtitle;
 
 
-import static net.sourceforge.filebot.ui.Language.*;
-import static net.sourceforge.filebot.ui.subtitle.LanguageComboBoxModel.*;
+import static net.sourceforge.filebot.ui.LanguageComboBoxModel.*;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.ItemEvent;
 import java.awt.geom.Path2D;
 import java.net.URI;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.PreferencesList;
-import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SimpleLabelProvider;
 
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 	
-	private final LanguageComboBoxModel languageModel = new LanguageComboBoxModel();
-	
-	private static final PreferencesEntry<String> persistentSelectedLanguage = Settings.forPackage(SubtitlePanel.class).entry("language.selected");
-	private static final PreferencesList<String> persistentFavoriteLanguages = Settings.forPackage(SubtitlePanel.class).node("language.favorites").asList();
+	private LanguageComboBox languageComboBox = new LanguageComboBox(this, ALL_LANGUAGES);
 	
 
 	public SubtitlePanel() {
 		historyPanel.setColumnHeader(0, "Show / Movie");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
 		
-		JComboBox languageComboBox = new JComboBox(languageModel);
-		
-		languageComboBox.setRenderer(new LanguageComboBoxCellRenderer(languageComboBox.getRenderer()));
-		
-		// restore selected language
-		languageModel.setSelectedItem(Language.getLanguage(persistentSelectedLanguage.getValue()));
-		
-		// restore favorite languages
-		for (String favoriteLanguage : persistentFavoriteLanguages) {
-			languageModel.favorites().add(languageModel.favorites().size(), getLanguage(favoriteLanguage));
-		}
-		
-		// guess favorite languages
-		if (languageModel.favorites().isEmpty()) {
-			for (Locale locale : new Locale[] { Locale.getDefault(), Locale.ENGLISH }) {
-				languageModel.favorites().add(getLanguage(locale.getLanguage()));
-			}
-		}
-		
-		// update favorites on change
-		languageComboBox.addPopupMenuListener(new PopupSelectionListener() {
-			
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				Language language = (Language) e.getItem();
-				
-				if (languageModel.favorites().add(language)) {
-					persistentFavoriteLanguages.set(new AbstractList<String>() {
-						
-						@Override
-						public String get(int index) {
-							return languageModel.favorites().get(index).getCode();
-						}
-						
-
-						@Override
-						public int size() {
-							return languageModel.favorites().size();
-						}
-					});
-				}
-				
-				persistentSelectedLanguage.setValue(language.getCode());
-			}
-		});
-		
 		// add after text field
-		add(languageComboBox, 1);
+		add(languageComboBox, "gap indent", 1);
 		
 		// add at the top right corner
 		add(dropTarget, "width 1.6cm!, height 1.2cm!, pos n 0% 100% n", 0);
@@ -114,7 +59,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		@Override
 		public String getQueryLanguage() {
 			// use currently selected language for drop target
-			return languageModel.getSelectedItem() == ALL_LANGUAGES ? null : languageModel.getSelectedItem().getName();
+			return languageComboBox.getModel().getSelectedItem() == ALL_LANGUAGES ? null : languageComboBox.getModel().getSelectedItem().getName();
 		}
 		
 
@@ -165,7 +110,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	protected SubtitleRequestProcessor createRequestProcessor() {
 		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
-		Language language = languageModel.getSelectedItem();
+		Language language = languageComboBox.getModel().getSelectedItem();
 		
 		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
 	}

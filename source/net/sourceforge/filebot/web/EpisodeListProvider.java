@@ -23,16 +23,7 @@ public interface EpisodeListProvider {
 	public boolean hasLocaleSupport();
 	
 
-	public List<SearchResult> search(String query) throws Exception;
-	
-
 	public List<SearchResult> search(String query, Locale locale) throws Exception;
-	
-
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception;
-	
-
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception;
 	
 
 	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws Exception;

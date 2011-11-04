@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.sourceforge.filebot.ui;
 
 
 import java.awt.Color;
@@ -13,10 +13,10 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.tuned.ui.DashedSeparator;
 
 
-class LanguageComboBoxCellRenderer implements ListCellRenderer {
+public class LanguageComboBoxCellRenderer implements ListCellRenderer {
 	
 	private Border padding = new EmptyBorder(2, 2, 2, 2);
 	

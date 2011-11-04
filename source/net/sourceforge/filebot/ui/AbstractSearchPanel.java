@@ -71,7 +71,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		setLayout(new MigLayout("nogrid, fill, insets 10px 10px 15px 10px", "align center", "[pref!]10px[fill]"));
 		
-		add(searchTextField, "gapafter indent");
+		add(searchTextField);
 		add(new JButton(searchAction), "gap 18px, wrap");
 		add(tabbedPaneGroup, "grow");
 		

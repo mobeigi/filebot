@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.sourceforge.tuned.ui;
 
 
 import static java.awt.BasicStroke.*;
@@ -15,7 +15,7 @@ import java.awt.Insets;
 import javax.swing.border.Border;
 
 
-class DashedSeparator implements Border {
+public class DashedSeparator implements Border {
 	
 	private final int height;
 	private final int dash;
@@ -23,7 +23,7 @@ class DashedSeparator implements Border {
 	private final Color foreground;
 	private final Color background;
 	
-	
+
 	public DashedSeparator(int height, int dash, Color foreground, Color background) {
 		this.height = height;
 		this.dash = dash;

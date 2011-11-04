@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.sourceforge.filebot.ui;
 
 
 import static net.sourceforge.filebot.ui.Language.*;
@@ -12,29 +12,35 @@ import java.util.Set;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-import net.sourceforge.filebot.ui.Language;
 
-
-class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
+public class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	
 	public static final Language ALL_LANGUAGES = new Language("undefined", "All Languages");
 	
-	private Language selection = ALL_LANGUAGES;
+	private boolean requireSpecificLanguage;
+	private Language selection;
 	
 	private List<Language> favorites = new Favorites(2);
 	
 	private List<Language> values = availableLanguages();
 	
 
+	public LanguageComboBoxModel(boolean requireSpecificLanguage, Language initialSelection) {
+		this.requireSpecificLanguage = requireSpecificLanguage;
+		this.selection = initialSelection;
+	}
+	
+
 	@Override
 	public Language getElementAt(int index) {
 		// "All Languages"
-		if (index == 0) {
-			return ALL_LANGUAGES;
+		if (!requireSpecificLanguage) {
+			if (index == 0)
+				return ALL_LANGUAGES;
+			
+			// "All Languages" offset
+			index -= 1;
 		}
-		
-		// "All Languages" offset
-		index -= 1;
 		
 		if (index < favorites.size()) {
 			return favorites.get(index);
@@ -50,7 +56,7 @@ class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	@Override
 	public int getSize() {
 		// "All Languages" : favorites[] : values[]
-		return 1 + favorites.size() + values.size();
+		return (requireSpecificLanguage ? 0 : 1) + favorites.size() + values.size();
 	}
 	
 
@@ -74,7 +80,7 @@ class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 	
 
 	protected int convertFavoriteIndexToModel(int favoriteIndex) {
-		return 1 + favoriteIndex;
+		return (requireSpecificLanguage ? 0 : 1) + favoriteIndex;
 	}
 	
 
