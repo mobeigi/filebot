@@ -101,14 +101,15 @@ class RenameAction extends AbstractAction {
 			}
 			
 			if (renameMap.containsKey(source))
-				throw new IllegalArgumentException("Duplicate source file: " + source);
+				throw new IllegalArgumentException("Duplicate source file: " + source.getName());
 			
 			if (destinationSet.contains(destination))
-				throw new IllegalArgumentException("Conflict detected: " + destination);
+				throw new IllegalArgumentException("Conflict detected: " + mapping.getValue());
 			
 			if (destination.exists() && !source.equals(destination))
-				throw new IllegalArgumentException("File already exists: " + destination);
+				throw new IllegalArgumentException("File already exists: " + mapping.getValue());
 			
+			// use original mapping values
 			renameMap.put(mapping.getKey(), mapping.getValue());
 		}
 		
@@ -157,7 +158,6 @@ class RenameAction extends AbstractAction {
 		final ProgressDialog dialog = new ProgressDialog(parent, job);
 		
 		// configure dialog
-		dialog.setTitle("Renaming...");
 		dialog.setTitle("Moving files...");
 		dialog.setIcon((Icon) getValue(SMALL_ICON));
 		
