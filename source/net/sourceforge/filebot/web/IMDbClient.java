@@ -10,7 +10,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +45,7 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
-		URL searchUrl = new URL("http", host, "/find?s=tt&q=" + URLEncoder.encode(query, "UTF-8"));
+		URL searchUrl = new URL("http", host, "/find?s=tt&q=" + encode(query));
 		Document dom = getHtmlDocument(openConnection(searchUrl));
 		
 		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'series')]]", dom);

@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +55,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
 		
-		URL searchUrl = new URL("http", host, "/filmsearch.aspx?q=" + URLEncoder.encode(query, "UTF-8"));
+		URL searchUrl = new URL("http", host, "/filmsearch.aspx?q=" + encode(query));
 		
 		Document dom = getHtmlDocument(searchUrl);
 		

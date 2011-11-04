@@ -9,7 +9,6 @@ import static net.sourceforge.tuned.XPathUtilities.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +42,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
 		
-		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + URLEncoder.encode(query, "UTF-8"));
+		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query));
 		
 		Document dom = getDocument(searchUrl);
 		

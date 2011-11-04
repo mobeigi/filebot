@@ -9,11 +9,11 @@ import static net.sourceforge.tuned.XPathUtilities.*;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,28 +80,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query, Locale language) throws Exception {
-		// check if the exact series name is already cached
-		Integer cachedResult = cache.getSeriesId(query, language);
-		
-		if (cachedResult != null)
-			return Arrays.asList(new SearchResult[] { new TheTVDBSearchResult(query, cachedResult) });
-		
 		// perform online search
-		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + URLEncoder.encode(query, "UTF-8") + "&language=" + language.getLanguage());
+		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query) + "&language=" + language.getLanguage());
 		Document dom = getDocument(url);
 		
 		List<Node> nodes = selectNodes("Data/Series", dom);
-		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
+		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
 		
 		for (Node node : nodes) {
-			int seriesId = getIntegerContent("seriesid", node);
+			int sid = getIntegerContent("seriesid", node);
 			String seriesName = getTextContent("SeriesName", node);
 			
-			searchResults.add(new TheTVDBSearchResult(seriesName, seriesId));
-			cache.putSeriesId(seriesName, language, seriesId);
+			if (!resultSet.containsKey(sid)) {
+				resultSet.put(sid, new TheTVDBSearchResult(seriesName, sid));
+			}
 		}
 		
-		return searchResults;
+		return new ArrayList<SearchResult>(resultSet.values());
 	}
 	
 
@@ -157,16 +152,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				// handle as normal episode
 				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
 			}
-			
-			if (episodeNumber == 1) {
-				try {
-					// cache seasonId for each season (always when we are at the first episode)
-					// because it might be required by getEpisodeListLink
-					cache.putSeasonId(series.getSeriesId(), seasonNumber, getIntegerContent("seasonid", node));
-				} catch (NumberFormatException e) {
-					// season/episode is not a number, just ignore
-				}
-			}
 		}
 		
 		// episodes my not be ordered by DVD episode number
@@ -216,16 +201,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
 		
 		try {
-			Integer seasonId = cache.getSeasonId(seriesId, season);
-			
-			if (seasonId == null) {
-				// get episode xml from first episode of given season
-				URL url = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml");
-				Document dom = getDocument(url);
-				
-				seasonId = Integer.valueOf(selectString("Data/Episode/seasonid", dom));
-				cache.putSeasonId(seriesId, season, seasonId);
-			}
+			// get episode xml from first episode of given season
+			Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml"));
+			int seasonId = Integer.valueOf(selectString("Data/Episode/seasonid", dom));
 			
 			return new URI("http://" + host + "/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
 		} catch (Exception e) {
@@ -345,36 +323,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		public TheTVDBCache(Cache cache) {
 			this.cache = cache;
-		}
-		
-
-		public void putSeriesId(String seriesName, Locale language, int seriesId) {
-			cache.put(new Element(key(host, "SeriesId", seriesName, language.getLanguage()), seriesId));
-		}
-		
-
-		public Integer getSeriesId(String seriesName, Locale language) {
-			Element element = cache.get(key(host, "SeriesId", seriesName, language.getLanguage()));
-			
-			if (element != null)
-				return (Integer) element.getValue();
-			
-			return null;
-		}
-		
-
-		public void putSeasonId(int seriesId, int seasonNumber, int seasonId) {
-			cache.put(new Element(key(host, "SeasonId", seriesId, seasonNumber), seasonId));
-		}
-		
-
-		public Integer getSeasonId(int seriesId, int seasonNumber) {
-			Element element = cache.get(key(host, "SeasonId", seriesId, seasonNumber));
-			
-			if (element != null)
-				return (Integer) element.getValue();
-			
-			return null;
 		}
 		
 

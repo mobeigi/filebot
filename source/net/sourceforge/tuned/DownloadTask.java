@@ -2,11 +2,11 @@
 package net.sourceforge.tuned;
 
 
+import static net.sourceforge.filebot.web.WebRequest.*;
+
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -16,8 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.SwingWorker;
 
@@ -27,7 +25,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	public static final String DOWNLOAD_STATE = "download state";
 	public static final String DOWNLOAD_PROGRESS = "download progress";
 	
-	
+
 	public static enum DownloadState {
 		PENDING,
 		CONNECTING,
@@ -35,6 +33,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		DONE
 	}
 	
+
 	private URL url;
 	
 	private long contentLength = -1;
@@ -44,7 +43,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	private Map<String, String> requestHeaders;
 	private Map<String, List<String>> responseHeaders;
 	
-	
+
 	public DownloadTask(URL url) {
 		this.url = url;
 	}
@@ -70,7 +69,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		HttpURLConnection connection = createConnection();
 		
 		if (postParameters != null) {
-			ByteBuffer postData = encodeParameters(postParameters);
+			ByteBuffer postData = Charset.forName("UTF-8").encode(encodeParameters(postParameters));
 			
 			// add content type and content length headers
 			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -168,28 +167,6 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 
 	public Map<String, String> getRequestHeaders() {
 		return requestHeaders;
-	}
-	
-
-	protected ByteBuffer encodeParameters(Map<String, String> parameters) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (sb.length() > 0)
-				sb.append("&");
-			
-			sb.append(entry.getKey());
-			sb.append("=");
-			
-			try {
-				sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				// will never happen
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
-			}
-		}
-		
-		return Charset.forName("UTF-8").encode(sb.toString());
 	}
 	
 }

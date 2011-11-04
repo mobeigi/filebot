@@ -223,16 +223,19 @@ public final class WebRequest {
 			
 			sb.append(entry.getKey());
 			sb.append("=");
-			
-			try {
-				sb.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				// will never happen
-				throw new RuntimeException(e);
-			}
+			sb.append(encode(entry.getValue()));
 		}
 		
 		return sb.toString();
+	}
+	
+
+	public static String encode(String string) {
+		try {
+			return URLEncoder.encode(string, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 
