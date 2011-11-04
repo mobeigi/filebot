@@ -36,7 +36,7 @@ public class AnidbClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		monsterSearchResult = new AnidbSearchResult(1539, "Monster", null);
-		twelvekingdomsSearchResult = new AnidbSearchResult(26, "Juuni Kokuki", "The Twelve Kingdoms");
+		twelvekingdomsSearchResult = new AnidbSearchResult(26, "Juuni Kokuki", null);
 		princessTutuSearchResult = new AnidbSearchResult(516, "Princess Tutu", null);
 	}
 	
@@ -49,7 +49,16 @@ public class AnidbClientTest {
 		List<SearchResult> results = anidb.search("one piece");
 		
 		AnidbSearchResult result = (AnidbSearchResult) results.get(0);
+		assertEquals("One Piece", result.getName());
+		assertEquals(69, result.getAnimeId());
+	}
+	
+
+	@Test
+	public void searchJapanese() throws Exception {
+		List<SearchResult> results = anidb.search("ワンピース", Locale.JAPANESE);
 		
+		AnidbSearchResult result = (AnidbSearchResult) results.get(0);
 		assertEquals("One Piece", result.getName());
 		assertEquals(69, result.getAnimeId());
 	}

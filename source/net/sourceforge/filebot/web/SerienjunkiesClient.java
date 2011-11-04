@@ -10,16 +10,12 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.Icon;
@@ -27,9 +23,6 @@ import javax.swing.Icon;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
-import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -63,55 +56,22 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws IOException {
-		// normalize
-		query = query.toLowerCase();
-		
-		AbstractStringMetric metric = new QGramsDistance();
-		
-		final List<Entry<SearchResult, Float>> resultSet = new ArrayList<Entry<SearchResult, Float>>();
-		
-		for (SerienjunkiesSearchResult anime : getSeriesTitles()) {
-			for (String name : new String[] { anime.getMainTitle(), anime.getGermanTitle() }) {
-				if (name != null) {
-					// normalize
-					name = name.toLowerCase();
-					
-					float similarity = metric.getSimilarity(name, query);
-					
-					if (similarity > 0.5 || name.contains(query)) {
-						resultSet.add(new SimpleEntry<SearchResult, Float>(anime, similarity));
-						
-						// add only once
-						break;
-					}
-				}
-			}
-		}
-		
-		// sort by similarity descending (best matches first)
-		Collections.sort(resultSet, new Comparator<Entry<SearchResult, Float>>() {
-			
-			@Override
-			public int compare(Entry<SearchResult, Float> o1, Entry<SearchResult, Float> o2) {
-				return o2.getValue().compareTo(o1.getValue());
-			}
-		});
-		
-		// view for the first 20 search results
-		return new AbstractList<SearchResult>() {
-			
-			@Override
-			public SearchResult get(int index) {
-				return resultSet.get(index).getKey();
-			}
-			
+	public Locale getDefaultLocale() {
+		return Locale.GERMAN;
+	}
+	
 
+	@Override
+	public List<SearchResult> search(String query, Locale locale) throws Exception {
+		LocalSearch<SerienjunkiesSearchResult> index = new LocalSearch<SerienjunkiesSearchResult>(getSeriesTitles()) {
+			
 			@Override
-			public int size() {
-				return Math.min(20, resultSet.size());
+			protected Set<String> getFields(SerienjunkiesSearchResult series) {
+				return set(series.getMainTitle(), series.getGermanTitle());
 			}
 		};
+		
+		return new ArrayList<SearchResult>(index.search(query));
 	}
 	
 
@@ -158,6 +118,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		// fetch episode data
 		episodes = new ArrayList<Episode>(25);
 		
+		String seriesName = locale.equals(Locale.GERMAN) && series.getGermanTitle() != null ? series.getGermanTitle() : series.getMainTitle();
 		JSONObject data = (JSONObject) request("/allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId());
 		JSONArray list = (JSONArray) data.get("allepisodes");
 		
@@ -169,7 +130,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			String title = (String) obj.get("german");
 			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 			
-			episodes.add(new Episode(series.getName(), series.getStartDate(), season, episode, title, i + 1, null, airdate));
+			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, airdate));
 		}
 		
 		// populate cache
@@ -241,7 +202,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 
 		@Override
 		public String getName() {
-			return germanTitle != null ? germanTitle : mainTitle; // prefer german title
+			return germanTitle != null ? germanTitle : mainTitle; // prefer German title
 		}
 		
 

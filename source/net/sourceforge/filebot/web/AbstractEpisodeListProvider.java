@@ -23,17 +23,22 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	
 
 	public List<SearchResult> search(String query) throws Exception {
-		return search(query, Locale.ENGLISH);
+		return search(query, getDefaultLocale());
 	}
 	
 
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeList(searchResult, Locale.ENGLISH);
+		return getEpisodeList(searchResult, getDefaultLocale());
 	}
 	
 
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
-		return getEpisodeList(searchResult, season, Locale.ENGLISH);
+		return getEpisodeList(searchResult, season, getDefaultLocale());
+	}
+	
+
+	public Locale getDefaultLocale() {
+		return Locale.ENGLISH;
 	}
 	
 

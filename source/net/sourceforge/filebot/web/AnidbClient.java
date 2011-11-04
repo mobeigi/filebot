@@ -10,19 +10,15 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
-import java.util.AbstractMap.SimpleEntry;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,9 +28,6 @@ import javax.swing.Icon;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -82,54 +75,16 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws Exception {
-		// normalize
-		query = query.toLowerCase();
-		
-		AbstractStringMetric metric = new QGramsDistance();
-		
-		final List<Entry<SearchResult, Float>> resultSet = new ArrayList<Entry<SearchResult, Float>>();
-		
-		for (AnidbSearchResult anime : getAnimeTitles()) {
-			for (String name : new String[] { anime.getMainTitle(), anime.getEnglishTitle() }) {
-				if (name != null) {
-					// normalize
-					name = name.toLowerCase();
-					float similarity = metric.getSimilarity(name, query);
-					
-					if (similarity > 0.5 || name.contains(query)) {
-						resultSet.add(new SimpleEntry<SearchResult, Float>(anime, similarity));
-						
-						// add only once
-						break;
-					}
-				}
-			}
-		}
-		
-		// sort by similarity descending (best matches first)
-		Collections.sort(resultSet, new Comparator<Entry<SearchResult, Float>>() {
+	public List<SearchResult> search(String query, final Locale locale) throws Exception {
+		LocalSearch<AnidbSearchResult> index = new LocalSearch<AnidbSearchResult>(getAnimeTitles()) {
 			
 			@Override
-			public int compare(Entry<SearchResult, Float> o1, Entry<SearchResult, Float> o2) {
-				return o2.getValue().compareTo(o1.getValue());
-			}
-		});
-		
-		// view for the first 20 search results
-		return new AbstractList<SearchResult>() {
-			
-			@Override
-			public SearchResult get(int index) {
-				return resultSet.get(index).getKey();
-			}
-			
-
-			@Override
-			public int size() {
-				return Math.min(20, resultSet.size());
+			protected Set<String> getFields(AnidbSearchResult anime) {
+				return set(anime.getPrimaryTitle(), anime.getOfficialTitle("en"), anime.getOfficialTitle(locale.getLanguage()));
 			}
 		};
+		
+		return new ArrayList<SearchResult>(index.search(query));
 	}
 	
 
@@ -225,8 +180,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
 		Pattern pattern = Pattern.compile("^(?!#)(\\d+)[|](\\d)[|]([\\w-]+)[|](.+)$");
 		
-		Map<Integer, String> primaryTitleMap = new TreeMap<Integer, String>();
-		Map<Integer, String> englishTitleMap = new HashMap<Integer, String>();
+		Map<Integer, String> primaryTitleMap = new HashMap<Integer, String>();
+		Map<Integer, Map<String, String>> officialTitleMap = new HashMap<Integer, Map<String, String>>();
 		
 		// fetch data
 		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
@@ -236,10 +191,21 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				Matcher matcher = pattern.matcher(scanner.nextLine());
 				
 				if (matcher.matches()) {
-					if (matcher.group(2).equals("1")) {
-						primaryTitleMap.put(Integer.parseInt(matcher.group(1)), matcher.group(4));
-					} else if (matcher.group(2).equals("4") && matcher.group(3).equals("en")) {
-						englishTitleMap.put(Integer.parseInt(matcher.group(1)), matcher.group(4));
+					int aid = Integer.parseInt(matcher.group(1));
+					String type = matcher.group(2);
+					String language = matcher.group(3);
+					String title = matcher.group(4);
+					
+					if (type.equals("1")) {
+						primaryTitleMap.put(aid, title);
+					} else if (type.equals("4")) {
+						Map<String, String> languageTitleMap = officialTitleMap.get(aid);
+						if (languageTitleMap == null) {
+							languageTitleMap = new HashMap<String, String>();
+							officialTitleMap.put(aid, languageTitleMap);
+						}
+						
+						languageTitleMap.put(language, title);
 					}
 				}
 			}
@@ -247,11 +213,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			scanner.close();
 		}
 		
-		// build up a list of all possible anidb search results
+		// build up a list of all possible AniDB search results
 		anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
 		
 		for (Entry<Integer, String> entry : primaryTitleMap.entrySet()) {
-			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), englishTitleMap.get(entry.getKey())));
+			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), officialTitleMap.get(entry.getKey())));
 		}
 		
 		// populate cache
@@ -264,19 +230,19 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	public static class AnidbSearchResult extends SearchResult implements Serializable {
 		
 		protected int aid;
-		protected String mainTitle;
-		protected String englishTitle;
+		protected String primaryTitle; // one per anime
+		protected Map<String, String> officialTitle; // one per language
 		
-
+		
 		protected AnidbSearchResult() {
 			// used by serializer
 		}
 		
 
-		public AnidbSearchResult(int aid, String mainTitle, String englishTitle) {
+		public AnidbSearchResult(int aid, String primaryTitle, Map<String, String> officialTitle) {
 			this.aid = aid;
-			this.mainTitle = mainTitle;
-			this.englishTitle = englishTitle;
+			this.primaryTitle = primaryTitle;
+			this.officialTitle = officialTitle;
 		}
 		
 
@@ -287,17 +253,17 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		@Override
 		public String getName() {
-			return mainTitle;
+			return primaryTitle;
 		}
 		
 
-		public String getMainTitle() {
-			return mainTitle;
+		public String getPrimaryTitle() {
+			return primaryTitle;
 		}
 		
 
-		public String getEnglishTitle() {
-			return englishTitle;
+		public String getOfficialTitle(String key) {
+			return officialTitle != null ? officialTitle.get(key) : null;
 		}
 	}
 	
