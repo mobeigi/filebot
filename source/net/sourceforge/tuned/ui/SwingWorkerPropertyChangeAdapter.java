@@ -11,10 +11,13 @@ import javax.swing.SwingWorker.StateValue;
 public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChangeListener {
 	
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals("progress"))
+		if (evt.getPropertyName().equals("progress")) {
 			progress(evt);
-		else if (evt.getPropertyName().equals("state"))
+		} else if (evt.getPropertyName().equals("state")) {
 			state(evt);
+		} else {
+			event(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+		}
 	}
 	
 
@@ -39,6 +42,10 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 	
 
 	protected void done(PropertyChangeEvent evt) {
+	}
+	
+
+	protected void event(String name, Object oldValue, Object newValue) {
 	}
 	
 }

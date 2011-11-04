@@ -82,7 +82,7 @@ public class NotificationLogging extends Handler {
 	protected String getMessage(LogRecord record) {
 		String message = record.getMessage();
 		
-		if (message == null || message.isEmpty()) {
+		if ((message == null || message.isEmpty()) && record.getThrown() != null) {
 			// if message is empty, display exception string
 			return ExceptionUtilities.getMessage(record.getThrown());
 		}

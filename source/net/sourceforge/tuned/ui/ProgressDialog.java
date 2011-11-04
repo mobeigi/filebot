@@ -56,6 +56,14 @@ public class ProgressDialog extends JDialog {
 	}
 	
 
+	public void setProgress(int value, int max) {
+		progressBar.setIndeterminate(false);
+		progressBar.setMinimum(0);
+		progressBar.setValue(value);
+		progressBar.setMaximum(max);
+	}
+	
+
 	public void setNote(String text) {
 		progressBar.setString(text);
 	}
@@ -65,11 +73,6 @@ public class ProgressDialog extends JDialog {
 	public void setTitle(String text) {
 		super.setTitle(text);
 		headerLabel.setText(text);
-	}
-	
-
-	public JProgressBar getProgressBar() {
-		return progressBar;
 	}
 	
 
@@ -83,6 +86,7 @@ public class ProgressDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			cancelAction.setEnabled(false);
 			cancellable.cancel();
 		}
 	};
