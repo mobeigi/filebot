@@ -1,0 +1,192 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Script CLI</title>
+		<link rel="stylesheet" href="base.css" type="text/css" />
+		<link rel="stylesheet" href="code.css" type="text/css" />
+		<link rel="icon" href="favicon.png" />
+
+		<!-- google analytics -->
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-25379256-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
+		
+		<!-- google plus one -->
+		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>		
+		
+		<!-- flattr -->
+		<script type="text/javascript">
+		/* <![CDATA[ */
+		    (function() {
+		        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+		        s.type = 'text/javascript';
+		        s.async = true;
+		        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+		        t.parentNode.insertBefore(s, t);
+		    })();
+		/* ]]> */
+		</script>
+	</head>
+	<body>
+		<div class="page">
+			<div class="social">
+				<div class="plusone" style="display:inline; position:relative; left:25px; top:1px">
+					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
+				</div>
+				<div class="flattr" style="display:inline">
+					<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
+				</div>
+			</div>
+			
+			<div class="header">
+				<a href="http://filebot.sourceforge.net"><img class="logo" alt="logo" src="images/icon.png" width="48" height="48" /></a>
+				<h1>
+					Script CLI
+					<span class="description">Scripting interface usage manual</span>
+				</h1>
+			</div>
+			
+			<div class="content">
+				<div class="section screenshot" style="border:none; box-shadow:none; background:white; margin-left: 20px">
+					<a href="http://filebot.sourceforge.net/data/shell/" target="_blank"><img alt="See Examples" src="images/script.png" /></a>
+					<span class="quote">Anything is possible</span>
+				</div>
+				<div class="section about">
+					<h2>About</h2>
+					<p>
+					FileBot makes scripting and automation as easy as it gets. Just script everything in <a href="http://groovy.codehaus.org">Groovy</a> 
+					instead of bothering with cumbersome cmd and bash scripts. It's the same on all platforms and much more powerful. 
+					The provided <a href="#functions">functions</a> are the same as in the <a href="cli.html">CLI</a> and <a href="cli.html#arguments">parameter usage</a> 
+					is also exactly the same.
+					</p>
+					<h2 id="examples">Examples</h2>
+					<h3 id="examples">Running Scripts</h3>
+					<p>
+					<code><span class="cmd">filebot</span> <span class="option">-script</span> <span class="argument">"path/to/script.groovy"</span> <span class="argument">args...</span></code>
+					Execute a given Groovy script. Parameters defined on the cmdline when starting a script will serve as default parameters
+					while running that script. Find scripts for common tasks <a href="http://filebot.sourceforge.net/data/shell/" target="_blank">here</a>.
+					</p>
+					
+					
+					<h3 id="examples">Example Scripts</h3>
+
+<div class="description">
+<pre><code>args.<span class="method">eachMediaFolder</span> {
+	<span class="method">getSubtitles</span>(<span class="property">folder</span>:it)
+	<span class="method">rename</span>(<span class="property">folder</span>:it)
+	<span class="method">compute</span>(<span class="property">file</span>:it.<span class="method">listFiles</span>().<span class="method">findAll</span>{ it.<span class="method">isVideo</span>() })
+}</code></pre>Fetch subtitles, rename and compute checksums for all media folders in the file hierarchy.</div>
+
+<div class="description">
+<pre><code>[<span class="string">'E:/tvshows'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'tvrage'</span>) }
+[<span class="string">'E:/anime'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'anidb'</span>) }
+[<span class="string">'E:/movies'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'opensubtitles'</span>) }
+</code></pre>Run rename on different folder hierarchies using different episode/movie datasources.</div>
+
+<div class="description">
+<pre><code>args.<span class="method">getFiles</span>().<span class="method">findAll</span>{ it.<span class="method">isVideo</span>() }
+.<span class="method">sort</span>{ a, b -> a.name.<span class="method">compareTo</span>(b.name) }
+.<span class="method">each</span>{ println <span class="method">getMediaInfo</span>(<span class="property">file</span>:it, <span class="property">format</span>:<span class="string">'{fn} [{vf} {vc} {af}]'</span>) }
+</code></pre>Print media info for all video files using the given format pattern.</div>
+
+
+					<h2 class="reference" id="functions">
+						Function Reference
+						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ScriptShell.lib.groovy?view=markup" class="source" target="_blank">source</a>
+					</h2>
+					
+					<div class="documentation">
+					<h4>Rename media files</h4>
+					<pre><span class="return">File[]</span> <span class="method">rename</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>, <span class="property">strict</span>)</pre>
+					<div class="text">Match files with episode/movie data and rename according to given naming scheme.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">folder</span> - process media files in this folder</dd>
+						<dd><span class="property">file</span> - process these media files</dd>
+						<dd><span class="property">query</span> - force series/movie name, auto-detect if not set</dd>
+						<dd><span class="property">format</span> - episode/movie naming scheme</dd>
+						<dd><span class="property">db</span> - episode/movie database</dd>
+						<dd><span class="property">lang</span> - preferred language for episode/movie titles</dd>
+						<dd><span class="property">strict</span> - turn on/off strict matching</dd>
+					</dl>
+					</div>
+
+					<div class="documentation">
+					<h4>Fetch subtitles for media files</h4>
+					<pre><span class="return">File[]</span> <span class="method">getSubtitles</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">lang</span>, <span class="property">output</span>, <span class="property">encoding</span>)</pre>
+					<div class="text">Download subtitles for the given given files. Lookup subtitles via hash or filename as fallback.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">folder</span> - process media files in this folder</dd>
+						<dd><span class="property">file</span> - process these media files</dd>
+						<dd><span class="property">query</span> - series/movie name</dd>
+						<dd><span class="property">lang</span> - subtitle language</dd>
+						<dd><span class="property">output</span> - force output format (e.g. srt)</dd>
+						<dd><span class="property">encoding</span> - force output charset</dd>
+					</dl>
+					</div>
+					
+					<div class="documentation">
+					<h4>File verification</h4>
+					<pre><span class="return">boolean</span> <span class="method">check</span>(<span class="property">folder</span>|<span class="property">file</span>)</pre>
+					<div class="text">Check given sfv/md5/sha1 files.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">folder</span> - check the sfv/md5/sha1 files in this folder</dd>
+						<dd><span class="property">file</span> - check these sfv/md5/sha1</dd>
+					</dl>
+					<hr/>
+					<pre><span class="return">File</span> <span class="method">compute</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">output</span>, <span class="property">encoding</span>)</pre>
+					<div class="text">Compute sfv/md5/sha1 for the given files.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">folder</span> - compute checksums for files in this folder</dd>
+						<dd><span class="property">file</span> - compute checksums for these files</dd>
+						<dd><span class="property">output</span> - absolute or relative output file or just output format (sfv, md5 or sha1)</dd>
+						<dd><span class="property">encoding</span> - output charset, defaults to UTF-8</dd>
+					</dl>
+					</div>
+					
+					<div class="documentation">
+					<h4>Other</h4>
+					<pre><span class="return">String[]</span> <span class="method">fetchEpisodeList</span>(<span class="property">query</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>)</pre>
+					<div class="text">Fetch episode data for the given tv show and format episode names.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">query</span> - tv series name</dd>
+						<dd><span class="property">format</span> - episode naming scheme</dd>
+						<dd><span class="property">db</span> - episode database</dd>
+						<dd><span class="property">lang</span> - preferred language for episode titles</dd>
+					</dl>
+					<hr/>
+					<pre><span class="return">String</span> <span class="method">getMediaInfo</span>(<span class="property">file</span>, <span class="property">format</span>)</pre>
+					<div class="text">Get mediainfo as defined by the given format.</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">file</span> - get info for this file</dd>
+						<dd><span class="property">format</span> - media naming scheme</dd>
+					</dl>
+					</div>
+				</div>
+				
+				<div class="footer" style="margin-top: 100px">
+					<div id="sflogo">
+						<a href="http://sourceforge.net/projects/filebot">
+							<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
+						</a>
+					</div>
+					Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
+					| Creative Commons License: Attribution-NonCommercial-ShareAlike © 2011
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

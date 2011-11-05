@@ -25,6 +25,12 @@ h3 {
 	margin-bottom: -8px;
 }
 
+hr {
+	border-style: dashed; 
+	border-width: 1px 0 0 0; 
+	border-color: lightgray;
+}
+
 .section h2.reference {
 	padding-top: 25px;
 }
@@ -180,9 +186,8 @@ div.screencast:hover .play {
 	margin-bottom: 20px;
 }
 
-.section p {
-	margin-left: 10px;
-	margin-right: 0px;
+.section p, .section .description {
+	margin: 16px 0 0 10px;
 }
 
 .section .quote {

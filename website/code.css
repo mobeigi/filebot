@@ -9,13 +9,24 @@ code {
 	margin: 5px 0px;
 }
 
+pre {
+	margin: 0px;
+}
+
 code .variable {
 	color: #7f0055;
 	font-weight: bold;
 }
 
-code .method {
+code .method, div.documentation pre .method {
 	color: #0066cc;
+}
+
+code .property, div.documentation pre .property {
+	color: #225577;
+	font-size: 11pt;
+	font-weight: bold;
+	font-family: monospace;
 }
 
 code .string, code .numeral, code .regex {
@@ -38,4 +49,42 @@ code .option {
 
 code .argument {
 	color: #008800;
+}
+
+
+div.documentation {
+	font-size: 11pt;
+	padding: 5px;
+	border: 1px solid #9EADC0;
+	background-color: #F8F8FF;
+	margin-bottom: 20px;
+}
+
+div.documentation h4 {
+    margin: -5px -5px 5px -5px;
+	background-color: #DEE3E9;
+    border-bottom: 1px solid #9EADC0;
+    padding: 2px 5px;
+}
+
+div.documentation pre {
+	font-size: 13pt;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+div.documentation dt {
+	margin-bottom: 3px;
+	color: #4E4E4E;
+	font-size: 10pt;
+	font-weight: bold;
+}
+
+div.documentation .return {
+	color: #4C6B87;
+	font-size: 10pt;
+}
+
+div.documentation .property {
+	color: #225577;
 }
