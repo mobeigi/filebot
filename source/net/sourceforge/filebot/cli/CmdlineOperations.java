@@ -67,7 +67,7 @@ import net.sourceforge.filebot.web.VideoHashSubtitleService;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public Set<File> rename(Collection<File> files, String query, String expression, String db, String languageName, boolean strict) throws Exception {
+	public List<File> rename(Collection<File> files, String query, String expression, String db, String languageName, boolean strict) throws Exception {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		Locale locale = getLanguage(languageName).toLocale();
 		
@@ -119,7 +119,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	public Set<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		Collection<String> seriesNames;
@@ -235,7 +235,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	public Set<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService db, Locale locale, boolean strict) throws Exception {
+	public List<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
@@ -423,7 +423,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private Set<File> renameAll(Map<File, File> renameMap) throws Exception {
+	private List<File> renameAll(Map<File, File> renameMap) throws Exception {
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
@@ -471,11 +471,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// new file names
-		Set<File> newFiles = new LinkedHashSet<File>();
+		List<File> destinationList = new ArrayList<File>();
 		for (Entry<File, File> it : renameLog)
-			newFiles.add(it.getValue());
+			destinationList.add(it.getValue());
 		
-		return newFiles;
+		return destinationList;
 	}
 	
 

@@ -1,5 +1,8 @@
 // filebot -script "http://filebot.sourceforge.net/data/shell/src.groovy" <folder>
 
+/*
+ * Fetch subtitles, rename and calculate checksums for all video files
+ */
 args.eachMediaFolder {
 	getSubtitles(folder:it)
 	rename(folder:it)

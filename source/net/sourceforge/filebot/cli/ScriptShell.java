@@ -14,7 +14,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.PropertyPermission;
-import java.util.logging.Logger;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -28,7 +27,6 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
-import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 
@@ -62,13 +60,6 @@ class ScriptShell {
 		}
 		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
 			bindings.put(service.getName().toLowerCase(), PrivilegedInvocation.newProxy(MovieIdentificationService.class, service, acc));
-		}
-		
-		// load media info native lib
-		try {
-			bindings.put("mi", new MediaInfo());
-		} catch (LinkageError e) {
-			Logger.getLogger(MediaInfo.class.getName()).warning("Failed to load MediaInfo");
 		}
 		
 		return bindings;
