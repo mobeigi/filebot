@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -24,6 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -224,10 +226,15 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		@Override
 		public Collection<Episode> fetch() throws Exception {
+			List<Episode> episodes;
+			
 			if (request.getSeason() != ALL_SEASONS)
-				return request.getProvider().getEpisodeList(getSearchResult(), request.getSeason(), request.getLanguage());
+				episodes = request.getProvider().getEpisodeList(getSearchResult(), request.getSeason(), request.getLanguage());
 			else
-				return request.getProvider().getEpisodeList(getSearchResult(), request.getLanguage());
+				episodes = request.getProvider().getEpisodeList(getSearchResult(), request.getLanguage());
+			
+			Analytics.trackEvent(request.getProvider().getName(), "ViewEpisodeList", getSearchResult().getName());
+			return episodes;
 		}
 		
 

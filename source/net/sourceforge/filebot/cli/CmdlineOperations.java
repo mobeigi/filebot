@@ -201,8 +201,10 @@ public class CmdlineOperations implements CmdlineInterface {
 						
 						if (selectedSearchResult != null) {
 							CLILogger.fine(format("Fetching episode data for [%s]", selectedSearchResult.getName()));
+							List<Episode> episodes = db.getEpisodeList(selectedSearchResult, locale);
+							
 							Analytics.trackEvent(db.getName(), "FetchEpisodeList", selectedSearchResult.getName());
-							return db.getEpisodeList(selectedSearchResult, locale);
+							return episodes;
 						}
 					}
 					

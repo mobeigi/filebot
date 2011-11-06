@@ -130,8 +130,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 						SearchResult selectedSearchResult = selectSearchResult(query, results);
 						
 						if (selectedSearchResult != null) {
+							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, locale);
 							Analytics.trackEvent(provider.getName(), "FetchEpisodeList", selectedSearchResult.getName());
-							return provider.getEpisodeList(selectedSearchResult, locale);
+							
+							return episodes;
 						}
 					}
 					
