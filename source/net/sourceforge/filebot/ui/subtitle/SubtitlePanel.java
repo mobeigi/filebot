@@ -163,7 +163,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 			
-			Analytics.trackEvent("GUI", "LookupSubtitleByName", request.getLanguageName(), 1);
+			Analytics.trackEvent("GUI", "LookupSubtitleByName", request.getLanguageName());
 			return packages;
 		}
 		

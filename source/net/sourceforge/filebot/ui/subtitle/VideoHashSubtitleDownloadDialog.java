@@ -617,8 +617,10 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			setState(StateValue.STARTED);
 			
 			try {
+				ByteBuffer data = subtitle.fetch();
 				Analytics.trackEvent(service.getName(), "DownloadSubtitle", subtitle.getLanguageName(), 1);
-				return subtitle.fetch();
+				
+				return data;
 			} catch (Exception e) {
 				// remember exception
 				error = e;
