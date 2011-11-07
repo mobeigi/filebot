@@ -202,7 +202,8 @@ public class SeriesNameMatcher {
 		name = name.replaceAll("\\([^\\(]*\\)", "");
 		name = name.replaceAll("\\[[^\\[]*\\]", "");
 		
-		// remove special characters
+		// remove/normalize special characters
+		name = name.replaceAll("['`´]+", "");
 		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
 		
 		return name.trim();
