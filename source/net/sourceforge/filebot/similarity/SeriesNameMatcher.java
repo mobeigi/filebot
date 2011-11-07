@@ -286,7 +286,7 @@ public class SeriesNameMatcher {
 		public boolean add(String value) {
 			String current = data.get(key(value));
 			
-			// prefer strings with similar upper/lower case ration (e.g. prefer Roswell over roswell) 
+			// prefer strings with similar upper/lower case ratio (e.g. prefer Roswell over roswell)
 			if (current == null || firstCharacterCaseBalance(current) < firstCharacterCaseBalance(value)) {
 				data.put(key(value), value);
 				return true;

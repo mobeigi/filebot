@@ -72,12 +72,17 @@
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-script</span> <span class="argument">"path/to/script.groovy"</span> <span class="argument">args...</span></code>
 					Execute a given Groovy script. Parameters defined on the cmdline when starting a script will serve as default parameters
-					while running that script. Find scripts for common tasks <a href="http://filebot.sourceforge.net/data/shell/" target="_blank">here</a>.
+					while running that script.
 					</p>
 					
+					<h3>Script Repository</h3>
+					<div class="description">
+					Find scripts for common tasks <a href="http://filebot.sourceforge.net/data/shell/" target="_blank">here</a>. You can just use these scripts straight 
+					away or as a reference for building your own more advanced scripts. If you think your script could be really useful to others as well 
+					then please share it in the <a href="https://sourceforge.net/projects/filebot/forums/forum/723389/topic/4797686">forums</a>.
+					</div>
 					
-					<h3 id="examples">Example Scripts</h3>
-
+<h3 id="examples">Example Scripts</h3>
 <div class="description">
 <pre><code>args.<span class="method">eachMediaFolder</span> {
 	<span class="method">getSubtitles</span>(<span class="property">folder</span>:it)
@@ -96,8 +101,8 @@
 .<span class="method">sort</span>{ a, b -> a.name.<span class="method">compareTo</span>(b.name) }
 .<span class="method">each</span>{ println <span class="method">getMediaInfo</span>(<span class="property">file</span>:it, <span class="property">format</span>:<span class="string">'{fn} [{vf} {vc} {af}]'</span>) }
 </code></pre>Print media info for all video files using the given format pattern.</div>
-
-
+					
+					
 					<h2 class="reference" id="functions">
 						Function Reference
 						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ScriptShell.lib.groovy?view=markup" class="source" target="_blank">source</a>
@@ -122,7 +127,7 @@
 					<div class="documentation">
 					<h4>Fetch subtitles for media files</h4>
 					<pre><span class="return">File[]</span> <span class="method">getSubtitles</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">lang</span>, <span class="property">output</span>, <span class="property">encoding</span>)</pre>
-					<div class="text">Download subtitles for the given given files. Lookup subtitles via hash or filename as fallback.</div>
+					<div class="text">Download subtitles for the given files. Lookup subtitles via hash or filename as fallback.</div>
 					<dl>
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>
