@@ -71,7 +71,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				movie = grabMovieName(movieFiles[i], locale, autodetect, movie);
 				
 				if (movie != null) {
-					Analytics.trackEvent(service.getName(), "SearchMovie", movie.getName());
+					Analytics.trackEvent(service.getName(), "SearchMovie", movie.getName(), 1);
 				}
 			}
 			
