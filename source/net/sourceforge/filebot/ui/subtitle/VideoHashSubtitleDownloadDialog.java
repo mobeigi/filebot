@@ -180,7 +180,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 						}
 						
 						// make subtitle column visible
-						Analytics.trackEvent(service.getName(), "HashLookup", "Movie", subtitles.size()); // number of positive hash lookups
+						Analytics.trackEvent(service.getName(), "HashLookup", "Subtitle", subtitles.size()); // number of positive hash lookups
 						mappingModel.setOptionColumnVisible(true);
 					} catch (Exception e) {
 						Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
