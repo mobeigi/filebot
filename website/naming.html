@@ -274,7 +274,7 @@
 					<code><span class="method">pad</span>(<span class="numeral">length</span>, <span class="string">padding</span> = <span class="string">"0"</span>)</code>Pad strings or numbers with given characters ('0' by default).
 					</p>
 					<p>
-					<code><span class="method">replaceAll</span>(<span class="regex">pattern</span>, <span class="string">replacement</span> = <span class="string">""</span>)</code>Replace or remove all occurrences of the pattern.
+					<code><span class="method">match</span>(<span class="regex">pattern</span>)</code>Get a substring matching the given pattern or break.
 					</p>
 					<p>
 					<code><span class="method">space</span>(<span class="string">replacement</span>)</code>Replace all spaces (e.g. "Doctor Who" -> "Doctor_Who").
@@ -286,13 +286,13 @@
 					<code><span class="method">lowerTrail</span>()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
 					</p>
 					<p>
-					<code><span class="method">match</span>(<span class="regex">pattern</span>)</code>Get a substring matching the given pattern or nothing at all.
+					<code><span class="method">before</span>(<span class="regex">pattern</span>)</code>Get the substring before the given pattern or the original value.
 					</p>
 					<p>
-					<code><span class="method">before</span>(<span class="regex">pattern</span>)</code>Get the substring before the given pattern or the original value.
-					</p>		
-					<p>
 					<code><span class="method">after</span>(<span class="regex">pattern</span>)</code>Get the substring after the given pattern or the original value.
+					</p>
+					<p>
+					<code><span class="method">replaceAll</span>(<span class="regex">pattern</span>, <span class="string">replacement</span> = <span class="string">""</span>)</code>Replace or remove all occurrences of the pattern.
 					</p>
 					<p>
 					<code><span class="method">replaceTrailingBrackets</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace trailing parenthesis including any leading whitespace (e.g. "The IT Crowd (UK)" -> "The IT Crowd").

@@ -25,6 +25,12 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 
 
 /**
+ * Return a substring matching the given pattern or break.
+ */
+String.metaClass.match = { def matcher = delegate =~ it; if (matcher.find()) return matcher[0] else throw new Exception("Match failed") }
+
+
+/**
  * Use empty string as default replacement.
  */
 String.metaClass.replaceAll = { String pattern -> replaceAll(pattern, "") }
@@ -52,12 +58,6 @@ String.metaClass.upperInitial = { replaceAll(/\b[a-z]/, { it.toUpperCase() }) }
  * e.g. "Gundam SEED" -> "Gundam Seed"
  */
 String.metaClass.lowerTrail = { replaceAll(/\b(\p{Alpha})(\p{Alpha}+)\b/, { match, initial, trail -> initial + trail.toLowerCase() }) }
-
-
-/**
- * Return a substring matching the given pattern or nothing at all.
- */
-String.metaClass.match = { def matcher = delegate =~ it; matcher.find() ? matcher[0] : "" }
 
 
 /**
