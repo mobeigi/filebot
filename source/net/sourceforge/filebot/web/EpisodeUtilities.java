@@ -10,7 +10,7 @@ import java.util.List;
 
 public final class EpisodeUtilities {
 	
-	public static String removeTrailingBraces(String name) {
+	public static String removeTrailingBrackets(String name) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
 		return name.replaceAll("[(]([^)]*)[)]", "").trim();
 	}

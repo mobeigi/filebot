@@ -3,8 +3,6 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.lang.Math.*;
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -104,8 +102,8 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			String[] f1 = fields(o1);
-			String[] f2 = fields(o2);
+			String[] f1 = normalize(fields(o1));
+			String[] f2 = normalize(fields(o2));
 			
 			// match all fields and average similarity
 			float sum = 0;
@@ -121,28 +119,38 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		}
 		
 
-		protected String[] fields(Object object) {
+		protected String[] normalize(Object[] objects) {
+			String[] names = new String[objects.length];
+			
+			for (int i = 0; i < objects.length; i++) {
+				names[i] = normalizeObject(objects[i]);
+			}
+			
+			return names;
+		}
+		
+
+		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				return new String[] { removeTrailingBraces(episode.getSeriesName()), episode.getTitle() };
+				return new Object[] { episode.getSeriesName(), episode.getTitle() };
 			}
 			
 			if (object instanceof File) {
 				File file = (File) object;
-				return new String[] { getName(file.getParentFile()), getName(file) };
+				return new Object[] { file.getParentFile(), file };
 			}
 			
 			if (object instanceof Movie) {
 				Movie movie = (Movie) object;
-				return new String[] { movie.getName(), Integer.toString(movie.getYear()) };
+				return new Object[] { movie.getName(), movie.getYear() };
 			}
 			
 			if (object instanceof AbstractFile) {
-				AbstractFile file = (AbstractFile) object;
-				return new String[] { getNameWithoutExtension(file.getName()) };
+				return new Object[] { (AbstractFile) object };
 			}
 			
-			return new String[] { object.toString() };
+			return new Object[] { object };
 		}
 		
 	}),
@@ -161,7 +169,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		@Override
 		protected String normalize(Object object) {
 			// simplify file name, if possible
-			return super.normalize(normalizeFile(object));
+			return normalizeObject(object);
 		}
 	}),
 	
@@ -171,7 +179,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		@Override
 		protected String normalize(Object object) {
 			// simplify file name, if possible
-			return super.normalize(normalizeFile(object));
+			return normalizeObject(object);
 		}
 	});
 	
@@ -190,7 +198,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	}
 	
 
-	protected static String normalizeFile(Object object) {
+	protected static String normalizeObject(Object object) {
 		String name = object.toString();
 		
 		// use name without extension
@@ -200,8 +208,15 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			name = getNameWithoutExtension(((AbstractFile) object).getName());
 		}
 		
-		// remove embedded checksum from name, if any
-		return removeEmbeddedChecksum(name);
+		// remove group names and checksums, any [...] or (...)
+		name = name.replaceAll("\\([^\\(]*\\)", "");
+		name = name.replaceAll("\\[[^\\[]*\\]", "");
+		
+		// remove/normalize special characters
+		name = name.replaceAll("['`´]+", "");
+		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		
+		return name.trim().toLowerCase();
 	}
 	
 

@@ -123,7 +123,10 @@ class LocalSearch<T> {
 
 	protected String normalize(String value) {
 		// normalize separator, normalize case and trim
-		return value.replaceAll("[\\p{Punct}\\p{Space}]+", " ").trim().toLowerCase();
+		value = value.replaceAll("['`´]+", "");
+		value = value.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		
+		return value.trim().toLowerCase();
 	}
 	
 }

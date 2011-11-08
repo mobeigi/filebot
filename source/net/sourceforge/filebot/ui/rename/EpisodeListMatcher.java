@@ -110,7 +110,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	private String normalizeName(String value) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
-		return removeTrailingBraces(value).toLowerCase();
+		return removeTrailingBrackets(value).toLowerCase();
 	}
 	
 

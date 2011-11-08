@@ -26,7 +26,7 @@ public class MatchSimilarityMetricTest {
 
 	@Test
 	public void normalizeFile() {
-		assertEquals("abc", MatchSimilarityMetric.normalizeFile(new File("/folder/abc[EF62DF13].txt")));
+		assertEquals("abc", MatchSimilarityMetric.normalizeObject(new File("/folder/abc[EF62DF13].txt")));
 	}
 	
 }
