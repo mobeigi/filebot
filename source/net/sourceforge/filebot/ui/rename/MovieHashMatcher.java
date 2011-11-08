@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.rename;
 
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -55,6 +57,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// match movie hashes online
 		Movie[] movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+		Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
@@ -85,8 +88,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				movieParts.add(movieFiles[i]);
 			}
 		}
-		
-		Analytics.trackEvent(service.getName(), "HashLookup", "Movie", filesByMovie.size()); // number of positive hash lookups
 		
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
