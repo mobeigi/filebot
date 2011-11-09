@@ -338,13 +338,6 @@
 	</target>
 
 
-	<target name="svn-update">
-		<svn refid="svn.settings"><update revision="HEAD" dir="${basedir}" recurse="true" /></svn>
-		<svn refid="svn.settings"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
-		<echo>Revision: ${svn.revision}</echo>
-	</target>
-
-
 	<target name="test-fatjar" depends="fatjar">
 		<junit printsummary="yes" fork="true">
 			<classpath>
@@ -355,6 +348,13 @@
 			<formatter type="plain" />
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
+	</target>
+
+
+	<target name="svn-update">
+		<svn refid="svn.settings"><update revision="HEAD" dir="${basedir}" recurse="true" /></svn>
+		<svn refid="svn.settings"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
+		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
 
@@ -449,7 +449,7 @@
 		<input message="Mark:" addproperty="mark" />
 
 		<!-- deploy fatjar -->
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@web.sourceforge.net:/home/user-web/r/re/rednoah/htdocs/test/filebot/filebot-${version}-${mark}.jar" trust="yes" verbose="true" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@web.sourceforge.net:/home/user-web/r/re/rednoah/htdocs/test/filebot/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
 	</target>
 
 </project>
