@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="filebot" default="fatjar">
+	
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
 	<property name="dir.test" location="${basedir}/test" />
@@ -12,14 +13,14 @@
 	<!-- import svnant -->
 	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
 		<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
-	</typedef>	
+	</typedef>
+	<svnSetting id="svn.settings" javahl="false" svnkit="true" />
 	
 	<!-- include application properties -->
 	<property file="source/net/sourceforge/filebot/Settings.properties" />
 	<property name="title" value="${application.name}" />
 	<property name="version" value="${application.version}" />
-
-	<svn svnkit="true"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
+	
 	<tstamp><format property="today" pattern="yyyy-MM-dd" /></tstamp>
 
 	<!-- define output paths -->
@@ -331,11 +332,16 @@
 				<fileset dir="${dir.lib}" includes="*.jar" />
 				<pathelement location="${dir.lib}/build/junit.jar" />
 			</classpath>
-
 			<formatter type="plain" />
-
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
+	</target>
+
+
+	<target name="svn-update">
+		<svn refid="svn.settings"><update revision="HEAD" dir="${basedir}" recurse="true" /></svn>
+		<svn refid="svn.settings"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
+		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
 
@@ -346,15 +352,13 @@
 				<pathelement location="${dir.dist}/filebot-test.jar" />
 				<pathelement location="${dir.lib}/build/junit.jar" />
 			</classpath>
-
 			<formatter type="plain" />
-
 			<test name="net.sourceforge.filebot.AllTests" outfile="test-report" />
 		</junit>
 	</target>
 
 
-	<target name="deploy-release" depends="fatjar, appbundle, deb, msi, webstart">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, msi, webstart">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
@@ -438,7 +442,7 @@
 	</target>
 
 
-	<target name="deploy-test-package" depends="fatjar">
+	<target name="deploy-test-package" depends="svn-update, fatjar">
 		<!-- ask for sourceforge password -->
 		<property name="sf.user" value="rednoah" />
 		<input message="Please enter password:" addproperty="sf.password" />
