@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="filebot" default="fatjar">
-	
+
+	<!-- include application properties -->
+	<property file="source/net/sourceforge/filebot/Settings.properties" />
+	<property name="title" value="${application.name}" />
+	<property name="version" value="${application.version}" />
+
+	<tstamp><format property="today" pattern="yyyy-MM-dd" /></tstamp>
+
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
 	<property name="dir.test" location="${basedir}/test" />
@@ -9,19 +16,6 @@
 	<property name="dir.lib" location="${basedir}/lib" />
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
-	
-	<!-- import svnant -->
-	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
-		<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
-	</typedef>
-	<svnSetting id="svn.settings" javahl="false" svnkit="true" />
-	
-	<!-- include application properties -->
-	<property file="source/net/sourceforge/filebot/Settings.properties" />
-	<property name="title" value="${application.name}" />
-	<property name="version" value="${application.version}" />
-	
-	<tstamp><format property="today" pattern="yyyy-MM-dd" /></tstamp>
 
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
@@ -352,7 +346,11 @@
 
 
 	<target name="svn-update">
-		<svn refid="svn.settings"><update revision="HEAD" dir="${basedir}" recurse="true" /></svn>
+		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
+			<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
+		</typedef>
+		<svnSetting id="svn.settings" javahl="false" svnkit="true" />
+		<svn refid="svn.settings"><update dir="${basedir}" revision="HEAD" recurse="true" /></svn>
 		<svn refid="svn.settings"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
