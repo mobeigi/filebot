@@ -20,7 +20,7 @@ public class SubstringMetric implements SimilarityMetric {
 		String name = object.toString();
 		
 		// normalize separators
-		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		name = name.replaceAll("['`´]+", "").replaceAll("[\\p{Punct}\\p{Space}]+", " ");
 		
 		// normalize case and trim
 		return name.trim().toLowerCase();
