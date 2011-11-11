@@ -58,8 +58,8 @@ class RenameAction extends AbstractAction {
 			return;
 		}
 		
+		Window window = getWindow(evt.getSource());
 		try {
-			Window window = getWindow(evt.getSource());
 			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window));
 			
 			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -82,6 +82,8 @@ class RenameAction extends AbstractAction {
 			// could not rename one of the files, revert all changes
 			UILogger.warning(e.getMessage());
 		}
+		
+		window.setCursor(Cursor.getDefaultCursor());
 	}
 	
 
