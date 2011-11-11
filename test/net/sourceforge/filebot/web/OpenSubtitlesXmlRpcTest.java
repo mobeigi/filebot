@@ -44,6 +44,15 @@ public class OpenSubtitlesXmlRpcTest {
 	}
 	
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void searchOST() throws Exception {
+		List<Movie> list = xmlrpc.searchMoviesOnIMDB("Linkin.Park.New.Divide.1280-720p.Transformers.Revenge.of.the.Fallen.ost");
+		
+		// seek to OST entry, expect to fail
+		for (int i = 0; !list.get(i).getName().contains("Linkin.Park"); i++);
+	}
+	
+
 	@Test
 	public void getSubtitleListEnglish() throws Exception {
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, "eng");

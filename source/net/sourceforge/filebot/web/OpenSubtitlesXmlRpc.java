@@ -131,17 +131,22 @@ public class OpenSubtitlesXmlRpc {
 		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
 		
 		for (Map<String, String> movie : movieData) {
-			// match movie name and movie year from search result
-			Matcher matcher = pattern.matcher(movie.get("title"));
-			
-			if (matcher.find()) {
+			try {
+				String imdbid = movie.get("id");
+				if (!imdbid.matches("\\d{1,7}"))
+					throw new IllegalArgumentException("Illegal IMDbID");
+				
+				// match movie name and movie year from search result
+				Matcher matcher = pattern.matcher(movie.get("title"));
+				if (!matcher.find())
+					throw new IllegalArgumentException("Illegal title");
+				
 				String name = matcher.group(1).trim();
 				int year = Integer.parseInt(matcher.group(2));
-				int imdbid = Integer.parseInt(movie.get("id"));
 				
-				movies.add(new Movie(name, year, imdbid));
-			} else {
-				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.WARNING, "Error parsing title: " + movie);
+				movies.add(new Movie(name, year, Integer.parseInt(imdbid)));
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.WARNING, String.format("Ignore movie %s: %s", movie, e.getMessage()));
 			}
 		}
 		
