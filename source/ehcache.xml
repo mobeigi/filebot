@@ -118,17 +118,17 @@
             memoryStoreEvictionPolicy="LRU"
             />
             
-
     <!--
-    Short-lived memory cache for web responses. Time to live is 10 min. This cache is used by TheTVDBClient.
+	Short-lived (48 hours) persistent cache for web responses.
     -->
-    <cache name="web"
+    <cache name="web-datasource"
            maxElementsInMemory="120"
+           maxElementsOnDisk="120"
            eternal="false"
-           timeToIdleSeconds="600"
-           timeToLiveSeconds="600"           
-           overflowToDisk="false"
-           diskPersistent="false"
+           timeToIdleSeconds="172800"
+           timeToLiveSeconds="172800"
+           overflowToDisk="true"
+           diskPersistent="true"
            memoryStoreEvictionPolicy="LRU"
            />
            
@@ -136,7 +136,7 @@
 	Very long-lived cache (one month!) anime/series list and episode information.
     -->
     <cache name="web-persistent-datasource"
-           maxElementsInMemory="20"
+           maxElementsInMemory="40"
            maxElementsOnDisk="240"
            eternal="false"
            timeToIdleSeconds="2628000"

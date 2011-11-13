@@ -43,7 +43,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	private final Map<MirrorType, String> mirrors = new EnumMap<MirrorType, String>(MirrorType.class);
 	
-	private final TheTVDBCache cache = new TheTVDBCache(CacheManager.getInstance().getCache("web"));
+	private final TheTVDBCache cache = new TheTVDBCache(CacheManager.getInstance().getCache("web-datasource"));
 	
 
 	public TheTVDBClient(String apikey) {
