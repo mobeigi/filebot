@@ -7,12 +7,9 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -24,16 +21,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
 public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
-	private static final String host = "api.serienjunkies.de";
-	private static final SerienjunkiesCache cache = new SerienjunkiesCache(CacheManager.getInstance().getCache("web-persistent-datasource"));
+	private final String host = "api.serienjunkies.de";
+	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 	private final String apikey;
 	
@@ -76,8 +71,8 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 
 	protected List<SerienjunkiesSearchResult> getSeriesTitles() throws IOException {
-		// try cache first
-		List<SerienjunkiesSearchResult> seriesList = cache.getSeriesList();
+		@SuppressWarnings("unchecked")
+		List<SerienjunkiesSearchResult> seriesList = (List) cache.getSearchResult(null);
 		if (seriesList != null)
 			return seriesList;
 		
@@ -100,7 +95,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		}
 		
 		// populate cache
-		cache.putSeriesList(seriesList);
+		cache.putSearchResult(null, seriesList);
 		
 		return seriesList;
 	}
@@ -111,7 +106,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
 		
 		// try cache first
-		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId());
+		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), Locale.GERMAN);
 		if (episodes != null)
 			return episodes;
 		
@@ -134,7 +129,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		}
 		
 		// populate cache
-		cache.putEpisodeList(episodes, series.getSeriesId());
+		cache.putEpisodeList(series.getSeriesId(), Locale.GERMAN, episodes);
 		
 		// make sure episodes are in ordered correctly
 		sortEpisodes(episodes);
@@ -177,7 +172,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	}
 	
 
-	public static class SerienjunkiesSearchResult extends SearchResult implements Serializable {
+	public static class SerienjunkiesSearchResult extends SearchResult {
 		
 		protected int sid;
 		protected String link;
@@ -229,48 +224,6 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		public Date getStartDate() {
 			return startDate;
 		}
-	}
-	
-
-	private static class SerienjunkiesCache {
-		
-		private final Cache cache;
-		
-
-		public SerienjunkiesCache(Cache cache) {
-			this.cache = cache;
-		}
-		
-
-		public void putSeriesList(Collection<SerienjunkiesSearchResult> anime) {
-			cache.put(new Element(host + "SeriesList", anime.toArray(new SerienjunkiesSearchResult[0])));
-		}
-		
-
-		public List<SerienjunkiesSearchResult> getSeriesList() {
-			Element element = cache.get(host + "SeriesList");
-			
-			if (element != null)
-				return Arrays.asList((SerienjunkiesSearchResult[]) element.getValue());
-			
-			return null;
-		}
-		
-
-		public void putEpisodeList(Collection<Episode> episodes, int sid) {
-			cache.put(new Element(host + "EpisodeList" + sid, episodes.toArray(new Episode[0])));
-		}
-		
-
-		public List<Episode> getEpisodeList(int sid) {
-			Element element = cache.get(host + "EpisodeList" + sid);
-			
-			if (element != null)
-				return Arrays.asList((Episode[]) element.getValue());
-			
-			return null;
-		}
-		
 	}
 	
 }

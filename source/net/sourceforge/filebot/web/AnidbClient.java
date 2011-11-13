@@ -6,13 +6,10 @@ import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
-import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,16 +26,14 @@ import javax.swing.Icon;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
 public class AnidbClient extends AbstractEpisodeListProvider {
 	
-	private static final String host = "anidb.net";
-	private static final AnidbCache cache = new AnidbCache(CacheManager.getInstance().getCache("web-persistent-datasource"));
+	private final String host = "anidb.net";
+	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-persistent-datasource"));
 	
 	private final String client;
 	private final int clientver;
@@ -96,7 +91,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
 		
 		// try cache first
-		List<Episode> episodes = cache.getEpisodeList(anime.getAnimeId(), language.getLanguage());
+		List<Episode> episodes = cache.getEpisodeList(anime.getAnimeId(), language);
 		if (episodes != null)
 			return episodes;
 		
@@ -134,7 +129,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// sanity check 
 		if (episodes.size() > 0) {
 			// populate cache
-			cache.putEpisodeList(episodes, anime.getAnimeId(), language.getLanguage());
+			cache.putEpisodeList(anime.getAnimeId(), language, episodes);
 		} else {
 			// anime page xml doesn't work sometimes
 			throw new RuntimeException(String.format("Failed to parse episode data from xml: %s (%d)", anime, anime.getAnimeId()));
@@ -171,8 +166,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	protected List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
 		
-		// try cache first
-		List<AnidbSearchResult> anime = cache.getAnimeList();
+		@SuppressWarnings("unchecked")
+		List<AnidbSearchResult> anime = (List) cache.getSearchResult(null);
 		if (anime != null)
 			return anime;
 		
@@ -221,13 +216,13 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 		
 		// populate cache
-		cache.putAnimeList(anime);
+		cache.putSearchResult(null, anime);
 		
 		return anime;
 	}
 	
 
-	public static class AnidbSearchResult extends SearchResult implements Serializable {
+	public static class AnidbSearchResult extends SearchResult {
 		
 		protected int aid;
 		protected String primaryTitle; // one per anime
@@ -265,48 +260,6 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		public String getOfficialTitle(String key) {
 			return officialTitle != null ? officialTitle.get(key) : null;
 		}
-	}
-	
-
-	private static class AnidbCache {
-		
-		private final Cache cache;
-		
-
-		public AnidbCache(Cache cache) {
-			this.cache = cache;
-		}
-		
-
-		public void putAnimeList(Collection<AnidbSearchResult> anime) {
-			cache.put(new Element(host + "AnimeList", anime.toArray(new AnidbSearchResult[0])));
-		}
-		
-
-		public List<AnidbSearchResult> getAnimeList() {
-			Element element = cache.get(host + "AnimeList");
-			
-			if (element != null)
-				return Arrays.asList((AnidbSearchResult[]) element.getValue());
-			
-			return null;
-		}
-		
-
-		public void putEpisodeList(Collection<Episode> episodes, int aid, String lang) {
-			cache.put(new Element(host + "EpisodeList" + aid + lang, episodes.toArray(new Episode[0])));
-		}
-		
-
-		public List<Episode> getEpisodeList(int aid, String lang) {
-			Element element = cache.get(host + "EpisodeList" + aid + lang);
-			
-			if (element != null)
-				return Arrays.asList((Episode[]) element.getValue());
-			
-			return null;
-		}
-		
 	}
 	
 }

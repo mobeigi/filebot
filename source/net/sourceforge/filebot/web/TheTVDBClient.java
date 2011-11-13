@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -29,21 +28,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 
 
 public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
-	private static final String host = "www.thetvdb.com";
-	
-	private final String apikey;
+	private final String host = "www.thetvdb.com";
 	
 	private final Map<MirrorType, String> mirrors = new EnumMap<MirrorType, String>(MirrorType.class);
+	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
-	private final TheTVDBCache cache = new TheTVDBCache(CacheManager.getInstance().getCache("web-datasource"));
+	private final String apikey;
 	
 
 	public TheTVDBClient(String apikey) {
@@ -312,39 +308,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			
 			return enumSet;
 		};
-		
-	}
-	
-
-	private static class TheTVDBCache {
-		
-		private final Cache cache;
-		
-
-		public TheTVDBCache(Cache cache) {
-			this.cache = cache;
-		}
-		
-
-		public void putEpisodeList(int seriesId, Locale language, List<Episode> episodes) {
-			cache.put(new Element(key(host, "EpisodeList", seriesId, language.getLanguage()), episodes));
-		}
-		
-
-		@SuppressWarnings("unchecked")
-		public List<Episode> getEpisodeList(int seriesId, Locale language) {
-			Element element = cache.get(key(host, "EpisodeList", seriesId, language.getLanguage()));
-			
-			if (element != null)
-				return (List<Episode>) element.getValue();
-			
-			return null;
-		}
-		
-
-		private String key(Object... key) {
-			return Arrays.toString(key);
-		}
 		
 	}
 	

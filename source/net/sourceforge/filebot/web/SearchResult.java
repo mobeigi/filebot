@@ -2,7 +2,10 @@
 package net.sourceforge.filebot.web;
 
 
-public abstract class SearchResult {
+import java.io.Serializable;
+
+
+public abstract class SearchResult implements Serializable {
 	
 	protected final String name;
 	

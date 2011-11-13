@@ -28,7 +28,7 @@ import net.sourceforge.filebot.ResourceManager;
 
 public class IMDbClient extends AbstractEpisodeListProvider {
 	
-	private static final String host = "www.imdb.com";
+	private final String host = "www.imdb.com";
 	
 
 	@Override

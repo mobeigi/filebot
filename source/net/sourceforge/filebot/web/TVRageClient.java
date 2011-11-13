@@ -19,12 +19,14 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 
 
 public class TVRageClient extends AbstractEpisodeListProvider {
 	
-	private static final String host = "services.tvrage.com";
+	private final String host = "services.tvrage.com";
+	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 
 	@Override
@@ -41,13 +43,10 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
-		
 		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query));
-		
 		Document dom = getDocument(searchUrl);
 		
 		List<Node> nodes = selectNodes("Results/show", dom);
-		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -64,15 +63,19 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
-		int showId = ((TVRageSearchResult) searchResult).getShowId();
-		URL episodeListUrl = new URL("http", host, "/feeds/full_show_info.php?sid=" + showId);
+		TVRageSearchResult series = (TVRageSearchResult) searchResult;
 		
+		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), Locale.ENGLISH);
+		if (episodes != null)
+			return episodes;
+		
+		URL episodeListUrl = new URL("http", host, "/feeds/full_show_info.php?sid=" + series.getSeriesId());
 		Document dom = getDocument(episodeListUrl);
 		
 		String seriesName = selectString("Show/name", dom);
 		Date seriesStartDate = Date.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
 		
-		List<Episode> episodes = new ArrayList<Episode>(25);
+		episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
 		
 		// episodes and specials
@@ -98,6 +101,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		// add specials at the end
 		episodes.addAll(specials);
 		
+		cache.putEpisodeList(series.getSeriesId(), Locale.ENGLISH, episodes);
 		return episodes;
 	}
 	
@@ -134,7 +138,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		}
 		
 
-		public int getShowId() {
+		public int getSeriesId() {
 			return showId;
 		}
 		

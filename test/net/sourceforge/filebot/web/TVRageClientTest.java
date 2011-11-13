@@ -26,7 +26,7 @@ public class TVRageClientTest {
 		TVRageSearchResult result = (TVRageSearchResult) results.get(0);
 		
 		assertEquals(buffySearchResult.getName(), result.getName());
-		assertEquals(buffySearchResult.getShowId(), result.getShowId());
+		assertEquals(buffySearchResult.getSeriesId(), result.getSeriesId());
 		assertEquals(buffySearchResult.getLink(), result.getLink());
 	}
 	
