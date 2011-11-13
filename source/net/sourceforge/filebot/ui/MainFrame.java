@@ -96,14 +96,7 @@ public class MainFrame extends JFrame {
 	
 
 	protected PanelBuilder[] createPanelBuilders() {
-		return new PanelBuilder[] {
-				new ListPanelBuilder(),
-				new RenamePanelBuilder(),
-				new AnalyzePanelBuilder(),
-				new EpisodeListPanelBuilder(),
-				new SubtitlePanelBuilder(),
-				new SfvPanelBuilder()
-		};
+		return new PanelBuilder[] { new ListPanelBuilder(), new RenamePanelBuilder(), new AnalyzePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder() };
 	}
 	
 
@@ -127,14 +120,18 @@ public class MainFrame extends JFrame {
 		
 		if (panel == null) {
 			panel = selectedBuilder.create();
+			panel.setVisible(false); // invisible by default
 			panel.putClientProperty("panelBuilder", selectedBuilder);
 			
 			contentPane.add(panel);
 		}
 		
-		Analytics.trackView(panel.getClass(), selectedBuilder.getName());
-		headerPanel.setTitle(selectedBuilder.getName());
-		panel.setVisible(true);
+		// make visible, ignore action is visible already
+		if (!panel.isVisible()) {
+			headerPanel.setTitle(selectedBuilder.getName());
+			panel.setVisible(true);
+			Analytics.trackView(panel.getClass(), selectedBuilder.getName());
+		}
 	}
 	
 

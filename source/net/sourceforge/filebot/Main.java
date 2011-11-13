@@ -48,9 +48,6 @@ public class Main {
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean argumentBean = cli.parse(args);
 			
-			// initialize analytics
-			Analytics.setEnabled(!argumentBean.disableAnalytics);
-			
 			if (argumentBean.printHelp()) {
 				// just print help message and exit afterwards
 				cli.printHelp(argumentBean);
@@ -59,9 +56,13 @@ public class Main {
 			
 			if (argumentBean.clearUserData()) {
 				// clear preferences and cache
+				System.out.println("Reset preferences and clear cache.");
 				Settings.forPackage(Main.class).clear();
 				CacheManager.getInstance().clearAll();
 			}
+			
+			// initialize analytics
+			Analytics.setEnabled(!argumentBean.disableAnalytics);
 			
 			// CLI mode => run command-line interface and then exit
 			if (argumentBean.runCLI()) {

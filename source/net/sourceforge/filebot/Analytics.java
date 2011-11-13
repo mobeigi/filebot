@@ -20,17 +20,35 @@ import com.sun.jna.Platform;
 
 public class Analytics {
 	
-	private static final Map<String, String> persistentData = Settings.forPackage(Analytics.class).node("analytics").asMap();
-	private static final String VISITOR_ID = "visitorId";
-	private static final String TIMESTAMP_FIRST = "timestampFirst";
-	private static final String TIMESTAMP_LAST = "timestampLast";
-	private static final String VISITS = "visits";
+	private static JGoogleAnalyticsTracker tracker;
+	private static VisitorData visitorData;
 	
-	private static final VisitorData visitorData = restoreVisitorData();
-	private static final JGoogleAnalyticsTracker tracker = new JGoogleAnalyticsTracker(getConfig(getApplicationProperty("analytics.WebPropertyID"), visitorData), V_4_7_2);
-	
-	private static final String host = "filebot.sourceforge.net";
+	private static String host = "filebot.sourceforge.net";
 	private static String currentView = null;
+	
+	private static boolean enabled = false;
+	
+
+	public static synchronized JGoogleAnalyticsTracker getTracker() {
+		if (tracker != null)
+			return tracker;
+		
+		// initialize tracker
+		visitorData = restoreVisitorData();
+		tracker = new JGoogleAnalyticsTracker(getConfig(getApplicationProperty("analytics.WebPropertyID"), visitorData), V_4_7_2);
+		
+		// store session data on shutdown
+		Runtime.getRuntime().addShutdownHook(new Thread("AnalyticsShutdownHook") {
+			
+			@Override
+			public void run() {
+				storeVisitorData(visitorData);
+				JGoogleAnalyticsTracker.completeBackgroundTasks(2000);
+			}
+		});
+		
+		return tracker;
+	}
 	
 
 	public static void trackView(Class<?> view, String title) {
@@ -39,15 +57,15 @@ public class Analytics {
 	
 
 	public static synchronized void trackView(String view, String title) {
-		if (!tracker.isEnabled())
+		if (!enabled)
 			return;
 		
 		if (currentView == null) {
 			// track application startup
-			tracker.trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
+			getTracker().trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
 		} else {
 			// track application state change
-			tracker.trackPageViewFromReferrer(view, title, host, host, currentView);
+			getTracker().trackPageViewFromReferrer(view, title, host, host, currentView);
 		}
 		
 		currentView = view;
@@ -60,10 +78,10 @@ public class Analytics {
 	
 
 	public static synchronized void trackEvent(String category, String action, String label, Integer value) {
-		if (!tracker.isEnabled())
+		if (!enabled)
 			return;
 		
-		tracker.trackEvent(normalize(category), normalize(action), normalize(label), value);
+		getTracker().trackEvent(normalize(category), normalize(action), normalize(label), value);
 	}
 	
 
@@ -76,8 +94,8 @@ public class Analytics {
 	}
 	
 
-	public static void setEnabled(boolean enabled) {
-		tracker.setEnabled(enabled);
+	public static synchronized void setEnabled(boolean b) {
+		enabled = b;
 	}
 	
 
@@ -189,13 +207,20 @@ public class Analytics {
 	}
 	
 
-	private static VisitorData restoreVisitorData() {
+	private static final String VISITOR_ID = "visitorId";
+	private static final String TIMESTAMP_FIRST = "timestampFirst";
+	private static final String TIMESTAMP_LAST = "timestampLast";
+	private static final String VISITS = "visits";
+	
+
+	private synchronized static VisitorData restoreVisitorData() {
 		try {
 			// try to restore visitor
-			int visitorId = Integer.parseInt(persistentData.get(VISITOR_ID));
-			long timestampFirst = Long.parseLong(persistentData.get(TIMESTAMP_FIRST));
-			long timestampLast = Long.parseLong(persistentData.get(TIMESTAMP_LAST));
-			int visits = Integer.parseInt(persistentData.get(VISITS));
+			Map<String, String> data = getPersistentData();
+			int visitorId = Integer.parseInt(data.get(VISITOR_ID));
+			long timestampFirst = Long.parseLong(data.get(TIMESTAMP_FIRST));
+			long timestampLast = Long.parseLong(data.get(TIMESTAMP_LAST));
+			int visits = Integer.parseInt(data.get(VISITS));
 			
 			return VisitorData.newSession(visitorId, timestampFirst, timestampLast, visits);
 		} catch (Exception e) {
@@ -205,28 +230,17 @@ public class Analytics {
 	}
 	
 
-	private static void storeVisitorData(VisitorData visitor) {
-		persistentData.put(VISITOR_ID, String.valueOf(visitor.getVisitorId()));
-		persistentData.put(TIMESTAMP_FIRST, String.valueOf(visitor.getTimestampFirst()));
-		persistentData.put(TIMESTAMP_LAST, String.valueOf(visitor.getTimestampPrevious()));
-		persistentData.put(VISITS, String.valueOf(visitor.getVisits()));
+	private synchronized static void storeVisitorData(VisitorData visitor) {
+		Map<String, String> data = getPersistentData();
+		data.put(VISITOR_ID, String.valueOf(visitor.getVisitorId()));
+		data.put(TIMESTAMP_FIRST, String.valueOf(visitor.getTimestampFirst()));
+		data.put(TIMESTAMP_LAST, String.valueOf(visitor.getTimestampPrevious()));
+		data.put(VISITS, String.valueOf(visitor.getVisits()));
 	}
 	
 
-	public static void completeTracking(long timeout) {
-		storeVisitorData(visitorData);
-		JGoogleAnalyticsTracker.completeBackgroundTasks(timeout);
-	}
-	
-
-	static {
-		Runtime.getRuntime().addShutdownHook(new Thread("AnalyticsShutdownHook") {
-			
-			@Override
-			public void run() {
-				completeTracking(2000);
-			}
-		});
+	private static Map<String, String> getPersistentData() {
+		return Settings.forPackage(Analytics.class).node("analytics").asMap();
 	}
 	
 
