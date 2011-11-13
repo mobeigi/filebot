@@ -150,7 +150,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (strict) {
 			sequence = new SimilarityMetric[] { StrictMetric.EpisodeIdentifier, StrictMetric.Title, StrictMetric.Name }; // use SEI for matching and SN for excluding false positives
 		} else {
-			sequence = MatchSimilarityMetric.defaultSequence(); // same as in GUI
+			sequence = MatchSimilarityMetric.defaultSequence(false); // same as in GUI
 		}
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();

@@ -49,7 +49,7 @@ class MatchAction extends AbstractAction {
 		Window window = getWindow(evt.getSource());
 		window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, MatchSimilarityMetric.defaultSequence());
+		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, MatchSimilarityMetric.defaultSequence(true));
 		backgroundMatcher.execute();
 		
 		try {

@@ -192,7 +192,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// group by subtitles first and then by files in general
 		for (List<File> filesPerType : mapByExtension(mediaFiles).values()) {
-			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, MatchSimilarityMetric.defaultSequence());
+			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, MatchSimilarityMetric.defaultSequence(false));
 			matches.addAll(matcher.match());
 		}
 		

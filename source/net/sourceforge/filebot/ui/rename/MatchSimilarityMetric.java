@@ -3,12 +3,14 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.lang.Math.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import net.sourceforge.filebot.similarity.DateMetric;
 import net.sourceforge.filebot.similarity.FileSizeMetric;
@@ -65,8 +67,16 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	// Match by season / episode numbers
 	SeasonEpisode(new SeasonEpisodeMetric() {
 		
+		private final Map<Object, Collection<SxE>> matchCache = synchronizedMap(new WeakHashMap<Object, Collection<SxE>>(64, 4));
+		
+
 		@Override
 		protected Collection<SxE> parse(Object object) {
+			Collection<SxE> result = matchCache.get(object);
+			if (result != null) {
+				return result;
+			}
+			
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				
@@ -74,26 +84,39 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 				SxE seasonEpisode = new SxE(episode.getSeason(), episode.getEpisode());
 				SxE absoluteEpisode = new SxE(null, episode.getAbsolute());
 				
-				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(absoluteEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
+				result = seasonEpisode.equals(absoluteEpisode) ? singleton(absoluteEpisode) : asList(seasonEpisode, absoluteEpisode);
+			} else {
+				result = super.parse(object);
 			}
 			
-			return super.parse(object);
+			matchCache.put(object, result);
+			return result;
 		}
 	}),
 	
 	// Match episode airdate
 	AirDate(new DateMetric() {
 		
+		private final Map<Object, Date> matchCache = synchronizedMap(new WeakHashMap<Object, Date>(64, 4));
+		
+
 		@Override
 		protected Date parse(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				
-				// create SxE from episode
+				// use airdate from episode
 				return episode.airdate();
 			}
 			
-			return super.parse(object);
+			Date result = matchCache.get(object);
+			if (result != null) {
+				return result;
+			}
+			
+			result = super.parse(object);
+			matchCache.put(object, result);
+			return result;
 		}
 	}),
 	
@@ -152,7 +175,6 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			
 			return new Object[] { object };
 		}
-		
 	}),
 	
 	// Match by generic name similarity
@@ -220,13 +242,17 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	}
 	
 
-	public static SimilarityMetric[] defaultSequence() {
+	public static SimilarityMetric[] defaultSequence(boolean includeFileMetrics) {
 		// 1. pass: match by file length (fast, but only works when matching torrents or files)
 		// 2. pass: match by season / episode numbers
-		// 3. pass: match by checking series/episode title against the file path
+		// 3. pass: match by checking series / episode title against the file path
 		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		// 5. pass: match by generic numeric similarity
-		return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Title, Name, Numeric };
+		if (includeFileMetrics) {
+			return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Title, Name, Numeric };
+		} else {
+			return new SimilarityMetric[] { EpisodeIdentifier, Title, Name, Numeric };
+		}
 	}
 	
 }
