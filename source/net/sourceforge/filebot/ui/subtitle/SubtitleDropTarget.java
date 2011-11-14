@@ -168,7 +168,7 @@ abstract class SubtitleDropTarget extends JButton {
 
 	private DropAction getDropAction(List<File> files) {
 		// video files only, or any folder, containing video files
-		if (containsOnly(files, VIDEO_FILES) || (containsOnly(files, FOLDERS) && filter(listFiles(files, 0, false), VIDEO_FILES).size() > 0)) {
+		if (containsOnly(files, VIDEO_FILES) || (containsOnly(files, FOLDERS))) {
 			return DropAction.Download;
 		}
 		
