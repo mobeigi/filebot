@@ -75,7 +75,11 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 
 		public void putSearchResult(String key, Collection<? extends SearchResult> value) {
-			cache.put(new Element(key(id, "SearchResult", key), value.toArray(new SearchResult[0])));
+			try {
+				cache.put(new Element(key(id, "SearchResult", key), value.toArray(new SearchResult[0])));
+			} catch (Exception e) {
+				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 		
 
@@ -94,7 +98,11 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 
 		public void putEpisodeList(int key, Locale language, List<Episode> episodes) {
-			cache.put(new Element(key(id, "EpisodeList", key, language.getLanguage()), episodes.toArray(new Episode[0])));
+			try {
+				cache.put(new Element(key(id, "EpisodeList", key, language.getLanguage()), episodes.toArray(new Episode[0])));
+			} catch (Exception e) {
+				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
 		}
 		
 
