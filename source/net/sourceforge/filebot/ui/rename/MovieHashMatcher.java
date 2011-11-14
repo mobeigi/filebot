@@ -13,11 +13,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,6 +34,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
@@ -160,11 +161,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	private String normalizeMovieName(File movie) {
-		return getName(movie).replaceAll("\\p{Punct}+", " ").trim();
-	}
-	
-
 	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Movie... suggestions) throws Exception {
 		List<Movie> options = new ArrayList<Movie>();
 		
@@ -185,9 +181,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// search by file name or folder name
-		Set<String> searchQueries = new LinkedHashSet<String>(2);
-		searchQueries.add(normalizeMovieName(movieFile));
-		searchQueries.add(normalizeMovieName(movieFile.getParentFile()));
+		Collection<String> searchQueries = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		searchQueries.add(getName(movieFile));
+		searchQueries.add(getName(movieFile.getParentFile()));
+		
+		// remove blacklisted terms
+		searchQueries = new ReleaseInfo().cleanRG(searchQueries);
 		
 		for (String query : searchQueries) {
 			if (autodetect && options.isEmpty()) {
@@ -197,7 +196,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// allow manual user input
 		if (options.isEmpty() || !autodetect) {
-			String suggestion = options.isEmpty() ? normalizeMovieName(movieFile) : options.get(0).getName();
+			String suggestion = options.isEmpty() ? searchQueries.iterator().next() : options.get(0).getName();
 			String input = showInputDialog(null, "Enter movie name:", suggestion);
 			
 			if (input != null) {

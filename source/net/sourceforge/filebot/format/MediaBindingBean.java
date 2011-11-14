@@ -2,28 +2,21 @@
 package net.sourceforge.filebot.format;
 
 
-import static java.util.Arrays.*;
-import static java.util.ResourceBundle.*;
-import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
+import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
-import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -249,21 +242,10 @@ public class MediaBindingBean {
 	public String getVideoSource() {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
-		
-		// pattern matching any video source name
-		Pattern source = compile(getBundle(getClass().getName()).getString("pattern.video.source"), CASE_INSENSITIVE);
+		ReleaseInfo releaseInfo = new ReleaseInfo();
 		
 		// look for video source patterns in media file and it's parent folder
-		String lastMatch = null;
-		for (File it : asList(inferredMediaFile.getParentFile(), inferredMediaFile)) {
-			for (String part : it.getName().split("[^\\p{Alnum}]")) {
-				if (source.matcher(part).matches()) {
-					lastMatch = part;
-				}
-			}
-		}
-		
-		return lastMatch;
+		return releaseInfo.getVideoSource(inferredMediaFile);
 	}
 	
 
@@ -271,19 +253,10 @@ public class MediaBindingBean {
 	public String getReleaseGroup() throws IOException {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
-		
-		// pattern matching any release group name enclosed in separators
-		Pattern groups = compile("(?<!\\p{Alnum})(" + releaseGroups.get() + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		ReleaseInfo releaseInfo = new ReleaseInfo();
 		
 		// look for release group names in media file and it's parent folder
-		String lastMatch = null;
-		for (File it : asList(inferredMediaFile.getParentFile(), inferredMediaFile)) {
-			for (Matcher matcher = groups.matcher(it.getName()); matcher.find();) {
-				lastMatch = matcher.group();
-			}
-		}
-		
-		return lastMatch;
+		return releaseInfo.getReleaseGroup(inferredMediaFile);
 	}
 	
 
@@ -416,15 +389,5 @@ public class MediaBindingBean {
 		cache.put(new Element(file, hash));
 		return hash;
 	}
-	
-
-	// fetch release group names online and try to update the data once per day
-	private final CachedResource<String> releaseGroups = new CachedResource<String>(getBundle(getClass().getName()).getString("url.release-groups"), 24 * 60 * 60 * 1000) {
-		
-		@Override
-		public String process(ByteBuffer data) {
-			return compile("\\s").matcher(Charset.forName("UTF-8").decode(data)).replaceAll("|");
-		}
-	};
 	
 }
