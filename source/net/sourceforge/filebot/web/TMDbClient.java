@@ -53,7 +53,7 @@ public class TMDbClient implements MovieIdentificationService {
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
 		try {
-			return getMovies("Movie.search", query, locale);
+			return getMovies("Movie.search", encode(query), locale);
 		} catch (SAXException e) {
 			// TMDb output is sometimes malformed xml
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());

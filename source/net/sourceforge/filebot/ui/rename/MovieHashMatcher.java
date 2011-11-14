@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -184,9 +185,13 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// search by file name or folder name
-		for (File it : new File[] { movieFile, movieFile.getParentFile() }) {
+		Set<String> searchQueries = new LinkedHashSet<String>(2);
+		searchQueries.add(normalizeMovieName(movieFile));
+		searchQueries.add(normalizeMovieName(movieFile.getParentFile()));
+		
+		for (String query : searchQueries) {
 			if (autodetect && options.isEmpty()) {
-				options = service.searchMovie(normalizeMovieName(it), locale);
+				options = service.searchMovie(query, locale);
 			}
 		}
 		
