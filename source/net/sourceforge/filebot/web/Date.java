@@ -73,7 +73,12 @@ public class Date implements Serializable {
 	
 
 	public String format(String pattern) {
-		return new SimpleDateFormat(pattern).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
+		return format(pattern, Locale.ROOT);
+	}
+	
+
+	public String format(String pattern, Locale locale) {
+		return new SimpleDateFormat(pattern, locale).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
 	}
 	
 
