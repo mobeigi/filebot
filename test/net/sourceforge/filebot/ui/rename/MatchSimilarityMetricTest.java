@@ -27,8 +27,8 @@ public class MatchSimilarityMetricTest {
 		File fY1T1 = new File("Doctor Who (2005)/Doctor Who - 1x01 - Rose");
 		File fY2T2 = new File("Doctor Who (1963)/Doctor Who - 1x01 - An Unearthly Child");
 		
-		assertEquals(3.0 / 3, Title.getSimilarity(eY1T1, fY1T1), 0);
-		assertEquals(2.0 / 3, Title.getSimilarity(eY1T1, fY2T2), 0.01);
+		assertEquals(3.0 / 3, SubstringFields.getSimilarity(eY1T1, fY1T1), 0);
+		assertEquals(2.0 / 3, SubstringFields.getSimilarity(eY1T1, fY2T2), 0.01);
 	}
 	
 
@@ -60,7 +60,7 @@ public class MatchSimilarityMetricTest {
 		episodes.add(new Episode("Veronica Mars", null, 1, 19, "Hot Dogs"));
 		episodes.add(new Episode("Greek", null, 1, 19, "No Campus for Old Rules"));
 		
-		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeIdentifier, Title };
+		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeIdentifier, SubstringFields };
 		List<Match<File, Episode>> m = new Matcher<File, Episode>(files, episodes, true, metrics).match();
 		
 		assertEquals("Greek - S01E19 - No Campus for Old Rules", m.get(0).getValue().getName());

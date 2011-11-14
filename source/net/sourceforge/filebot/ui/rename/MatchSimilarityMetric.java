@@ -72,6 +72,10 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 
 		@Override
 		protected Collection<SxE> parse(Object object) {
+			if (object instanceof Movie) {
+				return emptySet();
+			}
+			
 			Collection<SxE> result = matchCache.get(object);
 			if (result != null) {
 				return result;
@@ -102,6 +106,10 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 
 		@Override
 		protected Date parse(Object object) {
+			if (object instanceof Movie) {
+				return null;
+			}
+			
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				
@@ -121,7 +129,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	}),
 	
 	// Match series title and episode title against folder structure and file name
-	Title(new SubstringMetric() {
+	SubstringFields(new SubstringMetric() {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
@@ -249,9 +257,9 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		// 5. pass: match by generic numeric similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, EpisodeIdentifier, Title, Name, Numeric };
+			return new SimilarityMetric[] { FileSize, EpisodeIdentifier, SubstringFields, Name, Numeric };
 		} else {
-			return new SimilarityMetric[] { EpisodeIdentifier, Title, Name, Numeric };
+			return new SimilarityMetric[] { EpisodeIdentifier, SubstringFields, Name, Numeric };
 		}
 	}
 	
