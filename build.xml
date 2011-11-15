@@ -198,7 +198,7 @@
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo}" />
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo}" />
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
