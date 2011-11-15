@@ -15,6 +15,7 @@ import java.util.Formatter;
 import java.util.concurrent.TimeUnit;
 
 import net.sourceforge.filebot.mediainfo.MediaInfo;
+import net.sourceforge.filebot.mediainfo.MediaInfoException;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 
 
@@ -32,7 +33,7 @@ import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
  */
 public final class SublightVideoHasher {
 	
-	public static String computeHash(File file) throws IOException, LinkageError {
+	public static String computeHash(File file) throws IOException, MediaInfoException {
 		byte[][] hash = new byte[4][];
 		
 		// 1 byte = 0 (reserved)
@@ -79,7 +80,7 @@ public final class SublightVideoHasher {
 	}
 	
 
-	protected static long getDuration(File file, TimeUnit unit) throws IOException, LinkageError {
+	protected static long getDuration(File file, TimeUnit unit) throws IOException, MediaInfoException {
 		MediaInfo mediaInfo = new MediaInfo();
 		
 		if (!mediaInfo.open(file))

@@ -58,6 +58,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
+import net.sourceforge.filebot.mediainfo.MediaInfoException;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ui.LazyDocumentListener;
@@ -297,8 +298,8 @@ class BindingDialog extends JDialog {
 						mediaInfo.close();
 					}
 				}
-			} catch (LinkageError e) {
-				UILogger.log(Level.SEVERE, "Unable to load native library 'mediainfo'", e);
+			} catch (MediaInfoException e) {
+				UILogger.log(Level.SEVERE, e.getMessage(), e);
 			}
 			
 			// could not retrieve media info

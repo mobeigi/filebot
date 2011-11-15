@@ -150,9 +150,6 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 					});
 				} catch (IOException e) {
 					Logger.getLogger(SublightSubtitleClient.class.getName()).log(Level.WARNING, "Error computing video hash: " + e.getMessage());
-				} catch (LinkageError e) {
-					// MediaInfo native lib not available
-					throw new UnsupportedOperationException(e.getMessage(), e);
 				}
 				
 				requests.add(i, request);

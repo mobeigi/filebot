@@ -36,7 +36,11 @@ public class MediaInfo implements Closeable {
 	
 
 	public MediaInfo() {
-		handle = MediaInfoLibrary.INSTANCE.New();
+		try {
+			handle = MediaInfoLibrary.INSTANCE.New();
+		} catch (LinkageError e) {
+			throw new MediaInfoException(e);
+		}
 	}
 	
 
@@ -236,7 +240,11 @@ public class MediaInfo implements Closeable {
 	
 
 	public static String staticOption(String option, String value) {
-		return MediaInfoLibrary.INSTANCE.Option(null, new WString(option), new WString(value)).toString();
+		try {
+			return MediaInfoLibrary.INSTANCE.Option(null, new WString(option), new WString(value)).toString();
+		} catch (LinkageError e) {
+			throw new MediaInfoException(e);
+		}
 	}
 	
 }
