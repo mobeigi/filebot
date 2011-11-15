@@ -10,7 +10,7 @@
 				<Directory Id='INSTALLDIR' Name='FileBot'>
 
 					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E'>
-						<File Id='FileBot.start.exe' Name='FileBot.start.exe' Source='FileBot.start.exe' KeyPath='yes'>
+						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
 							<Shortcut Id="programsLink" Directory="ProgramMenuDir" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
 							<Shortcut Id="desktopLink" Directory="DesktopFolder" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
 						</File>
