@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# UNTESTED ON OSX, PROBABLY DOESN'T WORK!!
+# Help me fix this startup script! Contact me at rednoah@users.sourceforge.net
+java -Dapplication.deployment=app "-Djna.library.path=../Resources/Java" -Xmx256m -jar "../Resources/Java/FileBot.jar" "$@"

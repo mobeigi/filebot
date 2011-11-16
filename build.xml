@@ -142,20 +142,22 @@
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
 		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.installer}/appbundle/jarbundler.jar" />
-
+		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
+		
 		<!-- build app bundle folder and add native libs -->
-		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${path.fatjar}" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
+		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
 			<javaproperty name="application.deployment" value="app"/>
 		</jarbundler>
 		
+		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/filebot" />
 		<copy todir="${dir.dist}/${title}.app/Contents/Resources/Java">
 			<fileset dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
 		</copy>
 
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/JavaApplicationStub" />
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**/JavaApplicationStub" filemode="755" /> <!-- application stub must be executable!! -->
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" /> <!-- application stub must be executable!! -->
 		</tar>
 	</target>
 
