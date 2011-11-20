@@ -149,7 +149,10 @@
 			<javaproperty name="application.deployment" value="app"/>
 		</jarbundler>
 		
+		<!-- shell scripts -->
 		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/filebot" />
+		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/install.sh" />
+		
 		<copy todir="${dir.dist}/${title}.app/Contents/Resources/Java">
 			<fileset dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
 		</copy>

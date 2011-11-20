@@ -1,5 +1,7 @@
 #!/bin/bash
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+dir_bin="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# UNTESTED ON OSX, PROBABLY DOESN'T WORK!!
-# Help me fix this startup script! Contact me at rednoah@users.sourceforge.net
-java -Dapplication.deployment=app "-Djna.library.path=../Resources/Java" -Xmx256m -jar "../Resources/Java/FileBot.jar" "$@"
+dir_app=$dir_bin/../Resources/Java
+java -Dapplication.deployment=app "-Djna.library.path=$dir_app" -Xmx256m -jar "$dir_app/FileBot.jar" "$@"
