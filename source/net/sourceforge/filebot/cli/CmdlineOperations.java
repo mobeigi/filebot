@@ -128,7 +128,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			seriesNames = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
 			
 			if (seriesNames.isEmpty() || (strict && seriesNames.size() > 1)) {
-				throw new Exception("Failed to auto-detect series name: " + seriesNames);
+				throw new Exception("Unable to auto-select series name: " + seriesNames);
 			}
 			
 			query = seriesNames.iterator().next();
