@@ -96,7 +96,7 @@ public class ArgumentProcessor {
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Exception e) {
-			CLILogger.severe(e.toString());
+			CLILogger.severe(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
