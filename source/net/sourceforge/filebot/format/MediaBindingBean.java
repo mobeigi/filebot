@@ -5,6 +5,7 @@ package net.sourceforge.filebot.format;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.web.EpisodeFormat.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,6 +76,18 @@ public class MediaBindingBean {
 	@Define("e")
 	public Integer getEpisodeNumber() {
 		return getEpisode().getEpisode();
+	}
+	
+
+	@Define("SxE")
+	public String getSxE() {
+		return SeasonEpisode.formatSxE(getEpisode());
+	}
+	
+
+	@Define("S00E00")
+	public String getS00E00() {
+		return SeasonEpisode.formatS00E00(getEpisode());
 	}
 	
 
@@ -184,6 +197,16 @@ public class MediaBindingBean {
 		
 		// e.g. 1280x720
 		return width + 'x' + height;
+	}
+	
+
+	@Define("ws")
+	public String getWidescreen() {
+		float width = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
+		float height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
+		
+		// width-to-height aspect ratio greater than 1.37:1
+		return width / height > 1.37 ? "ws" : null;
 	}
 	
 

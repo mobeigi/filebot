@@ -59,6 +59,41 @@ public class EpisodeFormat extends Format {
 	}
 	
 
+	public String formatSxE(Episode episode) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (episode.getSeason() != null) {
+			sb.append(episode.getSeason()).append('x');
+		}
+		
+		if (episode.getEpisode() != null) {
+			sb.append(String.format("%02d", episode.getEpisode()));
+		} else if (includeSpecial && episode.getSpecial() != null) {
+			sb.append("Special " + episode.getSpecial());
+		}
+		
+		return sb.toString();
+	}
+	
+
+	public String formatS00E00(Episode episode) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (episode.getSeason() != null) {
+			sb.append(String.format("S%02d", episode.getSeason()));
+		}
+		
+		if (episode.getEpisode() != null) {
+			sb.append(String.format("E%02d", episode.getEpisode()));
+		} else if (includeSpecial && episode.getSpecial() != null) {
+			sb.append(episode.getSeason() != null ? " - " : "");
+			sb.append("Special " + episode.getSpecial());
+		}
+		
+		return sb.toString();
+	}
+	
+
 	private final Pattern sxePattern = Pattern.compile("- (?:(\\d{1,2})x)?(Special )?(\\d{1,3}) -");
 	private final Pattern airdatePattern = Pattern.compile("\\[(\\d{4}-\\d{1,2}-\\d{1,2})\\]");
 	
