@@ -54,6 +54,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
 import net.sourceforge.tuned.FileUtilities;
@@ -533,7 +534,10 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			if (selectedOption == null)
 				throw new IllegalStateException("Selected option must not be null");
 			
-			return new File(videoFile.getParentFile(), FileUtilities.getName(videoFile) + '.' + selectedOption.getType());
+			String base = FileUtilities.getName(videoFile);
+			String subtitleName = String.format("%s.%s.%s", base, selectedOption.getLanguage(), selectedOption.getType());
+			
+			return new File(videoFile.getParentFile(), subtitleName);
 		}
 		
 
@@ -599,12 +603,18 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public String getText() {
-			return subtitle.getName() + '.' + subtitle.getType();
+			return String.format("%s.%s.%s", subtitle.getName(), getLanguage(), getType());
 		}
 		
 
 		public Icon getIcon() {
 			return service.getIcon();
+		}
+		
+
+		public String getLanguage() {
+			Language lang = Language.getLanguageByName(subtitle.getLanguageName());
+			return lang != null ? lang.getCode() : null;
 		}
 		
 
