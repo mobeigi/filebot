@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -80,7 +79,7 @@ class RenameAction extends AbstractAction {
 			}
 		} catch (Exception e) {
 			// could not rename one of the files, revert all changes
-			UILogger.warning(e.getMessage());
+			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		window.setCursor(Cursor.getDefaultCursor());
@@ -224,10 +223,8 @@ class RenameAction extends AbstractAction {
 		protected void done() {
 			try {
 				get(); // check exceptions
-			} catch (CancellationException e) {
-				// ignore
 			} catch (Exception e) {
-				UILogger.log(Level.SEVERE, e.getMessage(), e);
+				// ignore
 			}
 			
 			// collect renamed types

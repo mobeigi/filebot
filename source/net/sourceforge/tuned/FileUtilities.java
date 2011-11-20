@@ -14,6 +14,7 @@ import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,11 +46,25 @@ public final class FileUtilities {
 			throw new IOException("Failed to create folder: " + destinationFolder);
 		}
 		
-		if (!source.renameTo(destination)) {
-			throw new IOException("Failed to rename file: " + source.getName());
+		try {
+			renameFileNIO2(source, destination);
+		} catch (LinkageError e) {
+			renameFileIO(source, destination);
 		}
 		
 		return destination;
+	}
+	
+
+	private static void renameFileNIO2(File source, File destination) throws IOException {
+		Files.move(source.toPath(), destination.toPath());
+	}
+	
+
+	private static void renameFileIO(File source, File destination) throws IOException {
+		if (!source.renameTo(destination)) {
+			throw new IOException("Failed to rename file: " + source.getName());
+		}
 	}
 	
 
