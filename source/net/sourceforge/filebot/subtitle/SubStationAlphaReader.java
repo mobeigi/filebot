@@ -55,7 +55,7 @@ public class SubStationAlphaReader extends SubtitleReader {
 			// move to [Events] sections
 			boolean found = false;
 			
-			while (!found && scanner.hasNext()) {
+			while (!found && scanner.hasNextLine()) {
 				found = scanner.nextLine().equals("[Events]");
 			}
 			
