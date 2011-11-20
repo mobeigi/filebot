@@ -71,10 +71,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		Locale locale = getLanguage(languageName).toLocale();
 		
-		List<File> videoFiles = filter(files, VIDEO_FILES);
-		
-		if (videoFiles.isEmpty()) {
-			throw new IllegalArgumentException("No video files: " + files);
+		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		if (mediaFiles.isEmpty()) {
+			throw new IllegalArgumentException("No media files: " + files);
 		}
 		
 		if (getEpisodeListProvider(db) != null) {
@@ -90,12 +89,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		// auto-determine mode
 		int sxe = 0; // SxE
 		int cws = 0; // common word sequence
-		double max = videoFiles.size();
+		double max = mediaFiles.size();
 		
 		SeriesNameMatcher matcher = new SeriesNameMatcher();
-		String[] cwsList = (max >= 5) ? matcher.matchAll(videoFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
+		String[] cwsList = (max >= 5) ? matcher.matchAll(mediaFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
 		
-		for (File f : videoFiles) {
+		for (File f : mediaFiles) {
 			// count SxE matches
 			if (matcher.matchBySeasonEpisodePattern(f.getName()) != null) {
 				sxe++;
