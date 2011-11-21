@@ -48,6 +48,9 @@ public class MicroDVDReader extends SubtitleReader {
 		int endFrame = Integer.parseInt(properties.get(1));
 		String text = line.substring(from).trim();
 		
+		// cancel format markers
+		text = text.replaceAll("\\{[^\\}]*\\}", "");
+		
 		if (startFrame == 1 && endFrame == 1) {
 			// override fps
 			fps = Double.parseDouble(text);

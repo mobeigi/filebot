@@ -33,7 +33,7 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 				current = readNext();
 			} catch (Exception e) {
 				// log and ignore
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal input: " + e.getMessage());
 			}
 		}
 		

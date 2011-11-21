@@ -6,6 +6,7 @@ import static java.util.regex.Pattern.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,9 @@ public class SubViewerReader extends SubtitleReader {
 			String[] lines = newline.split(scanner.nextLine());
 			
 			return new SubtitleElement(t1, t2, join(lines, "\n"));
+		} catch (ParseException e) {
+			// can't parse interval, ignore line
+			return null;
 		} catch (InputMismatchException e) {
 			// can't parse interval, ignore line
 			return null;
