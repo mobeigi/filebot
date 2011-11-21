@@ -37,7 +37,17 @@
 		</script>
 	</head>
 	<body>
-		<div class="page">
+		<div class="page" style="overflow:hidden">
+			<div class="navigation" style="position:absolute; top:36px; right:-40px">
+				<div>
+				<ul>
+					<li><a href="http://filebot.sourceforge.net/forums/">Forums</a></li>
+					<li><a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=3&t=7">FAQ</a></li>
+					<li><a href="#download">Download</a></li>
+				</ul>
+				</div>
+			</div>			
+
 			<div class="social">
 				<div class="plusone" style="display:inline; position:relative; left:25px; top:1px">
 					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
@@ -51,6 +61,7 @@
 				<a href="http://filebot.sourceforge.net"><img class="logo" alt="logo" src="images/icon.png" width="48" height="48" /></a>
 				<h1>
 					FileBot
+					<a href="http://filebot.sourceforge.net/forums/viewforum.php?f=7" class="source" target="_blank">v@{version}</a>
 					<span class="description">The ultimate tv renamer / subtitle downloader / sfv validator</span>
 				</h1>
 			</div>
@@ -160,7 +171,10 @@
 				<div class="section contact">
 					<img class="icon" src="images/contact.png" alt="contact" width="48" height="48" />
 					<span class="quote">Will you join us?</span>
-					<h2>Contact</h2>
+					<h2>
+						Contact
+						<a href="http://filebot.sourceforge.net/forums/" class="source" target="_blank">forums</a>
+					</h2>
 					<p>
 						The project is continuously seeking for improvements, so anykind of <a onclick="_gaq.push(['_trackPageview', '/project/feedback'])" target="_blank" href="http://alternativeto.net/software/filebot/reviews">feedback</a> is more than welcome 
 						and if there's any questions or problems just start posting in the <a target="_blank" href="http://filebot.sourceforge.net/forums/">forums</a> or check the <a target="_blank" href="http://filebot.sourceforge.net/forums/viewforum.php?f=3"><acronym title="frequently asked questions">FAQ</acronym></a>.

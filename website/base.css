@@ -31,6 +31,50 @@ hr {
 	border-color: lightgray;
 }
 
+
+.navigation {
+	font: 11px Verdana, Arial, Helvetica, sans-serif;
+	width: 120px;
+	opacity: 0.8;
+}
+
+.navigation ul {
+	list-style-type: none;
+}
+
+.navigation a {
+	color:#3366FF;
+	text-decoration:none;
+}
+
+.navigation a:hover, .navigation a:focus {
+	color:#FF6600;
+}
+
+.navigation ul {
+	padding:0px;
+	margin:0px;
+}
+
+.navigation a {
+	display:block;
+	
+	font-weight:normal;
+	letter-spacing:0.1em;
+	text-decoration:none;
+	
+	padding: 7px 5px;
+	background-image:url(nav-a-bg.png);
+	background-repeat:no-repeat;
+	background-position: left 90%;
+}
+
+.navigation a:hover, .navigation a:focus {
+	background-image:url(nav-a-bg-h.png);
+}
+
+
+
 .section h2.reference {
 	padding-top: 25px;
 }
