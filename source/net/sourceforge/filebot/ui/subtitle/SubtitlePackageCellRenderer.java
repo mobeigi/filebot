@@ -92,7 +92,9 @@ class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {
 	@Override
 	public void validate() {
 		// validate children, yet avoid flickering of the mouse cursor
-		validateTree();
+		synchronized (getTreeLock()) {
+			validateTree();
+		}
 	}
 	
 }
