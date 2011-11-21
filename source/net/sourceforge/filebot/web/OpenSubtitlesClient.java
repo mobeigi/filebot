@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.util.Collections.*;
+
 import java.io.File;
 import java.math.BigInteger;
 import java.net.URI;
@@ -208,6 +210,18 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 	
 
+	public Locale detectLanguage(byte[] data) throws Exception {
+		// require login
+		login();
+		
+		// detect language
+		List<String> languages = xmlrpc.detectLanguage(data);
+		
+		// return first language
+		return languages.size() > 0 ? new Locale(languages.get(0)) : null;
+	}
+	
+
 	protected synchronized void login() throws Exception {
 		if (!xmlrpc.isLoggedOn()) {
 			xmlrpc.loginAnonymous();
@@ -244,8 +258,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	private static final Map<String, String> subLanguageCache = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 	
 
-	private String getSubLanguageID(String languageName) throws Exception {
-		// fetch languages if necessary 
+	protected synchronized Map<String, String> getSubLanguageMap() throws Exception {
 		synchronized (subLanguageCache) {
 			if (subLanguageCache.isEmpty()) {
 				for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
@@ -256,15 +269,27 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// some additional special handling
 				subLanguageCache.put("Brazilian", "pob");
 			}
+			
+			return unmodifiableMap(subLanguageCache);
 		}
-		
-		String id = subLanguageCache.get(languageName);
-		
-		if (id == null) {
+	}
+	
+
+	protected String getSubLanguageID(String languageName) throws Exception {
+		if (!getSubLanguageMap().containsKey(languageName)) {
 			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
 		}
 		
-		return id;
+		return getSubLanguageMap().get(languageName);
 	}
 	
+
+	protected String getLanguageName(String subLanguageID) throws Exception {
+		for (Entry<String, String> it : getSubLanguageMap().entrySet()) {
+			if (it.getValue().equals(subLanguageID))
+				return it.getKey();
+		}
+		
+		return null;
+	}
 }

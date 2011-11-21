@@ -6,14 +6,17 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.web.EpisodeFormat.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.ReleaseInfo;
@@ -280,6 +283,16 @@ public class MediaBindingBean {
 		
 		// look for release group names in media file and it's parent folder
 		return releaseInfo.getReleaseGroup(inferredMediaFile);
+	}
+	
+
+	@Define("lang")
+	public Locale detectSubtitleLanguage() throws Exception {
+		// require subtitle file
+		if (!SUBTITLE_FILES.accept(mediaFile))
+			return null;
+		
+		return WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile));
 	}
 	
 

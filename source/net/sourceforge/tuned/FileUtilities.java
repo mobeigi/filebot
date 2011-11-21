@@ -132,8 +132,13 @@ public final class FileUtilities {
 		detector.setText(new ByteBufferInputStream(data));
 		
 		CharsetMatch charset = detector.detect();
-		if (charset != null)
-			return charset.getString();
+		if (charset != null) {
+			try {
+				return charset.getString();
+			} catch (RuntimeException e) {
+				throw new IOException("Failed to read text", e);
+			}
+		}
 		
 		// assume UTF-8 by default
 		return Charset.forName("UTF-8").decode(data).toString();
