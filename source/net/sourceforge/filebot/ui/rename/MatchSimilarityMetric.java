@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -238,9 +239,8 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 			name = getNameWithoutExtension(((AbstractFile) object).getName());
 		}
 		
-		// remove group names and checksums, any [...] or (...)
-		name = name.replaceAll("\\([^\\(]*\\)", "");
-		name = name.replaceAll("\\[[^\\[]*\\]", "");
+		// remove checksums, any [...] or (...)
+		name = removeEmbeddedChecksum(name);
 		
 		// remove/normalize special characters
 		name = name.replaceAll("['`´]+", "");
