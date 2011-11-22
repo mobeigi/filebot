@@ -91,18 +91,18 @@ public class CmdlineOperations implements CmdlineInterface {
 		int cws = 0; // common word sequence
 		double max = mediaFiles.size();
 		
-		SeriesNameMatcher matcher = new SeriesNameMatcher();
-		String[] cwsList = (max >= 5) ? matcher.matchAll(mediaFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
+		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
+		String[] cwsList = (max >= 5) ? nameMatcher.matchAll(mediaFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
 		
 		for (File f : mediaFiles) {
 			// count SxE matches
-			if (matcher.matchBySeasonEpisodePattern(f.getName()) != null) {
+			if (nameMatcher.matchBySeasonEpisodePattern(f.getName()) != null) {
 				sxe++;
 			}
 			
 			// count CWS matches
 			for (String base : cwsList) {
-				if (base.equalsIgnoreCase(matcher.matchByFirstCommonWordSequence(base, f.getName()))) {
+				if (base.equalsIgnoreCase(nameMatcher.matchByFirstCommonWordSequence(base, f.getName()))) {
 					cws++;
 					break;
 				}
@@ -240,15 +240,23 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
-		CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
+		File[] subtitleFiles = filter(mediaFiles, SUBTITLE_FILES).toArray(new File[0]);
+		Movie[] movieDescriptors;
 		
-		// match movie hashes online
-		Movie[] movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
+		if (movieFiles.length > 0) {
+			// match movie hashes online
+			CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
+			movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
+		} else {
+			// allow subtitles without video files
+			movieDescriptors = new Movie[subtitleFiles.length];
+			movieFiles = subtitleFiles;
+		}
 		
 		// use user query if search by hash did not return any results, only one query for one movie though
 		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
-			movieDescriptors[0] = (Movie) selectSearchResult(query, new ArrayList<SearchResult>(db.searchMovie(query, locale)), strict);
+			movieDescriptors[0] = (Movie) selectSearchResult(query, db.searchMovie(query, locale), strict);
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
@@ -273,7 +281,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// handle subtitle files
-		for (File subtitleFile : filter(mediaFiles, SUBTITLE_FILES)) {
+		for (File subtitleFile : subtitleFiles) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (int i = 0; i < movieDescriptors.length; i++) {
 				if (movieDescriptors != null) {
@@ -493,7 +501,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private SearchResult selectSearchResult(String query, Iterable<SearchResult> searchResults, boolean strict) throws IllegalArgumentException {
+	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws IllegalArgumentException {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		
