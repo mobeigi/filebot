@@ -21,7 +21,7 @@ public class MetricCascade implements SimilarityMetric {
 		for (SimilarityMetric metric : cascade) {
 			f = max(f, metric.getSimilarity(o1, o2));
 			
-			// is match, ignore remaining metrics
+			// perfect match, ignore remaining metrics
 			if (f >= 1) {
 				return f;
 			}

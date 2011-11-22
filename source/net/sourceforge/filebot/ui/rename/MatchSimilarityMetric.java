@@ -111,9 +111,22 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		}
 	}),
 	
-	// Match by combining season/episode, episode airdate and movie/episode title 
-	GeneralEpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate, Title)),
-	StrictEpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate)),
+	// Match by SxE and airdate
+	EpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate)),
+	
+	// Advanced episode<->file matching 
+	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)),
+	EpisodeBalancer(new SimilarityMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			float sxe = EpisodeIdentifier.getSimilarity(o1, o2);
+			float title = Title.getSimilarity(o1, o2);
+			
+			// 1:SxE && Title, 2:SxE
+			return (sxe * title) + (sxe / 10f);
+		}
+	}),
 	
 	// Match series title and episode title against folder structure and file name
 	SubstringFields(new SubstringMetric() {
@@ -259,9 +272,9 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		// 5. pass: match by generic numeric similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, GeneralEpisodeIdentifier, StrictEpisodeIdentifier, SubstringFields, Name, Numeric };
+			return new SimilarityMetric[] { FileSize, EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
 		} else {
-			return new SimilarityMetric[] { GeneralEpisodeIdentifier, StrictEpisodeIdentifier, SubstringFields, Name, Numeric };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
 		}
 	}
 	

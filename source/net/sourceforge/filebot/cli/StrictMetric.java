@@ -10,8 +10,8 @@ import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 
 public enum StrictMetric implements SimilarityMetric {
 	
-	EpisodeIdentifier(MatchSimilarityMetric.StrictEpisodeIdentifier, 1), // only allow 0 or 1
-	Title(MatchSimilarityMetric.SubstringFields, 2), // allow 0 or .5 or 1
+	EpisodeIdentifier(MatchSimilarityMetric.EpisodeIdentifier, 1), // only allow 0 or 1
+	SubstringFields(MatchSimilarityMetric.SubstringFields, 2), // allow 0 or .5 or 1
 	Name(MatchSimilarityMetric.Name, 2); // allow 0 or .5 or 1
 	
 	// inner metric
