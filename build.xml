@@ -303,7 +303,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" source="1.7" encoding="utf-8" includeAntRuntime="false">
+		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" target="1.6" source="1.6" encoding="utf-8" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 				<pathelement location="${dir.lib}/build/junit.jar" />
