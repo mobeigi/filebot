@@ -60,7 +60,7 @@ public class MatchSimilarityMetricTest {
 		episodes.add(new Episode("Veronica Mars", null, 1, 19, "Hot Dogs"));
 		episodes.add(new Episode("Greek", null, 1, 19, "No Campus for Old Rules"));
 		
-		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeIdentifier, SubstringFields };
+		SimilarityMetric[] metrics = new SimilarityMetric[] { GeneralEpisodeIdentifier, SubstringFields };
 		List<Match<File, Episode>> m = new Matcher<File, Episode>(files, episodes, true, metrics).match();
 		
 		assertEquals("Greek - S01E19 - No Campus for Old Rules", m.get(0).getValue().getName());
