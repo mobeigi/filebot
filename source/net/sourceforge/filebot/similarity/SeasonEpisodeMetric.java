@@ -10,7 +10,7 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMetric implements SimilarityMetric {
 	
-	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
+	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(null);
 	
 
 	@Override

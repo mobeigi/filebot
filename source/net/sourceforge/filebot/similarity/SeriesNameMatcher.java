@@ -21,13 +21,14 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodeFilter;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.tuned.FileUtilities;
 
 
 public class SeriesNameMatcher {
 	
-	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher();
+	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, 1000));
 	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
 	protected final int commonWordSequenceMaxStartIndex = 3;

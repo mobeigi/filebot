@@ -13,7 +13,7 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMatcherTest {
 	
-	private static SeasonEpisodeMatcher matcher = new SeasonEpisodeMatcher();
+	private static SeasonEpisodeMatcher matcher = new SeasonEpisodeMatcher(null);
 	
 
 	@Test

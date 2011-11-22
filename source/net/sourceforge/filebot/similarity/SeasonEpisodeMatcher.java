@@ -17,17 +17,17 @@ public class SeasonEpisodeMatcher {
 	private final SeasonEpisodePattern[] patterns;
 	
 
-	public SeasonEpisodeMatcher() {
+	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity) {
 		patterns = new SeasonEpisodePattern[3];
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ...
-		patterns[0] = new SeasonEpisodePattern("(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
+		patterns[0] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
 		
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ...
-		patterns[1] = new SeasonEpisodePattern("(?<!\\p{Alnum})(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
+		patterns[1] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
 		
 		// match patterns like 01, 102, 1003 (enclosed in separators)
-		patterns[2] = new SeasonEpisodePattern("(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
+		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -147,13 +147,35 @@ public class SeasonEpisodeMatcher {
 	}
 	
 
-	protected static class SeasonEpisodePattern {
+	public static class SeasonEpisodeFilter {
 		
-		protected final Pattern pattern;
+		public final int seasonLimit;
+		public final int seasonEpisodeLimit;
+		public final int absoluteEpisodeLimit;
 		
 
-		public SeasonEpisodePattern(String pattern) {
+		public SeasonEpisodeFilter(int seasonLimit, int seasonEpisodeLimit, int absoluteEpisodeLimit) {
+			this.seasonLimit = seasonLimit;
+			this.seasonEpisodeLimit = seasonEpisodeLimit;
+			this.absoluteEpisodeLimit = absoluteEpisodeLimit;
+		}
+		
+
+		boolean filter(SxE sxe) {
+			return (sxe.season >= 0 && sxe.season < seasonLimit && sxe.episode < seasonEpisodeLimit) || (sxe.season < 0 && sxe.episode < absoluteEpisodeLimit);
+		}
+	}
+	
+
+	public static class SeasonEpisodePattern {
+		
+		protected final Pattern pattern;
+		protected final SeasonEpisodeFilter sanity;
+		
+
+		public SeasonEpisodePattern(SeasonEpisodeFilter sanity, String pattern) {
 			this.pattern = Pattern.compile(pattern);
+			this.sanity = sanity;
 		}
 		
 
@@ -174,7 +196,11 @@ public class SeasonEpisodeMatcher {
 			Matcher matcher = matcher(name);
 			
 			while (matcher.find()) {
-				matches.addAll(process(matcher));
+				for (SxE value : process(matcher)) {
+					if (sanity == null || sanity.filter(value)) {
+						matches.add(value);
+					}
+				}
 			}
 			
 			return matches;
@@ -182,10 +208,14 @@ public class SeasonEpisodeMatcher {
 		
 
 		public int find(CharSequence name, int fromIndex) {
-			Matcher matcher = matcher(name);
+			Matcher matcher = matcher(name).region(fromIndex, name.length());
 			
-			if (matcher.find(fromIndex)) {
-				return matcher.start();
+			while (matcher.find()) {
+				for (SxE value : process(matcher)) {
+					if (sanity == null || sanity.filter(value)) {
+						return matcher.start();
+					}
+				}
 			}
 			
 			return -1;
