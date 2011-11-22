@@ -13,8 +13,6 @@ import java.util.UUID;
 
 public final class TemporaryFolder {
 	
-	private static final File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-	
 	private static final Map<String, TemporaryFolder> folders = new HashMap<String, TemporaryFolder>();
 	
 
@@ -35,7 +33,10 @@ public final class TemporaryFolder {
 			TemporaryFolder folder = folders.get(name);
 			
 			if (folder == null) {
-				folder = new TemporaryFolder(new File(tmpdir, String.format("%s [%s]", name, UUID.randomUUID())));
+				File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+				String subdir = String.format("%s [%s]", name, UUID.randomUUID());
+				
+				folder = new TemporaryFolder(new File(tmpdir, subdir));
 				folders.put(name, folder);
 			}
 			

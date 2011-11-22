@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.transfer;
 
 
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -16,11 +17,16 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 	@Override
 	public boolean accept(Transferable tr) throws Exception {
 		try {
-			return accept(getFilesFromTransferable(tr));
+			List<File> files = getFilesFromTransferable(tr);
+			
+			if (!containsOnly(files, TEMPORARY)) {
+				return accept(getFilesFromTransferable(tr));
+			}
 		} catch (UnsupportedFlavorException e) {
 			// no file list flavor
-			return false;
 		}
+		
+		return false;
 	}
 	
 

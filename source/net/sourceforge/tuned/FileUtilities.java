@@ -428,6 +428,17 @@ public final class FileUtilities {
 		}
 	};
 	
+	public static final FileFilter TEMPORARY = new FileFilter() {
+		
+		private final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
+		
+
+		@Override
+		public boolean accept(File file) {
+			return file.getAbsolutePath().startsWith(TEMP_DIR.getAbsolutePath());
+		}
+	};
+	
 
 	public static class ExtensionFileFilter implements FileFilter {
 		
