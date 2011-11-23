@@ -6,6 +6,7 @@
 	-->
 	<type name="application/torrent">
 		<extension>torrent</extension>
+		<extension>tor</extension>
 	</type>
 
 	<type name="application/list">
@@ -105,6 +106,10 @@
 	<type name="video/realmedia">
 		<extension>rm</extension>
 		<extension>rmvb</extension>
+	</type>
+	
+	<type name="video/WindowsRecordedTV">
+		<extension>wtv</extension>
 	</type>
 	
 	
