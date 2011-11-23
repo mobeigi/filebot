@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.subtitle;
 
 
-import static net.sourceforge.filebot.MediaTypes.*;
-
 import java.awt.Color;
 import java.awt.Insets;
 
@@ -14,7 +12,6 @@ import javax.swing.border.CompoundBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
 import net.sourceforge.tuned.ui.DashedSeparator;
 
@@ -63,12 +60,7 @@ class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {
 	private Icon getIcon(SubtitlePackage subtitle) {
 		switch (subtitle.getDownload().getPhase()) {
 			case PENDING:
-				if (ArchiveType.forName(subtitle.getType()) != ArchiveType.UNDEFINED || SUBTITLE_FILES.acceptExtension(subtitle.getType())) {
-					return ResourceManager.getIcon("bullet.green");
-				}
-				
-				// unsupported archive or unknown subtitle type
-				return ResourceManager.getIcon("bullet.yellow");
+				return ResourceManager.getIcon("bullet.green");
 			case WAITING:
 				return ResourceManager.getIcon("worker.pending");
 			case DOWNLOADING:

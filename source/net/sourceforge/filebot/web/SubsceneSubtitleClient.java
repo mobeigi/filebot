@@ -54,13 +54,10 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
-		
 		URL searchUrl = new URL("http", host, "/filmsearch.aspx?q=" + encode(query));
-		
 		Document dom = getHtmlDocument(searchUrl);
 		
 		List<Node> nodes = selectNodes("id('filmSearch')/A", dom);
-		
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -98,7 +95,6 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		URL subtitleListUrl = getSubtitleListLink(searchResult, languageName).toURL();
-		
 		String languageFilter = null;
 		
 		if (languageName != null) {
