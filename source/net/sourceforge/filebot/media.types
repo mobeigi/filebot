@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <media-types>
 
-	<!-- 
-			Application
-	-->
+	<!-- Application -->
+	
 	<type name="application/torrent">
 		<extension>torrent</extension>
 		<extension>tor</extension>
@@ -19,9 +18,8 @@
 	</type>
 	
 	
-	<!-- 
-			Verification
-	-->
+	<!-- Verification -->
+	
 	<type name="verification/sfv">
 		<extension>sfv</extension>
 	</type>
@@ -36,9 +34,8 @@
 	</type>
 
 
-	<!-- 
-			Audio
-	-->
+	<!-- Audio -->
+	
 	<type name="audio/mp3">
 		<extension>mp3</extension>
 	</type>
@@ -61,9 +58,8 @@
 	</type>
 
 
-	<!-- 
-			Video
-	-->
+	<!-- Video -->
+	
 	<type name="video/avi">
 		<extension>avi</extension>
 	</type>
@@ -108,14 +104,17 @@
 		<extension>rmvb</extension>
 	</type>
 	
+	<type name="video/tivo">
+		<extension>tivo</extension>
+	</type>
+	
 	<type name="video/WindowsRecordedTV">
 		<extension>wtv</extension>
 	</type>
 	
 	
-	<!-- 
-			Subtitles
-	-->
+	<!-- Subtitles -->
+	
 	<type name="subtitle/SubRip">
 		<extension>srt</extension>
 	</type>
