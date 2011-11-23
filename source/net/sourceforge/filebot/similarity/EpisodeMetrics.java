@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.sourceforge.filebot.similarity;
 
 
 import static java.lang.Math.*;
@@ -13,14 +13,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import net.sourceforge.filebot.similarity.DateMetric;
-import net.sourceforge.filebot.similarity.FileSizeMetric;
-import net.sourceforge.filebot.similarity.MetricCascade;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMetric;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.similarity.SubstringMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.AbstractFile;
 import net.sourceforge.filebot.web.Date;
@@ -28,7 +20,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 
 
-public enum MatchSimilarityMetric implements SimilarityMetric {
+public enum EpisodeMetrics implements SimilarityMetric {
 	
 	// Match by season / episode numbers
 	SeasonEpisode(new SeasonEpisodeMetric() {
@@ -233,7 +225,7 @@ public enum MatchSimilarityMetric implements SimilarityMetric {
 	private final SimilarityMetric metric;
 	
 
-	private MatchSimilarityMetric(SimilarityMetric metric) {
+	private EpisodeMetrics(SimilarityMetric metric) {
 		this.metric = metric;
 	}
 	

@@ -42,15 +42,16 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.similarity.StrictEpisodeMetrics;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.HistorySpooler;
-import net.sourceforge.filebot.ui.rename.MatchSimilarityMetric;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
@@ -145,12 +146,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// similarity metrics for matching
-		SimilarityMetric[] sequence;
-		if (strict) {
-			sequence = new SimilarityMetric[] { StrictMetric.EpisodeIdentifier, StrictMetric.SubstringFields, StrictMetric.Name }; // use SEI for matching and SN for excluding false positives
-		} else {
-			sequence = MatchSimilarityMetric.defaultSequence(false); // same as in GUI
-		}
+		SimilarityMetric[] sequence = strict ? StrictEpisodeMetrics.defaultSequence() : EpisodeMetrics.defaultSequence(false);
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
 		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes, sequence));

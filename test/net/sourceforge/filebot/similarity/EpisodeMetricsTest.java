@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.sourceforge.filebot.similarity;
 
 
-import static net.sourceforge.filebot.ui.rename.MatchSimilarityMetric.*;
+import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -18,7 +19,7 @@ import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 
 
-public class MatchSimilarityMetricTest {
+public class EpisodeMetricsTest {
 	
 	@Test
 	public void substringMetrics() {
@@ -46,7 +47,7 @@ public class MatchSimilarityMetricTest {
 
 	@Test
 	public void normalizeFile() {
-		assertEquals("abc", MatchSimilarityMetric.normalizeObject(new File("/folder/abc[EF62DF13].txt")));
+		assertEquals("abc", EpisodeMetrics.normalizeObject(new File("/folder/abc[EF62DF13].txt")));
 	}
 	
 

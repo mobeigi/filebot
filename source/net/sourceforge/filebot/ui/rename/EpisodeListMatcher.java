@@ -31,6 +31,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -192,7 +193,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// group by subtitles first and then by files in general
 		for (List<File> filesPerType : mapByExtension(mediaFiles).values()) {
-			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, MatchSimilarityMetric.defaultSequence(false));
+			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, EpisodeMetrics.defaultSequence(false));
 			matches.addAll(matcher.match());
 		}
 		

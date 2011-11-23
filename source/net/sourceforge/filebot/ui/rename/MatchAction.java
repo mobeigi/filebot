@@ -20,6 +20,7 @@ import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -49,7 +50,7 @@ class MatchAction extends AbstractAction {
 		Window window = getWindow(evt.getSource());
 		window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		
-		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, MatchSimilarityMetric.defaultSequence(true));
+		BackgroundMatcher backgroundMatcher = new BackgroundMatcher(model, EpisodeMetrics.defaultSequence(true));
 		backgroundMatcher.execute();
 		
 		try {
