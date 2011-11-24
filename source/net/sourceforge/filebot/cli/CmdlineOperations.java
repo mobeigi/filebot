@@ -403,7 +403,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					collector.addAll(service.getName(), lookupSubtitleByFileName(service, querySet, language, collector.remainingVideos()));
 				} catch (RuntimeException e) {
-					CLILogger.warning(format("Search for [%s] failed: %s", query, e.getMessage()));
+					CLILogger.warning(format("Search for [%s] failed: %s", querySet, e.getMessage()));
 				}
 			}
 		}
@@ -464,6 +464,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// subtitle filename is based on movie filename
 		String name = getName(movieFile);
+		String lang = Language.getISO3LanguageCodeByName(descriptor.getLanguageName());
 		String ext = getExtension(subtitleFile.getName());
 		ByteBuffer data = subtitleFile.getData();
 		
@@ -476,7 +477,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 		
-		File destination = new File(movieFile.getParentFile(), name + "." + ext);
+		File destination = new File(movieFile.getParentFile(), String.format("%s.%s.%s", name, lang, ext));
 		CLILogger.config(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
 		
 		writeFile(data, destination);

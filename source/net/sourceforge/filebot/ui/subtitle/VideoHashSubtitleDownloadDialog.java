@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -614,17 +613,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public String getLanguage() {
-			Language language = Language.getLanguageByName(subtitle.getLanguageName());
-			if (language != null) {
-				try {
-					return new Locale(language.getCode()).getISO3Language();
-				} catch (Exception e) {
-					return language.getCode();
-				}
-			}
-			
-			// we won't get here, but just in case
-			return subtitle.getLanguageName().replaceAll("\\W", "");
+			return Language.getISO3LanguageCodeByName(subtitle.getLanguageName());
 		}
 		
 

@@ -93,6 +93,21 @@ public class Language {
 	}
 	
 
+	public static String getISO3LanguageCodeByName(String languageName) {
+		Language language = Language.getLanguageByName(languageName);
+		if (language != null) {
+			try {
+				return new Locale(language.getCode()).getISO3Language();
+			} catch (Exception e) {
+				return language.getCode();
+			}
+		}
+		
+		// we won't get here, but just in case
+		return languageName.replaceAll("\\W", "");
+	}
+	
+
 	public static List<Language> availableLanguages() {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		return getLanguages(bundle.getString("languages.all").split(","));
