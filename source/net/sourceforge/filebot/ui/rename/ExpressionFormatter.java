@@ -2,15 +2,11 @@
 package net.sourceforge.filebot.ui.rename;
 
 
-import static net.sourceforge.tuned.FileUtilities.*;
-
 import java.io.File;
 import java.text.Format;
 
-import javax.script.Bindings;
 import javax.script.ScriptException;
 
-import net.sourceforge.filebot.format.ExpressionBindings;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.similarity.Match;
@@ -53,27 +49,7 @@ class ExpressionFormatter implements MatchFormatter {
 	public synchronized String format(Match<?, ?> match) throws ScriptException {
 		// lazy initialize script engine
 		if (format == null) {
-			format = new ExpressionFormat(expression) {
-				
-				@Override
-				public Bindings getBindings(Object value) {
-					return new ExpressionBindings(value) {
-						
-						@Override
-						public Object get(Object key) {
-							Object value = super.get(key);
-							
-							// if the binding value is a String, remove illegal characters
-							if (value instanceof CharSequence) {
-								return replacePathSeparators(value.toString()).trim();
-							}
-							
-							// if the binding value is an Object, just leave it
-							return value;
-						}
-					};
-				}
-			};
+			format = new ExpressionFormat(expression);
 		}
 		
 		// evaluate the expression using the given bindings

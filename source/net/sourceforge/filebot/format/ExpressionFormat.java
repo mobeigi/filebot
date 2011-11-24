@@ -3,6 +3,7 @@ package net.sourceforge.filebot.format;
 
 
 import static net.sourceforge.tuned.ExceptionUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MissingPropertyException;
 
@@ -141,7 +142,13 @@ public class ExpressionFormat extends Format {
 	
 
 	public Bindings getBindings(Object value) {
-		return new ExpressionBindings(value);
+		return new ExpressionBindings(value) {
+			
+			@Override
+			public Object get(Object key) {
+				return normalizeBindingValue(super.get(key));
+			}
+		};
 	}
 	
 
@@ -165,7 +172,7 @@ public class ExpressionFormat extends Format {
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
 				try {
-					Object value = ((CompiledScript) snipped).eval(context);
+					Object value = normalizeExpressionValue(((CompiledScript) snipped).eval(context));
 					
 					if (value != null) {
 						sb.append(value);
@@ -179,6 +186,22 @@ public class ExpressionFormat extends Format {
 		}
 		
 		return sb;
+	}
+	
+
+	protected Object normalizeBindingValue(Object value) {
+		// if the binding value is a String, remove illegal characters
+		if (value instanceof CharSequence) {
+			return replacePathSeparators(value.toString()).trim();
+		}
+		
+		// if the binding value is an Object, just leave it
+		return value;
+	}
+	
+
+	protected Object normalizeExpressionValue(Object value) {
+		return value;
 	}
 	
 
