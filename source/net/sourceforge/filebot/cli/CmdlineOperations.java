@@ -18,6 +18,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,6 +47,7 @@ import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
+import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -122,21 +125,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
-		Collection<String> seriesNames;
 		
 		// auto-detect series name if not given
-		if (query == null) {
-			seriesNames = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
-			
-			if (seriesNames.isEmpty() || (strict && seriesNames.size() > 1)) {
-				throw new Exception("Unable to auto-select series name: " + seriesNames);
-			}
-			
-			query = seriesNames.iterator().next();
-			CLILogger.config("Auto-detected series name: " + seriesNames);
-		} else {
-			seriesNames = singleton(query);
-		}
+		Collection<String> seriesNames = (query == null) ? detectQuery(mediaFiles, strict) : singleton(query);
 		
 		// fetch episode data
 		Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
@@ -146,11 +137,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// similarity metrics for matching
-		SimilarityMetric[] sequence = strict ? StrictEpisodeMetrics.defaultSequence() : EpisodeMetrics.defaultSequence(false);
+		SimilarityMetric[] sequence = strict ? StrictEpisodeMetrics.defaultSequence(false) : EpisodeMetrics.defaultSequence(false);
 		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
-		matches.addAll(match(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
-		matches.addAll(match(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
+		matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
+		matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
 		
 		if (matches.isEmpty()) {
 			throw new RuntimeException("Unable to match files to episode data");
@@ -176,6 +167,19 @@ public class CmdlineOperations implements CmdlineInterface {
 		// rename episodes
 		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
 		return renameAll(renameMap);
+	}
+	
+
+	private List<Match<File, Episode>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, SimilarityMetric[] sequence) throws Exception {
+		// always use strict fail-fast matcher
+		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
+		List<Match<File, Episode>> matches = matcher.match();
+		
+		for (File failedMatch : matcher.remainingValues()) {
+			CLILogger.warning("No matching episode: " + failedMatch.getName());
+		}
+		
+		return matches;
 	}
 	
 
@@ -302,132 +306,6 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	@Override
-	public List<File> getSubtitles(Collection<File> files, String query, String languageName, String output, String csn) throws Exception {
-		Language language = getLanguage(languageName);
-		Charset outputEncoding = (csn != null) ? Charset.forName(csn) : null;
-		
-		// match movie hashes online
-		Set<File> remainingVideos = new TreeSet<File>(filter(files, VIDEO_FILES));
-		List<File> downloadedSubtitles = new ArrayList<File>();
-		
-		if (remainingVideos.isEmpty()) {
-			throw new IllegalArgumentException("No video files: " + files);
-		}
-		
-		SubtitleFormat outputFormat = null;
-		if (output != null) {
-			outputFormat = getSubtitleFormatByName(output);
-			
-			// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
-			if (outputEncoding == null) {
-				outputEncoding = Charset.forName("UTF-8");
-			}
-		}
-		
-		// lookup subtitles by hash
-		for (VideoHashSubtitleService service : WebServices.getVideoHashSubtitleServices()) {
-			if (remainingVideos.isEmpty()) {
-				break;
-			}
-			
-			CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
-			
-			for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(remainingVideos.toArray(new File[0]), language.getName()).entrySet()) {
-				if (it.getValue() != null && it.getValue().size() > 0) {
-					// auto-select first element if there are multiple hash matches for the same video files
-					File subtitle = fetchSubtitle(it.getValue().get(0), it.getKey(), outputFormat, outputEncoding);
-					Analytics.trackEvent(service.getName(), "DownloadSubtitle", it.getValue().get(0).getLanguageName(), 1);
-					
-					// download complete, cross this video off the list
-					remainingVideos.remove(it.getKey());
-					downloadedSubtitles.add(subtitle);
-				}
-			}
-		}
-		
-		// lookup subtitles by query and filename
-		if (query != null && remainingVideos.size() > 0) {
-			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
-				if (remainingVideos.isEmpty()) {
-					break;
-				}
-				
-				try {
-					CLILogger.fine(format("Searching for [%s] at [%s]", query, service.getName()));
-					SearchResult searchResult = selectSearchResult(query, service.search(query), false);
-					
-					CLILogger.config(format("Retrieving subtitles for [%s]", searchResult.getName()));
-					List<SubtitleDescriptor> subtitles = service.getSubtitleList(searchResult, language.getName());
-					
-					for (File video : remainingVideos.toArray(new File[0])) {
-						for (SubtitleDescriptor descriptor : subtitles) {
-							if (isDerived(descriptor.getName(), video)) {
-								File subtitle = fetchSubtitle(descriptor, video, outputFormat, outputEncoding);
-								Analytics.trackEvent(service.getName(), "DownloadSubtitle", descriptor.getLanguageName(), 1);
-								
-								// download complete, cross this video off the list
-								remainingVideos.remove(video);
-								downloadedSubtitles.add(subtitle);
-								break;
-							}
-						}
-					}
-				} catch (Exception e) {
-					CLILogger.warning(e.getMessage());
-				}
-			}
-		}
-		
-		// no subtitles for remaining video files
-		for (File video : remainingVideos) {
-			CLILogger.warning("No matching subtitles found: " + video);
-		}
-		
-		Analytics.trackEvent("CLI", "Download", "Subtitle", downloadedSubtitles.size());
-		return downloadedSubtitles;
-	}
-	
-
-	private File fetchSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
-		// fetch subtitle archive
-		CLILogger.info(format("Fetching [%s.%s]", descriptor.getName(), descriptor.getType()));
-		ByteBuffer downloadedData = descriptor.fetch();
-		
-		// extract subtitles from archive
-		ArchiveType type = ArchiveType.forName(descriptor.getType());
-		MemoryFile subtitleFile;
-		
-		if (type != ArchiveType.UNDEFINED) {
-			// extract subtitle from archive
-			subtitleFile = type.fromData(downloadedData).iterator().next();
-		} else {
-			// assume that the fetched data is the subtitle
-			subtitleFile = new MemoryFile(descriptor.getName() + "." + descriptor.getType(), downloadedData);
-		}
-		
-		// subtitle filename is based on movie filename
-		String name = getName(movieFile);
-		String ext = getExtension(subtitleFile.getName());
-		ByteBuffer data = subtitleFile.getData();
-		
-		if (outputFormat != null || outputEncoding != null) {
-			if (outputFormat != null) {
-				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
-			}
-			
-			CLILogger.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
-			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
-		}
-		
-		File destination = new File(movieFile.getParentFile(), name + "." + ext);
-		CLILogger.config(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
-		
-		writeFile(data, destination);
-		return destination;
-	}
-	
-
 	private List<File> renameAll(Map<File, File> renameMap) throws Exception {
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
@@ -484,20 +362,192 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private List<Match<File, Episode>> match(Collection<File> files, Collection<Episode> episodes, SimilarityMetric[] sequence) throws Exception {
-		// always use strict fail-fast matcher
-		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
-		List<Match<File, Episode>> matches = matcher.match();
+	@Override
+	public List<File> getSubtitles(Collection<File> files, String query, String languageName, String output, String csn) throws Exception {
+		final Language language = getLanguage(languageName);
 		
-		for (File failedMatch : matcher.remainingValues()) {
-			CLILogger.warning("No matching episode: " + failedMatch.getName());
+		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
+		final Charset outputEncoding = (csn != null) ? Charset.forName(csn) : (output != null) ? Charset.forName("UTF-8") : null;
+		final SubtitleFormat outputFormat = (output != null) ? getSubtitleFormatByName(output) : null;
+		
+		// try to find subtitles for each video file 
+		SubtitleCollector collector = new SubtitleCollector(filter(files, VIDEO_FILES));
+		
+		if (collector.isComplete()) {
+			throw new IllegalArgumentException("No video files: " + files);
 		}
 		
-		return matches;
+		// lookup subtitles by hash
+		for (VideoHashSubtitleService service : WebServices.getVideoHashSubtitleServices()) {
+			if (collector.isComplete()) {
+				break;
+			}
+			
+			try {
+				collector.addAll(service.getName(), lookupSubtitleByHash(service, language, collector.remainingVideos()));
+			} catch (RuntimeException e) {
+				CLILogger.warning(format("Lookup by hash failed: " + e.getMessage()));
+			}
+		}
+		
+		// lookup subtitles via text search
+		if (!collector.isComplete()) {
+			// auto-detect search query
+			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), false) : singleton(query);
+			
+			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
+				if (collector.isComplete()) {
+					break;
+				}
+				
+				try {
+					collector.addAll(service.getName(), lookupSubtitleByFileName(service, querySet, language, collector.remainingVideos()));
+				} catch (RuntimeException e) {
+					CLILogger.warning(format("Search for [%s] failed: %s", query, e.getMessage()));
+				}
+			}
+		}
+		
+		// no subtitles for remaining video files
+		for (File it : collector.remainingVideos()) {
+			CLILogger.warning("No matching subtitles found: " + it);
+		}
+		
+		// download subtitles in order
+		Map<File, Callable<File>> downloadQueue = new TreeMap<File, Callable<File>>();
+		for (final Entry<String, Map<File, SubtitleDescriptor>> source : collector.subtitlesBySource().entrySet()) {
+			for (final Entry<File, SubtitleDescriptor> descriptor : source.getValue().entrySet()) {
+				downloadQueue.put(descriptor.getKey(), new Callable<File>() {
+					
+					@Override
+					public File call() throws Exception {
+						Analytics.trackEvent(source.getKey(), "DownloadSubtitle", descriptor.getValue().getLanguageName(), 1);
+						return fetchSubtitle(descriptor.getValue(), descriptor.getKey(), outputFormat, outputEncoding);
+					}
+				});
+			}
+		}
+		
+		// parallel download
+		List<File> subtitleFiles = new ArrayList<File>();
+		ExecutorService executor = Executors.newFixedThreadPool(4);
+		
+		try {
+			for (Future<File> it : executor.invokeAll(downloadQueue.values())) {
+				subtitleFiles.add(it.get());
+			}
+		} finally {
+			executor.shutdownNow();
+		}
+		
+		Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
+		return subtitleFiles;
 	}
 	
 
-	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws IllegalArgumentException {
+	private File fetchSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
+		// fetch subtitle archive
+		CLILogger.info(format("Fetching [%s]", descriptor.getPath()));
+		ByteBuffer downloadedData = descriptor.fetch();
+		
+		// extract subtitles from archive
+		ArchiveType type = ArchiveType.forName(descriptor.getType());
+		MemoryFile subtitleFile;
+		
+		if (type != ArchiveType.UNDEFINED) {
+			// extract subtitle from archive
+			subtitleFile = type.fromData(downloadedData).iterator().next();
+		} else {
+			// assume that the fetched data is the subtitle
+			subtitleFile = new MemoryFile(descriptor.getPath(), downloadedData);
+		}
+		
+		// subtitle filename is based on movie filename
+		String name = getName(movieFile);
+		String ext = getExtension(subtitleFile.getName());
+		ByteBuffer data = subtitleFile.getData();
+		
+		if (outputFormat != null || outputEncoding != null) {
+			if (outputFormat != null) {
+				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
+			}
+			
+			CLILogger.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
+			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
+		}
+		
+		File destination = new File(movieFile.getParentFile(), name + "." + ext);
+		CLILogger.config(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
+		
+		writeFile(data, destination);
+		return destination;
+	}
+	
+
+	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles) throws Exception {
+		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>(videoFiles.size());
+		CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
+		
+		for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videoFiles.toArray(new File[0]), language.getName()).entrySet()) {
+			if (it.getValue() != null && it.getValue().size() > 0) {
+				CLILogger.finest(format("Matched [%s] to [%s]", it.getKey().getName(), it.getValue().get(0).getName()));
+				subtitleByVideo.put(it.getKey(), it.getValue().get(0));
+			}
+		}
+		
+		return subtitleByVideo;
+	}
+	
+
+	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles) throws Exception {
+		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>();
+		
+		// search for and automatically select movie / show entry
+		Set<SearchResult> resultSet = new HashSet<SearchResult>();
+		for (String query : querySet) {
+			CLILogger.fine(format("Searching for [%s] at [%s]", query, service.getName()));
+			resultSet.addAll(findProbableMatches(query, service.search(query)));
+		}
+		
+		// fetch subtitles for all shows / movies and match against video files
+		if (resultSet.size() > 0) {
+			List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
+			
+			for (SearchResult it : resultSet) {
+				List<SubtitleDescriptor> list = service.getSubtitleList(it, language.getName());
+				CLILogger.config(format("Found %d subtitles for [%s] at [%s]", list.size(), it.toString(), service.getName()));
+				subtitles.addAll(list);
+			}
+			
+			// first match everything as best as possible, then filter possibly bad matches
+			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(videoFiles, subtitles, false, EpisodeMetrics.defaultSequence(true));
+			SimilarityMetric sanity = new MetricCascade(StrictEpisodeMetrics.defaultSequence(true));
+			
+			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
+				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+					CLILogger.finest(format("Matched [%s] to [%s]", it.getValue().getName(), it.getCandidate().getName()));
+					subtitleByVideo.put(it.getValue(), it.getCandidate());
+				}
+			}
+		}
+		
+		return subtitleByVideo;
+	}
+	
+
+	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) {
+		Collection<String> names = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
+		
+		if (names.isEmpty() || (strict && names.size() > 1)) {
+			throw new IllegalArgumentException("Unable to auto-select query: " + names);
+		}
+		
+		CLILogger.config("Auto-detected query: " + names);
+		return names;
+	}
+	
+
+	private Collection<SearchResult> findProbableMatches(String query, Iterable<? extends SearchResult> searchResults) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		
@@ -507,18 +557,83 @@ public class CmdlineOperations implements CmdlineInterface {
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
 			if (metric.getSimilarity(query, result.getName()) > 0.9) {
-				if (!probableMatches.containsKey(result.getName())) {
-					probableMatches.put(result.getName(), result);
+				if (!probableMatches.containsKey(result.toString())) {
+					probableMatches.put(result.toString(), result);
 				}
 			}
 		}
 		
+		return probableMatches.values();
+	}
+	
+
+	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) {
+		Collection<SearchResult> probableMatches = findProbableMatches(query, searchResults);
+		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
-			throw new IllegalArgumentException("Failed to auto-select search result: " + probableMatches.values());
+			throw new IllegalArgumentException("Failed to auto-select search result: " + probableMatches);
 		}
 		
 		// return first and only value
-		return probableMatches.values().iterator().next();
+		return probableMatches.iterator().next();
+	}
+	
+
+	private Language getLanguage(String lang) {
+		// try to look up by language code
+		Language language = Language.getLanguage(lang);
+		
+		if (language == null) {
+			// try too look up by language name
+			language = Language.getLanguageByName(lang);
+			
+			if (language == null) {
+				// unable to lookup language
+				throw new IllegalArgumentException("Illegal language code: " + lang);
+			}
+		}
+		
+		return language;
+	}
+	
+
+	private class SubtitleCollector {
+		
+		private final Map<String, Map<File, SubtitleDescriptor>> collection = new HashMap<String, Map<File, SubtitleDescriptor>>();
+		private final Set<File> remainingVideos = new TreeSet<File>();
+		
+
+		public SubtitleCollector(Collection<File> videoFiles) {
+			remainingVideos.addAll(videoFiles);
+		}
+		
+
+		public void addAll(String source, Map<File, SubtitleDescriptor> subtitles) {
+			remainingVideos.removeAll(subtitles.keySet());
+			
+			Map<File, SubtitleDescriptor> subtitlesBySource = collection.get(source);
+			if (subtitlesBySource == null) {
+				subtitlesBySource = new TreeMap<File, SubtitleDescriptor>();
+				collection.put(source, subtitlesBySource);
+			}
+			
+			subtitlesBySource.putAll(subtitles);
+		}
+		
+
+		public Map<String, Map<File, SubtitleDescriptor>> subtitlesBySource() {
+			return collection;
+		}
+		
+
+		public Collection<File> remainingVideos() {
+			return remainingVideos;
+		}
+		
+
+		public boolean isComplete() {
+			return remainingVideos.size() == 0;
+		}
 	}
 	
 
@@ -657,24 +772,6 @@ public class CmdlineOperations implements CmdlineInterface {
 	public String getMediaInfo(File file, String expression) throws Exception {
 		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
 		return format.format(new MediaBindingBean(file, file));
-	}
-	
-
-	private Language getLanguage(String lang) {
-		// try to look up by language code
-		Language language = Language.getLanguage(lang);
-		
-		if (language == null) {
-			// try too look up by language name
-			language = Language.getLanguageByName(lang);
-			
-			if (language == null) {
-				// unable to lookup language
-				throw new IllegalArgumentException("Illegal language code: " + lang);
-			}
-		}
-		
-		return language;
 	}
 	
 }

@@ -17,6 +17,11 @@ public class ByteBufferOutputStream extends OutputStream {
 	private final float loadFactor;
 	
 
+	public ByteBufferOutputStream(long initialCapacity) {
+		this((int) initialCapacity);
+	}
+	
+
 	public ByteBufferOutputStream(int initialCapacity) {
 		this(initialCapacity, 1.0f);
 	}

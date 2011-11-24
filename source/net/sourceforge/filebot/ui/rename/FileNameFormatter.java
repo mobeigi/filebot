@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import java.io.File;
 
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.vfs.AbstractFile;
+import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -21,7 +21,7 @@ class FileNameFormatter implements MatchFormatter {
 
 	@Override
 	public boolean canFormat(Match<?, ?> match) {
-		return match.getValue() instanceof File || match.getValue() instanceof AbstractFile;
+		return match.getValue() instanceof File || match.getValue() instanceof FileInfo;
 	}
 	
 
@@ -38,9 +38,9 @@ class FileNameFormatter implements MatchFormatter {
 			return preserveExtension ? FileUtilities.getName(file) : file.getName();
 		}
 		
-		if (match.getValue() instanceof AbstractFile) {
-			AbstractFile file = (AbstractFile) match.getValue();
-			return preserveExtension ? FileUtilities.getNameWithoutExtension(file.getName()) : file.getName();
+		if (match.getValue() instanceof FileInfo) {
+			FileInfo file = (FileInfo) match.getValue();
+			return preserveExtension ? file.getName() : file.getPath();
 		}
 		
 		// cannot format value

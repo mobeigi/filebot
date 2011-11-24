@@ -4,8 +4,10 @@ package net.sourceforge.filebot.web;
 
 import java.nio.ByteBuffer;
 
+import net.sourceforge.filebot.vfs.FileInfo;
 
-public interface SubtitleDescriptor {
+
+public interface SubtitleDescriptor extends FileInfo {
 	
 	String getName();
 	

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -60,12 +61,17 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		List<Node> nodes = selectNodes("id('filmSearch')/A", dom);
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
 		
+		Pattern titleSuffixPattern = Pattern.compile("\\s-\\s([^-]+)[(](\\d{4})[)]$");
+		
 		for (Node node : nodes) {
 			String title = getTextContent(node);
 			String href = getAttribute("href", node);
 			
+			// simplified name for easy matching
+			String shortName = titleSuffixPattern.matcher(title).replaceFirst("");
+			
 			try {
-				searchResults.add(new HyperLink(title, new URL("http", host, href)));
+				searchResults.add(new SubsceneSearchResult(shortName, title, new URL("http", host, href)));
 			} catch (MalformedURLException e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid href: " + href, e);
 			}
@@ -182,6 +188,30 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		return ((HyperLink) searchResult).getURI();
+	}
+	
+
+	public static class SubsceneSearchResult extends HyperLink {
+		
+		private String shortName;
+		
+
+		public SubsceneSearchResult(String shortName, String title, URL url) {
+			super(title, url);
+			this.shortName = shortName;
+		}
+		
+
+		@Override
+		public String getName() {
+			return shortName;
+		}
+		
+
+		@Override
+		public String toString() {
+			return super.getName();
+		}
 	}
 	
 }

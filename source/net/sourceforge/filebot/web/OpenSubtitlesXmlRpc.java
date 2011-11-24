@@ -141,7 +141,7 @@ public class OpenSubtitlesXmlRpc {
 				if (!matcher.find())
 					throw new IllegalArgumentException("Illegal title");
 				
-				String name = matcher.group(1).trim();
+				String name = matcher.group(1).replaceAll("\"", "").trim();
 				int year = Integer.parseInt(matcher.group(2));
 				
 				movies.add(new Movie(name, year, Integer.parseInt(imdbid)));

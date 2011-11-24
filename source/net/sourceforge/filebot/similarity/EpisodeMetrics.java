@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.vfs.AbstractFile;
+import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -213,11 +213,24 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		protected long getLength(Object object) {
-			if (object instanceof AbstractFile) {
-				return ((AbstractFile) object).getLength();
+			if (object instanceof FileInfo) {
+				return ((FileInfo) object).getLength();
 			}
 			
 			return super.getLength(object);
+		}
+	}),
+	
+	// Match by common words at the beginning of both files
+	FileName(new FileNameMetric() {
+		
+		@Override
+		protected String getFileName(Object object) {
+			if (object instanceof File || object instanceof FileInfo) {
+				return normalizeObject(object);
+			}
+			
+			return null;
 		}
 	});
 	
@@ -242,8 +255,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// use name without extension
 		if (object instanceof File) {
 			name = getName((File) object);
-		} else if (object instanceof AbstractFile) {
-			name = getNameWithoutExtension(((AbstractFile) object).getName());
+		} else if (object instanceof FileInfo) {
+			name = ((FileInfo) object).getName();
 		}
 		
 		// remove checksums, any [...] or (...)
@@ -264,7 +277,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
 		// 5. pass: match by generic numeric similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, Name, Numeric };
 		} else {
 			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
 		}

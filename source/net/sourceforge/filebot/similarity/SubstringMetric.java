@@ -7,11 +7,14 @@ public class SubstringMetric implements SimilarityMetric {
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		String s1 = normalize(o1);
-		String s2 = normalize(o2);
-		String pri = s1.length() > s2.length() ? s1 : s2;
-		String sub = s1.length() > s2.length() ? s2 : s1;
+		if (s1 == null || s1.isEmpty())
+			return 0;
 		
-		return sub.length() > 0 && pri.contains(sub) ? 1 : 0;
+		String s2 = normalize(o2);
+		if (s2 == null || s2.isEmpty())
+			return 0;
+		
+		return s1.contains(s2) || s2.contains(s1) ? 1 : 0;
 	}
 	
 

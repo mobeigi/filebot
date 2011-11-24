@@ -86,26 +86,6 @@ public final class SubtitleUtilities {
 	}
 	
 
-	public static boolean isDerived(String subtitle, File video) {
-		return isDerived(subtitle, getName(video));
-	}
-	
-
-	public static boolean isDerived(String derivate, String base) {
-		if (derivate.equalsIgnoreCase(base))
-			return true;
-		
-		while (getExtension(derivate) != null) {
-			derivate = getNameWithoutExtension(derivate);
-			
-			if (derivate.equalsIgnoreCase(base))
-				return true;
-		}
-		
-		return false;
-	}
-	
-
 	public static SubtitleFormat getSubtitleFormat(File file) {
 		for (SubtitleFormat it : SubtitleFormat.values()) {
 			if (it.getFilter().accept(file))

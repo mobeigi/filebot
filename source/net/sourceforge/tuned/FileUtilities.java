@@ -223,6 +223,31 @@ public final class FileUtilities {
 	}
 	
 
+	public static boolean isDerived(String derivate, File prime) {
+		String base = getName(prime).trim().toLowerCase();
+		derivate = derivate.trim().toLowerCase();
+		return derivate.startsWith(base);
+	}
+	
+
+	public static boolean isDerivedByExtension(String derivate, File prime) {
+		String base = getName(prime).trim().toLowerCase();
+		derivate = derivate.trim().toLowerCase();
+		
+		if (derivate.equals(base))
+			return true;
+		
+		while (derivate.length() > base.length() && getExtension(derivate) != null) {
+			derivate = getNameWithoutExtension(derivate);
+			
+			if (derivate.equals(base))
+				return true;
+		}
+		
+		return false;
+	}
+	
+
 	public static boolean containsOnly(Iterable<File> files, FileFilter filter) {
 		for (File file : files) {
 			if (!filter.accept(file))

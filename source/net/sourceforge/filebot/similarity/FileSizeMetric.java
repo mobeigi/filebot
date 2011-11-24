@@ -20,9 +20,9 @@ public class FileSizeMetric implements SimilarityMetric {
 	}
 	
 
-	protected long getLength(Object o) {
-		if (o instanceof File) {
-			return ((File) o).length();
+	protected long getLength(Object object) {
+		if (object instanceof File) {
+			return ((File) object).length();
 		}
 		
 		return -1;

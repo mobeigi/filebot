@@ -167,7 +167,7 @@ public class SubtitlePackage {
 			
 			if (archiveType == ArchiveType.UNDEFINED) {
 				// cannot extract files from archive
-				return singletonList(new MemoryFile(subtitle.getName() + '.' + subtitle.getType(), data));
+				return singletonList(new MemoryFile(subtitle.getPath(), data));
 			}
 			
 			// extract contents of the archive

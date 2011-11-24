@@ -86,6 +86,18 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
+	public String getPath() {
+		return String.format("%s.%s", getName(), getType());
+	}
+	
+
+	@Override
+	public long getLength() {
+		return -1;
+	}
+	
+
+	@Override
 	public String toString() {
 		return String.format("%s [%s]", getName(), getLanguageName());
 	}

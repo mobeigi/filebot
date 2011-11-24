@@ -22,7 +22,7 @@ import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.filebot.vfs.AbstractFile;
+import net.sourceforge.filebot.vfs.SimpleFileInfo;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FastFile;
 
@@ -146,7 +146,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			
 			try {
 				while (parser.hasNext()) {
-					values.add(new AbstractFile(parser.next().getKey().getName(), -1));
+					values.add(new SimpleFileInfo(parser.next().getKey().getName(), -1));
 				}
 			} finally {
 				parser.close();
@@ -160,7 +160,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			Torrent torrent = new Torrent(file);
 			
 			for (Torrent.Entry entry : torrent.getFiles()) {
-				values.add(new AbstractFile(entry.getName(), entry.getLength()));
+				values.add(new SimpleFileInfo(entry.getName(), entry.getLength()));
 			}
 		}
 	}

@@ -88,6 +88,12 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
+	public String getPath() {
+		return getProperty(Property.SubFileName);
+	}
+	
+
+	@Override
 	public String getName() {
 		return FileUtilities.getNameWithoutExtension(getProperty(Property.SubFileName));
 	}
@@ -105,8 +111,9 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	}
 	
 
-	public int getSize() {
-		return Integer.parseInt(getProperty(Property.SubSize));
+	@Override
+	public long getLength() {
+		return Long.parseLong(getProperty(Property.SubSize));
 	}
 	
 
@@ -126,7 +133,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		InputStream stream = new GZIPInputStream(resource.openStream());
 		
 		try {
-			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getSize());
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getLength());
 			
 			// read all
 			buffer.transferFully(stream);

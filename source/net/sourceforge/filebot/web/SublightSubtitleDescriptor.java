@@ -84,6 +84,12 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
+	public long getLength() {
+		return subtitle.getSize();
+	}
+	
+
+	@Override
 	public ByteBuffer fetch() throws Exception {
 		byte[] archive = source.getZipArchive(subtitle);
 		
@@ -94,7 +100,7 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 			// move to subtitle entry
 			ZipEntry entry = stream.getNextEntry();
 			
-			ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) entry.getSize());
+			ByteBufferOutputStream buffer = new ByteBufferOutputStream(entry.getSize());
 			
 			// read subtitle data
 			buffer.transferFully(stream);
@@ -104,6 +110,12 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 		} finally {
 			stream.close();
 		}
+	}
+	
+
+	@Override
+	public String getPath() {
+		return String.format("%s.%s", getName(), getType());
 	}
 	
 
