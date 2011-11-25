@@ -223,10 +223,20 @@ public final class FileUtilities {
 	}
 	
 
+	public static boolean isDerived(File derivate, File prime) {
+		return isDerived(getName(derivate), prime);
+	}
+	
+
 	public static boolean isDerived(String derivate, File prime) {
 		String base = getName(prime).trim().toLowerCase();
 		derivate = derivate.trim().toLowerCase();
 		return derivate.startsWith(base);
+	}
+	
+
+	public static boolean isDerivedByExtension(File derivate, File prime) {
+		return isDerivedByExtension(getName(derivate), prime);
 	}
 	
 

@@ -178,9 +178,10 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 					component.setIcon(ResourceManager.getIcon(service.getError() == null ? "database.ok" : "database.error"));
 				}
 				
-				servicePanel.setVisible(true);
 				component.setVisible(true);
 				component.setToolTipText(service.getError() == null ? null : service.getError().getMessage());
+				servicePanel.setVisible(true);
+				servicePanel.getParent().revalidate();
 			}
 		});
 		
@@ -728,6 +729,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 					if (isCancelled())
 						throw new CancellationException();
 					
+					if (remainingVideos.isEmpty())
+						break;
+					
 					Map<File, List<SubtitleDescriptorBean>> subtitleSet = new HashMap<File, List<SubtitleDescriptorBean>>();
 					
 					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, languageName).entrySet()) {
@@ -750,7 +754,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 					
 					publish(subtitleSet);
 				} catch (Exception e) {
-					Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+					Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}
 			
@@ -917,6 +921,9 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			// auto-detect query and search for subtitles
 			Collection<String> querySet = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
 			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+			if (subtitles.isEmpty()) {
+				throw new IllegalArgumentException("Unable to lookup subtitles:" + querySet);
+			}
 			
 			// first match everything as best as possible, then filter possibly bad matches
 			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, EpisodeMetrics.defaultSequence(true));
