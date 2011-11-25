@@ -3,6 +3,7 @@ package net.sourceforge.filebot.subtitle;
 
 
 import static java.lang.Math.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -12,14 +13,62 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.filebot.web.SubtitleProvider;
 
 
 public final class SubtitleUtilities {
 	
+	public static List<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<String> querySet, String languageName) throws Exception {
+		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
+		
+		// search for and automatically select movie / show entry
+		Set<SearchResult> resultSet = new HashSet<SearchResult>();
+		for (String query : querySet) {
+			resultSet.addAll(findProbableMatches(query, service.search(query), 0.9f));
+		}
+		
+		// fetch subtitles for all search results
+		for (SearchResult it : resultSet) {
+			subtitles.addAll(service.getSubtitleList(it, languageName));
+		}
+		
+		return subtitles;
+	}
+	
+
+	protected static Collection<SearchResult> findProbableMatches(String query, Iterable<? extends SearchResult> searchResults, float threshold) {
+		// auto-select most probable search result
+		Set<SearchResult> probableMatches = new LinkedHashSet<SearchResult>();
+		
+		// use name similarity metric
+		SimilarityMetric metric = new NameSimilarityMetric();
+		
+		// find probable matches using name similarity > threshold
+		for (SearchResult result : searchResults) {
+			if (metric.getSimilarity(query, result.getName()) > threshold) {
+				probableMatches.add(result);
+			}
+		}
+		
+		return probableMatches;
+	}
+	
+
 	/**
 	 * Detect charset and parse subtitle file even if extension is invalid
 	 */
@@ -108,6 +157,50 @@ public final class SubtitleUtilities {
 		}
 		
 		return null;
+	}
+	
+
+	public static String formatSubtitle(String name, String languageName, String type) {
+		StringBuilder sb = new StringBuilder(name);
+		
+		if (languageName != null) {
+			String lang = Language.getISO3LanguageCodeByName(languageName);
+			
+			if (lang == null) {
+				// we probably won't get here, but just in case
+				lang = languageName.replaceAll("\\W", "");
+			}
+			
+			sb.append('.').append(lang);
+		}
+		
+		if (type != null) {
+			sb.append('.').append(type);
+		}
+		
+		return sb.toString();
+	}
+	
+
+	public static MemoryFile fetchSubtitle(SubtitleDescriptor descriptor) throws Exception {
+		ByteBuffer data = descriptor.fetch();
+		
+		// extract subtitles from archive
+		ArchiveType type = ArchiveType.forName(descriptor.getType());
+		
+		if (type != ArchiveType.UNKOWN) {
+			// extract subtitle from archive
+			Iterator<MemoryFile> it = type.fromData(data).iterator();
+			while (it.hasNext()) {
+				MemoryFile entry = it.next();
+				if (SUBTITLE_FILES.accept(entry.getName())) {
+					return entry;
+				}
+			}
+		}
+		
+		// assume that the fetched data is the subtitle
+		return new MemoryFile(descriptor.getPath(), data);
 	}
 	
 

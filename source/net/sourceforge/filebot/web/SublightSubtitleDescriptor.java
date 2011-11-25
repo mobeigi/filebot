@@ -120,6 +120,23 @@ public class SublightSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
+	public int hashCode() {
+		return subtitle.getSubtitleID().hashCode();
+	}
+	
+
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof SublightSubtitleDescriptor) {
+			SublightSubtitleDescriptor other = (SublightSubtitleDescriptor) object;
+			return subtitle.getSubtitleID().equals(other.subtitle.getSubtitleID());
+		}
+		
+		return false;
+	}
+	
+
+	@Override
 	public String toString() {
 		return String.format("%s [%s]", getName(), getLanguageName());
 	}

@@ -146,6 +146,23 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 	
 
 	@Override
+	public int hashCode() {
+		return getProperty(Property.IDSubtitle).hashCode();
+	}
+	
+
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof OpenSubtitlesSubtitleDescriptor) {
+			OpenSubtitlesSubtitleDescriptor other = (OpenSubtitlesSubtitleDescriptor) object;
+			return getProperty(Property.IDSubtitle).equals(other.getProperty(Property.IDSubtitle));
+		}
+		
+		return false;
+	}
+	
+
+	@Override
 	public String toString() {
 		return String.format("%s [%s]", getName(), getLanguageName());
 	}

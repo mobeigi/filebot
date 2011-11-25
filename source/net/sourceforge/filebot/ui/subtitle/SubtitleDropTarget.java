@@ -32,8 +32,8 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
 
 
@@ -86,7 +86,10 @@ abstract class SubtitleDropTarget extends JButton {
 	}
 	
 
-	public abstract VideoHashSubtitleService[] getServices();
+	public abstract VideoHashSubtitleService[] getVideoHashSubtitleServices();
+	
+
+	public abstract SubtitleProvider[] getSubtitleProviders();
 	
 
 	public abstract String getQueryLanguage();
@@ -98,7 +101,11 @@ abstract class SubtitleDropTarget extends JButton {
 		// initialize download parameters
 		dialog.setVideoFiles(videoFiles.toArray(new File[0]));
 		
-		for (VideoHashSubtitleService service : getServices()) {
+		for (VideoHashSubtitleService service : getVideoHashSubtitleServices()) {
+			dialog.addSubtitleService(service);
+		}
+		
+		for (SubtitleProvider service : getSubtitleProviders()) {
 			dialog.addSubtitleService(service);
 		}
 		
@@ -108,14 +115,12 @@ abstract class SubtitleDropTarget extends JButton {
 		// initialize window properties
 		dialog.setIconImage(getImage(getIcon(DropAction.Download)));
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.pack();
+		dialog.setSize(670, 575);
 		
 		// show dialog
 		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 		dialog.setVisible(true);
 		
-		// now it's up to the user
-		Analytics.trackEvent("GUI", "LookupSubtitleByHash", getQueryLanguage(), videoFiles.size());
 		return true;
 	}
 	

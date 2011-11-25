@@ -46,7 +46,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public String getType() {
-		return getSubtitleInfo().get("typeId");
+		return null;
 	}
 	
 
@@ -87,13 +87,30 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 
 	@Override
 	public String getPath() {
-		return String.format("%s.%s", getName(), getType());
+		return String.format("%s.%s", getName(), getSubtitleInfo().get("typeId"));
 	}
 	
 
 	@Override
 	public long getLength() {
 		return -1;
+	}
+	
+
+	@Override
+	public int hashCode() {
+		return subtitlePage.getPath().hashCode();
+	}
+	
+
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof SubsceneSubtitleDescriptor) {
+			SubsceneSubtitleDescriptor other = (SubsceneSubtitleDescriptor) object;
+			return subtitlePage.getPath().equals(other.getPath());
+		}
+		
+		return false;
 	}
 	
 

@@ -165,7 +165,7 @@ public class SubtitlePackage {
 			
 			ArchiveType archiveType = ArchiveType.forName(subtitle.getType());
 			
-			if (archiveType == ArchiveType.UNDEFINED) {
+			if (archiveType == ArchiveType.UNKOWN) {
 				// cannot extract files from archive
 				return singletonList(new MemoryFile(subtitle.getPath(), data));
 			}
@@ -198,7 +198,7 @@ public class SubtitlePackage {
 					// check if file is a supported archive
 					ArchiveType type = ArchiveType.forName(FileUtilities.getExtension(file.getName()));
 					
-					if (type != ArchiveType.UNDEFINED) {
+					if (type != ArchiveType.UNKOWN) {
 						// extract nested archives recursively
 						vfs.addAll(extract(type, file.getData()));
 					}

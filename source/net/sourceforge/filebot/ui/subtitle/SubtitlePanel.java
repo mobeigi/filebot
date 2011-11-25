@@ -16,7 +16,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
@@ -51,8 +50,14 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	private final SubtitleDropTarget dropTarget = new SubtitleDropTarget() {
 		
 		@Override
-		public VideoHashSubtitleService[] getServices() {
+		public VideoHashSubtitleService[] getVideoHashSubtitleServices() {
 			return WebServices.getVideoHashSubtitleServices();
+		}
+		
+
+		@Override
+		public SubtitleProvider[] getSubtitleProviders() {
+			return WebServices.getSubtitleProviders();
 		}
 		
 
@@ -163,7 +168,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 			
-			Analytics.trackEvent("GUI", "LookupSubtitleByName", request.getLanguageName(), 1);
 			return packages;
 		}
 		

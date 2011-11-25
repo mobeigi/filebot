@@ -63,7 +63,7 @@ public class ArgumentProcessor {
 				Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 				
 				if (args.getSubtitles) {
-					List<File> subtitles = cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding);
+					List<File> subtitles = cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict);
 					files.addAll(subtitles);
 				}
 				

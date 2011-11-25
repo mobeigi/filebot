@@ -12,7 +12,7 @@ public interface CmdlineInterface {
 	List<File> rename(Collection<File> files, String query, String format, String db, String lang, boolean strict) throws Exception;
 	
 
-	List<File> getSubtitles(Collection<File> files, String query, String lang, String output, String encoding) throws Exception;
+	List<File> getSubtitles(Collection<File> files, String query, String lang, String output, String encoding, boolean strict) throws Exception;
 	
 
 	boolean check(Collection<File> files) throws Exception;

@@ -103,8 +103,7 @@ public class Language {
 			}
 		}
 		
-		// we won't get here, but just in case
-		return languageName.replaceAll("\\W", "");
+		return null;
 	}
 	
 
