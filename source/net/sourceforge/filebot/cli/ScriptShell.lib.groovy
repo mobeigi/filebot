@@ -1,19 +1,20 @@
-// static imports for this script
 import static groovy.io.FileType.*
+import static net.sourceforge.tuned.FileUtilities.*;
 
+
+File.metaClass.plus = { path -> new File(delegate, path) }
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
 File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
+File.metaClass.isDerived = { file -> isDerived(delegate, file) }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find{ c.call(it) }}
-File.metaClass.plus = { path -> new File(delegate, path) }
 
 File.metaClass.getFiles = { def files = []; traverse(type:FILES) { files += it }; return files }
 String.metaClass.getFiles = { new File(delegate).getFiles() }
 List.metaClass.getFiles = { findResults{ it.getFiles() }.flatten().unique() }
-
 
 File.metaClass.getFolders = { def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return folders }
 String.metaClass.getFolders = { new File(delegate).getFolders() }
