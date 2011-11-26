@@ -355,7 +355,7 @@ public class RenamePanel extends JComponent {
 				
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale, autodetection);
+					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale, autodetection, getWindow(RenamePanel.this));
 					
 					// remove matched files
 					for (Match<File, ?> match : matches) {

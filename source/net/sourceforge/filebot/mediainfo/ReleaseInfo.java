@@ -49,8 +49,13 @@ public class ReleaseInfo {
 	}
 	
 
-	public List<String> clean(Iterable<String> items) {
+	public List<String> clean(Iterable<String> items) throws IOException {
 		return clean(items, getVideoSourcePattern(), getCodecPattern());
+	}
+	
+
+	public String clean(String item) throws IOException {
+		return clean(item, getVideoSourcePattern(), getCodecPattern());
 	}
 	
 
@@ -59,18 +64,27 @@ public class ReleaseInfo {
 	}
 	
 
+	public String cleanRG(String item) throws IOException {
+		return clean(item, getReleaseGroupPattern(), getVideoSourcePattern(), getCodecPattern());
+	}
+	
+
 	public List<String> clean(Iterable<String> items, Pattern... blacklisted) {
-		List<String> cleaned = new ArrayList<String>();
-		
-		for (String string : items) {
-			for (Pattern it : blacklisted) {
-				string = it.matcher(string).replaceAll("");
-			}
-			
-			cleaned.add(string.replaceAll("[\\p{Punct}\\p{Space}]+", " ").trim());
+		List<String> cleanedItems = new ArrayList<String>();
+		for (String it : items) {
+			cleanedItems.add(clean(it, blacklisted));
 		}
 		
-		return cleaned;
+		return cleanedItems;
+	}
+	
+
+	public String clean(String item, Pattern... blacklisted) {
+		for (Pattern it : blacklisted) {
+			item = it.matcher(item).replaceAll("");
+		}
+		
+		return item.replaceAll("[\\p{Punct}\\p{Space}]+", " ").trim();
 	}
 	
 

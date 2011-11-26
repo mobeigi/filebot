@@ -2,6 +2,8 @@
 package net.sourceforge.tuned.ui;
 
 
+import static javax.swing.JOptionPane.*;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -15,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,6 +25,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -111,6 +115,24 @@ public final class TunedUtilities {
 
 	public static boolean isMaximized(Frame frame) {
 		return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
+	}
+	
+
+	public static String showInputDialog(final String text, final String initialValue, final String title, final Window parent) throws InvocationTargetException, InterruptedException {
+		final StringBuilder buffer = new StringBuilder();
+		SwingUtilities.invokeAndWait(new Runnable() {
+			
+			@Override
+			public void run() {
+				Object value = JOptionPane.showInputDialog(parent, text, title, PLAIN_MESSAGE, null, null, initialValue);
+				
+				if (value != null) {
+					buffer.append(value);
+				}
+			}
+		});
+		
+		return buffer.length() == 0 ? null : buffer.toString();
 	}
 	
 

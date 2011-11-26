@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -337,6 +339,24 @@ public final class FileUtilities {
 				files.add(file);
 			}
 		}
+	}
+	
+
+	public static SortedMap<File, List<File>> mapByFolder(Iterable<File> files) {
+		SortedMap<File, List<File>> map = new TreeMap<File, List<File>>();
+		
+		for (File file : files) {
+			List<File> valueList = map.get(file.getParentFile());
+			
+			if (valueList == null) {
+				valueList = new ArrayList<File>();
+				map.put(file.getParentFile(), valueList);
+			}
+			
+			valueList.add(file);
+		}
+		
+		return map;
 	}
 	
 
