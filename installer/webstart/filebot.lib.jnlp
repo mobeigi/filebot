@@ -20,6 +20,7 @@
 		<jar href="simmetrics.jar" />
 		<jar href="args4j.jar" />
 		<jar href="jna.jar" />
+		<jar href="guava.jar" />
 		<jar href="groovy.jar" />
 		<jar href="sublight-ws.jar" />
 		<jar href="xmlrpc.jar" />
