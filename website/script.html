@@ -88,8 +88,8 @@
 					<h3>Script Repository</h3>
 					<div class="description">
 					Find scripts for common tasks <a href="http://filebot.sourceforge.net/data/shell/" target="_blank">here</a>. You can just use these scripts straight 
-					away or as a reference for building your own more advanced scripts. If you think your script could be really useful to others as well 
-					then please share it in the <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=5">forums</a>.
+					away or as a reference for building your own more advanced scripts. If you wrote a really useful script 
+					please <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=5">share it with us</a>.
 					</div>
 					
 <h3 id="examples">Example Scripts</h3>
@@ -136,16 +136,17 @@
 
 					<div class="documentation">
 					<h4>Fetch subtitles for media files</h4>
-					<pre><span class="return">File[]</span> <span class="method">getSubtitles</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">lang</span>, <span class="property">output</span>, <span class="property">encoding</span>)</pre>
-					<div class="text">Download subtitles for the given files. Lookup subtitles via hash or filename as fallback.</div>
+					<pre><span class="return">File[]</span> <span class="method">getSubtitles</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">lang</span>, <span class="property">output</span>, <span class="property">encoding</span>, <span class="property">strict</span>)</pre>
+					<div class="text">Download subtitles for the given files. Lookup subtitles via hash or match by filename.</div>
 					<dl>
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>
 						<dd><span class="property">file</span> - process these media files</dd>
-						<dd><span class="property">query</span> - series/movie name</dd>
+						<dd><span class="property">query</span> - lookup subtitles by series/movie name</dd>
 						<dd><span class="property">lang</span> - subtitle language</dd>
 						<dd><span class="property">output</span> - force output format (e.g. srt)</dd>
 						<dd><span class="property">encoding</span> - force output charset</dd>
+						<dd><span class="property">strict</span> - enable matching subtitles via filename</dd>
 					</dl>
 					</div>
 					
