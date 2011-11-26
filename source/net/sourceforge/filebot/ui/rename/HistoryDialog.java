@@ -6,6 +6,7 @@ import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -503,8 +506,11 @@ class HistoryDialog extends JDialog {
 			int count = 0;
 			
 			for (Entry<File, File> entry : getRenameMap(directory).entrySet()) {
-				if (entry.getKey().renameTo(entry.getValue())) {
+				try {
+					renameFile(entry.getKey(), entry.getValue());
 					count++;
+				} catch (Exception e) {
+					Logger.getLogger(HistoryDialog.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
 			
