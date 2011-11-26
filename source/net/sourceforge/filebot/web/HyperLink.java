@@ -10,7 +10,12 @@ import java.util.Arrays;
 
 public class HyperLink extends SearchResult {
 	
-	private final URL url;
+	protected URL url;
+	
+
+	protected HyperLink() {
+		// used by serializer
+	}
 	
 
 	public HyperLink(String name, URL url) {

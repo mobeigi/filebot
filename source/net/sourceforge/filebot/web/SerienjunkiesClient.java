@@ -28,7 +28,6 @@ import net.sourceforge.filebot.ResourceManager;
 public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	private final String host = "api.serienjunkies.de";
-	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 	private final String apikey;
 	
@@ -57,7 +56,20 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws Exception {
+	public ResultCache getCache() {
+		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+	}
+	
+
+	@Override
+	public List<SearchResult> search(String query, final Locale locale) throws Exception {
+		// bypass automatic caching since search is based on locally cached data anyway
+		return fetchSearchResult(query, locale);
+	}
+	
+
+	@Override
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		LocalSearch<SerienjunkiesSearchResult> index = new LocalSearch<SerienjunkiesSearchResult>(getSeriesTitles()) {
 			
 			@Override
@@ -71,10 +83,13 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 
 	protected List<SerienjunkiesSearchResult> getSeriesTitles() throws IOException {
+		ResultCache cache = getCache();
+		
 		@SuppressWarnings("unchecked")
-		List<SerienjunkiesSearchResult> seriesList = (List) cache.getSearchResult(null);
-		if (seriesList != null)
+		List<SerienjunkiesSearchResult> seriesList = (List) cache.getSearchResult(null, Locale.ROOT);
+		if (seriesList != null) {
 			return seriesList;
+		}
 		
 		// fetch series data
 		seriesList = new ArrayList<SerienjunkiesSearchResult>();
@@ -95,23 +110,16 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		}
 		
 		// populate cache
-		cache.putSearchResult(null, seriesList);
-		
-		return seriesList;
+		return cache.putSearchResult(null, Locale.ROOT, seriesList);
 	}
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
 		
-		// try cache first
-		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), Locale.GERMAN);
-		if (episodes != null)
-			return episodes;
-		
 		// fetch episode data
-		episodes = new ArrayList<Episode>(25);
+		List<Episode> episodes = new ArrayList<Episode>(25);
 		
 		String seriesName = locale.equals(Locale.GERMAN) && series.getGermanTitle() != null ? series.getGermanTitle() : series.getMainTitle();
 		JSONObject data = (JSONObject) request("/allepisodes.php?d=" + apikey + "&q=" + series.getSeriesId());
@@ -127,9 +135,6 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			
 			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, airdate));
 		}
-		
-		// populate cache
-		cache.putEpisodeList(series.getSeriesId(), Locale.GERMAN, episodes);
 		
 		// make sure episodes are in ordered correctly
 		sortEpisodes(episodes);
@@ -223,6 +228,23 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 
 		public Date getStartDate() {
 			return startDate;
+		}
+		
+
+		@Override
+		public int hashCode() {
+			return sid;
+		}
+		
+
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof SerienjunkiesSearchResult) {
+				SerienjunkiesSearchResult other = (SerienjunkiesSearchResult) object;
+				return this.sid == other.sid;
+			}
+			
+			return false;
 		}
 	}
 	

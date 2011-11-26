@@ -7,8 +7,13 @@ import java.util.Arrays;
 
 public class Movie extends SearchResult {
 	
-	protected final int year;
-	protected final int imdbId;
+	protected int year;
+	protected int imdbId;
+	
+
+	protected Movie() {
+		// used by serializer
+	}
 	
 
 	public Movie(String name, int year, int imdbId) {

@@ -33,7 +33,6 @@ import net.sourceforge.filebot.ResourceManager;
 public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	private final String host = "anidb.net";
-	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-persistent-datasource"));
 	
 	private final String client;
 	private final int clientver;
@@ -70,7 +69,20 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
+	public ResultCache getCache() {
+		return new ResultCache(host, CacheManager.getInstance().getCache("web-persistent-datasource"));
+	}
+	
+
+	@Override
 	public List<SearchResult> search(String query, final Locale locale) throws Exception {
+		// bypass automatic caching since search is based on locally cached data anyway
+		return fetchSearchResult(query, locale);
+	}
+	
+
+	@Override
+	public List<SearchResult> fetchSearchResult(String query, final Locale locale) throws Exception {
 		LocalSearch<AnidbSearchResult> index = new LocalSearch<AnidbSearchResult>(getAnimeTitles()) {
 			
 			@Override
@@ -84,16 +96,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
 		
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
 		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
-		
-		// try cache first
-		List<Episode> episodes = cache.getEpisodeList(anime.getAnimeId(), language);
-		if (episodes != null)
-			return episodes;
 		
 		// get anime page as xml
 		Document dom = getDocument(url);
@@ -105,7 +112,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			animeTitle = selectString("//titles/title[@type='main']", dom);
 		}
 		
-		episodes = new ArrayList<Episode>(25);
+		List<Episode> episodes = new ArrayList<Episode>(25);
 		
 		for (Node node : selectNodes("//episode", dom)) {
 			Integer number = getIntegerContent("epno", node);
@@ -127,10 +134,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		sortEpisodes(episodes);
 		
 		// sanity check 
-		if (episodes.size() > 0) {
-			// populate cache
-			cache.putEpisodeList(anime.getAnimeId(), language, episodes);
-		} else {
+		if (episodes.isEmpty()) {
 			// anime page xml doesn't work sometimes
 			throw new RuntimeException(String.format("Failed to parse episode data from xml: %s (%d)", anime, anime.getAnimeId()));
 		}
@@ -163,13 +167,15 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	protected List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
+		ResultCache cache = getCache();
 		
-		@SuppressWarnings("unchecked")
-		List<AnidbSearchResult> anime = (List) cache.getSearchResult(null);
-		if (anime != null)
+		List<AnidbSearchResult> anime = (List) cache.getSearchResult(null, Locale.ROOT);
+		if (anime != null) {
 			return anime;
+		}
 		
 		// <aid>|<type>|<language>|<title>
 		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
@@ -216,9 +222,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 		
 		// populate cache
-		cache.putSearchResult(null, anime);
-		
-		return anime;
+		return cache.putSearchResult(null, Locale.ROOT, anime);
 	}
 	
 
@@ -259,6 +263,23 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		public String getOfficialTitle(String key) {
 			return officialTitle != null ? officialTitle.get(key) : null;
+		}
+		
+
+		@Override
+		public int hashCode() {
+			return aid;
+		}
+		
+
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof AnidbSearchResult) {
+				AnidbSearchResult other = (AnidbSearchResult) object;
+				return this.aid == other.aid;
+			}
+			
+			return false;
 		}
 	}
 	

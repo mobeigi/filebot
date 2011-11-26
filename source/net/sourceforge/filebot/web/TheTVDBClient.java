@@ -37,7 +37,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	private final String host = "www.thetvdb.com";
 	
 	private final Map<MirrorType, String> mirrors = new EnumMap<MirrorType, String>(MirrorType.class);
-	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 	private final String apikey;
 	
@@ -75,7 +74,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale language) throws Exception {
+	public ResultCache getCache() {
+		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+	}
+	
+
+	@Override
+	public List<SearchResult> fetchSearchResult(String query, Locale language) throws Exception {
 		// perform online search
 		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query) + "&language=" + language.getLanguage());
 		Document dom = getDocument(url);
@@ -97,12 +102,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), language);
-		
-		if (episodes != null)
-			return episodes;
 		
 		Document seriesRecord = getSeriesRecord(series, language);
 		
@@ -112,7 +113,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		List<Node> nodes = selectNodes("Data/Episode", seriesRecord);
 		
-		episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		List<Episode> specials = new ArrayList<Episode>(5);
 		
 		for (Node node : nodes) {
@@ -156,7 +157,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		// add specials at the end
 		episodes.addAll(specials);
 		
-		cache.putEpisodeList(series.getSeriesId(), language, episodes);
 		return episodes;
 	}
 	
@@ -266,7 +266,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	public static class TheTVDBSearchResult extends SearchResult {
 		
-		private final int seriesId;
+		protected int seriesId;
+		
+
+		protected TheTVDBSearchResult() {
+			// used by serializer
+		}
 		
 
 		public TheTVDBSearchResult(String seriesName, int seriesId) {
@@ -279,6 +284,22 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return seriesId;
 		}
 		
+
+		@Override
+		public int hashCode() {
+			return seriesId;
+		}
+		
+
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof TheTVDBSearchResult) {
+				TheTVDBSearchResult other = (TheTVDBSearchResult) object;
+				return this.seriesId == other.seriesId;
+			}
+			
+			return false;
+		}
 	}
 	
 

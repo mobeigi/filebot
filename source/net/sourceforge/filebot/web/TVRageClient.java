@@ -26,7 +26,6 @@ import net.sourceforge.filebot.ResourceManager;
 public class TVRageClient extends AbstractEpisodeListProvider {
 	
 	private final String host = "services.tvrage.com";
-	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 
 	@Override
@@ -42,7 +41,13 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
+	public ResultCache getCache() {
+		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+	}
+	
+
+	@Override
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
 		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query));
 		Document dom = getDocument(searchUrl);
 		
@@ -62,12 +67,8 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
 		TVRageSearchResult series = (TVRageSearchResult) searchResult;
-		
-		List<Episode> episodes = cache.getEpisodeList(series.getSeriesId(), Locale.ENGLISH);
-		if (episodes != null)
-			return episodes;
 		
 		URL episodeListUrl = new URL("http", host, "/feeds/full_show_info.php?sid=" + series.getSeriesId());
 		Document dom = getDocument(episodeListUrl);
@@ -75,7 +76,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		String seriesName = selectString("Show/name", dom);
 		Date seriesStartDate = Date.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
 		
-		episodes = new ArrayList<Episode>(25);
+		List<Episode> episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
 		
 		// episodes and specials
@@ -101,7 +102,6 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		// add specials at the end
 		episodes.addAll(specials);
 		
-		cache.putEpisodeList(series.getSeriesId(), Locale.ENGLISH, episodes);
 		return episodes;
 	}
 	
@@ -127,8 +127,13 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 
 	public static class TVRageSearchResult extends SearchResult {
 		
-		private final int showId;
-		private final String link;
+		protected int showId;
+		protected String link;
+		
+
+		protected TVRageSearchResult() {
+			// used by serializer
+		}
 		
 
 		public TVRageSearchResult(String name, int showId, String link) {
@@ -147,6 +152,22 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 			return link;
 		}
 		
+
+		@Override
+		public int hashCode() {
+			return showId;
+		}
+		
+
+		@Override
+		public boolean equals(Object object) {
+			if (object instanceof TVRageSearchResult) {
+				TVRageSearchResult other = (TVRageSearchResult) object;
+				return this.showId == other.showId;
+			}
+			
+			return false;
+		}
 	}
 	
 }

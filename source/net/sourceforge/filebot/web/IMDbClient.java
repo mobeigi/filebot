@@ -30,7 +30,6 @@ import net.sourceforge.filebot.ResourceManager;
 public class IMDbClient extends AbstractEpisodeListProvider {
 	
 	private final String host = "www.imdb.com";
-	private final ResultCache cache = new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	
 
 	@Override
@@ -46,7 +45,13 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws IOException, SAXException {
+	public ResultCache getCache() {
+		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+	}
+	
+
+	@Override
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
 		URL searchUrl = new URL("http", host, "/find?s=tt&q=" + encode(query));
 		Document dom = getHtmlDocument(openConnection(searchUrl));
 		
@@ -80,19 +85,15 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 	
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
 		Movie movie = (Movie) searchResult;
-		List<Episode> episodes = cache.getEpisodeList(movie.getImdbId(), Locale.ROOT);
-		if (episodes != null)
-			return episodes;
-		
 		Document dom = getHtmlDocument(openConnection(getEpisodeListLink(searchResult).toURL()));
 		
 		String seriesName = normalizeName(selectString("//H1/A", dom));
 		Date year = new Date(movie.getYear(), 0, 0);
 		
 		List<Node> nodes = selectNodes("//TABLE//H3/A[preceding-sibling::text()]", dom);
-		episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		
 		for (Node node : nodes) {
 			String title = getTextContent(node);
@@ -107,7 +108,6 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 			episodes.add(new Episode(seriesName, year, season, episode, title, null, null, airdate));
 		}
 		
-		cache.putEpisodeList(movie.getImdbId(), Locale.ROOT, episodes);
 		return episodes;
 	}
 	
