@@ -3,6 +3,7 @@ package net.sourceforge.filebot.mediainfo;
 
 
 import static java.util.ResourceBundle.*;
+import static java.util.concurrent.TimeUnit.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
@@ -108,12 +109,12 @@ public class ReleaseInfo {
 	}
 	
 
-	// fetch release group names online and try to update the data once per day
-	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), 24 * 60 * 60 * 1000) {
+	// fetch release group names online and try to update the data every other day
+	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), DAYS.toMillis(2)) {
 		
 		@Override
 		public String[] process(ByteBuffer data) {
-			return compile("\\s").split(Charset.forName("UTF-8").decode(data));
+			return compile("\\s+").split(Charset.forName("UTF-8").decode(data));
 		}
 	};
 	

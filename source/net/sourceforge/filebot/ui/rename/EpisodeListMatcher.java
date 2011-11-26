@@ -231,12 +231,13 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// require user input if auto-detection has failed or has been disabled 
 		if (episodes.isEmpty()) {
 			String suggestion = new SeriesNameMatcher().matchBySeasonEpisodePattern(getName(files.get(0)));
-			if (suggestion == null) {
+			if (suggestion != null) {
+				// clean media info / release group info / etc 
+				suggestion = new ReleaseInfo().cleanRG(suggestion);
+			} else {
+				// use folder name
 				suggestion = files.get(0).getParentFile().getName();
 			}
-			
-			// clean media info / release group info / etc 
-			suggestion = new ReleaseInfo().cleanRG(suggestion);
 			
 			String input = null;
 			synchronized (this) {
