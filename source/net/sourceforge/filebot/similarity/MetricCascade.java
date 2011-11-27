@@ -19,11 +19,15 @@ public class MetricCascade implements SimilarityMetric {
 	public float getSimilarity(Object o1, Object o2) {
 		float f = 0;
 		for (SimilarityMetric metric : cascade) {
-			f = max(f, metric.getSimilarity(o1, o2));
-			
-			// perfect match, ignore remaining metrics
-			if (f >= 1) {
-				return f;
+			float similarity = metric.getSimilarity(o1, o2);
+			if (abs(similarity) >= abs(f)) {
+				// perfect match, ignore remaining metrics
+				if (similarity >= 1) {
+					return similarity;
+				}
+				
+				// possible match or perfect negative match
+				f = similarity;
 			}
 		}
 		

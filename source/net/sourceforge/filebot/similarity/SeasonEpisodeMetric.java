@@ -16,23 +16,22 @@ public class SeasonEpisodeMetric implements SimilarityMetric {
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Collection<SxE> sxeVector1 = parse(o1);
-		Collection<SxE> sxeVector2 = parse(o2);
-		
-		if (sxeVector1 == null || sxeVector2 == null) {
-			// name does not match any known pattern, return numeric similarity
+		if (sxeVector1 == null || sxeVector1.isEmpty())
 			return 0;
-		}
 		
-		float similarity = 0;
+		Collection<SxE> sxeVector2 = parse(o2);
+		if (sxeVector2 == null || sxeVector2.isEmpty())
+			return 0;
 		
+		float similarity = -1;
 		for (SxE sxe1 : sxeVector1) {
 			for (SxE sxe2 : sxeVector2) {
-				if (sxe1.season == sxe2.season && sxe1.episode == sxe2.episode) {
+				if (sxe1.season >= 0 && sxe1.season == sxe2.season && sxe1.episode >= 0 && sxe1.episode == sxe2.episode) {
 					// vectors have at least one perfect episode match in common
 					return 1;
 				}
 				
-				if (sxe1.season == sxe2.season || sxe1.episode == sxe2.episode) {
+				if ((sxe1.season >= 0 && sxe1.season == sxe2.season) || (sxe1.episode >= 0 && sxe1.episode == sxe2.episode)) {
 					// at least we have a partial match
 					similarity = 0.5f;
 				}

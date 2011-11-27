@@ -106,7 +106,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by SxE and airdate
 	EpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate)),
 	
-	// Advanced episode<->file matching 
+	// Advanced episode <-> file matching
 	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)),
 	EpisodeBalancer(new SimilarityMetric() {
 		
@@ -116,7 +116,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float title = Title.getSimilarity(o1, o2);
 			
 			// 1:SxE && Title, 2:SxE
-			return (sxe * title) + (sxe / 10f);
+			return (float) ((max(sxe, 0) * title) + (floor(sxe) / 10));
 		}
 	}),
 	
@@ -281,6 +281,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		} else {
 			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
 		}
+	}
+	
+
+	public static SimilarityMetric verificationMetric() {
+		return new MetricCascade(FileSize, FileName, SeasonEpisode, AirDate, Title, Name);
 	}
 	
 }

@@ -10,13 +10,15 @@ public class FileSizeMetric implements SimilarityMetric {
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		long l1 = getLength(o1);
+		if (l1 < 0)
+			return 0;
 		
-		if (l1 >= 0 && l1 == getLength(o2)) {
-			// objects have the same non-negative length
-			return 1;
-		}
+		long l2 = getLength(o1);
+		if (l2 < 0)
+			return 0;
 		
-		return 0;
+		// objects have the same non-negative length
+		return l1 == l2 ? 1 : -1;
 	}
 	
 

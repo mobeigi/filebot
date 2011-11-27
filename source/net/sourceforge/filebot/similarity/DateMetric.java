@@ -29,9 +29,14 @@ public class DateMetric implements SimilarityMetric {
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Date d1 = parse(o1);
-		Date d2 = parse(o2);
+		if (d1 == null)
+			return 0;
 		
-		return d1 != null && d2 != null && d1.equals(d2) ? 1 : 0;
+		Date d2 = parse(o2);
+		if (d2 == null)
+			return 0;
+		
+		return d1.equals(d2) ? 1 : -1;
 	}
 	
 
