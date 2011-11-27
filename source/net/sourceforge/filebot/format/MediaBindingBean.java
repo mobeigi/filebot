@@ -82,13 +82,13 @@ public class MediaBindingBean {
 	}
 	
 
-	@Define("SxE")
+	@Define("sxe")
 	public String getSxE() {
 		return SeasonEpisode.formatSxE(getEpisode());
 	}
 	
 
-	@Define("S00E00")
+	@Define("s00e00")
 	public String getS00E00() {
 		return SeasonEpisode.formatS00E00(getEpisode());
 	}
