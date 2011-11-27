@@ -153,6 +153,10 @@ h1 .description {
 	top: -15px;
 }
 
+.social div {
+	float: right;
+}
+
 .screenshot {
 	float: right;
 	background-color: #E6E6E6;
@@ -338,8 +342,8 @@ div.screencast:hover .play {
 	float: right;
 	height: 0px;
 	position: relative;
-	right: -7px;
-	top: -3px;
+	right: -6px;
+	top: -4px;
 }
 
 #donate {
