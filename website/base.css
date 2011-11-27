@@ -149,7 +149,7 @@ h1 .description {
 .social {
 	float: right;
 	position: relative;
-	right: -10px;
+	right: -20px;
 	top: -15px;
 }
 
@@ -316,6 +316,13 @@ div.screencast:hover .play {
 	position: absolute;
 }
 
+.suggestion {
+	border: thin lightgray dotted;
+	background: GhostWhite;
+	padding: 8px;
+	margin: 25px 10px 35px 10px;
+}
+
 .metrics {
 	margin: 25px;
 	min-height: 25px;
@@ -327,11 +334,12 @@ div.screencast:hover .play {
 	text-align: center;
 }
 
-#sflogo {
-	position: relative;
-	text-align: right;
+#flattr {
+	float: right;
 	height: 0px;
-	top: -10px;
+	position: relative;
+	right: -7px;
+	top: -3px;
 }
 
 #donate {

@@ -21,20 +21,7 @@
 		</script>
 		
 		<!-- google plus one -->
-		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>		
-		
-		<!-- flattr -->
-		<script type="text/javascript">
-		/* <![CDATA[ */
-		    (function() {
-		        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
-		        s.type = 'text/javascript';
-		        s.async = true;
-		        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
-		        t.parentNode.insertBefore(s, t);
-		    })();
-		/* ]]> */
-		</script>
+		<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
 	</head>
 	<body>
 		<div class="page">
@@ -52,8 +39,8 @@
 				<div class="plusone" style="display:inline; position:relative; left:25px; top:1px">
 					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
 				</div>
-				<div class="flattr" style="display:inline">
-					<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
+				<div class="twitter" style="display:inline; position:relative; top:-1px;">
+					<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="filebot_renamer"></a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 				</div>
 			</div>
 
@@ -175,7 +162,7 @@
 					<p>
 						The project is continuously seeking for improvements, so anykind of <a onclick="_gaq.push(['_trackPageview', '/project/feedback'])" target="_blank" href="http://alternativeto.net/software/filebot/reviews">feedback</a> is more than welcome 
 						and if there's any questions or problems just start posting in the <a target="_blank" href="http://filebot.sourceforge.net/forums/">forums</a> or check the <a target="_blank" href="http://filebot.sourceforge.net/forums/viewtopic.php?f=3&t=7"><acronym title="frequently asked questions">FAQ</acronym></a>.
-						Make sure to subscribe to updates via <a onclick="_gaq.push(['_trackPageview', '/project/freshmeat'])" target="_blank" href="http://freecode.com/projects/filebot-tv-renamer">freshmeat</a> and become a fan on <a onclick="_gaq.push(['_trackPageview', '/project/facebook'])" target="_blank" href="https://www.facebook.com/filebot">facebook</a>.
+						We're social as well. Follow us on <a onclick="_gaq.push(['_trackPageview', '/project/twitter'])" target="_blank" href="https://twitter.com/#!/filebot_renamer">twitter</a> or become a fan on <a onclick="_gaq.push(['_trackPageview', '/project/facebook'])" target="_blank" href="https://www.facebook.com/filebot">facebook</a>.
 					</p>
 				</div>
 			</div>
@@ -183,10 +170,20 @@
 				<script type="text/javascript" src="http://www.ohloh.net/p/16945/widgets/project_partner_badge.js"></script>
 			</div>
 			<div class="footer">
-				<div id="sflogo">
-					<a href="http://sourceforge.net/projects/filebot">
-						<img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202747&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" />
-					</a>
+				<div id="flattr">
+					<!-- flattr -->
+					<script type="text/javascript">
+					/* <![CDATA[ */
+					    (function() {
+					        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+					        s.type = 'text/javascript';
+					        s.async = true;
+					        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+					        t.parentNode.insertBefore(s, t);
+					    })();
+					/* ]]> */
+					</script>
+					<a class="FlattrButton" rev="flattr;button:compact;" href="http://filebot.sourceforge.net"></a>
 				</div>
 				<div id="donate">
 					<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="display:inline" target="_blank">
@@ -195,8 +192,7 @@
 						<input onclick="_gaq.push(['_trackPageview', '/donate/paypal'])" type="image" src="images/donate.png" name="submit" alt="PayPal - The safer, easier way to pay online." />
 					</form>
 				</div>
-				Hosted on <a href="http://sourceforge.net">sourceforge.net</a> 
-				| Creative Commons License: Attribution-NonCommercial-ShareAlike © 2011
+				Hosted on <a href="http://sourceforge.net">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © 2011
 			</div>
 		</div>
 	</body>
