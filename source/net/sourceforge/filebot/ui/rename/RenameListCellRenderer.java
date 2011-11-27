@@ -112,7 +112,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 						if (formattedFuture.isComplexFormat()) {
 							typeRenderer.setVisible(true);
 							typeRenderer.setAlpha(1.0f);
-							typeRenderer.setText(formattedFuture.preview());
+							typeRenderer.setText(formattedFuture.getMatch().getValue().toString());
 						}
 					}
 					

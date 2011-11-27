@@ -43,10 +43,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode episode = (Episode) object;
 				
 				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
-				SxE seasonEpisode = new SxE(episode.getSeason(), episode.getEpisode());
-				SxE absoluteEpisode = new SxE(null, episode.getAbsolute());
+				SxE sxe = new SxE(episode.getSeason(), episode.getEpisode());
+				SxE abs = new SxE(null, episode.getAbsolute());
 				
-				result = seasonEpisode.equals(absoluteEpisode) ? singleton(absoluteEpisode) : asList(seasonEpisode, absoluteEpisode);
+				result = (abs.episode < 0 || sxe.equals(abs)) ? singleton(sxe) : asList(sxe, abs);
 			} else {
 				result = super.parse(object);
 			}
