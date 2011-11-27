@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.ui.rename;
 
 
+import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -19,7 +22,9 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
+import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.tuned.ui.GradientStyle;
@@ -34,16 +39,18 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private final Color noMatchGradientBeginColor = new Color(0xB7B7B7);
 	private final Color noMatchGradientEndColor = new Color(0x9A9A9A);
 	
+	private final Color warningGradientBeginColor = Color.RED;
+	private final Color warningGradientEndColor = new Color(0xDC143C);
+	
 
 	public RenameListCellRenderer(RenameModel renameModel) {
 		super(new Insets(4, 7, 4, 7));
 		
 		this.renameModel = renameModel;
-		
 		setHighlightingEnabled(false);
 		
 		setLayout(new MigLayout("insets 0, fill", "align left", "align center"));
-		add(typeRenderer, "gap rel:push, hidemode 3");
+		this.add(typeRenderer, "gap rel:push, hidemode 3");
 	}
 	
 
@@ -51,7 +58,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
-		// reset decoration
+		// reset decoration / highlighting
+		setOpaque(false);
 		setIcon(null);
 		typeRenderer.setVisible(false);
 		typeRenderer.setAlpha(1.0f);
@@ -80,6 +88,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		} else if (value instanceof FormattedFuture) {
 			// display progress icon
 			FormattedFuture formattedFuture = (FormattedFuture) value;
+			setText(formattedFuture.isDone() && !formattedFuture.isCancelled() ? formattedFuture.toString() : formattedFuture.preview());
 			
 			switch (formattedFuture.getState()) {
 				case PENDING:
@@ -89,7 +98,42 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 					setIcon(ResourceManager.getIcon("worker.started"));
 					break;
 			}
+			
+			if (renameModel.hasComplement(index)) {
+				float matchProbablity = getMatchProbablity(formattedFuture.getMatch());
+				setOpaque(true); // enable paint background
+				setBackground(derive(warningGradientBeginColor, (1 - matchProbablity) * 0.5f)); // alpha indicates match probability
+				
+				if (matchProbablity < 1) {
+					if (isSelected) {
+						setGradientColors(warningGradientBeginColor, warningGradientEndColor);
+						setIcon(ResourceManager.getIcon("status.warning"));
+						
+						if (formattedFuture.isComplexFormat()) {
+							typeRenderer.setVisible(true);
+							typeRenderer.setAlpha(1.0f);
+							typeRenderer.setText(formattedFuture.preview());
+						}
+					}
+					
+				}
+			}
 		}
+	}
+	
+
+	protected float getMatchProbablity(Match<Object, File> match) {
+		if (match.getValue() instanceof Episode) {
+			float f = verificationMetric().getSimilarity(match.getValue(), match.getCandidate());
+			return (f + 1) / 2; // normalize -1..1 to 0..1
+		}
+		
+		float f = EpisodeIdentifier.getSimilarity(match.getValue(), match.getCandidate());
+		if (f != 0) {
+			return (Math.max(f, 0)); // normalize -1..1 and boost by 0.25 (because file <-> file matches are not necessarily about Episodes)
+		}
+		
+		return 1; // assume match is OK
 	}
 	
 

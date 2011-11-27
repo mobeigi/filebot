@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -60,10 +59,8 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.similarity.StrictEpisodeMetrics;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
@@ -927,7 +924,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			
 			// first match everything as best as possible, then filter possibly bad matches
 			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, EpisodeMetrics.defaultSequence(true));
-			SimilarityMetric sanity = new MetricCascade(StrictEpisodeMetrics.defaultSequence(true));
+			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 			
 			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
 				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
@@ -936,13 +933,12 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			}
 			
 			// add other possible matches to the options
-			SimilarityMetric matchMetric = new MetricCascade(FileName, EpisodeIdentifier, Title, Name);
-			float matchSimilarity = 0.6f;
+			float minMatchSimilarity = 0.6f;
 			
 			for (File file : files) {
 				// add matching subtitles
 				for (SubtitleDescriptor it : subtitles) {
-					if (matchMetric.getSimilarity(file, it) >= matchSimilarity && !subtitlesByFile.get(file).contains(it)) {
+					if (!subtitlesByFile.get(file).contains(it) && sanity.getSimilarity(file, it) >= minMatchSimilarity) {
 						subtitlesByFile.get(file).add(it);
 					}
 				}

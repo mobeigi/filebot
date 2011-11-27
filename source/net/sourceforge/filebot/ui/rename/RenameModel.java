@@ -32,7 +32,7 @@ import net.sourceforge.tuned.ui.TunedUtilities;
 
 public class RenameModel extends MatchModel<Object, File> {
 	
-	private final FormattedFutureEventList names = new FormattedFutureEventList();
+	private final FormattedFutureEventList names = new FormattedFutureEventList(this.values());
 	
 	private final Map<Object, MatchFormatter> formatters = new LinkedHashMap<Object, MatchFormatter>();
 	
@@ -151,10 +151,9 @@ public class RenameModel extends MatchModel<Object, File> {
 		private final Executor backgroundFormatter = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		
 
-		public FormattedFutureEventList() {
-			super(values());
-			
-			source.addListEventListener(this);
+		public FormattedFutureEventList(EventList<Object> source) {
+			super(source);
+			this.source.addListEventListener(this);
 		}
 		
 
@@ -314,6 +313,11 @@ public class RenameModel extends MatchModel<Object, File> {
 		private FormattedFuture(Match<Object, File> match, MatchFormatter formatter) {
 			this.match = match;
 			this.formatter = formatter;
+		}
+		
+
+		public boolean isComplexFormat() {
+			return formatter instanceof ExpressionFormatter;
 		}
 		
 

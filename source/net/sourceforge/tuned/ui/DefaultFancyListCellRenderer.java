@@ -15,20 +15,23 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	
 	private final JLabel label = new DefaultListCellRenderer();
 	
-	
+
 	public DefaultFancyListCellRenderer() {
 		add(label);
 	}
+	
 
 	public DefaultFancyListCellRenderer(int padding) {
 		super(new Insets(padding, padding, padding, padding));
 		add(label);
 	}
+	
 
 	public DefaultFancyListCellRenderer(Insets padding) {
 		super(padding);
 		add(label);
 	}
+	
 
 	protected DefaultFancyListCellRenderer(int padding, int margin, Color selectedBorderColor) {
 		super(new Insets(padding, padding, padding, padding), new Insets(margin, margin, margin, margin), selectedBorderColor);
@@ -39,9 +42,7 @@ public class DefaultFancyListCellRenderer extends AbstractFancyListCellRenderer 
 	@Override
 	protected void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		
 		label.setOpaque(false);
-		
 		setText(String.valueOf(value));
 	}
 	

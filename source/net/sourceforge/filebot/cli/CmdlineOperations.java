@@ -46,7 +46,6 @@ import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -384,7 +383,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			try {
 				CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
 				collector.addAll(service.getName(), lookupSubtitleByHash(service, language, collector.remainingVideos()));
-			} catch (RuntimeException e) {
+			} catch (Exception e) {
 				CLILogger.warning(format("Lookup by hash failed: " + e.getMessage()));
 			}
 		}
@@ -402,7 +401,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					CLILogger.fine(format("Searching for %s at [%s]", querySet.toString(), service.getName()));
 					collector.addAll(service.getName(), lookupSubtitleByFileName(service, querySet, language, collector.remainingVideos()));
-				} catch (RuntimeException e) {
+				} catch (Exception e) {
 					CLILogger.warning(format("Search for [%s] failed: %s", querySet, e.getMessage()));
 				}
 			}
@@ -499,7 +498,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (subtitles.size() > 0) {
 			// first match everything as best as possible, then filter possibly bad matches
 			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(videoFiles, subtitles, false, EpisodeMetrics.defaultSequence(true));
-			SimilarityMetric sanity = new MetricCascade(StrictEpisodeMetrics.defaultSequence(true));
+			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 			
 			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
 				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
