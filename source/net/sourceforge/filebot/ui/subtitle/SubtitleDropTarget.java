@@ -96,7 +96,7 @@ abstract class SubtitleDropTarget extends JButton {
 	
 
 	private boolean handleDownload(List<File> videoFiles) {
-		VideoHashSubtitleDownloadDialog dialog = new VideoHashSubtitleDownloadDialog(getWindow(this));
+		SubtitleAutoMatchDialog dialog = new SubtitleAutoMatchDialog(getWindow(this));
 		
 		// initialize download parameters
 		dialog.setVideoFiles(videoFiles.toArray(new File[0]));

@@ -2,9 +2,10 @@
 package net.sourceforge.filebot.ui;
 
 
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
+
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -37,8 +38,8 @@ public class SelectDialog<T> extends JDialog {
 	private boolean valueSelected = false;
 	
 
-	public SelectDialog(Window owner, Collection<? extends T> options) {
-		super(owner, "Select", ModalityType.DOCUMENT_MODAL);
+	public SelectDialog(Component parent, Collection<? extends T> options) {
+		super(getWindow(parent), "Select", ModalityType.DOCUMENT_MODAL);
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		

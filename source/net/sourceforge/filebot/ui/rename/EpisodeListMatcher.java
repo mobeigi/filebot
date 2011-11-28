@@ -4,12 +4,13 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Window;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +57,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, final Window window) throws Exception {
+	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, final Component parent) throws Exception {
 		if (searchResults.size() == 1) {
 			return searchResults.get(0);
 		}
@@ -67,9 +68,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
 		
-		// find probable matches using name similarity > 0.9
+		// find probable matches using name similarity >= 0.9
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(normalizeName(query), normalizeName(result.getName())) > 0.9) {
+			if (metric.getSimilarity(normalizeName(query), normalizeName(result.getName())) >= 0.9) {
 				probableMatches.add(result);
 			}
 		}
@@ -85,7 +86,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			@Override
 			public SearchResult call() throws Exception {
 				// multiple results have been found, user must select one
-				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
+				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, searchResults);
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
@@ -117,12 +118,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Collection<String> detectSeriesNames(Collection<File> files) {
-		return new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
-	}
-	
-
-	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final Locale locale, final Window window) throws Exception {
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final Locale locale, final Component parent) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
@@ -135,7 +131,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					// select search result
 					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(query, results, window);
+						SearchResult selectedSearchResult = selectSearchResult(query, results, parent);
 						
 						if (selectedSearchResult != null) {
 							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, locale);
@@ -171,14 +167,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetection, final Window window) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
 		// focus on movie and subtitle files
 		final List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		final Map<File, List<File>> filesByFolder = mapByFolder(mediaFiles);
 		
 		// do matching all at once
-		if (filesByFolder.keySet().size() <= 5 || detectSeriesNames(mediaFiles).size() <= 5) {
-			return matchEpisodeSet(mediaFiles, locale, autodetection, window);
+		if (filesByFolder.keySet().size() <= 5 || detectSeriesName(mediaFiles).size() <= 5) {
+			return matchEpisodeSet(mediaFiles, locale, autodetection, parent);
 		}
 		
 		// assume that many shows will be matched, do it folder by folder
@@ -190,7 +186,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				
 				@Override
 				public List<Match<File, ?>> call() throws Exception {
-					return matchEpisodeSet(folder, locale, autodetection, window);
+					return matchEpisodeSet(folder, locale, autodetection, parent);
 				}
 			});
 		}
@@ -214,16 +210,16 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Locale locale, boolean autodetection, Window window) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Locale locale, boolean autodetection, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
 		if (autodetection) {
-			Collection<String> names = detectSeriesNames(files);
+			Collection<String> names = detectSeriesName(files);
 			if (names.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (provider) {
-					episodes = fetchEpisodeSet(names, locale, window);
+					episodes = fetchEpisodeSet(names, locale, parent);
 				}
 			}
 		}
@@ -239,15 +235,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				suggestion = files.get(0).getParentFile().getName();
 			}
 			
-			String input = null;
+			List<String> input = emptyList();
 			synchronized (this) {
-				input = showInputDialog("Enter series name:", suggestion, files.get(0).getParentFile().getName(), window);
+				input = showMultiValueInputDialog("Enter series name:", suggestion, files.get(0).getParentFile().getName(), parent);
 			}
 			
-			if (input != null) {
+			if (input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (provider) {
-					episodes = fetchEpisodeSet(singleton(input), locale, window);
+					episodes = fetchEpisodeSet(input, locale, parent);
 				}
 			}
 		}
@@ -272,5 +268,4 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		return matches;
 	}
-	
 }

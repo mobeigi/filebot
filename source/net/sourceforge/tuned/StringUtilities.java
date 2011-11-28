@@ -2,23 +2,20 @@
 package net.sourceforge.tuned;
 
 
+import static java.util.Arrays.*;
+
 import java.util.Iterator;
 
 
 public final class StringUtilities {
 	
+	public static boolean isEmptyValue(Object object) {
+		return object != null && object.toString().length() > 0;
+	}
+	
+
 	public static String join(Object[] values, CharSequence delimiter) {
-		StringBuilder sb = new StringBuilder();
-		
-		for (int i = 0; i < values.length; i++) {
-			sb.append(values[i]);
-			
-			if (i < values.length - 1) {
-				sb.append(delimiter);
-			}
-		}
-		
-		return sb.toString();
+		return join(asList(values), delimiter);
 	}
 	
 
@@ -26,10 +23,13 @@ public final class StringUtilities {
 		StringBuilder sb = new StringBuilder();
 		
 		for (Iterator<?> iterator = values.iterator(); iterator.hasNext();) {
-			sb.append(iterator.next());
-			
-			if (iterator.hasNext()) {
-				sb.append(delimiter);
+			Object value = iterator.next();
+			if (!isEmptyValue(value)) {
+				if (sb.length() > 0) {
+					sb.append(delimiter);
+				}
+				
+				sb.append(value);
 			}
 		}
 		

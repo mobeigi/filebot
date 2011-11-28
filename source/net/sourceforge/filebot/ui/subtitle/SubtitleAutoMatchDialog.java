@@ -4,8 +4,11 @@ package net.sourceforge.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
+import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -59,9 +62,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
@@ -73,7 +74,7 @@ import net.sourceforge.tuned.ui.LinkButton;
 import net.sourceforge.tuned.ui.RoundBorder;
 
 
-class VideoHashSubtitleDownloadDialog extends JDialog {
+class SubtitleAutoMatchDialog extends JDialog {
 	
 	private final JPanel hashMatcherServicePanel = createServicePanel(0xFAFAD2); // LightGoldenRodYellow
 	private final JPanel nameMatcherServicePanel = createServicePanel(0xFFEBCD); // BlanchedAlmond
@@ -85,8 +86,8 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 	private ExecutorService downloadService;
 	
 
-	public VideoHashSubtitleDownloadDialog(Window owner) {
-		super(owner, "Download Subtitles", ModalityType.MODELESS);
+	public SubtitleAutoMatchDialog(Window owner) {
+		super(owner, "Download Subtitles", ModalityType.DOCUMENT_MODAL);
 		
 		JComponent content = (JComponent) getContentPane();
 		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));
@@ -189,8 +190,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 
 	public void startQuery(String languageName) {
 		final SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
-		
-		QueryTask queryTask = new QueryTask(services, mappingModel.getVideoFiles(), languageName) {
+		QueryTask queryTask = new QueryTask(services, mappingModel.getVideoFiles(), languageName, SubtitleAutoMatchDialog.this) {
 			
 			@Override
 			protected void process(List<Map<File, List<SubtitleDescriptorBean>>> sequence) {
@@ -212,8 +212,8 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			}
 		};
 		
-		ExecutorService executor = Executors.newFixedThreadPool(1);
-		executor.submit(queryTask);
+		queryService = Executors.newFixedThreadPool(1);
+		queryService.submit(queryTask);
 	}
 	
 
@@ -232,7 +232,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		JOptionPane optionPane = new JOptionPane(message, WARNING_MESSAGE, YES_NO_CANCEL_OPTION, null, options);
 		
 		// display option dialog
-		optionPane.createDialog(VideoHashSubtitleDownloadDialog.this, "Replace").setVisible(true);
+		optionPane.createDialog(SubtitleAutoMatchDialog.this, "Replace").setVisible(true);
 		
 		// replace all
 		if (options[0] == optionPane.getValue())
@@ -277,7 +277,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 							try {
 								mapping.setSubtitleFile(get());
 							} catch (Exception e) {
-								Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
+								Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
 							}
 						}
 					});
@@ -642,7 +642,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		public String getText() {
-			return formatSubtitle(descriptor.getName(), getLanguage(), getType());
+			return formatSubtitle(descriptor.getName(), getLanguageName(), getType());
 		}
 		
 
@@ -651,8 +651,8 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		}
 		
 
-		public String getLanguage() {
-			return Language.getISO3LanguageCodeByName(descriptor.getLanguageName());
+		public String getLanguageName() {
+			return descriptor.getLanguageName();
 		}
 		
 
@@ -706,13 +706,15 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 
 	private static class QueryTask extends SwingWorker<Collection<File>, Map<File, List<SubtitleDescriptorBean>>> {
 		
+		private final Component parent;
 		private final Collection<SubtitleServiceBean> services;
 		
 		private final Collection<File> remainingVideos;
 		private final String languageName;
 		
 
-		public QueryTask(Collection<SubtitleServiceBean> services, Collection<File> videoFiles, String languageName) {
+		public QueryTask(Collection<SubtitleServiceBean> services, Collection<File> videoFiles, String languageName, Component parent) {
+			this.parent = parent;
 			this.services = services;
 			this.remainingVideos = new TreeSet<File>(videoFiles);
 			this.languageName = languageName;
@@ -722,16 +724,17 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		@Override
 		protected Collection<File> doInBackground() throws Exception {
 			for (SubtitleServiceBean service : services) {
+				if (isCancelled() || Thread.interrupted()) {
+					throw new CancellationException();
+				}
+				
+				if (remainingVideos.isEmpty()) {
+					break;
+				}
+				
 				try {
-					if (isCancelled())
-						throw new CancellationException();
-					
-					if (remainingVideos.isEmpty())
-						break;
-					
 					Map<File, List<SubtitleDescriptorBean>> subtitleSet = new HashMap<File, List<SubtitleDescriptorBean>>();
-					
-					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, languageName).entrySet()) {
+					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, languageName, parent).entrySet()) {
 						List<SubtitleDescriptorBean> subtitles = new ArrayList<SubtitleDescriptorBean>();
 						
 						// associate subtitles with services
@@ -750,8 +753,15 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 					}
 					
 					publish(subtitleSet);
+				} catch (CancellationException e) {
+					// don't ignore cancellation
+					throw e;
+				} catch (InterruptedException e) {
+					// don't ignore cancellation
+					throw e;
 				} catch (Exception e) {
-					Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
+					// log and ignore
+					Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
 				}
 			}
 			
@@ -781,9 +791,10 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 			if (descriptor.getType() == null && subtitle == null)
 				return null;
 			
+			// prefer type from descriptor because we need to know before we download the actual subtitle file
 			String base = FileUtilities.getName(video);
-			String ext = descriptor.getType() != null ? descriptor.getType() : getExtension(subtitle.getName());
-			return new File(video.getParentFile(), formatSubtitle(base, descriptor.getLanguage(), ext));
+			String ext = (descriptor.getType() != null) ? descriptor.getType() : getExtension(subtitle.getName());
+			return new File(video.getParentFile(), formatSubtitle(base, descriptor.getLanguageName(), ext));
 		}
 		
 
@@ -802,7 +813,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 				
 				return destination;
 			} catch (Exception e) {
-				Logger.getLogger(VideoHashSubtitleDownloadDialog.class.getName()).log(Level.WARNING, e.getMessage());
+				Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
 			
 			return null;
@@ -842,14 +853,14 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		}
 		
 
-		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName) throws Exception;
+		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception;
 		
 
-		public final Map<File, List<SubtitleDescriptor>> lookupSubtitles(Collection<File> files, String languageName) throws Exception {
+		public final Map<File, List<SubtitleDescriptor>> lookupSubtitles(Collection<File> files, String languageName, Component parent) throws Exception {
 			setState(StateValue.STARTED);
 			
 			try {
-				return getSubtitleList(files, languageName);
+				return getSubtitleList(files, languageName, parent);
 			} catch (Exception e) {
 				// remember error
 				error = e;
@@ -891,7 +902,7 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		@Override
-		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName) throws Exception {
+		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			return service.getSubtitleList(files.toArray(new File[0]), languageName);
 		}
 	}
@@ -909,17 +920,29 @@ class VideoHashSubtitleDownloadDialog extends JDialog {
 		
 
 		@Override
-		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName) throws Exception {
+		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
 			for (File file : files) {
 				subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
 			}
 			
 			// auto-detect query and search for subtitles
-			Collection<String> querySet = new SeriesNameMatcher().matchAll(files.toArray(new File[0]));
+			Collection<String> querySet = detectSeriesName(files);
 			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+			
+			// if auto-detection fails, ask user for input
 			if (subtitles.isEmpty()) {
-				throw new IllegalArgumentException("Unable to lookup subtitles:" + querySet);
+				// dialog may have been cancelled by now
+				if (Thread.interrupted())
+					throw new CancellationException();
+				
+				querySet = showMultiValueInputDialog("Enter series / movie names:", join(querySet, ","), service.getName(), parent);
+				subtitles = findSubtitles(service, querySet, languageName);
+				
+				// still no luck... na women ye mei banfa
+				if (subtitles.isEmpty()) {
+					throw new Exception("Unable to lookup subtitles:" + querySet);
+				}
 			}
 			
 			// first match everything as best as possible, then filter possibly bad matches

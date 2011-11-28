@@ -2,6 +2,7 @@
 package net.sourceforge.tuned.ui;
 
 
+import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 
 import java.awt.Color;
@@ -18,6 +19,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -118,7 +121,32 @@ public final class TunedUtilities {
 	}
 	
 
-	public static String showInputDialog(final String text, final String initialValue, final String title, final Window parent) throws InvocationTargetException, InterruptedException {
+	public static List<String> showMultiValueInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
+		String input = showInputDialog(text, initialValue, title, parent);
+		if (input == null || input.isEmpty()) {
+			return emptyList();
+		}
+		
+		for (char separator : new char[] { '|', ';', ',' }) {
+			if (input.indexOf(separator) >= 0) {
+				List<String> values = new ArrayList<String>();
+				for (String field : input.split(Character.toString(separator))) {
+					if (field.length() > 0) {
+						values.add(field);
+					}
+				}
+				
+				if (values.size() > 0) {
+					return values;
+				}
+			}
+		}
+		
+		return singletonList(input);
+	}
+	
+
+	public static String showInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
 		final StringBuilder buffer = new StringBuilder();
 		SwingUtilities.invokeAndWait(new Runnable() {
 			

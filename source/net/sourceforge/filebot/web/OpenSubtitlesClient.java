@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import redstone.xmlrpc.XmlRpcException;
+
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.tuned.Timer;
@@ -65,10 +67,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// require login
 		login();
 		
-		// search for movies / series
-		SearchResult[] result = xmlrpc.searchMoviesOnIMDB(query).toArray(new SearchResult[0]);
-		
-		return Arrays.asList(result);
+		try {
+			// search for movies / series
+			List<Movie> resultSet = xmlrpc.searchMoviesOnIMDB(query);
+			return Arrays.asList(resultSet.toArray(new SearchResult[0]));
+		} catch (ClassCastException e) {
+			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
+			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
+		}
 	}
 	
 

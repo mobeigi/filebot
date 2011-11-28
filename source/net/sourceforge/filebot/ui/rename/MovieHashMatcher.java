@@ -8,7 +8,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
-import java.awt.Window;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -53,7 +53,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect, Window window) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect, Component parent) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		
@@ -70,7 +70,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null || !autodetect) {
-				movie = grabMovieName(movieFiles[i], locale, autodetect, window, movie);
+				movie = grabMovieName(movieFiles[i], locale, autodetect, parent, movie);
 				
 				if (movie != null) {
 					Analytics.trackEvent(service.getName(), "SearchMovie", movie.toString(), 1);
@@ -161,7 +161,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 
-	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Window window, Movie... suggestions) throws Exception {
+	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Component parent, Movie... suggestions) throws Exception {
 		List<Movie> options = new ArrayList<Movie>();
 		
 		// add default value if any
@@ -200,7 +200,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			String input = null;
 			synchronized (this) {
-				input = showInputDialog("Enter movie name:", suggestion, options.get(0).getName(), window);
+				input = showInputDialog("Enter movie name:", suggestion, options.get(0).getName(), parent);
 			}
 			
 			if (input != null) {
@@ -210,11 +210,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		
-		return options.isEmpty() ? null : selectMovie(options, window);
+		return options.isEmpty() ? null : selectMovie(options, parent);
 	}
 	
 
-	protected Movie selectMovie(final List<Movie> options, final Window window) throws Exception {
+	protected Movie selectMovie(final List<Movie> options, final Component parent) throws Exception {
 		if (options.size() == 1) {
 			return options.get(0);
 		}
@@ -225,7 +225,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			@Override
 			public Movie call() throws Exception {
 				// multiple results have been found, user must select one
-				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(window, options);
+				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
 				
 				selectDialog.getHeaderLabel().setText("Select Movie:");
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");

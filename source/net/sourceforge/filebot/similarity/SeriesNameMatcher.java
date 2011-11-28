@@ -290,6 +290,13 @@ public class SeriesNameMatcher {
 
 		@Override
 		public boolean add(String value) {
+			value = value.trim();
+			
+			// require series name to have at least two characters
+			if (value.length() < 2) {
+				return false;
+			}
+			
 			String current = data.get(key(value));
 			
 			// prefer strings with similar upper/lower case ratio (e.g. prefer Roswell over roswell)

@@ -51,7 +51,7 @@ public final class WebServices {
 	
 
 	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles, Subscene, Sublight };
+		return new SubtitleProvider[] { OpenSubtitles, Sublight, Subscene };
 	}
 	
 
