@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -74,7 +75,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
-			throw new IllegalArgumentException("No media files: " + files);
+			throw new Exception("No media files: " + files);
 		}
 		
 		if (getEpisodeListProvider(db) != null) {
@@ -92,9 +93,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		int cws = 0; // common word sequence
 		double max = mediaFiles.size();
 		
-		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
-		String[] cwsList = (max >= 5) ? nameMatcher.matchAll(mediaFiles.toArray(new File[0])).toArray(new String[0]) : new String[0];
+		Collection<String> cwsList = emptySet();
+		if (max >= 5) {
+			cwsList = detectSeriesName(mediaFiles);
+		}
 		
+		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
 		for (File f : mediaFiles) {
 			// count SxE matches
 			if (nameMatcher.matchBySeasonEpisodePattern(f.getName()) != null) {
@@ -110,7 +114,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 		
-		CLILogger.finest(format(Locale.ROOT, "Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
+		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
 			return renameSeries(files, query, format, getEpisodeListProviders()[0], locale, strict); // use default episode db
 		} else {
@@ -130,7 +134,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
 		
 		if (episodes.isEmpty()) {
-			throw new RuntimeException("Failed to fetch episode data");
+			throw new Exception("Failed to fetch episode data");
 		}
 		
 		// similarity metrics for matching
@@ -141,7 +145,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
 		
 		if (matches.isEmpty()) {
-			throw new RuntimeException("Unable to match files to episode data");
+			throw new Exception("Unable to match files to episode data");
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
@@ -371,7 +375,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		SubtitleCollector collector = new SubtitleCollector(filter(files, VIDEO_FILES));
 		
 		if (collector.isComplete()) {
-			throw new IllegalArgumentException("No video files: " + files);
+			throw new Exception("No video files: " + files);
 		}
 		
 		// lookup subtitles by hash
@@ -512,11 +516,11 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) {
-		Collection<String> names = new SeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
+	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
+		Collection<String> names = detectSeriesName(mediaFiles);
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
-			throw new IllegalArgumentException("Unable to auto-select query: " + names);
+			throw new Exception("Unable to auto-select query: " + names);
 		}
 		
 		CLILogger.config("Auto-detected query: " + names);
@@ -544,11 +548,11 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) {
+	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
 		Collection<SearchResult> probableMatches = findProbableMatches(query, searchResults);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
-			throw new IllegalArgumentException("Failed to auto-select search result: " + probableMatches);
+			throw new Exception("Failed to auto-select search result: " + probableMatches);
 		}
 		
 		// return first and only value
@@ -556,7 +560,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private Language getLanguage(String lang) {
+	private Language getLanguage(String lang) throws Exception {
 		// try to look up by language code
 		Language language = Language.getLanguage(lang);
 		
@@ -566,7 +570,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			if (language == null) {
 				// unable to lookup language
-				throw new IllegalArgumentException("Illegal language code: " + lang);
+				throw new Exception("Illegal language code: " + lang);
 			}
 		}
 		
@@ -636,7 +640,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				root = it.getParentFile();
 			
 			if (!it.getParent().startsWith(root.getPath()))
-				throw new IllegalArgumentException("Paths don't share a common root: " + files);
+				throw new Exception("Paths don't share a common root: " + files);
 		}
 		
 		// create verification file
@@ -654,7 +658,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		if (hashType == null) {
-			throw new IllegalArgumentException("Illegal output type: " + output);
+			throw new Exception("Illegal output type: " + output);
 		}
 		
 		CLILogger.config("Using output file: " + outputFile);
@@ -668,8 +672,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		HashType type = getHashType(verificationFile);
 		
 		// check if type is supported
-		if (type == null)
-			throw new IllegalArgumentException("Unsupported format: " + verificationFile);
+		if (type == null) {
+			throw new Exception("Unsupported format: " + verificationFile);
+		}
 		
 		// add all file names from verification file
 		CLILogger.fine(format("Checking [%s]", verificationFile.getName()));

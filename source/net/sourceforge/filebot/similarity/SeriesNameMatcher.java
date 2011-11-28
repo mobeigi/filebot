@@ -28,6 +28,11 @@ import net.sourceforge.tuned.FileUtilities;
 
 public class SeriesNameMatcher {
 	
+	public static Collection<String> detectSeriesName(Collection<File> files) {
+		return new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
+	}
+	
+
 	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, 1000));
 	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
