@@ -13,7 +13,7 @@ public class FileSizeMetric implements SimilarityMetric {
 		if (l1 < 0)
 			return 0;
 		
-		long l2 = getLength(o1);
+		long l2 = getLength(o2);
 		if (l2 < 0)
 			return 0;
 		

@@ -23,6 +23,9 @@ import javax.swing.border.EmptyBorder;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.similarity.MetricCascade;
+import net.sourceforge.filebot.similarity.MetricMin;
+import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.tuned.FileUtilities;
@@ -128,7 +131,8 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			return (f + 1) / 2; // normalize -1..1 to 0..1
 		}
 		
-		float f = EpisodeIdentifier.getSimilarity(match.getValue(), match.getCandidate());
+		SimilarityMetric fsm = new MetricCascade(new MetricMin(FileSize, 0), FileName, EpisodeIdentifier);
+		float f = fsm.getSimilarity(match.getValue(), match.getCandidate());
 		if (f != 0) {
 			return (Math.max(f, 0)); // normalize -1..1 and boost by 0.25 (because file <-> file matches are not necessarily about Episodes)
 		}
