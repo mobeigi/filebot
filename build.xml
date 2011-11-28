@@ -181,7 +181,7 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="openjdk-6-jre" homepage="http://filebot.sourceforge.net" priority="optional">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" homepage="http://filebot.sourceforge.net" priority="optional">
 			<maintainer name="rednoah" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
