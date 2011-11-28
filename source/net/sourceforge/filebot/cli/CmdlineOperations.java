@@ -13,6 +13,7 @@ import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -448,6 +449,40 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
 		return subtitleFiles;
+	}
+	
+
+	public List<File> getMissingSubtitles(Collection<File> files, String query, String languageName, String output, String csn, boolean strict) throws Exception {
+		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
+			
+			// save time on repeating filesystem calls
+			private final Map<File, File[]> cache = new HashMap<File, File[]>();
+			
+
+			@Override
+			public boolean accept(File video) {
+				File[] subtitlesByFolder = cache.get(video.getParentFile());
+				if (subtitlesByFolder == null) {
+					subtitlesByFolder = video.getParentFile().listFiles(SUBTITLE_FILES);
+					cache.put(video.getParentFile(), subtitlesByFolder);
+				}
+				
+				for (File subtitle : subtitlesByFolder) {
+					if (isDerived(subtitle, video))
+						return false;
+				}
+				
+				return true;
+			}
+		});
+		
+		if (videoFiles.isEmpty()) {
+			CLILogger.info("No missing subtitles");
+			return emptyList();
+		}
+		
+		CLILogger.finest(format("Missing subtitles for %d video files", videoFiles.size()));
+		return getSubtitles(videoFiles, query, languageName, output, csn, strict);
 	}
 	
 

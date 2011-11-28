@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.security.AccessController;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.script.Bindings;
@@ -63,8 +62,9 @@ public class ArgumentProcessor {
 				Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
 				
 				if (args.getSubtitles) {
-					List<File> subtitles = cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict);
-					files.addAll(subtitles);
+					files.addAll(cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
+				} else if (args.getMissingSubtitles) {
+					files.addAll(cli.getMissingSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
 				}
 				
 				if (args.rename) {

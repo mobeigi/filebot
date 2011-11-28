@@ -15,6 +15,9 @@ public interface CmdlineInterface {
 	List<File> getSubtitles(Collection<File> files, String query, String lang, String output, String encoding, boolean strict) throws Exception;
 	
 
+	List<File> getMissingSubtitles(Collection<File> files, String query, String lang, String output, String encoding, boolean strict) throws Exception;
+	
+
 	boolean check(Collection<File> files) throws Exception;
 	
 

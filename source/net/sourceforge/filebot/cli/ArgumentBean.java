@@ -37,6 +37,9 @@ public class ArgumentBean {
 	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "fileset")
 	public boolean getSubtitles;
 	
+	@Option(name = "-get-missing-subtitles", usage = "Fetch missing subtitles", metaVar = "fileset")
+	public boolean getMissingSubtitles;
+	
 	@Option(name = "--q", usage = "Search query", metaVar = "title")
 	public String query;
 	
@@ -84,7 +87,7 @@ public class ArgumentBean {
 	
 
 	public boolean runCLI() {
-		return rename || getSubtitles || check || list || mediaInfo || script != null;
+		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || script != null;
 	}
 	
 
