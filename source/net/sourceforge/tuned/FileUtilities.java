@@ -346,11 +346,15 @@ public final class FileUtilities {
 		SortedMap<File, List<File>> map = new TreeMap<File, List<File>>();
 		
 		for (File file : files) {
-			List<File> valueList = map.get(file.getParentFile());
+			File key = file.getParentFile();
+			if (key == null) {
+				throw new IllegalArgumentException("Parent is null: " + file);
+			}
 			
+			List<File> valueList = map.get(key);
 			if (valueList == null) {
 				valueList = new ArrayList<File>();
-				map.put(file.getParentFile(), valueList);
+				map.put(key, valueList);
 			}
 			
 			valueList.add(file);

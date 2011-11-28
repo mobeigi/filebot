@@ -1,15 +1,12 @@
 import static groovy.io.FileType.*
-import static net.sourceforge.tuned.FileUtilities.*;
 
-
-File.metaClass.plus = { path -> new File(delegate, path) }
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
 File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
-File.metaClass.isDerived = { file -> isDerived(delegate, file) }
+File.metaClass.plus = { path -> new File(delegate, path) }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find{ c.call(it) }}
 
 File.metaClass.getFiles = { def files = []; traverse(type:FILES) { files += it }; return files }
@@ -23,6 +20,22 @@ List.metaClass.getFolders = { findResults{ it.getFolders() }.flatten().unique() 
 File.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
 List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
+
+
+// FileUtilities
+import static net.sourceforge.tuned.FileUtilities.*;
+
+File.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate.getName()) }
+File.metaClass.getExtension = { getExtension(delegate) }
+File.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
+File.metaClass.isDerived = { f -> isDerived(delegate, f) }
+File.metaClass.validateFileName = { validateFileName(delegate) }
+File.metaClass.validateFilePath = { validateFilePath(delegate) }
+File.metaClass.moveTo = { f -> renameFile(delegate, f) }
+
+List.metaClass.mapByFolder = { mapByFolder(delegate) }
+List.metaClass.mapByExtension = { mapByExtension(delegate) }
+
 
 
 def require(cond) { if (!cond()) throw new Exception('Require failed') }
