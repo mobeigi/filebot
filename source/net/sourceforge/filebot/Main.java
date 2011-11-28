@@ -5,6 +5,7 @@ package net.sourceforge.filebot;
 import static javax.swing.JFrame.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.CodeSource;
@@ -48,7 +49,7 @@ public class Main {
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean argumentBean = cli.parse(args);
 			
-			if (argumentBean.printHelp()) {
+			if (argumentBean.printHelp() || (GraphicsEnvironment.isHeadless() && !argumentBean.runCLI())) {
 				// just print help message and exit afterwards
 				cli.printHelp(argumentBean);
 				System.exit(0);
