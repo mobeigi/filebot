@@ -36,6 +36,10 @@ def getSubtitles(args) { args = _defaults(args)
 	_guarded { _cli.getSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
 }
 
+def getMissingSubtitles(args) { args = _defaults(args)	
+	_guarded { _cli.getMissingSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+}
+
 def check(args) {
 	_guarded { _cli.check(_files(args)) }
 }

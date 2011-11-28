@@ -4,7 +4,7 @@
  * Fetch subtitles, rename and calculate checksums for all video files
  */
 args.eachMediaFolder {
-	getSubtitles(folder:it)
+	getMissingSubtitles(folder:it)
 	rename(folder:it)
 	compute(file:it.listFiles().findAll{ it.isVideo() })
 }

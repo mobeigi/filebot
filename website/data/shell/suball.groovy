@@ -4,5 +4,5 @@
  * Get subtitles for all your media files  
  */
 args.eachMediaFolder { 
-	getSubtitles(folder:it)
+	getMissingSubtitles(folder:it)
 }
