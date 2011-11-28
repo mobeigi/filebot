@@ -51,7 +51,7 @@
 
 			<div class="social">
 				<div class="twitter" style="position:relative; top:3px;">
-					<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="filebot_renamer" data-url="http://filebot.sourceforge.net/">Tweet</a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+					<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="filebot_renamer" data-url="http://filebot.sourceforge.net/"></a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 				</div>
 				<div class="plusone" style="position:relative; left:25px; top:1px">
 					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
@@ -97,7 +97,7 @@
 <h3 id="examples">Example Scripts</h3>
 <div class="description">
 <pre><code>args.<span class="method">eachMediaFolder</span> {
-	<span class="method">getSubtitles</span>(<span class="property">folder</span>:it)
+	<span class="method">getMissingSubtitles</span>(<span class="property">folder</span>:it)
 	<span class="method">rename</span>(<span class="property">folder</span>:it)
 	<span class="method">compute</span>(<span class="property">file</span>:it.<span class="method">listFiles</span>().<span class="method">findAll</span>{ it.<span class="method">isVideo</span>() })
 }</code></pre>Fetch subtitles, rename and compute checksums for all media folders in the file hierarchy.</div>
@@ -139,7 +139,11 @@
 					<div class="documentation">
 					<h4>Fetch subtitles for media files</h4>
 					<pre><span class="return">File[]</span> <span class="method">getSubtitles</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">lang</span>, <span class="property">output</span>, <span class="property">encoding</span>, <span class="property">strict</span>)</pre>
-					<div class="text">Download subtitles for the given files. Lookup subtitles via hash or match by filename.</div>
+					<div class="text">
+						Download subtitles for the given files. Lookup subtitles via hash or match by filename. If you only want to download 
+						missing subtitles you should use <pre style="font-size:inherit;display:inline"><span class="method">getMissingSubtitles</span></pre>
+						so subtitles that have already been downloaded will not be downloaded again overridding existing subtitle files.
+					</div>
 					<dl>
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>

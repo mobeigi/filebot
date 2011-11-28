@@ -51,7 +51,7 @@
 
 			<div class="social">
 				<div class="twitter" style="position:relative; top:3px;">
-					<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="filebot_renamer" data-url="http://filebot.sourceforge.net/">Tweet</a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+					<a href="https://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="filebot_renamer" data-url="http://filebot.sourceforge.net/"></a><script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 				</div>
 				<div class="plusone" style="position:relative; left:25px; top:1px">
 					<g:plusone callback="_gaq.push(['_trackEvent','Social networking','Google Plus One',document.title])"></g:plusone>
@@ -101,12 +101,12 @@
 					</p>
 					<h3 id="subtitles">Fetch Subtitles</h3>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/episodes</span></code>
-					Fetch subtitles for the given files. Lookup matching subtitles via file hash.
+					<code><span class="cmd">filebot</span> <span class="option">-get-missing-subtitles</span> <span class="argument">path/to/episodes</span></code>
+					Fetch subtitles that are missing for the given files. Lookup matching subtitles via file hash only.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/movie</span> <span class="option">--q</span> <span class="argument">Avatar</span> <span class="option">--lang</span> <span class="argument">zh</span> <span class="option">--output</span> <span class="argument">srt</span> <span class="option">--encoding</span> <span class="argument">utf8</span></code>
-					Fetch subtitles and force output format. Lookup subtitles via file hash and given search query.
+					Fetch subtitles and force output format. Lookup subtitles via file hash or given search query.
 					</p>
 					<h3 id="verification">File Verification</h3>
 					<p>
@@ -172,6 +172,11 @@
 						<tr>
 							<td>-get-subtitles</td>
 							<td>fetch subtitles</td>
+							<td>media folder or episode/movie file</td>
+						</tr>
+						<tr>
+							<td>-get-missing-subtitles</td>
+							<td>fetch missing subtitles</td>
 							<td>media folder or episode/movie file</td>
 						</tr>
 						<tr>
