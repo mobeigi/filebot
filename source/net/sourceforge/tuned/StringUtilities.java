@@ -10,7 +10,7 @@ import java.util.Iterator;
 public final class StringUtilities {
 	
 	public static boolean isEmptyValue(Object object) {
-		return object != null && object.toString().length() > 0;
+		return object == null || object.toString().length() == 0;
 	}
 	
 
