@@ -76,10 +76,12 @@ import net.sourceforge.tuned.ui.RoundBorder;
 
 class SubtitleAutoMatchDialog extends JDialog {
 	
-	private final JPanel hashMatcherServicePanel = createServicePanel(0xFAFAD2); // LightGoldenRodYellow
-	private final JPanel nameMatcherServicePanel = createServicePanel(0xFFEBCD); // BlanchedAlmond
-	private final List<SubtitleServiceBean> services = new ArrayList<SubtitleServiceBean>();
+	private static final Color hashMatchColor = new Color(0xFAFAD2); // LightGoldenRodYellow
+	private static final Color nameMatchColor = new Color(0xFFEBCD); // BlanchedAlmond
+	private final JPanel hashMatcherServicePanel = createServicePanel(hashMatchColor);
+	private final JPanel nameMatcherServicePanel = createServicePanel(nameMatchColor);
 	
+	private final List<SubtitleServiceBean> services = new ArrayList<SubtitleServiceBean>();
 	private final JTable subtitleMappingTable = createTable();
 	
 	private ExecutorService queryService;
@@ -101,11 +103,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 	}
 	
 
-	protected JPanel createServicePanel(int color) {
+	protected JPanel createServicePanel(Color color) {
 		JPanel panel = new JPanel(new MigLayout("hidemode 3"));
 		panel.setBorder(new RoundBorder());
 		panel.setOpaque(false);
-		panel.setBackground(new Color(color));
+		panel.setBackground(color);
 		panel.setVisible(false);
 		return panel;
 	}
@@ -412,6 +414,18 @@ class SubtitleAutoMatchDialog extends JDialog {
 			setText(subtitleBean.getText());
 			setIcon(subtitleBean.getError() == null ? subtitleBean.getIcon() : ResourceManager.getIcon("status.warning"));
 			
+			if (!isSelected) {
+				float f = subtitleBean.getMatchProbability();
+				if (f < 1) {
+					setOpaque(true);
+					setBackground(nameMatchColor);
+				}
+				if (f < 0.9f) {
+					setOpaque(true);
+					setBackground(derive(Color.RED, 1 - (f * 0.75f)));
+				}
+			}
+			
 			return this;
 		}
 	}
@@ -628,6 +642,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 	private static class SubtitleDescriptorBean extends AbstractBean {
 		
+		private final File videoFile;
 		private final SubtitleDescriptor descriptor;
 		private final SubtitleServiceBean service;
 		
@@ -635,9 +650,15 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private Exception error;
 		
 
-		public SubtitleDescriptorBean(SubtitleDescriptor descriptor, SubtitleServiceBean service) {
+		public SubtitleDescriptorBean(File videoFile, SubtitleDescriptor descriptor, SubtitleServiceBean service) {
+			this.videoFile = videoFile;
 			this.descriptor = descriptor;
 			this.service = service;
+		}
+		
+
+		public float getMatchProbability() {
+			return service.getMatchProbabilty(videoFile, descriptor);
 		}
 		
 
@@ -739,7 +760,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 						
 						// associate subtitles with services
 						for (SubtitleDescriptor subtitleDescriptor : result.getValue()) {
-							subtitles.add(new SubtitleDescriptorBean(subtitleDescriptor, service));
+							subtitles.add(new SubtitleDescriptorBean(result.getKey(), subtitleDescriptor, service));
 						}
 						
 						subtitleSet.put(result.getKey(), subtitles);
@@ -853,6 +874,9 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 		
 
+		public abstract float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor);
+		
+
 		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception;
 		
 
@@ -904,6 +928,12 @@ class SubtitleAutoMatchDialog extends JDialog {
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			return service.getSubtitleList(files.toArray(new File[0]), languageName);
+		}
+		
+
+		@Override
+		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
+			return 1;
 		}
 	}
 	
@@ -968,6 +998,12 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 			
 			return subtitlesByFile;
+		}
+		
+
+		@Override
+		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
+			return EpisodeMetrics.verificationMetric().getSimilarity(videoFile, descriptor) * 0.9f;
 		}
 	}
 	
