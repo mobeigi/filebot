@@ -50,7 +50,7 @@ public class Main {
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean args = cli.parse(arguments);
 			
-			if (args.printHelp() || args.printVersion() || isHeadless()) {
+			if (args.printHelp() || args.printVersion() || (!args.runCLI() && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
 				
 				if (args.printHelp() || (!args.printVersion() && isHeadless())) {

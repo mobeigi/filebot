@@ -1,12 +1,15 @@
+// File selector methods
 import static groovy.io.FileType.*
 
+
+File.metaClass.plus = { path -> new File(delegate, path) }
+File.metaClass.listFiles = { c -> delegate.isDirectory() ? delegate.listFiles().findAll(c) : []}
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
 File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
-File.metaClass.plus = { path -> new File(delegate, path) }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find{ c.call(it) }}
 
 File.metaClass.getFiles = { def files = []; traverse(type:FILES) { files += it }; return files }
@@ -22,7 +25,7 @@ String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) 
 List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 
 
-// FileUtilities
+// File utility methods
 import static net.sourceforge.tuned.FileUtilities.*;
 
 File.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate.getName()) }
@@ -32,15 +35,31 @@ File.metaClass.isDerived = { f -> isDerived(delegate, f) }
 File.metaClass.validateFileName = { validateFileName(delegate) }
 File.metaClass.validateFilePath = { validateFilePath(delegate) }
 File.metaClass.moveTo = { f -> renameFile(delegate, f) }
-
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 
+// Shell helper
+import static com.sun.jna.Platform.*;
+
+def run(String... cmd) {
+	cmd = cmd.toList()
+	if (isWindows()) {
+		cmd = ["cmd", "/c"] + cmd;
+	}
+	
+	// run command and print output
+	def process = cmd.execute()
+	process.waitForProcessOutput(System.out, System.err)
+	
+	return process.exitValue()
+}
 
 
+// Script helper
 def require(cond) { if (!cond()) throw new Exception('Require failed') }
 
 
+// CLI bindings
 def rename(args) { args = _defaults(args)
 	_guarded { _cli.rename(_files(args), args.query, args.format, args.db, args.lang, args.strict) }
 }
