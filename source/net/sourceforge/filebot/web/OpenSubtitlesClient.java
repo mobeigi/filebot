@@ -3,6 +3,7 @@ package net.sourceforge.filebot.web;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -106,26 +107,29 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		List<Query> queryList = new ArrayList<Query>(files.length);
 		
 		for (File file : files) {
-			String movieHash = OpenSubtitlesHasher.computeHash(file);
-			
 			// add query
-			queryList.add(Query.forHash(movieHash, file.length(), languageFilter));
+			if (file.length() > HASH_CHUNK_SIZE) {
+				String movieHash = computeHash(file);
+				queryList.add(Query.forHash(movieHash, file.length(), languageFilter));
+				hashMap.put(movieHash, file);
+			}
 			
 			// prepare result map
-			hashMap.put(movieHash, file);
 			resultMap.put(file, new LinkedList<SubtitleDescriptor>());
 		}
 		
-		// require login
-		login();
-		
-		// submit query and map results to given files
-		for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(queryList)) {
-			// get file for hash
-			File file = hashMap.get(subtitle.getMovieHash());
+		if (queryList.size() > 0) {
+			// require login
+			login();
 			
-			// add subtitle
-			resultMap.get(file).add(subtitle);
+			// submit query and map results to given files
+			for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(queryList)) {
+				// get file for hash
+				File file = hashMap.get(subtitle.getMovieHash());
+				
+				// add subtitle
+				resultMap.get(file).add(subtitle);
+			}
 		}
 		
 		return resultMap;
@@ -180,19 +184,20 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		Map<String, Integer> indexMap = new HashMap<String, Integer>(movieFiles.length);
 		
 		for (int i = 0; i < movieFiles.length; i++) {
-			String hash = OpenSubtitlesHasher.computeHash(movieFiles[i]);
-			
-			// remember original index
-			indexMap.put(hash, i);
+			if (movieFiles[i].length() > HASH_CHUNK_SIZE) {
+				indexMap.put(computeHash(movieFiles[i]), i); // remember original index
+			}
 		}
 		
-		// require login
-		login();
-		
-		// dispatch single query for all hashes
-		for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
-			int index = indexMap.get(entry.getKey());
-			result[index] = entry.getValue();
+		if (indexMap.size() > 0) {
+			// require login
+			login();
+			
+			// dispatch single query for all hashes
+			for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
+				int index = indexMap.get(entry.getKey());
+				result[index] = entry.getValue();
+			}
 		}
 		
 		return result;

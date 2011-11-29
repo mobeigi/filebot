@@ -24,7 +24,7 @@ public final class OpenSubtitlesHasher {
 	/**
 	 * Size of the chunks that will be hashed in bytes (64 KB)
 	 */
-	private static final int HASH_CHUNK_SIZE = 64 * 1024;
+	public static final int HASH_CHUNK_SIZE = 64 * 1024;
 	
 
 	public static String computeHash(File file) throws IOException {
