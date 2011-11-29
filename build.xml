@@ -170,8 +170,8 @@
 
 
 	<target name="deb" depends="fatjar" description="Build debian package for i386 and amd64">
-		<taskdef resource="ant_deb_task.properties" classpath="${dir.installer}/deb/ant-deb.jar" />
-
+		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
+		
 		<antcall target="deb-arch">
 			<param name="arch" value="i386" />
 		</antcall>
@@ -181,7 +181,7 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" homepage="http://filebot.sourceforge.net" priority="optional">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" suggests="openjdk-7-jre" homepage="http://filebot.sourceforge.net" priority="optional">
 			<maintainer name="rednoah" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
