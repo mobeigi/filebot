@@ -41,8 +41,9 @@ List.metaClass.mapByExtension = { mapByExtension(delegate) }
 // Shell helper
 import static com.sun.jna.Platform.*;
 
-def run(String... cmd) {
-	cmd = cmd.toList()
+def execute(String... args) {
+	def cmd = args.toList()
+	
 	if (isWindows()) {
 		cmd = ["cmd", "/c"] + cmd;
 	}
