@@ -63,7 +63,7 @@ public class Main {
 			
 			if (args.clearUserData()) {
 				// clear preferences and cache
-				System.out.println("Reset preferences and clear cache.");
+				System.out.println("Reset preferences and clear cache");
 				Settings.forPackage(Main.class).clear();
 				CacheManager.getInstance().clearAll();
 			}

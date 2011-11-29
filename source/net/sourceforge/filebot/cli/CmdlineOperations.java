@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -198,13 +199,16 @@ public class CmdlineOperations implements CmdlineInterface {
 					
 					// select search result
 					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(query, results, strict);
+						List<SearchResult> selectedSearchResults = selectSearchResult(query, results, strict);
 						
-						if (selectedSearchResult != null) {
-							CLILogger.fine(format("Fetching episode data for [%s]", selectedSearchResult.getName()));
-							List<Episode> episodes = db.getEpisodeList(selectedSearchResult, locale);
+						if (selectedSearchResults != null) {
+							List<Episode> episodes = new ArrayList<Episode>();
+							for (SearchResult it : selectedSearchResults) {
+								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
+								episodes.addAll(db.getEpisodeList(it, locale));
+								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
+							}
 							
-							Analytics.trackEvent(db.getName(), "FetchEpisodeList", selectedSearchResult.getName());
 							return episodes;
 						}
 					}
@@ -258,7 +262,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// use user query if search by hash did not return any results, only one query for one movie though
 		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
-			movieDescriptors[0] = (Movie) selectSearchResult(query, db.searchMovie(query, locale), strict);
+			movieDescriptors[0] = (Movie) selectSearchResult(query, db.searchMovie(query, locale), strict).get(0);
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
@@ -563,35 +567,48 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 
-	private Collection<SearchResult> findProbableMatches(String query, Iterable<? extends SearchResult> searchResults) {
+	private List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		
 		// use name similarity metric
-		SimilarityMetric metric = new NameSimilarityMetric();
+		final SimilarityMetric metric = new NameSimilarityMetric();
 		
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(query, result.getName()) > 0.9) {
+			float f = metric.getSimilarity(query, result.getName());
+			if (f >= 0.9 || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
 				if (!probableMatches.containsKey(result.toString())) {
 					probableMatches.put(result.toString(), result);
 				}
 			}
 		}
 		
-		return probableMatches.values();
+		// sort results by similarity to query
+		List<SearchResult> results = new ArrayList<SearchResult>(probableMatches.values());
+		sort(results, new Comparator<SearchResult>() {
+			
+			@Override
+			public int compare(SearchResult o1, SearchResult o2) {
+				float f1 = metric.getSimilarity(o1.getName(), query);
+				float f2 = metric.getSimilarity(o2.getName(), query);
+				return f1 > f2 ? f1 == f2 ? 0 : -1 : 1;
+			}
+		});
+		
+		return results;
 	}
 	
 
-	private SearchResult selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
-		Collection<SearchResult> probableMatches = findProbableMatches(query, searchResults);
+	private List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
+		List<SearchResult> probableMatches = findProbableMatches(query, searchResults);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
 			throw new Exception("Failed to auto-select search result: " + probableMatches);
 		}
 		
 		// return first and only value
-		return probableMatches.iterator().next();
+		return probableMatches;
 	}
 	
 
@@ -773,7 +790,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		EpisodeListProvider service = (db == null) ? TVRage : getEpisodeListProvider(db);
 		Locale locale = getLanguage(languageName).toLocale();
 		
-		SearchResult hit = selectSearchResult(query, service.search(query, locale), false);
+		SearchResult hit = selectSearchResult(query, service.search(query, locale), false).get(0);
 		List<String> episodes = new ArrayList<String>();
 		
 		for (Episode it : service.getEpisodeList(hit, locale)) {
