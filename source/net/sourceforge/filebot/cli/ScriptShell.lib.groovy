@@ -2,7 +2,7 @@
 import static groovy.io.FileType.*
 
 
-File.metaClass.plus = { path -> new File(delegate, path) }
+File.metaClass.node = { path -> new File(delegate, path) }
 File.metaClass.listFiles = { c -> delegate.isDirectory() ? delegate.listFiles().findAll(c) : []}
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
@@ -29,6 +29,7 @@ List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isV
 import static net.sourceforge.tuned.FileUtilities.*;
 
 File.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate.getName()) }
+File.metaClass.getPathWithoutExtension = { new File(delegate.getParentFile(), getNameWithoutExtension(delegate.getName())).getPath() }
 File.metaClass.getExtension = { getExtension(delegate) }
 File.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
 File.metaClass.isDerived = { f -> isDerived(delegate, f) }
@@ -46,10 +47,11 @@ def execute(String... args) {
 		_log.severe("Execute failed: Script is not trusted");
 		return -1
 	}
-		
+	
 	def cmd = args.toList()
 	if (isWindows()) {
-		cmd = ["cmd", "/c"] + cmd;
+		// normalize file separator for windows and run with cmd so any executable in PATH will just work
+		cmd = ['cmd', '/c'] + cmd*.replace('/','\\')
 	}
 	
 	// run command and print output

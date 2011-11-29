@@ -7,12 +7,9 @@ def movieFormat = "X:/out/Movies/{movie}/{movie}"
 
 def exclude(f) { f =~ /\p{Punct}(chunk|part)/ }
 
-// run cmdline unrar / unzip (require -trust-script)
-[episodeDir, movieDir].getFiles().findAll{ !exclude(it) && it.hasExtension('zip') }.each {
-	execute("unzip", it.getAbsolutePath());
-}
+// run cmdline unrar (require -trust-script)
 [episodeDir, movieDir].getFiles().findAll{ !exclude(it) && it.hasExtension('rar') }.each {
-	execute("unrar", "-x", it.getAbsolutePath());
+	execute("unrar", "x", "-y", it.getAbsolutePath(), it.getPathWithoutExtension() + "/")
 }
 
 /*

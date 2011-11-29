@@ -4,6 +4,7 @@ package net.sourceforge.filebot.cli;
 
 import static net.sourceforge.filebot.cli.CLILogging.*;
 
+import java.io.File;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
 import java.net.SocketPermission;
@@ -52,6 +53,7 @@ class ScriptShell {
 
 	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc) {
 		Bindings bindings = new SimpleBindings();
+		bindings.put("_script", new File(args.script));
 		bindings.put("_cli", PrivilegedInvocation.newProxy(CmdlineInterface.class, cli, acc));
 		bindings.put("_args", args);
 		bindings.put("_types", MediaTypes.getDefault());
