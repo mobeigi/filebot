@@ -5,6 +5,6 @@
  */
 args.eachMediaFolder {
 	getMissingSubtitles(folder:it)
-	rename(folder:it)
-	compute(file:it.listFiles().findAll{ it.isVideo() })
+	def renamedFiles = rename(folder:it)
+	compute(file:renamedFiles.findAll{ it.isVideo() })
 }

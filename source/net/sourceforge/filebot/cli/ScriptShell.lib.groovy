@@ -42,8 +42,12 @@ List.metaClass.mapByExtension = { mapByExtension(delegate) }
 import static com.sun.jna.Platform.*;
 
 def execute(String... args) {
+	if (!_args.trustScript) {
+		_log.severe("Execute failed: Script is not trusted");
+		return -1
+	}
+		
 	def cmd = args.toList()
-	
 	if (isWindows()) {
 		cmd = ["cmd", "/c"] + cmd;
 	}

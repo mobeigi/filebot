@@ -1,33 +1,39 @@
 // Settings
-def source = "X:/source"
-def target = "Y:/target"
+def episodeDir = "X:/in/TV"
+def movieDir = "X:/in/Movies"
 
-def episodeFormat = "{n}{'/Season '+s}/{episode}"
-def movieFormat = "{movie}/{movie}"
+def episodeFormat = "X:/out/TV/{n}{'/Season '+s}/{episode}"
+def movieFormat = "X:/out/Movies/{movie}/{movie}"
 
-def exclude(file) {
-	file =~ /\p{Punct}chunk/
+def exclude(f) { f =~ /\p{Punct}(chunk|part)/ }
+
+// run cmdline unrar / unzip (require -trust-script)
+[episodeDir, movieDir].getFiles().findAll{ !exclude(it) && it.hasExtension('zip') }.each {
+	execute("unzip", it.getAbsolutePath());
+}
+[episodeDir, movieDir].getFiles().findAll{ !exclude(it) && it.hasExtension('rar') }.each {
+	execute("unrar", "-x", it.getAbsolutePath());
 }
 
 /*
  * Fetch subtitles and sort into folders
  */
-"$source/TV".eachMediaFolder() { dir ->
+episodeDir.eachMediaFolder() { dir ->
 	def files = dir.listFiles { !exclude(it) }
 	
 	// fetch subtitles
 	files += getSubtitles(file:files)
 	
 	// sort episodes / subtitles
-	rename(file:files, db:'TVRage', format:"$target/TV/$episodeFormat")
+	rename(file:files, db:'TVRage', format:episodeFormat)
 }
 
-"$source/Movies".eachMediaFolder() { dir ->
+movieDir.eachMediaFolder() { dir ->
 	def files = dir.listFiles { !exclude(it) }
 	
 	// fetch subtitles
 	files += getSubtitles(file:files)
 	
 	// sort movies / subtitles
-	rename(file:files, db:'TheMovieDB', format:"$target/Movies/$movieFormat")
+	rename(file:files, db:'OpenSubtitles', format:movieFormat)
 }
