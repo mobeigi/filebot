@@ -14,6 +14,11 @@ public final class StringUtilities {
 	}
 	
 
+	public static String joinBy(CharSequence delimiter, Object... values) {
+		return join(asList(values), delimiter);
+	}
+	
+
 	public static String join(Object[] values, CharSequence delimiter) {
 		return join(asList(values), delimiter);
 	}

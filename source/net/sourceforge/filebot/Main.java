@@ -2,10 +2,11 @@
 package net.sourceforge.filebot;
 
 
+import static java.awt.GraphicsEnvironment.*;
 import static javax.swing.JFrame.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
-import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.CodeSource;
@@ -39,7 +40,7 @@ public class Main {
 	/**
 	 * @param args
 	 */
-	public static void main(String... args) throws Exception {
+	public static void main(String... arguments) throws Exception {
 		// initialize this stuff before anything else
 		initializeCache();
 		initializeSecurityManager();
@@ -47,15 +48,20 @@ public class Main {
 		try {
 			// parse arguments
 			final ArgumentProcessor cli = new ArgumentProcessor();
-			final ArgumentBean argumentBean = cli.parse(args);
+			final ArgumentBean args = cli.parse(arguments);
 			
-			if (argumentBean.printHelp() || (GraphicsEnvironment.isHeadless() && !argumentBean.runCLI())) {
-				// just print help message and exit afterwards
-				cli.printHelp(argumentBean);
+			if (args.printHelp() || args.printVersion() || isHeadless()) {
+				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
+				
+				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
+					cli.printHelp(args);
+				}
+				
+				// just print help message or version string and then exit
 				System.exit(0);
 			}
 			
-			if (argumentBean.clearUserData()) {
+			if (args.clearUserData()) {
 				// clear preferences and cache
 				System.out.println("Reset preferences and clear cache.");
 				Settings.forPackage(Main.class).clear();
@@ -63,11 +69,11 @@ public class Main {
 			}
 			
 			// initialize analytics
-			Analytics.setEnabled(!argumentBean.disableAnalytics);
+			Analytics.setEnabled(!args.disableAnalytics);
 			
 			// CLI mode => run command-line interface and then exit
-			if (argumentBean.runCLI()) {
-				int status = cli.process(argumentBean, new CmdlineOperations());
+			if (args.runCLI()) {
+				int status = cli.process(args, new CmdlineOperations());
 				System.exit(status);
 			}
 			
@@ -83,7 +89,7 @@ public class Main {
 						Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
 					}
 					
-					startUserInterface(argumentBean);
+					startUserInterface(args);
 				}
 			});
 		} catch (CmdLineException e) {

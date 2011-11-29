@@ -2,9 +2,16 @@
 package net.sourceforge.filebot;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
+import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -129,4 +136,26 @@ public final class Settings {
 			throw ExceptionUtilities.asRuntimeException(e);
 		}
 	}
+	
+
+	public static String getApplicationIdentifier() {
+		String rev = null;
+		try {
+			Manifest manifest = new Manifest(Settings.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
+			rev = manifest.getMainAttributes().getValue("Built-Revision");
+		} catch (IOException e) {
+			Logger.getLogger(Settings.class.getName()).log(Level.WARNING, e.getMessage());
+		}
+		
+		return joinBy(" ", getApplicationName(), getApplicationVersion(), String.format("(r%s)", rev != null ? rev : 0));
+	}
+	
+
+	public static String getJavaRuntimeIdentifier() {
+		String name = System.getProperty("java.runtime.name");
+		String version = System.getProperty("java.version");
+		String headless = GraphicsEnvironment.isHeadless() ? "(headless)" : null;
+		return joinBy(" ", name, version, headless);
+	}
+	
 }

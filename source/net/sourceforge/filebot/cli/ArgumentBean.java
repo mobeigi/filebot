@@ -61,7 +61,7 @@ public class ArgumentBean {
 	@Option(name = "-mediainfo", usage = "Get media info")
 	public boolean mediaInfo = false;
 	
-	@Option(name = "-script", usage = "Run Groovy script")
+	@Option(name = "-script", usage = "Run Groovy script", metaVar = "robot.groovy")
 	public String script = null;
 	
 	@Option(name = "-trust-script", usage = "Lift scripting restrictions")
@@ -79,6 +79,9 @@ public class ArgumentBean {
 	@Option(name = "-no-analytics", usage = "Disable analytics")
 	public boolean disableAnalytics = false;
 	
+	@Option(name = "-version", usage = "Print version identifier")
+	public boolean version = false;
+	
 	@Option(name = "-help", usage = "Print this help message")
 	public boolean help = false;
 	
@@ -93,6 +96,11 @@ public class ArgumentBean {
 
 	public boolean openSFV() {
 		return open && containsOnly(getFiles(false), MediaTypes.getDefaultFilter("verification"));
+	}
+	
+
+	public boolean printVersion() {
+		return version;
 	}
 	
 
