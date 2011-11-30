@@ -200,7 +200,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			String input = null;
 			synchronized (this) {
-				input = showInputDialog("Enter movie name:", suggestion, options.get(0).getName(), parent);
+				input = showInputDialog("Enter movie name:", suggestion, searchQueries.iterator().next(), parent);
 			}
 			
 			if (input != null) {
