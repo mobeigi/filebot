@@ -62,10 +62,6 @@ def execute(String... args) {
 }
 
 
-// Script helper
-def require(cond) { if (!cond()) throw new Exception('Require failed') }
-
-
 // CLI bindings
 def rename(args) { args = _defaults(args)
 	_guarded { _cli.rename(_files(args), args.query, args.format, args.db, args.lang, args.strict) }
