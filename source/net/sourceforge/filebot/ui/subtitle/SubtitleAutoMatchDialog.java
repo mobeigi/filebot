@@ -160,7 +160,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 	
 
 	public void addSubtitleService(SubtitleProvider service) {
-		addSubtitleService(new SubtitleProviderBean(service), nameMatcherServicePanel);
+		addSubtitleService(new SubtitleProviderBean(service, this), nameMatcherServicePanel);
 	}
 	
 
@@ -187,6 +187,20 @@ class SubtitleAutoMatchDialog extends JDialog {
 		
 		services.add(service);
 		servicePanel.add(component);
+	}
+	
+
+	// remember last user input
+	private List<String> userQuery = new ArrayList<String>();
+	
+
+	protected List<String> getUserQuery(String suggestion, String title, Component parent) throws Exception {
+		synchronized (userQuery) {
+			if (userQuery.isEmpty()) {
+				userQuery.addAll(showMultiValueInputDialog("Enter series / movie names:", suggestion, title, parent));
+			}
+			return userQuery;
+		}
 	}
 	
 
@@ -940,12 +954,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 	protected static class SubtitleProviderBean extends SubtitleServiceBean {
 		
+		private SubtitleAutoMatchDialog inputProvider;
 		private SubtitleProvider service;
 		
 
-		public SubtitleProviderBean(SubtitleProvider service) {
+		public SubtitleProviderBean(SubtitleProvider service, SubtitleAutoMatchDialog inputProvider) {
 			super(service.getName(), service.getIcon(), service.getLink());
 			this.service = service;
+			this.inputProvider = inputProvider;
 		}
 		
 
@@ -966,7 +982,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				if (Thread.interrupted())
 					throw new CancellationException();
 				
-				querySet = showMultiValueInputDialog("Enter series / movie names:", join(querySet, ","), service.getName(), parent);
+				querySet = inputProvider.getUserQuery(join(querySet, ","), service.getName(), parent);
 				subtitles = findSubtitles(service, querySet, languageName);
 				
 				// still no luck... na women ye mei banfa

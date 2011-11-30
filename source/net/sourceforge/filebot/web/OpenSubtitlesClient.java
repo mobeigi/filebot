@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 
@@ -122,13 +123,19 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			// require login
 			login();
 			
-			// submit query and map results to given files
-			for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(queryList)) {
-				// get file for hash
-				File file = hashMap.get(subtitle.getMovieHash());
+			// dispatch query for all hashes
+			int batchSize = 50;
+			for (int bn = 0; bn < ceil((float) queryList.size() / batchSize); bn++) {
+				List<Query> batch = queryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, queryList.size()));
 				
-				// add subtitle
-				resultMap.get(file).add(subtitle);
+				// submit query and map results to given files
+				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
+					// get file for hash
+					File file = hashMap.get(subtitle.getMovieHash());
+					
+					// add subtitle
+					resultMap.get(file).add(subtitle);
+				}
 			}
 		}
 		
@@ -193,10 +200,16 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			// require login
 			login();
 			
-			// dispatch single query for all hashes
-			for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(indexMap.keySet()).entrySet()) {
-				int index = indexMap.get(entry.getKey());
-				result[index] = entry.getValue();
+			// dispatch query for all hashes
+			List<String> hashes = new ArrayList<String>(indexMap.keySet());
+			int batchSize = 50;
+			for (int bn = 0; bn < ceil((float) hashes.size() / batchSize); bn++) {
+				List<String> batch = hashes.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashes.size()));
+				
+				for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(batch).entrySet()) {
+					int index = indexMap.get(entry.getKey());
+					result[index] = entry.getValue();
+				}
 			}
 		}
 		
