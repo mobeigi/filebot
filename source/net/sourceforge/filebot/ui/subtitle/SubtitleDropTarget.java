@@ -139,7 +139,7 @@ abstract class SubtitleDropTarget extends JButton {
 		
 		if (containsOnly(files, FOLDERS)) {
 			// collect all video files from the dropped folders 
-			List<File> videoFiles = filter(listFiles(files, 10, false), VIDEO_FILES);
+			List<File> videoFiles = filter(listFiles(files, 5, false), VIDEO_FILES);
 			
 			if (videoFiles.size() > 0) {
 				return handleDownload(videoFiles);
