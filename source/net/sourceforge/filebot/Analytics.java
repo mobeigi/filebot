@@ -8,8 +8,8 @@ import static net.sourceforge.filebot.Settings.*;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.dmurph.tracking.AnalyticsConfigData;
@@ -62,7 +62,7 @@ public class Analytics {
 		
 		if (currentView == null) {
 			// track application startup
-			getTracker().trackPageViewFromSearch(view, title, host, getJavaVersionIdentifier(), getDeploymentMethod());
+			getTracker().trackPageViewFromSearch(view, title, host, getJavaRuntimeIdentifier(), getDeploymentMethod());
 		} else {
 			// track application state change
 			getTracker().trackPageViewFromReferrer(view, title, host, host, currentView);
@@ -104,11 +104,6 @@ public class Analytics {
 	}
 	
 
-	private static String getJavaVersionIdentifier() {
-		return System.getProperty("java.runtime.name") + " " + System.getProperty("java.version");
-	}
-	
-
 	private static AnalyticsConfigData getConfig(String webPropertyID, VisitorData visitorData) {
 		AnalyticsConfigData config = new AnalyticsConfigData(webPropertyID, visitorData);
 		
@@ -117,13 +112,19 @@ public class Analytics {
 		config.setUserLanguage(getUserLanguage());
 		
 		try {
-			GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-			config.setScreenResolution(getScreenResolution(display));
-			config.setColorDepth(getColorDepth(display));
+			if (GraphicsEnvironment.isHeadless()) {
+				// headless environment
+				config.setScreenResolution("80x25");
+				config.setColorDepth("1");
+			} else {
+				// desktop environment
+				GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+				config.setScreenResolution(getScreenResolution(display));
+				config.setColorDepth(getColorDepth(display));
+			}
 		} catch (Throwable e) {
-			Logger.getLogger(Analytics.class.getName()).finest("Headless: " + e.getMessage());
-			config.setScreenResolution("80x25");
-			config.setColorDepth("1");
+			// just in case
+			Logger.getLogger(Analytics.class.getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return config;
@@ -186,21 +187,19 @@ public class Analytics {
 			screenHeight += dm.getHeight();
 		}
 		
-		if (screenHeight <= 0 || screenWidth <= 0)
-			throw new HeadlessException("Illegal screen size");
-		
 		return screenWidth + "x" + screenHeight;
 	}
 	
 
 	private static String getColorDepth(GraphicsDevice[] display) {
-		if (display[0] == null)
-			throw new HeadlessException();
-		
 		StringBuilder sb = new StringBuilder();
-		sb.append(display[0].getDisplayMode().getBitDepth());
-		for (int i = 1; i < display.length; i++) {
-			sb.append(", ").append(display[i].getDisplayMode().getBitDepth());
+		
+		for (int i = 0; i < display.length; i++) {
+			if (sb.length() > 0) {
+				sb.append(", ");
+			}
+			
+			sb.append(display[i].getDisplayMode().getBitDepth());
 		}
 		
 		return sb.toString();
