@@ -8,6 +8,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -94,8 +95,8 @@ class ValidateDialog extends JDialog {
 		installAction(content, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setLocationByPlatform(true);
-		setSize(365, 280);
+		setMinimumSize(new Dimension(365, 280));
+		pack();
 	}
 	
 
@@ -171,6 +172,7 @@ class ValidateDialog extends JDialog {
 		}
 		
 		ValidateDialog dialog = new ValidateDialog(getWindow(parent), invalidFilePaths);
+		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 		
 		// show and block
 		dialog.setVisible(true);
