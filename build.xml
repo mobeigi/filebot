@@ -359,9 +359,9 @@
 		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
 			<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
 		</typedef>
-		<svnSetting id="svn.settings" javahl="false" svnkit="true" />
-		<svn refid="svn.settings"><update dir="${basedir}" revision="HEAD" recurse="true" /></svn>
-		<svn refid="svn.settings"><status path="${basedir}" revisionProperty="svn.revision" /></svn>
+		<svnSetting id="svn.settings" svnkit="true" javahl="false" />
+		<svn refid="svn.settings"><update dir="${dir.source}" revision="HEAD" recurse="true" /></svn>
+		<svn refid="svn.settings"><status path="${dir.source}" revisionProperty="svn.revision" /></svn>
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
@@ -457,7 +457,7 @@
 		<input message="Mark:" addproperty="mark" />
 
 		<!-- deploy fatjar -->
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@web.sourceforge.net:/home/user-web/r/re/rednoah/htdocs/test/filebot/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
 	</target>
 
 </project>
