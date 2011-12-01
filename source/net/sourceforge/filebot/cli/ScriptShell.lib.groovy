@@ -39,6 +39,7 @@ File.metaClass.moveTo = { f -> renameFile(delegate, f) }
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 
+
 // Shell helper
 import static com.sun.jna.Platform.*;
 
@@ -60,6 +61,36 @@ def execute(String... args) {
 	
 	return process.exitValue()
 }
+
+
+// WatchService helper
+import net.sourceforge.filebot.cli.FolderWatchService;
+
+def getWatchService(Closure callback, List folders) {
+	// sanity check
+	folders.find{ if (!it.isDirectory()) throw new Exception("Must be a folder: " + it) }
+	
+	// create watch service and setup callback
+	def watchService = new FolderWatchService() {
+		
+		@Override
+		def void processCommitSet(File[] fileset) {
+			callback(fileset.toList())
+		}
+	}
+	
+	// collect updates for 5 minutes and then batch process
+	watchService.setCommitDelay(5 * 60 * 1000)
+	
+	// start watching given files
+	folders.each { watchService.watch(it) }
+	
+	return watchService
+}
+
+File.metaClass.watch = { c -> getWatchService(c, [delegate]) }
+List.metaClass.watch = { c -> getWatchService(c, delegate) }
+
 
 
 // CLI bindings

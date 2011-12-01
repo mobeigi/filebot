@@ -20,7 +20,12 @@ def incomplete(f) { f =~ /[.]chunk|[.]part$/ }
 	
 	// all volumes complete, call unrar on first volume
 	if (incomplete.isEmpty()) {
-		execute("unrar", "x", "-y", "-p-", rarP1.getAbsolutePath(), rarP1.getPathWithoutExtension() + "/")
+		def exitCode = execute("unrar", "x", "-y", "-p-", rarP1.getAbsolutePath(), rarP1.getPathWithoutExtension() + "/")
+		
+		// delete all volumes after successful extraction
+		if (exitCode == 0) {
+			volumes*.delete()
+		}
 	}
 }
 

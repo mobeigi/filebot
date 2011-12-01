@@ -67,6 +67,7 @@ class ScriptShell {
 			bindings.put(service.getName().toLowerCase(), PrivilegedInvocation.newProxy(MovieIdentificationService.class, service, acc));
 		}
 		
+		bindings.put("console", System.console());
 		return bindings;
 	}
 	
