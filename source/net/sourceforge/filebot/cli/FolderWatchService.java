@@ -28,7 +28,7 @@ import net.sourceforge.tuned.Timer;
 
 public abstract class FolderWatchService implements Closeable {
 	
-	private final Collection<Path> commitSet = new HashSet<Path>();
+	private final Collection<File> commitSet = new HashSet<File>();
 	
 	private final ExecutorService processor = Executors.newSingleThreadExecutor();
 	private final ExecutorService watchers = Executors.newCachedThreadPool(new DefaultThreadFactory("FolderWatchService", Thread.MIN_PRIORITY, true));
@@ -63,9 +63,7 @@ public abstract class FolderWatchService implements Closeable {
 		final SortedSet<File> files = new TreeSet<File>();
 		
 		synchronized (commitSet) {
-			for (Path path : commitSet) {
-				files.add(path.toFile());
-			}
+			files.addAll(commitSet);
 			commitSet.clear();
 		}
 		
@@ -93,7 +91,7 @@ public abstract class FolderWatchService implements Closeable {
 			throw new IllegalArgumentException("Must be a folder: " + node);
 		}
 		
-		watchers.submit(new FolderWatcher(node.toPath()) {
+		watchers.submit(new FolderWatcher(node) {
 			
 			@Override
 			protected void processEvents(List<WatchEvent<?>> events) {
@@ -105,20 +103,20 @@ public abstract class FolderWatchService implements Closeable {
 			
 			
 			@Override
-			protected void created(Path path) {
-				commitSet.add(path);
+			protected void created(File file) {
+				commitSet.add(file);
 			}
 			
 			
 			@Override
-			protected void modified(Path path) {
-				commitSet.add(path);
+			protected void modified(File file) {
+				commitSet.add(file);
 			}
 			
 			
 			@Override
-			protected void deleted(Path path) {
-				commitSet.remove(path);
+			protected void deleted(File file) {
+				commitSet.remove(file);
 			}
 		});
 	}
@@ -138,10 +136,10 @@ public abstract class FolderWatchService implements Closeable {
 		private final WatchService watchService;
 		
 		
-		public FolderWatcher(Path node) throws IOException {
-			this.node = node;
-			this.watchService = node.getFileSystem().newWatchService();
-			node.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+		public FolderWatcher(File node) throws IOException {
+			this.node = node.toPath();
+			this.watchService = this.node.getFileSystem().newWatchService();
+			this.node.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
 		}
 		
 		
@@ -170,31 +168,31 @@ public abstract class FolderWatchService implements Closeable {
 		}
 		
 		
-		public Path getPath(WatchEvent event) {
-			return node.resolve(event.context().toString());
+		public File getAbsoluteFile(WatchEvent event) {
+			return node.resolve(event.context().toString()).toFile();
 		}
 		
 		
 		protected void processEvents(List<WatchEvent<?>> list) {
 			for (WatchEvent event : list) {
 				if (event.kind() == ENTRY_CREATE) {
-					created(getPath(event));
+					created(getAbsoluteFile(event));
 				} else if (event.kind() == ENTRY_MODIFY) {
-					modified(getPath(event));
+					modified(getAbsoluteFile(event));
 				} else if (event.kind() == ENTRY_DELETE) {
-					deleted(getPath(event));
+					deleted(getAbsoluteFile(event));
 				}
 			}
 		}
 		
 		
-		protected abstract void created(Path path);
+		protected abstract void created(File file);
 		
 		
-		protected abstract void modified(Path path);
+		protected abstract void modified(File file);
 		
 		
-		protected abstract void deleted(Path path);
+		protected abstract void deleted(File file);
 		
 		
 		@Override
