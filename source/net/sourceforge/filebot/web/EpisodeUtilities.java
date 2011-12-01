@@ -71,9 +71,9 @@ public final class EpisodeUtilities {
 			
 
 			private <T> int compareValue(Comparable<T> o1, T o2) {
-				if (o1 == null && o1 == null)
+				if (o1 == null && o2 == null)
 					return 0;
-				if (o1 == null && o1 != null)
+				if (o1 == null && o2 != null)
 					return Integer.MAX_VALUE;
 				if (o1 != null && o2 == null)
 					return Integer.MIN_VALUE;
