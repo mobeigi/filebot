@@ -1,7 +1,6 @@
 // File selector methods
 import static groovy.io.FileType.*
 
-
 File.metaClass.node = { path -> new File(delegate, path) }
 File.metaClass.listFiles = { c -> delegate.isDirectory() ? delegate.listFiles().findAll(c) : []}
 
@@ -10,18 +9,19 @@ File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 
-File.metaClass.hasFile = { c -> isDirectory() && listFiles().find{ c.call(it) }}
+File.metaClass.dir = { getParentFile() }
+File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
 
-File.metaClass.getFiles = { def files = []; traverse(type:FILES) { files += it }; return files }
-String.metaClass.getFiles = { new File(delegate).getFiles() }
-List.metaClass.getFiles = { findResults{ it.getFiles() }.flatten().unique() }
+String.metaClass.getFiles = { c -> new File(delegate).getFiles(c) }
+File.metaClass.getFiles = { c -> def files = []; traverse(type:FILES) { files += it }; return c ? files.findAll(c) : files }
+List.metaClass.getFiles = { c -> findResults{ it.getFiles(c) }.flatten().unique() }
 
-File.metaClass.getFolders = { def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return folders }
-String.metaClass.getFolders = { new File(delegate).getFolders() }
-List.metaClass.getFolders = { findResults{ it.getFolders() }.flatten().unique() }
+String.metaClass.getFolders = { c -> new File(delegate).getFolders(c) }
+File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return c ? folders.findAll(c) : folders }
+List.metaClass.getFolders = { c -> findResults{ it.getFolders(c) }.flatten().unique() }
 
-File.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
+File.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
 
 

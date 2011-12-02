@@ -7,20 +7,28 @@ def movieFormat = "X:/out/Movies/{movie}/{movie}"
 
 def incomplete(f) { f =~ /[.]chunk|[.]part$/ }
 
-// run cmdline unrar (require -trust-script) on multi-volume rar files (foo.part1.rar, foo.part2.rar, ...)
-[episodeDir, movieDir].getFiles().findAll{ it =~ /[.]part01[.]rar$/ }.each { rarP1 ->
-	// extract name from name.part01.rar
-	def name = rarP1.getName()[0 .. -12];
+// run cmdline unrar (require -trust-script) on multi-volume rar files
+[episodeDir, movieDir].getFiles().findAll { 
+	it =~ /[.]part01[.]rar$/ || (it =~ /[.]rar$/ && !(it =~ /[.]part\d{2}[.]rar$/))
+}.each { rar ->
+	// new layout: foo.part1.rar, foo.part2.rar
+	// old layout: foo.rar, foo.r00, foo.r01
+	boolean partLayout = (rar =~ /[.]part01[.]rar/)
+	
+	// extract name from name.part01.rar or name.rar
+	def name = rar.getName()[0 .. (partLayout ? -12 : -5)]
 	
 	// find all volumes of the same name
-	def volumes = rarP1.getParentFile().listFiles{ it.getName().startsWith(name) && it =~ /[.]part\d{2}[.]rar/ }
+	def volumes = rar.getParentFile().listFiles{
+		it =~ (partLayout ? /$name[.]part\d{2}[.]/ : /$name[.](r\d{2}|rar)/)
+	}
 	
 	// find all incomplete volumes
 	def incomplete = volumes.findAll{ incomplete(it) }
 	
 	// all volumes complete, call unrar on first volume
 	if (incomplete.isEmpty()) {
-		def exitCode = execute("unrar", "x", "-y", "-p-", rarP1.getAbsolutePath(), rarP1.getPathWithoutExtension() + "/")
+		def exitCode = execute("unrar", "x", "-y", "-p-", rar.getAbsolutePath(), rar.getPathWithoutExtension() + "/")
 		
 		// delete all volumes after successful extraction
 		if (exitCode == 0) {
@@ -28,6 +36,7 @@ def incomplete(f) { f =~ /[.]chunk|[.]part$/ }
 		}
 	}
 }
+
 
 /*
  * Fetch subtitles and sort into folders
