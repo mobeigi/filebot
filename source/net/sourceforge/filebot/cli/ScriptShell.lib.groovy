@@ -95,31 +95,45 @@ List.metaClass.watch = { c -> getWatchService(c, delegate) }
 
 // CLI bindings
 def rename(args) { args = _defaults(args)
-	_guarded { _cli.rename(_files(args), args.query, args.format, args.db, args.lang, args.strict) }
+	synchronized (_cli) {
+		_guarded { _cli.rename(_files(args), args.query, args.format, args.db, args.lang, args.strict) }
+	}
 }
 
-def getSubtitles(args) { args = _defaults(args)	
-	_guarded { _cli.getSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+def getSubtitles(args) { args = _defaults(args)
+	synchronized (_cli) {
+		_guarded { _cli.getSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+	}
 }
 
-def getMissingSubtitles(args) { args = _defaults(args)	
-	_guarded { _cli.getMissingSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+def getMissingSubtitles(args) { args = _defaults(args)
+	synchronized (_cli) {
+		_guarded { _cli.getMissingSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+	}
 }
 
 def check(args) {
-	_guarded { _cli.check(_files(args)) }
+	synchronized (_cli) {
+		_guarded { _cli.check(_files(args)) }
+	}
 }
 
 def compute(args) { args = _defaults(args)
-	_guarded { _cli.compute(_files(args), args.output, args.encoding) }
+	synchronized (_cli) {
+		_guarded { _cli.compute(_files(args), args.output, args.encoding) }
+	}
 }
 
 def fetchEpisodeList(args) { args = _defaults(args)
-	_guarded { _cli.fetchEpisodeList(args.query, args.format, args.db, args.lang) }
+	synchronized (_cli) {
+		_guarded { _cli.fetchEpisodeList(args.query, args.format, args.db, args.lang) }
+	}
 }
 
 def getMediaInfo(args) { args = _defaults(args)
-	_guarded { _cli.getMediaInfo(args.file, args.format) }
+	synchronized (_cli) {
+		_guarded { _cli.getMediaInfo(args.file, args.format) }
+	}
 }
 
 
@@ -153,4 +167,4 @@ def _defaults(args) {
 /**
  * Catch and log exceptions thrown by the closure
  */
-this.metaClass._guarded = { c -> try { return c() } catch (e) { _log.severe(e.getMessage()); return null }}
+this.metaClass._guarded = { c -> try { return c.call() } catch (e) { _log.severe(e.getMessage()); return null }}
