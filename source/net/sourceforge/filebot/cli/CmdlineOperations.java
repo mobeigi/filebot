@@ -17,6 +17,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,11 +29,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.AbstractMap.SimpleImmutableEntry;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +46,7 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
+import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -124,7 +125,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 	
-
+	
 	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
@@ -172,7 +173,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap);
 	}
 	
-
+	
 	private List<Match<File, Episode>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, SimilarityMetric[] sequence) throws Exception {
 		// always use strict fail-fast matcher
 		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
@@ -185,7 +186,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return matches;
 	}
 	
-
+	
 	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final Locale locale, final boolean strict) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
@@ -241,7 +242,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 	
-
+	
 	public List<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService db, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", db.getName()));
 		
@@ -311,7 +312,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap);
 	}
 	
-
+	
 	private List<File> renameAll(Map<File, File> renameMap) throws Exception {
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
@@ -367,7 +368,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return destinationList;
 	}
 	
-
+	
 	@Override
 	public List<File> getSubtitles(Collection<File> files, String query, String languageName, String output, String csn, boolean strict) throws Exception {
 		final Language language = getLanguage(languageName);
@@ -455,14 +456,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		return subtitleFiles;
 	}
 	
-
+	
 	public List<File> getMissingSubtitles(Collection<File> files, String query, String languageName, String output, String csn, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 			
 			// save time on repeating filesystem calls
 			private final Map<File, File[]> cache = new HashMap<File, File[]>();
 			
-
+			
 			@Override
 			public boolean accept(File video) {
 				File[] subtitlesByFolder = cache.get(video.getParentFile());
@@ -489,7 +490,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return getSubtitles(videoFiles, query, languageName, output, csn, strict);
 	}
 	
-
+	
 	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
 		// fetch subtitle archive
 		CLILogger.info(format("Fetching [%s]", descriptor.getPath()));
@@ -516,7 +517,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return destination;
 	}
 	
-
+	
 	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles) throws Exception {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>(videoFiles.size());
 		
@@ -530,7 +531,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return subtitleByVideo;
 	}
 	
-
+	
 	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles) throws Exception {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>();
 		
@@ -554,9 +555,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		return subtitleByVideo;
 	}
 	
-
+	
 	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
 		Collection<String> names = detectSeriesName(mediaFiles);
+		
+		// clean detected word sequence from unwanted data
+		names = new LinkedHashSet<String>(new ReleaseInfo().cleanRG(names));
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
 			throw new Exception("Unable to auto-select query: " + names);
@@ -566,7 +570,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return names;
 	}
 	
-
+	
 	private List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
@@ -599,7 +603,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return results;
 	}
 	
-
+	
 	private List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
 		List<SearchResult> probableMatches = findProbableMatches(query, searchResults);
 		
@@ -611,7 +615,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return probableMatches;
 	}
 	
-
+	
 	private Language getLanguage(String lang) throws Exception {
 		// try to look up by language code
 		Language language = Language.getLanguage(lang);
@@ -629,18 +633,18 @@ public class CmdlineOperations implements CmdlineInterface {
 		return language;
 	}
 	
-
+	
 	private class SubtitleCollector {
 		
 		private final Map<String, Map<File, SubtitleDescriptor>> collection = new HashMap<String, Map<File, SubtitleDescriptor>>();
 		private final Set<File> remainingVideos = new TreeSet<File>();
 		
-
+		
 		public SubtitleCollector(Collection<File> videoFiles) {
 			remainingVideos.addAll(videoFiles);
 		}
 		
-
+		
 		public void addAll(String source, Map<File, SubtitleDescriptor> subtitles) {
 			remainingVideos.removeAll(subtitles.keySet());
 			
@@ -653,23 +657,23 @@ public class CmdlineOperations implements CmdlineInterface {
 			subtitlesBySource.putAll(subtitles);
 		}
 		
-
+		
 		public Map<String, Map<File, SubtitleDescriptor>> subtitlesBySource() {
 			return collection;
 		}
 		
-
+		
 		public Collection<File> remainingVideos() {
 			return remainingVideos;
 		}
 		
-
+		
 		public boolean isComplete() {
 			return remainingVideos.size() == 0;
 		}
 	}
 	
-
+	
 	@Override
 	public boolean check(Collection<File> files) throws Exception {
 		// only check existing hashes
@@ -682,7 +686,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return result;
 	}
 	
-
+	
 	@Override
 	public File compute(Collection<File> files, String output, String csn) throws Exception {
 		// check common parent for all given files
@@ -719,7 +723,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return outputFile;
 	}
 	
-
+	
 	private boolean check(File verificationFile, File root) throws Exception {
 		HashType type = getHashType(verificationFile);
 		
@@ -757,7 +761,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return status;
 	}
 	
-
+	
 	private void compute(String root, Collection<File> files, File outputFile, HashType hashType, String csn) throws IOException, Exception {
 		// compute hashes recursively and write to file
 		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), csn != null ? csn : "UTF-8");
@@ -782,7 +786,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 	
-
+	
 	@Override
 	public List<String> fetchEpisodeList(String query, String expression, String db, String languageName) throws Exception {
 		// find series on the web and fetch episode list
@@ -801,7 +805,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return episodes;
 	}
 	
-
+	
 	@Override
 	public String getMediaInfo(File file, String expression) throws Exception {
 		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
