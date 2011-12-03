@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
+import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -51,12 +51,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 	private final EpisodeListProvider provider;
 	
-
+	
 	public EpisodeListMatcher(EpisodeListProvider provider) {
 		this.provider = provider;
 	}
 	
-
+	
 	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, final Component parent) throws Exception {
 		if (searchResults.size() == 1) {
 			return searchResults.get(0);
@@ -111,13 +111,13 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		return showSelectDialog.get();
 	}
 	
-
+	
 	private String normalizeName(String value) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
 		return removeTrailingBrackets(value).toLowerCase();
 	}
 	
-
+	
 	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final Locale locale, final Component parent) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
@@ -165,7 +165,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 	}
 	
-
+	
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
 		// focus on movie and subtitle files
@@ -173,7 +173,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		final Map<File, List<File>> filesByFolder = mapByFolder(mediaFiles);
 		
 		// do matching all at once
-		if (filesByFolder.keySet().size() <= 5 || detectSeriesName(mediaFiles).size() <= 5) {
+		if (filesByFolder.keySet().size() <= 5 || detectSeriesNames(mediaFiles).size() <= 5) {
 			return matchEpisodeSet(mediaFiles, locale, autodetection, parent);
 		}
 		
@@ -209,13 +209,13 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 	}
 	
-
+	
 	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Locale locale, boolean autodetection, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
 		if (autodetection) {
-			Collection<String> names = detectSeriesName(files);
+			Collection<String> names = detectSeriesNames(files);
 			if (names.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (provider) {

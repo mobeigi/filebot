@@ -8,7 +8,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
+import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -46,7 +46,6 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
-import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -98,7 +97,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		Collection<String> cwsList = emptySet();
 		if (max >= 5) {
-			cwsList = detectSeriesName(mediaFiles);
+			cwsList = detectSeriesNames(mediaFiles);
 		}
 		
 		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
@@ -557,10 +556,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
-		Collection<String> names = detectSeriesName(mediaFiles);
-		
-		// clean detected word sequence from unwanted data
-		names = new LinkedHashSet<String>(new ReleaseInfo().cleanRG(names));
+		Collection<String> names = detectSeriesNames(mediaFiles);
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
 			throw new Exception("Unable to auto-select query: " + names);

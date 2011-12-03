@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.similarity.SeriesNameMatcher.*;
+import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;
@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -87,7 +87,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 	private ExecutorService queryService;
 	private ExecutorService downloadService;
 	
-
+	
 	public SubtitleAutoMatchDialog(Window owner) {
 		super(owner, "Download Subtitles", ModalityType.DOCUMENT_MODAL);
 		
@@ -102,7 +102,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		content.add(new JButton(finishAction), "tag cancel");
 	}
 	
-
+	
 	protected JPanel createServicePanel(Color color) {
 		JPanel panel = new JPanel(new MigLayout("hidemode 3"));
 		panel.setBorder(new RoundBorder());
@@ -112,7 +112,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		return panel;
 	}
 	
-
+	
 	protected JTable createTable() {
 		JTable table = new JTable(new SubtitleMappingTableModel());
 		table.setDefaultRenderer(SubtitleMapping.class, new SubtitleMappingOptionRenderer());
@@ -148,22 +148,22 @@ class SubtitleAutoMatchDialog extends JDialog {
 		return table;
 	}
 	
-
+	
 	public void setVideoFiles(File[] videoFiles) {
 		subtitleMappingTable.setModel(new SubtitleMappingTableModel(videoFiles));
 	}
 	
-
+	
 	public void addSubtitleService(VideoHashSubtitleService service) {
 		addSubtitleService(new VideoHashSubtitleServiceBean(service), hashMatcherServicePanel);
 	}
 	
-
+	
 	public void addSubtitleService(SubtitleProvider service) {
 		addSubtitleService(new SubtitleProviderBean(service, this), nameMatcherServicePanel);
 	}
 	
-
+	
 	protected void addSubtitleService(final SubtitleServiceBean service, final JPanel servicePanel) {
 		final LinkButton component = new LinkButton(service.getName(), ResourceManager.getIcon("database"), service.getLink());
 		component.setVisible(false);
@@ -189,11 +189,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 		servicePanel.add(component);
 	}
 	
-
+	
 	// remember last user input
 	private List<String> userQuery = new ArrayList<String>();
 	
-
+	
 	protected List<String> getUserQuery(String suggestion, String title, Component parent) throws Exception {
 		synchronized (userQuery) {
 			if (userQuery.isEmpty()) {
@@ -203,7 +203,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	public void startQuery(String languageName) {
 		final SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
 		QueryTask queryTask = new QueryTask(services, mappingModel.getVideoFiles(), languageName, SubtitleAutoMatchDialog.this) {
@@ -232,7 +232,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		queryService.submit(queryTask);
 	}
 	
-
+	
 	private Boolean showConfirmReplaceDialog(List<?> files) {
 		JList existingFilesComponent = new JList(files.toArray()) {
 			
@@ -262,7 +262,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		return null;
 	}
 	
-
+	
 	private final Action downloadAction = new AbstractAction("Download", ResourceManager.getIcon("dialog.continue")) {
 		
 		@Override
@@ -361,17 +361,17 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	};
 	
-
+	
 	private static class SubtitleMappingOptionRenderer extends DefaultTableCellRenderer {
 		
 		private final JComboBox optionComboBox = new SimpleComboBox();
 		
-
+		
 		public SubtitleMappingOptionRenderer() {
 			optionComboBox.setRenderer(new SubtitleOptionRenderer());
 		}
 		
-
+		
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			SubtitleMapping mapping = (SubtitleMapping) value;
@@ -413,12 +413,12 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class SubtitleOptionRenderer extends DefaultListCellRenderer {
 		
 		private final Border padding = createEmptyBorder(3, 3, 3, 3);
 		
-
+		
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, null, index, isSelected, cellHasFocus);
@@ -444,14 +444,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class SubtitleMappingTableModel extends AbstractTableModel implements Iterable<SubtitleMapping> {
 		
 		private final SubtitleMapping[] data;
 		
 		private boolean optionColumnVisible = false;
 		
-
+		
 		public SubtitleMappingTableModel(File... videoFiles) {
 			data = new SubtitleMapping[videoFiles.length];
 			
@@ -461,7 +461,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		}
 		
-
+		
 		public List<File> getVideoFiles() {
 			return new AbstractList<File>() {
 				
@@ -470,7 +470,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 					return data[index].getVideoFile();
 				}
 				
-
+				
 				@Override
 				public int size() {
 					return data.length;
@@ -478,13 +478,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 			};
 		}
 		
-
+		
 		@Override
 		public Iterator<SubtitleMapping> iterator() {
 			return Arrays.asList(data).iterator();
 		}
 		
-
+		
 		public void setOptionColumnVisible(boolean optionColumnVisible) {
 			if (this.optionColumnVisible == optionColumnVisible)
 				return;
@@ -495,13 +495,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 			fireTableStructureChanged();
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return optionColumnVisible ? 2 : 1;
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -514,13 +514,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return null;
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return data.length;
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -533,19 +533,19 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return null;
 		}
 		
-
+		
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			data[row].setSelectedOption((SubtitleDescriptorBean) value);
 		}
 		
-
+		
 		@Override
 		public boolean isCellEditable(int row, int column) {
 			return column == 1 && data[row].isEditable();
 		}
 		
-
+		
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
@@ -558,17 +558,17 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return null;
 		}
 		
-
+		
 		private class SubtitleMappingListener implements PropertyChangeListener {
 			
 			private final int index;
 			
-
+			
 			public SubtitleMappingListener(int index) {
 				this.index = index;
 			}
 			
-
+			
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				// update state and subtitle options
@@ -577,7 +577,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class SubtitleMapping extends AbstractBean {
 		
 		private File videoFile;
@@ -586,38 +586,38 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private SubtitleDescriptorBean selectedOption;
 		private List<SubtitleDescriptorBean> options = new ArrayList<SubtitleDescriptorBean>();
 		
-
+		
 		public SubtitleMapping(File videoFile) {
 			this.videoFile = videoFile;
 		}
 		
-
+		
 		public File getVideoFile() {
 			return videoFile;
 		}
 		
-
+		
 		public File getSubtitleFile() {
 			return subtitleFile;
 		}
 		
-
+		
 		public void setSubtitleFile(File subtitleFile) {
 			this.subtitleFile = subtitleFile;
 			firePropertyChange("subtitleFile", null, this.subtitleFile);
 		}
 		
-
+		
 		public boolean isEditable() {
 			return subtitleFile == null && selectedOption != null && (selectedOption.getState() == null || selectedOption.getError() != null);
 		}
 		
-
+		
 		public SubtitleDescriptorBean getSelectedOption() {
 			return selectedOption;
 		}
 		
-
+		
 		public void setSelectedOption(SubtitleDescriptorBean selectedOption) {
 			if (this.selectedOption != null) {
 				this.selectedOption.removePropertyChangeListener(selectedOptionListener);
@@ -629,12 +629,12 @@ class SubtitleAutoMatchDialog extends JDialog {
 			firePropertyChange("selectedOption", null, this.selectedOption);
 		}
 		
-
+		
 		public SubtitleDescriptorBean[] getOptions() {
 			return options.toArray(new SubtitleDescriptorBean[0]);
 		}
 		
-
+		
 		public void addOptions(List<SubtitleDescriptorBean> options) {
 			this.options.addAll(options);
 			
@@ -643,7 +643,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		}
 		
-
+		
 		private final PropertyChangeListener selectedOptionListener = new PropertyChangeListener() {
 			
 			@Override
@@ -653,7 +653,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		};
 	}
 	
-
+	
 	private static class SubtitleDescriptorBean extends AbstractBean {
 		
 		private final File videoFile;
@@ -663,39 +663,39 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private StateValue state;
 		private Exception error;
 		
-
+		
 		public SubtitleDescriptorBean(File videoFile, SubtitleDescriptor descriptor, SubtitleServiceBean service) {
 			this.videoFile = videoFile;
 			this.descriptor = descriptor;
 			this.service = service;
 		}
 		
-
+		
 		public float getMatchProbability() {
 			return service.getMatchProbabilty(videoFile, descriptor);
 		}
 		
-
+		
 		public String getText() {
 			return formatSubtitle(descriptor.getName(), getLanguageName(), getType());
 		}
 		
-
+		
 		public Icon getIcon() {
 			return service.getIcon();
 		}
 		
-
+		
 		public String getLanguageName() {
 			return descriptor.getLanguageName();
 		}
 		
-
+		
 		public String getType() {
 			return descriptor.getType();
 		}
 		
-
+		
 		public MemoryFile fetch() throws Exception {
 			setState(StateValue.STARTED);
 			
@@ -715,30 +715,30 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		}
 		
-
+		
 		public Exception getError() {
 			return error;
 		}
 		
-
+		
 		public StateValue getState() {
 			return state;
 		}
 		
-
+		
 		public void setState(StateValue state) {
 			this.state = state;
 			firePropertyChange("state", null, this.state);
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			return getText();
 		}
 	}
 	
-
+	
 	private static class QueryTask extends SwingWorker<Collection<File>, Map<File, List<SubtitleDescriptorBean>>> {
 		
 		private final Component parent;
@@ -747,7 +747,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private final Collection<File> remainingVideos;
 		private final String languageName;
 		
-
+		
 		public QueryTask(Collection<SubtitleServiceBean> services, Collection<File> videoFiles, String languageName, Component parent) {
 			this.parent = parent;
 			this.services = services;
@@ -755,7 +755,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			this.languageName = languageName;
 		}
 		
-
+		
 		@Override
 		protected Collection<File> doInBackground() throws Exception {
 			for (SubtitleServiceBean service : services) {
@@ -804,24 +804,24 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class DownloadTask extends SwingWorker<File, Void> {
 		
 		private final File video;
 		private final SubtitleDescriptorBean descriptor;
 		
-
+		
 		public DownloadTask(File video, SubtitleDescriptorBean descriptor) {
 			this.video = video;
 			this.descriptor = descriptor;
 		}
 		
-
+		
 		public SubtitleDescriptorBean getSubtitleBean() {
 			return descriptor;
 		}
 		
-
+		
 		public File getDestination(MemoryFile subtitle) {
 			if (descriptor.getType() == null && subtitle == null)
 				return null;
@@ -832,7 +832,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return new File(video.getParentFile(), formatSubtitle(base, descriptor.getLanguageName(), ext));
 		}
 		
-
+		
 		@Override
 		protected File doInBackground() {
 			try {
@@ -855,7 +855,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 	}
 	
-
+	
 	protected static abstract class SubtitleServiceBean extends AbstractBean {
 		
 		private final String name;
@@ -865,35 +865,35 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private StateValue state = StateValue.PENDING;
 		private Throwable error = null;
 		
-
+		
 		public SubtitleServiceBean(String name, Icon icon, URI link) {
 			this.name = name;
 			this.icon = icon;
 			this.link = link;
 		}
 		
-
+		
 		public String getName() {
 			return name;
 		}
 		
-
+		
 		public Icon getIcon() {
 			return icon;
 		}
 		
-
+		
 		public URI getLink() {
 			return link;
 		}
 		
-
+		
 		public abstract float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor);
 		
-
+		
 		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception;
 		
-
+		
 		public final Map<File, List<SubtitleDescriptor>> lookupSubtitles(Collection<File> files, String languageName, Component parent) throws Exception {
 			setState(StateValue.STARTED);
 			
@@ -910,61 +910,61 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		}
 		
-
+		
 		private void setState(StateValue state) {
 			this.state = state;
 			firePropertyChange("state", null, this.state);
 		}
 		
-
+		
 		public StateValue getState() {
 			return state;
 		}
 		
-
+		
 		public Throwable getError() {
 			return error;
 		}
 	}
 	
-
+	
 	protected static class VideoHashSubtitleServiceBean extends SubtitleServiceBean {
 		
 		private VideoHashSubtitleService service;
 		
-
+		
 		public VideoHashSubtitleServiceBean(VideoHashSubtitleService service) {
 			super(service.getName(), service.getIcon(), service.getLink());
 			this.service = service;
 		}
 		
-
+		
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			return service.getSubtitleList(files.toArray(new File[0]), languageName);
 		}
 		
-
+		
 		@Override
 		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
 			return 1;
 		}
 	}
 	
-
+	
 	protected static class SubtitleProviderBean extends SubtitleServiceBean {
 		
 		private SubtitleAutoMatchDialog inputProvider;
 		private SubtitleProvider service;
 		
-
+		
 		public SubtitleProviderBean(SubtitleProvider service, SubtitleAutoMatchDialog inputProvider) {
 			super(service.getName(), service.getIcon(), service.getLink());
 			this.service = service;
 			this.inputProvider = inputProvider;
 		}
 		
-
+		
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
@@ -973,7 +973,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 			
 			// auto-detect query and search for subtitles
-			Collection<String> querySet = detectSeriesName(files);
+			Collection<String> querySet = detectSeriesNames(files);
 			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 			
 			// if auto-detection fails, ask user for input
@@ -1016,7 +1016,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return subtitlesByFile;
 		}
 		
-
+		
 		@Override
 		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
 			return EpisodeMetrics.verificationMetric().getSimilarity(videoFile, descriptor) * 0.9f;

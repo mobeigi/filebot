@@ -15,9 +15,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,17 +28,12 @@ import net.sourceforge.tuned.FileUtilities;
 
 public class SeriesNameMatcher {
 	
-	public static Collection<String> detectSeriesName(Collection<File> files) {
-		return new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
-	}
-	
-
 	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, 1000));
 	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
 	protected final int commonWordSequenceMaxStartIndex = 3;
 	
-
+	
 	public Collection<String> matchAll(File[] files) {
 		SeriesNameCollection seriesNames = new SeriesNameCollection();
 		
@@ -59,7 +54,7 @@ public class SeriesNameMatcher {
 		return seriesNames;
 	}
 	
-
+	
 	public Collection<String> matchAll(String[] names) {
 		SeriesNameCollection seriesNames = new SeriesNameCollection();
 		
@@ -79,7 +74,7 @@ public class SeriesNameMatcher {
 		return seriesNames;
 	}
 	
-
+	
 	/**
 	 * Try to match and verify all series names using known season episode patterns.
 	 * 
@@ -114,7 +109,7 @@ public class SeriesNameMatcher {
 		return thresholdCollection;
 	}
 	
-
+	
 	/**
 	 * Try to match all common word sequences in the given list.
 	 * 
@@ -144,7 +139,7 @@ public class SeriesNameMatcher {
 		return results;
 	}
 	
-
+	
 	/**
 	 * Try to match a series name from the given episode name using known season episode
 	 * patterns.
@@ -164,7 +159,7 @@ public class SeriesNameMatcher {
 		return null;
 	}
 	
-
+	
 	/**
 	 * Try to match a series name from the first common word sequence.
 	 * 
@@ -202,7 +197,7 @@ public class SeriesNameMatcher {
 		return join(common, " ");
 	}
 	
-
+	
 	protected String normalize(String name) {
 		// remove group names and checksums, any [...] or (...)
 		name = name.replaceAll("\\([^\\(]*\\)", "");
@@ -215,7 +210,7 @@ public class SeriesNameMatcher {
 		return name.trim();
 	}
 	
-
+	
 	protected <T> T[] firstCommonSequence(T[] seq1, T[] seq2, int maxStartIndex, Comparator<T> equalsComparator) {
 		for (int i = 0; i < seq1.length && i <= maxStartIndex; i++) {
 			for (int j = 0; j < seq2.length && j <= maxStartIndex; j++) {
@@ -241,7 +236,7 @@ public class SeriesNameMatcher {
 		return null;
 	}
 	
-
+	
 	private Map<File, String[]> mapNamesByFolder(File... files) {
 		Map<File, List<File>> filesByFolder = new LinkedHashMap<File, List<File>>();
 		
@@ -268,7 +263,7 @@ public class SeriesNameMatcher {
 		return namesByFolder;
 	}
 	
-
+	
 	protected String[] names(Collection<File> files) {
 		String[] names = new String[files.size()];
 		
@@ -282,12 +277,12 @@ public class SeriesNameMatcher {
 		return names;
 	}
 	
-
+	
 	protected static class SeriesNameCollection extends AbstractCollection<String> {
 		
 		private final Map<String, String> data = new LinkedHashMap<String, String>();
 		
-
+		
 		@Override
 		public boolean add(String value) {
 			value = value.trim();
@@ -308,12 +303,12 @@ public class SeriesNameMatcher {
 			return false;
 		}
 		
-
+		
 		protected String key(Object value) {
 			return value.toString().toLowerCase();
 		}
 		
-
+		
 		protected float firstCharacterCaseBalance(String s) {
 			int upper = 0;
 			int lower = 0;
@@ -333,19 +328,19 @@ public class SeriesNameMatcher {
 			return (lower + (upper * 1.01f)) / Math.abs(lower - upper);
 		}
 		
-
+		
 		@Override
 		public boolean contains(Object value) {
 			return data.containsKey(key(value));
 		}
 		
-
+		
 		@Override
 		public Iterator<String> iterator() {
 			return data.values().iterator();
 		}
 		
-
+		
 		@Override
 		public int size() {
 			return data.size();
@@ -353,7 +348,7 @@ public class SeriesNameMatcher {
 		
 	}
 	
-
+	
 	protected static class ThresholdCollection<E> extends AbstractCollection<E> {
 		
 		private final Collection<E> heaven;
@@ -361,14 +356,14 @@ public class SeriesNameMatcher {
 		
 		private final int threshold;
 		
-
+		
 		public ThresholdCollection(int threshold, Comparator<E> equalityComparator) {
 			this.heaven = new ArrayList<E>();
 			this.limbo = new TreeMap<E, Collection<E>>(equalityComparator);
 			this.threshold = threshold;
 		}
 		
-
+		
 		@Override
 		public boolean add(E value) {
 			Collection<E> buffer = limbo.get(value);
@@ -400,18 +395,18 @@ public class SeriesNameMatcher {
 			return false;
 		};
 		
-
+		
 		public boolean addDirect(E element) {
 			return heaven.add(element);
 		}
 		
-
+		
 		@Override
 		public Iterator<E> iterator() {
 			return heaven.iterator();
 		}
 		
-
+		
 		@Override
 		public int size() {
 			return heaven.size();
