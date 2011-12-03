@@ -99,7 +99,7 @@
 <pre><code>args.<span class="method">eachMediaFolder</span> {
 	<span class="method">getMissingSubtitles</span>(<span class="property">folder</span>:it)
 	<span class="method">rename</span>(<span class="property">folder</span>:it)
-	<span class="method">compute</span>(<span class="property">file</span>:it.<span class="method">listFiles</span>().<span class="method">findAll</span>{ it.<span class="method">isVideo</span>() })
+	<span class="method">compute</span>(<span class="property">file</span>:it.<span class="method">listFiles</span>{ it.<span class="method">isVideo</span>() })
 }</code></pre>Fetch subtitles, rename and compute checksums for all media folders in the file hierarchy.</div>
 
 <div class="description">
@@ -109,7 +109,7 @@
 </code></pre>Run rename on different folder hierarchies using different episode/movie datasources.</div>
 
 <div class="description">
-<pre><code>args.<span class="method">getFiles</span>().<span class="method">findAll</span>{ it.<span class="method">isVideo</span>() }
+<pre><code>args.<span class="method">getFiles</span>{ it.<span class="method">isVideo</span>() }
 .<span class="method">sort</span>{ a, b -> a.name.<span class="method">compareTo</span>(b.name) }
 .<span class="method">each</span>{ println <span class="method">getMediaInfo</span>(<span class="property">file</span>:it, <span class="property">format</span>:<span class="string">'{fn} [{vf} {vc} {af}]'</span>) }
 </code></pre>Print media info for all video files using the given format pattern.</div>
