@@ -259,6 +259,21 @@ public class CmdlineOperations implements CmdlineInterface {
 			movieFiles = subtitleFiles;
 		}
 		
+		// fill in movie information from nfo file imdb when necessary
+		for (int i = 0; i < movieFiles.length; i++) {
+			if (movieDescriptors[i] == null) {
+				Set<Integer> imdbid = grepImdbIdFor(movieFiles[i]);
+				if (imdbid.size() > 1) {
+					CLILogger.warning(String.format("Multiple imdb ids found for %s: %s", movieFiles[i].getName(), imdbid));
+				}
+				
+				if (imdbid.size() == 1 || (imdbid.size() > 1 && !strict)) {
+					movieDescriptors[i] = db.getMovieDescriptor(imdbid.iterator().next(), locale);
+					CLILogger.fine(String.format("Identified %s as %s via imdb id", movieFiles[i].getName(), movieDescriptors[i]));
+				}
+			}
+		}
+		
 		// use user query if search by hash did not return any results, only one query for one movie though
 		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
@@ -544,7 +559,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 			
 			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 0.9) {
 					CLILogger.finest(format("Matched [%s] to [%s] via filename", it.getValue().getName(), it.getCandidate().getName()));
 					subtitleByVideo.put(it.getValue(), it.getCandidate());
 				}
@@ -556,7 +571,20 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
-		Collection<String> names = detectSeriesNames(mediaFiles);
+		Collection<String> names = new LinkedHashSet<String>();
+		
+		// detect by imdb id from nfo file in the same folder
+		for (List<File> file : mapByFolder(mediaFiles).values()) {
+			for (int imdbid : grepImdbIdFor(file.get(0))) {
+				Movie movie = WebServices.TMDb.getMovieDescriptor(imdbid, Locale.ENGLISH);
+				if (movie != null) {
+					names.add(movie.getName());
+				}
+			}
+		}
+		
+		// detect series name by common word sequence
+		names.addAll(detectSeriesNames(mediaFiles));
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
 			throw new Exception("Unable to auto-select query: " + names);

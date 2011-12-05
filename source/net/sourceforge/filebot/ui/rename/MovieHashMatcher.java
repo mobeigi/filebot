@@ -5,27 +5,23 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -46,12 +42,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 	private final MovieIdentificationService service;
 	
-
+	
 	public MovieHashMatcher(MovieIdentificationService service) {
 		this.service = service;
 	}
 	
-
+	
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect, Component parent) throws Exception {
 		// handle movie files
@@ -138,29 +134,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		return matches;
 	}
 	
-
-	private Set<Integer> grepImdbId(File... files) throws IOException {
-		Set<Integer> collection = new HashSet<Integer>();
-		
-		for (File file : files) {
-			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
-			
-			try {
-				// scan for imdb id patterns like tt1234567
-				String imdb = null;
-				
-				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 64 * 1024)) != null) {
-					collection.add(Integer.parseInt(imdb));
-				}
-			} finally {
-				scanner.close();
-			}
-		}
-		
-		return collection;
-	}
 	
-
 	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Component parent, Movie... suggestions) throws Exception {
 		List<Movie> options = new ArrayList<Movie>();
 		
@@ -172,7 +146,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// try to grep imdb id from nfo files
-		for (int imdbid : grepImdbId(movieFile.getParentFile().listFiles(getDefaultFilter("application/nfo")))) {
+		for (int imdbid : grepImdbIdFor(movieFile)) {
 			Movie movie = service.getMovieDescriptor(imdbid, locale);
 			
 			if (movie != null) {
@@ -213,7 +187,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		return options.isEmpty() ? null : selectMovie(options, parent);
 	}
 	
-
+	
 	protected Movie selectMovie(final List<Movie> options, final Component parent) throws Exception {
 		if (options.size() == 1) {
 			return options.get(0);

@@ -8,6 +8,7 @@ import static java.util.regex.Pattern.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -15,9 +16,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.CachedResource;
 
@@ -27,10 +31,33 @@ public class ReleaseInfo {
 	public static Collection<String> detectSeriesNames(Collection<File> files) throws IOException {
 		SeriesNameMatcher matcher = new SeriesNameMatcher();
 		ReleaseInfo cleaner = new ReleaseInfo();
-
+		
 		// match common word sequence and clean detected word sequence from unwanted elements
 		Collection<String> names = matcher.matchAll(files.toArray(new File[files.size()]));
 		return new LinkedHashSet<String>(cleaner.cleanRG(names));
+	}
+	
+	
+	public static Set<Integer> grepImdbIdFor(File movieFile) throws IOException {
+		Set<Integer> collection = new LinkedHashSet<Integer>();
+		File movieFolder = movieFile.getParentFile(); // lookup imdb id from nfo files in this folder
+		
+		for (File file : movieFolder.listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
+			
+			try {
+				// scan for imdb id patterns like tt1234567
+				String imdb = null;
+				
+				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 64 * 1024)) != null) {
+					collection.add(Integer.parseInt(imdb));
+				}
+			} finally {
+				scanner.close();
+			}
+		}
+		
+		return collection;
 	}
 	
 	
