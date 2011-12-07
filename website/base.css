@@ -105,6 +105,7 @@ table.reference.cli > * > * > td:first-child {
 	min-height: 800px;
 	padding: 20px;
 	background: white;
+	background-repeat: no-repeat;
 	border: 1px solid #a2a2a2;
 	margin: 20px auto;
 	border-radius: 7px;
