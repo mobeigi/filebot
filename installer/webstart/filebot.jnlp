@@ -24,8 +24,24 @@
 
 		<java version="1.6+" max-heap-size="256m" />
 		<jar href="filebot.jar" main="true" />
-
-		<extension name="lib" href="filebot.lib.jnlp" />
+		<jar href="miglayout.jar" />
+		<jar href="glazedlists.jar" />
+		<jar href="nekohtml.jar" />
+		<jar href="xercesImpl.jar" />
+		<jar href="ehcache.jar" />
+		<jar href="slf4j.jar" />
+		<jar href="slf4j-jdk.jar" />
+		<jar href="simmetrics.jar" />
+		<jar href="args4j.jar" />
+		<jar href="jna.jar" />
+		<jar href="guava.jar" />
+		<jar href="groovy.jar" />
+		<jar href="sublight-ws.jar" />
+		<jar href="xmlrpc.jar" />
+		<jar href="json-simple.jar" />
+		<jar href="icu4j.jar" />
+		<jar href="junrar-custom.jar" />
+		<jar href="jgat-custom.jar" />
 	</resources>
 
 	<resources os="Windows" arch="x86">

@@ -254,19 +254,19 @@
 			<param name="arch" value="mac-x86_64" />
 		</antcall>
 
-		<!-- sign main jar and native lib jars -->
+		<!-- sign all jars -->
 		<apply executable="pack200">
 			<!-- workaround for bug 6575373, see http://bugs.sun.com/view_bug.do?bug_id=6575373 -->
 			<arg line="--segment-limit=-1" />
 			<arg line="--repack" />
 			<srcfile />
-			<fileset dir="${dir.dist}/webstart" includes="filebot.jar" />
+			<fileset dir="${dir.dist}/webstart" includes="**/*.jar" />
 		</apply>
 
 		<signjar alias="filebot" keystore="filebot.keystore" storepass="secret">
-			<fileset id="signjar" dir="${dir.dist}/webstart" includes="filebot.jar, native/*.jar" />
+			<fileset id="signjar" dir="${dir.dist}/webstart" includes="**/*.jar" />
 		</signjar>
-
+		
 		<!-- pack200 all jars -->
 		<apply executable="pack200" dest="${dir.dist}/webstart">
 			<!-- workaround for bug 6575373, see http://bugs.sun.com/view_bug.do?bug_id=6575373 -->
