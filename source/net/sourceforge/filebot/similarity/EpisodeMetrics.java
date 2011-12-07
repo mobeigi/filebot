@@ -17,6 +17,7 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.Movie;
 
 
@@ -194,10 +195,33 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by generic numeric similarity
 	Numeric(new NumericSimilarityMetric() {
 		
-		@Override
-		protected String normalize(Object object) {
-			// simplify file name, if possible
-			return normalizeObject(object);
+		public float getSimilarity(Object o1, Object o2) {
+			String[] f1 = fields(o1);
+			String[] f2 = fields(o2);
+			
+			// match all fields and average similarity
+			float sum = 0;
+			for (String s1 : f1) {
+				for (String s2 : f2) {
+					sum += super.getSimilarity(s1, s2);
+				}
+			}
+			return sum / (f1.length * f2.length);
+		}
+		
+		
+		protected String[] fields(Object object) {
+			if (object instanceof Episode) {
+				Episode episode = (Episode) object;
+				return new String[] { EpisodeFormat.SeasonEpisode.formatSxE(episode), String.valueOf(episode.getAbsolute()) };
+			}
+			
+			if (object instanceof Movie) {
+				Movie movie = (Movie) object;
+				return new String[] { String.valueOf(movie.getYear()) };
+			}
+			
+			return new String[] { normalizeObject(object) };
 		}
 	}),
 	
