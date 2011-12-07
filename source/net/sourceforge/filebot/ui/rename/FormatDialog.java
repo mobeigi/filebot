@@ -31,8 +31,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -96,7 +96,7 @@ class FormatDialog extends JDialog {
 	
 	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 	
-
+	
 	public enum Mode {
 		Episode,
 		Movie;
@@ -108,12 +108,12 @@ class FormatDialog extends JDialog {
 			return values()[0];
 		}
 		
-
+		
 		public String key() {
 			return this.name().toLowerCase();
 		}
 		
-
+		
 		public Format getFormat() {
 			switch (this) {
 				case Episode:
@@ -123,18 +123,18 @@ class FormatDialog extends JDialog {
 			}
 		}
 		
-
+		
 		public PreferencesEntry<String> persistentSample() {
 			return Settings.forPackage(FormatDialog.class).entry("format.sample." + key());
 		}
 		
-
+		
 		public PreferencesList<String> persistentFormatHistory() {
 			return Settings.forPackage(FormatDialog.class).node("format.recent." + key()).asList();
 		}
 	}
 	
-
+	
 	public FormatDialog(Window owner) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 		
@@ -208,7 +208,7 @@ class FormatDialog extends JDialog {
 		setSize(520, 400);
 	}
 	
-
+	
 	public void setMode(Mode mode) {
 		this.mode = mode;
 		
@@ -229,7 +229,7 @@ class FormatDialog extends JDialog {
 		fireSampleChanged();
 	}
 	
-
+	
 	private JComponent updateHelpPanel(Mode mode) {
 		help.removeAll();
 		
@@ -242,7 +242,7 @@ class FormatDialog extends JDialog {
 		return help;
 	}
 	
-
+	
 	private JTextComponent createEditor() {
 		final JTextComponent editor = new JTextField(new ExpressionFormatDocument(), null, 0);
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
@@ -277,7 +277,7 @@ class FormatDialog extends JDialog {
 		return editor;
 	}
 	
-
+	
 	private JComponent createSyntaxPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, nogrid"));
 		
@@ -290,7 +290,7 @@ class FormatDialog extends JDialog {
 		return panel;
 	}
 	
-
+	
 	private JComponent createExamplesPanel(Mode mode) {
 		JPanel panel = new JPanel(new MigLayout("fill, wrap 3"));
 		
@@ -332,7 +332,7 @@ class FormatDialog extends JDialog {
 							return new ExpressionFormat(format).format(sample);
 						}
 						
-
+						
 						@Override
 						protected void done() {
 							try {
@@ -353,7 +353,7 @@ class FormatDialog extends JDialog {
 		return panel;
 	}
 	
-
+	
 	private MediaBindingBean restoreSample(Mode mode) {
 		Object info = null;
 		File media = null;
@@ -383,7 +383,7 @@ class FormatDialog extends JDialog {
 		return new MediaBindingBean(info, media);
 	}
 	
-
+	
 	private ExecutorService createExecutor() {
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1), new DefaultThreadFactory("PreviewFormatter")) {
 			
@@ -417,7 +417,7 @@ class FormatDialog extends JDialog {
 		return executor;
 	}
 	
-
+	
 	private void checkFormatInBackground() {
 		try {
 			// check syntax in foreground
@@ -443,7 +443,7 @@ class FormatDialog extends JDialog {
 					return format.format(sample);
 				}
 				
-
+				
 				@Override
 				protected void done() {
 					try {
@@ -501,22 +501,22 @@ class FormatDialog extends JDialog {
 		}
 	}
 	
-
+	
 	public boolean submit() {
 		return submit;
 	}
 	
-
+	
 	public Mode getMode() {
 		return mode;
 	}
 	
-
+	
 	public ExpressionFormat getFormat() {
 		return format;
 	}
 	
-
+	
 	private void finish(boolean submit) {
 		this.submit = submit;
 		
@@ -527,7 +527,7 @@ class FormatDialog extends JDialog {
 		dispose();
 	}
 	
-
+	
 	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variable")) {
 		
 		@Override
@@ -605,6 +605,10 @@ class FormatDialog extends JDialog {
 				// check syntax
 				format = new ExpressionFormat(editor.getText().trim());
 				
+				if (format.getExpression().isEmpty()) {
+					throw new ScriptException("Expression is empty");
+				}
+				
 				// create new recent history and ignore duplicates
 				Set<String> recent = new LinkedHashSet<String>();
 				
@@ -612,8 +616,12 @@ class FormatDialog extends JDialog {
 				recent.add(format.getExpression());
 				
 				// add next 4 most recent formats
-				for (int i = 0, limit = Math.min(4, mode.persistentFormatHistory().size()); i < limit; i++) {
-					recent.add(mode.persistentFormatHistory().get(i));
+				for (String expression : mode.persistentFormatHistory()) {
+					recent.add(expression);
+					
+					if (recent.size() >= 5) {
+						break;
+					}
 				}
 				
 				// update persistent history
@@ -626,7 +634,7 @@ class FormatDialog extends JDialog {
 		}
 	};
 	
-
+	
 	protected void fireSampleChanged() {
 		firePropertyChange("sample", null, sample);
 	}
