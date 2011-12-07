@@ -257,6 +257,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			// allow subtitles without video files
 			movieDescriptors = new Movie[subtitleFiles.length];
 			movieFiles = subtitleFiles;
+			subtitleFiles = new File[0];
 		}
 		
 		// fill in movie information from nfo file imdb when necessary
@@ -306,10 +307,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (int i = 0; i < movieDescriptors.length; i++) {
 				if (movieDescriptors != null) {
-					String subtitleName = getName(subtitleFile);
-					String movieName = getName(movieFiles[i]);
-					
-					if (subtitleName.equalsIgnoreCase(movieName)) {
+					if (isDerived(subtitleFile, movieFiles[i])) {
 						File movieDestination = renameMap.get(movieFiles[i]);
 						File subtitleDestination = new File(movieDestination.getParentFile(), getName(movieDestination) + "." + getExtension(subtitleFile));
 						renameMap.put(subtitleFile, subtitleDestination);

@@ -111,10 +111,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		for (File subtitle : filter(files, SUBTITLE_FILES)) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (Match<File, ?> movieMatch : matches) {
-				String subtitleName = getName(subtitle);
-				String movieName = getName(movieMatch.getValue());
-				
-				if (subtitleName.equalsIgnoreCase(movieName)) {
+				if (isDerived(getName(subtitle), movieMatch.getValue())) {
 					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
 					// movie match found, we're done
 					break;
