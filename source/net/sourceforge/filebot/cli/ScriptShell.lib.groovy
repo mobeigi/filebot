@@ -21,8 +21,8 @@ File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, 
 List.metaClass.getFolders = { c -> findResults{ it.getFolders(c) }.flatten().unique() }
 
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
-File.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
-List.metaClass.eachMediaFolder = { c -> getFolders().findAll{ it.hasFile{ it.isVideo() } }.each(c) }
+File.metaClass.eachMediaFolder = { c -> getFolders{ it.hasFile{ it.isVideo() } }.each(c) }
+List.metaClass.eachMediaFolder = { c -> getFolders{ it.hasFile{ it.isVideo() } }.each(c) }
 
 
 // File utility methods

@@ -35,7 +35,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 	
 	
 	public SplitTool() {
-		super("Split");
+		super("Discs");
 		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
@@ -57,10 +57,11 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		spinnerModel.addChangeListener(this);
 	}
 	
-
+	
 	private long getSplitSize() {
 		return spinnerModel.getNumber().intValue() * FileUtilities.MEGA;
 	}
+	
 	
 	private FolderNode sourceModel = null;
 	
@@ -77,7 +78,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		}
 	}
 	
-
+	
 	@Override
 	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
 		this.sourceModel = sourceModel;
@@ -131,7 +132,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		return new DefaultTreeModel(root);
 	}
 	
-
+	
 	@Override
 	protected void setModel(TreeModel model) {
 		tree.setModel(model);
