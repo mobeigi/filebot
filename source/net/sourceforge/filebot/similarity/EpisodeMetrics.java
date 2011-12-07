@@ -27,7 +27,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		private final Map<Object, Collection<SxE>> transformCache = synchronizedMap(new WeakHashMap<Object, Collection<SxE>>(64, 4));
 		
-
+		
 		@Override
 		protected Collection<SxE> parse(Object object) {
 			if (object instanceof Movie) {
@@ -61,7 +61,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		private final Map<Object, Date> transformCache = synchronizedMap(new WeakHashMap<Object, Date>(64, 4));
 		
-
+		
 		@Override
 		protected Date parse(Object object) {
 			if (object instanceof Movie) {
@@ -141,7 +141,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return (float) (ceil(sum * 3) / 3);
 		}
 		
-
+		
 		protected String[] normalize(Object[] objects) {
 			String[] names = new String[objects.length];
 			
@@ -152,7 +152,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return names;
 		}
 		
-
+		
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
@@ -178,12 +178,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// normalize absolute similarity to similarity rank (4 ranks in total),
+			// normalize absolute similarity to similarity rank (6 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(super.getSimilarity(o1, o2) * 4) / 4);
+			return (float) (floor(super.getSimilarity(o1, o2) * 6) / 6);
 		}
 		
-
+		
 		@Override
 		protected String normalize(Object object) {
 			// simplify file name, if possible
@@ -210,7 +210,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return o1 instanceof File ? super.getSimilarity(o2, o1) : super.getSimilarity(o1, o2);
 		}
 		
-
+		
 		@Override
 		protected long getLength(Object object) {
 			if (object instanceof FileInfo) {
@@ -237,18 +237,18 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// inner metric
 	private final SimilarityMetric metric;
 	
-
+	
 	private EpisodeMetrics(SimilarityMetric metric) {
 		this.metric = metric;
 	}
 	
-
+	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		return metric.getSimilarity(o1, o2);
 	}
 	
-
+	
 	protected static String normalizeObject(Object object) {
 		String name = object.toString();
 		
@@ -269,7 +269,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		return name.trim().toLowerCase();
 	}
 	
-
+	
 	public static SimilarityMetric[] defaultSequence(boolean includeFileMetrics) {
 		// 1. pass: match by file length (fast, but only works when matching torrents or files)
 		// 2. pass: match by season / episode numbers
@@ -283,7 +283,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}
 	
-
+	
 	public static SimilarityMetric verificationMetric() {
 		return new MetricCascade(FileSize, FileName, SeasonEpisode, AirDate, Title, Name);
 	}
