@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-	<Product Name='FileBot' Manufacturer='rednoah' Version='$(var.releaseversion)' Id='C171FBBE-E471-4509-AA63-DB2FB61F778E' UpgradeCode='FD96D8C9-9194-4C7B-9DE7-9437D0F57330' Language='1033' Codepage='1252'>
+	<Product Name='FileBot' Manufacturer='Reinhard Pointner' Version='$(var.releaseversion)' Id='C171FBBE-E471-4509-AA63-DB2FB61F778E' UpgradeCode='FD96D8C9-9194-4C7B-9DE7-9437D0F57330' Language='1033' Codepage='1252'>
 
-		<Package Id='*' Keywords='Installer' Description="FileBot Installer" Manufacturer='rednoah' InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+		<Package Id='*' Keywords='Installer' Description="FileBot Installer" Manufacturer='Reinhard Pointner' InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
 		<Media Id='1' Cabinet='FileBot.cab' EmbedCab='yes' />
 
 		<Directory Id='TARGETDIR' Name='SourceDir'>
