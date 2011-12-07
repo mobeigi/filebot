@@ -45,7 +45,7 @@ abstract class SubtitleDropTarget extends JButton {
 		Cancel
 	}
 	
-
+	
 	public SubtitleDropTarget() {
 		setHorizontalAlignment(CENTER);
 		
@@ -68,12 +68,12 @@ abstract class SubtitleDropTarget extends JButton {
 		new DropTarget(this, dropHandler);
 	}
 	
-
+	
 	private void setDropAction(DropAction dropAction) {
 		setIcon(getIcon(dropAction));
 	}
 	
-
+	
 	private Icon getIcon(DropAction dropAction) {
 		switch (dropAction) {
 			case Download:
@@ -85,16 +85,16 @@ abstract class SubtitleDropTarget extends JButton {
 		}
 	}
 	
-
+	
 	public abstract VideoHashSubtitleService[] getVideoHashSubtitleServices();
 	
-
+	
 	public abstract SubtitleProvider[] getSubtitleProviders();
 	
-
+	
 	public abstract String getQueryLanguage();
 	
-
+	
 	private boolean handleDownload(List<File> videoFiles) {
 		SubtitleAutoMatchDialog dialog = new SubtitleAutoMatchDialog(getWindow(this));
 		
@@ -124,17 +124,17 @@ abstract class SubtitleDropTarget extends JButton {
 		return true;
 	}
 	
-
+	
 	private boolean handleUpload(Map<File, File> videosMappedBySubtitle) {
 		// TODO implement upload
 		throw new UnsupportedOperationException("Not implemented yet");
 	}
 	
-
+	
 	private boolean handleDrop(List<File> files) {
 		// perform a drop action depending on the given files
 		if (containsOnly(files, VIDEO_FILES)) {
-			return handleDownload(files);
+			return handleDownloadLater(files);
 		}
 		
 		if (containsOnly(files, FOLDERS)) {
@@ -142,7 +142,7 @@ abstract class SubtitleDropTarget extends JButton {
 			List<File> videoFiles = filter(listFiles(files, 5, false), VIDEO_FILES);
 			
 			if (videoFiles.size() > 0) {
-				return handleDownload(videoFiles);
+				return handleDownloadLater(videoFiles);
 			}
 		}
 		
@@ -159,7 +159,21 @@ abstract class SubtitleDropTarget extends JButton {
 		return false;
 	}
 	
-
+	
+	private boolean handleDownloadLater(final List<File> videoFiles) {
+		// invoke later so we don't block the DnD operation with the download dialog
+		invokeLater(0, new Runnable() {
+			
+			@Override
+			public void run() {
+				handleDownload(videoFiles);
+			}
+		});
+		
+		return true;
+	}
+	
+	
 	private boolean containsOnlyVideoSubtitleMatches(List<File> files) {
 		List<File> subtitles = filter(files, SUBTITLE_FILES);
 		
@@ -170,7 +184,7 @@ abstract class SubtitleDropTarget extends JButton {
 		return subtitles.size() == filter(files, VIDEO_FILES).size();
 	}
 	
-
+	
 	private DropAction getDropAction(List<File> files) {
 		// video files only, or any folder, containing video files
 		if (containsOnly(files, VIDEO_FILES) || (containsOnly(files, FOLDERS))) {
@@ -186,7 +200,7 @@ abstract class SubtitleDropTarget extends JButton {
 		return DropAction.Cancel;
 	}
 	
-
+	
 	private final DropTargetAdapter dropHandler = new DropTargetAdapter() {
 		
 		@Override
@@ -212,13 +226,13 @@ abstract class SubtitleDropTarget extends JButton {
 			}
 		}
 		
-
+		
 		public void dragExit(DropTargetEvent dte) {
 			// reset to default state
 			setDropAction(DropAction.Download);
 		};
 		
-
+		
 		@Override
 		public void drop(DropTargetDropEvent dtde) {
 			dtde.acceptDrop(DnDConstants.ACTION_REFERENCE);
