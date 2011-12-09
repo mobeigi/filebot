@@ -15,10 +15,10 @@ public abstract class TransferablePolicy {
 	
 	public abstract boolean accept(Transferable tr) throws Exception;
 	
-
+	
 	public abstract void handleTransferable(Transferable tr, TransferAction action) throws Exception;
 	
-
+	
 	public boolean canImport(TransferSupport support) {
 		if (support.isDrop()) {
 			support.setShowDropLocation(false);
@@ -33,11 +33,12 @@ public abstract class TransferablePolicy {
 			// just assume that the transferable will be accepted, accept will be called in importData again anyway
 			return true;
 		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
 			return false;
 		}
 	}
 	
-
+	
 	public boolean importData(TransferSupport support) {
 		Transferable transferable = support.getTransferable();
 		
@@ -54,7 +55,7 @@ public abstract class TransferablePolicy {
 		return false;
 	}
 	
-
+	
 	protected TransferAction getTransferAction(TransferSupport support) {
 		if (support.isDrop()) {
 			return TransferAction.fromDnDConstant(support.getDropAction());
@@ -64,7 +65,7 @@ public abstract class TransferablePolicy {
 		return TransferAction.PUT;
 	}
 	
-
+	
 	public static enum TransferAction {
 		PUT(TransferHandler.MOVE),
 		ADD(TransferHandler.COPY),
@@ -72,17 +73,17 @@ public abstract class TransferablePolicy {
 		
 		private final int dndConstant;
 		
-
+		
 		private TransferAction(int dndConstant) {
 			this.dndConstant = dndConstant;
 		}
 		
-
+		
 		public int getDnDConstant() {
 			return dndConstant;
 		}
 		
-
+		
 		public static TransferAction fromDnDConstant(int dndConstant) {
 			for (TransferAction action : values()) {
 				if (dndConstant == action.dndConstant)
