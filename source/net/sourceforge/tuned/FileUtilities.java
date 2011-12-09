@@ -57,19 +57,19 @@ public final class FileUtilities {
 		return destination;
 	}
 	
-
+	
 	private static void renameFileNIO2(File source, File destination) throws IOException {
 		Files.move(source.toPath(), destination.toPath());
 	}
 	
-
+	
 	private static void renameFileIO(File source, File destination) throws IOException {
 		if (!source.renameTo(destination)) {
 			throw new IOException("Failed to rename file: " + source.getName());
 		}
 	}
 	
-
+	
 	public static byte[] readFile(File source) throws IOException {
 		InputStream in = new FileInputStream(source);
 		
@@ -89,7 +89,7 @@ public final class FileUtilities {
 		}
 	}
 	
-
+	
 	public static String readAll(Reader source) throws IOException {
 		StringBuilder text = new StringBuilder();
 		char[] buffer = new char[2048];
@@ -102,7 +102,7 @@ public final class FileUtilities {
 		return text.toString();
 	}
 	
-
+	
 	public static void writeFile(ByteBuffer data, File destination) throws IOException {
 		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
 		
@@ -113,7 +113,7 @@ public final class FileUtilities {
 		}
 	}
 	
-
+	
 	public static Reader createTextReader(File file) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
 		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
@@ -127,7 +127,7 @@ public final class FileUtilities {
 		return new InputStreamReader(new FileInputStream(file), "UTF-8");
 	}
 	
-
+	
 	public static String getText(ByteBuffer data) throws IOException {
 		CharsetDetector detector = new CharsetDetector();
 		detector.setDeclaredEncoding("UTF-8"); // small boost for UTF-8 as default encoding
@@ -146,7 +146,7 @@ public final class FileUtilities {
 		return Charset.forName("UTF-8").decode(data).toString();
 	}
 	
-
+	
 	/**
 	 * Pattern used for matching file extensions.
 	 * 
@@ -154,7 +154,7 @@ public final class FileUtilities {
 	 */
 	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
 	
-
+	
 	public static String getExtension(File file) {
 		if (file.isDirectory())
 			return null;
@@ -162,7 +162,7 @@ public final class FileUtilities {
 		return getExtension(file.getName());
 	}
 	
-
+	
 	public static String getExtension(String name) {
 		Matcher matcher = EXTENSION.matcher(name);
 		
@@ -175,13 +175,13 @@ public final class FileUtilities {
 		return null;
 	}
 	
-
+	
 	public static boolean hasExtension(File file, String... extensions) {
 		// avoid native call for speed, if possible
 		return hasExtension(file.getName(), extensions) && !file.isDirectory();
 	}
 	
-
+	
 	public static boolean hasExtension(String filename, String... extensions) {
 		String extension = getExtension(filename);
 		
@@ -193,7 +193,7 @@ public final class FileUtilities {
 		return false;
 	}
 	
-
+	
 	public static String getNameWithoutExtension(String name) {
 		Matcher matcher = EXTENSION.matcher(name);
 		
@@ -205,7 +205,7 @@ public final class FileUtilities {
 		return name;
 	}
 	
-
+	
 	public static String getName(File file) {
 		if (file.isDirectory())
 			return getFolderName(file);
@@ -213,7 +213,7 @@ public final class FileUtilities {
 		return getNameWithoutExtension(file.getName());
 	}
 	
-
+	
 	public static String getFolderName(File file) {
 		String name = file.getName();
 		
@@ -224,24 +224,24 @@ public final class FileUtilities {
 		return file.toString();
 	}
 	
-
+	
 	public static boolean isDerived(File derivate, File prime) {
 		return isDerived(getName(derivate), prime);
 	}
 	
-
+	
 	public static boolean isDerived(String derivate, File prime) {
 		String base = getName(prime).trim().toLowerCase();
 		derivate = derivate.trim().toLowerCase();
 		return derivate.startsWith(base);
 	}
 	
-
+	
 	public static boolean isDerivedByExtension(File derivate, File prime) {
 		return isDerivedByExtension(getName(derivate), prime);
 	}
 	
-
+	
 	public static boolean isDerivedByExtension(String derivate, File prime) {
 		String base = getName(prime).trim().toLowerCase();
 		derivate = derivate.trim().toLowerCase();
@@ -259,7 +259,7 @@ public final class FileUtilities {
 		return false;
 	}
 	
-
+	
 	public static boolean containsOnly(Iterable<File> files, FileFilter filter) {
 		for (File file : files) {
 			if (!filter.accept(file))
@@ -269,7 +269,7 @@ public final class FileUtilities {
 		return true;
 	}
 	
-
+	
 	public static List<File> filter(Iterable<File> files, FileFilter... filters) {
 		List<File> accepted = new ArrayList<File>();
 		
@@ -285,7 +285,7 @@ public final class FileUtilities {
 		return accepted;
 	}
 	
-
+	
 	public static List<File> flatten(Iterable<File> roots, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 		
@@ -301,7 +301,7 @@ public final class FileUtilities {
 		return files;
 	}
 	
-
+	
 	public static List<File> listPath(File file) {
 		LinkedList<File> nodes = new LinkedList<File>();
 		
@@ -312,7 +312,7 @@ public final class FileUtilities {
 		return nodes;
 	}
 	
-
+	
 	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 		
@@ -324,7 +324,7 @@ public final class FileUtilities {
 		return files;
 	}
 	
-
+	
 	private static void listFiles(File folder, int depth, List<File> files, int maxDepth, boolean listHiddenFiles) {
 		if (depth > maxDepth)
 			return;
@@ -341,7 +341,7 @@ public final class FileUtilities {
 		}
 	}
 	
-
+	
 	public static SortedMap<File, List<File>> mapByFolder(Iterable<File> files) {
 		SortedMap<File, List<File>> map = new TreeMap<File, List<File>>();
 		
@@ -363,7 +363,7 @@ public final class FileUtilities {
 		return map;
 	}
 	
-
+	
 	public static Map<String, List<File>> mapByExtension(Iterable<File> files) {
 		Map<String, List<File>> map = new HashMap<String, List<File>>();
 		
@@ -385,13 +385,13 @@ public final class FileUtilities {
 		return map;
 	}
 	
-
+	
 	/**
 	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
 	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]");
 	
-
+	
 	/**
 	 * Strip file name of invalid characters
 	 * 
@@ -403,13 +403,13 @@ public final class FileUtilities {
 		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("");
 	}
 	
-
+	
 	public static boolean isInvalidFileName(CharSequence filename) {
 		// check if file name contains any illegal characters
 		return ILLEGAL_CHARACTERS.matcher(filename).find();
 	}
 	
-
+	
 	public static File validateFileName(File file) {
 		// windows drives (e.g. c:, d:, etc.) are never invalid because name will be an empty string
 		if (!isInvalidFileName(file.getName()))
@@ -419,7 +419,7 @@ public final class FileUtilities {
 		return new File(file.getParentFile(), validateFileName(file.getName()));
 	}
 	
-
+	
 	public static File validateFilePath(File path) {
 		Iterator<File> nodes = listPath(path).iterator();
 		
@@ -434,7 +434,7 @@ public final class FileUtilities {
 		return validatedPath;
 	}
 	
-
+	
 	public static boolean isInvalidFilePath(File path) {
 		// check if file name contains any illegal characters
 		for (File node = path; node != null; node = node.getParentFile()) {
@@ -445,22 +445,22 @@ public final class FileUtilities {
 		return false;
 	}
 	
-
+	
 	public static String normalizePathSeparators(String path) {
 		return path.replace('\\', '/');
 	}
 	
-
+	
 	public static String replacePathSeparators(CharSequence path) {
 		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(" ");
 	}
 	
-
+	
 	public static final long KILO = 1024;
 	public static final long MEGA = KILO * 1024;
 	public static final long GIGA = MEGA * 1024;
 	
-
+	
 	public static String formatSize(long size) {
 		if (size >= MEGA)
 			return String.format("%,d MB", size / MEGA);
@@ -470,7 +470,7 @@ public final class FileUtilities {
 			return String.format("%,d Byte", size);
 	}
 	
-
+	
 	public static final FileFilter FOLDERS = new FileFilter() {
 		
 		@Override
@@ -489,42 +489,42 @@ public final class FileUtilities {
 	
 	public static final FileFilter TEMPORARY = new FileFilter() {
 		
-		private final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
+		private final String tmpdir = System.getProperty("java.io.tmpdir");
 		
-
+		
 		@Override
 		public boolean accept(File file) {
-			return file.getAbsolutePath().startsWith(TEMP_DIR.getAbsolutePath());
+			return file.getAbsolutePath().startsWith(tmpdir);
 		}
 	};
 	
-
+	
 	public static class ExtensionFileFilter implements FileFilter {
 		
 		private final String[] extensions;
 		
-
+		
 		public ExtensionFileFilter(String... extensions) {
 			this.extensions = extensions;
 		}
 		
-
+		
 		public ExtensionFileFilter(Collection<String> extensions) {
 			this.extensions = extensions.toArray(new String[0]);
 		}
 		
-
+		
 		@Override
 		public boolean accept(File file) {
 			return hasExtension(file, extensions);
 		}
 		
-
+		
 		public boolean accept(String name) {
 			return hasExtension(name, extensions);
 		}
 		
-
+		
 		public boolean acceptExtension(String extension) {
 			for (String other : extensions) {
 				if (other.equalsIgnoreCase(extension))
@@ -534,18 +534,18 @@ public final class FileUtilities {
 			return false;
 		}
 		
-
+		
 		public String extension() {
 			return extensions[0];
 		}
 		
-
+		
 		public String[] extensions() {
 			return extensions.clone();
 		}
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

@@ -19,9 +19,12 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 		try {
 			List<File> files = getFilesFromTransferable(tr);
 			
-			if (!containsOnly(files, TEMPORARY)) {
-				return accept(getFilesFromTransferable(tr));
+			// ignore temporary files (may not work on all platforms since the DnD data may not be accessible during the drag)
+			if (files != null && files.size() > 0 && containsOnly(files, TEMPORARY)) {
+				return false;
 			}
+			
+			return accept(files);
 		} catch (UnsupportedFlavorException e) {
 			// no file list flavor
 		}
@@ -29,7 +32,7 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 		return false;
 	}
 	
-
+	
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
@@ -41,16 +44,16 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 		load(files);
 	}
 	
-
+	
 	protected abstract boolean accept(List<File> files);
 	
-
+	
 	protected abstract void load(List<File> files) throws IOException;
 	
-
+	
 	protected abstract void clear();
 	
-
+	
 	public String getFileFilterDescription() {
 		return null;
 	}
