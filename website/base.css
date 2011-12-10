@@ -34,7 +34,10 @@ hr {
 
 .navigation {
 	font: 11px Verdana, Arial, Helvetica, sans-serif;
+	position: absolute;
 	width: 120px;
+	top: 36px;
+	right: -40px;
 	opacity: 0.8;
 }
 
@@ -150,12 +153,23 @@ h1 .description {
 .social {
 	float: right;
 	position: relative;
-	right: -20px;
+	right: -30px;
 	top: -15px;
 }
 
 .social div {
 	float: right;
+}
+
+.social .plusone {
+	position: relative;
+	left: 20px;
+	top: 1px;
+}
+
+.social .twitter {
+	position: relative;
+	top: 3px;
 }
 
 .screenshot {
