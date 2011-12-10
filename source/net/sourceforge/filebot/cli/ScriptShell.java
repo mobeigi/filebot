@@ -27,6 +27,7 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieIdentificationService;
@@ -37,7 +38,7 @@ class ScriptShell {
 	private final ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
 	private final boolean trustScript;
 	
-
+	
 	public ScriptShell(CmdlineInterface cli, ArgumentBean args, boolean trustScript, AccessControlContext acc) throws ScriptException {
 		this.trustScript = trustScript;
 		
@@ -47,10 +48,11 @@ class ScriptShell {
 		engine.setContext(context);
 		
 		// import additional functions into the shell environment
+		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
 		engine.eval(new InputStreamReader(ScriptShell.class.getResourceAsStream("ScriptShell.lib.groovy")));
 	}
 	
-
+	
 	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc) {
 		Bindings bindings = new SimpleBindings();
 		bindings.put("_script", new File(args.script));
@@ -71,7 +73,7 @@ class ScriptShell {
 		return bindings;
 	}
 	
-
+	
 	public Object evaluate(final String script, final Bindings bindings) throws Exception {
 		if (trustScript) {
 			return engine.eval(script, bindings);
@@ -90,7 +92,7 @@ class ScriptShell {
 		}
 	}
 	
-
+	
 	protected AccessControlContext getSandboxAccessControlContext() {
 		Permissions permissions = new Permissions();
 		
