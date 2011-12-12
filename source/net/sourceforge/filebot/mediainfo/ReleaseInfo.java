@@ -5,55 +5,125 @@ package net.sourceforge.filebot.mediainfo;
 import static java.util.ResourceBundle.*;
 import static java.util.concurrent.TimeUnit.*;
 import static java.util.regex.Pattern.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.CachedResource;
+import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 
 public class ReleaseInfo {
 	
-	public static Collection<String> detectSeriesNames(Collection<File> files) throws IOException {
-		SeriesNameMatcher matcher = new SeriesNameMatcher();
-		ReleaseInfo cleaner = new ReleaseInfo();
+	public static List<String> detectSeriesNames(Collection<File> files) throws Exception {
+		ReleaseInfo releaseInfo = new ReleaseInfo();
+		
+		// don't allow duplicates
+		Map<String, String> names = new LinkedHashMap<String, String>();
+		
+		for (SearchResult it : releaseInfo.lookupNameByInfoFile(files, Locale.ENGLISH)) {
+			names.put(it.getName().toLowerCase(), it.getName());
+		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
-		Collection<String> names = matcher.matchAll(files.toArray(new File[files.size()]));
-		return new LinkedHashSet<String>(cleaner.cleanRG(names));
+		Collection<String> matches = new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
+		for (String it : releaseInfo.cleanRG(matches)) {
+			names.put(it.toLowerCase(), it);
+		}
+		
+		return new ArrayList<String>(names.values());
 	}
 	
 	
-	public static Set<Integer> grepImdbIdFor(File movieFile) throws IOException {
+	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
+		ReleaseInfo releaseInfo = new ReleaseInfo();
 		Set<Integer> collection = new LinkedHashSet<Integer>();
-		File movieFolder = movieFile.getParentFile(); // lookup imdb id from nfo files in this folder
 		
-		for (File file : movieFolder.listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
-			Scanner scanner = new Scanner(new FileInputStream(file), "UTF-8");
-			
-			try {
-				// scan for imdb id patterns like tt1234567
-				String imdb = null;
+		for (File nfo : file.getParentFile().listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+			String text = new String(readFile(nfo), "UTF-8");
+			collection.addAll(releaseInfo.grepImdbId(text));
+		}
+		
+		return collection;
+	}
+	
+	
+	public Set<SearchResult> lookupNameByInfoFile(Collection<File> files, Locale language) throws Exception {
+		Set<SearchResult> names = new LinkedHashSet<SearchResult>();
+		
+		// search for id in sibling nfo files
+		for (File folder : mapByFolder(files).keySet()) {
+			for (File nfo : folder.listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+				String text = new String(readFile(nfo), "UTF-8");
 				
-				while ((imdb = scanner.findWithinHorizon("(?<=tt)\\d{7}", 64 * 1024)) != null) {
-					collection.add(Integer.parseInt(imdb));
+				for (int imdbid : grepImdbId(text)) {
+					Movie movie = WebServices.OpenSubtitles.getMovieDescriptor(imdbid, language); // movies and tv shows
+					if (movie != null) {
+						names.add(movie);
+					}
 				}
-			} finally {
-				scanner.close();
+				
+				for (int tvdbid : grepTheTvdbId(text)) {
+					TheTVDBSearchResult series = WebServices.TheTVDB.lookup(tvdbid, language); // just tv shows
+					if (series != null) {
+						names.add(series);
+					}
+				}
+			}
+		}
+		
+		return names;
+	}
+	
+	
+	public Set<Integer> grepImdbId(CharSequence text) {
+		// scan for imdb id patterns like tt1234567
+		Matcher imdbMatch = Pattern.compile("(?<=tt)\\d{7}").matcher(text);
+		Set<Integer> collection = new LinkedHashSet<Integer>();
+		
+		while (imdbMatch.find()) {
+			collection.add(Integer.parseInt(imdbMatch.group()));
+		}
+		
+		return collection;
+	}
+	
+	
+	public Set<Integer> grepTheTvdbId(CharSequence text) {
+		// scan for thetvdb id patterns like http://www.thetvdb.com/?tab=series&id=78874&lid=14
+		Set<Integer> collection = new LinkedHashSet<Integer>();
+		for (String token : Pattern.compile("[\\s\"<>|]+").split(text)) {
+			try {
+				URL url = new URL(token);
+				if (url.getHost().contains("thetvdb")) {
+					Matcher idMatch = Pattern.compile("(?<=(^|\\W)id=)\\d+").matcher(url.getQuery());
+					while (idMatch.find()) {
+						collection.add(Integer.parseInt(idMatch.group()));
+					}
+				}
+			} catch (MalformedURLException e) {
+				// parse for thetvdb urls, ignore everything else
 			}
 		}
 		

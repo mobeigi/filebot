@@ -200,8 +200,8 @@ public class SeriesNameMatcher {
 	
 	protected String normalize(String name) {
 		// remove group names and checksums, any [...] or (...)
-		name = name.replaceAll("\\([^\\(]*\\)", "");
-		name = name.replaceAll("\\[[^\\[]*\\]", "");
+		name = name.replaceAll("\\([^\\(]*\\)", " ");
+		name = name.replaceAll("\\[[^\\[]*\\]", " ");
 		
 		// remove/normalize special characters
 		name = name.replaceAll("['`´]+", "");

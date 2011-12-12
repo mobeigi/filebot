@@ -40,7 +40,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	private final String apikey;
 	
-
+	
 	public TheTVDBClient(String apikey) {
 		if (apikey == null)
 			throw new NullPointerException("apikey must not be null");
@@ -48,37 +48,37 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		this.apikey = apikey;
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return "TheTVDB";
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.thetvdb");
 	}
 	
-
+	
 	@Override
 	public boolean hasSingleSeasonSupport() {
 		return true;
 	}
 	
-
+	
 	@Override
 	public boolean hasLocaleSupport() {
 		return true;
 	}
 	
-
+	
 	@Override
 	public ResultCache getCache() {
 		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale language) throws Exception {
 		// perform online search
@@ -100,7 +100,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return new ArrayList<SearchResult>(resultSet.values());
 	}
 	
-
+	
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
@@ -160,7 +160,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return episodes;
 	}
 	
-
+	
 	public Document getSeriesRecord(TheTVDBSearchResult searchResult, Locale language) throws Exception {
 		URL seriesRecord = getResource(MirrorType.ZIP, "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + language.getLanguage() + ".zip");
 		
@@ -183,7 +183,22 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 	}
 	
-
+	
+	public TheTVDBSearchResult lookup(int id, Locale language) throws Exception {
+		try {
+			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + language.getLanguage() + ".xml");
+			Document baseRecord = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(baseRecordLocation.openStream());
+			
+			String name = selectString("//SeriesName", baseRecord);
+			return new TheTVDBSearchResult(name, id);
+		} catch (FileNotFoundException e) {
+			// illegal series id
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve base series record", e);
+			return null;
+		}
+	}
+	
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
@@ -191,7 +206,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return URI.create("http://" + host + "/?tab=seasonall&id=" + seriesId);
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
@@ -210,7 +225,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return null;
 	}
 	
-
+	
 	protected String getMirror(MirrorType mirrorType) throws Exception {
 		synchronized (mirrors) {
 			if (mirrors.isEmpty()) {
@@ -253,7 +268,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 	}
 	
-
+	
 	protected URL getResource(MirrorType mirrorType, String path) throws Exception {
 		// use default server
 		if (mirrorType == null)
@@ -263,34 +278,34 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return new URL(getMirror(mirrorType) + path);
 	}
 	
-
+	
 	public static class TheTVDBSearchResult extends SearchResult {
 		
 		protected int seriesId;
 		
-
+		
 		protected TheTVDBSearchResult() {
 			// used by serializer
 		}
 		
-
+		
 		public TheTVDBSearchResult(String seriesName, int seriesId) {
 			super(seriesName);
 			this.seriesId = seriesId;
 		}
 		
-
+		
 		public int getSeriesId() {
 			return seriesId;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return seriesId;
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object object) {
 			if (object instanceof TheTVDBSearchResult) {
@@ -302,7 +317,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 	}
 	
-
+	
 	protected static enum MirrorType {
 		XML(1),
 		BANNER(2),
@@ -310,12 +325,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		private final int bitMask;
 		
-
+		
 		private MirrorType(int bitMask) {
 			this.bitMask = bitMask;
 		}
 		
-
+		
 		public static EnumSet<MirrorType> fromTypeMask(int typeMask) {
 			// initialize enum set with all types
 			EnumSet<MirrorType> enumSet = EnumSet.allOf(MirrorType.class);

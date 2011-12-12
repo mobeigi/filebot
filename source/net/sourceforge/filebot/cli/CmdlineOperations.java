@@ -95,12 +95,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		int cws = 0; // common word sequence
 		double max = mediaFiles.size();
 		
+		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
 		Collection<String> cwsList = emptySet();
 		if (max >= 5) {
-			cwsList = detectSeriesNames(mediaFiles);
+			cwsList = nameMatcher.matchAll(mediaFiles.toArray(new File[0]));
 		}
 		
-		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
 		for (File f : mediaFiles) {
 			// count SxE matches
 			if (nameMatcher.matchBySeasonEpisodePattern(f.getName()) != null) {
@@ -306,7 +306,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File subtitleFile : subtitleFiles) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (int i = 0; i < movieDescriptors.length; i++) {
-				if (movieDescriptors != null) {
+				if (movieDescriptors[i] != null) {
 					if (isDerived(subtitleFile, movieFiles[i])) {
 						File movieDestination = renameMap.get(movieFiles[i]);
 						File subtitleDestination = new File(movieDestination.getParentFile(), getName(movieDestination) + "." + getExtension(subtitleFile));
@@ -568,21 +568,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private Collection<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
-		Collection<String> names = new LinkedHashSet<String>();
-		
-		// detect by imdb id from nfo file in the same folder
-		for (List<File> file : mapByFolder(mediaFiles).values()) {
-			for (int imdbid : grepImdbIdFor(file.get(0))) {
-				Movie movie = WebServices.TMDb.getMovieDescriptor(imdbid, Locale.ENGLISH);
-				if (movie != null) {
-					names.add(movie.getName());
-				}
-			}
-		}
-		
+	private List<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
 		// detect series name by common word sequence
-		names.addAll(detectSeriesNames(mediaFiles));
+		List<String> names = detectSeriesNames(mediaFiles);
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
 			throw new Exception("Unable to auto-select query: " + names);
