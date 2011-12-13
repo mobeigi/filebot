@@ -145,7 +145,7 @@
 
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.installer}/appbundle/jarbundler.jar" />
+		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.lib}/build/jarbundler.jar" />
 		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
 		
 		<!-- build app bundle folder and add native libs -->
