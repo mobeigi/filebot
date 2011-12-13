@@ -3,7 +3,6 @@ package net.sourceforge.filebot.web;
 
 
 import static java.lang.Math.*;
-import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
@@ -18,7 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -28,6 +26,9 @@ import javax.swing.Icon;
 
 import redstone.xmlrpc.XmlRpcException;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.tuned.Timer;
@@ -40,30 +41,30 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	private final OpenSubtitlesXmlRpc xmlrpc;
 	
-
+	
 	public OpenSubtitlesClient(String useragent) {
 		this.xmlrpc = new OpenSubtitlesXmlRpc(useragent);
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return "OpenSubtitles";
 	}
 	
-
+	
 	@Override
 	public URI getLink() {
 		return URI.create("http://www.opensubtitles.org");
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.opensubtitles");
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> search(String query) throws Exception {
 		// require login
@@ -79,7 +80,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 	}
 	
-
+	
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		// singleton array with or empty array
@@ -95,7 +96,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return Arrays.asList(subtitles);
 	}
 	
-
+	
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
@@ -142,14 +143,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return resultMap;
 	}
 	
-
+	
 	@Override
 	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
 		//TODO implement upload feature
 		return false;
 	}
 	
-
+	
 	/**
 	 * Calculate MD5 hash.
 	 */
@@ -163,7 +164,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 	}
 	
-
+	
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
 		// require login
@@ -172,7 +173,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return xmlrpc.searchMoviesOnIMDB(query);
 	}
 	
-
+	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		// require login
@@ -181,7 +182,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return xmlrpc.getIMDBMovieDetails(imdbid);
 	}
 	
-
+	
 	@Override
 	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
 		// create result array
@@ -216,7 +217,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return result;
 	}
 	
-
+	
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		Movie movie = (Movie) searchResult;
@@ -233,7 +234,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return URI.create(String.format("http://www.opensubtitles.org/en/search/imdbid-%d/sublanguageid-%s", movie.getImdbId(), sublanguageid));
 	}
 	
-
+	
 	public Locale detectLanguage(byte[] data) throws Exception {
 		// require login
 		login();
@@ -245,7 +246,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return languages.size() > 0 ? new Locale(languages.get(0)) : null;
 	}
 	
-
+	
 	protected synchronized void login() throws Exception {
 		if (!xmlrpc.isLoggedOn()) {
 			xmlrpc.loginAnonymous();
@@ -254,7 +255,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		logoutTimer.set(10, TimeUnit.MINUTES, true);
 	}
 	
-
+	
 	protected synchronized void logout() {
 		if (xmlrpc.isLoggedOn()) {
 			try {
@@ -267,7 +268,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		logoutTimer.cancel();
 	}
 	
-
+	
 	protected final Timer logoutTimer = new Timer() {
 		
 		@Override
@@ -276,44 +277,57 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 	};
 	
+	
 	/**
 	 * SubLanguageID by English language name
 	 */
-	private static final Map<String, String> subLanguageCache = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-	
-
+	@SuppressWarnings("unchecked")
 	protected synchronized Map<String, String> getSubLanguageMap() throws Exception {
-		synchronized (subLanguageCache) {
-			if (subLanguageCache.isEmpty()) {
-				for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
-					// map id by name
-					subLanguageCache.put(entry.getValue(), entry.getKey());
-				}
-				
-				// some additional special handling
-				subLanguageCache.put("Brazilian", "pob");
+		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+		String key = getClass().getName() + ".getSubLanguageMap";
+		
+		Element element = cache.get(key);
+		Map<String, String> subLanguageMap;
+		
+		if (element == null) {
+			subLanguageMap = new HashMap<String, String>();
+			
+			// fetch language data
+			for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
+				// map id by name
+				subLanguageMap.put(entry.getValue().toLowerCase(), entry.getKey().toLowerCase());
 			}
 			
-			return unmodifiableMap(subLanguageCache);
+			// some additional special handling
+			subLanguageMap.put("brazilian", "pob");
+			
+			// cache data
+			cache.put(new Element(key, subLanguageMap));
+		} else {
+			// use cached entry
+			subLanguageMap = (Map<String, String>) element.getValue();
 		}
+		
+		return subLanguageMap;
 	}
 	
-
+	
 	protected String getSubLanguageID(String languageName) throws Exception {
-		if (!getSubLanguageMap().containsKey(languageName)) {
+		if (!getSubLanguageMap().containsKey(languageName.toLowerCase())) {
 			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
 		}
 		
-		return getSubLanguageMap().get(languageName);
+		return getSubLanguageMap().get(languageName.toLowerCase());
 	}
 	
-
+	
 	protected String getLanguageName(String subLanguageID) throws Exception {
 		for (Entry<String, String> it : getSubLanguageMap().entrySet()) {
-			if (it.getValue().equals(subLanguageID))
+			if (it.getValue().equals(subLanguageID.toLowerCase()))
 				return it.getKey();
 		}
 		
 		return null;
 	}
+	
 }
