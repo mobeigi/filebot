@@ -92,6 +92,9 @@ public class Main {
 					startUserInterface(args);
 				}
 			});
+			
+			// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+			MediaTypes.getDefault();
 		} catch (CmdLineException e) {
 			// illegal arguments => just print CLI error message and stop
 			System.err.println(e.getMessage());
@@ -99,7 +102,7 @@ public class Main {
 		}
 	}
 	
-
+	
 	private static void startUserInterface(ArgumentBean args) {
 		JFrame frame;
 		
@@ -126,7 +129,7 @@ public class Main {
 		frame.setVisible(true);
 	}
 	
-
+	
 	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
 		// store bounds on close
 		window.addWindowListener(new WindowAdapter() {
@@ -151,7 +154,7 @@ public class Main {
 		window.setBounds(x, y, width, height);
 	}
 	
-
+	
 	/**
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
@@ -165,7 +168,7 @@ public class Main {
 		});
 	}
 	
-
+	
 	/**
 	 * Initialize default SecurityManager and grant all permissions via security policy.
 	 * Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
@@ -182,7 +185,7 @@ public class Main {
 					return true;
 				}
 				
-
+				
 				@Override
 				public PermissionCollection getPermissions(CodeSource codesource) {
 					// VisualVM can't connect if this method does return 
