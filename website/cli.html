@@ -101,7 +101,7 @@
 					Rename a single episode forcing the series name. Use German language episode info.
 					</p>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">-q</span> <span class="argument">Avatar</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
+					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">--q</span> <span class="argument">"Avatar"</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
 					Rename a single movie looking up movie info via file hash or using the given movie title.
 					</p>
 					<h3 id="subtitles">Fetch Subtitles</h3>
@@ -110,7 +110,7 @@
 					Fetch subtitles that are missing for the given files. Lookup matching subtitles via file hash only.
 					</p>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/movie</span> <span class="option">--q</span> <span class="argument">Avatar</span> <span class="option">--lang</span> <span class="argument">zh</span> <span class="option">--output</span> <span class="argument">srt</span> <span class="option">--encoding</span> <span class="argument">utf8</span></code>
+					<code><span class="cmd">filebot</span> <span class="option">-get-subtitles</span> <span class="argument">path/to/movie</span> <span class="option">--q</span> <span class="argument">"Avatar"</span> <span class="option">--lang</span> <span class="argument">zh</span> <span class="option">--output</span> <span class="argument">srt</span> <span class="option">--encoding</span> <span class="argument">utf8</span> <span class="option">-non-strict</span></code>
 					Fetch subtitles and force output format. Lookup subtitles via file hash or given search query.
 					</p>
 					<h3 id="verification">File Verification</h3>
@@ -120,7 +120,7 @@
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/files</span> <span class="option">--output</span> <span class="argument">checksum.md5</span></code>
-					Compute checksums according to the given output file.
+					Compute checksums and write to the given output file.
 					</p>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-check</span> <span class="argument">path/to/checksum.md5</span></code>
@@ -219,7 +219,7 @@
 							<td>
 							<table>
 								<tr>
-									<td>Checksum mode: sfv, md5, sha1 or filename</td>
+									<td>Checksum mode: sfv, md5, sha1</td>
 								</tr>
 								<tr>
 									<td>Subtitle mode: srt <small class="comment">(re-encode subtitles)</small></td>

@@ -313,11 +313,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	
 	protected String getSubLanguageID(String languageName) throws Exception {
-		if (!getSubLanguageMap().containsKey(languageName.toLowerCase())) {
-			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
+		Map<String, String> subLanguageMap = getSubLanguageMap();
+		String key = languageName.toLowerCase();
+		
+		if (!subLanguageMap.containsKey(key)) {
+			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", key));
 		}
 		
-		return getSubLanguageMap().get(languageName.toLowerCase());
+		return subLanguageMap.get(key);
 	}
 	
 	
