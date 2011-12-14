@@ -184,18 +184,32 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public TheTVDBSearchResult lookup(int id, Locale language) throws Exception {
+	public TheTVDBSearchResult lookupByID(int id, Locale language) throws Exception {
 		try {
 			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + language.getLanguage() + ".xml");
-			Document baseRecord = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(baseRecordLocation.openStream());
+			Document baseRecord = getDocument(baseRecordLocation);
 			
 			String name = selectString("//SeriesName", baseRecord);
 			return new TheTVDBSearchResult(name, id);
 		} catch (FileNotFoundException e) {
 			// illegal series id
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve base series record", e);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve base series record: " + e.getMessage());
 			return null;
 		}
+	}
+	
+	
+	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale language) throws Exception {
+		URL query = getResource(MirrorType.XML, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + language.getLanguage());
+		Document dom = getDocument(query);
+		
+		String id = selectString("//seriesid", dom);
+		String name = selectString("//SeriesName", dom);
+		
+		if (id == null || id.isEmpty() || name == null || name.isEmpty())
+			return null;
+		
+		return new TheTVDBSearchResult(name, Integer.parseInt(id));
 	}
 	
 	

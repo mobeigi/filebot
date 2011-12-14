@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +31,6 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.CachedResource;
-import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
@@ -42,8 +43,12 @@ public class ReleaseInfo {
 		// don't allow duplicates
 		Map<String, String> names = new LinkedHashMap<String, String>();
 		
-		for (SearchResult it : releaseInfo.lookupNameByInfoFile(files, Locale.ENGLISH)) {
-			names.put(it.getName().toLowerCase(), it.getName());
+		try {
+			for (SearchResult it : releaseInfo.lookupSeriesNameByInfoFile(files, Locale.ENGLISH)) {
+				names.put(it.getName().toLowerCase(), it.getName());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(ReleaseInfo.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage());
 		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
@@ -69,7 +74,7 @@ public class ReleaseInfo {
 	}
 	
 	
-	public Set<SearchResult> lookupNameByInfoFile(Collection<File> files, Locale language) throws Exception {
+	public Set<SearchResult> lookupSeriesNameByInfoFile(Collection<File> files, Locale language) throws Exception {
 		Set<SearchResult> names = new LinkedHashSet<SearchResult>();
 		
 		// search for id in sibling nfo files
@@ -78,14 +83,14 @@ public class ReleaseInfo {
 				String text = new String(readFile(nfo), "UTF-8");
 				
 				for (int imdbid : grepImdbId(text)) {
-					Movie movie = WebServices.OpenSubtitles.getMovieDescriptor(imdbid, language); // movies and tv shows
-					if (movie != null) {
-						names.add(movie);
+					TheTVDBSearchResult series = WebServices.TheTVDB.lookupByIMDbID(imdbid, language);
+					if (series != null) {
+						names.add(series);
 					}
 				}
 				
 				for (int tvdbid : grepTheTvdbId(text)) {
-					TheTVDBSearchResult series = WebServices.TheTVDB.lookup(tvdbid, language); // just tv shows
+					TheTVDBSearchResult series = WebServices.TheTVDB.lookupByID(tvdbid, language);
 					if (series != null) {
 						names.add(series);
 					}
