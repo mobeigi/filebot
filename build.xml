@@ -32,6 +32,14 @@
 
 		<!-- main jar -->
 		<jar destfile="${dir.dist}/filebot.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-Date" value="${today}" />
+				<attribute name="Built-Revision" value="${svn.revision}" />
+				<attribute name="Application-Name" value="${title}" />
+				<attribute name="Application-Version" value="${version}" />
+				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
+			</manifest>
 			<fileset dir="${dir.build}" excludes="**/*Test*" />
 		</jar>
 
@@ -50,15 +58,6 @@
 
 	<target name="fatjar" depends="jar" description="Merge all class files into a single executable jar file">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail">
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Built-Date" value="${today}" />
-				<attribute name="Built-Revision" value="${svn.revision}" />
-				<attribute name="Application-Name" value="${title}" />
-				<attribute name="Application-Version" value="${version}" />
-				<attribute name="Main-Class" value="net.sourceforge.filebot.Main" />
-			</manifest>
-
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
@@ -360,7 +359,7 @@
 			<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
 		</typedef>
 		<svnSetting id="svn.settings" svnkit="true" javahl="false" />
-		<svn refid="svn.settings"><update dir="${dir.source}" revision="HEAD" recurse="true" /></svn>
+		<svn refid="svn.settings"><update dir="${dir.source}" revision="HEAD" recurse="false" /></svn>
 		<svn refid="svn.settings"><status path="${dir.source}" revisionProperty="svn.revision" /></svn>
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
@@ -428,8 +427,8 @@
 				<include name="*.png" />
 				<include name="*.ico" />
 				<include name="images/**" />
-				<include name="screenshots/**" />
 				<include name="data/**" />
+				<include name="screenshots/**" />
 			</fileset>
 		</copy>
 
@@ -452,7 +451,7 @@
 
 	<target name="deploy-test-package" depends="svn-update, fatjar">
 		<!-- ask for sourceforge password -->
-		<property name="sf.user" value="rednoah" />
+		<property name="sf.user" value="rednoah,filebot" />
 		<input message="Please enter password:" addproperty="sf.password" />
 		<input message="Mark:" addproperty="mark" />
 

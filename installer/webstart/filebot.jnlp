@@ -10,7 +10,8 @@
 		<icon href="icon32.png" width="32" height="32" />
 		<icon href="icon16.png" width="16" height="16" />
 		<icon href="shortcut.ico" kind="shortcut" />
-
+		<icon href="splash.png" kind="splash" />
+		
 		<offline-allowed />
 	</information>
 
