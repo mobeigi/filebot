@@ -200,7 +200,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale language) throws Exception {
-		URL query = getResource(MirrorType.XML, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + language.getLanguage());
+		URL query = getResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + language.getLanguage());
 		Document dom = getDocument(query);
 		
 		String id = selectString("//seriesid", dom);
