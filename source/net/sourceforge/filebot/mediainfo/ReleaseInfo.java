@@ -48,12 +48,19 @@ public class ReleaseInfo {
 				names.put(it.getName().toLowerCase(), it.getName());
 			}
 		} catch (Exception e) {
-			Logger.getLogger(ReleaseInfo.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage());
+			Logger.getLogger(ReleaseInfo.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage(), e);
 		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
 		Collection<String> matches = new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
-		for (String it : releaseInfo.cleanRG(matches)) {
+		
+		try {
+			matches = releaseInfo.cleanRG(matches);
+		} catch (Exception e) {
+			Logger.getLogger(ReleaseInfo.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
+		}
+		
+		for (String it : matches) {
 			names.put(it.toLowerCase(), it);
 		}
 		
@@ -225,7 +232,7 @@ public class ReleaseInfo {
 	
 	
 	// fetch release group names online and try to update the data every other day
-	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), DAYS.toMillis(2)) {
+	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), String[].class, DAYS.toMillis(2)) {
 		
 		@Override
 		public String[] process(ByteBuffer data) {
