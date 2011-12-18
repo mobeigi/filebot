@@ -452,7 +452,12 @@ public final class FileUtilities {
 	
 	
 	public static String replacePathSeparators(CharSequence path) {
-		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(" ");
+		return replacePathSeparators(path, " ");
+	}
+	
+	
+	public static String replacePathSeparators(CharSequence path, String replacement) {
+		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
 	}
 	
 	

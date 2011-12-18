@@ -1,5 +1,13 @@
-// Collection, Scanner, Random, UUID, etc.
-import java.util.*
+// File operations
+import static net.sourceforge.tuned.FileUtilities.*;
+
+
+/**
+* Allow getAt() for File paths
+*
+* e.g. file[0] -> "F:"
+*/
+File.metaClass.getAt = { index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
 
 
 /**

@@ -43,43 +43,43 @@ public class RenameModel extends MatchModel<Object, File> {
 			return true;
 		}
 		
-
+		
 		@Override
 		public String preview(Match<?, ?> match) {
 			return format(match);
 		}
 		
-
+		
 		@Override
 		public String format(Match<?, ?> match) {
 			// clean up path separators like / or \
-			return replacePathSeparators(String.valueOf(match.getValue()).trim());
+			return replacePathSeparators(String.valueOf(match.getValue())).trim();
 		}
 	};
 	
 	private boolean preserveExtension = true;
 	
-
+	
 	public EventList<FormattedFuture> names() {
 		return names;
 	}
 	
-
+	
 	public EventList<File> files() {
 		return candidates();
 	}
 	
-
+	
 	public boolean preserveExtension() {
 		return preserveExtension;
 	}
 	
-
+	
 	public void setPreserveExtension(boolean preserveExtension) {
 		this.preserveExtension = preserveExtension;
 	}
 	
-
+	
 	public Map<File, String> getRenameMap() {
 		Map<File, String> map = new LinkedHashMap<File, String>();
 		
@@ -120,7 +120,7 @@ public class RenameModel extends MatchModel<Object, File> {
 		return map;
 	}
 	
-
+	
 	public void useFormatter(Object key, MatchFormatter formatter) {
 		if (formatter != null) {
 			formatters.put(key, formatter);
@@ -132,7 +132,7 @@ public class RenameModel extends MatchModel<Object, File> {
 		names.refresh();
 	}
 	
-
+	
 	private MatchFormatter getFormatter(Match<Object, File> match) {
 		for (MatchFormatter formatter : formatters.values()) {
 			if (formatter.canFormat(match)) {
@@ -143,39 +143,39 @@ public class RenameModel extends MatchModel<Object, File> {
 		return defaultFormatter;
 	}
 	
-
+	
 	private class FormattedFutureEventList extends TransformedList<Object, FormattedFuture> {
 		
 		private final List<FormattedFuture> futures = new ArrayList<FormattedFuture>();
 		
 		private final Executor backgroundFormatter = new ThreadPoolExecutor(0, 1, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		
-
+		
 		public FormattedFutureEventList(EventList<Object> source) {
 			super(source);
 			this.source.addListEventListener(this);
 		}
 		
-
+		
 		@Override
 		public FormattedFuture get(int index) {
 			return futures.get(index);
 		}
 		
-
+		
 		@Override
 		protected boolean isWritable() {
 			// can't write to source directly
 			return false;
 		}
 		
-
+		
 		@Override
 		public void add(int index, FormattedFuture value) {
 			source.add(index, value.getMatch().getValue());
 		}
 		
-
+		
 		@Override
 		public FormattedFuture set(int index, FormattedFuture value) {
 			FormattedFuture obsolete = get(index);
@@ -185,7 +185,7 @@ public class RenameModel extends MatchModel<Object, File> {
 			return obsolete;
 		}
 		
-
+		
 		@Override
 		public FormattedFuture remove(int index) {
 			FormattedFuture obsolete = get(index);
@@ -195,7 +195,7 @@ public class RenameModel extends MatchModel<Object, File> {
 			return obsolete;
 		}
 		
-
+		
 		@Override
 		public void listChanged(ListEvent<Object> listChanges) {
 			updates.beginEvent(true);
@@ -250,7 +250,7 @@ public class RenameModel extends MatchModel<Object, File> {
 			updates.commitEvent();
 		}
 		
-
+		
 		public void refresh() {
 			updates.beginEvent(true);
 			
@@ -270,21 +270,21 @@ public class RenameModel extends MatchModel<Object, File> {
 			updates.commitEvent();
 		}
 		
-
+		
 		private void submit(FormattedFuture future) {
 			// observe and enqueue worker task
 			future.addPropertyChangeListener(futureListener);
 			backgroundFormatter.execute(future);
 		}
 		
-
+		
 		private void cancel(FormattedFuture future) {
 			// remove listener and cancel worker task
 			future.removePropertyChangeListener(futureListener);
 			future.cancel(true);
 		}
 		
-
+		
 		private final PropertyChangeListener futureListener = new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
@@ -302,41 +302,41 @@ public class RenameModel extends MatchModel<Object, File> {
 		};
 	}
 	
-
+	
 	public static class FormattedFuture extends SwingWorker<String, Void> {
 		
 		private final Match<Object, File> match;
 		
 		private final MatchFormatter formatter;
 		
-
+		
 		private FormattedFuture(Match<Object, File> match, MatchFormatter formatter) {
 			this.match = match;
 			this.formatter = formatter;
 		}
 		
-
+		
 		public boolean isComplexFormat() {
 			return formatter instanceof ExpressionFormatter;
 		}
 		
-
+		
 		public Match<Object, File> getMatch() {
 			return match;
 		}
 		
-
+		
 		public String preview() {
 			return formatter.preview(match);
 		}
 		
-
+		
 		@Override
 		protected String doInBackground() throws Exception {
 			return formatter.format(match);
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			if (isDone()) {
