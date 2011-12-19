@@ -11,22 +11,26 @@
 
 					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E'>
 						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
-							<Shortcut Id="programsLink" Directory="ProgramMenuDir" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
-							<Shortcut Id="desktopLink" Directory="DesktopFolder" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
+							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
+							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="yes" />
 						</File>
+												
+						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
+							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="FileBot (platform)" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" />
+						</File>
+						<File Id='filebot.platform.launcher.l4j.ini' Name='filebot.platform.launcher.l4j.ini' Source='filebot.platform.launcher.l4j.ini' />
 					</Component>
-
+					
 					<Component Id='ApplicationStubCmd' Guid='D2B1A845-3B5C-4B59-B0D0-A4E80C173220'>
-						<File Id='filebot.cmd' Name='filebot.cmd' Source='filebot.cmd' KeyPath='yes' />
+						<File Id='filebot.cmd' Name='filebot.cmd' Source='filebot.cmd' KeyPath='yes'>
+							<Shortcut Id="shortcut.menu.filebot.cmd" Directory="ProgramMenuDir" Name="FileBot (console)" WorkingDirectory='INSTALLDIR' />
+						</File>
 						<Environment Id="PATH" Name="PATH" Value="[INSTALLDIR]" Action="set" Part="last" Permanent="no" System="yes" />
 					</Component>
-
-					<Component Id='MainJar' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E'>
+					
+					<Component Id='ApplicationBase' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E'>
 						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
-					</Component>
-
-					<Component Id='MediaInfoLib' Guid='6ADF25D9-937D-46FD-A84B-2C155A6C6CA7'>
-						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' KeyPath='yes' />
+						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' />
 					</Component>
 				</Directory>
 			</Directory>
@@ -35,11 +39,10 @@
 				<Directory Id="ProgramMenuDir" Name="FileBot">
 					<Component Id="ProgramMenuDir" Guid="F3F0F1CB-E282-473A-BE8E-B7D325B3B4B0">
 						<RemoveFolder Id='ProgramMenuDir' On='uninstall' />
-						<RegistryValue Root='HKCU' Key='Software\[Manufacturer]\[ProductName]' Type='string' Value='' KeyPath='yes' />
 					</Component>
 				</Directory>
 			</Directory>
-
+			
 			<Directory Id="DesktopFolder" Name="Desktop" />
 		</Directory>
 
@@ -47,11 +50,10 @@
 		<Feature Id='Complete' Title='FileBot' Description='The complete package.' Display='expand' ConfigurableDirectory='INSTALLDIR' Level='1'>
 			<ComponentRef Id='ApplicationStub' />
 			<ComponentRef Id='ApplicationStubCmd' />
-			<ComponentRef Id='MainJar' />
-			<ComponentRef Id='MediaInfoLib' />
+			<ComponentRef Id='ApplicationBase' />
 			<ComponentRef Id='ProgramMenuDir' />
 		</Feature>
-
+		
 		<UIRef Id="WixUI_InstallDir" />
 		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
