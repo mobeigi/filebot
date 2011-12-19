@@ -19,8 +19,8 @@ import net.sf.ehcache.Element;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
-import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -34,20 +34,20 @@ public class MediaBindingBean {
 	private final File mediaFile;
 	private MediaInfo mediaInfo;
 	
-
+	
 	public MediaBindingBean(Object infoObject, File mediaFile) {
 		this.infoObject = infoObject;
 		this.mediaFile = mediaFile;
 	}
 	
-
+	
 	@Define(undefined)
 	public <T> T undefined() {
 		// omit expressions that depend on undefined values
 		throw new RuntimeException("undefined");
 	}
 	
-
+	
 	@Define("n")
 	public String getName() {
 		if (infoObject instanceof Episode)
@@ -58,7 +58,7 @@ public class MediaBindingBean {
 		return null;
 	}
 	
-
+	
 	@Define("y")
 	public Integer getYear() {
 		if (infoObject instanceof Episode)
@@ -69,61 +69,61 @@ public class MediaBindingBean {
 		return null;
 	}
 	
-
+	
 	@Define("s")
 	public Integer getSeasonNumber() {
 		return getEpisode().getSeason();
 	}
 	
-
+	
 	@Define("e")
 	public Integer getEpisodeNumber() {
 		return getEpisode().getEpisode();
 	}
 	
-
+	
 	@Define("sxe")
 	public String getSxE() {
 		return SeasonEpisode.formatSxE(getEpisode());
 	}
 	
-
+	
 	@Define("s00e00")
 	public String getS00E00() {
 		return SeasonEpisode.formatS00E00(getEpisode());
 	}
 	
-
+	
 	@Define("t")
 	public String getTitle() {
 		return getEpisode().getTitle();
 	}
 	
-
+	
 	@Define("airdate")
 	public Date airdate() {
 		return getEpisode().airdate();
 	}
 	
-
+	
 	@Define("startdate")
 	public Date startdate() {
 		return getEpisode().getSeriesStartDate();
 	}
 	
-
+	
 	@Define("absolute")
 	public Integer getAbsoluteEpisodeNumber() {
 		return getEpisode().getAbsolute();
 	}
 	
-
+	
 	@Define("special")
 	public Integer getSpecialNumber() {
 		return getEpisode().getSpecial();
 	}
 	
-
+	
 	@Define("imdb")
 	public String getImdbId() {
 		int imdb = getMovie().getImdbId();
@@ -134,7 +134,7 @@ public class MediaBindingBean {
 		return String.format("%07d", imdb);
 	}
 	
-
+	
 	@Define("vc")
 	public String getVideoCodec() {
 		// e.g. XviD, x264, DivX 5, MPEG-4 Visual, AVC, etc.
@@ -144,7 +144,7 @@ public class MediaBindingBean {
 		return new Scanner(codec).next();
 	}
 	
-
+	
 	@Define("ac")
 	public String getAudioCodec() {
 		// e.g. AC-3, DTS, AAC, Vorbis, MP3, etc.
@@ -154,7 +154,7 @@ public class MediaBindingBean {
 		return codec.replaceAll("\\p{Punct}", "");
 	}
 	
-
+	
 	@Define("cf")
 	public String getContainerFormat() {
 		// container format extensions (e.g. avi, mkv mka mks, OGG, etc.)
@@ -164,7 +164,7 @@ public class MediaBindingBean {
 		return new Scanner(extensions).next().toLowerCase();
 	}
 	
-
+	
 	@Define("vf")
 	public String getVideoFormat() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
@@ -177,7 +177,7 @@ public class MediaBindingBean {
 		return height + Character.toLowerCase(scanType.charAt(0));
 	}
 	
-
+	
 	@Define("af")
 	public String getAudioChannels() {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
@@ -189,7 +189,7 @@ public class MediaBindingBean {
 		return channels + "ch";
 	}
 	
-
+	
 	@Define("resolution")
 	public String getVideoResolution() {
 		String width = getMediaInfo(StreamKind.Video, 0, "Width");
@@ -202,7 +202,7 @@ public class MediaBindingBean {
 		return width + 'x' + height;
 	}
 	
-
+	
 	@Define("ws")
 	public String getWidescreen() {
 		float width = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
@@ -212,7 +212,7 @@ public class MediaBindingBean {
 		return width / height > 1.37 ? "ws" : null;
 	}
 	
-
+	
 	@Define("sdhd")
 	public String getVideoDefinitionCategory() {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
@@ -221,7 +221,7 @@ public class MediaBindingBean {
 		return Integer.parseInt(height) < 720 ? "SD" : "HD";
 	}
 	
-
+	
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
 		// use inferred media file
@@ -243,7 +243,7 @@ public class MediaBindingBean {
 		return crc32(inferredMediaFile);
 	}
 	
-
+	
 	@Define("fn")
 	public String getFileName() {
 		// make sure media file is defined
@@ -253,7 +253,7 @@ public class MediaBindingBean {
 		return FileUtilities.getName(mediaFile);
 	}
 	
-
+	
 	@Define("ext")
 	public String getExtension() {
 		// make sure media file is defined
@@ -263,7 +263,7 @@ public class MediaBindingBean {
 		return FileUtilities.getExtension(mediaFile);
 	}
 	
-
+	
 	@Define("source")
 	public String getVideoSource() {
 		// use inferred media file
@@ -274,7 +274,7 @@ public class MediaBindingBean {
 		return releaseInfo.getVideoSource(inferredMediaFile);
 	}
 	
-
+	
 	@Define("group")
 	public String getReleaseGroup() throws IOException {
 		// use inferred media file
@@ -285,7 +285,7 @@ public class MediaBindingBean {
 		return releaseInfo.getReleaseGroup(inferredMediaFile);
 	}
 	
-
+	
 	@Define("lang")
 	public Locale detectSubtitleLanguage() throws Exception {
 		// require subtitle file
@@ -295,66 +295,72 @@ public class MediaBindingBean {
 		return WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile));
 	}
 	
-
+	
 	@Define("media")
 	public Object getGeneralMediaInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
 	}
 	
-
+	
 	@Define("video")
 	public Object getVideoInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Video, 0));
 	}
 	
-
+	
 	@Define("audio")
 	public Object getAudioInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Audio, 0));
 	}
 	
-
+	
 	@Define("text")
 	public Object getTextInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Text, 0));
 	}
 	
-
+	
 	@Define("episode")
 	public Episode getEpisode() {
 		return (Episode) infoObject;
 	}
 	
-
+	
 	@Define("movie")
 	public Movie getMovie() {
 		return (Movie) infoObject;
 	}
 	
-
-	@Define("file")
-	public File getMediaFile() {
-		return mediaFile;
-	}
 	
-
 	@Define("pi")
 	public Integer getPart() {
 		return ((MoviePart) infoObject).getPartIndex();
 	}
 	
-
+	
 	@Define("pn")
 	public Integer getPartCount() {
 		return ((MoviePart) infoObject).getPartCount();
 	}
 	
-
+	
+	@Define("file")
+	public File getMediaFile() {
+		return mediaFile;
+	}
+	
+	
+	@Define("home")
+	public File getUserHome() throws IOException {
+		return new File(System.getProperty("user.home"));
+	}
+	
+	
 	public Object getInfoObject() {
 		return infoObject;
 	}
 	
-
+	
 	private File getInferredMediaFile() {
 		// make sure media file is defined
 		checkMediaFile();
@@ -374,14 +380,14 @@ public class MediaBindingBean {
 		return mediaFile;
 	}
 	
-
+	
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null || !mediaFile.isFile())
 			throw new RuntimeException("Invalid media file: " + mediaFile);
 	}
 	
-
+	
 	private synchronized MediaInfo getMediaInfo() {
 		if (mediaInfo == null) {
 			// make sure media file is defined
@@ -400,7 +406,7 @@ public class MediaBindingBean {
 		return mediaInfo;
 	}
 	
-
+	
 	private String getMediaInfo(StreamKind streamKind, int streamNumber, String... keys) {
 		for (String key : keys) {
 			String value = getMediaInfo().get(streamKind, streamNumber, key);
@@ -412,7 +418,7 @@ public class MediaBindingBean {
 		return null;
 	}
 	
-
+	
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
 		Cache cache = CacheManager.getInstance().getCache("checksum");
