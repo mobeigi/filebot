@@ -361,4 +361,100 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 	}
 	
+	
+	/**
+	 * Search for a series banner matching the given parameters
+	 * 
+	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
+	 */
+	public Map<BannerProperty, Object> getBanner(TheTVDBSearchResult series, String bannerType, String bannerType2, Integer season, String language) throws Exception {
+		// build selector
+		Map<BannerProperty, Object> selector = new EnumMap<BannerProperty, Object>(BannerProperty.class);
+		if (bannerType != null)
+			selector.put(BannerProperty.BannerType, bannerType);
+		if (bannerType2 != null)
+			selector.put(BannerProperty.BannerType2, bannerType2);
+		if (season != null)
+			selector.put(BannerProperty.Season, new Double(season));
+		if (language != null)
+			selector.put(BannerProperty.Language, language);
+		
+		// search for a banner matching the selector
+		for (Map<BannerProperty, Object> it : getBannerDescriptor(series.seriesId)) {
+			if (it.entrySet().containsAll(selector.entrySet())) {
+				return it;
+			}
+		}
+		
+		return null;
+	}
+	
+	
+	public List<Map<BannerProperty, Object>> getBannerDescriptor(int seriesid) throws Exception {
+		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesid + "/banners.xml"));
+		
+		List<Node> nodes = selectNodes("//Banner", dom);
+		List<Map<BannerProperty, Object>> banners = new ArrayList<Map<BannerProperty, Object>>();
+		
+		for (Node node : nodes) {
+			try {
+				EnumMap<BannerProperty, Object> item = new EnumMap<BannerProperty, Object>(BannerProperty.class);
+				
+				// copy values from xml
+				for (BannerProperty key : BannerProperty.values()) {
+					String value = getTextContent(key.name(), node);
+					if (value != null && value.length() > 0) {
+						item.put(key, getTextContent(key.name(), node));
+					}
+				}
+				
+				// parse numbers
+				for (BannerProperty key : BannerProperty.numbers()) {
+					if (item.get(key) != null) {
+						item.put(key, new Double(item.get(key).toString()));
+					}
+				}
+				
+				// resolve relative urls
+				for (BannerProperty key : BannerProperty.urls()) {
+					if (item.get(key) != null) {
+						item.put(key, getResource(MirrorType.BANNER, "/banners/" + item.get(key)));
+					}
+				}
+				
+				banners.add(item);
+			} catch (Exception e) {
+				// log and ignore
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid banner descriptor", e);
+			}
+		}
+		
+		return banners;
+	}
+	
+	
+	public static enum BannerProperty {
+		id,
+		BannerPath,
+		BannerType,
+		BannerType2,
+		Season,
+		Colors,
+		Language,
+		Rating,
+		RatingCount,
+		SeriesName,
+		ThumbnailPath,
+		VignettePath;
+		
+		public static BannerProperty[] numbers() {
+			return new BannerProperty[] { id, Season, Rating, RatingCount };
+		}
+		
+		
+		public static BannerProperty[] urls() {
+			return new BannerProperty[] { BannerPath, ThumbnailPath, VignettePath };
+		}
+	}
+	
 }

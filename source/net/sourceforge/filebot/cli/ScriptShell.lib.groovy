@@ -40,6 +40,13 @@ List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 
 
+// WebRequest utility methods
+import static net.sourceforge.filebot.web.WebRequest.*
+
+URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) };
+URL.metaClass.saveAs = { f -> writeFile(fetch(delegate), f) }
+
+
 // Shell helper
 import static com.sun.jna.Platform.*;
 

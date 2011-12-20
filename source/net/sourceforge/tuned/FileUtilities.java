@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -26,6 +27,15 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -458,6 +468,18 @@ public final class FileUtilities {
 	
 	public static String replacePathSeparators(CharSequence path, String replacement) {
 		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
+	}
+	
+	
+	public static String getXmlString(Document dom) throws TransformerException {
+		Transformer tr = TransformerFactory.newInstance().newTransformer();
+		tr.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		tr.setOutputProperty(OutputKeys.INDENT, "yes");
+		
+		//create string from dom
+		StringWriter buffer = new StringWriter();
+		tr.transform(new DOMSource(dom), new StreamResult(buffer));
+		return buffer.toString();
 	}
 	
 	

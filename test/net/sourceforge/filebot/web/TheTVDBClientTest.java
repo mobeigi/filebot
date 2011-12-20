@@ -4,15 +4,18 @@ package net.sourceforge.filebot.web;
 
 import static org.junit.Assert.*;
 
+import java.net.URL;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.web.TheTVDBClient.BannerProperty;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
@@ -21,7 +24,7 @@ public class TheTVDBClientTest {
 	
 	private TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
 	
-
+	
 	@Test
 	public void search() throws Exception {
 		// test default language and query escaping (blanks)
@@ -35,7 +38,7 @@ public class TheTVDBClientTest {
 		assertEquals(70726, first.getSeriesId());
 	}
 	
-
+	
 	@Test
 	public void searchGerman() throws Exception {
 		List<SearchResult> results = thetvdb.search("Buffy the Vampire Slayer", Locale.GERMAN);
@@ -48,7 +51,7 @@ public class TheTVDBClientTest {
 		assertEquals(70327, first.getSeriesId());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListAll() throws Exception {
 		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327));
@@ -76,7 +79,7 @@ public class TheTVDBClientTest {
 		assertEquals(null, last.airdate());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListSingleSeason() throws Exception {
 		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845), 1);
@@ -94,7 +97,7 @@ public class TheTVDBClientTest {
 		assertEquals("2004-03-12", first.airdate().toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListNumbering() throws Exception {
 		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Firefly", 78874), 1);
@@ -111,19 +114,19 @@ public class TheTVDBClientTest {
 		assertEquals("2002-12-20", first.airdate().toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListLink() {
 		assertEquals("http://www.thetvdb.com/?tab=seasonall&id=78874", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Firefly", 78874)).toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListLinkSingleSeason() {
 		assertEquals("http://www.thetvdb.com/?tab=season&seriesid=73965&seasonid=6749", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Roswell", 73965), 3).toString());
 	}
 	
-
+	
 	@Test
 	public void getMirror() throws Exception {
 		assertNotNull(thetvdb.getMirror(MirrorType.XML));
@@ -131,7 +134,7 @@ public class TheTVDBClientTest {
 		assertNotNull(thetvdb.getMirror(MirrorType.ZIP));
 	}
 	
-
+	
 	@Test
 	public void resolveTypeMask() {
 		// no flags set
@@ -144,7 +147,30 @@ public class TheTVDBClientTest {
 		assertEquals(EnumSet.allOf(MirrorType.class), MirrorType.fromTypeMask(7));
 	}
 	
-
+	
+	@Test
+	public void getBanner() throws Exception {
+		Map<BannerProperty, Object> banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, "en");
+		
+		assertEquals(857660, (Double) banner.get(BannerProperty.id), 0);
+		assertEquals("season", banner.get(BannerProperty.BannerType));
+		assertEquals("seasonwide", banner.get(BannerProperty.BannerType2));
+		assertEquals("http://thetvdb.com/banners/seasonswide/70327-7.jpg", banner.get(BannerProperty.BannerPath).toString());
+		assertEquals(99712, WebRequest.fetch((URL) banner.get(BannerProperty.BannerPath)).remaining(), 0);
+	}
+	
+	
+	@Test
+	public void getBannerDescriptor() throws Exception {
+		List<Map<BannerProperty, Object>> banners = thetvdb.getBannerDescriptor(70327);
+		
+		assertEquals(106, banners.size());
+		assertEquals("fanart", banners.get(0).get(BannerProperty.BannerType));
+		assertEquals("1280x720", banners.get(0).get(BannerProperty.BannerType2));
+		assertEquals(486993, WebRequest.fetch((URL) banners.get(0).get(BannerProperty.BannerPath)).remaining(), 0);
+	}
+	
+	
 	@BeforeClass
 	@AfterClass
 	public static void clearCache() {
