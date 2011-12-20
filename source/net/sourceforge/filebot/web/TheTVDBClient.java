@@ -7,10 +7,12 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -246,6 +248,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	protected String getMirror(MirrorType mirrorType) throws Exception {
 		synchronized (mirrors) {
 			if (mirrors.isEmpty()) {
+				// try cache first
+				try {
+					@SuppressWarnings("unchecked")
+					Map<MirrorType, String> cachedMirrors = (Map<MirrorType, String>) getCache().getData("mirrors", null, Map.class);
+					if (cachedMirrors != null) {
+						mirrors.putAll(cachedMirrors);
+						return mirrors.get(mirrorType);
+					}
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+				}
+				
 				// initialize mirrors
 				Document dom = getDocument(getResource(null, "/api/" + apikey + "/mirrors.xml"));
 				
@@ -279,6 +293,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 						mirrors.put(type, list.get(random.nextInt(list.size())));
 					}
 				}
+				
+				getCache().putData("mirrors", null, mirrors);
 			}
 			
 			return mirrors.get(mirrorType);
@@ -384,6 +400,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	public List<BannerDescriptor> getBannerList(int seriesid) throws Exception {
+		// check cache first
+		BannerDescriptor[] cachedList = getCache().getData("banners", seriesid, BannerDescriptor[].class);
+		if (cachedList != null) {
+			return Arrays.asList(cachedList);
+		}
+		
 		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesid + "/banners.xml"));
 		
 		List<Node> nodes = selectNodes("//Banner", dom);
@@ -411,11 +433,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			}
 		}
 		
+		getCache().putData("banners", seriesid, banners.toArray(new BannerDescriptor[0]));
 		return banners;
 	}
 	
 	
-	public static class BannerDescriptor {
+	public static class BannerDescriptor implements Serializable {
 		
 		public static enum BannerProperty {
 			id,
@@ -435,6 +458,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		
 		private EnumMap<BannerProperty, String> fields;
+		
+		
+		protected BannerDescriptor() {
+			// used by serializer
+		}
 		
 		
 		protected BannerDescriptor(Map<BannerProperty, String> fields) {
