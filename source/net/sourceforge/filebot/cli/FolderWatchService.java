@@ -3,17 +3,24 @@ package net.sourceforge.filebot.cli;
 
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static java.util.Collections.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -31,9 +38,10 @@ public abstract class FolderWatchService implements Closeable {
 	private final Collection<File> commitSet = new HashSet<File>();
 	
 	private final ExecutorService processor = Executors.newSingleThreadExecutor();
-	private final ExecutorService watchers = Executors.newCachedThreadPool(new DefaultThreadFactory("FolderWatchService", Thread.MIN_PRIORITY, true));
+	private final ExecutorService watchers = Executors.newCachedThreadPool(new DefaultThreadFactory("FolderWatchService"));
 	
 	private long commitDelay = 500; // 0.5 s
+	private boolean commitPerFolder = true;
 	private final Timer commitTimer = new Timer() {
 		
 		@Override
@@ -43,6 +51,18 @@ public abstract class FolderWatchService implements Closeable {
 			}
 		}
 	};
+	
+	private final boolean watchTree;
+	
+	
+	public FolderWatchService(boolean watchTree) {
+		this.watchTree = watchTree;
+	}
+	
+	
+	public synchronized void setCommitPerFolder(boolean enabled) {
+		this.commitPerFolder = enabled;
+	}
 	
 	
 	public synchronized void setCommitDelay(long commitDelay) {
@@ -71,22 +91,45 @@ public abstract class FolderWatchService implements Closeable {
 			return;
 		}
 		
+		// divide into commit batches per folder if required
+		final Map<File, ? extends Collection<File>> commitBatches = commitPerFolder ? mapByFolder(files) : singletonMap((File) null, files);
+		
 		processor.submit(new Runnable() {
 			
 			@Override
 			public void run() {
 				synchronized (processor) {
-					processCommitSet(files.toArray(new File[0]));
+					for (Entry<File, ? extends Collection<File>> it : commitBatches.entrySet()) {
+						processCommitSet(it.getValue().toArray(new File[0]), it.getKey());
+					}
 				}
 			}
 		});
 	}
 	
 	
-	public abstract void processCommitSet(File[] files);
+	public abstract void processCommitSet(File[] files, File dir);
 	
 	
-	public synchronized void watch(File node) throws IOException {
+	public synchronized void watchFolder(File folder) throws IOException {
+		if (!watchTree) {
+			startWatch(folder);
+			return;
+		}
+		
+		// start watching all folders in the tree
+		Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
+			
+			@Override
+			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				startWatch(dir.toFile());
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+	
+	
+	private synchronized void startWatch(File node) throws IOException {
 		if (!node.isDirectory()) {
 			throw new IllegalArgumentException("Must be a folder: " + node);
 		}
@@ -104,19 +147,39 @@ public abstract class FolderWatchService implements Closeable {
 			
 			@Override
 			protected void created(File file) {
-				commitSet.add(file);
+				synchronized (commitSet) {
+					if (!file.isDirectory()) {
+						commitSet.add(file);
+						return;
+					}
+					
+					// start watching newly created folder
+					if (watchTree) {
+						try {
+							watchFolder(file);
+						} catch (IOException e) {
+							Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+						}
+					}
+				}
 			}
 			
 			
 			@Override
 			protected void modified(File file) {
-				commitSet.add(file);
+				synchronized (commitSet) {
+					if (!file.isDirectory()) {
+						commitSet.add(file);
+					}
+				}
 			}
 			
 			
 			@Override
 			protected void deleted(File file) {
-				commitSet.remove(file);
+				synchronized (commitSet) {
+					commitSet.remove(file);
+				}
 			}
 		});
 	}
@@ -157,10 +220,11 @@ public abstract class FolderWatchService implements Closeable {
 		
 		public void watch() throws IOException, InterruptedException {
 			try {
-				while (true) {
+				boolean valid = true;
+				while (valid) {
 					WatchKey key = watchService.take();
 					processEvents(key.pollEvents());
-					key.reset();
+					valid = key.reset();
 				}
 			} finally {
 				this.close();

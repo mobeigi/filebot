@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <media-types>
-
 	<!-- Application -->
 	<type name="application/torrent">
 		<extension>torrent</extension>
@@ -101,7 +100,6 @@
 		<extension>wtv</extension>
 	</type>
 	
-	
 	<!-- Subtitles -->
 	<type name="subtitle/SubRip">
 		<extension>srt</extension>
@@ -124,5 +122,4 @@
 		<extension>sub</extension>	
 		<extension>idx</extension>
 	</type>
-	
 </media-types>

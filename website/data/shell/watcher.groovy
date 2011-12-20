@@ -1,5 +1,5 @@
 // watch folders and print files that were added/modified (requires Java 7)
-def watchman = args.getFolders().watch { changes ->
+def watchman = args.watch { changes ->
    println "Processing $changes"
    rename(file:changes, format:"/media/storage/files/tv/{n}{'/Season '+s}/{episode}")
 }
