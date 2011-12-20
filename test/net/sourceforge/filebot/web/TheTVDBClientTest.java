@@ -4,18 +4,16 @@ package net.sourceforge.filebot.web;
 
 import static org.junit.Assert.*;
 
-import java.net.URL;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.TheTVDBClient.BannerProperty;
+import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
@@ -150,24 +148,24 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getBanner() throws Exception {
-		Map<BannerProperty, Object> banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, "en");
+		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, Locale.ENGLISH);
 		
-		assertEquals(857660, (Double) banner.get(BannerProperty.id), 0);
-		assertEquals("season", banner.get(BannerProperty.BannerType));
-		assertEquals("seasonwide", banner.get(BannerProperty.BannerType2));
-		assertEquals("http://thetvdb.com/banners/seasonswide/70327-7.jpg", banner.get(BannerProperty.BannerPath).toString());
-		assertEquals(99712, WebRequest.fetch((URL) banner.get(BannerProperty.BannerPath)).remaining(), 0);
+		assertEquals(857660, banner.getId(), 0);
+		assertEquals("season", banner.getBannerType());
+		assertEquals("seasonwide", banner.getBannerType2());
+		assertEquals("http://thetvdb.com/banners/seasonswide/70327-7.jpg", banner.getUrl().toString());
+		assertEquals(99712, WebRequest.fetch(banner.getUrl()).remaining(), 0);
 	}
 	
 	
 	@Test
-	public void getBannerDescriptor() throws Exception {
-		List<Map<BannerProperty, Object>> banners = thetvdb.getBannerDescriptor(70327);
+	public void getBannerList() throws Exception {
+		List<BannerDescriptor> banners = thetvdb.getBannerList(70327);
 		
 		assertEquals(106, banners.size());
-		assertEquals("fanart", banners.get(0).get(BannerProperty.BannerType));
-		assertEquals("1280x720", banners.get(0).get(BannerProperty.BannerType2));
-		assertEquals(486993, WebRequest.fetch((URL) banners.get(0).get(BannerProperty.BannerPath)).remaining(), 0);
+		assertEquals("fanart", banners.get(0).getBannerType());
+		assertEquals("1280x720", banners.get(0).getBannerType2());
+		assertEquals(486993, WebRequest.fetch(banners.get(0).getUrl()).remaining(), 0);
 	}
 	
 	

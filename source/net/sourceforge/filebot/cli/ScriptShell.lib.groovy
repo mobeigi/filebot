@@ -8,8 +8,9 @@ File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
 File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
+File.metaClass.isArchive = { _types.getFilter("archive").accept(delegate) }
 
-File.metaClass.dir = { getParentFile() }
+File.metaClass.getDir = { getParentFile() }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
 
 String.metaClass.getFiles = { c -> new File(delegate).getFiles(c) }
@@ -38,6 +39,8 @@ File.metaClass.validateFilePath = { validateFilePath(delegate) }
 File.metaClass.moveTo = { f -> renameFile(delegate, f) }
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
+String.metaClass.getExtension = { getExtension(delegate) }
+String.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
 
 
 // WebRequest utility methods
@@ -78,25 +81,42 @@ def getWatchService(Closure callback, List folders) {
 	folders.find{ if (!it.isDirectory()) throw new Exception("Must be a folder: " + it) }
 	
 	// create watch service and setup callback
-	def watchService = new FolderWatchService() {
+	def watchService = new FolderWatchService(true) {
 		
 		@Override
-		def void processCommitSet(File[] fileset) {
+		def void processCommitSet(File[] fileset, File dir) {
 			callback(fileset.toList())
 		}
 	}
 	
 	// collect updates for 5 minutes and then batch process
 	watchService.setCommitDelay(5 * 60 * 1000)
+	watchService.setCommitPerFolder(true)
 	
 	// start watching given files
-	folders.each { watchService.watch(it) }
+	folders.each { dir -> _guarded { watchService.watchFolder(dir) } }
 	
 	return watchService
 }
 
 File.metaClass.watch = { c -> getWatchService(c, [delegate]) }
 List.metaClass.watch = { c -> getWatchService(c, delegate) }
+
+
+// Season / Episode helpers
+import net.sourceforge.filebot.mediainfo.ReleaseInfo
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher
+
+def guessEpisodeNumber(path) {
+	def input = path instanceof File ? path.getName() : path.toString()
+	def sxe = new SeasonEpisodeMatcher(new SeasonEpisodeMatcher.SeasonEpisodeFilter(30, 50, 1000)).match(input)
+	return sxe == null || sxe.isEmpty() ? null : sxe[0]
+}
+
+def detectSeriesName(files) {
+	def names = ReleaseInfo.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() })
+	return names == null || names.isEmpty() ? null : names[0]
+}
 
 
 

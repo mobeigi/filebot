@@ -7,6 +7,7 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import org.w3c.dom.Node;
 
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
+import net.sourceforge.tuned.FileUtilities;
 
 
 public class TheTVDBClient extends AbstractEpisodeListProvider {
@@ -367,21 +370,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	 * 
 	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
 	 */
-	public Map<BannerProperty, Object> getBanner(TheTVDBSearchResult series, String bannerType, String bannerType2, Integer season, String language) throws Exception {
-		// build selector
-		Map<BannerProperty, Object> selector = new EnumMap<BannerProperty, Object>(BannerProperty.class);
-		if (bannerType != null)
-			selector.put(BannerProperty.BannerType, bannerType);
-		if (bannerType2 != null)
-			selector.put(BannerProperty.BannerType2, bannerType2);
-		if (season != null)
-			selector.put(BannerProperty.Season, new Double(season));
-		if (language != null)
-			selector.put(BannerProperty.Language, language);
-		
+	public BannerDescriptor getBanner(TheTVDBSearchResult series, String bannerType, String bannerType2, Integer season, Locale locale) throws Exception {
 		// search for a banner matching the selector
-		for (Map<BannerProperty, Object> it : getBannerDescriptor(series.seriesId)) {
-			if (it.entrySet().containsAll(selector.entrySet())) {
+		for (BannerDescriptor it : getBannerList(series.seriesId)) {
+			if ((bannerType == null || it.getBannerType().equalsIgnoreCase(bannerType)) && (bannerType2 == null || it.getBannerType2().equalsIgnoreCase(bannerType2)) && (season == null || it.getSeason().equals(season))
+					&& ((locale == null && it.getLocale().getLanguage().equals("en")) || it.getLocale().getLanguage().equals(locale.getLanguage()))) {
 				return it;
 			}
 		}
@@ -390,15 +383,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public List<Map<BannerProperty, Object>> getBannerDescriptor(int seriesid) throws Exception {
+	public List<BannerDescriptor> getBannerList(int seriesid) throws Exception {
 		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesid + "/banners.xml"));
 		
 		List<Node> nodes = selectNodes("//Banner", dom);
-		List<Map<BannerProperty, Object>> banners = new ArrayList<Map<BannerProperty, Object>>();
+		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
 		
 		for (Node node : nodes) {
 			try {
-				EnumMap<BannerProperty, Object> item = new EnumMap<BannerProperty, Object>(BannerProperty.class);
+				EnumMap<BannerProperty, String> item = new EnumMap<BannerProperty, String>(BannerProperty.class);
+				
+				// insert banner mirror
+				item.put(BannerProperty.BannerMirror, getResource(MirrorType.BANNER, "/banners/").toString());
 				
 				// copy values from xml
 				for (BannerProperty key : BannerProperty.values()) {
@@ -408,21 +404,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 					}
 				}
 				
-				// parse numbers
-				for (BannerProperty key : BannerProperty.numbers()) {
-					if (item.get(key) != null) {
-						item.put(key, new Double(item.get(key).toString()));
-					}
-				}
-				
-				// resolve relative urls
-				for (BannerProperty key : BannerProperty.urls()) {
-					if (item.get(key) != null) {
-						item.put(key, getResource(MirrorType.BANNER, "/banners/" + item.get(key)));
-					}
-				}
-				
-				banners.add(item);
+				banners.add(new BannerDescriptor(item));
 			} catch (Exception e) {
 				// log and ignore
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid banner descriptor", e);
@@ -433,27 +415,110 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public static enum BannerProperty {
-		id,
-		BannerPath,
-		BannerType,
-		BannerType2,
-		Season,
-		Colors,
-		Language,
-		Rating,
-		RatingCount,
-		SeriesName,
-		ThumbnailPath,
-		VignettePath;
+	public static class BannerDescriptor {
 		
-		public static BannerProperty[] numbers() {
-			return new BannerProperty[] { id, Season, Rating, RatingCount };
+		public static enum BannerProperty {
+			id,
+			BannerMirror,
+			BannerPath,
+			BannerType,
+			BannerType2,
+			Season,
+			Colors,
+			Language,
+			Rating,
+			RatingCount,
+			SeriesName,
+			ThumbnailPath,
+			VignettePath
 		}
 		
 		
-		public static BannerProperty[] urls() {
-			return new BannerProperty[] { BannerPath, ThumbnailPath, VignettePath };
+		private EnumMap<BannerProperty, String> fields;
+		
+		
+		protected BannerDescriptor(Map<BannerProperty, String> fields) {
+			this.fields = new EnumMap<BannerProperty, String>(fields);
+		}
+		
+		
+		public URL getMirrorUrl() throws MalformedURLException {
+			return new URL(fields.get(BannerProperty.BannerMirror));
+		}
+		
+		
+		public URL getUrl() throws MalformedURLException {
+			return new URL(getMirrorUrl(), fields.get(BannerProperty.BannerPath));
+		}
+		
+		
+		public String getExtension() {
+			return FileUtilities.getExtension(fields.get(BannerProperty.BannerPath));
+		}
+		
+		
+		public int getId() {
+			return Integer.parseInt(fields.get(BannerProperty.id));
+		}
+		
+		
+		public String getBannerType() {
+			return fields.get(BannerProperty.BannerType);
+		}
+		
+		
+		public String getBannerType2() {
+			return fields.get(BannerProperty.BannerType2);
+		}
+		
+		
+		public Integer getSeason() {
+			try {
+				return new Integer(fields.get(BannerProperty.Season));
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+		
+		
+		public String getColors() {
+			return fields.get(BannerProperty.Colors);
+		}
+		
+		
+		public Locale getLocale() {
+			return new Locale(fields.get(BannerProperty.Language));
+		}
+		
+		
+		public double getRating() {
+			return Double.parseDouble(fields.get(BannerProperty.Rating));
+		}
+		
+		
+		public int getRatingCount() {
+			return Integer.parseInt(fields.get(BannerProperty.RatingCount));
+		}
+		
+		
+		public boolean hasSeriesName() {
+			return Boolean.parseBoolean(fields.get(BannerProperty.SeriesName));
+		}
+		
+		
+		public URL getThumbnailUrl() throws MalformedURLException {
+			return new URL(getMirrorUrl(), fields.get(BannerProperty.ThumbnailPath));
+		}
+		
+		
+		public URL getVignetteUrl() throws MalformedURLException {
+			return new URL(getMirrorUrl(), fields.get(BannerProperty.VignettePath));
+		}
+		
+		
+		@Override
+		public String toString() {
+			return fields.toString();
 		}
 	}
 	
