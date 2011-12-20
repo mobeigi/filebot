@@ -76,7 +76,7 @@ def execute(String... args) {
 // WatchService helper
 import net.sourceforge.filebot.cli.FolderWatchService;
 
-def getWatchService(Closure callback, List folders) {
+def createWatchService(Closure callback, List folders, boolean watchTree) {
 	// sanity check
 	folders.find{ if (!it.isDirectory()) throw new Exception("Must be a folder: " + it) }
 	
@@ -91,7 +91,7 @@ def getWatchService(Closure callback, List folders) {
 	
 	// collect updates for 5 minutes and then batch process
 	watchService.setCommitDelay(5 * 60 * 1000)
-	watchService.setCommitPerFolder(true)
+	watchService.setCommitPerFolder(watchTree)
 	
 	// start watching given files
 	folders.each { dir -> _guarded { watchService.watchFolder(dir) } }
@@ -99,8 +99,8 @@ def getWatchService(Closure callback, List folders) {
 	return watchService
 }
 
-File.metaClass.watch = { c -> getWatchService(c, [delegate]) }
-List.metaClass.watch = { c -> getWatchService(c, delegate) }
+File.metaClass.watch = { c -> createWatchService(c, [delegate], true) }
+List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
 // Season / Episode helpers

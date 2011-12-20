@@ -44,7 +44,7 @@ args.eachMediaFolder() { dir ->
 	
 	def options = TheTVDB.search(seriesName)
 	if (options.isEmpty()) {
-		println "TV Series not found: $name"
+		println "TV Series not found: $seriesName"
 		return;
 	}
 	
