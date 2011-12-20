@@ -4,14 +4,19 @@ body {
 	background-color: #e6e6e6;
 }
 
-a,acronym {
+a, acronym {
 	color: #5c7684;
 	text-decoration: none;
 	border: none;
 }
 
+a.important {
+	border-bottom: thin dotted #FB9956;
+}
+
 a:hover {
 	text-decoration: underline;
+	border-bottom: none;
 }
 
 a img {
