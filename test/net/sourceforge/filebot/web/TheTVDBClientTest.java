@@ -15,6 +15,7 @@ import org.junit.Test;
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
+import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 
@@ -147,8 +148,28 @@ public class TheTVDBClientTest {
 	
 	
 	@Test
+	public void getSeriesInfo() throws Exception {
+		SeriesInfo it = thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
+		
+		assertEquals(80348, it.getId(), 0);
+		assertEquals("Adam Baldwin", it.getActors().get(2));
+		assertEquals("TV-PG", it.getContentRating());
+		assertEquals("2007-09-24", it.getFirstAired().toString());
+		assertEquals("Action and Adventure", it.getGenre().get(0));
+		assertEquals(934814, it.getImdbId(), 0);
+		assertEquals("English", it.getLanguage().getDisplayLanguage(Locale.ENGLISH));
+		assertEquals(310, it.getOverview().length());
+		assertEquals("60", it.getRuntime());
+		assertEquals("Chuck", it.getSeriesName());
+		assertEquals("http://thetvdb.com/banners/graphical/80348-g23.jpg", it.getBannerUrl().toString());
+		assertEquals("http://thetvdb.com/banners/fanart/original/80348-51.jpg", it.getFanartUrl().toString());
+		assertEquals("http://thetvdb.com/banners/posters/80348-16.jpg", it.getPosterUrl().toString());
+	}
+	
+	
+	@Test
 	public void getBanner() throws Exception {
-		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, Locale.ENGLISH);
+		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, Locale.ENGLISH, 0);
 		
 		assertEquals(857660, banner.getId(), 0);
 		assertEquals("season", banner.getBannerType());

@@ -8,15 +8,14 @@ import static net.sourceforge.filebot.WebServices.*
 
 def fetchBanner(outputDir, outputName, series, bannerType, bannerType2, season = null) {
 	// select and fetch banner
-	def banner = TheTVDB.getBanner(series, bannerType, bannerType2, season, Locale.ENGLISH)
+	def banner = TheTVDB.getBanner(series, bannerType, bannerType2, season, Locale.ENGLISH, 0)
 	if (banner == null) {
 		println "Banner not found: $outputName"
 		return null
 	}
-	
-	def output = new File(outputDir, outputName + "." + banner.extension)
-	println "SaveAs $output"
-	return banner.url.saveAs(output)
+		
+	println "Fetch $banner.url"
+	return banner.url.saveAs(new File(outputDir, outputName + ".jpg"))
 }
 
 
