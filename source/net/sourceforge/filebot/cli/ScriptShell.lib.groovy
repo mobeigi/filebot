@@ -47,7 +47,7 @@ String.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
 import static net.sourceforge.filebot.web.WebRequest.*
 
 URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) };
-URL.metaClass.saveAs = { f -> writeFile(fetch(delegate), f) }
+URL.metaClass.saveAs = { f -> writeFile(fetch(delegate), f); f.absolutePath }
 
 
 // Shell helper
