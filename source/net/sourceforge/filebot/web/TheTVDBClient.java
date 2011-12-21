@@ -382,14 +382,14 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public SeriesInfo getSeriesInfo(int seriesid, Locale locale) throws Exception {
+	public SeriesInfo getSeriesInfo(TheTVDBSearchResult searchResult, Locale locale) throws Exception {
 		// check cache first
-		SeriesInfo cachedItem = getCache().getData("seriesInfo", seriesid, SeriesInfo.class);
+		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, SeriesInfo.class);
 		if (cachedItem != null) {
 			return cachedItem;
 		}
 		
-		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesid + "/" + locale.getLanguage() + ".xml"));
+		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + locale.getLanguage() + ".xml"));
 		
 		Node node = selectNode("//Series", dom);
 		Map<SeriesProperty, String> fields = new EnumMap<SeriesProperty, String>(SeriesProperty.class);
@@ -406,7 +406,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		SeriesInfo seriesInfo = new SeriesInfo(fields);
-		getCache().putData("seriesInfo", seriesid, seriesInfo);
+		getCache().putData("seriesInfo", searchResult.seriesId, seriesInfo);
 		return seriesInfo;
 	}
 	
@@ -468,7 +468,25 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		public List<String> getActors() {
 			// e.g. |Zachary Levi|Adam Baldwin|Yvonne Strzechowski|
-			return asList(get(SeriesProperty.Actors).replaceFirst("^[|]", "").split("[|]"));
+			return split(get(SeriesProperty.Actors));
+		}
+		
+		
+		public List<String> getGenre() {
+			// e.g. |Comedy|
+			return split(get(SeriesProperty.Genre));
+		}
+		
+		
+		protected List<String> split(String values) {
+			List<String> items = new ArrayList<String>();
+			for (String it : values.split("[|]")) {
+				it = it.trim();
+				if (it.length() > 0) {
+					items.add(it);
+				}
+			}
+			return items;
 		}
 		
 		
@@ -493,12 +511,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		public String getContentRating() {
 			// e.g. TV-PG
 			return get(SeriesProperty.ContentRating);
-		}
-		
-		
-		public List<String> getGenre() {
-			// e.g. |Comedy|
-			return asList(get(SeriesProperty.Genre).replaceFirst("^[|]", "").split("[|]"));
 		}
 		
 		
@@ -538,7 +550,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public String getSeriesName() {
+		public String getName() {
 			// e.g. Chuck
 			return get(SeriesProperty.SeriesName);
 		}

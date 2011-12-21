@@ -149,7 +149,7 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getSeriesInfo() throws Exception {
-		SeriesInfo it = thetvdb.getSeriesInfo(80348, Locale.ENGLISH);
+		SeriesInfo it = thetvdb.getSeriesInfo(new TheTVDBSearchResult(null, 80348), Locale.ENGLISH);
 		
 		assertEquals(80348, it.getId(), 0);
 		assertEquals("Adam Baldwin", it.getActors().get(2));

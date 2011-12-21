@@ -13,14 +13,32 @@ def fetchBanner(outputDir, outputName, series, bannerType, bannerType2, season =
 		println "Banner not found: $outputName"
 		return null
 	}
-		
-	println "Fetch $banner.url"
+	
+	println "Fetching banner $banner"
 	return banner.url.saveAs(new File(outputDir, outputName + ".jpg"))
 }
 
 
-def fetchSeriesBanners(dir, series, seasons) {
-	println "Fetch banners for $series / Season $seasons"
+def fetchNfo(outputDir, outputName, series) {
+	def info = TheTVDB.getSeriesInfo(series, Locale.ENGLISH)
+	println "Writing nfo $info"
+	
+	new File(outputDir, outputName + ".nfo").withWriter{ out ->
+		out.println("Name: $info.name")
+		out.println("IMDb: http://www.imdb.com/title/tt${info.imdbId.pad(7)}")
+		out.println("Actors: ${info.actors.join(', ')}")
+		out.println("Genere: ${info.genre.join(', ')}")
+		out.println("Language: ${info.language.displayName}")
+		out.println("Overview: $info.overview")
+	}
+}
+
+
+def fetchSeriesBannersAndNfo(dir, series, seasons) {
+	println "Fetch nfo and banners for $series / Season $seasons"
+	
+	// fetch nfo
+	fetchNfo(dir, series.name, series)
 	
 	// fetch series banner, fanart, posters, etc
 	fetchBanner(dir, "folder", series, "poster", "680x1000")
@@ -55,5 +73,5 @@ args.eachMediaFolder() { dir ->
 		return;
 	}
 	
-	fetchSeriesBanners(dir, options[0], seasons)
+	fetchSeriesBannersAndNfo(dir, options[0], seasons)
 }
