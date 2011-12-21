@@ -160,7 +160,7 @@ public class TheTVDBClientTest {
 		assertEquals("English", it.getLanguage().getDisplayLanguage(Locale.ENGLISH));
 		assertEquals(310, it.getOverview().length());
 		assertEquals("60", it.getRuntime());
-		assertEquals("Chuck", it.getSeriesName());
+		assertEquals("Chuck", it.getName());
 		assertEquals("http://thetvdb.com/banners/graphical/80348-g23.jpg", it.getBannerUrl().toString());
 		assertEquals("http://thetvdb.com/banners/fanart/original/80348-51.jpg", it.getFanartUrl().toString());
 		assertEquals("http://thetvdb.com/banners/posters/80348-16.jpg", it.getPosterUrl().toString());
