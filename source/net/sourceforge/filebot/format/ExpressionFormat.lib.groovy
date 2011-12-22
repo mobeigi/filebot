@@ -7,7 +7,8 @@ import static net.sourceforge.tuned.FileUtilities.*;
 *
 * e.g. file[0] -> "F:"
 */
-File.metaClass.getAt = { index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
+File.metaClass.getAt = { Range range -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(range).join(File.separator) }
+File.metaClass.getAt = { int index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
 
 
 /**

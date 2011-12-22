@@ -64,7 +64,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		
 		@Override
-		protected Date parse(Object object) {
+		public Date parse(Object object) {
 			if (object instanceof Movie) {
 				return null;
 			}

@@ -433,7 +433,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			BannerMirror,
 			banner,
 			fanart,
-			poster,
+			poster
 		}
 		
 		
@@ -556,29 +556,51 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
+		public String getNetwork() {
+			// e.g. CBS
+			return get(SeriesProperty.Network);
+		}
+		
+		
 		public String getStatus() {
 			// e.g. Continuing
 			return get(SeriesProperty.Status);
 		}
 		
 		
-		public URL getBannerMirrorUrl() throws MalformedURLException {
-			return new URL(get(BannerProperty.BannerMirror));
+		public URL getBannerMirrorUrl() {
+			try {
+				return new URL(get(BannerProperty.BannerMirror));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
 		public URL getBannerUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(SeriesProperty.banner));
+			try {
+				return new URL(getBannerMirrorUrl(), get(SeriesProperty.banner));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public URL getFanartUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(SeriesProperty.fanart));
+		public URL getFanartUrl() {
+			try {
+				return new URL(getBannerMirrorUrl(), get(SeriesProperty.fanart));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
 		public URL getPosterUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(SeriesProperty.poster));
+			try {
+				return new URL(getBannerMirrorUrl(), get(SeriesProperty.poster));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		

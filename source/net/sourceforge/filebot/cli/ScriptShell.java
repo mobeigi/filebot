@@ -27,6 +27,7 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.format.AssociativeScriptObject;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -55,21 +56,32 @@ class ScriptShell {
 	
 	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc) {
 		Bindings bindings = new SimpleBindings();
-		bindings.put("_script", new File(args.script));
+		
+		// bind API objects
 		bindings.put("_cli", PrivilegedInvocation.newProxy(CmdlineInterface.class, cli, acc));
+		bindings.put("_script", new File(args.script));
 		bindings.put("_args", args);
+		
 		bindings.put("_types", MediaTypes.getDefault());
 		bindings.put("_log", CLILogger);
 		
-		// initialize web services
+		// bind Java properties and environment variables
+		bindings.put("_prop", new AssociativeScriptObject(System.getProperties()));
+		bindings.put("_env", new AssociativeScriptObject(System.getenv()));
+		
+		// bind console object
+		bindings.put("console", System.console());
+		
+		// bind Episode data providers
 		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
-			bindings.put(service.getName().toLowerCase(), PrivilegedInvocation.newProxy(EpisodeListProvider.class, service, acc));
-		}
-		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
-			bindings.put(service.getName().toLowerCase(), PrivilegedInvocation.newProxy(MovieIdentificationService.class, service, acc));
+			bindings.put(service.getName(), service);
 		}
 		
-		bindings.put("console", System.console());
+		// bind Movie data providers
+		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
+			bindings.put(service.getName(), service);
+		}
+		
 		return bindings;
 	}
 	
@@ -97,8 +109,9 @@ class ScriptShell {
 		Permissions permissions = new Permissions();
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
-		permissions.add(new RuntimePermission("accessDeclaredMembers"));
+		permissions.add(new RuntimePermission("accessDeclaredMembers")); // this is probably a security problem but nevermind
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
+		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));

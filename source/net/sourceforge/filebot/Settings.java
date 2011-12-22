@@ -6,7 +6,6 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.jar.Manifest;
@@ -28,17 +27,17 @@ public final class Settings {
 		return getApplicationProperty("application.name");
 	};
 	
-
+	
 	public static String getApplicationVersion() {
 		return getApplicationProperty("application.version");
 	};
 	
-
+	
 	public static String getApplicationProperty(String key) {
 		return ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT).getString(key);
 	}
 	
-
+	
 	public static String getApplicationDeployment() {
 		String deployment = System.getProperty("application.deployment");
 		if (deployment != null)
@@ -50,7 +49,7 @@ public final class Settings {
 		return null;
 	}
 	
-
+	
 	public static File getApplicationFolder() {
 		// special handling for web start
 		if (getApplicationDeployment() != null) {
@@ -69,60 +68,60 @@ public final class Settings {
 		return new File(System.getProperty("user.dir"));
 	}
 	
-
+	
 	public static Settings forPackage(Class<?> type) {
 		return new Settings(Preferences.userNodeForPackage(type));
 	}
 	
-
+	
 	private final Preferences prefs;
 	
-
+	
 	private Settings(Preferences prefs) {
 		this.prefs = prefs;
 	}
 	
-
+	
 	public Settings node(String nodeName) {
 		return new Settings(prefs.node(nodeName));
 	}
 	
-
+	
 	public String get(String key) {
 		return get(key, null);
 	}
 	
-
+	
 	public String get(String key, String def) {
 		return prefs.get(key, def);
 	}
 	
-
+	
 	public void put(String key, String value) {
 		prefs.put(key, value);
 	}
 	
-
+	
 	public void remove(String key) {
 		prefs.remove(key);
 	}
 	
-
+	
 	public PreferencesEntry<String> entry(String key) {
 		return new PreferencesEntry<String>(prefs, key, new StringAdapter());
 	}
 	
-
+	
 	public PreferencesMap<String> asMap() {
 		return PreferencesMap.map(prefs);
 	}
 	
-
+	
 	public PreferencesList<String> asList() {
 		return PreferencesList.map(prefs);
 	}
 	
-
+	
 	public void clear() {
 		try {
 			// remove child nodes
@@ -137,20 +136,24 @@ public final class Settings {
 		}
 	}
 	
-
-	public static String getApplicationIdentifier() {
-		String rev = null;
+	
+	public static int getApplicationRevisionNumber() {
 		try {
 			Manifest manifest = new Manifest(Settings.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
-			rev = manifest.getMainAttributes().getValue("Built-Revision");
-		} catch (IOException e) {
+			String rev = manifest.getMainAttributes().getValue("Built-Revision");
+			return Integer.parseInt(rev);
+		} catch (Exception e) {
 			Logger.getLogger(Settings.class.getName()).log(Level.WARNING, e.getMessage());
+			return 0;
 		}
-		
-		return joinBy(" ", getApplicationName(), getApplicationVersion(), String.format("(r%s)", rev != null ? rev : 0));
 	}
 	
-
+	
+	public static String getApplicationIdentifier() {
+		return joinBy(" ", getApplicationName(), getApplicationVersion(), String.format("(r%s)", getApplicationRevisionNumber()));
+	}
+	
+	
 	public static String getJavaRuntimeIdentifier() {
 		String name = System.getProperty("java.runtime.name");
 		String version = System.getProperty("java.version");

@@ -14,7 +14,7 @@ public class DateMetric implements SimilarityMetric {
 	
 	private final DatePattern[] patterns;
 	
-
+	
 	public DateMetric() {
 		patterns = new DatePattern[2];
 		
@@ -25,7 +25,7 @@ public class DateMetric implements SimilarityMetric {
 		patterns[1] = new DatePattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](\\d{1,2})[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", new int[] { 3, 2, 1 });
 	}
 	
-
+	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Date d1 = parse(o1);
@@ -39,8 +39,8 @@ public class DateMetric implements SimilarityMetric {
 		return d1.equals(d2) ? 1 : -1;
 	}
 	
-
-	protected Date parse(Object object) {
+	
+	public Date parse(Object object) {
 		if (object instanceof File) {
 			// parse file name
 			object = ((File) object).getName();
@@ -49,8 +49,8 @@ public class DateMetric implements SimilarityMetric {
 		return match(object.toString());
 	}
 	
-
-	protected Date match(CharSequence name) {
+	
+	public Date match(CharSequence name) {
 		for (DatePattern pattern : patterns) {
 			Date match = pattern.match(name);
 			
@@ -62,24 +62,24 @@ public class DateMetric implements SimilarityMetric {
 		return null;
 	}
 	
-
+	
 	protected static class DatePattern {
 		
 		protected final Pattern pattern;
 		protected final int[] order;
 		
-
+		
 		public DatePattern(String pattern, int[] order) {
 			this.pattern = Pattern.compile(pattern);
 			this.order = order;
 		}
 		
-
+		
 		protected Date process(MatchResult match) {
 			return new Date(Integer.parseInt(match.group(order[0])), Integer.parseInt(match.group(order[1])), Integer.parseInt(match.group(order[2])));
 		}
 		
-
+		
 		public Date match(CharSequence name) {
 			Matcher matcher = pattern.matcher(name);
 			

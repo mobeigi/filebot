@@ -1,7 +1,8 @@
 // File selector methods
 import static groovy.io.FileType.*
 
-File.metaClass.node = { path -> new File(delegate, path) }
+File.metaClass.resolve = { Object name -> new File(delegate, name.toString()) }
+File.metaClass.getAt = { String name -> new File(delegate, name) }
 File.metaClass.listFiles = { c -> delegate.isDirectory() ? delegate.listFiles().findAll(c) : []}
 
 File.metaClass.isVideo = { _types.getFilter("video").accept(delegate) }
@@ -27,7 +28,7 @@ List.metaClass.eachMediaFolder = { c -> getFolders{ it.hasFile{ it.isVideo() } }
 
 
 // File utility methods
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*
 
 File.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate.getName()) }
 File.metaClass.getPathWithoutExtension = { new File(delegate.getParentFile(), getNameWithoutExtension(delegate.getName())).getPath() }
@@ -41,13 +42,34 @@ List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 String.metaClass.getExtension = { getExtension(delegate) }
 String.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
+String.metaClass.validateFileName = { validateFileName(delegate) }
+String.metaClass.validateFilePath = { validateFilePath(delegate) }
 
 
-// WebRequest utility methods
+// Parallel helper
+import java.util.concurrent.*
+
+def parallel(List closures, int threads = Runtime.getRuntime().availableProcessors()) {
+	def tasks = closures.collect { it as Callable }
+	return Executors.newFixedThreadPool(threads).invokeAll(tasks).collect{ it.get() }
+}
+
+
+// Web and File IO helpers
+import java.nio.charset.Charset;
 import static net.sourceforge.filebot.web.WebRequest.*
 
-URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) };
+URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
 URL.metaClass.saveAs = { f -> writeFile(fetch(delegate), f); f.absolutePath }
+String.metaClass.saveAs = { f, csn = "utf-8" -> writeFile(Charset.forName(csn).encode(delegate), f); f.absolutePath }
+
+// Template Engine helpers
+import groovy.text.XmlTemplateEngine
+import groovy.text.GStringTemplateEngine
+import net.sourceforge.filebot.format.PropertyBindings
+
+Object.metaClass.applyXmlTemplate = { template -> new XmlTemplateEngine("\t", false).createTemplate(template).make(new PropertyBindings(delegate, "")).toString() }
+Object.metaClass.applyTextTemplate = { template -> new GStringTemplateEngine().createTemplate(template).make(new PropertyBindings(delegate, "")).toString() }
 
 
 // Shell helper
@@ -104,18 +126,26 @@ List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
 // Season / Episode helpers
-import net.sourceforge.filebot.mediainfo.ReleaseInfo
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher
+import net.sourceforge.filebot.mediainfo.*
+import net.sourceforge.filebot.similarity.*
 
-def guessEpisodeNumber(path) {
-	def input = path instanceof File ? path.getName() : path.toString()
+def parseEpisodeNumber(path) {
+	def input = path instanceof File ? path.name : path.toString()
 	def sxe = new SeasonEpisodeMatcher(new SeasonEpisodeMatcher.SeasonEpisodeFilter(30, 50, 1000)).match(input)
 	return sxe == null || sxe.isEmpty() ? null : sxe[0]
+}
+
+def parseDate(path) {
+	return new DateMetric().parse(input)
 }
 
 def detectSeriesName(files) {
 	def names = ReleaseInfo.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() })
 	return names == null || names.isEmpty() ? null : names[0]
+}
+
+def similarity(o1, o2) {
+	return new NameSimilarityMetric().getSimilarity(o1, o2)
 }
 
 
@@ -194,4 +224,4 @@ def _defaults(args) {
 /**
  * Catch and log exceptions thrown by the closure
  */
-this.metaClass._guarded = { c -> try { return c.call() } catch (e) { _log.severe(e.getMessage()); return null }}
+this.metaClass._guarded = { c -> try { return c.call() } catch (e) { _log.severe("${e.class.simpleName}: ${e.message}"); return null }}

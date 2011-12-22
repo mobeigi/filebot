@@ -1,16 +1,17 @@
-// Settings
-def episodeDir = "X:/in/TV"
-def movieDir = "X:/in/Movies"
+// EXPERIMENTAL // HERE THERE BE DRAGONS
 
-def episodeFormat = "X:/out/TV/{n}{'/Season '+s}/{episode}"
-def movieFormat = "X:/out/Movies/{movie}/{movie}"
+// PERSONALIZED SETTINGS
+def episodeDir    = "V:/in/TV"
+def episodeFormat = "V:/out/TV/{n}{'/Season '+s}/{episode}"
+def movieDir      = "V:/in/Movies"
+def movieFormat   = "V:/out/Movies/{movie}/{movie}"
 
-def incomplete(f) { f =~ /[.]chunk|[.]part$/ }
+// ignore chunk, part, par and hidden files
+def incomplete(f) { f.name =~ /[.]chunk|[.]part$|[.]par$/ || f.isHidden() }
+
 
 // run cmdline unrar (require -trust-script) on multi-volume rar files
-[episodeDir, movieDir].getFiles().findAll { 
-	it =~ /[.]part01[.]rar$/ || (it =~ /[.]rar$/ && !(it =~ /[.]part\d{2}[.]rar$/))
-}.each { rar ->
+[episodeDir, movieDir].getFiles().findAll { it =~ /[.]part01[.]rar$/ || (it =~ /[.]rar$/ && !(it =~ /[.]part\d{2}[.]rar$/)) }.each { rar ->
 	// new layout: foo.part1.rar, foo.part2.rar
 	// old layout: foo.rar, foo.r00, foo.r01
 	boolean partLayout = (rar =~ /[.]part01[.]rar/)
@@ -41,8 +42,9 @@ def incomplete(f) { f =~ /[.]chunk|[.]part$/ }
 /*
  * Fetch subtitles and sort into folders
  */
-episodeDir.eachMediaFolder() { dir ->
-	def files = dir.listFiles { !incomplete(it) }
+episodeDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() } }.each{ dir ->
+	println "Processing $dir"
+	def files = dir.listFiles{ it.isVideo() }
 	
 	// fetch subtitles
 	files += getSubtitles(file:files)
@@ -51,8 +53,9 @@ episodeDir.eachMediaFolder() { dir ->
 	rename(file:files, db:'TVRage', format:episodeFormat)
 }
 
-movieDir.eachMediaFolder() { dir ->
-	def files = dir.listFiles { !incomplete(it) }
+movieDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() } }.each{ dir ->
+	println "Processing $dir"
+	def files = dir.listFiles{ it.isVideo() }
 	
 	// fetch subtitles
 	files += getSubtitles(file:files)

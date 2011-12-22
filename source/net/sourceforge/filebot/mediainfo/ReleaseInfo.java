@@ -128,7 +128,7 @@ public class ReleaseInfo {
 		for (String token : Pattern.compile("[\\s\"<>|]+").split(text)) {
 			try {
 				URL url = new URL(token);
-				if (url.getHost().contains("thetvdb")) {
+				if (url.getHost().contains("thetvdb") && url.getQuery() != null) {
 					Matcher idMatch = Pattern.compile("(?<=(^|\\W)id=)\\d+").matcher(url.getQuery());
 					while (idMatch.find()) {
 						collection.add(Integer.parseInt(idMatch.group()));

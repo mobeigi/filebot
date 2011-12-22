@@ -3,6 +3,7 @@ package net.sourceforge.filebot.cli;
 
 
 import static net.sourceforge.filebot.cli.CLILogging.*;
+import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -34,7 +35,7 @@ public class ArgumentProcessor {
 		return bean;
 	}
 	
-
+	
 	public int process(ArgumentBean args, CmdlineInterface cli) throws Exception {
 		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
 		CLILogger.setLevel(args.getLogLevel());
@@ -96,13 +97,13 @@ public class ArgumentProcessor {
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Exception e) {
-			CLILogger.severe(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
+			CLILogger.severe(String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)));
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
 	}
 	
-
+	
 	public void printHelp(ArgumentBean argumentBean) {
 		new CmdLineParser(argumentBean).printUsage(System.out);
 	}
