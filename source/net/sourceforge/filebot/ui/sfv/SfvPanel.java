@@ -48,7 +48,7 @@ public class SfvPanel extends JComponent {
 	private final ChecksumTableTransferablePolicy transferablePolicy = new ChecksumTableTransferablePolicy(table.getModel(), computationService);
 	private final ChecksumTableExportHandler exportHandler = new ChecksumTableExportHandler(table.getModel());
 	
-
+	
 	public SfvPanel() {
 		table.setTransferHandler(new DefaultTransferHandler(transferablePolicy, exportHandler));
 		
@@ -90,10 +90,10 @@ public class SfvPanel extends JComponent {
 		putClientProperty("transferablePolicy", transferablePolicy);
 		
 		// Shortcut DELETE
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("DELETE"), removeAction);
 	}
 	
-
+	
 	protected void restartComputation(HashType hash) {
 		// cancel all running computations
 		computationService.reset();
@@ -127,7 +127,7 @@ public class SfvPanel extends JComponent {
 		}
 	}
 	
-
+	
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
 	
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
@@ -176,7 +176,7 @@ public class SfvPanel extends JComponent {
 		}
 	};
 	
-
+	
 	protected class ChangeHashTypeAction extends AbstractAction implements PropertyChangeListener {
 		
 		private ChangeHashTypeAction(HashType hash) {
@@ -190,13 +190,13 @@ public class SfvPanel extends JComponent {
 			table.getModel().addPropertyChangeListener(this);
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			table.getModel().setHashType((HashType) getValue(HASH_TYPE_PROPERTY));
 		}
 		
-
+		
 		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			if (LOADING_PROPERTY.equals(evt.getPropertyName())) {
@@ -210,48 +210,48 @@ public class SfvPanel extends JComponent {
 		
 	}
 	
-
+	
 	protected class ChecksumTableSaveAction extends SaveAction {
 		
 		private File selectedColumn = null;
 		
-
+		
 		public ChecksumTableSaveAction() {
 			super(exportHandler);
 		}
 		
-
+		
 		@Override
 		public ChecksumTableExportHandler getExportHandler() {
 			return (ChecksumTableExportHandler) super.getExportHandler();
 		}
 		
-
+		
 		@Override
 		protected boolean canExport() {
 			return selectedColumn != null && super.canExport();
 		}
 		
-
+		
 		@Override
 		protected void export(File file) throws IOException {
 			getExportHandler().export(file, selectedColumn);
 		}
 		
-
+		
 		@Override
 		protected String getDefaultFileName() {
 			return getExportHandler().getDefaultFileName(selectedColumn);
 		}
 		
-
+		
 		@Override
 		protected File getDefaultFolder() {
 			// use the column root as default folder in the file dialog
 			return selectedColumn;
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			List<File> options = new ArrayList<File>();

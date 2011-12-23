@@ -29,7 +29,7 @@ class FileTreePanel extends JComponent {
 	
 	private FileTreeTransferablePolicy transferablePolicy = new FileTreeTransferablePolicy(fileTree);
 	
-
+	
 	public FileTreePanel() {
 		fileTree.setTransferHandler(new DefaultTransferHandler(transferablePolicy, null));
 		
@@ -62,20 +62,20 @@ class FileTreePanel extends JComponent {
 		});
 		
 		// Shortcut DELETE
-		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke("DELETE"), removeAction);
 	}
 	
-
+	
 	public FileTree getFileTree() {
 		return fileTree;
 	}
 	
-
+	
 	public FileTreeTransferablePolicy getTransferablePolicy() {
 		return transferablePolicy;
 	}
 	
-
+	
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
@@ -108,7 +108,7 @@ class FileTreePanel extends JComponent {
 		}
 	};
 	
-
+	
 	private void fireFileTreeChange() {
 		firePropertyChange("filetree", null, fileTree);
 	}

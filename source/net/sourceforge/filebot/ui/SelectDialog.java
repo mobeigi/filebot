@@ -37,7 +37,7 @@ public class SelectDialog<T> extends JDialog {
 	
 	private boolean valueSelected = false;
 	
-
+	
 	public SelectDialog(Component parent, Collection<? extends T> options) {
 		super(getWindow(parent), "Select", ModalityType.DOCUMENT_MODAL);
 		
@@ -77,20 +77,20 @@ public class SelectDialog<T> extends JDialog {
 		setSize(new Dimension(210, 210));
 		
 		// Shortcut Enter
-		TunedUtilities.installAction(list, KeyStroke.getKeyStroke("released ENTER"), selectAction);
+		TunedUtilities.installAction(list, KeyStroke.getKeyStroke("ENTER"), selectAction);
 	}
 	
-
+	
 	protected String convertValueToString(Object value) {
 		return value.toString();
 	}
 	
-
+	
 	public JLabel getHeaderLabel() {
 		return headerLabel;
 	}
 	
-
+	
 	@SuppressWarnings("unchecked")
 	public T getSelectedValue() {
 		if (!valueSelected)
@@ -99,23 +99,23 @@ public class SelectDialog<T> extends JDialog {
 		return (T) list.getSelectedValue();
 	}
 	
-
+	
 	public void close() {
 		setVisible(false);
 		dispose();
 	}
 	
-
+	
 	public Action getSelectAction() {
 		return selectAction;
 	}
 	
-
+	
 	public Action getCancelAction() {
 		return cancelAction;
 	}
 	
-
+	
 	private final Action selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
 		public void actionPerformed(ActionEvent e) {

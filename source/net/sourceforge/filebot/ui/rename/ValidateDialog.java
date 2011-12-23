@@ -44,7 +44,7 @@ class ValidateDialog extends JDialog {
 	
 	private boolean cancelled = true;
 	
-
+	
 	public ValidateDialog(Window owner, Collection<File> source) {
 		super(owner, "Invalid Names", ModalityType.DOCUMENT_MODAL);
 		
@@ -92,24 +92,24 @@ class ValidateDialog extends JDialog {
 		content.add(new JButton(continueAction), "gap related");
 		content.add(new JButton(cancelAction), "gap 12mm");
 		
-		installAction(content, KeyStroke.getKeyStroke("released ESCAPE"), cancelAction);
+		installAction(content, KeyStroke.getKeyStroke("ESCAPE"), cancelAction);
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setMinimumSize(new Dimension(365, 280));
 		pack();
 	}
 	
-
+	
 	public List<File> getModel() {
 		return unmodifiableList(Arrays.asList(model));
 	}
 	
-
+	
 	public boolean isCancelled() {
 		return cancelled;
 	}
 	
-
+	
 	private void finish(boolean cancelled) {
 		this.cancelled = cancelled;
 		
@@ -117,7 +117,7 @@ class ValidateDialog extends JDialog {
 		dispose();
 	}
 	
-
+	
 	private final Action validateAction = new AbstractAction("Validate", ResourceManager.getIcon("dialog.continue")) {
 		
 		@Override
@@ -155,7 +155,7 @@ class ValidateDialog extends JDialog {
 		}
 	};
 	
-
+	
 	public static boolean validate(Component parent, List<File> source) {
 		IndexView<File> invalidFilePaths = new IndexView<File>(source);
 		
@@ -192,24 +192,24 @@ class ValidateDialog extends JDialog {
 		return true;
 	}
 	
-
+	
 	private static class IndexView<E> extends AbstractList<E> {
 		
 		private final List<Integer> mapping = new ArrayList<Integer>();
 		
 		private final List<E> source;
 		
-
+		
 		public IndexView(List<E> source) {
 			this.source = source;
 		}
 		
-
+		
 		public boolean addIndex(int index) {
 			return mapping.add(index);
 		}
 		
-
+		
 		@Override
 		public E get(int index) {
 			int sourceIndex = mapping.get(index);
@@ -220,13 +220,13 @@ class ValidateDialog extends JDialog {
 			return null;
 		}
 		
-
+		
 		@Override
 		public E set(int index, E element) {
 			return source.set(mapping.get(index), element);
 		}
 		
-
+		
 		@Override
 		public int size() {
 			return mapping.size();
