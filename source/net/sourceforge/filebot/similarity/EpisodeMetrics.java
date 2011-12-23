@@ -179,9 +179,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// normalize absolute similarity to similarity rank (6 ranks in total),
+			// normalize absolute similarity to similarity rank (5 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(super.getSimilarity(o1, o2) * 6) / 6);
+			return (float) (floor(super.getSimilarity(o1, o2) * 5) / 5);
 		}
 		
 		

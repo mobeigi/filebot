@@ -140,7 +140,7 @@ def parseDate(path) {
 }
 
 def detectSeriesName(files) {
-	def names = ReleaseInfo.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() })
+	def names = MediaDetection.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() })
 	return names == null || names.isEmpty() ? null : names[0]
 }
 

@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
+import static net.sourceforge.filebot.mediainfo.MediaDetection.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 

@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.mediainfo.ReleaseInfo.*;
+import static net.sourceforge.filebot.mediainfo.MediaDetection.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -20,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +43,6 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.tuned.FileUtilities;
 
 
 class EpisodeListMatcher implements AutoCompleteMatcher {
@@ -169,24 +167,18 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
 		// focus on movie and subtitle files
-		final List<File> mediaFiles = FileUtilities.filter(files, VIDEO_FILES, SUBTITLE_FILES);
-		final Map<File, List<File>> filesByFolder = mapByFolder(mediaFiles);
-		
-		// do matching all at once
-		if (filesByFolder.keySet().size() <= 5 || detectSeriesNames(mediaFiles).size() <= 5) {
-			return matchEpisodeSet(mediaFiles, locale, autodetection, parent);
-		}
+		final List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);;
 		
 		// assume that many shows will be matched, do it folder by folder
 		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
 		
 		// detect series names and create episode list fetch tasks
-		for (final List<File> folder : filesByFolder.values()) {
+		for (final Set<File> folder : mapFoldersBySeriesNames(mediaFiles).keySet()) {
 			taskPerFolder.add(new Callable<List<Match<File, ?>>>() {
 				
 				@Override
 				public List<Match<File, ?>> call() throws Exception {
-					return matchEpisodeSet(folder, locale, autodetection, parent);
+					return matchEpisodeSet(new ArrayList<File>(folder), locale, autodetection, parent);
 				}
 			});
 		}
