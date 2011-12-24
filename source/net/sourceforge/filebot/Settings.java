@@ -25,12 +25,12 @@ public final class Settings {
 	
 	public static String getApplicationName() {
 		return getApplicationProperty("application.name");
-	};
+	}
 	
 	
 	public static String getApplicationVersion() {
 		return getApplicationProperty("application.version");
-	};
+	}
 	
 	
 	public static String getApplicationProperty(String key) {

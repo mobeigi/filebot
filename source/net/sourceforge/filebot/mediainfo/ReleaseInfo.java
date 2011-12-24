@@ -110,7 +110,7 @@ public class ReleaseInfo {
 	
 	
 	// fetch release group names online and try to update the data every other day
-	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), String[].class, DAYS.toMillis(2)) {
+	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), String[].class, DAYS.toMillis(1)) {
 		
 		@Override
 		public String[] process(ByteBuffer data) {
