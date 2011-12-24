@@ -284,9 +284,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	@SuppressWarnings("unchecked")
 	protected synchronized Map<String, String> getSubLanguageMap() throws Exception {
 		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
-		String key = getClass().getName() + ".getSubLanguageMap";
+		String cacheKey = getClass().getName() + ".subLanguageMap";
 		
-		Element element = cache.get(key);
+		Element element = cache.get(cacheKey);
 		Map<String, String> subLanguageMap;
 		
 		if (element == null) {
@@ -302,7 +302,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			subLanguageMap.put("brazilian", "pob");
 			
 			// cache data
-			cache.put(new Element(key, subLanguageMap));
+			cache.put(new Element(cacheKey, subLanguageMap));
 		} else {
 			// use cached entry
 			subLanguageMap = (Map<String, String>) element.getValue();

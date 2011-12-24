@@ -24,35 +24,35 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
 
 
 public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 	private static final String host = "subscene.com";
 	
-	private final Map<String, String> languageFilterMap = initLanguageFilterMap();
 	
-
 	@Override
 	public String getName() {
 		return "Subscene";
 	}
 	
-
+	
 	@Override
 	public URI getLink() {
 		return URI.create("http://subscene.com");
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.subscene");
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
 		URL searchUrl = new URL("http", host, "/filmsearch.aspx?q=" + encode(query));
@@ -97,35 +97,25 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		return searchResults;
 	}
 	
-
+	
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		URL subtitleListUrl = getSubtitleListLink(searchResult, languageName).toURL();
-		String languageFilter = null;
 		
-		if (languageName != null) {
-			synchronized (languageFilterMap) {
-				languageFilter = languageFilterMap.get(languageName.toLowerCase());
-			}
-		}
-		
+		String languageFilter = getLanguageFilter(languageName);
 		Document subtitleListDocument = getSubtitleListDocument(subtitleListUrl, languageFilter);
 		
 		// let's update language filters if they are not known yet
 		if (languageName != null && languageFilter == null) {
-			synchronized (languageFilterMap) {
-				languageFilterMap.putAll(getLanguageFilterMap(subtitleListDocument));
-			}
+			updateLanguageFilterMap(subtitleListDocument);
 		}
 		
 		return getSubtitleList(subtitleListUrl, languageName, subtitleListDocument);
 	}
 	
-
+	
 	private List<SubtitleDescriptor> getSubtitleList(URL subtitleListUrl, String languageName, Document subtitleListDocument) {
-		
 		List<Node> nodes = selectNodes("//TABLE[@class='filmSubtitleList']//A[@class='a1']", subtitleListDocument);
-		
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -147,7 +137,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		return subtitles;
 	}
 	
-
+	
 	protected Document getSubtitleListDocument(URL subtitleListUrl, String languageFilter) throws IOException, SAXException {
 		URLConnection connection = subtitleListUrl.openConnection();
 		
@@ -158,15 +148,26 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		return getHtmlDocument(connection);
 	}
 	
-
-	protected Map<String, String> initLanguageFilterMap() {
-		return Settings.forPackage(SublightSubtitleClient.class).node("subtitles/subscene/languageFilterMap").asMap();
+	
+	protected String getLanguageFilter(String languageName) {
+		if (languageName == null || languageName.isEmpty()) {
+			return null;
+		}
+		
+		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+		String cacheKey = getClass().getName() + ".languageFilter";
+		
+		Element element = cache.get(cacheKey);
+		if (element == null) {
+			return null;
+		}
+		
+		return (String) ((Map<?, ?>) element.getValue()).get(languageName.toLowerCase());
 	}
 	
-
-	protected Map<String, String> getLanguageFilterMap(Document subtitleListDocument) {
+	
+	protected Map<String, String> updateLanguageFilterMap(Document subtitleListDocument) {
 		Map<String, String> filters = new HashMap<String, String>(50);
-		
 		List<Node> nodes = selectNodes("//DIV[@class='languageList']/DIV", subtitleListDocument);
 		
 		for (Node node : nodes) {
@@ -181,33 +182,42 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 			}
 		}
 		
+		// update cache after sanity check
+		if (filters.size() > 42) {
+			Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+			String cacheKey = getClass().getName() + ".languageFilter";
+			cache.put(new Element(cacheKey, filters));
+		} else {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to scrape language filters: " + filters);
+		}
+		
 		return filters;
 	}
 	
-
+	
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		return ((HyperLink) searchResult).getURI();
 	}
 	
-
+	
 	public static class SubsceneSearchResult extends HyperLink {
 		
 		private String shortName;
 		
-
+		
 		public SubsceneSearchResult(String shortName, String title, URL url) {
 			super(title, url);
 			this.shortName = shortName;
 		}
 		
-
+		
 		@Override
 		public String getName() {
 			return shortName;
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			return super.getName();
