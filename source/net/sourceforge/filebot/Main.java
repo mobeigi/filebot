@@ -162,8 +162,8 @@ public class Main {
 	 * Show update notifications if updates are available
 	 */
 	private static void checkUpdate() throws Exception {
-		final PreferencesEntry<String> updateIgnoreRevision = Settings.forPackage(Main.class).entry("update.ignore");
-		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, DAYS.toMillis(1)) {
+		final PreferencesEntry<String> updateIgnoreRevision = Settings.forPackage(Main.class).entry("update.revision.ignore");
+		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, DAYS.toMillis(0)) {
 			
 			@Override
 			public Properties process(ByteBuffer data) {

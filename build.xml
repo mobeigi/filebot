@@ -421,6 +421,7 @@
 		<!-- prepare website resources -->
 		<copy todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
+				<include name="*.xml" />
 				<include name="*.html" />
 				<include name="*.css" />
 				<include name="*.js" />
