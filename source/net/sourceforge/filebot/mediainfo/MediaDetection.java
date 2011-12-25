@@ -35,7 +35,7 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 public class MediaDetection {
 	
-	public static Map<Set<File>, Set<String>> mapFoldersBySeriesNames(Collection<File> files) throws Exception {
+	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files) throws Exception {
 		SortedMap<File, List<File>> filesByFolder = mapByFolder(filter(files, VIDEO_FILES, SUBTITLE_FILES));
 		
 		// map series names by folder
@@ -64,7 +64,7 @@ public class MediaDetection {
 		}
 		
 		// join both sets
-		Map<Set<File>, Set<String>> matchSets = new HashMap<Set<File>, Set<String>>();
+		Map<Set<File>, Set<String>> batchSets = new HashMap<Set<File>, Set<String>>();
 		
 		while (seriesNamesByFolder.size() > 0) {
 			Set<String> combinedNameSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
@@ -90,13 +90,22 @@ public class MediaDetection {
 			for (File folder : combinedFolderSet) {
 				combinedFileSet.addAll(filesByFolder.get(folder));
 			}
-			matchSets.put(combinedFileSet, combinedNameSet);
+			batchSets.put(combinedFileSet, combinedNameSet);
 			
 			// set folders as accounted for
 			seriesNamesByFolder.keySet().removeAll(combinedFolderSet);
 		}
 		
-		return matchSets;
+		// handle files that have not been matched to a batch set yet
+		Set<File> remainingFiles = new HashSet<File>(files);
+		for (Set<File> batch : batchSets.keySet()) {
+			remainingFiles.removeAll(batch);
+		}
+		if (remainingFiles.size() > 0) {
+			batchSets.put(remainingFiles, null);
+		}
+		
+		return batchSets;
 	}
 	
 	

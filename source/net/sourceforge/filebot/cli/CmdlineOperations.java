@@ -129,22 +129,37 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
-		// auto-detect series name if not given
-		Collection<String> seriesNames = (query == null) ? detectQuery(mediaFiles, strict) : singleton(query);
-		
-		// fetch episode data
-		Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
-		
-		if (episodes.isEmpty()) {
-			throw new Exception("Failed to fetch episode data");
-		}
-		
 		// similarity metrics for matching
 		SimilarityMetric[] sequence = strict ? StrictEpisodeMetrics.defaultSequence(false) : EpisodeMetrics.defaultSequence(false);
-		
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
-		matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
-		matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
+		
+		// auto-determine optimal batch sets
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles).entrySet()) {
+			List<List<File>> batchSets = new ArrayList<List<File>>();
+			
+			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
+				// handle series name batch set all at once
+				batchSets.add(new ArrayList<File>(sameSeriesGroup.getKey()));
+			} else {
+				// these files don't seem to belong to any series -> handle folder per folder
+				batchSets.addAll(mapByFolder(sameSeriesGroup.getKey()).values());
+			}
+			
+			for (List<File> batch : batchSets) {
+				// auto-detect series name if not given
+				Collection<String> seriesNames = (query == null) ? detectQuery(batch, strict) : singleton(query);
+				
+				// fetch episode data
+				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
+				
+				if (episodes.size() > 0) {
+					matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
+					matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
+				} else {
+					CLILogger.warning("Failed to fetch episode data: " + mapByFolder(batch).keySet());
+				}
+			}
+		}
 		
 		if (matches.isEmpty()) {
 			throw new Exception("Unable to match files to episode data");

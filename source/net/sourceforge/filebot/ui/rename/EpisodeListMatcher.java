@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -173,14 +174,26 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
 		
 		// detect series names and create episode list fetch tasks
-		for (final Set<File> folder : mapFoldersBySeriesNames(mediaFiles).keySet()) {
-			taskPerFolder.add(new Callable<List<Match<File, ?>>>() {
-				
-				@Override
-				public List<Match<File, ?>> call() throws Exception {
-					return matchEpisodeSet(new ArrayList<File>(folder), locale, autodetection, parent);
-				}
-			});
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles).entrySet()) {
+			List<List<File>> batchSets = new ArrayList<List<File>>();
+			
+			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
+				// handle series name batch set all at once
+				batchSets.add(new ArrayList<File>(sameSeriesGroup.getKey()));
+			} else {
+				// these files don't seem to belong to any series -> handle folder per folder
+				batchSets.addAll(mapByFolder(sameSeriesGroup.getKey()).values());
+			}
+			
+			for (final List<File> batchSet : batchSets) {
+				taskPerFolder.add(new Callable<List<Match<File, ?>>>() {
+					
+					@Override
+					public List<Match<File, ?>> call() throws Exception {
+						return matchEpisodeSet(batchSet, locale, autodetection, parent);
+					}
+				});
+			}
 		}
 		
 		// match folder per folder in parallel

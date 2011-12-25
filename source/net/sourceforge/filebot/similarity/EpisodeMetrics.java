@@ -295,15 +295,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	
 	
 	public static SimilarityMetric[] defaultSequence(boolean includeFileMetrics) {
-		// 1. pass: match by file length (fast, but only works when matching torrents or files)
-		// 2. pass: match by season / episode numbers
-		// 3. pass: match by checking series / episode title against the file path
-		// 4. pass: match by generic name similarity (slow, but most matches will have been determined in second pass)
-		// 5. pass: match by generic numeric similarity
+		// 1 pass: divide by file length (only works for matching torrent entries or files)
+		// 2-3 pass: divide by title or season / episode numbers
+		// 4 pass: divide by folder / file name and show name / episode title
+		// 5 pass: divide by name (rounded into n levels)
+		// 6 pass: divide by generic numeric similarity
+		// 7 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, Name, Numeric };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, Name, Numeric, new NameSimilarityMetric() };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric, new NameSimilarityMetric() };
 		}
 	}
 	
