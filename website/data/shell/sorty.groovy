@@ -7,7 +7,7 @@ def movieDir      = "V:/in/Movies"
 def movieFormat   = "V:/out/Movies/{movie}/{movie}"
 
 // ignore chunk, part, par and hidden files
-def incomplete(f) { f.name =~ /[.]chunk|[.]part$|[.]par$/ || f.isHidden() }
+def incomplete(f) { f.name =~ /[.]chunk|[.]part\d{0,3}$|[.]par$/ || f.isHidden() }
 
 
 // run cmdline unrar (require -trust-script) on multi-volume rar files

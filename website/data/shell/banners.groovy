@@ -22,10 +22,9 @@ def fetchBanner(outputFile, series, bannerType, bannerType2, season = null) {
 
 
 def fetchNfo(outputFile, series) {
-	TheTVDB.getSeriesInfo(series, Locale.ENGLISH).applyXmlTemplate('''
-		<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
+	TheTVDB.getSeriesInfo(series, Locale.ENGLISH).applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
-			<year>$firstAired.year</year>
+			<year>${firstAired?.year}</year>
 			<rating>$rating</rating>
 			<votes>$ratingCount</votes>
 			<plot>$overview</plot>
@@ -34,7 +33,7 @@ def fetchNfo(outputFile, series) {
 			<genre>${genre.size() > 0 ? genre.get(0) : ''}</genre>
 			<id>$id</id>
 			<thumb>$bannerUrl</thumb>
-			<premiered>$firstAired.year</premiered>
+			<premiered>$firstAired</premiered>
 			<status>$status</status>
 			<studio>$network</studio>
 			<gsp:scriptlet> actors.each { </gsp:scriptlet>
@@ -78,7 +77,7 @@ def jobs = args.getFolders().findResults { dir ->
 	def sxe = videos.findResult{ parseEpisodeNumber(it) }
 	
 	if (query == null) {
-		query = dir.name
+		query = dir.dir.hasFile{ it.name =~ /Season.\d+/ } ? dir.dir.name : dir.name
 		println "Failed to detect series name from video files -> Query by $query instead"
 	}
 	
@@ -92,7 +91,7 @@ def jobs = args.getFolders().findResults { dir ->
 	def series = options[0]
 	
 	// auto-detect structure
-	def seriesDir = similarity(dir.dir.name, series.name) > 0.8 ? dir.dir : dir
+	def seriesDir = [dir.dir, dir].sort{ a, b -> similarity(b.name, series.name).compareTo(similarity(a.name, series.name)) }[0]
 	def season = sxe && sxe.season > 0 ? sxe.season : 1
 	
 	return { fetchSeriesBannersAndNfo(seriesDir, dir, series, season) }

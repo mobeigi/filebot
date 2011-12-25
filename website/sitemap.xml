@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<url>
+  <loc>http://filebot.sourceforge.net/</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/naming.html</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/cli.html</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/script.html</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/</loc>
+  <changefreq>daily</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=3&t=7</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=3&t=7</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=25</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=3&t=13</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=5&t=2</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=5</loc>
+  <changefreq>weekly</changefreq>
+</url>
+<url>
+  <loc>http://filebot.sourceforge.net/data/shell/</loc>
+  <changefreq>weekly</changefreq>
+</url>
+</urlset>

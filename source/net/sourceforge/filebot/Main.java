@@ -171,7 +171,7 @@ public class Main {
 					Properties properties = new Properties();
 					NodeList fields = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteBufferInputStream(data)).getFirstChild().getChildNodes();
 					for (int i = 0; i < fields.getLength(); i++) {
-						properties.setProperty(fields.item(i).getNodeName(), fields.item(i).getTextContent());
+						properties.setProperty(fields.item(i).getNodeName(), fields.item(i).getTextContent().trim());
 					}
 					return properties;
 				} catch (Exception e) {
