@@ -15,6 +15,9 @@
 		<meta itemprop="description" content="The ultimate tv renamer / subtitle downloader / sfv validator" />
 		<meta itemprop="image" content="http://filebot.sourceforge.net/images/icon.png" />
 		
+		<!-- Java Deployment Toolkit -->
+		<script type="text/javascript" src="http://www.java.com/js/deployJava.js"></script>
+		
 		<!-- google analytics -->
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
@@ -95,7 +98,7 @@
 				</div>
 
 				<div class="webstart">
-					<a onclick="_gaq.push(['_trackPageview', '/webstart/filebot.jnlp'])" href="http://filebot.sourceforge.net/webstart/filebot.jnlp">
+					<a onclick="_gaq.push(['_trackPageview', '/webstart/filebot.jnlp']); return deployJava.launchWebStartApplication('webstart/filebot.jnlp') == false ? true : false" href="http://filebot.sourceforge.net/webstart/filebot.jnlp">
 						<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
 					</a>
 				</div>
