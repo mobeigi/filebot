@@ -117,7 +117,7 @@ public class Main {
 				MediaTypes.getDefault();
 				
 				// check for application updates (only when installed, i.e. not running via fatjar or webstart)
-				if (System.getProperty("application.deployment") != null) {
+				if (!isPortableDeployment()) {
 					checkUpdate();
 				}
 			} catch (Exception e) {

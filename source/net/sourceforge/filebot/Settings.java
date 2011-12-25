@@ -137,6 +137,12 @@ public final class Settings {
 	}
 	
 	
+	public static boolean isPortableDeployment() {
+		String deployment = getApplicationDeployment();
+		return deployment == null || deployment.equals("webstart");
+	}
+	
+	
 	public static int getApplicationRevisionNumber() {
 		try {
 			Manifest manifest = new Manifest(Settings.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
