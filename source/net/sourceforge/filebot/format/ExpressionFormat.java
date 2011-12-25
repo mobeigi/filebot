@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MissingPropertyException;
 
+import java.io.File;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
 import java.net.SocketPermission;
@@ -47,13 +48,13 @@ public class ExpressionFormat extends Format {
 	
 	private ScriptException lastException;
 	
-
+	
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
 		this.compilation = secure(compile(expression, (Compilable) initScriptEngine()));
 	}
 	
-
+	
 	protected ScriptEngine initScriptEngine() throws ScriptException {
 		// use Groovy script engine
 		ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
@@ -61,12 +62,12 @@ public class ExpressionFormat extends Format {
 		return engine;
 	}
 	
-
+	
 	public String getExpression() {
 		return expression;
 	}
 	
-
+	
 	protected Object[] compile(String expression, Compilable engine) throws ScriptException {
 		List<Object> compilation = new ArrayList<Object>();
 		
@@ -140,7 +141,7 @@ public class ExpressionFormat extends Format {
 		return compilation.toArray();
 	}
 	
-
+	
 	public Bindings getBindings(Object value) {
 		return new ExpressionBindings(value) {
 			
@@ -151,13 +152,13 @@ public class ExpressionFormat extends Format {
 		};
 	}
 	
-
+	
 	@Override
 	public StringBuffer format(Object object, StringBuffer sb, FieldPosition pos) {
 		return format(getBindings(object), sb);
 	}
 	
-
+	
 	public StringBuffer format(Bindings bindings, StringBuffer sb) {
 		// use privileged bindings so we are not restricted by the script sandbox
 		Bindings priviledgedBindings = PrivilegedInvocation.newProxy(Bindings.class, bindings, AccessController.getContext());
@@ -188,7 +189,7 @@ public class ExpressionFormat extends Format {
 		return sb;
 	}
 	
-
+	
 	protected Object normalizeBindingValue(Object value) {
 		// if the binding value is a String, remove illegal characters
 		if (value instanceof CharSequence) {
@@ -199,12 +200,12 @@ public class ExpressionFormat extends Format {
 		return value;
 	}
 	
-
+	
 	protected Object normalizeExpressionValue(Object value) {
 		return value;
 	}
 	
-
+	
 	protected void handleException(ScriptException exception) {
 		if (findCause(exception, MissingPropertyException.class) != null) {
 			lastException = new ExpressionException(new BindingException(findCause(exception, MissingPropertyException.class).getProperty(), "undefined", exception));
@@ -215,12 +216,12 @@ public class ExpressionFormat extends Format {
 		}
 	}
 	
-
+	
 	public ScriptException caughtScriptException() {
 		return lastException;
 	}
 	
-
+	
 	private Object[] secure(Object[] compilation) {
 		// create sandbox AccessControlContext
 		AccessControlContext sandbox = new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, getSandboxPermissions()) });
@@ -236,12 +237,13 @@ public class ExpressionFormat extends Format {
 		return compilation;
 	}
 	
-
+	
 	private PermissionCollection getSandboxPermissions() {
 		Permissions permissions = new Permissions();
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
+		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
@@ -249,19 +251,19 @@ public class ExpressionFormat extends Format {
 		return permissions;
 	}
 	
-
+	
 	private static class SecureCompiledScript extends CompiledScript {
 		
 		private final CompiledScript compiledScript;
 		private final AccessControlContext sandbox;
 		
-
+		
 		private SecureCompiledScript(CompiledScript compiledScript, AccessControlContext sandbox) {
 			this.compiledScript = compiledScript;
 			this.sandbox = sandbox;
 		}
 		
-
+		
 		@Override
 		public Object eval(final ScriptContext context) throws ScriptException {
 			try {
@@ -286,7 +288,7 @@ public class ExpressionFormat extends Format {
 			}
 		}
 		
-
+		
 		@Override
 		public ScriptEngine getEngine() {
 			return compiledScript.getEngine();
@@ -294,7 +296,7 @@ public class ExpressionFormat extends Format {
 		
 	}
 	
-
+	
 	@Override
 	public Object parseObject(String source, ParsePosition pos) {
 		throw new UnsupportedOperationException();
