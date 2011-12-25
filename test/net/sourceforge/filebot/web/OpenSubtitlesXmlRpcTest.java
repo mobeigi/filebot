@@ -24,14 +24,14 @@ public class OpenSubtitlesXmlRpcTest {
 	
 	private static OpenSubtitlesXmlRpc xmlrpc = new OpenSubtitlesXmlRpc(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 	
-
+	
 	@BeforeClass
 	public static void login() throws Exception {
 		// login manually
 		xmlrpc.loginAnonymous();
 	}
 	
-
+	
 	@Test
 	public void search() throws Exception {
 		List<Movie> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
@@ -43,7 +43,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(105946, sample.getImdbId());
 	}
 	
-
+	
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void searchOST() throws Exception {
 		List<Movie> list = xmlrpc.searchMoviesOnIMDB("Linkin.Park.New.Divide.1280-720p.Transformers.Revenge.of.the.Fallen.ost");
@@ -52,7 +52,7 @@ public class OpenSubtitlesXmlRpcTest {
 		for (int i = 0; !list.get(i).getName().contains("Linkin.Park"); i++);
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListEnglish() throws Exception {
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, "eng");
@@ -66,7 +66,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(list.size() > 20);
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListAllLanguages() throws Exception {
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256);
@@ -81,7 +81,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(list.size() > 70);
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListMovieHash() throws Exception {
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(singleton(Query.forHash("2bba5c34b007153b", 717565952, "eng")));
@@ -93,7 +93,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals("moviehash", sample.getProperty(Property.MatchedBy));
 	}
 	
-
+	
 	@Test
 	public void tryUploadSubtitles() throws Exception {
 		SubFile subtitle = new SubFile();
@@ -110,7 +110,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals("eng", response.getSubtitleData().get(Property.SubLanguageID));
 	}
 	
-
+	
 	@Test
 	public void checkSubHash() throws Exception {
 		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("e12715f466ee73c86694b7ab9f311285"));
@@ -119,7 +119,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(1 == subHashMap.size());
 	}
 	
-
+	
 	@Test
 	public void checkSubHashInvalid() throws Exception {
 		Map<String, Integer> subHashMap = xmlrpc.checkSubHash(singleton("0123456789abcdef0123456789abcdef"));
@@ -128,7 +128,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(1 == subHashMap.size());
 	}
 	
-
+	
 	@Test
 	public void checkMovieHash() throws Exception {
 		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"));
@@ -139,7 +139,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(371746, movie.getImdbId());
 	}
 	
-
+	
 	@Test
 	public void checkMovieHashInvalid() throws Exception {
 		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
@@ -148,7 +148,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(results.isEmpty());
 	}
 	
-
+	
 	@Test
 	public void getIMDBMovieDetails() throws Exception {
 		Movie movie = xmlrpc.getIMDBMovieDetails(371746);
@@ -158,7 +158,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(371746, movie.getImdbId());
 	}
 	
-
+	
 	@Test
 	public void getIMDBMovieDetailsInvalid() throws Exception {
 		Movie movie = xmlrpc.getIMDBMovieDetails(371746);
@@ -168,7 +168,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(371746, movie.getImdbId());
 	}
 	
-
+	
 	@Test
 	public void detectLanguage() throws Exception {
 		String text = "Only those that are prepared to fire should be fired at.";
@@ -179,7 +179,7 @@ public class OpenSubtitlesXmlRpcTest {
 		assertTrue(1 == languages.size());
 	}
 	
-
+	
 	@Test
 	public void fetchSubtitle() throws Exception {
 		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, "eng");
@@ -194,11 +194,22 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(48550, data.remaining(), 0);
 	}
 	
-
+	
 	@AfterClass
 	public static void logout() throws Exception {
 		// logout manually
 		xmlrpc.logout();
 	}
 	
+	
+	@Test
+	public void exportMovie() throws Exception {
+		List<Movie> list = new OpenSubtitlesClient(null).exportMovie();
+		Movie sample = (Movie) list.get(17);
+		
+		// check sample entry
+		assertEquals("Back to the Future", sample.getName());
+		assertEquals(1985, sample.getYear());
+		assertEquals(88763, sample.getImdbId());
+	}
 }
