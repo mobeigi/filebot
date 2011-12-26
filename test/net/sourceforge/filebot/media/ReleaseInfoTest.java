@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.mediainfo;
+package net.sourceforge.filebot.media;
 
 
 import static org.junit.Assert.*;
@@ -7,6 +7,8 @@ import static org.junit.Assert.*;
 import java.io.File;
 
 import org.junit.Test;
+
+import net.sourceforge.filebot.media.ReleaseInfo;
 
 
 public class ReleaseInfoTest {

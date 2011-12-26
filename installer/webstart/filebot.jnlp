@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="6.0+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
+<jnlp spec="1.6+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
 	<information>
 		<title>FileBot</title>
 		<vendor>Reinhard Pointner</vendor>
@@ -28,43 +28,44 @@
 	<resources>
 		<property name="application.deployment" value="webstart" />
 		<property name="jnlp.packEnabled" value="true" />
-	
+		
 		<java version="1.6+" max-heap-size="256m" />
-		<jar href="filebot.jar" main="true" />
-		<jar href="miglayout.jar" />
-		<jar href="glazedlists.jar" />
-		<jar href="nekohtml.jar" />
-		<jar href="xercesImpl.jar" />
-		<jar href="ehcache.jar" />
-		<jar href="slf4j.jar" />
-		<jar href="slf4j-jdk.jar" />
-		<jar href="simmetrics.jar" />
-		<jar href="args4j.jar" />
-		<jar href="jna.jar" />
-		<jar href="guava.jar" />
-		<jar href="groovy.jar" />
-		<jar href="sublight-ws.jar" />
-		<jar href="xmlrpc.jar" />
-		<jar href="json-simple.jar" />
-		<jar href="icu4j.jar" />
-		<jar href="junrar-custom.jar" />
-		<jar href="jgat-custom.jar" />
+		<jar href="filebot.jar"       download="eager" main="true" />
+		<jar href="groovy.jar"        download="eager" />
+		<jar href="args4j.jar"        download="eager" />
+		<jar href="jna.jar"           download="eager" />
+		<jar href="miglayout.jar"     download="eager" />
+		<jar href="glazedlists.jar"   download="eager" />
+		<jar href="ehcache.jar"       download="eager" />
+		<jar href="simmetrics.jar"    download="eager" />
+		<jar href="slf4j.jar"         download="eager" />
+		<jar href="slf4j-jdk.jar"     download="eager" />
+		<jar href="jgat-custom.jar"   download="eager" />
+		<jar href="json-simple.jar"   download="lazy" />
+		<jar href="icu4j.jar"         download="lazy" />
+		<jar href="xmlrpc.jar"        download="eager" />
+		<jar href="sublight-ws.jar"   download="eager" />
+		<jar href="mediainfo.jar"     download="lazy" part="native"  />
+		<jar href="nekohtml.jar"      download="lazy" part="scraper" />
+		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
+		<jar href="guava.jar"         download="lazy" />
+		<jar href="junrar-custom.jar" download="lazy" />
 	</resources>
 	
 	<resources os="Windows" arch="x86">
-		<nativelib href="native/win32-x86.jar" />
+		<nativelib href="native/win32-x86.jar"   download="lazy" part="native" />
 	</resources>
 	<resources os="Windows" arch="amd64">
-		<nativelib href="native/win32-x64.jar" />
+		<nativelib href="native/win32-x64.jar"   download="lazy" part="native" />
 	</resources>
 	<resources os="Linux" arch="i386">
-		<nativelib href="native/linux-i386.jar" />
+		<nativelib href="native/linux-i386.jar"  download="lazy" part="native" />
 	</resources>
 	<resources os="Linux" arch="amd64">
-		<nativelib href="native/linux-amd64.jar" />
+		<nativelib href="native/linux-amd64.jar" download="lazy" part="native" />
 	</resources>
 	<resources os="Mac" arch="x86_64">
-		<nativelib href="native/mac-x86_64.jar" />
+		<nativelib href="native/mac-x86_64.jar"  download="lazy" part="native" />
 	</resources>
 	
 	<application-desc main-class="net.sourceforge.filebot.Main" />

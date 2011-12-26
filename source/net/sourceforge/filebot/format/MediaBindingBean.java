@@ -18,9 +18,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
-import net.sourceforge.filebot.mediainfo.ReleaseInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -403,7 +403,7 @@ public class MediaBindingBean {
 			mediaInfo = newMediaInfo;
 		}
 		
-		return mediaInfo;
+		return (MediaInfo) mediaInfo;
 	}
 	
 	

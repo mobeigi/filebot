@@ -163,7 +163,7 @@
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" /> <!-- application stub must be executable!! -->
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" /> <!-- IMPORTANT application stub must be executable!! -->
 		</tar>
 	</target>
 
@@ -227,13 +227,26 @@
 
 		<!-- copy jars -->
 		<copy todir="${dir.dist}/webstart">
-			<fileset dir="${dir.dist}" includes="filebot.jar" />
 			<fileset dir="${dir.lib}" includes="*.jar" excludes="jna.jar" />
 		</copy>
 
 		<!-- copy jna.jar without native libs -->
 		<jar destfile="${dir.dist}/webstart/jna.jar">
 			<zipfileset src="${dir.lib}/jna.jar" includes="**/*.class" />
+		</jar>
+		
+		<!-- create mediainfo jar as seperate jar and use as trigger for lazy loading the native libs -->
+		<jar destfile="${dir.dist}/webstart/mediainfo.jar">
+			<fileset dir="${dir.build}" includes="net/sourceforge/filebot/mediainfo/**" />
+		</jar>
+
+		<!-- create indexed main jar -->
+		<jar destfile="${dir.dist}/webstart/filebot.jar" index="yes">
+			<fileset dir="${dir.build}" excludes="**/*Test*, net/sourceforge/filebot/mediainfo/**" />
+			<indexjars>
+				<!-- IMPORTANT if groovy is indexed things break during runtime!! -->
+				<fileset dir="${dir.dist}/webstart" includes="**/*.jar" excludes="filebot.jar, groovy.jar" />
+			</indexjars>
 		</jar>
 
 		<!-- create native lib jars -->

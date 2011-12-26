@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.mediainfo;
+package net.sourceforge.filebot.media;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;

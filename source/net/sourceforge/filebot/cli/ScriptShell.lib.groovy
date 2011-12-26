@@ -56,7 +56,7 @@ def parallel(List closures, int threads = Runtime.getRuntime().availableProcesso
 
 
 // Web and File IO helpers
-import java.nio.charset.Charset;
+import java.nio.charset.Charset
 import static net.sourceforge.filebot.web.WebRequest.*
 
 URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
@@ -73,7 +73,7 @@ Object.metaClass.applyTextTemplate = { template -> new GStringTemplateEngine().c
 
 
 // Shell helper
-import static com.sun.jna.Platform.*;
+import static com.sun.jna.Platform.*
 
 def execute(String... args) {
 	def cmd = args.toList()
@@ -96,7 +96,7 @@ def execute(String... args) {
 
 
 // WatchService helper
-import net.sourceforge.filebot.cli.FolderWatchService;
+import net.sourceforge.filebot.cli.FolderWatchService
 
 def createWatchService(Closure callback, List folders, boolean watchTree) {
 	// sanity check
@@ -126,7 +126,7 @@ List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
 // Season / Episode helpers
-import net.sourceforge.filebot.mediainfo.*
+import net.sourceforge.filebot.media.*
 import net.sourceforge.filebot.similarity.*
 
 def parseEpisodeNumber(path) {

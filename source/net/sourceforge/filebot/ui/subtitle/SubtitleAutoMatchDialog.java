@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.mediainfo.MediaDetection.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;

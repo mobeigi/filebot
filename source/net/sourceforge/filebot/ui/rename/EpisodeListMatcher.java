@@ -4,7 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.mediainfo.MediaDetection.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -33,7 +33,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.mediainfo.ReleaseInfo;
+import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;

@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import net.sourceforge.filebot.format.ExpressionFormatTest;
 import net.sourceforge.filebot.hash.VerificationFormatTest;
-import net.sourceforge.filebot.mediainfo.ReleaseInfoTest;
+import net.sourceforge.filebot.media.ReleaseInfoTest;
 import net.sourceforge.filebot.similarity.EpisodeMetricsTest;
 import net.sourceforge.filebot.similarity.SimilarityTestSuite;
 import net.sourceforge.filebot.subtitle.SubtitleReaderTestSuite;
