@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.0+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
+<jnlp spec="6.0+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
 	<information>
 		<title>FileBot</title>
-		<vendor>rednoah</vendor>
+		<vendor>Reinhard Pointner</vendor>
 		<homepage href="http://filebot.sourceforge.net" />
-		<description>A cross-platform tool for tv renaming, subtitle download and file verification</description>
-
+		<description>The ultimate TV Renamer and Subtitle Downloader</description>
+		
 		<icon href="icon48.png" width="48" height="48" />
 		<icon href="icon32.png" width="32" height="32" />
 		<icon href="icon16.png" width="16" height="16" />
 		<icon href="shortcut.ico" kind="shortcut" />
 		<icon href="splash.png" kind="splash" />
 		
+		<shortcut online="true">
+			<desktop />
+		</shortcut>
+		
 		<offline-allowed />
 	</information>
-
+	
 	<security>
 		<all-permissions />
 	</security>
-
+	
+	<update check="background" policy="prompt-update" />
+	
 	<resources>
 		<property name="application.deployment" value="webstart" />
 		<property name="jnlp.packEnabled" value="true" />
-
+	
 		<java version="1.6+" max-heap-size="256m" />
 		<jar href="filebot.jar" main="true" />
 		<jar href="miglayout.jar" />
@@ -44,7 +50,7 @@
 		<jar href="junrar-custom.jar" />
 		<jar href="jgat-custom.jar" />
 	</resources>
-
+	
 	<resources os="Windows" arch="x86">
 		<nativelib href="native/win32-x86.jar" />
 	</resources>
@@ -60,6 +66,6 @@
 	<resources os="Mac" arch="x86_64">
 		<nativelib href="native/mac-x86_64.jar" />
 	</resources>
-
+	
 	<application-desc main-class="net.sourceforge.filebot.Main" />
 </jnlp>
