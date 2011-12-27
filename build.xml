@@ -443,6 +443,7 @@
 				<include name="*.ico" />
 				<include name="images/**" />
 				<include name="data/**" />
+				<include name="scripts/**" />
 				<include name="screenshots/**" />
 			</fileset>
 		</copy>

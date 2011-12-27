@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sourceforge.net/data/shell/renall.groovy" <options> <folder>
+// filebot -script "http://filebot.sf.net/scripts/renall.groovy" <options> <folder>
 
 /*
  * Rename all tv shows, anime or movies using given or default options  

@@ -148,6 +148,10 @@ def similarity(o1, o2) {
 	return new NameSimilarityMetric().getSimilarity(o1, o2)
 }
 
+List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> obj } ->
+	return delegate.sort{ a, b -> similarity(toStringFunction(b), prime).compareTo(similarity(toStringFunction(a), prime)) }
+}
+
 
 
 // CLI bindings

@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sourceforge.net/data/shell/cleaner.groovy" -trust-script /path/to/media/
+// filebot -script "http://filebot.sf.net/scripts/cleaner.groovy" -trust-script /path/to/media/
 
 /*
  * Delete orphaned "clutter" files like nfo, jpg, etc

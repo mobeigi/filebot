@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sourceforge.net/data/shell/rsam.groovy" <options> <folder>
+// filebot -script "http://filebot.sf.net/scripts/rsam.groovy" <options> <folder>
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
 if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 783) throw new Exception("Revision 783+ required")

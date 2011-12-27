@@ -1,7 +1,7 @@
-// filebot -script "http://filebot.sourceforge.net/data/shell/banners.groovy" -trust-script /path/to/media/
+// filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 783) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 802) throw new Exception("Application revision too old")
 
 
 /*
@@ -16,7 +16,7 @@ def fetchBanner(outputFile, series, bannerType, bannerType2, season = null) {
 		return null
 	}
 	
-	println "Fetching banner $banner"
+	println "Fetching $outputFile => $banner"
 	return banner.url.saveAs(outputFile)
 }
 
@@ -48,7 +48,7 @@ def fetchNfo(outputFile, series) {
 
 def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 	println "Fetch nfo and banners for $series / Season $season"
-		
+	
 	// fetch nfo
 	fetchNfo(seriesDir['tvshow.nfo'], series)
 		
@@ -77,21 +77,21 @@ def jobs = args.getFolders().findResults { dir ->
 	def sxe = videos.findResult{ parseEpisodeNumber(it) }
 	
 	if (query == null) {
-		query = dir.dir.hasFile{ it.name =~ /Season.\d+/ } ? dir.dir.name : dir.name
+		query = dir.dir.hasFile{ it.name =~ /Season/ && it.isDirectory() } ? dir.dir.name : dir.name
 		println "Failed to detect series name from video files -> Query by $query instead"
 	}
 	
 	def options = TheTVDB.search(query, Locale.ENGLISH)
 	if (options.isEmpty()) {
 		println "TV Series not found: $query"
-		return null;
+		return null
 	}
 	
 	// auto-select series
-	def series = options[0]
+	def series = options.sortBySimilarity(query, { it.name })[0]
 	
 	// auto-detect structure
-	def seriesDir = [dir.dir, dir].sort{ a, b -> similarity(b.name, series.name).compareTo(similarity(a.name, series.name)) }[0]
+	def seriesDir = [dir.dir, dir].sortBySimilarity(series.name, { it.name })[0]
 	def season = sxe && sxe.season > 0 ? sxe.season : 1
 	
 	return { fetchSeriesBannersAndNfo(seriesDir, dir, series, season) }
