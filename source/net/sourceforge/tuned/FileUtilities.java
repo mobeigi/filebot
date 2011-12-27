@@ -15,7 +15,6 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -69,13 +68,14 @@ public final class FileUtilities {
 	
 	
 	private static void renameFileNIO2(File source, File destination) throws IOException {
-		Files.move(source.toPath(), destination.toPath());
+		java.nio.file.Files.move(source.toPath(), destination.toPath());
 	}
 	
 	
 	private static void renameFileIO(File source, File destination) throws IOException {
 		if (!source.renameTo(destination)) {
-			throw new IOException("Failed to rename file: " + source.getName());
+			// try using Guava IO utilities, that'll just copy files if renameTo() fails
+			com.google.common.io.Files.move(source, destination);
 		}
 	}
 	
