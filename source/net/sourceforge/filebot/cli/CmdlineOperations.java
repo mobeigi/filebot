@@ -596,7 +596,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults) {
+	public List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		

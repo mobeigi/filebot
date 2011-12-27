@@ -1,5 +1,5 @@
 <?php
-$version = isset($_GET['version']) ? $_GET['version'] : '@{version}';
+$version = isset($_GET['version']) ? $_GET['version'] : '@{version}'; // default version is hard-coded via deployment script
 $arch = $_GET['arch'];
 $type = $_GET['type'];
 
