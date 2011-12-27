@@ -435,6 +435,7 @@
 		<copy todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
 				<include name="*.xml" />
+				<include name="*.php" />
 				<include name="*.html" />
 				<include name="*.css" />
 				<include name="*.js" />
@@ -449,6 +450,7 @@
 		<!-- replace variables for new release -->
 		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
 			<include name="**/*.html" />
+			<include name="**/*.php" />
 			<replacefilter token="@{version}" value="${version}" />
 		</replace>
 
