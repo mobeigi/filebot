@@ -48,12 +48,12 @@ public final class WebRequest {
 		return getHtmlDocument(url.openConnection());
 	}
 	
-
+	
 	public static Document getHtmlDocument(URLConnection connection) throws IOException, SAXException {
 		return getHtmlDocument(getReader(connection));
 	}
 	
-
+	
 	public static Reader getReader(URLConnection connection) throws IOException {
 		try {
 			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -76,7 +76,7 @@ public final class WebRequest {
 		return new InputStreamReader(inputStream, charset);
 	}
 	
-
+	
 	public static Document getHtmlDocument(Reader reader) throws SAXException, IOException {
 		DOMParser parser = new DOMParser();
 		parser.setFeature("http://xml.org/sax/features/namespaces", false);
@@ -85,17 +85,17 @@ public final class WebRequest {
 		return parser.getDocument();
 	}
 	
-
+	
 	public static Document getDocument(URL url) throws IOException, SAXException {
 		return getDocument(url.openConnection());
 	}
 	
-
+	
 	public static Document getDocument(URLConnection connection) throws IOException, SAXException {
 		return getDocument(new InputSource(getReader(connection)));
 	}
 	
-
+	
 	public static Document getDocument(InputSource source) throws IOException, SAXException {
 		try {
 			return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(source);
@@ -105,17 +105,17 @@ public final class WebRequest {
 		}
 	}
 	
-
+	
 	public static ByteBuffer fetch(URL resource) throws IOException {
 		return fetch(resource, 0, null);
 	}
 	
-
+	
 	public static ByteBuffer fetchIfModified(URL resource, long ifModifiedSince) throws IOException {
 		return fetch(resource, ifModifiedSince, null);
 	}
 	
-
+	
 	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters) throws IOException {
 		URLConnection connection = url.openConnection();
 		connection.setIfModifiedSince(ifModifiedSince);
@@ -151,8 +151,8 @@ public final class WebRequest {
 		return buffer.getByteBuffer();
 	}
 	
-
-	public static ByteBuffer post(HttpURLConnection connection, Map<String, String> parameters) throws IOException {
+	
+	public static ByteBuffer post(HttpURLConnection connection, Map<String, ?> parameters) throws IOException {
 		byte[] postData = encodeParameters(parameters).getBytes("UTF-8");
 		
 		// add content type and content length headers
@@ -189,7 +189,7 @@ public final class WebRequest {
 		return buffer.getByteBuffer();
 	}
 	
-
+	
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
@@ -213,23 +213,26 @@ public final class WebRequest {
 		return Charset.forName("UTF-8");
 	}
 	
-
-	public static String encodeParameters(Map<String, String> parameters) {
+	
+	public static String encodeParameters(Map<String, ?> parameters) {
 		StringBuilder sb = new StringBuilder();
 		
-		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (sb.length() > 0)
+		for (Entry<String, ?> entry : parameters.entrySet()) {
+			if (sb.length() > 0) {
 				sb.append("&");
+			}
 			
 			sb.append(entry.getKey());
-			sb.append("=");
-			sb.append(encode(entry.getValue()));
+			if (entry.getValue() != null) {
+				sb.append("=");
+				sb.append(encode(entry.getValue().toString()));
+			}
 		}
 		
 		return sb.toString();
 	}
 	
-
+	
 	public static String encode(String string) {
 		try {
 			return URLEncoder.encode(string, "UTF-8");
@@ -238,7 +241,7 @@ public final class WebRequest {
 		}
 	}
 	
-
+	
 	public static SSLSocketFactory createIgnoreCertificateSocketFactory() {
 		// create a trust manager that does not validate certificate chains
 		TrustManager trustAnyCertificate = new X509TrustManager() {
@@ -247,11 +250,11 @@ public final class WebRequest {
 				return null;
 			}
 			
-
+			
 			public void checkClientTrusted(X509Certificate[] certs, String authType) {
 			}
 			
-
+			
 			public void checkServerTrusted(X509Certificate[] certs, String authType) {
 			}
 		};
@@ -265,7 +268,7 @@ public final class WebRequest {
 		}
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

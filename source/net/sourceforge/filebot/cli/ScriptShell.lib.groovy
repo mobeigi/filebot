@@ -56,12 +56,18 @@ def parallel(List closures, int threads = Runtime.getRuntime().availableProcesso
 
 
 // Web and File IO helpers
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import static net.sourceforge.filebot.web.WebRequest.*
 
-URL.metaClass.parseHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
-URL.metaClass.saveAs = { f -> writeFile(fetch(delegate), f); f.absolutePath }
-String.metaClass.saveAs = { f, csn = "utf-8" -> writeFile(Charset.forName(csn).encode(delegate), f); f.absolutePath }
+URL.metaClass.post = { parameters -> post(delegate.openConnection(), parameters) }
+URL.metaClass.getHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
+ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(new StringReader(Charset.forName(csn).decode(delegate.duplicate()).toString())))) }
+
+ByteBuffer.metaClass.saveAs = { f -> f = f instanceof File ? f : new File(f.toString()); writeFile(delegate.duplicate(), f); f.absolutePath };
+URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
+String.metaClass.saveAs = { f, csn = "utf-8" -> Charset.forName(csn).encode(delegate).saveAs(f) }
+
 
 // Template Engine helpers
 import groovy.text.XmlTemplateEngine

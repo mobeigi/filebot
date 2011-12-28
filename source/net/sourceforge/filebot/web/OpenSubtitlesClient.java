@@ -189,6 +189,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 	
 	
+	public Movie getMovieDescriptor(File movieFile, Locale locale) throws Exception {
+		return getMovieDescriptors(new File[] { movieFile }, locale)[0];
+	}
+	
+	
 	@Override
 	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
 		// create result array
