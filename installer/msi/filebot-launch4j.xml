@@ -19,6 +19,5 @@
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <maxHeapSize>256</maxHeapSize>
-    <opt>-Dapplication.deployment=msi</opt>
   </jre>
 </launch4jConfig>

@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>FileBot.jar</jar>
-  <outfile>filebot.platform.launcher.exe</outfile>
+  <outfile>FileBot.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,14 +13,11 @@
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>..\icons\shortcut.ico</icon>
-  <singleInstance>
-    <mutexName>net.sourceforge.filebot</mutexName>
-    <windowTitle></windowTitle>
-  </singleInstance>
   <jre>
     <path></path>
-    <minVersion>1.7.0</minVersion>
+    <minVersion>1.6.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
+    <maxHeapSize>256</maxHeapSize>
   </jre>
 </launch4jConfig>

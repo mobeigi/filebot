@@ -213,8 +213,22 @@
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
 		</exec>
 	</target>
-
-
+	
+	
+	<target name="portable" depends="fatjar" description="Portable application package">
+		<mkdir dir="${dir.dist}/portable"/>
+		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
+		<copy todir="${dir.dist}/portable">
+			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.sh" />
+		</copy>
+		
+		<zip destfile="${dir.dist}/FileBot_${version}-portable.zip">
+			<zipfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini" />
+			<zipfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
+		</zip>
+	</target>
+	
+	
 	<target name="webstart" depends="jar" description="Build and compress jars used for webstart deployment">
 		<!-- create dirs -->
 		<mkdir dir="${dir.dist}/webstart" />
@@ -378,17 +392,18 @@
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, msi, webstart">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, msi, portable, webstart">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.tar.gz}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i386.deb" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_amd64.deb" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
 
 		<!-- ask for sourceforge password -->
 		<property name="sf.user" value="rednoah,filebot" />
@@ -403,6 +418,12 @@
 		<sleep seconds="5" />
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
+		</scp>
+		
+		<!-- deploy portable application package -->
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+			<fileset dir="${dir.dist}/release" includes="**/*-portable.zip" />
 		</scp>
 
 		<!-- deploy windows installers -->

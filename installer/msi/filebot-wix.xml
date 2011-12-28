@@ -17,6 +17,7 @@
 						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
 							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="FileBot (platform)" Description="Launch FileBot with platform-independent configuration" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
 						</File>
+						<File Id='filebot.launcher.l4j.ini' Name='filebot.launcher.l4j.ini' Source='filebot.launcher.l4j.ini' />
 						<File Id='filebot.platform.launcher.l4j.ini' Name='filebot.platform.launcher.l4j.ini' Source='filebot.platform.launcher.l4j.ini' />
 						<Shortcut Id="shortcut.uninstall" Directory="ProgramMenuDir" Name="Uninstall" Description="Uninstall FileBot" Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" Advertise="no" />
 					</Component>

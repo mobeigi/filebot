@@ -51,21 +51,26 @@ public final class Settings {
 	
 	
 	public static File getApplicationFolder() {
-		// special handling for web start
-		if (getApplicationDeployment() != null) {
-			// can't use working directory for web start applications
-			File folder = new File(System.getProperty("user.home"), ".filebot");
-			
-			// create folder if necessary 
-			if (!folder.exists()) {
-				folder.mkdir();
-			}
-			
-			return folder;
+		String applicationDirPath = System.getProperty("application.dir");
+		File applicationFolder = null;
+		
+		if (applicationDirPath != null && applicationDirPath.length() > 0) {
+			// use given path
+			applicationFolder = new File(applicationDirPath);
+		} else if (getApplicationDeployment() != null) {
+			// create folder in user home (can't use working directory for web start applications)
+			applicationFolder = new File(System.getProperty("user.home"), ".filebot");
+		} else {
+			// use working directory
+			applicationFolder = new File(System.getProperty("user.dir"));
 		}
 		
-		// use working directory
-		return new File(System.getProperty("user.dir"));
+		// create folder if necessary 
+		if (!applicationFolder.exists()) {
+			applicationFolder.mkdirs();
+		}
+		
+		return applicationFolder;
 	}
 	
 	
@@ -134,12 +139,6 @@ public final class Settings {
 		} catch (BackingStoreException e) {
 			throw ExceptionUtilities.asRuntimeException(e);
 		}
-	}
-	
-	
-	public static boolean isPortableDeployment() {
-		String deployment = getApplicationDeployment();
-		return deployment == null || deployment.equals("webstart");
 	}
 	
 	

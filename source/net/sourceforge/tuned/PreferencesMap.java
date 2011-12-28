@@ -26,19 +26,19 @@ public class PreferencesMap<T> implements Map<String, T> {
 	private final Preferences prefs;
 	private final Adapter<T> adapter;
 	
-
+	
 	public PreferencesMap(Preferences prefs, Adapter<T> adapter) {
 		this.prefs = prefs;
 		this.adapter = adapter;
 	}
 	
-
+	
 	@Override
 	public T get(Object key) {
 		return adapter.get(prefs, key.toString());
 	}
 	
-
+	
 	@Override
 	public T put(String key, T value) {
 		adapter.put(prefs, key, value);
@@ -47,7 +47,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return null;
 	}
 	
-
+	
 	@Override
 	public T remove(Object key) {
 		adapter.remove(prefs, key.toString());
@@ -56,7 +56,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return null;
 	}
 	
-
+	
 	public String[] keys() {
 		try {
 			return adapter.keys(prefs);
@@ -65,7 +65,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 	
-
+	
 	@Override
 	public void clear() {
 		for (String key : keys()) {
@@ -73,7 +73,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 	
-
+	
 	@Override
 	public boolean containsKey(Object key) {
 		if (key instanceof String) {
@@ -83,7 +83,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return false;
 	}
 	
-
+	
 	@Override
 	public boolean containsValue(Object value) {
 		for (String key : keys()) {
@@ -94,7 +94,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return false;
 	}
 	
-
+	
 	@Override
 	public Set<Entry<String, T>> entrySet() {
 		Set<Map.Entry<String, T>> entries = new LinkedHashSet<Map.Entry<String, T>>();
@@ -106,19 +106,19 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return entries;
 	}
 	
-
+	
 	@Override
 	public boolean isEmpty() {
 		return size() == 0;
 	}
 	
-
+	
 	@Override
 	public Set<String> keySet() {
 		return new LinkedHashSet<String>(Arrays.asList(keys()));
 	}
 	
-
+	
 	@Override
 	public void putAll(Map<? extends String, ? extends T> map) {
 		for (Map.Entry<? extends String, ? extends T> entry : map.entrySet()) {
@@ -126,13 +126,13 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 	
-
+	
 	@Override
 	public int size() {
 		return keys().length;
 	}
 	
-
+	
 	@Override
 	public Collection<T> values() {
 		List<T> values = new ArrayList<T>();
@@ -144,48 +144,48 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return values;
 	}
 	
-
+	
 	public static PreferencesMap<String> map(Preferences prefs) {
 		return map(prefs, new StringAdapter());
 	}
 	
-
+	
 	public static <T> PreferencesMap<T> map(Preferences prefs, Adapter<T> adapter) {
 		return new PreferencesMap<T>(prefs, adapter);
 	}
 	
-
+	
 	public static interface Adapter<T> {
 		
 		public String[] keys(Preferences prefs) throws BackingStoreException;
 		
-
+		
 		public T get(Preferences prefs, String key);
 		
-
+		
 		public void put(Preferences prefs, String key, T value);
 		
-
+		
 		public void remove(Preferences prefs, String key);
 	}
 	
-
+	
 	public static abstract class AbstractAdapter<T> implements Adapter<T> {
 		
 		@Override
 		public abstract T get(Preferences prefs, String key);
 		
-
+		
 		@Override
 		public abstract void put(Preferences prefs, String key, T value);
 		
-
+		
 		@Override
 		public String[] keys(Preferences prefs) throws BackingStoreException {
 			return prefs.keys();
 		}
 		
-
+		
 		@Override
 		public void remove(Preferences prefs, String key) {
 			prefs.remove(key);
@@ -193,7 +193,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		
 	}
 	
-
+	
 	public static class StringAdapter extends AbstractAdapter<String> {
 		
 		@Override
@@ -201,7 +201,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return prefs.get(key, null);
 		}
 		
-
+		
 		@Override
 		public void put(Preferences prefs, String key, String value) {
 			prefs.put(key, value);
@@ -209,12 +209,12 @@ public class PreferencesMap<T> implements Map<String, T> {
 		
 	}
 	
-
+	
 	public static class SimpleAdapter<T> extends AbstractAdapter<T> {
 		
 		private final Constructor<T> constructor;
 		
-
+		
 		public SimpleAdapter(Class<T> type) {
 			try {
 				constructor = type.getConstructor(String.class);
@@ -223,7 +223,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			}
 		}
 		
-
+		
 		@Override
 		public T get(Preferences prefs, String key) {
 			String value = prefs.get(key, null);
@@ -242,20 +242,20 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return null;
 		}
 		
-
+		
 		@Override
 		public void put(Preferences prefs, String key, T value) {
 			prefs.put(key, value.toString());
 		}
 		
-
+		
 		public static <T> SimpleAdapter<T> forClass(Class<T> type) {
 			return new SimpleAdapter<T>(type);
 		}
 		
 	}
 	
-
+	
 	public static class SerializableAdapter<T extends Serializable> extends AbstractAdapter<T> {
 		
 		@SuppressWarnings("unchecked")
@@ -277,7 +277,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 			}
 		}
 		
-
+		
 		@Override
 		public void put(Preferences prefs, String key, T value) {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -294,7 +294,7 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 	
-
+	
 	public static class PreferencesEntry<T> implements Entry<String, T> {
 		
 		private final String key;
@@ -303,50 +303,45 @@ public class PreferencesMap<T> implements Map<String, T> {
 		
 		private final Adapter<T> adapter;
 		
-
+		private T defaultValue = null;
+		
+		
 		public PreferencesEntry(Preferences prefs, String key, Adapter<T> adapter) {
 			this.key = key;
 			this.prefs = prefs;
 			this.adapter = adapter;
 		}
 		
-
+		
 		@Override
 		public String getKey() {
 			return key;
 		}
 		
-
+		
 		@Override
 		public T getValue() {
-			return adapter.get(prefs, key);
+			T value = adapter.get(prefs, key);
+			return value != null ? value : defaultValue;
 		}
 		
-
+		
 		@Override
 		public T setValue(T value) {
 			adapter.put(prefs, key, value);
 			return null;
 		}
 		
-
-		public PreferencesEntry<T> defaultValue(T value) {
-			try {
-				// check if value valid and not null
-				getValue().getClass();
-			} catch (Exception e) {
-				// illegal value or null, just override
-				setValue(value);
-			}
-			
+		
+		public PreferencesEntry<T> defaultValue(T defaultValue) {
+			this.defaultValue = defaultValue;
 			return this;
 		}
 		
-
+		
 		public void remove() {
 			adapter.remove(prefs, key);
 		}
-		
 	}
 	
 }

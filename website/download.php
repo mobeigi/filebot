@@ -13,6 +13,8 @@ if ($type == 'app')
 	$file = 'FileBot_'.$version.'.app.tar.gz';
 if ($type == 'jar')
 	$file = 'FileBot_'.$version.'.jar';
+if ($type == 'portable')
+	$file = 'FileBot_'.$version.'-portable.zip';
 if ($type == 'src')
 	$file = 'filebot-'.$version.'-src.zip';
 
