@@ -169,10 +169,16 @@ public final class WebRequest {
 		
 		// read response
 		int contentLength = connection.getContentLength();
+		String encoding = connection.getContentEncoding();
 		
 		InputStream in = connection.getInputStream();
-		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
+		if ("gzip".equalsIgnoreCase(encoding))
+			in = new GZIPInputStream(in);
+		else if ("deflate".equalsIgnoreCase(encoding)) {
+			in = new InflaterInputStream(in, new Inflater(true));
+		}
 		
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
 		try {
 			// read all
 			buffer.transferFully(in);

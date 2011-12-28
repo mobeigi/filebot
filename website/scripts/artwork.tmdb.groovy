@@ -5,7 +5,7 @@ if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 802) throw new 
 
 
 /*
- * Fetch series and season banners for all tv shows
+ * Fetch movie artwork. The movie is determined using the parent folders name.
  */
 
 def fetchArtwork(outputFile, movieInfo, artworkType, artworkSize) {

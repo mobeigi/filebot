@@ -5,7 +5,7 @@ if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 802) throw new 
 
 
 /*
- * Fetch series and season banners for all tv shows
+ * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.
  */
 
 def fetchBanner(outputFile, series, bannerType, bannerType2, season = null) {
