@@ -39,7 +39,9 @@ public abstract class CachedResource<T extends Serializable> {
 	
 	
 	public synchronized T get() throws IOException {
-		Element element = cache.get(resource);
+		String cacheKey = type.getName() + ":" + resource.toString();
+		
+		Element element = cache.get(cacheKey);
 		long lastUpdateTime = (element != null) ? element.getLatestOfCreationAndUpdateTime() : 0;
 		
 		// fetch from cache
@@ -55,7 +57,7 @@ public abstract class CachedResource<T extends Serializable> {
 		ByteBuffer data = fetchIfModified(new URL(resource), element != null ? lastUpdateTime : 0);
 		
 		if (data != null) {
-			element = new Element(resource, process(data));
+			element = new Element(cacheKey, process(data));
 		}
 		
 		// update cached data and last-updated time
