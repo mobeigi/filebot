@@ -476,7 +476,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public List<String> getGenre() {
+		public List<String> getGenres() {
 			// e.g. |Comedy|
 			return split(get(SeriesProperty.Genre));
 		}

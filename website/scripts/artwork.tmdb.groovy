@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 808) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 812) throw new Exception("Application revision too old")
 
 
 /*
@@ -24,13 +24,13 @@ def fetchArtwork(outputFile, movieInfo, artworkType, artworkSize) {
 def fetchNfo(outputFile, movieInfo) {
 	movieInfo.applyXmlTemplate('''<movie>
 			<title>$name</title>
-			<year>${released?.year}</year>
+			<year>$released.year</year>
 			<rating>$rating</rating>
 			<votes>$votes</votes>
 			<plot>$overview</plot>
 			<runtime>$runtime</runtime>
 			<mpaa>$certification</mpaa>
-			<genre>${genres.size() > 0 ? genres.get(0) : ''}</genre>
+			<genre>${!genres.empty ? genres[0] : ''}</genre>
 			<id>tt${imdbId.pad(7)}</id>
 		</movie>
 	''').saveAs(outputFile)

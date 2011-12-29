@@ -155,7 +155,7 @@ public class TheTVDBClientTest {
 		assertEquals("Adam Baldwin", it.getActors().get(2));
 		assertEquals("TV-PG", it.getContentRating());
 		assertEquals("2007-09-24", it.getFirstAired().toString());
-		assertEquals("Action and Adventure", it.getGenre().get(0));
+		assertEquals("Action and Adventure", it.getGenres().get(0));
 		assertEquals(934814, it.getImdbId(), 0);
 		assertEquals("English", it.getLanguage().getDisplayLanguage(Locale.ENGLISH));
 		assertEquals(310, it.getOverview().length());

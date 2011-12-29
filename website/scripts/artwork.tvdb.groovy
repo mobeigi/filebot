@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 808) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 812) throw new Exception("Application revision too old")
 
 
 /*
@@ -26,13 +26,13 @@ def fetchNfo(outputFile, series) {
 	println info  
 	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
-			<year>${firstAired?.year}</year>
+			<year>$firstAired.year</year>
 			<rating>$rating</rating>
 			<votes>$ratingCount</votes>
 			<plot>$overview</plot>
 			<runtime>$runtime</runtime>
 			<mpaa>$contentRating</mpaa>
-			<genre>${genre.size() > 0 ? genre.get(0) : ''}</genre>
+			<genre>${!genres.empty ? genres[0] : ''}</genre>
 			<id>$id</id>
 			<thumb>$bannerUrl</thumb>
 			<premiered>$firstAired</premiered>

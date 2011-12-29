@@ -73,9 +73,10 @@ String.metaClass.saveAs = { f, csn = "utf-8" -> Charset.forName(csn).encode(dele
 import groovy.text.XmlTemplateEngine
 import groovy.text.GStringTemplateEngine
 import net.sourceforge.filebot.format.PropertyBindings
+import net.sourceforge.filebot.format.UndefinedObject
 
-Object.metaClass.applyXmlTemplate = { template -> new XmlTemplateEngine("\t", false).createTemplate(template).make(new PropertyBindings(delegate, "")).toString() }
-Object.metaClass.applyTextTemplate = { template -> new GStringTemplateEngine().createTemplate(template).make(new PropertyBindings(delegate, "")).toString() }
+Object.metaClass.applyXmlTemplate = { template -> new XmlTemplateEngine("\t", false).createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
+Object.metaClass.applyTextTemplate = { template -> new GStringTemplateEngine().createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
 
 
 // Shell helper
