@@ -51,7 +51,7 @@ def fetchNfo(outputFile, series) {
 def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 	println "Fetch nfo and banners for $series / Season $season"
 	
-	TheTVDB.getBannerList(series.seriesId).each {
+	TheTVDB.getBannerList(series).each {
 		println "Available banner: $it.url => $it"
 	}
 	

@@ -641,7 +641,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	public BannerDescriptor getBanner(TheTVDBSearchResult series, String bannerType, String bannerType2, Integer season, Locale locale, int index) throws Exception {
 		// search for a banner matching the selector
 		int n = 0;
-		for (BannerDescriptor it : getBannerList(series.seriesId)) {
+		for (BannerDescriptor it : getBannerList(series)) {
 			if ((bannerType == null || it.getBannerType().equalsIgnoreCase(bannerType)) && (bannerType2 == null || it.getBannerType2().equalsIgnoreCase(bannerType2)) && (season == null || it.getSeason().equals(season))
 					&& ((locale == null && it.getLocale().getLanguage().equals("en")) || it.getLocale().getLanguage().equals(locale.getLanguage()))) {
 				if (index == n++) {
@@ -654,14 +654,14 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public List<BannerDescriptor> getBannerList(int seriesid) throws Exception {
+	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
 		// check cache first
-		BannerDescriptor[] cachedList = getCache().getData("banners", seriesid, BannerDescriptor[].class);
+		BannerDescriptor[] cachedList = getCache().getData("banners", series.seriesId, BannerDescriptor[].class);
 		if (cachedList != null) {
 			return asList(cachedList);
 		}
 		
-		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesid + "/banners.xml"));
+		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.seriesId + "/banners.xml"));
 		
 		List<Node> nodes = selectNodes("//Banner", dom);
 		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
@@ -688,7 +688,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			}
 		}
 		
-		getCache().putData("banners", seriesid, banners.toArray(new BannerDescriptor[0]));
+		getCache().putData("banners", series.seriesId, banners.toArray(new BannerDescriptor[0]));
 		return banners;
 	}
 	
