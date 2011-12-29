@@ -13,6 +13,7 @@ import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -266,6 +267,7 @@ public class Main {
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
 	private static void initializeCache() {
+		System.setProperty("ehcache.disk.store.dir", new File(getApplicationFolder(), "cache").getAbsolutePath());
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			
 			@Override

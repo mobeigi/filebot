@@ -1,177 +1,76 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false">
 
-    <!--
-    CacheManager Configuration
-    ==========================
-    An ehcache.xml corresponds to a single CacheManager.
-    
-    See instructions below or the ehcache schema (ehcache.xsd) on how to configure.
-
-    System property tokens can be specified in this file which are replaced when the configuration
-    is loaded. For example multicastGroupPort=${multicastGroupPort} can be replaced with the
-    System property either from an environment variable or a system property specified with a
-    command line switch such as -DmulticastGroupPort=4446.
-
-    DiskStore configuration
-    =======================
-
-    The diskStore element is optional. To turn off disk store path creation, comment out the diskStore
-    element below.
-
-    Configure it if you have overflowToDisk or diskPersistent enabled for any cache.
-
-    If it is not configured, and a cache is created which requires a disk store, a warning will be
-     issued and java.io.tmpdir will automatically be used.
-
-    diskStore has only one attribute - "path". It is the path to the directory where
-    .data and .index files will be created.
-
-    If the path is one of the following Java System Property it is replaced by its value in the
-    running VM. For backward compatibility these are not specified without being enclosed in the ${token}
-    replacement syntax.
-
-    The following properties are translated:
-    * user.home - User's home directory
-    * user.dir - User's current working directory
-    * java.io.tmpdir - Default temp file path
-    * ehcache.disk.store.dir - A system property you would normally specify on the command line
-      e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
-
-    Subdirectories can be specified below the property e.g. java.io.tmpdir/one
-    -->
-    <diskStore path="java.io.tmpdir/filebot-ehcache" />
-    
-    <!--
-    Cache configuration
-    ===================
-
-    The following attributes are required.
-
-    name:
-    Sets the name of the cache. This is used to identify the cache. It must be unique.
-
-    maxElementsInMemory:
-    Sets the maximum number of objects that will be created in memory
-
-	maxElementsOnDisk:
-    Sets the maximum number of objects that will be maintained in the DiskStore
-	The default value is zero, meaning unlimited.
-
-    eternal:
-    Sets whether elements are eternal. If eternal,  timeouts are ignored and the
-    element is never expired.
-
-    overflowToDisk:
-    Sets whether elements can overflow to disk when the memory store
-    has reached the maxInMemory limit.
-
-    The following attributes and elements are optional.
-
-    timeToIdleSeconds:
-    Sets the time to idle for an element before it expires.
-    i.e. The maximum amount of time between accesses before an element expires
-    Is only used if the element is not eternal.
-    Optional attribute. A value of 0 means that an Element can idle for infinity.
-    The default value is 0.
-
-    timeToLiveSeconds:
-    Sets the time to live for an element before it expires.
-    i.e. The maximum time between creation time and when an element expires.
-    Is only used if the element is not eternal.
-    Optional attribute. A value of 0 means that and Element can live for infinity.
-    The default value is 0.
-
-    diskPersistent:
-    Whether the disk store persists between restarts of the Virtual Machine.
-    The default value is false.
-
-    diskExpiryThreadIntervalSeconds:
-    The number of seconds between runs of the disk expiry thread. The default value
-    is 120 seconds.
-
-    diskSpoolBufferSizeMB:
-    This is the size to allocate the DiskStore for a spool buffer. Writes are made
-    to this area and then asynchronously written to disk. The default size is 30MB.
-    Each spool buffer is used only by its cache. If you get OutOfMemory errors consider
-    lowering this value. To improve DiskStore performance consider increasing it. Trace level
-    logging in the DiskStore will show if put back ups are occurring. 
-
-    memoryStoreEvictionPolicy:
-    Policy would be enforced upon reaching the maxElementsInMemory limit. Default
-    policy is Least Recently Used (specified as LRU). Other policies available -
-    First In First Out (specified as FIFO) and Less Frequently Used
-    (specified as LFU)
+	<!--
+	Persistent disk store location
 	-->
+	<diskStore path="${ehcache.disk.store.dir}" />
 	
+	<!--
+	Mandatory Default Cache configuration. These settings will be applied to caches
+	created pragmatically using CacheManager.add(String cacheName).
+	-->
+	<defaultCache
+		maxElementsInMemory="100"
+		eternal="false"
+		timeToIdleSeconds="120"
+		timeToLiveSeconds="120"
+		overflowToDisk="false"
+		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU"
+	/>
 	
-    <!--
-    Mandatory Default Cache configuration. These settings will be applied to caches
-    created pragmatically using CacheManager.add(String cacheName).
-    -->
-    <defaultCache
-            maxElementsInMemory="100"
-            eternal="false"
-            timeToIdleSeconds="120"
-            timeToLiveSeconds="120"
-            overflowToDisk="false"
-            diskPersistent="false"
-            memoryStoreEvictionPolicy="LRU"
-            />
-            
-    <!--
+	<!--
 	Short-lived (48 hours) persistent cache for web responses.
-    -->
-    <cache name="web-datasource"
-           maxElementsInMemory="120"
-           maxElementsOnDisk="120"
-           eternal="false"
-           timeToIdleSeconds="172800"
-           timeToLiveSeconds="172800"
-           overflowToDisk="true"
-           diskPersistent="true"
-           memoryStoreEvictionPolicy="LRU"
-           />
-           
+	-->
+	<cache name="web-datasource"
+		maxElementsInMemory="120"
+		maxElementsOnDisk="120"
+		eternal="false"
+		timeToIdleSeconds="172800"
+		timeToLiveSeconds="172800"
+		overflowToDisk="true"
+		diskPersistent="true"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
 	<!--
 	Very long-lived cache (one month!) anime/series list and episode information.
-    -->
-    <cache name="web-persistent-datasource"
-           maxElementsInMemory="40"
-           maxElementsOnDisk="240"
-           eternal="false"
-           timeToIdleSeconds="2628000"
-           timeToLiveSeconds="2628000"
-           overflowToDisk="true"
-           diskPersistent="true"
-           memoryStoreEvictionPolicy="LRU"
-           />
-           
-           
-    <!--
-    Simple memory cache for calculated checksums. Time to live is 2 hours. This cache is used in EpisodeFormatBindingBean
-    -->           
-    <cache name="checksum"
-           maxElementsInMemory="4200"
-           eternal="false"
-           timeToIdleSeconds="7200"
-           timeToLiveSeconds="7200"
-           overflowToDisk="false"
-           diskPersistent="false"
-           memoryStoreEvictionPolicy="LRU"
-           />
-              
-              
+	-->
+	<cache name="web-persistent-datasource"
+		maxElementsInMemory="40"
+		maxElementsOnDisk="240"
+		eternal="false"
+		timeToIdleSeconds="2628000"
+		timeToLiveSeconds="2628000"
+		overflowToDisk="true"
+		diskPersistent="true"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
+	<!--
+	Simple memory cache for calculated checksums. Time to live is 2 hours. This cache is used in EpisodeFormatBindingBean
+	-->
+	<cache name="checksum"
+		maxElementsInMemory="4200"
+		eternal="false"
+		timeToIdleSeconds="7200"
+		timeToLiveSeconds="7200"
+		overflowToDisk="false"
+		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
 	<!--
 	Short-lived memory cache for resources like icons. This cache is used by ResourceManager.
-    -->
-    <cache name="resource"
-           maxElementsInMemory="40"
-           eternal="false"
-           timeToIdleSeconds="120"
-           timeToLiveSeconds="120"
-           overflowToDisk="false"
-           diskPersistent="false"
-           memoryStoreEvictionPolicy="LRU"
-           />
-
+	-->
+	<cache name="resource"
+		maxElementsInMemory="40"
+		eternal="false"
+		timeToIdleSeconds="120"
+		timeToLiveSeconds="120"
+		overflowToDisk="false"
+		diskPersistent="false"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
 </ehcache>
