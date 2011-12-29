@@ -28,7 +28,7 @@ import net.sourceforge.tuned.FileUtilities;
 
 public class SeriesNameMatcher {
 	
-	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, 1000));
+	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
 	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
 	protected final int commonWordSequenceMaxStartIndex = 3;
@@ -63,7 +63,16 @@ public class SeriesNameMatcher {
 		
 		// match common word sequences (likely series names)
 		SeriesNameCollection whitelist = new SeriesNameCollection();
-		whitelist.addAll(deepMatchAll(names, threshold));
+		
+		// focus chars before the SxE pattern when matching by common word sequence
+		String[] focus = Arrays.copyOf(names, names.length);
+		for (int i = 0; i < focus.length; i++) {
+			int pos = seasonEpisodeMatcher.find(focus[i], 0);
+			if (pos >= 0) {
+				focus[i] = focus[i].substring(0, pos);
+			}
+		}
+		whitelist.addAll(deepMatchAll(focus, threshold));
 		
 		// 1. use pattern matching
 		seriesNames.addAll(flatMatchAll(names, Pattern.compile(join(whitelist, "|"), Pattern.CASE_INSENSITIVE), threshold, false));

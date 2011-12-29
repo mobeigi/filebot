@@ -13,9 +13,9 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMatcherTest {
 	
-	private static SeasonEpisodeMatcher matcher = new SeasonEpisodeMatcher(null);
+	private static SeasonEpisodeMatcher matcher = new SeasonEpisodeMatcher(null, false);
 	
-
+	
 	@Test
 	public void patternPrecedence() {
 		// S01E01 pattern has highest precedence
@@ -25,7 +25,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(new SxE(1, 2), matcher.match("Test.42.s01e01.s01e02.300").get(1));
 	}
 	
-
+	
 	@Test
 	public void pattern_1x01() {
 		assertEquals(new SxE(1, 1), matcher.match("1x01").get(0));
@@ -40,7 +40,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(new SxE(1, 3), matcher.match("Test_-_103_[1280x720]").get(0));
 	}
 	
-
+	
 	@Test
 	public void pattern_S01E01() {
 		assertEquals(new SxE(1, 1), matcher.match("S01E01").get(0));
@@ -56,7 +56,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(new SxE(12, 345), matcher.match("Test - S12E345 - High Values").get(0));
 	}
 	
-
+	
 	@Test
 	public void pattern_101() {
 		assertEquals(new SxE(1, 1), matcher.match("Test.101").get(0));

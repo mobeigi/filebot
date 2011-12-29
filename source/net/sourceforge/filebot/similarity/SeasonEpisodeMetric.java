@@ -10,9 +10,9 @@ import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMetric implements SimilarityMetric {
 	
-	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(null);
+	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(null, false);
 	
-
+	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Collection<SxE> sxeVector1 = parse(o1);
@@ -41,7 +41,7 @@ public class SeasonEpisodeMetric implements SimilarityMetric {
 		return similarity;
 	}
 	
-
+	
 	protected Collection<SxE> parse(Object object) {
 		if (object instanceof File) {
 			// parse file name

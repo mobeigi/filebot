@@ -15,11 +15,11 @@ File.metaClass.getDir = { getParentFile() }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
 
 String.metaClass.getFiles = { c -> new File(delegate).getFiles(c) }
-File.metaClass.getFiles = { c -> def files = []; traverse(type:FILES) { files += it }; return c ? files.findAll(c) : files }
+File.metaClass.getFiles = { c -> def files = []; traverse(type:FILES) { files += it }; return c ? files.findAll(c).sort() : files.sort() }
 List.metaClass.getFiles = { c -> findResults{ it.getFiles(c) }.flatten().unique() }
 
 String.metaClass.getFolders = { c -> new File(delegate).getFolders(c) }
-File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return c ? folders.findAll(c) : folders }
+File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return c ? folders.findAll(c).sort() : folders.sort() }
 List.metaClass.getFolders = { c -> findResults{ it.getFolders(c) }.flatten().unique() }
 
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
@@ -135,9 +135,9 @@ List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 import net.sourceforge.filebot.media.*
 import net.sourceforge.filebot.similarity.*
 
-def parseEpisodeNumber(path) {
+def parseEpisodeNumber(path, strict = true) {
 	def input = path instanceof File ? path.name : path.toString()
-	def sxe = new SeasonEpisodeMatcher(new SeasonEpisodeMatcher.SeasonEpisodeFilter(30, 50, 1000)).match(input)
+	def sxe = new SeasonEpisodeMatcher(new SeasonEpisodeMatcher.SeasonEpisodeFilter(30, 50, 1000), strict).match(input)
 	return sxe == null || sxe.isEmpty() ? null : sxe[0]
 }
 

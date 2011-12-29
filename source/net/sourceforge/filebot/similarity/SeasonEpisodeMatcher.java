@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
 
 public class SeasonEpisodeMatcher {
 	
-	private final SeasonEpisodePattern[] patterns;
+	private SeasonEpisodePattern[] patterns;
 	
-
-	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity) {
+	
+	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		patterns = new SeasonEpisodePattern[3];
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ...
@@ -38,12 +38,17 @@ public class SeasonEpisodeMatcher {
 				SxE absoluteEpisode = new SxE(null, match.group(1) + match.group(2));
 				
 				// return both matches, unless they are one and the same
-				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(absoluteEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
+				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(seasonEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
 			}
 		};
+		
+		// only use S00E00 and SxE pattern in strict mode
+		if (strict) {
+			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1] };
+		}
 	}
 	
-
+	
 	/**
 	 * Try to get season and episode numbers for the given string.
 	 * 
@@ -64,7 +69,7 @@ public class SeasonEpisodeMatcher {
 		return null;
 	}
 	
-
+	
 	public int find(CharSequence name, int fromIndex) {
 		for (SeasonEpisodePattern pattern : patterns) {
 			int index = pattern.find(name, fromIndex);
@@ -78,7 +83,7 @@ public class SeasonEpisodeMatcher {
 		return -1;
 	}
 	
-
+	
 	public Matcher matcher(CharSequence name) {
 		for (SeasonEpisodePattern pattern : patterns) {
 			Matcher matcher = pattern.matcher(name);
@@ -93,7 +98,7 @@ public class SeasonEpisodeMatcher {
 		return null;
 	}
 	
-
+	
 	public static class SxE {
 		
 		public static final int UNDEFINED = -1;
@@ -101,19 +106,19 @@ public class SeasonEpisodeMatcher {
 		public final int season;
 		public final int episode;
 		
-
+		
 		public SxE(Integer season, Integer episode) {
 			this.season = season != null ? season : UNDEFINED;
 			this.episode = episode != null ? episode : UNDEFINED;
 		}
 		
-
+		
 		public SxE(String season, String episode) {
 			this.season = parse(season);
 			this.episode = parse(episode);
 		}
 		
-
+		
 		protected int parse(String number) {
 			try {
 				return Integer.parseInt(number);
@@ -122,7 +127,7 @@ public class SeasonEpisodeMatcher {
 			}
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object object) {
 			if (object instanceof SxE) {
@@ -133,62 +138,62 @@ public class SeasonEpisodeMatcher {
 			return false;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return Arrays.hashCode(new Object[] { season, episode });
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			return season >= 0 ? String.format("%dx%02d", season, episode) : String.format("%02d", episode);
 		}
 	}
 	
-
+	
 	public static class SeasonEpisodeFilter {
 		
 		public final int seasonLimit;
 		public final int seasonEpisodeLimit;
 		public final int absoluteEpisodeLimit;
 		
-
+		
 		public SeasonEpisodeFilter(int seasonLimit, int seasonEpisodeLimit, int absoluteEpisodeLimit) {
 			this.seasonLimit = seasonLimit;
 			this.seasonEpisodeLimit = seasonEpisodeLimit;
 			this.absoluteEpisodeLimit = absoluteEpisodeLimit;
 		}
 		
-
+		
 		boolean filter(SxE sxe) {
 			return (sxe.season >= 0 && sxe.season < seasonLimit && sxe.episode < seasonEpisodeLimit) || (sxe.season < 0 && sxe.episode < absoluteEpisodeLimit);
 		}
 	}
 	
-
+	
 	public static class SeasonEpisodePattern {
 		
 		protected final Pattern pattern;
 		protected final SeasonEpisodeFilter sanity;
 		
-
+		
 		public SeasonEpisodePattern(SeasonEpisodeFilter sanity, String pattern) {
 			this.pattern = Pattern.compile(pattern);
 			this.sanity = sanity;
 		}
 		
-
+		
 		public Matcher matcher(CharSequence name) {
 			return pattern.matcher(name);
 		}
 		
-
+		
 		protected Collection<SxE> process(MatchResult match) {
 			return Collections.singleton(new SxE(match.group(1), match.group(2)));
 		}
 		
-
+		
 		public List<SxE> match(CharSequence name) {
 			// name will probably contain no more than two matches
 			List<SxE> matches = new ArrayList<SxE>(2);
@@ -206,7 +211,7 @@ public class SeasonEpisodeMatcher {
 			return matches;
 		}
 		
-
+		
 		public int find(CharSequence name, int fromIndex) {
 			Matcher matcher = matcher(name).region(fromIndex, name.length());
 			
