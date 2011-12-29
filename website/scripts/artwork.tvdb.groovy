@@ -39,9 +39,9 @@ def fetchNfo(outputFile, series) {
 			<status>$status</status>
 			<studio>$network</studio>
 			<gsp:scriptlet> actors.each { </gsp:scriptlet>
-			<actor>
-    		<name>$it</name>
-			</actor>
+				<actor>
+	    			<name>$it</name>
+				</actor>
 			<gsp:scriptlet> } </gsp:scriptlet>
 		</tvshow>
 	''').saveAs(outputFile)
@@ -73,11 +73,8 @@ def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 }
 
 
-args.getFolders().each { dir ->
+args.eachMediaFolder { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
-	if (videos.isEmpty()) {
-		return null
-	}
 	
 	def query = _args.query ?: detectSeriesName(videos)
 	def sxe = videos.findResult{ parseEpisodeNumber(it) }

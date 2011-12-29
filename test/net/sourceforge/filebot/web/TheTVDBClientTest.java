@@ -181,7 +181,7 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getBannerList() throws Exception {
-		List<BannerDescriptor> banners = thetvdb.getBannerList(70327);
+		List<BannerDescriptor> banners = thetvdb.getBannerList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327));
 		
 		assertEquals(106, banners.size());
 		assertEquals("fanart", banners.get(0).getBannerType());

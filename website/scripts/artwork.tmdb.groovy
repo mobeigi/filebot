@@ -55,11 +55,8 @@ def fetchMovieArtworkAndNfo(movieDir, movie) {
 }
 
 
-args.getFolders().each { dir ->
+args.eachMediaFolder { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
-	if (videos.isEmpty()) {
-		return null
-	}
 	
 	def query = _args.query ?: dir.name
 	def options = TheMovieDB.searchMovie(query, Locale.ENGLISH)
