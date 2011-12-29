@@ -243,10 +243,13 @@ public class ExpressionFormat extends Format {
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
-		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
+		
+		// write permissions for temp and cache folders
+		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator, "write"));
+		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
 		
 		return permissions;
 	}

@@ -7,7 +7,6 @@ import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.io.InputStreamReader;
 import java.security.AccessController;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -84,14 +83,12 @@ public class ArgumentProcessor {
 				}
 			} else {
 				// execute user script
-				String script = readAll(new InputStreamReader(args.getScriptLocation().openStream(), "UTF-8"));
-				
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
 				Analytics.trackEvent("CLI", "ExecuteScript", args.getScriptLocation().getProtocol());
 				ScriptShell shell = new ScriptShell(cli, args, args.trustScript, AccessController.getContext());
-				shell.evaluate(script, bindings);
+				shell.run(args.getScriptLocation(), bindings);
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");

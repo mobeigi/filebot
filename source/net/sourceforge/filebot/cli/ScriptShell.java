@@ -3,11 +3,16 @@ package net.sourceforge.filebot.cli;
 
 
 import static net.sourceforge.filebot.cli.CLILogging.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
 import java.net.SocketPermission;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Permissions;
@@ -30,6 +35,7 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.AssociativeScriptObject;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
+import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 
@@ -86,6 +92,29 @@ class ScriptShell {
 	}
 	
 	
+	public Object run(URL scriptLocation, Bindings bindings) throws Exception {
+		if (scriptLocation.getProtocol().equals("file")) {
+			return run(new File(scriptLocation.toURI()), bindings);
+		}
+		
+		// fetch remote script only if modified
+		CachedResource<String> script = new CachedResource<String>(scriptLocation.toString(), String.class, 0) {
+			
+			@Override
+			public String process(ByteBuffer data) {
+				return Charset.forName("UTF-8").decode(data).toString();
+			}
+		};
+		return evaluate(script.get(), bindings);
+	}
+	
+	
+	public Object run(File scriptFile, Bindings bindings) throws Exception {
+		String script = readAll(new InputStreamReader(new FileInputStream(scriptFile), "UTF-8"));
+		return evaluate(script, bindings);
+	}
+	
+	
 	public Object evaluate(final String script, final Bindings bindings) throws Exception {
 		if (trustScript) {
 			return engine.eval(script, bindings);
@@ -109,12 +138,17 @@ class ScriptShell {
 		Permissions permissions = new Permissions();
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
-		permissions.add(new RuntimePermission("accessDeclaredMembers")); // this is probably a security problem but nevermind
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
-		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
+		
+		// write permissions for temp and cache folders
+		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator, "write"));
+		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
+		
+		// this is probably a security problem but nevermind
+		permissions.add(new RuntimePermission("accessDeclaredMembers"));
 		
 		return new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, permissions) });
 	}
