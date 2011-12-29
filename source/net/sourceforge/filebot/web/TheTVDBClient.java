@@ -460,9 +460,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public int getId() {
+		public Integer getId() {
 			// e.g. 80348
-			return Integer.parseInt(get(SeriesProperty.id));
+			try {
+				return Integer.parseInt(get(SeriesProperty.id));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -480,10 +484,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		protected List<String> split(String values) {
 			List<String> items = new ArrayList<String>();
-			for (String it : values.split("[|]")) {
-				it = it.trim();
-				if (it.length() > 0) {
-					items.add(it);
+			if (values != null && values.length() > 0) {
+				for (String it : values.split("[|]")) {
+					it = it.trim();
+					if (it.length() > 0) {
+						items.add(it);
+					}
 				}
 			}
 			return items;
@@ -514,15 +520,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public int getImdbId() {
+		public Integer getImdbId() {
 			// e.g. tt0934814
-			return Integer.parseInt(get(SeriesProperty.IMDB_ID).substring(2));
+			try {
+				return Integer.parseInt(get(SeriesProperty.IMDB_ID).substring(2));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
 		public Locale getLanguage() {
 			// e.g. en
-			return new Locale(get(SeriesProperty.Language));
+			try {
+				return new Locale(get(SeriesProperty.Language));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -532,15 +546,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public double getRating() {
+		public Double getRating() {
 			// e.g. 9.0
-			return Double.parseDouble(get(SeriesProperty.Rating));
+			try {
+				return Double.parseDouble(get(SeriesProperty.Rating));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public int getRatingCount() {
+		public Integer getRatingCount() {
 			// e.g. 696
-			return Integer.parseInt(get(SeriesProperty.RatingCount));
+			try {
+				return Integer.parseInt(get(SeriesProperty.RatingCount));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -595,7 +617,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public URL getPosterUrl() throws MalformedURLException {
+		public URL getPosterUrl() {
 			try {
 				return new URL(getBannerMirrorUrl(), get(SeriesProperty.poster));
 			} catch (Exception e) {

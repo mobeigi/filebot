@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 802) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 808) throw new Exception("Application revision too old")
 
 
 /*
@@ -41,6 +41,11 @@ def fetchMovieArtworkAndNfo(movieDir, movie) {
 	println "Fetch nfo and artwork for $movie"
 	def movieInfo = TheMovieDB.getMovieInfo(movie, Locale.ENGLISH)
 	
+	println movieInfo
+	movieInfo.images.each {
+		println "Available artwork: $it.url => $it"
+	}
+	
 	// fetch nfo
 	fetchNfo(movieDir['movie.nfo'], movieInfo)
 	
@@ -50,7 +55,7 @@ def fetchMovieArtworkAndNfo(movieDir, movie) {
 }
 
 
-def jobs = args.getFolders().findResults { dir ->
+args.getFolders().each { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
 	if (videos.isEmpty()) {
 		return null
@@ -66,7 +71,6 @@ def jobs = args.getFolders().findResults { dir ->
 	// auto-select series
 	def movie = options.sortBySimilarity(query, { it.name })[0]
 	
-	return { fetchMovieArtworkAndNfo(dir, movie) }
+	println "$dir => $movie"
+	fetchMovieArtworkAndNfo(dir, movie)
 }
-
-parallel(jobs, 10)

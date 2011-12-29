@@ -1,18 +1,18 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 802) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 808) throw new Exception("Application revision too old")
 
 
 /*
  * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.
  */
 
-def fetchBanner(outputFile, series, bannerType, bannerType2, season = null) {
+def fetchBanner(outputFile, series, bannerType, bannerType2 = null, season = null) {
 	// select and fetch banner
 	def banner = TheTVDB.getBanner(series, bannerType, bannerType2, season, Locale.ENGLISH, 0)
 	if (banner == null) {
-		println "Banner not found: $outputFile"
+		println "Banner not found: $outputFile / $bannerType:$bannerType2"
 		return null
 	}
 	
@@ -22,7 +22,9 @@ def fetchBanner(outputFile, series, bannerType, bannerType2, season = null) {
 
 
 def fetchNfo(outputFile, series) {
-	TheTVDB.getSeriesInfo(series, Locale.ENGLISH).applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
+	def info = TheTVDB.getSeriesInfo(series, Locale.ENGLISH)
+	println info  
+	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<year>${firstAired?.year}</year>
 			<rating>$rating</rating>
@@ -49,15 +51,19 @@ def fetchNfo(outputFile, series) {
 def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 	println "Fetch nfo and banners for $series / Season $season"
 	
+	TheTVDB.getBannerList(series.seriesId).each {
+		println "Available banner: $it.url => $it"
+	}
+	
 	// fetch nfo
 	fetchNfo(seriesDir['tvshow.nfo'], series)
-		
+			
 	// fetch series banner, fanart, posters, etc
-	fetchBanner(seriesDir['folder.jpg'], series, "poster", "680x1000")
-	fetchBanner(seriesDir['banner.jpg'], series, "series", "graphical")
+	["680x1000",  null].findResult{ fetchBanner(seriesDir['folder.jpg'], series, "poster", it) }
+	["graphical", null].findResult{ fetchBanner(seriesDir['banner.jpg'], series, "series", it) }
 	
 	// fetch highest resolution fanart
-	["1920x1080", "1280x720"].findResult{ fetchBanner(seriesDir["fanart.jpg"], series, "fanart", it) }
+	["1920x1080", "1280x720", null].findResult{ fetchBanner(seriesDir["fanart.jpg"], series, "fanart", it) }
 	
 	// fetch season banners
 	if (seasonDir != seriesDir) {
@@ -67,7 +73,7 @@ def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 }
 
 
-def jobs = args.getFolders().findResults { dir ->
+args.getFolders().each { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
 	if (videos.isEmpty()) {
 		return null
@@ -78,9 +84,9 @@ def jobs = args.getFolders().findResults { dir ->
 	
 	if (query == null) {
 		query = dir.dir.hasFile{ it.name =~ /Season/ && it.isDirectory() } ? dir.dir.name : dir.name
-		println "Failed to detect series name from video files -> Query by $query instead"
 	}
 	
+	println "$dir => Search by $query"
 	def options = TheTVDB.search(query, Locale.ENGLISH)
 	if (options.isEmpty()) {
 		println "TV Series not found: $query"
@@ -94,7 +100,6 @@ def jobs = args.getFolders().findResults { dir ->
 	def seriesDir = [dir.dir, dir].sortBySimilarity(series.name, { it.name })[0]
 	def season = sxe && sxe.season > 0 ? sxe.season : 1
 	
-	return { fetchSeriesBannersAndNfo(seriesDir, dir, series, season) }
+	println "$dir => $series"
+	fetchSeriesBannersAndNfo(seriesDir, dir, series, season)
 }
-
-parallel(jobs, 10)

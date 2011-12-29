@@ -225,7 +225,11 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		
 		public Locale getLanguage() {
-			return new Locale(get(MovieProperty.language));
+			try {
+				return new Locale(get(MovieProperty.language));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -239,14 +243,22 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public int getId() {
-			return Integer.parseInt(get(MovieProperty.id));
+		public Integer getId() {
+			try {
+				return new Integer(get(MovieProperty.id));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public int getImdbId() {
+		public Integer getImdbId() {
 			// e.g. tt0379786
-			return Integer.parseInt(get(MovieProperty.imdb_id).substring(2));
+			try {
+				return new Integer(get(MovieProperty.imdb_id).substring(2));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -264,13 +276,21 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public int getVotes() {
-			return Integer.parseInt(get(MovieProperty.votes));
+		public Integer getVotes() {
+			try {
+				return new Integer(get(MovieProperty.votes));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public double getRating() {
-			return Double.parseDouble(get(MovieProperty.rating));
+		public Double getRating() {
+			try {
+				return new Double(get(MovieProperty.rating));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -286,8 +306,12 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public int getRuntime() {
-			return Integer.parseInt(get(MovieProperty.runtime));
+		public Integer getRuntime() {
+			try {
+				return new Integer(get(MovieProperty.runtime));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -350,7 +374,7 @@ public class TMDbClient implements MovieIdentificationService {
 		public URL getUrl() {
 			try {
 				return new URL(get(ArtworkProperty.url));
-			} catch (MalformedURLException e) {
+			} catch (Exception e) {
 				return null;
 			}
 		}
@@ -361,13 +385,21 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public int getWidth() {
-			return Integer.parseInt(get(ArtworkProperty.width));
+		public Integer getWidth() {
+			try {
+				return new Integer(get(ArtworkProperty.width));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public int getHeight() {
-			return Integer.parseInt(get(ArtworkProperty.height));
+		public Integer getHeight() {
+			try {
+				return new Integer(get(ArtworkProperty.height));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
