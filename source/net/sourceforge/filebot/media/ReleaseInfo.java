@@ -3,7 +3,6 @@ package net.sourceforge.filebot.media;
 
 
 import static java.util.ResourceBundle.*;
-import static java.util.concurrent.TimeUnit.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
@@ -54,12 +53,12 @@ public class ReleaseInfo {
 	
 	
 	public List<String> cleanRelease(Iterable<String> items) throws IOException {
-		return clean(items, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getCodecPattern(), getResolutionPattern());
+		return clean(items, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern());
 	}
 	
 	
 	public String cleanRelease(String item) throws IOException {
-		return clean(item, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getCodecPattern(), getResolutionPattern());
+		return clean(item, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern());
 	}
 	
 	
@@ -106,9 +105,9 @@ public class ReleaseInfo {
 	}
 	
 	
-	public Pattern getCodecPattern() {
+	public Pattern getVideoFormatPattern() {
 		// pattern matching any video source name
-		String pattern = getBundle(getClass().getName()).getString("pattern.codec");
+		String pattern = getBundle(getClass().getName()).getString("pattern.video.format");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 	
@@ -126,13 +125,28 @@ public class ReleaseInfo {
 	}
 	
 	
+	public Pattern getBlacklistPattern() throws IOException {
+		// pattern matching any release group name enclosed in separators
+		return compile("(?<!\\p{Alnum})(" + join(blacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+	}
+	
+	
 	// fetch release group names online and try to update the data every other day
-	protected final CachedResource<String[]> releaseGroupResource = new CachedResource<String[]>(getBundle(getClass().getName()).getString("url.release-groups"), String[].class, DAYS.toMillis(1)) {
+	protected final PatternResource releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
+	protected final PatternResource blacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.term-blacklist"));
+	
+	
+	protected static class PatternResource extends CachedResource<String[]> {
+		
+		public PatternResource(String resource) {
+			super(resource, String[].class, 24 * 60 * 60 * 1000); // 24h update interval
+		}
+		
 		
 		@Override
 		public String[] process(ByteBuffer data) {
-			return compile("\\s+").split(Charset.forName("UTF-8").decode(data));
+			return compile("\\n").split(Charset.forName("UTF-8").decode(data));
 		}
-	};
+	}
 	
 }
