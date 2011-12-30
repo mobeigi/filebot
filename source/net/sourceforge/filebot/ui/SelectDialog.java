@@ -65,7 +65,7 @@ public class SelectDialog<T> extends JDialog {
 		
 		JComponent c = (JComponent) getContentPane();
 		
-		c.setLayout(new MigLayout("insets 1.5mm, nogrid, fill"));
+		c.setLayout(new MigLayout("insets 1.5mm, nogrid, fill", "", "[pref!][fill][pref!]"));
 		
 		c.add(headerLabel, "wrap");
 		c.add(new JScrollPane(list), "grow, wrap 2mm");
