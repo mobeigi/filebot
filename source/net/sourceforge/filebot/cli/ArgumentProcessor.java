@@ -10,6 +10,7 @@ import java.io.File;
 import java.security.AccessController;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
@@ -93,8 +94,8 @@ public class ArgumentProcessor {
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
-		} catch (Exception e) {
-			CLILogger.severe(String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)));
+		} catch (Throwable e) {
+			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}

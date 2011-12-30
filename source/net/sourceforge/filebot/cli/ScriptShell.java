@@ -29,6 +29,7 @@ import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.codehaus.groovy.runtime.StackTraceUtils;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
@@ -92,7 +93,7 @@ class ScriptShell {
 	}
 	
 	
-	public Object run(URL scriptLocation, Bindings bindings) throws Exception {
+	public Object run(URL scriptLocation, Bindings bindings) throws Throwable {
 		if (scriptLocation.getProtocol().equals("file")) {
 			return run(new File(scriptLocation.toURI()), bindings);
 		}
@@ -109,27 +110,31 @@ class ScriptShell {
 	}
 	
 	
-	public Object run(File scriptFile, Bindings bindings) throws Exception {
+	public Object run(File scriptFile, Bindings bindings) throws Throwable {
 		String script = readAll(new InputStreamReader(new FileInputStream(scriptFile), "UTF-8"));
 		return evaluate(script, bindings);
 	}
 	
 	
-	public Object evaluate(final String script, final Bindings bindings) throws Exception {
-		if (trustScript) {
-			return engine.eval(script, bindings);
-		}
-		
+	public Object evaluate(final String script, final Bindings bindings) throws Throwable {
 		try {
-			return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-				
-				@Override
-				public Object run() throws ScriptException {
-					return engine.eval(script, bindings);
-				}
-			}, getSandboxAccessControlContext());
-		} catch (PrivilegedActionException e) {
-			throw e.getException();
+			if (trustScript) {
+				return engine.eval(script, bindings);
+			}
+			
+			try {
+				return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+					
+					@Override
+					public Object run() throws ScriptException {
+						return engine.eval(script, bindings);
+					}
+				}, getSandboxAccessControlContext());
+			} catch (PrivilegedActionException e) {
+				throw e.getException();
+			}
+		} catch (Throwable e) {
+			throw StackTraceUtils.deepSanitize(e); // make Groovy stack human-readable
 		}
 	}
 	

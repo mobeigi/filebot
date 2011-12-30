@@ -1,8 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 812) throw new Exception("Application revision too old")
-
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 815) throw new Exception("Application revision too old")
 
 /*
  * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.
@@ -10,7 +9,7 @@ if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 812) throw new 
 
 def fetchBanner(outputFile, series, bannerType, bannerType2 = null, season = null) {
 	// select and fetch banner
-	def banner = TheTVDB.getBanner(series, bannerType, bannerType2, season, Locale.ENGLISH, 0)
+	def banner = ['en', null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
 	if (banner == null) {
 		println "Banner not found: $outputFile / $bannerType:$bannerType2"
 		return null

@@ -19,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -638,15 +639,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	 * 
 	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
 	 */
-	public BannerDescriptor getBanner(TheTVDBSearchResult series, String bannerType, String bannerType2, Integer season, Locale locale, int index) throws Exception {
+	public BannerDescriptor getBanner(TheTVDBSearchResult series, Map<?, ?> filterDescriptor) throws Exception {
+		EnumMap<BannerProperty, String> filter = new EnumMap<BannerProperty, String>(BannerProperty.class);
+		for (Entry<?, ?> it : filterDescriptor.entrySet()) {
+			if (it.getValue() != null) {
+				filter.put(BannerProperty.valueOf(it.getKey().toString()), it.getValue().toString());
+			}
+		}
+		
 		// search for a banner matching the selector
-		int n = 0;
 		for (BannerDescriptor it : getBannerList(series)) {
-			if ((bannerType == null || it.getBannerType().equalsIgnoreCase(bannerType)) && (bannerType2 == null || it.getBannerType2().equalsIgnoreCase(bannerType2)) && (season == null || it.getSeason().equals(season))
-					&& ((locale == null && it.getLocale().getLanguage().equals("en")) || it.getLocale().getLanguage().equals(locale.getLanguage()))) {
-				if (index == n++) {
-					return it;
-				}
+			if (it.fields.entrySet().containsAll(filter.entrySet())) {
+				return it;
 			}
 		}
 		
@@ -736,12 +740,20 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		
 		public URL getBannerMirrorUrl() throws MalformedURLException {
-			return new URL(get(BannerProperty.BannerMirror));
+			try {
+				return new URL(get(BannerProperty.BannerMirror));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
 		public URL getUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(BannerProperty.BannerPath));
+			try {
+				return new URL(getBannerMirrorUrl(), get(BannerProperty.BannerPath));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -750,8 +762,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
-		public int getId() {
-			return Integer.parseInt(get(BannerProperty.id));
+		public Integer getId() {
+			try {
+				return new Integer(get(BannerProperty.id));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -780,17 +796,29 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		
 		public Locale getLocale() {
-			return new Locale(get(BannerProperty.Language));
+			try {
+				return new Locale(get(BannerProperty.Language));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public double getRating() {
-			return Double.parseDouble(get(BannerProperty.Rating));
+		public Double getRating() {
+			try {
+				return new Double(get(BannerProperty.Rating));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
-		public int getRatingCount() {
-			return Integer.parseInt(get(BannerProperty.RatingCount));
+		public Integer getRatingCount() {
+			try {
+				return new Integer(get(BannerProperty.RatingCount));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
@@ -800,12 +828,20 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		
 		
 		public URL getThumbnailUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(BannerProperty.ThumbnailPath));
+			try {
+				return new URL(getBannerMirrorUrl(), get(BannerProperty.ThumbnailPath));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
 		public URL getVignetteUrl() throws MalformedURLException {
-			return new URL(getBannerMirrorUrl(), get(BannerProperty.VignettePath));
+			try {
+				return new URL(getBannerMirrorUrl(), get(BannerProperty.VignettePath));
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
