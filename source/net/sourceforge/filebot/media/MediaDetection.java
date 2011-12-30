@@ -2,10 +2,13 @@
 package net.sourceforge.filebot.media;
 
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +32,9 @@ import java.util.regex.Pattern;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
+import net.sourceforge.filebot.similarity.SimilarityComparator;
+import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
@@ -125,7 +131,7 @@ public class MediaDetection {
 		Collection<String> matches = new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
 		
 		try {
-			matches = new ReleaseInfo().cleanRG(matches);
+			matches = stripReleaseInfo(matches);
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
 		}
@@ -135,6 +141,48 @@ public class MediaDetection {
 		}
 		
 		return new ArrayList<String>(names.values());
+	}
+	
+	
+	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+		Set<Movie> options = new LinkedHashSet<Movie>();
+		
+		// try to grep imdb id from nfo files
+		for (int imdbid : grepImdbIdFor(movieFile)) {
+			Movie movie = service.getMovieDescriptor(imdbid, locale);
+			
+			if (movie != null) {
+				options.add(movie);
+			}
+		}
+		
+		// search by file name or folder name
+		Collection<String> searchQueries = new LinkedHashSet<String>();
+		searchQueries.add(getName(movieFile));
+		searchQueries.add(getName(movieFile.getParentFile()));
+		
+		// remove blacklisted terms
+		searchQueries = stripReleaseInfo(searchQueries);
+		
+		if (!strict && options.isEmpty()) {
+			for (String query : searchQueries) {
+				Movie[] results = service.searchMovie(query, locale).toArray(new Movie[0]);
+				sort(results, new SimilarityComparator(query)); // sort by similarity to original query
+				addAll(options, results);
+			}
+		}
+		
+		return options;
+	}
+	
+	
+	public static String stripReleaseInfo(String name) throws IOException {
+		return new ReleaseInfo().cleanRelease(name);
+	}
+	
+	
+	public static List<String> stripReleaseInfo(Collection<String> names) throws IOException {
+		return new ReleaseInfo().cleanRelease(names);
 	}
 	
 	

@@ -33,7 +33,6 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -234,7 +233,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			String suggestion = new SeriesNameMatcher().matchBySeasonEpisodePattern(getName(files.get(0)));
 			if (suggestion != null) {
 				// clean media info / release group info / etc 
-				suggestion = new ReleaseInfo().cleanRG(suggestion);
+				suggestion = stripReleaseInfo(suggestion);
 			} else {
 				// use folder name
 				suggestion = files.get(0).getParentFile().getName();

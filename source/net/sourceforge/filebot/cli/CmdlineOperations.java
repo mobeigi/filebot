@@ -3,6 +3,7 @@ package net.sourceforge.filebot.cli;
 
 
 import static java.lang.String.*;
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
@@ -21,7 +22,6 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -51,6 +52,7 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
+import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.StrictEpisodeMetrics;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
@@ -62,6 +64,7 @@ import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
@@ -257,81 +260,112 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService db, Locale locale, boolean strict) throws Exception {
-		CLILogger.config(format("Rename movies using [%s]", db.getName()));
+	public List<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
+		// handle movie files
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
 		File[] subtitleFiles = filter(mediaFiles, SUBTITLE_FILES).toArray(new File[0]);
-		Movie[] movieDescriptors;
+		Movie[] movieByFileHash = null;
 		
-		if (movieFiles.length > 0) {
+		if (movieFiles.length > 0 && query == null) {
 			// match movie hashes online
-			CLILogger.fine(format("Looking up movie by filehash via [%s]", db.getName()));
-			movieDescriptors = db.getMovieDescriptors(movieFiles, locale);
-		} else {
-			// allow subtitles without video files
-			movieDescriptors = new Movie[subtitleFiles.length];
+			CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
+			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+			Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+		}
+		
+		if (subtitleFiles.length > 0 && movieFiles.length == 0) {
+			// special handling if there is only subtitle files
+			movieByFileHash = new Movie[subtitleFiles.length];
 			movieFiles = subtitleFiles;
 			subtitleFiles = new File[0];
 		}
 		
-		// fill in movie information from nfo file imdb when necessary
+		if (query != null) {
+			CLILogger.fine(format("Looking up movie by query [%s]", query));
+			Movie result = (Movie) selectSearchResult(query, service.searchMovie(query, locale), strict).get(0);
+			fill(movieByFileHash, result);
+		}
+		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
+		
+		// map all files by movie
 		for (int i = 0; i < movieFiles.length; i++) {
-			if (movieDescriptors[i] == null) {
-				Set<Integer> imdbid = grepImdbIdFor(movieFiles[i]);
-				if (imdbid.size() > 1) {
-					CLILogger.warning(String.format("Multiple imdb ids found for %s: %s", movieFiles[i].getName(), imdbid));
+			Movie movie = movieByFileHash[i];
+			
+			// unknown hash, try via imdb id from nfo file
+			if (movie == null) {
+				Collection<Movie> results = detectMovie(movieFiles[i], service, locale, strict);
+				movie = (Movie) selectSearchResult(query, results, strict).get(0);
+				
+				if (movie != null) {
+					Analytics.trackEvent(service.getName(), "SearchMovie", movie.toString(), 1);
+				}
+			}
+			
+			// check if we managed to lookup the movie descriptor
+			if (movie != null) {
+				// get file list for movie
+				SortedSet<File> movieParts = filesByMovie.get(movie);
+				
+				if (movieParts == null) {
+					movieParts = new TreeSet<File>();
+					filesByMovie.put(movie, movieParts);
 				}
 				
-				if (imdbid.size() == 1 || (imdbid.size() > 1 && !strict)) {
-					movieDescriptors[i] = db.getMovieDescriptor(imdbid.iterator().next(), locale);
-					CLILogger.fine(String.format("Identified %s as %s via imdb id", movieFiles[i].getName(), movieDescriptors[i]));
-				}
+				movieParts.add(movieFiles[i]);
 			}
 		}
 		
-		// use user query if search by hash did not return any results, only one query for one movie though
-		if (query != null && movieDescriptors.length == 1 && movieDescriptors[0] == null) {
-			CLILogger.fine(format("Looking up movie by query [%s]", query));
-			movieDescriptors[0] = (Movie) selectSearchResult(query, db.searchMovie(query, locale), strict).get(0);
+		// collect all File / MoviePart matches
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+		
+		for (Entry<Movie, SortedSet<File>> entry : filesByMovie.entrySet()) {
+			Movie movie = entry.getKey();
+			
+			int partIndex = 0;
+			int partCount = entry.getValue().size();
+			
+			// add all movie parts
+			for (File file : entry.getValue()) {
+				Movie part = movie;
+				if (partCount > 1) {
+					part = new MoviePart(movie, ++partIndex, partCount);
+				}
+				
+				matches.add(new Match<File, Movie>(file, part));
+			}
+		}
+		
+		// handle subtitle files
+		for (File subtitle : subtitleFiles) {
+			// check if subtitle corresponds to a movie file (same name, different extension)
+			for (Match<File, ?> movieMatch : matches) {
+				if (isDerived(subtitle, movieMatch.getValue())) {
+					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
+					// movie match found, we're done
+					break;
+				}
+			}
 		}
 		
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
-		for (int i = 0; i < movieFiles.length; i++) {
-			if (movieDescriptors[i] != null) {
-				Movie movie = movieDescriptors[i];
-				File file = movieFiles[i];
-				String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
-				File newFile = new File(newName + "." + getExtension(file));
-				
-				if (isInvalidFilePath(newFile)) {
-					CLILogger.config("Stripping invalid characters from new path: " + newName);
-					newFile = validateFilePath(newFile);
-				}
-				
-				renameMap.put(file, newFile);
-			} else {
-				CLILogger.warning("No matching movie: " + movieFiles[i]);
+		for (Match<File, ?> match : matches) {
+			File file = match.getValue();
+			Object movie = match.getCandidate();
+			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
+			File newFile = new File(newName + "." + getExtension(file));
+			
+			if (isInvalidFilePath(newFile)) {
+				CLILogger.config("Stripping invalid characters from new path: " + newName);
+				newFile = validateFilePath(newFile);
 			}
-		}
-		
-		// handle subtitle files
-		for (File subtitleFile : subtitleFiles) {
-			// check if subtitle corresponds to a movie file (same name, different extension)
-			for (int i = 0; i < movieDescriptors.length; i++) {
-				if (movieDescriptors[i] != null) {
-					if (isDerived(subtitleFile, movieFiles[i])) {
-						File movieDestination = renameMap.get(movieFiles[i]);
-						File subtitleDestination = new File(movieDestination.getParentFile(), getName(movieDestination) + "." + getExtension(subtitleFile));
-						renameMap.put(subtitleFile, subtitleDestination);
-						
-						// movie match found, we're done
-						break;
-					}
-				}
-			}
+			
+			renameMap.put(file, newFile);
 		}
 		
 		// rename movies
@@ -340,7 +374,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<File> renameAll(Map<File, File> renameMap) throws Exception {
+	public List<File> renameAll(Map<File, File> renameMap) throws Exception {
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
@@ -389,8 +423,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// new file names
 		List<File> destinationList = new ArrayList<File>();
-		for (Entry<File, File> it : renameLog)
+		for (Entry<File, File> it : renameLog) {
 			destinationList.add(it.getValue());
+		}
 		
 		return destinationList;
 	}
@@ -615,21 +650,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// sort results by similarity to query
 		List<SearchResult> results = new ArrayList<SearchResult>(probableMatches.values());
-		sort(results, new Comparator<SearchResult>() {
-			
-			@Override
-			public int compare(SearchResult o1, SearchResult o2) {
-				float f1 = metric.getSimilarity(o1.getName(), query);
-				float f2 = metric.getSimilarity(o2.getName(), query);
-				return f1 > f2 ? f1 == f2 ? 0 : -1 : 1;
-			}
-		});
-		
+		sort(results, new SimilarityComparator(query));
 		return results;
 	}
 	
 	
-	private List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
+	public List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
 		List<SearchResult> probableMatches = findProbableMatches(query, searchResults);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {

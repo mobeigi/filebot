@@ -13,6 +13,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,23 +53,13 @@ public class ReleaseInfo {
 	}
 	
 	
-	public List<String> clean(Iterable<String> items) throws IOException {
-		return clean(items, getVideoSourcePattern(), getCodecPattern());
+	public List<String> cleanRelease(Iterable<String> items) throws IOException {
+		return clean(items, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getCodecPattern(), getResolutionPattern());
 	}
 	
 	
-	public String clean(String item) throws IOException {
-		return clean(item, getVideoSourcePattern(), getCodecPattern());
-	}
-	
-	
-	public List<String> cleanRG(Iterable<String> items) throws IOException {
-		return clean(items, getReleaseGroupPattern(), getVideoSourcePattern(), getCodecPattern());
-	}
-	
-	
-	public String cleanRG(String item) throws IOException {
-		return clean(item, getReleaseGroupPattern(), getVideoSourcePattern(), getCodecPattern());
+	public String cleanRelease(String item) throws IOException {
+		return clean(item, getReleaseGroupPattern(), getLanguageSuffixPattern(), getVideoSourcePattern(), getCodecPattern(), getResolutionPattern());
 	}
 	
 	
@@ -86,6 +79,30 @@ public class ReleaseInfo {
 		}
 		
 		return item.replaceAll("[\\p{Punct}\\p{Space}]+", " ").trim();
+	}
+	
+	
+	public Pattern getLanguageSuffixPattern() {
+		Set<String> tokens = new TreeSet<String>();
+		
+		for (String code : Locale.getISOLanguages()) {
+			Locale locale = new Locale(code);
+			tokens.add(locale.getLanguage());
+			tokens.add(locale.getISO3Language());
+			tokens.add(locale.getDisplayLanguage(Locale.ENGLISH));
+		}
+		
+		// remove illegal tokens
+		tokens.remove("");
+		
+		// .{language}[.srt]
+		return compile("(?<=[.])(" + join(tokens, "|") + ")(?=$)", CASE_INSENSITIVE);
+	}
+	
+	
+	public Pattern getResolutionPattern() {
+		// match screen resolutions 640x480, 1280x720, etc
+		return compile("(?<!\\p{Alnum})(\\d{4}|[6-9]\\d{2})x(\\d{4}|[4-9]\\d{2})(?!\\p{Alnum})");
 	}
 	
 	

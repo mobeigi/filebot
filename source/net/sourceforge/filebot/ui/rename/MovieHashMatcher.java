@@ -16,10 +16,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
@@ -30,7 +32,6 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
@@ -52,10 +53,19 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect, Component parent) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
+		File[] subtitleFiles = filter(files, SUBTITLE_FILES).toArray(new File[0]);
+		Movie[] movieByFileHash = null;
 		
-		// match movie hashes online
-		Movie[] movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-		Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+		if (movieFiles.length > 0) {
+			// match movie hashes online
+			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+			Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+		} else if (subtitleFiles.length > 0) {
+			// special handling if there is only subtitle files
+			movieByFileHash = new Movie[subtitleFiles.length];
+			movieFiles = subtitleFiles;
+			subtitleFiles = new File[0];
+		}
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
@@ -108,10 +118,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// handle subtitle files
-		for (File subtitle : filter(files, SUBTITLE_FILES)) {
+		for (File subtitle : subtitleFiles) {
 			// check if subtitle corresponds to a movie file (same name, different extension)
 			for (Match<File, ?> movieMatch : matches) {
-				if (isDerived(getName(subtitle), movieMatch.getValue())) {
+				if (isDerived(subtitle, movieMatch.getValue())) {
 					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
 					// movie match found, we're done
 					break;
@@ -133,7 +143,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 	
 	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Component parent, Movie... suggestions) throws Exception {
-		List<Movie> options = new ArrayList<Movie>();
+		Set<Movie> options = new LinkedHashSet<Movie>();
 		
 		// add default value if any
 		for (Movie it : suggestions) {
@@ -142,52 +152,33 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		
-		// try to grep imdb id from nfo files
-		for (int imdbid : grepImdbIdFor(movieFile)) {
-			Movie movie = service.getMovieDescriptor(imdbid, locale);
-			
-			if (movie != null) {
-				options.add(movie);
-			}
-		}
-		
-		// search by file name or folder name
-		Collection<String> searchQueries = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		searchQueries.add(getName(movieFile));
-		searchQueries.add(getName(movieFile.getParentFile()));
-		
-		// remove blacklisted terms
-		searchQueries = new ReleaseInfo().cleanRG(searchQueries);
-		
-		for (String query : searchQueries) {
-			if (autodetect && options.isEmpty()) {
-				options = service.searchMovie(query, locale);
-			}
-		}
+		// auto-detect movie from nfo or folder / file name
+		options.addAll(detectMovie(movieFile, service, locale, false));
 		
 		// allow manual user input
 		if (options.isEmpty() || !autodetect) {
-			String suggestion = options.isEmpty() ? searchQueries.iterator().next() : options.get(0).getName();
+			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
 			
 			String input = null;
 			synchronized (this) {
-				input = showInputDialog("Enter movie name:", suggestion, searchQueries.iterator().next(), parent);
+				input = showInputDialog("Enter movie name:", suggestion, movieFile.getPath(), parent);
 			}
 			
+			// we only care about results from manual input from here on out
+			options.clear();
+			
 			if (input != null) {
-				options = service.searchMovie(input, locale);
-			} else {
-				options.clear(); // cancel search
+				options.addAll(service.searchMovie(input, locale));
 			}
 		}
 		
-		return options.isEmpty() ? null : selectMovie(options, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, options, parent);
 	}
 	
 	
-	protected Movie selectMovie(final List<Movie> options, final Component parent) throws Exception {
+	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Component parent) throws Exception {
 		if (options.size() == 1) {
-			return options.get(0);
+			return options.iterator().next();
 		}
 		
 		// show selection dialog on EDT
@@ -198,7 +189,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// multiple results have been found, user must select one
 				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
 				
-				selectDialog.getHeaderLabel().setText("Select Movie:");
+				selectDialog.setTitle(movieFile.getPath());
+				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", stripReleaseInfo(getName(movieFile))));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 				
 				// show dialog
