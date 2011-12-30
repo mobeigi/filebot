@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.media;
 
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -13,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -31,8 +31,9 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
-import net.sourceforge.filebot.similarity.SimilarityComparator;
+import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
@@ -156,20 +157,34 @@ public class MediaDetection {
 			}
 		}
 		
-		// search by file name or folder name
-		Collection<String> searchQueries = new LinkedHashSet<String>();
-		searchQueries.add(getName(movieFile));
-		searchQueries.add(getName(movieFile.getParentFile()));
-		
-		// remove blacklisted terms
-		searchQueries = stripReleaseInfo(searchQueries);
-		
 		if (!strict && options.isEmpty()) {
+			// search by file name or folder name
+			Collection<String> searchQueries = new LinkedHashSet<String>();
+			searchQueries.add(getName(movieFile));
+			searchQueries.add(getName(movieFile.getParentFile()));
+			
+			// remove blacklisted terms
+			searchQueries = stripReleaseInfo(searchQueries);
+			
+			final SimilarityMetric metric = new NameSimilarityMetric();
+			final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 			for (String query : searchQueries) {
-				Movie[] results = service.searchMovie(query, locale).toArray(new Movie[0]);
-				sort(results, new SimilarityComparator(query)); // sort by similarity to original query
-				addAll(options, results);
+				for (Movie movie : service.searchMovie(query, locale)) {
+					probabilityMap.put(movie, metric.getSimilarity(query, movie));
+				}
 			}
+			
+			// sort by similarity to original query (descending)
+			List<Movie> results = new ArrayList<Movie>(probabilityMap.keySet());
+			sort(results, new Comparator<Movie>() {
+				
+				@Override
+				public int compare(Movie a, Movie b) {
+					return probabilityMap.get(b).compareTo(probabilityMap.get(a));
+				}
+			});
+			
+			options.addAll(results);
 		}
 		
 		return options;
