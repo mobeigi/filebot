@@ -5,8 +5,10 @@ package net.sourceforge.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -169,7 +171,13 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getBanner() throws Exception {
-		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), "season", "seasonwide", 7, Locale.ENGLISH, 0);
+		Map<String, String> filter = new HashMap<String, String>();
+		filter.put("BannerType", "season");
+		filter.put("BannerType2", "seasonwide");
+		filter.put("Season", "7");
+		filter.put("Language", "en");
+		
+		BannerDescriptor banner = thetvdb.getBanner(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327), filter);
 		
 		assertEquals(857660, banner.getId(), 0);
 		assertEquals("season", banner.getBannerType());

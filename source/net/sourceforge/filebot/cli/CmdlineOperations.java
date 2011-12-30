@@ -640,7 +640,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// find probable matches using name similarity > 0.9
 		for (SearchResult result : searchResults) {
-			float f = metric.getSimilarity(query, result.getName());
+			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
 			if (f >= 0.9 || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
 				if (!probableMatches.containsKey(result.toString())) {
 					probableMatches.put(result.toString(), result);
@@ -650,7 +650,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// sort results by similarity to query
 		List<SearchResult> results = new ArrayList<SearchResult>(probableMatches.values());
-		sort(results, new SimilarityComparator(query));
+		if (query != null) {
+			sort(results, new SimilarityComparator(query));
+		}
 		return results;
 	}
 	
