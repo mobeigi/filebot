@@ -133,7 +133,7 @@ public class ReleaseInfo {
 	
 	// fetch release group names online and try to update the data every other day
 	protected final PatternResource releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
-	protected final PatternResource blacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.term-blacklist"));
+	protected final PatternResource blacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {

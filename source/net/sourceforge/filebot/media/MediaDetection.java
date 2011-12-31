@@ -145,19 +145,29 @@ public class MediaDetection {
 	}
 	
 	
-	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
 		Set<Movie> options = new LinkedHashSet<Movie>();
 		
-		// try to grep imdb id from nfo files
-		for (int imdbid : grepImdbIdFor(movieFile)) {
-			Movie movie = service.getMovieDescriptor(imdbid, locale);
-			
-			if (movie != null) {
-				options.add(movie);
+		if (hashLookupService != null) {
+			for (Movie movie : hashLookupService.getMovieDescriptors(new File[] { movieFile }, locale)) {
+				if (movie != null) {
+					options.add(movie);
+				}
 			}
 		}
 		
-		if (!strict && options.isEmpty()) {
+		if (queryLookupService != null) {
+			// try to grep imdb id from nfo files
+			for (int imdbid : grepImdbIdFor(movieFile)) {
+				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
+				
+				if (movie != null) {
+					options.add(movie);
+				}
+			}
+		}
+		
+		if (queryLookupService != null && !strict && options.isEmpty()) {
 			// search by file name or folder name
 			Collection<String> searchQueries = new LinkedHashSet<String>();
 			searchQueries.add(getName(movieFile));
@@ -169,7 +179,7 @@ public class MediaDetection {
 			final SimilarityMetric metric = new NameSimilarityMetric();
 			final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 			for (String query : searchQueries) {
-				for (Movie movie : service.searchMovie(query, locale)) {
+				for (Movie movie : queryLookupService.searchMovie(query, locale)) {
 					probabilityMap.put(movie, metric.getSimilarity(query, movie));
 				}
 			}

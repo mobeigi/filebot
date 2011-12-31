@@ -297,7 +297,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
-				Collection<Movie> results = detectMovie(movieFiles[i], service, locale, strict);
+				Collection<Movie> results = detectMovie(movieFiles[i], null, service, locale, strict);
 				movie = (Movie) selectSearchResult(query, results, strict).get(0);
 				
 				if (movie != null) {

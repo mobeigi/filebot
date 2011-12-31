@@ -153,7 +153,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// auto-detect movie from nfo or folder / file name
-		options.addAll(detectMovie(movieFile, service, locale, false));
+		options.addAll(detectMovie(movieFile, null, service, locale, false));
 		
 		// allow manual user input
 		if (options.isEmpty() || !autodetect) {

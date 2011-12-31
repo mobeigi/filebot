@@ -148,7 +148,12 @@ def parseDate(path) {
 
 def detectSeriesName(files) {
 	def names = MediaDetection.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() })
-	return names == null || names.isEmpty() ? null : names[0]
+	return names == null || names.isEmpty() ? null : names.toList()[0]
+}
+
+def detectMovie(movieFile, strict = false) {
+	def movies = MediaDetection.detectMovie(movieFile, OpenSubtitles, TheMovieDB, Locale.ENGLISH, strict)
+	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
 
 def similarity(o1, o2) {
