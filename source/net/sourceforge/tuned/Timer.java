@@ -6,6 +6,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public abstract class Timer implements Runnable {
@@ -16,7 +18,7 @@ public abstract class Timer implements Runnable {
 	private ScheduledFuture<?> scheduledFuture;
 	private Thread shutdownHook;
 	
-
+	
 	public synchronized void set(long delay, TimeUnit unit, boolean runBeforeShutdown) {
 		// create executor if necessary
 		if (executor == null) {
@@ -31,7 +33,12 @@ public abstract class Timer implements Runnable {
 		Runnable runnable = this;
 		
 		if (runBeforeShutdown) {
-			addShutdownHook();
+			try {
+				addShutdownHook();
+			} catch (Exception e) {
+				// may fail if running with restricted permissions
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
+			}
 			
 			// remove shutdown hook after execution
 			runnable = new Runnable() {
@@ -46,14 +53,19 @@ public abstract class Timer implements Runnable {
 				}
 			};
 		} else {
-			// remove existing shutdown hook, if any
-			removeShutdownHook();
+			try {
+				// remove existing shutdown hook, if any
+				removeShutdownHook();
+			} catch (Exception e) {
+				// may fail if running with restricted permissions
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
+			}
 		}
 		
 		scheduledFuture = executor.schedule(runnable, delay, unit);
 	}
 	
-
+	
 	public synchronized void cancel() {
 		removeShutdownHook();
 		
@@ -64,7 +76,7 @@ public abstract class Timer implements Runnable {
 		executor = null;
 	}
 	
-
+	
 	private synchronized void addShutdownHook() {
 		if (shutdownHook == null) {
 			shutdownHook = new Thread(this);
@@ -72,7 +84,7 @@ public abstract class Timer implements Runnable {
 		}
 	}
 	
-
+	
 	private synchronized void removeShutdownHook() {
 		if (shutdownHook != null) {
 			try {
