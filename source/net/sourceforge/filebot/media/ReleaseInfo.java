@@ -127,13 +127,13 @@ public class ReleaseInfo {
 	
 	public Pattern getBlacklistPattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(blacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 	
 	
 	// fetch release group names online and try to update the data every other day
 	protected final PatternResource releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
-	protected final PatternResource blacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
+	protected final PatternResource queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {
