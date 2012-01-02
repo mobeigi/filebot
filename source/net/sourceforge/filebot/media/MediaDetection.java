@@ -4,6 +4,7 @@ package net.sourceforge.filebot.media;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -379,7 +380,7 @@ public class MediaDetection {
 		protected String normalize(String source) {
 			String value = transformCache.get(source);
 			if (value == null) {
-				value = super.normalize(source);
+				value = normalizePunctuation(source); // only normalize punctuation, make sure we keep the year (important for movie matching)
 				transformCache.put(source, value);
 			}
 			return transformCache.get(source);

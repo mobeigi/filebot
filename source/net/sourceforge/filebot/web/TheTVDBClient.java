@@ -398,6 +398,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
+	public SeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
+		return getSeriesInfo(lookupByIMDbID(imdbid, locale), locale);
+	}
+	
+	
 	public SeriesInfo getSeriesInfo(TheTVDBSearchResult searchResult, Locale locale) throws Exception {
 		// check cache first
 		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, locale, SeriesInfo.class);

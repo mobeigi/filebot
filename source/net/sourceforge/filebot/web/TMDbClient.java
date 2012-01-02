@@ -139,7 +139,12 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws Exception {
-		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", movie.getImdbId()), locale);
+		return getMovieInfoByIMDbID(movie.getImdbId(), locale);
+	}
+	
+	
+	public MovieInfo getMovieInfoByIMDbID(int imdbid, Locale locale) throws Exception {
+		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
 		Node node = selectNode("//movie", getDocument(resource));
 		
 		Map<MovieProperty, String> movieProperties = new EnumMap<MovieProperty, String>(MovieProperty.class);
