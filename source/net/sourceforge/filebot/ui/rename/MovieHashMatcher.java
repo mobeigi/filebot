@@ -96,7 +96,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 						}
 						return new SimpleEntry<File, Movie>(file, result);
 					}
-					return null;
+					
+					return new SimpleEntry<File, Movie>(file, null);
 				}
 			});
 		}
@@ -105,11 +106,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		try {
 			for (Future<Entry<File, Movie>> it : executor.invokeAll(grabMovieJobs)) {
 				// check if we managed to lookup the movie descriptor
-				if (it.get() != null) {
-					File file = it.get().getKey();
-					Movie movie = it.get().getValue();
-					
-					// get file list for movie
+				File file = it.get().getKey();
+				Movie movie = it.get().getValue();
+				
+				// get file list for movie
+				if (movie != null) {
 					SortedSet<File> movieParts = filesByMovie.get(movie);
 					
 					if (movieParts == null) {
