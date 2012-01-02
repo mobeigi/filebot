@@ -1,5 +1,3 @@
-PROPER
-RETAIL
 ^(TV.)?(Show|Serie|Anime)[s]?$
 ^Movie[s]?$
 ^Video[s]?$
@@ -10,8 +8,11 @@ ExtraTorrent
 Hard.Subbed
 mkvonly
 MVGroup.org
+PROPER
 READNFO
 REPACK
+RETAIL
+sample[s]?$
 ShareReactor
 ShareZONE
 UsaBit.com

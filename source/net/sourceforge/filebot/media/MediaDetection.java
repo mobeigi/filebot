@@ -37,6 +37,7 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
+import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
@@ -180,9 +181,7 @@ public class MediaDetection {
 		files.add(getName(movieFile));
 		files.add(getName(movieFile.getParentFile()));
 		
-		long t = System.currentTimeMillis();
 		List<Movie> movieNameMatches = matchMovieName(files, locale, strict);
-		System.out.println(System.currentTimeMillis() - t);
 		
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
@@ -190,7 +189,7 @@ public class MediaDetection {
 			return options;
 		}
 		
-		// continue gathering more matches if possible
+		// add local matching after online search
 		options.addAll(movieNameMatches);
 		
 		// query by file / folder name
@@ -198,7 +197,10 @@ public class MediaDetection {
 			options.addAll(queryMovieByFileName(files, queryLookupService, locale));
 		}
 		
-		return options;
+		// sort by relevance
+		List<Movie> optionsByRelevance = new ArrayList<Movie>(options);
+		sort(optionsByRelevance, new SimilarityComparator(stripReleaseInfo(getName(movieFile))));
+		return optionsByRelevance;
 	}
 	
 	
