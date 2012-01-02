@@ -3,6 +3,8 @@ package net.sourceforge.filebot.similarity;
 
 
 import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
@@ -28,10 +30,21 @@ import net.sourceforge.tuned.FileUtilities;
 
 public class SeriesNameMatcher {
 	
-	protected final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
-	protected final NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
+	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
+	protected NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
-	protected final int commonWordSequenceMaxStartIndex = 3;
+	protected int commonWordSequenceMaxStartIndex = 3;
+	protected Comparator<String> commonWordComparator;
+	
+	
+	public SeriesNameMatcher() {
+		this(String.CASE_INSENSITIVE_ORDER);
+	}
+	
+	
+	public SeriesNameMatcher(Comparator<String> comparator) {
+		this.commonWordComparator = comparator;
+	}
 	
 	
 	public Collection<String> matchAll(File[] files) {
@@ -75,7 +88,7 @@ public class SeriesNameMatcher {
 		whitelist.addAll(deepMatchAll(focus, threshold));
 		
 		// 1. use pattern matching
-		seriesNames.addAll(flatMatchAll(names, Pattern.compile(join(whitelist, "|"), Pattern.CASE_INSENSITIVE), threshold, false));
+		seriesNames.addAll(flatMatchAll(names, compile(join(whitelist, "|"), CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ), threshold, false));
 		
 		// 2. use common word sequences
 		seriesNames.addAll(whitelist);
@@ -92,7 +105,7 @@ public class SeriesNameMatcher {
 	 *         threshold
 	 */
 	private Collection<String> flatMatchAll(String[] names, Pattern prefixPattern, int threshold, boolean strict) {
-		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, String.CASE_INSENSITIVE_ORDER);
+		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, commonWordComparator);
 		
 		for (String name : names) {
 			// use normalized name
@@ -191,7 +204,7 @@ public class SeriesNameMatcher {
 				common = words;
 			} else {
 				// find common sequence
-				common = firstCommonSequence(common, words, commonWordSequenceMaxStartIndex, String.CASE_INSENSITIVE_ORDER);
+				common = firstCommonSequence(common, words, commonWordSequenceMaxStartIndex, commonWordComparator);
 				
 				if (common == null) {
 					// no common sequence
@@ -209,14 +222,12 @@ public class SeriesNameMatcher {
 	
 	protected String normalize(String name) {
 		// remove group names and checksums, any [...] or (...)
-		name = name.replaceAll("\\([^\\(]*\\)", " ");
-		name = name.replaceAll("\\[[^\\[]*\\]", " ");
+		name = normalizeBrackets(name);
 		
 		// remove/normalize special characters
-		name = name.replaceAll("['`´]+", "");
-		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		name = normalizePunctuation(name);
 		
-		return name.trim();
+		return name;
 	}
 	
 	

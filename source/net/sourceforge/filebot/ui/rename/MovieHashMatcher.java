@@ -192,6 +192,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				selectDialog.setTitle(movieFile.getPath());
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", stripReleaseInfo(getName(movieFile))));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+				selectDialog.pack();
 				
 				// show dialog
 				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));

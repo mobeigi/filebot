@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,6 +25,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -42,15 +46,18 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 public class MediaDetection {
 	
-	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files) throws Exception {
+	private static ReleaseInfo releaseInfo = new ReleaseInfo();
+	
+	
+	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale) throws Exception {
 		SortedMap<File, List<File>> filesByFolder = mapByFolder(filter(files, VIDEO_FILES, SUBTITLE_FILES));
 		
 		// map series names by folder
 		Map<File, Set<String>> seriesNamesByFolder = new HashMap<File, Set<String>>();
 		
 		for (Entry<File, List<File>> it : filesByFolder.entrySet()) {
-			Set<String> namesForFolder = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-			namesForFolder.addAll(detectSeriesNames(it.getValue()));
+			Set<String> namesForFolder = new TreeSet<String>(getLenientCollator(locale));
+			namesForFolder.addAll(detectSeriesNames(it.getValue(), locale));
 			
 			seriesNamesByFolder.put(it.getKey(), namesForFolder);
 		}
@@ -74,7 +81,7 @@ public class MediaDetection {
 		Map<Set<File>, Set<String>> batchSets = new HashMap<Set<File>, Set<String>>();
 		
 		while (seriesNamesByFolder.size() > 0) {
-			Set<String> combinedNameSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+			Set<String> combinedNameSet = new TreeSet<String>(getLenientCollator(locale));
 			Set<File> combinedFolderSet = new HashSet<File>();
 			
 			// build combined match set
@@ -116,12 +123,12 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<String> detectSeriesNames(Collection<File> files) throws Exception {
+	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
 		// don't allow duplicates
 		Map<String, String> names = new LinkedHashMap<String, String>();
 		
 		try {
-			for (SearchResult it : lookupSeriesNameByInfoFile(files, Locale.ENGLISH)) {
+			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
 				names.put(it.getName().toLowerCase(), it.getName());
 			}
 		} catch (Exception e) {
@@ -129,10 +136,10 @@ public class MediaDetection {
 		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
-		Collection<String> matches = new SeriesNameMatcher().matchAll(files.toArray(new File[files.size()]));
+		Collection<String> matches = new SeriesNameMatcher(getLenientCollator(locale)).matchAll(files.toArray(new File[files.size()]));
 		
 		try {
-			matches = stripReleaseInfo(matches);
+			matches = stripReleaseInfo(matches, true);
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
 		}
@@ -148,6 +155,7 @@ public class MediaDetection {
 	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
 		Set<Movie> options = new LinkedHashSet<Movie>();
 		
+		// lookup by file hash
 		if (hashLookupService != null) {
 			for (Movie movie : hashLookupService.getMovieDescriptors(new File[] { movieFile }, locale)) {
 				if (movie != null) {
@@ -156,58 +164,128 @@ public class MediaDetection {
 			}
 		}
 		
+		// lookup by id from nfo file
 		if (queryLookupService != null) {
 			// try to grep imdb id from nfo files
 			for (int imdbid : grepImdbIdFor(movieFile)) {
 				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
-				
 				if (movie != null) {
 					options.add(movie);
 				}
 			}
 		}
 		
-		if (queryLookupService != null && !strict && options.isEmpty()) {
-			// search by file name or folder name
-			Collection<String> searchQueries = new LinkedHashSet<String>();
-			searchQueries.add(getName(movieFile));
-			searchQueries.add(getName(movieFile.getParentFile()));
-			
-			// remove blacklisted terms
-			searchQueries = stripReleaseInfo(searchQueries);
-			
-			final SimilarityMetric metric = new NameSimilarityMetric();
-			final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
-			for (String query : searchQueries) {
-				for (Movie movie : queryLookupService.searchMovie(query, locale)) {
-					probabilityMap.put(movie, metric.getSimilarity(query, movie));
-				}
-			}
-			
-			// sort by similarity to original query (descending)
-			List<Movie> results = new ArrayList<Movie>(probabilityMap.keySet());
-			sort(results, new Comparator<Movie>() {
-				
-				@Override
-				public int compare(Movie a, Movie b) {
-					return probabilityMap.get(b).compareTo(probabilityMap.get(a));
-				}
-			});
-			
-			options.addAll(results);
+		// search by file name or folder name
+		List<String> files = new ArrayList<String>();
+		files.add(getName(movieFile));
+		files.add(getName(movieFile.getParentFile()));
+		
+		long t = System.currentTimeMillis();
+		List<Movie> movieNameMatches = matchMovieName(files, locale, strict);
+		System.out.println(System.currentTimeMillis() - t);
+		
+		// skip further queries if collected matches are already sufficient
+		if (options.size() > 0 && movieNameMatches.size() > 0) {
+			options.addAll(movieNameMatches);
+			return options;
+		}
+		
+		// continue gathering more matches if possible
+		options.addAll(movieNameMatches);
+		
+		// query by file / folder name
+		if (queryLookupService != null && !strict) {
+			options.addAll(queryMovieByFileName(files, queryLookupService, locale));
 		}
 		
 		return options;
 	}
 	
 	
-	public static String stripReleaseInfo(String name) throws IOException {
-		return new ReleaseInfo().cleanRelease(name);
+	private static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
+		// cross-reference file / folder name with movie list
+		final SeriesNameMatcher nameMatcher = new SeriesNameMatcher(String.CASE_INSENSITIVE_ORDER); // use simple comparator for speed (2-3x faster)
+		
+		final Map<Movie, String> matchMap = synchronizedMap(new HashMap<Movie, String>());
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		
+		for (final Movie movie : releaseInfo.getMovieList()) {
+			executor.submit(new Runnable() {
+				
+				@Override
+				public void run() {
+					for (String name : files) {
+						String movieIdentifier = movie.getName();
+						String commonName = nameMatcher.matchByFirstCommonWordSequence(name, movieIdentifier);
+						if (commonName != null && commonName.length() >= movieIdentifier.length()) {
+							String strictMovieIdentifier = movie.getName() + " " + movie.getYear();
+							String strictCommonName = nameMatcher.matchByFirstCommonWordSequence(name, strictMovieIdentifier);
+							if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
+								// prefer strict match
+								matchMap.put(movie, strictCommonName);
+							} else if (!strict) {
+								// make sure the common identifier is not just the year
+								matchMap.put(movie, commonName);
+							}
+						}
+					}
+				}
+			});
+		}
+		
+		// wait for last task to finish
+		executor.shutdown();
+		executor.awaitTermination(1, TimeUnit.MINUTES);
+		
+		// sort by length of name match (descending)
+		List<Movie> results = new ArrayList<Movie>(matchMap.keySet());
+		sort(results, new Comparator<Movie>() {
+			
+			@Override
+			public int compare(Movie a, Movie b) {
+				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+			}
+		});
+		
+		return results;
 	}
 	
 	
-	public static List<String> stripReleaseInfo(Collection<String> names) throws IOException {
-		return new ReleaseInfo().cleanRelease(names);
+	private static Collection<Movie> queryMovieByFileName(List<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
+		// remove blacklisted terms
+		Set<String> querySet = new LinkedHashSet<String>();
+		querySet.addAll(stripReleaseInfo(files, true));
+		querySet.addAll(stripReleaseInfo(files, false));
+		
+		final SimilarityMetric metric = new NameSimilarityMetric();
+		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
+		for (String query : querySet) {
+			for (Movie movie : queryLookupService.searchMovie(query, locale)) {
+				probabilityMap.put(movie, metric.getSimilarity(query, movie));
+			}
+		}
+		
+		// sort by similarity to original query (descending)
+		List<Movie> results = new ArrayList<Movie>(probabilityMap.keySet());
+		sort(results, new Comparator<Movie>() {
+			
+			@Override
+			public int compare(Movie a, Movie b) {
+				return probabilityMap.get(b).compareTo(probabilityMap.get(a));
+			}
+		});
+		
+		return results;
+	}
+	
+	
+	public static String stripReleaseInfo(String name) throws IOException {
+		return releaseInfo.cleanRelease(name, true);
+	}
+	
+	
+	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws IOException {
+		return releaseInfo.cleanRelease(names, strict);
 	}
 	
 	
@@ -284,4 +362,13 @@ public class MediaDetection {
 		return collection;
 	}
 	
+	
+	public static Comparator<String> getLenientCollator(Locale locale) {
+		// use maximum strength collator by default
+		final Collator collator = Collator.getInstance(locale);
+		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
+		collator.setStrength(Collator.TERTIARY);
+		
+		return (Comparator) collator;
+	}
 }

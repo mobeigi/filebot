@@ -173,7 +173,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
 		
 		// detect series names and create episode list fetch tasks
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles).entrySet()) {
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
 			List<List<File>> batchSets = new ArrayList<List<File>>();
 			
 			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
@@ -219,7 +219,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// detect series name and fetch episode list
 		if (autodetection) {
-			Collection<String> names = detectSeriesNames(files);
+			Collection<String> names = detectSeriesNames(files, locale);
 			if (names.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (provider) {

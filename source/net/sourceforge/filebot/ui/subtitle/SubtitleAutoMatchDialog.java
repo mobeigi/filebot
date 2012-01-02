@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
@@ -973,7 +974,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 			
 			// auto-detect query and search for subtitles
-			Collection<String> querySet = detectSeriesNames(files);
+			Collection<String> querySet = detectSeriesNames(files, Locale.ENGLISH);
 			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 			
 			// if auto-detection fails, ask user for input

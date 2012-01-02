@@ -98,7 +98,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		int cws = 0; // common word sequence
 		double max = mediaFiles.size();
 		
-		SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
+		SeriesNameMatcher nameMatcher = new SeriesNameMatcher(getLenientCollator(locale));
 		Collection<String> cwsList = emptySet();
 		if (max >= 5) {
 			cwsList = nameMatcher.matchAll(mediaFiles.toArray(new File[0]));
@@ -137,7 +137,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
 		
 		// auto-determine optimal batch sets
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles).entrySet()) {
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
 			List<List<File>> batchSets = new ArrayList<List<File>>();
 			
 			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
@@ -150,7 +150,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			for (List<File> batch : batchSets) {
 				// auto-detect series name if not given
-				Collection<String> seriesNames = (query == null) ? detectQuery(batch, strict) : singleton(query);
+				Collection<String> seriesNames = (query == null) ? detectQuery(batch, locale, strict) : singleton(query);
 				
 				// fetch episode data
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
@@ -297,6 +297,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
+				CLILogger.fine(format("Auto-detect movie from context: [%s]", movieFiles[i]));
 				Collection<Movie> results = detectMovie(movieFiles[i], null, service, locale, strict);
 				movie = (Movie) selectSearchResult(query, results, strict).get(0);
 				
@@ -463,7 +464,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// lookup subtitles via text search, only perform hash lookup in strict mode
 		if ((query != null || !strict) && !collector.isComplete()) {
 			// auto-detect search query
-			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), false) : singleton(query);
+			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), language.toLocale(), false) : singleton(query);
 			
 			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
 				if (collector.isComplete()) {
@@ -618,9 +619,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<String> detectQuery(Collection<File> mediaFiles, boolean strict) throws Exception {
+	private List<String> detectQuery(Collection<File> mediaFiles, Locale locale, boolean strict) throws Exception {
 		// detect series name by common word sequence
-		List<String> names = detectSeriesNames(mediaFiles);
+		List<String> names = detectSeriesNames(mediaFiles, locale);
 		
 		if (names.isEmpty() || (strict && names.size() > 1)) {
 			throw new Exception("Unable to auto-select query: " + names);
