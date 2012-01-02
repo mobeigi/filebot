@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.media;
 
 
+import static java.util.Arrays.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
@@ -12,13 +13,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -42,6 +42,16 @@ public class ReleaseInfo {
 	}
 	
 	
+	public Locale getLanguageSuffix(String name) {
+		// match locale identifier and lookup Locale object
+		String lang = matchLast(getLanguageSuffixPattern(), null, name);
+		if (lang == null)
+			return null;
+		
+		return getLanguageMap(Locale.ENGLISH, Locale.getDefault()).get(lang);
+	}
+	
+	
 	protected String matchLast(Pattern pattern, String[] standardValues, CharSequence... sequence) {
 		String lastMatch = null;
 		
@@ -57,7 +67,7 @@ public class ReleaseInfo {
 		}
 		
 		// prefer standard value over matched value
-		if (lastMatch != null) {
+		if (lastMatch != null && standardValues != null) {
 			for (String standard : standardValues) {
 				if (standard.equalsIgnoreCase(lastMatch)) {
 					return standard;
@@ -102,22 +112,29 @@ public class ReleaseInfo {
 	
 	
 	public Pattern getLanguageSuffixPattern() {
-		Set<String> tokens = new TreeSet<String>();
+		// .{language}[.srt]
+		return compile("(?<=\\p{Punct}|\\s)(" + join(getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet(), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+	}
+	
+	
+	public Map<String, Locale> getLanguageMap(Locale... supportedLanguageName) {
+		Map<String, Locale> languageMap = new TreeMap<String, Locale>(String.CASE_INSENSITIVE_ORDER);
 		
 		for (String code : Locale.getISOLanguages()) {
 			Locale locale = new Locale(code);
-			tokens.add(locale.getLanguage());
-			tokens.add(locale.getISO3Language());
-			for (Locale language : new HashSet<Locale>(Arrays.asList(Locale.ENGLISH, Locale.getDefault()))) {
-				tokens.add(locale.getDisplayLanguage(language));
+			languageMap.put(locale.getLanguage(), locale);
+			languageMap.put(locale.getISO3Language(), locale);
+			
+			// map display language names for given locales
+			for (Locale language : new HashSet<Locale>(asList(supportedLanguageName))) {
+				languageMap.put(locale.getDisplayLanguage(language), locale);
 			}
 		}
 		
 		// remove illegal tokens
-		tokens.remove("");
+		languageMap.remove("");
 		
-		// .{language}[.srt]
-		return compile("(?<=\\p{Punct})(" + join(tokens, "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return languageMap;
 	}
 	
 	

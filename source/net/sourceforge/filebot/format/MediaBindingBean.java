@@ -288,6 +288,13 @@ public class MediaBindingBean {
 	
 	@Define("lang")
 	public Locale detectSubtitleLanguage() throws Exception {
+		// make sure media file is defined
+		checkMediaFile();
+		
+		Locale languageSuffix = new ReleaseInfo().getLanguageSuffix(FileUtilities.getName(mediaFile));
+		if (languageSuffix != null)
+			return languageSuffix;
+		
 		// require subtitle file
 		if (!SUBTITLE_FILES.accept(mediaFile))
 			return null;
