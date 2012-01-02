@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
+import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -149,11 +150,13 @@ class ScriptShell {
 		permissions.add(new RuntimePermission("getenv.*"));
 		
 		// write permissions for temp and cache folders
-		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator, "write"));
-		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator, "write"));
+		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
+		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
 		
 		// this is probably a security problem but nevermind
 		permissions.add(new RuntimePermission("accessDeclaredMembers"));
+		permissions.add(new ReflectPermission("suppressAccessChecks"));
+		permissions.add(new RuntimePermission("modifyThread"));
 		
 		return new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, permissions) });
 	}
