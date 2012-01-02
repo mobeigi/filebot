@@ -35,7 +35,7 @@ public abstract class CachedResource<T extends Serializable> {
 	/**
 	 * Convert resource data into usable data
 	 */
-	public abstract T process(ByteBuffer data);
+	public abstract T process(ByteBuffer data) throws Exception;
 	
 	
 	public synchronized T get() throws IOException {
@@ -57,7 +57,11 @@ public abstract class CachedResource<T extends Serializable> {
 		ByteBuffer data = fetchIfModified(new URL(resource), element != null ? lastUpdateTime : 0);
 		
 		if (data != null) {
-			element = new Element(cacheKey, process(data));
+			try {
+				element = new Element(cacheKey, process(data));
+			} catch (Exception e) {
+				throw new IOException(e);
+			}
 		}
 		
 		// update cached data and last-updated time

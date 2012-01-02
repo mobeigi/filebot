@@ -69,10 +69,8 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	public List<Movie> searchMovie(File file, Locale locale) throws IOException, SAXException {
-		if (file.length() < OpenSubtitlesHasher.HASH_CHUNK_SIZE)
-			return emptyList();
-		
-		return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length(), locale);
+		return emptyList(); // API BROKEN
+		// return searchMovie(OpenSubtitlesHasher.computeHash(file), file.length(), locale); 
 	}
 	
 	

@@ -170,18 +170,18 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		}
 		
 		
-		public void putData(Object category, Object key, Object object) {
+		public void putData(Object category, Object key, Locale locale, Object object) {
 			try {
-				cache.put(new Element(new Key(id, category, key), object));
+				cache.put(new Element(new Key(id, category, locale, key), object));
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
 		}
 		
 		
-		public <T> T getData(Object category, Object key, Class<T> type) {
+		public <T> T getData(Object category, Object key, Locale locale, Class<T> type) {
 			try {
-				Element element = cache.get(new Key(id, category, key));
+				Element element = cache.get(new Key(id, category, locale, key));
 				if (element != null) {
 					return type.cast(element.getValue());
 				}

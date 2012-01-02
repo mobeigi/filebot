@@ -201,15 +201,4 @@ public class OpenSubtitlesXmlRpcTest {
 		xmlrpc.logout();
 	}
 	
-	
-	@Test
-	public void exportMovie() throws Exception {
-		List<Movie> list = new OpenSubtitlesClient(null).exportMovie();
-		Movie sample = (Movie) list.get(17);
-		
-		// check sample entry
-		assertEquals("Back to the Future", sample.getName());
-		assertEquals(1985, sample.getYear());
-		assertEquals(88763, sample.getImdbId());
-	}
 }

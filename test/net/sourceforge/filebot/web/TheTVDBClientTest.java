@@ -150,6 +150,22 @@ public class TheTVDBClientTest {
 	
 	
 	@Test
+	public void lookupByID() throws Exception {
+		TheTVDBSearchResult series = thetvdb.lookupByID(78874, Locale.ENGLISH);
+		assertEquals("Firefly", series.getName());
+		assertEquals(70726, series.getSeriesId());
+	}
+	
+	
+	@Test
+	public void lookupByIMDbID() throws Exception {
+		TheTVDBSearchResult series = thetvdb.lookupByIMDbID(78874, Locale.ENGLISH);
+		assertEquals("Firefly", series.getName());
+		assertEquals(70726, series.getSeriesId());
+	}
+	
+	
+	@Test
 	public void getSeriesInfo() throws Exception {
 		SeriesInfo it = thetvdb.getSeriesInfo(new TheTVDBSearchResult(null, 80348), Locale.ENGLISH);
 		

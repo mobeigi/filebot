@@ -192,12 +192,20 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	public TheTVDBSearchResult lookupByID(int id, Locale language) throws Exception {
+		TheTVDBSearchResult cachedItem = getCache().getData("lookupByID", id, language, TheTVDBSearchResult.class);
+		if (cachedItem != null) {
+			return cachedItem;
+		}
+		
 		try {
 			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + language.getLanguage() + ".xml");
 			Document baseRecord = getDocument(baseRecordLocation);
 			
 			String name = selectString("//SeriesName", baseRecord);
-			return new TheTVDBSearchResult(name, id);
+			
+			TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
+			getCache().putData("lookupByID", id, language, series);
+			return series;
 		} catch (FileNotFoundException e) {
 			// illegal series id
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve base series record: " + e.getMessage());
@@ -207,6 +215,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale language) throws Exception {
+		TheTVDBSearchResult cachedItem = getCache().getData("lookupByIMDbID", imdbid, language, TheTVDBSearchResult.class);
+		if (cachedItem != null) {
+			return cachedItem;
+		}
+		
 		URL query = getResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + language.getLanguage());
 		Document dom = getDocument(query);
 		
@@ -216,7 +229,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		if (id == null || id.isEmpty() || name == null || name.isEmpty())
 			return null;
 		
-		return new TheTVDBSearchResult(name, Integer.parseInt(id));
+		TheTVDBSearchResult series = new TheTVDBSearchResult(name, Integer.parseInt(id));
+		getCache().putData("lookupByIMDbID", imdbid, language, series);
+		return series;
 	}
 	
 	
@@ -253,7 +268,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				// try cache first
 				try {
 					@SuppressWarnings("unchecked")
-					Map<MirrorType, String> cachedMirrors = (Map<MirrorType, String>) getCache().getData("mirrors", null, Map.class);
+					Map<MirrorType, String> cachedMirrors = (Map<MirrorType, String>) getCache().getData("mirrors", null, null, Map.class);
 					if (cachedMirrors != null) {
 						mirrors.putAll(cachedMirrors);
 						return mirrors.get(mirrorType);
@@ -296,7 +311,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 					}
 				}
 				
-				getCache().putData("mirrors", null, mirrors);
+				getCache().putData("mirrors", null, null, mirrors);
 			}
 			
 			return mirrors.get(mirrorType);
@@ -385,7 +400,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	public SeriesInfo getSeriesInfo(TheTVDBSearchResult searchResult, Locale locale) throws Exception {
 		// check cache first
-		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, SeriesInfo.class);
+		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, locale, SeriesInfo.class);
 		if (cachedItem != null) {
 			return cachedItem;
 		}
@@ -407,7 +422,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		SeriesInfo seriesInfo = new SeriesInfo(fields);
-		getCache().putData("seriesInfo", searchResult.seriesId, seriesInfo);
+		getCache().putData("seriesInfo", searchResult.seriesId, locale, seriesInfo);
 		return seriesInfo;
 	}
 	
@@ -660,7 +675,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
 		// check cache first
-		BannerDescriptor[] cachedList = getCache().getData("banners", series.seriesId, BannerDescriptor[].class);
+		BannerDescriptor[] cachedList = getCache().getData("banners", series.seriesId, null, BannerDescriptor[].class);
 		if (cachedList != null) {
 			return asList(cachedList);
 		}
@@ -692,7 +707,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			}
 		}
 		
-		getCache().putData("banners", series.seriesId, banners.toArray(new BannerDescriptor[0]));
+		getCache().putData("banners", series.seriesId, null, banners.toArray(new BannerDescriptor[0]));
 		return banners;
 	}
 	

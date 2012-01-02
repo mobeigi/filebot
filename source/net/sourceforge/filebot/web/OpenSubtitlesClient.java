@@ -5,13 +5,10 @@ package net.sourceforge.filebot.web;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -21,12 +18,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -344,40 +338,4 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return null;
 	}
 	
-	
-	public List<Movie> exportMovie() throws IOException {
-		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
-		String cacheKey = getClass().getName() + ".exportMovie";
-		
-		Element element = cache.get(cacheKey);
-		if (element != null) {
-			return asList((Movie[]) element.getValue());
-		}
-		
-		URL url = new URL("http://www.opensubtitles.org/addons/export_movie.php");
-		Scanner in = new Scanner(getReader(url.openConnection()));
-		
-		try {
-			// e.g. IDMovie	IDMovieImdb	MovieName	MovieYear
-			Pattern linePattern = Pattern.compile("(\\d+)\\t(\\d+)\\t([^\\t]+)\\t(\\d{4})");
-			List<Movie> result = new ArrayList<Movie>();
-			while (in.hasNextLine()) {
-				String line = in.nextLine().trim();
-				Matcher matcher = linePattern.matcher(line);
-				
-				if (matcher.matches()) {
-					int idMovieImdb = Integer.parseInt(matcher.group(2));
-					String movieName = matcher.group(3);
-					int movieYear = Integer.parseInt(matcher.group(4));
-					result.add(new Movie(movieName, movieYear, idMovieImdb));
-				}
-			}
-			
-			// cache data
-			cache.put(new Element(cacheKey, result.toArray(new Movie[0])));
-			return result;
-		} finally {
-			in.close();
-		}
-	}
 }
