@@ -2,10 +2,13 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static java.util.Collections.*;
+
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -28,7 +31,7 @@ public class Matcher<V, C> {
 	
 	private final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
-
+	
 	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, boolean strict, SimilarityMetric[] metrics) {
 		this.values = new LinkedList<V>(values);
 		this.candidates = new LinkedList<C>(candidates);
@@ -39,7 +42,7 @@ public class Matcher<V, C> {
 		this.disjointMatchCollection = new DisjointMatchCollection<V, C>();
 	}
 	
-
+	
 	public synchronized List<Match<V, C>> match() throws InterruptedException {
 		// list of all combinations of values and candidates
 		List<Match<V, C>> possibleMatches = new ArrayList<Match<V, C>>(values.size() * candidates.size());
@@ -77,22 +80,31 @@ public class Matcher<V, C> {
 		return result;
 	}
 	
-
+	
 	public synchronized List<V> remainingValues() {
 		return Collections.unmodifiableList(values);
 	}
 	
-
+	
 	public synchronized List<C> remainingCandidates() {
 		return Collections.unmodifiableList(candidates);
 	}
 	
-
+	
 	protected void deepMatch(Collection<Match<V, C>> possibleMatches, int level) throws InterruptedException {
 		if (level >= metrics.length || possibleMatches.isEmpty()) {
 			// add the first possible match if non-strict, otherwise ignore ambiguous matches
 			if (!strict) {
-				disjointMatchCollection.addAll(possibleMatches);
+				// order alphabetically to get more predictable matching (when no matching is possible anymore)
+				List<Match<V, C>> rest = new ArrayList<Match<V, C>>(possibleMatches);
+				sort(rest, new Comparator<Match<V, C>>() {
+					
+					@Override
+					public int compare(Match<V, C> o1, Match<V, C> o2) {
+						return o1.toString().compareToIgnoreCase(o2.toString());
+					}
+				});
+				disjointMatchCollection.addAll(rest);
 			}
 			
 			// no further refinement possible
@@ -119,7 +131,7 @@ public class Matcher<V, C> {
 		}
 	}
 	
-
+	
 	protected void removeCollected(Collection<Match<V, C>> matches) {
 		for (Iterator<Match<V, C>> iterator = matches.iterator(); iterator.hasNext();) {
 			if (!disjointMatchCollection.disjoint(iterator.next()))
@@ -127,7 +139,7 @@ public class Matcher<V, C> {
 		}
 	}
 	
-
+	
 	protected SortedMap<Float, Set<Match<V, C>>> mapBySimilarity(Collection<Match<V, C>> possibleMatches, SimilarityMetric metric) throws InterruptedException {
 		// map sorted by similarity descending
 		SortedMap<Float, Set<Match<V, C>>> similarityMap = new TreeMap<Float, Set<Match<V, C>>>(Collections.reverseOrder());
@@ -154,7 +166,7 @@ public class Matcher<V, C> {
 		return similarityMap;
 	}
 	
-
+	
 	protected List<Match<V, C>> disjointMatches(Collection<Match<V, C>> collection) {
 		Map<V, List<Match<V, C>>> matchesByValue = new HashMap<V, List<Match<V, C>>>();
 		Map<C, List<Match<V, C>>> matchesByCandidate = new HashMap<C, List<Match<V, C>>>();
@@ -195,7 +207,7 @@ public class Matcher<V, C> {
 		return disjointMatches;
 	}
 	
-
+	
 	protected static class DisjointMatchCollection<V, C> extends AbstractList<Match<V, C>> {
 		
 		private final List<Match<V, C>> matches = new ArrayList<Match<V, C>>();
@@ -203,7 +215,7 @@ public class Matcher<V, C> {
 		private final Map<V, Match<V, C>> values = new IdentityHashMap<V, Match<V, C>>();
 		private final Map<C, Match<V, C>> candidates = new IdentityHashMap<C, Match<V, C>>();
 		
-
+		
 		@Override
 		public boolean add(Match<V, C> match) {
 			if (disjoint(match)) {
@@ -216,34 +228,34 @@ public class Matcher<V, C> {
 			return false;
 		}
 		
-
+		
 		public boolean disjoint(Match<V, C> match) {
 			return !values.containsKey(match.getValue()) && !candidates.containsKey(match.getCandidate());
 		}
 		
-
+		
 		public Match<V, C> getByValue(V value) {
 			return values.get(value);
 		}
 		
-
+		
 		public Match<V, C> getByCandidate(C candidate) {
 			return candidates.get(candidate);
 		}
 		
-
+		
 		@Override
 		public Match<V, C> get(int index) {
 			return matches.get(index);
 		}
 		
-
+		
 		@Override
 		public int size() {
 			return matches.size();
 		}
 		
-
+		
 		@Override
 		public void clear() {
 			matches.clear();
