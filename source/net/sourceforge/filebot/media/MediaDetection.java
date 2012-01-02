@@ -25,9 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -206,38 +204,26 @@ public class MediaDetection {
 	
 	private static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
 		// cross-reference file / folder name with movie list
-		final SeriesNameMatcher nameMatcher = new SeriesNameMatcher(String.CASE_INSENSITIVE_ORDER); // use simple comparator for speed (2-3x faster)
-		
-		final Map<Movie, String> matchMap = synchronizedMap(new HashMap<Movie, String>());
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
 		
 		for (final Movie movie : releaseInfo.getMovieList()) {
-			executor.submit(new Runnable() {
-				
-				@Override
-				public void run() {
-					for (String name : files) {
-						String movieIdentifier = movie.getName();
-						String commonName = nameMatcher.matchByFirstCommonWordSequence(name, movieIdentifier);
-						if (commonName != null && commonName.length() >= movieIdentifier.length()) {
-							String strictMovieIdentifier = movie.getName() + " " + movie.getYear();
-							String strictCommonName = nameMatcher.matchByFirstCommonWordSequence(name, strictMovieIdentifier);
-							if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
-								// prefer strict match
-								matchMap.put(movie, strictCommonName);
-							} else if (!strict) {
-								// make sure the common identifier is not just the year
-								matchMap.put(movie, commonName);
-							}
-						}
+			for (String name : files) {
+				String movieIdentifier = movie.getName();
+				String commonName = nameMatcher.matchByFirstCommonWordSequence(name, movieIdentifier);
+				if (commonName != null && commonName.length() >= movieIdentifier.length()) {
+					String strictMovieIdentifier = movie.getName() + " " + movie.getYear();
+					String strictCommonName = nameMatcher.matchByFirstCommonWordSequence(name, strictMovieIdentifier);
+					if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
+						// prefer strict match
+						matchMap.put(movie, strictCommonName);
+					} else if (!strict) {
+						// make sure the common identifier is not just the year
+						matchMap.put(movie, commonName);
 					}
 				}
-			});
+			}
 		}
-		
-		// wait for last task to finish
-		executor.shutdown();
-		executor.awaitTermination(1, TimeUnit.MINUTES);
 		
 		// sort by length of name match (descending)
 		List<Movie> results = new ArrayList<Movie>(matchMap.keySet());
@@ -365,6 +351,7 @@ public class MediaDetection {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public static Comparator<String> getLenientCollator(Locale locale) {
 		// use maximum strength collator by default
 		final Collator collator = Collator.getInstance(locale);
@@ -373,4 +360,30 @@ public class MediaDetection {
 		
 		return (Comparator) collator;
 	}
+	
+	
+	/*
+	 * Heavy-duty name matcher used for matching a file to or more movies (out of a list of ~50k)
+	 */
+	private static class HighPerformanceMatcher extends SeriesNameMatcher {
+		
+		private static final Map<String, String> transformCache = synchronizedMap(new WeakHashMap<String, String>(65536));
+		
+		
+		public HighPerformanceMatcher() {
+			super(String.CASE_INSENSITIVE_ORDER); // 3-4x faster than a Collator 
+		}
+		
+		
+		@Override
+		protected String normalize(String source) {
+			String value = transformCache.get(source);
+			if (value == null) {
+				value = super.normalize(source);
+				transformCache.put(source, value);
+			}
+			return transformCache.get(source);
+		}
+	}
+	
 }

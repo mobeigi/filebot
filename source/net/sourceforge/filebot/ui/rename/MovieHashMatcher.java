@@ -11,6 +11,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,6 +27,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
@@ -53,7 +57,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 	
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, Locale locale, boolean autodetect, Component parent) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		// handle movie files
 		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
 		File[] subtitleFiles = filter(files, SUBTITLE_FILES).toArray(new File[0]);
@@ -73,31 +77,51 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
+		// match remaining movies file by file in parallel
+		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
+		
 		// map all files by movie
 		for (int i = 0; i < movieFiles.length; i++) {
-			Movie movie = movieByFileHash[i];
-			
-			// unknown hash, try via imdb id from nfo file
-			if (movie == null || !autodetect) {
-				movie = grabMovieName(movieFiles[i], locale, autodetect, parent, movie);
+			final Movie movie = movieByFileHash[i];
+			final File file = movieFiles[i];
+			grabMovieJobs.add(new Callable<Entry<File, Movie>>() {
 				
-				if (movie != null) {
-					Analytics.trackEvent(service.getName(), "SearchMovie", movie.toString(), 1);
+				@Override
+				public Entry<File, Movie> call() throws Exception {
+					// unknown hash, try via imdb id from nfo file
+					if (movie == null || !autodetect) {
+						Movie result = grabMovieName(file, locale, autodetect, parent, movie);
+						if (result != null) {
+							Analytics.trackEvent(service.getName(), "SearchMovie", result.toString(), 1);
+						}
+						return new SimpleEntry<File, Movie>(file, result);
+					}
+					return null;
+				}
+			});
+		}
+		
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		try {
+			for (Future<Entry<File, Movie>> it : executor.invokeAll(grabMovieJobs)) {
+				// check if we managed to lookup the movie descriptor
+				if (it.get() != null) {
+					File file = it.get().getKey();
+					Movie movie = it.get().getValue();
+					
+					// get file list for movie
+					SortedSet<File> movieParts = filesByMovie.get(movie);
+					
+					if (movieParts == null) {
+						movieParts = new TreeSet<File>();
+						filesByMovie.put(movie, movieParts);
+					}
+					
+					movieParts.add(file);
 				}
 			}
-			
-			// check if we managed to lookup the movie descriptor
-			if (movie != null) {
-				// get file list for movie
-				SortedSet<File> movieParts = filesByMovie.get(movie);
-				
-				if (movieParts == null) {
-					movieParts = new TreeSet<File>();
-					filesByMovie.put(movie, movieParts);
-				}
-				
-				movieParts.add(movieFiles[i]);
-			}
+		} finally {
+			executor.shutdown();
 		}
 		
 		// collect all File/MoviePart matches
