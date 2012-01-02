@@ -2,6 +2,9 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static net.sourceforge.filebot.similarity.Normalization.*;
+
+
 public class SubstringMetric implements SimilarityMetric {
 	
 	@Override
@@ -17,13 +20,13 @@ public class SubstringMetric implements SimilarityMetric {
 		return s1.contains(s2) || s2.contains(s1) ? 1 : 0;
 	}
 	
-
+	
 	protected String normalize(Object object) {
 		// use string representation
 		String name = object.toString();
 		
 		// normalize separators
-		name = name.replaceAll("['`´]+", "").replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		name = normalizePunctuation(name);
 		
 		// normalize case and trim
 		return name.trim().toLowerCase();

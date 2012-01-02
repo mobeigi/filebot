@@ -22,7 +22,7 @@ public final class VerificationUtilities {
 	 */
 	public static final Pattern EMBEDDED_CHECKSUM = Pattern.compile("(?<=\\[|\\()(\\p{XDigit}{8})(?=\\]|\\))");
 	
-
+	
 	public static String getEmbeddedChecksum(CharSequence string) {
 		Matcher matcher = EMBEDDED_CHECKSUM.matcher(string);
 		String embeddedChecksum = null;
@@ -35,18 +35,12 @@ public final class VerificationUtilities {
 		return embeddedChecksum;
 	}
 	
-
-	public static String removeEmbeddedChecksum(String string) {
-		// match embedded checksum and surrounding brackets 
-		return string.replaceAll("[\\(\\[]\\p{XDigit}{8}[\\]\\)]", "");
-	}
 	
-
 	public static String getHashFromVerificationFile(File file, HashType type, int maxDepth) throws IOException {
 		return getHashFromVerificationFile(file.getParentFile(), file, type, 0, maxDepth);
 	}
 	
-
+	
 	private static String getHashFromVerificationFile(File folder, File target, HashType type, int depth, int maxDepth) throws IOException {
 		// stop if we reached max depth or the file system root
 		if (folder == null || depth > maxDepth)
@@ -75,7 +69,7 @@ public final class VerificationUtilities {
 		return getHashFromVerificationFile(folder.getParentFile(), target, type, depth + 1, maxDepth);
 	}
 	
-
+	
 	public static HashType getHashType(File verificationFile) {
 		for (HashType hashType : HashType.values()) {
 			if (hashType.getFilter().accept(verificationFile))
@@ -85,7 +79,7 @@ public final class VerificationUtilities {
 		return null;
 	}
 	
-
+	
 	public static HashType getHashTypeByExtension(String extension) {
 		for (HashType hashType : HashType.values()) {
 			if (hashType.getFilter().acceptExtension(extension))
@@ -95,7 +89,7 @@ public final class VerificationUtilities {
 		return null;
 	}
 	
-
+	
 	public static String computeHash(File file, HashType type) throws IOException, InterruptedException {
 		Hash hash = type.newHash();
 		
@@ -120,7 +114,7 @@ public final class VerificationUtilities {
 		return hash.digest();
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

@@ -5,7 +5,7 @@ package net.sourceforge.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -287,10 +287,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		name = removeEmbeddedChecksum(name);
 		
 		// remove/normalize special characters
-		name = name.replaceAll("['`´]+", "");
-		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
+		name = normalizePunctuation(name);
 		
-		return name.trim().toLowerCase();
+		return name.toLowerCase();
 	}
 	
 	

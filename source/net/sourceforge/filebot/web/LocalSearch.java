@@ -3,16 +3,17 @@ package net.sourceforge.filebot.web;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 
 import java.util.AbstractList;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +33,7 @@ class LocalSearch<T> {
 	private final List<T> objects;
 	private final List<Set<String>> fields;
 	
-
+	
 	public LocalSearch(Collection<? extends T> data) {
 		objects = new ArrayList<T>(data);
 		fields = new ArrayList<Set<String>>(objects.size());
@@ -42,7 +43,7 @@ class LocalSearch<T> {
 		}
 	}
 	
-
+	
 	public List<T> search(String query) throws ExecutionException, InterruptedException {
 		final String q = normalize(query);
 		List<Callable<Entry<T, Float>>> tasks = new ArrayList<Callable<Entry<T, Float>>>(objects.size());
@@ -96,7 +97,7 @@ class LocalSearch<T> {
 				return resultSet.get(index).getKey();
 			}
 			
-
+			
 			@Override
 			public int size() {
 				return Math.min(resultSetSize, resultSet.size());
@@ -104,12 +105,12 @@ class LocalSearch<T> {
 		};
 	}
 	
-
+	
 	protected Set<String> getFields(T object) {
 		return set(object.toString());
 	}
 	
-
+	
 	protected Set<String> set(String... values) {
 		Set<String> set = new HashSet<String>(values.length);
 		for (String value : values) {
@@ -120,13 +121,10 @@ class LocalSearch<T> {
 		return set;
 	}
 	
-
+	
 	protected String normalize(String value) {
 		// normalize separator, normalize case and trim
-		value = value.replaceAll("['`´]+", "");
-		value = value.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
-		
-		return value.trim().toLowerCase();
+		return normalizePunctuation(value).toLowerCase();
 	}
 	
 }
