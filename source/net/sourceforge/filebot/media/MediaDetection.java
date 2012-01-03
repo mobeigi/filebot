@@ -46,7 +46,7 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 public class MediaDetection {
 	
-	private static ReleaseInfo releaseInfo = new ReleaseInfo();
+	private static final ReleaseInfo releaseInfo = new ReleaseInfo();
 	
 	
 	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale) throws Exception {

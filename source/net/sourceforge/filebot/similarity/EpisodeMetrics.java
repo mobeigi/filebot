@@ -174,6 +174,24 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 	
+	// Match via common word sequence in episode name and file name
+	SubstringSequence(new SequenceMatchSimilarity() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			// normalize absolute similarity to similarity rank (5 ranks in total),
+			// so we are less likely to fall for false positives in this pass, and move on to the next one
+			return (float) (floor(super.getSimilarity(o1, o2) * 5) / 5);
+		}
+		
+		
+		@Override
+		protected String normalize(Object object) {
+			// simplify file name, if possible
+			return normalizeObject(object);
+		}
+	}),
+	
 	// Match by generic name similarity
 	Name(new NameSimilarityMetric() {
 		
@@ -273,7 +291,15 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}
 	
 	
+	private static final Map<Object, String> transformCache = synchronizedMap(new WeakHashMap<Object, String>(64, 4));
+	
+	
 	protected static String normalizeObject(Object object) {
+		String result = transformCache.get(object);
+		if (result != null) {
+			return result;
+		}
+		
 		String name = object.toString();
 		
 		// use name without extension
@@ -289,7 +315,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// remove/normalize special characters
 		name = normalizePunctuation(name);
 		
-		return name.toLowerCase();
+		// normalize to lower case
+		name.toLowerCase();
+		
+		transformCache.put(object, name);
+		return name;
 	}
 	
 	
@@ -301,9 +331,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 6 pass: divide by generic numeric similarity
 		// 7 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, Name, Numeric, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, Name, Numeric, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric };
 		}
 	}
 	

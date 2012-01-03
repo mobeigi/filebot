@@ -33,17 +33,23 @@ public class SeriesNameMatcher {
 	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
 	protected NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
-	protected int commonWordSequenceMaxStartIndex = 3;
+	protected int commonWordSequenceMaxStartIndex;
 	protected Comparator<String> commonWordComparator;
 	
 	
 	public SeriesNameMatcher() {
-		this(String.CASE_INSENSITIVE_ORDER);
+		this(String.CASE_INSENSITIVE_ORDER, 3);
 	}
 	
 	
 	public SeriesNameMatcher(Comparator<String> comparator) {
-		this.commonWordComparator = comparator;
+		this(comparator, 3);
+	}
+	
+	
+	public SeriesNameMatcher(Comparator<String> commonWordComparator, int commonWordSequenceMaxStartIndex) {
+		this.commonWordSequenceMaxStartIndex = commonWordSequenceMaxStartIndex;
+		this.commonWordComparator = commonWordComparator;
 	}
 	
 	
