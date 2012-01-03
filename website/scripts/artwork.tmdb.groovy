@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 812) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 836) throw new Exception("Application revision too old")
 
 
 /*
@@ -65,8 +65,17 @@ args.eachMediaFolder { dir ->
 		return null
 	}
 	
+	// sort by relevance
+	options = options.sortBySimilarity(query, { it.name })
+	
 	// auto-select series
-	def movie = options.sortBySimilarity(query, { it.name })[0]
+	def movie = options[0]
+	
+	// require user input
+	if (options.size != 1 && !java.awt.GraphicsEnvironment.headless) {
+		movie = javax.swing.JOptionPane.showInputDialog(null, "Please select movie:", dir.path, 3, null, options.toArray(), movie);
+		if (movie == null) return null
+	}
 	
 	println "$dir => $movie"
 	fetchMovieArtworkAndNfo(dir, movie)

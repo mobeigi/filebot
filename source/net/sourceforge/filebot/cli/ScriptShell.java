@@ -5,6 +5,7 @@ package net.sourceforge.filebot.cli;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
+import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilePermission;
@@ -152,6 +153,11 @@ class ScriptShell {
 		// write permissions for temp and cache folders
 		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
 		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
+		
+		// AWT / Swing permissions
+		permissions.add(new AWTPermission("accessEventQueue"));
+		permissions.add(new AWTPermission("toolkitModality"));
+		permissions.add(new AWTPermission("showWindowWithoutWarningBanner"));
 		
 		// this is probably a security problem but nevermind
 		permissions.add(new RuntimePermission("accessDeclaredMembers"));
