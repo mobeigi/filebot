@@ -31,43 +31,43 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	private final String apikey;
 	
-
+	
 	public SerienjunkiesClient(String apikey) {
 		this.apikey = apikey;
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return "Serienjunkies";
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.serienjunkies");
 	}
 	
-
+	
 	@Override
 	public Locale getDefaultLocale() {
 		return Locale.GERMAN;
 	}
 	
-
+	
 	@Override
 	public ResultCache getCache() {
 		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> search(String query, final Locale locale) throws Exception {
 		// bypass automatic caching since search is based on locally cached data anyway
 		return fetchSearchResult(query, locale);
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		LocalSearch<SerienjunkiesSearchResult> index = new LocalSearch<SerienjunkiesSearchResult>(getSeriesTitles()) {
@@ -81,8 +81,8 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		return new ArrayList<SearchResult>(index.search(query));
 	}
 	
-
-	protected List<SerienjunkiesSearchResult> getSeriesTitles() throws IOException {
+	
+	protected synchronized List<SerienjunkiesSearchResult> getSeriesTitles() throws IOException {
 		ResultCache cache = getCache();
 		
 		@SuppressWarnings("unchecked")
@@ -113,7 +113,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		return cache.putSearchResult(null, Locale.ROOT, seriesList);
 	}
 	
-
+	
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
@@ -142,7 +142,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		return episodes;
 	}
 	
-
+	
 	protected Object request(String resource) throws IOException {
 		URL url = new URL("https", host, resource);
 		HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -159,24 +159,24 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		}
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		return getEpisodeListLink(searchResult, "alle-serien-staffeln");
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		return getEpisodeListLink(searchResult, "season" + season);
 	}
 	
-
+	
 	public URI getEpisodeListLink(SearchResult searchResult, String page) {
 		return URI.create(String.format("http://www.serienjunkies.de/%s/%s.html", ((SerienjunkiesSearchResult) searchResult).getLink(), page));
 	}
 	
-
+	
 	public static class SerienjunkiesSearchResult extends SearchResult {
 		
 		protected int sid;
@@ -185,12 +185,12 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 		protected String germanTitle;
 		protected Date startDate;
 		
-
+		
 		protected SerienjunkiesSearchResult() {
 			// used by serializer
 		}
 		
-
+		
 		public SerienjunkiesSearchResult(int sid, String link, String mainTitle, String germanTitle, Date startDate) {
 			this.sid = sid;
 			this.link = link;
@@ -199,44 +199,44 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			this.startDate = startDate;
 		}
 		
-
+		
 		@Override
 		public String getName() {
 			return germanTitle != null ? germanTitle : mainTitle; // prefer German title
 		}
 		
-
+		
 		public int getSeriesId() {
 			return sid;
 		}
 		
-
+		
 		public String getLink() {
 			return link;
 		}
 		
-
+		
 		public String getMainTitle() {
 			return mainTitle;
 		}
 		
-
+		
 		public String getGermanTitle() {
 			return germanTitle;
 		}
 		
-
+		
 		public Date getStartDate() {
 			return startDate;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return sid;
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object object) {
 			if (object instanceof SerienjunkiesSearchResult) {

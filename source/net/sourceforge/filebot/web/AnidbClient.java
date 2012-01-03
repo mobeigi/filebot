@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -37,50 +37,50 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	private final String client;
 	private final int clientver;
 	
-
+	
 	public AnidbClient(String client, int clientver) {
 		this.client = client;
 		this.clientver = clientver;
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return "AniDB";
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.anidb");
 	}
 	
-
+	
 	@Override
 	public boolean hasSingleSeasonSupport() {
 		return false;
 	}
 	
-
+	
 	@Override
 	public boolean hasLocaleSupport() {
 		return true;
 	}
 	
-
+	
 	@Override
 	public ResultCache getCache() {
 		return new ResultCache(host, CacheManager.getInstance().getCache("web-persistent-datasource"));
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> search(String query, final Locale locale) throws Exception {
 		// bypass automatic caching since search is based on locally cached data anyway
 		return fetchSearchResult(query, locale);
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, final Locale locale) throws Exception {
 		LocalSearch<AnidbSearchResult> index = new LocalSearch<AnidbSearchResult>(getAnimeTitles()) {
@@ -94,7 +94,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		return new ArrayList<SearchResult>(index.search(query));
 	}
 	
-
+	
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
@@ -142,7 +142,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		return episodes;
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		int aid = ((AnidbSearchResult) searchResult).getAnimeId();
@@ -154,24 +154,24 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 	}
 	
-
+	
 	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, int season, Locale locale) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		return null;
 	}
 	
-
-	@SuppressWarnings("unchecked")
-	protected List<AnidbSearchResult> getAnimeTitles() throws Exception {
+	
+	protected synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
 		ResultCache cache = getCache();
 		
+		@SuppressWarnings("unchecked")
 		List<AnidbSearchResult> anime = (List) cache.getSearchResult(null, Locale.ROOT);
 		if (anime != null) {
 			return anime;
@@ -225,7 +225,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		return cache.putSearchResult(null, Locale.ROOT, anime);
 	}
 	
-
+	
 	public static class AnidbSearchResult extends SearchResult {
 		
 		protected int aid;
@@ -237,41 +237,41 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			// used by serializer
 		}
 		
-
+		
 		public AnidbSearchResult(int aid, String primaryTitle, Map<String, String> officialTitle) {
 			this.aid = aid;
 			this.primaryTitle = primaryTitle;
 			this.officialTitle = officialTitle;
 		}
 		
-
+		
 		public int getAnimeId() {
 			return aid;
 		}
 		
-
+		
 		@Override
 		public String getName() {
 			return primaryTitle;
 		}
 		
-
+		
 		public String getPrimaryTitle() {
 			return primaryTitle;
 		}
 		
-
+		
 		public String getOfficialTitle(String key) {
 			return officialTitle != null ? officialTitle.get(key) : null;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return aid;
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object object) {
 			if (object instanceof AnidbSearchResult) {

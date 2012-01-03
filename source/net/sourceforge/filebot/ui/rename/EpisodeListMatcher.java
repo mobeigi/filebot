@@ -49,6 +49,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 	private final EpisodeListProvider provider;
 	
+	// only allow one fetch session at a time so later requests can make use of cached results
+	private final Object providerLock = new Object();
+	
 	
 	public EpisodeListMatcher(EpisodeListProvider provider) {
 		this.provider = provider;
@@ -222,7 +225,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			Collection<String> names = detectSeriesNames(files, locale);
 			if (names.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
-				synchronized (provider) {
+				synchronized (providerLock) {
 					episodes = fetchEpisodeSet(names, locale, parent);
 				}
 			}
@@ -246,7 +249,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			
 			if (input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
-				synchronized (provider) {
+				synchronized (providerLock) {
 					episodes = fetchEpisodeSet(input, locale, parent);
 				}
 			}
