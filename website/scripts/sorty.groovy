@@ -6,6 +6,11 @@ def episodeFormat = "V:/out/TV/{n}{'/Season '+s}/{episode}"
 def movieDir      = "V:/in/Movies"
 def movieFormat   = "V:/out/Movies/{movie}/{movie}"
 
+// XBMC ON LOCAL MACHINE 
+def xbmc = ['localhost'] // (use [] to not notify any XBMC instances about updates)
+
+
+
 // ignore chunk, part, par and hidden files
 def incomplete(f) { f.name =~ /[.]chunk|[.]part\d{0,3}$|[.]par$|[.]dat$/ || f.isHidden() }
 
@@ -62,4 +67,12 @@ movieDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() }
 	
 	// sort movies / subtitles
 	rename(file:files, db:'OpenSubtitles', format:movieFormat)
+}
+
+
+// make XBMC scan for new content
+xbmc.each { host ->
+	telnet(host, 9090) { writer, reader ->
+		writer.println('{"jsonrpc": "2.0", "method": "VideoLibrary.ScanForContent", "id": 1}')
+	}
 }

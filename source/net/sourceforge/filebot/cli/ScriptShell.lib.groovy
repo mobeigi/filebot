@@ -60,13 +60,27 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import static net.sourceforge.filebot.web.WebRequest.*
 
-URL.metaClass.post = { parameters -> post(delegate.openConnection(), parameters) }
+URL.metaClass.get = { readAll(getReader(delegate.openConnection())) }
+URL.metaClass.fetch = { fetch(delegate) }
 URL.metaClass.getHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
 ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(new StringReader(Charset.forName(csn).decode(delegate.duplicate()).toString())))) }
+
+URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
+URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
+URL.metaClass.post = { String text, csn = 'utf-8' -> delegate.post(text.getBytes(csn), 'text/plain') }
 
 ByteBuffer.metaClass.saveAs = { f -> f = f instanceof File ? f : new File(f.toString()); writeFile(delegate.duplicate(), f); f.absolutePath };
 URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
 String.metaClass.saveAs = { f, csn = "utf-8" -> Charset.forName(csn).encode(delegate).saveAs(f) }
+
+def telnet(host, int port, csn = 'utf-8', Closure handler) {
+	def socket = new Socket(host, port)
+	try {
+		handler.call(new PrintStream(socket.outputStream, true, csn), socket.inputStream.newReader(csn))
+	} finally {
+		socket.close()
+	}
+}
 
 
 // Template Engine helpers

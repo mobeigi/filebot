@@ -153,12 +153,13 @@ public final class WebRequest {
 	
 	
 	public static ByteBuffer post(HttpURLConnection connection, Map<String, ?> parameters) throws IOException {
-		byte[] postData = encodeParameters(parameters).getBytes("UTF-8");
-		
-		// add content type and content length headers
-		connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		return post(connection, encodeParameters(parameters).getBytes("UTF-8"), "application/x-www-form-urlencoded");
+	}
+	
+	
+	public static ByteBuffer post(HttpURLConnection connection, byte[] postData, String contentType) throws IOException {
 		connection.addRequestProperty("Content-Length", String.valueOf(postData.length));
-		
+		connection.addRequestProperty("Content-Type", contentType);
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
 		
