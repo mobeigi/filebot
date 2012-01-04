@@ -93,6 +93,16 @@ public class Main {
 			
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
+				// default cross-platform laf used in scripting to nimbus instead of metal (if possible)
+				if (args.script != null) {
+					try {
+						Class<?> nimbusLook = Class.forName("javax.swing.plaf.nimbus.NimbusLookAndFeel", false, Thread.currentThread().getContextClassLoader());
+						System.setProperty("swing.crossplatformlaf", nimbusLook.getName());
+					} catch (Throwable e) {
+						// ignore all errors and stick with default cross-platform laf
+					}
+				}
+				
 				int status = cli.process(args, new CmdlineOperations());
 				System.exit(status);
 			}
