@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 815) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 838) throw new Exception("Application revision too old")
 
 /*
  * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.
@@ -21,7 +21,7 @@ def fetchBanner(outputFile, series, bannerType, bannerType2 = null, season = nul
 
 
 def fetchNfo(outputFile, series) {
-	def info = TheTVDB.getSeriesInfo(series, Locale.ENGLISH)
+	def info = TheTVDB.getSeriesInfo(series, _args.locale)
 	println info  
 	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
@@ -75,7 +75,7 @@ def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 args.eachMediaFolder { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
 	
-	def query = _args.query ?: detectSeriesName(videos)
+	def query = _args.query ?: detectSeriesName(videos, _args.locale)
 	def sxe = videos.findResult{ parseEpisodeNumber(it) }
 	
 	if (query == null) {
@@ -83,14 +83,23 @@ args.eachMediaFolder { dir ->
 	}
 	
 	println "$dir => Search by $query"
-	def options = TheTVDB.search(query, Locale.ENGLISH)
+	def options = TheTVDB.search(query, _args.locale)
 	if (options.isEmpty()) {
 		println "TV Series not found: $query"
 		return null
 	}
 	
+	// sort by relevance
+	options = options.sortBySimilarity(query, { it.name })
+	
 	// auto-select series
-	def series = options.sortBySimilarity(query, { it.name })[0]
+	def series = options[0]
+	
+	// maybe require user input
+	if (options.size() != 1 && !_args.nonStrict && !java.awt.GraphicsEnvironment.headless) {
+		series = javax.swing.JOptionPane.showInputDialog(null, "Please select TV Show:", dir.path, 3, null, options.toArray(), series);
+		if (series == null) return null
+	}
 	
 	// auto-detect structure
 	def seriesDir = [dir.dir, dir].sortBySimilarity(series.name, { it.name })[0]

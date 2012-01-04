@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import org.kohsuke.args4j.Argument;
@@ -88,32 +89,32 @@ public class ArgumentBean {
 	@Argument
 	public List<String> arguments = new ArrayList<String>();
 	
-
+	
 	public boolean runCLI() {
 		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || script != null;
 	}
 	
-
+	
 	public boolean openSFV() {
 		return open && containsOnly(getFiles(false), MediaTypes.getDefaultFilter("verification"));
 	}
 	
-
+	
 	public boolean printVersion() {
 		return version;
 	}
 	
-
+	
 	public boolean printHelp() {
 		return help;
 	}
 	
-
+	
 	public boolean clearUserData() {
 		return clear;
 	}
 	
-
+	
 	public List<File> getFiles(boolean resolveFolders) {
 		List<File> files = new ArrayList<File>();
 		
@@ -132,7 +133,7 @@ public class ArgumentBean {
 		return files;
 	}
 	
-
+	
 	public URL getScriptLocation() {
 		try {
 			return new URL(script);
@@ -149,7 +150,12 @@ public class ArgumentBean {
 		}
 	}
 	
-
+	
+	public Locale getLocale() {
+		return new Locale(lang);
+	}
+	
+	
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
 	}

@@ -1,7 +1,7 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
 
 // EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 836) throw new Exception("Application revision too old")
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 838) throw new Exception("Application revision too old")
 
 
 /*
@@ -59,7 +59,7 @@ args.eachMediaFolder { dir ->
 	def videos = dir.listFiles{ it.isVideo() }
 	
 	def query = _args.query ?: dir.name
-	def options = TheMovieDB.searchMovie(query, Locale.ENGLISH)
+	def options = TheMovieDB.searchMovie(query, _args.locale)
 	if (options.isEmpty()) {
 		println "Movie not found: $query"
 		return null
@@ -71,9 +71,9 @@ args.eachMediaFolder { dir ->
 	// auto-select series
 	def movie = options[0]
 	
-	// require user input
-	if (options.size != 1 && !java.awt.GraphicsEnvironment.headless) {
-		movie = javax.swing.JOptionPane.showInputDialog(null, "Please select movie:", dir.path, 3, null, options.toArray(), movie);
+	// maybe require user input
+	if (options.size() != 1 && !_args.nonStrict && !java.awt.GraphicsEnvironment.headless) {
+		movie = javax.swing.JOptionPane.showInputDialog(null, "Please select Movie:", dir.path, 3, null, options.toArray(), movie);
 		if (movie == null) return null
 	}
 	
