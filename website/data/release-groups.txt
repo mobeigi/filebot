@@ -90,6 +90,7 @@ EMPiREHD
 EnDoR
 ESiR
 ETM
+ETRG
 EUHD
 EuReKA
 ExtraTorrentRG

@@ -1,9 +1,5 @@
 // filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
 
-// EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 838) throw new Exception("Application revision too old")
-
-
 /*
  * Fetch movie artwork. The movie is determined using the parent folders name.
  */

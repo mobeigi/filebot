@@ -1,8 +1,5 @@
 // filebot -script "http://filebot.sf.net/scripts/rsam.groovy" <options> <folder>
 
-// EXPERIMENTAL // HERE THERE BE DRAGONS
-if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 783) throw new Exception("Revision 783+ required")
-
 
 def isMatch(a, b) { similarity(a, b) > 0.9 }
 
@@ -11,11 +8,10 @@ def isMatch(a, b) { similarity(a, b) > 0.9 }
  */
 args.eachMediaFolder { dir ->
 	def n = dir.name
-	def lang = Locale.ENGLISH
-	
-	[	[db:anidb,      query:{ anidb.search(n, lang).find{ isMatch(it, n) } }],
-		[db:thetvdb,    query:{ thetvdb.search(n, lang).find{ isMatch(it, n) } }],
-		[db:themoviedb, query:{ themoviedb.searchMovie(n, lang).find{ isMatch(it, n) } }]
+		
+	[	[db:anidb,      query:{ anidb.search(n, _args.locale).find{ isMatch(it, n) } }],
+		[db:thetvdb,    query:{ thetvdb.search(n, _args.locale).find{ isMatch(it, n) } }],
+		[db:themoviedb, query:{ themoviedb.searchMovie(n, _args.locale).find{ isMatch(it, n) } }]
 	].find {
 		def match = it.query()
 		if (match) { rename(folder:dir, db:it.db.name, query:match.name) }

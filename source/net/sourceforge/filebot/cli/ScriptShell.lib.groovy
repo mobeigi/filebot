@@ -165,7 +165,7 @@ def detectSeriesName(files, locale = Locale.ENGLISH) {
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
-def detectMovie(movieFile, strict = false, locale = Locale.ENGLISH) {
+def detectMovie(movieFile, locale = Locale.ENGLISH, strict = true) {
 	def movies = MediaDetection.detectMovie(movieFile, OpenSubtitles, TheMovieDB, locale, strict)
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }

@@ -1,5 +1,3 @@
-// EXPERIMENTAL // HERE THERE BE DRAGONS
-
 // PERSONALIZED SETTINGS
 def episodeDir    = "V:/in/TV"
 def episodeFormat = "V:/out/TV/{n}{'/Season '+s}/{episode}"
