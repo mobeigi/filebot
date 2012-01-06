@@ -6,7 +6,7 @@
 
 def fetchBanner(outputFile, series, bannerType, bannerType2 = null, season = null) {
 	// select and fetch banner
-	def banner = ['en', null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
+	def banner = [_args.locale.language, null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
 	if (banner == null) {
 		println "Banner not found: $outputFile / $bannerType:$bannerType2"
 		return null
