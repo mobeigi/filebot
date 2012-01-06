@@ -5,6 +5,7 @@ package net.sourceforge.filebot.web;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,36 +28,34 @@ import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class IMDbClient extends AbstractEpisodeListProvider {
+public class IMDbClient extends AbstractEpisodeListProvider implements MovieIdentificationService {
 	
 	private final String host = "www.imdb.com";
 	
-
+	
 	@Override
 	public String getName() {
 		return "IMDb";
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.imdb");
 	}
 	
-
+	
 	@Override
 	public ResultCache getCache() {
 		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
-		URL searchUrl = new URL("http", host, "/find?s=tt&q=" + encode(query));
-		Document dom = getHtmlDocument(openConnection(searchUrl));
+		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
 		
 		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'series')]]", dom);
-		
 		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
 		
 		for (Node node : nodes) {
@@ -69,25 +68,20 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
-			try {
-				String name = normalizeName(selectString("//H1/text()", dom));
-				String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
-				String url = selectString("//LINK[@rel='canonical']/@href", dom);
-				
-				results.add(new Movie(name, Integer.parseInt(year), getImdbId(url)));
-			} catch (Exception e) {
-				// ignore, we probably got redirected to an error page
+			Movie movie = scrapeMovie(dom);
+			if (movie != null) {
+				results.add(movie);
 			}
 		}
 		
 		return results;
 	}
 	
-
+	
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
 		Movie movie = (Movie) searchResult;
-		Document dom = getHtmlDocument(openConnection(getEpisodeListLink(searchResult).toURL()));
+		Document dom = parsePage(getEpisodeListLink(searchResult).toURL());
 		
 		String seriesName = normalizeName(selectString("//H1/A", dom));
 		Date year = new Date(movie.getYear(), 0, 0);
@@ -111,23 +105,13 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 		return episodes;
 	}
 	
-
-	protected URLConnection openConnection(URL url) throws IOException {
-		URLConnection connection = url.openConnection();
-		
-		// IMDb refuses default user agent (Java/1.6.0_12)
-		connection.addRequestProperty("User-Agent", "Scraper");
-		
-		return connection;
-	}
 	
-
 	protected String normalizeName(String name) {
 		// remove quotation marks
 		return name.replaceAll("\"", "");
 	}
 	
-
+	
 	protected int getImdbId(String link) {
 		Matcher matcher = Pattern.compile("tt(\\d{7})").matcher(link);
 		
@@ -139,13 +123,13 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 		throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		return getEpisodeListLink(searchResult, 0);
 	}
 	
-
+	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult, int season) {
 		try {
@@ -154,4 +138,72 @@ public class IMDbClient extends AbstractEpisodeListProvider {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	
+	@Override
+	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
+		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
+		
+		// select movie links followed by year in parenthesis
+		List<Node> nodes = selectNodes("//TABLE//A[string-length(substring-after(substring-before(following::text(),')'),'(')) = 4 and count(following-sibling::SMALL) = 0]", dom);
+		List<Movie> results = new ArrayList<Movie>(nodes.size());
+		
+		for (Node node : nodes) {
+			String name = node.getTextContent().trim();
+			String year = node.getNextSibling().getTextContent().trim().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
+			String href = getAttribute("href", node);
+			
+			try {
+				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
+			} catch (NumberFormatException e) {
+				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
+			}
+		}
+		
+		// we might have been redirected to the movie page
+		if (results.isEmpty()) {
+			Movie movie = scrapeMovie(dom);
+			if (movie != null) {
+				results.add(movie);
+			}
+		}
+		
+		return results;
+	}
+	
+	
+	protected Movie scrapeMovie(Document dom) {
+		try {
+			String name = normalizeName(selectString("//H1/text()", dom));
+			String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
+			String url = selectString("//LINK[@rel='canonical']/@href", dom);
+			return new Movie(name, Integer.parseInt(year), getImdbId(url));
+		} catch (Exception e) {
+			// ignore, we probably got redirected to an error page
+			return null;
+		}
+	}
+	
+	
+	@Override
+	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+		return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/", imdbid))));
+	}
+	
+	
+	protected Document parsePage(URL url) throws IOException, SAXException {
+		URLConnection connection = url.openConnection();
+		
+		// IMDb refuses default user agent (Java/1.6.0_12)
+		connection.addRequestProperty("User-Agent", "Mozilla");
+		
+		return getHtmlDocument(connection);
+	}
+	
+	
+	@Override
+	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
+		return new Movie[movieFiles.length]; // UNSUPPORTED OPERATION => EMPTY RESULT
+	}
+	
 }

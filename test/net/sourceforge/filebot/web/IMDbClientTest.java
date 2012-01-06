@@ -13,7 +13,7 @@ public class IMDbClientTest {
 	
 	private final IMDbClient imdb = new IMDbClient();
 	
-
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = imdb.search("battlestar");
@@ -27,7 +27,7 @@ public class IMDbClientTest {
 		assertEquals(8, results.size(), 0);
 	}
 	
-
+	
 	@Test
 	public void searchMiniSeries() throws Exception {
 		List<SearchResult> results = imdb.search("generation kill");
@@ -39,7 +39,7 @@ public class IMDbClientTest {
 		assertEquals(995832, movie.getImdbId(), 0);
 	}
 	
-
+	
 	@Test
 	public void searchNoMatch() throws Exception {
 		List<SearchResult> results = imdb.search("i will not find anything for this query string");
@@ -47,7 +47,7 @@ public class IMDbClientTest {
 		assertTrue(results.isEmpty());
 	}
 	
-
+	
 	@Test
 	public void searchResultPageRedirect() throws Exception {
 		List<SearchResult> results = imdb.search("my name is earl");
@@ -61,7 +61,7 @@ public class IMDbClientTest {
 		assertEquals(460091, movie.getImdbId(), 0);
 	}
 	
-
+	
 	@Test
 	public void getEpisodeList() throws Exception {
 		List<Episode> list = imdb.getEpisodeList(new Movie("Buffy", 1997, 118276));
@@ -87,7 +87,7 @@ public class IMDbClientTest {
 		assertEquals("2003-05-20", last.airdate().toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListWithUnknownSeason() throws Exception {
 		List<Episode> list = imdb.getEpisodeList(new Movie("Mushishi", 2005, 807832));
@@ -103,7 +103,43 @@ public class IMDbClientTest {
 		assertEquals("1", first.getSeason().toString());
 	}
 	
-
+	
+	@Test
+	public void searchMovie() throws Exception {
+		List<Movie> results = imdb.searchMovie("Avatar", null);
+		
+		assertEquals(26, results.size());
+		Movie movie = (Movie) results.get(0);
+		
+		assertEquals("Avatar", movie.getName());
+		assertEquals(2009, movie.getYear());
+		assertEquals(499549, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
+	public void searchMovieRedirect() throws Exception {
+		List<Movie> results = imdb.searchMovie("battle angel alita", null);
+		
+		assertEquals(1, results.size());
+		Movie movie = (Movie) results.get(0);
+		
+		assertEquals("Battle Angel", movie.getName());
+		assertEquals(1993, movie.getYear());
+		assertEquals(107061, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
+	public void getMovieDescriptor() throws Exception {
+		Movie movie = imdb.getMovieDescriptor(499549, null);
+		
+		assertEquals("Avatar", movie.getName());
+		assertEquals(2009, movie.getYear());
+		assertEquals(499549, movie.getImdbId(), 0);
+	}
+	
+	
 	@Test
 	public void getEpisodeListLink() throws Exception {
 		assertEquals("http://www.imdb.com/title/tt0407362/episodes", imdb.getEpisodeListLink(new Movie("Battlestar Galactica", 2004, 407362)).toString());

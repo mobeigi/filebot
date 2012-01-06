@@ -12,6 +12,7 @@ PROPER
 READNFO
 REPACK
 RETAIL
+HDRip
 sample[s]?$
 ShareReactor
 ShareZONE

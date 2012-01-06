@@ -39,27 +39,27 @@ public final class WebServices {
 	// movie dbs
 	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
 	
-
+	
 	public static EpisodeListProvider[] getEpisodeListProviders() {
 		return new EpisodeListProvider[] { TVRage, AniDB, IMDb, TheTVDB, Serienjunkies };
 	}
 	
-
+	
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
-		return new MovieIdentificationService[] { OpenSubtitles, TMDb };
+		return new MovieIdentificationService[] { OpenSubtitles, IMDb, TMDb };
 	}
 	
-
+	
 	public static SubtitleProvider[] getSubtitleProviders() {
 		return new SubtitleProvider[] { OpenSubtitles, Sublight, Subscene };
 	}
 	
-
+	
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
 		return new VideoHashSubtitleService[] { OpenSubtitles, Sublight };
 	}
 	
-
+	
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
 		for (EpisodeListProvider it : WebServices.getEpisodeListProviders()) {
 			if (it.getName().equalsIgnoreCase(name))
@@ -69,7 +69,7 @@ public final class WebServices {
 		return null; // default
 	}
 	
-
+	
 	public static MovieIdentificationService getMovieIdentificationService(String name) {
 		for (MovieIdentificationService it : getMovieIdentificationServices()) {
 			if (it.getName().equalsIgnoreCase(name))
@@ -79,7 +79,7 @@ public final class WebServices {
 		return null; // default
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
