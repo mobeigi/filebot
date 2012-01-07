@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,18 +147,22 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
 		
 		// select movie links followed by year in parenthesis
-		List<Node> nodes = selectNodes("//TABLE//A[string-length(substring-after(substring-before(following::text(),')'),'(')) = 4 and count(following-sibling::SMALL) = 0]", dom);
+		List<Node> nodes = selectNodes("//TABLE//A[substring-after(substring-before(following::text(),')'),'(')]", dom);
 		List<Movie> results = new ArrayList<Movie>(nodes.size());
 		
 		for (Node node : nodes) {
-			String name = node.getTextContent().trim();
-			String year = node.getNextSibling().getTextContent().trim().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
-			String href = getAttribute("href", node);
-			
 			try {
+				String name = node.getTextContent().trim();
+				if (name.startsWith("\""))
+					continue;
+				
+				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", "").trim(); // remove non-number characters
+				String href = getAttribute("href", node);
+				
 				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
-			} catch (NumberFormatException e) {
+			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
+				Logger.getLogger(getClass().getName()).log(Level.FINEST, e.getClass().getName() + ": " + e.getMessage());
 			}
 		}
 		
