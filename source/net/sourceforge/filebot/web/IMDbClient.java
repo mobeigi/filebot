@@ -203,7 +203,7 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 	
 	@Override
 	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
-		return new Movie[movieFiles.length]; // UNSUPPORTED OPERATION => EMPTY RESULT
+		throw new UnsupportedOperationException();
 	}
 	
 }

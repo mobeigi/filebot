@@ -65,8 +65,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		if (movieFiles.length > 0) {
 			// match movie hashes online
-			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-			Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+			try {
+				movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+			} catch (UnsupportedOperationException e) {
+				movieByFileHash = new Movie[movieFiles.length];
+			}
 		} else if (subtitleFiles.length > 0) {
 			// special handling if there is only subtitle files
 			movieByFileHash = new Movie[subtitleFiles.length];

@@ -270,9 +270,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		if (movieFiles.length > 0 && query == null) {
 			// match movie hashes online
-			CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
-			movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-			Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+			try {
+				CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
+				movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
+				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+			} catch (UnsupportedOperationException e) {
+				CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
+				movieByFileHash = new Movie[movieFiles.length];
+			}
 		}
 		
 		if (subtitleFiles.length > 0 && movieFiles.length == 0) {
