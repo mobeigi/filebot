@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.31</name>
-	<revision>802</revision>
+	<name>FileBot 2.4</name>
+	<revision>844</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 2.31 (r802) is out!</b><br>
+		<b>FileBot 2.4 (r844) is out!</b><br>
 		This release features:<br>
-		+ Improved matching<br>
-		+ Improved scripting environment<br>
-		+ Update notifcations
+		+ Improved movie mode<br>
+		+ Better matching<br>
+		+ More scripting capabilities<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=24#p43]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=36#p206]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
