@@ -9,10 +9,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -117,15 +114,16 @@ public abstract class FolderWatchService implements Closeable {
 			return;
 		}
 		
-		// start watching all folders in the tree
-		Files.walkFileTree(folder.toPath(), new SimpleFileVisitor<Path>() {
-			
-			@Override
-			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-				startWatch(dir.toFile());
-				return FileVisitResult.CONTINUE;
-			}
-		});
+		watchFolderTree(folder);
+	}
+	
+	
+	private void watchFolderTree(File root) throws IOException {
+		for (File it : root.listFiles(FOLDERS)) {
+			watchFolderTree(it);
+		}
+		
+		startWatch(root);
 	}
 	
 	
