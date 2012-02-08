@@ -41,7 +41,7 @@ public final class WebServices {
 	
 	
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TVRage, AniDB, IMDb, TheTVDB, Serienjunkies };
+		return new EpisodeListProvider[] { TVRage, AniDB, TheTVDB, Serienjunkies };
 	}
 	
 	

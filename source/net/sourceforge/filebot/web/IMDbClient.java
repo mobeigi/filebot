@@ -7,8 +7,6 @@ import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -26,11 +24,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 
 
-public class IMDbClient extends AbstractEpisodeListProvider implements MovieIdentificationService {
+public class IMDbClient implements MovieIdentificationService {
 	
 	private final String host = "www.imdb.com";
 	
@@ -47,73 +44,6 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 	}
 	
 	
-	@Override
-	public ResultCache getCache() {
-		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
-	}
-	
-	
-	@Override
-	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
-		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
-		
-		List<Node> nodes = selectNodes("//TABLE//A[following-sibling::SMALL[contains(.,'series')]]", dom);
-		List<SearchResult> results = new ArrayList<SearchResult>(nodes.size());
-		
-		for (Node node : nodes) {
-			String name = normalizeName(node.getTextContent().trim());
-			String year = node.getNextSibling().getTextContent().trim().replaceAll("\\D+", ""); // remove non-number characters
-			String href = getAttribute("href", node);
-			
-			results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
-		}
-		
-		// we might have been redirected to the movie page
-		if (results.isEmpty()) {
-			Movie movie = scrapeMovie(dom);
-			if (movie != null) {
-				results.add(movie);
-			}
-		}
-		
-		return results;
-	}
-	
-	
-	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException, SAXException {
-		Movie movie = (Movie) searchResult;
-		Document dom = parsePage(getEpisodeListLink(searchResult).toURL());
-		
-		String seriesName = normalizeName(selectString("//H1/A", dom));
-		Date year = new Date(movie.getYear(), 0, 0);
-		
-		List<Node> nodes = selectNodes("//TABLE//H3/A[preceding-sibling::text()]", dom);
-		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
-		
-		for (Node node : nodes) {
-			String title = getTextContent(node);
-			
-			Scanner numberScanner = new Scanner(node.getPreviousSibling().getTextContent()).useDelimiter("\\D+");
-			Integer season = numberScanner.nextInt();
-			Integer episode = numberScanner.nextInt();
-			
-			// e.g. 20 May 2003
-			Date airdate = Date.parse(selectString("./following::STRONG", node), "dd MMMMM yyyyy");
-			
-			episodes.add(new Episode(seriesName, year, season, episode, title, null, null, airdate));
-		}
-		
-		return episodes;
-	}
-	
-	
-	protected String normalizeName(String name) {
-		// remove quotation marks
-		return name.replaceAll("\"", "");
-	}
-	
-	
 	protected int getImdbId(String link) {
 		Matcher matcher = Pattern.compile("tt(\\d{7})").matcher(link);
 		
@@ -123,22 +53,6 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 		
 		// pattern not found
 		throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult) {
-		return getEpisodeListLink(searchResult, 0);
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		try {
-			return new URI("http", host, String.format("/title/tt%07d/episodes", ((Movie) searchResult).getImdbId()), season > 0 ? String.format("season-%d", season) : null);
-		} catch (URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	
@@ -162,7 +76,7 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
 			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
-				Logger.getLogger(getClass().getName()).log(Level.FINEST, e.getClass().getName() + ": " + e.getMessage());
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
 			}
 		}
 		
@@ -180,7 +94,7 @@ public class IMDbClient extends AbstractEpisodeListProvider implements MovieIden
 	
 	protected Movie scrapeMovie(Document dom) {
 		try {
-			String name = normalizeName(selectString("//H1/text()", dom));
+			String name = selectString("//H1/text()", dom);
 			String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
 			String url = selectString("//LINK[@rel='canonical']/@href", dom);
 			return new Movie(name, Integer.parseInt(year), getImdbId(url));
