@@ -23,7 +23,7 @@ public class TMDbClientTest {
 		List<Movie> result = tmdb.searchMovie("Serenity", Locale.CHINESE);
 		Movie movie = result.get(0);
 		
-		assertEquals("å†²å‡ºå®é™å·", movie.getName());
+		assertEquals("å†²å‡ºå®?é?™å?·", movie.getName());
 		assertEquals(2005, movie.getYear());
 		assertEquals(379786, movie.getImdbId());
 	}
@@ -57,6 +57,8 @@ public class TMDbClientTest {
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-07-03", movie.getReleased().toString());
 		assertEquals("Adventure", movie.getGenres().get(0));
+		assertEquals("Deborah Lynn Scott", movie.getCast().get(0).getName());
+		assertEquals("Costume Design", movie.getCast().get(0).getJob());
 		assertEquals("thumb", movie.getImages().get(0).getSize());
 		assertEquals("http://cf2.imgobject.com/t/p/w92/bgSHbGEA1OM6qDs3Qba4VlSZsNG.jpg", movie.getImages().get(0).getUrl().toString());
 	}

@@ -403,6 +403,17 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
+	public SeriesInfo getSeriesInfoByName(String name, Locale locale) throws Exception {
+		for (SearchResult it : search(name, locale)) {
+			if (name.equalsIgnoreCase(it.getName())) {
+				return getSeriesInfo((TheTVDBSearchResult) it, locale);
+			}
+		}
+		
+		return null;
+	}
+	
+	
 	public SeriesInfo getSeriesInfo(TheTVDBSearchResult searchResult, Locale locale) throws Exception {
 		// check cache first
 		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, locale, SeriesInfo.class);

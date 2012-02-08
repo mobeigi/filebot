@@ -33,6 +33,7 @@ public class MediaBindingBean {
 	private final Object infoObject;
 	private final File mediaFile;
 	private MediaInfo mediaInfo;
+	private Object metaInfo;
 	
 	
 	public MediaBindingBean(Object infoObject, File mediaFile) {
@@ -300,6 +301,19 @@ public class MediaBindingBean {
 			return null;
 		
 		return WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile));
+	}
+	
+	
+	@Define("meta")
+	public synchronized Object getMetaInfo() throws Exception {
+		if (metaInfo == null) {
+			if (infoObject instanceof Episode)
+				metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
+			if (infoObject instanceof Movie)
+				metaInfo = WebServices.TMDb.getMovieInfo((Movie) infoObject, Locale.ENGLISH);
+		}
+		
+		return metaInfo;
 	}
 	
 	

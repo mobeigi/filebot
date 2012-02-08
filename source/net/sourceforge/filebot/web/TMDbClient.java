@@ -23,12 +23,14 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.Artwork.ArtworkProperty;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
+import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
 
 
 public class TMDbClient implements MovieIdentificationService {
@@ -138,12 +140,37 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws Exception {
-		return getMovieInfoByIMDbID(movie.getImdbId(), locale);
+		if (movie.getImdbId() >= 0) {
+			return getMovieInfoByIMDbID(movie.getImdbId(), Locale.ENGLISH);
+		} else {
+			return getMovieInfoByName(movie.getName(), movie.getYear(), Locale.ENGLISH);
+		}
+	}
+	
+	
+	public MovieInfo getMovieInfoByName(String name, int year, Locale locale) throws Exception {
+		for (Movie it : searchMovie(name, locale)) {
+			if (name.equalsIgnoreCase(it.getName()) && year == it.getYear()) {
+				return getMovieInfo(it, locale);
+			}
+		}
+		
+		return null;
 	}
 	
 	
 	public MovieInfo getMovieInfoByIMDbID(int imdbid, Locale locale) throws Exception {
+		if (imdbid < 0)
+			throw new IllegalArgumentException("Illegal IMDb ID: " + imdbid);
+		
 		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
+		Document dom = getDocument(resource);
+		
+		// get complete movie info via tmdbid lookup
+		resource = getResource("Movie.getInfo", selectString("//movie/id", dom), locale);
+		dom = getDocument(resource);
+		
+		// select info from xml
 		Node node = selectNode("//movie", getDocument(resource));
 		
 		Map<MovieProperty, String> movieProperties = new EnumMap<MovieProperty, String>(MovieProperty.class);
@@ -165,7 +192,16 @@ public class TMDbClient implements MovieIdentificationService {
 			artwork.add(new Artwork(artworkProperties));
 		}
 		
-		return new MovieInfo(movieProperties, genres, artwork);
+		List<Person> cast = new ArrayList<Person>();
+		for (Node image : selectNodes("//person", node)) {
+			Map<PersonProperty, String> personProperties = new EnumMap<PersonProperty, String>(PersonProperty.class);
+			for (PersonProperty property : PersonProperty.values()) {
+				personProperties.put(property, getAttribute(property.name(), image));
+			}
+			cast.add(new Person(personProperties));
+		}
+		
+		return new MovieInfo(movieProperties, genres, cast, artwork);
 	}
 	
 	
@@ -175,6 +211,7 @@ public class TMDbClient implements MovieIdentificationService {
 			translated,
 			adult,
 			language,
+			original_name,
 			name,
 			type,
 			id,
@@ -183,6 +220,7 @@ public class TMDbClient implements MovieIdentificationService {
 			overview,
 			votes,
 			rating,
+			tagline,
 			certification,
 			released,
 			runtime
@@ -191,6 +229,7 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		protected Map<MovieProperty, String> fields;
 		protected String[] genres;
+		protected Person[] cast;
 		protected Artwork[] images;
 		
 		
@@ -199,9 +238,10 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> genres, List<Artwork> images) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> genres, List<Person> cast, List<Artwork> images) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
 			this.genres = genres.toArray(new String[0]);
+			this.cast = cast.toArray(new Person[0]);
 			this.images = images.toArray(new Artwork[0]);
 		}
 		
@@ -232,6 +272,11 @@ public class TMDbClient implements MovieIdentificationService {
 			} catch (Exception e) {
 				return null;
 			}
+		}
+		
+		
+		public String getOriginalName() {
+			return get(MovieProperty.original_name);
 		}
 		
 		
@@ -296,6 +341,11 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
+		public String getTagline() {
+			return get(MovieProperty.tagline);
+		}
+		
+		
 		public String getCertification() {
 			// e.g. PG-13
 			return get(MovieProperty.certification);
@@ -319,6 +369,11 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public List<String> getGenres() {
 			return unmodifiableList(asList(genres));
+		}
+		
+		
+		public List<Person> getCast() {
+			return unmodifiableList(asList(cast));
 		}
 		
 		
@@ -399,6 +454,71 @@ public class TMDbClient implements MovieIdentificationService {
 		public Integer getHeight() {
 			try {
 				return new Integer(get(ArtworkProperty.height));
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		
+		
+		@Override
+		public String toString() {
+			return fields.toString();
+		}
+	}
+	
+	
+	public static class Person implements Serializable {
+		
+		public static enum PersonProperty {
+			name,
+			character,
+			job,
+			thumb,
+			department
+		}
+		
+		
+		protected Map<PersonProperty, String> fields;
+		
+		
+		protected Person() {
+			// used by serializer
+		}
+		
+		
+		protected Person(Map<PersonProperty, String> fields) {
+			this.fields = new EnumMap<PersonProperty, String>(fields);
+		}
+		
+		
+		public String get(Object key) {
+			return fields.get(PersonProperty.valueOf(key.toString()));
+		}
+		
+		
+		public String get(PersonProperty key) {
+			return fields.get(key);
+		}
+		
+		
+		public String getName() {
+			return get(PersonProperty.name);
+		}
+		
+		
+		public String getJob() {
+			return get(PersonProperty.job);
+		}
+		
+		
+		public String getDepartment() {
+			return get(PersonProperty.department);
+		}
+		
+		
+		public URL getThumb() {
+			try {
+				return new URL(get(PersonProperty.thumb));
 			} catch (Exception e) {
 				return null;
 			}
