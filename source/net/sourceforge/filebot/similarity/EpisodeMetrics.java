@@ -93,7 +93,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		@Override
 		protected String normalize(Object object) {
 			if (object instanceof Episode) {
-				object = ((Episode) object).getTitle();
+				Episode e = (Episode) object;
+				
+				// don't use title for matching if title equals series name
+				if (!e.getTitle().equalsIgnoreCase(e.getSeriesName())) {
+					object = e.getTitle();
+				}
 			}
 			
 			if (object instanceof Movie) {
