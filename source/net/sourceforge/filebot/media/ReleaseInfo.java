@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -113,7 +112,7 @@ public class ReleaseInfo {
 	
 	public Pattern getLanguageSuffixPattern() {
 		// .{language}[.srt]
-		return compile("(?<=\\p{Punct}|\\s)(" + join(getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet(), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<=\\p{Punct}|\\s)(" + join(getLanguageMap(Locale.ENGLISH).keySet(), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
@@ -126,7 +125,7 @@ public class ReleaseInfo {
 			languageMap.put(locale.getISO3Language(), locale);
 			
 			// map display language names for given locales
-			for (Locale language : new HashSet<Locale>(asList(supportedLanguageName))) {
+			for (Locale language : asList(supportedLanguageName)) {
 				languageMap.put(locale.getDisplayLanguage(language), locale);
 			}
 		}
