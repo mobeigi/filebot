@@ -279,6 +279,11 @@
 							<td>eng</td>
 						</tr>
 						<tr>
+							<td>info</td>
+							<td>TheTVDB / TheMovieDB metadata</td>
+							<td>&lt;any metadata&gt;</td>
+						</tr>
+						<tr>
 							<td>file</td>
 							<td>file object</td>
 							<td>&lt;file path&gt;</td>
@@ -338,6 +343,12 @@
 					</p>
 					<p>
 					<code><span class="method">replacePart</span>(<span class="string">replacement</span> = <span class="string">""</span>)</code>Replace part identifier (e.g. "Today Is the Day (1)" -> "Today Is the Day, Part 1").
+					</p>
+					<p>
+					<code><span class="method">ascii</span>()</code>Convert Unicode to ASCII. (e.g. "Österreich" -> "Osterreich" or "カタカナ" -> "katakana").
+					</p>
+					<p>
+					<code><span class="method">transliterate</span>(<span class="regex">identifier</span>)</code>Apply any <a target="_blank" href="http://userguide.icu-project.org/transforms/general">ICU script transliteration</a>. e.g. "中国".transliterate("han-latin") -> "zhōng guó".
 					</p>
 				</div>
 				

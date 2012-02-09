@@ -304,7 +304,7 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("meta")
+	@Define("info")
 	public synchronized Object getMetaInfo() throws Exception {
 		if (metaInfo == null) {
 			if (infoObject instanceof Episode)

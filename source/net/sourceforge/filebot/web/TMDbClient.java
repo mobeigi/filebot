@@ -377,6 +377,26 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
+		public String getDirector() {
+			for (Person person : cast) {
+				if (person.isDirector())
+					return person.getName();
+			}
+			return null;
+		}
+		
+		
+		public List<String> getActors() {
+			List<String> actors = new ArrayList<String>();
+			for (Person person : cast) {
+				if (person.isActor()) {
+					actors.add(person.getName());
+				}
+			}
+			return actors;
+		}
+		
+		
 		public List<Artwork> getImages() {
 			return unmodifiableList(asList(images));
 		}
@@ -506,6 +526,11 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
+		public String getCharacter() {
+			return get(PersonProperty.character);
+		}
+		
+		
 		public String getJob() {
 			return get(PersonProperty.job);
 		}
@@ -522,6 +547,16 @@ public class TMDbClient implements MovieIdentificationService {
 			} catch (Exception e) {
 				return null;
 			}
+		}
+		
+		
+		public boolean isActor() {
+			return "Actor".equals(getJob());
+		}
+		
+		
+		public boolean isDirector() {
+			return "Director".equals(getJob());
 		}
 		
 		
