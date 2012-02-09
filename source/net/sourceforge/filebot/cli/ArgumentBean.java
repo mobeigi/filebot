@@ -7,7 +7,6 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -120,14 +119,9 @@ public class ArgumentBean {
 		
 		// resolve given paths
 		for (String argument : arguments) {
-			try {
-				File file = new File(argument).getCanonicalFile();
-				
-				// resolve folders
-				files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), 0, false) : singleton(file));
-			} catch (IOException e) {
-				throw new IllegalArgumentException(e);
-			}
+			// resolve folders
+			File file = new File(argument).getAbsoluteFile();
+			files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), 0, false) : singleton(file));
 		}
 		
 		return files;
