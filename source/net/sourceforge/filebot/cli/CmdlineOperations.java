@@ -266,7 +266,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// handle movie files
 		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
 		File[] subtitleFiles = filter(mediaFiles, SUBTITLE_FILES).toArray(new File[0]);
-		Movie[] movieByFileHash = null;
+		Movie[] movieByFileHash = new Movie[movieFiles.length];
 		
 		if (movieFiles.length > 0 && query == null) {
 			// match movie hashes online
@@ -276,7 +276,6 @@ public class CmdlineOperations implements CmdlineInterface {
 				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
 			} catch (UnsupportedOperationException e) {
 				CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
-				movieByFileHash = new Movie[movieFiles.length];
 			}
 		}
 		
