@@ -118,10 +118,18 @@ String.metaClass.replacePart = { replacement = "" ->
 	return delegate;
 }
 
+
 /**
-* Convert Unicode to ASCII as best as possible. This method will translate umlauts, accents, etc to corresponding ASCII characters.
+ * Apply ICU transliteration
+ * @see http://userguide.icu-project.org/transforms/general
+ */
+String.metaClass.transliterate = { transformIdentifier -> com.ibm.icu.text.Transliterator.getInstance(transformIdentifier).transform(delegate) }
+
+
+/**
+* Convert Unicode to ASCII as best as possible. Works with most alphabets/scripts used in the world.
 *
 * e.g. "Österreich" -> "Osterreich"
 *      "カタカナ" -> "katakana"
 */
-String.metaClass.ascii = { com.ibm.icu.text.Transliterator.getInstance("Any-Latin;Latin-ASCII").transform(delegate).replaceAll("[^\\p{ASCII}]", "?") }
+String.metaClass.ascii = { delegate.transliterate("Any-Latin;Latin-ASCII").replaceAll("[^\\p{ASCII}]", "?") }
