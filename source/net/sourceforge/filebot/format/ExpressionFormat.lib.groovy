@@ -117,3 +117,11 @@ String.metaClass.replacePart = { replacement = "" ->
 	// no pattern matches, nothing to replace
 	return delegate;
 }
+
+/**
+* Convert Unicode to ASCII as best as possible. This method will translate umlauts, accents, etc to corresponding ASCII characters.
+*
+* e.g. "Österreich" -> "Osterreich"
+*      "カタカナ" -> "katakana"
+*/
+String.metaClass.ascii = { com.ibm.icu.text.Transliterator.getInstance("Any-Latin;Latin-ASCII").transform(delegate).replaceAll("[^\\p{ASCII}]", "?") }
