@@ -31,6 +31,7 @@ import net.sourceforge.tuned.FileUtilities;
 public class SeriesNameMatcher {
 	
 	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
+	protected DateMatcher dateMatcher = new DateMatcher();
 	protected NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
 	protected int commonWordSequenceMaxStartIndex;
@@ -83,12 +84,17 @@ public class SeriesNameMatcher {
 		// match common word sequences (likely series names)
 		SeriesNameCollection whitelist = new SeriesNameCollection();
 		
-		// focus chars before the SxE pattern when matching by common word sequence
+		// focus chars before the SxE / Date pattern when matching by common word sequence
 		String[] focus = Arrays.copyOf(names, names.length);
 		for (int i = 0; i < focus.length; i++) {
-			int pos = seasonEpisodeMatcher.find(focus[i], 0);
-			if (pos >= 0) {
-				focus[i] = focus[i].substring(0, pos);
+			int sxePos = seasonEpisodeMatcher.find(focus[i], 0);
+			if (sxePos >= 0) {
+				focus[i] = focus[i].substring(0, sxePos);
+			} else {
+				int datePos = dateMatcher.find(focus[i], 0);
+				if (datePos >= 0) {
+					focus[i] = focus[i].substring(0, datePos);
+				}
 			}
 		}
 		whitelist.addAll(deepMatchAll(focus, threshold));
@@ -118,8 +124,9 @@ public class SeriesNameMatcher {
 			name = normalize(name);
 			
 			Matcher prefix = prefixPattern.matcher(name);
-			int sxePosition = seasonEpisodeMatcher.find(name, prefix.find() ? prefix.end() : 0);
+			int prefixEnd = prefix.find() ? prefix.end() : 0;
 			
+			int sxePosition = seasonEpisodeMatcher.find(name, prefixEnd);
 			if (sxePosition > 0) {
 				String hit = name.substring(0, sxePosition).trim();
 				List<SxE> sxe = seasonEpisodeMatcher.match(name.substring(sxePosition));
@@ -131,7 +138,14 @@ public class SeriesNameMatcher {
 					// require multiple matches, if hit might be a false match
 					thresholdCollection.add(hit);
 				}
+			} else {
+				// try date pattern as fallback
+				int datePosition = dateMatcher.find(name, prefixEnd);
+				if (datePosition > 0) {
+					thresholdCollection.addDirect(name.substring(0, datePosition).trim());
+				}
 			}
+			
 		}
 		
 		return thresholdCollection;
@@ -176,12 +190,17 @@ public class SeriesNameMatcher {
 	 * @return a substring of the given name that ends before the first occurrence of a season
 	 *         episode pattern, or null if there is no such pattern
 	 */
-	public String matchBySeasonEpisodePattern(String name) {
+	public String matchByEpisodeIdentifier(String name) {
 		int seasonEpisodePosition = seasonEpisodeMatcher.find(name, 0);
-		
 		if (seasonEpisodePosition > 0) {
 			// series name ends at the first season episode pattern
 			return normalize(name.substring(0, seasonEpisodePosition));
+		}
+		
+		int datePosition = dateMatcher.find(name, 0);
+		if (datePosition > 0) {
+			// series name ends at the first season episode pattern
+			return normalize(name.substring(0, datePosition));
 		}
 		
 		return null;

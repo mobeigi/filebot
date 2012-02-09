@@ -106,7 +106,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		for (File f : mediaFiles) {
 			// count SxE matches
-			if (nameMatcher.matchBySeasonEpisodePattern(f.getName()) != null) {
+			if (nameMatcher.matchByEpisodeIdentifier(f.getName()) != null) {
 				sxe++;
 			}
 			
