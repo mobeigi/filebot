@@ -2,13 +2,13 @@
 package net.sourceforge.filebot.media;
 
 
-import static java.util.Arrays.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -125,7 +125,7 @@ public class ReleaseInfo {
 			languageMap.put(locale.getISO3Language(), locale);
 			
 			// map display language names for given locales
-			for (Locale language : asList(supportedLanguageName)) {
+			for (Locale language : supportedLanguageName) {
 				languageMap.put(locale.getDisplayLanguage(language), locale);
 			}
 		}
@@ -174,6 +174,11 @@ public class ReleaseInfo {
 	}
 	
 	
+	public FileFilter getDiskFolderFilter() {
+		return new FolderEntryFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
+	}
+	
+	
 	// fetch release group names online and try to update the data every other day
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
@@ -214,6 +219,30 @@ public class ReleaseInfo {
 			}
 			
 			return movies.toArray(new Movie[0]);
+		}
+	}
+	
+	
+	protected static class FolderEntryFilter implements FileFilter {
+		
+		private final Pattern entryPattern;
+		
+		
+		public FolderEntryFilter(Pattern entryPattern) {
+			this.entryPattern = entryPattern;
+		}
+		
+		
+		@Override
+		public boolean accept(File dir) {
+			if (dir.isDirectory()) {
+				for (String entry : dir.list()) {
+					if (entryPattern.matcher(entry).matches()) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 	

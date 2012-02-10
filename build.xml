@@ -109,8 +109,8 @@
 				<include name="org/slf4j/**" />
 			</zipfileset>
 			
-			<zipfileset src="${dir.lib}/guava.jar">
-				<include name="com/google/common/**" />
+			<zipfileset src="${dir.lib}/commons-io.jar">
+				<include name="org/apache/commons/io/**" />
 			</zipfileset>
 			
 			<zipfileset src="${dir.lib}/jna.jar">

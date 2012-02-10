@@ -42,7 +42,7 @@ import com.ibm.icu.text.CharsetMatch;
 
 public final class FileUtilities {
 	
-	public static File renameFile(File source, File destination) throws IOException {
+	public static File moveRename(File source, File destination) throws IOException {
 		// resolve destination
 		if (!destination.isAbsolute()) {
 			// same folder, different name
@@ -57,25 +57,37 @@ public final class FileUtilities {
 			throw new IOException("Failed to create folder: " + destinationFolder);
 		}
 		
-		try {
-			renameFileNIO2(source, destination);
-		} catch (LinkageError e) {
-			renameFileIO(source, destination);
+		if (source.isDirectory()) { // move folder
+			moveFolderIO(source, destination);
+		} else { // move file
+			try {
+				moveFileNIO2(source, destination);
+			} catch (LinkageError e) {
+				moveFileIO(source, destination);
+			}
 		}
 		
 		return destination;
 	}
 	
 	
-	private static void renameFileNIO2(File source, File destination) throws IOException {
+	private static void moveFileNIO2(File source, File destination) throws IOException {
 		java.nio.file.Files.move(source.toPath(), destination.toPath());
 	}
 	
 	
-	private static void renameFileIO(File source, File destination) throws IOException {
+	private static void moveFileIO(File source, File destination) throws IOException {
 		if (!source.renameTo(destination)) {
-			// try using Guava IO utilities, that'll just copy files if renameTo() fails
-			com.google.common.io.Files.move(source, destination);
+			// use "copy and delete" as fallback if standard rename fails
+			org.apache.commons.io.FileUtils.moveFile(source, destination);
+		}
+	}
+	
+	
+	private static void moveFolderIO(File source, File destination) throws IOException {
+		if (!source.renameTo(destination)) {
+			// use "copy and delete" as fallback if standard move/rename fails
+			org.apache.commons.io.FileUtils.moveDirectory(source, destination);
 		}
 	}
 	

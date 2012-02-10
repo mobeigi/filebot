@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
@@ -70,11 +71,6 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	public List<Movie> searchMovie(File file, Locale locale) throws IOException, SAXException {
-		throw new UnsupportedOperationException();
-	}
-	
-	
 	public List<Movie> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
 		return getMovies("Media.getInfo", hash + "/" + bytesize, locale);
 	}
@@ -96,17 +92,8 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	@Override
-	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
-		Movie[] movies = new Movie[movieFiles.length];
-		
-		for (int i = 0; i < movies.length; i++) {
-			List<Movie> options = searchMovie(movieFiles[i], locale);
-			
-			// just use first result, if possible
-			movies[i] = options.isEmpty() ? null : options.get(0);
-		}
-		
-		return movies;
+	public Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
+		throw new UnsupportedOperationException();
 	}
 	
 	

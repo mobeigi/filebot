@@ -3,7 +3,6 @@ package net.sourceforge.filebot.cli;
 
 
 import static java.lang.String.*;
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
@@ -47,6 +46,7 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
+import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -260,49 +260,68 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMovie(Collection<File> mediaFiles, String query, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+	public List<File> renameMovie(Collection<File> files, String query, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
 		// handle movie files
-		File[] movieFiles = filter(mediaFiles, VIDEO_FILES).toArray(new File[0]);
-		File[] subtitleFiles = filter(mediaFiles, SUBTITLE_FILES).toArray(new File[0]);
-		Movie[] movieByFileHash = new Movie[movieFiles.length];
+		List<File> movieFiles = filter(files, VIDEO_FILES);
 		
-		if (movieFiles.length > 0 && query == null) {
-			// match movie hashes online
+		Map<File, List<File>> derivatesByMovieFile = new HashMap<File, List<File>>();
+		for (File movieFile : movieFiles) {
+			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
+		}
+		for (File file : files) {
+			for (File movieFile : movieFiles) {
+				if (!file.equals(movieFile) && isDerived(file, movieFile)) {
+					derivatesByMovieFile.get(movieFile).add(file);
+					break;
+				}
+			}
+		}
+		
+		List<File> standaloneFiles = new ArrayList<File>(files);
+		for (List<File> derivates : derivatesByMovieFile.values()) {
+			standaloneFiles.removeAll(derivates);
+		}
+		
+		List<File> movieMatchFiles = new ArrayList<File>();
+		movieMatchFiles.addAll(movieFiles);
+		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
+		movieMatchFiles.addAll(filter(standaloneFiles, SUBTITLE_FILES));
+		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
+		
+		// match movie hashes online
+		Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		if (query == null && movieFiles.size() > 0) {
 			try {
 				CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
-				movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
+				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
+				movieByFile.putAll(hashLookup);
+				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
 			} catch (UnsupportedOperationException e) {
 				CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
 			}
 		}
 		
-		if (subtitleFiles.length > 0 && movieFiles.length == 0) {
-			// special handling if there is only subtitle files
-			movieByFileHash = new Movie[subtitleFiles.length];
-			movieFiles = subtitleFiles;
-			subtitleFiles = new File[0];
-		}
-		
 		if (query != null) {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
 			Movie result = (Movie) selectSearchResult(query, service.searchMovie(query, locale), strict).get(0);
-			fill(movieByFileHash, result);
+			// force all mappings
+			for (File file : movieMatchFiles) {
+				movieByFile.put(file, result);
+			}
 		}
 		
-		// map movies to (possibly multiple) files (in natural order) 
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
-		
 		// map all files by movie
-		for (int i = 0; i < movieFiles.length; i++) {
-			Movie movie = movieByFileHash[i];
+		for (File file : movieMatchFiles) {
+			Movie movie = movieByFile.get(file);
 			
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
-				CLILogger.fine(format("Auto-detect movie from context: [%s]", movieFiles[i]));
-				Collection<Movie> results = detectMovie(movieFiles[i], null, service, locale, strict);
+				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
+				Collection<Movie> results = detectMovie(file, null, service, locale, strict);
 				movie = (Movie) selectSearchResult(query, results, strict).get(0);
 				
 				if (movie != null) {
@@ -320,7 +339,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					filesByMovie.put(movie, movieParts);
 				}
 				
-				movieParts.add(movieFiles[i]);
+				movieParts.add(file);
 			}
 		}
 		
@@ -341,17 +360,13 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 				
 				matches.add(new Match<File, Movie>(file, part));
-			}
-		}
-		
-		// handle subtitle files
-		for (File subtitle : subtitleFiles) {
-			// check if subtitle corresponds to a movie file (same name, different extension)
-			for (Match<File, ?> movieMatch : matches) {
-				if (isDerived(subtitle, movieMatch.getValue())) {
-					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
-					// movie match found, we're done
-					break;
+				
+				// automatically add matches for derivates
+				List<File> derivates = derivatesByMovieFile.get(file);
+				if (derivates != null) {
+					for (File derivate : derivates) {
+						matches.add(new Match<File, Movie>(derivate, part));
+					}
 				}
 			}
 		}
@@ -387,7 +402,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			for (Entry<File, File> it : renameMap.entrySet()) {
 				try {
 					// rename file, throw exception on failure
-					File destination = renameFile(it.getKey(), it.getValue());
+					File destination = moveRename(it.getKey(), it.getValue());
 					CLILogger.info(format("Renamed [%s] to [%s]", it.getKey(), it.getValue()));
 					
 					// remember successfully renamed matches for history entry and possible revert 

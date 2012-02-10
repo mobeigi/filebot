@@ -13,16 +13,16 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.util.AbstractList;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -34,15 +34,15 @@ import javax.swing.SwingWorker;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ProgressDialog;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
+import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
 
 class RenameAction extends AbstractAction {
 	
 	private final RenameModel model;
 	
-
+	
 	public RenameAction(RenameModel model) {
 		this.model = model;
 		
@@ -51,7 +51,7 @@ class RenameAction extends AbstractAction {
 		putValue(SHORT_DESCRIPTION, "Rename files");
 	}
 	
-
+	
 	public void actionPerformed(ActionEvent evt) {
 		if (model.getRenameMap().isEmpty()) {
 			return;
@@ -85,7 +85,7 @@ class RenameAction extends AbstractAction {
 		window.setCursor(Cursor.getDefaultCursor());
 	}
 	
-
+	
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan) {
 		// build rename map and perform some sanity checks
 		Map<File, File> renameMap = new HashMap<File, File>();
@@ -117,7 +117,7 @@ class RenameAction extends AbstractAction {
 		return renameMap;
 	}
 	
-
+	
 	private List<Entry<File, File>> validate(Map<File, String> renameMap, Window parent) {
 		final List<Entry<File, File>> source = new ArrayList<Entry<File, File>>(renameMap.size());
 		
@@ -132,13 +132,13 @@ class RenameAction extends AbstractAction {
 				return source.get(index).getValue();
 			}
 			
-
+			
 			@Override
 			public File set(int index, File name) {
 				return source.get(index).setValue(name);
 			}
 			
-
+			
 			@Override
 			public int size() {
 				return source.size();
@@ -154,7 +154,7 @@ class RenameAction extends AbstractAction {
 		return emptyList();
 	}
 	
-
+	
 	protected ProgressDialog createProgressDialog(Window parent, final RenameJob job) {
 		final ProgressDialog dialog = new ProgressDialog(parent, job);
 		
@@ -175,7 +175,7 @@ class RenameAction extends AbstractAction {
 				}
 			}
 			
-
+			
 			@Override
 			protected void done(PropertyChangeEvent evt) {
 				dialog.close();
@@ -185,19 +185,19 @@ class RenameAction extends AbstractAction {
 		return dialog;
 	}
 	
-
+	
 	protected class RenameJob extends SwingWorker<Map<File, File>, Void> implements Cancellable {
 		
 		private final Map<File, File> renameMap;
 		private final Map<File, File> renameLog;
 		
-
+		
 		public RenameJob(Map<File, File> renameMap) {
 			this.renameMap = synchronizedMap(renameMap);
 			this.renameLog = synchronizedMap(new LinkedHashMap<File, File>());
 		}
 		
-
+		
 		@Override
 		protected Map<File, File> doInBackground() throws Exception {
 			for (Entry<File, File> mapping : renameMap.entrySet()) {
@@ -209,7 +209,7 @@ class RenameAction extends AbstractAction {
 				firePropertyChange("currentFile", mapping.getKey(), mapping.getValue());
 				
 				// rename file, throw exception on failure
-				renameFile(mapping.getKey(), mapping.getValue());
+				moveRename(mapping.getKey(), mapping.getValue());
 				
 				// remember successfully renamed matches for history entry and possible revert 
 				renameLog.put(mapping.getKey(), mapping.getValue());
@@ -218,7 +218,7 @@ class RenameAction extends AbstractAction {
 			return renameLog;
 		}
 		
-
+		
 		@Override
 		protected void done() {
 			try {
@@ -251,7 +251,7 @@ class RenameAction extends AbstractAction {
 			}
 		}
 		
-
+		
 		@Override
 		public boolean cancel() {
 			return cancel(true);

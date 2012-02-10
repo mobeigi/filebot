@@ -49,7 +49,7 @@
 		<jar href="mediainfo.jar"     download="lazy" part="native"  />
 		<jar href="nekohtml.jar"      download="lazy" part="scraper" />
 		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
-		<jar href="guava.jar"         download="lazy" />
+		<jar href="commons-io.jar"    download="lazy" />
 		<jar href="junrar-custom.jar" download="lazy" />
 	</resources>
 	

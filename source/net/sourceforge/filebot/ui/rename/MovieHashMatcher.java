@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.ui.rename;
 
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -37,6 +35,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -59,24 +58,30 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		// handle movie files
-		File[] movieFiles = filter(files, VIDEO_FILES).toArray(new File[0]);
-		File[] subtitleFiles = filter(files, SUBTITLE_FILES).toArray(new File[0]);
-		Movie[] movieByFileHash = null;
+		List<File> movieFiles = filter(files, VIDEO_FILES);
 		
-		if (movieFiles.length > 0) {
-			// match movie hashes online
-			try {
-				movieByFileHash = service.getMovieDescriptors(movieFiles, locale);
-				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", movieByFileHash.length - frequency(asList(movieByFileHash), null)); // number of positive hash lookups
-			} catch (UnsupportedOperationException e) {
-				movieByFileHash = new Movie[movieFiles.length];
-			}
-		} else if (subtitleFiles.length > 0) {
-			// special handling if there is only subtitle files
-			movieByFileHash = new Movie[subtitleFiles.length];
-			movieFiles = subtitleFiles;
-			subtitleFiles = new File[0];
+		Map<File, List<File>> derivatesByMovieFile = new HashMap<File, List<File>>();
+		for (File movieFile : movieFiles) {
+			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
+		for (File file : files) {
+			for (File movieFile : movieFiles) {
+				if (!file.equals(movieFile) && isDerived(file, movieFile)) {
+					derivatesByMovieFile.get(movieFile).add(file);
+					break;
+				}
+			}
+		}
+		
+		List<File> standaloneFiles = new ArrayList<File>(files);
+		for (List<File> derivates : derivatesByMovieFile.values()) {
+			standaloneFiles.removeAll(derivates);
+		}
+		
+		List<File> movieMatchFiles = new ArrayList<File>();
+		movieMatchFiles.addAll(movieFiles);
+		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
+		movieMatchFiles.addAll(filter(standaloneFiles, SUBTITLE_FILES));
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
@@ -84,10 +89,21 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// match remaining movies file by file in parallel
 		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
 		
+		// match movie hashes online
+		Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		if (movieFiles.size() > 0) {
+			try {
+				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
+				movieByFile.putAll(hashLookup);
+				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
+			} catch (UnsupportedOperationException e) {
+				// ignore
+			}
+		}
+		
 		// map all files by movie
-		for (int i = 0; i < movieFiles.length; i++) {
-			final Movie movie = movieByFileHash[i];
-			final File file = movieFiles[i];
+		for (final File file : movieMatchFiles) {
+			final Movie movie = movieByFile.get(file);
 			grabMovieJobs.add(new Callable<Entry<File, Movie>>() {
 				
 				@Override
@@ -146,17 +162,13 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				}
 				
 				matches.add(new Match<File, Movie>(file, part));
-			}
-		}
-		
-		// handle subtitle files
-		for (File subtitle : subtitleFiles) {
-			// check if subtitle corresponds to a movie file (same name, different extension)
-			for (Match<File, ?> movieMatch : matches) {
-				if (isDerived(subtitle, movieMatch.getValue())) {
-					matches.add(new Match<File, Object>(subtitle, movieMatch.getCandidate()));
-					// movie match found, we're done
-					break;
+				
+				// automatically add matches for derivates
+				List<File> derivates = derivatesByMovieFile.get(file);
+				if (derivates != null) {
+					for (File derivate : derivates) {
+						matches.add(new Match<File, Movie>(derivate, part));
+					}
 				}
 			}
 		}

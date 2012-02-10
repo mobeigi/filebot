@@ -4,6 +4,7 @@ package net.sourceforge.filebot.web;
 
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -184,37 +186,36 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	
 	public Movie getMovieDescriptor(File movieFile, Locale locale) throws Exception {
-		return getMovieDescriptors(new File[] { movieFile }, locale)[0];
+		return getMovieDescriptors(singleton(movieFile), locale).get(movieFile);
 	}
 	
 	
 	@Override
-	public Movie[] getMovieDescriptors(File[] movieFiles, Locale locale) throws Exception {
+	public Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
 		// create result array
-		Movie[] result = new Movie[movieFiles.length];
+		Map<File, Movie> result = new HashMap<File, Movie>();
 		
 		// compute movie hashes
-		Map<String, Integer> indexMap = new HashMap<String, Integer>(movieFiles.length);
+		Map<String, File> hashMap = new HashMap<String, File>(movieFiles.size());
 		
-		for (int i = 0; i < movieFiles.length; i++) {
-			if (movieFiles[i].length() > HASH_CHUNK_SIZE) {
-				indexMap.put(computeHash(movieFiles[i]), i); // remember original index
+		for (File file : movieFiles) {
+			if (file.length() > HASH_CHUNK_SIZE) {
+				hashMap.put(computeHash(file), file); // map file by hash
 			}
 		}
 		
-		if (indexMap.size() > 0) {
+		if (hashMap.size() > 0) {
 			// require login
 			login();
 			
 			// dispatch query for all hashes
-			List<String> hashes = new ArrayList<String>(indexMap.keySet());
+			List<String> hashes = new ArrayList<String>(hashMap.keySet());
 			int batchSize = 50;
 			for (int bn = 0; bn < ceil((float) hashes.size() / batchSize); bn++) {
 				List<String> batch = hashes.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashes.size()));
 				
 				for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(batch).entrySet()) {
-					int index = indexMap.get(entry.getKey());
-					result[index] = entry.getValue();
+					result.put(hashMap.get(entry.getKey()), entry.getValue());
 				}
 			}
 		}

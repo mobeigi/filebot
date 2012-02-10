@@ -27,8 +27,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -50,8 +50,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.SortOrder;
 import javax.swing.RowSorter.SortKey;
+import javax.swing.SortOrder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -94,7 +94,7 @@ class HistoryDialog extends JDialog {
 	
 	private final JTable elementTable = createTable(elementModel);
 	
-
+	
 	public HistoryDialog(Window owner) {
 		super(owner, "Rename History", ModalityType.DOCUMENT_MODAL);
 		
@@ -179,7 +179,7 @@ class HistoryDialog extends JDialog {
 			
 			private final DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
 			
-
+			
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 				return super.getTableCellRendererComponent(table, format.format(value), isSelected, hasFocus, row, column);
@@ -244,7 +244,7 @@ class HistoryDialog extends JDialog {
 		setSize(580, 640);
 	}
 	
-
+	
 	public void setModel(History history) {
 		// update table model
 		sequenceModel.setData(history.sequences());
@@ -261,17 +261,17 @@ class HistoryDialog extends JDialog {
 		initializeInfoLabel();
 	}
 	
-
+	
 	public History getModel() {
 		return new History(sequenceModel.getData());
 	}
 	
-
+	
 	public JLabel getInfoLabel() {
 		return infoLabel;
 	}
 	
-
+	
 	private void initializeInfoLabel() {
 		int count = 0;
 		Date since = new Date();
@@ -286,7 +286,7 @@ class HistoryDialog extends JDialog {
 		infoLabel.setText(String.format("A total of %,d files have been renamed since %s.", count, DateFormat.getDateInstance().format(since)));
 	}
 	
-
+	
 	private JScrollPane createScrollPaneGroup(String title, JComponent component) {
 		JScrollPane scrollPane = new JScrollPane(component);
 		scrollPane.setBorder(new CompoundBorder(new TitledBorder(title), scrollPane.getBorder()));
@@ -294,7 +294,7 @@ class HistoryDialog extends JDialog {
 		return scrollPane;
 	}
 	
-
+	
 	private JTable createTable(TableModel model) {
 		JTable table = new JTable(model);
 		table.setBackground(Color.white);
@@ -312,7 +312,7 @@ class HistoryDialog extends JDialog {
 		return table;
 	}
 	
-
+	
 	private final Action closeAction = new AbstractAction("Close") {
 		
 		@Override
@@ -337,13 +337,13 @@ class HistoryDialog extends JDialog {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				JTable table = (JTable) e.getSource();
@@ -383,30 +383,30 @@ class HistoryDialog extends JDialog {
 		}
 	};
 	
-
+	
 	private static class RevertAction extends AbstractAction {
 		
 		public static final String ELEMENTS = "elements";
 		public static final String PARENT = "parent";
 		
-
+		
 		public RevertAction(Collection<Element> elements, HistoryDialog parent) {
 			putValue(NAME, "Revert...");
 			putValue(ELEMENTS, elements.toArray(new Element[0]));
 			putValue(PARENT, parent);
 		}
 		
-
+		
 		public Element[] elements() {
 			return (Element[]) getValue(ELEMENTS);
 		}
 		
-
+		
 		public HistoryDialog parent() {
 			return (HistoryDialog) getValue(PARENT);
 		}
 		
-
+		
 		private enum Option {
 			Rename {
 				
@@ -431,7 +431,7 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// use default directory
@@ -501,13 +501,13 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		private void rename(File directory) {
 			int count = 0;
 			
 			for (Entry<File, File> entry : getRenameMap(directory).entrySet()) {
 				try {
-					renameFile(entry.getKey(), entry.getValue());
+					moveRename(entry.getKey(), entry.getValue());
 					count++;
 				} catch (Exception e) {
 					Logger.getLogger(HistoryDialog.class.getName()).log(Level.SEVERE, e.getMessage(), e);
@@ -528,7 +528,7 @@ class HistoryDialog extends JDialog {
 			parent().repaint();
 		}
 		
-
+		
 		private Map<File, File> getRenameMap(File directory) {
 			Map<File, File> renameMap = new LinkedHashMap<File, File>();
 			
@@ -552,7 +552,7 @@ class HistoryDialog extends JDialog {
 			return renameMap;
 		}
 		
-
+		
 		private List<File> getMissingFiles(File directory) {
 			List<File> missingFiles = new ArrayList<File>();
 			
@@ -565,7 +565,7 @@ class HistoryDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private final FileTransferablePolicy importHandler = new FileTransferablePolicy() {
 		
 		@Override
@@ -573,13 +573,13 @@ class HistoryDialog extends JDialog {
 			return FileUtilities.containsOnly(files, new ExtensionFileFilter("xml"));
 		}
 		
-
+		
 		@Override
 		protected void clear() {
 			setModel(new History());
 		}
 		
-
+		
 		@Override
 		protected void load(List<File> files) throws IOException {
 			History history = getModel();
@@ -594,7 +594,7 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public String getFileFilterDescription() {
 			return "history files (.xml)";
@@ -609,30 +609,30 @@ class HistoryDialog extends JDialog {
 			return true;
 		}
 		
-
+		
 		@Override
 		public void export(File file) throws IOException {
 			History.exportHistory(getModel(), file);
 		}
 		
-
+		
 		@Override
 		public String getDefaultFileName() {
 			return "history.xml";
 		}
 	};
 	
-
+	
 	private static class HistoryFilter extends RowFilter<Object, Integer> {
 		
 		private final Pattern filter;
 		
-
+		
 		public HistoryFilter(String filter) {
 			this.filter = compile(quote(filter), CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 		}
 		
-
+		
 		@Override
 		public boolean include(Entry<?, ? extends Integer> entry) {
 			// sequence model
@@ -658,23 +658,23 @@ class HistoryDialog extends JDialog {
 			throw new IllegalArgumentException("Illegal model: " + entry.getModel());
 		}
 		
-
+		
 		private boolean include(Element element) {
 			return include(element.to()) || include(element.from()) || include(element.dir().getPath());
 		}
 		
-
+		
 		private boolean include(String value) {
 			return filter.matcher(value).find();
 		}
 	}
 	
-
+	
 	private static class SequenceTableModel extends AbstractTableModel {
 		
 		private List<Sequence> data = emptyList();
 		
-
+		
 		public void setData(List<Sequence> data) {
 			this.data = new ArrayList<Sequence>(data);
 			
@@ -682,12 +682,12 @@ class HistoryDialog extends JDialog {
 			fireTableDataChanged();
 		}
 		
-
+		
 		public List<Sequence> getData() {
 			return unmodifiableList(data);
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -704,19 +704,19 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return 4;
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return data.size();
 		}
 		
-
+		
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
@@ -733,7 +733,7 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -750,12 +750,12 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		public Sequence getRow(int row) {
 			return data.get(row);
 		}
 		
-
+		
 		private String getName(Sequence sequence) {
 			StringBuilder sb = new StringBuilder();
 			
@@ -775,12 +775,12 @@ class HistoryDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class ElementTableModel extends AbstractTableModel {
 		
 		private List<Element> data = emptyList();
 		
-
+		
 		public void setData(List<Element> data) {
 			this.data = new ArrayList<Element>(data);
 			
@@ -788,7 +788,7 @@ class HistoryDialog extends JDialog {
 			fireTableDataChanged();
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -805,19 +805,19 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return 4;
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return data.size();
 		}
 		
-
+		
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
@@ -834,7 +834,7 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -851,12 +851,12 @@ class HistoryDialog extends JDialog {
 			}
 		}
 		
-
+		
 		public Element getRow(int row) {
 			return data.get(row);
 		}
 		
-
+		
 		public boolean isBroken(int row) {
 			Element element = data.get(row);
 			

@@ -13,43 +13,36 @@ public class FastFile extends File {
 	private Long length;
 	private Boolean isDirectory;
 	private Boolean isFile;
-	private Boolean exists;
 	
 	
 	public FastFile(String path) {
 		super(path);
 	}
 	
-
+	
 	public FastFile(File parent, String child) {
 		super(parent, child);
 	}
 	
-
+	
 	@Override
 	public long length() {
 		return length != null ? length : (length = super.length());
 	}
 	
-
-	@Override
-	public boolean exists() {
-		return exists != null ? exists : (exists = super.exists());
-	}
 	
-
 	@Override
 	public boolean isDirectory() {
 		return isDirectory != null ? isDirectory : (isDirectory = super.isDirectory());
 	}
 	
-
+	
 	@Override
 	public boolean isFile() {
 		return isFile != null ? isFile : (isFile = super.isFile());
 	}
 	
-
+	
 	@Override
 	public File[] listFiles() {
 		String[] names = list();
@@ -62,12 +55,12 @@ public class FastFile extends File {
 		return files;
 	}
 	
-
+	
 	public static List<FastFile> foreach(File... files) {
 		return foreach(Arrays.asList(files));
 	}
 	
-
+	
 	public static List<FastFile> foreach(final List<File> files) {
 		List<FastFile> result = new ArrayList<FastFile>(files.size());
 		

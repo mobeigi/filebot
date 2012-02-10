@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,6 +48,11 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 public class MediaDetection {
 	
 	private static final ReleaseInfo releaseInfo = new ReleaseInfo();
+	
+	
+	public static boolean isDiskFolder(File folder) {
+		return releaseInfo.getDiskFolderFilter().accept(folder);
+	}
 	
 	
 	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale) throws Exception {
@@ -156,8 +162,8 @@ public class MediaDetection {
 		Set<Movie> options = new LinkedHashSet<Movie>();
 		
 		// lookup by file hash
-		if (hashLookupService != null) {
-			for (Movie movie : hashLookupService.getMovieDescriptors(new File[] { movieFile }, locale)) {
+		if (hashLookupService != null && movieFile.isFile()) {
+			for (Movie movie : hashLookupService.getMovieDescriptors(singleton(movieFile), locale).values()) {
 				if (movie != null) {
 					options.add(movie);
 				}
