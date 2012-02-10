@@ -2,10 +2,12 @@
 package net.sourceforge.filebot.similarity;
 
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -18,7 +20,7 @@ public class SeasonEpisodeMatcher {
 	
 	
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
-		patterns = new SeasonEpisodePattern[3];
+		patterns = new SeasonEpisodePattern[4];
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ...
 		patterns[0] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
@@ -26,8 +28,18 @@ public class SeasonEpisodeMatcher {
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ...
 		patterns[1] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
 		
+		// match patterns like ep1, ep.1, ...
+		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:ep)\\p{Punct}?(\\d{1,3})(?!\\p{Digit})") {
+			
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				// regex doesn't match season
+				return singleton(new SxE(null, match.group(1)));
+			}
+		};
+		
 		// match patterns like 01, 102, 1003 (enclosed in separators)
-		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
+		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -38,7 +50,7 @@ public class SeasonEpisodeMatcher {
 				SxE absoluteEpisode = new SxE(null, match.group(1) + match.group(2));
 				
 				// return both matches, unless they are one and the same
-				return seasonEpisode.equals(absoluteEpisode) ? Collections.singleton(seasonEpisode) : Arrays.asList(seasonEpisode, absoluteEpisode);
+				return seasonEpisode.equals(absoluteEpisode) ? singleton(seasonEpisode) : asList(seasonEpisode, absoluteEpisode);
 			}
 		};
 		
@@ -190,7 +202,7 @@ public class SeasonEpisodeMatcher {
 		
 		
 		protected Collection<SxE> process(MatchResult match) {
-			return Collections.singleton(new SxE(match.group(1), match.group(2)));
+			return singleton(new SxE(match.group(1), match.group(2)));
 		}
 		
 		
