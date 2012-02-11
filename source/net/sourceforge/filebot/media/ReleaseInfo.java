@@ -24,6 +24,7 @@ import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 import net.sourceforge.tuned.ByteBufferInputStream;
 
 
@@ -174,6 +175,11 @@ public class ReleaseInfo {
 	}
 	
 	
+	public synchronized TheTVDBSearchResult[] getSeriesList() throws IOException {
+		return seriesListResource.get();
+	}
+	
+	
 	public FileFilter getDiskFolderFilter() {
 		return new FolderEntryFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
 	}
@@ -183,6 +189,7 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
+	protected final CachedResource<TheTVDBSearchResult[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {
@@ -219,6 +226,29 @@ public class ReleaseInfo {
 			}
 			
 			return movies.toArray(new Movie[0]);
+		}
+	}
+	
+	
+	protected static class SeriesResource extends CachedResource<TheTVDBSearchResult[]> {
+		
+		public SeriesResource(String resource) {
+			super(resource, TheTVDBSearchResult[].class, 24 * 60 * 60 * 1000); // 24h update interval
+		}
+		
+		
+		@Override
+		public TheTVDBSearchResult[] process(ByteBuffer data) throws IOException {
+			Scanner scanner = new Scanner(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			
+			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>();
+			while (scanner.hasNext()) {
+				int sid = scanner.nextInt();
+				String name = scanner.next();
+				tvshows.add(new TheTVDBSearchResult(name, sid));
+			}
+			
+			return tvshows.toArray(new TheTVDBSearchResult[0]);
 		}
 	}
 	

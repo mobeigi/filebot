@@ -167,7 +167,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	protected synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
+	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/animetitles.dat.gz");
 		ResultCache cache = getCache();
 		
