@@ -8,7 +8,6 @@ import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,6 +38,7 @@ import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
@@ -155,6 +155,67 @@ public class MediaDetection {
 		}
 		
 		return new ArrayList<String>(names.values());
+	}
+	
+	
+	public static Collection<TheTVDBSearchResult> detectSeriesByName(String... names) throws Exception {
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+		final Map<TheTVDBSearchResult, String> matchMap = new HashMap<TheTVDBSearchResult, String>();
+		
+		for (final TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
+			for (String name : names) {
+				String identifier = nameMatcher.normalize(entry.getName());
+				String commonName = nameMatcher.matchByFirstCommonWordSequence(name, identifier);
+				if (commonName != null && commonName.length() >= identifier.length()) {
+					matchMap.put(entry, commonName);
+				}
+			}
+		}
+		
+		// sort by length of name match (descending)
+		List<TheTVDBSearchResult> results = new ArrayList<TheTVDBSearchResult>(matchMap.keySet());
+		sort(results, new Comparator<TheTVDBSearchResult>() {
+			
+			@Override
+			public int compare(TheTVDBSearchResult a, TheTVDBSearchResult b) {
+				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+			}
+		});
+		
+		return results;
+	}
+	
+	
+	public static Collection<AnidbSearchResult> detectAnimeByName(String... names) throws Exception {
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+		final Map<AnidbSearchResult, String> matchMap = new HashMap<AnidbSearchResult, String>();
+		
+		for (final AnidbSearchResult entry : WebServices.AniDB.getAnimeTitles()) {
+			for (String name : names) {
+				for (String identifier : new String[] { entry.getPrimaryTitle(), entry.getOfficialTitle("en") }) {
+					if (identifier == null || identifier.isEmpty())
+						continue;
+					
+					identifier = nameMatcher.normalize(entry.getName());
+					String commonName = nameMatcher.matchByFirstCommonWordSequence(name, identifier);
+					if (commonName != null && commonName.length() >= identifier.length()) {
+						matchMap.put(entry, commonName);
+					}
+				}
+			}
+		}
+		
+		// sort by length of name match (descending)
+		List<AnidbSearchResult> results = new ArrayList<AnidbSearchResult>(matchMap.keySet());
+		sort(results, new Comparator<AnidbSearchResult>() {
+			
+			@Override
+			public int compare(AnidbSearchResult a, AnidbSearchResult b) {
+				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+			}
+		});
+		
+		return results;
 	}
 	
 	
