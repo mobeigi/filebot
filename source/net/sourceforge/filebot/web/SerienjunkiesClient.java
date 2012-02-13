@@ -115,7 +115,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws IOException {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws IOException {
 		SerienjunkiesSearchResult series = (SerienjunkiesSearchResult) searchResult;
 		
 		// fetch episode data
@@ -162,18 +162,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return getEpisodeListLink(searchResult, "alle-serien-staffeln");
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return getEpisodeListLink(searchResult, "season" + season);
-	}
-	
-	
-	public URI getEpisodeListLink(SearchResult searchResult, String page) {
-		return URI.create(String.format("http://www.serienjunkies.de/%s/%s.html", ((SerienjunkiesSearchResult) searchResult).getLink(), page));
+		return URI.create(String.format("http://www.serienjunkies.de/%s/alle-serien-staffeln.html", ((SerienjunkiesSearchResult) searchResult).getLink()));
 	}
 	
 	

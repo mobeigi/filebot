@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.episodelist;
 
 
 import static net.sourceforge.filebot.ui.episodelist.SeasonSpinnerModel.*;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -21,6 +22,7 @@ import java.util.Locale;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
@@ -43,6 +45,8 @@ import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SeasonOutOfBoundsException;
+import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.StringUtilities;
 import net.sourceforge.tuned.ui.LabelProvider;
 import net.sourceforge.tuned.ui.SelectButton;
@@ -54,8 +58,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	
 	private SeasonSpinnerModel seasonSpinnerModel = new SeasonSpinnerModel();
 	private LanguageComboBox languageComboBox = new LanguageComboBox(this, Language.getLanguage("en"));
+	private JComboBox sortOrderComboBox = new JComboBox(SortOrder.values());
 	
-
+	
 	public EpisodeListPanel() {
 		historyPanel.setColumnHeader(0, "Show");
 		historyPanel.setColumnHeader(1, "Number of Episodes");
@@ -67,8 +72,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		seasonSpinner.setMinimumSize(seasonSpinner.getPreferredSize());
 		
 		// add after text field
-		add(seasonSpinner, "gap indent", 1);
-		add(languageComboBox, "gap indent+5", 2);
+		add(seasonSpinner, "sgy combo, gap indent", 1);
+		add(sortOrderComboBox, "sgy combo, gap rel", 2);
+		add(languageComboBox, "sgy combo, gap indent+5", 3);
 		
 		// add after tabbed pane
 		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())));
@@ -79,36 +85,37 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
 	}
 	
-
+	
 	@Override
 	protected EpisodeListProvider[] getSearchEngines() {
 		return WebServices.getEpisodeListProviders();
 	}
 	
-
+	
 	@Override
 	protected LabelProvider<EpisodeListProvider> getSearchEngineLabelProvider() {
 		return SimpleLabelProvider.forClass(EpisodeListProvider.class);
 	}
 	
-
+	
 	@Override
 	protected Settings getSettings() {
 		return Settings.forPackage(EpisodeListPanel.class);
 	}
 	
-
+	
 	@Override
 	protected EpisodeListRequestProcessor createRequestProcessor() {
 		EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
 		int season = seasonSpinnerModel.getSeason();
+		SortOrder order = (SortOrder) sortOrderComboBox.getSelectedItem();
 		Locale language = languageComboBox.getModel().getSelectedItem().toLocale();
 		
-		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season, language));
+		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season, order, language));
 	};
 	
-
+	
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
 		public void propertyChange(PropertyChangeEvent evt) {
@@ -123,7 +130,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		}
 	};
 	
-
+	
 	private class SpinSeasonAction extends AbstractAction {
 		
 		public SpinSeasonAction(int spin) {
@@ -131,13 +138,13 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			putValue("spin", spin);
 		}
 		
-
+		
 		public void actionPerformed(ActionEvent e) {
 			seasonSpinnerModel.spin((Integer) getValue("spin"));
 		}
 	}
 	
-
+	
 	private class SelectedTabExportHandler implements FileExportHandler {
 		
 		/**
@@ -154,7 +161,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			}
 		}
 		
-
+		
 		@Override
 		public boolean canExport() {
 			FileExportHandler handler = getExportHandler();
@@ -165,13 +172,13 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			return handler.canExport();
 		}
 		
-
+		
 		@Override
 		public void export(File file) throws IOException {
 			getExportHandler().export(file);
 		}
 		
-
+		
 		@Override
 		public String getDefaultFileName() {
 			return getExportHandler().getDefaultFileName();
@@ -179,75 +186,61 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 	}
 	
-
+	
 	protected static class EpisodeListRequest extends Request {
 		
-		private final EpisodeListProvider provider;
-		private final int season;
-		private final Locale language;
+		public final EpisodeListProvider provider;
+		public final int season;
+		public final SortOrder order;
+		public final Locale language;
 		
-
-		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season, Locale language) {
+		
+		public EpisodeListRequest(EpisodeListProvider provider, String searchText, int season, SortOrder order, Locale language) {
 			super(searchText);
 			this.provider = provider;
 			this.season = season;
+			this.order = order;
 			this.language = language;
-		}
-		
-
-		public EpisodeListProvider getProvider() {
-			return provider;
-		}
-		
-
-		public int getSeason() {
-			return season;
-		}
-		
-
-		public Locale getLanguage() {
-			return language;
 		}
 	}
 	
-
+	
 	protected static class EpisodeListRequestProcessor extends RequestProcessor<EpisodeListRequest, Episode> {
 		
 		public EpisodeListRequestProcessor(EpisodeListRequest request) {
 			super(request, new EpisodeListTab());
 		}
 		
-
+		
 		@Override
 		public Collection<SearchResult> search() throws Exception {
-			return request.getProvider().search(request.getSearchText(), request.getLanguage());
+			return request.provider.search(request.getSearchText(), request.language);
 		}
 		
-
+		
 		@Override
 		public Collection<Episode> fetch() throws Exception {
-			List<Episode> episodes;
+			List<Episode> episodes = request.provider.getEpisodeList(getSearchResult(), request.order, request.language);
 			
-			if (request.getSeason() != ALL_SEASONS)
-				episodes = request.getProvider().getEpisodeList(getSearchResult(), request.getSeason(), request.getLanguage());
-			else
-				episodes = request.getProvider().getEpisodeList(getSearchResult(), request.getLanguage());
+			if (request.season != ALL_SEASONS) {
+				List<Episode> episodeForSeason = filterBySeason(episodes, request.season);
+				if (episodeForSeason.isEmpty()) {
+					throw new SeasonOutOfBoundsException(getSearchResult().getName(), request.season, getLastSeason(episodes));
+				}
+				episodes = episodeForSeason;
+			}
 			
-			Analytics.trackEvent(request.getProvider().getName(), "ViewEpisodeList", getSearchResult().getName());
+			Analytics.trackEvent(request.provider.getName(), "ViewEpisodeList", getSearchResult().getName());
 			return episodes;
 		}
 		
-
+		
 		@Override
 		public URI getLink() {
-			if (request.getSeason() != ALL_SEASONS) {
-				return request.getProvider().getEpisodeListLink(getSearchResult(), request.getSeason());
-			}
-			
-			return request.getProvider().getEpisodeListLink(getSearchResult());
+			return request.provider.getEpisodeListLink(getSearchResult());
 		}
 		
-
+		
 		@Override
 		public void process(Collection<Episode> episodes) {
 			// set a proper title for the export handler before adding episodes
@@ -256,35 +249,35 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			getComponent().getModel().addAll(episodes);
 		}
 		
-
+		
 		@Override
 		public String getStatusMessage(Collection<Episode> result) {
 			return (result.isEmpty()) ? "No episodes found" : String.format("%d episodes", result.size());
 		}
 		
-
+		
 		@Override
 		public EpisodeListTab getComponent() {
 			return (EpisodeListTab) super.getComponent();
 		}
 		
-
+		
 		@Override
 		public String getTitle() {
-			if (request.getSeason() == ALL_SEASONS)
+			if (request.season == ALL_SEASONS)
 				return super.getTitle();
 			
 			// add additional information to default title
-			return String.format("%s - Season %d", super.getTitle(), request.getSeason());
+			return String.format("%s - Season %d", super.getTitle(), request.season);
 		}
 		
-
+		
 		@Override
 		public Icon getIcon() {
-			return request.getProvider().getIcon();
+			return request.provider.getIcon();
 		}
 		
-
+		
 		@Override
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			super.configureSelectDialog(selectDialog);
@@ -293,7 +286,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 	}
 	
-
+	
 	protected static class EpisodeListTab extends FileBotList<Episode> {
 		
 		public EpisodeListTab() {
@@ -311,14 +304,14 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 	}
 	
-
+	
 	protected static class EpisodeListExportHandler extends FileBotListExportHandler implements ClipboardHandler {
 		
 		public EpisodeListExportHandler(FileBotList<Episode> list) {
 			super(list);
 		}
 		
-
+		
 		@Override
 		public Transferable createTransferable(JComponent c) {
 			Transferable episodeArray = new ArrayTransferable<Episode>(list.getModel().toArray(new Episode[0]));
@@ -327,7 +320,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			return new CompositeTranserable(episodeArray, textFile);
 		}
 		
-
+		
 		@Override
 		public void exportToClipboard(JComponent c, Clipboard clipboard, int action) throws IllegalStateException {
 			Object[] selection = list.getListComponent().getSelectedValues();

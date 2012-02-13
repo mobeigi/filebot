@@ -96,7 +96,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale language) throws Exception {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
 		
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
@@ -145,25 +145,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		int aid = ((AnidbSearchResult) searchResult).getAnimeId();
-		
 		try {
-			return new URI("http", host, "/a" + aid, null);
+			return new URI("http", host, "/a" + ((AnidbSearchResult) searchResult).getAnimeId(), null);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season, Locale locale) throws Exception {
-		throw new UnsupportedOperationException();
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		return null;
 	}
 	
 	

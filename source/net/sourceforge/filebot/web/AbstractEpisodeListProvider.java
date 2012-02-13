@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +30,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	protected abstract List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception;
 	
 	
-	protected abstract List<Episode> fetchEpisodeList(SearchResult searchResult, Locale locale) throws Exception;
+	protected abstract List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception;
 	
 	
 	public List<SearchResult> search(String query) throws Exception {
@@ -56,40 +54,22 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	
 	
 	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeList(searchResult, getDefaultLocale());
+		return getEpisodeList(searchResult, SortOrder.Airdate, getDefaultLocale());
 	}
 	
 	
-	public List<Episode> getEpisodeList(SearchResult searchResult, Locale locale) throws Exception {
+	public List<Episode> getEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		ResultCache cache = getCache();
-		List<Episode> episodes = (cache != null) ? cache.getEpisodeList(searchResult, locale) : null;
+		List<Episode> episodes = (cache != null) ? cache.getEpisodeList(searchResult, sortOrder, locale) : null;
 		if (episodes != null) {
 			return episodes;
 		}
 		
 		// perform actual search
-		episodes = fetchEpisodeList(searchResult, locale);
+		episodes = fetchEpisodeList(searchResult, sortOrder, locale);
 		
 		// cache results and return
-		return (cache != null) ? cache.putEpisodeList(searchResult, locale, episodes) : episodes;
-	}
-	
-	
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season) throws Exception {
-		return getEpisodeList(searchResult, season, getDefaultLocale());
-	}
-	
-	
-	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, int season, Locale locale) throws Exception {
-		List<Episode> all = getEpisodeList(searchResult, locale);
-		List<Episode> eps = filterBySeason(all, season);
-		
-		if (eps.isEmpty()) {
-			throw new SeasonOutOfBoundsException(searchResult.getName(), season, getLastSeason(all));
-		}
-		
-		return eps;
+		return (cache != null) ? cache.putEpisodeList(searchResult, sortOrder, locale, episodes) : episodes;
 	}
 	
 	
@@ -145,9 +125,9 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		}
 		
 		
-		public List<Episode> putEpisodeList(SearchResult key, Locale locale, List<Episode> episodes) {
+		public List<Episode> putEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale, List<Episode> episodes) {
 			try {
-				cache.put(new Element(new Key(id, key, locale), episodes.toArray(new Episode[0])));
+				cache.put(new Element(new Key(id, key, sortOrder, locale), episodes.toArray(new Episode[0])));
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
@@ -156,9 +136,9 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		}
 		
 		
-		public List<Episode> getEpisodeList(SearchResult key, Locale locale) {
+		public List<Episode> getEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale) {
 			try {
-				Element element = cache.get(new Key(id, key, locale));
+				Element element = cache.get(new Key(id, key, sortOrder, locale));
 				if (element != null) {
 					return Arrays.asList((Episode[]) element.getValue());
 				}

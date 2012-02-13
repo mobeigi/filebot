@@ -43,6 +43,7 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SortOrder;
 
 
 class EpisodeListMatcher implements AutoCompleteMatcher {
@@ -119,7 +120,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final Locale locale, final Component parent) throws Exception {
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final SortOrder sortOrder, final Locale locale, final Component parent) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
@@ -135,7 +136,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 						SearchResult selectedSearchResult = selectSearchResult(query, results, parent);
 						
 						if (selectedSearchResult != null) {
-							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, locale);
+							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
 							Analytics.trackEvent(provider.getName(), "FetchEpisodeList", selectedSearchResult.getName());
 							
 							return episodes;
@@ -168,9 +169,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	
 	
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
 		// focus on movie and subtitle files
-		final List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);;
+		final List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// assume that many shows will be matched, do it folder by folder
 		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
@@ -192,7 +193,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					@Override
 					public List<Match<File, ?>> call() throws Exception {
-						return matchEpisodeSet(batchSet, locale, autodetection, parent);
+						return matchEpisodeSet(batchSet, sortOrder, locale, autodetection, parent);
 					}
 				});
 			}
@@ -217,7 +218,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Locale locale, boolean autodetection, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, SortOrder sortOrder, Locale locale, boolean autodetection, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
@@ -226,7 +227,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (names.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(names, locale, parent);
+					episodes = fetchEpisodeSet(names, sortOrder, locale, parent);
 				}
 			}
 		}
@@ -250,7 +251,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(input, locale, parent);
+					episodes = fetchEpisodeSet(input, sortOrder, locale, parent);
 				}
 			}
 		}

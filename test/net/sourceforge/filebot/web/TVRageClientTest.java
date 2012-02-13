@@ -18,7 +18,7 @@ public class TVRageClientTest {
 	 */
 	private static TVRageSearchResult buffySearchResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
 	
-
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = tvrage.search("Buffy");
@@ -30,13 +30,13 @@ public class TVRageClientTest {
 		assertEquals(buffySearchResult.getLink(), result.getLink());
 	}
 	
-
+	
 	private TVRageClient tvrage = new TVRageClient();
 	
-
+	
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = tvrage.getEpisodeList(buffySearchResult, 7);
+		List<Episode> list = EpisodeUtilities.filterBySeason(tvrage.getEpisodeList(buffySearchResult), 7);
 		
 		assertEquals(22, list.size());
 		
@@ -51,36 +51,24 @@ public class TVRageClientTest {
 		assertEquals("2003-05-20", chosen.airdate().toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListAll() throws Exception {
 		List<Episode> list = tvrage.getEpisodeList(buffySearchResult);
 		
-		assertEquals(145, list.size());
+		assertEquals(144, list.size());
 		
 		Episode first = list.get(0);
 		
 		assertEquals("Buffy the Vampire Slayer", first.getSeriesName());
-		assertEquals("Unaired Pilot", first.getTitle());
-		assertEquals("0", first.getEpisode().toString());
-		assertEquals("0", first.getSeason().toString());
+		assertEquals("Welcome to the Hellmouth (1)", first.getTitle());
+		assertEquals("1", first.getEpisode().toString());
+		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute());
-		assertEquals(null, first.airdate());
+		assertEquals("1997-03-10", first.airdate().toString());
 	}
 	
-
-	@Test(expected = SeasonOutOfBoundsException.class)
-	public void getEpisodeListIllegalSeason() throws Exception {
-		tvrage.getEpisodeList(buffySearchResult, 42);
-	}
 	
-
-	@Test
-	public void getEpisodeListLink() throws Exception {
-		assertEquals(tvrage.getEpisodeListLink(buffySearchResult, 1).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/1");
-	}
-	
-
 	@Test
 	public void getEpisodeListLinkAll() throws Exception {
 		assertEquals(tvrage.getEpisodeListLink(buffySearchResult).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/all");

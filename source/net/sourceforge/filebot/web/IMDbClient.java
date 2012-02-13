@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,7 +76,6 @@ public class IMDbClient implements MovieIdentificationService {
 				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
 			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
 			}
 		}
 		

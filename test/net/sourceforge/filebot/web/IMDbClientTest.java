@@ -18,7 +18,6 @@ public class IMDbClientTest {
 	public void searchMovie() throws Exception {
 		List<Movie> results = imdb.searchMovie("Avatar", null);
 		
-		assertEquals(26, results.size());
 		Movie movie = (Movie) results.get(0);
 		
 		assertEquals("Avatar", movie.getName());

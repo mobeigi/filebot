@@ -109,9 +109,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale language) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		
 		Document seriesRecord = getSeriesRecord(series, language);
 		
 		// we could get the series name from the search result, but the language may not match the given parameter
@@ -130,17 +129,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			Integer absoluteNumber = getIntegerContent("absolute_number", node);
 			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 			
-			// prefer DVD SxE numbers if available
-			Integer seasonNumber;
-			Integer episodeNumber;
-			
-			try {
-				seasonNumber = new Integer(dvdSeasonNumber);
-				episodeNumber = new Float(dvdEpisodeNumber).intValue();
-			} catch (Exception e) {
-				seasonNumber = getIntegerContent("SeasonNumber", node);
-				episodeNumber = getIntegerContent("EpisodeNumber", node);
-			}
+			// default numbering
+			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
+			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
 			
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
@@ -154,6 +145,20 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate));
 			} else {
 				// handle as normal episode
+				if (sortOrder == SortOrder.Absolute) {
+					if (absoluteNumber != null) {
+						episodeNumber = absoluteNumber;
+						seasonNumber = null;
+					}
+				} else if (sortOrder == SortOrder.DVD) {
+					try {
+						episodeNumber = new Float(dvdEpisodeNumber).intValue();
+						seasonNumber = new Integer(dvdSeasonNumber);
+					} catch (Exception e) {
+						// ignore, fallback to default numbering
+					}
+				}
+				
 				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
 			}
 		}
@@ -237,28 +242,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
-		
-		return URI.create("http://" + host + "/?tab=seasonall&id=" + seriesId);
-	}
-	
-	
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult, int season) {
-		int seriesId = ((TheTVDBSearchResult) searchResult).getSeriesId();
-		
-		try {
-			// get episode xml from first episode of given season
-			Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + seriesId + "/default/" + season + "/1/en.xml"));
-			int seasonId = Integer.valueOf(selectString("Data/Episode/seasonid", dom));
-			
-			return new URI("http://" + host + "/?tab=season&seriesid=" + seriesId + "&seasonid=" + seasonId);
-		} catch (Exception e) {
-			// log and ignore any IOException
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve season id", e);
-		}
-		
-		return null;
+		return URI.create("http://" + host + "/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
 	}
 	
 	

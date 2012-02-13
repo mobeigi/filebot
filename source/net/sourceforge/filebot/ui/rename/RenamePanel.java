@@ -25,13 +25,17 @@ import javax.swing.Action;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.TitledBorder;
 
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
@@ -49,6 +53,7 @@ import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
@@ -71,8 +76,9 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
+	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 	
-
+	
 	public RenamePanel() {
 		namesList.setTitle("New Names");
 		namesList.setTransferablePolicy(new NamesListTransferablePolicy(renameModel.values()));
@@ -152,7 +158,7 @@ public class RenamePanel extends JComponent {
 		add(new LoadingOverlayPane(namesList, namesList, "32px", "30px"), "grow, sizegroupx list");
 	}
 	
-
+	
 	protected ActionPopup createFetchPopup() {
 		final ActionPopup actionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
 		
@@ -203,8 +209,9 @@ public class RenamePanel extends JComponent {
 				languages.addAll(Language.preferredLanguages()); // add preferred languages first
 				languages.addAll(Language.availableLanguages()); // then others
 				
-				JList message = new JList(languages.toArray());
-				message.setCellRenderer(new DefaultListCellRenderer() {
+				JComboBox orderCombo = new JComboBox(SortOrder.values());
+				JList languageList = new JList(languages.toArray());
+				languageList.setCellRenderer(new DefaultListCellRenderer() {
 					
 					@Override
 					public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -214,19 +221,33 @@ public class RenamePanel extends JComponent {
 					}
 				});
 				
-				// pre-select current language preferences
+				// pre-select current preferences
+				try {
+					orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
+				} catch (IllegalArgumentException e) {
+					// ignore
+				}
 				for (Language language : languages) {
 					if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
-						message.setSelectedValue(language, true);
+						languageList.setSelectedValue(language, true);
 						break;
 					}
 				}
 				
-				JOptionPane pane = new JOptionPane(new JScrollPane(message), PLAIN_MESSAGE, OK_CANCEL_OPTION);
-				pane.createDialog(getWindowAncestor(RenamePanel.this), "Language Preference").setVisible(true);
+				JScrollPane spLanguageList = new JScrollPane(languageList);
+				spLanguageList.setBorder(new CompoundBorder(new TitledBorder("Preferred Language"), spLanguageList.getBorder()));
+				JScrollPane spOrderCombo = new JScrollPane(orderCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				spOrderCombo.setBorder(new CompoundBorder(new TitledBorder("Preferred Episode Order"), spOrderCombo.getBorder()));
+				
+				JPanel message = new JPanel(new MigLayout("fill, flowy, insets 0"));
+				message.add(spLanguageList, "grow");
+				message.add(spOrderCombo, "grow, hmin 24px");
+				JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, OK_CANCEL_OPTION);
+				pane.createDialog(getWindowAncestor(RenamePanel.this), "Preferences").setVisible(true);
 				
 				if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
-					persistentPreferredLanguage.setValue(((Language) message.getSelectedValue()).getCode());
+					persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
+					persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
 				}
 			}
 		});
@@ -234,7 +255,7 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
-
+	
 	protected ActionPopup createSettingsPopup() {
 		ActionPopup actionPopup = new ActionPopup("Rename Options", ResourceManager.getIcon("action.rename.small"));
 		
@@ -269,7 +290,7 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
-
+	
 	protected final Action showPopupAction = new AbstractAction("Show Popup") {
 		
 		@Override
@@ -284,18 +305,18 @@ public class RenamePanel extends JComponent {
 		}
 	};
 	
-
+	
 	protected class PreserveExtensionAction extends AbstractAction {
 		
 		private final boolean activate;
 		
-
+		
 		private PreserveExtensionAction(boolean activate, String name, Icon icon) {
 			super(name, icon);
 			this.activate = activate;
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			renameModel.setPreserveExtension(activate);
@@ -311,12 +332,12 @@ public class RenamePanel extends JComponent {
 		}
 	}
 	
-
+	
 	protected class AutoCompleteAction extends AbstractAction {
 		
 		private final AutoCompleteMatcher matcher;
 		
-
+		
 		public AutoCompleteAction(String name, Icon icon, AutoCompleteMatcher matcher) {
 			super(name, icon);
 			
@@ -333,7 +354,7 @@ public class RenamePanel extends JComponent {
 			});
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(final ActionEvent evt) {
 			if (renameModel.files().isEmpty()) {
@@ -349,13 +370,14 @@ public class RenamePanel extends JComponent {
 			SwingWorker<List<Match<File, ?>>, Void> worker = new SwingWorker<List<Match<File, ?>>, Void>() {
 				
 				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
+				private final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
 				private final Locale locale = new Locale(persistentPreferredLanguage.getValue());
 				private final boolean autodetection = !isShiftDown(evt); // skip name auto-detection if SHIFT is pressed
 				
 				
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles, locale, autodetection, getWindow(RenamePanel.this));
+					List<Match<File, ?>> matches = matcher.match(remainingFiles, order, locale, autodetection, getWindow(RenamePanel.this));
 					
 					// remove matched files
 					for (Match<File, ?> match : matches) {
@@ -365,7 +387,7 @@ public class RenamePanel extends JComponent {
 					return matches;
 				}
 				
-
+				
 				@Override
 				protected void done() {
 					try {

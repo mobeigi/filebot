@@ -43,6 +43,7 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
+import net.sourceforge.filebot.web.SortOrder;
 
 
 class MovieHashMatcher implements AutoCompleteMatcher {
@@ -56,7 +57,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 	
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		// handle movie files
 		List<File> movieFiles = filter(files, VIDEO_FILES);
 		

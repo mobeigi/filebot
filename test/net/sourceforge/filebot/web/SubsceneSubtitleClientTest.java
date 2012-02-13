@@ -30,7 +30,7 @@ public class SubsceneSubtitleClientTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks", "Twin Peaks - First Season (1990)", new URL("http://subscene.com/twin-peaks--first-season/subtitles-32482.aspx"));
+		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks", "Twin Peaks - First Season (1990)", new URL("http://subscene.com/Twin-Peaks-First-Season/subtitles-32482.aspx"));
 		lostSearchResult = new SubsceneSearchResult("Lost", "Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"));
 	}
 	
@@ -64,12 +64,11 @@ public class SubsceneSubtitleClientTest {
 	@Test
 	public void getSubtitleListSearchResult() throws Exception {
 		List<SubtitleDescriptor> subtitleList = subscene.getSubtitleList(twinpeaksSearchResult, "Italian");
-		assertEquals(1, subtitleList.size());
+		assertEquals(10, subtitleList.size());
 		
 		SubtitleDescriptor subtitle = subtitleList.get(0);
 		assertEquals("Twin Peaks - First Season", subtitle.getName());
 		assertEquals("Italian", subtitle.getLanguageName());
-		assertEquals("zip", subtitle.getType());
 	}
 	
 	

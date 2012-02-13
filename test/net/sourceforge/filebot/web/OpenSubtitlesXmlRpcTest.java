@@ -38,7 +38,7 @@ public class OpenSubtitlesXmlRpcTest {
 		Movie sample = (Movie) list.get(0);
 		
 		// check sample entry
-		assertEquals("\"Babylon 5\"", sample.getName());
+		assertEquals("Babylon 5", sample.getName());
 		assertEquals(1994, sample.getYear());
 		assertEquals(105946, sample.getImdbId());
 	}

@@ -43,7 +43,7 @@ public class ArgumentProcessor {
 		try {
 			// print episode info
 			if (args.list) {
-				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.lang)) {
+				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.order, args.lang)) {
 					System.out.println(eps);
 				}
 				return 0;
@@ -69,7 +69,7 @@ public class ArgumentProcessor {
 				}
 				
 				if (args.rename) {
-					cli.rename(files, args.query, args.format, args.db, args.lang, !args.nonStrict);
+					cli.rename(files, args.query, args.format, args.db, args.order, args.lang, !args.nonStrict);
 				}
 				
 				if (args.check) {

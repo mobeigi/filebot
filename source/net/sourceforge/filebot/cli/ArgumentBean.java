@@ -28,6 +28,9 @@ public class ArgumentBean {
 	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, TheMovieDB]")
 	public String db;
 	
+	@Option(name = "--order", usage = "Episode order", metaVar = "[Default, Absolute, DVD]")
+	public String order = "Airdate";
+	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
 	public String format;
 	

@@ -15,13 +15,13 @@ public final class EpisodeUtilities {
 		return name.replaceAll("[(]([^)]*)[)]", "").trim();
 	}
 	
-
+	
 	public static List<Episode> filterBySeason(Iterable<Episode> episodes, int season) {
 		List<Episode> results = new ArrayList<Episode>(25);
 		
 		// filter given season from all seasons
 		for (Episode episode : episodes) {
-			if (season == episode.getSeason()) {
+			if (episode.getSeason() != null && season == episode.getSeason()) {
 				results.add(episode);
 			}
 		}
@@ -29,7 +29,7 @@ public final class EpisodeUtilities {
 		return results;
 	}
 	
-
+	
 	public static int getLastSeason(Iterable<Episode> episodes) {
 		int lastSeason = 0;
 		
@@ -43,12 +43,12 @@ public final class EpisodeUtilities {
 		return lastSeason;
 	}
 	
-
+	
 	public static void sortEpisodes(List<Episode> episodes) {
 		Collections.sort(episodes, episodeComparator());
 	}
 	
-
+	
 	public static Comparator<Episode> episodeComparator() {
 		return new Comparator<Episode>() {
 			
@@ -69,7 +69,7 @@ public final class EpisodeUtilities {
 				return compareValue(a.getTitle(), b.getTitle());
 			}
 			
-
+			
 			private <T> int compareValue(Comparable<T> o1, T o2) {
 				if (o1 == null && o2 == null)
 					return 0;
@@ -83,7 +83,7 @@ public final class EpisodeUtilities {
 		};
 	}
 	
-
+	
 	private EpisodeUtilities() {
 		throw new UnsupportedOperationException();
 	}

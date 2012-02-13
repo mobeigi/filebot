@@ -21,14 +21,14 @@ public class SublightSubtitleClientTest {
 	
 	private static SublightSubtitleClient client = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
 	
-
+	
 	@BeforeClass
 	public static void login() {
 		// login manually
 		client.login();
 	}
 	
-
+	
 	@Test
 	public void search() {
 		List<SearchResult> list = client.search("babylon 5");
@@ -43,21 +43,19 @@ public class SublightSubtitleClientTest {
 		assertEquals(8, list.size());
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListEnglish() {
 		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Heroes", 2006, 813715), "English");
 		
 		SubtitleDescriptor sample = list.get(0);
-		
-		assertTrue(sample.getName().startsWith("Heroes"));
 		assertEquals("English", sample.getLanguageName());
 		
 		// check size
 		assertTrue(list.size() > 45);
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListAllLanguages() {
 		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064), null);
@@ -71,7 +69,7 @@ public class SublightSubtitleClientTest {
 		assertTrue(list.size() > 15);
 	}
 	
-
+	
 	@Test
 	public void getSubtitleListVideoHash() throws Exception {
 		List<Subtitle> list = client.getSubtitleList("001c6e0000320458004ee6f6859e5b7844767d44336e5624edbb", null, null, "English");
@@ -82,7 +80,7 @@ public class SublightSubtitleClientTest {
 		assertEquals(true, sample.isIsLinked());
 	}
 	
-
+	
 	@Test
 	public void getZipArchive() throws Exception {
 		Subtitle subtitle = new Subtitle();
@@ -103,7 +101,7 @@ public class SublightSubtitleClientTest {
 		}
 	}
 	
-
+	
 	@AfterClass
 	public static void logout() {
 		// logout manually

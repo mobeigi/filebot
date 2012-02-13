@@ -66,6 +66,7 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -74,7 +75,7 @@ import net.sourceforge.filebot.web.VideoHashSubtitleService;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public List<File> rename(Collection<File> files, String query, String expression, String db, String languageName, boolean strict) throws Exception {
+	public List<File> rename(Collection<File> files, String query, String expression, String db, String sortOrder, String languageName, boolean strict) throws Exception {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		Locale locale = getLanguage(languageName).toLocale();
 		
@@ -85,7 +86,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		if (getEpisodeListProvider(db) != null) {
 			// tv series mode
-			return renameSeries(files, query, format, getEpisodeListProvider(db), locale, strict);
+			return renameSeries(files, query, format, getEpisodeListProvider(db), SortOrder.forName(sortOrder), locale, strict);
 		}
 		
 		if (getMovieIdentificationService(db) != null) {
@@ -121,14 +122,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
-			return renameSeries(files, query, format, getEpisodeListProviders()[0], locale, strict); // use default episode db
+			return renameSeries(files, query, format, getEpisodeListProviders()[0], SortOrder.forName(sortOrder), locale, strict); // use default episode db
 		} else {
 			return renameMovie(files, query, format, getMovieIdentificationServices()[0], locale, strict); // use default movie db
 		}
 	}
 	
 	
-	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
@@ -153,7 +154,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				Collection<String> seriesNames = (query == null) ? detectQuery(batch, locale, strict) : singleton(query);
 				
 				// fetch episode data
-				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, locale, strict);
+				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				
 				if (episodes.size() > 0) {
 					matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
@@ -204,7 +205,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final Locale locale, final boolean strict) throws Exception {
+	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
@@ -223,7 +224,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							List<Episode> episodes = new ArrayList<Episode>();
 							for (SearchResult it : selectedSearchResults) {
 								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
-								episodes.addAll(db.getEpisodeList(it, locale));
+								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
 								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
 							}
 							
@@ -862,16 +863,17 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	@Override
-	public List<String> fetchEpisodeList(String query, String expression, String db, String languageName) throws Exception {
+	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String languageName) throws Exception {
 		// find series on the web and fetch episode list
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		EpisodeListProvider service = (db == null) ? TVRage : getEpisodeListProvider(db);
+		SortOrder sortOrder = SortOrder.forName(sortOrderName);
 		Locale locale = getLanguage(languageName).toLocale();
 		
 		SearchResult hit = selectSearchResult(query, service.search(query, locale), false).get(0);
 		List<String> episodes = new ArrayList<String>();
 		
-		for (Episode it : service.getEpisodeList(hit, locale)) {
+		for (Episode it : service.getEpisodeList(hit, sortOrder, locale)) {
 			String name = (format != null) ? format.format(new MediaBindingBean(it, null)) : EpisodeFormat.SeasonEpisode.format(it);
 			episodes.add(name);
 		}

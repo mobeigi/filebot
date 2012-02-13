@@ -83,9 +83,7 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getEpisodeListSingleSeason() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845), 1);
-		
-		assertEquals(14, list.size());
+		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Wonderfalls", 78845));
 		
 		Episode first = list.get(0);
 		
@@ -101,9 +99,7 @@ public class TheTVDBClientTest {
 	
 	@Test
 	public void getEpisodeListNumbering() throws Exception {
-		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Firefly", 78874), 1);
-		
-		assertEquals(14, list.size());
+		List<Episode> list = thetvdb.getEpisodeList(new TheTVDBSearchResult("Firefly", 78874), SortOrder.DVD, Locale.ENGLISH);
 		
 		Episode first = list.get(0);
 		assertEquals("Firefly", first.getSeriesName());
@@ -119,12 +115,6 @@ public class TheTVDBClientTest {
 	@Test
 	public void getEpisodeListLink() {
 		assertEquals("http://www.thetvdb.com/?tab=seasonall&id=78874", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Firefly", 78874)).toString());
-	}
-	
-	
-	@Test
-	public void getEpisodeListLinkSingleSeason() {
-		assertEquals("http://www.thetvdb.com/?tab=season&seriesid=73965&seasonid=6749", thetvdb.getEpisodeListLink(new TheTVDBSearchResult("Roswell", 73965), 3).toString());
 	}
 	
 	
@@ -153,15 +143,15 @@ public class TheTVDBClientTest {
 	public void lookupByID() throws Exception {
 		TheTVDBSearchResult series = thetvdb.lookupByID(78874, Locale.ENGLISH);
 		assertEquals("Firefly", series.getName());
-		assertEquals(70726, series.getSeriesId());
+		assertEquals(78874, series.getSeriesId());
 	}
 	
 	
 	@Test
 	public void lookupByIMDbID() throws Exception {
-		TheTVDBSearchResult series = thetvdb.lookupByIMDbID(78874, Locale.ENGLISH);
+		TheTVDBSearchResult series = thetvdb.lookupByIMDbID(303461, Locale.ENGLISH);
 		assertEquals("Firefly", series.getName());
-		assertEquals(70726, series.getSeriesId());
+		assertEquals(78874, series.getSeriesId());
 	}
 	
 	
@@ -179,9 +169,6 @@ public class TheTVDBClientTest {
 		assertEquals(310, it.getOverview().length());
 		assertEquals("60", it.getRuntime());
 		assertEquals("Chuck", it.getName());
-		assertEquals("http://thetvdb.com/banners/graphical/80348-g23.jpg", it.getBannerUrl().toString());
-		assertEquals("http://thetvdb.com/banners/fanart/original/80348-51.jpg", it.getFanartUrl().toString());
-		assertEquals("http://thetvdb.com/banners/posters/80348-16.jpg", it.getPosterUrl().toString());
 	}
 	
 	
