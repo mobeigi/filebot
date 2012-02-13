@@ -25,6 +25,7 @@ import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MoviePart;
+import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.FileUtilities;
 
 
@@ -314,6 +315,12 @@ public class MediaBindingBean {
 		}
 		
 		return metaInfo;
+	}
+	
+	
+	@Define("episodes")
+	public Object getEpisodeList() throws Exception {
+		return WebServices.TheTVDB.getEpisodeList(WebServices.TheTVDB.search(getEpisode().getSeriesName()).get(0), SortOrder.Airdate, Locale.ENGLISH);
 	}
 	
 	
