@@ -141,15 +141,38 @@ public class MediaDetection {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage(), e);
 		}
 		
-		// match common word sequence and clean detected word sequence from unwanted elements
-		Collection<String> matches = new SeriesNameMatcher(getLenientCollator(locale)).matchAll(files.toArray(new File[files.size()]));
+		// cross-reference known series names against file structure
+		try {
+			Set<String> folders = new LinkedHashSet<String>();
+			for (File f : files) {
+				for (int i = 0; i < 3 && f != null; i++, f = f.getParentFile()) {
+					if (i != 0) {
+						folders.add(f.getName());
+					}
+				}
+			}
+			
+			// match know name from filename if there is not enough context for CWS matching
+			if (files.size() == 1) {
+				folders.add(files.iterator().next().getName());
+			}
+			
+			// match folder names against known series names
+			for (TheTVDBSearchResult match : matchSeriesByName(folders.toArray(new String[0]))) {
+				names.put(match.getName().toLowerCase(), match.getName());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
+		}
 		
+		// match common word sequence and clean detected word sequence from unwanted elements
+		SeriesNameMatcher matcher = new SeriesNameMatcher(getLenientCollator(locale));
+		Collection<String> matches = matcher.matchAll(files.toArray(new File[files.size()]));
 		try {
 			matches = stripReleaseInfo(matches, true);
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
 		}
-		
 		for (String it : matches) {
 			names.put(it.toLowerCase(), it);
 		}
@@ -158,8 +181,8 @@ public class MediaDetection {
 	}
 	
 	
-	public static Collection<TheTVDBSearchResult> detectSeriesByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+	public static Collection<TheTVDBSearchResult> matchSeriesByName(String... names) throws Exception {
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(1);
 		final Map<TheTVDBSearchResult, String> matchMap = new HashMap<TheTVDBSearchResult, String>();
 		
 		for (final TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
@@ -186,8 +209,8 @@ public class MediaDetection {
 	}
 	
 	
-	public static Collection<AnidbSearchResult> detectAnimeByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+	public static Collection<AnidbSearchResult> matchAnimeByName(String... names) throws Exception {
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(1);
 		final Map<AnidbSearchResult, String> matchMap = new HashMap<AnidbSearchResult, String>();
 		
 		for (final AnidbSearchResult entry : WebServices.AniDB.getAnimeTitles()) {
@@ -272,7 +295,7 @@ public class MediaDetection {
 	
 	private static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
 		// cross-reference file / folder name with movie list
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher();
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(3);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
 		
 		for (final Movie movie : releaseInfo.getMovieList()) {
@@ -438,8 +461,8 @@ public class MediaDetection {
 		private static final Map<String, String> transformCache = synchronizedMap(new WeakHashMap<String, String>(65536));
 		
 		
-		public HighPerformanceMatcher() {
-			super(String.CASE_INSENSITIVE_ORDER); // 3-4x faster than a Collator 
+		public HighPerformanceMatcher(int commonWordSequenceMaxStartIndex) {
+			super(String.CASE_INSENSITIVE_ORDER, commonWordSequenceMaxStartIndex); // 3-4x faster than a Collator 
 		}
 		
 		
