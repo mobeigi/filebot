@@ -182,7 +182,7 @@ public class MediaDetection {
 	
 	
 	public static Collection<TheTVDBSearchResult> matchSeriesByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(1);
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
 		final Map<TheTVDBSearchResult, String> matchMap = new HashMap<TheTVDBSearchResult, String>();
 		
 		for (final TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
@@ -210,7 +210,7 @@ public class MediaDetection {
 	
 	
 	public static Collection<AnidbSearchResult> matchAnimeByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(1);
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
 		final Map<AnidbSearchResult, String> matchMap = new HashMap<AnidbSearchResult, String>();
 		
 		for (final AnidbSearchResult entry : WebServices.AniDB.getAnimeTitles()) {
