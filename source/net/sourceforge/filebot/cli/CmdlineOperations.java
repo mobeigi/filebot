@@ -266,20 +266,21 @@ public class CmdlineOperations implements CmdlineInterface {
 		// handle movie files
 		List<File> movieFiles = filter(files, VIDEO_FILES);
 		
+		List<File> standaloneFiles = new ArrayList<File>(files);
+		standaloneFiles.removeAll(movieFiles);
+		
 		Map<File, List<File>> derivatesByMovieFile = new HashMap<File, List<File>>();
 		for (File movieFile : movieFiles) {
 			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
-		for (File file : files) {
+		for (File file : standaloneFiles) {
 			for (File movieFile : movieFiles) {
-				if (!file.equals(movieFile) && isDerived(file, movieFile)) {
+				if (isDerived(file, movieFile)) {
 					derivatesByMovieFile.get(movieFile).add(file);
 					break;
 				}
 			}
 		}
-		
-		List<File> standaloneFiles = new ArrayList<File>(files);
 		for (List<File> derivates : derivatesByMovieFile.values()) {
 			standaloneFiles.removeAll(derivates);
 		}

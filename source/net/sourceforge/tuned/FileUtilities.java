@@ -253,7 +253,9 @@ public final class FileUtilities {
 	
 	
 	public static boolean isDerived(String derivate, File prime) {
-		String base = getName(prime).trim().toLowerCase();
+		String withoutTypeSuffix = getNameWithoutExtension(prime.getName());
+		String withoutPartSuffix = getNameWithoutExtension(withoutTypeSuffix);
+		String base = (withoutPartSuffix.length() > 2 ? withoutPartSuffix : withoutTypeSuffix).trim().toLowerCase();
 		derivate = derivate.trim().toLowerCase();
 		return derivate.startsWith(base);
 	}
