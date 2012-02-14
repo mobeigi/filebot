@@ -382,6 +382,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
+	public SeriesInfo getSeriesInfoByID(int thetvdbid, Locale locale) throws Exception {
+		return getSeriesInfo(new TheTVDBSearchResult(null, thetvdbid), locale);
+	}
+	
+	
 	public SeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
 		return getSeriesInfo(lookupByIMDbID(imdbid, locale), locale);
 	}

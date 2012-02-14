@@ -42,6 +42,7 @@ import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 
@@ -439,6 +440,16 @@ public class MediaDetection {
 		}
 		
 		return collection;
+	}
+	
+	
+	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {
+		return resolver.getMovieDescriptor(grepImdbId(new String(readFile(nfo), "UTF-8")).iterator().next(), locale);
+	}
+	
+	
+	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
+		return WebServices.TheTVDB.getSeriesInfoByID(grepTheTvdbId(new String(readFile(nfo), "UTF-8")).iterator().next(), locale);
 	}
 	
 	

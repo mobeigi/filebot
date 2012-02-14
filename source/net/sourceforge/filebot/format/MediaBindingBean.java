@@ -378,6 +378,12 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("folder")
+	public File getMediaParentFolder() {
+		return mediaFile.getParentFile();
+	}
+	
+	
 	@Define("home")
 	public File getUserHome() throws IOException {
 		return new File(System.getProperty("user.home"));

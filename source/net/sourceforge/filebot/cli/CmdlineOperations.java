@@ -29,6 +29,7 @@ import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -266,15 +267,17 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// handle movie files
 		List<File> movieFiles = filter(files, VIDEO_FILES);
+		List<File> nfoFiles = filter(files, MediaTypes.getDefaultFilter("application/nfo"));
 		
-		List<File> standaloneFiles = new ArrayList<File>(files);
-		standaloneFiles.removeAll(movieFiles);
+		List<File> orphanedFiles = new ArrayList<File>(filter(files, FILES));
+		orphanedFiles.removeAll(movieFiles);
+		orphanedFiles.removeAll(nfoFiles);
 		
 		Map<File, List<File>> derivatesByMovieFile = new HashMap<File, List<File>>();
 		for (File movieFile : movieFiles) {
 			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
-		for (File file : standaloneFiles) {
+		for (File file : orphanedFiles) {
 			for (File movieFile : movieFiles) {
 				if (isDerived(file, movieFile)) {
 					derivatesByMovieFile.get(movieFile).add(file);
@@ -283,41 +286,49 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 		for (List<File> derivates : derivatesByMovieFile.values()) {
-			standaloneFiles.removeAll(derivates);
+			orphanedFiles.removeAll(derivates);
 		}
-		
-		List<File> movieMatchFiles = new ArrayList<File>();
-		movieMatchFiles.addAll(movieFiles);
-		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
-		movieMatchFiles.addAll(filter(standaloneFiles, SUBTITLE_FILES));
-		
-		// map movies to (possibly multiple) files (in natural order) 
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// match movie hashes online
-		Map<File, Movie> movieByFile = new HashMap<File, Movie>();
-		if (query == null && movieFiles.size() > 0) {
-			try {
-				CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
-				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
-				movieByFile.putAll(hashLookup);
-				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
-			} catch (UnsupportedOperationException e) {
-				CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
+		final Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		if (query == null) {
+			if (movieFiles.size() > 0) {
+				try {
+					CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
+					Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
+					movieByFile.putAll(hashLookup);
+					Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
+				} catch (UnsupportedOperationException e) {
+					CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
+				}
 			}
-		}
-		
-		if (query != null) {
+			for (File nfo : nfoFiles) {
+				try {
+					movieByFile.put(nfo, grepMovie(nfo, service, locale));
+				} catch (NoSuchElementException e) {
+					CLILogger.warning("Failed to grep IMDbID: " + nfo.getName());
+				}
+			}
+		} else {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
 			Movie result = (Movie) selectSearchResult(query, service.searchMovie(query, locale), strict).get(0);
 			// force all mappings
-			for (File file : movieMatchFiles) {
+			for (File file : files) {
 				movieByFile.put(file, result);
 			}
 		}
 		
+		List<File> movieMatchFiles = new ArrayList<File>();
+		movieMatchFiles.addAll(movieFiles);
+		movieMatchFiles.addAll(nfoFiles);
+		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
+		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
+		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
+		
 		// map all files by movie
-		for (File file : movieMatchFiles) {
+		for (final File file : movieMatchFiles) {
 			Movie movie = movieByFile.get(file);
 			
 			// unknown hash, try via imdb id from nfo file
@@ -345,29 +356,26 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 		
-		// collect all File / MoviePart matches
+		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		for (Entry<Movie, SortedSet<File>> entry : filesByMovie.entrySet()) {
-			Movie movie = entry.getKey();
-			
-			int partIndex = 0;
-			int partCount = entry.getValue().size();
-			
-			// add all movie parts
-			for (File file : entry.getValue()) {
-				Movie part = movie;
-				if (partCount > 1) {
-					part = new MoviePart(movie, ++partIndex, partCount);
-				}
-				
-				matches.add(new Match<File, Movie>(file, part));
-				
-				// automatically add matches for derivates
-				List<File> derivates = derivatesByMovieFile.get(file);
-				if (derivates != null) {
-					for (File derivate : derivates) {
-						matches.add(new Match<File, Movie>(derivate, part));
+			for (List<File> fileSet : mapByExtension(entry.getValue()).values()) {
+				// resolve movie parts
+				for (int i = 0; i < fileSet.size(); i++) {
+					Movie moviePart = entry.getKey();
+					if (fileSet.size() > 1) {
+						moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
+					}
+					
+					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart));
+					
+					// automatically add matches for derivate files
+					List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
+					if (derivates != null) {
+						for (File derivate : derivates) {
+							matches.add(new Match<File, Movie>(derivate, moviePart));
+						}
 					}
 				}
 			}

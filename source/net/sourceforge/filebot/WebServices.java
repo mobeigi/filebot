@@ -27,7 +27,6 @@ public final class WebServices {
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
 	public static final AnidbClient AniDB = new AnidbClient(getApplicationName().toLowerCase(), 2);
-	public static final IMDbClient IMDb = new IMDbClient();
 	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApplicationProperty("thetvdb.apikey"));
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
 	
@@ -37,6 +36,7 @@ public final class WebServices {
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	
 	// movie dbs
+	public static final IMDbClient IMDb = new IMDbClient();
 	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
 	
 	

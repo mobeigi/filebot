@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,11 +31,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -60,15 +64,17 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		// handle movie files
 		List<File> movieFiles = filter(files, VIDEO_FILES);
+		List<File> nfoFiles = filter(files, MediaTypes.getDefaultFilter("application/nfo"));
 		
-		List<File> standaloneFiles = new ArrayList<File>(files);
-		standaloneFiles.removeAll(movieFiles);
+		List<File> orphanedFiles = new ArrayList<File>(filter(files, FILES));
+		orphanedFiles.removeAll(movieFiles);
+		orphanedFiles.removeAll(nfoFiles);
 		
 		Map<File, List<File>> derivatesByMovieFile = new HashMap<File, List<File>>();
 		for (File movieFile : movieFiles) {
 			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
-		for (File file : standaloneFiles) {
+		for (File file : orphanedFiles) {
 			for (File movieFile : movieFiles) {
 				if (isDerived(file, movieFile)) {
 					derivatesByMovieFile.get(movieFile).add(file);
@@ -77,22 +83,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		for (List<File> derivates : derivatesByMovieFile.values()) {
-			standaloneFiles.removeAll(derivates);
+			orphanedFiles.removeAll(derivates);
 		}
 		
-		List<File> movieMatchFiles = new ArrayList<File>();
-		movieMatchFiles.addAll(movieFiles);
-		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
-		movieMatchFiles.addAll(filter(standaloneFiles, SUBTITLE_FILES));
-		
-		// map movies to (possibly multiple) files (in natural order) 
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
-		
-		// match remaining movies file by file in parallel
-		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
-		
 		// match movie hashes online
-		Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		final Map<File, Movie> movieByFile = new HashMap<File, Movie>();
 		if (movieFiles.size() > 0) {
 			try {
 				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
@@ -102,27 +97,44 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// ignore
 			}
 		}
+		for (File nfo : nfoFiles) {
+			try {
+				movieByFile.put(nfo, grepMovie(nfo, service, locale));
+			} catch (NoSuchElementException e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName());
+			}
+		}
+		
+		// match remaining movies file by file in parallel
+		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
+		
+		List<File> movieMatchFiles = new ArrayList<File>();
+		movieMatchFiles.addAll(movieFiles);
+		movieMatchFiles.addAll(nfoFiles);
+		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
+		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
 		// map all files by movie
 		for (final File file : movieMatchFiles) {
-			final Movie movie = movieByFile.get(file);
 			grabMovieJobs.add(new Callable<Entry<File, Movie>>() {
 				
 				@Override
 				public Entry<File, Movie> call() throws Exception {
 					// unknown hash, try via imdb id from nfo file
-					if (movie == null || !autodetect) {
-						Movie result = grabMovieName(file, locale, autodetect, parent, movie);
+					if (!movieByFile.containsKey(file) || !autodetect) {
+						Movie result = grabMovieName(file, locale, autodetect, parent, movieByFile.get(file));
 						if (result != null) {
 							Analytics.trackEvent(service.getName(), "SearchMovie", result.toString(), 1);
 						}
 						return new SimpleEntry<File, Movie>(file, result);
 					}
-					
-					return new SimpleEntry<File, Movie>(file, null);
+					return new SimpleEntry<File, Movie>(file, movieByFile.get(file));
 				}
 			});
 		}
+		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		try {
@@ -134,12 +146,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// get file list for movie
 				if (movie != null) {
 					SortedSet<File> movieParts = filesByMovie.get(movie);
-					
 					if (movieParts == null) {
 						movieParts = new TreeSet<File>();
 						filesByMovie.put(movie, movieParts);
 					}
-					
 					movieParts.add(file);
 				}
 			}
@@ -151,25 +161,22 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		for (Entry<Movie, SortedSet<File>> entry : filesByMovie.entrySet()) {
-			Movie movie = entry.getKey();
-			
-			int partIndex = 0;
-			int partCount = entry.getValue().size();
-			
-			// add all movie parts
-			for (File file : entry.getValue()) {
-				Movie part = movie;
-				if (partCount > 1) {
-					part = new MoviePart(movie, ++partIndex, partCount);
-				}
-				
-				matches.add(new Match<File, Movie>(file, part));
-				
-				// automatically add matches for derivates
-				List<File> derivates = derivatesByMovieFile.get(file);
-				if (derivates != null) {
-					for (File derivate : derivates) {
-						matches.add(new Match<File, Movie>(derivate, part));
+			for (List<File> fileSet : mapByExtension(entry.getValue()).values()) {
+				// resolve movie parts
+				for (int i = 0; i < fileSet.size(); i++) {
+					Movie moviePart = entry.getKey();
+					if (fileSet.size() > 1) {
+						moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
+					}
+					
+					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart));
+					
+					// automatically add matches for derivate files
+					List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
+					if (derivates != null) {
+						for (File derivate : derivates) {
+							matches.add(new Match<File, Movie>(derivate, moviePart));
+						}
 					}
 				}
 			}

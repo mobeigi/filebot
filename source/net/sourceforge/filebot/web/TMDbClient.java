@@ -5,6 +5,7 @@ package net.sourceforge.filebot.web;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
@@ -28,6 +29,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.Artwork.ArtworkProperty;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -78,8 +82,8 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
-		Node movie = selectNode("//movie", getDocument(resource));
+		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
+		Node movie = selectNode("//movie", dom);
 		
 		if (movie == null)
 			return null;
@@ -98,9 +102,10 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	protected List<Movie> getMovies(String method, String parameter, Locale locale) throws IOException, SAXException {
+		Document dom = fetchResource(method, parameter, locale);
 		List<Movie> result = new ArrayList<Movie>();
 		
-		for (Node node : selectNodes("//movie", getDocument(getResource(method, parameter, locale)))) {
+		for (Node node : selectNodes("//movie", dom)) {
 			try {
 				String name = getTextContent("name", node);
 				
@@ -120,9 +125,26 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	protected URL getResource(String method, String parameter, Locale locale) throws MalformedURLException {
+	protected URL getResourceLocation(String method, String parameter, Locale locale) throws MalformedURLException {
 		// e.g. http://api.themoviedb.org/2.1/Movie.search/en/xml/{apikey}/serenity
 		return new URL("http", host, "/" + version + "/" + method + "/" + locale.getLanguage() + "/xml/" + apikey + "/" + parameter);
+	}
+	
+	
+	protected Document fetchResource(String method, String parameter, Locale locale) throws IOException, SAXException {
+		URL url = getResourceLocation(method, parameter, locale);
+		
+		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+		Element element = cache.get(url.toString());
+		if (element != null) {
+			return WebRequest.getDocument((String) element.getValue());
+		}
+		
+		String xml = readAll(WebRequest.getReader(url.openConnection()));
+		Document dom = getDocument(xml);
+		
+		cache.put(new Element(url.toString(), xml));
+		return dom;
 	}
 	
 	
@@ -150,15 +172,14 @@ public class TMDbClient implements MovieIdentificationService {
 		if (imdbid < 0)
 			throw new IllegalArgumentException("Illegal IMDb ID: " + imdbid);
 		
-		URL resource = getResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
-		Document dom = getDocument(resource);
+		// resolve imdbid to tmdbid
+		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
 		
 		// get complete movie info via tmdbid lookup
-		resource = getResource("Movie.getInfo", selectString("//movie/id", dom), locale);
-		dom = getDocument(resource);
+		dom = fetchResource("Movie.getInfo", selectString("//movie/id", dom), locale);
 		
 		// select info from xml
-		Node node = selectNode("//movie", getDocument(resource));
+		Node node = selectNode("//movie", dom);
 		
 		Map<MovieProperty, String> movieProperties = new EnumMap<MovieProperty, String>(MovieProperty.class);
 		for (MovieProperty property : MovieProperty.values()) {
