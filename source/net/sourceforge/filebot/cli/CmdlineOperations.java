@@ -71,6 +71,7 @@ import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
+import net.sourceforge.tuned.FileUtilities.FolderFilter;
 
 
 public class CmdlineOperations implements CmdlineInterface {
@@ -304,7 +305,16 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 			for (File nfo : nfoFiles) {
 				try {
-					movieByFile.put(nfo, grepMovie(nfo, service, locale));
+					Movie movie = grepMovie(nfo, service, locale);
+					movieByFile.put(nfo, movie);
+					
+					// match movie info to movie files that match the nfo file name
+					SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new FolderFilter(nfo.getParentFile())));
+					for (File movieFile : siblingMovieFiles) {
+						if (isDerived(movieFile, nfo)) {
+							movieByFile.put(movieFile, movie);
+						}
+					}
 				} catch (NoSuchElementException e) {
 					CLILogger.warning("Failed to grep IMDbID: " + nfo.getName());
 				}
@@ -317,15 +327,15 @@ public class CmdlineOperations implements CmdlineInterface {
 				movieByFile.put(file, result);
 			}
 		}
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
+		// collect files that will be matched one by one
 		List<File> movieMatchFiles = new ArrayList<File>();
 		movieMatchFiles.addAll(movieFiles);
 		movieMatchFiles.addAll(nfoFiles);
 		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
-		
-		// map movies to (possibly multiple) files (in natural order) 
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// map all files by movie
 		for (final File file : movieMatchFiles) {

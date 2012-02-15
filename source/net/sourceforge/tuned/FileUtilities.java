@@ -538,6 +538,23 @@ public final class FileUtilities {
 	};
 	
 	
+	public static class FolderFilter implements FileFilter {
+		
+		private final File folder;
+		
+		
+		public FolderFilter(File folder) {
+			this.folder = folder;
+		}
+		
+		
+		@Override
+		public boolean accept(File file) {
+			return file.getParentFile().equals(folder);
+		}
+	}
+	
+	
 	public static class ExtensionFileFilter implements FileFilter {
 		
 		private final String[] extensions;

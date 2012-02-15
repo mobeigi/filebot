@@ -48,6 +48,7 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SortOrder;
+import net.sourceforge.tuned.FileUtilities.FolderFilter;
 
 
 class MovieHashMatcher implements AutoCompleteMatcher {
@@ -99,20 +100,30 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		for (File nfo : nfoFiles) {
 			try {
-				movieByFile.put(nfo, grepMovie(nfo, service, locale));
+				Movie movie = grepMovie(nfo, service, locale);
+				movieByFile.put(nfo, movie);
+				
+				// match movie info to movie files that match the nfo file name
+				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new FolderFilter(nfo.getParentFile())));
+				for (File movieFile : siblingMovieFiles) {
+					if (isDerived(movieFile, nfo)) {
+						movieByFile.put(movieFile, movie);
+					}
+				}
 			} catch (NoSuchElementException e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to grep IMDbID: " + nfo.getName());
 			}
 		}
 		
-		// match remaining movies file by file in parallel
-		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
-		
+		// collect files that will be matched one by one
 		List<File> movieMatchFiles = new ArrayList<File>();
 		movieMatchFiles.addAll(movieFiles);
 		movieMatchFiles.addAll(nfoFiles);
 		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
+		
+		// match remaining movies file by file in parallel
+		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
 		
 		// map all files by movie
 		for (final File file : movieMatchFiles) {
