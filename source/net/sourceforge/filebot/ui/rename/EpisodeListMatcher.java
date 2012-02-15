@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -209,6 +211,32 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				matches.addAll(future.get());
 			}
 			
+			// handle derived files
+			List<Match<File, ?>> derivateMatches = new ArrayList<Match<File, ?>>();
+			SortedSet<File> derivateFiles = new TreeSet<File>(files);
+			derivateFiles.removeAll(mediaFiles);
+			
+			for (File file : derivateFiles) {
+				for (Match<File, ?> match : matches) {
+					if (file.getParentFile().equals(match.getValue().getParentFile()) && isDerived(file, match.getValue())) {
+						derivateMatches.add(new Match<File, Object>(file, match.getCandidate()));
+						break;
+					}
+				}
+			}
+			
+			// add matches from other files that are linked via filenames
+			matches.addAll(derivateMatches);
+			
+			// restore original order
+			Collections.sort(matches, new Comparator<Match<File, ?>>() {
+				
+				@Override
+				public int compare(Match<File, ?> o1, Match<File, ?> o2) {
+					return files.indexOf(o1.getValue()) - files.indexOf(o2.getValue());
+				}
+			});
+			
 			// all background workers have finished
 			return matches;
 		} finally {
@@ -264,15 +292,6 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, EpisodeMetrics.defaultSequence(false));
 			matches.addAll(matcher.match());
 		}
-		
-		// restore original order
-		Collections.sort(matches, new Comparator<Match<File, ?>>() {
-			
-			@Override
-			public int compare(Match<File, ?> o1, Match<File, ?> o2) {
-				return files.indexOf(o1.getValue()) - files.indexOf(o2.getValue());
-			}
-		});
 		
 		return matches;
 	}
