@@ -295,8 +295,8 @@ public class MediaBindingBean {
 		
 		Locale languageSuffix = new ReleaseInfo().getLanguageSuffix(FileUtilities.getName(mediaFile));
 		if (languageSuffix != null)
-			return languageSuffix;
-		
+			return new Locale(languageSuffix.getISO3Language()); // force ISO3 letter-code
+			
 		// require subtitle file
 		if (!SUBTITLE_FILES.accept(mediaFile))
 			return null;

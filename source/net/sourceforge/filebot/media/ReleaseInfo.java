@@ -53,6 +53,7 @@ public class ReleaseInfo {
 	public Locale getLanguageSuffix(String name) {
 		// match locale identifier and lookup Locale object
 		Map<String, Locale> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
+		
 		String lang = matchLast(getLanguageSuffixPattern(languages.keySet()), null, name);
 		if (lang == null)
 			return null;
