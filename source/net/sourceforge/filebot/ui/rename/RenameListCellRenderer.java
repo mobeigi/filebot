@@ -45,7 +45,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private final Color warningGradientBeginColor = Color.RED;
 	private final Color warningGradientEndColor = new Color(0xDC143C);
 	
-
+	
 	public RenameListCellRenderer(RenameModel renameModel) {
 		super(new Insets(4, 7, 4, 7));
 		
@@ -56,7 +56,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		this.add(typeRenderer, "gap rel:push, hidemode 3");
 	}
 	
-
+	
 	@Override
 	public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -77,14 +77,17 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			}
 		}
 		
+		if (renameModel.preserveExtension()) {
+			typeRenderer.setText(getType(renameModel.getMatch(index).getCandidate()));
+			typeRenderer.setVisible(true);
+		}
+		
 		if (value instanceof File) {
 			// display file extension
 			File file = (File) value;
 			
 			if (renameModel.preserveExtension()) {
 				setText(FileUtilities.getName(file));
-				typeRenderer.setText(getType(file));
-				typeRenderer.setVisible(true);
 			} else {
 				setText(file.getName());
 			}
@@ -124,7 +127,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		}
 	}
 	
-
+	
 	protected float getMatchProbablity(Match<Object, File> match) {
 		if (match.getValue() instanceof Episode) {
 			float f = verificationMetric().getSimilarity(match.getValue(), match.getCandidate());
@@ -140,7 +143,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		return 1; // assume match is OK
 	}
 	
-
+	
 	protected String getType(File file) {
 		if (file.isDirectory())
 			return "Folder";
@@ -154,7 +157,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		return "File";
 	}
 	
-
+	
 	private static class TypeRenderer extends DefaultListCellRenderer {
 		
 		private final Insets margin = new Insets(0, 10, 0, 0);
@@ -166,7 +169,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		
 		private float alpha = 1.0f;
 		
-
+		
 		public TypeRenderer() {
 			setOpaque(false);
 			setForeground(new Color(0x141414));
@@ -174,7 +177,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			setBorder(new CompoundBorder(new EmptyBorder(margin), new EmptyBorder(padding)));
 		}
 		
-
+		
 		@Override
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2d = (Graphics2D) g;
@@ -195,7 +198,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			g2d.drawString(getText(), (float) (shape.getCenterX() - textBounds.getX() - (textBounds.getWidth() / 2f)), (float) (shape.getCenterY() - textBounds.getY() - (textBounds.getHeight() / 2)));
 		}
 		
-
+		
 		public void setAlpha(float alpha) {
 			this.alpha = alpha;
 		}
