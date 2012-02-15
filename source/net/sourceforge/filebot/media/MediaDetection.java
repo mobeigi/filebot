@@ -458,7 +458,7 @@ public class MediaDetection {
 		// use maximum strength collator by default
 		final Collator collator = Collator.getInstance(locale);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
-		collator.setStrength(Collator.TERTIARY);
+		collator.setStrength(Collator.PRIMARY);
 		
 		return (Comparator) collator;
 	}

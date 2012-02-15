@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.media;
 
 
+import static java.util.Arrays.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
@@ -12,11 +13,18 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.Collator;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,11 +52,12 @@ public class ReleaseInfo {
 	
 	public Locale getLanguageSuffix(String name) {
 		// match locale identifier and lookup Locale object
-		String lang = matchLast(getLanguageSuffixPattern(), null, name);
+		Map<String, Locale> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
+		String lang = matchLast(getLanguageSuffixPattern(languages.keySet()), null, name);
 		if (lang == null)
 			return null;
 		
-		return getLanguageMap(Locale.ENGLISH, Locale.getDefault()).get(lang);
+		return languages.get(lang);
 	}
 	
 	
@@ -80,12 +89,14 @@ public class ReleaseInfo {
 	
 	
 	public List<String> cleanRelease(Iterable<String> items, boolean strict) throws IOException {
-		return clean(items, getReleaseGroupPattern(strict), getLanguageSuffixPattern(), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(false));
+		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+		return clean(items, getReleaseGroupPattern(strict), getLanguageSuffixPattern(languages), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(), getLanguageOptionPattern(languages));
 	}
 	
 	
 	public String cleanRelease(String item, boolean strict) throws IOException {
-		return clean(item, getReleaseGroupPattern(strict), getLanguageSuffixPattern(), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(false));
+		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+		return clean(item, getReleaseGroupPattern(strict), getLanguageSuffixPattern(languages), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(), getLanguageOptionPattern(languages));
 	}
 	
 	
@@ -111,30 +122,15 @@ public class ReleaseInfo {
 	}
 	
 	
-	public Pattern getLanguageSuffixPattern() {
-		// .{language}[.srt]
-		return compile("(?<=\\p{Punct}|\\s)(" + join(getLanguageMap(Locale.ENGLISH).keySet(), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+	public Pattern getLanguageOptionPattern(Collection<String> languages) {
+		// [en]
+		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
-	public Map<String, Locale> getLanguageMap(Locale... supportedLanguageName) {
-		Map<String, Locale> languageMap = new TreeMap<String, Locale>(String.CASE_INSENSITIVE_ORDER);
-		
-		for (String code : Locale.getISOLanguages()) {
-			Locale locale = new Locale(code);
-			languageMap.put(locale.getLanguage(), locale);
-			languageMap.put(locale.getISO3Language(), locale);
-			
-			// map display language names for given locales
-			for (Locale language : supportedLanguageName) {
-				languageMap.put(locale.getDisplayLanguage(language), locale);
-			}
-		}
-		
-		// remove illegal tokens
-		languageMap.remove("");
-		
-		return languageMap;
+	public Pattern getLanguageSuffixPattern(Collection<String> languages) {
+		// .en.srt
+		return compile("(?<=\\p{Punct}|\\s)(" + join(quoteAll(languages), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
@@ -164,9 +160,9 @@ public class ReleaseInfo {
 	}
 	
 	
-	public synchronized Pattern getBlacklistPattern(boolean strict) throws IOException {
+	public synchronized Pattern getBlacklistPattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
@@ -274,6 +270,46 @@ public class ReleaseInfo {
 			}
 			return false;
 		}
+	}
+	
+	
+	private Collection<String> quoteAll(Collection<String> strings) {
+		List<String> patterns = new ArrayList<String>(strings.size());
+		for (String it : strings) {
+			patterns.add(Pattern.quote(it));
+		}
+		return patterns;
+	}
+	
+	
+	private Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
+		// use maximum strength collator by default
+		Collator collator = Collator.getInstance(Locale.ROOT);
+		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
+		collator.setStrength(Collator.PRIMARY);
+		
+		@SuppressWarnings("unchecked")
+		Comparator<String> order = (Comparator) collator;
+		
+		Map<String, Locale> languageMap = new TreeMap<String, Locale>(order);
+		Set<Locale> displayLocales = new HashSet<Locale>(asList(supportedDisplayLocale));
+		
+		for (String code : Locale.getISOLanguages()) {
+			Locale locale = new Locale(code);
+			languageMap.put(locale.getLanguage(), locale);
+			languageMap.put(locale.getISO3Language(), locale);
+			
+			// map display language names for given locales
+			for (Locale language : displayLocales) {
+				// make sure language name is properly normalized so accents and whatever don't break the regex pattern syntax
+				String languageName = Normalizer.normalize(locale.getDisplayLanguage(language), Form.NFKD);
+				languageMap.put(languageName, locale);
+			}
+		}
+		
+		// remove illegal tokens
+		languageMap.remove("");
+		return languageMap;
 	}
 	
 }
