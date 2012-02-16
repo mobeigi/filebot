@@ -24,17 +24,22 @@ public class Episode implements Serializable {
 	// episode airdate
 	private Date airdate;
 	
-
+	
 	protected Episode() {
 		// used by serializer
 	}
 	
-
+	
+	public Episode(Episode obj) {
+		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate);
+	}
+	
+	
 	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title) {
 		this(seriesName, seriesStartDate, season, episode, title, null, null, null);
 	}
 	
-
+	
 	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate) {
 		this.seriesName = seriesName;
 		this.seriesStartDate = seriesStartDate;
@@ -46,47 +51,47 @@ public class Episode implements Serializable {
 		this.airdate = airdate;
 	}
 	
-
+	
 	public String getSeriesName() {
 		return seriesName;
 	}
 	
-
+	
 	public Date getSeriesStartDate() {
 		return seriesStartDate;
 	}
 	
-
+	
 	public Integer getEpisode() {
 		return episode;
 	}
 	
-
+	
 	public Integer getSeason() {
 		return season;
 	}
 	
-
+	
 	public String getTitle() {
 		return title;
 	}
 	
-
+	
 	public Integer getAbsolute() {
 		return absolute;
 	}
 	
-
+	
 	public Integer getSpecial() {
 		return special;
 	}
 	
-
+	
 	public Date airdate() {
 		return airdate;
 	}
 	
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Episode) {
@@ -97,7 +102,7 @@ public class Episode implements Serializable {
 		return false;
 	}
 	
-
+	
 	private boolean equals(Object o1, Object o2) {
 		if (o1 == null || o2 == null)
 			return o1 == o2;
@@ -105,13 +110,13 @@ public class Episode implements Serializable {
 		return o1.equals(o2);
 	}
 	
-
+	
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(new Object[] { seriesName, season, episode, title, special });
 	}
 	
-
+	
 	@Override
 	public String toString() {
 		return EpisodeFormat.SeasonEpisode.format(this);

@@ -180,13 +180,13 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 						moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
 					}
 					
-					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart));
+					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
 					
 					// automatically add matches for derivate files
 					List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
 					if (derivates != null) {
 						for (File derivate : derivates) {
-							matches.add(new Match<File, Movie>(derivate, moviePart));
+							matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
 						}
 					}
 				}
