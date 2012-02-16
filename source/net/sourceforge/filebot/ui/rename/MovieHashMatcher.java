@@ -105,8 +105,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				
 				// match movie info to movie files that match the nfo file name
 				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new FolderFilter(nfo.getParentFile())));
+				String baseName = stripReleaseInfo(getName(nfo));
+				
 				for (File movieFile : siblingMovieFiles) {
-					if (isDerived(movieFile, nfo)) {
+					if (baseName.equalsIgnoreCase(stripReleaseInfo(getName(movieFile)))) {
 						movieByFile.put(movieFile, movie);
 					}
 				}
