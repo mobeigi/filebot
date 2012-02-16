@@ -10,6 +10,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -18,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.net.URI;
 import java.text.Format;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
@@ -285,7 +287,17 @@ class FormatDialog extends JDialog {
 		panel.setBackground(new Color(0xFFFFE1));
 		panel.setOpaque(true);
 		
-		panel.add(new JLabel(ResourceBundle.getBundle(getClass().getName()).getString(mode.key() + ".syntax")));
+		panel.add(new LinkButton(new AbstractAction(ResourceBundle.getBundle(FormatDialog.class.getName()).getString(mode.key() + ".syntax")) {
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					Desktop.getDesktop().browse(URI.create(ResourceBundle.getBundle(FormatDialog.class.getName()).getString("help.url")));
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}));
 		
 		return panel;
 	}
