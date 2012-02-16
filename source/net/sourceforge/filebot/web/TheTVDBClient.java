@@ -541,6 +541,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 		
 		
+		public String getCertification() {
+			return getContentRating(); // another getter for compability reasons
+		}
+		
+		
 		public Integer getImdbId() {
 			// e.g. tt0934814
 			try {
