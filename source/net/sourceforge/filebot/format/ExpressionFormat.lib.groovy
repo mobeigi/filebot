@@ -50,7 +50,7 @@ String.metaClass.replaceAll = { String pattern -> replaceAll(pattern, "") }
  *
  * e.g. "Doctor Who" -> "Doctor_Who"
  */
-String.metaClass.space = { replacement -> replaceAll(/\s+/, replacement) }
+String.metaClass.space = { replacement -> replaceAll(/[:?._\s]+/, replacement) }
 
 
 /**
