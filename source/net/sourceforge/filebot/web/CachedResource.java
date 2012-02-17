@@ -40,17 +40,21 @@ public abstract class CachedResource<T extends Serializable> {
 	
 	public synchronized T get() throws IOException {
 		String cacheKey = type.getName() + ":" + resource.toString();
+		Element element = null;
+		long lastUpdateTime = 0;
 		
-		Element element = cache.get(cacheKey);
-		long lastUpdateTime = (element != null) ? element.getLatestOfCreationAndUpdateTime() : 0;
-		
-		// fetch from cache
-		if (element != null && System.currentTimeMillis() - lastUpdateTime < expirationTime) {
-			try {
-				return type.cast(element.getValue());
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+		try {
+			element = cache.get(cacheKey);
+			if (element != null) {
+				lastUpdateTime = element.getLatestOfCreationAndUpdateTime();
 			}
+			
+			// fetch from cache
+			if (element != null && System.currentTimeMillis() - lastUpdateTime < expirationTime) {
+				return type.cast(element.getValue());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 		}
 		
 		// fetch and process resource
@@ -64,9 +68,13 @@ public abstract class CachedResource<T extends Serializable> {
 			}
 		}
 		
+		try {
+			cache.put(element);
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+		}
+		
 		// update cached data and last-updated time
-		cache.put(element);
 		return type.cast(element.getValue());
 	}
-	
 }

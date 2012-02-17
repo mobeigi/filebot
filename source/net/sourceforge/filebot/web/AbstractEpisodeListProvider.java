@@ -104,7 +104,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 			try {
 				cache.put(new Element(new Key(id, normalize(query), locale), value.toArray(new SearchResult[0])));
 			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 			
 			return value;
@@ -129,7 +129,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 			try {
 				cache.put(new Element(new Key(id, key, sortOrder, locale), episodes.toArray(new Episode[0])));
 			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 			
 			return episodes;
@@ -154,7 +154,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 			try {
 				cache.put(new Element(new Key(id, category, locale, key), object));
 			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 		}
 		
