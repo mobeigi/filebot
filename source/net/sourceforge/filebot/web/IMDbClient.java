@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -111,12 +112,20 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	
 	protected Document parsePage(URL url) throws IOException, SAXException {
-		URLConnection connection = url.openConnection();
+		CachedPage page = new CachedPage(url) {
+			
+			@Override
+			protected Reader openConnection(URL url) throws IOException {
+				URLConnection connection = url.openConnection();
+				
+				// IMDb refuses default user agent (Java/1.6.0_12)
+				connection.addRequestProperty("User-Agent", "Mozilla");
+				
+				return getReader(connection);
+			}
+		};
 		
-		// IMDb refuses default user agent (Java/1.6.0_12)
-		connection.addRequestProperty("User-Agent", "Mozilla");
-		
-		return getHtmlDocument(connection);
+		return getHtmlDocument(page.get());
 	}
 	
 	

@@ -87,6 +87,11 @@ public final class WebRequest {
 	}
 	
 	
+	public static Document getHtmlDocument(String html) throws SAXException, IOException {
+		return getHtmlDocument(new StringReader(html));
+	}
+	
+	
 	public static Document getDocument(URL url) throws IOException, SAXException {
 		return getDocument(url.openConnection());
 	}

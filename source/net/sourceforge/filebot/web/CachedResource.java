@@ -18,17 +18,25 @@ import net.sf.ehcache.Element;
 
 public abstract class CachedResource<T extends Serializable> {
 	
-	private Cache cache;
 	private String resource;
 	private Class<T> type;
 	private long expirationTime;
 	
 	
 	public CachedResource(String resource, Class<T> type, long expirationTime) {
-		this.cache = CacheManager.getInstance().getCache("web-persistent-datasource");
 		this.resource = resource;
 		this.type = type;
 		this.expirationTime = expirationTime;
+	}
+	
+	
+	protected Cache getCache() {
+		return CacheManager.getInstance().getCache("web-persistent-datasource");
+	}
+	
+	
+	protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
+		return fetchIfModified(url, lastModified);
 	}
 	
 	
@@ -44,7 +52,7 @@ public abstract class CachedResource<T extends Serializable> {
 		long lastUpdateTime = 0;
 		
 		try {
-			element = cache.get(cacheKey);
+			element = getCache().get(cacheKey);
 			if (element != null) {
 				lastUpdateTime = element.getLatestOfCreationAndUpdateTime();
 			}
@@ -58,7 +66,7 @@ public abstract class CachedResource<T extends Serializable> {
 		}
 		
 		// fetch and process resource
-		ByteBuffer data = fetchIfModified(new URL(resource), element != null ? lastUpdateTime : 0);
+		ByteBuffer data = fetchData(new URL(resource), element != null ? lastUpdateTime : 0);
 		
 		if (data != null) {
 			try {
@@ -69,7 +77,7 @@ public abstract class CachedResource<T extends Serializable> {
 		}
 		
 		try {
-			cache.put(element);
+			getCache().put(element);
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 		}
@@ -77,4 +85,5 @@ public abstract class CachedResource<T extends Serializable> {
 		// update cached data and last-updated time
 		return type.cast(element.getValue());
 	}
+	
 }

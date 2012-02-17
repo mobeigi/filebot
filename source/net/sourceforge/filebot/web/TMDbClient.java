@@ -5,7 +5,6 @@ package net.sourceforge.filebot.web;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
@@ -29,9 +28,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.Artwork.ArtworkProperty;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -132,19 +128,7 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	protected Document fetchResource(String method, String parameter, Locale locale) throws IOException, SAXException {
-		URL url = getResourceLocation(method, parameter, locale);
-		
-		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
-		Element element = cache.get(url.toString());
-		if (element != null) {
-			return WebRequest.getDocument((String) element.getValue());
-		}
-		
-		String xml = readAll(WebRequest.getReader(url.openConnection()));
-		Document dom = getDocument(xml);
-		
-		cache.put(new Element(url.toString(), xml));
-		return dom;
+		return getDocument(new CachedPage(getResourceLocation(method, parameter, locale)).get());
 	}
 	
 	
