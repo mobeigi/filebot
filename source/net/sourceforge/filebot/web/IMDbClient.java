@@ -74,7 +74,7 @@ public class IMDbClient implements MovieIdentificationService {
 				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
 				String href = getAttribute("href", node);
 				
-				results.add(new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(href)));
+				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
 			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
 			}
