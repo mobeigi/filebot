@@ -33,7 +33,7 @@ public class IMDbClientTest {
 		assertEquals(1, results.size());
 		Movie movie = (Movie) results.get(0);
 		
-		assertEquals("Battle Angel", movie.getName());
+		assertEquals("Gunnm", movie.getName());
 		assertEquals(1993, movie.getYear());
 		assertEquals(107061, movie.getImdbId(), 0);
 	}

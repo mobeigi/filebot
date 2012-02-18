@@ -30,7 +30,7 @@ import net.sourceforge.filebot.ResourceManager;
 
 public class IMDbClient implements MovieIdentificationService {
 	
-	private final String host = "www.imdb.com";
+	private final String host = "akas.imdb.com";
 	
 	
 	@Override
