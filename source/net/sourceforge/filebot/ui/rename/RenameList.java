@@ -14,15 +14,19 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
+import ca.odell.glazedlists.EventList;
+
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
-import ca.odell.glazedlists.EventList;
 
 
 class RenameList<E> extends FileBotList<E> {
+	
+	private JPanel buttonPanel;
+	
 	
 	public RenameList(EventList<E> model) {
 		// replace default model with given model
@@ -36,7 +40,7 @@ class RenameList<E> extends FileBotList<E> {
 		
 		getRemoveAction().setEnabled(true);
 		
-		JPanel buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
+		buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
 		
 		buttonPanel.add(new JButton(downAction), "gap 10px");
 		buttonPanel.add(new JButton(upAction), "gap 0");
@@ -47,12 +51,18 @@ class RenameList<E> extends FileBotList<E> {
 		listScrollPane.getViewport().setBackground(list.getBackground());
 	}
 	
-
+	
+	public JPanel getButtonPanel() {
+		return buttonPanel;
+	}
+	
+	
 	@Override
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
 		super.setTransferablePolicy(transferablePolicy);
 		loadAction.putValue(LoadAction.TRANSFERABLE_POLICY, transferablePolicy);
 	}
+	
 	
 	private final LoadAction loadAction = new LoadAction(null);
 	
@@ -90,7 +100,7 @@ class RenameList<E> extends FileBotList<E> {
 			lastIndex = getListComponent().getSelectedIndex();
 		}
 		
-
+		
 		@Override
 		public void mouseDragged(MouseEvent m) {
 			int currentIndex = getListComponent().getSelectedIndex();

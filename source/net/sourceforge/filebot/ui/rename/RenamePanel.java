@@ -11,6 +11,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -137,12 +138,30 @@ public class RenamePanel extends JComponent {
 		// create fetch popup
 		ActionPopup fetchPopup = createFetchPopup();
 		
+		final Action fetchPopupAction = new ShowPopupAction("Fetch", ResourceManager.getIcon("action.fetch"));
+		JButton fetchButton = createImageButton(fetchPopupAction);
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
+		fetchButton.setComponentPopupMenu(fetchPopup);
 		matchButton.setComponentPopupMenu(fetchPopup);
-		matchButton.addActionListener(showPopupAction);
+		namesList.getButtonPanel().add(fetchButton, "gap 0");
+		matchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// show popup on actionPerformed only when names list is empty
+				if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
+					fetchPopupAction.actionPerformed(e);
+				}
+			}
+		});
 		
 		// create settings popup
-		renameButton.setComponentPopupMenu(createSettingsPopup());
+		final Action settingsPopupAction = new ShowPopupAction("Options", ResourceManager.getIcon("action.report"));
+		JButton settingsButton = createImageButton(settingsPopupAction);
+		ActionPopup settingsPopup = createSettingsPopup();
+		settingsButton.setComponentPopupMenu(settingsPopup);
+		renameButton.setComponentPopupMenu(settingsPopup);
+		filesList.getButtonPanel().add(settingsButton, "gap 0");
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		
@@ -291,17 +310,18 @@ public class RenamePanel extends JComponent {
 	}
 	
 	
-	protected final Action showPopupAction = new AbstractAction("Show Popup") {
+	protected static class ShowPopupAction extends AbstractAction {
+		
+		public ShowPopupAction(String name, Icon icon) {
+			super(name, icon);
+		}
+		
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// show popup on actionPerformed only when names list is empty
-			if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
-				JComponent source = (JComponent) e.getSource();
-				
-				// display popup below component
-				source.getComponentPopupMenu().show(source, -3, source.getHeight() + 4);
-			}
+			// display popup below component
+			JComponent source = (JComponent) e.getSource();
+			source.getComponentPopupMenu().show(source, -3, source.getHeight() + 4);
 		}
 	};
 	
