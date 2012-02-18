@@ -71,10 +71,10 @@ public class IMDbClient implements MovieIdentificationService {
 				if (name.startsWith("\""))
 					continue;
 				
-				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", "").trim(); // remove non-number characters
+				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
 				String href = getAttribute("href", node);
 				
-				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
+				results.add(new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(href)));
 			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
 			}
@@ -97,7 +97,7 @@ public class IMDbClient implements MovieIdentificationService {
 			String name = selectString("//H1/text()", dom);
 			String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
 			String url = selectString("//LINK[@rel='canonical']/@href", dom);
-			return new Movie(name, Integer.parseInt(year), getImdbId(url));
+			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url));
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
 			return null;
