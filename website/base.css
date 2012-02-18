@@ -10,10 +10,6 @@ a, acronym {
 	border: none;
 }
 
-a.important {
-	border-bottom: thin dotted #FB9956;
-}
-
 a:hover {
 	text-decoration: underline;
 	border-bottom: none;
@@ -234,12 +230,27 @@ div.screencast:hover .play {
 	-moz-box-shadow: 0px 1px 8px darkorange;
 }
 
-.section.features {
+.section.tutorial ol, .section.tutorial ul {
+	background-color: #EFEFEF;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	margin: 12px 25px 15px 25px;
+	padding: 8px 30px 9px 30px;
+	border-radius: 7px;
+}
+
+.section.tutorial li img {
+	vertical-align: bottom;
+	height: 17px;
+	
+}
+
+.section.first {
 	clear: both;
 	margin-top: 20px;
 }
 
-.section.download,.section.contact {
+.section.features, .section.download, .section.contact {
 	clear: both;
 	margin-top: 40px;
 }
@@ -274,12 +285,12 @@ div.screencast:hover .play {
 	content: close-quote;
 }
 
-.section>ul>li {
+.section>ul.list>li {
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
 
-.section>ul>li li {
+.section>ul.list>li li {
 	margin-top: 2px;
 }
 

@@ -102,17 +102,46 @@
 						<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
 					</a>
 				</div>
+				
+				<div class="section first tutorial">
+					<img class="icon" src="images/starthere.png" alt="start" width="48" height="48" />
+					<h2>Getting Started</h2>
+					<p><strong>FileBot makes organizing your movies and TV shows a breeze!</strong> We'll automatically match your files with information 
+					from various online databases. How you want your media files to be named and organized is completely up to you. Our 
+					groovy <a href="naming.html">format engine</a> supports pretty much anything!</p>
+					<ol>
+						<li>Drag movie or episode files into the &quot;Original Files&quot; list area</li>
+						<li>Right-click &quot;New Names&quot; list area and select your preferred datasource</li>
+						<li>Hit &quot;Rename&quot;!</li>
+					</ol>
+					<p><strong>Fetching subtitles is just as easy, just drop it in!</strong> Besides automatic lookup you'll also be able to 
+					manually search and download subtitles, preview subtitles and fix encoding problems (e.g. force UTF-8).</p>
+					<ol>
+						<li>Drag your movie or episode files onto the top-right <img alt="===" src="images/droparea.png" /> drop area</li>
+						<li>Hit &quot;Download&quot;!</li>
+					</ol>
+					<p><strong>Use FileBot from the command-line!</strong> There is a simple CLI for core tasks like renaming media files and fetching subtitles 
+					as well as checking or creating SFV files. On top of that you can use our <a href="script.html">scripting engine</a> to define more complex 
+					automated processing. There's already <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=5#p5">shared scripts</a> for
+					various tasks that you can just run right away or further customize to your needs.</p>
+					<ul>
+						<li>Watch media folders and organize new files automatically</li>
+						<li>Fetch artwork and create nfo files for TV shows or movies</li>
+						<li>Export your media files including media info as CSV text file</li>
+						... and more!
+					</ul>
+				</div>
 
 				<div class="section features" id="features">
 					<img class="icon" src="images/lists.png" alt="features" width="48" height="48" />
 					<span class="quote">Automatic for the people</span>
 					<h2>Some Features</h2>
-					<ul>
+					<ul class="list">
 						<li>A simple user-interface tuned for drag-n-drop <small class="comment">(no need to bother with file dialogs)</small></li>
 						<li>Platform-independent and straight-forward application deployment</li>
 						<li>Powerful and full-featured <acronym title="command-line interface"><a class="important" href="cli.html">cmdline interface</a></acronym> and <a class="important" href="script.html">scripting interface</a> for any kind of <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=5">automation</a></li>
 					</ul>
-					<ul class="next" id="rename">
+					<ul class="list next" id="rename">
 						<li>
 							<div class="screenshot">
 								<a href="gallery.html#screenshots/original/dialog.format.png" target="_blank">
@@ -124,15 +153,15 @@
 							</div>
 							Rename and move hundreds of media files in a matter of seconds
 						</li>
-						<li>Fetch episode info from <a href="http://www.tvrage.com">TVRage</a>, <a href="http://anidb.net">AniDB</a>, <a href="http://www.imdb.com">IMDb</a>, <a href="http://thetvdb.com">TheTVDB</a> or <a href="http://www.serienjunkies.de">Serienjunkies</a></li>
+						<li>Fetch episode info from <a href="http://www.tvrage.com">TVRage</a>, <a href="http://anidb.net">AniDB</a>, <a href="http://thetvdb.com">TheTVDB</a> or <a href="http://www.serienjunkies.de">Serienjunkies</a></li>
 						<li>Accurate and robust and simply awesome file / episode matching logic</li>
-						<li>Series / Anime name auto-detection</li>
+						<li>Series / Anime / Movie name auto-detection</li>
 						<li>Powerful and highly customizable <a class="important" href="naming.html">episode naming scheme</a><br/><span class="note mediainfo">MediaInfo optional</span></li>
 						<li>Supports language preferences for series and episode titles</li>
-						<li>Supports movie identification and renaming via <a href="http://www.opensubtitles.org">OpenSubtitles</a> or <a href="http://www.themoviedb.org">TheMovieDB</a></li>
+						<li>Supports movie identification and renaming via <a href="http://www.opensubtitles.org">OpenSubtitles</a>, <a href="http://www.imdb.com">IMDb</a> or <a href="http://www.themoviedb.org">TheMovieDB</a></li>
 						<li>Reverse rename files using internal history or the original torrent file</li>
 					</ul>
-					<ul class="next" id="subtitles">
+					<ul class="list next" id="subtitles">
 						<li>
 							<div class="screenshot">
 								<a href="gallery.html#screenshots/original/panel.subtitle.png" target="_blank">
@@ -147,7 +176,7 @@
 						<li>Integrated subtitle viewer for <acronym title="SubRip">srt</acronym>, <acronym title="Advanced SubStation Alpha">ass</acronym> and <acronym title="MicroDVD and SubViewer">sub</acronym> files</li>
 						<li>Transcode any subtitle as UTF-8 encoded <acronym title="SubRip">srt</acronym></li>
 					</ul>
-					<ul class="next" id="sfv">
+					<ul class="list next" id="sfv">
 						<li>
 							<div class="screenshot">
 								<a href="gallery.html#screenshots/original/panel.sfv.png" target="_blank">
@@ -166,7 +195,7 @@
 					<img class="icon" src="images/package.png" alt="download" width="48" height="48" />
 					<span class="quote">Today is the day</span>
 					<h2>Download</h2>
-					<ul>
+					<ul class="list">
 						<li>Executable Jar: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.jar'])" target="_blank" href="download.php?type=jar">FileBot_@{version}.jar</a> (<strong>12.5MB</strong>) <small class="comment">for Windows, Linux, Mac OS X, BSD and Solaris</small>
 							<ul>
 								<li>This package does not include the <a href="http://mediainfo.sourceforge.net/en/Download" target="_blank">MediaInfo native libraries</a>. <small class="comment">32-bit JRE requires 32-bit native libs</small></li>
