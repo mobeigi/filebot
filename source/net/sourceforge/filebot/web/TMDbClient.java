@@ -85,7 +85,14 @@ public class TMDbClient implements MovieIdentificationService {
 			return null;
 		
 		String name = getTextContent("name", movie);
-		int year = new Scanner(getTextContent("released", movie)).useDelimiter("\\D+").nextInt();
+		String released = getTextContent("released", movie);
+		int year = -1;
+		
+		try {
+			year = new Scanner(released).useDelimiter("\\D+").nextInt();
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal release year: " + released);
+		}
 		
 		return new Movie(name, year, imdbid);
 	}
