@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -58,8 +58,8 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
-import net.sourceforge.filebot.mediainfo.MediaInfoException;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.mediainfo.MediaInfoException;
 import net.sourceforge.tuned.DefaultThreadFactory;
 import net.sourceforge.tuned.ui.LazyDocumentListener;
 
@@ -74,7 +74,7 @@ class BindingDialog extends JDialog {
 	
 	private boolean submit = false;
 	
-
+	
 	public BindingDialog(Window owner, String title, Format infoObjectFormat) {
 		super(owner, title, ModalityType.DOCUMENT_MODAL);
 		this.infoObjectFormat = infoObjectFormat;
@@ -89,7 +89,7 @@ class BindingDialog extends JDialog {
 		JPanel inputPanel = new JPanel(new MigLayout("nogrid, fill"));
 		inputPanel.setOpaque(false);
 		
-		inputPanel.add(new JLabel("Episode:"), "wrap 2px");
+		inputPanel.add(new JLabel("Name:"), "wrap 2px");
 		inputPanel.add(infoTextField, "hmin 20px, growx, wrap paragraph");
 		
 		inputPanel.add(new JLabel("Media File:"), "wrap 2px");
@@ -97,7 +97,7 @@ class BindingDialog extends JDialog {
 		inputPanel.add(createImageButton(mediaInfoAction), "gap rel, w 26px!, h 24px!");
 		inputPanel.add(createImageButton(selectFileAction), "gap rel, w 26px!, h 24px!, wrap paragraph");
 		
-		inputContainer.add("Episode Bindings", inputPanel);
+		inputContainer.add("Bindings", inputPanel);
 		root.add(inputContainer, "growx, wrap paragraph");
 		
 		root.add(new JLabel("Preview:"), "gap 5px, wrap 2px");
@@ -134,13 +134,13 @@ class BindingDialog extends JDialog {
 				mediaInfoAction.setEnabled(getMediaFile() != null && getMediaFile().isFile());
 			}
 			
-
+			
 			@Override
 			public void removeUpdate(DocumentEvent e) {
 				changedUpdate(e);
 			}
 			
-
+			
 			@Override
 			public void insertUpdate(DocumentEvent e) {
 				changedUpdate(e);
@@ -161,7 +161,7 @@ class BindingDialog extends JDialog {
 		setSize(420, 520);
 	}
 	
-
+	
 	private JTable createBindingTable(TableModel model) {
 		JTable table = new JTable(model);
 		table.setAutoCreateRowSorter(true);
@@ -208,18 +208,18 @@ class BindingDialog extends JDialog {
 		return table;
 	}
 	
-
+	
 	private List<String> getSampleExpressions() {
 		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
 		return Arrays.asList(bundle.getString("expressions").split(","));
 	}
 	
-
+	
 	public boolean submit() {
 		return submit;
 	}
 	
-
+	
 	private void finish(boolean submit) {
 		this.submit = submit;
 		
@@ -230,17 +230,17 @@ class BindingDialog extends JDialog {
 		dispose();
 	}
 	
-
+	
 	public void setInfoObject(Object info) {
 		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
 	}
 	
-
+	
 	public void setMediaFile(File mediaFile) {
 		mediaFileTextField.setText(mediaFile == null ? "" : mediaFile.getAbsolutePath());
 	}
 	
-
+	
 	public Object getInfoObject() {
 		try {
 			return infoObjectFormat.parseObject(infoTextField.getText());
@@ -249,7 +249,7 @@ class BindingDialog extends JDialog {
 		}
 	}
 	
-
+	
 	public File getMediaFile() {
 		File file = new File(mediaFileTextField.getText());
 		
@@ -257,7 +257,7 @@ class BindingDialog extends JDialog {
 		return file.isAbsolute() ? file : null;
 	}
 	
-
+	
 	protected final Action approveAction = new AbstractAction("Use Bindings", ResourceManager.getIcon("dialog.continue")) {
 		
 		@Override
@@ -306,7 +306,7 @@ class BindingDialog extends JDialog {
 			return null;
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			Map<StreamKind, List<Map<String, String>>> mediaInfo = getMediaInfo(getMediaFile());
@@ -388,24 +388,24 @@ class BindingDialog extends JDialog {
 		}
 	};
 	
-
+	
 	private static class Evaluator extends SwingWorker<String, Void> {
 		
 		private final String expression;
 		private final Object bindingBean;
 		
-
+		
 		private Evaluator(String expression, Object bindingBean) {
 			this.expression = expression;
 			this.bindingBean = bindingBean;
 		}
 		
-
+		
 		public String getExpression() {
 			return expression;
 		}
 		
-
+		
 		@Override
 		protected String doInBackground() throws Exception {
 			ExpressionFormat format = new ExpressionFormat(expression) {
@@ -428,7 +428,7 @@ class BindingDialog extends JDialog {
 			return value;
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			try {
@@ -439,14 +439,14 @@ class BindingDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class BindingTableModel extends AbstractTableModel {
 		
 		private final List<Evaluator> model = new ArrayList<Evaluator>();
 		
 		private final ExecutorService executor = Executors.newFixedThreadPool(2, new DefaultThreadFactory("Evaluator", Thread.MIN_PRIORITY));
 		
-
+		
 		public void setModel(Collection<String> expressions, Object bindingBean) {
 			// cancel old workers and clear model
 			clear();
@@ -471,7 +471,7 @@ class BindingDialog extends JDialog {
 			fireTableDataChanged();
 		}
 		
-
+		
 		public void clear() {
 			for (Evaluator evaluator : model) {
 				evaluator.cancel(true);
@@ -483,7 +483,7 @@ class BindingDialog extends JDialog {
 			fireTableDataChanged();
 		}
 		
-
+		
 		public void fireTableCellUpdated(Evaluator element) {
 			int index = model.indexOf(element);
 			
@@ -492,7 +492,7 @@ class BindingDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -505,19 +505,19 @@ class BindingDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return 2;
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return model.size();
 		}
 		
-
+		
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
@@ -530,7 +530,7 @@ class BindingDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
@@ -544,29 +544,29 @@ class BindingDialog extends JDialog {
 		}
 	}
 	
-
+	
 	private static class ParameterTableModel extends AbstractTableModel {
 		
 		private final List<Entry<?, ?>> data;
 		
-
+		
 		public ParameterTableModel(Map<?, ?> data) {
 			this.data = new ArrayList<Entry<?, ?>>(data.entrySet());
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return data.size();
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return 2;
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -579,7 +579,7 @@ class BindingDialog extends JDialog {
 			}
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {
