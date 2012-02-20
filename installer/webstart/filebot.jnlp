@@ -23,7 +23,7 @@
 		<all-permissions />
 	</security>
 	
-	<update check="always" policy="prompt-update" />
+	<update check="background" policy="always" />
 	
 	<resources>
 		<property name="application.deployment" value="webstart" />
@@ -33,6 +33,7 @@
 		<java version="1.6+" max-heap-size="256m" />
 		<jar href="filebot.jar"       download="eager" main="true" />
 		<jar href="groovy.jar"        download="eager" />
+		<jar href="icu4j.jar"         download="eager" />
 		<jar href="args4j.jar"        download="eager" />
 		<jar href="jna.jar"           download="eager" />
 		<jar href="miglayout.jar"     download="eager" />
@@ -43,7 +44,6 @@
 		<jar href="slf4j-jdk.jar"     download="eager" />
 		<jar href="jgat-custom.jar"   download="eager" />
 		<jar href="json-simple.jar"   download="lazy" />
-		<jar href="icu4j.jar"         download="lazy" />
 		<jar href="xmlrpc.jar"        download="eager" />
 		<jar href="sublight-ws.jar"   download="eager" />
 		<jar href="mediainfo.jar"     download="lazy" part="native"  />
