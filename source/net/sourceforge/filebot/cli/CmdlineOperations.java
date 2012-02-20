@@ -64,6 +64,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SearchResult;
@@ -162,7 +163,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
 					matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
 				} else {
-					CLILogger.warning("Failed to fetch episode data: " + mapByFolder(batch).keySet());
+					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
 				}
 			}
 		}
@@ -177,7 +178,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (Match<File, Episode> match : matches) {
 			File file = match.getValue();
 			Episode episode = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : EpisodeFormat.SeasonEpisode.format(episode);
+			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			File newFile = new File(newName + "." + getExtension(file));
 			
 			if (isInvalidFilePath(newFile)) {
@@ -310,8 +311,10 @@ public class CmdlineOperations implements CmdlineInterface {
 					
 					// match movie info to movie files that match the nfo file name
 					SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new FolderFilter(nfo.getParentFile())));
+					String baseName = stripReleaseInfo(getName(nfo));
+					
 					for (File movieFile : siblingMovieFiles) {
-						if (isDerived(movieFile, nfo)) {
+						if (baseName.equalsIgnoreCase(stripReleaseInfo(getName(movieFile)))) {
 							movieByFile.put(movieFile, movie);
 						}
 					}
@@ -327,8 +330,6 @@ public class CmdlineOperations implements CmdlineInterface {
 				movieByFile.put(file, result);
 			}
 		}
-		// map movies to (possibly multiple) files (in natural order) 
-		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// collect files that will be matched one by one
 		List<File> movieMatchFiles = new ArrayList<File>();
@@ -336,6 +337,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		movieMatchFiles.addAll(nfoFiles);
 		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
+		
+		// map movies to (possibly multiple) files (in natural order) 
+		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// map all files by movie
 		for (final File file : movieMatchFiles) {
@@ -378,13 +382,13 @@ public class CmdlineOperations implements CmdlineInterface {
 						moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
 					}
 					
-					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart));
+					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
 					
 					// automatically add matches for derivate files
 					List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
 					if (derivates != null) {
 						for (File derivate : derivates) {
-							matches.add(new Match<File, Movie>(derivate, moviePart));
+							matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
 						}
 					}
 				}
@@ -397,7 +401,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
 			Object movie = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : movie.toString();
+			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
 			File newFile = new File(newName + "." + getExtension(file));
 			
 			if (isInvalidFilePath(newFile)) {
@@ -671,17 +675,17 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults) {
+	public List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults, boolean strict) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
 		
 		// use name similarity metric
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		
-		// find probable matches using name similarity > 0.9
+		// find probable matches using name similarity > 0.9 (or > 0.8 in non-strict mode)
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
-			if (f >= 0.9 || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
+			if (f >= (strict ? 0.9 : 0.8) || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
 				if (!probableMatches.containsKey(result.toString())) {
 					probableMatches.put(result.toString(), result);
 				}
@@ -698,7 +702,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	public List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
-		List<SearchResult> probableMatches = findProbableMatches(query, searchResults);
+		List<SearchResult> probableMatches = findProbableMatches(query, searchResults, strict);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
 			throw new Exception("Failed to auto-select search result: " + probableMatches);
