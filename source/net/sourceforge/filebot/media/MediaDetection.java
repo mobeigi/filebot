@@ -202,7 +202,7 @@ public class MediaDetection {
 			
 			@Override
 			public int compare(TheTVDBSearchResult a, TheTVDBSearchResult b) {
-				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
 			}
 		});
 		
@@ -235,7 +235,7 @@ public class MediaDetection {
 			
 			@Override
 			public int compare(AnidbSearchResult a, AnidbSearchResult b) {
-				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
 			}
 		});
 		
@@ -323,7 +323,7 @@ public class MediaDetection {
 			
 			@Override
 			public int compare(Movie a, Movie b) {
-				return Integer.compare(matchMap.get(b).length(), matchMap.get(a).length());
+				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
 			}
 		});
 		
