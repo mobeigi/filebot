@@ -157,15 +157,15 @@ def parseEpisodeNumber(path, strict = true) {
 }
 
 def parseDate(path) {
-	return new DateMetric().parse(input)
+	return new DateMetric().parse(path)
 }
 
 def detectSeriesName(files, locale = Locale.ENGLISH) {
-	def names = MediaDetection.detectSeriesNames(files.findAll { it.isVideo() || it.isSubtitle() }, locale)
+	def names = MediaDetection.detectSeriesNames(files instanceof Collection ? files : [new File(files.toString())], locale)
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
-def detectMovie(movieFile, locale = Locale.ENGLISH, strict = true) {
+def detectMovie(movieFile, strict = true, locale = Locale.ENGLISH) {
 	def movies = MediaDetection.detectMovie(movieFile, OpenSubtitles, TheMovieDB, locale, strict)
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }

@@ -705,7 +705,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<SearchResult> probableMatches = findProbableMatches(query, searchResults, strict);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
-			throw new Exception("Failed to auto-select search result: " + probableMatches);
+			throw new Exception("Failed to auto-select search result: " + searchResults);
 		}
 		
 		// return first and only value
