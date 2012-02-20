@@ -1,8 +1,10 @@
 ^(TV.)?(Show|Serie|Anime)[s]?$
 ^Movie[s]?$
 ^Video[s]?$
-CD[1-3]
+A.Release.Lounge
+CD[0]?[1-3]
 Demonoid
+Extended.Version
 ExtraScene
 ExtraTorrent
 Hard.Subbed
@@ -16,4 +18,5 @@ RETAIL
 sample[s]?$
 ShareReactor
 ShareZONE
+swe.sub
 UsaBit.com
