@@ -305,16 +305,50 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("actors")
+	public Object getActors() {
+		return getMetaInfo().getProperty("actors");
+	}
+	
+	
+	@Define("genres")
+	public Object getGenres() {
+		return getMetaInfo().getProperty("genres");
+	}
+	
+	
+	@Define("director")
+	public Object getDirector() {
+		return getMetaInfo().getProperty("director");
+	}
+	
+	
+	@Define("certification")
+	public Object getCertification() {
+		return getMetaInfo().getProperty("certification");
+	}
+	
+	
+	@Define("rating")
+	public Object getRating() {
+		return getMetaInfo().getProperty("rating");
+	}
+	
+	
 	@Define("info")
-	public synchronized Object getMetaInfo() throws Exception {
+	public synchronized AssociativeScriptObject getMetaInfo() {
 		if (metaInfo == null) {
-			if (infoObject instanceof Episode)
-				metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
-			if (infoObject instanceof Movie)
-				metaInfo = WebServices.TMDb.getMovieInfo((Movie) infoObject, Locale.ENGLISH);
+			try {
+				if (infoObject instanceof Episode)
+					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
+				if (infoObject instanceof Movie)
+					metaInfo = WebServices.TMDb.getMovieInfo((Movie) infoObject, Locale.ENGLISH);
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
+			}
 		}
 		
-		return metaInfo;
+		return new AssociativeScriptObject(new PropertyBindings(metaInfo, null));
 	}
 	
 	
@@ -325,25 +359,25 @@ public class MediaBindingBean {
 	
 	
 	@Define("media")
-	public Object getGeneralMediaInfo() {
+	public AssociativeScriptObject getGeneralMediaInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
 	}
 	
 	
 	@Define("video")
-	public Object getVideoInfo() {
+	public AssociativeScriptObject getVideoInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Video, 0));
 	}
 	
 	
 	@Define("audio")
-	public Object getAudioInfo() {
+	public AssociativeScriptObject getAudioInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Audio, 0));
 	}
 	
 	
 	@Define("text")
-	public Object getTextInfo() {
+	public AssociativeScriptObject getTextInfo() {
 		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Text, 0));
 	}
 	

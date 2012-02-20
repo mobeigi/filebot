@@ -26,7 +26,7 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 		this.defaultValue = defaultValue;
 		
 		// get method bindings
-		for (Method method : object.getClass().getMethods()) {
+		for (Method method : object.getClass().getDeclaredMethods()) {
 			if (method.getReturnType() != void.class && method.getParameterTypes().length == 0) {
 				// normal properties
 				if (method.getName().length() > 3 && method.getName().substring(0, 3).equalsIgnoreCase("get")) {
@@ -37,9 +37,6 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 				if (method.getName().length() > 2 && method.getName().substring(0, 3).equalsIgnoreCase("is")) {
 					properties.put(method.getName().substring(2), method);
 				}
-				
-				// just bind all methods to their original name as well
-				properties.put(method.getName(), method);
 			}
 		}
 	}
