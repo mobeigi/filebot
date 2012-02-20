@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.4</name>
-	<revision>844</revision>
+	<name>FileBot 2.5</name>
+	<revision>905</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 2.4 (r844) is out!</b><br>
+		<b>Check out FileBot 2.5 !!</b><br>
 		This release features:<br>
-		+ Improved movie mode<br>
-		+ Better matching<br>
-		+ More scripting capabilities<br>
+		+ Improved movie / series name auto-detection<br>
+		+ Support renaming and moving of disk folders<br>
+		+ New preferences for episode sort order<br>
+		+ {info} extended metadata binding<br>
+		+ .ascii() unicode to ascii conversion<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=36#p206]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=68#p481]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>

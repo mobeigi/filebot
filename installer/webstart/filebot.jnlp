@@ -23,7 +23,7 @@
 		<all-permissions />
 	</security>
 	
-	<update check="background" policy="prompt-update" />
+	<update check="always" policy="prompt-update" />
 	
 	<resources>
 		<property name="application.deployment" value="webstart" />
