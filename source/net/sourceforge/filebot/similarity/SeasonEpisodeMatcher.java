@@ -23,7 +23,7 @@ public class SeasonEpisodeMatcher {
 		patterns = new SeasonEpisodePattern[4];
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ...
-		patterns[0] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
+		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
 		
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ...
 		patterns[1] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
