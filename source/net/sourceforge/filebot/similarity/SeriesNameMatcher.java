@@ -23,14 +23,13 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodeFilter;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.tuned.FileUtilities;
 
 
 public class SeriesNameMatcher {
 	
-	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(new SeasonEpisodeFilter(30, 50, -1), true);
+	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
 	protected DateMatcher dateMatcher = new DateMatcher();
 	protected NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	

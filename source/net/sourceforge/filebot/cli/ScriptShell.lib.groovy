@@ -152,7 +152,7 @@ import net.sourceforge.filebot.similarity.*
 
 def parseEpisodeNumber(path, strict = true) {
 	def input = path instanceof File ? path.name : path.toString()
-	def sxe = new SeasonEpisodeMatcher(new SeasonEpisodeMatcher.SeasonEpisodeFilter(30, 50, 1000), strict).match(input)
+	def sxe = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(input)
 	return sxe == null || sxe.isEmpty() ? null : sxe[0]
 }
 

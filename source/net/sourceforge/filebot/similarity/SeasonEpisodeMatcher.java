@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 
 public class SeasonEpisodeMatcher {
 	
+	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, -1);
+	
 	private SeasonEpisodePattern[] patterns;
 	
 	
