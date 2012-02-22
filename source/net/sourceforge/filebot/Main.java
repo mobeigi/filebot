@@ -3,7 +3,6 @@ package net.sourceforge.filebot;
 
 
 import static java.awt.GraphicsEnvironment.*;
-import static java.util.concurrent.TimeUnit.*;
 import static javax.swing.JFrame.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -174,7 +173,7 @@ public class Main {
 	 */
 	private static void checkUpdate() throws Exception {
 		final PreferencesEntry<String> updateIgnoreRevision = Settings.forPackage(Main.class).entry("update.revision.ignore");
-		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, DAYS.toMillis(0)) {
+		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, 24 * 60 * 60 * 1000) {
 			
 			@Override
 			public Properties process(ByteBuffer data) {
