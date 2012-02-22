@@ -4,10 +4,12 @@ package net.sourceforge.filebot.similarity;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
+import java.text.CollationKey;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
@@ -31,25 +34,25 @@ public class SeriesNameMatcher {
 	
 	protected SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
 	protected DateMatcher dateMatcher = new DateMatcher();
+	
 	protected NameSimilarityMetric nameSimilarityMetric = new NameSimilarityMetric();
 	
-	protected int commonWordSequenceMaxStartIndex;
-	protected Comparator<String> commonWordComparator;
+	protected CommonSequenceMatcher commonSequenceMatcher;
 	
 	
 	public SeriesNameMatcher() {
-		this(String.CASE_INSENSITIVE_ORDER, 3);
+		this(Locale.ROOT);
 	}
 	
 	
-	public SeriesNameMatcher(Comparator<String> comparator) {
-		this(comparator, 3);
-	}
-	
-	
-	public SeriesNameMatcher(Comparator<String> commonWordComparator, int commonWordSequenceMaxStartIndex) {
-		this.commonWordSequenceMaxStartIndex = commonWordSequenceMaxStartIndex;
-		this.commonWordComparator = commonWordComparator;
+	public SeriesNameMatcher(Locale locale) {
+		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3) {
+			
+			@Override
+			protected CollationKey[] split(String sequence) {
+				return super.split(normalize(sequence));
+			}
+		};
 	}
 	
 	
@@ -62,7 +65,7 @@ public class SeriesNameMatcher {
 			String[] names = entry.getValue();
 			
 			for (String nameMatch : matchAll(names)) {
-				String commonMatch = matchByFirstCommonWordSequence(nameMatch, parent);
+				String commonMatch = commonSequenceMatcher.matchFirstCommonSequence(nameMatch, parent);
 				float similarity = commonMatch == null ? 0 : nameSimilarityMetric.getSimilarity(commonMatch, nameMatch);
 				
 				// prefer common match, but only if it's very similar to the original match
@@ -116,7 +119,9 @@ public class SeriesNameMatcher {
 	 *         threshold
 	 */
 	private Collection<String> flatMatchAll(String[] names, Pattern prefixPattern, int threshold, boolean strict) {
-		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, commonWordComparator);
+		@SuppressWarnings("unchecked")
+		Comparator<String> wordComparator = (Comparator) commonSequenceMatcher.getCollator();
+		ThresholdCollection<String> thresholdCollection = new ThresholdCollection<String>(threshold, wordComparator);
 		
 		for (String name : names) {
 			// use normalized name
@@ -163,7 +168,7 @@ public class SeriesNameMatcher {
 			return emptySet();
 		}
 		
-		String common = matchByFirstCommonWordSequence(names);
+		String common = commonSequenceMatcher.matchFirstCommonSequence(names);
 		
 		if (common != null) {
 			// common word sequence found
@@ -218,29 +223,7 @@ public class SeriesNameMatcher {
 			throw new IllegalArgumentException("Can't match common sequence from less than two names");
 		}
 		
-		String[] common = null;
-		
-		for (String name : names) {
-			String[] words = normalize(name).split("\\s+");
-			
-			if (common == null) {
-				// initialize common with current word array
-				common = words;
-			} else {
-				// find common sequence
-				common = firstCommonSequence(common, words, commonWordSequenceMaxStartIndex, commonWordComparator);
-				
-				if (common == null) {
-					// no common sequence
-					return null;
-				}
-			}
-		}
-		
-		if (common == null)
-			return null;
-		
-		return join(common, " ");
+		return commonSequenceMatcher.matchFirstCommonSequence(names);
 	}
 	
 	

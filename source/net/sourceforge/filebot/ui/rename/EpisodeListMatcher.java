@@ -180,13 +180,14 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// detect series names and create episode list fetch tasks
 		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
-			List<List<File>> batchSets = new ArrayList<List<File>>();
+			final List<List<File>> batchSets = new ArrayList<List<File>>();
+			final Collection<String> queries = sameSeriesGroup.getValue();
 			
-			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
-				// handle series name batch set all at once
+			if (queries != null && queries.size() > 0) {
+				// handle series name batch set all at once -> only 1 batch set
 				batchSets.add(new ArrayList<File>(sameSeriesGroup.getKey()));
 			} else {
-				// these files don't seem to belong to any series -> handle folder per folder
+				// these files don't seem to belong to any series -> handle folder per folder -> multiple batch sets
 				batchSets.addAll(mapByFolder(sameSeriesGroup.getKey()).values());
 			}
 			
@@ -195,7 +196,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					@Override
 					public List<Match<File, ?>> call() throws Exception {
-						return matchEpisodeSet(batchSet, sortOrder, locale, autodetection, parent);
+						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, parent);
 					}
 				});
 			}
@@ -246,23 +247,22 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, SortOrder sortOrder, Locale locale, boolean autodetection, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
 		if (autodetection) {
-			Collection<String> names = detectSeriesNames(files, locale);
-			if (names.size() > 0) {
+			if (queries != null && queries.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(names, sortOrder, locale, parent);
+					episodes = fetchEpisodeSet(queries, sortOrder, locale, parent);
 				}
 			}
 		}
 		
 		// require user input if auto-detection has failed or has been disabled 
 		if (episodes.isEmpty()) {
-			String suggestion = new SeriesNameMatcher().matchByEpisodeIdentifier(getName(files.get(0)));
+			String suggestion = new SeriesNameMatcher(locale).matchByEpisodeIdentifier(getName(files.get(0)));
 			if (suggestion != null) {
 				// clean media info / release group info / etc 
 				suggestion = stripReleaseInfo(suggestion);

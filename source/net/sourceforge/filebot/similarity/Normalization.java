@@ -6,7 +6,7 @@ public class Normalization {
 	
 	public static String normalizePunctuation(String name) {
 		// remove/normalize special characters
-		name = name.replaceAll("['`´]+", "");
+		name = name.replaceAll("[`´‘’ʻ]+", "");
 		name = name.replaceAll("[\\p{Punct}\\p{Space}]+", " ");
 		
 		return name.trim();

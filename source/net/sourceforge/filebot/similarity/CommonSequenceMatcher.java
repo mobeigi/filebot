@@ -1,0 +1,125 @@
+
+package net.sourceforge.filebot.similarity;
+
+
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+
+import java.text.CollationKey;
+import java.text.Collator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+
+public class CommonSequenceMatcher {
+	
+	public static Collator getLenientCollator(Locale locale) {
+		// use maximum strength collator by default
+		Collator collator = Collator.getInstance(locale);
+		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
+		collator.setStrength(Collator.PRIMARY);
+		return collator;
+	}
+	
+	
+	protected final Collator collator;
+	protected final int commonSequenceMaxStartIndex;
+	
+	
+	public CommonSequenceMatcher(Collator collator, int commonSequenceMaxStartIndex) {
+		this.collator = collator;
+		this.commonSequenceMaxStartIndex = commonSequenceMaxStartIndex;
+	}
+	
+	
+	public Collator getCollator() {
+		return collator;
+	}
+	
+	
+	public String matchFirstCommonSequence(String... names) {
+		CollationKey[] common = null;
+		
+		for (String it : names) {
+			CollationKey[] words = split(it);
+			
+			if (common == null) {
+				// initialize common with current word array
+				common = words;
+			} else {
+				// find common sequence
+				common = firstCommonSequence(common, words, commonSequenceMaxStartIndex);
+				
+				if (common == null) {
+					// no common sequence
+					return null;
+				}
+			}
+		}
+		
+		if (common == null)
+			return null;
+		
+		return synth(common);
+	}
+	
+	
+	protected String synth(CollationKey[] keys) {
+		StringBuilder sb = new StringBuilder();
+		for (CollationKey it : keys) {
+			if (sb.length() > 0) {
+				sb.append(' ');
+			}
+			sb.append(it.getSourceString());
+		}
+		return sb.toString();
+	}
+	
+	
+	protected CollationKey[] split(String sequence) {
+		return getCollationKeys(sequence.split("\\s+"));
+	}
+	
+	
+	private final Map<String, CollationKey> collationKeyDictionary = synchronizedMap(new WeakHashMap<String, CollationKey>(256));
+	
+	
+	protected CollationKey[] getCollationKeys(String[] words) {
+		CollationKey[] keys = new CollationKey[words.length];
+		for (int i = 0; i < keys.length; i++) {
+			keys[i] = collationKeyDictionary.get(words[i]);
+			if (keys[i] == null) {
+				keys[i] = collator.getCollationKey(words[i]);
+				collationKeyDictionary.put(words[i], keys[i]);
+			}
+		}
+		return keys;
+	}
+	
+	
+	protected <E extends Comparable<E>> E[] firstCommonSequence(E[] seq1, E[] seq2, int maxStartIndex) {
+		for (int i = 0; i < seq1.length && i <= maxStartIndex; i++) {
+			for (int j = 0; j < seq2.length && j <= maxStartIndex; j++) {
+				// common sequence length
+				int len = 0;
+				
+				// iterate over common sequence
+				while ((i + len < seq1.length) && (j + len < seq2.length) && (seq1[i + len].compareTo(seq2[j + len]) == 0)) {
+					len++;
+				}
+				
+				// check if a common sequence was found
+				if (len > 0) {
+					if (i == 0 && len == seq1.length)
+						return seq1;
+					
+					return copyOfRange(seq1, i, i + len);
+				}
+			}
+		}
+		
+		// no intersection at all
+		return null;
+	}
+}

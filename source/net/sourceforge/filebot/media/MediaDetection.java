@@ -4,6 +4,7 @@ package net.sourceforge.filebot.media;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +36,7 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
@@ -144,22 +147,15 @@ public class MediaDetection {
 		
 		// cross-reference known series names against file structure
 		try {
-			Set<String> folders = new LinkedHashSet<String>();
+			Set<String> filenames = new LinkedHashSet<String>();
 			for (File f : files) {
 				for (int i = 0; i < 3 && f != null; i++, f = f.getParentFile()) {
-					if (i != 0) {
-						folders.add(f.getName());
-					}
+					filenames.add(f.getName());
 				}
 			}
 			
-			// match know name from filename if there is not enough context for CWS matching
-			if (files.size() == 1) {
-				folders.add(files.iterator().next().getName());
-			}
-			
 			// match folder names against known series names
-			for (TheTVDBSearchResult match : matchSeriesByName(folders.toArray(new String[0]))) {
+			for (TheTVDBSearchResult match : matchSeriesByName(filenames.toArray(new String[0]))) {
 				names.put(match.getName().toLowerCase(), match.getName());
 			}
 		} catch (Exception e) {
@@ -167,8 +163,7 @@ public class MediaDetection {
 		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
-		SeriesNameMatcher matcher = new SeriesNameMatcher(getLenientCollator(locale));
-		Collection<String> matches = matcher.matchAll(files.toArray(new File[files.size()]));
+		Collection<String> matches = new SeriesNameMatcher(locale).matchAll(files.toArray(new File[files.size()]));
 		try {
 			matches = stripReleaseInfo(matches, true);
 		} catch (Exception e) {
@@ -182,16 +177,27 @@ public class MediaDetection {
 	}
 	
 	
-	public static Collection<TheTVDBSearchResult> matchSeriesByName(String... names) throws Exception {
+	private static final HashMap<TheTVDBSearchResult, String> seriesNameIndex = new HashMap<TheTVDBSearchResult, String>(32768);
+	
+	
+	public static List<TheTVDBSearchResult> matchSeriesByName(String... names) throws Exception {
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
 		final Map<TheTVDBSearchResult, String> matchMap = new HashMap<TheTVDBSearchResult, String>();
 		
-		for (final TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
+		synchronized (seriesNameIndex) {
+			if (seriesNameIndex.isEmpty()) {
+				for (TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
+					seriesNameIndex.put(entry, nameMatcher.normalize(entry.getName()));
+				}
+			}
+		}
+		
+		for (Entry<TheTVDBSearchResult, String> it : seriesNameIndex.entrySet()) {
 			for (String name : names) {
-				String identifier = nameMatcher.normalize(entry.getName());
-				String commonName = nameMatcher.matchByFirstCommonWordSequence(name, identifier);
+				String identifier = it.getValue();
+				String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
 				if (commonName != null && commonName.length() >= identifier.length()) {
-					matchMap.put(entry, commonName);
+					matchMap.put(it.getKey(), commonName);
 				}
 			}
 		}
@@ -215,13 +221,13 @@ public class MediaDetection {
 		final Map<AnidbSearchResult, String> matchMap = new HashMap<AnidbSearchResult, String>();
 		
 		for (final AnidbSearchResult entry : WebServices.AniDB.getAnimeTitles()) {
-			for (String name : names) {
-				for (String identifier : new String[] { entry.getPrimaryTitle(), entry.getOfficialTitle("en") }) {
-					if (identifier == null || identifier.isEmpty())
-						continue;
-					
-					identifier = nameMatcher.normalize(entry.getName());
-					String commonName = nameMatcher.matchByFirstCommonWordSequence(name, identifier);
+			for (String identifier : new String[] { entry.getPrimaryTitle(), entry.getOfficialTitle("en") }) {
+				if (identifier == null || identifier.isEmpty())
+					continue;
+				
+				identifier = nameMatcher.normalize(identifier);
+				for (String name : names) {
+					String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
 					if (commonName != null && commonName.length() >= identifier.length()) {
 						matchMap.put(entry, commonName);
 					}
@@ -302,10 +308,10 @@ public class MediaDetection {
 		for (final Movie movie : releaseInfo.getMovieList()) {
 			for (String name : files) {
 				String movieIdentifier = movie.getName();
-				String commonName = nameMatcher.matchByFirstCommonWordSequence(name, movieIdentifier);
+				String commonName = nameMatcher.matchFirstCommonSequence(name, movieIdentifier);
 				if (commonName != null && commonName.length() >= movieIdentifier.length()) {
 					String strictMovieIdentifier = movie.getName() + " " + movie.getYear();
-					String strictCommonName = nameMatcher.matchByFirstCommonWordSequence(name, strictMovieIdentifier);
+					String strictCommonName = nameMatcher.matchFirstCommonSequence(name, strictMovieIdentifier);
 					if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
 						// prefer strict match
 						matchMap.put(movie, strictCommonName);
@@ -453,38 +459,34 @@ public class MediaDetection {
 	}
 	
 	
-	@SuppressWarnings("unchecked")
-	public static Comparator<String> getLenientCollator(Locale locale) {
-		// use maximum strength collator by default
-		final Collator collator = Collator.getInstance(locale);
-		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
-		collator.setStrength(Collator.PRIMARY);
-		
-		return (Comparator) collator;
-	}
-	
-	
 	/*
 	 * Heavy-duty name matcher used for matching a file to or more movies (out of a list of ~50k)
 	 */
-	private static class HighPerformanceMatcher extends SeriesNameMatcher {
+	private static class HighPerformanceMatcher extends CommonSequenceMatcher {
 		
-		private static final Map<String, String> transformCache = synchronizedMap(new WeakHashMap<String, String>(65536));
+		private static final Collator collator = getLenientCollator(Locale.ENGLISH);
+		
+		private static final Map<String, CollationKey[]> transformCache = synchronizedMap(new WeakHashMap<String, CollationKey[]>(65536));
 		
 		
 		public HighPerformanceMatcher(int commonWordSequenceMaxStartIndex) {
-			super(String.CASE_INSENSITIVE_ORDER, commonWordSequenceMaxStartIndex); // 3-4x faster than a Collator 
+			super(collator, commonWordSequenceMaxStartIndex);
 		}
 		
 		
 		@Override
-		protected String normalize(String source) {
-			String value = transformCache.get(source);
+		protected CollationKey[] split(String sequence) {
+			CollationKey[] value = transformCache.get(sequence);
 			if (value == null) {
-				value = normalizePunctuation(source); // only normalize punctuation, make sure we keep the year (important for movie matching)
-				transformCache.put(source, value);
+				value = super.split(normalize(sequence));
+				transformCache.put(sequence, value);
 			}
-			return transformCache.get(source);
+			return value;
+		}
+		
+		
+		public String normalize(String sequence) {
+			return normalizePunctuation(sequence).toLowerCase(); // only normalize punctuation, make sure we keep the year (important for movie matching)
 		}
 	}
 	
