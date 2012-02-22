@@ -94,9 +94,9 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	protected Movie scrapeMovie(Document dom) {
 		try {
-			String name = selectString("//H1/text()", dom);
-			String year = new Scanner(selectString("//H1//SPAN", dom)).useDelimiter("\\D+").next();
-			String url = selectString("//LINK[@rel='canonical']/@href", dom);
+			String name = selectString("//H1/A/text()", dom);
+			String year = new Scanner(selectString("//H1/A/following::A/text()", dom)).useDelimiter("\\D+").next();
+			String url = selectString("//H1/A/@href", dom);
 			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url));
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
@@ -107,7 +107,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/", imdbid))));
+		return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))));
 	}
 	
 	
