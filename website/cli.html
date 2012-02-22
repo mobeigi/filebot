@@ -106,6 +106,9 @@
 					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">--q</span> <span class="argument">"Avatar"</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
 					Rename a single movie looking up movie info via file hash or using the given movie title.
 					</p>
+					<p class="suggestion">
+					Keep in mind that the CLI is <strong>strict by default</strong> so it will never mess up your files. In some cases you may need to enable <strong>-non-strict</strong> for more opportunistic matching like the GUI does.
+					</p>
 					<h3 id="subtitles">Fetch Subtitles</h3>
 					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-get-missing-subtitles</span> <span class="argument">path/to/episodes</span></code>
