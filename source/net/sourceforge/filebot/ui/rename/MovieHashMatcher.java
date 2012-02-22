@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -243,20 +244,35 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	
 	
 	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Component parent) throws Exception {
+		// clean file / folder names
+		final String fileQuery = stripReleaseInfo(getName(movieFile)).toLowerCase();
+		final String folderQuery = stripReleaseInfo(getName(movieFile.getParentFile())).toLowerCase();
+		
+		// auto-ignore invalid files
+		if (fileQuery.length() < 2) {
+			return null;
+		}
+		
 		if (options.size() == 1) {
 			return options.iterator().next();
+		}
+		
+		// auto-select perfect match
+		for (Movie movie : options) {
+			String movieIdentifier = normalizePunctuation(movie.toString()).toLowerCase();
+			if (fileQuery.startsWith(movieIdentifier) || folderQuery.startsWith(movieIdentifier)) {
+				return movie;
+			}
 		}
 		
 		// auto-select most probable search result
 		final List<Movie> probableMatches = new LinkedList<Movie>();
 		
-		// use name similarity metric
-		final String query = stripReleaseInfo(getName(movieFile));
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		
 		// find probable matches using name similarity >= 0.9
 		for (Movie result : options) {
-			if (metric.getSimilarity(query, result.getName()) >= 0.9) {
+			if (metric.getSimilarity(fileQuery, result.getName()) >= 0.9 || metric.getSimilarity(folderQuery, result.getName()) >= 0.9) {
 				probableMatches.add(result);
 			}
 		}
@@ -275,7 +291,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
 				
 				selectDialog.setTitle(movieFile.getPath());
-				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", query));
+				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 				selectDialog.pack();
 				

@@ -279,17 +279,17 @@ public class MediaDetection {
 			return options;
 		}
 		
-		// add local matching after online search
-		options.addAll(movieNameMatches);
-		
 		// query by file / folder name
 		if (queryLookupService != null && !strict) {
 			options.addAll(queryMovieByFileName(files, queryLookupService, locale));
 		}
 		
+		// add local matching after online search
+		options.addAll(movieNameMatches);
+		
 		// sort by relevance
 		List<Movie> optionsByRelevance = new ArrayList<Movie>(options);
-		sort(optionsByRelevance, new SimilarityComparator(stripReleaseInfo(getName(movieFile))));
+		sort(optionsByRelevance, new SimilarityComparator(stripReleaseInfo(getName(movieFile)), stripReleaseInfo(getName(movieFile.getParentFile()))));
 		return optionsByRelevance;
 	}
 	

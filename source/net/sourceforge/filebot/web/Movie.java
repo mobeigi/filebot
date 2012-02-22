@@ -2,9 +2,6 @@
 package net.sourceforge.filebot.web;
 
 
-import java.util.Arrays;
-
-
 public class Movie extends SearchResult {
 	
 	protected int year;
@@ -42,7 +39,11 @@ public class Movie extends SearchResult {
 	public boolean equals(Object object) {
 		if (object instanceof Movie) {
 			Movie other = (Movie) object;
-			return imdbId == other.imdbId && year == other.year && name.equals(other.name);
+			if (imdbId > 0 && other.imdbId > 0) {
+				return imdbId == other.imdbId;
+			}
+			
+			return year == other.year && name.equals(other.name);
 		}
 		
 		return false;
@@ -57,7 +58,7 @@ public class Movie extends SearchResult {
 	
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { name, year, imdbId });
+		return imdbId;
 	}
 	
 	

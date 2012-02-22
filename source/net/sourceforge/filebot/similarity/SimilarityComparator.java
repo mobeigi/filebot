@@ -7,25 +7,25 @@ import java.util.Comparator;
 
 public class SimilarityComparator implements Comparator<Object> {
 	
-	private SimilarityMetric metric;
-	private Object paragon;
+	protected SimilarityMetric metric;
+	protected Object[] paragon;
 	
 	
-	public SimilarityComparator(SimilarityMetric metric, Object paragon) {
+	public SimilarityComparator(SimilarityMetric metric, Object[] paragon) {
 		this.metric = metric;
 		this.paragon = paragon;
 	}
 	
 	
-	public SimilarityComparator(String paragon) {
+	public SimilarityComparator(String... paragon) {
 		this(new NameSimilarityMetric(), paragon);
 	}
 	
 	
 	@Override
 	public int compare(Object o1, Object o2) {
-		float f1 = metric.getSimilarity(o1, paragon);
-		float f2 = metric.getSimilarity(o2, paragon);
+		float f1 = getMaxSimilarity(o1);
+		float f2 = getMaxSimilarity(o2);
 		
 		if (f1 == f2)
 			return 0;
@@ -33,4 +33,12 @@ public class SimilarityComparator implements Comparator<Object> {
 		return f1 > f2 ? -1 : 1;
 	}
 	
+	
+	public float getMaxSimilarity(Object obj) {
+		float m = 0;
+		for (Object it : paragon) {
+			m += (it != null) ? metric.getSimilarity(obj, it) : 0;
+		}
+		return m / paragon.length;
+	}
 }
