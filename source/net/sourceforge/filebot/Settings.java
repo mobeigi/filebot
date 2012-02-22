@@ -8,9 +8,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.jar.Manifest;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -30,6 +27,11 @@ public final class Settings {
 	
 	public static String getApplicationVersion() {
 		return getApplicationProperty("application.version");
+	}
+	
+	
+	public static int getApplicationRevisionNumber() {
+		return Integer.parseInt(getApplicationProperty("application.revision"));
 	}
 	
 	
@@ -138,18 +140,6 @@ public final class Settings {
 			prefs.clear();
 		} catch (BackingStoreException e) {
 			throw ExceptionUtilities.asRuntimeException(e);
-		}
-	}
-	
-	
-	public static int getApplicationRevisionNumber() {
-		try {
-			Manifest manifest = new Manifest(Settings.class.getResourceAsStream("/META-INF/MANIFEST.MF"));
-			String rev = manifest.getMainAttributes().getValue("Built-Revision");
-			return Integer.parseInt(rev);
-		} catch (Exception e) {
-			Logger.getLogger(Settings.class.getName()).log(Level.WARNING, e.getMessage());
-			return 0;
 		}
 	}
 	
