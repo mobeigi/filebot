@@ -381,9 +381,6 @@ public class RenamePanel extends JComponent {
 				return;
 			}
 			
-			// auto-match in progress
-			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
-			
 			// clear names list
 			renameModel.values().clear();
 			
@@ -430,6 +427,9 @@ public class RenamePanel extends JComponent {
 					}
 				}
 			};
+			
+			// auto-match in progress
+			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 			
 			worker.execute();
 		}
