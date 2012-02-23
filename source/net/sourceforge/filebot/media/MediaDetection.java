@@ -134,12 +134,11 @@ public class MediaDetection {
 	
 	
 	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
-		// don't allow duplicates
-		Map<String, String> names = new LinkedHashMap<String, String>();
+		List<String> names = new ArrayList<String>();
 		
 		try {
 			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
-				names.put(it.getName().toLowerCase(), it.getName());
+				names.add(it.getName());
 			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage(), e);
@@ -147,17 +146,23 @@ public class MediaDetection {
 		
 		// cross-reference known series names against file structure
 		try {
+			Set<String> folders = new LinkedHashSet<String>();
 			Set<String> filenames = new LinkedHashSet<String>();
 			for (File f : files) {
 				for (int i = 0; i < 3 && f != null; i++, f = f.getParentFile()) {
-					filenames.add(f.getName());
+					(i == 0 ? filenames : folders).add(f.getName());
 				}
 			}
 			
-			// match folder names against known series names
-			for (String match : matchSeriesByName(filenames.toArray(new String[0]))) {
-				names.put(match.toLowerCase(), match);
+			// check foldernames first
+			List<String> matches = matchSeriesByName(folders);
+			
+			// check all filenames if necessary
+			if (matches.isEmpty()) {
+				matches = matchSeriesByName(filenames);
 			}
+			
+			names.addAll(matches);
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
 		}
@@ -169,15 +174,18 @@ public class MediaDetection {
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
 		}
-		for (String it : matches) {
-			names.put(it.toLowerCase(), it);
-		}
+		names.addAll(matches);
 		
-		return new ArrayList<String>(names.values());
+		// don't allow duplicates
+		Map<String, String> unique = new LinkedHashMap<String, String>();
+		for (String it : matches) {
+			unique.put(it.toLowerCase(), it);
+		}
+		return new ArrayList<String>(unique.values());
 	}
 	
 	
-	public static List<String> matchSeriesByName(String... names) throws Exception {
+	public static List<String> matchSeriesByName(Collection<String> names) throws Exception {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
 		List<String> matches = new ArrayList<String>();
 		
