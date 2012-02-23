@@ -38,6 +38,7 @@ File.metaClass.isDerived = { f -> isDerived(delegate, f) }
 File.metaClass.validateFileName = { validateFileName(delegate) }
 File.metaClass.validateFilePath = { validateFilePath(delegate) }
 File.metaClass.moveTo = { f -> moveRename(delegate, f instanceof File ? f : new File(f.toString())) }
+File.metaClass.copyTo = { dir -> copyAs(delegate, new File(dir, delegate.getName())) }
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 String.metaClass.getExtension = { getExtension(delegate) }
