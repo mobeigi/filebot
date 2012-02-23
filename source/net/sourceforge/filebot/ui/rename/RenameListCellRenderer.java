@@ -77,7 +77,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			}
 		}
 		
-		if (renameModel.preserveExtension() && renameModel.hasComplement(index)) {
+		if (renameModel.preserveExtension() && index < renameModel.size() && renameModel.getMatch(index).getCandidate() != null) {
 			typeRenderer.setText(getType(renameModel.getMatch(index).getCandidate()));
 			typeRenderer.setVisible(true);
 		}
