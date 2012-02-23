@@ -63,8 +63,8 @@ import static net.sourceforge.filebot.web.WebRequest.*
 
 URL.metaClass.get = { readAll(getReader(delegate.openConnection())) }
 URL.metaClass.fetch = { fetch(delegate) }
-URL.metaClass.getHtml = { new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(delegate))) }
-ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(false, false).parseText(getXmlString(getHtmlDocument(new StringReader(Charset.forName(csn).decode(delegate.duplicate()).toString())))) }
+URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(readAll(getReader(delegate.openConnection()))) }
+ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(Charset.forName(csn).decode(delegate.duplicate()).toString()) }
 
 URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
 URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
@@ -41,7 +42,6 @@ import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
@@ -155,8 +155,8 @@ public class MediaDetection {
 			}
 			
 			// match folder names against known series names
-			for (TheTVDBSearchResult match : matchSeriesByName(filenames.toArray(new String[0]))) {
-				names.put(match.getName().toLowerCase(), match.getName());
+			for (String match : matchSeriesByName(filenames.toArray(new String[0]))) {
+				names.put(match.toLowerCase(), match);
 			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
@@ -177,75 +177,29 @@ public class MediaDetection {
 	}
 	
 	
-	private static final HashMap<TheTVDBSearchResult, String> seriesNameIndex = new HashMap<TheTVDBSearchResult, String>(32768);
-	
-	
-	public static List<TheTVDBSearchResult> matchSeriesByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
-		final Map<TheTVDBSearchResult, String> matchMap = new HashMap<TheTVDBSearchResult, String>();
+	public static List<String> matchSeriesByName(String... names) throws Exception {
+		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
+		List<String> matches = new ArrayList<String>();
 		
-		synchronized (seriesNameIndex) {
-			if (seriesNameIndex.isEmpty()) {
-				for (TheTVDBSearchResult entry : releaseInfo.getSeriesList()) {
-					seriesNameIndex.put(entry, nameMatcher.normalize(entry.getName()));
-				}
-			}
-		}
-		
-		for (Entry<TheTVDBSearchResult, String> it : seriesNameIndex.entrySet()) {
+		for (String identifier : releaseInfo.getSeriesList()) {
 			for (String name : names) {
-				String identifier = it.getValue();
 				String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
 				if (commonName != null && commonName.length() >= identifier.length()) {
-					matchMap.put(it.getKey(), commonName);
+					matches.add(commonName);
 				}
 			}
 		}
 		
 		// sort by length of name match (descending)
-		List<TheTVDBSearchResult> results = new ArrayList<TheTVDBSearchResult>(matchMap.keySet());
-		sort(results, new Comparator<TheTVDBSearchResult>() {
+		sort(matches, new Comparator<String>() {
 			
 			@Override
-			public int compare(TheTVDBSearchResult a, TheTVDBSearchResult b) {
-				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
+			public int compare(String a, String b) {
+				return Integer.valueOf(b.length()).compareTo(Integer.valueOf(a.length()));
 			}
 		});
 		
-		return results;
-	}
-	
-	
-	public static Collection<AnidbSearchResult> matchAnimeByName(String... names) throws Exception {
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
-		final Map<AnidbSearchResult, String> matchMap = new HashMap<AnidbSearchResult, String>();
-		
-		for (final AnidbSearchResult entry : WebServices.AniDB.getAnimeTitles()) {
-			for (String identifier : new String[] { entry.getPrimaryTitle(), entry.getOfficialTitle("en") }) {
-				if (identifier == null || identifier.isEmpty())
-					continue;
-				
-				identifier = nameMatcher.normalize(identifier);
-				for (String name : names) {
-					String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
-					if (commonName != null && commonName.length() >= identifier.length()) {
-						matchMap.put(entry, commonName);
-					}
-				}
-			}
-		}
-		
-		// sort by length of name match (descending)
-		List<AnidbSearchResult> results = new ArrayList<AnidbSearchResult>(matchMap.keySet());
-		sort(results, new Comparator<AnidbSearchResult>() {
-			
-			@Override
-			public int compare(AnidbSearchResult a, AnidbSearchResult b) {
-				return Integer.valueOf(matchMap.get(b).length()).compareTo(Integer.valueOf(matchMap.get(a).length()));
-			}
-		});
-		
-		return results;
+		return matches;
 	}
 	
 	
@@ -366,7 +320,11 @@ public class MediaDetection {
 	
 	
 	public static String stripReleaseInfo(String name) throws IOException {
-		return releaseInfo.cleanRelease(name, true);
+		try {
+			return releaseInfo.cleanRelease(singleton(name), true).iterator().next();
+		} catch (NoSuchElementException e) {
+			return ""; // default value in case all tokens are stripped away
+		}
 	}
 	
 	

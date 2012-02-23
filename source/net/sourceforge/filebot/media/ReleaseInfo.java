@@ -6,11 +6,13 @@ import static java.util.Arrays.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.Collator;
@@ -32,7 +34,6 @@ import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 import net.sourceforge.tuned.ByteBufferInputStream;
 
 
@@ -89,28 +90,32 @@ public class ReleaseInfo {
 	}
 	
 	
-	public List<String> cleanRelease(Iterable<String> items, boolean strict) throws IOException {
+	public List<String> cleanRelease(Collection<String> items, boolean strict) throws IOException {
 		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
-		return clean(items, getReleaseGroupPattern(strict), getLanguageSuffixPattern(languages), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(), getLanguageOptionPattern(languages));
-	}
-	
-	
-	public String cleanRelease(String item, boolean strict) throws IOException {
-		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
-		return clean(item, getReleaseGroupPattern(strict), getLanguageSuffixPattern(languages), getVideoSourcePattern(), getVideoFormatPattern(), getResolutionPattern(), getBlacklistPattern(), getLanguageOptionPattern(languages));
-	}
-	
-	
-	public List<String> clean(Iterable<String> items, Pattern... blacklisted) {
-		List<String> cleanedItems = new ArrayList<String>();
+		
+		Pattern releaseGroup = getReleaseGroupPattern(strict);
+		Pattern languageSuffix = getLanguageSuffixPattern(languages);
+		Pattern languageTag = getLanguageTagPattern(languages);
+		Pattern videoSource = getVideoSourcePattern();
+		Pattern videoFormat = getVideoFormatPattern();
+		Pattern resolution = getResolutionPattern();
+		Pattern queryBlacklist = getBlacklistPattern();
+		
+		Pattern[] blacklist = new Pattern[] { releaseGroup, languageSuffix, languageTag, videoSource, videoFormat, resolution, queryBlacklist };
+		Pattern[] stopwords = new Pattern[] { getReleaseGroupPattern(true), languageSuffix, languageTag, videoSource, videoFormat, resolution };
+		
+		List<String> output = new ArrayList<String>(items.size());
 		for (String it : items) {
-			String cleanedItem = clean(it, blacklisted);
-			if (cleanedItem.length() > 0) {
-				cleanedItems.add(cleanedItem);
+			it = substringBefore(it, stopwords);
+			it = clean(it, blacklist);
+			
+			// ignore empty values
+			if (it.length() > 0) {
+				output.add(it);
 			}
 		}
 		
-		return cleanedItems;
+		return output;
 	}
 	
 	
@@ -123,7 +128,20 @@ public class ReleaseInfo {
 	}
 	
 	
-	public Pattern getLanguageOptionPattern(Collection<String> languages) {
+	public String substringBefore(String item, Pattern... stopwords) {
+		for (Pattern it : stopwords) {
+			Matcher matcher = it.matcher(item);
+			if (matcher.find()) {
+				return item.substring(0, matcher.start()); // use substring before the matched stopword
+			}
+		}
+		
+		// no stopword found, keep original string
+		return item;
+	}
+	
+	
+	public Pattern getLanguageTagPattern(Collection<String> languages) {
 		// [en]
 		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
@@ -172,7 +190,7 @@ public class ReleaseInfo {
 	}
 	
 	
-	public synchronized TheTVDBSearchResult[] getSeriesList() throws IOException {
+	public synchronized String[] getSeriesList() throws IOException {
 		return seriesListResource.get();
 	}
 	
@@ -186,7 +204,7 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
-	protected final CachedResource<TheTVDBSearchResult[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
+	protected final CachedResource<String[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {
@@ -206,7 +224,7 @@ public class ReleaseInfo {
 	protected static class MovieResource extends CachedResource<Movie[]> {
 		
 		public MovieResource(String resource) {
-			super(resource, Movie[].class, 24 * 60 * 60 * 1000); // 24h update interval
+			super(resource, Movie[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
 		}
 		
 		
@@ -227,25 +245,16 @@ public class ReleaseInfo {
 	}
 	
 	
-	protected static class SeriesResource extends CachedResource<TheTVDBSearchResult[]> {
+	protected static class SeriesResource extends CachedResource<String[]> {
 		
 		public SeriesResource(String resource) {
-			super(resource, TheTVDBSearchResult[].class, 24 * 60 * 60 * 1000); // 24h update interval
+			super(resource, String[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
 		}
 		
 		
 		@Override
-		public TheTVDBSearchResult[] process(ByteBuffer data) throws IOException {
-			Scanner scanner = new Scanner(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
-			
-			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>();
-			while (scanner.hasNext()) {
-				int sid = scanner.nextInt();
-				String name = scanner.next();
-				tvshows.add(new TheTVDBSearchResult(name, sid));
-			}
-			
-			return tvshows.toArray(new TheTVDBSearchResult[0]);
+		public String[] process(ByteBuffer data) throws IOException {
+			return readAll(new InputStreamReader(new GZIPInputStream(new ByteBufferInputStream(data)), "utf-8")).split("\\n");
 		}
 	}
 	
