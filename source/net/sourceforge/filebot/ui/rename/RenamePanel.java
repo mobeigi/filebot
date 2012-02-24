@@ -73,7 +73,7 @@ public class RenamePanel extends JComponent {
 	
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
-	private static final PreferencesEntry<String> persistentPreserveExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.preserve").defaultValue("true");
+	private static final PreferencesEntry<String> persistentOverrideExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.override").defaultValue("false");
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
@@ -88,7 +88,7 @@ public class RenamePanel extends JComponent {
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 		
 		// restore state
-		renameModel.setPreserveExtension(Boolean.parseBoolean(persistentPreserveExtension.getValue()));
+		renameModel.setPreserveExtension(!Boolean.parseBoolean(persistentOverrideExtension.getValue()));
 		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
@@ -280,8 +280,8 @@ public class RenamePanel extends JComponent {
 		
 		actionPopup.addDescription(new JLabel("Extension:"));
 		
-		actionPopup.add(new PreserveExtensionAction(true, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
-		actionPopup.add(new PreserveExtensionAction(false, "Override", ResourceManager.getIcon("action.extension.override")));
+		actionPopup.add(new OverrideExtensionAction(false, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
+		actionPopup.add(new OverrideExtensionAction(true, "Override", ResourceManager.getIcon("action.extension.override")));
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("History:"));
@@ -326,12 +326,12 @@ public class RenamePanel extends JComponent {
 	};
 	
 	
-	protected class PreserveExtensionAction extends AbstractAction {
+	protected class OverrideExtensionAction extends AbstractAction {
 		
 		private final boolean activate;
 		
 		
-		private PreserveExtensionAction(boolean activate, String name, Icon icon) {
+		private OverrideExtensionAction(boolean activate, String name, Icon icon) {
 			super(name, icon);
 			this.activate = activate;
 		}
@@ -339,7 +339,7 @@ public class RenamePanel extends JComponent {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			renameModel.setPreserveExtension(activate);
+			renameModel.setPreserveExtension(!activate);
 			
 			// use different file name formatter
 			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
@@ -348,7 +348,7 @@ public class RenamePanel extends JComponent {
 			filesList.repaint();
 			
 			// save state
-			persistentPreserveExtension.setValue(Boolean.toString(activate));
+			persistentOverrideExtension.setValue(Boolean.toString(activate));
 		}
 	}
 	

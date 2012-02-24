@@ -25,7 +25,7 @@ public class ProgressDialog extends JDialog {
 	
 	private final Cancellable cancellable;
 	
-
+	
 	public ProgressDialog(Window owner, Cancellable cancellable) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 		
@@ -50,12 +50,17 @@ public class ProgressDialog extends JDialog {
 		setSize(240, 155);
 	}
 	
-
+	
 	public void setIcon(Icon icon) {
 		iconLabel.setIcon(icon);
 	}
 	
-
+	
+	public void setIndeterminate(boolean b) {
+		progressBar.setIndeterminate(b);
+	}
+	
+	
 	public void setProgress(int value, int max) {
 		progressBar.setIndeterminate(false);
 		progressBar.setMinimum(0);
@@ -63,25 +68,30 @@ public class ProgressDialog extends JDialog {
 		progressBar.setMaximum(max);
 	}
 	
-
+	
 	public void setNote(String text) {
 		progressBar.setString(text);
 	}
 	
-
+	
 	@Override
 	public void setTitle(String text) {
 		super.setTitle(text);
 		headerLabel.setText(text);
 	}
 	
-
+	
+	public void setWindowTitle(String text) {
+		super.setTitle(text);
+	}
+	
+	
 	public void close() {
 		setVisible(false);
 		dispose();
 	}
 	
-
+	
 	protected final Action cancelAction = new AbstractAction("Cancel") {
 		
 		@Override
@@ -91,12 +101,12 @@ public class ProgressDialog extends JDialog {
 		}
 	};
 	
-
+	
 	public static interface Cancellable {
 		
 		boolean isCancelled();
 		
-
+		
 		boolean cancel();
 	}
 	

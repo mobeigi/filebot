@@ -72,6 +72,7 @@ class RenameAction extends AbstractAction {
 				// move/renaming will probably take a while
 				ProgressDialog dialog = createProgressDialog(window, renameJob);
 				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+				dialog.setIndeterminate(true);
 				
 				// display progress dialog and stop blocking EDT
 				window.setCursor(Cursor.getDefaultCursor());
@@ -170,8 +171,10 @@ class RenameAction extends AbstractAction {
 				if (name.equals("currentFile")) {
 					int i = job.renameLog.size();
 					int n = job.renameMap.size();
-					dialog.setProgress(i, n);
 					dialog.setNote(String.format("%d of %d", i + 1, n));
+					if (newValue instanceof File) {
+						dialog.setWindowTitle("Moving " + ((File) oldValue).getName());
+					}
 				}
 			}
 			

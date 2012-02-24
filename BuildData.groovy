@@ -1,3 +1,5 @@
+// filebot -script BuildData.groovy -trust-script "website/data/series.list.gz"
+
 def page = new URL('http://thetvdb.com/?string=&searchseriesid=&tab=listseries&function=Search')
 
 def names = page.fetch().getHtml('utf-8')
@@ -10,7 +12,7 @@ names += anime.findResults{ it.getPrimaryTitle() }
 names += anime.findResults{ it.getOfficialTitle('en') }
 
 names = names.findAll{ it =~ /^[A-Z]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) }
-names = names.sort().unique()
+names = names*.toLowerCase().sort().unique()
 
 
 args[0].withOutputStream{ out ->

@@ -77,18 +77,14 @@ public final class FileUtilities {
 	
 	
 	private static void moveFileIO(File source, File destination) throws IOException {
-		if (!source.renameTo(destination)) {
-			// use "copy and delete" as fallback if standard rename fails
-			org.apache.commons.io.FileUtils.moveFile(source, destination);
-		}
+		// use "copy and delete" as fallback if standard rename fails
+		org.apache.commons.io.FileUtils.moveFile(source, destination);
 	}
 	
 	
 	private static void moveFolderIO(File source, File destination) throws IOException {
-		if (!source.renameTo(destination)) {
-			// use "copy and delete" as fallback if standard move/rename fails
-			org.apache.commons.io.FileUtils.moveDirectory(source, destination);
-		}
+		// use "copy and delete" as fallback if standard move/rename fails
+		org.apache.commons.io.FileUtils.moveDirectory(source, destination);
 	}
 	
 	

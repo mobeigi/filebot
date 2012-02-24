@@ -34,6 +34,7 @@
 		<jar href="filebot.jar"       download="eager" main="true" />
 		<jar href="groovy.jar"        download="eager" />
 		<jar href="icu4j.jar"         download="eager" />
+		<jar href="commons-io.jar"    download="eager" />
 		<jar href="args4j.jar"        download="eager" />
 		<jar href="jna.jar"           download="eager" />
 		<jar href="miglayout.jar"     download="eager" />
@@ -49,7 +50,6 @@
 		<jar href="mediainfo.jar"     download="lazy" part="native"  />
 		<jar href="nekohtml.jar"      download="lazy" part="scraper" />
 		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
-		<jar href="commons-io.jar"    download="lazy" />
 		<jar href="junrar-custom.jar" download="lazy" />
 	</resources>
 	
