@@ -34,13 +34,13 @@ public class Archive implements Closeable {
 		// initialize 7z-JBinding native libs
 		try {
 			if (Platform.isWindows()) {
-				System.loadLibrary("lib7z-gcc");
+				System.loadLibrary(Platform.is64Bit() ? "libgcc_s_sjlj-1" : "mingwm10");
 			}
 			
-			System.loadLibrary("lib7z-JBinding");
+			System.loadLibrary("lib7-Zip-JBinding");
 			SevenZip.initLoadedLibraries();
 		} catch (Throwable e) {
-			Logger.getLogger(Archive.class.getName()).warning("Failed to load 7z-JBinding");
+			Logger.getLogger(Archive.class.getName()).warning("Failed to load 7z-JBinding: " + e.getMessage());
 		}
 	}
 	

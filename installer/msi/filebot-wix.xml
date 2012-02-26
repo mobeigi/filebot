@@ -32,8 +32,8 @@
 					<Component Id='ApplicationBase' Guid='9E365344-A00C-45DE-A2A4-266412C3D06E'>
 						<File Id='FileBot.jar' Name='FileBot.jar' Source='$(var.fatjar)' KeyPath='yes' />
 						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' />
-						<File Id='lib7z_JBinding.dll' Name='7z-JBinding.dll' Source='$(var.lib7z_binding)' />
-						<File Id='lib7z_gcc.dll' Name='7z-gcc.dll' Source='$(var.lib7z_gcc)' />
+						<File Id='lib7_Zip_JBinding.dll' Name='lib7-Zip-JBinding.dll' Source='$(var.lib7z_binding)' />
+						<File Id='libgcc.dll' Name='$(var.libgcc_name)' Source='$(var.libgcc_path)' />
 					</Component>
 				</Directory>
 			</Directory>

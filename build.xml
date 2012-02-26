@@ -141,6 +141,10 @@
 			<zipfileset src="${dir.lib}/jgat-custom.jar">
 				<include name="com/dmurph/tracking/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
+				<include name="net/sf/sevenzipjbinding/**" />
+			</zipfileset>
 		</jar>
 	</target>
 
@@ -199,20 +203,22 @@
 	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
+			<param name="libgcc_name" value="mingwm10.dll" />
 		</antcall>
 		<antcall target="msi-arch">
 			<param name="arch" value="x64" />
+			<param name="libgcc_name" value="libgcc_s_sjlj-1.dll" />
 		</antcall>
 	</target>
 
 	<target name="msi-arch">
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
-		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/lib7z-JBinding.dll" />
-		<property name="lib7z_gcc" location="${dir.lib}/native/win32-${arch}/lib7z-gcc.dll" />
+		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/lib7-Zip-JBinding.dll" />
+		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
-
+		
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlib7z_gcc=${lib7z_gcc}" />
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path}" />
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
