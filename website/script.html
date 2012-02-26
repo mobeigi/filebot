@@ -129,13 +129,14 @@
 					
 					<div class="documentation">
 					<h4>Rename media files</h4>
-					<pre><span class="return">File[]</span> <span class="method">rename</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>, <span class="property">strict</span>)</pre>
+					<pre><span class="return">File[]</span> <span class="method">rename</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">query</span>, <span class="property">output</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>, <span class="property">strict</span>)</pre>
 					<div class="text">Match files with episode/movie data and rename according to given naming scheme.</div>
 					<dl>
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>
 						<dd><span class="property">file</span> - process these media files</dd>
 						<dd><span class="property">query</span> - force series/movie name, auto-detect if not set</dd>
+						<dd><span class="property">output</span> - output folder, if format expression is not absolute</dd>
 						<dd><span class="property">format</span> - episode/movie naming scheme</dd>
 						<dd><span class="property">db</span> - episode/movie database</dd>
 						<dd><span class="property">lang</span> - preferred language for episode/movie titles</dd>
@@ -186,6 +187,15 @@
 					
 					<div class="documentation">
 					<h4>Other</h4>
+					<pre><span class="return">File[]</span> <span class="method">extract</span>(<span class="property">folder</span>|<span class="property">file</span>, <span class="property">output</span>)</pre>
+					<div class="text">Extract files from single-volume or multi-volume archives (.zip, .rar, .7z, etc).</div>
+					<dl>
+						<dt>Parameters:</dt>
+						<dd><span class="property">folder</span> - extract all archives that are in this folder</dd>
+						<dd><span class="property">file</span> - extract this archive</dd>
+						<dd><span class="property">output</span> - output folder, defaults to archive path</dd>
+					</dl>
+					<hr/>
 					<pre><span class="return">String[]</span> <span class="method">fetchEpisodeList</span>(<span class="property">query</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>)</pre>
 					<div class="text">Fetch episode data for the given tv show and format episode names.</div>
 					<dl>

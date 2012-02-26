@@ -133,6 +133,10 @@
 					</p>
 					<h3 id="scripting">Scripting</h3>
 					<p>
+					<code><span class="cmd">filebot</span> <span class="option">-extract</span> <span class="argument">"300.part01.rar"</span> <span class="option">--output</span> <span class="argument">path/to/folder</span></code></code>
+					Extract files from single-volume or multi-volume archives (e.g. rar).
+					</p>
+					<p>
 					<code><span class="cmd">filebot</span> <span class="option">-list</span> <span class="option">--db</span> <span class="argument">thetvdb</span> <span class="option">--q</span> <span class="argument">Dexter</span> <span class="option">--format</span> <span class="argument">"{s}x{e.pad(2)} {t}"</span></code>
 					Fetch episode list and print to console.
 					</p>
@@ -222,6 +226,11 @@
 							<td>-check</td>
 							<td>create/check verification file</td>
 							<td>folder or sfv file</td>
+						</tr>
+						<tr>
+							<td>-extract</td>
+							<td>extract archives</td>
+							<td>folder or archive file</td>
 						</tr>
 						<tr>
 							<td>--output</td>

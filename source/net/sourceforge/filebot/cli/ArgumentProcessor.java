@@ -8,8 +8,8 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.security.AccessController;
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.logging.Level;
 
 import javax.script.Bindings;
@@ -60,7 +60,11 @@ public class ArgumentProcessor {
 			// execute CLI operations
 			if (args.script == null) {
 				// file operations
-				Set<File> files = new LinkedHashSet<File>(args.getFiles(true));
+				Collection<File> files = new LinkedHashSet<File>(args.getFiles(true));
+				
+				if (args.extract) {
+					files.addAll(cli.extract(files, args.output));
+				}
 				
 				if (args.getSubtitles) {
 					files.addAll(cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
@@ -69,7 +73,7 @@ public class ArgumentProcessor {
 				}
 				
 				if (args.rename) {
-					cli.rename(files, args.query, args.format, args.db, args.order, args.lang, !args.nonStrict);
+					cli.rename(files, args.query, args.output, args.format, args.db, args.order, args.lang, !args.nonStrict);
 				}
 				
 				if (args.check) {

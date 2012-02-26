@@ -6,7 +6,9 @@
 	<property name="title" value="${application.name}" />
 	<property name="version" value="${application.version}" />
 
-	<tstamp><format property="today" pattern="yyyy-MM-dd" /></tstamp>
+	<tstamp>
+		<format property="today" pattern="yyyy-MM-dd" />
+	</tstamp>
 
 	<!-- define source dirs -->
 	<property name="dir.source" location="${basedir}/source" />
@@ -66,64 +68,64 @@
 				<include name="org/apache/**" />
 				<include name="org/w3c/dom/html/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="org/cyberneko/html/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/json-simple.jar">
 				<include name="org/json/simple/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/glazedlists.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/miglayout.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/ehcache.jar">
 				<include name="net/sf/ehcache/**" />
 				<include name="ehcache-failsafe.xml" />
 				<include name="ehcache-version.properties" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/slf4j.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/slf4j-jdk.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/commons-io.jar">
 				<include name="org/apache/commons/io/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/jna.jar">
 				<!-- include classes and native libraries -->
 				<include name="com/sun/jna/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/groovy.jar">
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/icu4j.jar">
 				<include name="com/ibm/icu/**" />
 			</zipfileset>
@@ -131,11 +133,11 @@
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
 				<include name="net/sublight/webservice/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/junrar-custom.jar">
 				<include name="de/innosystec/unrar/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/jgat-custom.jar">
 				<include name="com/dmurph/tracking/**" />
 			</zipfileset>
@@ -146,16 +148,16 @@
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
 		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.lib}/build/jarbundler.jar" />
 		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
-		
+
 		<!-- build app bundle folder and add native libs -->
 		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
-			<javaproperty name="application.deployment" value="app"/>
+			<javaproperty name="application.deployment" value="app" />
 		</jarbundler>
-		
+
 		<!-- shell scripts -->
 		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/filebot" />
 		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/install.sh" />
-		
+
 		<copy todir="${dir.dist}/${title}.app/Contents/Resources/Java">
 			<fileset dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
 		</copy>
@@ -163,14 +165,15 @@
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" /> <!-- IMPORTANT application stub must be executable!! -->
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" />
+			<!-- IMPORTANT application stub must be executable!! -->
 		</tar>
 	</target>
 
 
 	<target name="deb" depends="fatjar" description="Build debian package for i386 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
-		
+
 		<antcall target="deb-arch">
 			<param name="arch" value="i386" />
 		</antcall>
@@ -204,31 +207,33 @@
 
 	<target name="msi-arch">
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
+		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/lib7z-JBinding.dll" />
+		<property name="lib7z_gcc" location="${dir.lib}/native/win32-${arch}/lib7z-gcc.dll" />
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo}" />
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlib7z_gcc=${lib7z_gcc}" />
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
 		</exec>
 	</target>
-	
-	
+
+
 	<target name="portable" depends="fatjar" description="Portable application package">
-		<mkdir dir="${dir.dist}/portable"/>
+		<mkdir dir="${dir.dist}/portable" />
 		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
 		<copy todir="${dir.dist}/portable">
 			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.sh" />
 		</copy>
-		
+
 		<zip destfile="${dir.dist}/FileBot_${version}-portable.zip">
 			<zipfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini" />
 			<zipfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
 		</zip>
 	</target>
-	
-	
+
+
 	<target name="webstart" depends="jar" description="Build and compress jars used for webstart deployment">
 		<!-- create dirs -->
 		<mkdir dir="${dir.dist}/webstart" />
@@ -248,7 +253,7 @@
 		<jar destfile="${dir.dist}/webstart/jna.jar">
 			<zipfileset src="${dir.lib}/jna.jar" includes="**/*.class" />
 		</jar>
-		
+
 		<!-- create mediainfo jar as seperate jar and use as trigger for lazy loading the native libs -->
 		<jar destfile="${dir.dist}/webstart/mediainfo.jar">
 			<fileset dir="${dir.build}" includes="net/sourceforge/filebot/mediainfo/**" />
@@ -292,7 +297,7 @@
 		<signjar alias="filebot" keystore="filebot.keystore" storepass="secret">
 			<fileset id="signjar" dir="${dir.dist}/webstart" includes="**/*.jar" />
 		</signjar>
-		
+
 		<!-- pack200 all jars -->
 		<apply executable="pack200" dest="${dir.dist}/webstart">
 			<!-- workaround for bug 6575373, see http://bugs.sun.com/view_bug.do?bug_id=6575373 -->
@@ -383,11 +388,17 @@
 
 	<target name="svn-update">
 		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
-			<classpath><fileset dir="${dir.lib}/build" includes="*.jar" /></classpath>
+			<classpath>
+				<fileset dir="${dir.lib}/build" includes="*.jar" />
+			</classpath>
 		</typedef>
 		<svnSetting id="svn.settings" svnkit="true" javahl="false" />
-		<svn refid="svn.settings"><update dir="${dir.source}" revision="HEAD" recurse="false" /></svn>
-		<svn refid="svn.settings"><status path="${dir.source}" revisionProperty="svn.revision" /></svn>
+		<svn refid="svn.settings">
+			<update dir="${dir.source}" revision="HEAD" recurse="false" />
+		</svn>
+		<svn refid="svn.settings">
+			<status path="${dir.source}" revisionProperty="svn.revision" />
+		</svn>
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
@@ -419,7 +430,7 @@
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
 		</scp>
-		
+
 		<!-- deploy portable application package -->
 		<sleep seconds="5" />
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">

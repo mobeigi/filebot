@@ -52,10 +52,10 @@ public class ArgumentBean {
 	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
 	public boolean check;
 	
-	@Option(name = "--output", usage = "Output options", metaVar = "[sfv, md5, sha1] or [srt]")
+	@Option(name = "--output", usage = "Output path / format", metaVar = "Output options")
 	public String output;
 	
-	@Option(name = "--encoding", usage = "Character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
+	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
 	public String encoding;
 	
 	@Option(name = "-list", usage = "Fetch episode list")
@@ -63,6 +63,9 @@ public class ArgumentBean {
 	
 	@Option(name = "-mediainfo", usage = "Get media info")
 	public boolean mediaInfo = false;
+	
+	@Option(name = "-extract", usage = "Extract archives")
+	public boolean extract = false;
 	
 	@Option(name = "-script", usage = "Run Groovy script", metaVar = "robot.groovy")
 	public String script = null;
@@ -93,7 +96,7 @@ public class ArgumentBean {
 	
 	
 	public boolean runCLI() {
-		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || script != null;
+		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
 	}
 	
 	

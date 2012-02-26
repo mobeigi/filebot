@@ -42,6 +42,8 @@ import java.util.concurrent.Future;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.archive.Archive;
+import net.sourceforge.filebot.archive.FileMapper;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
@@ -78,9 +80,10 @@ import net.sourceforge.tuned.FileUtilities.FolderFilter;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public List<File> rename(Collection<File> files, String query, String expression, String db, String sortOrder, String languageName, boolean strict) throws Exception {
+	public List<File> rename(Collection<File> files, String query, String output, String expression, String db, String sortOrder, String languageName, boolean strict) throws Exception {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		Locale locale = getLanguage(languageName).toLocale();
+		File outputDir = (output != null && output.length() > 0) ? new File(output) : null;
 		
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
@@ -89,12 +92,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		if (getEpisodeListProvider(db) != null) {
 			// tv series mode
-			return renameSeries(files, query, format, getEpisodeListProvider(db), SortOrder.forName(sortOrder), locale, strict);
+			return renameSeries(files, query, outputDir, format, getEpisodeListProvider(db), SortOrder.forName(sortOrder), locale, strict);
 		}
 		
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
-			return renameMovie(files, query, format, getMovieIdentificationService(db), locale, strict);
+			return renameMovie(files, query, outputDir, format, getMovieIdentificationService(db), locale, strict);
 		}
 		
 		// auto-determine mode
@@ -125,14 +128,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
-			return renameSeries(files, query, format, getEpisodeListProviders()[0], SortOrder.forName(sortOrder), locale, strict); // use default episode db
+			return renameSeries(files, query, outputDir, format, getEpisodeListProviders()[0], SortOrder.forName(sortOrder), locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, query, format, getMovieIdentificationServices()[0], locale, strict); // use default movie db
+			return renameMovie(files, query, outputDir, format, getMovieIdentificationServices()[0], locale, strict); // use default movie db
 		}
 	}
 	
 	
-	public List<File> renameSeries(Collection<File> files, String query, ExpressionFormat format, EpisodeListProvider db, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, String query, File outputDir, ExpressionFormat format, EpisodeListProvider db, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
@@ -179,7 +182,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			File file = match.getValue();
 			Episode episode = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
-			File newFile = new File(newName + "." + getExtension(file));
+			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
 			if (isInvalidFilePath(newFile)) {
 				CLILogger.config("Stripping invalid characters from new name: " + newName);
@@ -264,7 +267,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMovie(Collection<File> files, String query, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+	public List<File> renameMovie(Collection<File> files, String query, File outputDir, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
 		// handle movie files
@@ -908,6 +911,32 @@ public class CmdlineOperations implements CmdlineInterface {
 	public String getMediaInfo(File file, String expression) throws Exception {
 		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
 		return format.format(new MediaBindingBean(file, file));
+	}
+	
+	
+	@Override
+	public List<File> extract(Collection<File> files, String output) throws Exception {
+		// only keep single-volume archives or first part of multi-volume archives
+		List<File> archiveFiles = filter(files, Archive.VOLUME_ONE_FILTER);
+		List<File> extractedFiles = new ArrayList<File>();
+		
+		for (File file : archiveFiles) {
+			Archive archive = new Archive(file);
+			File outputFolder = (output != null) ? new File(output).getAbsoluteFile() : new File(file.getParentFile(), getNameWithoutExtension(file.getName()));
+			
+			CLILogger.info(String.format("Extract archive [%s] to [%s]", file.getName(), outputFolder));
+			FileMapper outputMapper = new FileMapper(outputFolder, false);
+			
+			List<File> entries = archive.listFiles();
+			for (File entry : entries) {
+				extractedFiles.add(outputMapper.getOutputFile(entry));
+			}
+			
+			CLILogger.finest("Extract files " + entries);
+			archive.extract(outputMapper);
+		}
+		
+		return extractedFiles;
 	}
 	
 }

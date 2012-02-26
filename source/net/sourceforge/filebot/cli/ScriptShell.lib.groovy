@@ -61,11 +61,13 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import static net.sourceforge.filebot.web.WebRequest.*
 
-URL.metaClass.get = { readAll(getReader(delegate.openConnection())) }
+URL.metaClass.getText = { readAll(getReader(delegate.openConnection())) }
+URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate.getText()) }
 URL.metaClass.fetch = { fetch(delegate) }
-URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(readAll(getReader(delegate.openConnection()))) }
-ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(Charset.forName(csn).decode(delegate.duplicate()).toString()) }
+ByteBuffer.metaClass.getText = { csn = "utf-8" -> Charset.forName(csn).decode(delegate.duplicate()).toString() }
+ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate.getText(csn)) }
 
+URL.metaClass.get = { delegate.getText() }
 URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
 URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
 URL.metaClass.post = { String text, csn = 'utf-8' -> delegate.post(text.getBytes(csn), 'text/plain') }
@@ -209,6 +211,12 @@ def check(args) {
 def compute(args) { args = _defaults(args)
 	synchronized (_cli) {
 		_guarded { _cli.compute(_files(args), args.output, args.encoding) }
+	}
+}
+
+def extract(args) { args = _defaults(args)
+	synchronized (_cli) {
+		_guarded { _cli.extract(_files(args), args.output) }
 	}
 }
 

@@ -30,7 +30,10 @@
 		<extension>zip</extension>
 	</type>
 	<type name="archive/rar">
-		<extension>rar</extension>	
+		<extension>rar</extension>
+	</type>
+	<type name="archive/7z">
+		<extension>7z</extension>
 	</type>
 	<type name="archive/gzip">
 		<extension>gzip</extension>
@@ -38,6 +41,9 @@
 	</type>
 	<type name="archive/tar">
 		<extension>tar</extension>
+	</type>
+	<type name="archive/bzip2">
+		<extension>bzip2</extension>
 	</type>
 
 	<!-- Audio -->
@@ -119,7 +125,7 @@
 		<extension>sami</extension>
 	</type>
 	<type name="subtitle/VobSub">
-		<extension>sub</extension>	
+		<extension>sub</extension>
 		<extension>idx</extension>
 	</type>
 </media-types>
