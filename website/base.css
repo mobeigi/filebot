@@ -2,6 +2,7 @@ body {
 	font-family: arial, dejavu sans, freesans;
 	font-size: 16px;
 	background-color: #e6e6e6;
+	margin-top: 0;
 }
 
 a, acronym {
@@ -32,6 +33,19 @@ hr {
 	border-color: lightgray;
 }
 
+.top {
+	text-align: center;
+	margin: 0px auto;
+}
+
+.top small {
+	font-size: 11px;
+	line-height: 15px;
+	padding: 2px 5px;
+	background: white;
+	border-radius: 0 0 7px 7px;
+	box-shadow: 0px 2px 5px #a2a2a2;
+}
 
 .navigation {
 	font: 11px Verdana, Arial, Helvetica, sans-serif;
@@ -111,7 +125,6 @@ table.reference.cli > * > * > td:first-child {
 	background: white;
 	background-repeat: no-repeat;
 	border: 1px solid #a2a2a2;
-	margin: 20px auto;
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;

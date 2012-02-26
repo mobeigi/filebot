@@ -9,10 +9,12 @@
 ^Info
 ^Movie
 ^SAMPLE
+^Season.[0-9]+
 ^Tracker
 ^Trailer
 A.Release.Lounge
 Anime[s]?
+By.Cool.Release
 CD[0]?[1-3]
 CN
 CVCD

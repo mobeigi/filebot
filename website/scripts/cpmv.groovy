@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/cpmv.groovy" <folder>
+// filebot -script "http://filebot.sf.net/scripts/cpmv.groovy" -trust-script <folder>
 
 // copy files
 def temp = args*.copyTo("E:/filebot-temp")
