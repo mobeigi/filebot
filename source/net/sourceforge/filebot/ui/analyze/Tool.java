@@ -15,6 +15,7 @@ import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
 abstract class Tool<M> extends JComponent {
@@ -26,20 +27,21 @@ abstract class Tool<M> extends JComponent {
 		setName(name);
 	}
 	
-
+	
 	public void setSourceModel(FolderNode sourceModel) {
 		if (updateTask != null) {
 			updateTask.cancel(true);
 		}
 		
+		Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
 		updateTask = new UpdateModelTask(sourceModel);
 		updateTask.execute();
 	}
 	
-
+	
 	protected abstract M createModelInBackground(FolderNode sourceModel) throws InterruptedException;
 	
-
+	
 	protected abstract void setModel(M model);
 	
 	
@@ -52,15 +54,19 @@ abstract class Tool<M> extends JComponent {
 			this.sourceModel = sourceModel;
 		}
 		
-
+		
 		@Override
 		protected M doInBackground() throws Exception {
 			return createModelInBackground(sourceModel);
 		}
 		
-
+		
 		@Override
 		protected void done() {
+			if (this == updateTask) {
+				Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
+			}
+			
 			// update task will only be cancelled if a newer update task has been started
 			if (this == updateTask && !isCancelled()) {
 				try {

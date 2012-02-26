@@ -20,9 +20,10 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 
 
-public class TypeTool extends Tool<TreeModel> {
+class TypeTool extends Tool<TreeModel> {
 	
 	private FileTree tree = new FileTree();
 	
@@ -35,13 +36,13 @@ public class TypeTool extends Tool<TreeModel> {
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
 		
-		add(treeScrollPane, "grow");
+		add(new LoadingOverlayPane(treeScrollPane, this), "grow");
 		
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
 	}
 	
-
+	
 	@Override
 	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
 		Map<String, List<File>> map = new HashMap<String, List<File>>();
@@ -86,7 +87,7 @@ public class TypeTool extends Tool<TreeModel> {
 		return new DefaultTreeModel(root);
 	}
 	
-
+	
 	@Override
 	protected void setModel(TreeModel model) {
 		tree.setModel(model);

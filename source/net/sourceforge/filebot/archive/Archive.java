@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.jna.Platform;
@@ -112,13 +114,17 @@ public class Archive implements Closeable {
 	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		
-		private Pattern exclude = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]*[2-9][.]rar$|[.][0-9]*[2-9]$", Pattern.CASE_INSENSITIVE);
+		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.]rar$|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
 		
 		
 		@Override
 		public boolean accept(File path) {
-			if (exclude.matcher(path.getName()).find()) {
-				return false;
+			Matcher matcher = volume.matcher(path.getName());
+			if (matcher.find()) {
+				Scanner scanner = new Scanner(matcher.group()).useDelimiter("\\D+");
+				if (!scanner.hasNext() || scanner.nextInt() != 1) {
+					return false;
+				}
 			}
 			
 			String ext = getExtension(path.getName());

@@ -24,10 +24,11 @@ import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.tuned.ui.LoadingOverlayPane;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 
 
-public class SplitTool extends Tool<TreeModel> implements ChangeListener {
+class SplitTool extends Tool<TreeModel> implements ChangeListener {
 	
 	private FileTree tree = new FileTree();
 	
@@ -35,7 +36,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 	
 	
 	public SplitTool() {
-		super("Discs");
+		super("Disks");
 		
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
@@ -45,7 +46,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		
 		setLayout(new MigLayout("insets 0, nogrid, fill", "align center", "[fill][pref!]"));
 		
-		add(treeScrollPane, "grow, wrap");
+		add(new LoadingOverlayPane(treeScrollPane, this), "grow, wrap");
 		
 		add(new JLabel("Split every"));
 		add(spinner, "wmax 80, gap top rel, gap bottom unrel");
@@ -104,7 +105,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 			
 			if (totalSize + fileSize > splitSize) {
 				// part is full, add node and start with next one
-				root.add(createStatisticsNode(String.format("Part %d", nextPart++), currentPart));
+				root.add(createStatisticsNode(String.format("Disk %d", nextPart++), currentPart));
 				
 				// reset total size and file list
 				totalSize = 0;
@@ -122,7 +123,7 @@ public class SplitTool extends Tool<TreeModel> implements ChangeListener {
 		
 		if (!currentPart.isEmpty()) {
 			// add last part
-			root.add(createStatisticsNode(String.format("Part %d", nextPart++), currentPart));
+			root.add(createStatisticsNode(String.format("Disk %d", nextPart++), currentPart));
 		}
 		
 		if (!remainder.isEmpty()) {

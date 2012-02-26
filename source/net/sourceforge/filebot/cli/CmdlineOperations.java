@@ -922,18 +922,22 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		for (File file : archiveFiles) {
 			Archive archive = new Archive(file);
-			File outputFolder = (output != null) ? new File(output).getAbsoluteFile() : new File(file.getParentFile(), getNameWithoutExtension(file.getName()));
-			
-			CLILogger.info(String.format("Extract archive [%s] to [%s]", file.getName(), outputFolder));
-			FileMapper outputMapper = new FileMapper(outputFolder, false);
-			
-			List<File> entries = archive.listFiles();
-			for (File entry : entries) {
-				extractedFiles.add(outputMapper.getOutputFile(entry));
+			try {
+				File outputFolder = (output != null) ? new File(output).getAbsoluteFile() : new File(file.getParentFile(), getNameWithoutExtension(file.getName()));
+				
+				CLILogger.info(String.format("Extract archive [%s] to [%s]", file.getName(), outputFolder));
+				FileMapper outputMapper = new FileMapper(outputFolder, false);
+				
+				List<File> entries = archive.listFiles();
+				for (File entry : entries) {
+					extractedFiles.add(outputMapper.getOutputFile(entry));
+				}
+				
+				CLILogger.finest("Extract files " + entries);
+				archive.extract(outputMapper);
+			} finally {
+				archive.close();
 			}
-			
-			CLILogger.finest("Extract files " + entries);
-			archive.extract(outputMapper);
 		}
 		
 		return extractedFiles;

@@ -37,13 +37,12 @@ public class ProgressDialog extends JDialog {
 		headerLabel.setFont(headerLabel.getFont().deriveFont(18f));
 		progressBar.setIndeterminate(true);
 		progressBar.setStringPainted(true);
-		
 		JPanel c = (JPanel) getContentPane();
 		c.setLayout(new MigLayout("insets dialog, nogrid, fill"));
 		
 		c.add(iconLabel, "h pref!, w pref!");
 		c.add(headerLabel, "gap 3mm, wrap paragraph");
-		c.add(progressBar, "grow, wrap paragraph");
+		c.add(progressBar, "hmin 25px, grow, wrap paragraph");
 		
 		c.add(new JButton(cancelAction), "align center");
 		

@@ -26,18 +26,20 @@ public class AnalyzePanel extends JComponent {
 		add(fileTreePanel, "grow, sizegroupx column");
 		add(toolsPanel, "grow, sizegroupx column");
 		
-		addTool(new TypeTool());
+		addTool(new ExtractTool());
 		addTool(new SplitTool());
+		addTool(new TypeTool());
 		
 		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());
 		
 		fileTreePanel.addPropertyChangeListener("filetree", filetreeListener);
 	}
 	
-
+	
 	private void addTool(Tool<?> tool) {
 		toolsPanel.addTab(tool.getName(), tool);
 	}
+	
 	
 	private final PropertyChangeListener filetreeListener = new PropertyChangeListener() {
 		
