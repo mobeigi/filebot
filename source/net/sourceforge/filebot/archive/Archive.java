@@ -30,7 +30,14 @@ import net.sf.sevenzipjbinding.SevenZipException;
 
 public class Archive implements Closeable {
 	
-	static {
+	private static boolean nativeLibrariesLoaded = false;
+	
+	
+	private static synchronized void requireNativeLibraries() {
+		if (nativeLibrariesLoaded) {
+			return;
+		}
+		
 		// initialize 7z-JBinding native libs
 		try {
 			if (Platform.isWindows()) {
@@ -39,16 +46,21 @@ public class Archive implements Closeable {
 			
 			System.loadLibrary("lib7-Zip-JBinding");
 			SevenZip.initLoadedLibraries();
+			nativeLibrariesLoaded = true;
 		} catch (Throwable e) {
 			Logger.getLogger(Archive.class.getName()).warning("Failed to load 7z-JBinding: " + e.getMessage());
 		}
 	}
+	
 	
 	private ISevenZipInArchive inArchive;
 	private Closeable openVolume;
 	
 	
 	public Archive(File file) throws SevenZipException, IOException {
+		// initialize 7-Zip-JBinding
+		requireNativeLibraries();
+		
 		if (!file.exists()) {
 			throw new FileNotFoundException(file.getAbsolutePath());
 		}
