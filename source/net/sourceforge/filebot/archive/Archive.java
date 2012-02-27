@@ -14,7 +14,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +25,7 @@ import net.sf.sevenzipjbinding.ISevenZipInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 
 public class Archive implements Closeable {
@@ -33,7 +33,7 @@ public class Archive implements Closeable {
 	private static boolean nativeLibrariesLoaded = false;
 	
 	
-	private static synchronized void requireNativeLibraries() {
+	private static synchronized void requireNativeLibraries() throws SevenZipNativeInitializationException {
 		if (nativeLibrariesLoaded) {
 			return;
 		}
@@ -48,7 +48,7 @@ public class Archive implements Closeable {
 			SevenZip.initLoadedLibraries();
 			nativeLibrariesLoaded = true;
 		} catch (Throwable e) {
-			Logger.getLogger(Archive.class.getName()).warning("Failed to load 7z-JBinding: " + e.getMessage());
+			throw new SevenZipNativeInitializationException("Failed to load 7z-JBinding: " + e.getMessage(), e);
 		}
 	}
 	
@@ -57,7 +57,7 @@ public class Archive implements Closeable {
 	private Closeable openVolume;
 	
 	
-	public Archive(File file) throws SevenZipException, IOException {
+	public Archive(File file) throws IOException, SevenZipException, SevenZipNativeInitializationException {
 		// initialize 7-Zip-JBinding
 		requireNativeLibraries();
 		
