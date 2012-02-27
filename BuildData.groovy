@@ -43,6 +43,10 @@ def names = page.fetch().getHtml('utf-8')
 .depthFirst().TR.findAll{ it.TD.size() == 3 && it.TD[1].text() == 'English'}
 .findResults{ it.TD[0].A.text() }
 
+if (names.size() == 0) {
+	throw new Exception("Failed to scrape series names")
+}
+
 def anime = net.sourceforge.filebot.WebServices.AniDB.getAnimeTitles()
 names += anime.findResults{ it.getPrimaryTitle() }
 names += anime.findResults{ it.getOfficialTitle('en') }
