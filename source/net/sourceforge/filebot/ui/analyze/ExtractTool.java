@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -100,7 +99,7 @@ class ExtractTool extends Tool<TableModel> {
 					if (findCause(e, InterruptedException.class) != null) {
 						throw findCause(e, InterruptedException.class);
 					}
-					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+					UILogger.log(Level.WARNING, e.getMessage(), e);
 				}
 			}
 			
