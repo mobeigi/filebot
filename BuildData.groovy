@@ -52,7 +52,7 @@ names += anime.findResults{ it.getPrimaryTitle() }
 names += anime.findResults{ it.getOfficialTitle('en') }
 
 names = names.findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) }
-names = names*.toLowerCase().sort().unique()
+names = names.sort().unique()
 
 
 gz(s_out, names)

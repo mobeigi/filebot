@@ -80,12 +80,12 @@ class ExtractTool extends Tool<TableModel> {
 	protected TableModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 		
-		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
-			File file = iterator.next();
-			
-			// ignore non-archives files and trailing multi-volume parts
-			if (Archive.VOLUME_ONE_FILTER.accept(file)) {
-				try {
+		try {
+			for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
+				File file = iterator.next();
+				
+				// ignore non-archives files and trailing multi-volume parts
+				if (Archive.VOLUME_ONE_FILTER.accept(file)) {
 					Archive archive = new Archive(file);
 					try {
 						for (File it : archive.listFiles()) {
@@ -94,19 +94,19 @@ class ExtractTool extends Tool<TableModel> {
 					} finally {
 						archive.close();
 					}
-				} catch (Exception e) {
-					// unwind thread, if we have been cancelled
-					if (findCause(e, InterruptedException.class) != null) {
-						throw findCause(e, InterruptedException.class);
-					}
-					UILogger.log(Level.WARNING, e.getMessage(), e);
+				}
+				
+				// unwind thread, if we have been cancelled
+				if (Thread.interrupted()) {
+					throw new InterruptedException();
 				}
 			}
-			
+		} catch (Exception e) {
 			// unwind thread, if we have been cancelled
-			if (Thread.interrupted()) {
-				throw new InterruptedException();
+			if (findCause(e, InterruptedException.class) != null) {
+				throw findCause(e, InterruptedException.class);
 			}
+			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 		
 		return new ArchiveEntryModel(entries);
