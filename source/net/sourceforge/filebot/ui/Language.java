@@ -18,40 +18,40 @@ public class Language {
 	private final String code;
 	private final String name;
 	
-
+	
 	public Language(String code, String name) {
 		this.code = code;
 		this.name = name;
 	}
 	
-
+	
 	public String getCode() {
 		return code;
 	}
 	
-
+	
 	public String getName() {
 		return name;
 	}
 	
-
+	
 	@Override
 	public String toString() {
 		return name;
 	}
 	
-
+	
 	public Locale toLocale() {
 		return new Locale(getCode());
 	}
 	
-
+	
 	@Override
 	public Language clone() {
 		return new Language(code, name);
 	}
 	
-
+	
 	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
 		
 		@Override
@@ -60,18 +60,18 @@ public class Language {
 		}
 	};
 	
-
+	
 	public static Language getLanguage(String code) {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		
 		try {
 			return new Language(code, bundle.getString(code + ".name"));
 		} catch (Exception e) {
-			return null;
+			return new Language(code, new Locale(code).getDisplayLanguage(Locale.ROOT));
 		}
 	}
 	
-
+	
 	public static List<Language> getLanguages(String... codes) {
 		Language[] languages = new Language[codes.length];
 		
@@ -82,7 +82,7 @@ public class Language {
 		return asList(languages);
 	}
 	
-
+	
 	public static Language getLanguageByName(String name) {
 		for (Language it : availableLanguages()) {
 			if (name.equalsIgnoreCase(it.getName()))
@@ -92,7 +92,7 @@ public class Language {
 		return null;
 	}
 	
-
+	
 	public static String getISO3LanguageCodeByName(String languageName) {
 		Language language = Language.getLanguageByName(languageName);
 		if (language != null) {
@@ -106,19 +106,19 @@ public class Language {
 		return null;
 	}
 	
-
+	
 	public static List<Language> availableLanguages() {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		return getLanguages(bundle.getString("languages.all").split(","));
 	}
 	
-
+	
 	public static List<Language> commonLanguages() {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 		return getLanguages(bundle.getString("languages.common").split(","));
 	}
 	
-
+	
 	public static List<Language> preferredLanguages() {
 		Set<String> codes = new LinkedHashSet<String>();
 		

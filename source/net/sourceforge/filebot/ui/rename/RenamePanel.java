@@ -235,7 +235,9 @@ public class RenamePanel extends JComponent {
 					@Override
 					public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 						super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-						setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
+						if (value != null) {
+							setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
+						}
 						return this;
 					}
 				});
