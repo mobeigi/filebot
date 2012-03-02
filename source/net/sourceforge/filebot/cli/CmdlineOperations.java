@@ -405,7 +405,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			File file = match.getValue();
 			Object movie = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
-			File newFile = new File(newName + "." + getExtension(file));
+			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
 			if (isInvalidFilePath(newFile)) {
 				CLILogger.config("Stripping invalid characters from new path: " + newName);
@@ -680,7 +680,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	public List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults, boolean strict) {
 		// auto-select most probable search result
-		Map<String, SearchResult> probableMatches = new TreeMap<String, SearchResult>(String.CASE_INSENSITIVE_ORDER);
+		Map<String, SearchResult> probableMatches = new LinkedHashMap<String, SearchResult>();
 		
 		// use name similarity metric
 		final SimilarityMetric metric = new NameSimilarityMetric();
@@ -689,8 +689,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
 			if (f >= (strict ? 0.9 : 0.8) || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
-				if (!probableMatches.containsKey(result.toString())) {
-					probableMatches.put(result.toString(), result);
+				if (!probableMatches.containsKey(result.toString().toLowerCase())) {
+					probableMatches.put(result.toString().toLowerCase(), result);
 				}
 			}
 		}

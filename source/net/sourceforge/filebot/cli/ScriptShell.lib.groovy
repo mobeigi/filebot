@@ -160,7 +160,8 @@ def parseEpisodeNumber(path, strict = true) {
 }
 
 def parseDate(path) {
-	return new DateMetric().parse(path)
+	def input = path instanceof File ? path.name : path.toString()
+	return new DateMetric().parse(input)
 }
 
 def detectSeriesName(files, locale = Locale.ENGLISH) {
@@ -186,7 +187,7 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 // CLI bindings
 def rename(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.rename(_files(args), args.query, args.format, args.db, args.order, args.lang, args.strict) }
+		_guarded { _cli.rename(_files(args), args.query, args.output, args.format, args.db, args.order, args.lang, args.strict) }
 	}
 }
 
@@ -257,7 +258,7 @@ def _defaults(args) {
 		args.lang        = args.lang       ?: _args.lang
 		args.output      = args.output     ?: _args.output
 		args.encoding    = args.encoding   ?: _args.encoding
-		args.strict      = args.strict     ?: !_args.nonStrict
+		args.strict      = args.strict     != null ? args.strict : !_args.nonStrict
 		return args
 }
 

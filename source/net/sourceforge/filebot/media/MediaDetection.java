@@ -358,6 +358,9 @@ public class MediaDetection {
 		
 		// search for id in sibling nfo files
 		for (File folder : mapByFolder(files).keySet()) {
+			if (!folder.exists())
+				continue;
+			
 			for (File nfo : folder.listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
 				String text = new String(readFile(nfo), "UTF-8");
 				
@@ -452,7 +455,7 @@ public class MediaDetection {
 		
 		
 		public String normalize(String sequence) {
-			return normalizePunctuation(sequence).toLowerCase(); // only normalize punctuation, make sure we keep the year (important for movie matching)
+			return normalizePunctuation(sequence); // only normalize punctuation, make sure we keep the year (important for movie matching)
 		}
 	}
 	
