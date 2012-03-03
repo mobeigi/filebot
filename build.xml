@@ -213,7 +213,7 @@
 
 	<target name="msi-arch">
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
-		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/lib7-Zip-JBinding.dll" />
+		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
 		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 		

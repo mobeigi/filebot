@@ -44,7 +44,7 @@ public class Archive implements Closeable {
 				System.loadLibrary(Platform.is64Bit() ? "libgcc_s_sjlj-1" : "mingwm10");
 			}
 			
-			System.loadLibrary("lib7-Zip-JBinding");
+			System.loadLibrary("7-Zip-JBinding");
 			SevenZip.initLoadedLibraries();
 			nativeLibrariesLoaded = true;
 		} catch (Throwable e) {
