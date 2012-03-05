@@ -364,6 +364,10 @@ div.screencast:hover .play {
 	position: absolute;
 }
 
+.filesize {
+	font-weight: bold;
+}
+
 .suggestion {
 	border: thin lightgray dotted;
 	background: GhostWhite;
