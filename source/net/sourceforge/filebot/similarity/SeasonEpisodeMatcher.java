@@ -16,22 +16,25 @@ import java.util.regex.Pattern;
 
 public class SeasonEpisodeMatcher {
 	
-	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, -1);
+	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000);
 	
 	private SeasonEpisodePattern[] patterns;
 	
 	
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
-		patterns = new SeasonEpisodePattern[4];
+		patterns = new SeasonEpisodePattern[5];
+		
+		// match patterns like Season 01 Episode 02, ...
+		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ...
-		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
+		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](\\d{1,3})(?!\\p{Digit})");
 		
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ...
-		patterns[1] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
+		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.](\\d{2,3})(?!\\p{Digit})");
 		
 		// match patterns like ep1, ep.1, ...
-		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:ep)\\p{Punct}?(\\d{1,3})(?!\\p{Digit})") {
+		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -41,7 +44,7 @@ public class SeasonEpisodeMatcher {
 		};
 		
 		// match patterns like 01, 102, 1003 (enclosed in separators)
-		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
+		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-1]?\\d?)(\\d{2})(?!\\p{Alnum})") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -58,7 +61,7 @@ public class SeasonEpisodeMatcher {
 		
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
-			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1] };
+			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1], patterns[2] };
 		}
 	}
 	
