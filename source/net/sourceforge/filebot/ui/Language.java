@@ -67,6 +67,9 @@ public class Language {
 		try {
 			return new Language(code, bundle.getString(code + ".name"));
 		} catch (Exception e) {
+			if (code == null || code.isEmpty()) {
+				return null;
+			}
 			return new Language(code, new Locale(code).getDisplayLanguage(Locale.ROOT));
 		}
 	}
