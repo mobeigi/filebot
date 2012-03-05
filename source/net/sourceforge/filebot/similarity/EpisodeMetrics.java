@@ -336,9 +336,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 6 pass: divide by generic numeric similarity
 		// 7 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, Name };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, Name };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
 		}
 	}
 	
