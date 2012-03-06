@@ -157,7 +157,11 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			for (List<File> batch : batchSets) {
 				// auto-detect series name if not given
-				Collection<String> seriesNames = (query == null) ? detectQuery(batch, locale, strict) : singleton(query);
+				Collection<String> seriesNames = (query == null) ? detectQuery(batch, locale) : singleton(query);
+				
+				if (strict && seriesNames.size() > 1) {
+					throw new Exception("Handling multiple shows requires non-strict matching");
+				}
 				
 				// fetch episode data
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
@@ -510,7 +514,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// lookup subtitles via text search, only perform hash lookup in strict mode
 		if ((query != null || !strict) && !collector.isComplete()) {
 			// auto-detect search query
-			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), language.toLocale(), false) : singleton(query);
+			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), language.toLocale()) : singleton(query);
 			
 			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
 				if (collector.isComplete()) {
@@ -665,12 +669,12 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<String> detectQuery(Collection<File> mediaFiles, Locale locale, boolean strict) throws Exception {
+	private List<String> detectQuery(Collection<File> mediaFiles, Locale locale) throws Exception {
 		// detect series name by common word sequence
 		List<String> names = detectSeriesNames(mediaFiles, locale);
 		
-		if (names.isEmpty() || (strict && names.size() > 1)) {
-			throw new Exception("Unable to auto-select query: " + names);
+		if (names.isEmpty()) {
+			throw new Exception("Failed to auto-detect query");
 		}
 		
 		CLILogger.config("Auto-detected query: " + names);
