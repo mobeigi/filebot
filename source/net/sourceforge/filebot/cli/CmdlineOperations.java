@@ -937,7 +937,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					extractedFiles.add(outputMapper.getOutputFile(entry));
 				}
 				
-				CLILogger.finest("Extract files " + entries);
+				CLILogger.finest("Extracting files " + entries);
 				archive.extract(outputMapper);
 			} finally {
 				archive.close();
