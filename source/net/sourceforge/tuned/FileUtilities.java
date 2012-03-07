@@ -44,18 +44,7 @@ public final class FileUtilities {
 	
 	public static File moveRename(File source, File destination) throws IOException {
 		// resolve destination
-		if (!destination.isAbsolute()) {
-			// same folder, different name
-			destination = new File(source.getParentFile(), destination.getPath());
-		}
-		
-		// make sure we that we can create the destination folder structure
-		File destinationFolder = destination.getParentFile();
-		
-		// create parent folder if necessary
-		if (!destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
-			throw new IOException("Failed to create folder: " + destinationFolder);
-		}
+		destination = resolveDestination(source, destination);
 		
 		if (source.isDirectory()) { // move folder
 			moveFolderIO(source, destination);
@@ -90,6 +79,20 @@ public final class FileUtilities {
 	
 	public static File copyAs(File source, File destination) throws IOException {
 		// resolve destination
+		destination = resolveDestination(source, destination);
+		
+		if (source.isDirectory()) { // copy folder
+			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
+		} else { // copy file
+			org.apache.commons.io.FileUtils.copyFile(source, destination);
+		}
+		
+		return destination;
+	}
+	
+	
+	public static File resolveDestination(File source, File destination) throws IOException {
+		// resolve destination
 		if (!destination.isAbsolute()) {
 			// same folder, different name
 			destination = new File(source.getParentFile(), destination.getPath());
@@ -101,12 +104,6 @@ public final class FileUtilities {
 		// create parent folder if necessary
 		if (!destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
 			throw new IOException("Failed to create folder: " + destinationFolder);
-		}
-		
-		if (source.isDirectory()) { // copy folder
-			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-		} else { // copy file
-			org.apache.commons.io.FileUtils.copyFile(source, destination);
 		}
 		
 		return destination;

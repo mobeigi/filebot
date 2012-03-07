@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,10 +80,11 @@ import net.sourceforge.tuned.FileUtilities.FolderFilter;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public List<File> rename(Collection<File> files, String query, String output, String expression, String db, String sortOrder, String languageName, boolean strict) throws Exception {
+	public List<File> rename(Collection<File> files, String action, String output, String expression, String db, String query, String sortOrder, String lang, boolean strict) throws Exception {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
-		Locale locale = getLanguage(languageName).toLocale();
 		File outputDir = (output != null && output.length() > 0) ? new File(output) : null;
+		Locale locale = getLanguage(lang).toLocale();
+		RenameAction renameAction = StandardRenameAction.forName(action);
 		
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
@@ -92,12 +93,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		if (getEpisodeListProvider(db) != null) {
 			// tv series mode
-			return renameSeries(files, query, outputDir, format, getEpisodeListProvider(db), SortOrder.forName(sortOrder), locale, strict);
+			return renameSeries(files, renameAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), locale, strict);
 		}
 		
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
-			return renameMovie(files, query, outputDir, format, getMovieIdentificationService(db), locale, strict);
+			return renameMovie(files, renameAction, outputDir, format, getMovieIdentificationService(db), query, locale, strict);
 		}
 		
 		// auto-determine mode
@@ -128,14 +129,14 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
-			return renameSeries(files, query, outputDir, format, getEpisodeListProviders()[0], SortOrder.forName(sortOrder), locale, strict); // use default episode db
+			return renameSeries(files, renameAction, outputDir, format, getEpisodeListProviders()[0], query, SortOrder.forName(sortOrder), locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, query, outputDir, format, getMovieIdentificationServices()[0], locale, strict); // use default movie db
+			return renameMovie(files, renameAction, outputDir, format, getMovieIdentificationServices()[0], query, locale, strict); // use default movie db
 		}
 	}
 	
 	
-	public List<File> renameSeries(Collection<File> files, String query, File outputDir, ExpressionFormat format, EpisodeListProvider db, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
@@ -198,7 +199,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// rename episodes
 		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
-		return renameAll(renameMap);
+		return renameAll(renameMap, renameAction);
 	}
 	
 	
@@ -271,7 +272,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMovie(Collection<File> files, String query, File outputDir, ExpressionFormat format, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
+	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
 		// handle movie files
@@ -421,11 +422,33 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// rename movies
 		Analytics.trackEvent("CLI", "Rename", "Movie", renameMap.size());
-		return renameAll(renameMap);
+		return renameAll(renameMap, renameAction);
 	}
 	
 	
-	public List<File> renameAll(Map<File, File> renameMap) throws Exception {
+	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction) throws Exception {
+		// perform some sanity checks
+		Set<File> destinationSet = new HashSet<File>();
+		
+		for (Entry<File, File> mapping : renameMap.entrySet()) {
+			File source = mapping.getKey();
+			File destination = mapping.getValue();
+			
+			// resolve destination
+			if (!destination.isAbsolute()) {
+				// same folder, different name
+				destination = new File(source.getParentFile(), destination.getPath());
+			}
+			
+			if (destinationSet.contains(destination))
+				throw new IllegalArgumentException("Conflict detected: " + mapping.getValue());
+			
+			if (destination.exists() && !source.equals(destination))
+				throw new IllegalArgumentException("File already exists: " + mapping.getValue());
+			
+			destinationSet.add(destination);
+		}
+		
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 		
@@ -433,35 +456,16 @@ public class CmdlineOperations implements CmdlineInterface {
 			for (Entry<File, File> it : renameMap.entrySet()) {
 				try {
 					// rename file, throw exception on failure
-					File destination = moveRename(it.getKey(), it.getValue());
-					CLILogger.info(format("Renamed [%s] to [%s]", it.getKey(), it.getValue()));
+					File destination = renameAction.rename(it.getKey(), it.getValue());
+					CLILogger.info(format("[%s] Renamed [%s] to [%s]", renameAction, it.getKey(), it.getValue()));
 					
 					// remember successfully renamed matches for history entry and possible revert 
 					renameLog.add(new SimpleImmutableEntry<File, File>(it.getKey(), destination));
 				} catch (IOException e) {
-					CLILogger.warning(format("Failed to rename [%s]", it.getKey()));
+					CLILogger.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));
 					throw e;
 				}
 			}
-		} catch (Exception e) {
-			// could not rename one of the files, revert all changes
-			CLILogger.severe(e.getMessage());
-			
-			// revert rename operations in reverse order
-			for (ListIterator<Entry<File, File>> iterator = renameLog.listIterator(renameLog.size()); iterator.hasPrevious();) {
-				Entry<File, File> mapping = iterator.previous();
-				
-				// revert rename
-				if (mapping.getValue().renameTo(mapping.getKey())) {
-					// remove reverted rename operation from log
-					CLILogger.info("Reverted filename: " + mapping.getKey());
-				} else {
-					// failed to revert rename operation
-					CLILogger.severe("Failed to revert filename: " + mapping.getValue());
-				}
-			}
-			
-			throw new Exception("Renaming failed", e);
 		} finally {
 			if (renameLog.size() > 0) {
 				// update rename history

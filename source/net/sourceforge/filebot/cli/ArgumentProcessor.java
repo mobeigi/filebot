@@ -73,7 +73,7 @@ public class ArgumentProcessor {
 				}
 				
 				if (args.rename) {
-					cli.rename(files, args.query, args.output, args.format, args.db, args.order, args.lang, !args.nonStrict);
+					cli.rename(files, args.action, args.output, args.format, args.db, args.query, args.order, args.lang, !args.nonStrict);
 				}
 				
 				if (args.check) {

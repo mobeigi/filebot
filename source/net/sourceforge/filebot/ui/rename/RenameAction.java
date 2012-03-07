@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -90,7 +89,7 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan) {
 		// build rename map and perform some sanity checks
 		Map<File, File> renameMap = new HashMap<File, File>();
-		Set<File> destinationSet = new TreeSet<File>();
+		Set<File> destinationSet = new HashSet<File>();
 		
 		for (Entry<File, File> mapping : renamePlan) {
 			File source = mapping.getKey();
@@ -113,6 +112,7 @@ class RenameAction extends AbstractAction {
 			
 			// use original mapping values
 			renameMap.put(mapping.getKey(), mapping.getValue());
+			destinationSet.add(destination);
 		}
 		
 		return renameMap;

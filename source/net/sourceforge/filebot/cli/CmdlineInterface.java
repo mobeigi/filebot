@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface CmdlineInterface {
 	
-	List<File> rename(Collection<File> files, String query, String output, String format, String db, String sortOrder, String lang, boolean strict) throws Exception;
+	List<File> rename(Collection<File> files, String action, String output, String format, String db, String query, String sortOrder, String lang, boolean strict) throws Exception;
 	
 	
 	List<File> getSubtitles(Collection<File> files, String query, String lang, String output, String encoding, boolean strict) throws Exception;
