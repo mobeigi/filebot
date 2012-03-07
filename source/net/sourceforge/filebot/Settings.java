@@ -31,7 +31,11 @@ public final class Settings {
 	
 	
 	public static int getApplicationRevisionNumber() {
-		return Integer.parseInt(getApplicationProperty("application.revision"));
+		try {
+			return Integer.parseInt(getApplicationProperty("application.revision"));
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 	
 	

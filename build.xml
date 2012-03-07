@@ -357,6 +357,12 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+		
+		<!-- update application properties -->
+		<replace dir="${dir.build}" encoding="utf-8" summary="yes">
+			<include name="**/*.properties" />
+			<replacefilter token="@{svn.revision}" value="${svn.revision}" />
+		</replace>
 	</target>
 
 
