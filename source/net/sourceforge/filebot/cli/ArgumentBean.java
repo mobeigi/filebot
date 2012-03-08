@@ -31,7 +31,7 @@ public class ArgumentBean {
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
 	public String order = "Airdate";
 	
-	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, symlink, test]")
+	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, keeplink, symlink, hardlink, test]")
 	public String action = "move";
 	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")

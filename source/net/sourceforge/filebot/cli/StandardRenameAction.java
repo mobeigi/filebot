@@ -26,6 +26,24 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 	
+	KEEPLINK {
+		
+		@Override
+		public File rename(File from, File to) throws Exception {
+			File destionation = FileUtilities.resolveDestination(from, to);
+			
+			// move file and the create a symlink to the new location via NIO.2
+			try {
+				java.nio.file.Files.move(from.toPath(), destionation.toPath());
+				java.nio.file.Files.createSymbolicLink(from.toPath(), destionation.toPath());
+			} catch (LinkageError e) {
+				throw new Exception("Unsupported Operation: move, createSymbolicLink");
+			}
+			
+			return destionation;
+		}
+	},
+	
 	SYMLINK {
 		
 		@Override

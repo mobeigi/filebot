@@ -173,7 +173,7 @@
 									<td>TV Series mode: TVRage, AniDB, TheTVDB</td>
 								</tr>
 								<tr>
-									<td>Movie mode: OpenSubtitles, TheMovieDB</td>
+									<td>Movie mode: OpenSubtitles, IMDb, TheMovieDB</td>
 								</tr>
 							</table>
 							</td>
@@ -181,12 +181,17 @@
 						<tr>
 							<td>--order</td>
 							<td>episode numbering</td>
-							<td>airdate, absolute, dvd</td>
+							<td>airdate | absolute | dvd</td>
 						</tr>
 						<tr>
 							<td>--format</td>
 							<td><a href="naming.html">naming scheme</a></td>
 							<td><a href="naming.html">movie or episode format expression</a></td>
+						</tr>
+						<tr>
+							<td>--action</td>
+							<td>rename action</td>
+							<td>move | copy | keeplink | symlink | hardlink</td>
 						</tr>
 						<tr>
 							<td>-get-subtitles</td>
@@ -238,10 +243,13 @@
 							<td>
 							<table>
 								<tr>
-									<td>Checksum mode: sfv, md5, sha1</td>
+									<td>Rename mode: output folder</td>
 								</tr>
 								<tr>
 									<td>Subtitle mode: srt <small class="comment">(re-encode subtitles)</small></td>
+								</tr>
+								<tr>
+									<td>Checksum mode: sfv, md5, sha1</td>
 								</tr>
 							</table>
 							</td>
