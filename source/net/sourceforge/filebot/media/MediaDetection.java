@@ -3,7 +3,6 @@ package net.sourceforge.filebot.media;
 
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -38,7 +36,9 @@ import java.util.regex.Pattern;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
+import net.sourceforge.filebot.similarity.DateMatcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -60,10 +60,9 @@ public class MediaDetection {
 	
 	
 	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale) throws Exception {
-		SortedMap<File, List<File>> filesByFolder = mapByFolder(filter(files, VIDEO_FILES, SUBTITLE_FILES));
-		
 		// map series names by folder
 		Map<File, Set<String>> seriesNamesByFolder = new HashMap<File, Set<String>>();
+		Map<File, List<File>> filesByFolder = mapByFolder(files);
 		
 		for (Entry<File, List<File>> it : filesByFolder.entrySet()) {
 			Set<String> namesForFolder = new TreeSet<String>(getLenientCollator(locale));
@@ -114,7 +113,42 @@ public class MediaDetection {
 			for (File folder : combinedFolderSet) {
 				combinedFileSet.addAll(filesByFolder.get(folder));
 			}
-			batchSets.put(combinedFileSet, combinedNameSet);
+			
+			if (combinedFileSet.size() > 0) {
+				// divide file set per complete series set
+				Map<Object, List<File>> filesByEpisode = new LinkedHashMap<Object, List<File>>();
+				for (File file : combinedFileSet) {
+					Object eid = getEpisodeIdentifier(file.getName(), true);
+					if (eid != null) {
+						List<File> episodeFiles = filesByEpisode.get(eid);
+						if (episodeFiles == null) {
+							episodeFiles = new ArrayList<File>();
+							filesByEpisode.put(eid, episodeFiles);
+						}
+						episodeFiles.add(file);
+					}
+				}
+				
+				for (int i = 0; true; i++) {
+					Set<File> series = new LinkedHashSet<File>();
+					for (List<File> episode : filesByEpisode.values()) {
+						if (i < episode.size()) {
+							series.add(episode.get(i));
+						}
+					}
+					
+					if (series.isEmpty()) {
+						break;
+					}
+					
+					combinedFileSet.removeAll(series);
+					batchSets.put(series, combinedNameSet);
+				}
+				
+				if (combinedFileSet.size() > 0) {
+					batchSets.put(combinedFileSet, combinedNameSet);
+				}
+			}
 			
 			// set folders as accounted for
 			seriesNamesByFolder.keySet().removeAll(combinedFolderSet);
@@ -130,6 +164,18 @@ public class MediaDetection {
 		}
 		
 		return batchSets;
+	}
+	
+	
+	private static Object getEpisodeIdentifier(CharSequence name, boolean strict) {
+		// check SxE first
+		Object match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(name);
+		
+		// then Date pattern
+		if (match == null)
+			match = new DateMatcher().match(name);
+		
+		return match;
 	}
 	
 	
@@ -189,12 +235,17 @@ public class MediaDetection {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
 		List<String> matches = new ArrayList<String>();
 		
-		for (String identifier : releaseInfo.getSeriesList()) {
-			for (String name : names) {
+		String[] seriesIndex = releaseInfo.getSeriesList();
+		for (String name : names) {
+			String bestMatch = "";
+			for (String identifier : seriesIndex) {
 				String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
-				if (commonName != null && commonName.length() >= identifier.length()) {
-					matches.add(commonName);
+				if (commonName != null && commonName.length() >= identifier.length() && commonName.length() > bestMatch.length()) {
+					bestMatch = commonName;
 				}
+			}
+			if (bestMatch.length() > 0) {
+				matches.add(bestMatch);
 			}
 		}
 		
