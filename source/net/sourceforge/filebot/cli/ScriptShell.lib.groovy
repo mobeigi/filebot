@@ -187,7 +187,7 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 // CLI bindings
 def rename(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.rename(_files(args), args.action, args.output, args.format, args.db, args.query, args.order, args.lang, args.strict) }
+		_guarded { _cli.rename(_files(args), args.action, args.conflict, args.output, args.format, args.db, args.query, args.order, args.lang, args.strict) }
 	}
 }
 
@@ -252,6 +252,7 @@ def _files(args) {
  */
 def _defaults(args) {
 		args.action      = args.action     ?: _args.action
+		args.conflict    = args.conflict   ?: _args.conflict
 		args.query       = args.query      ?: _args.query
 		args.format      = args.format     ?: _args.format
 		args.db          = args.db         ?: _args.db

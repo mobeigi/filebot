@@ -34,6 +34,9 @@ public class ArgumentBean {
 	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, keeplink, symlink, hardlink, test]")
 	public String action = "move";
 	
+	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[override, skip, fail]")
+	public String conflict = "skip";
+	
 	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
 	public String format;
 	
