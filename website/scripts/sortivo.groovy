@@ -11,11 +11,10 @@ args.getFiles{ it.isVideo() }.each{
 	
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
-		if (it.name =~ "(?i:$tvs - .+)") {
+		if (it.name =~ "(?i:$tvs - .+)" || parseEpisodeNumber(it) || parseDate(it)) {
 			println "Exclude Movie: $mov"
 			mov = null
-		}
-		if (detectMovie(it, true)) {
+		} else if (detectMovie(it, true)) {
 			println "Exclude Series: $tvs"
 			tvs = null
 		}

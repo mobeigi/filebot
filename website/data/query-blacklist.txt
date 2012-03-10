@@ -6,8 +6,9 @@
 ^(TV.)?(Show|Serie)[s]?
 ^[0-9]{1,2}[.]
 ^Cover
+^Film[s]?
 ^Info
-^Movie
+^Movie[s]?
 ^SAMPLE
 ^Season.[0-9]+
 ^Tracker
