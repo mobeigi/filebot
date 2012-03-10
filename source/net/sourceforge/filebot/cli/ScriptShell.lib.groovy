@@ -187,19 +187,19 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 // CLI bindings
 def rename(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.rename(_files(args), args.action, args.conflict, args.output, args.format, args.db, args.query, args.order, args.lang, args.strict) }
+		_guarded { _cli.rename(_files(args), args.action as String, args.conflict as String, args.output as String, args.format as String, args.db as String, args.query as String, args.order as String, args.lang as String, args.strict as Boolean) }
 	}
 }
 
 def getSubtitles(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.getSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+		_guarded { _cli.getSubtitles(_files(args), args.query as String, args.lang as String, args.output as String, args.encoding as String, args.strict as Boolean) }
 	}
 }
 
 def getMissingSubtitles(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.getMissingSubtitles(_files(args), args.query, args.lang, args.output, args.encoding, args.strict) }
+		_guarded { _cli.getMissingSubtitles(_files(args), args.query as String, args.lang as String, args.output as String, args.encoding as String, args.strict as Boolean) }
 	}
 }
 
@@ -211,25 +211,25 @@ def check(args) {
 
 def compute(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.compute(_files(args), args.output, args.encoding) }
+		_guarded { _cli.compute(_files(args), args.output as String, args.encoding as String) }
 	}
 }
 
 def extract(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.extract(_files(args), args.output) }
+		_guarded { _cli.extract(_files(args), args.output as String, args.conflict as String) }
 	}
 }
 
 def fetchEpisodeList(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.fetchEpisodeList(args.query, args.format, args.db, args.order, args.lang) }
+		_guarded { _cli.fetchEpisodeList(args.query as String, args.format as String, args.db as String, args.order as String, args.lang as String) }
 	}
 }
 
 def getMediaInfo(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.getMediaInfo(args.file, args.format) }
+		_guarded { _cli.getMediaInfo(args.file as File, args.format as String) }
 	}
 }
 
@@ -239,11 +239,16 @@ def getMediaInfo(args) { args = _defaults(args)
  */
 def _files(args) {
 	def files = [];
-	if (args.folder)
-		args.folder.traverse(type:FILES, maxDepth:0) { files += it }
-	if (args.file)
-		files += args.file
-
+	if (args.folder) {
+		(args.folder as File).traverse(type:FILES, maxDepth:0) { files += it }
+	}
+	if (args.file) {
+		if (args.file instanceof Iterable || args.file instanceof File[]) {
+			files += args.file as List
+		} else {
+			files += args.file as File
+		}
+	}
 	return files
 }
 

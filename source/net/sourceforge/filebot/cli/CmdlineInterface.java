@@ -30,6 +30,6 @@ public interface CmdlineInterface {
 	String getMediaInfo(File file, String format) throws Exception;
 	
 	
-	List<File> extract(Collection<File> files, String output) throws Exception;
+	List<File> extract(Collection<File> files, String output, String conflict) throws Exception;
 	
 }

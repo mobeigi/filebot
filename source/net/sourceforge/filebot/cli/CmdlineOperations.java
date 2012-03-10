@@ -928,7 +928,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	@Override
-	public List<File> extract(Collection<File> files, String output) throws Exception {
+	public List<File> extract(Collection<File> files, String output, String conflict) throws Exception {
+		ConflictAction conflictAction = ConflictAction.forName(conflict);
+		
 		// only keep single-volume archives or first part of multi-volume archives
 		List<File> archiveFiles = filter(files, Archive.VOLUME_ONE_FILTER);
 		List<File> extractedFiles = new ArrayList<File>();
@@ -942,12 +944,19 @@ public class CmdlineOperations implements CmdlineInterface {
 				FileMapper outputMapper = new FileMapper(outputFolder, false);
 				
 				List<File> entries = archive.listFiles();
+				boolean skip = true;
 				for (File entry : entries) {
-					extractedFiles.add(outputMapper.getOutputFile(entry));
+					File outputFile = outputMapper.getOutputFile(entry);
+					skip &= outputFile.exists();
+					extractedFiles.add(outputFile);
 				}
 				
-				CLILogger.finest("Extracting files " + entries);
-				archive.extract(outputMapper);
+				if (!skip || conflictAction == ConflictAction.OVERRIDE) {
+					CLILogger.finest("Extracting files " + entries);
+					archive.extract(outputMapper);
+				} else {
+					CLILogger.finest("Skipped extracting files " + entries);
+				}
 			} finally {
 				archive.close();
 			}
