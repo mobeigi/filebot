@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.5</name>
-	<revision>905</revision>
+	<name>FileBot 2.6</name>
+	<revision>950</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>Check out FileBot 2.5 !!</b><br>
+		<b>FileBot 2.6 is released !!</b><br>
 		This release features:<br>
-		+ Improved movie / series name auto-detection<br>
-		+ Support renaming and moving of disk folders<br>
-		+ New preferences for episode sort order<br>
-		+ {info} extended metadata binding<br>
-		+ .ascii() unicode to ascii conversion<br>
+		+ 7-Zip integration for extracting archives<br>
+		+ Enhanced movie and episode auto-detection<br>
+		+ Various nifty new cmdline options<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=68#p481]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82#p567]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
