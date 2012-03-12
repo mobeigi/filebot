@@ -169,8 +169,8 @@ public class CmdlineOperations implements CmdlineInterface {
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				
 				if (episodes.size() > 0) {
-					matches.addAll(matchEpisodes(filter(mediaFiles, VIDEO_FILES), episodes, sequence));
-					matches.addAll(matchEpisodes(filter(mediaFiles, SUBTITLE_FILES), episodes, sequence));
+					matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, sequence));
+					matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, sequence));
 				} else {
 					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
 				}
