@@ -77,4 +77,26 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(asList(new SxE(1, 1), new SxE(UNDEFINED, 101)), matcher.match("Test.101"));
 	}
 	
+	
+	@Test
+	public void multiEpisodePatterns() {
+		assertEquals(new SxE(1, 1), matcher.match("s01e01-02-03-04").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("s01e01-02-03-04").get(3));
+		
+		assertEquals(new SxE(1, 1), matcher.match("s01e01e02e03e04").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("s01e01e02e03e04").get(3));
+		
+		assertEquals(new SxE(1, 1), matcher.match("1x01-02-03-04").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("1x01-02-03-04").get(3));
+		
+		assertEquals(new SxE(1, 1), matcher.match("1x01x02x03x04").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("1x01x02x03x04").get(3));
+		
+		assertEquals(new SxE(1, 1), matcher.match("[s01]_[e01-02-03-04]").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("[s01]_[e01-02-03-04]").get(3));
+		
+		assertEquals(new SxE(1, 1), matcher.match("1x01.1x02.1x03.1x04").get(0));
+		assertEquals(new SxE(1, 4), matcher.match("1x01.1x02.1x03.1x04").get(3));
+	}
+	
 }

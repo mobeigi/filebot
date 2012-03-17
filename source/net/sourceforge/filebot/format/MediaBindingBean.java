@@ -2,16 +2,22 @@
 package net.sourceforge.filebot.format;
 
 
+import static java.util.Arrays.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.filebot.web.EpisodeFormat.*;
 import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -25,6 +31,7 @@ import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MoviePart;
+import net.sourceforge.filebot.web.MultiEpisode;
 import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.FileUtilities;
 
@@ -98,7 +105,11 @@ public class MediaBindingBean {
 	
 	@Define("t")
 	public String getTitle() {
-		return getEpisode().getTitle();
+		Set<String> title = new LinkedHashSet<String>();
+		for (Episode it : getEpisodes()) {
+			title.add(removeTrailingBrackets(it.getTitle()));
+		}
+		return join(title, " & ");
 	}
 	
 	
@@ -352,7 +363,7 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("episodes")
+	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
 		return WebServices.TheTVDB.getEpisodeList(WebServices.TheTVDB.search(getEpisode().getSeriesName()).get(0), SortOrder.Airdate, Locale.ENGLISH);
 	}
@@ -385,6 +396,12 @@ public class MediaBindingBean {
 	@Define("episode")
 	public Episode getEpisode() {
 		return (Episode) infoObject;
+	}
+	
+	
+	@Define("episodes")
+	public List<Episode> getEpisodes() {
+		return infoObject instanceof MultiEpisode ? ((MultiEpisode) infoObject).getEpisodes() : asList(getEpisode());
 	}
 	
 	

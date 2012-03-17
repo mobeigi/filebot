@@ -49,6 +49,7 @@ import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.media.ReleaseInfo;
+import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
@@ -56,7 +57,6 @@ import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.similarity.StrictEpisodeMetrics;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.HistorySpooler;
@@ -142,8 +142,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
 		// similarity metrics for matching
-		SimilarityMetric[] sequence = strict ? StrictEpisodeMetrics.defaultSequence(false) : EpisodeMetrics.defaultSequence(false);
-		List<Match<File, Episode>> matches = new ArrayList<Match<File, Episode>>();
+		List<Match<File, Object>> matches = new ArrayList<Match<File, Object>>();
 		
 		// auto-determine optimal batch sets
 		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
@@ -169,8 +168,8 @@ public class CmdlineOperations implements CmdlineInterface {
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				
 				if (episodes.size() > 0) {
-					matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, sequence));
-					matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, sequence));
+					matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, strict));
+					matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, strict));
 				} else {
 					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
 				}
@@ -184,9 +183,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
-		for (Match<File, Episode> match : matches) {
+		for (Match<File, Object> match : matches) {
 			File file = match.getValue();
-			Episode episode = match.getCandidate();
+			Object episode = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
@@ -204,10 +203,10 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<Match<File, Episode>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, SimilarityMetric[] sequence) throws Exception {
+	private List<Match<File, Object>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, boolean strict) throws Exception {
 		// always use strict fail-fast matcher
-		Matcher<File, Episode> matcher = new Matcher<File, Episode>(files, episodes, true, sequence);
-		List<Match<File, Episode>> matches = matcher.match();
+		EpisodeMatcher matcher = new EpisodeMatcher(files, episodes, strict);
+		List<Match<File, Object>> matches = matcher.match();
 		
 		for (File failedMatch : matcher.remainingValues()) {
 			CLILogger.warning("No matching episode: " + failedMatch.getName());

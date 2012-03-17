@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -35,9 +35,8 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
+import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -289,7 +288,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// group by subtitles first and then by files in general
 		for (List<File> filesPerType : mapByExtension(files).values()) {
-			Matcher<File, Episode> matcher = new Matcher<File, Episode>(filesPerType, episodes, false, EpisodeMetrics.defaultSequence(false));
+			EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, false);
 			matches.addAll(matcher.match());
 		}
 		

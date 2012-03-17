@@ -23,13 +23,13 @@ import java.util.TreeMap;
 
 public class Matcher<V, C> {
 	
-	private final List<V> values;
-	private final List<C> candidates;
+	protected final List<V> values;
+	protected final List<C> candidates;
 	
-	private final boolean strict;
-	private final SimilarityMetric[] metrics;
+	protected final boolean strict;
+	protected final SimilarityMetric[] metrics;
 	
-	private final DisjointMatchCollection<V, C> disjointMatchCollection;
+	protected final DisjointMatchCollection<V, C> disjointMatchCollection;
 	
 	
 	public Matcher(Collection<? extends V> values, Collection<? extends C> candidates, boolean strict, SimilarityMetric[] metrics) {

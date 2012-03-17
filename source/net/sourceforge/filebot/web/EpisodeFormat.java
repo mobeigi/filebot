@@ -2,10 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
+import static net.sourceforge.tuned.StringUtilities.*;
+
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,15 +21,19 @@ public class EpisodeFormat extends Format {
 	private final boolean includeAirdate;
 	private final boolean includeSpecial;
 	
-
+	
 	public EpisodeFormat(boolean includeSpecial, boolean includeAirdate) {
 		this.includeSpecial = includeSpecial;
 		this.includeAirdate = includeAirdate;
 	}
 	
-
+	
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
+		if (obj instanceof MultiEpisode) {
+			return sb.append(formatMultiEpisode(((MultiEpisode) obj).getEpisodes()));
+		}
+		
 		// format episode object, e.g. Dark Angel - 3x01 - Labyrinth [2009-06-01]
 		Episode episode = (Episode) obj;
 		
@@ -58,8 +66,12 @@ public class EpisodeFormat extends Format {
 		return sb;
 	}
 	
-
+	
 	public String formatSxE(Episode episode) {
+		if (episode instanceof MultiEpisode) {
+			return formatMultiSxE(((MultiEpisode) episode).getEpisodes());
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		
 		if (episode.getSeason() != null) {
@@ -75,8 +87,12 @@ public class EpisodeFormat extends Format {
 		return sb.toString();
 	}
 	
-
+	
 	public String formatS00E00(Episode episode) {
+		if (episode instanceof MultiEpisode) {
+			return formatMultiS00E00(((MultiEpisode) episode).getEpisodes());
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		
 		if (episode.getSeason() != null) {
@@ -93,11 +109,60 @@ public class EpisodeFormat extends Format {
 		return sb.toString();
 	}
 	
-
+	
+	public String formatMultiEpisode(Iterable<Episode> episodes) {
+		Set<String> name = new LinkedHashSet<String>();
+		Set<String> sxe = new LinkedHashSet<String>();
+		Set<String> title = new LinkedHashSet<String>();
+		for (Episode it : episodes) {
+			name.add(it.getSeriesName());
+			sxe.add(formatSxE(it));
+			title.add(it.getTitle().replaceAll("[(]([^)]*)[)]$", "").trim());
+		}
+		
+		return String.format("%s - %s - %s", join(name, " & "), join(sxe, " & "), join(title, " & "));
+	}
+	
+	
+	public String formatMultiSxE(Iterable<Episode> episodes) {
+		StringBuilder sb = new StringBuilder();
+		Integer ps = null;
+		for (Episode it : episodes) {
+			if (!it.getSeason().equals(ps)) {
+				if (sb.length() > 0) {
+					sb.append(' ');
+				}
+				sb.append(it.getSeason()).append('x').append(String.format("%02d", it.getEpisode()));
+			} else {
+				sb.append('-').append(String.format("%02d", it.getEpisode()));
+			}
+			ps = it.getSeason();
+		}
+		
+		return sb.toString();
+	}
+	
+	
+	public String formatMultiS00E00(Iterable<Episode> episodes) {
+		StringBuilder sb = new StringBuilder();
+		Integer ps = null;
+		for (Episode it : episodes) {
+			if (!it.getSeason().equals(ps)) {
+				sb.append(String.format("S%02d", it.getSeason())).append(String.format("E%02d", it.getEpisode()));
+			} else {
+				sb.append('-').append(String.format("E%02d", it.getEpisode()));
+			}
+			ps = it.getSeason();
+		}
+		
+		return sb.toString();
+	}
+	
+	
 	private final Pattern sxePattern = Pattern.compile("- (?:(\\d{1,2})x)?(Special )?(\\d{1,3}) -");
 	private final Pattern airdatePattern = Pattern.compile("\\[(\\d{4}-\\d{1,2}-\\d{1,2})\\]");
 	
-
+	
 	@Override
 	public Episode parseObject(String s, ParsePosition pos) {
 		StringBuilder source = new StringBuilder(s);
@@ -137,7 +202,7 @@ public class EpisodeFormat extends Format {
 		return null;
 	}
 	
-
+	
 	@Override
 	public Episode parseObject(String source) throws ParseException {
 		return (Episode) super.parseObject(source);

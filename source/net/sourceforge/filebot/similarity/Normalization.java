@@ -40,4 +40,10 @@ public class Normalization {
 		return checksum.matcher(string).replaceAll("");
 	}
 	
+	
+	public static String removeTrailingBrackets(String name) {
+		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
+		return name.replaceAll("[(]([^)]*)[)]$", "").trim();
+	}
+	
 }
