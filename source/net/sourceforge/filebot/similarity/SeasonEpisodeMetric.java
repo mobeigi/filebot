@@ -31,7 +31,7 @@ public class SeasonEpisodeMetric implements SimilarityMetric {
 					return 1;
 				}
 				
-				if (sxe1.season == sxe2.season || sxe1.episode == sxe2.episode) {
+				if ((sxe1.season >= 0 && sxe1.season == sxe2.season) || (sxe1.episode >= 0 && sxe1.episode == sxe2.episode)) {
 					// at least we have a partial match
 					similarity = 0.5f;
 				}
