@@ -169,6 +169,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		
 		Map<Integer, String> primaryTitleMap = new HashMap<Integer, String>();
 		Map<Integer, Map<String, String>> officialTitleMap = new HashMap<Integer, Map<String, String>>();
+		Map<Integer, Map<String, String>> synonymsTitleMap = new HashMap<Integer, Map<String, String>>();
 		
 		// fetch data
 		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
@@ -185,11 +186,12 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					
 					if (type.equals("1")) {
 						primaryTitleMap.put(aid, title);
-					} else if (type.equals("4")) {
-						Map<String, String> languageTitleMap = officialTitleMap.get(aid);
+					} else if (type.equals("2") || type.equals("4")) {
+						Map<Integer, Map<String, String>> titleMap = (type.equals("4") ? officialTitleMap : synonymsTitleMap);
+						Map<String, String> languageTitleMap = titleMap.get(aid);
 						if (languageTitleMap == null) {
 							languageTitleMap = new HashMap<String, String>();
-							officialTitleMap.put(aid, languageTitleMap);
+							titleMap.put(aid, languageTitleMap);
 						}
 						
 						languageTitleMap.put(language, title);
@@ -204,7 +206,15 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
 		
 		for (Entry<Integer, String> entry : primaryTitleMap.entrySet()) {
-			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), officialTitleMap.get(entry.getKey())));
+			Map<String, String> localizedTitles = new HashMap<String, String>();
+			if (synonymsTitleMap.containsKey(entry.getKey())) {
+				localizedTitles.putAll(synonymsTitleMap.get(entry.getKey())); // use synonym as fallback
+			}
+			if (officialTitleMap.containsKey(entry.getKey())) {
+				localizedTitles.putAll(officialTitleMap.get(entry.getKey())); // primarily use official title if available
+			}
+			
+			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), localizedTitles));
 		}
 		
 		// populate cache

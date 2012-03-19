@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -112,19 +113,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// allow only one select dialog at a time
 		synchronized (this) {
 			synchronized (selectionMemory) {
-				SearchResult selection = selectionMemory.get(query);
-				if (selection != null) {
-					return selection;
+				if (selectionMemory.containsKey(query)) {
+					return selectionMemory.get(query);
 				}
 				
 				SwingUtilities.invokeAndWait(showSelectDialog);
 				
 				// cache selected value
-				selection = showSelectDialog.get();
-				if (selection != null) {
-					selectionMemory.put(query, selection);
-				}
-				return selection;
+				selectionMemory.put(query, showSelectDialog.get());
+				return showSelectDialog.get();
 			}
 		}
 	}
@@ -290,7 +287,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(input, sortOrder, locale, selectionMemory, parent);
+					episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), parent);
 				}
 			}
 		}
