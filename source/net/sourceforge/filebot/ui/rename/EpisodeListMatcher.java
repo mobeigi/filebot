@@ -20,9 +20,11 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +37,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -60,7 +63,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, final Component parent) throws Exception {
+	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, final Component parent) throws Exception {
 		if (searchResults.size() == 1) {
 			return searchResults.get(0);
 		}
@@ -71,9 +74,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
 		
-		// find probable matches using name similarity >= 0.9
+		// find probable matches using name similarity >= 0.85
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(normalizeName(query), normalizeName(result.getName())) >= 0.9) {
+			// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
+			if (metric.getSimilarity(removeTrailingBrackets(query), removeTrailingBrackets(result.getName())) >= 0.85) {
 				probableMatches.add(result);
 			}
 		}
@@ -107,21 +111,26 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// allow only one select dialog at a time
 		synchronized (this) {
-			SwingUtilities.invokeAndWait(showSelectDialog);
+			synchronized (selectionMemory) {
+				SearchResult selection = selectionMemory.get(query);
+				if (selection != null) {
+					return selection;
+				}
+				
+				SwingUtilities.invokeAndWait(showSelectDialog);
+				
+				// cache selected value
+				selection = showSelectDialog.get();
+				if (selection != null) {
+					selectionMemory.put(query, selection);
+				}
+				return selection;
+			}
 		}
-		
-		// selected value or null
-		return showSelectDialog.get();
 	}
 	
 	
-	private String normalizeName(String value) {
-		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
-		return removeTrailingBrackets(value).toLowerCase();
-	}
-	
-	
-	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final SortOrder sortOrder, final Locale locale, final Component parent) throws Exception {
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final SortOrder sortOrder, final Locale locale, final Map<String, SearchResult> selectionMemory, final Component parent) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 		
 		// detect series names and create episode list fetch tasks
@@ -134,7 +143,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					// select search result
 					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(query, results, parent);
+						SearchResult selectedSearchResult = selectSearchResult(query, results, selectionMemory, parent);
 						
 						if (selectedSearchResult != null) {
 							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
@@ -177,6 +186,9 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		// assume that many shows will be matched, do it folder by folder
 		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
 		
+		// remember user decisions and only bother user once
+		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
+		
 		// detect series names and create episode list fetch tasks
 		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
 			final List<List<File>> batchSets = new ArrayList<List<File>>();
@@ -195,7 +207,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					@Override
 					public List<Match<File, ?>> call() throws Exception {
-						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, parent);
+						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, selectionMemory, parent);
 					}
 				});
 			}
@@ -246,7 +258,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
@@ -254,7 +266,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (queries != null && queries.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(queries, sortOrder, locale, parent);
+					episodes = fetchEpisodeSet(queries, sortOrder, locale, selectionMemory, parent);
 				}
 			}
 		}
@@ -278,7 +290,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(input, sortOrder, locale, parent);
+					episodes = fetchEpisodeSet(input, sortOrder, locale, selectionMemory, parent);
 				}
 			}
 		}
