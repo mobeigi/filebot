@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,19 +48,33 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 			episodeIdentifierSets.put(it.getKey(), sxe);
 		}
 		
-		for (Iterator<Match<File, Object>> itr = possibleMatches.iterator(); itr.hasNext();) {
-			File file = itr.next().getValue();
+		boolean modified = false;
+		for (Match<File, Object> it : possibleMatches) {
+			File file = it.getValue();
 			Set<SxE> uniqueFiles = parseEpisodeIdentifer(file);
 			Set<SxE> uniqueEpisodes = episodeIdentifierSets.get(file);
 			
 			if (uniqueFiles.equals(uniqueEpisodes)) {
-				MultiEpisode episode = new MultiEpisode(episodeSets.get(file).toArray(new Episode[0]));
-				disjointMatchCollection.add(new Match<File, Object>(file, episode));
-				itr.remove();
+				Episode[] episodes = episodeSets.get(file).toArray(new Episode[0]);
+				Set<String> seriesNames = new HashSet<String>();
+				for (Episode ep : episodes) {
+					seriesNames.add(ep.getSeriesName());
+				}
+				
+				if (seriesNames.size() == 1) {
+					MultiEpisode episode = new MultiEpisode(episodes);
+					disjointMatchCollection.add(new Match<File, Object>(file, episode));
+					modified = true;
+				}
 			}
 		}
 		
+		if (modified) {
+			removeCollected(possibleMatches);
+		}
+		
 		super.deepMatch(possibleMatches, level);
+		
 	}
 	
 	

@@ -96,8 +96,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode e = (Episode) object;
 				
 				// don't use title for matching if title equals series name
-				if (!e.getSeriesName().toLowerCase().contains(e.getTitle().toLowerCase())) {
-					object = e.getTitle();
+				String normalizedToken = normalizeObject(e.getTitle());
+				if (normalizedToken.length() >= 3 && !normalizeObject(e.getSeriesName()).contains(normalizedToken)) {
+					return normalizedToken;
 				}
 			}
 			

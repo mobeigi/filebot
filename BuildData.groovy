@@ -52,7 +52,10 @@ names += anime.findResults{ it.getPrimaryTitle() }
 names += anime.findResults{ it.getOfficialTitle('en') }
 
 names = names.findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) }
-names = names.sort().unique()
+
+def unique = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+unique.addAll(names)
+names = unique as List
 
 
 gz(s_out, names)
