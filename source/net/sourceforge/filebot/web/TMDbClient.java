@@ -166,8 +166,13 @@ public class TMDbClient implements MovieIdentificationService {
 		// resolve imdbid to tmdbid
 		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
 		
+		String tmdbid = selectString("//movie/id", dom);
+		if (tmdbid == null || tmdbid.isEmpty()) {
+			throw new IllegalArgumentException("Unable to lookup tmdb entry: " + String.format("tt%07d", imdbid));
+		}
+		
 		// get complete movie info via tmdbid lookup
-		dom = fetchResource("Movie.getInfo", selectString("//movie/id", dom), locale);
+		dom = fetchResource("Movie.getInfo", tmdbid, locale);
 		
 		// select info from xml
 		Node node = selectNode("//movie", dom);

@@ -74,5 +74,9 @@ args.eachMediaFolder { dir ->
 	}
 	
 	println "$dir => $movie"
-	fetchMovieArtworkAndNfo(dir, movie)
+	try {
+		fetchMovieArtworkAndNfo(dir, movie)
+	} catch(e) {
+		println "${e.class.simpleName}: ${e.message}"
+	}
 }
