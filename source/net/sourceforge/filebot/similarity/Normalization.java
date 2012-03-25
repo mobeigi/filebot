@@ -13,6 +13,7 @@ public class Normalization {
 	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
 	
 	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
+	private static final Pattern trailingParentheses = compile("[(]([^)]*)[)]$");
 	
 	private static final Pattern checksum = compile("[\\(\\[]\\p{XDigit}{8}[\\]\\)]");
 	
@@ -43,7 +44,7 @@ public class Normalization {
 	
 	public static String removeTrailingBrackets(String name) {
 		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
-		return name.replaceAll("[(]([^)]*)[)]$", "").trim();
+		return trailingParentheses.matcher(name).replaceAll("").trim();
 	}
 	
 }

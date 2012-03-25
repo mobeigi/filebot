@@ -37,7 +37,10 @@ public class ArgumentBean {
 	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[override, skip, fail]")
 	public String conflict = "skip";
 	
-	@Option(name = "--format", usage = "Episode naming scheme", metaVar = "expression")
+	@Option(name = "--filter", usage = "Episode filter", metaVar = "expression")
+	public String filter = null;
+	
+	@Option(name = "--format", usage = "Episode/Movie naming scheme", metaVar = "expression")
 	public String format;
 	
 	@Option(name = "-non-strict", usage = "Use less strict matching")

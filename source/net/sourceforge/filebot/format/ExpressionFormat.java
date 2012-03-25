@@ -7,24 +7,13 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MissingPropertyException;
 
-import java.io.File;
-import java.io.FilePermission;
 import java.io.InputStreamReader;
-import java.net.SocketPermission;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
 import java.security.AccessController;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.security.ProtectionDomain;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PropertyPermission;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -36,8 +25,6 @@ import javax.script.SimpleScriptContext;
 
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
-
-import net.sourceforge.tuned.ExceptionUtilities;
 
 
 public class ExpressionFormat extends Format {
@@ -223,80 +210,15 @@ public class ExpressionFormat extends Format {
 	
 	
 	private Object[] secure(Object[] compilation) {
-		// create sandbox AccessControlContext
-		AccessControlContext sandbox = new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, getSandboxPermissions()) });
-		
 		for (int i = 0; i < compilation.length; i++) {
 			Object snipped = compilation[i];
 			
 			if (snipped instanceof CompiledScript) {
-				compilation[i] = new SecureCompiledScript((CompiledScript) snipped, sandbox);
+				compilation[i] = new SecureCompiledScript((CompiledScript) snipped);
 			}
 		}
 		
 		return compilation;
-	}
-	
-	
-	private PermissionCollection getSandboxPermissions() {
-		Permissions permissions = new Permissions();
-		
-		permissions.add(new RuntimePermission("createClassLoader"));
-		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
-		permissions.add(new SocketPermission("*", "connect"));
-		permissions.add(new PropertyPermission("*", "read"));
-		permissions.add(new RuntimePermission("getenv.*"));
-		
-		// write permissions for temp and cache folders
-		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
-		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
-		
-		return permissions;
-	}
-	
-	
-	private static class SecureCompiledScript extends CompiledScript {
-		
-		private final CompiledScript compiledScript;
-		private final AccessControlContext sandbox;
-		
-		
-		private SecureCompiledScript(CompiledScript compiledScript, AccessControlContext sandbox) {
-			this.compiledScript = compiledScript;
-			this.sandbox = sandbox;
-		}
-		
-		
-		@Override
-		public Object eval(final ScriptContext context) throws ScriptException {
-			try {
-				return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-					
-					@Override
-					public Object run() throws ScriptException {
-						return compiledScript.eval(context);
-					}
-				}, sandbox);
-			} catch (PrivilegedActionException e) {
-				AccessControlException accessException = ExceptionUtilities.findCause(e, AccessControlException.class);
-				
-				// try to unwrap AccessControlException
-				if (accessException != null)
-					throw new ExpressionException(accessException);
-				
-				// forward ScriptException
-				// e.getException() should be an instance of ScriptException,
-				// as only "checked" exceptions will be "wrapped" in a PrivilegedActionException
-				throw (ScriptException) e.getException();
-			}
-		}
-		
-		
-		@Override
-		public ScriptEngine getEngine() {
-			return compiledScript.getEngine();
-		}
-		
 	}
 	
 	

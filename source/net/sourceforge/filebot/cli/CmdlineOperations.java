@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,6 +44,7 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.archive.FileMapper;
+import net.sourceforge.filebot.format.ExpressionFilter;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
@@ -79,8 +81,9 @@ import net.sourceforge.tuned.FileUtilities.FolderFilter;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public List<File> rename(Collection<File> files, String action, String conflict, String output, String expression, String db, String query, String sortOrder, String lang, boolean strict) throws Exception {
-		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
+	public List<File> rename(Collection<File> files, String action, String conflict, String output, String formatExpression, String db, String query, String sortOrder, String filterExpression, String lang, boolean strict) throws Exception {
+		ExpressionFormat format = (formatExpression != null) ? new ExpressionFormat(formatExpression) : null;
+		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
 		File outputDir = (output != null && output.length() > 0) ? new File(output) : null;
 		Locale locale = getLanguage(lang).toLocale();
 		RenameAction renameAction = StandardRenameAction.forName(action);
@@ -93,7 +96,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		if (getEpisodeListProvider(db) != null) {
 			// tv series mode
-			return renameSeries(files, renameAction, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), locale, strict);
+			return renameSeries(files, renameAction, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), filter, locale, strict);
 		}
 		
 		if (getMovieIdentificationService(db) != null) {
@@ -129,15 +132,15 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
-			return renameSeries(files, renameAction, conflictAction, outputDir, format, WebServices.TVRage, query, SortOrder.forName(sortOrder), locale, strict); // use default episode db
+			return renameSeries(files, renameAction, conflictAction, outputDir, format, WebServices.TVRage, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
 			return renameMovie(files, renameAction, conflictAction, outputDir, format, WebServices.OpenSubtitles, query, locale, strict); // use default movie db
 		}
 	}
 	
 	
-	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, Locale locale,
-			boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder,
+			ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
@@ -166,6 +169,18 @@ public class CmdlineOperations implements CmdlineInterface {
 				
 				// fetch episode data
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
+				
+				// filter episodes
+				if (filter != null) {
+					CLILogger.fine(String.format("Apply Filter: {%s}", filter.getExpression()));
+					for (Iterator<Episode> itr = episodes.iterator(); itr.hasNext();) {
+						Episode episode = itr.next();
+						if (filter.matches(new MediaBindingBean(episode, null))) {
+							CLILogger.finest(String.format("Exclude [%s]", episode));
+							itr.remove();
+						}
+					}
+				}
 				
 				if (episodes.size() > 0) {
 					matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, strict));
