@@ -170,24 +170,26 @@ public class CmdlineOperations implements CmdlineInterface {
 				// fetch episode data
 				Set<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				
+				if (episodes.size() == 0) {
+					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
+					continue;
+				}
+				
 				// filter episodes
 				if (filter != null) {
 					CLILogger.fine(String.format("Apply Filter: {%s}", filter.getExpression()));
 					for (Iterator<Episode> itr = episodes.iterator(); itr.hasNext();) {
 						Episode episode = itr.next();
 						if (filter.matches(new MediaBindingBean(episode, null))) {
-							CLILogger.finest(String.format("Exclude [%s]", episode));
+							CLILogger.finest(String.format("Include [%s]", episode));
+						} else {
 							itr.remove();
 						}
 					}
 				}
 				
-				if (episodes.size() > 0) {
-					matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, strict));
-					matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, strict));
-				} else {
-					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
-				}
+				matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, strict));
+				matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, strict));
 			}
 		}
 		
