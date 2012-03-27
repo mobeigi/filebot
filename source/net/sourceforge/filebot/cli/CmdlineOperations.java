@@ -595,11 +595,14 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> getMissingSubtitles(Collection<File> files, String query, String languageName, String output, String csn, boolean strict) throws Exception {
+	public List<File> getMissingSubtitles(Collection<File> files, String query, final String languageName, String output, String csn, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 			
 			// save time on repeating filesystem calls
 			private final Map<File, File[]> cache = new HashMap<File, File[]>();
+			
+			// get language code suffix for given language (.eng)
+			private final String languageCodeSuffix = "." + Language.getISO3LanguageCodeByName(getLanguage(languageName).getName());
 			
 			
 			@Override
@@ -611,7 +614,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 				
 				for (File subtitle : subtitlesByFolder) {
-					if (isDerived(subtitle, video))
+					if (isDerived(subtitle, video) && (subtitle.getName().contains(languageCodeSuffix)))
 						return false;
 				}
 				
