@@ -23,24 +23,43 @@ def fetchNfo(outputFile, series) {
 	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<year>$firstAired.year</year>
+			<top250></top250>
+			<seasons>-1</seasons>
+			<episode></episode>
+			<episodeguideurl></episodeguideurl>
+			<displayseason>-1</displayseason>
+			<displayepisode>-1</displayepisode>
 			<rating>$rating</rating>
 			<votes>$ratingCount</votes>
+			<outline></outline>
 			<plot>$overview</plot>
+			<tagline></tagline>
 			<runtime>$runtime</runtime>
 			<mpaa>$contentRating</mpaa>
-			<genre>${!genres.empty ? genres[0] : ''}</genre>
+			<playcount></playcount>
+			<lastplayed></lastplayed>
 			<id>$id</id>
+			<episodeguide><url cache="${id}.xml">http://www.thetvdb.com/api/1D62F2F90030C444/series/${id}/all/''' + _args.locale.language + '''.zip</url></episodeguide>
+			<genre>${!genres.empty ? genres[0] : ''}</genre>
+			<set></set>
+			<credits></credits>
+			<director></director>
 			<thumb>$bannerUrl</thumb>
 			<premiered>$firstAired</premiered>
 			<status>$status</status>
 			<studio>$network</studio>
+			<trailer></trailer>
 			<gsp:scriptlet> actors.each { </gsp:scriptlet>
 				<actor>
 	    			<name>$it</name>
+					<role></role>
 				</actor>
 			<gsp:scriptlet> } </gsp:scriptlet>
+			<artist></artist>
 		</tvshow>
-	''').saveAs(outputFile)
+	''')
+	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
+	.saveAs(outputFile)
 }
 
 
