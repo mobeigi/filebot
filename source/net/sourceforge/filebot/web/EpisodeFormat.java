@@ -74,14 +74,12 @@ public class EpisodeFormat extends Format {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		if (episode.getSeason() != null) {
-			sb.append(episode.getSeason()).append('x');
+		if (episode.getSeason() != null || episode.getSpecial() != null) {
+			sb.append(episode.getSpecial() == null ? episode.getSeason() : 0).append('x');
 		}
 		
-		if (episode.getEpisode() != null) {
-			sb.append(String.format("%02d", episode.getEpisode()));
-		} else if (includeSpecial && episode.getSpecial() != null) {
-			sb.append("Special " + episode.getSpecial());
+		if (episode.getEpisode() != null || episode.getSpecial() != null) {
+			sb.append(String.format("%02d", episode.getSpecial() == null ? episode.getEpisode() : episode.getSpecial()));
 		}
 		
 		return sb.toString();
@@ -95,15 +93,12 @@ public class EpisodeFormat extends Format {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		if (episode.getSeason() != null) {
-			sb.append(String.format("S%02d", episode.getSeason()));
+		if (episode.getSeason() != null || episode.getSpecial() != null) {
+			sb.append(String.format("S%02d", episode.getSpecial() == null ? episode.getSeason() : 0));
 		}
 		
-		if (episode.getEpisode() != null) {
-			sb.append(String.format("E%02d", episode.getEpisode()));
-		} else if (includeSpecial && episode.getSpecial() != null) {
-			sb.append(episode.getSeason() != null ? " - " : "");
-			sb.append("Special " + episode.getSpecial());
+		if (episode.getEpisode() != null || episode.getSpecial() != null) {
+			sb.append(String.format("E%02d", episode.getSpecial() == null ? episode.getEpisode() : episode.getSpecial()));
 		}
 		
 		return sb.toString();
