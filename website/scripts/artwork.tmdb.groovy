@@ -29,7 +29,9 @@ def fetchNfo(outputFile, movieInfo) {
 			<genre>${!genres.empty ? genres[0] : ''}</genre>
 			<id>tt${imdbId.pad(7)}</id>
 		</movie>
-	''').saveAs(outputFile)
+	''')
+	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
+	.saveAs(outputFile)
 }
 
 

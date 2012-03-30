@@ -343,7 +343,7 @@ public class OpenSubtitlesXmlRpc {
 	 * @param status status code and message (e.g. 200 OK, 401 Unauthorized, ...)
 	 * @throws XmlRpcFault thrown if status code is not OK
 	 */
-	protected static void checkResponse(Map<?, ?> response) throws XmlRpcFault {
+	protected void checkResponse(Map<?, ?> response) throws XmlRpcFault {
 		String status = (String) response.get("status");
 		
 		// if there is no status at all, assume everything was OK
