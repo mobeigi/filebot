@@ -67,9 +67,9 @@ public class ArgumentProcessor {
 				}
 				
 				if (args.getSubtitles) {
-					files.addAll(cli.getSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
+					files.addAll(cli.getSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
 				} else if (args.getMissingSubtitles) {
-					files.addAll(cli.getMissingSubtitles(files, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
+					files.addAll(cli.getMissingSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
 				}
 				
 				if (args.rename) {

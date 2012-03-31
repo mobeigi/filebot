@@ -32,12 +32,12 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
@@ -50,6 +50,7 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
+import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
@@ -161,7 +162,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			for (List<File> batch : batchSets) {
 				// auto-detect series name if not given
-				Collection<String> seriesNames = (query == null) ? detectQuery(batch, locale) : singleton(query);
+				Collection<String> seriesNames = (query == null) ? detectSeriesQuery(batch, locale) : singleton(query);
 				
 				if (strict && seriesNames.size() > 1) {
 					throw new Exception("Handling multiple shows requires non-strict matching");
@@ -508,47 +509,79 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	@Override
-	public List<File> getSubtitles(Collection<File> files, String query, String languageName, String output, String csn, boolean strict) throws Exception {
+	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, boolean strict) throws Exception {
 		final Language language = getLanguage(languageName);
+		final Pattern databaseFilter = (db != null) ? Pattern.compile(db, Pattern.CASE_INSENSITIVE) : null;
 		
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
 		final Charset outputEncoding = (csn != null) ? Charset.forName(csn) : (output != null) ? Charset.forName("UTF-8") : null;
 		final SubtitleFormat outputFormat = (output != null) ? getSubtitleFormatByName(output) : null;
 		
-		// try to find subtitles for each video file 
-		SubtitleCollector collector = new SubtitleCollector(filter(files, VIDEO_FILES));
+		// try to find subtitles for each video file
+		List<File> remainingVideos = new ArrayList<File>(filter(files, VIDEO_FILES));
 		
-		if (collector.isComplete()) {
+		// parallel download
+		List<File> subtitleFiles = new ArrayList<File>();
+		
+		if (remainingVideos.isEmpty()) {
 			throw new Exception("No video files: " + files);
 		}
 		
 		// lookup subtitles by hash
 		for (VideoHashSubtitleService service : WebServices.getVideoHashSubtitleServices()) {
-			if (collector.isComplete()) {
-				break;
+			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+				continue;
 			}
 			
 			try {
 				CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
-				collector.addAll(service.getName(), lookupSubtitleByHash(service, language, collector.remainingVideos()));
+				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos);
+				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
+				remainingVideos.removeAll(downloads.keySet());
+				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
-				CLILogger.warning(format("Lookup by hash failed: " + e.getMessage()));
+				CLILogger.warning("Lookup by hash failed: " + e.getMessage());
 			}
 		}
 		
 		// lookup subtitles via text search, only perform hash lookup in strict mode
-		if ((query != null || !strict) && !collector.isComplete()) {
+		if ((query != null || !strict) && !remainingVideos.isEmpty()) {
 			// auto-detect search query
-			Collection<String> querySet = (query == null) ? detectQuery(filter(files, VIDEO_FILES), language.toLocale()) : singleton(query);
+			Set<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+			
+			if (query == null) {
+				List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+				querySet.addAll(detectSeriesNames(mediaFiles, language.toLocale()));
+				
+				if (querySet.isEmpty() && mediaFiles.size() == 1) {
+					try {
+						Collection<Movie> results = MediaDetection.detectMovie(mediaFiles.get(0), OpenSubtitles, TMDb, language.toLocale(), false);
+						for (Movie movie : results) {
+							querySet.add(movie.getName());
+						}
+					} catch (Exception e) {
+						CLILogger.warning("Movie detection failed: " + e.getMessage());
+					}
+				}
+				
+				if (querySet.isEmpty()) {
+					throw new Exception("Failed to auto-detect query");
+				}
+			} else {
+				querySet.add(query);
+			}
 			
 			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
-				if (collector.isComplete()) {
-					break;
+				if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+					continue;
 				}
 				
 				try {
 					CLILogger.fine(format("Searching for %s at [%s]", querySet.toString(), service.getName()));
-					collector.addAll(service.getName(), lookupSubtitleByFileName(service, querySet, language, collector.remainingVideos()));
+					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos);
+					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
+					remainingVideos.removeAll(downloads.keySet());
+					subtitleFiles.addAll(downloads.values());
 				} catch (Exception e) {
 					CLILogger.warning(format("Search for [%s] failed: %s", querySet, e.getMessage()));
 				}
@@ -556,38 +589,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// no subtitles for remaining video files
-		for (File it : collector.remainingVideos()) {
+		for (File it : remainingVideos) {
 			CLILogger.warning("No matching subtitles found: " + it);
-		}
-		
-		// download subtitles in order
-		Map<File, Callable<File>> downloadQueue = new TreeMap<File, Callable<File>>();
-		for (final Entry<String, Map<File, SubtitleDescriptor>> source : collector.subtitlesBySource().entrySet()) {
-			for (final Entry<File, SubtitleDescriptor> descriptor : source.getValue().entrySet()) {
-				downloadQueue.put(descriptor.getKey(), new Callable<File>() {
-					
-					@Override
-					public File call() throws Exception {
-						Analytics.trackEvent(source.getKey(), "DownloadSubtitle", descriptor.getValue().getLanguageName(), 1);
-						return downloadSubtitle(descriptor.getValue(), descriptor.getKey(), outputFormat, outputEncoding);
-					}
-				});
-			}
-		}
-		
-		// parallel download
-		List<File> subtitleFiles = new ArrayList<File>();
-		
-		if (downloadQueue.size() > 0) {
-			ExecutorService executor = Executors.newFixedThreadPool(4);
-			
-			try {
-				for (Future<File> it : executor.invokeAll(downloadQueue.values())) {
-					subtitleFiles.add(it.get());
-				}
-			} finally {
-				executor.shutdownNow();
-			}
 		}
 		
 		Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
@@ -595,7 +598,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> getMissingSubtitles(Collection<File> files, String query, final String languageName, String output, String csn, boolean strict) throws Exception {
+	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, final String languageName, String output, String csn, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 			
 			// save time on repeating filesystem calls
@@ -628,7 +631,24 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		CLILogger.finest(format("Missing subtitles for %d video files", videoFiles.size()));
-		return getSubtitles(videoFiles, query, languageName, output, csn, strict);
+		return getSubtitles(videoFiles, db, query, languageName, output, csn, strict);
+	}
+	
+	
+	private Map<File, File> downloadSubtitleBatch(String service, Map<File, SubtitleDescriptor> subtitles, SubtitleFormat outputFormat, Charset outputEncoding) {
+		Map<File, File> downloads = new HashMap<File, File>();
+		
+		// fetch subtitle
+		for (Entry<File, SubtitleDescriptor> it : subtitles.entrySet()) {
+			try {
+				downloads.put(it.getKey(), downloadSubtitle(it.getValue(), it.getKey(), outputFormat, outputEncoding));
+				Analytics.trackEvent(service, "DownloadSubtitle", it.getValue().getLanguageName(), 1);
+			} catch (Exception e) {
+				CLILogger.warning(format("Failed to download %s: %s", it.getValue().getPath(), e.getMessage()));
+			}
+		}
+		
+		return downloads;
 	}
 	
 	
@@ -697,7 +717,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<String> detectQuery(Collection<File> mediaFiles, Locale locale) throws Exception {
+	private List<String> detectSeriesQuery(Collection<File> mediaFiles, Locale locale) throws Exception {
 		// detect series name by common word sequence
 		List<String> names = detectSeriesNames(mediaFiles, locale);
 		
@@ -763,46 +783,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		return language;
-	}
-	
-	
-	private class SubtitleCollector {
-		
-		private final Map<String, Map<File, SubtitleDescriptor>> collection = new HashMap<String, Map<File, SubtitleDescriptor>>();
-		private final Set<File> remainingVideos = new TreeSet<File>();
-		
-		
-		public SubtitleCollector(Collection<File> videoFiles) {
-			remainingVideos.addAll(videoFiles);
-		}
-		
-		
-		public void addAll(String source, Map<File, SubtitleDescriptor> subtitles) {
-			remainingVideos.removeAll(subtitles.keySet());
-			
-			Map<File, SubtitleDescriptor> subtitlesBySource = collection.get(source);
-			if (subtitlesBySource == null) {
-				subtitlesBySource = new TreeMap<File, SubtitleDescriptor>();
-				collection.put(source, subtitlesBySource);
-			}
-			
-			subtitlesBySource.putAll(subtitles);
-		}
-		
-		
-		public Map<String, Map<File, SubtitleDescriptor>> subtitlesBySource() {
-			return collection;
-		}
-		
-		
-		public Collection<File> remainingVideos() {
-			return remainingVideos;
-		}
-		
-		
-		public boolean isComplete() {
-			return remainingVideos.size() == 0;
-		}
 	}
 	
 	
