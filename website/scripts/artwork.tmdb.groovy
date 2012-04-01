@@ -54,13 +54,19 @@ def fetchMovieArtworkAndNfo(movieDir, movie) {
 
 
 args.eachMediaFolder { dir ->
+	// fetch only missing artwork by default
+	if (_args.conflict == "skip" && dir.hasFile{it =~ /movie.nfo$/} && dir.hasFile{it =~ /folder.jpg$/} && dir.hasFile{it =~ /backdrop.jpg$/}) {
+		println "Skipping $dir"
+		return
+	}
+	
 	def videos = dir.listFiles{ it.isVideo() }
 	
 	def query = _args.query ?: dir.name
 	def options = TheMovieDB.searchMovie(query, _args.locale)
 	if (options.isEmpty()) {
 		println "Movie not found: $query"
-		return null
+		return
 	}
 	
 	// sort by relevance

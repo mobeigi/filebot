@@ -89,6 +89,12 @@ def fetchSeriesBannersAndNfo(seriesDir, seasonDir, series, season) {
 
 
 args.eachMediaFolder { dir ->
+	// fetch only missing artwork by default
+	if (_args.conflict == "skip" && dir.hasFile{it =~ /tvshow.nfo$/} && dir.hasFile{it =~ /folder.jpg$/} && dir.hasFile{it =~ /banner.jpg$/}) {
+		println "Skipping $dir"
+		return
+	}
+	
 	def videos = dir.listFiles{ it.isVideo() }
 	
 	def query = _args.query ?: detectSeriesName(videos, _args.locale)
@@ -102,7 +108,7 @@ args.eachMediaFolder { dir ->
 	def options = TheTVDB.search(query, _args.locale)
 	if (options.isEmpty()) {
 		println "TV Series not found: $query"
-		return null
+		return
 	}
 	
 	// sort by relevance
@@ -114,7 +120,7 @@ args.eachMediaFolder { dir ->
 	// maybe require user input
 	if (options.size() != 1 && !_args.nonStrict && !java.awt.GraphicsEnvironment.headless) {
 		series = javax.swing.JOptionPane.showInputDialog(null, "Please select TV Show:", dir.path, 3, null, options.toArray(), series);
-		if (series == null) return null
+		if (series == null) return
 	}
 	
 	// auto-detect structure
