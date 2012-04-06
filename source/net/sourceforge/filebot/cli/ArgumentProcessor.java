@@ -91,7 +91,7 @@ public class ArgumentProcessor {
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
-				Analytics.trackEvent("CLI", "ExecuteScript", args.getScriptLocation().getProtocol());
+				Analytics.trackEvent("CLI", "ExecuteScript", args.getScriptLocation().getScheme());
 				ScriptShell shell = new ScriptShell(cli, args, args.trustScript, AccessController.getContext());
 				shell.run(args.getScriptLocation(), bindings);
 			}

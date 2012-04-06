@@ -10,9 +10,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
-import java.net.URL;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.AccessControlContext;
@@ -95,9 +97,17 @@ class ScriptShell {
 	}
 	
 	
-	public Object run(URL scriptLocation, Bindings bindings) throws Throwable {
-		if (scriptLocation.getProtocol().equals("file")) {
-			return run(new File(scriptLocation.toURI()), bindings);
+	public Object run(URI scriptLocation, Bindings bindings) throws Throwable {
+		if (scriptLocation.getScheme().equals("file")) {
+			return run(new InputStreamReader(new FileInputStream(new File(scriptLocation)), "UTF-8"), bindings);
+		}
+		
+		if (scriptLocation.getScheme().equals("system")) {
+			return run(new InputStreamReader(System.in), bindings);
+		}
+		
+		if (scriptLocation.getScheme().equals("script")) {
+			return run(new StringReader(scriptLocation.getAuthority()), bindings);
 		}
 		
 		// fetch remote script only if modified
@@ -112,9 +122,8 @@ class ScriptShell {
 	}
 	
 	
-	public Object run(File scriptFile, Bindings bindings) throws Throwable {
-		String script = readAll(new InputStreamReader(new FileInputStream(scriptFile), "UTF-8"));
-		return evaluate(script, bindings);
+	public Object run(Reader script, Bindings bindings) throws Throwable {
+		return evaluate(readAll(script), bindings);
 	}
 	
 	

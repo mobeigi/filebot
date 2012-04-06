@@ -7,8 +7,8 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -143,16 +143,23 @@ public class ArgumentBean {
 	}
 	
 	
-	public URL getScriptLocation() {
+	public URI getScriptLocation() {
 		try {
-			return new URL(script);
-		} catch (MalformedURLException eu) {
+			return new URI(script);
+		} catch (URISyntaxException eu) {
+			if (script.startsWith("script://")) {
+				try {
+					return new URI("script", script.substring(9), null, null, null);
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
 			try {
 				File file = new File(script);
-				if (!file.exists())
+				if (!file.exists()) {
 					throw new FileNotFoundException(file.getPath());
-				
-				return file.toURI().toURL();
+				}
+				return file.toURI();
 			} catch (Exception e) {
 				throw new IllegalArgumentException(e);
 			}
