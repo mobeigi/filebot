@@ -37,7 +37,7 @@ File.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
 File.metaClass.isDerived = { f -> isDerived(delegate, f) }
 File.metaClass.validateFileName = { validateFileName(delegate) }
 File.metaClass.validateFilePath = { validateFilePath(delegate) }
-File.metaClass.moveTo = { f -> moveRename(delegate, f instanceof File ? f : new File(f.toString())) }
+File.metaClass.moveTo = { f -> moveRename(delegate, f as File) }
 File.metaClass.copyTo = { dir -> copyAs(delegate, new File(dir, delegate.getName())) }
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
@@ -72,7 +72,7 @@ URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), paramet
 URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
 URL.metaClass.post = { String text, csn = 'utf-8' -> delegate.post(text.getBytes(csn), 'text/plain') }
 
-ByteBuffer.metaClass.saveAs = { f -> f = f instanceof File ? f : new File(f.toString()); writeFile(delegate.duplicate(), f); f.absolutePath };
+ByteBuffer.metaClass.saveAs = { f -> f = f as File; writeFile(delegate.duplicate(), f); f.absoluteFile };
 URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
 String.metaClass.saveAs = { f, csn = "utf-8" -> Charset.forName(csn).encode(delegate).saveAs(f) }
 
@@ -165,7 +165,7 @@ def parseDate(path) {
 }
 
 def detectSeriesName(files, locale = Locale.ENGLISH) {
-	def names = MediaDetection.detectSeriesNames(files instanceof Collection ? files : [new File(files.toString())], locale)
+	def names = MediaDetection.detectSeriesNames(files instanceof Collection ? files : [files as File], locale)
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 

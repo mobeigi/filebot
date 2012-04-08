@@ -1,6 +1,9 @@
 // File operations
 import static net.sourceforge.tuned.FileUtilities.*;
 
+// simplified switch/case pattern matching
+Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
+
 
 /**
 * Allow getAt() for File paths
@@ -36,7 +39,7 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 /**
  * Return a substring matching the given pattern or break.
  */
-String.metaClass.match = { def matcher = delegate =~ it; if (matcher.find()) return matcher[0] else throw new Exception("Match failed") }
+String.metaClass.match = { String pattern -> def matcher = delegate =~ pattern; if (matcher.find()) return matcher[0] else throw new Exception("Match failed") }
 
 
 /**
