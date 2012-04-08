@@ -62,4 +62,14 @@ public class TMDbClientTest {
 		assertEquals("thumb", movie.getImages().get(0).getSize());
 		assertEquals("http://cf2.imgobject.com/t/p/w92/bgSHbGEA1OM6qDs3Qba4VlSZsNG.jpg", movie.getImages().get(0).getUrl().toString());
 	}
+	
+	
+	@Test
+	public void floodLimit() throws Exception {
+		for (Locale it : Locale.getAvailableLocales()) {
+			List<Movie> results = tmdb.searchMovie("Serenity", it);
+			assertEquals(379786, results.get(0).getImdbId());
+		}
+	}
+	
 }

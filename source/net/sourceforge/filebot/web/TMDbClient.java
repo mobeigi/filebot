@@ -9,6 +9,7 @@ import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,6 +40,9 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "2.1";
+	
+	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 10, TimeUnit.SECONDS);
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
 	
 	private final String apikey;
 	
@@ -62,7 +67,7 @@ public class TMDbClient implements MovieIdentificationService {
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
 		try {
-			return getMovies("Movie.search", encode(query), locale);
+			return getMovies("Movie.search", encode(query), locale, SEARCH_LIMIT);
 		} catch (SAXException e) {
 			// TMDb output is sometimes malformed xml
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
@@ -72,13 +77,13 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	
 	public List<Movie> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
-		return getMovies("Media.getInfo", hash + "/" + bytesize, locale);
+		return getMovies("Media.getInfo", hash + "/" + bytesize, locale, SEARCH_LIMIT);
 	}
 	
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
+		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale, REQUEST_LIMIT);
 		Node movie = selectNode("//movie", dom);
 		
 		if (movie == null)
@@ -104,8 +109,8 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	protected List<Movie> getMovies(String method, String parameter, Locale locale) throws IOException, SAXException {
-		Document dom = fetchResource(method, parameter, locale);
+	protected List<Movie> getMovies(String method, String parameter, Locale locale, FloodLimit limit) throws IOException, SAXException {
+		Document dom = fetchResource(method, parameter, locale, limit);
 		List<Movie> result = new ArrayList<Movie>();
 		
 		for (Node node : selectNodes("//movie", dom)) {
@@ -134,8 +139,21 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	protected Document fetchResource(String method, String parameter, Locale locale) throws IOException, SAXException {
-		return getDocument(new CachedPage(getResourceLocation(method, parameter, locale)).get());
+	protected Document fetchResource(String method, String parameter, Locale locale, final FloodLimit limit) throws IOException, SAXException {
+		return getDocument(new CachedPage(getResourceLocation(method, parameter, locale)) {
+			
+			@Override
+			protected Reader openConnection(URL url) throws IOException {
+				try {
+					if (limit != null) {
+						limit.acquirePermit();
+					}
+					return super.openConnection(url);
+				} catch (InterruptedException e) {
+					throw new IOException(e);
+				}
+			};
+		}.get());
 	}
 	
 	
@@ -164,7 +182,7 @@ public class TMDbClient implements MovieIdentificationService {
 			throw new IllegalArgumentException("Illegal IMDb ID: " + imdbid);
 		
 		// resolve imdbid to tmdbid
-		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale);
+		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale, REQUEST_LIMIT);
 		
 		String tmdbid = selectString("//movie/id", dom);
 		if (tmdbid == null || tmdbid.isEmpty()) {
@@ -172,7 +190,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		// get complete movie info via tmdbid lookup
-		dom = fetchResource("Movie.getInfo", tmdbid, locale);
+		dom = fetchResource("Movie.getInfo", tmdbid, locale, REQUEST_LIMIT);
 		
 		// select info from xml
 		Node node = selectNode("//movie", dom);
