@@ -28,10 +28,13 @@ public class Analytics {
 	
 	private static boolean enabled = false;
 	
-
+	
 	public static synchronized JGoogleAnalyticsTracker getTracker() {
 		if (tracker != null)
 			return tracker;
+		
+		// disable useless background logging
+		Logger.getLogger(JGoogleAnalyticsTracker.class.getName()).setLevel(Level.OFF);
 		
 		// initialize tracker
 		visitorData = restoreVisitorData();
@@ -50,12 +53,12 @@ public class Analytics {
 		return tracker;
 	}
 	
-
+	
 	public static void trackView(Class<?> view, String title) {
 		trackView(view.getName().replace('.', '/'), title);
 	}
 	
-
+	
 	public static synchronized void trackView(String view, String title) {
 		if (!enabled)
 			return;
@@ -71,12 +74,12 @@ public class Analytics {
 		currentView = view;
 	}
 	
-
+	
 	public static void trackEvent(String category, String action, String label) {
 		trackEvent(category, action, label, null);
 	}
 	
-
+	
 	public static synchronized void trackEvent(String category, String action, String label, Integer value) {
 		if (!enabled)
 			return;
@@ -84,7 +87,7 @@ public class Analytics {
 		getTracker().trackEvent(normalize(category), normalize(action), normalize(label), value);
 	}
 	
-
+	
 	private static String normalize(String label) {
 		if (label == null)
 			return null;
@@ -93,17 +96,17 @@ public class Analytics {
 		return label.replaceAll("[*()]", "").trim();
 	}
 	
-
+	
 	public static synchronized void setEnabled(boolean b) {
 		enabled = b;
 	}
 	
-
+	
 	private static String getDeploymentMethod() {
 		return getApplicationDeployment() == null ? "fatjar" : getApplicationDeployment();
 	}
 	
-
+	
 	private static AnalyticsConfigData getConfig(String webPropertyID, VisitorData visitorData) {
 		AnalyticsConfigData config = new AnalyticsConfigData(webPropertyID, visitorData);
 		
@@ -130,7 +133,7 @@ public class Analytics {
 		return config;
 	}
 	
-
+	
 	private static String getUserAgent() {
 		String wm = null;
 		String os = null;
@@ -159,7 +162,7 @@ public class Analytics {
 		return String.format("%s/%s (%s; U; %s; JRE %s)", getApplicationName(), getApplicationVersion(), wm, os, System.getProperty("java.version"));
 	}
 	
-
+	
 	private static String getUserLanguage() {
 		String language = System.getProperty("user.language");
 		
@@ -175,7 +178,7 @@ public class Analytics {
 		return language + "-" + region;
 	}
 	
-
+	
 	private static String getScreenResolution(GraphicsDevice[] display) {
 		int screenHeight = 0;
 		int screenWidth = 0;
@@ -190,7 +193,7 @@ public class Analytics {
 		return screenWidth + "x" + screenHeight;
 	}
 	
-
+	
 	private static String getColorDepth(GraphicsDevice[] display) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -205,13 +208,13 @@ public class Analytics {
 		return sb.toString();
 	}
 	
-
+	
 	private static final String VISITOR_ID = "visitorId";
 	private static final String TIMESTAMP_FIRST = "timestampFirst";
 	private static final String TIMESTAMP_LAST = "timestampLast";
 	private static final String VISITS = "visits";
 	
-
+	
 	private synchronized static VisitorData restoreVisitorData() {
 		try {
 			// try to restore visitor
@@ -228,7 +231,7 @@ public class Analytics {
 		}
 	}
 	
-
+	
 	private synchronized static void storeVisitorData(VisitorData visitor) {
 		Map<String, String> data = getPersistentData();
 		data.put(VISITOR_ID, String.valueOf(visitor.getVisitorId()));
@@ -237,12 +240,12 @@ public class Analytics {
 		data.put(VISITS, String.valueOf(visitor.getVisits()));
 	}
 	
-
+	
 	private static Map<String, String> getPersistentData() {
 		return Settings.forPackage(Analytics.class).node("analytics").asMap();
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation
 	 */
