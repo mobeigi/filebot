@@ -24,32 +24,32 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private URL subtitlePage;
 	private Map<String, String> subtitleInfo;
 	
-
+	
 	public SubsceneSubtitleDescriptor(String title, String language, URL subtitlePage) {
 		this.title = title;
 		this.language = language;
 		this.subtitlePage = subtitlePage;
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return title;
 	}
 	
-
+	
 	@Override
 	public String getLanguageName() {
 		return language;
 	}
 	
-
+	
 	@Override
 	public String getType() {
 		return null;
 	}
 	
-
+	
 	@Override
 	public ByteBuffer fetch() throws Exception {
 		// e.g. http://subscene.com/english/Firefly-The-Complete-Series/subtitle-40003-dlpath-20008/rar.zipx
@@ -65,7 +65,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 		return WebRequest.post(connection, downloadPostData);
 	}
 	
-
+	
 	private synchronized Map<String, String> getSubtitleInfo() {
 		// extract subtitle information from subtitle page if necessary
 		if (subtitleInfo == null) {
@@ -84,25 +84,25 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 		return subtitleInfo;
 	}
 	
-
+	
 	@Override
 	public String getPath() {
-		return String.format("%s.%s", getName(), getSubtitleInfo().get("typeId"));
+		return String.format("%s.%s", getName(), subtitleInfo == null ? null : subtitleInfo.get("typeId"));
 	}
 	
-
+	
 	@Override
 	public long getLength() {
 		return -1;
 	}
 	
-
+	
 	@Override
 	public int hashCode() {
 		return subtitlePage.getPath().hashCode();
 	}
 	
-
+	
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof SubsceneSubtitleDescriptor) {
@@ -113,7 +113,7 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 		return false;
 	}
 	
-
+	
 	@Override
 	public String toString() {
 		return String.format("%s [%s]", getName(), getLanguageName());

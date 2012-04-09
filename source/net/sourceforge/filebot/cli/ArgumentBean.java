@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -145,8 +146,8 @@ public class ArgumentBean {
 	
 	public URI getScriptLocation() {
 		try {
-			return new URI(script);
-		} catch (URISyntaxException eu) {
+			return new URL(script).toURI();
+		} catch (Exception eu) {
 			if (script.startsWith("script://")) {
 				try {
 					return new URI("script", script.substring(9), null, null, null);
