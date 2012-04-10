@@ -185,6 +185,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// remember user decisions and only bother user once
 		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
+		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
 		
 		// detect series names and create episode list fetch tasks
 		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
@@ -204,7 +205,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					
 					@Override
 					public List<Match<File, ?>> call() throws Exception {
-						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, selectionMemory, parent);
+						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, selectionMemory, inputMemory, parent);
 					}
 				});
 			}
@@ -255,7 +256,8 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory,
+			Map<String, List<String>> inputMemory, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list
@@ -280,8 +282,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			}
 			
 			List<String> input = emptyList();
-			synchronized (this) {
-				input = showMultiValueInputDialog("Enter series name:", suggestion, files.get(0).getParentFile().getName(), parent);
+			synchronized (inputMemory) {
+				input = inputMemory.get(suggestion);
+				if (input == null || suggestion == null || suggestion.isEmpty()) {
+					input = showMultiValueInputDialog("Enter series name:", suggestion, files.get(0).getParentFile().getName(), parent);
+					inputMemory.put(suggestion, input);
+				}
 			}
 			
 			if (input.size() > 0) {

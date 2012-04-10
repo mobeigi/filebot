@@ -105,6 +105,12 @@ public class MediaBindingBean {
 	
 	@Define("t")
 	public String getTitle() {
+		// single episode format
+		if (getEpisodes().size() == 1) {
+			return getEpisode().getTitle();
+		}
+		
+		// multi-episode format
 		Set<String> title = new LinkedHashSet<String>();
 		for (Episode it : getEpisodes()) {
 			title.add(removeTrailingBrackets(it.getTitle()));
