@@ -298,8 +298,13 @@ public class MediaDetection {
 			return options;
 		}
 		
+		// if matching name+year failed, try matching only by name
+		if (movieNameMatches.isEmpty() && strict) {
+			movieNameMatches = matchMovieName(files, locale, false);
+		}
+		
 		// query by file / folder name
-		if (queryLookupService != null && !strict) {
+		if (queryLookupService != null) {
 			options.addAll(queryMovieByFileName(files, queryLookupService, locale));
 		}
 		
@@ -394,12 +399,12 @@ public class MediaDetection {
 	
 	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
-		
-		for (File nfo : file.getParentFile().listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
-			String text = new String(readFile(nfo), "UTF-8");
-			collection.addAll(grepImdbId(text));
+		if (file.exists()) {
+			for (File nfo : file.getParentFile().listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+				String text = new String(readFile(nfo), "UTF-8");
+				collection.addAll(grepImdbId(text));
+			}
 		}
-		
 		return collection;
 	}
 	
