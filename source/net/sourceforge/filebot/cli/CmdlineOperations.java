@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
@@ -252,11 +253,14 @@ public class CmdlineOperations implements CmdlineInterface {
 						if (selectedSearchResults != null) {
 							List<Episode> episodes = new ArrayList<Episode>();
 							for (SearchResult it : selectedSearchResults) {
-								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
-								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
-								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
+								try {
+									CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
+									episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
+									Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
+								} catch (IOException e) {
+									CLILogger.log(Level.SEVERE, e.getMessage(), e);
+								}
 							}
-							
 							return episodes;
 						}
 					}
@@ -592,8 +596,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File it : remainingVideos) {
 			CLILogger.warning("No matching subtitles found: " + it);
 		}
-		
-		Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
+		if (subtitleFiles.size() > 0) {
+			Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
+		}
 		return subtitleFiles;
 	}
 	
