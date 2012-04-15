@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.kohsuke.args4j.Argument;
@@ -103,6 +104,9 @@ public class ArgumentBean {
 	
 	@Argument
 	public List<String> arguments = new ArrayList<String>();
+	
+	// optional parameters
+	public Map<String, String> parameters;
 	
 	
 	public boolean runCLI() {

@@ -23,6 +23,8 @@ import java.security.Permissions;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PropertyPermission;
 
 import javax.script.Bindings;
@@ -51,12 +53,12 @@ class ScriptShell {
 	private final boolean trustScript;
 	
 	
-	public ScriptShell(CmdlineInterface cli, ArgumentBean args, boolean trustScript, AccessControlContext acc) throws ScriptException {
+	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, boolean trustScript, AccessControlContext acc) throws ScriptException {
 		this.trustScript = trustScript;
 		
 		// setup script context
 		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(initializeBindings(cli, args, acc), ScriptContext.GLOBAL_SCOPE);
+		context.setBindings(initializeBindings(cli, args, parameters, acc), ScriptContext.GLOBAL_SCOPE);
 		engine.setContext(context);
 		
 		// import additional functions into the shell environment
@@ -65,8 +67,13 @@ class ScriptShell {
 	}
 	
 	
-	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc) {
+	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc) {
 		Bindings bindings = new SimpleBindings();
+		
+		// bind external parameters
+		for (Entry<String, ?> it : parameters.entrySet()) {
+			bindings.put(it.getKey(), it.getValue());
+		}
 		
 		// bind API objects
 		bindings.put("_cli", PrivilegedInvocation.newProxy(CmdlineInterface.class, cli, acc));
@@ -77,8 +84,9 @@ class ScriptShell {
 		bindings.put("_log", CLILogger);
 		
 		// bind Java properties and environment variables
-		bindings.put("_prop", new AssociativeScriptObject(System.getProperties()));
-		bindings.put("_env", new AssociativeScriptObject(System.getenv()));
+		bindings.put("_parameter", new AssociativeScriptObject(parameters));
+		bindings.put("_system", new AssociativeScriptObject(System.getProperties()));
+		bindings.put("_environment", new AssociativeScriptObject(System.getenv()));
 		
 		// bind console object
 		bindings.put("console", System.console());

@@ -8,8 +8,12 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.security.AccessController;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.script.Bindings;
@@ -28,8 +32,23 @@ public class ArgumentProcessor {
 		final ArgumentBean bean = new ArgumentBean();
 		
 		if (args != null && args.length > 0) {
+			List<String> arguments = new ArrayList<String>();
+			Map<String, String> parameters = new HashMap<String, String>();
+			
+			for (String it : args) {
+				if (it.startsWith("-X")) {
+					String[] pair = it.substring(2).split("=", 2);
+					if (pair.length == 2) {
+						parameters.put(pair[0], pair[1]);
+					}
+				} else {
+					arguments.add(it);
+				}
+			}
+			
 			CmdLineParser parser = new CmdLineParser(bean);
-			parser.parseArgument(args);
+			parser.parseArgument(arguments);
+			bean.parameters = parameters;
 		}
 		
 		return bean;
@@ -92,7 +111,7 @@ public class ArgumentProcessor {
 				bindings.put("args", args.getFiles(false));
 				
 				Analytics.trackEvent("CLI", "ExecuteScript", args.getScriptLocation().getScheme());
-				ScriptShell shell = new ScriptShell(cli, args, args.trustScript, AccessController.getContext());
+				ScriptShell shell = new ScriptShell(cli, args, args.parameters, args.trustScript, AccessController.getContext());
 				shell.run(args.getScriptLocation(), bindings);
 			}
 			
@@ -108,6 +127,7 @@ public class ArgumentProcessor {
 	
 	public void printHelp(ArgumentBean argumentBean) {
 		new CmdLineParser(argumentBean).printUsage(System.out);
+		System.out.println(" -X<name>=<value>                       : Define script variable");
 	}
 	
 }
