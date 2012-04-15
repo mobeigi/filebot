@@ -161,7 +161,7 @@ class ValidateDialog extends JDialog {
 		
 		for (int i = 0; i < source.size(); i++) {
 			// invalid file names are also invalid file paths
-			if (isInvalidFilePath(source.get(i))) {
+			if (isInvalidFilePath(source.get(i)) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
 				invalidFilePaths.addIndex(i);
 			}
 		}

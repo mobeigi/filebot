@@ -208,8 +208,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
-			if (isInvalidFilePath(newFile)) {
-				CLILogger.config("Stripping invalid characters from new name: " + newName);
+			if (isInvalidFilePath(newFile) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
+				CLILogger.config("Stripping invalid characters from new path: " + newName);
 				newFile = validateFilePath(newFile);
 			}
 			
@@ -435,7 +435,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
 			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
-			if (isInvalidFilePath(newFile)) {
+			if (isInvalidFilePath(newFile) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
 				CLILogger.config("Stripping invalid characters from new path: " + newName);
 				newFile = validateFilePath(newFile);
 			}
