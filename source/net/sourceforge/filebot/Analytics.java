@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.Settings.*;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,19 +116,17 @@ public class Analytics {
 		config.setUserLanguage(getUserLanguage());
 		
 		try {
-			if (GraphicsEnvironment.isHeadless()) {
-				// headless environment
-				config.setScreenResolution("80x25");
-				config.setColorDepth("1");
-			} else {
-				// desktop environment
-				GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-				config.setScreenResolution(getScreenResolution(display));
-				config.setColorDepth(getColorDepth(display));
-			}
+			if (GraphicsEnvironment.isHeadless())
+				throw new HeadlessException();
+			
+			// desktop environment
+			GraphicsDevice[] display = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+			config.setScreenResolution(getScreenResolution(display));
+			config.setColorDepth(getColorDepth(display));
 		} catch (Throwable e) {
-			// just in case
-			Logger.getLogger(Analytics.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			// headless environment
+			config.setScreenResolution("80x25");
+			config.setColorDepth("1");
 		}
 		
 		return config;
