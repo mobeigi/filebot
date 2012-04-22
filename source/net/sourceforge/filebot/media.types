@@ -89,6 +89,7 @@
 		<extension>mpg</extension>
 		<extension>mpeg</extension>
 		<extension>ts</extension>
+		<extension>tp</extension>
 	</type>
 	<type name="video/wmv">
 		<extension>wmv</extension>

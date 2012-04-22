@@ -22,22 +22,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement(name = "history")
-class History {
+public class History {
 	
 	@XmlElement(name = "sequence")
 	private List<Sequence> sequences;
 	
-
+	
 	public History() {
 		this.sequences = new ArrayList<Sequence>();
 	}
 	
-
+	
 	public History(Collection<Sequence> sequences) {
 		this.sequences = new ArrayList<Sequence>(sequences);
 	}
 	
-
+	
 	public static class Sequence {
 		
 		@XmlAttribute(name = "date", required = true)
@@ -46,17 +46,17 @@ class History {
 		@XmlElement(name = "rename", required = true)
 		private List<Element> elements;
 		
-
+		
 		private Sequence() {
 			// hide constructor
 		}
 		
-
+		
 		public Date date() {
 			return date;
 		}
 		
-
+		
 		public List<Element> elements() {
 			if (elements == null)
 				return emptyList();
@@ -64,7 +64,7 @@ class History {
 			return unmodifiableList(elements);
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Sequence) {
@@ -75,14 +75,14 @@ class History {
 			return false;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return Arrays.hashCode(new Object[] { elements, date });
 		}
 	}
 	
-
+	
 	public static class Element {
 		
 		@XmlAttribute(name = "dir", required = true)
@@ -94,34 +94,34 @@ class History {
 		@XmlAttribute(name = "to", required = true)
 		private String to;
 		
-
+		
 		public Element() {
 			// used by JAXB
 		}
 		
-
+		
 		public Element(String from, String to, File dir) {
 			this.from = from;
 			this.to = to;
 			this.dir = dir;
 		}
 		
-
+		
 		public File dir() {
 			return dir;
 		}
 		
-
+		
 		public String from() {
 			return from;
 		}
 		
-
+		
 		public String to() {
 			return to;
 		}
 		
-
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Element) {
@@ -132,19 +132,19 @@ class History {
 			return false;
 		}
 		
-
+		
 		@Override
 		public int hashCode() {
 			return Arrays.hashCode(new Object[] { to, from, dir });
 		}
 	}
 	
-
+	
 	public List<Sequence> sequences() {
 		return unmodifiableList(sequences);
 	}
 	
-
+	
 	public void add(Collection<Element> elements) {
 		Sequence sequence = new Sequence();
 		sequence.date = new Date();
@@ -153,17 +153,17 @@ class History {
 		add(sequence);
 	}
 	
-
+	
 	public void add(Sequence sequence) {
 		this.sequences.add(sequence);
 	}
 	
-
+	
 	public void addAll(Collection<Sequence> sequences) {
 		this.sequences.addAll(sequences);
 	}
 	
-
+	
 	public void merge(History history) {
 		for (Sequence sequence : history.sequences()) {
 			if (!sequences.contains(sequence)) {
@@ -172,12 +172,12 @@ class History {
 		}
 	}
 	
-
+	
 	public void clear() {
 		sequences.clear();
 	}
 	
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof History) {
@@ -188,13 +188,13 @@ class History {
 		return false;
 	}
 	
-
+	
 	@Override
 	public int hashCode() {
 		return sequences.hashCode();
 	}
 	
-
+	
 	public static void exportHistory(History history, File file) throws IOException {
 		try {
 			Marshaller marshaller = JAXBContext.newInstance(History.class).createMarshaller();
@@ -206,7 +206,7 @@ class History {
 		}
 	}
 	
-
+	
 	public static History importHistory(File file) throws IOException {
 		try {
 			Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
