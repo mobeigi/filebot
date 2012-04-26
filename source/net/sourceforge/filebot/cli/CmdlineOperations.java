@@ -479,8 +479,8 @@ public class CmdlineOperations implements CmdlineInterface {
 					
 					// rename file, throw exception on failure
 					if (!destination.equals(source) && !destination.exists()) {
+						CLILogger.info(format("[%s] Rename [%s] to [%s]", renameAction, it.getKey(), it.getValue()));
 						destination = renameAction.rename(source, destination);
-						CLILogger.info(format("[%s] Renamed [%s] to [%s]", renameAction, it.getKey(), it.getValue()));
 					} else {
 						CLILogger.info(format("Skipped [%s] because [%s] already exists", source, destination));
 					}

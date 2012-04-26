@@ -54,6 +54,12 @@ movieDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() }
 // make XBMC scan for new content
 xbmc.each { host ->
 	telnet(host, 9090) { writer, reader ->
-		writer.println('{"jsonrpc": "2.0", "method": "VideoLibrary.ScanForContent", "id": 1}')
+		// API call for latest XBMC release
+		def msg = '{"id":1,"method":"VideoLibrary.Scan","params":[],"jsonrpc":"2.0"}'
+		
+		// API call for XBMC Dharma-Release or older
+		// def msg = '{"id":1,"method":"VideoLibrary.ScanForContent","params":[],"jsonrpc":"2.0"}'
+				
+		writer.println(msg)
 	}
 }

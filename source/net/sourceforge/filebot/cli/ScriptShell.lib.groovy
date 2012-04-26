@@ -15,7 +15,7 @@ File.metaClass.getDir = { getParentFile() }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
 
 String.metaClass.getFiles = { c -> new File(delegate).getFiles(c) }
-File.metaClass.getFiles = { c -> def files = []; traverse(type:FILES) { files += it }; return c ? files.findAll(c).sort() : files.sort() }
+File.metaClass.getFiles = { c -> if (delegate.isFile()) return [delegate]; def files = []; traverse(type:FILES, visitRoot:true) { files += it }; return c ? files.findAll(c).sort() : files.sort() }
 List.metaClass.getFiles = { c -> findResults{ it.getFiles(c) }.flatten().unique() }
 
 String.metaClass.getFolders = { c -> new File(delegate).getFolders(c) }
