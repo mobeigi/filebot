@@ -19,7 +19,7 @@ def fetchBanner(outputFile, series, bannerType, bannerType2 = null, season = nul
 
 def fetchNfo(outputFile, series) {
 	def info = TheTVDB.getSeriesInfo(series, _args.locale)
-	println info  
+	println info
 	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<year>$firstAired.year</year>
