@@ -267,10 +267,14 @@ public class MediaDetection {
 		
 		// lookup by file hash
 		if (hashLookupService != null && movieFile.isFile()) {
-			for (Movie movie : hashLookupService.getMovieDescriptors(singleton(movieFile), locale).values()) {
-				if (movie != null) {
-					options.add(movie);
+			try {
+				for (Movie movie : hashLookupService.getMovieDescriptors(singleton(movieFile), locale).values()) {
+					if (movie != null) {
+						options.add(movie);
+					}
 				}
+			} catch (Exception e) {
+				Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 		}
 		

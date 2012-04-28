@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.net.URI;
 import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -110,9 +111,11 @@ public class ArgumentProcessor {
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
-				Analytics.trackEvent("CLI", "ExecuteScript", args.getScriptLocation().getScheme());
 				ScriptShell shell = new ScriptShell(cli, args, args.parameters, args.trustScript, AccessController.getContext());
-				shell.run(args.getScriptLocation(), bindings);
+				URI script = shell.getScriptLocation(args.script);
+				
+				Analytics.trackEvent("CLI", "ExecuteScript", script.getScheme());
+				shell.run(script, bindings);
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");

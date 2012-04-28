@@ -6,10 +6,6 @@ import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -145,30 +141,6 @@ public class ArgumentBean {
 		}
 		
 		return files;
-	}
-	
-	
-	public URI getScriptLocation() {
-		try {
-			return new URL(script).toURI();
-		} catch (Exception eu) {
-			if (script.startsWith("script://")) {
-				try {
-					return new URI("script", script.substring(9), null, null, null);
-				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException(e);
-				}
-			}
-			try {
-				File file = new File(script);
-				if (!file.exists()) {
-					throw new FileNotFoundException(file.getPath());
-				}
-				return file.toURI();
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
 	}
 	
 	

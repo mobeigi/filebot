@@ -8,6 +8,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -15,6 +16,8 @@ import java.io.StringReader;
 import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.AccessControlContext;
@@ -105,17 +108,46 @@ class ScriptShell {
 	}
 	
 	
+	public URI getScriptLocation(String input) {
+		try {
+			return new URL(input).toURI();
+		} catch (Exception eu) {
+			if (input.startsWith("script:")) {
+				try {
+					return new URI("script", input.substring(7), null, null, null);
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+			try {
+				File file = new File(input);
+				if (!file.exists()) {
+					throw new FileNotFoundException(file.getPath());
+				}
+				return file.toURI();
+			} catch (Exception e) {
+				throw new IllegalArgumentException(e);
+			}
+		}
+	}
+	
+	
+	public Object run(String input, Bindings bindings) throws Throwable {
+		return run(getScriptLocation(input), bindings);
+	}
+	
+	
 	public Object run(URI scriptLocation, Bindings bindings) throws Throwable {
 		if (scriptLocation.getScheme().equals("file")) {
-			return run(new InputStreamReader(new FileInputStream(new File(scriptLocation)), "UTF-8"), bindings);
+			return evalute(new InputStreamReader(new FileInputStream(new File(scriptLocation)), "UTF-8"), bindings);
 		}
 		
 		if (scriptLocation.getScheme().equals("system")) {
-			return run(new InputStreamReader(System.in), bindings);
+			return evalute(new InputStreamReader(System.in), bindings);
 		}
 		
 		if (scriptLocation.getScheme().equals("script")) {
-			return run(new StringReader(scriptLocation.getAuthority()), bindings);
+			return evalute(new StringReader(scriptLocation.getAuthority()), bindings);
 		}
 		
 		// fetch remote script only if modified
@@ -130,7 +162,7 @@ class ScriptShell {
 	}
 	
 	
-	public Object run(Reader script, Bindings bindings) throws Throwable {
+	public Object evalute(Reader script, Bindings bindings) throws Throwable {
 		return evaluate(readAll(script), bindings);
 	}
 	

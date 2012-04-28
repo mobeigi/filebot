@@ -67,10 +67,12 @@ public abstract class CachedResource<T extends Serializable> {
 		
 		// fetch and process resource
 		ByteBuffer data = fetchData(new URL(resource), element != null ? lastUpdateTime : 0);
+		T product = null;
 		
 		if (data != null) {
 			try {
-				element = new Element(cacheKey, process(data));
+				product = process(data);
+				element = new Element(cacheKey, product);
 			} catch (Exception e) {
 				throw new IOException(e);
 			}
@@ -82,8 +84,7 @@ public abstract class CachedResource<T extends Serializable> {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 		}
 		
-		// update cached data and last-updated time
-		return type.cast(element.getValue());
+		return product;
 	}
 	
 }
