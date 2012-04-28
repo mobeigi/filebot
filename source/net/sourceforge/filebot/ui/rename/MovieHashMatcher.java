@@ -228,7 +228,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			String input = null;
 			synchronized (this) {
-				input = showInputDialog("Enter movie name:", suggestion, movieFile.getPath(), parent);
+				input = showInputDialog("Enter movie name:", suggestion, String.format("%s / %s", movieFile.getParentFile().getName(), movieFile.getName()), parent);
 			}
 			
 			// we only care about results from manual input from here on out
@@ -290,7 +290,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// multiple results have been found, user must select one
 				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
 				
-				selectDialog.setTitle(movieFile.getPath());
+				selectDialog.setTitle(String.format("%s / %s", movieFile.getParentFile().getName(), movieFile.getName()));
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 				selectDialog.pack();
