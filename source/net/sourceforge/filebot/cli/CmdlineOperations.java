@@ -498,7 +498,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				HistorySpooler.getInstance().append(renameMap.entrySet());
 				
 				// printer number of renamed files if any
-				CLILogger.fine(format("Renamed %d files", renameLog.size()));
+				CLILogger.fine(format("Processed %d files", renameLog.size()));
 			}
 		}
 		

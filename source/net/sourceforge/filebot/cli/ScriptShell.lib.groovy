@@ -182,6 +182,14 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 	return delegate.sort{ a, b -> similarity(toStringFunction(b), prime).compareTo(similarity(toStringFunction(a), prime)) }
 }
 
+// call scripts
+def include(String input, Map parameters = [:], Object... args) {
+	// initialize default parameter
+	parameters.args = (args as List).findResults{ it as File }
+	
+	// run given script and catch exceptions
+	_guarded { _shell.runScript(input, new javax.script.SimpleBindings(parameters)) }
+}
 
 
 // CLI bindings

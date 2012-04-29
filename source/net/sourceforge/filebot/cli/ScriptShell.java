@@ -3,23 +3,14 @@ package net.sourceforge.filebot.cli;
 
 
 import static net.sourceforge.filebot.cli.CLILogging.*;
-import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.AWTPermission;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.Permissions;
@@ -45,7 +36,6 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.AssociativeScriptObject;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
-import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 
@@ -55,8 +45,11 @@ class ScriptShell {
 	private final ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
 	private final boolean trustScript;
 	
+	private final ScriptProvider scriptProvider;
 	
-	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, boolean trustScript, AccessControlContext acc) throws ScriptException {
+	
+	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, boolean trustScript, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
+		this.scriptProvider = scriptProvider;
 		this.trustScript = trustScript;
 		
 		// setup script context
@@ -70,100 +63,19 @@ class ScriptShell {
 	}
 	
 	
-	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc) {
-		Bindings bindings = new SimpleBindings();
+	public static interface ScriptProvider {
 		
-		// bind external parameters
-		for (Entry<String, ?> it : parameters.entrySet()) {
-			bindings.put(it.getKey(), it.getValue());
-		}
+		public URI getScriptLocation(String input);
 		
-		// bind API objects
-		bindings.put("_cli", PrivilegedInvocation.newProxy(CmdlineInterface.class, cli, acc));
-		bindings.put("_script", new File(args.script));
-		bindings.put("_args", args);
 		
-		bindings.put("_types", MediaTypes.getDefault());
-		bindings.put("_log", CLILogger);
-		
-		// bind Java properties and environment variables
-		bindings.put("_parameter", new AssociativeScriptObject(parameters));
-		bindings.put("_system", new AssociativeScriptObject(System.getProperties()));
-		bindings.put("_environment", new AssociativeScriptObject(System.getenv()));
-		
-		// bind console object
-		bindings.put("console", System.console());
-		
-		// bind Episode data providers
-		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
-			bindings.put(service.getName(), service);
-		}
-		
-		// bind Movie data providers
-		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
-			bindings.put(service.getName(), service);
-		}
-		
-		return bindings;
+		public String fetchScript(URI uri) throws Exception;
 	}
 	
 	
-	public URI getScriptLocation(String input) {
-		try {
-			return new URL(input).toURI();
-		} catch (Exception eu) {
-			if (input.startsWith("script:")) {
-				try {
-					return new URI("script", input.substring(7), null, null, null);
-				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException(e);
-				}
-			}
-			try {
-				File file = new File(input);
-				if (!file.exists()) {
-					throw new FileNotFoundException(file.getPath());
-				}
-				return file.toURI();
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
-	}
-	
-	
-	public Object run(String input, Bindings bindings) throws Throwable {
-		return run(getScriptLocation(input), bindings);
-	}
-	
-	
-	public Object run(URI scriptLocation, Bindings bindings) throws Throwable {
-		if (scriptLocation.getScheme().equals("file")) {
-			return evalute(new InputStreamReader(new FileInputStream(new File(scriptLocation)), "UTF-8"), bindings);
-		}
-		
-		if (scriptLocation.getScheme().equals("system")) {
-			return evalute(new InputStreamReader(System.in), bindings);
-		}
-		
-		if (scriptLocation.getScheme().equals("script")) {
-			return evalute(new StringReader(scriptLocation.getAuthority()), bindings);
-		}
-		
-		// fetch remote script only if modified
-		CachedResource<String> script = new CachedResource<String>(scriptLocation.toString(), String.class, 0) {
-			
-			@Override
-			public String process(ByteBuffer data) {
-				return Charset.forName("UTF-8").decode(data).toString();
-			}
-		};
-		return evaluate(script.get(), bindings);
-	}
-	
-	
-	public Object evalute(Reader script, Bindings bindings) throws Throwable {
-		return evaluate(readAll(script), bindings);
+	public Object runScript(String input, Bindings bindings) throws Throwable {
+		URI resource = scriptProvider.getScriptLocation(input);
+		String script = scriptProvider.fetchScript(resource);
+		return evaluate(script, bindings);
 	}
 	
 	
@@ -187,6 +99,45 @@ class ScriptShell {
 		} catch (Throwable e) {
 			throw StackTraceUtils.deepSanitize(e); // make Groovy stack human-readable
 		}
+	}
+	
+	
+	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc) {
+		Bindings bindings = new SimpleBindings();
+		
+		// bind external parameters
+		for (Entry<String, ?> it : parameters.entrySet()) {
+			bindings.put(it.getKey(), it.getValue());
+		}
+		
+		// bind API objects
+		bindings.put("_cli", PrivilegedInvocation.newProxy(CmdlineInterface.class, cli, acc));
+		bindings.put("_script", new File(args.script));
+		bindings.put("_args", args);
+		bindings.put("_shell", this);
+		
+		bindings.put("_types", MediaTypes.getDefault());
+		bindings.put("_log", CLILogger);
+		
+		// bind Java properties and environment variables
+		bindings.put("_parameter", new AssociativeScriptObject(parameters));
+		bindings.put("_system", new AssociativeScriptObject(System.getProperties()));
+		bindings.put("_environment", new AssociativeScriptObject(System.getenv()));
+		
+		// bind console object
+		bindings.put("console", System.console());
+		
+		// bind Episode data providers
+		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
+			bindings.put(service.getName(), service);
+		}
+		
+		// bind Movie data providers
+		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
+			bindings.put(service.getName(), service);
+		}
+		
+		return bindings;
 	}
 	
 	

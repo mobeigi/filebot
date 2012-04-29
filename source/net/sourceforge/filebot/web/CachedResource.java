@@ -76,6 +76,12 @@ public abstract class CachedResource<T extends Serializable> {
 			} catch (Exception e) {
 				throw new IOException(e);
 			}
+		} else {
+			try {
+				product = type.cast(element.getValue());
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+			}
 		}
 		
 		try {

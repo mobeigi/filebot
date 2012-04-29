@@ -7,7 +7,14 @@ import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +32,8 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
+import net.sourceforge.filebot.web.CachedResource;
 
 
 public class ArgumentProcessor {
@@ -111,11 +120,11 @@ public class ArgumentProcessor {
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
-				ScriptShell shell = new ScriptShell(cli, args, args.parameters, args.trustScript, AccessController.getContext());
-				URI script = shell.getScriptLocation(args.script);
+				ScriptProvider scriptProvider = new DefaultScriptProvider();
+				Analytics.trackEvent("CLI", "ExecuteScript", scriptProvider.getScriptLocation(args.script).getScheme());
 				
-				Analytics.trackEvent("CLI", "ExecuteScript", script.getScheme());
-				shell.run(script, bindings);
+				ScriptShell shell = new ScriptShell(cli, args, args.parameters, args.trustScript, AccessController.getContext(), scriptProvider);
+				shell.runScript(args.script, bindings);
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
@@ -131,6 +140,69 @@ public class ArgumentProcessor {
 	public void printHelp(ArgumentBean argumentBean) {
 		new CmdLineParser(argumentBean).printUsage(System.out);
 		System.out.println(" -X<name>=<value>                       : Define script variable");
+	}
+	
+	
+	public static class DefaultScriptProvider implements ScriptProvider {
+		
+		@Override
+		public URI getScriptLocation(String input) {
+			try {
+				return new URL(input).toURI();
+			} catch (Exception eu) {
+				try {
+					// fn:sortivo
+					if (input.startsWith("fn:")) {
+						return new URI("http", "filebot.sourceforge.net", "/scripts/" + input.substring(3) + ".groovy", null);
+					}
+					
+					// script:println 'hello world'
+					if (input.startsWith("script:")) {
+						return new URI("script", input.substring(7), null, null, null);
+					}
+					
+					// system:in
+					if (input.equals("system:in")) {
+						return new URI("system", "in", null, null, null);
+					}
+					
+					// X:/foo/bar.groovy
+					File file = new File(input);
+					if (!file.isFile()) {
+						throw new FileNotFoundException(file.getPath());
+					}
+					return file.toURI();
+				} catch (Exception e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+		}
+		
+		
+		@Override
+		public String fetchScript(URI uri) throws IOException {
+			if (uri.getScheme().equals("file")) {
+				return readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8"));
+			}
+			
+			if (uri.getScheme().equals("system")) {
+				return readAll(new InputStreamReader(System.in));
+			}
+			
+			if (uri.getScheme().equals("script")) {
+				return uri.getAuthority();
+			}
+			
+			// fetch remote script only if modified
+			CachedResource<String> script = new CachedResource<String>(uri.toString(), String.class, 24 * 60 * 60 * 1000) {
+				
+				@Override
+				public String process(ByteBuffer data) {
+					return Charset.forName("UTF-8").decode(data).toString();
+				}
+			};
+			return script.get();
+		}
 	}
 	
 }
