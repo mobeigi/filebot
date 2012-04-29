@@ -556,19 +556,19 @@ public final class FileUtilities {
 	};
 	
 	
-	public static class FolderFilter implements FileFilter {
+	public static class ParentFilter implements FileFilter {
 		
 		private final File folder;
 		
 		
-		public FolderFilter(File folder) {
+		public ParentFilter(File folder) {
 			this.folder = folder;
 		}
 		
 		
 		@Override
 		public boolean accept(File file) {
-			return file.getParentFile().equals(folder);
+			return listPath(file).contains(folder);
 		}
 	}
 	

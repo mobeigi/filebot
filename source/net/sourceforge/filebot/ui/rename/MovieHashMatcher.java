@@ -49,7 +49,7 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SortOrder;
-import net.sourceforge.tuned.FileUtilities.FolderFilter;
+import net.sourceforge.tuned.FileUtilities.ParentFilter;
 
 
 class MovieHashMatcher implements AutoCompleteMatcher {
@@ -105,7 +105,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				movieByFile.put(nfo, movie);
 				
 				// match movie info to movie files that match the nfo file name
-				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new FolderFilter(nfo.getParentFile())));
+				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
 				String baseName = stripReleaseInfo(getName(nfo));
 				
 				for (File movieFile : siblingMovieFiles) {
