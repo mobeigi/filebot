@@ -942,7 +942,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File file : archiveFiles) {
 			Archive archive = new Archive(file);
 			try {
-				File outputFolder = (output != null) ? new File(output).getAbsoluteFile() : new File(file.getParentFile(), getNameWithoutExtension(file.getName()));
+				File outputFolder = new File(output != null ? output : getName(file));
+				if (!outputFolder.isAbsolute()) {
+					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
+				}
 				
 				CLILogger.info(String.format("Extract archive [%s] to [%s]", file.getName(), outputFolder));
 				FileMapper outputMapper = new FileMapper(outputFolder, false);

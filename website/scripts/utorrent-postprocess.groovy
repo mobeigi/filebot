@@ -11,7 +11,7 @@ if (ut_kind == "multi") {
 }
 
 // extract archives if necessary
-input += extract(file:input)
+input += extract(file:input, output:".", conflict:"override")
 
 // process only media files
 input = input.findAll{ it.isVideo() || it.isSubtitle() }
@@ -79,6 +79,6 @@ groups.each{ group, files ->
 
 // make XBMC scan for new content
 xbmc.split(/[\s,|]+/).each{
-	println "Notify XMBC: $it"
+	println "Notify XBMC: $it"
 	invokeScanVideoLibrary(it)
 }
