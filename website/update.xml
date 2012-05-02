@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.61</name>
-	<revision>965</revision>
+	<name>FileBot 2.62</name>
+	<revision>993</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 2.61 is released !!</b><br>
+		<b>FileBot 2.62 is released !!</b><br>
 		This release features:<br>
-		+ Support multi-episode files<br>
-		+ Some additions to cmdline mode<br>
+		+ Lots of minor enhancements and bugfixes<br>
+		+ Improved cmdline scripting<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82&p=643#p643]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82&p=854#p854]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
