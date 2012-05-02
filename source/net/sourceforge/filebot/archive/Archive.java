@@ -126,7 +126,7 @@ public class Archive implements Closeable {
 	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		
-		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.]rar$|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
+		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
 		
 		
 		@Override
