@@ -198,7 +198,23 @@
 			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
 		</deb>
 	</target>
-
+	
+	
+	<target name="ipkg" depends="fatjar" description="Build ipkg package for ARM">
+		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
+		
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="arm" section="misc" homepage="http://filebot.sourceforge.net" priority="optional">
+				<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
+				<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
+				<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
+				<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-arm" includes="*.so" />
+				<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
+				<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
+				<tarfileset fullpath="usr/bin/filebot" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
+		</deb>
+		<move dest="${dir.dist}/filebot_2.62_arm.ipk" src="${dir.dist}/filebot_2.62_arm.deb" overwrite="true" />
+	</target>	
+	
 
 	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
 		<antcall target="msi-arch">
@@ -415,7 +431,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, msi, portable, webstart">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, webstart">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
@@ -423,6 +439,7 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.tar.gz}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i386.deb" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_amd64.deb" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_arm.ipk" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
@@ -459,6 +476,12 @@
 		<sleep seconds="5" />
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
+		</scp>
+		
+		<!-- deploy ipkg packages -->
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+			<fileset dir="${dir.dist}/release" includes="**/*.ipk" />
 		</scp>
 
 		<!-- deploy osx app bundle -->

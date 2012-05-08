@@ -15,6 +15,8 @@ if ($type == 'jar')
 	$file = 'FileBot_'.$version.'.jar';
 if ($type == 'portable')
 	$file = 'FileBot_'.$version.'-portable.zip';
+if ($type == 'ipkg')
+	$file =  'filebot_'.$version.'_'.$arch.'.ipk';
 if ($type == 'src')
 	$file = 'filebot-'.$version.'-src.zip';
 
