@@ -212,7 +212,7 @@
 				<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
 				<tarfileset fullpath="usr/bin/filebot" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
 		</deb>
-		<move dest="${dir.dist}/filebot_2.62_arm.ipk" src="${dir.dist}/filebot_2.62_arm.deb" overwrite="true" />
+		<move tofile="${dir.dist}/filebot_2.62_arm.ipk" file="${dir.dist}/filebot_2.62_arm.deb" overwrite="true" />
 	</target>	
 	
 
