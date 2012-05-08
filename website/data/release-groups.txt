@@ -192,6 +192,7 @@ EuchHD
 EUHD
 EuReKA
 EUSTASS
+EXQUiSiTE
 ExtraTorrentRG
 eztv
 FaNSuB

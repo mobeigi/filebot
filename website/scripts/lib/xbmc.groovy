@@ -1,7 +1,7 @@
 // xbmc functions
 def invokeScanVideoLibrary(host, port = 9090) {
 	try {
-		telnet(host, 9090) { writer, reader ->
+		telnet(host, port) { writer, reader ->
 			writer.println('{"id":1,"method":"VideoLibrary.Scan","params":[],"jsonrpc":"2.0"}') // API call for latest XBMC release
 		}
 		return true
