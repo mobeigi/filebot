@@ -13,6 +13,7 @@
 4HM
 7SiNS
 850105
+a-S
 aacrime
 aAF
 AaS
@@ -22,15 +23,20 @@ ADHD
 AE
 AEGiS
 AERO
+AF-F
 AFG
 AHD
 AiHD
 AiRWAVES
+AKUPX
 ALANiS
 ALeSiO
 ALLiANCE
 AMiABLE
+ANBU
+Ani-Kraze
 ANiHLS
+AonE
 ARiGOLD
 ARROW
 ASAP
@@ -207,6 +213,7 @@ FilmHD
 FLAiTE
 fLAMEhd
 FLAWL3SS
+Flomp-Rumbel
 FLX
 FmE
 ForceBleue
@@ -323,6 +330,7 @@ JAVLiU
 JCH
 JENC
 JJH
+K-F
 k2
 KaKa
 kamera
@@ -332,6 +340,7 @@ KLAXXON
 KOENiG
 KRaLiMaRKo
 KYR
+Kyuubi
 LamB
 Larceny
 LCHD
@@ -378,7 +387,9 @@ MuSt
 mV4U
 mVmHD
 MySiLU
+N-F
 NaRB
+Narutoverse
 NBS
 NeDiVx
 NERDHD
@@ -418,6 +429,7 @@ ORENJi
 ORPHEUS
 OSiTV
 OUTDATED
+OZC
 P0W4
 Pa@Ph
 papi
@@ -489,6 +501,7 @@ RSG
 RTA
 RuDE
 RUDOS
+Ryugan
 S26
 SAiMORNY
 SAiNTS
@@ -506,10 +519,12 @@ SEPTiC
 SEVENTWENTY
 SexSh0p
 SFM
+SGKK
 Shadowman
 SHAMNBOYZ
 SHDXXX
 shortbrehd
+SHS
 SHUNPO
 SiGHTHD
 SiHD
@@ -540,6 +555,7 @@ SWAGGERHD
 Swesub
 SYS
 t00ng0d
+Taka
 TASTETV
 TB
 TELEFLiX
@@ -572,6 +588,7 @@ TsH
 tsn
 TUSAHD
 TVA
+TW
 TWiZTED
 TX
 TxN
@@ -582,8 +599,10 @@ UNVEiL
 USELESS
 UVall
 VaAr3
+Vanillapunk
 VanRay
 VCDVaULT
+Vegapunk
 ViCiOsO
 ViKAT
 ViNYL
@@ -629,6 +648,7 @@ YanY
 YellowBeast
 YesTV
 Ygt
+Yibis
 YoHo
 YOUFORGOTTOREPACKTHIS
 ZBS
