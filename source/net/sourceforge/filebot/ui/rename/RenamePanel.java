@@ -307,7 +307,7 @@ public class RenamePanel extends JComponent {
 				HistorySpooler.getInstance().commit(dialog.getModel());
 			}
 		}
-	}
+	};
 	
 	
 	protected static class ShowPopupAction extends AbstractAction {
