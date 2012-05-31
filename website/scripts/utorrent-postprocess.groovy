@@ -16,6 +16,9 @@ input += extract(file:input, output:".", conflict:"override")
 // process only media files
 input = input.findAll{ it.isVideo() || it.isSubtitle() }
 
+// ignore clutter files
+input = input.findAll{ !(it.name =~ /(?i:sample)/) }
+
 // print input fileset
 input.each{ println "Input: $it" }
 
@@ -49,28 +52,30 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
 		def dest = rename(file:files, format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB')
-		
-		dest.mapByFolder().keySet().each{ dir ->
-			println "Fetching artwork for $dir from TheTVDB"
-			def query = group.tvs
-			def sxe = dest.findResult{ parseEpisodeNumber(it) }
-			def options = TheTVDB.search(query)
-			if (options.isEmpty()) {
-				println "TV Series not found: $query"
-				return
+		if (dest) {
+			dest.mapByFolder().keySet().each{ dir ->
+				println "Fetching artwork for $dir from TheTVDB"
+				def query = group.tvs
+				def sxe = dest.findResult{ parseEpisodeNumber(it) }
+				def options = TheTVDB.search(query)
+				if (options.isEmpty()) {
+					println "TV Series not found: $query"
+					return
+				}
+				options = options.sortBySimilarity(query, { it.name })
+				fetchSeriesArtworkAndNfo(dir.dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
 			}
-			options = options.sortBySimilarity(query, { it.name })
-			fetchSeriesArtworkAndNfo(dir.dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
 		}
 	}
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
 		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
-		
-		dest.mapByFolder().keySet().each{ dir ->
-			println "Fetching artwork for $dir from TheMovieDB"
-			fetchMovieArtworkAndNfo(dir, group.mov)
+		if (dest) {
+			dest.mapByFolder().keySet().each{ dir ->
+				println "Fetching artwork for $dir from TheMovieDB"
+				fetchMovieArtworkAndNfo(dir, group.mov)
+			}
 		}
 	}
 }
