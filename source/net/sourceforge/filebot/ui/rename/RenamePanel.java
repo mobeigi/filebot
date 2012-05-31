@@ -73,7 +73,6 @@ public class RenamePanel extends JComponent {
 	
 	protected final RenameAction renameAction = new RenameAction(renameModel);
 	
-	private static final PreferencesEntry<String> persistentOverrideExtension = Settings.forPackage(RenamePanel.class).entry("rename.extension.override").defaultValue("false");
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
@@ -86,9 +85,6 @@ public class RenamePanel extends JComponent {
 		
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
-		
-		// restore state
-		renameModel.setPreserveExtension(!Boolean.parseBoolean(persistentOverrideExtension.getValue()));
 		
 		// filename formatter
 		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
@@ -158,8 +154,8 @@ public class RenamePanel extends JComponent {
 		// create settings popup
 		final Action settingsPopupAction = new ShowPopupAction("Options", ResourceManager.getIcon("action.report"));
 		JButton settingsButton = createImageButton(settingsPopupAction);
+		settingsButton.setAction(openHistoryAction);
 		ActionPopup settingsPopup = createSettingsPopup();
-		settingsButton.setComponentPopupMenu(settingsPopup);
 		renameButton.setComponentPopupMenu(settingsPopup);
 		filesList.getButtonPanel().add(settingsButton, "gap 0");
 		
@@ -287,28 +283,30 @@ public class RenamePanel extends JComponent {
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("History:"));
-		
-		actionPopup.add(new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				History model = HistorySpooler.getInstance().getCompleteHistory();
-				
-				HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
-				dialog.setLocationRelativeTo(RenamePanel.this);
-				dialog.setModel(model);
-				
-				// show and block
-				dialog.setVisible(true);
-				
-				if (!model.equals(dialog.getModel())) {
-					// model was changed, switch to the new model
-					HistorySpooler.getInstance().commit(dialog.getModel());
-				}
-			}
-		});
+		actionPopup.add(openHistoryAction);
 		
 		return actionPopup;
+	}
+	
+	
+	protected final Action openHistoryAction = new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			History model = HistorySpooler.getInstance().getCompleteHistory();
+			
+			HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
+			dialog.setLocationRelativeTo(RenamePanel.this);
+			dialog.setModel(model);
+			
+			// show and block
+			dialog.setVisible(true);
+			
+			if (!model.equals(dialog.getModel())) {
+				// model was changed, switch to the new model
+				HistorySpooler.getInstance().commit(dialog.getModel());
+			}
+		}
 	}
 	
 	
@@ -348,9 +346,6 @@ public class RenamePanel extends JComponent {
 			
 			// display changed state
 			filesList.repaint();
-			
-			// save state
-			persistentOverrideExtension.setValue(Boolean.toString(activate));
 		}
 	}
 	
