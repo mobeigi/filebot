@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Torrent {
@@ -31,23 +29,20 @@ public class Torrent {
 	
 	private final boolean singleFileTorrent;
 	
-
+	
 	public Torrent(File torrent) throws IOException {
 		this(decodeTorrent(torrent));
 	}
 	
-
+	
 	public Torrent(Map<?, ?> torrentMap) {
-		
 		Charset charset = Charset.forName("UTF-8");
-		
 		encoding = decodeString(torrentMap.get("encoding"), charset);
 		
 		try {
 			charset = Charset.forName(encoding);
 		} catch (IllegalArgumentException e) {
 			// invalid encoding, just keep using UTF-8
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid encoding: " + encoding);
 		}
 		
 		createdBy = decodeString(torrentMap.get("created by"), charset);
@@ -100,7 +95,7 @@ public class Torrent {
 		}
 	}
 	
-
+	
 	private static Map<?, ?> decodeTorrent(File torrent) throws IOException {
 		InputStream in = new BufferedInputStream(new FileInputStream(torrent));
 		
@@ -111,7 +106,7 @@ public class Torrent {
 		}
 	}
 	
-
+	
 	private String decodeString(Object byteArray, Charset charset) {
 		if (byteArray == null)
 			return null;
@@ -119,7 +114,7 @@ public class Torrent {
 		return new String((byte[]) byteArray, charset);
 	}
 	
-
+	
 	private Long decodeLong(Object number) {
 		if (number == null)
 			return null;
@@ -127,82 +122,82 @@ public class Torrent {
 		return (Long) number;
 	}
 	
-
+	
 	public String getAnnounce() {
 		return announce;
 	}
 	
-
+	
 	public String getComment() {
 		return comment;
 	}
 	
-
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
 	
-
+	
 	public Long getCreationDate() {
 		return creationDate;
 	}
 	
-
+	
 	public String getEncoding() {
 		return encoding;
 	}
 	
-
+	
 	public List<Entry> getFiles() {
 		return files;
 	}
 	
-
+	
 	public String getName() {
 		return name;
 	}
 	
-
+	
 	public Long getPieceLength() {
 		return pieceLength;
 	}
 	
-
+	
 	public boolean isSingleFileTorrent() {
 		return singleFileTorrent;
 	}
 	
-
+	
 	public static class Entry {
 		
 		private final String path;
 		
 		private final long length;
 		
-
+		
 		public Entry(String path, long length) {
 			this.path = path;
 			this.length = length;
 		}
 		
-
+		
 		public String getPath() {
 			return path;
 		}
 		
-
+		
 		public String getName() {
 			// the last element in the path is the filename
 			// torrents don't contain directory entries, so there is always a non-empty name
 			return path.substring(path.lastIndexOf("/") + 1);
 		}
 		
-
+		
 		public long getLength() {
 			return length;
 		}
 		
-
+		
 		@Override
 		public String toString() {
 			return getPath();
