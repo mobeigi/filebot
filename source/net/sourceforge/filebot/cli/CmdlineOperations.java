@@ -86,7 +86,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	public List<File> rename(Collection<File> files, String action, String conflict, String output, String formatExpression, String db, String query, String sortOrder, String filterExpression, String lang, boolean strict) throws Exception {
 		ExpressionFormat format = (formatExpression != null) ? new ExpressionFormat(formatExpression) : null;
 		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
-		File outputDir = (output != null && output.length() > 0) ? new File(output) : null;
+		File outputDir = (output != null && output.length() > 0) ? new File(output).getAbsoluteFile() : null;
 		Locale locale = getLanguage(lang).toLocale();
 		RenameAction renameAction = StandardRenameAction.forName(action);
 		ConflictAction conflictAction = ConflictAction.forName(conflict);
