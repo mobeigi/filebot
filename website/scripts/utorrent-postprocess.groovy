@@ -17,7 +17,7 @@ input += extract(file:input, output:".", conflict:"override")
 input = input.findAll{ it.isVideo() || it.isSubtitle() }
 
 // ignore clutter files
-input = input.findAll{ !(it.name =~ /(?i:sample)/) }
+input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/) }
 
 // print input fileset
 input.each{ println "Input: $it" }
