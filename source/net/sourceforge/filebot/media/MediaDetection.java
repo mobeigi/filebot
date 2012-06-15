@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,9 +54,17 @@ public class MediaDetection {
 	
 	private static final ReleaseInfo releaseInfo = new ReleaseInfo();
 	
+	public static final FileFilter DISK_FOLDERS = releaseInfo.getDiskFolderFilter();
+	public static final FileFilter NON_CLUTTER_FILES = not(releaseInfo.getClutterFileFilter());
+	
 	
 	public static boolean isDiskFolder(File folder) {
-		return releaseInfo.getDiskFolderFilter().accept(folder);
+		return DISK_FOLDERS.accept(folder);
+	}
+	
+	
+	public static boolean isNonClutter(File file) {
+		return NON_CLUTTER_FILES.accept(file);
 	}
 	
 	
@@ -290,11 +299,18 @@ public class MediaDetection {
 		}
 		
 		// search by file name or folder name
-		List<String> files = new ArrayList<String>();
-		files.add(getName(movieFile));
-		files.add(getName(movieFile.getParentFile()));
+		List<String> terms = new ArrayList<String>();
 		
-		List<Movie> movieNameMatches = matchMovieName(files, locale, strict);
+		// 1. term: file
+		terms.add(getName(movieFile));
+		
+		// 2. term: first meaningful parent folder 
+		File movieFolder = guessMovieFolder(movieFile);
+		if (movieFolder != null) {
+			terms.add(getName(movieFolder));
+		}
+		
+		List<Movie> movieNameMatches = matchMovieName(terms, locale, strict);
 		
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
@@ -304,12 +320,12 @@ public class MediaDetection {
 		
 		// if matching name+year failed, try matching only by name
 		if (movieNameMatches.isEmpty() && strict) {
-			movieNameMatches = matchMovieName(files, locale, false);
+			movieNameMatches = matchMovieName(terms, locale, false);
 		}
 		
 		// query by file / folder name
 		if (queryLookupService != null) {
-			options.addAll(queryMovieByFileName(files, queryLookupService, locale));
+			options.addAll(queryMovieByFileName(terms, queryLookupService, locale));
 		}
 		
 		// add local matching after online search
@@ -317,8 +333,20 @@ public class MediaDetection {
 		
 		// sort by relevance
 		List<Movie> optionsByRelevance = new ArrayList<Movie>(options);
-		sort(optionsByRelevance, new SimilarityComparator(stripReleaseInfo(getName(movieFile)), stripReleaseInfo(getName(movieFile.getParentFile()))));
+		sort(optionsByRelevance, new SimilarityComparator(new NameSimilarityMetric(), stripReleaseInfo(terms, true).toArray()));
 		return optionsByRelevance;
+	}
+	
+	
+	public static File guessMovieFolder(File movieFile) throws IOException {
+		// first meaningful parent folder 
+		for (File f = movieFile.getParentFile(); f != null; f = f.getParentFile()) {
+			String term = stripReleaseInfo(f.getName());
+			if (term.length() > 0) {
+				return f;
+			}
+		}
+		return null;
 	}
 	
 	

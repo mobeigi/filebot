@@ -52,7 +52,6 @@ import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
@@ -298,11 +297,14 @@ public class CmdlineOperations implements CmdlineInterface {
 			throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
-		// handle movie files
-		List<File> movieFiles = filter(files, VIDEO_FILES);
-		List<File> nfoFiles = filter(files, MediaTypes.getDefaultFilter("application/nfo"));
+		// ignore sample files
+		List<File> fileset = filter(files, NON_CLUTTER_FILES);
 		
-		List<File> orphanedFiles = new ArrayList<File>(filter(files, FILES));
+		// handle movie files
+		List<File> movieFiles = filter(fileset, VIDEO_FILES);
+		List<File> nfoFiles = filter(fileset, MediaTypes.getDefaultFilter("application/nfo"));
+		
+		List<File> orphanedFiles = new ArrayList<File>(filter(fileset, FILES));
 		orphanedFiles.removeAll(movieFiles);
 		orphanedFiles.removeAll(nfoFiles);
 		
@@ -366,7 +368,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> movieMatchFiles = new ArrayList<File>();
 		movieMatchFiles.addAll(movieFiles);
 		movieMatchFiles.addAll(nfoFiles);
-		movieMatchFiles.addAll(filter(files, new ReleaseInfo().getDiskFolderFilter()));
+		movieMatchFiles.addAll(filter(files, DISK_FOLDERS));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
 		// map movies to (possibly multiple) files (in natural order) 

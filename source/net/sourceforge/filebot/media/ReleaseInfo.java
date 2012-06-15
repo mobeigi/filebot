@@ -200,6 +200,11 @@ public class ReleaseInfo {
 	}
 	
 	
+	public FileFilter getClutterFileFilter() {
+		return new FileFolderNameFilter(compile(getBundle(getClass().getName()).getString("pattern.file.ignore")));
+	}
+	
+	
 	// fetch release group names online and try to update the data every other day
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
@@ -279,6 +284,23 @@ public class ReleaseInfo {
 				}
 			}
 			return false;
+		}
+	}
+	
+	
+	public static class FileFolderNameFilter implements FileFilter {
+		
+		private final Pattern namePattern;
+		
+		
+		public FileFolderNameFilter(Pattern namePattern) {
+			this.namePattern = namePattern;
+		}
+		
+		
+		@Override
+		public boolean accept(File file) {
+			return (namePattern.matcher(file.getName()).find() || (file.isFile() && namePattern.matcher(file.getParentFile().getName()).find()));
 		}
 	}
 	

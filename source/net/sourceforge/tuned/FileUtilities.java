@@ -326,6 +326,11 @@ public final class FileUtilities {
 	}
 	
 	
+	public static FileFilter not(FileFilter filter) {
+		return new NotFileFilter(filter);
+	}
+	
+	
 	public static List<File> flatten(Iterable<File> roots, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 		
@@ -616,6 +621,23 @@ public final class FileUtilities {
 		
 		public String[] extensions() {
 			return extensions.clone();
+		}
+	}
+	
+	
+	public static class NotFileFilter implements FileFilter {
+		
+		public FileFilter filter;
+		
+		
+		public NotFileFilter(FileFilter filter) {
+			this.filter = filter;
+		}
+		
+		
+		@Override
+		public boolean accept(File file) {
+			return !filter.accept(file);
 		}
 	}
 	
