@@ -339,8 +339,9 @@ public class MediaDetection {
 	
 	
 	public static File guessMovieFolder(File movieFile) throws IOException {
-		// first meaningful parent folder 
-		for (File f = movieFile.getParentFile(); f != null; f = f.getParentFile()) {
+		// first meaningful parent folder (max 2 levels deep)
+		File f = movieFile.getParentFile();
+		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
 				return f;

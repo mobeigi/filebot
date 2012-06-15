@@ -305,7 +305,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// multiple results have been found, user must select one
 				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
 				
-				selectDialog.setTitle(String.format("%s / %s", folderQuery, fileQuery));
+				selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.format("%s / %s", folderQuery, fileQuery));
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
 				selectDialog.pack();
