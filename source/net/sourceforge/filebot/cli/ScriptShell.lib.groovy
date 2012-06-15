@@ -52,7 +52,7 @@ import java.util.concurrent.*
 
 def parallel(List closures, int threads = Runtime.getRuntime().availableProcessors()) {
 	def tasks = closures.collect { it as Callable }
-	return Executors.newFixedThreadPool(threads).invokeAll(tasks).collect{ _guarded { it.get() } }
+	return Executors.newFixedThreadPool(threads).invokeAll(tasks).collect{ c -> _guarded { c.get() } }
 }
 
 
