@@ -133,9 +133,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
-			return renameSeries(files, renameAction, conflictAction, outputDir, format, WebServices.TVRage, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
+			return renameSeries(files, renameAction, conflictAction, outputDir, format, WebServices.TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, renameAction, conflictAction, outputDir, format, WebServices.OpenSubtitles, query, locale, strict); // use default movie db
+			return renameMovie(files, renameAction, conflictAction, outputDir, format, WebServices.TMDb, query, locale, strict); // use default movie db
 		}
 	}
 	
