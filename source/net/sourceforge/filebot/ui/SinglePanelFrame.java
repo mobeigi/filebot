@@ -2,8 +2,10 @@
 package net.sourceforge.filebot.ui;
 
 
+import java.awt.Image;
 import java.awt.datatransfer.Transferable;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -26,7 +28,11 @@ public class SinglePanelFrame extends JFrame {
 		panel = builder.create();
 		
 		// set taskbar / taskswitch icons
-		setIconImages(Arrays.asList(ResourceManager.getImage("window.icon.small"), ResourceManager.getImage("window.icon.big")));
+		List<Image> images = new ArrayList<Image>(3);
+		for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
+			images.add(ResourceManager.getImage(i));
+		}
+		setIconImages(images);
 		
 		JComponent c = (JComponent) getContentPane();
 		c.setLayout(new MigLayout("insets 0, nogrid, fill", "fill", "fill"));
@@ -40,7 +46,7 @@ public class SinglePanelFrame extends JFrame {
 		setSize(760, 615);
 	}
 	
-
+	
 	public SinglePanelFrame publish(Transferable transferable) {
 		TransferablePolicy policy = (TransferablePolicy) panel.getClientProperty("transferablePolicy");
 		

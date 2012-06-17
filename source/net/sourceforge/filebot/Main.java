@@ -203,7 +203,7 @@ public class Main {
 					final JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
 					dialog.setContentPane(pane);
 					
-					pane.add(new JLabel(ResourceManager.getIcon("window.icon.big")), "aligny top");
+					pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
 					pane.add(new JLabel(updateProperties.getProperty("message")), "gap 10, wrap paragraph:push");
 					pane.add(new JButton(new AbstractAction("Download", ResourceManager.getIcon("dialog.continue")) {
 						

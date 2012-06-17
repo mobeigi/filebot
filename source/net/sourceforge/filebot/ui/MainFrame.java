@@ -6,12 +6,14 @@ import static javax.swing.ScrollPaneConstants.*;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -50,12 +52,16 @@ public class MainFrame extends JFrame {
 	
 	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("1");
 	
-
+	
 	public MainFrame() {
 		super(Settings.getApplicationName());
 		
 		// set taskbar / taskswitch icons
-		setIconImages(Arrays.asList(ResourceManager.getImage("window.icon.small"), ResourceManager.getImage("window.icon.big")));
+		List<Image> images = new ArrayList<Image>(3);
+		for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
+			images.add(ResourceManager.getImage(i));
+		}
+		setIconImages(images);
 		
 		try {
 			// restore selected panel
@@ -94,12 +100,12 @@ public class MainFrame extends JFrame {
 		setSize(760, 630);
 	}
 	
-
+	
 	protected PanelBuilder[] createPanelBuilders() {
 		return new PanelBuilder[] { new ListPanelBuilder(), new RenamePanelBuilder(), new AnalyzePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder() };
 	}
 	
-
+	
 	protected void showPanel(PanelBuilder selectedBuilder) {
 		final JComponent contentPane = (JComponent) getContentPane();
 		
@@ -134,12 +140,12 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-
+	
 	private static class PanelSelectionList extends JList {
 		
 		private static final int SELECTDELAY_ON_DRAG_OVER = 300;
 		
-
+		
 		public PanelSelectionList(PanelBuilder[] builders) {
 			super(builders);
 			
@@ -152,14 +158,14 @@ public class MainFrame extends JFrame {
 			new DropTarget(this, new DragDropListener());
 		}
 		
-
+		
 		private class DragDropListener extends DropTargetAdapter {
 			
 			private boolean selectEnabled = false;
 			
 			private Timer dragEnterTimer;
 			
-
+			
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {
 				if (selectEnabled) {
@@ -168,7 +174,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 			
-
+			
 			@Override
 			public void dragEnter(final DropTargetDragEvent dtde) {
 				dragEnterTimer = TunedUtilities.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
@@ -183,7 +189,7 @@ public class MainFrame extends JFrame {
 				});
 			}
 			
-
+			
 			@Override
 			public void dragExit(DropTargetEvent dte) {
 				selectEnabled = false;
@@ -193,7 +199,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 			
-
+			
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				
@@ -203,7 +209,7 @@ public class MainFrame extends JFrame {
 		
 	}
 	
-
+	
 	private static class PanelCellRenderer extends DefaultFancyListCellRenderer {
 		
 		public PanelCellRenderer() {
@@ -218,7 +224,7 @@ public class MainFrame extends JFrame {
 			setHorizontalTextPosition(SwingConstants.CENTER);
 		}
 		
-
+		
 		@Override
 		public void configureListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.configureListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
