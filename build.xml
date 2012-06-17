@@ -141,7 +141,7 @@
 			<zipfileset src="${dir.lib}/jgat-custom.jar">
 				<include name="com/dmurph/tracking/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
@@ -187,45 +187,40 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" suggests="openjdk-7-jre" homepage="http://filebot.sourceforge.net" priority="optional">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" suggests="openjdk-7-jre" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
 			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
 			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
-			<tarfileset fullpath="usr/bin/filebot" file="${dir.installer}/deb/filebot.sh" filemode="755" />
 			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
 		</deb>
 	</target>
-	
-	
-	<target name="ipkg" depends="fatjar" description="Build ipkg package for ARM">
+
+
+	<target name="ipkg" depends="fatjar" description="Build ipkg package for ARM and ATOM">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
-		
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="arm" section="misc" homepage="http://filebot.sourceforge.net" priority="optional">
-				<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
-				<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
-				<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
-				<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-arm" includes="*.so" />
-				<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
-				<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
-				<tarfileset fullpath="usr/bin/filebot" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
-		</deb>
-		<move tofile="${dir.dist}/filebot_2.62_arm.ipk" file="${dir.dist}/filebot_2.62_arm.deb" overwrite="true" />
-		
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="i686" section="misc" homepage="http://filebot.sourceforge.net" priority="optional">
-				<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
-				<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
-				<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
-				<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
-				<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
-				<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
-				<tarfileset fullpath="usr/bin/filebot" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
-		</deb>
-		<move tofile="${dir.dist}/filebot_2.62_i686.ipk" file="${dir.dist}/filebot_2.62_i686.deb" overwrite="true" />
+
+		<antcall target="ipkg-arch">
+			<param name="arch" value="arm" />
+		</antcall>
+		<antcall target="ipkg-arch">
+			<param name="arch" value="i686" />
+		</antcall>
 	</target>
-	
+
+	<target name="ipkg-arch">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerem.sh">
+			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
+			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
+			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
+			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
+		</deb>
+		<move tofile="${dir.dist}/filebot_${version}_${arch}.ipk" file="${dir.dist}/filebot_${version}_${arch}.deb" overwrite="true" />
+	</target>
+
 
 	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
 		<antcall target="msi-arch">
@@ -243,7 +238,7 @@
 		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
 		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
-		
+
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -arch ${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path}" />
 		</exec>
@@ -384,7 +379,7 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
-		
+
 		<!-- update application properties -->
 		<replace dir="${dir.build}" encoding="utf-8" summary="yes">
 			<include name="**/*.properties" />
@@ -489,7 +484,7 @@
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
 		</scp>
-		
+
 		<!-- deploy ipkg packages -->
 		<sleep seconds="5" />
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
