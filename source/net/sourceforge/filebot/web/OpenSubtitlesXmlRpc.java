@@ -134,12 +134,12 @@ public class OpenSubtitlesXmlRpc {
 			try {
 				String imdbid = movie.get("id");
 				if (!imdbid.matches("\\d{1,7}"))
-					throw new IllegalArgumentException("Illegal IMDb movie ID");
+					throw new IllegalArgumentException("Illegal IMDb movie ID: Must be a 7-digit number");
 				
 				// match movie name and movie year from search result
 				Matcher matcher = pattern.matcher(movie.get("title"));
 				if (!matcher.find())
-					throw new IllegalArgumentException("Illegal title");
+					throw new IllegalArgumentException("Illegal title: Must be in 'name (year)' format");
 				
 				String name = matcher.group(1).replaceAll("\"", "").trim();
 				int year = Integer.parseInt(matcher.group(2));
