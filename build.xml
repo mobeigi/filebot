@@ -192,7 +192,7 @@
 			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
-			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon48.png" />
+			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon.svg" />
 			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
 			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
 		</deb>
