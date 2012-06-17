@@ -72,7 +72,7 @@ URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), paramet
 URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
 URL.metaClass.post = { String text, csn = 'utf-8' -> delegate.post(text.getBytes(csn), 'text/plain') }
 
-ByteBuffer.metaClass.saveAs = { f -> f = f as File; writeFile(delegate.duplicate(), f); f.absoluteFile };
+ByteBuffer.metaClass.saveAs = { f -> f = f as File; f.parentFile.mkdirs(); writeFile(delegate.duplicate(), f); f.absoluteFile }
 URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
 String.metaClass.saveAs = { f, csn = "utf-8" -> Charset.forName(csn).encode(delegate).saveAs(f) }
 
