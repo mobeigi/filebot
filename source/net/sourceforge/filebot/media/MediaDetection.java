@@ -3,6 +3,7 @@ package net.sourceforge.filebot.media;
 
 
 import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -301,8 +302,13 @@ public class MediaDetection {
 		// search by file name or folder name
 		List<String> terms = new ArrayList<String>();
 		
-		// 1. term: file
-		terms.add(getName(movieFile));
+		// 1. term: try to match movie pattern 'name (year)' or use filename as is
+		Matcher nameMatcher = compile("^(.+?)[(]((?:19|20)\\d{2})[)]").matcher(movieFile.getName());
+		if (nameMatcher.find()) {
+			terms.add(String.format("%s (%s)", nameMatcher.group(1).trim(), nameMatcher.group(2)));
+		} else {
+			terms.add(getName(movieFile));
+		}
 		
 		// 2. term: first meaningful parent folder 
 		File movieFolder = guessMovieFolder(movieFile);
