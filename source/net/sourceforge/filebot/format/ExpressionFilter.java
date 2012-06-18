@@ -2,19 +2,15 @@
 package net.sourceforge.filebot.format;
 
 
-import java.io.InputStreamReader;
 import java.security.AccessController;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
-
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
 
 public class ExpressionFilter {
@@ -30,7 +26,7 @@ public class ExpressionFilter {
 	public ExpressionFilter(String expression) throws ScriptException {
 		this.expression = expression;
 		
-		Compilable engine = (Compilable) initScriptEngine();
+		Compilable engine = (Compilable) ExpressionFormat.getGroovyScriptEngine();
 		this.userScript = new SecureCompiledScript(engine.compile(expression)); // sandboxed script
 		this.asBooleanScript = engine.compile("value as Boolean");
 	}
@@ -43,14 +39,6 @@ public class ExpressionFilter {
 	
 	public Throwable getLastException() {
 		return lastException;
-	}
-	
-	
-	protected ScriptEngine initScriptEngine() throws ScriptException {
-		// use Groovy script engine
-		ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
-		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
-		return engine;
 	}
 	
 	

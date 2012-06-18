@@ -29,6 +29,18 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
 public class ExpressionFormat extends Format {
 	
+	private static ScriptEngine engine;
+	
+	
+	protected static synchronized ScriptEngine getGroovyScriptEngine() throws ScriptException {
+		if (engine == null) {
+			engine = new GroovyScriptEngineFactory().getScriptEngine();
+			engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
+		}
+		return engine;
+	}
+	
+	
 	private final String expression;
 	
 	private final Object[] compilation;
@@ -38,15 +50,7 @@ public class ExpressionFormat extends Format {
 	
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
-		this.compilation = secure(compile(expression, (Compilable) initScriptEngine()));
-	}
-	
-	
-	protected ScriptEngine initScriptEngine() throws ScriptException {
-		// use Groovy script engine
-		ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
-		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
-		return engine;
+		this.compilation = secure(compile(expression, (Compilable) getGroovyScriptEngine()));
 	}
 	
 	
