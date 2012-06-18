@@ -24,7 +24,7 @@ public class CachedPage extends CachedResource<String> {
 	
 	@Override
 	protected Cache getCache() {
-		return CacheManager.getInstance().getCache("web-datasource");
+		return CacheManager.getInstance().getCache("web-data-diskcache");
 	}
 	
 	

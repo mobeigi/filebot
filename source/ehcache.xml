@@ -34,6 +34,20 @@
 	/>
 	
 	<!--
+	Short-lived (48 hours) persistent disk cache for full web pages
+	-->
+	<cache name="web-data-diskcache"
+		maxElementsInMemory="50"
+		maxElementsOnDisk="5000"
+		eternal="false"
+		timeToIdleSeconds="172800"
+		timeToLiveSeconds="172800"
+		overflowToDisk="true"
+		diskPersistent="true"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
+	<!--
 	Very long-lived cache (one month!) anime/series list and episode information.
 	-->
 	<cache name="web-persistent-datasource"
