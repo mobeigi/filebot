@@ -3,6 +3,7 @@ package net.sourceforge.filebot.media;
 
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -93,6 +95,7 @@ public class ReleaseInfo {
 	public List<String> cleanRelease(Collection<String> items, boolean strict) throws IOException {
 		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
 		
+		Pattern clutterBracket = getClutterBracketPattern(strict);
 		Pattern releaseGroup = getReleaseGroupPattern(strict);
 		Pattern languageSuffix = getLanguageSuffixPattern(languages);
 		Pattern languageTag = getLanguageTagPattern(languages);
@@ -101,8 +104,8 @@ public class ReleaseInfo {
 		Pattern resolution = getResolutionPattern();
 		Pattern queryBlacklist = getBlacklistPattern();
 		
-		Pattern[] blacklist = new Pattern[] { releaseGroup, languageSuffix, languageTag, videoSource, videoFormat, resolution, queryBlacklist };
-		Pattern[] stopwords = new Pattern[] { getReleaseGroupPattern(true), languageSuffix, languageTag, videoSource, videoFormat, resolution };
+		Pattern[] stopwords = new Pattern[] { getReleaseGroupPattern(true), languageTag, videoSource, videoFormat, resolution, languageSuffix };
+		Pattern[] blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
 		
 		List<String> output = new ArrayList<String>(items.size());
 		for (String it : items) {
@@ -132,11 +135,9 @@ public class ReleaseInfo {
 		for (Pattern it : stopwords) {
 			Matcher matcher = it.matcher(item);
 			if (matcher.find()) {
-				return item.substring(0, matcher.start()); // use substring before the matched stopword
+				item = item.substring(0, matcher.start()); // use substring before the matched stopword
 			}
 		}
-		
-		// no stopword found, keep original string
 		return item;
 	}
 	
@@ -149,7 +150,7 @@ public class ReleaseInfo {
 	
 	public Pattern getLanguageSuffixPattern(Collection<String> languages) {
 		// .en.srt
-		return compile("(?<=\\p{Punct}|\\s)(" + join(quoteAll(languages), "|") + ")(?=$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<=[\\p{Punct}\\p{Space}])(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
@@ -170,6 +171,13 @@ public class ReleaseInfo {
 		// pattern matching any video source name
 		String pattern = getBundle(getClass().getName()).getString("pattern.video.source");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+	}
+	
+	
+	public Pattern getClutterBracketPattern(boolean strict) {
+		// match patterns like [Action, Drama] or {ENG-XViD-MP3-DVDRiP} etc
+		String contentFilter = strict ? "[\\p{Space}\\p{Punct}&&[^\\[\\]]]" : "\\p{Alpha}";
+		return compile("(?:\\[([^\\[\\]]+?" + contentFilter + "[^\\[\\]]+?)\\])|(?:\\{([^\\{\\}]+?" + contentFilter + "[^\\{\\}]+?)\\})|(?:\\(([^\\(\\)]+?" + contentFilter + "[^\\(\\)]+?)\\))");
 	}
 	
 	
@@ -314,7 +322,17 @@ public class ReleaseInfo {
 	}
 	
 	
+	private final Map<Set<Locale>, Map<String, Locale>> languageMapCache = synchronizedMap(new WeakHashMap<Set<Locale>, Map<String, Locale>>(2));
+	
+	
 	private Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
+		// try cache
+		Set<Locale> displayLocales = new HashSet<Locale>(asList(supportedDisplayLocale));
+		Map<String, Locale> languageMap = languageMapCache.get(displayLocales);
+		if (languageMap != null) {
+			return languageMap;
+		}
+		
 		// use maximum strength collator by default
 		Collator collator = Collator.getInstance(Locale.ROOT);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
@@ -322,9 +340,7 @@ public class ReleaseInfo {
 		
 		@SuppressWarnings("unchecked")
 		Comparator<String> order = (Comparator) collator;
-		
-		Map<String, Locale> languageMap = new TreeMap<String, Locale>(order);
-		Set<Locale> displayLocales = new HashSet<Locale>(asList(supportedDisplayLocale));
+		languageMap = new TreeMap<String, Locale>(order);
 		
 		for (String code : Locale.getISOLanguages()) {
 			Locale locale = new Locale(code);
@@ -341,7 +357,11 @@ public class ReleaseInfo {
 		
 		// remove illegal tokens
 		languageMap.remove("");
-		return languageMap;
+		languageMap.remove("II");
+		languageMap.remove("III");
+		
+		Map<String, Locale> result = unmodifiableMap(languageMap);
+		languageMapCache.put(displayLocales, result);
+		return result;
 	}
-	
 }

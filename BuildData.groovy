@@ -26,7 +26,7 @@ tsv.text.eachLine{
 	}
 }
 
-movies = movies.findAll{ it[0] <= 9999999 && it[2] >= 1960 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.sort{ it[1] }
+movies = movies.findAll{ it[0] <= 9999999 && it[2] >= 1930 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.sort{ it[1] }
 
 gz(m_out, movies.collect{ [it[0].pad(7), it[1], it[2]].join('\t') })
 println "Movie Count: " + movies.size()

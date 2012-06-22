@@ -236,10 +236,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			
 			String input = null;
 			synchronized (inputMemory) {
-				input = inputMemory.get(suggestion);
-				if (input == null || suggestion == null || suggestion.isEmpty()) {
-					input = showInputDialog("Enter movie name:", suggestion, String.format("%s/%s", movieFile.getParentFile().getName(), movieFile.getName()), parent);
-					inputMemory.put(suggestion, input);
+				synchronized (this) {
+					input = inputMemory.get(suggestion);
+					if (input == null || suggestion == null || suggestion.isEmpty()) {
+						input = showInputDialog("Enter movie name:", suggestion, String.format("%s/%s", movieFile.getParentFile().getName(), movieFile.getName()), parent);
+						inputMemory.put(suggestion, input);
+					}
 				}
 			}
 			
@@ -320,8 +322,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		});
 		
 		// allow only one select dialog at a time
-		synchronized (this) {
-			synchronized (selectionMemory) {
+		synchronized (selectionMemory) {
+			synchronized (this) {
 				if (selectionMemory.containsKey(fileQuery)) {
 					return selectionMemory.get(fileQuery);
 				}

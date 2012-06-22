@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.CollationKey;
 import java.text.Collator;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -301,19 +302,13 @@ public class MediaDetection {
 		
 		// search by file name or folder name
 		List<String> terms = new ArrayList<String>();
-		
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
-		Matcher nameMatcher = compile("^(.+?)[(]((?:19|20)\\d{2})[)]").matcher(movieFile.getName());
-		if (nameMatcher.find()) {
-			terms.add(String.format("%s (%s)", nameMatcher.group(1).trim(), nameMatcher.group(2)));
-		} else {
-			terms.add(getName(movieFile));
-		}
+		terms.add(reduceMovieName(getName(movieFile)));
 		
 		// 2. term: first meaningful parent folder 
 		File movieFolder = guessMovieFolder(movieFile);
 		if (movieFolder != null) {
-			terms.add(getName(movieFolder));
+			terms.add(reduceMovieName(getName(movieFolder)));
 		}
 		
 		List<Movie> movieNameMatches = matchMovieName(terms, locale, strict);
@@ -327,6 +322,11 @@ public class MediaDetection {
 		// if matching name+year failed, try matching only by name
 		if (movieNameMatches.isEmpty() && strict) {
 			movieNameMatches = matchMovieName(terms, locale, false);
+		}
+		
+		// assume name without spacing will mess up any lookup
+		if (movieNameMatches.isEmpty()) {
+			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, new NameSimilarityMetric(), strict ? 0.9f : 0.6f);
 		}
 		
 		// query by file / folder name
@@ -344,6 +344,15 @@ public class MediaDetection {
 	}
 	
 	
+	public static String reduceMovieName(String name) throws IOException {
+		Matcher reluctantMatcher = compile("^(.+)[\\[\\(]((?:19|20)\\d{2})[\\]\\)]").matcher(name);
+		if (reluctantMatcher.find()) {
+			return String.format("%s %s", reluctantMatcher.group(1).trim(), reluctantMatcher.group(2));
+		}
+		return name;
+	}
+	
+	
 	public static File guessMovieFolder(File movieFile) throws IOException {
 		// first meaningful parent folder (max 2 levels deep)
 		File f = movieFile.getParentFile();
@@ -357,24 +366,39 @@ public class MediaDetection {
 	}
 	
 	
-	private static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
+	private static List<Entry<String, Movie>> movieIndex;
+	
+	
+	private static synchronized List<Entry<String, Movie>> getMovieIndex() throws IOException {
+		if (movieIndex == null) {
+			Movie[] movies = releaseInfo.getMovieList();
+			movieIndex = new ArrayList<Entry<String, Movie>>(movies.length);
+			for (Movie movie : movies) {
+				movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(movie.getName()).toLowerCase(), movie));
+			}
+		}
+		return movieIndex;
+	}
+	
+	
+	public static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
 		// cross-reference file / folder name with movie list
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(3);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
 		
-		for (final Movie movie : releaseInfo.getMovieList()) {
+		for (Entry<String, Movie> movie : getMovieIndex()) {
 			for (String name : files) {
-				String movieIdentifier = movie.getName();
+				String movieIdentifier = movie.getKey();
 				String commonName = nameMatcher.matchFirstCommonSequence(name, movieIdentifier);
 				if (commonName != null && commonName.length() >= movieIdentifier.length()) {
-					String strictMovieIdentifier = movie.getName() + " " + movie.getYear();
+					String strictMovieIdentifier = movie.getKey() + " " + movie.getValue().getYear();
 					String strictCommonName = nameMatcher.matchFirstCommonSequence(name, strictMovieIdentifier);
 					if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
 						// prefer strict match
-						matchMap.put(movie, strictCommonName);
+						matchMap.put(movie.getValue(), strictCommonName);
 					} else if (!strict) {
 						// make sure the common identifier is not just the year
-						matchMap.put(movie, commonName);
+						matchMap.put(movie.getValue(), commonName);
 					}
 				}
 			}
@@ -391,6 +415,32 @@ public class MediaDetection {
 		});
 		
 		return results;
+	}
+	
+	
+	public static List<Movie> matchMovieFromStringWithoutSpacing(List<String> files, SimilarityMetric metric, float similarityThreshold) throws IOException {
+		Pattern spacing = Pattern.compile("[\\p{Punct}\\p{Space}]+");
+		
+		List<String> terms = new ArrayList<String>(files.size());
+		for (String it : files) {
+			String term = spacing.matcher(it).replaceAll("").toLowerCase();
+			if (term.length() >= 3) {
+				terms.add(term); // only consider words, not just random letters
+			}
+		}
+		
+		List<Movie> movies = new ArrayList<Movie>();
+		for (Entry<String, Movie> it : getMovieIndex()) {
+			String name = spacing.matcher(it.getKey()).replaceAll("").toLowerCase();
+			for (String term : terms) {
+				if (term.contains(name) && metric.getSimilarity(name, term) >= similarityThreshold) {
+					movies.add(it.getValue());
+					break;
+				}
+			}
+		}
+		
+		return movies;
 	}
 	
 	

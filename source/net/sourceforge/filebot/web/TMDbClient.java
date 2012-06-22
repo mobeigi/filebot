@@ -41,8 +41,8 @@ public class TMDbClient implements MovieIdentificationService {
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "2.1";
 	
-	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 10, TimeUnit.SECONDS);
-	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
+	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 12, TimeUnit.SECONDS);
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(30, 12, TimeUnit.SECONDS);
 	
 	private final String apikey;
 	
@@ -114,18 +114,27 @@ public class TMDbClient implements MovieIdentificationService {
 		List<Movie> result = new ArrayList<Movie>();
 		
 		for (Node node : selectNodes("//movie", dom)) {
+			String name = getTextContent("name", node);
 			try {
-				String name = getTextContent("name", node);
-				
 				// release date format will be YYYY-MM-DD, but we only care about the year
-				int year = new Scanner(getTextContent("released", node)).useDelimiter("\\D+").nextInt();
+				int year = -1;
+				try {
+					year = new Scanner(getTextContent("released", node)).useDelimiter("\\D+").nextInt();
+				} catch (RuntimeException e) {
+					throw new IllegalArgumentException("Missing data: year");
+				}
 				
 				// imdb id will be tt1234567, but we only care about the number
-				int imdbid = new Scanner(getTextContent("imdb_id", node)).useDelimiter("\\D+").nextInt();
+				int imdbid = -1;
+				try {
+					imdbid = new Scanner(getTextContent("imdb_id", node)).useDelimiter("\\D+").nextInt();
+				} catch (RuntimeException e) {
+					throw new IllegalArgumentException("Missing data: imdbid");
+				}
 				
 				result.add(new Movie(name, year, imdbid));
-			} catch (RuntimeException e) {
-				// release date or imdb id are undefined
+			} catch (Exception e) {
+				Logger.getLogger(TMDbClient.class.getName()).log(Level.INFO, String.format("Ignore movie [%s]: %s", name, e.getMessage()));
 			}
 		}
 		

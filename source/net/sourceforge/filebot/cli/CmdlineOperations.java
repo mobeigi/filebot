@@ -313,8 +313,9 @@ public class CmdlineOperations implements CmdlineInterface {
 			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
 		for (File file : orphanedFiles) {
+			List<File> orphanParent = listPath(file);
 			for (File movieFile : movieFiles) {
-				if (isDerived(file, movieFile)) {
+				if (orphanParent.contains(movieFile.getParentFile()) && isDerived(file, movieFile)) {
 					derivatesByMovieFile.get(movieFile).add(file);
 					break;
 				}
@@ -382,7 +383,11 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (movie == null) {
 				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
 				Collection<Movie> results = detectMovie(file, null, service, locale, strict);
-				movie = (Movie) selectSearchResult(query, results, strict).get(0);
+				try {
+					movie = (Movie) selectSearchResult(query, results, strict).get(0);
+				} catch (Exception e) {
+					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
+				}
 				
 				if (movie != null) {
 					Analytics.trackEvent(service.getName(), "SearchMovie", movie.toString(), 1);

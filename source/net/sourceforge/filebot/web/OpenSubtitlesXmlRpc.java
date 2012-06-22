@@ -146,7 +146,7 @@ public class OpenSubtitlesXmlRpc {
 				
 				movies.add(new Movie(name, year, Integer.parseInt(imdbid)));
 			} catch (Exception e) {
-				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.INFO, String.format("Ignore movie %s: %s", movie, e.getMessage()));
+				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.INFO, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
 			}
 		}
 		
