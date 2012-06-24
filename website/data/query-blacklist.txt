@@ -27,6 +27,7 @@
 ^l[^\p{Alnum}]
 ^Movie[s]?
 ^New$
+^Other$
 ^SAMPLE
 ^Season.[0-9]+
 ^Torrents[s]?
@@ -73,6 +74,7 @@ KORSUB
 LMAO
 Los.Sustitutos
 mkvonly
+Movies
 MultiSub
 MVGroup.org
 NL

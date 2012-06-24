@@ -3,6 +3,7 @@ package net.sourceforge.filebot.cli;
 
 
 import static java.lang.String.*;
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.WebServices.*;
@@ -34,6 +35,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -162,7 +164,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			for (List<File> batch : batchSets) {
 				// auto-detect series name if not given
-				Collection<String> seriesNames = (query == null) ? detectSeriesQuery(batch, locale) : singleton(query);
+				Collection<String> seriesNames = (query == null) ? detectSeriesQuery(batch, locale) : asList(query.split("[|]"));
 				
 				if (strict && seriesNames.size() > 1) {
 					throw new Exception("Handling multiple shows requires non-strict matching");
@@ -279,8 +281,8 @@ public class CmdlineOperations implements CmdlineInterface {
 			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
 				try {
 					episodes.addAll(future.get());
-				} catch (Exception e) {
-					CLILogger.finest(e.getMessage());
+				} catch (ExecutionException e) {
+					CLILogger.finest(e.getCause().getMessage());
 				}
 			}
 			
@@ -752,7 +754,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// find probable matches using name similarity > 0.9 (or > 0.8 in non-strict mode)
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
-			if (f >= (strict ? 0.9 : 0.8) || (f >= 0.6 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
+			if (f >= (strict ? 0.9 : 0.8) || (f >= 0.5 && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
 				if (!probableMatches.containsKey(result.toString().toLowerCase())) {
 					probableMatches.put(result.toString().toLowerCase(), result);
 				}

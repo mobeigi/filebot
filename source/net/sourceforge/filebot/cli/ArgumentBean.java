@@ -50,7 +50,7 @@ public class ArgumentBean {
 	@Option(name = "-get-missing-subtitles", usage = "Fetch missing subtitles", metaVar = "fileset")
 	public boolean getMissingSubtitles;
 	
-	@Option(name = "--q", usage = "Search query", metaVar = "title")
+	@Option(name = "--q", usage = "Force lookup query", metaVar = "series/movie title")
 	public String query;
 	
 	@Option(name = "--lang", usage = "Language", metaVar = "2-letter language code")
@@ -59,7 +59,7 @@ public class ArgumentBean {
 	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
 	public boolean check;
 	
-	@Option(name = "--output", usage = "Output path / format", metaVar = "Output options")
+	@Option(name = "--output", usage = "Output path / format", metaVar = "folder/file/format")
 	public String output;
 	
 	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
@@ -74,7 +74,7 @@ public class ArgumentBean {
 	@Option(name = "-extract", usage = "Extract archives")
 	public boolean extract = false;
 	
-	@Option(name = "-script", usage = "Run Groovy script", metaVar = "robot.groovy")
+	@Option(name = "-script", usage = "Run Groovy script", metaVar = "path/to/script.groovy")
 	public String script = null;
 	
 	@Option(name = "-trust-script", usage = "Lift scripting restrictions")

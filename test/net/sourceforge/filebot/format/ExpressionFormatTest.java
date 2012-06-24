@@ -19,7 +19,7 @@ public class ExpressionFormatTest {
 	public void compile() throws Exception {
 		ExpressionFormat format = new TestScriptFormat("");
 		
-		Object[] expression = format.compile("name: {name}, number: {number}", (Compilable) format.initScriptEngine());
+		Object[] expression = format.compile("name: {name}, number: {number}", (Compilable) ExpressionFormat.getGroovyScriptEngine());
 		
 		assertTrue(expression[0] instanceof String);
 		assertTrue(expression[1] instanceof CompiledScript);
@@ -27,7 +27,7 @@ public class ExpressionFormatTest {
 		assertTrue(expression[3] instanceof CompiledScript);
 	}
 	
-
+	
 	@Test
 	public void format() throws Exception {
 		assertEquals("X5-452", new TestScriptFormat("X5-{value}").format("452"));
@@ -61,13 +61,13 @@ public class ExpressionFormatTest {
 		assertEquals("default", new TestScriptFormat("{value ?: 'default'}").format(null));
 	}
 	
-
+	
 	@Test
 	public void closures() throws Exception {
 		assertEquals("[ant, cat]", new TestScriptFormat("{['ant', 'buffalo', 'cat', 'dinosaur'].findAll{ it.size() <= 3 }}").format(null));
 	}
 	
-
+	
 	@Test
 	public void illegalSyntax() throws Exception {
 		try {
@@ -81,7 +81,7 @@ public class ExpressionFormatTest {
 		}
 	}
 	
-
+	
 	@Test
 	public void illegalClosingBracket() throws Exception {
 		try {
@@ -95,7 +95,7 @@ public class ExpressionFormatTest {
 		}
 	}
 	
-
+	
 	@Test
 	public void illegalBinding() throws Exception {
 		TestScriptFormat format = new TestScriptFormat("{xyz}");
@@ -105,7 +105,7 @@ public class ExpressionFormatTest {
 		assertEquals("BindingError: \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
 	
-
+	
 	@Test
 	public void illegalProperty() throws Exception {
 		TestScriptFormat format = new TestScriptFormat("{value.xyz}");
@@ -115,14 +115,14 @@ public class ExpressionFormatTest {
 		assertEquals("BindingError: \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
 	
-
+	
 	protected static class TestScriptFormat extends ExpressionFormat {
 		
 		public TestScriptFormat(String format) throws ScriptException {
 			super(format);
 		}
 		
-
+		
 		@Override
 		public Bindings getBindings(Object value) {
 			Bindings bindings = new SimpleBindings();

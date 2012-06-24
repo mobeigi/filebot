@@ -12,10 +12,6 @@
 		<icon href="shortcut.ico" kind="shortcut" />
 		<icon href="splash.png" kind="splash" />
 		
-		<shortcut online="true">
-			<desktop />
-		</shortcut>
-		
 		<offline-allowed />
 	</information>
 	

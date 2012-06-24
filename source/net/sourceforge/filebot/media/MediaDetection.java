@@ -326,7 +326,7 @@ public class MediaDetection {
 		
 		// assume name without spacing will mess up any lookup
 		if (movieNameMatches.isEmpty()) {
-			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, new NameSimilarityMetric(), strict ? 0.9f : 0.6f);
+			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, new NameSimilarityMetric(), strict ? 0.9f : 0.5f);
 		}
 		
 		// query by file / folder name
