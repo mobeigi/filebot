@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.62</name>
-	<revision>993</revision>
+	<name>FileBot 2.64</name>
+	<revision>1024</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 2.62 is released !!</b><br>
+		<b>FileBot 2.64 is out !!</b><br>
 		This release features:<br>
-		+ Lots of minor enhancements and bugfixes<br>
-		+ Improved cmdline scripting<br>
+		+ Improved movie detection<br>
+		+ Lots of minor enhancements<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82&p=854#p854]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82&p=1134#p1134]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
