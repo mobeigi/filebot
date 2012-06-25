@@ -29,7 +29,7 @@ public class SeasonEpisodeMatcher {
 		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
 		
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
-		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee]((\\d{1,2}\\D?)+)(?!\\p{Digit})") {
+		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee](((?<=[^._ ])\\d{1,2}(\\D|$))+)") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -43,7 +43,7 @@ public class SeasonEpisodeMatcher {
 		};
 		
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ... 1x01-02-03-04, 1x01x02x03x04 ...
-		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.]((\\d{2,3}\\D?)+)(?!\\p{Digit})") {
+		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[x.](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
 			
 			@Override
 			protected Collection<SxE> process(MatchResult match) {

@@ -145,7 +145,7 @@ public class EpisodeFormat extends Format {
 			if (!it.getSeason().equals(ps)) {
 				sb.append(String.format("S%02d", it.getSeason())).append(String.format("E%02d", it.getEpisode()));
 			} else {
-				sb.append('-').append(String.format("E%02d", it.getEpisode()));
+				sb.append(String.format("E%02d", it.getEpisode()));
 			}
 			ps = it.getSeason();
 		}
