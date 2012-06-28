@@ -37,6 +37,7 @@ ALLiANCE
 ALLZINE
 AMiABLE
 AN0NYM0US
+Anarchy
 aNBc
 ANBU
 Ani-Kraze
@@ -185,6 +186,7 @@ DUQA
 DutchReleaseTeam
 DvF
 DVL
+dvsky
 EBi
 EbP
 ECHiZEN
@@ -206,6 +208,7 @@ eots
 EPiK
 ESiR
 ESPiSE
+etach
 ETHOS
 ETM
 ETRG
@@ -380,7 +383,6 @@ Larceny
 LCHD
 LEVERAGE
 LEViTY
-LIMITED
 LiPAN
 LMAO
 LoD
@@ -394,6 +396,7 @@ LTT
 LUSO
 M794
 MACHD
+macro
 MAGiCAL
 MAGiCViBE
 MAiN
@@ -402,6 +405,7 @@ MARiNES
 MAXSPEED
 MC
 MCR
+med
 MEDiAMANiACS
 MEDiEVAL
 MELiTE
@@ -483,6 +487,7 @@ PELLUCiD
 Penumbra
 PerfectionHD
 PFa
+phase
 PhoenixRG
 piepHD
 PiLAF
@@ -530,8 +535,8 @@ rabomil
 RANDi
 RAP
 Razor1911
+Reaperza
 REAVERS
-RED
 Redµx
 REFiNED
 RELOADED
@@ -589,6 +594,7 @@ SiTV
 SKALiWAGZ
 SLM
 SLO
+SLOMO
 SMoKeR
 Sneak
 SNUGGLER
@@ -598,12 +604,14 @@ SoW
 SpaceHD
 SPARKS
 SPOOKY
+sprinter
 SSF
 Stealthmaster
 stieg
 Stranded
 streetwars
 STV
+Subject16
 SuBoXoNe
 SUNSPOT
 SURFER
@@ -613,6 +621,7 @@ Swesub
 SYS
 t00ng0d
 Taka
+tantrum
 TARGET
 TASTE
 TASTETV
@@ -634,12 +643,14 @@ TiMPE
 TiMTY
 TiTANS
 TjHD
+tla
 TLF
 TM
 TN
 TOKUS
 TOPAZ
 TorrenTGui
+tpz
 trentalent
 TRiPS
 TrollHD
@@ -690,7 +701,6 @@ WAF
 WANKAZ
 WASTE
 WAVEY
-WEST
 WHATELSE
 WHiiZz
 WiDE

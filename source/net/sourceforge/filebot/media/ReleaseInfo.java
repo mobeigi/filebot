@@ -48,8 +48,19 @@ public class ReleaseInfo {
 	
 	
 	public String getReleaseGroup(File file) throws IOException {
-		// check parent and itself for group names
-		return matchLast(getReleaseGroupPattern(false), releaseGroupResource.get(), file.getParent(), file.getName());
+		// check file and folder for release group names
+		String[] groups = releaseGroupResource.get();
+		String[] files = new String[] { file.getParentFile().getName(), file.getName() };
+		
+		// try case-sensitive match
+		String match = matchLast(getReleaseGroupPattern(true), groups, files);
+		
+		// try case-insensitive match as fallback
+		if (match == null) {
+			match = matchLast(getReleaseGroupPattern(false), groups, files);
+		}
+		
+		return match;
 	}
 	
 	

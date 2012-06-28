@@ -1,10 +1,7 @@
-(?-i:CLASSiC)
-(?-i:DOCU)
+(?-i:CLASSIC|CLASSiC)
 (?-i:ENGLISH)
-(?-i:FIXED)
 (?-i:FRENCH)
 (?-i:GERMAN)
-(?-i:iNT)
 (?-i:LIMITED|LiMiTED)
 (?-i:SPANISH)
 (?-i:SWEDISH|SWEDiSH)
@@ -45,6 +42,7 @@ DC
 Demonoid
 Director's.Cut
 Directors.Cut
+docu
 Dual.Audio
 dubbed
 DVDXvID
@@ -55,6 +53,7 @@ Extended.Version
 ExtraScene
 ExtraTorrent
 Final.Cut
+FIXED
 Fra
 FRE
 GER
@@ -62,6 +61,7 @@ Hard.Subbed
 HDRip
 Hindi
 HQ
+iNT
 iNTERNAL
 iPod
 ISO
