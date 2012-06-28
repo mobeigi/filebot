@@ -115,7 +115,7 @@ public class ReleaseInfo {
 		Pattern resolution = getResolutionPattern();
 		Pattern queryBlacklist = getBlacklistPattern();
 		
-		Pattern[] stopwords = new Pattern[] { getReleaseGroupPattern(true), languageTag, videoSource, videoFormat, resolution, languageSuffix };
+		Pattern[] stopwords = new Pattern[] { languageTag, videoSource, videoFormat, resolution, languageSuffix };
 		Pattern[] blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
 		
 		List<String> output = new ArrayList<String>(items.size());

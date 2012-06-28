@@ -147,7 +147,7 @@ public class MediaBindingBean {
 	public String getImdbId() {
 		int imdb = getMovie().getImdbId();
 		
-		if (imdb < 0)
+		if (imdb <= 0)
 			return null;
 		
 		return String.format("%07d", imdb);

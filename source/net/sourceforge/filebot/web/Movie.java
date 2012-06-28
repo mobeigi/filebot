@@ -64,7 +64,7 @@ public class Movie extends SearchResult {
 	
 	@Override
 	public String toString() {
-		return String.format("%s (%d)", name, year);
+		return String.format("%s (%04d)", name, year < 0 ? 0 : year);
 	}
 	
 }

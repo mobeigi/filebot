@@ -129,7 +129,7 @@ public class TMDbClient implements MovieIdentificationService {
 				try {
 					imdbid = new Scanner(getTextContent("imdb_id", node)).useDelimiter("\\D+").nextInt();
 				} catch (RuntimeException e) {
-					throw new IllegalArgumentException("Missing data: imdbid");
+					// ignore
 				}
 				
 				result.add(new Movie(name, year, imdbid));

@@ -40,8 +40,10 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.DateMatcher;
+import net.sourceforge.filebot.similarity.MetricAvg;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
+import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -331,7 +333,24 @@ public class MediaDetection {
 		
 		// query by file / folder name
 		if (queryLookupService != null) {
-			options.addAll(queryMovieByFileName(terms, queryLookupService, locale));
+			Collection<Movie> results = queryMovieByFileName(terms, queryLookupService, locale);
+			
+			// try query without year as it sometimes messes up results if years don't match properly (movie release years vs dvd release year, etc)
+			if (results.isEmpty() && !strict) {
+				List<String> termsWithoutYear = new ArrayList<String>();
+				Pattern yearPattern = Pattern.compile("(?:19|20)\\d{2}");
+				for (String term : terms) {
+					Matcher m = yearPattern.matcher(term);
+					if (m.find()) {
+						termsWithoutYear.add(m.replaceAll("").trim());
+					}
+				}
+				if (termsWithoutYear.size() > 0) {
+					results = queryMovieByFileName(termsWithoutYear, queryLookupService, locale);
+				}
+			}
+			
+			options.addAll(results);
 		}
 		
 		// add local matching after online search
@@ -339,7 +358,7 @@ public class MediaDetection {
 		
 		// sort by relevance
 		List<Movie> optionsByRelevance = new ArrayList<Movie>(options);
-		sort(optionsByRelevance, new SimilarityComparator(new NameSimilarityMetric(), stripReleaseInfo(terms, true).toArray()));
+		sort(optionsByRelevance, new SimilarityComparator(new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric()), stripReleaseInfo(terms, true).toArray()));
 		return optionsByRelevance;
 	}
 	
