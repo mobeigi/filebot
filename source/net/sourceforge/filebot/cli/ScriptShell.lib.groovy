@@ -169,10 +169,15 @@ def detectSeriesName(files, locale = Locale.ENGLISH) {
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
-def detectMovie(movieFile, strict = true, locale = Locale.ENGLISH) {
-	def movies = MediaDetection.detectMovie(movieFile, OpenSubtitles, TheMovieDB, locale, strict)
+def detectMovie(movieFile, strict = true, locale = Locale.ENGLISH, hashLookupService = OpenSubtitles, queryLookupService = TheMovieDB) {
+	def movies = MediaDetection.detectMovie(movieFile, hashLookupService, queryLookupService, locale, strict)
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
+
+def matchMovie(movieFile, strict = false) { // same as detectMovie() using only the local movie index making it VERY FAST
+	return detectMovie(movieFile, strict, Locale.ENGLISH, null, null)
+}
+
 
 def similarity(o1, o2) {
 	return new NameSimilarityMetric().getSimilarity(o1, o2)
