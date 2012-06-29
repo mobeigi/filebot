@@ -61,7 +61,7 @@ String.metaClass.space = { replacement -> replaceAll(/[:?._]/, " ").trim().repla
  * 
  * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
  */
-String.metaClass.upperInitial = { replaceAll(/\b[a-z]/, { it.toUpperCase() }) }
+String.metaClass.upperInitial = { replaceAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[a-z]/, { it.toUpperCase() }) }
 
 
 /**
