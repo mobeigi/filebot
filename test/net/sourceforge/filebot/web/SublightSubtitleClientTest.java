@@ -19,7 +19,7 @@ import net.sublight.webservice.Subtitle;
 
 public class SublightSubtitleClientTest {
 	
-	private static SublightSubtitleClient client = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
+	private static SublightSubtitleClient client = new SublightSubtitleClient(getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
 	
 	
 	@BeforeClass
@@ -58,15 +58,12 @@ public class SublightSubtitleClientTest {
 	
 	@Test
 	public void getSubtitleListAllLanguages() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064), null);
+		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064), "Croatian");
 		
 		SubtitleDescriptor sample = list.get(0);
 		
-		assertEquals("Terminator.2.1991.ULTIMATE.EDITION.DC.DVDXvID.AC3.CDx-HLS", sample.getName());
-		assertEquals("Slovenian", sample.getLanguageName());
-		
-		// check size
-		assertTrue(list.size() > 15);
+		assertEquals("Terminator.2-Judgment.Day[1991]DvDrip-aXXo", sample.getName());
+		assertEquals("Croatian", sample.getLanguageName());
 	}
 	
 	

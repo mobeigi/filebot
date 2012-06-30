@@ -32,7 +32,7 @@ public final class WebServices {
 	
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
-	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient(getApplicationName(), getApplicationProperty("sublight.apikey"));
+	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient(getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	
 	// movie dbs

@@ -46,7 +46,7 @@ import net.sublight.webservice.SubtitleLanguage;
 
 public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtitleService {
 	
-	private static final String iid = "42cc1701-3752-49e2-a148-332960073452";
+	private static final String iid = "25f30171-518c-463b-a310-b9f8e1eddb40";
 	
 	private final ClientInfo clientInfo = new ClientInfo();
 	
@@ -54,31 +54,31 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	
 	private String session;
 	
-
+	
 	public SublightSubtitleClient(String clientIdentity, String apikey) {
 		clientInfo.setClientId(clientIdentity);
 		clientInfo.setApiKey(apikey);
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return "Sublight";
 	}
 	
-
+	
 	@Override
 	public URI getLink() {
 		return URI.create("http://www.sublight.si");
 	}
 	
-
+	
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.sublight");
 	}
 	
-
+	
 	@Override
 	public List<SearchResult> search(String query) throws WebServiceException {
 		// require login
@@ -106,7 +106,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return results;
 	}
 	
-
+	
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws WebServiceException {
 		Movie movie = (Movie) searchResult;
@@ -121,7 +121,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return subtitles;
 	}
 	
-
+	
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, final String languageName) throws Exception {
 		Map<File, List<SubtitleDescriptor>> subtitles = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 		
@@ -173,7 +173,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		}
 	}
 	
-
+	
 	public List<SubtitleDescriptor> getSubtitleList(String videoHash, String languageName) throws WebServiceException {
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
 		
@@ -188,7 +188,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return subtitles;
 	}
 	
-
+	
 	public List<Subtitle> getSubtitleList(String videoHash, String name, Integer year, String languageName) throws WebServiceException {
 		// require login
 		login();
@@ -245,14 +245,14 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return subtitles.value.getSubtitle();
 	}
 	
-
+	
 	@Override
 	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
 		//TODO implement upload feature
 		return false;
 	}
 	
-
+	
 	public void publishSubtitle(int imdbid, String videoHash, String languageName, String releaseName, byte[] data) {
 		// require login
 		login();
@@ -279,7 +279,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		checkError(error);
 	}
 	
-
+	
 	protected Map<String, SubtitleLanguage> getLanguageAliasMap() {
 		Map<String, SubtitleLanguage> languages = new HashMap<String, SubtitleLanguage>(4);
 		
@@ -291,7 +291,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return languages;
 	}
 	
-
+	
 	protected SubtitleLanguage getSubtitleLanguage(String languageName) {
 		// check subtitle language enum
 		for (SubtitleLanguage language : SubtitleLanguage.values()) {
@@ -309,7 +309,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		throw new IllegalArgumentException("Illegal language: " + languageName);
 	}
 	
-
+	
 	protected String getLanguageName(SubtitleLanguage language) {
 		// check alias list first
 		for (Entry<String, SubtitleLanguage> alias : getLanguageAliasMap().entrySet()) {
@@ -321,7 +321,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return language.value();
 	}
 	
-
+	
 	protected synchronized byte[] getZipArchive(Subtitle subtitle) throws WebServiceException, InterruptedException {
 		// require login
 		login();
@@ -348,14 +348,14 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		return data.value;
 	}
 	
-
+	
 	@Override
 	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 		// note that sublight can only be accessed via the soap API
 		return URI.create("http://www.sublight.si/SearchSubtitles.aspx");
 	}
 	
-
+	
 	protected synchronized void login() throws WebServiceException {
 		if (webservice == null) {
 			// lazy initialize because all the JAX-WS class loading can take quite some time
@@ -383,7 +383,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		logoutTimer.set(10, TimeUnit.MINUTES, true);
 	}
 	
-
+	
 	protected synchronized void logout() throws WebServiceException {
 		if (session != null) {
 			Holder<String> error = new Holder<String>();
@@ -401,14 +401,14 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 		}
 	}
 	
-
+	
 	protected void checkError(Holder<?> error) throws WebServiceException {
 		if (error.value != null) {
 			throw new WebServiceException("Response indicates error: " + error.value);
 		}
 	}
 	
-
+	
 	protected final Timer logoutTimer = new Timer() {
 		
 		@Override
