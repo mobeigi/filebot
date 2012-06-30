@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -161,7 +162,7 @@ class ValidateDialog extends JDialog {
 		
 		for (int i = 0; i < source.size(); i++) {
 			// invalid file names are also invalid file paths
-			if (isInvalidFilePath(source.get(i)) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
+			if (isInvalidFilePath(source.get(i)) && !isUnixFS()) {
 				invalidFilePaths.addIndex(i);
 			}
 		}

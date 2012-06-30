@@ -6,6 +6,7 @@ import static java.lang.String.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.WebServices.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
@@ -209,7 +210,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
-			if (isInvalidFilePath(newFile) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
+			if (isInvalidFilePath(newFile) && !isUnixFS()) {
 				CLILogger.config("Stripping invalid characters from new path: " + newName);
 				newFile = validateFilePath(newFile);
 			}
@@ -444,7 +445,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
 			File newFile = new File(outputDir, newName + "." + getExtension(file));
 			
-			if (isInvalidFilePath(newFile) && !Boolean.parseBoolean(System.getProperty("unixfs"))) {
+			if (isInvalidFilePath(newFile) && !isUnixFS()) {
 				CLILogger.config("Stripping invalid characters from new path: " + newName);
 				newFile = validateFilePath(newFile);
 			}

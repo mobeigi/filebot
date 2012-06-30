@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -158,7 +159,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		try {
 			for (Future<Entry<File, Movie>> it : executor.invokeAll(grabMovieJobs)) {
 				// check if we managed to lookup the movie descriptor

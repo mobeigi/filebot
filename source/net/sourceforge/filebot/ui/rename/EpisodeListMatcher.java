@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -212,7 +213,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 		
 		// match folder per folder in parallel
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		
 		try {
 			// merge all episodes

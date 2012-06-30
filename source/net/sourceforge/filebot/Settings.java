@@ -44,6 +44,20 @@ public final class Settings {
 	}
 	
 	
+	public static boolean isUnixFS() {
+		return Boolean.parseBoolean(System.getProperty("unixfs"));
+	}
+	
+	
+	public static int getPreferredThreadPoolSize() {
+		try {
+			return Integer.parseInt(System.getProperty("threadPool"));
+		} catch (Exception e) {
+			return Runtime.getRuntime().availableProcessors();
+		}
+	}
+	
+	
 	public static String getApplicationDeployment() {
 		String deployment = System.getProperty("application.deployment");
 		if (deployment != null)
