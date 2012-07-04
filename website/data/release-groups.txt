@@ -89,16 +89,16 @@ BTSD
 BTT
 BugZ
 BULLDOZER
-Bunny
+BUNNY
 BWB
 C4TV
 CAMELOT
 CBGB
 CDD
 CDDHD
-Chakra
+CHAKRA
 chaostheory
-Chara
+CHARA
 charliebartlett
 CHD
 CHDBits
@@ -114,6 +114,7 @@ CiNEFiLE
 CiNEFOX
 CLASSiC
 CLDD
+CLUE
 cntc
 COALiTiON
 Cocksure
@@ -139,7 +140,6 @@ danger2u
 danirl
 DARM
 DASH
-DATA
 DAW
 DCA
 DDC
@@ -178,7 +178,7 @@ DNR
 DON
 DoNE
 DOT
-doubt
+DOUBT
 DOWN
 DRHD
 DUPLI
@@ -235,7 +235,7 @@ FilmHD
 FiNaLe
 fjall
 FLAiTE
-Flaket
+FLAKET
 fLAMEhd
 FLAWL3SS
 Flomp-Rumbel
@@ -251,7 +251,7 @@ FQM
 FRAGMENT
 FraMeSToR
 FRIGGHD
-Frost
+FROST
 FSiHD
 Ft4U
 FTVDT
@@ -259,7 +259,7 @@ FTW-FM
 FTW-HD
 fty
 FUCT
-Funner
+FUNNER
 FXG
 FxM
 G3N3
@@ -268,7 +268,6 @@ Gazdi
 GB
 GECKOS
 GEHENNA
-george.c
 GFW
 GFY
 GiNJi
@@ -557,7 +556,9 @@ RTA
 RUBY
 RuDE
 RUDOS
+RUNNER
 RUSTLE
+RWD
 Ryugan
 S26
 SAiMORNY
@@ -660,6 +661,7 @@ TRUEFRENCH
 tRuEHD
 TsH
 tsn
+TURKiSO
 TUSAHD
 TVA
 TW
@@ -700,6 +702,7 @@ w4f
 WAF
 WANKAZ
 WASTE
+WAT
 WAVEY
 WHATELSE
 WHiiZz

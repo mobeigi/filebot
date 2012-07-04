@@ -214,14 +214,20 @@ public class MediaDetection {
 			}
 			
 			// check foldernames first
-			List<String> matches = matchSeriesByName(folders);
+			List<String> matches = matchSeriesByName(folders, 0);
 			
 			// check all filenames if necessary
 			if (matches.isEmpty()) {
-				matches = matchSeriesByName(filenames);
+				matches = matchSeriesByName(filenames, 0);
 			}
 			
-			names.addAll(matches);
+			// use lenient sub sequence matching only as fallback
+			if (matches.size() > 0) {
+				names.addAll(matches);
+			} else {
+				names.addAll(matchSeriesByName(folders, 3));
+				names.addAll(matchSeriesByName(filenames, 3));
+			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
 		}
@@ -244,8 +250,8 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<String> matchSeriesByName(Collection<String> names) throws Exception {
-		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(0);
+	public static List<String> matchSeriesByName(Collection<String> names, int maxStartIndex) throws Exception {
+		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		List<String> matches = new ArrayList<String>();
 		
 		String[] seriesIndex = releaseInfo.getSeriesList();
@@ -602,8 +608,8 @@ public class MediaDetection {
 		private static final Map<String, CollationKey[]> transformCache = synchronizedMap(new WeakHashMap<String, CollationKey[]>(65536));
 		
 		
-		public HighPerformanceMatcher(int commonWordSequenceMaxStartIndex) {
-			super(collator, commonWordSequenceMaxStartIndex);
+		public HighPerformanceMatcher(int maxStartIndex) {
+			super(collator, maxStartIndex);
 		}
 		
 		

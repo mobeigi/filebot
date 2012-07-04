@@ -146,7 +146,10 @@ public class ReleaseInfo {
 		for (Pattern it : stopwords) {
 			Matcher matcher = it.matcher(item);
 			if (matcher.find()) {
-				item = item.substring(0, matcher.start()); // use substring before the matched stopword
+				String substring = item.substring(0, matcher.start()); // use substring before the matched stopword
+				if (normalizePunctuation(substring).length() >= 3) {
+					item = substring; // make sure that the substring has enough data
+				}
 			}
 		}
 		return item;
