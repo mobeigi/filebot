@@ -39,7 +39,7 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 /**
  * Return a substring matching the given pattern or break.
  */
-String.metaClass.match = { String pattern -> def matcher = delegate =~ pattern; if (matcher.find()) return matcher[0] else throw new Exception("Match failed") }
+String.metaClass.match = { String pattern, int matchGroup = 0 -> def matcher = delegate =~ pattern; if (matcher.find()) return matcher.group(matchGroup) else throw new Exception("Match failed") }
 
 
 /**

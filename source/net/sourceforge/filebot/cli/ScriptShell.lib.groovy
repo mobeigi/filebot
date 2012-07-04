@@ -66,6 +66,7 @@ URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser
 URL.metaClass.fetch = { fetch(delegate) }
 ByteBuffer.metaClass.getText = { csn = "utf-8" -> Charset.forName(csn).decode(delegate.duplicate()).toString() }
 ByteBuffer.metaClass.getHtml = { csn = "utf-8" -> new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate.getText(csn)) }
+String.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate) }
 
 URL.metaClass.get = { delegate.getText() }
 URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
