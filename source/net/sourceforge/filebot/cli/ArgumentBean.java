@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
@@ -83,6 +84,9 @@ public class ArgumentBean {
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
 	
+	@Option(name = "-r", usage = "Resolve folders recursively")
+	public boolean recursive = false;
+	
 	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;
 	
@@ -135,9 +139,17 @@ public class ArgumentBean {
 		
 		// resolve given paths
 		for (String argument : arguments) {
-			// resolve folders
 			File file = new File(argument).getAbsoluteFile();
-			files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), 0, false) : singleton(file));
+
+			// resolve relative paths
+			try {
+				file = file.getCanonicalFile();
+			} catch (Exception e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+			}
+			
+			// resolve folders 
+			files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), recursive ? 10 : 0, false) : singleton(file));
 		}
 		
 		return files;
