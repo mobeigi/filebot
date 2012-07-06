@@ -21,10 +21,9 @@
 ^DVD
 ^Film[s]?
 ^HVDVD_TS$
-^Info
 ^Movie[s]?
-^New$
-^Other$
+^new$
+^other$
 ^SAMPLE
 ^Season.[0-9]+
 ^Torrents[s]?
@@ -62,6 +61,7 @@ Hard.Subbed
 HDRip
 Hindi
 HQ
+info
 iNT
 iNTERNAL
 iPod

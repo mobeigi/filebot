@@ -6,6 +6,7 @@ import static java.util.Arrays.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.filebot.web.EpisodeFormat.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -24,7 +25,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Date;
@@ -287,7 +287,6 @@ public class MediaBindingBean {
 	public String getVideoSource() {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
-		ReleaseInfo releaseInfo = new ReleaseInfo();
 		
 		// look for video source patterns in media file and it's parent folder
 		return releaseInfo.getVideoSource(inferredMediaFile);
@@ -298,7 +297,6 @@ public class MediaBindingBean {
 	public String getReleaseGroup() throws IOException {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
-		ReleaseInfo releaseInfo = new ReleaseInfo();
 		
 		// look for release group names in media file and it's parent folder
 		return releaseInfo.getReleaseGroup(inferredMediaFile);
@@ -310,7 +308,7 @@ public class MediaBindingBean {
 		// make sure media file is defined
 		checkMediaFile();
 		
-		Locale languageSuffix = new ReleaseInfo().getLanguageSuffix(FileUtilities.getName(mediaFile));
+		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(mediaFile));
 		if (languageSuffix != null)
 			return new Locale(languageSuffix.getISO3Language()); // force ISO3 letter-code
 			

@@ -56,7 +56,7 @@ import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 public class MediaDetection {
 	
-	private static final ReleaseInfo releaseInfo = new ReleaseInfo();
+	public static final ReleaseInfo releaseInfo = new ReleaseInfo();
 	
 	public static final FileFilter DISK_FOLDERS = releaseInfo.getDiskFolderFilter();
 	public static final FileFilter NON_CLUTTER_FILES = not(releaseInfo.getClutterFileFilter());
@@ -319,7 +319,7 @@ public class MediaDetection {
 			terms.add(reduceMovieName(getName(movieFolder)));
 		}
 		
-		List<Movie> movieNameMatches = matchMovieName(terms, locale, strict);
+		List<Movie> movieNameMatches = matchMovieName(terms, strict);
 		
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
@@ -329,7 +329,7 @@ public class MediaDetection {
 		
 		// if matching name+year failed, try matching only by name
 		if (movieNameMatches.isEmpty() && strict) {
-			movieNameMatches = matchMovieName(terms, locale, false);
+			movieNameMatches = matchMovieName(terms, false);
 		}
 		
 		// assume name without spacing will mess up any lookup
@@ -406,7 +406,7 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<Movie> matchMovieName(final List<String> files, final Locale locale, final boolean strict) throws Exception {
+	public static List<Movie> matchMovieName(final List<String> files, final boolean strict) throws Exception {
 		// cross-reference file / folder name with movie list
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(3);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();

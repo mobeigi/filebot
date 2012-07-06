@@ -195,24 +195,24 @@ public class ReleaseInfo {
 	}
 	
 	
-	public synchronized Pattern getReleaseGroupPattern(boolean strict) throws IOException {
+	public Pattern getReleaseGroupPattern(boolean strict) throws IOException {
 		// pattern matching any release group name enclosed in separators
 		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
-	public synchronized Pattern getBlacklistPattern() throws IOException {
+	public Pattern getBlacklistPattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
 		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 	}
 	
 	
-	public synchronized Movie[] getMovieList() throws IOException {
+	public Movie[] getMovieList() throws IOException {
 		return movieListResource.get();
 	}
 	
 	
-	public synchronized String[] getSeriesList() throws IOException {
+	public String[] getSeriesList() throws IOException {
 		return seriesListResource.get();
 	}
 	

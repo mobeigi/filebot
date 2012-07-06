@@ -22,6 +22,8 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +47,7 @@ import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.cli.CmdlineOperations;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.ui.sfv.SfvPanelBuilder;
@@ -108,7 +111,7 @@ public class Main {
 			
 			// GUI mode => start user interface
 			try {
-				SwingUtilities.invokeLater(new Runnable() {
+				SwingUtilities.invokeAndWait(new Runnable() {
 					
 					@Override
 					public void run() {
@@ -123,8 +126,8 @@ public class Main {
 					}
 				});
 				
-				// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
-				MediaTypes.getDefault();
+				// pre-load certain classes and resources in the background
+				warmupCachedResources();
 				
 				// check for application updates (only when installed, i.e. not running via fatjar or webstart)
 				if (!"skip".equals(System.getProperty("application.update"))) {
@@ -244,6 +247,36 @@ public class Main {
 				}
 			});
 		}
+	}
+	
+	
+	private static void warmupCachedResources() {
+		Thread warmup = new Thread("warmup") {
+			
+			@Override
+			public void run() {
+				try {
+					// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+					MediaTypes.getDefault();
+					
+					// pre-load movie/series index
+					List<String> dummy = Collections.singletonList("");
+					MediaDetection.stripReleaseInfo(dummy, true);
+					MediaDetection.matchSeriesByName(dummy, 0);
+					MediaDetection.matchMovieName(dummy, true);
+					
+					// pre-load Groovy script engine
+					new ExpressionFormat("").format("");
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				}
+			}
+		};
+		
+		// start background thread
+		warmup.setDaemon(true);
+		warmup.setPriority(Thread.MIN_PRIORITY);
+		warmup.start();
 	}
 	
 	
