@@ -27,19 +27,29 @@ input.each{ println "Input: $it" }
 include("fn:lib/xbmc")
 
 // group episodes/movies and rename according to XBMC standards
-def groups = input.groupBy{
-	def tvs = detectSeriesName(it)
-	def mov = detectMovie(it, false)
-	println "$it.name [series: $tvs, movie: $mov]"
+def groups = input.groupBy{ f ->
+	def tvs = detectSeriesName(f)
+	def mov = detectMovie(f, false)
+	println "$f.name [series: $tvs, movie: $mov]"
 	
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
-		if (it.name =~ "(?i:$tvs - .+)" || parseEpisodeNumber(it.name) || parseDate(it.name)) {
+		def fn = f.nameWithoutExtension.space(' ')
+		if (fn =~ "(?i:$tvs - .+)" || parseEpisodeNumber(fn, true) || parseDate(fn)) {
 			println "Exclude Movie: $mov"
 			mov = null
-		} else if (detectMovie(it, true)) {
-			println "Exclude Series: $tvs"
-			tvs = null
+		} else if (detectMovie(f, true)) {
+			// probably a movie, but maybe not
+			if (fn =~ /(19|20)\d{2}/ || !(tvs =~ "(?i:$mov.name)")) {
+				println "Exclude Series: $tvs"
+				tvs = null
+			} else if (fn =~ "(?i:$tvs)" && parseEpisodeNumber(fn.after(tvs), false)) {
+				println "Exclude Movie: $mov"
+				mov = null
+			} else if (fn =~ "(?i:$mov.name)" && !parseEpisodeNumber(fn.after(mov.name), false)) {
+				println "Exclude Series: $tvs"
+				tvs = null
+			}
 		}
 	}
 	
