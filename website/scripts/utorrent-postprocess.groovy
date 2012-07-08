@@ -52,7 +52,7 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
 		def dest = rename(file:files, format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB')
-		if (dest) {
+		if (dest != null || _args.conflict == 'fail') { // allow script to crash via --conflict fail
 			dest.mapByFolder().keySet().each{ dir ->
 				println "Fetching artwork for $dir from TheTVDB"
 				def query = group.tvs
@@ -71,7 +71,7 @@ groups.each{ group, files ->
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
 		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
-		if (dest) {
+		if (dest != null || _args.conflict == 'fail') { // allow script to crash via --conflict fail
 			dest.mapByFolder().keySet().each{ dir ->
 				println "Fetching artwork for $dir from TheMovieDB"
 				fetchMovieArtworkAndNfo(dir, group.mov)
