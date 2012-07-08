@@ -559,23 +559,23 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// lookup subtitles via text search, only perform hash lookup in strict mode
-		if ((query != null || !strict) && !remainingVideos.isEmpty()) {
+		if (!remainingVideos.isEmpty()) {
 			// auto-detect search query
 			Set<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 			
 			if (query == null) {
-				List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
-				querySet.addAll(detectSeriesNames(mediaFiles, language.toLocale()));
-				
-				if (querySet.isEmpty() && mediaFiles.size() == 1) {
-					try {
-						Collection<Movie> results = MediaDetection.detectMovie(mediaFiles.get(0), OpenSubtitles, TMDb, language.toLocale(), false);
+				try {
+					List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+					querySet.addAll(detectSeriesNames(mediaFiles, language.toLocale()));
+					
+					for (File file : mediaFiles) {
+						Collection<Movie> results = MediaDetection.detectMovie(file, null, null, language.toLocale(), strict);
 						for (Movie movie : results) {
 							querySet.add(movie.getName());
 						}
-					} catch (Exception e) {
-						CLILogger.warning("Movie detection failed: " + e.getMessage());
 					}
+				} catch (Exception e) {
+					CLILogger.warning("Movie detection failed: " + e.getMessage());
 				}
 				
 				if (querySet.isEmpty()) {
@@ -592,7 +592,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				
 				try {
 					CLILogger.fine(format("Searching for %s at [%s]", querySet.toString(), service.getName()));
-					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos);
+					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos, strict);
 					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
 					remainingVideos.removeAll(downloads.keySet());
 					subtitleFiles.addAll(downloads.values());
@@ -708,7 +708,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles) throws Exception {
+	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>();
 		
 		// search for subtitles
@@ -721,7 +721,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 			
 			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 0.9) {
+				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.5f)) {
 					CLILogger.finest(format("Matched [%s] to [%s] via filename", it.getValue().getName(), it.getCandidate().getName()));
 					subtitleByVideo.put(it.getValue(), it.getCandidate());
 				}
