@@ -1,5 +1,6 @@
 // filebot -script "fn:utorrent-postprocess" --output "X:/media" --action copy --conflict override -non-strict -trust-script -Xxbmc=localhost "-Xut_dir=%D" "-Xut_file=%F" "-Xut_label=%L" "-Xut_state=%S" "-Xut_kind=%K"
 def input = []
+def failOnError = _args.conflict == 'fail'
 
 // print input parameters
 _args.parameters.each{ k, v -> println "Parameter: $k = $v" }
@@ -41,6 +42,12 @@ def groups = input.groupBy{
 			tvs = null
 		}
 	}
+	
+	// CHECK CONFLICT
+	if (((mov && tvs) || (!mov && !tvs)) && failOnError) {
+		throw new Exception("Media detection failed")
+	}
+	
 	return [tvs:tvs, mov:mov]
 }
 
@@ -52,8 +59,8 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
 		def dest = rename(file:files, format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB')
-		if (dest != null || _args.conflict == 'fail') { // allow script to crash via --conflict fail
-			dest.mapByFolder().keySet().each{ dir ->
+		if (dest || failOnError) {
+			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheTVDB"
 				def query = group.tvs
 				def sxe = dest.findResult{ parseEpisodeNumber(it) }
@@ -71,8 +78,8 @@ groups.each{ group, files ->
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
 		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
-		if (dest != null || _args.conflict == 'fail') { // allow script to crash via --conflict fail
-			dest.mapByFolder().keySet().each{ dir ->
+		if (dest || failOnError) {
+			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
 				fetchMovieArtworkAndNfo(dir, group.mov)
 			}
