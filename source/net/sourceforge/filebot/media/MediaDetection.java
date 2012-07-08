@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -334,7 +335,11 @@ public class MediaDetection {
 		
 		// assume name without spacing will mess up any lookup
 		if (movieNameMatches.isEmpty()) {
-			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, new NameSimilarityMetric(), strict ? 0.9f : 0.5f);
+			movieNameMatches = matchMovieFromStringWithoutSpacing(terms, strict);
+			
+			if (movieNameMatches.isEmpty() && !terms.equals(stripReleaseInfo(terms, true))) {
+				movieNameMatches = matchMovieFromStringWithoutSpacing(stripReleaseInfo(terms, true), strict);
+			}
 		}
 		
 		// query by file / folder name
@@ -443,29 +448,38 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<Movie> matchMovieFromStringWithoutSpacing(List<String> files, SimilarityMetric metric, float similarityThreshold) throws IOException {
+	public static List<Movie> matchMovieFromStringWithoutSpacing(List<String> names, boolean strict) throws IOException {
 		Pattern spacing = Pattern.compile("[\\p{Punct}\\p{Space}]+");
 		
-		List<String> terms = new ArrayList<String>(files.size());
-		for (String it : files) {
+		List<String> terms = new ArrayList<String>(names.size());
+		for (String it : names) {
 			String term = spacing.matcher(it).replaceAll("").toLowerCase();
 			if (term.length() >= 3) {
 				terms.add(term); // only consider words, not just random letters
 			}
 		}
 		
-		List<Movie> movies = new ArrayList<Movie>();
+		// similarity threshold based on strict/non-strict
+		SimilarityMetric metric = new NameSimilarityMetric();
+		float similarityThreshold = strict ? 0.9f : 0.5f;
+		
+		LinkedList<Movie> movies = new LinkedList<Movie>();
 		for (Entry<String, Movie> it : getMovieIndex()) {
 			String name = spacing.matcher(it.getKey()).replaceAll("").toLowerCase();
 			for (String term : terms) {
-				if (term.contains(name) && metric.getSimilarity(name, term) >= similarityThreshold) {
-					movies.add(it.getValue());
+				if (term.contains(name)) {
+					String year = String.valueOf(it.getValue().getYear());
+					if (term.contains(year) && metric.getSimilarity(term, name + year) > similarityThreshold) {
+						movies.addFirst(it.getValue());
+					} else if (metric.getSimilarity(term, name) > similarityThreshold) {
+						movies.addLast(it.getValue());
+					}
 					break;
 				}
 			}
 		}
 		
-		return movies;
+		return new ArrayList<Movie>(movies);
 	}
 	
 	
