@@ -38,18 +38,15 @@ def groups = input.groupBy{ f ->
 		if (fn =~ "(?i:$tvs - .+)" || parseEpisodeNumber(fn, true) || parseDate(fn)) {
 			println "Exclude Movie: $mov"
 			mov = null
-		} else if (detectMovie(f, true)) {
-			// probably a movie, but maybe not
-			if (fn =~ /(19|20)\d{2}/ || !(tvs =~ "(?i:$mov.name)")) {
-				println "Exclude Series: $tvs"
-				tvs = null
-			} else if (fn =~ "(?i:$tvs)" && parseEpisodeNumber(fn.after(tvs), false)) {
-				println "Exclude Movie: $mov"
-				mov = null
-			} else if (fn =~ "(?i:$mov.name)" && !parseEpisodeNumber(fn.after(mov.name), false)) {
-				println "Exclude Series: $tvs"
-				tvs = null
-			}
+		} else if (detectMovie(f, true) && (fn =~ /(19|20)\d{2}/ || !(tvs =~ "(?i:$mov.name)"))) {
+			println "Exclude Series: $tvs"
+			tvs = null
+		} else if (fn =~ "(?i:$tvs)" && parseEpisodeNumber(fn.after(tvs), false)) {
+			println "Exclude Movie: $mov"
+			mov = null
+		} else if (fn =~ "(?i:$mov.name)" && !parseEpisodeNumber(fn.after(mov.name), false)) {
+			println "Exclude Series: $tvs"
+			tvs = null
 		}
 	}
 	
