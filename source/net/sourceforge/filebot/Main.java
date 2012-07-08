@@ -251,7 +251,7 @@ public class Main {
 	
 	
 	private static void warmupCachedResources() {
-		Thread warmup = new Thread("warmup") {
+		Thread warmup = new Thread("warmupCachedResources") {
 			
 			@Override
 			public void run() {

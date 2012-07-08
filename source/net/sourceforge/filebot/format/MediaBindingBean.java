@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -363,7 +364,7 @@ public class MediaBindingBean {
 			}
 		}
 		
-		return new AssociativeScriptObject(new PropertyBindings(metaInfo, null));
+		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 	
 	
@@ -375,25 +376,25 @@ public class MediaBindingBean {
 	
 	@Define("media")
 	public AssociativeScriptObject getGeneralMediaInfo() {
-		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.General, 0));
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.General, 0));
 	}
 	
 	
 	@Define("video")
 	public AssociativeScriptObject getVideoInfo() {
-		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Video, 0));
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.Video, 0));
 	}
 	
 	
 	@Define("audio")
 	public AssociativeScriptObject getAudioInfo() {
-		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Audio, 0));
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.Audio, 0));
 	}
 	
 	
 	@Define("text")
 	public AssociativeScriptObject getTextInfo() {
-		return new AssociativeScriptObject(getMediaInfo().snapshot(StreamKind.Text, 0));
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.Text, 0));
 	}
 	
 	
@@ -505,6 +506,22 @@ public class MediaBindingBean {
 		}
 		
 		return null;
+	}
+	
+	
+	private AssociativeScriptObject createMapBindings(Map<?, ?> map) {
+		return new AssociativeScriptObject(map) {
+			
+			@Override
+			public Object getProperty(String name) {
+				Object value = super.getProperty(name);
+				
+				if (value == null)
+					throw new BindingException(name, "undefined");
+				
+				return value;
+			}
+		};
 	}
 	
 	

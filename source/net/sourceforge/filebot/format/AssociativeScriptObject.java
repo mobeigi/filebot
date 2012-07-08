@@ -31,12 +31,7 @@ public class AssociativeScriptObject extends GroovyObjectSupport {
 	 */
 	@Override
 	public Object getProperty(String name) {
-		Object value = properties.get(name);
-		
-		if (value == null)
-			throw new BindingException(name, "undefined");
-		
-		return value;
+		return properties.get(name);
 	}
 	
 	

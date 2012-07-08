@@ -50,6 +50,8 @@ public class ArgumentProcessor {
 					String[] pair = it.substring(2).split("=", 2);
 					if (pair.length == 2) {
 						parameters.put(pair[0], pair[1]);
+					} else if (pair.length == 1) {
+						parameters.put(pair[0], "true");
 					}
 				} else {
 					arguments.add(it);
