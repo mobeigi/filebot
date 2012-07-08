@@ -43,7 +43,7 @@ public class ArgumentProcessor {
 		
 		if (args != null && args.length > 0) {
 			List<String> arguments = new ArrayList<String>();
-			Map<String, String> parameters = new HashMap<String, String>();
+			Map<String, Object> parameters = new HashMap<String, Object>();
 			
 			for (String it : args) {
 				if (it.startsWith("-X")) {
@@ -51,7 +51,7 @@ public class ArgumentProcessor {
 					if (pair.length == 2) {
 						parameters.put(pair[0], pair[1]);
 					} else if (pair.length == 1) {
-						parameters.put(pair[0], "true");
+						parameters.put(pair[0], Boolean.TRUE);
 					}
 				} else {
 					arguments.add(it);

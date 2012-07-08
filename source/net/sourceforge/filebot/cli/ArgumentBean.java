@@ -106,7 +106,7 @@ public class ArgumentBean {
 	public List<String> arguments = new ArrayList<String>();
 	
 	// optional parameters
-	public Map<String, String> parameters;
+	public Map<String, Object> parameters;
 	
 	
 	public boolean runCLI() {
@@ -140,7 +140,7 @@ public class ArgumentBean {
 		// resolve given paths
 		for (String argument : arguments) {
 			File file = new File(argument).getAbsoluteFile();
-
+			
 			// resolve relative paths
 			try {
 				file = file.getCanonicalFile();
