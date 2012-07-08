@@ -10,7 +10,6 @@ import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
-import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.TMDbClient;
@@ -32,7 +31,6 @@ public final class WebServices {
 	
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
-	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient(getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	
 	// movie dbs
@@ -51,12 +49,12 @@ public final class WebServices {
 	
 	
 	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles, Sublight, Subscene };
+		return new SubtitleProvider[] { OpenSubtitles, Subscene };
 	}
 	
 	
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
-		return new VideoHashSubtitleService[] { OpenSubtitles, Sublight };
+		return new VideoHashSubtitleService[] { OpenSubtitles };
 	}
 	
 	

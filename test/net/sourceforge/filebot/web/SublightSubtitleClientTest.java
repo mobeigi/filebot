@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
@@ -19,7 +18,7 @@ import net.sublight.webservice.Subtitle;
 
 public class SublightSubtitleClientTest {
 	
-	private static SublightSubtitleClient client = new SublightSubtitleClient(getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
+	private static SublightSubtitleClient client = new SublightSubtitleClient(null, null); // BROKEN SINCE SUBLIGHT RESTRICTED API ACCESS
 	
 	
 	@BeforeClass
