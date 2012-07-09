@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.cli;
 
 
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -32,6 +33,7 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.cli.ScriptShell.Script;
 import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
 import net.sourceforge.filebot.web.CachedResource;
 
@@ -119,13 +121,15 @@ public class ArgumentProcessor {
 				}
 			} else {
 				// execute user script
+				System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
+				
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
-				ScriptProvider scriptProvider = new DefaultScriptProvider();
+				ScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
 				Analytics.trackEvent("CLI", "ExecuteScript", scriptProvider.getScriptLocation(args.script).getScheme());
 				
-				ScriptShell shell = new ScriptShell(cli, args, args.parameters, args.trustScript, AccessController.getContext(), scriptProvider);
+				ScriptShell shell = new ScriptShell(cli, args, args.parameters, AccessController.getContext(), scriptProvider);
 				shell.runScript(args.script, bindings);
 			}
 			
@@ -147,6 +151,14 @@ public class ArgumentProcessor {
 	
 	public static class DefaultScriptProvider implements ScriptProvider {
 		
+		private final boolean trustRemoteScript;
+		
+		
+		public DefaultScriptProvider(boolean trustRemoteScript) {
+			this.trustRemoteScript = trustRemoteScript;
+		}
+		
+		
 		@Override
 		public URI getScriptLocation(String input) {
 			try {
@@ -155,7 +167,7 @@ public class ArgumentProcessor {
 				try {
 					// fn:sortivo
 					if (input.startsWith("fn:")) {
-						return new URI("http", "filebot.sourceforge.net", "/scripts/" + input.substring(3) + ".groovy", null);
+						return new URI("fn", input.substring(3), null, null, null);
 					}
 					
 					// script:println 'hello world'
@@ -182,28 +194,37 @@ public class ArgumentProcessor {
 		
 		
 		@Override
-		public String fetchScript(URI uri) throws IOException {
+		public Script fetchScript(URI uri) throws IOException {
 			if (uri.getScheme().equals("file")) {
-				return readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8"));
+				return new Script(readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8")), true);
 			}
 			
 			if (uri.getScheme().equals("system")) {
-				return readAll(new InputStreamReader(System.in));
+				return new Script(readAll(new InputStreamReader(System.in)), true);
 			}
 			
 			if (uri.getScheme().equals("script")) {
-				return uri.getAuthority();
+				return new Script(uri.getAuthority(), true);
+			}
+			
+			String url = uri.toString();
+			boolean trusted = trustRemoteScript;
+			
+			// special handling for endorsed online scripts
+			if (uri.getScheme().endsWith("fn")) {
+				url = "http://filebot.sourceforge.net/scripts/" + uri.getAuthority() + ".groovy";
+				trusted = true;
 			}
 			
 			// fetch remote script only if modified
-			CachedResource<String> script = new CachedResource<String>(uri.toString(), String.class, 24 * 60 * 60 * 1000) {
+			CachedResource<String> script = new CachedResource<String>(url, String.class, 24 * 60 * 60 * 1000) {
 				
 				@Override
 				public String process(ByteBuffer data) {
 					return Charset.forName("UTF-8").decode(data).toString();
 				}
 			};
-			return script.get();
+			return new Script(script.get(), trusted);
 		}
 	}
 	

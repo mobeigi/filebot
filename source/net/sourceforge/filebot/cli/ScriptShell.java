@@ -43,14 +43,12 @@ import net.sourceforge.filebot.web.MovieIdentificationService;
 class ScriptShell {
 	
 	private final ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
-	private final boolean trustScript;
 	
 	private final ScriptProvider scriptProvider;
 	
 	
-	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, boolean trustScript, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
+	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
 		this.scriptProvider = scriptProvider;
-		this.trustScript = trustScript;
 		
 		// setup script context
 		ScriptContext context = new SimpleScriptContext();
@@ -68,18 +66,32 @@ class ScriptShell {
 		public URI getScriptLocation(String input);
 		
 		
-		public String fetchScript(URI uri) throws Exception;
+		public Script fetchScript(URI uri) throws Exception;
+	}
+	
+	
+	public static class Script {
+		
+		public final String code;
+		public final boolean trusted;
+		
+		
+		public Script(String code, boolean trusted) {
+			this.code = code;
+			this.trusted = trusted;
+		}
 	}
 	
 	
 	public Object runScript(String input, Bindings bindings) throws Throwable {
 		URI resource = scriptProvider.getScriptLocation(input);
-		String script = scriptProvider.fetchScript(resource);
-		return evaluate(script, bindings);
+		Script script = scriptProvider.fetchScript(resource);
+		
+		return evaluate(script.code, bindings, script.trusted);
 	}
 	
 	
-	public Object evaluate(final String script, final Bindings bindings) throws Throwable {
+	public Object evaluate(final String script, final Bindings bindings, boolean trustScript) throws Throwable {
 		try {
 			if (trustScript) {
 				return engine.eval(script, bindings);

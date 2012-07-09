@@ -124,6 +124,11 @@
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
+				<include name="META-INF/services/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/ivy.jar">
+				<include name="org/apache/ivy/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/icu4j.jar">
