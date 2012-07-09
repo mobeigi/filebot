@@ -31,6 +31,7 @@ import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
