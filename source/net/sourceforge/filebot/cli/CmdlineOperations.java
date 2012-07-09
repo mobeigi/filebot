@@ -771,10 +771,15 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<SearchResult> selectSearchResult(String query, Iterable<? extends SearchResult> searchResults, boolean strict) throws Exception {
+	public List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> searchResults, boolean strict) throws Exception {
 		List<SearchResult> probableMatches = findProbableMatches(query, searchResults, strict);
 		
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
+			// allow single search results to just pass through in non-strict mode even if match confidence is low
+			if (searchResults.size() == 1 && !strict) {
+				return new ArrayList<SearchResult>(searchResults);
+			}
+			
 			throw new Exception("Failed to auto-select search result: " + searchResults);
 		}
 		
