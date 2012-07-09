@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.sourceforge.filebot;
 
 
+import static net.sourceforge.filebot.History.*;
 import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.ui.rename.History.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,24 +13,24 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.ui.rename.History.Element;
+import net.sourceforge.filebot.History.Element;
 
 
 public final class HistorySpooler {
 	
 	private static final HistorySpooler instance = new HistorySpooler();
 	
-
+	
 	public static HistorySpooler getInstance() {
 		return instance;
 	}
 	
-
+	
 	private final File file = new File(getApplicationFolder(), "history.xml");
 	
 	private final History sessionHistory = new History();
 	
-
+	
 	public synchronized History getCompleteHistory() {
 		History history = new History();
 		
@@ -49,7 +49,12 @@ public final class HistorySpooler {
 		return history;
 	}
 	
-
+	
+	public History getSessionHistory() {
+		return sessionHistory;
+	}
+	
+	
 	public synchronized void append(Iterable<Entry<File, File>> elements) {
 		List<Element> sequence = new ArrayList<Element>();
 		
@@ -63,7 +68,7 @@ public final class HistorySpooler {
 		}
 	}
 	
-
+	
 	public synchronized void commit(History history) {
 		try {
 			exportHistory(history, file);
@@ -75,7 +80,7 @@ public final class HistorySpooler {
 		}
 	}
 	
-
+	
 	public synchronized void commit() {
 		// check if session history is not empty
 		if (sessionHistory.sequences().size() > 0) {
@@ -83,7 +88,7 @@ public final class HistorySpooler {
 		}
 	}
 	
-
+	
 	private HistorySpooler() {
 		// commit session history on shutdown
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

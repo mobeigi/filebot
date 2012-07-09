@@ -64,9 +64,10 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.History;
+import net.sourceforge.filebot.History.Element;
+import net.sourceforge.filebot.History.Sequence;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.rename.History.Element;
-import net.sourceforge.filebot.ui.rename.History.Sequence;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transfer.LoadAction;

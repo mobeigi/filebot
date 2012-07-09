@@ -152,6 +152,13 @@ File.metaClass.watch = { c -> createWatchService(c, [delegate], true) }
 List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
+// Complete or session rename history
+def getRenameLog(complete = false) {
+	def spooler = net.sourceforge.filebot.HistorySpooler.getInstance()
+	def history = complete ? spooler.completeHistory : spooler.sessionHistory
+	return history.sequences*.elements.flatten().collectEntries{ [new File(it.dir, it.from), new File(it.dir, it.to)] }
+}
+
 // Season / Episode helpers
 import net.sourceforge.filebot.media.*
 import net.sourceforge.filebot.similarity.*

@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.sourceforge.filebot;
 
 
 import static java.util.Collections.*;

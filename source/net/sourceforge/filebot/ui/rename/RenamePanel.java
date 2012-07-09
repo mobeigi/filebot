@@ -42,6 +42,8 @@ import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.History;
+import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;

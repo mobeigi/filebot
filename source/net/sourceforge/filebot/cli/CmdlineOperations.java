@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.archive.Archive;
@@ -65,7 +66,6 @@ import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
-import net.sourceforge.filebot.ui.rename.HistorySpooler;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
