@@ -745,17 +745,17 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<SearchResult> findProbableMatches(final String query, Iterable<? extends SearchResult> searchResults, boolean strict) {
+	public List<SearchResult> findProbableMatches(final String query, Collection<? extends SearchResult> searchResults, boolean strict) {
 		// auto-select most probable search result
 		Map<String, SearchResult> probableMatches = new LinkedHashMap<String, SearchResult>();
 		
 		// use name similarity metric
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		
-		// find probable matches using name similarity > 0.9 (or > 0.8 in non-strict mode)
+		// find probable matches using name similarity > 0.85 (or > 0.75 in non-strict mode)
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
-			if (f >= (strict ? 0.85 : 0.75) || ((f >= 0.5 || !strict) && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
+			if (f >= (strict && searchResults.size() > 1 ? 0.85 : 0.75) || ((f >= 0.5 || !strict) && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
 				if (!probableMatches.containsKey(result.toString().toLowerCase())) {
 					probableMatches.put(result.toString().toLowerCase(), result);
 				}
