@@ -14,6 +14,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -232,33 +233,40 @@ public class MediaBindingBean {
 	
 	@Define("resolution")
 	public String getVideoResolution() {
-		String width = getMediaInfo(StreamKind.Video, 0, "Width");
-		String height = getMediaInfo(StreamKind.Video, 0, "Height");
+		List<Integer> dim = getDimension();
 		
-		if (width == null || height == null)
+		if (dim.contains(null))
 			return null;
 		
 		// e.g. 1280x720
-		return width + 'x' + height;
+		return join(dim, "x");
 	}
 	
 	
 	@Define("ws")
 	public String getWidescreen() {
-		float width = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Width"));
-		float height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
+		List<Integer> dim = getDimension();
 		
 		// width-to-height aspect ratio greater than 1.37:1
-		return width / height > 1.37 ? "ws" : null;
+		return (float) dim.get(0) / dim.get(1) > 1.37f ? "ws" : null;
 	}
 	
 	
 	@Define("sdhd")
 	public String getVideoDefinitionCategory() {
-		String height = getMediaInfo(StreamKind.Video, 0, "Height");
+		List<Integer> dim = getDimension();
 		
 		// SD (less than 720 lines) or HD (more than 720 lines)
-		return Integer.parseInt(height) < 720 ? "SD" : "HD";
+		return dim.get(0) >= 1280 || dim.get(1) >= 720 ? "HD" : "SD";
+	}
+	
+	
+	@Define("dim")
+	public List<Integer> getDimension() {
+		String width = getMediaInfo(StreamKind.Video, 0, "Width");
+		String height = getMediaInfo(StreamKind.Video, 0, "Height");
+		
+		return Arrays.asList(width != null ? Integer.parseInt(width) : null, height != null ? Integer.parseInt(height) : null);
 	}
 	
 	
