@@ -1,4 +1,4 @@
-// filebot -script "fn:sysinfo" -trust-script
+// filebot -script "fn:sysinfo"
 
 // FileBot 2.62 (r993)
 println net.sourceforge.filebot.Settings.applicationIdentifier
@@ -14,8 +14,7 @@ try {
 // 7-Zip-JBinding: OK
 try {
 	print '7-Zip-JBinding: '
-	new net.sourceforge.filebot.archive.Archive(null) // load 7-Zip-JBinding native libs
-} catch(NullPointerException e) {
+	ClassLoader.systemClassLoader.loadClass("net.sourceforge.filebot.archive.SevenZipLoader") // load 7-Zip-JBinding native libs
 	println "OK"
 } catch(Throwable error) {
 	println error

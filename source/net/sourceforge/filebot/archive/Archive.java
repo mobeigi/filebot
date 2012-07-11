@@ -2,74 +2,55 @@
 package net.sourceforge.filebot.archive;
 
 
-import static org.apache.commons.io.FilenameUtils.*;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.jna.Platform;
-
 import net.sf.sevenzipjbinding.ArchiveFormat;
+import net.sf.sevenzipjbinding.IArchiveOpenCallback;
 import net.sf.sevenzipjbinding.IInStream;
 import net.sf.sevenzipjbinding.ISevenZipInArchive;
 import net.sf.sevenzipjbinding.PropID;
-import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipException;
-import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
+import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 public class Archive implements Closeable {
 	
-	private static boolean nativeLibrariesLoaded = false;
-	
-	
-	private static synchronized void requireNativeLibraries() throws SevenZipNativeInitializationException {
-		if (nativeLibrariesLoaded) {
-			return;
-		}
-		
-		// initialize 7z-JBinding native libs
-		try {
-			if (Platform.isWindows()) {
-				System.loadLibrary(Platform.is64Bit() ? "libgcc_s_sjlj-1" : "mingwm10");
-			}
-			
-			System.loadLibrary("7-Zip-JBinding");
-			SevenZip.initLoadedLibraries();
-			nativeLibrariesLoaded = true;
-		} catch (Throwable e) {
-			throw new SevenZipNativeInitializationException("Failed to load 7z-JBinding: " + e.getMessage(), e);
-		}
-	}
-	
-	
 	private ISevenZipInArchive inArchive;
-	private Closeable openVolume;
+	private ArchiveOpenVolumeCallback openVolume;
 	
 	
-	public Archive(File file) throws IOException, SevenZipException, SevenZipNativeInitializationException {
+	public Archive(File file) throws Exception {
 		// initialize 7-Zip-JBinding
-		requireNativeLibraries();
-		
 		if (!file.exists()) {
 			throw new FileNotFoundException(file.getAbsolutePath());
 		}
 		
-		ArchiveOpenVolumeCallback openVolumeCallback = new ArchiveOpenVolumeCallback();
-		IInStream inStream = openVolumeCallback.getStream(file.getAbsolutePath());
+		// 7-Zip-JBinding NATIVE LIBS MUST BE LOADED WITH SYSTEM CLASSLOADER
+		Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass("net.sourceforge.filebot.archive.SevenZipLoader");
+		Method m = clazz.getMethod("open", new Class[] { IInStream.class, IArchiveOpenCallback.class });
 		
-		inArchive = SevenZip.openInArchive(null, inStream, openVolumeCallback);
-		openVolume = openVolumeCallback;
+		try {
+			openVolume = new ArchiveOpenVolumeCallback();
+			inArchive = (ISevenZipInArchive) m.invoke(null, openVolume.getStream(file.getAbsolutePath()), openVolume);
+		} catch (InvocationTargetException e) {
+			throw (Exception) e.getTargetException();
+		}
 	}
 	
 	
@@ -99,7 +80,9 @@ public class Archive implements Closeable {
 			boolean isFolder = (Boolean) inArchive.getProperty(i, PropID.IS_FOLDER);
 			if (!isFolder) {
 				String path = (String) inArchive.getProperty(i, PropID.PATH);
-				paths.add(new File(path));
+				if (path != null) {
+					paths.add(new File(path));
+				}
 			}
 		}
 		
@@ -124,13 +107,32 @@ public class Archive implements Closeable {
 	}
 	
 	
+	public static Set<String> getArchiveTypes() {
+		Set<String> extensions = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		
+		// application data
+		extensions.addAll(MediaTypes.getDefault().getExtensionList("archive"));
+		
+		// formats provided by the library
+		for (ArchiveFormat it : ArchiveFormat.values()) {
+			extensions.add(it.getMethodName());
+		}
+		
+		return extensions;
+	}
+	
+	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		
 		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
+		private FileFilter archives = new ExtensionFileFilter(getArchiveTypes());
 		
 		
 		@Override
 		public boolean accept(File path) {
+			if (!archives.accept(path))
+				return false;
+			
 			Matcher matcher = volume.matcher(path.getName());
 			if (matcher.find()) {
 				Scanner scanner = new Scanner(matcher.group()).useDelimiter("\\D+");
@@ -139,15 +141,9 @@ public class Archive implements Closeable {
 				}
 			}
 			
-			String ext = getExtension(path.getName());
-			for (ArchiveFormat it : ArchiveFormat.values()) {
-				if (it.getMethodName().equalsIgnoreCase(ext)) {
-					return true;
-				}
-			}
-			
-			return false;
+			return true;
 		}
+		
 	};
 	
 }
