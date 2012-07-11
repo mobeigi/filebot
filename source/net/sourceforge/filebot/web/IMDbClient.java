@@ -94,6 +94,10 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	protected Movie scrapeMovie(Document dom) {
 		try {
+			String header = selectString("//H1", dom);
+			if (header.toUpperCase().contains("(VG)")) // ignore video games
+				return null;
+			
 			String name = selectString("//H1/A/text()", dom);
 			String year = new Scanner(selectString("//H1/A/following::A/text()", dom)).useDelimiter("\\D+").next();
 			String url = selectString("//H1/A/@href", dom);
