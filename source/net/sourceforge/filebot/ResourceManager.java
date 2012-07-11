@@ -5,6 +5,8 @@ package net.sourceforge.filebot;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
@@ -19,12 +21,12 @@ public final class ResourceManager {
 	
 	private static final Cache cache = CacheManager.getInstance().getCache("resource");
 	
-
+	
 	public static Icon getIcon(String name) {
 		return getIcon(name, null);
 	}
 	
-
+	
 	public static Icon getIcon(String name, String def) {
 		Icon icon = probeCache(name, Icon.class);
 		
@@ -39,12 +41,12 @@ public final class ResourceManager {
 		return icon;
 	}
 	
-
+	
 	public static Icon getFlagIcon(String languageCode) {
 		return getIcon(String.format("flags/%s", languageCode));
 	}
 	
-
+	
 	public static Image getImage(String name) {
 		try {
 			return ImageIO.read(getImageResource(name));
@@ -53,7 +55,7 @@ public final class ResourceManager {
 		}
 	}
 	
-
+	
 	/**
 	 * Get the URL of an image resource in this jar. Image must be located in <code>resources/</code> and the file type
 	 * is assumed to be png.
@@ -65,7 +67,7 @@ public final class ResourceManager {
 		return ResourceManager.class.getResource("resources/" + name + ".png");
 	}
 	
-
+	
 	private static URL getImageResource(String name, String def) {
 		URL resource = getImageResource(name);
 		
@@ -75,25 +77,33 @@ public final class ResourceManager {
 		return resource;
 	}
 	
-
+	
 	private static <T> T probeCache(String name, Class<T> type) {
-		Element entry = cache.get(type.getName() + ":" + name);
-		
-		if (entry != null) {
-			return type.cast(entry.getObjectValue());
+		try {
+			Element entry = cache.get(type.getName() + ":" + name);
+			
+			if (entry != null) {
+				return type.cast(entry.getObjectValue());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(ResourceManager.class.getName()).log(Level.WARNING, e.getMessage());
 		}
 		
 		return null;
 	}
 	
-
+	
 	private static <T> T populateCache(String name, Class<? super T> type, T value) {
-		cache.put(new Element(type.getName() + ":" + name, value));
+		try {
+			cache.put(new Element(type.getName() + ":" + name, value));
+		} catch (Exception e) {
+			Logger.getLogger(ResourceManager.class.getName()).log(Level.WARNING, e.getMessage());
+		}
 		
 		return value;
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
