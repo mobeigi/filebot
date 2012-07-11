@@ -69,7 +69,7 @@ public class ArgumentProcessor {
 	}
 	
 	
-	public int process(ArgumentBean args, CmdlineInterface cli) throws Exception {
+	public int process(ArgumentBean args, CmdlineInterface cli) {
 		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
 		CLILogger.setLevel(args.getLogLevel());
 		

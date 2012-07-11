@@ -66,5 +66,5 @@
 		<nativelib href="native/mac-x86_64.jar"  download="lazy" part="native" />
 	</resources>
 	
-	<application-desc main-class="net.sourceforge.filebot.Main" />
+	<application-desc main-class="net.sourceforge.filebot.ApplicationStarter" />
 </jnlp>
