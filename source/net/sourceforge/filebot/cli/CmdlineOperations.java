@@ -46,6 +46,8 @@ import java.util.regex.Pattern;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.RenameAction;
+import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.archive.FileMapper;

@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.cli;
+package net.sourceforge.filebot;
 
 
 import java.io.File;

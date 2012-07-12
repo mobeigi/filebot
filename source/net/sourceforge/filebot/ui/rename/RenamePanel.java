@@ -16,6 +16,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ import net.sourceforge.filebot.History;
 import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
@@ -153,13 +155,19 @@ public class RenamePanel extends JComponent {
 			}
 		});
 		
-		// create settings popup
-		final Action settingsPopupAction = new ShowPopupAction("Options", ResourceManager.getIcon("action.report"));
-		JButton settingsButton = createImageButton(settingsPopupAction);
-		settingsButton.setAction(openHistoryAction);
+		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
+		fetchButton.setComponentPopupMenu(fetchPopup);
+		
+		// settings popup and button
 		ActionPopup settingsPopup = createSettingsPopup();
+		final Action settingsPopupAction = new ShowPopupAction("Settings", ResourceManager.getIcon("action.settings"));
+		JButton settingsButton = createImageButton(settingsPopupAction);
+		settingsButton.setComponentPopupMenu(settingsPopup);
 		renameButton.setComponentPopupMenu(settingsPopup);
-		filesList.getButtonPanel().add(settingsButton, "gap 0");
+		namesList.getButtonPanel().add(settingsButton, "gap indent");
+		
+		// open rename log button
+		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap 0");
 		
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		
@@ -276,16 +284,18 @@ public class RenamePanel extends JComponent {
 	
 	
 	protected ActionPopup createSettingsPopup() {
-		ActionPopup actionPopup = new ActionPopup("Rename Options", ResourceManager.getIcon("action.rename.small"));
+		ActionPopup actionPopup = new ActionPopup("Rename Options", ResourceManager.getIcon("action.settings"));
 		
-		actionPopup.addDescription(new JLabel("Extension:"));
-		
-		actionPopup.add(new OverrideExtensionAction(false, "Preserve", ResourceManager.getIcon("action.extension.preserve")));
-		actionPopup.add(new OverrideExtensionAction(true, "Override", ResourceManager.getIcon("action.extension.override")));
+		actionPopup.addDescription(new JLabel("Mode:"));
+		actionPopup.add(new SetRenameMode(false, "Relative Name", ResourceManager.getIcon("action.extension.preserve")));
+		actionPopup.add(new SetRenameMode(true, "Absolute Path", ResourceManager.getIcon("action.extension.override")));
 		
 		actionPopup.addSeparator();
-		actionPopup.addDescription(new JLabel("History:"));
-		actionPopup.add(openHistoryAction);
+		
+		actionPopup.addDescription(new JLabel("Action:"));
+		for (StandardRenameAction action : EnumSet.of(StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK)) {
+			actionPopup.add(new SetRenameAction(action, action.toString().toLowerCase(), ResourceManager.getIcon("rename.action." + action.toString().toLowerCase())));
+		}
 		
 		return actionPopup;
 	}
@@ -328,12 +338,12 @@ public class RenamePanel extends JComponent {
 	};
 	
 	
-	protected class OverrideExtensionAction extends AbstractAction {
+	protected class SetRenameMode extends AbstractAction {
 		
 		private final boolean activate;
 		
 		
-		private OverrideExtensionAction(boolean activate, String name, Icon icon) {
+		private SetRenameMode(boolean activate, String name, Icon icon) {
 			super(name, icon);
 			this.activate = activate;
 		}
@@ -348,6 +358,26 @@ public class RenamePanel extends JComponent {
 			
 			// display changed state
 			filesList.repaint();
+		}
+	}
+	
+	
+	protected class SetRenameAction extends AbstractAction {
+		
+		private final StandardRenameAction action;
+		
+		
+		public SetRenameAction(StandardRenameAction action, String name, Icon icon) {
+			super(name, icon);
+			this.action = action;
+		}
+		
+		
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			renameAction.putValue(RenameAction.RENAME_ACTION, action);
+			renameAction.putValue(NAME, this.getValue(NAME));
+			renameAction.putValue(SMALL_ICON, this.getValue(SMALL_ICON));
 		}
 	}
 	

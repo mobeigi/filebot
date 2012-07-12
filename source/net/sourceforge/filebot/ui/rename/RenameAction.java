@@ -4,7 +4,6 @@ package net.sourceforge.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
@@ -33,6 +32,7 @@ import javax.swing.SwingWorker;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
@@ -40,15 +40,21 @@ import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
 
 class RenameAction extends AbstractAction {
 	
+	public static final String RENAME_ACTION = "RENAME_ACTION";
+	
 	private final RenameModel model;
 	
 	
 	public RenameAction(RenameModel model) {
 		this.model = model;
-		
+		resetValues();
+	}
+	
+	
+	public void resetValues() {
+		putValue(RENAME_ACTION, StandardRenameAction.MOVE);
 		putValue(NAME, "Rename");
 		putValue(SMALL_ICON, ResourceManager.getIcon("action.rename"));
-		putValue(SHORT_DESCRIPTION, "Rename files");
 	}
 	
 	
@@ -62,7 +68,7 @@ class RenameAction extends AbstractAction {
 			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window));
 			
 			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			RenameJob renameJob = new RenameJob(renameMap);
+			RenameJob renameJob = new RenameJob(renameMap, (StandardRenameAction) getValue(RENAME_ACTION));
 			renameJob.execute();
 			
 			try {
@@ -192,11 +198,14 @@ class RenameAction extends AbstractAction {
 	
 	protected class RenameJob extends SwingWorker<Map<File, File>, Void> implements Cancellable {
 		
+		private final StandardRenameAction action;
+		
 		private final Map<File, File> renameMap;
 		private final Map<File, File> renameLog;
 		
 		
-		public RenameJob(Map<File, File> renameMap) {
+		public RenameJob(Map<File, File> renameMap, StandardRenameAction action) {
+			this.action = action;
 			this.renameMap = synchronizedMap(renameMap);
 			this.renameLog = synchronizedMap(new LinkedHashMap<File, File>());
 		}
@@ -213,7 +222,7 @@ class RenameAction extends AbstractAction {
 				firePropertyChange("currentFile", mapping.getKey(), mapping.getValue());
 				
 				// rename file, throw exception on failure
-				moveRename(mapping.getKey(), mapping.getValue());
+				action.rename(mapping.getKey(), mapping.getValue());
 				
 				// remember successfully renamed matches for history entry and possible revert 
 				renameLog.put(mapping.getKey(), mapping.getValue());

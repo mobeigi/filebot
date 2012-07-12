@@ -26,7 +26,7 @@ public class ActionPopup extends JPopupMenu {
 	
 	protected final JPanel actionPanel = new JPanel(new MigLayout("nogrid, insets 0, fill"));
 	
-
+	
 	public ActionPopup(String label, Icon icon) {
 		headerLabel.setText(label);
 		headerLabel.setIcon(icon);
@@ -46,70 +46,69 @@ public class ActionPopup extends JPopupMenu {
 		add(statusLabel, "growx, h 11px!, gapx 3px, wrap 1px");
 	}
 	
-
+	
 	public void addDescription(JComponent component) {
 		actionPanel.add(component, "gapx 4px, wrap 3px");
 	}
 	
-
+	
 	public void addAction(JComponent component) {
 		actionPanel.add(component, "gapx 12px 12px, growx, wrap");
 	}
 	
-
+	
 	@Override
 	public void addSeparator() {
 		actionPanel.add(new JSeparator(), "growx, wrap 1px");
 	}
 	
-
+	
 	@Override
 	public JMenuItem add(Action a) {
 		LinkButton link = new LinkButton(a);
 		
-		// close popup when action is triggered
-		link.addActionListener(closeListener);
-		
 		// underline text
-		link.setText(String.format("<html><u>%s</u></html>", link.getText()));
+		link.setText(String.format("<html><nobr><u>%s</u></nobr></html>", link.getText()));
 		
 		// use rollover color
 		link.setRolloverEnabled(false);
 		link.setColor(link.getRolloverColor());
 		
-		addAction(link);
+		// close popup when action is triggered
+		link.addActionListener(closeListener);
 		
+		addAction(link);
 		return null;
 	}
 	
-
+	
 	public void clear() {
 		actionPanel.removeAll();
 	}
 	
-
+	
 	@Override
 	public void setLabel(String label) {
 		headerLabel.setText(label);
 	}
 	
-
+	
 	@Override
 	public String getLabel() {
 		return headerLabel.getText();
 	}
 	
-
+	
 	public void setStatus(String string) {
 		statusLabel.setText(string);
 	}
 	
-
+	
 	public String getStatus() {
 		return statusLabel.getText();
 	}
 	
-
+	
 	private final ActionListener closeListener = new ActionListener() {
 		
 		@Override

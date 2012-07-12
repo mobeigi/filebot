@@ -89,12 +89,20 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			if (renameModel.preserveExtension()) {
 				setText(FileUtilities.getName(file));
 			} else {
-				setText(file.getName());
+				setText(file.getAbsolutePath());
 			}
 		} else if (value instanceof FormattedFuture) {
 			// display progress icon
 			FormattedFuture formattedFuture = (FormattedFuture) value;
-			setText(formattedFuture.isDone() && !formattedFuture.isCancelled() ? formattedFuture.toString() : formattedFuture.preview());
+			
+			if (!renameModel.preserveExtension() && formattedFuture.isDone() && renameModel.hasComplement(index)) {
+				// absolute path mode
+				File targetDir = renameModel.getMatch(index).getCandidate().getParentFile();
+				setText(resolveAbsolutePath(targetDir, formattedFuture.toString()));
+			} else {
+				// relative name mode
+				setText(formattedFuture.isDone() && !formattedFuture.isCancelled() ? formattedFuture.toString() : formattedFuture.preview());
+			}
 			
 			switch (formattedFuture.getState()) {
 				case PENDING:
@@ -124,6 +132,20 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 					
 				}
 			}
+		}
+	}
+	
+	
+	protected String resolveAbsolutePath(File targetDir, String path) {
+		File f = new File(path);
+		if (!f.isAbsolute()) {
+			f = new File(targetDir, path); // resolve path against target folder
+		}
+		
+		try {
+			return f.getCanonicalPath();
+		} catch (Exception e) {
+			return f.getAbsolutePath();
 		}
 	}
 	
