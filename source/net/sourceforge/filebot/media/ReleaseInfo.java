@@ -120,7 +120,7 @@ public class ReleaseInfo {
 		
 		List<String> output = new ArrayList<String>(items.size());
 		for (String it : items) {
-			it = substringBefore(it, stopwords);
+			it = strict ? clean(it, stopwords) : substringBefore(it, stopwords);
 			it = clean(it, blacklist);
 			
 			// ignore empty values

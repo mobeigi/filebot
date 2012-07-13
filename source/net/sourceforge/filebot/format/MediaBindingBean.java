@@ -485,11 +485,11 @@ public class MediaBindingBean {
 		
 		if (SUBTITLE_FILES.accept(mediaFile)) {
 			// file is a subtitle
-			String name = FileUtilities.getName(mediaFile);
+			String name = FileUtilities.getName(mediaFile).toLowerCase();
 			
 			// find corresponding movie file
 			for (File movie : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
-				if (name.startsWith(FileUtilities.getName(movie))) {
+				if (name.startsWith(FileUtilities.getName(movie).toLowerCase())) {
 					return movie;
 				}
 			}
