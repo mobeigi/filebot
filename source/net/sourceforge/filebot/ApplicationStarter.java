@@ -125,16 +125,21 @@ public class ApplicationStarter {
 						startUserInterface(args);
 					}
 				});
-				
-				// pre-load certain classes and resources in the background
-				warmupCachedResources();
-				
-				// check for application updates (only when installed, i.e. not running via fatjar or webstart)
-				if (!"skip".equals(System.getProperty("application.update"))) {
-					checkUpdate();
-				}
 			} catch (Exception e) {
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+				System.exit(-1); // starting up UI failed
+			}
+			
+			// pre-load certain classes and resources in the background
+			warmupCachedResources();
+			
+			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
+			if (!"skip".equals(System.getProperty("application.update"))) {
+				try {
+					checkUpdate();
+				} catch (Exception e) {
+					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
+				}
 			}
 		} catch (CmdLineException e) {
 			// illegal arguments => just print CLI error message and stop

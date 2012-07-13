@@ -5,22 +5,13 @@ package net.sourceforge.filebot;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 
 public final class ResourceManager {
-	
-	private static final Cache cache = CacheManager.getInstance().getCache("resource");
-	
 	
 	public static Icon getIcon(String name) {
 		return getIcon(name, null);
@@ -28,17 +19,12 @@ public final class ResourceManager {
 	
 	
 	public static Icon getIcon(String name, String def) {
-		Icon icon = probeCache(name, Icon.class);
+		URL resource = getImageResource(name, def);
 		
-		if (icon == null) {
-			URL resource = getImageResource(name, def);
-			
-			if (resource != null) {
-				icon = populateCache(name, Icon.class, new ImageIcon(resource));
-			}
-		}
+		if (resource == null)
+			return null;
 		
-		return icon;
+		return new ImageIcon(resource);
 	}
 	
 	
@@ -75,32 +61,6 @@ public final class ResourceManager {
 			resource = getImageResource(def);
 		
 		return resource;
-	}
-	
-	
-	private static <T> T probeCache(String name, Class<T> type) {
-		try {
-			Element entry = cache.get(type.getName() + ":" + name);
-			
-			if (entry != null) {
-				return type.cast(entry.getObjectValue());
-			}
-		} catch (Exception e) {
-			Logger.getLogger(ResourceManager.class.getName()).log(Level.WARNING, e.getMessage());
-		}
-		
-		return null;
-	}
-	
-	
-	private static <T> T populateCache(String name, Class<? super T> type, T value) {
-		try {
-			cache.put(new Element(type.getName() + ":" + name, value));
-		} catch (Exception e) {
-			Logger.getLogger(ResourceManager.class.getName()).log(Level.WARNING, e.getMessage());
-		}
-		
-		return value;
 	}
 	
 	
