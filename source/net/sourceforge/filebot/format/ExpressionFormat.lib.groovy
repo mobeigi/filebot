@@ -99,7 +99,6 @@ String.metaClass.after = {
  * 
  * e.g. "The IT Crowd (UK)" -> "The IT Crowd"
  */
-String.metaClass.replaceTrailingBraces = 
 String.metaClass.replaceTrailingBrackets = { replacement = "" -> replaceAll(/\s*[(]([^)]*)[)]$/, replacement) }
 
 
