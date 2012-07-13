@@ -6,6 +6,7 @@ import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
@@ -111,7 +112,11 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))));
+		try {
+			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))));
+		} catch (FileNotFoundException e) {
+			return null; // illegal imdbid
+		}
 	}
 	
 	
