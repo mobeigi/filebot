@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -9,6 +10,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 import net.sourceforge.tuned.ByteBufferOutputStream;
 import net.sourceforge.tuned.FileUtilities;
@@ -73,69 +75,76 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		}
 	}
 	
-
+	
 	private final Map<Property, String> properties;
 	
-
+	
 	public OpenSubtitlesSubtitleDescriptor(Map<Property, String> properties) {
 		this.properties = properties;
 	}
 	
-
+	
 	public String getProperty(Property key) {
 		return properties.get(key);
 	}
 	
-
+	
 	@Override
 	public String getPath() {
 		return getProperty(Property.SubFileName);
 	}
 	
-
+	
 	@Override
 	public String getName() {
 		return FileUtilities.getNameWithoutExtension(getProperty(Property.SubFileName));
 	}
 	
-
+	
 	@Override
 	public String getLanguageName() {
 		return getProperty(Property.LanguageName);
 	}
 	
-
+	
 	@Override
 	public String getType() {
 		return getProperty(Property.SubFormat);
 	}
 	
-
+	
 	@Override
 	public long getLength() {
 		return Long.parseLong(getProperty(Property.SubSize));
 	}
 	
-
+	
 	public String getMovieHash() {
 		return getProperty(Property.MovieHash);
 	}
 	
-
+	
 	public long getMovieByteSize() {
 		return Long.parseLong(getProperty(Property.MovieByteSize));
 	}
 	
-
+	
 	@Override
 	public ByteBuffer fetch() throws Exception {
 		URL resource = new URL(getProperty(Property.SubDownloadLink));
-		InputStream stream = new GZIPInputStream(resource.openStream());
+		InputStream stream = resource.openStream();
 		
 		try {
 			ByteBufferOutputStream buffer = new ByteBufferOutputStream(getLength());
 			
-			// read all
+			// extract gzipped subtitle on-the-fly
+			try {
+				stream = new GZIPInputStream(stream);
+			} catch (ZipException e) {
+				throw new IOException(String.format("%s: anti-leech limit may have been reached", e.getMessage()));
+			}
+			
+			// fully download
 			buffer.transferFully(stream);
 			
 			return buffer.getByteBuffer();
@@ -144,13 +153,13 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		}
 	}
 	
-
+	
 	@Override
 	public int hashCode() {
 		return getProperty(Property.IDSubtitle).hashCode();
 	}
 	
-
+	
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof OpenSubtitlesSubtitleDescriptor) {
@@ -161,7 +170,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 		return false;
 	}
 	
-
+	
 	@Override
 	public String toString() {
 		return String.format("%s [%s]", getName(), getLanguageName());
