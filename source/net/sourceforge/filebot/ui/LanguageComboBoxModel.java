@@ -24,13 +24,13 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 	
 	private List<Language> values = availableLanguages();
 	
-
+	
 	public LanguageComboBoxModel(boolean requireSpecificLanguage, Language initialSelection) {
 		this.requireSpecificLanguage = requireSpecificLanguage;
 		this.selection = initialSelection;
 	}
 	
-
+	
 	@Override
 	public Language getElementAt(int index) {
 		// "All Languages"
@@ -52,78 +52,79 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 		return values.get(index);
 	}
 	
-
+	
 	@Override
 	public int getSize() {
 		// "All Languages" : favorites[] : values[]
 		return (requireSpecificLanguage ? 0 : 1) + favorites.size() + values.size();
 	}
 	
-
+	
 	public List<Language> favorites() {
 		return favorites;
 	}
 	
-
+	
 	@Override
 	public Language getSelectedItem() {
 		return selection;
 	}
 	
-
+	
 	@Override
 	public void setSelectedItem(Object value) {
 		if (value instanceof Language) {
-			selection = (Language) value;
+			Language language = (Language) value;
+			selection = ALL_LANGUAGES.getCode().equals(language.getCode()) ? ALL_LANGUAGES : language;
 		}
 	}
 	
-
+	
 	protected int convertFavoriteIndexToModel(int favoriteIndex) {
 		return (requireSpecificLanguage ? 0 : 1) + favoriteIndex;
 	}
 	
-
+	
 	protected void fireFavoritesAdded(int from, int to) {
 		fireIntervalAdded(this, convertFavoriteIndexToModel(from), convertFavoriteIndexToModel(to));
 	}
 	
-
+	
 	protected void fireFavoritesRemoved(int from, int to) {
 		fireIntervalRemoved(this, convertFavoriteIndexToModel(from), convertFavoriteIndexToModel(to));
 	}
 	
-
+	
 	private class Favorites extends AbstractList<Language> implements Set<Language> {
 		
 		private final List<Language> data;
 		
 		private final int capacity;
 		
-
+		
 		public Favorites(int capacity) {
 			this.data = new ArrayList<Language>(capacity);
 			this.capacity = capacity;
 		}
 		
-
+		
 		@Override
 		public Language get(int index) {
 			return data.get(index);
 		}
 		
-
+		
 		public boolean add(Language element) {
 			// add first
 			return addIfAbsent(0, element);
 		}
 		
-
+		
 		public void add(int index, Language element) {
 			addIfAbsent(index, element);
 		}
 		
-
+		
 		public boolean addIfAbsent(int index, Language element) {
 			// 1. ignore null values
 			// 2. ignore ALL_LANGUAGES
@@ -149,7 +150,7 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 			return true;
 		}
 		
-
+		
 		@Override
 		public boolean contains(Object obj) {
 			// check via language code, because data consists of clones
@@ -165,7 +166,7 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 			return false;
 		}
 		
-
+		
 		@Override
 		public Language remove(int index) {
 			Language old = data.remove(index);
@@ -176,7 +177,7 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 			return old;
 		}
 		
-
+		
 		@Override
 		public int size() {
 			return data.size();
