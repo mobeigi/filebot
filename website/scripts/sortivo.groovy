@@ -41,11 +41,11 @@ def groups = input.groupBy{ f ->
 groups.each{ group, files ->
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
-		return rename(file:files, format:'TV Shows/{n} - {s00e00} - {t}', db:'TheTVDB')
+		rename(file:files, format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB')
 	}
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
-		return rename(file:files, format:'Movies/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
+		rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
 	}
 }
