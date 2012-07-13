@@ -320,7 +320,7 @@ public class MediaDetection {
 			terms.add(reduceMovieName(getName(movieFolder)));
 		}
 		
-		List<Movie> movieNameMatches = matchMovieName(terms, strict);
+		List<Movie> movieNameMatches = matchMovieName(terms, strict, 3);
 		
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
@@ -330,7 +330,7 @@ public class MediaDetection {
 		
 		// if matching name+year failed, try matching only by name
 		if (movieNameMatches.isEmpty() && strict) {
-			movieNameMatches = matchMovieName(terms, false);
+			movieNameMatches = matchMovieName(terms, false, 3);
 		}
 		
 		// assume name without spacing will mess up any lookup
@@ -411,9 +411,9 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<Movie> matchMovieName(final List<String> files, final boolean strict) throws Exception {
+	public static List<Movie> matchMovieName(final List<String> files, boolean strict, int maxStartIndex) throws Exception {
 		// cross-reference file / folder name with movie list
-		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(3);
+		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
 		
 		for (Entry<String, Movie> movie : getMovieIndex()) {

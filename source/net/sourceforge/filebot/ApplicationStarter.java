@@ -262,8 +262,8 @@ public class ApplicationStarter {
 					// pre-load movie/series index
 					List<String> dummy = Collections.singletonList("");
 					MediaDetection.stripReleaseInfo(dummy, true);
-					MediaDetection.matchSeriesByName(dummy, 0);
-					MediaDetection.matchMovieName(dummy, true);
+					MediaDetection.matchSeriesByName(dummy, -1);
+					MediaDetection.matchMovieName(dummy, true, -1);
 					
 					// pre-load Groovy script engine
 					new ExpressionFormat("").format("");
