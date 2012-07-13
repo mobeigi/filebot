@@ -211,9 +211,22 @@ public class ArgumentProcessor {
 			boolean trusted = trustRemoteScript;
 			
 			// special handling for endorsed online scripts
-			if (uri.getScheme().endsWith("fn")) {
-				url = "http://filebot.sourceforge.net/scripts/" + uri.getAuthority() + ".groovy";
-				trusted = true;
+			if (uri.getScheme().equals("fn")) {
+				String path = "/scripts/" + uri.getAuthority() + ".groovy";
+				
+				// check for local override
+				File local = new File(getApplicationFolder(), path);
+				if (local.exists()) {
+					CLILogger.finest(String.format("[resolve] %s => %s", uri, local));
+					return new Script(readAll(new InputStreamReader(new FileInputStream(local), "UTF-8")), true);
+				} else {
+					// script repository
+					URL remote = new URL("http", "filebot.sourceforge.net", path);
+					CLILogger.finest(String.format("[resolve] %s => %s", uri, remote));
+					
+					url = remote.toString();
+					trusted = true;
+				}
 			}
 			
 			// fetch remote script only if modified
