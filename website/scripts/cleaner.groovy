@@ -4,7 +4,9 @@
  * Delete orphaned "clutter" files like nfo, jpg, etc and sample files
  */
 def isClutter(f) {
-	f.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/ || f.hasExtension("jpg", "jpeg", "png", "gif", "nfo", "xml", "htm", "html", "log", "srt", "sub", "idx", "md5", "sfv", "txt", "rtf", "url", "db", "dna")
+	def blacklist = f.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/ && f.length() < 100 * 1024 * 1024  
+	def extension = f.hasExtension("jpg", "jpeg", "png", "gif", "nfo", "xml", "htm", "html", "log", "srt", "sub", "idx", "md5", "sfv", "txt", "rtf", "url", "db", "dna")
+	return blacklist || extension // path contains blacklisted terms or extension is blacklisted
 }
 
 
