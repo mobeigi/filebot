@@ -29,7 +29,7 @@ include("fn:lib/xbmc")
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
 	def tvs = detectSeriesName(f)
-	def mov = detectMovie(f, false)
+	def mov = (parseEpisodeNumber(f) || parseDate(f)) ? null : detectMovie(f, false) // skip movie detection if we can already tell it's an episode
 	println "$f.name [series: $tvs, movie: $mov]"
 	
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
