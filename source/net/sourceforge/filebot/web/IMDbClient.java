@@ -99,7 +99,7 @@ public class IMDbClient implements MovieIdentificationService {
 			if (header.toUpperCase().contains("(VG)")) // ignore video games
 				return null;
 			
-			String name = selectString("//H1/A/text()", dom);
+			String name = selectString("//H1/A/text()", dom).replaceAll("\\s+", " ").trim();
 			String year = new Scanner(selectString("//H1/A/following::A/text()", dom)).useDelimiter("\\D+").next();
 			String url = selectString("//H1/A/@href", dom);
 			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url));
