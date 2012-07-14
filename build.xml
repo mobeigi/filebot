@@ -127,10 +127,6 @@
 				<include name="META-INF/services/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ivy.jar">
-				<include name="org/apache/ivy/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/icu4j.jar">
 				<include name="com/ibm/icu/**" />
 			</zipfileset>
@@ -149,6 +145,39 @@
 
 			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
+			</zipfileset>
+			
+			<!-- Ivy for @Grapes automatic dependency management -->
+			<zipfileset src="${dir.lib}/scripting/ivy.jar">
+				<include name="org/apache/ivy/**" />
+			</zipfileset>
+			
+			<!-- AntBuilder including dependencies for ant-javamail, ant-commons-net and ant-jsch -->
+			<zipfileset src="${dir.lib}/scripting/ant.jar">
+				<include name="org/apache/tools/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/ant-launcher.jar">
+				<include name="org/apache/tools/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/ant-commons-net.jar">
+				<include name="org/apache/tools/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/ant-jsch.jar">
+				<include name="org/apache/tools/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/ant-javamail.jar">
+				<include name="org/apache/tools/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/commons-net.jar">
+				<include name="org/apache/commons/net/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/jsch.jar">
+				<include name="com/jcraft/jsch/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/scripting/mail.jar">
+				<include name="javax/mail/**" />
+				<include name="com/sun/mail/**" />
+				<include name="META-INF/*mail*" />
 			</zipfileset>
 		</jar>
 	</target>

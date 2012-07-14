@@ -40,9 +40,9 @@
 		<jar href="slf4j.jar"         download="eager" />
 		<jar href="slf4j-jdk.jar"     download="eager" />
 		<jar href="jgat-custom.jar"   download="eager" />
-		<jar href="json-simple.jar"   download="lazy" />
 		<jar href="xmlrpc.jar"        download="eager" />
 		<jar href="sublight-ws.jar"   download="eager" />
+		<jar href="json-simple.jar"   download="lazy" />
 		<jar href="junrar-custom.jar" download="lazy" />
 		<jar href="nekohtml.jar"      download="lazy" part="scraper" />
 		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
@@ -66,5 +66,5 @@
 		<nativelib href="native/mac-x86_64.jar"  download="lazy" part="native" />
 	</resources>
 	
-	<application-desc main-class="net.sourceforge.filebot.ApplicationStarter" />
+	<application-desc main-class="net.sourceforge.filebot.Main" />
 </jnlp>
