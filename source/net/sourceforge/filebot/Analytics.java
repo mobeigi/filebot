@@ -31,8 +31,6 @@ public class Analytics {
 	
 	
 	public static synchronized JGoogleAnalyticsTracker getTracker() {
-		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything
-		Logger.getLogger("com.dmurph.tracking").setLevel(Level.OFF);
 		
 		if (tracker != null)
 			return tracker;
@@ -250,6 +248,12 @@ public class Analytics {
 	 */
 	private Analytics() {
 		throw new UnsupportedOperationException();
+	}
+	
+	
+	static {
+		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything
+		Logger.getLogger("com.dmurph.tracking").setLevel(Level.OFF);
 	}
 	
 }
