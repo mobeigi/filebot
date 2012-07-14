@@ -43,29 +43,51 @@ public final class TunedUtilities {
 	
 	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
 	
-
+	
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("Method must be accessed from the Swing Event Dispatch Thread, but was called on Thread \"" + Thread.currentThread().getName() + "\"");
 		}
 	}
 	
-
+	
+	public static Color interpolateHSB(Color c1, Color c2, float f) {
+		float[] hsb1 = Color.RGBtoHSB(c1.getRed(), c1.getGreen(), c1.getBlue(), null);
+		float[] hsb2 = Color.RGBtoHSB(c2.getRed(), c2.getGreen(), c2.getBlue(), null);
+		float[] hsb = new float[3];
+		
+		for (int i = 0; i < hsb.length; i++) {
+			hsb[i] = hsb1[i] + ((hsb2[i] - hsb1[i]) * f);
+		}
+		
+		return Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+	}
+	
+	
+	public static String escapeHTML(String s) {
+		char[] sc = new char[] { '&', '<', '>', '"', '\'' };
+		for (char c : sc) {
+			s = s.replace(Character.toString(c), String.format("&#%d;", (int) c)); // e.g. &#38;
+		}
+		return s;
+	}
+	
+	
 	public static Color derive(Color color, float alpha) {
 		return new Color(((int) ((alpha * 255)) << 24) | (color.getRGB() & 0x00FFFFFF), true);
 	}
 	
-
+	
 	public static boolean isShiftDown(ActionEvent evt) {
 		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK);
 	}
 	
-
+	
 	public static boolean checkModifiers(int modifiers, int mask) {
 		return ((modifiers & mask) == mask);
 	}
 	
-
+	
 	public static JButton createImageButton(Action action) {
 		JButton button = new JButton(action);
 		button.setHideActionText(true);
@@ -74,7 +96,7 @@ public final class TunedUtilities {
 		return button;
 	}
 	
-
+	
 	public static void installAction(JComponent component, KeyStroke keystroke, Action action) {
 		Object key = action.getValue(Action.NAME);
 		
@@ -85,7 +107,7 @@ public final class TunedUtilities {
 		component.getActionMap().put(key, action);
 	}
 	
-
+	
 	public static UndoManager installUndoSupport(JTextComponent component) {
 		final UndoManager undoSupport = new UndoManager();
 		
@@ -115,12 +137,12 @@ public final class TunedUtilities {
 		return undoSupport;
 	}
 	
-
+	
 	public static boolean isMaximized(Frame frame) {
 		return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
 	}
 	
-
+	
 	public static List<String> showMultiValueInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
 		String input = showInputDialog(text, initialValue, title, parent);
 		if (input == null || input.isEmpty()) {
@@ -145,7 +167,7 @@ public final class TunedUtilities {
 		return singletonList(input);
 	}
 	
-
+	
 	public static String showInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
 		final StringBuilder buffer = new StringBuilder();
 		SwingUtilities.invokeAndWait(new Runnable() {
@@ -163,7 +185,7 @@ public final class TunedUtilities {
 		return buffer.length() == 0 ? null : buffer.toString();
 	}
 	
-
+	
 	public static Window getWindow(Object component) {
 		if (component instanceof Window)
 			return (Window) component;
@@ -174,7 +196,7 @@ public final class TunedUtilities {
 		return null;
 	}
 	
-
+	
 	public static Point getOffsetLocation(Window owner) {
 		if (owner == null) {
 			Window[] toplevel = Window.getOwnerlessWindows();
@@ -192,7 +214,7 @@ public final class TunedUtilities {
 		return new Point(p.x + d.width / 4, p.y + d.height / 7);
 	}
 	
-
+	
 	public static Image getImage(Icon icon) {
 		if (icon == null)
 			return null;
@@ -210,12 +232,12 @@ public final class TunedUtilities {
 		return image;
 	}
 	
-
+	
 	public static Dimension getDimension(Icon icon) {
 		return new Dimension(icon.getIconWidth(), icon.getIconHeight());
 	}
 	
-
+	
 	public static Timer invokeLater(int delay, final Runnable runnable) {
 		Timer timer = new Timer(delay, new ActionListener() {
 			
@@ -231,7 +253,7 @@ public final class TunedUtilities {
 		return timer;
 	}
 	
-
+	
 	/**
 	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead
 	 * of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
@@ -243,7 +265,7 @@ public final class TunedUtilities {
 			return new DragDropRowMouseInputHandler();
 		}
 		
-
+		
 		protected class DragDropRowMouseInputHandler extends MouseInputHandler {
 			
 			@Override
@@ -258,7 +280,7 @@ public final class TunedUtilities {
 		}
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

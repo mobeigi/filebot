@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.AlphaComposite;
@@ -14,6 +15,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -35,15 +37,18 @@ import net.sourceforge.tuned.ui.GradientStyle;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	
-	private final RenameModel renameModel;
+	private RenameModel renameModel;
 	
-	private final TypeRenderer typeRenderer = new TypeRenderer();
+	private TypeRenderer typeRenderer = new TypeRenderer();
 	
-	private final Color noMatchGradientBeginColor = new Color(0xB7B7B7);
-	private final Color noMatchGradientEndColor = new Color(0x9A9A9A);
+	private Color noMatchGradientBeginColor = new Color(0xB7B7B7);
+	private Color noMatchGradientEndColor = new Color(0x9A9A9A);
 	
-	private final Color warningGradientBeginColor = Color.RED;
-	private final Color warningGradientEndColor = new Color(0xDC143C);
+	private Color warningGradientBeginColor = Color.RED;
+	private Color warningGradientEndColor = new Color(0xDC143C);
+	
+	private Color pathRainbowBeginColor = new Color(0xFF7F50);
+	private Color pathRainbowEndColor = new Color(0x008080);
 	
 	
 	public RenameListCellRenderer(RenameModel renameModel) {
@@ -89,19 +94,26 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			if (renameModel.preserveExtension()) {
 				setText(FileUtilities.getName(file));
 			} else {
-				setText(file.getAbsolutePath());
+				setText(isSelected || !renameModel.hasComplement(index) ? formatPath(file) : colorizePath(file.getAbsoluteFile(), true));
 			}
 		} else if (value instanceof FormattedFuture) {
 			// display progress icon
 			FormattedFuture formattedFuture = (FormattedFuture) value;
+			float matchProbablity = renameModel.hasComplement(index) ? getMatchProbablity(formattedFuture.getMatch()) : 1;
 			
-			if (!renameModel.preserveExtension() && formattedFuture.isDone() && renameModel.hasComplement(index)) {
-				// absolute path mode
-				File targetDir = renameModel.getMatch(index).getCandidate().getParentFile();
-				setText(resolveAbsolutePath(targetDir, formattedFuture.toString()));
+			if (formattedFuture.isDone() && !formattedFuture.isCancelled()) {
+				if (!renameModel.preserveExtension() && renameModel.hasComplement(index)) {
+					// absolute path mode
+					File targetDir = renameModel.getMatch(index).getCandidate().getParentFile();
+					File path = resolveAbsolutePath(targetDir, formattedFuture.toString());
+					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, true));
+				} else {
+					// relative name mode
+					File path = new File(formattedFuture.toString());
+					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, !renameModel.preserveExtension()));
+				}
 			} else {
-				// relative name mode
-				setText(formattedFuture.isDone() && !formattedFuture.isCancelled() ? formattedFuture.toString() : formattedFuture.preview());
+				setText(formattedFuture.preview()); // default text
 			}
 			
 			switch (formattedFuture.getState()) {
@@ -114,7 +126,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			}
 			
 			if (renameModel.hasComplement(index)) {
-				float matchProbablity = getMatchProbablity(formattedFuture.getMatch());
 				setOpaque(true); // enable paint background
 				setBackground(derive(warningGradientBeginColor, (1 - matchProbablity) * 0.5f)); // alpha indicates match probability
 				
@@ -136,16 +147,48 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 	
 	
-	protected String resolveAbsolutePath(File targetDir, String path) {
+	protected String formatPath(File file) {
+		return normalizePathSeparators(file.getPath());
+	}
+	
+	
+	protected String colorizePath(File file, boolean hasExtension) {
+		List<File> path = listPath(file);
+		StringBuilder html = new StringBuilder(512);
+		html.append("<html><nobr>");
+		
+		// colorize parent path
+		for (int i = 0; i < path.size() - 1; i++) {
+			float f = (path.size() <= 2) ? 1 : (float) i / (path.size() - 2);
+			Color c = interpolateHSB(pathRainbowBeginColor, pathRainbowEndColor, f);
+			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(FileUtilities.getName(path.get(i)))));
+		}
+		
+		// only colorize extension
+		if (hasExtension) {
+			html.append(escapeHTML(FileUtilities.getName(file)));
+			String extension = FileUtilities.getExtension(file);
+			if (extension != null) {
+				html.append(String.format("<span style='color:#607080'>.%s</span>", escapeHTML(extension))); // highlight extension
+			}
+		} else {
+			html.append(file.getName());
+		}
+		
+		return html.append("</nobr></html>").toString();
+	}
+	
+	
+	protected File resolveAbsolutePath(File targetDir, String path) {
 		File f = new File(path);
 		if (!f.isAbsolute()) {
 			f = new File(targetDir, path); // resolve path against target folder
 		}
 		
 		try {
-			return f.getCanonicalPath();
+			return f.getCanonicalFile();
 		} catch (Exception e) {
-			return f.getAbsolutePath();
+			return f.getAbsoluteFile();
 		}
 	}
 	

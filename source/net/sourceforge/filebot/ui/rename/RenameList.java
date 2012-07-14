@@ -32,8 +32,8 @@ class RenameList<E> extends FileBotList<E> {
 		// replace default model with given model
 		setModel(model);
 		
+		list.setFixedCellHeight(28); // need a fixed cell high for high performance scrolling
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.setFixedCellHeight(28);
 		
 		list.addMouseListener(dndReorderMouseAdapter);
 		list.addMouseMotionListener(dndReorderMouseAdapter);

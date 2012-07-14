@@ -261,7 +261,7 @@ public final class FileUtilities {
 			return name;
 		
 		// file might be a drive (only has a path, but no name)
-		return file.toString();
+		return replacePathSeparators(file.toString(), "");
 	}
 	
 	
