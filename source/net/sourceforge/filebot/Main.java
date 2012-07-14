@@ -130,7 +130,10 @@ public class Main {
 				System.exit(-1); // starting up UI failed
 			}
 			
-			// pre-load certain classes and resources in the background
+			// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+			MediaTypes.getDefault();
+			
+			// pre-load certain resources in the background
 			warmupCachedResources();
 			
 			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
@@ -261,17 +264,11 @@ public class Main {
 			@Override
 			public void run() {
 				try {
-					// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
-					MediaTypes.getDefault();
-					
 					// pre-load movie/series index
 					List<String> dummy = Collections.singletonList("");
 					MediaDetection.stripReleaseInfo(dummy, true);
 					MediaDetection.matchSeriesByName(dummy, -1);
 					MediaDetection.matchMovieName(dummy, true, -1);
-					
-					// pre-load Groovy script engine
-					new ExpressionFormat("").format("");
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 				}
