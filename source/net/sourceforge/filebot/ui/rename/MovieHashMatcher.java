@@ -2,29 +2,29 @@
 package net.sourceforge.filebot.ui.rename;
 
 
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
+import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -42,7 +42,6 @@ import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -94,7 +93,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// match movie hashes online
-		final Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
 		if (movieFiles.size() > 0) {
 			try {
 				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
@@ -131,53 +130,51 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
 		// match remaining movies file by file in parallel
-		List<Callable<Entry<File, Movie>>> grabMovieJobs = new ArrayList<Callable<Entry<File, Movie>>>();
+		List<Future<Entry<File, Collection<Movie>>>> grabMovieJobs = new ArrayList<Future<Entry<File, Collection<Movie>>>>();
 		
-		// remember user decisions and only bother user once
-		final Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
-		final Map<String, String> inputMemory = new TreeMap<String, String>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
+		// process in parallel
+		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		
 		// map all files by movie
 		for (final File file : movieMatchFiles) {
-			grabMovieJobs.add(new Callable<Entry<File, Movie>>() {
+			if (movieByFile.containsKey(file))
+				continue;
+			
+			grabMovieJobs.add(executor.submit(new Callable<Entry<File, Collection<Movie>>>() {
 				
 				@Override
-				public Entry<File, Movie> call() throws Exception {
-					// unknown hash, try via imdb id from nfo file
-					if (!movieByFile.containsKey(file) || !autodetect) {
-						Movie result = grabMovieName(file, locale, autodetect, selectionMemory, inputMemory, parent, movieByFile.get(file));
-						if (result != null) {
-							Analytics.trackEvent(service.getName(), "SearchMovie", result.toString(), 1);
-						}
-						return new SimpleEntry<File, Movie>(file, result);
-					}
-					return new SimpleEntry<File, Movie>(file, movieByFile.get(file));
+				public SimpleEntry<File, Collection<Movie>> call() throws Exception {
+					return new SimpleEntry<File, Collection<Movie>>(file, detectMovie(file, null, service, locale, false));
 				}
-			});
+			}));
+		}
+		
+		// remember user decisions and only bother user once
+		Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(getLenientCollator(locale));
+		Map<String, String> inputMemory = new TreeMap<String, String>(getLenientCollator(locale));
+		
+		try {
+			for (Future<Entry<File, Collection<Movie>>> it : grabMovieJobs) {
+				// auto-select movie or ask user
+				File movieFile = it.get().getKey();
+				Movie movie = grabMovieName(movieFile, it.get().getValue(), locale, autodetect, selectionMemory, inputMemory, parent);
+				movieByFile.put(movieFile, movie);
+			}
+		} finally {
+			executor.shutdown();
 		}
 		
 		// map movies to (possibly multiple) files (in natural order) 
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
-		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
-		try {
-			for (Future<Entry<File, Movie>> it : executor.invokeAll(grabMovieJobs)) {
-				// check if we managed to lookup the movie descriptor
-				File file = it.get().getKey();
-				Movie movie = it.get().getValue();
-				
-				// get file list for movie
-				if (movie != null) {
-					SortedSet<File> movieParts = filesByMovie.get(movie);
-					if (movieParts == null) {
-						movieParts = new TreeSet<File>();
-						filesByMovie.put(movie, movieParts);
-					}
-					movieParts.add(file);
-				}
+		// collect movie part data
+		for (Entry<File, Movie> it : movieByFile.entrySet()) {
+			SortedSet<File> movieParts = filesByMovie.get(it.getValue());
+			if (movieParts == null) {
+				movieParts = new TreeSet<File>();
+				filesByMovie.put(it.getValue(), movieParts);
 			}
-		} finally {
-			executor.shutdown();
+			movieParts.add(it.getKey());
 		}
 		
 		// collect all File/MoviePart matches
@@ -206,7 +203,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// restore original order
-		Collections.sort(matches, new Comparator<Match<File, ?>>() {
+		sort(matches, new Comparator<Match<File, ?>>() {
 			
 			@Override
 			public int compare(Match<File, ?> o1, Match<File, ?> o2) {
@@ -218,19 +215,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	protected Movie grabMovieName(File movieFile, Locale locale, boolean autodetect, Map<String, Movie> selectionMemory, Map<String, String> inputMemory, Component parent, Movie... suggestions) throws Exception {
-		Set<Movie> options = new LinkedHashSet<Movie>();
-		
-		// add default value if any
-		for (Movie it : suggestions) {
-			if (it != null) {
-				options.add(it);
-			}
-		}
-		
-		// auto-detect movie from nfo or folder / file name
-		options.addAll(detectMovie(movieFile, null, service, locale, false));
-		
+	protected Movie grabMovieName(File movieFile, Collection<Movie> options, Locale locale, boolean autodetect, Map<String, Movie> selectionMemory, Map<String, String> inputMemory, Component parent) throws Exception {
 		// allow manual user input
 		if (options.isEmpty() || !autodetect) {
 			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
@@ -246,11 +231,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				}
 			}
 			
-			// we only care about results from manual input from here on out
-			options.clear();
-			
 			if (input != null) {
-				options.addAll(service.searchMovie(input, locale));
+				options = service.searchMovie(input, locale);
 			}
 		}
 		
@@ -311,6 +293,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.format("%s / %s", folderQuery, fileQuery));
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
+				selectDialog.setMinimumSize(new Dimension(280, 300));
 				selectDialog.pack();
 				
 				// show dialog
