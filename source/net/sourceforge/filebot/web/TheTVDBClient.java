@@ -80,6 +80,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
+	public String getLanguageCode(Locale locale) {
+		String code = locale.getLanguage();
+		
+		// Java language code => TheTVDB language code
+		if (code.equals("iw")) // Hebrew
+			return "he";
+		if (code.equals("hi")) // Hungarian
+			return "hu";
+		if (code.equals("in")) // Indonesian
+			return "id";
+		if (code.equals("ro")) // Russian
+			return "ru";
+		
+		return code;
+	}
+	
+	
 	@Override
 	public ResultCache getCache() {
 		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
@@ -87,9 +104,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	@Override
-	public List<SearchResult> fetchSearchResult(String query, Locale language) throws Exception {
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// perform online search
-		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query) + "&language=" + language.getLanguage());
+		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query) + "&language=" + getLanguageCode(locale));
 		Document dom = getDocument(url);
 		
 		List<Node> nodes = selectNodes("Data/Series", dom);
@@ -109,9 +126,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		Document seriesRecord = getSeriesRecord(series, language);
+		Document seriesRecord = getSeriesRecord(series, getLanguageCode(locale));
 		
 		// we could get the series name from the search result, but the language may not match the given parameter
 		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
@@ -173,43 +190,48 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public Document getSeriesRecord(TheTVDBSearchResult searchResult, Locale language) throws Exception {
-		URL seriesRecord = getResource(MirrorType.ZIP, "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + language.getLanguage() + ".zip");
-		
-		ZipInputStream zipInputStream = new ZipInputStream(seriesRecord.openStream());
-		ZipEntry zipEntry;
+	public Document getSeriesRecord(TheTVDBSearchResult searchResult, String languageCode) throws Exception {
+		URL seriesRecord = getResource(MirrorType.ZIP, "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + languageCode + ".zip");
 		
 		try {
-			String seriesRecordName = language.getLanguage() + ".xml";
 			
-			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-				if (seriesRecordName.equals(zipEntry.getName())) {
-					return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(zipInputStream);
+			ZipInputStream zipInputStream = new ZipInputStream(seriesRecord.openStream());
+			ZipEntry zipEntry;
+			
+			try {
+				String seriesRecordName = languageCode + ".xml";
+				
+				while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+					if (seriesRecordName.equals(zipEntry.getName())) {
+						return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(zipInputStream);
+					}
 				}
+				
+				// zip file must contain the series record
+				throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, seriesRecord));
+			} finally {
+				zipInputStream.close();
 			}
-			
-			// zip file must contain the series record
-			throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, seriesRecord));
-		} finally {
-			zipInputStream.close();
+		} catch (FileNotFoundException e) {
+			throw new IllegalArgumentException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, seriesRecord));
 		}
 	}
 	
 	
-	public TheTVDBSearchResult lookupByID(int id, Locale language) throws Exception {
-		TheTVDBSearchResult cachedItem = getCache().getData("lookupByID", id, language, TheTVDBSearchResult.class);
+	public TheTVDBSearchResult lookupByID(int id, Locale locale) throws Exception {
+		TheTVDBSearchResult cachedItem = getCache().getData("lookupByID", id, locale, TheTVDBSearchResult.class);
 		if (cachedItem != null) {
 			return cachedItem;
 		}
 		
 		try {
-			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + language.getLanguage() + ".xml");
+			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
 			Document baseRecord = getDocument(baseRecordLocation);
 			
 			String name = selectString("//SeriesName", baseRecord);
 			
 			TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
-			getCache().putData("lookupByID", id, language, series);
+			getCache().putData("lookupByID", id, locale, series);
 			return series;
 		} catch (FileNotFoundException e) {
 			// illegal series id
@@ -219,13 +241,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale language) throws Exception {
-		TheTVDBSearchResult cachedItem = getCache().getData("lookupByIMDbID", imdbid, language, TheTVDBSearchResult.class);
+	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
+		TheTVDBSearchResult cachedItem = getCache().getData("lookupByIMDbID", imdbid, locale, TheTVDBSearchResult.class);
 		if (cachedItem != null) {
 			return cachedItem;
 		}
 		
-		URL query = getResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + language.getLanguage());
+		URL query = getResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
 		Document dom = getDocument(query);
 		
 		String id = selectString("//seriesid", dom);
@@ -235,7 +257,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return null;
 		
 		TheTVDBSearchResult series = new TheTVDBSearchResult(name, Integer.parseInt(id));
-		getCache().putData("lookupByIMDbID", imdbid, language, series);
+		getCache().putData("lookupByIMDbID", imdbid, locale, series);
 		return series;
 	}
 	
@@ -410,7 +432,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 		
-		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + locale.getLanguage() + ".xml"));
+		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + getLanguageCode(locale) + ".xml"));
 		
 		Node node = selectNode("//Series", dom);
 		Map<SeriesProperty, String> fields = new EnumMap<SeriesProperty, String>(SeriesProperty.class);
