@@ -325,7 +325,7 @@ public class MediaDetection {
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
 			options.addAll(movieNameMatches);
-			return options;
+			return sortBySimilarity(options, terms);
 		}
 		
 		// if matching name+year failed, try matching only by name
@@ -368,9 +368,17 @@ public class MediaDetection {
 		options.addAll(movieNameMatches);
 		
 		// sort by relevance
-		List<Movie> optionsByRelevance = new ArrayList<Movie>(options);
-		sort(optionsByRelevance, new SimilarityComparator(new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric()), stripReleaseInfo(terms, true).toArray()));
-		return optionsByRelevance;
+		return sortBySimilarity(options, terms);
+	}
+	
+	
+	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
+		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric());
+		List<String> paragon = stripReleaseInfo(terms, true);
+		
+		List<T> sorted = new ArrayList<T>(options);
+		sort(sorted, new SimilarityComparator(metric, paragon.toArray()));
+		return sorted;
 	}
 	
 	
