@@ -141,7 +141,7 @@ class HistoryDialog extends JDialog {
 		pane.add(content, "grow");
 		
 		// initialize selection modes
-		sequenceTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		sequenceTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		elementTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		
 		// bind element model to selected sequence
@@ -153,9 +153,11 @@ class HistoryDialog extends JDialog {
 					return;
 				
 				if (sequenceTable.getSelectedRow() >= 0) {
-					int index = sequenceTable.convertRowIndexToModel(sequenceTable.getSelectedRow());
-					
-					elementModel.setData(sequenceModel.getRow(index).elements());
+					List<Element> elements = new ArrayList<Element>();
+					for (int row : sequenceTable.getSelectedRows()) {
+						elements.addAll(sequenceModel.getRow(sequenceTable.convertRowIndexToModel(row)).elements());
+					}
+					elementModel.setData(elements);
 				}
 			}
 		});
