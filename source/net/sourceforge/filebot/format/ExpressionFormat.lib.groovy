@@ -65,6 +65,13 @@ String.metaClass.upperInitial = { replaceAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[a-
 
 
 /**
+* Get acronym, i.e. first letter of each word.
+*
+* e.g. "Deep Space 9" -> "DS9"
+*/
+String.metaClass.acronym = { findAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[\p{Alnum}]/).join().toUpperCase() }
+
+/**
  * Lower-case all letters that are not initials.
  * 
  * e.g. "Gundam SEED" -> "Gundam Seed"

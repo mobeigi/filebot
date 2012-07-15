@@ -627,11 +627,11 @@ class FormatDialog extends JDialog {
 				// add new format first
 				recent.add(format.getExpression());
 				
-				// add next 4 most recent formats
+				// save the 8 most recent formats
 				for (String expression : mode.persistentFormatHistory()) {
 					recent.add(expression);
 					
-					if (recent.size() >= 5) {
+					if (recent.size() >= 8) {
 						break;
 					}
 				}
