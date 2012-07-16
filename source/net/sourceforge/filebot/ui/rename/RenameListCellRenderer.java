@@ -104,9 +104,17 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 			if (formattedFuture.isDone() && !formattedFuture.isCancelled()) {
 				if (!renameModel.preserveExtension() && renameModel.hasComplement(index)) {
 					// absolute path mode
-					File targetDir = renameModel.getMatch(index).getCandidate().getParentFile();
+					File file = renameModel.getMatch(index).getCandidate();
+					File targetDir = file.getParentFile();
 					File path = resolveAbsolutePath(targetDir, formattedFuture.toString());
 					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, true));
+					
+					String ext = getExtension(path);
+					typeRenderer.setText(ext != null ? ext.toLowerCase() : "!");
+					if (file.isDirectory()) {
+						typeRenderer.setText("Folder");
+					}
+					typeRenderer.setVisible(true);
 				} else {
 					// relative name mode
 					File path = new File(formattedFuture.toString());
