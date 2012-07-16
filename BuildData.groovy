@@ -80,7 +80,7 @@ imdb.collect{ it.join('\t') }.join('\n').saveAs(imdb_tsv)
 def movies = imdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
 
 def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
-movies.each{ movieSorter.put(it[1], it) }
+movies.each{ movieSorter.put(it[1]+it[2], it) }
 movies = movieSorter.values().collect{ it.join('\t') }
 
 gz(movies_out, movies)
