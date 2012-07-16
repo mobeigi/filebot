@@ -165,13 +165,13 @@ import net.sourceforge.filebot.similarity.*
 
 def parseEpisodeNumber(path, strict = true) {
 	def input = path instanceof File ? path.name : path.toString()
-	def sxe = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(input)
+	def sxe = MediaDetection.parseEpisodeNumber(input, strict)
 	return sxe == null || sxe.isEmpty() ? null : sxe[0]
 }
 
 def parseDate(path) {
 	def input = path instanceof File ? path.name : path.toString()
-	return new DateMetric().parse(input)
+	return MediaDetection.parseDate(input)
 }
 
 def detectSeriesName(files, locale = Locale.ENGLISH) {

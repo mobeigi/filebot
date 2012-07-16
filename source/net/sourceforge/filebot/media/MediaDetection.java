@@ -41,13 +41,16 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.DateMatcher;
+import net.sourceforge.filebot.similarity.DateMetric;
 import net.sourceforge.filebot.similarity.MetricAvg;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
@@ -70,6 +73,21 @@ public class MediaDetection {
 	
 	public static boolean isNonClutter(File file) {
 		return NON_CLUTTER_FILES.accept(file);
+	}
+	
+	
+	public static boolean isEpisode(String name, boolean strict) {
+		return parseEpisodeNumber(name, strict) != null || parseDate(name) != null;
+	}
+	
+	
+	public static List<SxE> parseEpisodeNumber(String string, boolean strict) {
+		return new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(string);
+	}
+	
+	
+	public static Date parseDate(Object object) {
+		return new DateMetric().parse(object);
 	}
 	
 	

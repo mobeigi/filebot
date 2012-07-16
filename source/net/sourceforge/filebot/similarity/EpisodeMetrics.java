@@ -330,7 +330,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		name = normalizePunctuation(name);
 		
 		// normalize to lower case
-		name.toLowerCase();
+		name = name.toLowerCase();
 		
 		transformCache.put(object, name);
 		return name;

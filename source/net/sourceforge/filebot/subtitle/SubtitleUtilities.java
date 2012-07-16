@@ -3,7 +3,10 @@ package net.sourceforge.filebot.subtitle;
 
 
 import static java.lang.Math.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
@@ -16,12 +19,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
+import net.sourceforge.filebot.similarity.Match;
+import net.sourceforge.filebot.similarity.Matcher;
+import net.sourceforge.filebot.similarity.MetricAvg;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.ArchiveType;
@@ -33,13 +43,35 @@ import net.sourceforge.filebot.web.SubtitleProvider;
 
 public final class SubtitleUtilities {
 	
+	public static Map<File, SubtitleDescriptor> matchSubtitles(Collection<File> files, Collection<SubtitleDescriptor> subtitles, boolean strict) throws InterruptedException {
+		Map<File, SubtitleDescriptor> subtitleByVideo = new LinkedHashMap<File, SubtitleDescriptor>();
+		
+		SimilarityMetric[] metrics = EpisodeMetrics.defaultSequence(false);
+		
+		// optimize for generic media <-> subtitle matching
+		replaceAll(asList(metrics), EpisodeMetrics.SubstringFields, EpisodeMetrics.SubstringSequence);
+		
+		// first match everything as best as possible, then filter possibly bad matches
+		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);
+		SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+		
+		for (Match<File, SubtitleDescriptor> it : matcher.match()) {
+			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.5f)) {
+				subtitleByVideo.put(it.getValue(), it.getCandidate());
+			}
+		}
+		
+		return subtitleByVideo;
+	}
+	
+	
 	public static List<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<String> querySet, String languageName) throws Exception {
 		List<SubtitleDescriptor> subtitles = new ArrayList<SubtitleDescriptor>();
 		
 		// search for and automatically select movie / show entry
 		Set<SearchResult> resultSet = new HashSet<SearchResult>();
 		for (String query : querySet) {
-			resultSet.addAll(findProbableMatches(query, service.search(query), 0.9f));
+			resultSet.addAll(findProbableSearchResults(query, service.search(query)));
 		}
 		
 		// fetch subtitles for all search results
@@ -50,17 +82,17 @@ public final class SubtitleUtilities {
 		return subtitles;
 	}
 	
-
-	protected static Collection<SearchResult> findProbableMatches(String query, Iterable<? extends SearchResult> searchResults, float threshold) {
+	
+	protected static Collection<SearchResult> findProbableSearchResults(String query, Iterable<? extends SearchResult> searchResults) {
 		// auto-select most probable search result
 		Set<SearchResult> probableMatches = new LinkedHashSet<SearchResult>();
 		
 		// use name similarity metric
-		SimilarityMetric metric = new NameSimilarityMetric();
+		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric());
 		
 		// find probable matches using name similarity > threshold
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(query, result.getName()) > threshold) {
+			if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f) {
 				probableMatches.add(result);
 			}
 		}
@@ -68,7 +100,7 @@ public final class SubtitleUtilities {
 		return probableMatches;
 	}
 	
-
+	
 	/**
 	 * Detect charset and parse subtitle file even if extension is invalid
 	 */
@@ -108,7 +140,7 @@ public final class SubtitleUtilities {
 		throw new IOException("Cannot read subtitle format");
 	}
 	
-
+	
 	public static ByteBuffer exportSubtitles(MemoryFile data, SubtitleFormat outputFormat, long outputTimingOffset, Charset outputEncoding) throws IOException {
 		if (outputFormat != null && outputFormat != SubtitleFormat.SubRip) {
 			throw new IllegalArgumentException("Format not supported");
@@ -134,7 +166,7 @@ public final class SubtitleUtilities {
 		return outputEncoding.encode(getText(data.getData()));
 	}
 	
-
+	
 	public static SubtitleFormat getSubtitleFormat(File file) {
 		for (SubtitleFormat it : SubtitleFormat.values()) {
 			if (it.getFilter().accept(file))
@@ -144,7 +176,7 @@ public final class SubtitleUtilities {
 		return null;
 	}
 	
-
+	
 	public static SubtitleFormat getSubtitleFormatByName(String name) {
 		for (SubtitleFormat it : SubtitleFormat.values()) {
 			// check by name
@@ -159,7 +191,7 @@ public final class SubtitleUtilities {
 		return null;
 	}
 	
-
+	
 	public static String formatSubtitle(String name, String languageName, String type) {
 		StringBuilder sb = new StringBuilder(name);
 		
@@ -181,7 +213,7 @@ public final class SubtitleUtilities {
 		return sb.toString();
 	}
 	
-
+	
 	public static MemoryFile fetchSubtitle(SubtitleDescriptor descriptor) throws Exception {
 		ByteBuffer data = descriptor.fetch();
 		
@@ -203,7 +235,7 @@ public final class SubtitleUtilities {
 		return new MemoryFile(descriptor.getPath(), data);
 	}
 	
-
+	
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */

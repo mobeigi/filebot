@@ -59,9 +59,7 @@ import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
@@ -711,26 +709,19 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
-		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>();
-		
 		// search for subtitles
 		List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, language.getName());
 		
 		// match subtitle files to video files
 		if (subtitles.size() > 0) {
-			// first match everything as best as possible, then filter possibly bad matches
-			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(videoFiles, subtitles, false, EpisodeMetrics.defaultSequence(true));
-			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
-			
-			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.5f)) {
-					CLILogger.finest(format("Matched [%s] to [%s] via filename", it.getValue().getName(), it.getCandidate().getName()));
-					subtitleByVideo.put(it.getValue(), it.getCandidate());
-				}
+			Map<File, SubtitleDescriptor> subtitleByVideo = matchSubtitles(videoFiles, subtitles, strict);
+			for (Entry<File, SubtitleDescriptor> it : subtitleByVideo.entrySet()) {
+				CLILogger.finest(format("Matched [%s] to [%s] via filename", it.getKey().getName(), it.getValue().getName()));
 			}
+			return subtitleByVideo;
 		}
 		
-		return subtitleByVideo;
+		return emptyMap();
 	}
 	
 	

@@ -61,10 +61,10 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.Matcher;
+import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -437,7 +437,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				}
 				if (f < 0.9f) {
 					setOpaque(true);
-					setBackground(derive(Color.RED, 1 - (f * 0.75f)));
+					setBackground(derive(Color.RED, (1 - f) * 0.5f));
 				}
 			}
 			
@@ -968,20 +968,32 @@ class SubtitleAutoMatchDialog extends JDialog {
 		
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
-			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
-			for (File file : files) {
-				subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
-			}
+			// ignore clutter files from processing
+			files = filter(files, NON_CLUTTER_FILES);
 			
 			// auto-detect query and search for subtitles
-			Collection<String> querySet = detectSeriesNames(files, Locale.ENGLISH);
+			Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+			
+			// auto-detect series names
+			querySet.addAll(detectSeriesNames(files, Locale.ROOT));
+			
+			// auto-detect movie names
+			for (File f : files) {
+				if (!isEpisode(f.getName(), false)) {
+					for (Movie movie : detectMovie(f, null, null, Locale.ROOT, false)) {
+						querySet.add(movie.getName());
+					}
+				}
+			}
+			
 			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 			
 			// if auto-detection fails, ask user for input
 			if (subtitles.isEmpty()) {
 				// dialog may have been cancelled by now
-				if (Thread.interrupted())
+				if (Thread.interrupted()) {
 					throw new CancellationException();
+				}
 				
 				querySet = inputProvider.getUserQuery(join(querySet, ","), service.getName(), parent);
 				subtitles = findSubtitles(service, querySet, languageName);
@@ -992,18 +1004,20 @@ class SubtitleAutoMatchDialog extends JDialog {
 				}
 			}
 			
-			// first match everything as best as possible, then filter possibly bad matches
-			Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, EpisodeMetrics.defaultSequence(true));
-			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+			// files by possible subtitles matches
+			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
+			for (File file : files) {
+				subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
+			}
 			
-			for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-				if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
-					subtitlesByFile.get(it.getValue()).add(it.getCandidate());
-				}
+			// first match everything as best as possible, then filter possibly bad matches
+			for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
+				subtitlesByFile.get(it.getKey()).add(it.getValue());
 			}
 			
 			// add other possible matches to the options
-			float minMatchSimilarity = 0.6f;
+			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+			float minMatchSimilarity = 0.5f;
 			
 			for (File file : files) {
 				// add matching subtitles
@@ -1020,7 +1034,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 		
 		@Override
 		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
-			return EpisodeMetrics.verificationMetric().getSimilarity(videoFile, descriptor) * 0.9f;
+			SimilarityMetric metric = new MetricCascade(EpisodeMetrics.SeasonEpisode, EpisodeMetrics.AirDate, EpisodeMetrics.Name);
+			return 0.9f * metric.getSimilarity(videoFile, descriptor);
 		}
 	}
 	
