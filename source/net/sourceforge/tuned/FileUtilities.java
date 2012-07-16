@@ -46,13 +46,15 @@ public final class FileUtilities {
 		// resolve destination
 		destination = resolveDestination(source, destination);
 		
-		if (source.isDirectory()) { // move folder
-			moveFolderIO(source, destination);
-		} else { // move file
+		if (source.isDirectory()) {
+			// move folder
+			org.apache.commons.io.FileUtils.moveDirectory(source, destination);
+		} else {
+			// move file
 			try {
-				moveFileNIO2(source, destination);
+				java.nio.file.Files.move(source.toPath(), destination.toPath());
 			} catch (LinkageError e) {
-				moveFileIO(source, destination);
+				org.apache.commons.io.FileUtils.moveFile(source, destination); // use "copy and delete" as fallback if standard rename fails
 			}
 		}
 		
@@ -60,31 +62,20 @@ public final class FileUtilities {
 	}
 	
 	
-	private static void moveFileNIO2(File source, File destination) throws IOException {
-		java.nio.file.Files.move(source.toPath(), destination.toPath());
-	}
-	
-	
-	private static void moveFileIO(File source, File destination) throws IOException {
-		// use "copy and delete" as fallback if standard rename fails
-		org.apache.commons.io.FileUtils.moveFile(source, destination);
-	}
-	
-	
-	private static void moveFolderIO(File source, File destination) throws IOException {
-		// use "copy and delete" as fallback if standard move/rename fails
-		org.apache.commons.io.FileUtils.moveDirectory(source, destination);
-	}
-	
-	
 	public static File copyAs(File source, File destination) throws IOException {
 		// resolve destination
 		destination = resolveDestination(source, destination);
 		
-		if (source.isDirectory()) { // copy folder
+		if (source.isDirectory()) {
+			// copy folder
 			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-		} else { // copy file
-			org.apache.commons.io.FileUtils.copyFile(source, destination);
+		} else {
+			// copy file
+			try {
+				java.nio.file.Files.copy(source.toPath(), destination.toPath());
+			} catch (LinkageError e) {
+				org.apache.commons.io.FileUtils.copyFile(source, destination);
+			}
 		}
 		
 		return destination;
