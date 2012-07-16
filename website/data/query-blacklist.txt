@@ -1,9 +1,6 @@
-(?-i:CLASSIC|CLASSiC)
 (?-i:ENGLISH)
 (?-i:FRENCH)
 (?-i:GERMAN)
-(?-i:LAB)
-(?-i:LIMITED|LiMiTED)
 (?-i:SPANISH)
 (?-i:SWEDISH|SWEDiSH)
 .+sample$
@@ -19,13 +16,13 @@
 ^AUDIO_TS$
 ^BDMV$
 ^Cover
+^download[s]?$
 ^DVD
 ^Film[s]?
 ^HVDVD_TS$
 ^Movie[s]?
 ^new$
 ^other$
-^SAMPLE
 ^Season.[0-9]+
 ^Torrents[s]?
 ^Tracker
@@ -43,6 +40,7 @@ CBC
 CD[0]?[1-3]
 Channel.4
 Channel.5
+CLASSIC
 CN
 CVCD
 DC
@@ -83,6 +81,8 @@ k.tk.crew
 KIDZCORNER
 KOR
 KORSUB
+LAB
+LIMITED
 LMAO
 Los.Sustitutos
 mkvonly

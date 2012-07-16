@@ -3,7 +3,7 @@
 
 def sortRegexList(path) {
 	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
-	new File(path).eachLine{
+	new File(path).eachLine('UTF-8'){
 		// check if regex compiles
 		set += java.util.regex.Pattern.compile(it).pattern()
 	}
@@ -26,7 +26,7 @@ def movies_out = new File("website/data/movies.txt.gz")
 
 def gz(file, lines) {
 	file.withOutputStream{ out ->
-		new java.util.zip.GZIPOutputStream(out).withWriter('utf-8'){ writer ->
+		new java.util.zip.GZIPOutputStream(out).withWriter('UTF-8'){ writer ->
 			lines.each{ writer.append(it).append('\n') }
 		}
 	}
@@ -91,17 +91,22 @@ println "Movie Count: " + movies.size()
 
 
 // BUILD series.list.gz
+
+// TheTVDB
 def thetvdb_index = new URL('http://thetvdb.com/?string=&searchseriesid=&tab=listseries&function=Search')
 def thetvdb_names = thetvdb_index.fetch().getHtml('UTF-8')
 .depthFirst().TABLE.find{it['@id'] == "listtable"}
 .depthFirst().TR.findAll{ it.TD.size() == 3 && it.TD[1].text() == 'English'}
 .findResults{ it.TD[0].A.text() }
 
-
-def imdb_series_names = imdb.findAll{ it.size() >= 3 && it[1].startsWith('"') }.collect{ it[1] }
+// AniDB
 def anidb_names = net.sourceforge.filebot.WebServices.AniDB.getAnimeTitles().findResults{ [it.getPrimaryTitle(), it.getOfficialTitle('en')] }.flatten()
 
 /*
+// IMDb series list
+def imdb_series_names = imdb.findAll{ it.size() >= 3 && it[1].startsWith('"') }.collect{ it[1] }
+
+// Dokuwiki list
 def dokuwiki_index = new URL('http://docuwiki.net/postbot/getList.php?subject=Name')
 def doku_names = []
 dokuwiki_index.getText('UTF-8').eachLine{
@@ -109,7 +114,7 @@ dokuwiki_index.getText('UTF-8').eachLine{
 }
 */
 
-def names = [thetvdb_names, imdb_series_names, anidb_names]
+def names = [thetvdb_names, anidb_names]
 names.each{ if (it.size() == 0) throw new Exception("Failed to scrape series names") } // sanity check
 names = names.flatten().findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) } // collect and normalize names
 
