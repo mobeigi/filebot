@@ -115,9 +115,13 @@
 				<include name="org/apache/commons/io/**" />
 			</zipfileset>
 
+			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/jna.jar">
-				<!-- include classes and native libraries -->
 				<include name="com/sun/jna/**" />
+			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/platform.jar">
+				<include name="com/sun/jna/platform/win32/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/groovy.jar">
