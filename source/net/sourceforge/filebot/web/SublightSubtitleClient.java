@@ -7,7 +7,9 @@ import static java.util.Collections.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URI;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,15 +52,11 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	
 	private final ClientInfo clientInfo = new ClientInfo();
 	
+	private String username;
+	private String passwordHash;
+	
 	private SublightSoap webservice;
-	
 	private String session;
-	
-	
-	public SublightSubtitleClient(String clientIdentity, String apikey) {
-		clientInfo.setClientId(clientIdentity);
-		clientInfo.setApiKey(apikey);
-	}
 	
 	
 	@Override
@@ -356,7 +354,35 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	}
 	
 	
+	public synchronized void setClient(String id, String key) {
+		clientInfo.setClientId(id);
+		clientInfo.setApiKey(key);
+		
+	}
+	
+	
+	public synchronized void setUser(String username, String password) {
+		this.username = username;
+		this.passwordHash = getPasswordHash(password);
+	}
+	
+	
+	public String getPasswordHash(String password) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			digest.update(password.getBytes("UTF-16LE"));
+			return String.format("%032x", new BigInteger(1, digest.digest()));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	
 	protected synchronized void login() throws WebServiceException {
+		if (clientInfo.getClientId() == null || clientInfo.getClientId().isEmpty()) {
+			throw new IllegalStateException("Sublight login has not been configured");
+		}
+		
 		if (webservice == null) {
 			// lazy initialize because all the JAX-WS class loading can take quite some time
 			webservice = new Sublight().getSublightSoap();
@@ -370,7 +396,11 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 			Holder<String> session = new Holder<String>();
 			Holder<String> error = new Holder<String>();
 			
-			webservice.logInAnonymous4(clientInfo, args, session, null, error);
+			if (username == null || username.isEmpty()) {
+				webservice.logInAnonymous4(clientInfo, args, session, null, error);
+			} else {
+				webservice.logIn6(username, passwordHash, clientInfo, args, session, null, null, null, null, error);
+			}
 			
 			// abort if something went wrong
 			checkError(error);

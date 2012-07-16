@@ -11,6 +11,7 @@ import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
+import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.TMDbClient;
@@ -37,6 +38,7 @@ public final class WebServices {
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
+	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient();
 	
 	// fanart.tv
 	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
@@ -53,12 +55,12 @@ public final class WebServices {
 	
 	
 	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles, Subscene };
+		return new SubtitleProvider[] { OpenSubtitles, Sublight, Subscene };
 	}
 	
 	
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
-		return new VideoHashSubtitleService[] { OpenSubtitles };
+		return new VideoHashSubtitleService[] { OpenSubtitles, Sublight };
 	}
 	
 	
@@ -87,6 +89,29 @@ public final class WebServices {
 	 */
 	private WebServices() {
 		throw new UnsupportedOperationException();
+	}
+	
+	
+	/**
+	 * Initialize client settings from system properties
+	 */
+	static {
+		String[] osdbLogin = getLogin(System.getProperty("osdb.user"));
+		OpenSubtitles.setUser(osdbLogin[0], osdbLogin[1]);
+		
+		String[] sublightClientLogin = getLogin(System.getProperty("sublight.client"));
+		Sublight.setClient(sublightClientLogin[0], sublightClientLogin[1]);
+		
+		String[] sublightUserLogin = getLogin(System.getProperty("sublight.user"));
+		Sublight.setUser(sublightUserLogin[0], sublightUserLogin[1]);
+	}
+	
+	
+	private static String[] getLogin(String login) {
+		if (login == null)
+			return new String[] { "", "" };
+		
+		return login.split(":", 2);
 	}
 	
 }

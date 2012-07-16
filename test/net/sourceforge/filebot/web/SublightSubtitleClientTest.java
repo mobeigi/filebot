@@ -18,12 +18,13 @@ import net.sublight.webservice.Subtitle;
 
 public class SublightSubtitleClientTest {
 	
-	private static SublightSubtitleClient client = new SublightSubtitleClient(null, null); // BROKEN SINCE SUBLIGHT RESTRICTED API ACCESS
+	private static SublightSubtitleClient client = new SublightSubtitleClient();
 	
 	
 	@BeforeClass
 	public static void login() {
-		// login manually
+		client.setClient("SublightCmd", "12c72276-b95f-4144-bb2a-879775c71437");
+		client.setUser("filebot-test", "correcthorsebatterystaple");
 		client.login();
 	}
 	

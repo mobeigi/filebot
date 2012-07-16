@@ -43,9 +43,18 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	private final OpenSubtitlesXmlRpc xmlrpc;
 	
+	private String username = "";
+	private String password = "";
+	
 	
 	public OpenSubtitlesClient(String useragent) {
 		this.xmlrpc = new OpenSubtitlesXmlRpc(useragent);
+	}
+	
+	
+	public void setUser(String username, String password) {
+		this.username = username;
+		this.password = password;
 	}
 	
 	
@@ -255,7 +264,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	protected synchronized void login() throws Exception {
 		if (!xmlrpc.isLoggedOn()) {
-			xmlrpc.loginAnonymous();
+			xmlrpc.login(username, password, "en");
 		}
 		
 		logoutTimer.set(10, TimeUnit.MINUTES, true);
