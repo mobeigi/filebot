@@ -31,9 +31,11 @@ public class Analytics {
 	
 	
 	public static synchronized JGoogleAnalyticsTracker getTracker() {
-		
 		if (tracker != null)
 			return tracker;
+		
+		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything (putting it here works for Java 6)
+		Logger.getLogger("com.dmurph.tracking").setLevel(Level.OFF);
 		
 		// initialize tracker
 		visitorData = restoreVisitorData();
@@ -252,7 +254,7 @@ public class Analytics {
 	
 	
 	static {
-		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything
+		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything (putting it here works for Java 7)
 		Logger.getLogger("com.dmurph.tracking").setLevel(Level.OFF);
 	}
 	
