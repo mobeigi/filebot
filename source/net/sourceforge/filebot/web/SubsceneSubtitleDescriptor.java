@@ -12,8 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
-
-import net.sourceforge.tuned.FileUtilities;
+import org.w3c.dom.Node;
 
 
 public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
@@ -52,42 +51,36 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 	@Override
 	public ByteBuffer fetch() throws Exception {
-		// e.g. http://subscene.com/english/Firefly-The-Complete-Series/subtitle-40003-dlpath-20008/rar.zipx
-		String subtitlePagePath = FileUtilities.getNameWithoutExtension(subtitlePage.getFile());
-		String path = String.format("%s-dlpath-%s/%s.zipx", subtitlePagePath, getSubtitleInfo().get("filmId"), getSubtitleInfo().get("typeId"));
+		URL downloadLink = new URL(subtitlePage.getProtocol(), subtitlePage.getHost(), "/subtitle/download");
 		
-		URL downloadLocator = new URL(subtitlePage.getProtocol(), subtitlePage.getHost(), path);
-		Map<String, String> downloadPostData = subtitleInfo;
-		
-		HttpURLConnection connection = (HttpURLConnection) downloadLocator.openConnection();
+		HttpURLConnection connection = (HttpURLConnection) downloadLink.openConnection();
 		connection.addRequestProperty("Referer", subtitlePage.toString());
 		
-		return WebRequest.post(connection, downloadPostData);
+		return WebRequest.post(connection, getSubtitleInfo());
 	}
 	
 	
 	private synchronized Map<String, String> getSubtitleInfo() {
 		// extract subtitle information from subtitle page if necessary
 		if (subtitleInfo == null) {
+			subtitleInfo = new HashMap<String, String>();
 			try {
 				Document dom = getHtmlDocument(subtitlePage);
-				
-				subtitleInfo = new HashMap<String, String>();
-				subtitleInfo.put("subtitleId", selectString("//INPUT[@name='subtitleId']/@value", dom));
-				subtitleInfo.put("typeId", selectString("//INPUT[@name='typeId']/@value", dom));
-				subtitleInfo.put("filmId", selectString("//INPUT[@name='filmId']/@value", dom));
+				for (Node input : selectNodes("id('dl')//INPUT[@name]", dom)) {
+					subtitleInfo.put(getAttribute("name", input), getAttribute("value", input));
+				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new RuntimeException("Failed to extract subtitle info", e);
 			}
 		}
-		
 		return subtitleInfo;
 	}
 	
 	
 	@Override
 	public String getPath() {
-		return String.format("%s.%s", getName(), subtitleInfo == null ? null : subtitleInfo.get("typeId"));
+		return getName();
 	}
 	
 	

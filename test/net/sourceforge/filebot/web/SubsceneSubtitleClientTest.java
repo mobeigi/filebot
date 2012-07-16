@@ -30,8 +30,8 @@ public class SubsceneSubtitleClientTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks", "Twin Peaks - First Season (1990)", new URL("http://subscene.com/Twin-Peaks-First-Season/subtitles-32482.aspx"));
-		lostSearchResult = new SubsceneSearchResult("Lost", "Lost - Fourth Season (2008)", new URL("http://subscene.com/Lost-Fourth-Season/subtitles-70963.aspx"));
+		twinpeaksSearchResult = new SubsceneSearchResult("Twin Peaks", "Twin Peaks - First Season (1990)", new URL("http://subscene.com/subtitles/twin-peaks-first-season"));
+		lostSearchResult = new SubsceneSearchResult("Lost", "Lost - Fourth Season (2008)", new URL("http://subscene.com/subtitles/lost-fourth-season"));
 	}
 	
 	
@@ -42,7 +42,7 @@ public class SubsceneSubtitleClientTest {
 	public void search() throws Exception {
 		List<SearchResult> results = subscene.search("twin peaks");
 		
-		SubsceneSearchResult result = (SubsceneSearchResult) results.get(1);
+		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
 		assertEquals(twinpeaksSearchResult.toString(), result.toString());
 		assertEquals(twinpeaksSearchResult.getURL().toString(), result.getURL().toString());
 		assertEquals(twinpeaksSearchResult.getName(), result.getName());
@@ -50,14 +50,14 @@ public class SubsceneSubtitleClientTest {
 	
 	
 	@Test
-	public void searchResultPageRedirect() throws Exception {
-		List<SearchResult> results = subscene.search("firefly");
-		assertEquals(2, results.size());
+	public void search2() throws Exception {
+		List<SearchResult> results = subscene.search("Avatar 2009");
+		assertEquals(3, results.size());
 		
 		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
 		assertEquals("Firefly - The Complete Series (2002)", result.toString());
 		assertEquals("Firefly", result.getName());
-		assertEquals("http://subscene.com/Firefly-The-Complete-Series/subtitles-20008.aspx", result.getURL().toString());
+		assertEquals("http://subscene.com/subtitles/firefly-the-complete-series", result.getURL().toString());
 	}
 	
 	
@@ -67,7 +67,7 @@ public class SubsceneSubtitleClientTest {
 		assertEquals(10, subtitleList.size());
 		
 		SubtitleDescriptor subtitle = subtitleList.get(0);
-		assertEquals("Twin Peaks - First Season", subtitle.getName());
+		assertEquals("Twin-Peaks-S01E00-Pilot-eAlternate-ita sub by IScrew [www.ITALIANSHARE.net]", subtitle.getName());
 		assertEquals("Italian", subtitle.getLanguageName());
 	}
 	
@@ -83,7 +83,7 @@ public class SubsceneSubtitleClientTest {
 	
 	@Test
 	public void getLanguageFilterMap() throws Exception {
-		Map<String, String> filters = subscene.updateLanguageFilterMap(subscene.getSubtitleListDocument(new URL("http://subscene.com/none/subtitles-0.aspx"), null));
+		Map<String, String> filters = subscene.getLanguageFilterMap();
 		
 		assertEquals("1", filters.get("albanian"));
 		assertEquals("13", filters.get("english"));
@@ -101,8 +101,8 @@ public class SubsceneSubtitleClientTest {
 	@Test
 	public void downloadSubtitleArchive() throws Exception {
 		SearchResult selectedResult = subscene.search("firefly").get(0);
-		SubtitleDescriptor subtitleDescriptor = subscene.getSubtitleList(selectedResult, "English").get(1);
-		assertEquals("Firefly - The Complete Series", subtitleDescriptor.getName());
+		SubtitleDescriptor subtitleDescriptor = subscene.getSubtitleList(selectedResult, "English").get(0);
+		assertEquals("Firefly.S01E00-13.DVDRip-Rogue.eng-RETAIL", subtitleDescriptor.getName());
 		
 		ByteBuffer archive = subtitleDescriptor.fetch();
 		assertEquals(254549, archive.remaining());
