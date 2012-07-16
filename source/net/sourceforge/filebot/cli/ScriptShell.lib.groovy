@@ -210,7 +210,7 @@ def include(String input, Map parameters = [:], Object... args) {
 // CLI bindings
 def rename(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.rename(_files(args), args.action as String, args.conflict as String, args.output as String, args.format as String, args.db as String, args.query as String, args.order as String, args.filter as String, args.lang as String, args.strict as Boolean) }
+		_guarded { _cli.rename(_files(args), _renameFunction(args.action), args.conflict as String, args.output as String, args.format as String, args.db as String, args.query as String, args.order as String, args.filter as String, args.lang as String, args.strict as Boolean) }
 	}
 }
 
@@ -274,6 +274,20 @@ def _files(args) {
 	}
 	return files
 }
+
+
+// allow Groovy to hook into rename interface
+import net.sourceforge.filebot.*
+
+def _renameFunction(fn) {
+	if (fn instanceof String)
+		return StandardRenameAction.forName(fn)
+	if (fn instanceof Closure)
+		return [rename:fn as Closure, toString:{'CLOSURE'}] as RenameAction
+		
+	return fn as RenameAction
+}
+
 
 /**
  * Fill in default values from cmdline arguments

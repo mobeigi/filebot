@@ -33,6 +33,7 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.cli.ScriptShell.Script;
 import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
 import net.sourceforge.filebot.web.CachedResource;
@@ -106,7 +107,7 @@ public class ArgumentProcessor {
 				}
 				
 				if (args.rename) {
-					cli.rename(files, args.action, args.conflict, args.output, args.format, args.db, args.query, args.order, args.filter, args.lang, !args.nonStrict);
+					cli.rename(files, StandardRenameAction.forName(args.action), args.conflict, args.output, args.format, args.db, args.query, args.order, args.filter, args.lang, !args.nonStrict);
 				}
 				
 				if (args.check) {
