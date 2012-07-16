@@ -188,21 +188,23 @@ public class MediaBindingBean {
 	
 	@Define("vf")
 	public String getVideoFormat() {
-		// {def h = video.height as int; h > 720 ? 1080 : h > 480 ? 720 : 480}p
 		int height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
-		String vf = "";
 		
-		if (height > 720)
-			vf += 1080;
-		else if (height > 480)
-			vf += 720;
-		else if (height > 360)
-			vf += 480;
-		else
-			return null; // video too small
-			
-		// e.g. 720p
-		return vf + 'p'; // nobody actually wants files to be tagged as interlaced, e.g. 720i
+		int ns = 0;
+		int[] hs = new int[] { 1080, 720, 480, 360, 240, 120 };
+		for (int i = 0; i < hs.length - 1; i++) {
+			if (height > hs[i + 1]) {
+				ns = hs[i];
+				break;
+			}
+		}
+		
+		if (ns > 0) {
+			// e.g. 720p, nobody actually wants files to be tagged as interlaced, e.g. 720i
+			return String.format("%dp", ns);
+		}
+		
+		return null; // video too small
 	}
 	
 	
