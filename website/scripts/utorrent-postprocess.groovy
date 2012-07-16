@@ -7,10 +7,10 @@ _args.parameters.each{ k, v -> println "Parameter: $k = $v" }
 
 if (args.empty) {
 	// assume we're called with utorrent parameters
-	if (ut_kind == "multi") {
-		input += new File(ut_dir).getFiles() // multi-file torrent
-	} else {
+	if (ut_kind == "single") {
 		input += new File(ut_dir, ut_file) // single-file torrent
+	} else {
+		input += new File(ut_dir).getFiles() // multi-file torrent
 	}
 } else {
 	// assume we're called normally with arguments
