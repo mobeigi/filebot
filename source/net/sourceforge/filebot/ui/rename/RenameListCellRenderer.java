@@ -47,7 +47,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private Color warningGradientBeginColor = Color.RED;
 	private Color warningGradientEndColor = new Color(0xDC143C);
 	
-	private Color pathRainbowBeginColor = new Color(0xFF7F50);
+	private Color pathRainbowBeginColor = new Color(0xCC3300);
 	private Color pathRainbowEndColor = new Color(0x008080);
 	
 	

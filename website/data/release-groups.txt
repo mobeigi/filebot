@@ -31,6 +31,7 @@ AERO
 AF-F
 AFG
 AHD
+aheintz
 AiHD
 AiRWAVES
 AKUPX
@@ -73,6 +74,7 @@ beAst
 BEEF.STEW
 BeStDivX
 BestHD
+BetaDoctor
 BiA
 BiDA
 Billman424
@@ -88,6 +90,7 @@ BLUEYES
 blueZilla
 BluWave
 BMB
+BMF
 BoBo
 BORGATA
 bReAK
@@ -102,7 +105,7 @@ BTT
 BugZ
 BULLDOZER
 BUNNY
-BurnFre
+BurnFre@k.tk-Crew
 BWB
 C4TV
 CAMELOT
@@ -110,6 +113,7 @@ catflap
 CBGB
 CDD
 CDDHD
+Centropy
 CHAKRA
 chaostheory
 CHARA
@@ -136,6 +140,7 @@ COMPULSION
 Connaz-AKA-MrPirate
 cottage
 COWiSO
+CP
 CPtScene
 CPY
 CREEDANCE
@@ -210,6 +215,7 @@ Dowcker
 DOWN
 DRHD
 DrSn
+DUMMY
 DUPLI
 DUQA
 DutchReleaseTeam
@@ -255,6 +261,7 @@ EXViD
 eztv
 FaNSuB
 FASM
+FBO
 FEAR
 FELONY
 FFNDVD
@@ -265,6 +272,7 @@ FiddleGoose
 FiHTV
 FilmHD
 FiNaLe
+FiTTY
 fjall
 FLAiTE
 FLAKET
@@ -274,6 +282,7 @@ Flomp-Rumbel
 FLS
 FLX
 FmE
+FoAC
 ForceBleue
 FoRM
 FourGHD
@@ -294,6 +303,7 @@ FUCT
 FUNNER
 FXG
 FxM
+g0tm1Lk
 G3N3
 GAGE
 Gazdi
@@ -304,6 +314,7 @@ Genesis-RG
 GFW
 GFY
 GiNJi
+gizzmo
 GMoRK
 Goblin10
 Gogeta
@@ -371,14 +382,17 @@ HUBRiS
 hV
 HWD
 HWE
+HYBRID
 HyDe
 Hype
 iaK
 iBEX
 iCANDY
+ICE
 iGNHD
 iGNiTiON
 IGUANA
+IHQDR
 iKA
 iLG
 iLL
@@ -393,6 +407,7 @@ iMSORNY
 iNCiTE
 iND
 iNFAMOUS
+iNfInItE_424
 iNGOT
 InSaNiTy
 iNSECTS
@@ -433,6 +448,7 @@ Kole
 KonzillaRG
 KooKoo
 KRaLiMaRKo
+KSi
 Kuth
 KYR
 Kyuubi
@@ -447,6 +463,7 @@ LGLuX
 lilwoodenboy
 LiMiTED
 LiPAN
+LiTE
 LMAO
 LMG
 LoD
@@ -487,6 +504,7 @@ MiNT
 MiRAGETV
 Mish
 MissRipZ
+MLW
 MMI
 MoF
 MOMENTUM
@@ -504,6 +522,7 @@ mVmHD
 MXMG
 MySiLU
 N-F
+napisyPL
 NaRB
 Narutoverse
 NBS
@@ -523,6 +542,7 @@ NiF
 NikonXP
 Nile
 NiX
+NiXX
 NL.Subs
 NODLABS
 NoGrp
@@ -593,6 +613,7 @@ PRiNCE
 prithwi
 PRoDJi
 PROGRESS
+PROMiSE
 PROPHETS
 ProPL
 PRXHD
@@ -614,6 +635,7 @@ Q0S
 QCF
 QDP
 QiX
+qnr
 QSP
 Quali.SlaYer
 QXE
@@ -635,6 +657,7 @@ RETRO
 Rets
 REVEiLLE
 REWARD
+RFtA
 RightSiZE
 RiplleyHD
 RiPTATORz
@@ -680,6 +703,7 @@ SGKK
 Shadow
 Shadowman
 SHAMNBOYZ
+ShareReactor
 SHDXXX
 shortbrehd
 SHS
@@ -696,6 +720,7 @@ SiTV
 SKALiWAGZ
 SkipTowne
 SKYLIGHT
+SLikt
 SLM
 SLO
 SLOMO
@@ -735,6 +760,7 @@ TASTE
 TASTETV
 TB
 TDF
+tdl
 TDR
 TeamRV
 TELEFLiX
@@ -764,6 +790,7 @@ TN
 TOKUS
 TOPAZ
 TorrenTGui
+Towelie
 tpz
 trentalent
 TRiMEDIA
@@ -774,6 +801,8 @@ TruCK
 tRuE
 TRUEFRENCH
 tRuEHD
+trulle
+TSGroup
 TsH
 tsn
 TURKiSO
@@ -781,6 +810,7 @@ TUSAHD
 Tushar
 TVA
 TW
+TWiST
 TWiZTED
 TX
 TxN
