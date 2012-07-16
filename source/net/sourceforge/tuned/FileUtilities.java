@@ -247,7 +247,7 @@ public final class FileUtilities {
 	
 	
 	public static String getName(File file) {
-		if (file.isDirectory())
+		if (file.getName().isEmpty())
 			return getFolderName(file);
 		
 		return getNameWithoutExtension(file.getName());
