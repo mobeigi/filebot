@@ -6,6 +6,7 @@ import static net.sourceforge.filebot.Settings.*;
 
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
+import net.sourceforge.filebot.web.FanartTV;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
@@ -29,13 +30,16 @@ public final class WebServices {
 	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApplicationProperty("thetvdb.apikey"));
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
 	
+	// movie dbs
+	public static final IMDbClient IMDb = new IMDbClient();
+	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	
-	// movie dbs
-	public static final IMDbClient IMDb = new IMDbClient();
-	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	// fanart.tv
+	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
 	
 	
 	public static EpisodeListProvider[] getEpisodeListProviders() {
