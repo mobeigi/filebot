@@ -65,13 +65,13 @@ public class SelectDialog<T> extends JDialog {
 		
 		JComponent c = (JComponent) getContentPane();
 		
-		c.setLayout(new MigLayout("insets 1.5mm, nogrid, fill", "", "[pref!][fill][pref!]"));
+		c.setLayout(new MigLayout("insets 1.5mm 1.5mm 2.7mm 1.5mm, nogrid, fill", "", "[pref!][fill][pref!]"));
 		
 		c.add(headerLabel, "wrap");
 		c.add(new JScrollPane(list), "grow, wrap 2mm");
 		
-		c.add(new JButton(selectAction), "align center");
-		c.add(new JButton(cancelAction), "gap unrel, wrap 1.2mm");
+		c.add(new JButton(selectAction), "align center, id select");
+		c.add(new JButton(cancelAction), "gap unrel, id cancel");
 		
 		// set default size and location
 		setSize(new Dimension(210, 210));

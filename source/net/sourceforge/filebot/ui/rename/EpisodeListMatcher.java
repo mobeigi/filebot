@@ -171,7 +171,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			return episodes;
 		} finally {
 			// destroy background threads
-			executor.shutdown();
+			executor.shutdownNow();
 		}
 	}
 	

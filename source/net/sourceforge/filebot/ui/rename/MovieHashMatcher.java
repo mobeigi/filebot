@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.ui.rename;
 
 
+import static java.awt.Cursor.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.Settings.*;
@@ -38,10 +39,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -150,18 +154,21 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 		
 		// remember user decisions and only bother user once
-		Map<String, Movie> selectionMemory = new TreeMap<String, Movie>(getLenientCollator(locale));
-		Map<String, String> inputMemory = new TreeMap<String, String>(getLenientCollator(locale));
+		Map<String, Object> memory = new HashMap<String, Object>();
+		memory.put("input", new TreeMap<String, String>(getLenientCollator(locale)));
+		memory.put("selection", new TreeMap<String, String>(getLenientCollator(locale)));
 		
 		try {
 			for (Future<Entry<File, Collection<Movie>>> it : grabMovieJobs) {
 				// auto-select movie or ask user
 				File movieFile = it.get().getKey();
-				Movie movie = grabMovieName(movieFile, it.get().getValue(), locale, autodetect, selectionMemory, inputMemory, parent);
-				movieByFile.put(movieFile, movie);
+				Movie movie = grabMovieName(movieFile, it.get().getValue(), locale, autodetect, memory, parent);
+				if (movie != null) {
+					movieByFile.put(movieFile, movie);
+				}
 			}
 		} finally {
-			executor.shutdown();
+			executor.shutdownNow();
 		}
 		
 		// map movies to (possibly multiple) files (in natural order) 
@@ -215,20 +222,23 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	protected Movie grabMovieName(File movieFile, Collection<Movie> options, Locale locale, boolean autodetect, Map<String, Movie> selectionMemory, Map<String, String> inputMemory, Component parent) throws Exception {
+	protected Movie grabMovieName(File movieFile, Collection<Movie> options, Locale locale, boolean autodetect, Map<String, Object> memory, Component parent) throws Exception {
 		// allow manual user input
-		if (options.isEmpty() || !autodetect) {
+		if (!autodetect || options.isEmpty()) {
+			if (autodetect && memory.containsKey("repeat")) {
+				return null;
+			}
+			
 			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
 			
-			String input = null;
-			synchronized (inputMemory) {
-				synchronized (this) {
-					input = inputMemory.get(suggestion);
-					if (input == null || suggestion == null || suggestion.isEmpty()) {
-						input = showInputDialog("Enter movie name:", suggestion, String.format("%s/%s", movieFile.getParentFile().getName(), movieFile.getName()), parent);
-						inputMemory.put(suggestion, input);
-					}
-				}
+			@SuppressWarnings("unchecked")
+			Map<String, String> inputMemory = (Map<String, String>) memory.get("input");
+			
+			String input = inputMemory.get(suggestion);
+			if (input == null || suggestion == null || suggestion.isEmpty()) {
+				File movieFolder = guessMovieFolder(movieFile);
+				input = showInputDialog("Enter movie name:", suggestion, movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
+				inputMemory.put(suggestion, input);
 			}
 			
 			if (input != null) {
@@ -236,11 +246,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			}
 		}
 		
-		return options.isEmpty() ? null : selectMovie(movieFile, options, selectionMemory, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, options, memory, parent);
 	}
 	
 	
-	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Map<String, Movie> selectionMemory, final Component parent) throws Exception {
+	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
 		// 1. movie by filename
 		final String fileQuery = stripReleaseInfo(getName(movieFile));
 		
@@ -296,9 +306,22 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				selectDialog.setMinimumSize(new Dimension(280, 300));
 				selectDialog.pack();
 				
+				// add repeat button
+				JCheckBox checkBox = new JCheckBox();
+				checkBox.setCursor(getPredefinedCursor(HAND_CURSOR));
+				checkBox.setIcon(ResourceManager.getIcon("button.repeat"));
+				checkBox.setSelectedIcon(ResourceManager.getIcon("button.repeat.selected"));
+				JComponent c = (JComponent) selectDialog.getContentPane();
+				c.add(checkBox, "pos 1al select.y n select.y2");
+				
 				// show dialog
 				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 				selectDialog.setVisible(true);
+				
+				// remember if we should auto-repeat the chosen action in the future
+				if (checkBox.isSelected()) {
+					memory.put("repeat", selectDialog.getSelectedValue() != null ? "select" : "ignore");
+				}
 				
 				// selected value or null if the dialog was canceled by the user
 				return selectDialog.getSelectedValue();
@@ -306,18 +329,26 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		});
 		
 		// allow only one select dialog at a time
-		synchronized (selectionMemory) {
-			synchronized (this) {
-				if (selectionMemory.containsKey(fileQuery)) {
-					return selectionMemory.get(fileQuery);
-				}
-				
-				SwingUtilities.invokeAndWait(showSelectDialog);
-				
-				// cache selected value
-				selectionMemory.put(fileQuery, showSelectDialog.get());
-				return showSelectDialog.get();
-			}
+		@SuppressWarnings("unchecked")
+		Map<String, Movie> selectionMemory = (Map<String, Movie>) memory.get("selection");
+		
+		if (selectionMemory.containsKey(fileQuery)) {
+			return selectionMemory.get(fileQuery);
 		}
+		
+		// check auto-selection settings
+		if ("select".equals(memory.get("repeat"))) {
+			return options.iterator().next();
+		}
+		if ("ignore".equals(memory.get("repeat"))) {
+			return null;
+		}
+		
+		// ask for user input
+		SwingUtilities.invokeAndWait(showSelectDialog);
+		
+		// cache selected value
+		selectionMemory.put(fileQuery, showSelectDialog.get());
+		return showSelectDialog.get();
 	}
 }
