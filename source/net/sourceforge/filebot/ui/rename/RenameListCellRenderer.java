@@ -118,7 +118,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 				} else {
 					// relative name mode
 					File path = new File(formattedFuture.toString());
-					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, !renameModel.preserveExtension()));
+					setText(isSelected || matchProbablity < 1 || !renameModel.hasComplement(index) ? formatPath(path) : colorizePath(path, !renameModel.preserveExtension()));
 				}
 			} else {
 				setText(formattedFuture.preview()); // default text
