@@ -308,6 +308,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				
 				// add repeat button
 				JCheckBox checkBox = new JCheckBox();
+				checkBox.setToolTipText("Auto-Repeat");
 				checkBox.setCursor(getPredefinedCursor(HAND_CURSOR));
 				checkBox.setIcon(ResourceManager.getIcon("button.repeat"));
 				checkBox.setSelectedIcon(ResourceManager.getIcon("button.repeat.selected"));
