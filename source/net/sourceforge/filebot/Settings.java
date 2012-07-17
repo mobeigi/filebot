@@ -49,6 +49,12 @@ public final class Settings {
 	}
 	
 	
+	public static boolean useNativeShell() {
+		//TODO disable by default for final release
+		return System.getProperty("useNativeShell") == null ? true : Boolean.parseBoolean(System.getProperty("useNativeShell"));
+	}
+	
+	
 	public static int getPreferredThreadPoolSize() {
 		try {
 			return Integer.parseInt(System.getProperty("threadPool"));

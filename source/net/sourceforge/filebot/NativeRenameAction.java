@@ -2,10 +2,14 @@
 package net.sourceforge.filebot;
 
 
+import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CancellationException;
 
 import com.sun.jna.Platform;
 import com.sun.jna.WString;
@@ -21,43 +25,43 @@ public enum NativeRenameAction implements RenameAction {
 	COPY;
 	
 	@Override
-	public File rename(File src, File dst) throws Exception {
-		return rename(new File[] { src }, new File[] { dst })[0];
+	public File rename(File src, File dst) throws IOException {
+		dst = resolveDestination(src, dst).getCanonicalFile();
+		rename(singletonMap(src, dst));
+		return dst;
 	}
 	
 	
-	public File[] rename(File[] src, File[] dst) throws Exception {
-		String[] pFrom = new String[src.length];
-		String[] pTo = new String[dst.length];
-		File[] result = new File[dst.length];
+	public void rename(Map<File, File> map) throws IOException {
+		String[] src = new String[map.size()];
+		String[] dst = new String[map.size()];
 		
 		// resolve paths
-		for (int i = 0; i < pFrom.length; i++) {
-			result[i] = resolveDestination(src[i], dst[i]).getCanonicalFile(); // resolve dst
-			pTo[i] = result[i].getPath();
-			pFrom[i] = src[i].getCanonicalPath(); // resolve src
+		int i = 0;
+		for (Entry<File, File> it : map.entrySet()) {
+			src[i] = it.getKey().getCanonicalPath();
+			dst[i] = it.getValue().getCanonicalPath();
+			i++;
 		}
 		
 		// configure parameter structure
 		SHFILEOPSTRUCT op = new SHFILEOPSTRUCT();
-		
-		op.wFunc = ShellAPI.class.getField("FO_" + name()).getInt(null); // ShellAPI.FO_MOVE | ShellAPI.FO_COPY
+		op.wFunc = (this == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
 		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCONFIRMMKDIR;
 		
-		op.pFrom = new WString(op.encodePaths(pFrom));
-		op.pTo = new WString(op.encodePaths(pTo));
-		
+		op.pFrom = new WString(op.encodePaths(src));
+		op.pTo = new WString(op.encodePaths(dst));
+		System.out.println("NativeRenameAction.rename()");
 		Shell32.INSTANCE.SHFileOperation(op);
 		
 		if (op.fAnyOperationsAborted) {
-			throw new IOException("Operation Aborted");
+			throw new CancellationException();
 		}
-		
-		return result;
 	}
 	
 	
-	public static boolean isSupported(NativeRenameAction action) {
+	public static boolean isSupported() {
 		return Platform.isWindows();
 	}
+	
 }
