@@ -391,8 +391,14 @@ public class MediaDetection {
 	
 	
 	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
-		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric());
 		List<String> paragon = stripReleaseInfo(terms, true);
+		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new NameSimilarityMetric() {
+			
+			@Override
+			protected String normalize(Object object) {
+				return super.normalize(stripReleaseInfo(object.toString()).replaceAll("\\D+", " ")); // similarity of number patterns
+			}
+		});
 		
 		List<T> sorted = new ArrayList<T>(options);
 		sort(sorted, new SimilarityComparator(metric, paragon.toArray()));
@@ -537,11 +543,13 @@ public class MediaDetection {
 	}
 	
 	
-	public static String stripReleaseInfo(String name) throws IOException {
+	public static String stripReleaseInfo(String name) {
 		try {
 			return releaseInfo.cleanRelease(singleton(name), true).iterator().next();
 		} catch (NoSuchElementException e) {
 			return ""; // default value in case all tokens are stripped away
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 	
