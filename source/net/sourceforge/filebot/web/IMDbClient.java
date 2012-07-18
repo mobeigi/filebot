@@ -95,8 +95,8 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	protected Movie scrapeMovie(Document dom) {
 		try {
-			String header = selectString("//H1", dom);
-			if (header.toUpperCase().contains("(VG)")) // ignore video games
+			String header = selectString("//H1", dom).toUpperCase();
+			if (header.contains("(VG)") || header.contains("(V)")) // ignore video games and videos
 				return null;
 			
 			String name = selectString("//H1/A/text()", dom).replaceAll("\\s+", " ").trim();
