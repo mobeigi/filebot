@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -73,8 +74,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<File> fileset = filter(files, NON_CLUTTER_FILES);
 		
 		// handle movie files
-		List<File> movieFiles = filter(fileset, VIDEO_FILES);
-		List<File> nfoFiles = filter(fileset, MediaTypes.getDefaultFilter("application/nfo"));
+		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
+		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, MediaTypes.getDefaultFilter("application/nfo")));
 		
 		List<File> orphanedFiles = new ArrayList<File>(filter(fileset, FILES));
 		orphanedFiles.removeAll(movieFiles);
@@ -107,10 +108,19 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// ignore
 			}
 		}
-		for (File nfo : nfoFiles) {
+		
+		// collect useful nfo files even if they are not part of the selected fileset
+		Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
+		for (File dir : mapByFolder(movieFiles).keySet()) {
+			addAll(effectiveNfoFileSet, dir.listFiles(MediaTypes.getDefaultFilter("application/nfo")));
+		}
+		for (File nfo : effectiveNfoFileSet) {
 			try {
 				Movie movie = grepMovie(nfo, service, locale);
-				movieByFile.put(nfo, movie);
+				
+				if (nfoFiles.contains(nfo)) {
+					movieByFile.put(nfo, movie);
+				}
 				
 				// match movie info to movie files that match the nfo file name
 				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));

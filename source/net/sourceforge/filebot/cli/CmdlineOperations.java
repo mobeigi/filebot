@@ -34,6 +34,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -297,8 +298,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> fileset = filter(files, NON_CLUTTER_FILES);
 		
 		// handle movie files
-		List<File> movieFiles = filter(fileset, VIDEO_FILES);
-		List<File> nfoFiles = filter(fileset, MediaTypes.getDefaultFilter("application/nfo"));
+		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
+		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, MediaTypes.getDefaultFilter("application/nfo")));
 		
 		List<File> orphanedFiles = new ArrayList<File>(filter(fileset, FILES));
 		orphanedFiles.removeAll(movieFiles);
@@ -322,7 +323,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// match movie hashes online
-		final Map<File, Movie> movieByFile = new HashMap<File, Movie>();
+		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
 		if (query == null) {
 			if (movieFiles.size() > 0) {
 				try {
@@ -334,17 +335,26 @@ public class CmdlineOperations implements CmdlineInterface {
 					CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
 				}
 			}
-			for (File nfo : nfoFiles) {
+			
+			// collect useful nfo files even if they are not part of the selected fileset
+			Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
+			for (File dir : mapByFolder(movieFiles).keySet()) {
+				addAll(effectiveNfoFileSet, dir.listFiles(MediaTypes.getDefaultFilter("application/nfo")));
+			}
+			for (File nfo : effectiveNfoFileSet) {
 				try {
 					Movie movie = grepMovie(nfo, service, locale);
-					movieByFile.put(nfo, movie);
+					
+					if (nfoFiles.contains(nfo)) {
+						movieByFile.put(nfo, movie);
+					}
 					
 					// match movie info to movie files that match the nfo file name
 					SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
-					String baseName = stripReleaseInfo(getName(nfo));
+					String baseName = stripReleaseInfo(getName(nfo).toLowerCase());
 					
 					for (File movieFile : siblingMovieFiles) {
-						if (baseName.equalsIgnoreCase(stripReleaseInfo(getName(movieFile)))) {
+						if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
 							movieByFile.put(movieFile, movie);
 						}
 					}
