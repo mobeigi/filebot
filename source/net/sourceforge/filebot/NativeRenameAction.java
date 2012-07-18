@@ -40,7 +40,7 @@ public enum NativeRenameAction implements RenameAction {
 		int i = 0;
 		for (Entry<File, File> it : map.entrySet()) {
 			src[i] = it.getKey().getCanonicalPath();
-			dst[i] = it.getValue().getCanonicalPath();
+			dst[i] = resolveDestination(it.getKey(), it.getValue()).getCanonicalPath();
 			i++;
 		}
 		
@@ -51,7 +51,7 @@ public enum NativeRenameAction implements RenameAction {
 		
 		op.pFrom = new WString(op.encodePaths(src));
 		op.pTo = new WString(op.encodePaths(dst));
-		System.out.println("NativeRenameAction.rename()");
+		
 		Shell32.INSTANCE.SHFileOperation(op);
 		
 		if (op.fAnyOperationsAborted) {
