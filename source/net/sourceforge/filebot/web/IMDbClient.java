@@ -22,11 +22,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.ResourceManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import net.sourceforge.filebot.ResourceManager;
 
 
 public class IMDbClient implements MovieIdentificationService {
@@ -83,7 +83,7 @@ public class IMDbClient implements MovieIdentificationService {
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
-			Movie movie = scrapeMovie(dom);
+			Movie movie = scrapeMovie(dom, locale);
 			if (movie != null) {
 				results.add(movie);
 			}
@@ -93,7 +93,7 @@ public class IMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	protected Movie scrapeMovie(Document dom) {
+	protected Movie scrapeMovie(Document dom, Locale locale) {
 		try {
 			String header = selectString("//H1", dom).toUpperCase();
 			if (header.contains("(VG)") || header.contains("(V)")) // ignore video games and videos
@@ -102,6 +102,28 @@ public class IMDbClient implements MovieIdentificationService {
 			String name = selectString("//H1/A/text()", dom).replaceAll("\\s+", " ").trim();
 			String year = new Scanner(selectString("//H1/A/following::A/text()", dom)).useDelimiter("\\D+").next();
 			String url = selectString("//H1/A/@href", dom);
+			
+			// try to get localized name
+			if (locale != null && locale != Locale.ROOT) {
+				try {
+					String languageName = locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase();
+					List<Node> akaRows = selectNodes("//*[@name='akas']//following::TABLE[1]//TR", dom);
+					
+					for (Node aka : akaRows) {
+						List<Node> columns = getChildren("TD", aka);
+						String akaTitle = getTextContent(columns.get(0));
+						String languageDesc = getTextContent(columns.get(1)).toLowerCase();
+						
+						if (languageName.length() > 0 && languageDesc.contains(languageName)) {
+							name = akaTitle;
+							break;
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
 			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url));
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
@@ -113,7 +135,7 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		try {
-			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))));
+			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))), locale);
 		} catch (FileNotFoundException e) {
 			return null; // illegal imdbid
 		}
