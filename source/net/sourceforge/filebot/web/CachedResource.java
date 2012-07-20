@@ -78,14 +78,18 @@ public abstract class CachedResource<T extends Serializable> {
 			}
 		} else {
 			try {
-				product = type.cast(element.getValue());
+				if (element != null) {
+					product = type.cast(element.getValue());
+				}
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 			}
 		}
 		
 		try {
-			getCache().put(element);
+			if (element != null) {
+				getCache().put(element);
+			}
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 		}
