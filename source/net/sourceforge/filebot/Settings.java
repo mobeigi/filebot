@@ -50,8 +50,7 @@ public final class Settings {
 	
 	
 	public static boolean useNativeShell() {
-		//TODO disable by default for final release
-		return System.getProperty("useNativeShell") == null ? true : Boolean.parseBoolean(System.getProperty("useNativeShell"));
+		return Boolean.parseBoolean(System.getProperty("useNativeShell"));
 	}
 	
 	
@@ -91,7 +90,7 @@ public final class Settings {
 			applicationFolder = new File(System.getProperty("user.dir"));
 		}
 		
-		// create folder if necessary 
+		// create folder if necessary
 		if (!applicationFolder.exists()) {
 			applicationFolder.mkdirs();
 		}
@@ -103,7 +102,6 @@ public final class Settings {
 	public static Settings forPackage(Class<?> type) {
 		return new Settings(Preferences.userNodeForPackage(type));
 	}
-	
 	
 	private final Preferences prefs;
 	

@@ -24,9 +24,11 @@
 	<resources>
 		<property name="application.deployment" value="webstart" />
 		<property name="application.update"     value="skip" />
-		<property name="jnlp.packEnabled"       value="true" />
+		<property name="useNativeShell"         value="true" />
 		
 		<java version="1.6+" max-heap-size="256m" />
+		<property name="jnlp.packEnabled"       value="true" />
+		
 		<jar href="filebot.jar"       download="eager" main="true" />
 		<jar href="groovy.jar"        download="eager" />
 		<jar href="icu4j.jar"         download="eager" />

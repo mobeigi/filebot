@@ -47,6 +47,7 @@ class RenameAction extends AbstractAction {
 	
 	public static final String RENAME_ACTION = "RENAME_ACTION";
 	
+	
 	private final RenameModel model;
 	
 	
@@ -63,6 +64,7 @@ class RenameAction extends AbstractAction {
 	}
 	
 	
+	@Override
 	public void actionPerformed(ActionEvent evt) {
 		if (model.getRenameMap().isEmpty()) {
 			return;
@@ -102,7 +104,7 @@ class RenameAction extends AbstractAction {
 					dialog.setVisible(true);
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// could not rename one of the files, revert all changes
 			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
@@ -253,7 +255,7 @@ class RenameAction extends AbstractAction {
 					// rename file, throw exception on failure
 					action.rename(mapping.getKey(), mapping.getValue());
 					
-					// remember successfully renamed matches for history entry and possible revert 
+					// remember successfully renamed matches for history entry and possible revert
 					renameLog.put(mapping.getKey(), mapping.getValue());
 				}
 			} finally {
@@ -323,7 +325,7 @@ class RenameAction extends AbstractAction {
 				super.cancel(false);
 				throw e;
 			} finally {
-				// check status of renamed  files
+				// check status of renamed files
 				for (Entry<File, File> it : renameMap.entrySet()) {
 					if (it.getValue().exists()) {
 						renameLog.put(it.getKey(), it.getValue());

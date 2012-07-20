@@ -44,7 +44,7 @@ public final class FileUtilities {
 	
 	public static File moveRename(File source, File destination) throws IOException {
 		// resolve destination
-		destination = resolveDestination(source, destination);
+		destination = resolveDestination(source, destination, true);
 		
 		if (source.isDirectory()) {
 			// move folder
@@ -64,7 +64,7 @@ public final class FileUtilities {
 	
 	public static File copyAs(File source, File destination) throws IOException {
 		// resolve destination
-		destination = resolveDestination(source, destination);
+		destination = resolveDestination(source, destination, true);
 		
 		if (source.isDirectory()) {
 			// copy folder
@@ -82,7 +82,7 @@ public final class FileUtilities {
 	}
 	
 	
-	public static File resolveDestination(File source, File destination) throws IOException {
+	public static File resolveDestination(File source, File destination, boolean mkdirs) throws IOException {
 		// resolve destination
 		if (!destination.isAbsolute()) {
 			// same folder, different name
@@ -93,7 +93,7 @@ public final class FileUtilities {
 		File destinationFolder = destination.getParentFile();
 		
 		// create parent folder if necessary
-		if (!destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
+		if (mkdirs && !destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
 			throw new IOException("Failed to create folder: " + destinationFolder);
 		}
 		
@@ -502,7 +502,7 @@ public final class FileUtilities {
 		tr.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 		tr.setOutputProperty(OutputKeys.INDENT, "yes");
 		
-		//create string from dom
+		// create string from dom
 		StringWriter buffer = new StringWriter();
 		tr.transform(new DOMSource(dom), new StreamResult(buffer));
 		return buffer.toString();
@@ -532,6 +532,7 @@ public final class FileUtilities {
 		}
 	};
 	
+	
 	public static final FileFilter FILES = new FileFilter() {
 		
 		@Override
@@ -539,6 +540,7 @@ public final class FileUtilities {
 			return file.isFile();
 		}
 	};
+	
 	
 	public static final FileFilter TEMPORARY = new FileFilter() {
 		

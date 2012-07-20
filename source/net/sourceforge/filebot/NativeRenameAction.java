@@ -26,7 +26,7 @@ public enum NativeRenameAction implements RenameAction {
 	
 	@Override
 	public File rename(File src, File dst) throws IOException {
-		dst = resolveDestination(src, dst).getCanonicalFile();
+		dst = resolveDestination(src, dst, false).getCanonicalFile();
 		rename(singletonMap(src, dst));
 		return dst;
 	}
@@ -40,13 +40,18 @@ public enum NativeRenameAction implements RenameAction {
 		int i = 0;
 		for (Entry<File, File> it : map.entrySet()) {
 			src[i] = it.getKey().getCanonicalPath();
-			dst[i] = resolveDestination(it.getKey(), it.getValue()).getCanonicalPath();
+			dst[i] = resolveDestination(it.getKey(), it.getValue(), false).getCanonicalPath();
 			i++;
 		}
 		
+		callNative_Shell32(this, src, dst);
+	}
+	
+	
+	private static void callNative_Shell32(NativeRenameAction action, String[] src, String[] dst) {
 		// configure parameter structure
 		SHFILEOPSTRUCT op = new SHFILEOPSTRUCT();
-		op.wFunc = (this == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
+		op.wFunc = (action == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
 		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCONFIRMMKDIR;
 		
 		op.pFrom = new WString(op.encodePaths(src));

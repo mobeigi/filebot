@@ -30,7 +30,7 @@ public enum StandardRenameAction implements RenameAction {
 		
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File destionation = FileUtilities.resolveDestination(from, to, true);
 			
 			// move file and the create a symlink to the new location via NIO.2
 			try {
@@ -48,7 +48,7 @@ public enum StandardRenameAction implements RenameAction {
 		
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File destionation = FileUtilities.resolveDestination(from, to, true);
 			
 			// create symlink via NIO.2
 			try {
@@ -65,7 +65,7 @@ public enum StandardRenameAction implements RenameAction {
 		
 		@Override
 		public File rename(File from, File to) throws Exception {
-			File destionation = FileUtilities.resolveDestination(from, to);
+			File destionation = FileUtilities.resolveDestination(from, to, true);
 			
 			// create hardlink via NIO.2
 			try {
@@ -82,7 +82,7 @@ public enum StandardRenameAction implements RenameAction {
 		
 		@Override
 		public File rename(File from, File to) throws IOException {
-			return FileUtilities.resolveDestination(from, to);
+			return FileUtilities.resolveDestination(from, to, false);
 		}
 	};
 	
