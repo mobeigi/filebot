@@ -128,7 +128,7 @@
 					
 					<h2 class="reference" id="bindings">
 						Binding Reference
-						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/format/MediaBindingBean.java?view=markup" class="source" target="_blank">source</a>
+						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/sourceforge/filebot/format/MediaBindingBean.java" class="source" target="_blank">source</a>
 					</h2>
 					<table class="reference binding">
 						<tr>
@@ -208,8 +208,13 @@
 						</tr>
 						<tr>
 							<td>vf</td>
-							<td>video format</td>
+							<td>standard video format</td>
 							<td>720p</td>
+						</tr>
+						<tr>
+							<td>hpi</td>
+							<td>exact video format</td>
+							<td>384p</td>
 						</tr>
 						<tr>
 							<td>af</td>
@@ -340,7 +345,7 @@
 					
 					<h2 class="reference" id="functions">
 						Function Reference
-						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/format/ExpressionFormat.lib.groovy?view=markup" class="source" target="_blank">source</a>
+						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/sourceforge/filebot/format/ExpressionFormat.lib.groovy?force=True" class="source" target="_blank">source</a>
 					</h2>
 					<p>
 					<code><span class="method">pad</span>(<span class="numeral">length</span>, <span class="string">padding</span> = <span class="string">"0"</span>)</code>Pad strings or numbers with given characters ('0' by default).
@@ -356,6 +361,9 @@
 					</p>
 					<p>
 					<code><span class="method">lowerTrail</span>()</code>Lower-case all letters that are not initials (e.g. "Gundam SEED" -> "Gundam Seed").
+					</p>
+					<p>
+					<code><span class="method">acronym</span>()</code>Get acronym, i.e. first letter of each word. (e.g. "Deep Space 9" -> "DS9").
 					</p>
 					<p>
 					<code><span class="method">before</span>(<span class="regex">pattern</span>)</code>Get the substring before the given pattern or the original value.

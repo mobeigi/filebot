@@ -124,7 +124,7 @@
 					
 					<h2 class="reference" id="functions">
 						Function Reference
-						<a href="http://filebot.svn.sourceforge.net/viewvc/filebot/trunk/source/net/sourceforge/filebot/cli/ScriptShell.lib.groovy?view=markup" class="source" target="_blank">source</a>
+						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/sourceforge/filebot/cli/ScriptShell.lib.groovy?force=True" class="source" target="_blank">source</a>
 					</h2>
 					
 					<div class="documentation">
@@ -135,10 +135,14 @@
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>
 						<dd><span class="property">file</span> - process these media files</dd>
-						<dd><span class="property">query</span> - force series/movie name, auto-detect if not set</dd>
+						<dd><span class="property">action</span> - rename action name or closure</dd>
+						<dd><span class="property">conflict</span> - define conflict handling</dd>
 						<dd><span class="property">output</span> - output folder, if format expression is not absolute</dd>
 						<dd><span class="property">format</span> - episode/movie naming scheme</dd>
 						<dd><span class="property">db</span> - episode/movie database</dd>
+						<dd><span class="property">query</span> - force series/movie name, auto-detect if not set</dd>
+						<dd><span class="property">sortOrder</span> - episode sort order</dd>
+						<dd><span class="property">filter</span> - episode filter expression</dd>
 						<dd><span class="property">lang</span> - preferred language for episode/movie titles</dd>
 						<dd><span class="property">strict</span> - turn on/off strict matching</dd>
 					</dl>
@@ -156,6 +160,7 @@
 						<dt>Parameters:</dt>
 						<dd><span class="property">folder</span> - process media files in this folder</dd>
 						<dd><span class="property">file</span> - process these media files</dd>
+						<dd><span class="property">db</span> - database filter expression (e.g. opensubtitles|subscene)</dd>
 						<dd><span class="property">query</span> - lookup subtitles by series/movie name</dd>
 						<dd><span class="property">lang</span> - subtitle language</dd>
 						<dd><span class="property">output</span> - force output format (e.g. srt)</dd>
@@ -194,6 +199,7 @@
 						<dd><span class="property">folder</span> - extract all archives that are in this folder</dd>
 						<dd><span class="property">file</span> - extract this archive</dd>
 						<dd><span class="property">output</span> - output folder, defaults to archive path</dd>
+						<dd><span class="property">conflict</span> - define conflict handling</dd>
 					</dl>
 					<hr/>
 					<pre><span class="return">String[]</span> <span class="method">fetchEpisodeList</span>(<span class="property">query</span>, <span class="property">format</span>, <span class="property">db</span>, <span class="property">lang</span>)</pre>
@@ -203,6 +209,7 @@
 						<dd><span class="property">query</span> - tv series name</dd>
 						<dd><span class="property">format</span> - episode naming scheme</dd>
 						<dd><span class="property">db</span> - episode database</dd>
+						<dd><span class="property">sortOrder</span> - episode sort order</dd>
 						<dd><span class="property">lang</span> - preferred language for episode titles</dd>
 					</dl>
 					<hr/>
@@ -213,6 +220,14 @@
 						<dd><span class="property">file</span> - get info for this file</dd>
 						<dd><span class="property">format</span> - media naming scheme</dd>
 					</dl>
+					</div>
+					
+					<div class="documentation">
+					<h4>Extras</h4>
+					<div>
+						<a href="https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/source/net/sourceforge/filebot/cli/ScriptShell.lib.groovy?force=True" target="_blank">ScriptShell.lib.groovy</a> also defines lots extra useful functions 
+						and there is example code in the <a href="http://filebot.sourceforge.net/scripts/">script repository</a>.
+					</div>
 					</div>
 				</div>
 				
