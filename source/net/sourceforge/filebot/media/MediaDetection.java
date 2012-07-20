@@ -332,7 +332,7 @@ public class MediaDetection {
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
 		terms.add(reduceMovieName(getName(movieFile)));
 		
-		// 2. term: first meaningful parent folder 
+		// 2. term: first meaningful parent folder
 		File movieFolder = guessMovieFolder(movieFile);
 		if (movieFolder != null) {
 			terms.add(reduceMovieName(getName(movieFolder)));
@@ -433,12 +433,19 @@ public class MediaDetection {
 	
 	private static synchronized List<Entry<String, Movie>> getMovieIndex() throws IOException {
 		if (movieIndex == null) {
-			Movie[] movies = releaseInfo.getMovieList();
-			movieIndex = new ArrayList<Entry<String, Movie>>(movies.length);
-			for (Movie movie : movies) {
-				movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(movie.getName()).toLowerCase(), movie));
+			try {
+				Movie[] movies = releaseInfo.getMovieList();
+				movieIndex = new ArrayList<Entry<String, Movie>>(movies.length);
+				for (Movie movie : movies) {
+					movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(movie.getName()).toLowerCase(), movie));
+				}
+			} catch (Exception e) {
+				// can't load movie index, just try again next time
+				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e.getMessage(), e);
+				return emptyList();
 			}
 		}
+		
 		return movieIndex;
 	}
 	
