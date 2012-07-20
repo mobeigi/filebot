@@ -15,7 +15,6 @@
 666
 7SiNS
 850105
-lOVE
 a-S
 aacrime
 aAF
@@ -28,6 +27,7 @@ AckTiv3
 ADHD
 AE
 AEGiS
+AEN
 AERO
 AF-F
 AFG
@@ -59,6 +59,7 @@ AVS720
 AW
 aWake
 AXE
+AXIAL
 aXXo
 AZuRRaY
 babylonad
@@ -67,17 +68,20 @@ BaLD
 BamHD
 Barba
 BaSS
+Bassline
 BAUM
 bc10
 BDClub
 BDiSC
 beAst
 BEEF.STEW
+BeefStew
 BeStDivX
 BestHD
 BetaDoctor
 BiA
 BiDA
+BiEN
 Billman424
 Blixten
 BLOW
@@ -115,6 +119,7 @@ CBGB
 CDD
 CDDHD
 Centropy
+cfh
 CHAKRA
 chaostheory
 CHARA
@@ -160,6 +165,7 @@ CYBERMEN
 CyberTyger
 D-Z0N3
 D3Si
+DaDuck
 danger2u
 danirl
 Danny
@@ -169,6 +175,7 @@ DARM
 DASH
 DAW
 DCA
+dcn
 DDC
 dddc
 DEAL
@@ -194,6 +201,7 @@ DiNA
 DiR
 DiRTY
 disc
+Distill
 disturbia
 DiTa
 DiVERSiTY
@@ -253,6 +261,7 @@ EucHD
 EuchHD
 EUHD
 EuReKA
+EUROPA
 EUSTASS
 EwDp
 EXiLE
@@ -265,6 +274,7 @@ FASM
 FBO
 FEAR
 FELONY
+fez
 FFNDVD
 FHD
 FHM
@@ -296,6 +306,7 @@ FRIGGHD
 FROST
 FSiHD
 Ft4U
+FTS
 FTVDT
 FTW-FM
 FTW-HD
@@ -309,6 +320,7 @@ G3N3
 GAGE
 Gazdi
 GB
+gcd
 GECKOS
 GEHENNA
 Genesis-RG
@@ -377,6 +389,7 @@ HLS
 HNR
 HoodBag
 HORiZON
+HOSTiLE
 HOWL
 HqDTS
 HUBRiS
@@ -419,6 +432,7 @@ iNTiMiD
 INtL
 iNVANDRAREN
 iON
+iRB
 iTA
 ITZ
 Japhson
@@ -457,6 +471,7 @@ LamB
 Larceny
 LCHD
 leetay
+LEGEND
 LEGi0N
 LEVERAGE
 LEViTY
@@ -467,12 +482,15 @@ LiPAN
 LiTE
 LMAO
 LMG
+LoB
 LoD
 LOL
 LOLCATS
 LoneWolf
 LOST
+lOVE
 LP
+LPD
 lrc
 LRH
 LTRG
@@ -488,6 +506,7 @@ MAiN
 MainEvent
 MARiNES
 marioBombo
+MaRVeLouS
 MAXSPEED
 MC
 MCR
@@ -498,6 +517,7 @@ MELiTE
 Mental.RG
 MeTH
 METiS
+MF
 MHQ
 Mikoto
 MiND
@@ -514,12 +534,14 @@ MOREHD
 MOTU
 MOViERUSH
 MOViESTARS
+MRC
 MrLore
 mSD
 MsR
 MuSt
 mV4U
 mVmHD
+mVs
 MXMG
 MySiLU
 N-F
@@ -540,6 +562,7 @@ NGXHD
 NhaNc3
 NiBURU
 NiF
+NightHawk
 NikonXP
 Nile
 NiX
@@ -554,6 +577,7 @@ NoSCR
 NOsegmenT
 NoTV
 NOVO
+nox
 NPW
 NSUBS
 NT
@@ -571,11 +595,13 @@ Omifast
 OmU
 ONYX
 OPT!V!D
+optimax
 ORC
 ORENJi
 ORPHEUS
 OSiRiS
 OSiTV
+Osuald
 OUTDATED
 OZC
 P0W4
@@ -645,9 +671,13 @@ rabomil
 RANDi
 RAP
 Rare.Share
+RAWKiNS
 Razor1911
+RBT
+rcdivx
 Reaperza
 REAVERS
+RedFox109e
 Redµx
 REFiNED
 RELOADED
@@ -665,6 +695,7 @@ RiPTATORz
 RiTALiX
 RiVER
 RMT
+RMx
 RoCK&BlueLadyRG
 RoCKRioT
 ROVERS
@@ -696,6 +727,7 @@ SecretMyth
 SECTOR7
 SEMTEX
 SEPTiC
+SEQUA
 SEVcD
 SEVENTWENTY
 SexSh0p
@@ -727,6 +759,7 @@ SLO
 SLOMO
 SMoKeR
 Smurfenlars
+snavE
 Sneak
 SNUGGLER
 SoCkS
@@ -771,6 +804,7 @@ TERRA
 terribleHD
 terribleSD
 TFE
+tff
 THENiGHTMAREiNHD
 TheWretched
 Thizz
@@ -815,6 +849,8 @@ TWiST
 TWiZTED
 TX
 TxN
+uffowich
+UKVcd
 ULTiMATE
 UMF
 UNSKiLLED
@@ -862,6 +898,7 @@ WiRE
 WLF
 WLM
 WoLF
+WOLFPACK
 Wolky
 WoRKZ
 WPi
@@ -885,6 +922,7 @@ YellowBeast
 YesTV
 Ygt
 Yibis
+YMG
 YoHo
 YOUFORGOTTOREPACKTHIS
 ZBS

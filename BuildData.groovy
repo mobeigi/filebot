@@ -76,7 +76,7 @@ parallel(osdb.collect{ row ->
 }, 20)
 
 // save updated imdb data
-imdb.collect{ it.join('\t') }.join('\n').saveAs(imdb_tsv)
+imdb.collect{ it.join('\t') }.sort().join('\n').saveAs(imdb_tsv)
 
 // save movie data
 def movies = imdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
