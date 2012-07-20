@@ -61,13 +61,15 @@ parallel(osdb.collect{ row ->
 	return {		
 		// update new data
 		if (!imdb_ids.contains(row[0])) {
-			def mov = net.sourceforge.filebot.WebServices.IMDb.getMovieDescriptor(row[0] as int, null)
-			if (mov != null && mov.name.length() > 0 && mov.year > 0) {
-				println "Adding $mov"
-				imdb << [row[0], mov.name, mov.year]
-			} else {
-				println "Blacklisting $row"
-				imdb << [row[0], null]
+			// get original title and english title
+			[Locale.ROOT, Locale.ENGLISH].collect{ locale -> net.sourceforge.filebot.WebServices.IMDb.getMovieDescriptor(row[0] as int, locale) }.unique{ it as String }.each { mov ->
+				if (mov != null && mov.name.length() > 0 && mov.year > 0) {
+					println "Adding $mov"
+					imdb << [row[0], mov.name, mov.year]
+				} else {
+					println "Blacklisting $row"
+					imdb << [row[0], null]
+				}
 			}
 		}
 	}
@@ -80,7 +82,7 @@ imdb.collect{ it.join('\t') }.join('\n').saveAs(imdb_tsv)
 def movies = imdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
 
 def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
-movies.each{ movieSorter.put(it[1]+it[2], it) }
+movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), it) }
 movies = movieSorter.values().collect{ it.join('\t') }
 
 gz(movies_out, movies)
