@@ -39,9 +39,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import ca.odell.glazedlists.ListSelection;
-import ca.odell.glazedlists.swing.EventSelectionModel;
-
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.History;
 import net.sourceforge.filebot.HistorySpooler;
@@ -63,6 +60,8 @@ import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import ca.odell.glazedlists.ListSelection;
+import ca.odell.glazedlists.swing.EventSelectionModel;
 
 
 public class RenamePanel extends JComponent {
@@ -185,7 +184,9 @@ public class RenamePanel extends JComponent {
 	
 	
 	protected ActionPopup createFetchPopup() {
-		final ActionPopup actionPopup = new ActionPopup("Fetch Episode List", ResourceManager.getIcon("action.fetch"));
+		final ActionPopup actionPopup = new ActionPopup("Series / Movie Data", ResourceManager.getIcon("action.fetch"));
+		
+		actionPopup.addDescription(new JLabel("Episode Mode:"));
 		
 		// create actions for match popup episode list completion
 		for (EpisodeListProvider provider : WebServices.getEpisodeListProviders()) {
