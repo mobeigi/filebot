@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.ui.notification.Direction.*;
 
+import java.awt.GraphicsEnvironment;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -25,7 +26,7 @@ public class NotificationLogging extends Handler {
 	
 	public static final Logger UILogger = createNotificationLogger("net.sourceforge.filebot.ui");
 	
-
+	
 	private static Logger createNotificationLogger(String name) {
 		Logger log = Logger.getLogger(name);
 		
@@ -43,23 +44,26 @@ public class NotificationLogging extends Handler {
 		return log;
 	}
 	
-
 	public final NotificationManager notificationManager;
 	public final int timeout = 2500;
 	
-
+	
 	public NotificationLogging() {
 		this(new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
 	
-
+	
 	public NotificationLogging(NotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
 	}
 	
-
+	
 	@Override
 	public void publish(LogRecord record) {
+		// fail gracefully on an headless machine
+		if (GraphicsEnvironment.isHeadless())
+			return;
+		
 		final Level level = record.getLevel();
 		final String message = getMessage(record);
 		
@@ -78,7 +82,7 @@ public class NotificationLogging extends Handler {
 		});
 	}
 	
-
+	
 	protected String getMessage(LogRecord record) {
 		String message = record.getMessage();
 		
@@ -90,18 +94,18 @@ public class NotificationLogging extends Handler {
 		return message;
 	}
 	
-
+	
 	protected void show(String message, Icon icon, int timeout) {
 		notificationManager.show(new MessageNotification(getApplicationName(), message, icon, timeout));
 	}
 	
-
+	
 	@Override
 	public void close() throws SecurityException {
 		
 	}
 	
-
+	
 	@Override
 	public void flush() {
 		
