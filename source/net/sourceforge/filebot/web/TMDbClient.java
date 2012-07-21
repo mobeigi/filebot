@@ -26,14 +26,14 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.Artwork.ArtworkProperty;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 
 public class TMDbClient implements MovieIdentificationService {
@@ -134,7 +134,7 @@ public class TMDbClient implements MovieIdentificationService {
 				
 				result.add(new Movie(name, year, imdbid));
 			} catch (Exception e) {
-				Logger.getLogger(TMDbClient.class.getName()).log(Level.INFO, String.format("Ignore movie [%s]: %s", name, e.getMessage()));
+				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", name, e.getMessage()));
 			}
 		}
 		

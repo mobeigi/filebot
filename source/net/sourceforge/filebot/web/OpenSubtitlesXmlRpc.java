@@ -24,13 +24,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DeflaterInputStream;
 
+import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
+import net.sourceforge.tuned.ByteBufferOutputStream;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
 import redstone.xmlrpc.util.Base64;
-
-import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
-import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
 public class OpenSubtitlesXmlRpc {
@@ -146,7 +145,7 @@ public class OpenSubtitlesXmlRpc {
 				
 				movies.add(new Movie(name, year, Integer.parseInt(imdbid)));
 			} catch (Exception e) {
-				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.INFO, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
+				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
 			}
 		}
 		
