@@ -28,15 +28,15 @@ import java.util.logging.Level;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.cli.ScriptShell.Script;
 import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
 import net.sourceforge.filebot.web.CachedResource;
+
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 
 
 public class ArgumentProcessor {
@@ -218,14 +218,10 @@ public class ArgumentProcessor {
 				// check for local override
 				File local = new File(getApplicationFolder(), path);
 				if (local.exists()) {
-					CLILogger.finest(String.format("[resolve] %s => %s", uri, local));
 					return new Script(readAll(new InputStreamReader(new FileInputStream(local), "UTF-8")), true);
 				} else {
 					// script repository
-					URL remote = new URL("http", "filebot.sourceforge.net", path);
-					CLILogger.finest(String.format("[resolve] %s => %s", uri, remote));
-					
-					url = remote.toString();
+					url = new URL("http", "filebot.sourceforge.net", path).toString();
 					trusted = true;
 				}
 			}

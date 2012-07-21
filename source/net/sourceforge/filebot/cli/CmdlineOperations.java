@@ -627,6 +627,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
+	@Override
 	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, final String languageName, String output, String csn, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 			
@@ -928,6 +929,9 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
 	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String languageName) throws Exception {
+		if (query == null || query.isEmpty())
+			throw new IllegalArgumentException("query is not defined");
+		
 		// find series on the web and fetch episode list
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		EpisodeListProvider service = (db == null) ? TVRage : getEpisodeListProvider(db);
