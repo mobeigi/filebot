@@ -485,14 +485,14 @@ public class MediaBindingBean {
 		// make sure media file is defined
 		checkMediaFile();
 		
-		if (SUBTITLE_FILES.accept(mediaFile)) {
+		if (SUBTITLE_FILES.accept(mediaFile) || getDefaultFilter("application/nfo").accept(mediaFile)) {
 			// file is a subtitle
-			String name = FileUtilities.getName(mediaFile).toLowerCase();
+			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile).toLowerCase());
 			
 			// find corresponding movie file
-			for (File movie : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
-				if (name.startsWith(FileUtilities.getName(movie).toLowerCase())) {
-					return movie;
+			for (File movieFile : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
+				if (baseName.startsWith(stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase())) {
+					return movieFile;
 				}
 			}
 		}
@@ -523,7 +523,7 @@ public class MediaBindingBean {
 			mediaInfo = newMediaInfo;
 		}
 		
-		return (MediaInfo) mediaInfo;
+		return mediaInfo;
 	}
 	
 	
