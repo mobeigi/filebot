@@ -43,19 +43,15 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 				
-				if (episode.getSpecial() == null) {
-					// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
-					SxE sxe = new SxE(episode.getSeason(), episode.getEpisode());
-					SxE abs = new SxE(null, episode.getAbsolute());
-					
-					result = (abs.episode < 0 || sxe.equals(abs)) ? singleton(sxe) : asList(sxe, abs);
-				} else {
-					// special handling
-					SxE sxe = new SxE(0, episode.getSpecial());
-					SxE sne = new SxE(episode.getSeason(), null);
-					
-					return asList(sxe, sne);
+				if (episode.getSpecial() != null) {
+					return emptySet(); // make sure specials can't take priority over normal episodes
 				}
+				
+				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
+				SxE sxe = new SxE(episode.getSeason(), episode.getEpisode());
+				SxE abs = new SxE(null, episode.getAbsolute());
+				
+				result = (abs.episode < 0 || sxe.equals(abs)) ? singleton(sxe) : asList(sxe, abs);
 			} else {
 				result = super.parse(object);
 			}
@@ -227,6 +223,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by generic numeric similarity
 	Numeric(new NumericSimilarityMetric() {
 		
+		@Override
 		public float getSimilarity(Object o1, Object o2) {
 			String[] f1 = fields(o1);
 			String[] f2 = fields(o2);
@@ -303,7 +300,6 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	public float getSimilarity(Object o1, Object o2) {
 		return metric.getSimilarity(o1, o2);
 	}
-	
 	
 	private static final Map<Object, String> transformCache = synchronizedMap(new WeakHashMap<Object, String>(64, 4));
 	
