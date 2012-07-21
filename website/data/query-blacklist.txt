@@ -24,6 +24,7 @@
 ^new$
 ^other$
 ^Season.[0-9]+
+^storage$
 ^Torrents[s]?
 ^Tracker
 ^Trailer

@@ -40,17 +40,16 @@ def groups = input.groupBy{ f ->
 	
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
-		def fn = f.nameWithoutExtension.space(' ')
-		if (fn =~ "(?i:$tvs - .+)" || parseEpisodeNumber(fn, true) || parseDate(fn)) {
+		def norm = { s -> s.lower().space(' ') }
+		def fn = norm(f.nameWithoutExtension)
+		def sn = norm(tvs)
+		def mn = norm(mov.name)
+		
+		// S00E00 | 2012.07.21 | One Piece 217 | Firefly - Serenity | [Taken 1, Taken 2, Taken 3, Taken 4, ..., Taken 10]
+		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn =~ sn && parseEpisodeNumber(fn.after(sn), false)) || fn.after(sn) =~ / - .+/ || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
 			println "Exclude Movie: $mov"
 			mov = null
-		} else if (detectMovie(f, true) && (fn =~ /(19|20)\d{2}/ || !(tvs =~ "(?i:$mov.name)"))) {
-			println "Exclude Series: $tvs"
-			tvs = null
-		} else if (fn =~ "(?i:$tvs)" && parseEpisodeNumber(fn.after(tvs), false)) {
-			println "Exclude Movie: $mov"
-			mov = null
-		} else if (fn =~ "(?i:$mov.name)" && !parseEpisodeNumber(fn.after(mov.name), false)) {
+		} else if ((detectMovie(f, true) && fn =~ /(19|20)\d{2}/) || (fn =~ mn && !(fn.after(mn) =~ /\b\d{1,3}\b/))) {
 			println "Exclude Series: $tvs"
 			tvs = null
 		}
