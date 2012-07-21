@@ -1,21 +1,17 @@
-// filebot -script "http://filebot.sf.net/scripts/housekeeping.groovy" <folder>
+// filebot -script fn:housekeeping /path/to/folder/ --output /output/folder/ --format <expression>
 
 /*
-* Watch folder for new tv shows and automatically 
-* move/rename new episodes into a predefined folder structure
+* Watch folder for new tv shows and automatically move/rename new episodes
 */
 
 // check for new media files once every 5 minutes
 def updateFrequency = 5 * 60 * 1000
 
-// V:/TV Shows/Stargate/Season 1/Stargate.S01E01.Pilot
-def episodeFormat = "{com.sun.jna.Platform.isWindows() ? file[0] : home}/TV Shows/{n}{'/Season '+s}/{n.space('.')}.{s00e00}.{t.space('.')}"
-
 // spawn daemon thread
 Thread.startDaemon {
 	while (sleep(updateFrequency) || true) {
 		args.eachMediaFolder {
-			rename(folder:it, db: "thetvdb", format:episodeFormat)
+			rename(folder:it)
 		}
 	}
 }

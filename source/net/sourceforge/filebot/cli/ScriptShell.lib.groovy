@@ -205,7 +205,7 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 // call scripts
 def include(String input, Map parameters = [:], Object... args) {
 	// initialize default parameter
-	parameters.args = (args as List).findResults{ it as File }
+	parameters.args = (args as List).flatten().findResults{ it as File }
 	
 	// run given script and catch exceptions
 	_guarded { _shell.runScript(input, new javax.script.SimpleBindings(parameters)) }
