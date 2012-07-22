@@ -145,7 +145,7 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("imdb")
+	@Define("imdbid")
 	public String getImdbId() {
 		int imdb = getMovie().getImdbId();
 		
@@ -398,7 +398,7 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("imdbapi")
+	@Define("imdb")
 	public synchronized AssociativeScriptObject getImdbApiInfo() {
 		Object data = null;
 		
