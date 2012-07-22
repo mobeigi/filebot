@@ -60,7 +60,8 @@
 	<type name="audio/wma">
 		<extension>wma</extension>
 	</type>
-	<type name="audio/ogg">
+	<type name="audio/ogm">
+		<extension>ogm</extension>
 		<extension>ogg</extension>
 	</type>
 
@@ -73,6 +74,7 @@
 	</type>
 	<type name="video/ogm">
 		<extension>ogm</extension>
+		<extension>ogg</extension>
 	</type>
 	<type name="video/mp4">
 		<extension>mp4</extension>
