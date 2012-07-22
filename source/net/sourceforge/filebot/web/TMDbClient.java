@@ -459,8 +459,18 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		protected Artwork(Map<ArtworkProperty, String> fields) {
+		public Artwork(Map<ArtworkProperty, String> fields) {
 			this.fields = new EnumMap<ArtworkProperty, String>(fields);
+		}
+		
+		
+		public Artwork(String type, String url, String size, String width, String height) {
+			fields = new EnumMap<ArtworkProperty, String>(ArtworkProperty.class);
+			fields.put(ArtworkProperty.type, type);
+			fields.put(ArtworkProperty.url, url);
+			fields.put(ArtworkProperty.size, size);
+			fields.put(ArtworkProperty.width, width);
+			fields.put(ArtworkProperty.height, height);
 		}
 		
 		
@@ -537,8 +547,18 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		protected Person(Map<PersonProperty, String> fields) {
+		public Person(Map<PersonProperty, String> fields) {
 			this.fields = new EnumMap<PersonProperty, String>(fields);
+		}
+		
+		
+		public Person(String name, String character, String job, String thumb, String department) {
+			fields = new EnumMap<PersonProperty, String>(PersonProperty.class);
+			fields.put(PersonProperty.name, name);
+			fields.put(PersonProperty.character, character);
+			fields.put(PersonProperty.job, job);
+			fields.put(PersonProperty.thumb, thumb);
+			fields.put(PersonProperty.department, department);
 		}
 		
 		

@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
@@ -11,8 +12,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -23,6 +28,10 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.web.TMDbClient.Artwork;
+import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
+import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
+import net.sourceforge.filebot.web.TMDbClient.Person;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -165,4 +174,56 @@ public class IMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 	
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Map<String, String> getImdbApiData(String i, String t, String y) throws IOException {
+		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
+		String url = String.format("http://www.imdbapi.com/?i=%s&t=%s&y=%s&r=xml", i, t, y);
+		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class, 7 * 24 * 60 * 60 * 1000) {
+			
+			@Override
+			public HashMap process(ByteBuffer data) throws Exception {
+				Document xml = getDocument(Charset.forName("UTF-8").decode(data).toString());
+				HashMap attr = new HashMap();
+				for (Node it : selectNodes("//@*", xml)) {
+					attr.put(it.getNodeName(), it.getTextContent());
+				}
+				return attr;
+			}
+		};
+		
+		return data.get();
+	}
+	
+	
+	public MovieInfo getImdbApiMovieInfo(Movie movie) throws IOException {
+		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(String.format("tt%07d", movie.getImdbId()), "", "") : getImdbApiData("", movie.getName(), String.valueOf(movie.getYear()));
+		
+		// sanity check
+		if (!Boolean.parseBoolean(data.get("response"))) {
+			throw new IllegalArgumentException("Movie not found: " + data);
+		}
+		
+		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
+		fields.put(MovieProperty.name, data.get("title"));
+		fields.put(MovieProperty.certification, data.get("rated"));
+		fields.put(MovieProperty.released, Date.parse(data.get("released"), "dd MMM yyyy").toString());
+		fields.put(MovieProperty.tagline, data.get("plot"));
+		fields.put(MovieProperty.rating, data.get("imdbRating"));
+		fields.put(MovieProperty.votes, data.get("imdbVotes").replaceAll("\\D", ""));
+		fields.put(MovieProperty.imdb_id, data.get("imdbID"));
+		
+		List<String> genres = new ArrayList<String>();
+		for (String it : data.get("genre").split(",")) {
+			genres.add(it.trim());
+		}
+		
+		List<Person> actors = new ArrayList<Person>();
+		for (String it : data.get("actors").split(",")) {
+			actors.add(new Person(it.trim(), null, "Actor", null, null));
+		}
+		
+		List<Artwork> image = singletonList(new Artwork("poster", data.get("poster"), null, null, null));
+		return new MovieInfo(fields, genres, actors, image);
+	}
 }

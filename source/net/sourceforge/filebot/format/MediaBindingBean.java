@@ -398,6 +398,23 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("imdbapi")
+	public synchronized AssociativeScriptObject getImdbApiInfo() {
+		Object data = null;
+		
+		try {
+			if (infoObject instanceof Episode)
+				data = WebServices.IMDb.getImdbApiMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1));
+			if (infoObject instanceof Movie)
+				data = WebServices.IMDb.getImdbApiMovieInfo(getMovie());
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
+		}
+		
+		return createMapBindings(new PropertyBindings(data, null));
+	}
+	
+	
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
 		return WebServices.TheTVDB.getEpisodeList(WebServices.TheTVDB.search(getEpisode().getSeriesName()).get(0), SortOrder.Airdate, Locale.ENGLISH);

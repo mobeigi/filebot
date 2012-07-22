@@ -163,6 +163,10 @@ def getRenameLog(complete = false) {
 import net.sourceforge.filebot.media.*
 import net.sourceforge.filebot.similarity.*
 
+def stripReleaseInfo(name, strict = true) {
+	return MediaDetection.stripReleaseInfo([name], strict)[0]
+}
+
 def isEpisode(path, strict = true) {
 	def input = path instanceof File ? path.name : path.toString()
 	return MediaDetection.isEpisode(input, strict)
