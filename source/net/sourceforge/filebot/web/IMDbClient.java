@@ -176,9 +176,9 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<String, String> getImdbApiData(String i, String t, String y) throws IOException {
+	public Map<String, String> getImdbApiData(Integer i, String t, String y, boolean tomatoes) throws IOException {
 		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
-		String url = String.format("http://www.imdbapi.com/?i=%s&t=%s&y=%s&r=xml", i, t, y);
+		String url = String.format("http://www.imdbapi.com/?i=%s&t=%s&y=%s&r=xml&tomatoes=%s", String.format(i == null ? "" : "tt%07d", i), t, y, tomatoes);
 		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class, 7 * 24 * 60 * 60 * 1000) {
 			
 			@Override
@@ -197,7 +197,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	
 	public MovieInfo getImdbApiMovieInfo(Movie movie) throws IOException {
-		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(String.format("tt%07d", movie.getImdbId()), "", "") : getImdbApiData("", movie.getName(), String.valueOf(movie.getYear()));
+		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(movie.getImdbId(), "", "", false) : getImdbApiData(null, movie.getName(), String.valueOf(movie.getYear()), false);
 		
 		// sanity check
 		if (!Boolean.parseBoolean(data.get("response"))) {
