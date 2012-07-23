@@ -351,7 +351,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					
 					// match movie info to movie files that match the nfo file name
 					SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
-					String baseName = stripReleaseInfo(getName(nfo).toLowerCase());
+					String baseName = stripReleaseInfo(getName(nfo)).toLowerCase();
 					
 					for (File movieFile : siblingMovieFiles) {
 						if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
@@ -378,7 +378,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		movieMatchFiles.addAll(filter(files, DISK_FOLDERS));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
-		// map movies to (possibly multiple) files (in natural order) 
+		// map movies to (possibly multiple) files (in natural order)
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// map all files by movie
@@ -509,7 +509,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						CLILogger.info(format("Skipped [%s] because [%s] already exists", source, destination));
 					}
 					
-					// remember successfully renamed matches for history entry and possible revert 
+					// remember successfully renamed matches for history entry and possible revert
 					renameLog.add(new SimpleImmutableEntry<File, File>(source, destination));
 				} catch (IOException e) {
 					CLILogger.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));

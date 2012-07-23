@@ -124,7 +124,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				
 				// match movie info to movie files that match the nfo file name
 				SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
-				String baseName = stripReleaseInfo(getName(nfo).toLowerCase());
+				String baseName = stripReleaseInfo(getName(nfo)).toLowerCase();
 				
 				for (File movieFile : siblingMovieFiles) {
 					if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
@@ -181,7 +181,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			executor.shutdownNow();
 		}
 		
-		// map movies to (possibly multiple) files (in natural order) 
+		// map movies to (possibly multiple) files (in natural order)
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
 		
 		// collect movie part data
