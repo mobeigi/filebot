@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
@@ -92,9 +93,14 @@ public class IMDbClient implements MovieIdentificationService {
 		
 		// we might have been redirected to the movie page
 		if (results.isEmpty()) {
-			Movie movie = scrapeMovie(dom, locale);
-			if (movie != null) {
-				results.add(movie);
+			try {
+				int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
+				Movie movie = getMovieDescriptor(imdbid, locale);
+				if (movie == null) {
+					results.add(movie);
+				}
+			} catch (Exception e) {
+				// ignore, can't find movie
 			}
 		}
 		
@@ -115,7 +121,7 @@ public class IMDbClient implements MovieIdentificationService {
 			// try to get localized name
 			if (locale != null && locale != Locale.ROOT) {
 				try {
-					String languageName = locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase();
+					String language = String.format("(%s title)", locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase());
 					List<Node> akaRows = selectNodes("//*[@name='akas']//following::TABLE[1]//TR", dom);
 					
 					for (Node aka : akaRows) {
@@ -123,7 +129,7 @@ public class IMDbClient implements MovieIdentificationService {
 						String akaTitle = getTextContent(columns.get(0));
 						String languageDesc = getTextContent(columns.get(1)).toLowerCase();
 						
-						if (languageName.length() > 0 && languageDesc.contains(languageName)) {
+						if (language.length() > 0 && languageDesc.contains(language) && frequency(asList(languageDesc.split("\\W")), "title") == 1) {
 							name = akaTitle;
 							break;
 						}
@@ -207,7 +213,6 @@ public class IMDbClient implements MovieIdentificationService {
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
 		fields.put(MovieProperty.name, data.get("title"));
 		fields.put(MovieProperty.certification, data.get("rated"));
-		fields.put(MovieProperty.released, Date.parse(data.get("released"), "dd MMM yyyy").toString());
 		fields.put(MovieProperty.tagline, data.get("plot"));
 		fields.put(MovieProperty.rating, data.get("imdbRating"));
 		fields.put(MovieProperty.votes, data.get("imdbVotes").replaceAll("\\D", ""));

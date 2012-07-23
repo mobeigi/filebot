@@ -59,4 +59,14 @@ public class IMDbClientTest {
 		assertEquals(106559, movie.getImdbId(), 0);
 	}
 	
+	
+	@Test
+	public void getAkaMovieDescriptorExtra() throws Exception {
+		Movie movie = imdb.getMovieDescriptor(470761, Locale.ENGLISH);
+		
+		assertEquals("First Born", movie.getName());
+		assertEquals(2007, movie.getYear());
+		assertEquals(470761, movie.getImdbId(), 0);
+	}
+	
 }
