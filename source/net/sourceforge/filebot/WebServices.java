@@ -91,25 +91,29 @@ public final class WebServices {
 		throw new UnsupportedOperationException();
 	}
 	
-	
 	/**
 	 * Initialize client settings from system properties
 	 */
 	static {
-		String[] osdbLogin = getLogin(System.getProperty("osdb.user"));
+		String[] osdbLogin = getLogin("osdb.user");
 		OpenSubtitles.setUser(osdbLogin[0], osdbLogin[1]);
 		
-		String[] sublightClientLogin = getLogin(System.getProperty("sublight.client"));
+		String[] sublightClientLogin = getLogin("sublight.client");
 		Sublight.setClient(sublightClientLogin[0], sublightClientLogin[1]);
 		
-		String[] sublightUserLogin = getLogin(System.getProperty("sublight.user"));
+		String[] sublightUserLogin = getLogin("sublight.user");
 		Sublight.setUser(sublightUserLogin[0], sublightUserLogin[1]);
 	}
 	
 	
-	private static String[] getLogin(String login) {
-		if (login == null)
-			return new String[] { "", "" };
+	private static String[] getLogin(String key) {
+		// try system property first
+		String login = System.getProperty(key);
+		
+		// try settings second
+		if (login == null) {
+			login = Settings.forPackage(WebServices.class).get(key, ":");
+		}
 		
 		return login.split(":", 2);
 	}
