@@ -10,8 +10,21 @@ def updateFrequency = 5 * 60 * 1000
 // spawn daemon thread
 Thread.startDaemon {
 	while (sleep(updateFrequency) || true) {
-		args.eachMediaFolder {
-			rename(folder:it)
+		// extract all
+		if (_args.extract) {
+			extract(file:args.getFiles{ it.isArchive() }, output:'.')
+		}
+		
+		// subtitles for all
+		if (_args.getSubtitles) {
+			getMissingSubtitles(file:args.getFiles{ it.isVideo() }, output:'srt')
+		}
+			
+		// rename all
+		if (_args.rename) {
+			args.eachMediaFolder {
+				rename(folder:it)
+			}
 		}
 	}
 }

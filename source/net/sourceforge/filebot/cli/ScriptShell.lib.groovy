@@ -138,8 +138,8 @@ def createWatchService(Closure callback, List folders, boolean watchTree) {
 		}
 	}
 	
-	// collect updates for 5 minutes and then batch process
-	watchService.setCommitDelay(5 * 60 * 1000)
+	// collect updates for 500 ms and then batch process
+	watchService.setCommitDelay(500)
 	watchService.setCommitPerFolder(watchTree)
 	
 	// start watching given files
@@ -275,13 +275,15 @@ def _files(args) {
 		(args.folder as File).traverse(type:FILES, maxDepth:0) { files += it }
 	}
 	if (args.file) {
-		if (args.file instanceof Iterable || args.file instanceof File[]) {
+		if (args.file instanceof Iterable || args.file instanceof Object[]) {
 			files += args.file as List
 		} else {
 			files += args.file as File
 		}
 	}
-	return files
+	
+	// ignore invalid input
+	return files.flatten().findResults{ it as File }
 }
 
 
