@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
@@ -42,7 +44,7 @@ public class TMDbClient implements MovieIdentificationService {
 	private static final String version = "3";
 	
 	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 12, TimeUnit.SECONDS);
-	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(30, 12, TimeUnit.SECONDS);
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 12, TimeUnit.SECONDS);
 	
 	private final String apikey;
 	
@@ -241,6 +243,12 @@ public class TMDbClient implements MovieIdentificationService {
 					}
 				}
 				return super.fetchData(url, lastModified);
+			}
+			
+			
+			@Override
+			protected Cache getCache() {
+				return CacheManager.getInstance().getCache("web-data-diskcache");
 			}
 		};
 		

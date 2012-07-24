@@ -34,14 +34,14 @@
 	/>
 	
 	<!--
-	Short-lived (48 hours) persistent disk cache for full web pages
+	Long-lived (1 week) persistent disk cache for full web pages
 	-->
 	<cache name="web-data-diskcache"
 		maxElementsInMemory="50"
 		maxElementsOnDisk="5000"
 		eternal="false"
-		timeToIdleSeconds="172800"
-		timeToLiveSeconds="172800"
+		timeToIdleSeconds="604800"
+		timeToLiveSeconds="604800"
 		overflowToDisk="true"
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"

@@ -28,6 +28,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -194,6 +196,12 @@ public class IMDbClient implements MovieIdentificationService {
 					attr.put(it.getNodeName(), it.getTextContent());
 				}
 				return attr;
+			}
+			
+			
+			@Override
+			protected Cache getCache() {
+				return CacheManager.getInstance().getCache("web-data-diskcache");
 			}
 		};
 		
