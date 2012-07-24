@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.WeakHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -102,21 +101,46 @@ public class ReleaseInfo {
 		return lastMatch;
 	}
 	
+	// cached patterns
+	private Pattern[] strict_stopwords;
+	private Pattern[] strict_blacklist;
+	private Pattern[] nonstrict_stopwords;
+	private Pattern[] nonstrict_blacklist;
+	
 	
 	public List<String> cleanRelease(Collection<String> items, boolean strict) throws IOException {
-		Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+		Pattern[] stopwords;
+		Pattern[] blacklist;
 		
-		Pattern clutterBracket = getClutterBracketPattern(strict);
-		Pattern releaseGroup = getReleaseGroupPattern(strict);
-		Pattern languageSuffix = getLanguageSuffixPattern(languages);
-		Pattern languageTag = getLanguageTagPattern(languages);
-		Pattern videoSource = getVideoSourcePattern();
-		Pattern videoFormat = getVideoFormatPattern();
-		Pattern resolution = getResolutionPattern();
-		Pattern queryBlacklist = getBlacklistPattern();
-		
-		Pattern[] stopwords = new Pattern[] { languageTag, videoSource, videoFormat, resolution, languageSuffix };
-		Pattern[] blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
+		// initialize cached patterns
+		synchronized (this) {
+			stopwords = strict ? strict_stopwords : nonstrict_stopwords;
+			blacklist = strict ? strict_blacklist : nonstrict_blacklist;
+			
+			if (stopwords == null || blacklist == null) {
+				Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
+				Pattern clutterBracket = getClutterBracketPattern(strict);
+				Pattern releaseGroup = getReleaseGroupPattern(strict);
+				Pattern languageSuffix = getLanguageSuffixPattern(languages);
+				Pattern languageTag = getLanguageTagPattern(languages);
+				Pattern videoSource = getVideoSourcePattern();
+				Pattern videoFormat = getVideoFormatPattern();
+				Pattern resolution = getResolutionPattern();
+				Pattern queryBlacklist = getBlacklistPattern();
+				
+				stopwords = new Pattern[] { languageTag, videoSource, videoFormat, resolution, languageSuffix };
+				blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
+				
+				// cache compiled patterns for common usage
+				if (strict) {
+					strict_stopwords = stopwords;
+					strict_blacklist = blacklist;
+				} else {
+					nonstrict_stopwords = stopwords;
+					nonstrict_blacklist = blacklist;
+				}
+			}
+		}
 		
 		List<String> output = new ArrayList<String>(items.size());
 		for (String it : items) {
@@ -334,17 +358,8 @@ public class ReleaseInfo {
 		return patterns;
 	}
 	
-	private final Map<Set<Locale>, Map<String, Locale>> languageMapCache = synchronizedMap(new WeakHashMap<Set<Locale>, Map<String, Locale>>(2));
-	
 	
 	private Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
-		// try cache
-		Set<Locale> displayLocales = new HashSet<Locale>(asList(supportedDisplayLocale));
-		Map<String, Locale> languageMap = languageMapCache.get(displayLocales);
-		if (languageMap != null) {
-			return languageMap;
-		}
-		
 		// use maximum strength collator by default
 		Collator collator = Collator.getInstance(Locale.ROOT);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
@@ -352,7 +367,7 @@ public class ReleaseInfo {
 		
 		@SuppressWarnings("unchecked")
 		Comparator<String> order = (Comparator) collator;
-		languageMap = new TreeMap<String, Locale>(order);
+		Map<String, Locale> languageMap = languageMap = new TreeMap<String, Locale>(order);
 		
 		for (String code : Locale.getISOLanguages()) {
 			Locale locale = new Locale(code);
@@ -360,7 +375,7 @@ public class ReleaseInfo {
 			languageMap.put(locale.getISO3Language(), locale);
 			
 			// map display language names for given locales
-			for (Locale language : displayLocales) {
+			for (Locale language : new HashSet<Locale>(asList(supportedDisplayLocale))) {
 				// make sure language name is properly normalized so accents and whatever don't break the regex pattern syntax
 				String languageName = Normalizer.normalize(locale.getDisplayLanguage(language), Form.NFKD);
 				languageMap.put(languageName, locale);
@@ -373,7 +388,6 @@ public class ReleaseInfo {
 		languageMap.remove("III");
 		
 		Map<String, Locale> result = unmodifiableMap(languageMap);
-		languageMapCache.put(displayLocales, result);
 		return result;
 	}
 }

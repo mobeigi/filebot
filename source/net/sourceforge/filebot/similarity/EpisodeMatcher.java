@@ -7,13 +7,13 @@ import static java.util.Collections.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.web.Episode;
@@ -77,9 +77,8 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		
 	}
 	
-	
 	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
-	private final Map<File, Set<SxE>> transformCache = synchronizedMap(new WeakHashMap<File, Set<SxE>>(64, 4));
+	private final Map<File, Set<SxE>> transformCache = synchronizedMap(new HashMap<File, Set<SxE>>(64, 4));
 	
 	
 	private Set<SxE> parseEpisodeIdentifer(File file) {

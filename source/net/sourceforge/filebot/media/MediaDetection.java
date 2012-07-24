@@ -31,7 +31,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -427,7 +426,6 @@ public class MediaDetection {
 		return null;
 	}
 	
-	
 	private static List<Entry<String, Movie>> movieIndex;
 	
 	
@@ -531,7 +529,7 @@ public class MediaDetection {
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		for (String query : querySet) {
-			for (Movie movie : queryLookupService.searchMovie(query, locale)) {
+			for (Movie movie : queryLookupService.searchMovie(query.toLowerCase(), locale)) {
 				probabilityMap.put(movie, metric.getSimilarity(query, movie));
 			}
 		}
@@ -660,7 +658,7 @@ public class MediaDetection {
 		
 		private static final Collator collator = getLenientCollator(Locale.ENGLISH);
 		
-		private static final Map<String, CollationKey[]> transformCache = synchronizedMap(new WeakHashMap<String, CollationKey[]>(65536));
+		private static final Map<String, CollationKey[]> transformCache = synchronizedMap(new HashMap<String, CollationKey[]>(65536));
 		
 		
 		public HighPerformanceMatcher(int maxStartIndex) {

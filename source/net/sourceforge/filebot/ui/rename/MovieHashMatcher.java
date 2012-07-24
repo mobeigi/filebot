@@ -15,11 +15,11 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -144,21 +144,30 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
 		// match remaining movies file by file in parallel
-		List<Future<Entry<File, Collection<Movie>>>> grabMovieJobs = new ArrayList<Future<Entry<File, Collection<Movie>>>>();
+		List<Future<Map<File, Collection<Movie>>>> grabMovieJobs = new ArrayList<Future<Map<File, Collection<Movie>>>>();
 		
 		// process in parallel
 		ExecutorService executor = Executors.newFixedThreadPool(getPreferredThreadPoolSize());
 		
 		// map all files by movie
-		for (final File file : movieMatchFiles) {
-			if (movieByFile.containsKey(file))
-				continue;
-			
-			grabMovieJobs.add(executor.submit(new Callable<Entry<File, Collection<Movie>>>() {
+		List<File> remainingFiles = new ArrayList<File>();
+		
+		for (File file : movieMatchFiles) {
+			if (!movieByFile.containsKey(file)) {
+				remainingFiles.add(file);
+			}
+		}
+		
+		for (final Collection<File> folder : mapByFolder(remainingFiles).values()) {
+			grabMovieJobs.add(executor.submit(new Callable<Map<File, Collection<Movie>>>() {
 				
 				@Override
-				public SimpleEntry<File, Collection<Movie>> call() throws Exception {
-					return new SimpleEntry<File, Collection<Movie>>(file, detectMovie(file, null, service, locale, false));
+				public Map<File, Collection<Movie>> call() throws Exception {
+					Map<File, Collection<Movie>> detection = new LinkedHashMap<File, Collection<Movie>>();
+					for (File f : folder) {
+						detection.put(f, detectMovie(f, null, service, locale, false));
+					}
+					return detection;
 				}
 			}));
 		}
@@ -169,12 +178,14 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		memory.put("selection", new TreeMap<String, String>(getLenientCollator(locale)));
 		
 		try {
-			for (Future<Entry<File, Collection<Movie>>> it : grabMovieJobs) {
+			for (Future<Map<File, Collection<Movie>>> detection : grabMovieJobs) {
 				// auto-select movie or ask user
-				File movieFile = it.get().getKey();
-				Movie movie = grabMovieName(movieFile, it.get().getValue(), locale, autodetect, memory, parent);
-				if (movie != null) {
-					movieByFile.put(movieFile, movie);
+				for (Entry<File, Collection<Movie>> it : detection.get().entrySet()) {
+					File movieFile = it.getKey();
+					Movie movie = grabMovieName(movieFile, it.getValue(), locale, autodetect, memory, parent);
+					if (movie != null) {
+						movieByFile.put(movieFile, movie);
+					}
 				}
 			}
 		} finally {

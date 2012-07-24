@@ -7,9 +7,9 @@ import static java.util.Collections.*;
 
 import java.text.CollationKey;
 import java.text.Collator;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 
 public class CommonSequenceMatcher {
@@ -21,7 +21,6 @@ public class CommonSequenceMatcher {
 		collator.setStrength(Collator.PRIMARY);
 		return collator;
 	}
-	
 	
 	protected final Collator collator;
 	protected final int commonSequenceMaxStartIndex;
@@ -81,8 +80,7 @@ public class CommonSequenceMatcher {
 		return getCollationKeys(sequence.split("\\s+"));
 	}
 	
-	
-	private final Map<String, CollationKey> collationKeyDictionary = synchronizedMap(new WeakHashMap<String, CollationKey>(256));
+	private final Map<String, CollationKey> collationKeyDictionary = synchronizedMap(new HashMap<String, CollationKey>(256));
 	
 	
 	protected CollationKey[] getCollationKeys(String[] words) {

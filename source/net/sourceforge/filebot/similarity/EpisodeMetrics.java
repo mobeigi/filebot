@@ -10,8 +10,8 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
@@ -26,7 +26,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by season / episode numbers
 	SeasonEpisode(new SeasonEpisodeMetric() {
 		
-		private final Map<Object, Collection<SxE>> transformCache = synchronizedMap(new WeakHashMap<Object, Collection<SxE>>(64, 4));
+		private final Map<Object, Collection<SxE>> transformCache = synchronizedMap(new HashMap<Object, Collection<SxE>>(64, 4));
 		
 		
 		@Override
@@ -64,7 +64,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match episode airdate
 	AirDate(new DateMetric() {
 		
-		private final Map<Object, Date> transformCache = synchronizedMap(new WeakHashMap<Object, Date>(64, 4));
+		private final Map<Object, Date> transformCache = synchronizedMap(new HashMap<Object, Date>(64, 4));
 		
 		
 		@Override
@@ -118,8 +118,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	EpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate)),
 	
 	// Advanced episode <-> file matching
-	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)),
-	EpisodeBalancer(new SimilarityMetric() {
+	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)), EpisodeBalancer(new SimilarityMetric() {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
@@ -301,7 +300,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		return metric.getSimilarity(o1, o2);
 	}
 	
-	private static final Map<Object, String> transformCache = synchronizedMap(new WeakHashMap<Object, String>(64, 4));
+	private static final Map<Object, String> transformCache = synchronizedMap(new HashMap<Object, String>(64, 4));
 	
 	
 	protected static String normalizeObject(Object object) {
