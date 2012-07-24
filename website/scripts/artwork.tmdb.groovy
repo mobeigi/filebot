@@ -1,56 +1,11 @@
-// filebot -script "http://filebot.sf.net/scripts/artwork.tmdb.groovy" -trust-script /path/to/media/
+// filebot -script fn:artwork.tmdb /path/to/movies/
 
 /*
  * Fetch movie artwork. The movie is determined using the parent folders name.
  */
 
-def fetchArtwork(outputFile, movieInfo, artworkType, artworkSize) {
-	// select and fetch artwork
-	def artwork = movieInfo.images.find { it.type == artworkType && it.size == artworkSize }
-	if (artwork == null) {
-		println "Artwork not found: $outputFile"
-		return null
-	}
-	
-	println "Fetching $outputFile => $artwork"
-	return artwork.url.saveAs(outputFile)
-}
-
-
-def fetchNfo(outputFile, movieInfo) {
-	movieInfo.applyXmlTemplate('''<movie>
-			<title>$name</title>
-			<year>$released.year</year>
-			<rating>$rating</rating>
-			<votes>$votes</votes>
-			<plot>$overview</plot>
-			<runtime>$runtime</runtime>
-			<mpaa>$certification</mpaa>
-			<genre>${!genres.empty ? genres[0] : ''}</genre>
-			<id>tt${imdbId.pad(7)}</id>
-		</movie>
-	''')
-	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
-	.saveAs(outputFile)
-}
-
-
-def fetchMovieArtworkAndNfo(movieDir, movie) {
-	println "Fetch nfo and artwork for $movie"
-	def movieInfo = TheMovieDB.getMovieInfo(movie, Locale.ENGLISH)
-	
-	println movieInfo
-	movieInfo.images.each {
-		println "Available artwork: $it.url => $it"
-	}
-	
-	// fetch nfo
-	fetchNfo(movieDir['movie.nfo'], movieInfo)
-	
-	// fetch series banner, fanart, posters, etc
-	fetchArtwork(movieDir['folder.jpg'], movieInfo, 'poster', 'original')
-	fetchArtwork(movieDir['backdrop.jpg'], movieInfo, 'backdrop', 'original')
-}
+// xbmc artwork/nfo utility
+include("fn:lib/xbmc")
 
 
 args.eachMediaFolder { dir ->
@@ -72,7 +27,7 @@ args.eachMediaFolder { dir ->
 	// sort by relevance
 	options = options.sortBySimilarity(query, { it.name })
 	
-	// auto-select series
+	// auto-select movie
 	def movie = options[0]
 	
 	// maybe require user input

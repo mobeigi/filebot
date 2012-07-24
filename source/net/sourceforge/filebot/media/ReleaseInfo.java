@@ -226,7 +226,6 @@ public class ReleaseInfo {
 		return new FileFolderNameFilter(compile(getBundle(getClass().getName()).getString("pattern.file.ignore")));
 	}
 	
-	
 	// fetch release group names online and try to update the data every other day
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
@@ -264,7 +263,7 @@ public class ReleaseInfo {
 				int imdbid = scanner.nextInt();
 				String name = scanner.next();
 				int year = scanner.nextInt();
-				movies.add(new Movie(name, year, imdbid));
+				movies.add(new Movie(name, year, imdbid, -1));
 			}
 			
 			return movies.toArray(new Movie[0]);
@@ -334,7 +333,6 @@ public class ReleaseInfo {
 		}
 		return patterns;
 	}
-	
 	
 	private final Map<Set<Locale>, Map<String, Locale>> languageMapCache = synchronizedMap(new WeakHashMap<Set<Locale>, Map<String, Locale>>(2));
 	

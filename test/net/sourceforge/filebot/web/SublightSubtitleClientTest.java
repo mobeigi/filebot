@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import net.sublight.webservice.Subtitle;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import net.sublight.webservice.Subtitle;
 
 
 public class SublightSubtitleClientTest {
@@ -46,7 +46,7 @@ public class SublightSubtitleClientTest {
 	
 	@Test
 	public void getSubtitleListEnglish() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Heroes", 2006, 813715), "English");
+		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Heroes", 2006, 813715, -1), "English");
 		
 		SubtitleDescriptor sample = list.get(0);
 		assertEquals("English", sample.getLanguageName());
@@ -58,7 +58,7 @@ public class SublightSubtitleClientTest {
 	
 	@Test
 	public void getSubtitleListAllLanguages() {
-		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064), "Croatian");
+		List<SubtitleDescriptor> list = client.getSubtitleList(new Movie("Terminator 2", 1991, 103064, -1), "Croatian");
 		
 		SubtitleDescriptor sample = list.get(0);
 		

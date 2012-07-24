@@ -85,8 +85,7 @@ import net.sourceforge.tuned.FileUtilities.ParentFilter;
 public class CmdlineOperations implements CmdlineInterface {
 	
 	@Override
-	public List<File> rename(Collection<File> files, RenameAction action, String conflict, String output, String formatExpression, String db, String query, String sortOrder, String filterExpression, String lang, boolean strict)
-			throws Exception {
+	public List<File> rename(Collection<File> files, RenameAction action, String conflict, String output, String formatExpression, String db, String query, String sortOrder, String filterExpression, String lang, boolean strict) throws Exception {
 		ExpressionFormat format = (formatExpression != null) ? new ExpressionFormat(formatExpression) : null;
 		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
 		File outputDir = (output != null && output.length() > 0) ? new File(output).getAbsoluteFile() : null;
@@ -143,8 +142,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder,
-			ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		
@@ -290,8 +288,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, Locale locale, boolean strict)
-			throws Exception {
+	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
 		// ignore sample files

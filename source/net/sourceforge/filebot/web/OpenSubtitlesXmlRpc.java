@@ -143,7 +143,7 @@ public class OpenSubtitlesXmlRpc {
 				String name = matcher.group(1).replaceAll("\"", "").trim();
 				int year = Integer.parseInt(matcher.group(2));
 				
-				movies.add(new Movie(name, year, Integer.parseInt(imdbid)));
+				movies.add(new Movie(name, year, Integer.parseInt(imdbid), -1));
 			} catch (Exception e) {
 				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
 			}
@@ -238,7 +238,7 @@ public class OpenSubtitlesXmlRpc {
 				int year = Integer.parseInt(info.get("MovieYear"));
 				int imdb = Integer.parseInt(info.get("MovieImdbID"));
 				
-				movieHashMap.put(hash, new Movie(name, year, imdb));
+				movieHashMap.put(hash, new Movie(name, year, imdb, -1));
 			}
 		}
 		
@@ -261,7 +261,7 @@ public class OpenSubtitlesXmlRpc {
 			String name = data.get("title");
 			int year = Integer.parseInt(data.get("year"));
 			
-			return new Movie(name, year, imdbid);
+			return new Movie(name, year, imdbid, -1);
 		} catch (RuntimeException e) {
 			// ignore, invalid response
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));

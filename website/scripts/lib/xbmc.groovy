@@ -93,15 +93,16 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 
 
 // functions for TheMovieDB artwork/nfo
-def fetchMovieArtwork(outputFile, movieInfo, artworkType, artworkSize) {
+def fetchMovieArtwork(outputFile, movieInfo, category, language) {
 	// select and fetch artwork
-	def artwork = movieInfo.images.find { it.type == artworkType && it.size == artworkSize }
-	if (artwork == null) {
+	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
+	def selection = [language, 'en', null].findResult{ l -> artwork.find{ (l == it.language || l == null) && it.category == category } }
+	if (selection == null) {
 		println "Artwork not found: $outputFile"
 		return null
 	}
-	println "Fetching $outputFile => $artwork"
-	return artwork.url.saveAs(outputFile)
+	println "Fetching $outputFile => $selection"
+	return selection.url.saveAs(outputFile)
 }
 
 def fetchMovieNfo(outputFile, movieInfo) {
@@ -124,12 +125,13 @@ def fetchMovieNfo(outputFile, movieInfo) {
 def fetchMovieArtworkAndNfo(movieDir, movie, locale = _args.locale) {
 	try {
 		def movieInfo = TheMovieDB.getMovieInfo(movie, locale)
+		
 		// fetch nfo
 		fetchMovieNfo(movieDir['movie.nfo'], movieInfo)
 		
 		// fetch series banner, fanart, posters, etc
-		fetchMovieArtwork(movieDir['folder.jpg'], movieInfo, 'poster', 'original')
-		fetchMovieArtwork(movieDir['backdrop.jpg'], movieInfo, 'backdrop', 'original')
+		fetchMovieArtwork(movieDir['folder.jpg'], movieInfo, 'posters', locale.language)
+		fetchMovieArtwork(movieDir['backdrop.jpg'], movieInfo, 'backdrops', locale.language)
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
 	}

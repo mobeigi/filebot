@@ -5,17 +5,18 @@ package net.sourceforge.filebot.web;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,19 +28,18 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.web.TMDbClient.Artwork.ArtworkProperty;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 
 public class TMDbClient implements MovieIdentificationService {
 	
 	private static final String host = "api.themoviedb.org";
-	private static final String version = "2.1";
+	private static final String version = "3";
 	
 	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 12, TimeUnit.SECONDS);
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(30, 12, TimeUnit.SECONDS);
@@ -66,40 +66,41 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
-		try {
-			return getMovies("Movie.search", encode(query), locale, SEARCH_LIMIT);
-		} catch (SAXException e) {
-			// TMDb output is sometimes malformed xml
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
-			return emptyList();
+		JSONObject response = request("search/movie", singletonMap("query", query), locale, SEARCH_LIMIT);
+		List<Movie> result = new ArrayList<Movie>();
+		
+		for (JSONObject it : jsonList(response.get("results"))) {
+			// e.g. {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
+			String title = (String) it.get("title");
+			if (title == null || title.isEmpty()) {
+				title = (String) it.get("original_title");
+			}
+			
+			try {
+				long id = (Long) it.get("id");
+				int year = -1;
+				try {
+					String release = (String) it.get("release_date");
+					year = new Scanner(release).useDelimiter("\\D+").nextInt();
+				} catch (Exception e) {
+					throw new IllegalArgumentException("Missing data: year");
+				}
+				result.add(new Movie(title, year, -1, (int) id));
+			} catch (Exception e) {
+				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+			}
 		}
-	}
-	
-	
-	public List<Movie> searchMovie(String hash, long bytesize, Locale locale) throws IOException, SAXException {
-		return getMovies("Media.getInfo", hash + "/" + bytesize, locale, SEARCH_LIMIT);
+		return result;
 	}
 	
 	
 	@Override
-	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale, REQUEST_LIMIT);
-		Node movie = selectNode("//movie", dom);
-		
-		if (movie == null)
-			return null;
-		
-		String name = getTextContent("name", movie);
-		String released = getTextContent("released", movie);
-		int year = -1;
-		
-		try {
-			year = new Scanner(released).useDelimiter("\\D+").nextInt();
-		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal release year: " + released);
+	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
+		MovieInfo info = getMovieInfo(String.format("tt%07d", imdbid), locale, false);
+		if (info != null) {
+			return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
 		}
-		
-		return new Movie(name, year, imdbid);
+		return null;
 	}
 	
 	
@@ -109,159 +110,173 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	protected List<Movie> getMovies(String method, String parameter, Locale locale, FloodLimit limit) throws IOException, SAXException {
-		Document dom = fetchResource(method, parameter, locale, limit);
-		List<Movie> result = new ArrayList<Movie>();
-		
-		for (Node node : selectNodes("//movie", dom)) {
-			String name = getTextContent("name", node);
-			try {
-				// release date format will be YYYY-MM-DD, but we only care about the year
-				int year = -1;
-				try {
-					year = new Scanner(getTextContent("released", node)).useDelimiter("\\D+").nextInt();
-				} catch (RuntimeException e) {
-					throw new IllegalArgumentException("Missing data: year");
-				}
-				
-				// imdb id will be tt1234567, but we only care about the number
-				int imdbid = -1;
-				try {
-					imdbid = new Scanner(getTextContent("imdb_id", node)).useDelimiter("\\D+").nextInt();
-				} catch (RuntimeException e) {
-					// ignore
-				}
-				
-				result.add(new Movie(name, year, imdbid));
-			} catch (Exception e) {
-				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", name, e.getMessage()));
-			}
-		}
-		
-		return result;
-	}
-	
-	
-	protected URL getResourceLocation(String method, String parameter, Locale locale) throws MalformedURLException {
-		// e.g. http://api.themoviedb.org/2.1/Movie.search/en/xml/{apikey}/serenity
-		return new URL("http", host, "/" + version + "/" + method + "/" + locale.getLanguage() + "/xml/" + apikey + "/" + parameter);
-	}
-	
-	
-	protected Document fetchResource(String method, String parameter, Locale locale, final FloodLimit limit) throws IOException, SAXException {
-		return getDocument(new CachedPage(getResourceLocation(method, parameter, locale)) {
-			
-			@Override
-			protected Reader openConnection(URL url) throws IOException {
-				try {
-					if (limit != null) {
-						limit.acquirePermit();
-					}
-					return super.openConnection(url);
-				} catch (InterruptedException e) {
-					throw new IOException(e);
-				}
-			};
-		}.get());
-	}
-	
-	
-	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws Exception {
-		if (movie.getImdbId() >= 0) {
-			return getMovieInfoByIMDbID(movie.getImdbId(), Locale.ENGLISH);
+	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws IOException {
+		if (movie.getTmdbId() >= 0) {
+			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true);
+		} else if (movie.getImdbId() >= 0) {
+			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, true);
 		} else {
-			return getMovieInfoByName(movie.getName(), movie.getYear(), Locale.ENGLISH);
-		}
-	}
-	
-	
-	public MovieInfo getMovieInfoByName(String name, int year, Locale locale) throws Exception {
-		for (Movie it : searchMovie(name, locale)) {
-			if (name.equalsIgnoreCase(it.getName()) && year == it.getYear()) {
-				return getMovieInfo(it, locale);
+			for (Movie it : searchMovie(movie.getName(), locale)) {
+				if (movie.getName().equalsIgnoreCase(it.getName()) && movie.getYear() == it.getYear()) {
+					return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true);
+				}
 			}
 		}
-		
 		return null;
 	}
 	
 	
-	public MovieInfo getMovieInfoByIMDbID(int imdbid, Locale locale) throws Exception {
-		if (imdbid < 0)
-			throw new IllegalArgumentException("Illegal IMDb ID: " + imdbid);
+	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws IOException {
+		JSONObject response = request("movie/" + id, null, locale, REQUEST_LIMIT);
 		
-		// resolve imdbid to tmdbid
-		Document dom = fetchResource("Movie.imdbLookup", String.format("tt%07d", imdbid), locale, REQUEST_LIMIT);
-		
-		String tmdbid = selectString("//movie/id", dom);
-		if (tmdbid == null || tmdbid.isEmpty()) {
-			throw new IllegalArgumentException("Unable to lookup tmdb entry: " + String.format("tt%07d", imdbid));
+		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
+		for (MovieProperty key : MovieProperty.values()) {
+			Object value = response.get(key.name());
+			if (value != null) {
+				fields.put(key, value.toString());
+			}
 		}
 		
-		// get complete movie info via tmdbid lookup
-		dom = fetchResource("Movie.getInfo", tmdbid, locale, REQUEST_LIMIT);
-		
-		// select info from xml
-		Node node = selectNode("//movie", dom);
-		
-		Map<MovieProperty, String> movieProperties = new EnumMap<MovieProperty, String>(MovieProperty.class);
-		for (MovieProperty property : MovieProperty.values()) {
-			movieProperties.put(property, getTextContent(property.name(), node));
+		try {
+			JSONObject collection = (JSONObject) response.get("belongs_to_collection");
+			fields.put(MovieProperty.collection, (String) collection.get("name"));
+		} catch (Exception e) {
+			// ignore
 		}
 		
 		List<String> genres = new ArrayList<String>();
-		for (Node category : selectNodes("//category[@type='genre']", node)) {
-			genres.add(getAttribute("name", category));
+		for (JSONObject it : jsonList(response.get("genres"))) {
+			genres.add((String) it.get("name"));
 		}
 		
-		List<Artwork> artwork = new ArrayList<Artwork>();
-		for (Node image : selectNodes("//image", node)) {
-			Map<ArtworkProperty, String> artworkProperties = new EnumMap<ArtworkProperty, String>(ArtworkProperty.class);
-			for (ArtworkProperty property : ArtworkProperty.values()) {
-				artworkProperties.put(property, getAttribute(property.name(), image));
+		List<String> spokenLanguages = new ArrayList<String>();
+		for (JSONObject it : jsonList(response.get("spoken_languages"))) {
+			spokenLanguages.add((String) it.get("iso_639_1"));
+		}
+		
+		if (extendedInfo) {
+			JSONObject releases = request("movie/" + fields.get(MovieProperty.id) + "/releases", null, null, REQUEST_LIMIT);
+			for (JSONObject it : jsonList(releases.get("countries"))) {
+				if ("US".equals(it.get("iso_3166_1"))) {
+					fields.put(MovieProperty.certification, (String) it.get("certification"));
+				}
 			}
-			artwork.add(new Artwork(artworkProperties));
 		}
 		
 		List<Person> cast = new ArrayList<Person>();
-		for (Node image : selectNodes("//person", node)) {
-			Map<PersonProperty, String> personProperties = new EnumMap<PersonProperty, String>(PersonProperty.class);
-			for (PersonProperty property : PersonProperty.values()) {
-				personProperties.put(property, getAttribute(property.name(), image));
+		if (extendedInfo) {
+			JSONObject castResponse = request("movie/" + fields.get(MovieProperty.id) + "/casts", null, null, REQUEST_LIMIT);
+			for (String section : new String[] { "cast", "crew" }) {
+				for (JSONObject it : jsonList(castResponse.get(section))) {
+					Map<PersonProperty, String> person = new EnumMap<PersonProperty, String>(PersonProperty.class);
+					for (PersonProperty key : PersonProperty.values()) {
+						Object value = it.get(key.name());
+						if (value != null) {
+							person.put(key, value.toString());
+						}
+					}
+					cast.add(new Person(person));
+				}
 			}
-			cast.add(new Person(personProperties));
 		}
 		
-		return new MovieInfo(movieProperties, genres, cast, artwork);
+		return new MovieInfo(fields, genres, spokenLanguages, cast);
+	}
+	
+	
+	public List<Artwork> getArtwork(String id) throws IOException {
+		// http://api.themoviedb.org/3/movie/11/images
+		JSONObject config = request("configuration", null, null, REQUEST_LIMIT);
+		String baseUrl = (String) ((JSONObject) config.get("images")).get("base_url");
+		
+		JSONObject images = request("movie/" + id + "/images", null, null, REQUEST_LIMIT);
+		List<Artwork> artwork = new ArrayList<Artwork>();
+		
+		for (String section : new String[] { "backdrops", "posters" }) {
+			for (JSONObject it : jsonList(images.get(section))) {
+				try {
+					String url = baseUrl + "original" + (String) it.get("file_path");
+					long width = (Long) it.get("width");
+					long height = (Long) it.get("height");
+					String lang = (String) it.get("iso_639_1");
+					artwork.add(new Artwork(section, new URL(url), (int) width, (int) height, lang));
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid artwork: " + it, e);
+				}
+			}
+		}
+		
+		return artwork;
+	}
+	
+	
+	public JSONObject request(String resource, Map<String, String> parameters, Locale locale, final FloodLimit limit) throws IOException {
+		// default parameters
+		LinkedHashMap<String, String> data = new LinkedHashMap<String, String>();
+		if (parameters != null) {
+			data.putAll(parameters);
+		}
+		if (locale != null && !locale.getLanguage().isEmpty()) {
+			data.put("language", locale.getLanguage());
+		}
+		data.put("api_key", apikey);
+		
+		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data));
+		
+		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class, 7 * 24 * 60 * 60 * 1000) {
+			
+			@Override
+			public String process(ByteBuffer data) throws Exception {
+				return Charset.forName("UTF-8").decode(data).toString();
+			}
+			
+			
+			@Override
+			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
+				if (limit != null) {
+					try {
+						limit.acquirePermit();
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					}
+				}
+				return super.fetchData(url, lastModified);
+			}
+		};
+		
+		return (JSONObject) JSONValue.parse(json.get());
+	}
+	
+	
+	protected List<JSONObject> jsonList(final Object array) {
+		return new AbstractList<JSONObject>() {
+			
+			@Override
+			public JSONObject get(int index) {
+				return (JSONObject) ((JSONArray) array).get(index);
+			}
+			
+			
+			@Override
+			public int size() {
+				return ((JSONArray) array).size();
+			}
+		};
 	}
 	
 	
 	public static class MovieInfo implements Serializable {
 		
 		public static enum MovieProperty {
-			translated,
-			adult,
-			language,
-			original_name,
-			name,
-			type,
-			id,
-			imdb_id,
-			url,
-			overview,
-			votes,
-			rating,
-			tagline,
-			certification,
-			released,
-			runtime
+			adult, backdrop_path, budget, homepage, id, imdb_id, original_title, overview, popularity, poster_path, release_date, revenue, runtime, tagline, title, vote_average, vote_count, certification, collection
 		}
 		
-		
 		protected Map<MovieProperty, String> fields;
+		
 		protected String[] genres;
-		protected Person[] cast;
-		protected Artwork[] images;
+		protected String[] spokenLanguages;
+		
+		protected Person[] people;
 		
 		
 		protected MovieInfo() {
@@ -269,11 +284,11 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> genres, List<Person> cast, List<Artwork> images) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> genres, List<String> spokenLanguages, List<Person> people) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
 			this.genres = genres.toArray(new String[0]);
-			this.cast = cast.toArray(new Person[0]);
-			this.images = images.toArray(new Artwork[0]);
+			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
+			this.people = people.toArray(new Person[0]);
 		}
 		
 		
@@ -287,19 +302,18 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public boolean isTranslated() {
-			return Boolean.valueOf(get(MovieProperty.translated));
-		}
-		
-		
 		public boolean isAdult() {
 			return Boolean.valueOf(get(MovieProperty.adult));
 		}
 		
 		
-		public Locale getLanguage() {
+		public List<Locale> getSpokenLanguages() {
 			try {
-				return new Locale(get(MovieProperty.language));
+				List<Locale> locales = new ArrayList<Locale>();
+				for (String it : spokenLanguages) {
+					locales.add(new Locale(it));
+				}
+				return locales;
 			} catch (Exception e) {
 				return null;
 			}
@@ -307,17 +321,12 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		
 		public String getOriginalName() {
-			return get(MovieProperty.original_name);
+			return get(MovieProperty.original_title);
 		}
 		
 		
 		public String getName() {
-			return get(MovieProperty.name);
-		}
-		
-		
-		public String getType() {
-			return get(MovieProperty.type);
+			return get(MovieProperty.title);
 		}
 		
 		
@@ -340,9 +349,9 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public URL getUrl() {
+		public URL getHomepage() {
 			try {
-				return new URL(get(MovieProperty.url));
+				return new URL(get(MovieProperty.homepage));
 			} catch (Exception e) {
 				return null;
 			}
@@ -356,7 +365,7 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public Integer getVotes() {
 			try {
-				return new Integer(get(MovieProperty.votes));
+				return new Integer(get(MovieProperty.vote_count));
 			} catch (Exception e) {
 				return null;
 			}
@@ -365,7 +374,7 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public Double getRating() {
 			try {
-				return new Double(get(MovieProperty.rating));
+				return new Double(get(MovieProperty.vote_average));
 			} catch (Exception e) {
 				return null;
 			}
@@ -383,9 +392,15 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
+		public String getCollection() {
+			// e.g. Star Wars Collection
+			return get(MovieProperty.collection);
+		}
+		
+		
 		public Date getReleased() {
 			// e.g. 2005-09-30
-			return Date.parse(get(MovieProperty.released), "yyyy-MM-dd");
+			return Date.parse(get(MovieProperty.release_date), "yyyy-MM-dd");
 		}
 		
 		
@@ -404,12 +419,12 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		
 		public List<Person> getCast() {
-			return unmodifiableList(asList(cast));
+			return unmodifiableList(asList(people));
 		}
 		
 		
 		public String getDirector() {
-			for (Person person : cast) {
+			for (Person person : people) {
 				if (person.isDirector())
 					return person.getName();
 			}
@@ -419,105 +434,12 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public List<String> getActors() {
 			List<String> actors = new ArrayList<String>();
-			for (Person person : cast) {
+			for (Person person : people) {
 				if (person.isActor()) {
 					actors.add(person.getName());
 				}
 			}
 			return actors;
-		}
-		
-		
-		public List<Artwork> getImages() {
-			return unmodifiableList(asList(images));
-		}
-		
-		
-		@Override
-		public String toString() {
-			return fields.toString();
-		}
-	}
-	
-	
-	public static class Artwork implements Serializable {
-		
-		public static enum ArtworkProperty {
-			type,
-			url,
-			size,
-			width,
-			height
-		}
-		
-		
-		protected Map<ArtworkProperty, String> fields;
-		
-		
-		protected Artwork() {
-			// used by serializer
-		}
-		
-		
-		public Artwork(Map<ArtworkProperty, String> fields) {
-			this.fields = new EnumMap<ArtworkProperty, String>(fields);
-		}
-		
-		
-		public Artwork(String type, String url, String size, String width, String height) {
-			fields = new EnumMap<ArtworkProperty, String>(ArtworkProperty.class);
-			fields.put(ArtworkProperty.type, type);
-			fields.put(ArtworkProperty.url, url);
-			fields.put(ArtworkProperty.size, size);
-			fields.put(ArtworkProperty.width, width);
-			fields.put(ArtworkProperty.height, height);
-		}
-		
-		
-		public String get(Object key) {
-			return fields.get(ArtworkProperty.valueOf(key.toString()));
-		}
-		
-		
-		public String get(ArtworkProperty key) {
-			return fields.get(key);
-		}
-		
-		
-		public String getType() {
-			return get(ArtworkProperty.type);
-		}
-		
-		
-		public URL getUrl() {
-			try {
-				return new URL(get(ArtworkProperty.url));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		
-		
-		public String getSize() {
-			return get(ArtworkProperty.size);
-		}
-		
-		
-		public Integer getWidth() {
-			try {
-				return new Integer(get(ArtworkProperty.width));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		
-		
-		public Integer getHeight() {
-			try {
-				return new Integer(get(ArtworkProperty.height));
-			} catch (Exception e) {
-				return null;
-			}
 		}
 		
 		
@@ -531,13 +453,8 @@ public class TMDbClient implements MovieIdentificationService {
 	public static class Person implements Serializable {
 		
 		public static enum PersonProperty {
-			name,
-			character,
-			job,
-			thumb,
-			department
+			name, character, job
 		}
-		
 		
 		protected Map<PersonProperty, String> fields;
 		
@@ -552,13 +469,11 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public Person(String name, String character, String job, String thumb, String department) {
+		public Person(String name, String character, String job) {
 			fields = new EnumMap<PersonProperty, String>(PersonProperty.class);
 			fields.put(PersonProperty.name, name);
 			fields.put(PersonProperty.character, character);
 			fields.put(PersonProperty.job, job);
-			fields.put(PersonProperty.thumb, thumb);
-			fields.put(PersonProperty.department, department);
 		}
 		
 		
@@ -587,22 +502,8 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public String getDepartment() {
-			return get(PersonProperty.department);
-		}
-		
-		
-		public URL getThumb() {
-			try {
-				return new URL(get(PersonProperty.thumb));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		
-		
 		public boolean isActor() {
-			return "Actor".equals(getJob());
+			return getJob() == null;
 		}
 		
 		
@@ -614,6 +515,58 @@ public class TMDbClient implements MovieIdentificationService {
 		@Override
 		public String toString() {
 			return fields.toString();
+		}
+	}
+	
+	
+	public static class Artwork {
+		
+		private String category;
+		private String language;
+		
+		private int width;
+		private int height;
+		
+		private URL url;
+		
+		
+		public Artwork(String category, URL url, int width, int height, String language) {
+			this.category = category;
+			this.url = url;
+			this.width = width;
+			this.height = height;
+			this.language = language;
+		}
+		
+		
+		public String getCategory() {
+			return category;
+		}
+		
+		
+		public String getLanguage() {
+			return language;
+		}
+		
+		
+		public int getWidth() {
+			return width;
+		}
+		
+		
+		public int getHeight() {
+			return height;
+		}
+		
+		
+		public URL getUrl() {
+			return url;
+		}
+		
+		
+		@Override
+		public String toString() {
+			return String.format("{category: %s, width: %s, height: %s, language: %s, url: %s}", category, width, height, language, url);
 		}
 	}
 	

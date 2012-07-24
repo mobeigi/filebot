@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.web.TMDbClient.Artwork;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person;
@@ -85,7 +84,7 @@ public class IMDbClient implements MovieIdentificationService {
 				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
 				String href = getAttribute("href", node);
 				
-				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href)));
+				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href), -1));
 			} catch (Exception e) {
 				// ignore illegal movies (TV Shows, Videos, Video Games, etc)
 			}
@@ -139,7 +138,7 @@ public class IMDbClient implements MovieIdentificationService {
 				}
 			}
 			
-			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url));
+			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url), -1);
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
 			return null;
@@ -211,11 +210,11 @@ public class IMDbClient implements MovieIdentificationService {
 		}
 		
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
-		fields.put(MovieProperty.name, data.get("title"));
+		fields.put(MovieProperty.title, data.get("title"));
 		fields.put(MovieProperty.certification, data.get("rated"));
 		fields.put(MovieProperty.tagline, data.get("plot"));
-		fields.put(MovieProperty.rating, data.get("imdbRating"));
-		fields.put(MovieProperty.votes, data.get("imdbVotes").replaceAll("\\D", ""));
+		fields.put(MovieProperty.vote_average, data.get("imdbRating"));
+		fields.put(MovieProperty.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
 		fields.put(MovieProperty.imdb_id, data.get("imdbID"));
 		
 		List<String> genres = new ArrayList<String>();
@@ -225,10 +224,9 @@ public class IMDbClient implements MovieIdentificationService {
 		
 		List<Person> actors = new ArrayList<Person>();
 		for (String it : data.get("actors").split(",")) {
-			actors.add(new Person(it.trim(), null, "Actor", null, null));
+			actors.add(new Person(it.trim(), null, null));
 		}
 		
-		List<Artwork> image = singletonList(new Artwork("poster", data.get("poster"), null, null, null));
-		return new MovieInfo(fields, genres, actors, image);
+		return new MovieInfo(fields, genres, new ArrayList<String>(0), actors);
 	}
 }

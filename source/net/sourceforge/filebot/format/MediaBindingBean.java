@@ -146,13 +146,19 @@ public class MediaBindingBean {
 	
 	
 	@Define("imdbid")
-	public String getImdbId() {
-		int imdb = getMovie().getImdbId();
+	public String getImdbId() throws Exception {
+		int imdbid = getMovie().getImdbId();
 		
-		if (imdb <= 0)
-			return null;
+		if (imdbid <= 0) {
+			if (getMovie().getTmdbId() <= 0) {
+				return null;
+			}
+			
+			// lookup IMDbID for TMDbID
+			imdbid = WebServices.TMDb.getMovieInfo(getMovie(), null).getImdbId();
+		}
 		
-		return String.format("%07d", imdb);
+		return String.format("%07d", imdbid);
 	}
 	
 	
@@ -381,6 +387,12 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("collection")
+	public Object getCollection() {
+		return getMetaInfo().getProperty("collection");
+	}
+	
+	
 	@Define("info")
 	public synchronized AssociativeScriptObject getMetaInfo() {
 		if (metaInfo == null) {
@@ -388,7 +400,7 @@ public class MediaBindingBean {
 				if (infoObject instanceof Episode)
 					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
 				if (infoObject instanceof Movie)
-					metaInfo = WebServices.TMDb.getMovieInfo((Movie) infoObject, Locale.ENGLISH);
+					metaInfo = WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
 			}
@@ -403,10 +415,13 @@ public class MediaBindingBean {
 		Object data = null;
 		
 		try {
-			if (infoObject instanceof Episode)
-				data = WebServices.IMDb.getImdbApiMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1));
-			if (infoObject instanceof Movie)
-				data = WebServices.IMDb.getImdbApiMovieInfo(getMovie());
+			if (infoObject instanceof Episode) {
+				data = WebServices.IMDb.getImdbApiMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
+			}
+			if (infoObject instanceof Movie) {
+				Movie m = getMovie();
+				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH).getId(), -1));
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
 		}

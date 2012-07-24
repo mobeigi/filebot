@@ -97,7 +97,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 				// remove classifier (e.g. tt0436992 -> 0436992) 
 				int id = Integer.parseInt(imdb.getId().substring(2));
 				
-				results.add(new Movie(imdb.getTitle(), imdb.getYear(), id));
+				results.add(new Movie(imdb.getTitle(), imdb.getYear(), id, -1));
 			}
 		}
 		
@@ -120,6 +120,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	}
 	
 	
+	@Override
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, final String languageName) throws Exception {
 		Map<File, List<SubtitleDescriptor>> subtitles = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 		

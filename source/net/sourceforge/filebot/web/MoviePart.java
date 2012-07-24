@@ -9,17 +9,17 @@ public class MoviePart extends Movie {
 	
 	
 	public MoviePart(MoviePart obj) {
-		this(obj.name, obj.year, obj.imdbId, obj.partIndex, obj.partCount);
+		this(obj.name, obj.year, obj.imdbId, obj.tmdbId, obj.partIndex, obj.partCount);
 	}
 	
 	
 	public MoviePart(Movie movie, int partIndex, int partCount) {
-		this(movie.name, movie.year, movie.imdbId, partIndex, partCount);
+		this(movie.name, movie.year, movie.imdbId, movie.tmdbId, partIndex, partCount);
 	}
 	
 	
-	public MoviePart(String name, int year, int imdbId, int partIndex, int partCount) {
-		super(name, year, imdbId);
+	public MoviePart(String name, int year, int imdbId, int tmdbId, int partIndex, int partCount) {
+		super(name, year, imdbId, tmdbId);
 		this.partIndex = partIndex;
 		this.partCount = partCount;
 	}

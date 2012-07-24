@@ -18,14 +18,14 @@ public class MovieFormat extends Format {
 	private final boolean includePartIndex;
 	private final boolean smart;
 	
-
+	
 	public MovieFormat(boolean includeYear, boolean includePartIndex, boolean smart) {
 		this.includeYear = includeYear;
 		this.includePartIndex = includePartIndex;
 		this.smart = smart;
 	}
 	
-
+	
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
 		// format episode object, e.g. Avatar (2009), Part 1
@@ -50,11 +50,10 @@ public class MovieFormat extends Format {
 		return sb;
 	}
 	
-
 	private final Pattern moviePattern = Pattern.compile("([^\\p{Punct}]+?)[\\p{Punct}\\s]+(\\d{4})(?:[\\p{Punct}\\s]+|$)");
 	private final Pattern partPattern = Pattern.compile("(?:Part|CD)\\D?(\\d)$", Pattern.CASE_INSENSITIVE);
 	
-
+	
 	@Override
 	public Movie parseObject(String source, ParsePosition pos) {
 		String s = source;
@@ -73,7 +72,7 @@ public class MovieFormat extends Format {
 			String name = m.group(1).trim();
 			int year = Integer.parseInt(m.group(2));
 			
-			Movie movie = new Movie(name, year, -1);
+			Movie movie = new Movie(name, year, -1, -1);
 			if (partIndex >= 0) {
 				movie = new MoviePart(movie, partIndex, partCount);
 			}
@@ -88,7 +87,7 @@ public class MovieFormat extends Format {
 		return null;
 	}
 	
-
+	
 	@Override
 	public Movie parseObject(String source) throws ParseException {
 		return (Movie) super.parseObject(source);
