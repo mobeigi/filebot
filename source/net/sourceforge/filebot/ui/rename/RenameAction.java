@@ -47,7 +47,6 @@ class RenameAction extends AbstractAction {
 	
 	public static final String RENAME_ACTION = "RENAME_ACTION";
 	
-	
 	private final RenameModel model;
 	
 	
@@ -253,7 +252,9 @@ class RenameAction extends AbstractAction {
 					firePropertyChange("currentFile", mapping.getKey(), mapping.getValue());
 					
 					// rename file, throw exception on failure
-					action.rename(mapping.getKey(), mapping.getValue());
+					if (!mapping.getKey().equals(mapping.getValue())) {
+						action.rename(mapping.getKey(), mapping.getValue());
+					}
 					
 					// remember successfully renamed matches for history entry and possible revert
 					renameLog.put(mapping.getKey(), mapping.getValue());
