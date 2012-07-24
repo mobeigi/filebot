@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.MediaTypes;
+
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
-
-import net.sourceforge.filebot.MediaTypes;
 
 
 public class ArgumentBean {
@@ -82,7 +82,7 @@ public class ArgumentBean {
 	public boolean trustScript = false;
 	
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
-	public String log = "all";
+	public String log = "CONFIG";
 	
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
@@ -148,7 +148,7 @@ public class ArgumentBean {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 			}
 			
-			// resolve folders 
+			// resolve folders
 			files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), recursive ? 10 : 0, false) : singleton(file));
 		}
 		
