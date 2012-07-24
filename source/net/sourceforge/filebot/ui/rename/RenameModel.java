@@ -21,13 +21,12 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.TransformedList;
-import ca.odell.glazedlists.event.ListEvent;
-
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.TunedUtilities;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.TransformedList;
+import ca.odell.glazedlists.event.ListEvent;
 
 
 public class RenameModel extends MatchModel<Object, File> {
@@ -284,9 +283,9 @@ public class RenameModel extends MatchModel<Object, File> {
 			future.cancel(true);
 		}
 		
-		
 		private final PropertyChangeListener futureListener = new PropertyChangeListener() {
 			
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				int index = futures.indexOf(evt.getSource());
 				
@@ -327,13 +326,13 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 		
 		public String preview() {
-			return formatter.preview(match);
+			return formatter.preview(match).trim();
 		}
 		
 		
 		@Override
 		protected String doInBackground() throws Exception {
-			return formatter.format(match);
+			return formatter.format(match).trim();
 		}
 		
 		
