@@ -24,7 +24,7 @@ import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;
 
 public class NotificationLogging extends Handler {
 	
-	public static final Logger UILogger = createNotificationLogger("net.sourceforge.filebot.ui");
+	public static final Logger UILogger = createNotificationLogger("net.sourceforge.filebot.logger.ui");
 	
 	
 	private static Logger createNotificationLogger(String name) {
