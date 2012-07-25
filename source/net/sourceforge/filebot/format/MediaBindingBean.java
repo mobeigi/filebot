@@ -517,11 +517,11 @@ public class MediaBindingBean {
 		
 		if (SUBTITLE_FILES.accept(mediaFile) || getDefaultFilter("application/nfo").accept(mediaFile)) {
 			// file is a subtitle
-			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile).toLowerCase());
+			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
 			
 			// find corresponding movie file
 			for (File movieFile : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
-				if (baseName.startsWith(stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase())) {
+				if (stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase().startsWith(baseName)) {
 					return movieFile;
 				}
 			}
