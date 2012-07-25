@@ -82,7 +82,7 @@ public class ArgumentBean {
 	public boolean trustScript = false;
 	
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
-	public String log = "CONFIG";
+	public String log = "all";
 	
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
