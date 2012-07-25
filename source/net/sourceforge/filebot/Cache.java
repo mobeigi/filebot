@@ -35,6 +35,11 @@ public class Cache {
 	}
 	
 	
+	public Object get(Object key) {
+		return get(key, Object.class);
+	}
+	
+	
 	public <T> T get(Object key, Class<T> type) {
 		try {
 			Element element = cache.get(key);

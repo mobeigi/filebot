@@ -13,6 +13,7 @@ import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,14 +27,12 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import redstone.xmlrpc.XmlRpcException;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.Cache.Key;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.tuned.Timer;
+import redstone.xmlrpc.XmlRpcException;
 
 
 /**
@@ -76,24 +75,42 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 	
 	
+	public ResultCache getCache() {
+		return new ResultCache("opensubtitles.org", Cache.getCache("web-datasource"));
+	}
+	
+	
 	@Override
 	public List<SearchResult> search(String query) throws Exception {
+		List<SearchResult> result = getCache().getSearchResult("search", query, null);
+		if (result != null) {
+			return result;
+		}
+		
 		// require login
 		login();
 		
 		try {
 			// search for movies / series
 			List<Movie> resultSet = xmlrpc.searchMoviesOnIMDB(query);
-			return asList(resultSet.toArray(new SearchResult[0]));
+			result = asList(resultSet.toArray(new SearchResult[0]));
 		} catch (ClassCastException e) {
 			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
 			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
 		}
+		
+		getCache().putSearchResult("search", query, null, result);
+		return result;
 	}
 	
 	
 	@Override
 	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
+		List<SubtitleDescriptor> subtitles = getCache().getSubtitleDescriptorList(searchResult, languageName);
+		if (subtitles != null) {
+			return subtitles;
+		}
+		
 		// singleton array with or empty array
 		int imdbid = ((Movie) searchResult).getImdbId();
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
@@ -102,18 +119,20 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		login();
 		
 		// get subtitle list
-		SubtitleDescriptor[] subtitles = xmlrpc.searchSubtitles(imdbid, languageFilter).toArray(new SubtitleDescriptor[0]);
+		subtitles = asList(xmlrpc.searchSubtitles(imdbid, languageFilter).toArray(new SubtitleDescriptor[0]));
 		
-		return asList(subtitles);
+		getCache().putSubtitleDescriptorList(searchResult, languageName, subtitles);
+		return subtitles;
 	}
 	
 	
+	@Override
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 		
 		// remember hash for each file
-		Map<String, File> hashMap = new HashMap<String, File>(files.length);
+		Map<Query, File> hashMap = new HashMap<Query, File>(files.length);
 		Map<File, List<SubtitleDescriptor>> resultMap = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 		
 		// create hash query for each file
@@ -123,12 +142,22 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			// add query
 			if (file.length() > HASH_CHUNK_SIZE) {
 				String movieHash = computeHash(file);
-				queryList.add(Query.forHash(movieHash, file.length(), languageFilter));
-				hashMap.put(movieHash, file);
+				Query query = Query.forHash(movieHash, file.length(), languageFilter);
+				
+				// check hash
+				List<SubtitleDescriptor> cachedResults = getCache().getSubtitleDescriptorList(query, languageName);
+				if (cachedResults == null) {
+					queryList.add(query);
+					hashMap.put(query, file);
+				} else {
+					resultMap.put(file, cachedResults);
+				}
 			}
 			
 			// prepare result map
-			resultMap.put(file, new LinkedList<SubtitleDescriptor>());
+			if (resultMap.get(file) == null) {
+				resultMap.put(file, new LinkedList<SubtitleDescriptor>());
+			}
 		}
 		
 		if (queryList.size() > 0) {
@@ -143,10 +172,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// submit query and map results to given files
 				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
 					// get file for hash
-					File file = hashMap.get(subtitle.getMovieHash());
+					File file = hashMap.get(Query.forHash(subtitle.getMovieHash(), subtitle.getMovieByteSize(), languageFilter));
 					
 					// add subtitle
 					resultMap.get(file).add(subtitle);
+				}
+				
+				for (Query query : batch) {
+					getCache().putSubtitleDescriptorList(query, languageName, resultMap.get(hashMap.get(query)));
 				}
 			}
 		}
@@ -176,21 +209,38 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 	
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
+		List<SearchResult> result = getCache().getSearchResult("searchMovie", query, locale);
+		if (result != null) {
+			return (List) result;
+		}
+		
 		// require login
 		login();
 		
-		return xmlrpc.searchMoviesOnIMDB(query);
+		List<Movie> movies = xmlrpc.searchMoviesOnIMDB(query);
+		
+		getCache().putSearchResult("searchMovie", query, locale, movies);
+		return movies;
 	}
 	
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+		Movie result = getCache().getData("getMovieDescriptor", imdbid, locale, Movie.class);
+		if (result != null) {
+			return result;
+		}
+		
 		// require login
 		login();
 		
-		return xmlrpc.getIMDBMovieDetails(imdbid);
+		Movie movie = xmlrpc.getIMDBMovieDetails(imdbid);
+		
+		getCache().putData("getMovieDescriptor", imdbid, locale, movie);
+		return movie;
 	}
 	
 	
@@ -209,7 +259,15 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		
 		for (File file : movieFiles) {
 			if (file.length() > HASH_CHUNK_SIZE) {
-				hashMap.put(computeHash(file), file); // map file by hash
+				String hash = computeHash(file);
+				
+				Movie entry = getCache().getData("getMovieDescriptor", hash, locale, Movie.class);
+				if (entry == null) {
+					hashMap.put(hash, file); // map file by hash
+				} else {
+					result.put(file, entry);
+				}
+				
 			}
 		}
 		
@@ -223,8 +281,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			for (int bn = 0; bn < ceil((float) hashes.size() / batchSize); bn++) {
 				List<String> batch = hashes.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashes.size()));
 				
-				for (Entry<String, Movie> entry : xmlrpc.checkMovieHash(batch).entrySet()) {
-					result.put(hashMap.get(entry.getKey()), entry.getValue());
+				for (Entry<String, Movie> it : xmlrpc.checkMovieHash(batch).entrySet()) {
+					result.put(hashMap.get(it.getKey()), it.getValue());
+					getCache().putData("getMovieDescriptor", it.getKey(), locale, it.getValue());
 				}
 			}
 		}
@@ -283,7 +342,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		logoutTimer.cancel();
 	}
 	
-	
 	protected final Timer logoutTimer = new Timer() {
 		
 		@Override
@@ -298,13 +356,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	 */
 	@SuppressWarnings("unchecked")
 	protected synchronized Map<String, String> getSubLanguageMap() throws Exception {
-		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+		Cache cache = Cache.getCache("web-persistent-datasource");
 		String cacheKey = getClass().getName() + ".subLanguageMap";
 		
-		Element element = cache.get(cacheKey);
-		Map<String, String> subLanguageMap;
+		Map<String, String> subLanguageMap = cache.get(cacheKey, Map.class);
 		
-		if (element == null) {
+		if (subLanguageMap == null) {
 			subLanguageMap = new HashMap<String, String>();
 			
 			// fetch language data
@@ -317,10 +374,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			subLanguageMap.put("brazilian", "pob");
 			
 			// cache data
-			cache.put(new Element(cacheKey, subLanguageMap));
-		} else {
-			// use cached entry
-			subLanguageMap = (Map<String, String>) element.getValue();
+			cache.put(cacheKey, subLanguageMap);
 		}
 		
 		return subLanguageMap;
@@ -346,6 +400,99 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 		
 		return null;
+	}
+	
+	
+	protected static class ResultCache {
+		
+		private final String id;
+		private final Cache cache;
+		
+		
+		public ResultCache(String id, Cache cache) {
+			this.id = id;
+			this.cache = cache;
+		}
+		
+		
+		protected String normalize(String query) {
+			return query == null ? null : query.trim().toLowerCase();
+		}
+		
+		
+		public <T extends SearchResult> List<T> putSearchResult(String method, String query, Locale locale, List<T> value) {
+			try {
+				cache.put(new Key(id, normalize(query)), value.toArray(new SearchResult[0]));
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage());
+			}
+			
+			return value;
+		}
+		
+		
+		@SuppressWarnings("unchecked")
+		public List<SearchResult> getSearchResult(String method, String query, Locale locale) {
+			try {
+				SearchResult[] array = cache.get(new Key(id, normalize(query)), SearchResult[].class);
+				if (array != null) {
+					return Arrays.asList(array);
+				}
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+			
+			return null;
+		}
+		
+		
+		public List<SubtitleDescriptor> putSubtitleDescriptorList(Object key, String locale, List<SubtitleDescriptor> subtitles) {
+			try {
+				cache.put(new Key(id, key, locale), subtitles.toArray(new SubtitleDescriptor[0]));
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage());
+			}
+			
+			return subtitles;
+		}
+		
+		
+		public List<SubtitleDescriptor> getSubtitleDescriptorList(Object key, String locale) {
+			try {
+				SubtitleDescriptor[] descriptors = cache.get(new Key(id, key, locale), SubtitleDescriptor[].class);
+				if (descriptors != null) {
+					return Arrays.asList(descriptors);
+				}
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+			
+			return null;
+		}
+		
+		
+		public void putData(Object category, Object key, Locale locale, Object object) {
+			try {
+				cache.put(new Key(id, category, locale, key), object);
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage());
+			}
+		}
+		
+		
+		public <T> T getData(Object category, Object key, Locale locale, Class<T> type) {
+			try {
+				T value = cache.get(new Key(id, category, locale, key), type);
+				if (value != null) {
+					return value;
+				}
+			} catch (Exception e) {
+				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+			
+			return null;
+		}
+		
 	}
 	
 }

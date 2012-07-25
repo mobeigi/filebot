@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -358,7 +359,7 @@ public class OpenSubtitlesXmlRpc {
 	}
 	
 	
-	public static final class Query extends HashMap<String, Object> {
+	public static final class Query extends HashMap<String, Object> implements Serializable {
 		
 		private Query(String imdbid, String... sublanguageids) {
 			put("imdbid", imdbid);

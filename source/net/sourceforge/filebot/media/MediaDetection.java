@@ -311,7 +311,7 @@ public class MediaDetection {
 					}
 				}
 			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, e.getMessage());
+				Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, hashLookupService.getName() + ": " + e.getMessage());
 			}
 		}
 		

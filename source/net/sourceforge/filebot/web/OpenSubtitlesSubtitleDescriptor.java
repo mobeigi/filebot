@@ -4,6 +4,7 @@ package net.sourceforge.filebot.web;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.EnumMap;
@@ -21,7 +22,7 @@ import net.sourceforge.tuned.FileUtilities;
  * 
  * @see OpenSubtitlesXmlRpc
  */
-public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
+public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Serializable {
 	
 	public static enum Property {
 		IDSubtitle,
@@ -74,7 +75,6 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor {
 			return enumMap;
 		}
 	}
-	
 	
 	private final Map<Property, String> properties;
 	
