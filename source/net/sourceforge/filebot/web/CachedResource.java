@@ -53,6 +53,12 @@ public abstract class CachedResource<T extends Serializable> {
 		
 		try {
 			element = getCache().get(cacheKey);
+			
+			// sanity check ehcache diskcache problems
+			if (element != null && !cacheKey.equals(element.getKey().toString())) {
+				element = null;
+			}
+			
 			if (element != null) {
 				lastUpdateTime = element.getLatestOfCreationAndUpdateTime();
 			}

@@ -15,12 +15,12 @@ import java.util.Locale;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.ResourceManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.ResourceManager;
 
 
 public class TVRageClient extends AbstractEpisodeListProvider {
@@ -42,7 +42,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+		return new ResultCache(host, Cache.getCache("web-datasource"));
 	}
 	
 	

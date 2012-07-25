@@ -23,11 +23,11 @@ import java.util.zip.GZIPInputStream;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.ResourceManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.ResourceManager;
 
 
 public class AnidbClient extends AbstractEpisodeListProvider {
@@ -70,7 +70,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, CacheManager.getInstance().getCache("web-persistent-datasource"));
+		return new ResultCache(host, Cache.getCache("web-persistent-datasource"));
 	}
 	
 	

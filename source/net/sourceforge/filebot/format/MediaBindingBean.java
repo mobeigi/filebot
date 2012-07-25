@@ -22,9 +22,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
@@ -589,15 +587,16 @@ public class MediaBindingBean {
 	
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
-		Cache cache = CacheManager.getInstance().getCache("checksum");
-		Element element = cache.get(file);
-		if (element != null)
-			return (String) element.getValue();
+		Cache cache = Cache.getCache("checksum");
+		
+		String hash = cache.get(file, String.class);
+		if (hash != null) {
+			return hash;
+		}
 		
 		// compute and cache checksum
-		String hash = computeHash(file, HashType.SFV);
-		cache.put(new Element(file, hash));
+		hash = computeHash(file, HashType.SFV);
+		cache.put(file, hash);
 		return hash;
 	}
-	
 }

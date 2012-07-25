@@ -17,12 +17,12 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.ResourceManager;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
-import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.ResourceManager;
 
 
 public class SerienjunkiesClient extends AbstractEpisodeListProvider {
@@ -57,7 +57,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+		return new ResultCache(host, Cache.getCache("web-datasource"));
 	}
 	
 	

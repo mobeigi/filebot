@@ -2,15 +2,14 @@
 package net.sourceforge.filebot.web;
 
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.Cache.Key;
 
 
 public abstract class AbstractEpisodeListProvider implements EpisodeListProvider {
@@ -38,6 +37,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	}
 	
 	
+	@Override
 	public List<SearchResult> search(String query, Locale locale) throws Exception {
 		ResultCache cache = getCache();
 		List<SearchResult> results = (cache != null) ? cache.getSearchResult(query, locale) : null;
@@ -58,6 +58,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 	}
 	
 	
+	@Override
 	public List<Episode> getEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		ResultCache cache = getCache();
 		List<Episode> episodes = (cache != null) ? cache.getEpisodeList(searchResult, sortOrder, locale) : null;
@@ -102,7 +103,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public <T extends SearchResult> List<T> putSearchResult(String query, Locale locale, List<T> value) {
 			try {
-				cache.put(new Element(new Key(id, normalize(query), locale), value.toArray(new SearchResult[0])));
+				cache.put(new Key(id, normalize(query), locale), value.toArray(new SearchResult[0]));
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
@@ -113,9 +114,9 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public List<SearchResult> getSearchResult(String query, Locale locale) {
 			try {
-				Element element = cache.get(new Key(id, normalize(query), locale));
-				if (element != null) {
-					return Arrays.asList(((SearchResult[]) element.getValue()));
+				SearchResult[] results = cache.get(new Key(id, normalize(query), locale), SearchResult[].class);
+				if (results != null) {
+					return Arrays.asList(results);
 				}
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
@@ -127,7 +128,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public List<Episode> putEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale, List<Episode> episodes) {
 			try {
-				cache.put(new Element(new Key(id, key, sortOrder, locale), episodes.toArray(new Episode[0])));
+				cache.put(new Key(id, key, sortOrder, locale), episodes.toArray(new Episode[0]));
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
@@ -138,9 +139,9 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public List<Episode> getEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale) {
 			try {
-				Element element = cache.get(new Key(id, key, sortOrder, locale));
-				if (element != null) {
-					return Arrays.asList((Episode[]) element.getValue());
+				Episode[] episodes = cache.get(new Key(id, key, sortOrder, locale), Episode[].class);
+				if (episodes != null) {
+					return Arrays.asList(episodes);
 				}
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
@@ -152,7 +153,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public void putData(Object category, Object key, Locale locale, Object object) {
 			try {
-				cache.put(new Element(new Key(id, category, locale, key), object));
+				cache.put(new Key(id, category, locale, key), object);
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
@@ -161,9 +162,9 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		
 		public <T> T getData(Object category, Object key, Locale locale, Class<T> type) {
 			try {
-				Element element = cache.get(new Key(id, category, locale, key));
-				if (element != null) {
-					return type.cast(element.getValue());
+				T value = cache.get(new Key(id, category, locale, key), type);
+				if (value != null) {
+					return value;
 				}
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
@@ -172,32 +173,6 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 			return null;
 		}
 		
-		
-		private static class Key implements Serializable {
-			
-			protected Object[] fields;
-			
-			
-			public Key(Object... fields) {
-				this.fields = fields;
-			}
-			
-			
-			@Override
-			public int hashCode() {
-				return Arrays.hashCode(fields);
-			}
-			
-			
-			@Override
-			public boolean equals(Object other) {
-				if (other instanceof Key) {
-					return Arrays.equals(this.fields, ((Key) other).fields);
-				}
-				
-				return false;
-			}
-		}
 	}
 	
 }

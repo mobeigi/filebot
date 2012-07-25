@@ -29,14 +29,14 @@ import java.util.zip.ZipInputStream;
 import javax.swing.Icon;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo.SeriesProperty;
 import net.sourceforge.tuned.FileUtilities;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 
 public class TheTVDBClient extends AbstractEpisodeListProvider {
@@ -99,7 +99,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, CacheManager.getInstance().getCache("web-datasource"));
+		return new ResultCache(host, Cache.getCache("web-datasource"));
 	}
 	
 	
@@ -274,7 +274,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				// try cache first
 				try {
 					@SuppressWarnings("unchecked")
-					Map<MirrorType, String> cachedMirrors = (Map<MirrorType, String>) getCache().getData("mirrors", null, null, Map.class);
+					Map<MirrorType, String> cachedMirrors = getCache().getData("mirrors", null, null, Map.class);
 					if (cachedMirrors != null) {
 						mirrors.putAll(cachedMirrors);
 						return mirrors.get(mirrorType);
@@ -478,7 +478,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			fanart,
 			poster
 		}
-		
 		
 		protected Map<SeriesProperty, String> fields;
 		
@@ -761,7 +760,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			ThumbnailPath,
 			VignettePath
 		}
-		
 		
 		protected Map<BannerProperty, String> fields;
 		

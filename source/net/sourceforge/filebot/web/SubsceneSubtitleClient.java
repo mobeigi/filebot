@@ -20,14 +20,12 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.ResourceManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-import net.sourceforge.filebot.ResourceManager;
 
 
 public class SubsceneSubtitleClient implements SubtitleProvider {
@@ -121,34 +119,28 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	protected String getLanguageFilter(String languageName) throws IOException, SAXException {
 		if (languageName == null || languageName.isEmpty()) {
 			return null;
 		}
 		
 		// try cache first
-		Cache cache = CacheManager.getInstance().getCache("web-persistent-datasource");
+		Cache cache = Cache.getCache("web-persistent-datasource");
 		String cacheKey = getClass().getName() + ".languageFilter";
 		
-		try {
-			Element element = cache.get(cacheKey);
-			if (element != null) {
-				return (String) ((Map<?, ?>) element.getValue()).get(languageName.toLowerCase());
-			}
-		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+		Map<String, String> filters = cache.get(cacheKey, Map.class);
+		
+		if (filters != null) {
+			return filters.get(languageName.toLowerCase());
 		}
 		
 		// fetch new language filter data
-		Map<String, String> filters = getLanguageFilterMap();
+		filters = getLanguageFilterMap();
 		
 		// update cache after sanity check
 		if (filters.size() > 42) {
-			try {
-				cache.put(new Element(cacheKey, filters));
-			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
-			}
+			cache.put(cacheKey, filters);
 		} else {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to scrape language filters: " + filters);
 		}
