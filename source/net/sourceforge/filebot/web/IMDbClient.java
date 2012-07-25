@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,7 +114,7 @@ public class IMDbClient implements MovieIdentificationService {
 	protected Movie scrapeMovie(Document dom, Locale locale) {
 		try {
 			String header = selectString("//H1", dom).toUpperCase();
-			if (header.contains("(VG)") || header.contains("(V)")) // ignore video games and videos
+			if (header.contains("(VG)")) // ignore video games and videos
 				return null;
 			
 			String name = selectString("//H1/A/text()", dom).replaceAll("\\s+", " ").trim();
@@ -136,7 +138,7 @@ public class IMDbClient implements MovieIdentificationService {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to grep localized name: " + name);
 				}
 			}
 			

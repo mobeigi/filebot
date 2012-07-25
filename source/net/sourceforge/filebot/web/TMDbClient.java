@@ -7,6 +7,7 @@ import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -98,11 +99,12 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
-		MovieInfo info = getMovieInfo(String.format("tt%07d", imdbid), locale, false);
-		if (info != null) {
+		try {
+			MovieInfo info = getMovieInfo(String.format("tt%07d", imdbid), locale, false);
 			return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
+		} catch (FileNotFoundException e) {
+			return null;
 		}
-		return null;
 	}
 	
 	
@@ -235,14 +237,16 @@ public class TMDbClient implements MovieIdentificationService {
 			
 			@Override
 			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
-				if (limit != null) {
-					try {
+				try {
+					if (limit != null) {
 						limit.acquirePermit();
-					} catch (InterruptedException e) {
-						throw new RuntimeException(e);
 					}
+					return super.fetchData(url, lastModified);
+				} catch (FileNotFoundException e) {
+					return ByteBuffer.allocate(0);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
 				}
-				return super.fetchData(url, lastModified);
 			}
 			
 			
@@ -252,7 +256,11 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 		};
 		
-		return (JSONObject) JSONValue.parse(json.get());
+		JSONObject object = (JSONObject) JSONValue.parse(json.get());
+		if (object == null || object.isEmpty()) {
+			throw new FileNotFoundException("Resource not found: " + url);
+		}
+		return object;
 	}
 	
 	

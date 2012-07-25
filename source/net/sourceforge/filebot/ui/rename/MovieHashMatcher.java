@@ -118,6 +118,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			try {
 				Movie movie = grepMovie(nfo, service, locale);
 				
+				// ignore illegal nfos
+				if (movie == null) {
+					continue;
+				}
+				
 				if (nfoFiles.contains(nfo)) {
 					movieByFile.put(nfo, movie);
 				}
@@ -153,7 +158,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<File> remainingFiles = new ArrayList<File>();
 		
 		for (File file : movieMatchFiles) {
-			if (!movieByFile.containsKey(file)) {
+			if (movieByFile.get(file) == null) {
 				remainingFiles.add(file);
 			}
 		}
