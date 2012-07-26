@@ -515,7 +515,7 @@ public class MediaBindingBean {
 		// make sure media file is defined
 		checkMediaFile();
 		
-		if (SUBTITLE_FILES.accept(mediaFile) || getDefaultFilter("application/nfo").accept(mediaFile)) {
+		if (SUBTITLE_FILES.accept(mediaFile) || NFO_FILES.accept(mediaFile)) {
 			// file is a subtitle
 			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
 			

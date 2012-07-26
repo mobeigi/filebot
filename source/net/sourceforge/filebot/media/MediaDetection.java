@@ -568,15 +568,19 @@ public class MediaDetection {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 		List<File> nfoFiles = new ArrayList<File>();
 		if (file.isDirectory()) {
-			nfoFiles.addAll(listFiles(singleton(file), 10, false));
+			nfoFiles.addAll(filter(listFiles(singleton(file), 10, false), NFO_FILES));
 		} else {
 			addAll(nfoFiles, file.getParentFile().listFiles(NFO_FILES));
 		}
 		
 		// parse ids from nfo files
 		for (File nfo : nfoFiles) {
-			String text = new String(readFile(nfo), "UTF-8");
-			collection.addAll(grepImdbId(text));
+			try {
+				String text = new String(readFile(nfo), "UTF-8");
+				collection.addAll(grepImdbId(text));
+			} catch (Exception e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to read nfo: " + e.getMessage());
+			}
 		}
 		
 		return collection;

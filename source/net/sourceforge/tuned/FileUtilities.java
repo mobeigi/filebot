@@ -105,7 +105,12 @@ public final class FileUtilities {
 		InputStream in = new FileInputStream(source);
 		
 		try {
-			byte[] data = new byte[(int) source.length()];
+			long size = source.length();
+			if (size < 0 || size > Integer.MAX_VALUE) {
+				throw new IllegalArgumentException("Unable to read file: " + source);
+			}
+			
+			byte[] data = new byte[(int) size];
 			
 			int position = 0;
 			int read = 0;
@@ -176,7 +181,6 @@ public final class FileUtilities {
 		// assume UTF-8 by default
 		return Charset.forName("UTF-8").decode(data).toString();
 	}
-	
 	
 	/**
 	 * Pattern used for matching file extensions.
@@ -421,7 +425,6 @@ public final class FileUtilities {
 		return map;
 	}
 	
-	
 	/**
 	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
@@ -508,7 +511,6 @@ public final class FileUtilities {
 		return buffer.toString();
 	}
 	
-	
 	public static final long KILO = 1024;
 	public static final long MEGA = KILO * 1024;
 	public static final long GIGA = MEGA * 1024;
@@ -523,7 +525,6 @@ public final class FileUtilities {
 			return String.format("%,d Byte", size);
 	}
 	
-	
 	public static final FileFilter FOLDERS = new FileFilter() {
 		
 		@Override
@@ -532,7 +533,6 @@ public final class FileUtilities {
 		}
 	};
 	
-	
 	public static final FileFilter FILES = new FileFilter() {
 		
 		@Override
@@ -540,7 +540,6 @@ public final class FileUtilities {
 			return file.isFile();
 		}
 	};
-	
 	
 	public static final FileFilter TEMPORARY = new FileFilter() {
 		

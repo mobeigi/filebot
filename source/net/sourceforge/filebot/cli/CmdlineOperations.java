@@ -92,11 +92,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		Locale locale = getLanguage(lang).toLocale();
 		ConflictAction conflictAction = ConflictAction.forName(conflict);
 		
-		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
-		if (mediaFiles.isEmpty()) {
-			throw new Exception("No media files: " + files);
-		}
-		
 		if (getEpisodeListProvider(db) != null) {
 			// tv series mode
 			return renameSeries(files, action, conflictAction, outputDir, format, getEpisodeListProvider(db), query, SortOrder.forName(sortOrder), filter, locale, strict);
@@ -108,9 +103,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// auto-determine mode
+		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		double max = mediaFiles.size();
 		int sxe = 0; // SxE
 		int cws = 0; // common word sequence
-		double max = mediaFiles.size();
 		
 		SeriesNameMatcher nameMatcher = new SeriesNameMatcher(locale);
 		Collection<String> cwsList = emptySet();
@@ -144,7 +140,11 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
+		
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		if (mediaFiles.isEmpty()) {
+			throw new Exception("No media files: " + files);
+		}
 		
 		// similarity metrics for matching
 		List<Match<File, Object>> matches = new ArrayList<Match<File, Object>>();
@@ -296,7 +296,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
-		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, MediaTypes.getDefaultFilter("application/nfo")));
+		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, NFO_FILES));
 		
 		List<File> orphanedFiles = new ArrayList<File>(filter(fileset, FILES));
 		orphanedFiles.removeAll(movieFiles);
@@ -336,7 +336,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			// collect useful nfo files even if they are not part of the selected fileset
 			Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
 			for (File dir : mapByFolder(movieFiles).keySet()) {
-				addAll(effectiveNfoFileSet, dir.listFiles(MediaTypes.getDefaultFilter("application/nfo")));
+				addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
 			}
 			for (File nfo : effectiveNfoFileSet) {
 				try {
@@ -372,8 +372,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> movieMatchFiles = new ArrayList<File>();
 		movieMatchFiles.addAll(movieFiles);
 		movieMatchFiles.addAll(nfoFiles);
-		movieMatchFiles.addAll(filter(files, DISK_FOLDERS));
+		movieMatchFiles.addAll(filter(files, FOLDERS));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
+		
+		// sanity check that we have something to do
+		if (fileset.isEmpty() || movieMatchFiles.isEmpty()) {
+			throw new Exception("No media files: " + files);
+		}
 		
 		// map movies to (possibly multiple) files (in natural order)
 		Map<Movie, SortedSet<File>> filesByMovie = new HashMap<Movie, SortedSet<File>>();
@@ -454,7 +459,8 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	private File getDestinationFile(File original, String newName, File outputDir) {
-		File newFile = new File(newName + "." + getExtension(original));
+		String extension = getExtension(original);
+		File newFile = new File(extension != null ? newName + '.' + extension : newName);
 		
 		// resolve against output dir
 		if (outputDir != null && !newFile.isAbsolute()) {

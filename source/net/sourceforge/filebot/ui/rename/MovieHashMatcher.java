@@ -144,7 +144,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<File> movieMatchFiles = new ArrayList<File>();
 		movieMatchFiles.addAll(movieFiles);
 		movieMatchFiles.addAll(nfoFiles);
-		movieMatchFiles.addAll(filter(files, DISK_FOLDERS));
+		movieMatchFiles.addAll(filter(files, FOLDERS));
 		movieMatchFiles.addAll(filter(orphanedFiles, SUBTITLE_FILES)); // run movie detection only on orphaned subtitle files
 		
 		// match remaining movies file by file in parallel
