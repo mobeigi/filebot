@@ -467,7 +467,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, webstart">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, webstart, login">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
@@ -481,10 +481,6 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
-
-		<!-- ask for sourceforge password -->
-		<property name="sf.user" value="rednoah,filebot" />
-		<input message="Please enter password:" addproperty="sf.password" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
@@ -534,7 +530,7 @@
 	</target>
 
 
-	<target name="deploy-website">
+	<target name="deploy-website" depends="login">
 		<!-- prepare website resources -->
 		<copy todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
@@ -559,10 +555,6 @@
 			<replacefilter token="@{version}" value="${version}" />
 		</replace>
 
-		<!-- ask for sourceforge password -->
-		<property name="sf.user" value="rednoah,filebot" />
-		<input message="Please enter password:" addproperty="sf.password" />
-
 		<!-- upload -->
 		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
 			<fileset dir="${dir.dist}/website" />
@@ -570,14 +562,35 @@
 	</target>
 
 
-	<target name="deploy-test-package" depends="svn-update, fatjar">
+	<target name="upload-data" depends="login">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
+			<fileset dir="${dir.website}">
+				<include name="data/**" />
+			</fileset>
+		</scp>
+	</target>
+
+
+	<target name="upload-scripts" depends="login">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
+			<fileset dir="${dir.website}">
+				<include name="scripts/**" />
+			</fileset>
+		</scp>
+	</target>
+
+
+	<target name="deploy-test-package" depends="svn-update, fatjar, login">
+		<!-- deploy fatjar -->
+		<input message="Mark:" addproperty="mark" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
+	</target>
+
+
+	<target name="login">
 		<!-- ask for sourceforge password -->
 		<property name="sf.user" value="rednoah,filebot" />
 		<input message="Please enter password:" addproperty="sf.password" />
-		<input message="Mark:" addproperty="mark" />
-
-		<!-- deploy fatjar -->
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
 	</target>
 
 </project>
