@@ -24,7 +24,7 @@
 	-->
 	<cache name="web-datasource"
 		maxElementsInMemory="120"
-		maxElementsOnDisk="120"
+		maxElementsOnDisk="1200"
 		eternal="false"
 		timeToIdleSeconds="172800"
 		timeToLiveSeconds="172800"
