@@ -462,7 +462,10 @@
 
 	<target name="svn-update">
 		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
-		<groovy>properties['svn.revision'] = 'svn update'.execute().text.replaceAll(/\D/, '')</groovy>
+		<groovy>
+			properties['svn.revision'] = 'svn update'.execute().text.replaceAll(/\D/, '')
+		</groovy>
+		<fail unless="svn.revision" />
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
