@@ -68,12 +68,19 @@ public abstract class CachedResource<T extends Serializable> {
 				return type.cast(element.getValue());
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+			Logger.getLogger(getClass().getName()).log(Level.FINEST, e.getMessage());
 		}
 		
 		// fetch and process resource
-		ByteBuffer data = fetchData(new URL(resource), element != null ? lastUpdateTime : 0);
+		ByteBuffer data = null;
 		T product = null;
+		IOException networkException = null;
+		
+		try {
+			data = fetchData(new URL(resource), element != null ? lastUpdateTime : 0);
+		} catch (IOException e) {
+			networkException = e;
+		}
 		
 		if (data != null) {
 			try {
@@ -88,7 +95,7 @@ public abstract class CachedResource<T extends Serializable> {
 					product = type.cast(element.getValue());
 				}
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+				Logger.getLogger(getClass().getName()).log(Level.FINEST, e.getMessage());
 			}
 		}
 		
@@ -97,7 +104,16 @@ public abstract class CachedResource<T extends Serializable> {
 				getCache().put(element);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+			Logger.getLogger(getClass().getName()).log(Level.FINEST, e.getMessage());
+		}
+		
+		// throw network error only if we can't use previously cached data
+		if (networkException != null) {
+			if (product == null)
+				throw networkException;
+			
+			// just log error and continue with cached data
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, networkException.toString());
 		}
 		
 		return product;
