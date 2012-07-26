@@ -45,7 +45,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -75,7 +74,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
-		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, MediaTypes.getDefaultFilter("application/nfo")));
+		Set<File> nfoFiles = new TreeSet<File>(filter(fileset, NFO_FILES));
 		
 		List<File> orphanedFiles = new ArrayList<File>(filter(fileset, FILES));
 		orphanedFiles.removeAll(movieFiles);
@@ -112,7 +111,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// collect useful nfo files even if they are not part of the selected fileset
 		Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
 		for (File dir : mapByFolder(movieFiles).keySet()) {
-			addAll(effectiveNfoFileSet, dir.listFiles(MediaTypes.getDefaultFilter("application/nfo")));
+			addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
 		}
 		for (File nfo : effectiveNfoFileSet) {
 			try {

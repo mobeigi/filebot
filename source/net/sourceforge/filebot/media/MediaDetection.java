@@ -4,6 +4,7 @@ package net.sourceforge.filebot.media;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -36,7 +37,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.DateMatcher;
@@ -567,7 +567,7 @@ public class MediaDetection {
 	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 		if (file.exists()) {
-			for (File nfo : file.getParentFile().listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+			for (File nfo : file.getParentFile().listFiles(NFO_FILES)) {
 				String text = new String(readFile(nfo), "UTF-8");
 				collection.addAll(grepImdbId(text));
 			}
@@ -584,7 +584,7 @@ public class MediaDetection {
 			if (!folder.exists())
 				continue;
 			
-			for (File nfo : folder.listFiles(MediaTypes.getDefaultFilter("application/nfo"))) {
+			for (File nfo : folder.listFiles(NFO_FILES)) {
 				String text = new String(readFile(nfo), "UTF-8");
 				
 				for (int imdbid : grepImdbId(text)) {

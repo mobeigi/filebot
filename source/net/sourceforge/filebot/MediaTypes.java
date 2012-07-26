@@ -13,10 +13,10 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 public class MediaTypes {
@@ -43,7 +43,6 @@ public class MediaTypes {
 			throw new RuntimeException(e);
 		}
 	}
-	
 	
 	private Map<String, List<String>> types;
 	private Map<String, ExtensionFileFilter> filters = synchronizedMap(new HashMap<String, ExtensionFileFilter>());
@@ -88,9 +87,9 @@ public class MediaTypes {
 		return defaultInstance.getFilter(name);
 	}
 	
-	
 	// some convenience filters
 	public static final ExtensionFileFilter AUDIO_FILES = getDefaultFilter("audio");
 	public static final ExtensionFileFilter VIDEO_FILES = getDefaultFilter("video");
 	public static final ExtensionFileFilter SUBTITLE_FILES = getDefaultFilter("subtitle");
+	public static final ExtensionFileFilter NFO_FILES = getDefaultFilter("application/nfo");
 }
