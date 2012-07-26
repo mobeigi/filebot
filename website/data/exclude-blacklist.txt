@@ -1,0 +1,8 @@
+!(sample|trailer)
+(?<!\p{Alnum})(extras|deleted.scenes)(?!\p{Alnum})
+(sample|trailer)-
+(sample|trailer)[.]
+-(sample|trailer)
+\((sample|trailer)\)
+\[(sample|trailer)\]
+^(sample|trailer)

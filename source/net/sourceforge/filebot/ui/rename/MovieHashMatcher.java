@@ -70,7 +70,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		// ignore sample files
-		List<File> fileset = filter(files, NON_CLUTTER_FILES);
+		List<File> fileset = filter(files, not(getClutterFileFilter()));
 		
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));

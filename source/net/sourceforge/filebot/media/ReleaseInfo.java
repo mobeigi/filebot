@@ -22,6 +22,7 @@ import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -102,10 +103,8 @@ public class ReleaseInfo {
 	}
 	
 	// cached patterns
-	private Pattern[] strict_stopwords;
-	private Pattern[] strict_blacklist;
-	private Pattern[] nonstrict_stopwords;
-	private Pattern[] nonstrict_blacklist;
+	private final Map<Boolean, Pattern[]> stopwords = new HashMap<Boolean, Pattern[]>(2);
+	private final Map<Boolean, Pattern[]> blacklist = new HashMap<Boolean, Pattern[]>(2);
 	
 	
 	public List<String> cleanRelease(Collection<String> items, boolean strict) throws IOException {
@@ -113,9 +112,9 @@ public class ReleaseInfo {
 		Pattern[] blacklist;
 		
 		// initialize cached patterns
-		synchronized (this) {
-			stopwords = strict ? strict_stopwords : nonstrict_stopwords;
-			blacklist = strict ? strict_blacklist : nonstrict_blacklist;
+		synchronized (this.stopwords) {
+			stopwords = this.stopwords.get(strict);
+			blacklist = this.blacklist.get(strict);
 			
 			if (stopwords == null || blacklist == null) {
 				Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
@@ -132,13 +131,8 @@ public class ReleaseInfo {
 				blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
 				
 				// cache compiled patterns for common usage
-				if (strict) {
-					strict_stopwords = stopwords;
-					strict_blacklist = blacklist;
-				} else {
-					nonstrict_stopwords = stopwords;
-					nonstrict_blacklist = blacklist;
-				}
+				this.stopwords.put(strict, stopwords);
+				this.blacklist.put(strict, blacklist);
 			}
 		}
 		
@@ -182,13 +176,13 @@ public class ReleaseInfo {
 	
 	public Pattern getLanguageTagPattern(Collection<String> languages) {
 		// [en]
-		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
 	public Pattern getLanguageSuffixPattern(Collection<String> languages) {
 		// .en.srt
-		return compile("(?<=[\\p{Punct}\\p{Space}])(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<=[\\p{Punct}\\p{Space}])(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
@@ -221,13 +215,19 @@ public class ReleaseInfo {
 	
 	public Pattern getReleaseGroupPattern(boolean strict) throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
 	public Pattern getBlacklistPattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE);
+	}
+	
+	
+	public Pattern getExcludePattern() throws IOException {
+		// pattern matching any release group name enclosed in separators
+		return compile(join(excludeBlacklistResource.get(), "|"), CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
@@ -246,13 +246,14 @@ public class ReleaseInfo {
 	}
 	
 	
-	public FileFilter getClutterFileFilter() {
-		return new FileFolderNameFilter(compile(getBundle(getClass().getName()).getString("pattern.file.ignore")));
+	public FileFilter getClutterFileFilter() throws IOException {
+		return new FileFolderNameFilter(getExcludePattern());
 	}
 	
 	// fetch release group names online and try to update the data every other day
 	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
+	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.exclude-blacklist"));
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
 	protected final CachedResource<String[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
 	

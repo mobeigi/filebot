@@ -292,7 +292,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 		
 		// ignore sample files
-		List<File> fileset = filter(files, NON_CLUTTER_FILES);
+		List<File> fileset = filter(files, not(getClutterFileFilter()));
 		
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));

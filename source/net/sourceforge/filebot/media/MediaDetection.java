@@ -61,17 +61,33 @@ public class MediaDetection {
 	
 	public static final ReleaseInfo releaseInfo = new ReleaseInfo();
 	
-	public static final FileFilter DISK_FOLDERS = releaseInfo.getDiskFolderFilter();
-	public static final FileFilter NON_CLUTTER_FILES = not(releaseInfo.getClutterFileFilter());
+	private static FileFilter diskFolder;
+	private static FileFilter clutterFile;
 	
 	
-	public static boolean isDiskFolder(File folder) {
-		return DISK_FOLDERS.accept(folder);
+	public static FileFilter getDiskFolderFilter() {
+		if (diskFolder == null) {
+			diskFolder = releaseInfo.getDiskFolderFilter();
+		}
+		return diskFolder;
 	}
 	
 	
-	public static boolean isNonClutter(File file) {
-		return NON_CLUTTER_FILES.accept(file);
+	public static FileFilter getClutterFileFilter() throws IOException {
+		if (clutterFile == null) {
+			clutterFile = releaseInfo.getClutterFileFilter();
+		}
+		return clutterFile;
+	}
+	
+	
+	public static boolean isDiskFolder(File folder) {
+		return getDiskFolderFilter().accept(folder);
+	}
+	
+	
+	public static boolean isClutterFile(File file) throws IOException {
+		return getClutterFileFilter().accept(file);
 	}
 	
 	

@@ -38,9 +38,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.kohsuke.args4j.CmdLineException;
-import org.w3c.dom.NodeList;
-
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.cli.ArgumentBean;
@@ -55,6 +52,9 @@ import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
+
+import org.kohsuke.args4j.CmdLineException;
+import org.w3c.dom.NodeList;
 
 
 public class Main {
@@ -264,6 +264,10 @@ public class Main {
 			@Override
 			public void run() {
 				try {
+					// pre-load filter data
+					MediaDetection.getClutterFileFilter();
+					MediaDetection.getDiskFolderFilter();
+					
 					// pre-load movie/series index
 					List<String> dummy = Collections.singletonList("");
 					MediaDetection.stripReleaseInfo(dummy, true);

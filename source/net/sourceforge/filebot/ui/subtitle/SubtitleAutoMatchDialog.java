@@ -190,7 +190,6 @@ class SubtitleAutoMatchDialog extends JDialog {
 		servicePanel.add(component);
 	}
 	
-	
 	// remember last user input
 	private List<String> userQuery = new ArrayList<String>();
 	
@@ -262,7 +261,6 @@ class SubtitleAutoMatchDialog extends JDialog {
 		// cancel
 		return null;
 	}
-	
 	
 	private final Action downloadAction = new AbstractAction("Download", ResourceManager.getIcon("dialog.continue")) {
 		
@@ -644,7 +642,6 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 		}
 		
-		
 		private final PropertyChangeListener selectedOptionListener = new PropertyChangeListener() {
 			
 			@Override
@@ -969,7 +966,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			// ignore clutter files from processing
-			files = filter(files, NON_CLUTTER_FILES);
+			files = filter(files, not(getClutterFileFilter()));
 			
 			// auto-detect query and search for subtitles
 			Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);

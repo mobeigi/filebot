@@ -16,6 +16,7 @@ def sortRegexList(path) {
 // sort and check shared regex collections
 sortRegexList("website/data/release-groups.txt")
 sortRegexList("website/data/query-blacklist.txt")
+sortRegexList("website/data/exclude-blacklist.txt")
 
 
 // ------------------------------------------------------------------------- //
