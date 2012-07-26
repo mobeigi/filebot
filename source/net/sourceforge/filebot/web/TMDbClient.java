@@ -120,9 +120,9 @@ public class TMDbClient implements MovieIdentificationService {
 		} else if (movie.getImdbId() >= 0) {
 			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, true);
 		} else {
-			for (Movie it : searchMovie(movie.getName(), locale)) {
-				if (movie.getName().equalsIgnoreCase(it.getName()) && movie.getYear() == it.getYear()) {
-					return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true);
+			for (Movie result : searchMovie(movie.getName(), locale)) {
+				if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
+					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, true);
 				}
 			}
 		}

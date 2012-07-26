@@ -3,6 +3,7 @@ package net.sourceforge.filebot.format;
 
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
@@ -14,13 +15,14 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.WebServices;
@@ -272,7 +274,7 @@ public class MediaBindingBean {
 		String width = getMediaInfo(StreamKind.Video, 0, "Width");
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
 		
-		return Arrays.asList(width != null ? Integer.parseInt(width) : null, height != null ? Integer.parseInt(height) : null);
+		return asList(width != null ? Integer.parseInt(width) : null, height != null ? Integer.parseInt(height) : null);
 	}
 	
 	
@@ -525,6 +527,12 @@ public class MediaBindingBean {
 					return movieFile;
 				}
 			}
+		} else if (mediaFile.isDirectory()) {
+			// just select the first video file in the folder as media sample
+			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(singleton(mediaFile), 2, false), VIDEO_FILES));
+			if (videos.size() > 0) {
+				return videos.iterator().next();
+			}
 		}
 		
 		return mediaFile;
@@ -533,7 +541,7 @@ public class MediaBindingBean {
 	
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
-		if (mediaFile == null || !mediaFile.isFile())
+		if (mediaFile == null)
 			throw new RuntimeException("Invalid media file: " + mediaFile);
 	}
 	
@@ -576,8 +584,14 @@ public class MediaBindingBean {
 			public Object getProperty(String name) {
 				Object value = super.getProperty(name);
 				
-				if (value == null)
+				if (value == null) {
 					throw new BindingException(name, "undefined");
+				}
+				
+				// auto-clean value of path separators
+				if (value instanceof CharSequence) {
+					return replacePathSeparators(value.toString()).trim();
+				}
 				
 				return value;
 			}
