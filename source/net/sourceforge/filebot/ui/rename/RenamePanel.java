@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.SwingUtilities.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -56,7 +57,6 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SortOrder;
-import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
@@ -301,7 +301,6 @@ public class RenamePanel extends JComponent {
 		return actionPopup;
 	}
 	
-	
 	protected final Action openHistoryAction = new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
 		
 		@Override
@@ -450,7 +449,7 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
-						UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
+						UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);

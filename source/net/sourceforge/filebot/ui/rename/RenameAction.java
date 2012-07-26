@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.sourceforge.tuned.ExceptionUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
@@ -27,7 +28,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -271,12 +271,13 @@ class RenameAction extends AbstractAction {
 		protected void done() {
 			try {
 				postprocess.acquire();
-			} catch (InterruptedException e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				this.get(); // grab exception if any
+			} catch (Exception e) {
+				UILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 			}
 			
 			// collect renamed types
-			final List<Class> types = new ArrayList<Class>();
+			final List<Class<?>> types = new ArrayList<Class<?>>();
 			
 			// remove renamed matches
 			for (File source : renameLog.keySet()) {
@@ -293,7 +294,7 @@ class RenameAction extends AbstractAction {
 				HistorySpooler.getInstance().append(renameLog.entrySet());
 				
 				// count global statistics
-				for (Class it : new HashSet<Class>(types)) {
+				for (Class<?> it : new HashSet<Class<?>>(types)) {
 					Analytics.trackEvent("GUI", "Rename", it.getSimpleName(), frequency(types, it));
 				}
 			}
