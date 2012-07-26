@@ -88,6 +88,12 @@ public class Cache {
 			
 			return false;
 		}
+		
+		
+		@Override
+		public String toString() {
+			return Arrays.toString(fields);
+		}
 	}
 	
 }
