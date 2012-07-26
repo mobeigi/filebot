@@ -566,12 +566,19 @@ public class MediaDetection {
 	
 	public static Set<Integer> grepImdbIdFor(File file) throws Exception {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
-		if (file.exists()) {
-			for (File nfo : file.getParentFile().listFiles(NFO_FILES)) {
-				String text = new String(readFile(nfo), "UTF-8");
-				collection.addAll(grepImdbId(text));
-			}
+		List<File> nfoFiles = new ArrayList<File>();
+		if (file.isDirectory()) {
+			nfoFiles.addAll(listFiles(singleton(file), 10, false));
+		} else {
+			addAll(nfoFiles, file.getParentFile().listFiles(NFO_FILES));
 		}
+		
+		// parse ids from nfo files
+		for (File nfo : nfoFiles) {
+			String text = new String(readFile(nfo), "UTF-8");
+			collection.addAll(grepImdbId(text));
+		}
+		
 		return collection;
 	}
 	
