@@ -41,7 +41,7 @@ def groups = input.groupBy{ f ->
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
 		def norm = { s -> s.lower().space(' ') }
-		def dn = norm(f.dir.name)
+		def dn = norm(guessMovieFolder(f)?.name ?: '')
 		def fn = norm(f.nameWithoutExtension)
 		def sn = norm(tvs)
 		def mn = norm(mov.name)
