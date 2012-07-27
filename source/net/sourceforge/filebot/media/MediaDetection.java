@@ -214,7 +214,7 @@ public class MediaDetection {
 	}
 	
 	
-	private static Object getEpisodeIdentifier(CharSequence name, boolean strict) {
+	public static Object getEpisodeIdentifier(CharSequence name, boolean strict) {
 		// check SxE first
 		Object match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(name);
 		

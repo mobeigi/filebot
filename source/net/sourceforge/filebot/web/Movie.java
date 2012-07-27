@@ -55,7 +55,7 @@ public class Movie extends SearchResult {
 				return tmdbId == other.tmdbId;
 			}
 			
-			return year == other.year && name.equals(other.name);
+			return year == other.year && name.equalsIgnoreCase(other.name);
 		}
 		
 		return false;
@@ -70,7 +70,7 @@ public class Movie extends SearchResult {
 	
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { name, year });
+		return Arrays.hashCode(new Object[] { name.toLowerCase(), year });
 	}
 	
 	
