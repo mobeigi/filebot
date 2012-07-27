@@ -517,8 +517,14 @@ public class MediaBindingBean {
 		// make sure media file is defined
 		checkMediaFile();
 		
-		if (SUBTITLE_FILES.accept(mediaFile) || NFO_FILES.accept(mediaFile)) {
-			// file is a subtitle
+		if (mediaFile.isDirectory()) {
+			// just select the first video file in the folder as media sample
+			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(singleton(mediaFile), 2, false), VIDEO_FILES));
+			if (videos.size() > 0) {
+				return videos.iterator().next();
+			}
+		} else if (!VIDEO_FILES.accept(mediaFile)) {
+			// file is a subtitle, or nfo, etc
 			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
 			
 			// find corresponding movie file
@@ -526,12 +532,6 @@ public class MediaBindingBean {
 				if (stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase().startsWith(baseName)) {
 					return movieFile;
 				}
-			}
-		} else if (mediaFile.isDirectory()) {
-			// just select the first video file in the folder as media sample
-			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(singleton(mediaFile), 2, false), VIDEO_FILES));
-			if (videos.size() > 0) {
-				return videos.iterator().next();
 			}
 		}
 		
