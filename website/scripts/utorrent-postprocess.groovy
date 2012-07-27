@@ -90,7 +90,7 @@ groups.each{ group, files ->
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
-		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}', db:'TheMovieDB')
+		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}', db:'TheMovieDB')
 		if (dest || failOnError) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
