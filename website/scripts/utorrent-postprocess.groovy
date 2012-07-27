@@ -66,8 +66,7 @@ def groups = input.groupBy{ f ->
 
 groups.each{ group, files ->
 	// fetch subtitles
-	def subs = getMissingSubtitles(file:files, output:"srt", encoding:"utf-8")
-	if (subs) files += subs
+	files += getMissingSubtitles(file:files, output:"srt", encoding:"utf-8")
 	
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
@@ -75,14 +74,13 @@ groups.each{ group, files ->
 		if (dest || failOnError) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheTVDB"
-				def query = group.tvs
-				def sxe = dest.findResult{ parseEpisodeNumber(it) }
-				def options = TheTVDB.search(query)
+				def sxe = fs.findResult{ eps -> parseEpisodeNumber(eps) }
+				def options = TheTVDB.search(group.tvs)
 				if (options.isEmpty()) {
-					println "TV Series not found: $query"
+					println "TV Series not found: $group.tvs"
 					return
 				}
-				options = options.sortBySimilarity(query, { it.name })
+				options = options.sortBySimilarity(group.tvs, { opt -> opt.name })
 				fetchSeriesArtworkAndNfo(dir.dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
 			}
 		}
