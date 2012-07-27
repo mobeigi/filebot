@@ -172,6 +172,10 @@ def isEpisode(path, strict = true) {
 	return MediaDetection.isEpisode(input, strict)
 }
 
+def guessMovieFolder(path) {
+	return MediaDetection.guessMovieFolder(path as File)
+}
+
 def parseEpisodeNumber(path, strict = true) {
 	def input = path instanceof File ? path.name : path.toString()
 	def sxe = MediaDetection.parseEpisodeNumber(input, strict)

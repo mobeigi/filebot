@@ -41,6 +41,7 @@ def groups = input.groupBy{ f ->
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
 		def norm = { s -> s.lower().space(' ') }
+		def dn = norm(f.dir.name)
 		def fn = norm(f.nameWithoutExtension)
 		def sn = norm(tvs)
 		def mn = norm(mov.name)
@@ -49,7 +50,7 @@ def groups = input.groupBy{ f ->
 		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn =~ sn && parseEpisodeNumber(fn.after(sn), false)) || fn.after(sn) =~ / - .+/ || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
 			println "Exclude Movie: $mov"
 			mov = null
-		} else if ((detectMovie(f, true) && fn =~ /(19|20)\d{2}/) || (fn =~ mn && !(fn.after(mn) =~ /\b\d{1,3}\b/))) {
+		} else if ((detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) }) {
 			println "Exclude Series: $tvs"
 			tvs = null
 		}

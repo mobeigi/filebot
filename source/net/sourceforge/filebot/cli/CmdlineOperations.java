@@ -57,7 +57,6 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
-import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -585,10 +584,12 @@ public class CmdlineOperations implements CmdlineInterface {
 					List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 					querySet.addAll(detectSeriesNames(mediaFiles, language.toLocale()));
 					
-					for (File file : mediaFiles) {
-						Collection<Movie> results = MediaDetection.detectMovie(file, null, null, language.toLocale(), strict);
-						for (Movie movie : results) {
-							querySet.add(movie.getName());
+					// auto-detect movie names
+					for (File f : files) {
+						if (!isEpisode(f.getName(), false)) {
+							for (Movie movie : detectMovie(f, null, null, language.toLocale(), strict)) {
+								querySet.add(movie.getName());
+							}
 						}
 					}
 				} catch (Exception e) {
@@ -608,13 +609,13 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 				
 				try {
-					CLILogger.fine(format("Searching for %s at [%s]", querySet.toString(), service.getName()));
+					CLILogger.fine(format("Searching for %s at [%s]", querySet, service.getName()));
 					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos, strict);
 					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
 					remainingVideos.removeAll(downloads.keySet());
 					subtitleFiles.addAll(downloads.values());
 				} catch (Exception e) {
-					CLILogger.warning(format("Search for [%s] failed: %s", querySet, e.getMessage()));
+					CLILogger.warning(format("Search for %s failed: %s", querySet, e.getMessage()));
 				}
 			}
 		}
