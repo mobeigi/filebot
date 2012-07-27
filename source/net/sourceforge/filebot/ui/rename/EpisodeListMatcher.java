@@ -39,6 +39,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
@@ -99,12 +100,21 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
-				selectDialog.setMinimumSize(new Dimension(250, 150));
+				
+				// restore original dialog size
+				Settings prefs = Settings.forPackage(EpisodeListMatcher.class);
+				int w = Integer.parseInt(prefs.get("dialog.select.w", "280"));
+				int h = Integer.parseInt(prefs.get("dialog.select.h", "300"));
+				selectDialog.setPreferredSize(new Dimension(w, h));
 				selectDialog.pack();
 				
 				// show dialog
 				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 				selectDialog.setVisible(true);
+				
+				// remember dialog size
+				prefs.put("dialog.select.w", Integer.toString(selectDialog.getWidth()));
+				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
 				
 				// selected value or null if the dialog was canceled by the user
 				return selectDialog.getSelectedValue();
@@ -257,8 +267,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory,
-			Map<String, List<String>> inputMemory, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Map<String, List<String>> inputMemory, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 		
 		// detect series name and fetch episode list

@@ -46,6 +46,7 @@ import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -98,7 +99,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// match movie hashes online
 		final Map<File, Movie> movieByFile = new TreeMap<File, Movie>();
-		if (movieFiles.size() > 0) {
+		if (autodetect && movieFiles.size() > 0) {
 			try {
 				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
 				movieByFile.putAll(hashLookup);
@@ -328,8 +329,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.format("%s / %s", folderQuery, fileQuery));
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
-				selectDialog.setMinimumSize(new Dimension(280, 300));
-				selectDialog.pack();
 				
 				// add repeat button
 				JCheckBox checkBox = new JCheckBox();
@@ -340,9 +339,20 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				JComponent c = (JComponent) selectDialog.getContentPane();
 				c.add(checkBox, "pos 1al select.y n select.y2");
 				
+				// restore original dialog size
+				Settings prefs = Settings.forPackage(MovieHashMatcher.class);
+				int w = Integer.parseInt(prefs.get("dialog.select.w", "280"));
+				int h = Integer.parseInt(prefs.get("dialog.select.h", "300"));
+				selectDialog.setPreferredSize(new Dimension(w, h));
+				selectDialog.pack();
+				
 				// show dialog
 				selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 				selectDialog.setVisible(true);
+				
+				// remember dialog size
+				prefs.put("dialog.select.w", Integer.toString(selectDialog.getWidth()));
+				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
 				
 				// remember if we should auto-repeat the chosen action in the future
 				if (checkBox.isSelected()) {
