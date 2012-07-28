@@ -4,8 +4,8 @@
  * Fetch movie artwork. The movie is determined using the parent folders name.
  */
 
-// xbmc artwork/nfo utility
-include("fn:lib/xbmc")
+// artwork/nfo helpers
+include("fn:lib/htpc")
 
 
 args.eachMediaFolder { dir ->

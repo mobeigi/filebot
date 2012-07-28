@@ -434,8 +434,19 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		
 		
-		public List<Person> getCast() {
+		public List<Person> getPeope() {
 			return unmodifiableList(asList(people));
+		}
+		
+		
+		public List<Person> getCast() {
+			List<Person> actors = new ArrayList<Person>();
+			for (Person person : people) {
+				if (person.isActor()) {
+					actors.add(person);
+				}
+			}
+			return actors;
 		}
 		
 		
@@ -450,10 +461,8 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public List<String> getActors() {
 			List<String> actors = new ArrayList<String>();
-			for (Person person : people) {
-				if (person.isActor()) {
-					actors.add(person.getName());
-				}
+			for (Person actor : getCast()) {
+				actors.add(actor.getName());
 			}
 			return actors;
 		}

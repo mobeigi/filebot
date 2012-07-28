@@ -1,4 +1,10 @@
-// xbmc functions
+
+import static net.sourceforge.filebot.WebServices.*
+
+
+/**
+ * XBMC helper functions
+ */
 def invokeScanVideoLibrary(host, port = 9090) {
 	try {
 		telnet(host, port) { writer, reader ->
@@ -12,7 +18,35 @@ def invokeScanVideoLibrary(host, port = 9090) {
 }
 
 
-// functions for TheTVDB artwork/nfo
+
+/**
+ * Plex helpers
+ */
+def refreshPlexLibrary(server, port = 32400, files = null) {
+	try {
+		def sections = new URL("http://$server:$port/plex").getXml()
+		def locations = sections.Directory.Location.collect{ [path:it.'@path', key:it.parent().'@key'] }
+		
+		// limit refresh locations
+		if (files != null) {
+			locations = locations.findAll{ loc -> files.find{ it.path; it.path.startsWith(loc.path) }}
+		}
+		
+		locations*.key.unique().each{ key ->
+			new URL("http://$server:$port/library/sections/$key/refresh/").get()
+		}
+		return true
+	} catch(e) {
+		println "${e.class.simpleName}: ${e.message}"
+		return false
+	}
+}
+
+
+
+/**
+ * TheTVDB artwork/nfo helpers
+ */
 def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, locale) {
 	// select and fetch banner
 	def banner = [locale, null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
@@ -24,44 +58,38 @@ def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, local
 	return banner.url.saveAs(outputFile)
 }
 
+def fetchSeriesFanart(outputFile, series, type, season, locale) {
+	def fanart = [locale, null].findResult{ lang -> FanartTV.getSeriesArtwork(series.seriesId).find{ type == it.type && (season == null || season == it.season) && (lang == null || lang == it.language) }}
+	if (fanart == null) {
+		println "Fanart not found: $outputFile / $type"
+		return null
+	}
+	println "Fetching $outputFile => $fanart"
+	return fanart.url.saveAs(outputFile)
+}
+
 def fetchSeriesNfo(outputFile, series, locale) {
 	def info = TheTVDB.getSeriesInfo(series, locale)
 	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<year>$firstAired.year</year>
-			<top250></top250>
-			<seasons>-1</seasons>
-			<episode></episode>
-			<episodeguideurl></episodeguideurl>
-			<displayseason>-1</displayseason>
-			<displayepisode>-1</displayepisode>
 			<rating>$rating</rating>
 			<votes>$ratingCount</votes>
-			<outline></outline>
 			<plot>$overview</plot>
-			<tagline></tagline>
 			<runtime>$runtime</runtime>
 			<mpaa>$contentRating</mpaa>
-			<playcount></playcount>
-			<lastplayed></lastplayed>
 			<id>$id</id>
 			<episodeguide><url cache="${id}.xml">http://www.thetvdb.com/api/1D62F2F90030C444/series/${id}/all/''' + locale.language + '''.zip</url></episodeguide>
 			<genre>${!genres.empty ? genres[0] : ''}</genre>
-			<set></set>
-			<credits></credits>
-			<director></director>
 			<thumb>$bannerUrl</thumb>
 			<premiered>$firstAired</premiered>
 			<status>$status</status>
 			<studio>$network</studio>
-			<trailer></trailer>
 			<gsp:scriptlet> actors.each { </gsp:scriptlet>
 				<actor>
 					<name>$it</name>
-					<role></role>
 				</actor>
 			<gsp:scriptlet> } </gsp:scriptlet>
-			<artist></artist>
 		</tvshow>
 	''')
 	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
@@ -85,6 +113,16 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 			fetchSeriesBanner(seasonDir["folder.jpg"], series, "season", "season", season, locale)
 			fetchSeriesBanner(seasonDir["banner.jpg"], series, "season", "seasonwide", season, locale)
 		}
+		
+		// fetch fanart
+		fetchSeriesFanart(seriesDir['clearlogo.png'], series, 'clearlogo', null, locale)
+		fetchSeriesFanart(seriesDir['clearart.png'], series, 'clearart', null, locale)
+		fetchSeriesFanart(seriesDir['thumb.jpg'], series, 'tvthumb', null, locale)
+		
+		// fetch season fanart
+		if (seasonDir != seriesDir) {
+			fetchSeriesFanart(seasonDir['thumb.jpg'], series, 'seasonthumb', season, locale)
+		}
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
 	}
@@ -92,7 +130,9 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 
 
 
-// functions for TheMovieDB artwork/nfo
+/**
+ * TheMovieDB artwork/nfo helpers
+ */
 def fetchMovieArtwork(outputFile, movieInfo, category, language) {
 	// select and fetch artwork
 	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
@@ -105,17 +145,37 @@ def fetchMovieArtwork(outputFile, movieInfo, category, language) {
 	return selection.url.saveAs(outputFile)
 }
 
+def fetchMovieFanart(outputFile, movieInfo, type, diskType, locale) {
+	def fanart = [locale, null].findResult{ lang -> FanartTV.getMovieArtwork(movieInfo.id).find{ type == it.type && (diskType == null || diskType == it.diskType) && (lang == null || lang == it.language) }}
+	if (fanart == null) {
+		println "Fanart not found: $outputFile / $type"
+		return null
+	}
+	println "Fetching $outputFile => $fanart"
+	return fanart.url.saveAs(outputFile)
+}
+
 def fetchMovieNfo(outputFile, movieInfo) {
-	movieInfo.applyXmlTemplate('''<movie>
+	movieInfo.applyXmlTemplate('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
+			<originaltitle>$originalName</originaltitle>
+			<set>$collection</set>
 			<year>$released.year</year>
 			<rating>$rating</rating>
 			<votes>$votes</votes>
-			<plot>$overview</plot>
-			<runtime>$runtime</runtime>
 			<mpaa>$certification</mpaa>
-			<genre>${!genres.empty ? genres[0] : ''}</genre>
 			<id>tt${imdbId.pad(7)}</id>
+			<plot>$overview</plot>
+			<tagline>$tagline</tagline>
+			<runtime>$runtime</runtime>
+			<genre>${!genres.empty ? genres[0] : ''}</genre>
+			<director>$director</director>
+			<gsp:scriptlet> cast.each { </gsp:scriptlet>
+				<actor>
+					<name>${it?.name}</name>
+					<role>${it?.character}</role>
+				</actor>
+			<gsp:scriptlet> } </gsp:scriptlet>
 		</movie>
 	''')
 	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
@@ -132,6 +192,10 @@ def fetchMovieArtworkAndNfo(movieDir, movie, locale = _args.locale) {
 		// fetch series banner, fanart, posters, etc
 		fetchMovieArtwork(movieDir['folder.jpg'], movieInfo, 'posters', locale.language)
 		fetchMovieArtwork(movieDir['backdrop.jpg'], movieInfo, 'backdrops', locale.language)
+		
+		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, locale)
+		fetchMovieFanart(movieDir['fanart.png'], movieInfo, 'movieart', null, locale)
+		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, locale) }
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
 	}

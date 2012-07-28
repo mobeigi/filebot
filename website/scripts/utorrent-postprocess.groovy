@@ -29,8 +29,8 @@ input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|
 // print input fileset
 input.each{ println "Input: $it" }
 
-// xbmc artwork/nfo utility
-include("fn:lib/xbmc")
+// artwork/nfo utility
+include("fn:lib/htpc")
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
@@ -100,8 +100,11 @@ groups.each{ group, files ->
 
 
 
-// make XBMC scan for new content
+// make xbmc or plex scan for new content
 xbmc.split(/[\s,|]+/).each{
 	println "Notify XBMC: $it"
 	invokeScanVideoLibrary(it)
+	
+	println "Notify Plex: $it"
+	refreshPlexLibrary(it)
 }

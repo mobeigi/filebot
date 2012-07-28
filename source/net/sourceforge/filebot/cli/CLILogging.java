@@ -35,6 +35,10 @@ class CLILogging extends Handler {
 		if (record.getLevel().intValue() <= getLevel().intValue())
 			return;
 		
+		// make sure all previous messages are already flushed
+		System.out.flush();
+		System.err.flush();
+		
 		// use either System.out or System.err depending on the severity of the error
 		PrintStream out = record.getLevel().intValue() < Level.WARNING.intValue() ? System.out : System.err;
 		

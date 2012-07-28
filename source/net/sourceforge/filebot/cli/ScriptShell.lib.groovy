@@ -325,4 +325,22 @@ def _defaults(args) {
 /**
  * Catch and log exceptions thrown by the closure
  */
-this.metaClass._guarded = { c -> try { return c.call() } catch (e) { _log.severe("${e.class.simpleName}: ${e.message}"); return null }}
+def _guarded(c) {
+	try {
+		return c.call() 
+	} catch (e) {
+		_log.severe("${e.class.simpleName}: ${e.message}")
+		return null
+	}
+}
+
+/**
+ * Same as the above but without logging anything
+ */
+def tryQuietly(c) {
+	try {
+		return c.call() 
+	} catch (e) {
+		return null
+	}
+}
