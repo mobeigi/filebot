@@ -101,6 +101,12 @@ public final class FileUtilities {
 	}
 	
 	
+	public static boolean delete(File file) {
+		// delete files or files
+		return org.apache.commons.io.FileUtils.deleteQuietly(file);
+	}
+	
+	
 	public static byte[] readFile(File source) throws IOException {
 		InputStream in = new FileInputStream(source);
 		

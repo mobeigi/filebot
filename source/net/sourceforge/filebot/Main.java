@@ -5,6 +5,7 @@ package net.sourceforge.filebot;
 import static java.awt.GraphicsEnvironment.*;
 import static javax.swing.JFrame.*;
 import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Desktop;
@@ -14,8 +15,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileLock;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -86,6 +89,11 @@ public class Main {
 			if (args.clearUserData()) {
 				// clear preferences and cache
 				System.out.println("Reset preferences and clear cache");
+				for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
+					if (cache.getName().startsWith(".")) {
+						delete(cache);
+					}
+				}
 				Settings.forPackage(Main.class).clear();
 				CacheManager.getInstance().clearAll();
 			}
@@ -314,15 +322,56 @@ public class Main {
 	/**
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
-	private static void initializeCache() {
-		System.setProperty("ehcache.disk.store.dir", new File(getApplicationFolder(), "cache").getAbsolutePath());
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			
-			@Override
-			public void run() {
-				CacheManager.getInstance().shutdown();
+	private static void initializeCache() throws Exception {
+		// prepare cache folder for this application instance
+		File cacheRoot = new File(getApplicationFolder(), ".cache");
+		
+		try {
+			for (int i = 0; true; i++) {
+				File cache = new File(cacheRoot, String.format("%d", i));
+				if (!cache.isDirectory() && !cache.mkdirs()) {
+					throw new IOException("Failed to create cache dir: " + cache);
+				}
+				
+				File lockFile = new File(cache, ".lock");
+				final RandomAccessFile handle = new RandomAccessFile(lockFile, "rw");
+				final FileLock lock = handle.getChannel().tryLock();
+				if (lock != null) {
+					// setup cache dir for ehcache
+					System.setProperty("cache.disk.store.dir", cache.getAbsolutePath());
+					
+					// make sure to orderly shutdown cache
+					Runtime.getRuntime().addShutdownHook(new Thread() {
+						
+						@Override
+						public void run() {
+							CacheManager.getInstance().shutdown();
+							try {
+								lock.release();
+							} catch (Exception e) {
+								Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString());
+							}
+							try {
+								handle.close();
+							} catch (Exception e) {
+								Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString());
+							}
+						}
+					});
+					
+					// cache for this application instance is successfully set up and locked
+					return;
+				}
+				
+				// try next lock file
+				handle.close();
 			}
-		});
+		} catch (Exception e) {
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
+		}
+		
+		// use cache root itself as fail-safe fallback
+		System.setProperty("cache.disk.store.dir", cacheRoot.getAbsolutePath());
 	}
 	
 	
