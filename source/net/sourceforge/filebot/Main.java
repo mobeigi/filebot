@@ -3,6 +3,7 @@ package net.sourceforge.filebot;
 
 
 import static java.awt.GraphicsEnvironment.*;
+import static java.util.regex.Pattern.*;
 import static javax.swing.JFrame.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -90,7 +91,7 @@ public class Main {
 				// clear preferences and cache
 				System.out.println("Reset preferences and clear cache");
 				for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
-					if (cache.getName().startsWith(".")) {
+					if (matches("cache|temp|grape", cache.getName())) {
 						delete(cache);
 					}
 				}
@@ -324,7 +325,7 @@ public class Main {
 	 */
 	private static void initializeCache() {
 		// prepare cache folder for this application instance
-		File cacheRoot = new File(getApplicationFolder(), ".cache");
+		File cacheRoot = new File(getApplicationFolder(), "cache");
 		
 		try {
 			for (int i = 0; true; i++) {
