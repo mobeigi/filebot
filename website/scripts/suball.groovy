@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/suball.groovy" <options> <folder>
+// filebot -script fn:suball <options> <folder>
 
 /*
  * Get subtitles for all your media files  

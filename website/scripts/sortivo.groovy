@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/sortivo.groovy" <folder> --output path/to/folder [-non-strict]
+// filebot -script fn:sortivo <folder> --output path/to/folder [-non-strict]
 
 // process only media files
 def input = args.getFiles{ it.isVideo() || it.isSubtitle() }

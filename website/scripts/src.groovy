@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/src.groovy" <folder>
+// filebot -script fn:src <folder>
 
 /*
  * Fetch subtitles, rename and calculate checksums for all video files

@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/mi.groovy" -trust-script /path/to/media/ "MediaIndex.csv"
+// filebot -script fn:mi /path/to/media/ "MediaIndex.csv"
 
 /*
  * Print media info of all video files to CSV file  

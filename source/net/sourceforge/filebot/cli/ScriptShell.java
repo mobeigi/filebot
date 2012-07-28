@@ -17,7 +17,6 @@ import java.security.Permissions;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PropertyPermission;
 
@@ -28,9 +27,6 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
-import org.codehaus.groovy.runtime.StackTraceUtils;
-
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.AssociativeScriptObject;
@@ -38,6 +34,9 @@ import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+
+import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.codehaus.groovy.runtime.StackTraceUtils;
 
 
 class ScriptShell {
@@ -47,12 +46,12 @@ class ScriptShell {
 	private final ScriptProvider scriptProvider;
 	
 	
-	public ScriptShell(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
+	public ScriptShell(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
 		this.scriptProvider = scriptProvider;
 		
 		// setup script context
 		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(initializeBindings(cli, args, parameters, acc), ScriptContext.GLOBAL_SCOPE);
+		context.setBindings(initializeBindings(cli, args, acc), ScriptContext.GLOBAL_SCOPE);
 		engine.setContext(context);
 		
 		// import additional functions into the shell environment
@@ -114,12 +113,14 @@ class ScriptShell {
 	}
 	
 	
-	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, Map<String, ?> parameters, AccessControlContext acc) {
+	protected Bindings initializeBindings(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc) {
 		Bindings bindings = new SimpleBindings();
 		
 		// bind external parameters
-		for (Entry<String, ?> it : parameters.entrySet()) {
-			bindings.put(it.getKey(), it.getValue());
+		if (args.bindings != null) {
+			for (Entry<String, String> it : args.bindings) {
+				bindings.put(it.getKey(), it.getValue());
+			}
 		}
 		
 		// bind API objects
@@ -132,7 +133,6 @@ class ScriptShell {
 		bindings.put("_log", CLILogger);
 		
 		// bind Java properties and environment variables
-		bindings.put("_parameter", new AssociativeScriptObject(parameters));
 		bindings.put("_system", new AssociativeScriptObject(System.getProperties()));
 		bindings.put("_environment", new AssociativeScriptObject(System.getenv()));
 		

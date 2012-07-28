@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/artwork.tvdb.groovy" -trust-script /path/to/media/
+// filebot -script fn:artwork.tvdb /path/to/media/
 
 /*
  * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.

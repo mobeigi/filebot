@@ -1,4 +1,4 @@
-// filebot -script "http://filebot.sf.net/scripts/extract.groovy" <folder>
+// filebot -script fn:extract <folder>
 
 /*
  * Auto-extract all zip and rar archives.

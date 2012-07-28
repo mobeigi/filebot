@@ -9,7 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -102,11 +102,11 @@ public class ArgumentBean {
 	@Option(name = "-help", usage = "Print this help message")
 	public boolean help = false;
 	
-	@Argument
-	public List<String> arguments = new ArrayList<String>();
+	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
+	public List<Entry<String, String>> bindings;
 	
-	// optional parameters
-	public Map<String, Object> parameters;
+	@Argument
+	public List<String> arguments;
 	
 	
 	public boolean runCLI() {
@@ -135,9 +135,13 @@ public class ArgumentBean {
 	
 	
 	public List<File> getFiles(boolean resolveFolders) {
-		List<File> files = new ArrayList<File>();
+		if (arguments == null || arguments.isEmpty()) {
+			return emptyList();
+		}
 		
 		// resolve given paths
+		List<File> files = new ArrayList<File>();
+		
 		for (String argument : arguments) {
 			File file = new File(argument).getAbsoluteFile();
 			

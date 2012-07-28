@@ -1,9 +1,9 @@
-// filebot -script "fn:utorrent-postprocess" --output "X:/media" --action copy --conflict override -non-strict -trust-script -Xxbmc=localhost "-Xut_dir=%D" "-Xut_file=%F" "-Xut_label=%L" "-Xut_state=%S" "-Xut_kind=%K"
+// filebot -script "fn:utorrent-postprocess" --output "X:/media" --action copy --conflict override --def xbmc=localhost "ut_dir=%D" "ut_file=%F" "ut_kind=%K" "ut_label=%L" "ut_state=%S"
 def input = []
 def failOnError = _args.conflict == 'fail'
 
 // print input parameters
-_args.parameters.each{ k, v -> println "Parameter: $k = $v" }
+_args.bindings?.each{ println "Parameter: $it.key = $it.value" }
 
 if (args.empty) {
 	// assume we're called with utorrent parameters

@@ -17,12 +17,8 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.AccessController;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 import javax.script.Bindings;
@@ -41,31 +37,15 @@ import org.kohsuke.args4j.CmdLineParser;
 
 public class ArgumentProcessor {
 	
+	public void printHelp(ArgumentBean argumentBean) {
+		new CmdLineParser(argumentBean).printUsage(System.out);
+	}
+	
+	
 	public ArgumentBean parse(String[] args) throws CmdLineException {
-		final ArgumentBean bean = new ArgumentBean();
-		
-		if (args != null && args.length > 0) {
-			List<String> arguments = new ArrayList<String>();
-			Map<String, Object> parameters = new HashMap<String, Object>();
-			
-			for (String it : args) {
-				if (it.startsWith("-X")) {
-					String[] pair = it.substring(2).split("=", 2);
-					if (pair.length == 2) {
-						parameters.put(pair[0], pair[1]);
-					} else if (pair.length == 1) {
-						parameters.put(pair[0], Boolean.TRUE);
-					}
-				} else {
-					arguments.add(it);
-				}
-			}
-			
-			CmdLineParser parser = new CmdLineParser(bean);
-			parser.parseArgument(arguments);
-			bean.parameters = parameters;
-		}
-		
+		ArgumentBean bean = new ArgumentBean();
+		CmdLineParser parser = new CmdLineParser(bean);
+		parser.parseArgument(args);
 		return bean;
 	}
 	
@@ -122,7 +102,7 @@ public class ArgumentProcessor {
 				}
 			} else {
 				// execute user script
-				System.setProperty("grape.root", new File(getApplicationFolder(), ".grape").getAbsolutePath());
+				System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
 				
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
@@ -130,7 +110,7 @@ public class ArgumentProcessor {
 				ScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
 				Analytics.trackEvent("CLI", "ExecuteScript", scriptProvider.getScriptLocation(args.script).getScheme());
 				
-				ScriptShell shell = new ScriptShell(cli, args, args.parameters, AccessController.getContext(), scriptProvider);
+				ScriptShell shell = new ScriptShell(cli, args, AccessController.getContext(), scriptProvider);
 				shell.runScript(args.script, bindings);
 			}
 			
@@ -141,12 +121,6 @@ public class ArgumentProcessor {
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
-	}
-	
-	
-	public void printHelp(ArgumentBean argumentBean) {
-		new CmdLineParser(argumentBean).printUsage(System.out);
-		System.out.println(" -X<name>=<value>                       : Define script variable");
 	}
 	
 	
