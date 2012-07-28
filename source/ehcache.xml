@@ -3,7 +3,7 @@
 	<!--
 	Persistent disk store location
 	-->
-	<diskStore path="${cache.disk.store.dir}" />
+	<diskStore path="${ehcache.disk.store.dir}" />
 	
 	<!--
 	Mandatory Default Cache configuration. These settings will be applied to caches

@@ -338,7 +338,7 @@ public class Main {
 				final FileLock lock = handle.getChannel().tryLock();
 				if (lock != null) {
 					// setup cache dir for ehcache
-					System.setProperty("cache.disk.store.dir", cache.getAbsolutePath());
+					System.setProperty("ehcache.disk.store.dir", cache.getAbsolutePath());
 					
 					// make sure to orderly shutdown cache
 					Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -371,7 +371,7 @@ public class Main {
 		}
 		
 		// use cache root itself as fail-safe fallback
-		System.setProperty("cache.disk.store.dir", cacheRoot.getAbsolutePath());
+		System.setProperty("ehcache.disk.store.dir", new File(cacheRoot, "default").getAbsolutePath());
 	}
 	
 	
