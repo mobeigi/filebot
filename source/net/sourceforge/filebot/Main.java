@@ -322,7 +322,7 @@ public class Main {
 	/**
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
-	private static void initializeCache() throws Exception {
+	private static void initializeCache() {
 		// prepare cache folder for this application instance
 		File cacheRoot = new File(getApplicationFolder(), ".cache");
 		
