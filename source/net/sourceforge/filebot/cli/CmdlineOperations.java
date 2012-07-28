@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
@@ -337,21 +338,39 @@ public class CmdlineOperations implements CmdlineInterface {
 			for (File dir : mapByFolder(movieFiles).keySet()) {
 				addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
 			}
+			for (File dir : filter(fileset, FOLDERS)) {
+				addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
+			}
+			
 			for (File nfo : effectiveNfoFileSet) {
 				try {
 					Movie movie = grepMovie(nfo, service, locale);
+					
+					// ignore illegal nfos
+					if (movie == null) {
+						continue;
+					}
 					
 					if (nfoFiles.contains(nfo)) {
 						movieByFile.put(nfo, movie);
 					}
 					
-					// match movie info to movie files that match the nfo file name
-					SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
-					String baseName = stripReleaseInfo(getName(nfo)).toLowerCase();
-					
-					for (File movieFile : siblingMovieFiles) {
-						if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
-							movieByFile.put(movieFile, movie);
+					if (isDiskFolder(nfo.getParentFile())) {
+						// special handling for disk folders
+						for (File folder : fileset) {
+							if (nfo.getParentFile().equals(folder)) {
+								movieByFile.put(folder, movie);
+							}
+						}
+					} else {
+						// match movie info to movie files that match the nfo file name
+						SortedSet<File> siblingMovieFiles = new TreeSet<File>(filter(movieFiles, new ParentFilter(nfo.getParentFile())));
+						String baseName = stripReleaseInfo(getName(nfo)).toLowerCase();
+						
+						for (File movieFile : siblingMovieFiles) {
+							if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
+								movieByFile.put(movieFile, movie);
+							}
 						}
 					}
 				} catch (NoSuchElementException e) {
