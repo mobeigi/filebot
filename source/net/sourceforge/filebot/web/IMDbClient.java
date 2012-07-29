@@ -133,7 +133,7 @@ public class IMDbClient implements MovieIdentificationService {
 						String akaTitle = getTextContent(columns.get(0));
 						String languageDesc = getTextContent(columns.get(1)).toLowerCase();
 						
-						if (language.length() > 0 && languageDesc.contains(language) && frequency(asList(languageDesc.split("\\W")), "title") == 1) {
+						if (language.length() > 0 && languageDesc.contains(language) && languageDesc.contains("international")) {
 							name = akaTitle;
 							break;
 						}
