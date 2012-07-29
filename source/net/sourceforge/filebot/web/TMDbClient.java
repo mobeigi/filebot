@@ -105,10 +105,15 @@ public class TMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
+		String id = String.format("tt%07d", imdbid);
 		try {
-			MovieInfo info = getMovieInfo(String.format("tt%07d", imdbid), locale, false);
+			MovieInfo info = getMovieInfo(id, locale, false);
 			return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
 		} catch (FileNotFoundException e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);
+			return null;
+		} catch (NullPointerException e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie data missing: " + id);
 			return null;
 		}
 	}
@@ -422,7 +427,11 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		public Date getReleased() {
 			// e.g. 2005-09-30
-			return Date.parse(get(MovieProperty.release_date), "yyyy-MM-dd");
+			try {
+				return Date.parse(get(MovieProperty.release_date), "yyyy-MM-dd");
+			} catch (Exception e) {
+				return null;
+			}
 		}
 		
 		
