@@ -526,12 +526,18 @@ public class MediaBindingBean {
 		} else if (!VIDEO_FILES.accept(mediaFile)) {
 			// file is a subtitle, or nfo, etc
 			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
+			File[] videos = mediaFile.getParentFile().listFiles(VIDEO_FILES);
 			
 			// find corresponding movie file
-			for (File movieFile : mediaFile.getParentFile().listFiles(VIDEO_FILES)) {
-				if (stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase().startsWith(baseName)) {
+			for (File movieFile : videos) {
+				if (!baseName.isEmpty() && stripReleaseInfo(FileUtilities.getName(movieFile)).toLowerCase().startsWith(baseName)) {
 					return movieFile;
 				}
+			}
+			
+			// still no good match found -> just take any video from the same folder
+			if (videos.length > 0) {
+				return videos[0];
 			}
 		}
 		

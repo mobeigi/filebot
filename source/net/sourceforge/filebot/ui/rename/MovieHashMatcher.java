@@ -144,7 +144,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 					String baseName = stripReleaseInfo(getName(nfo)).toLowerCase();
 					
 					for (File movieFile : siblingMovieFiles) {
-						if (stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
+						if (!baseName.isEmpty() && stripReleaseInfo(getName(movieFile)).toLowerCase().startsWith(baseName)) {
 							movieByFile.put(movieFile, movie);
 						}
 					}
