@@ -42,7 +42,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
@@ -600,11 +599,11 @@ public class CmdlineOperations implements CmdlineInterface {
 			
 			if (query == null) {
 				try {
-					List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
-					querySet.addAll(detectSeriesNames(mediaFiles, language.toLocale()));
+					List<File> videoFiles = filter(files, VIDEO_FILES);
+					querySet.addAll(detectSeriesNames(videoFiles, language.toLocale()));
 					
 					// auto-detect movie names
-					for (File f : files) {
+					for (File f : videoFiles) {
 						if (!isEpisode(f.getName(), false)) {
 							for (Movie movie : detectMovie(f, null, null, language.toLocale(), strict)) {
 								querySet.add(movie.getName());
