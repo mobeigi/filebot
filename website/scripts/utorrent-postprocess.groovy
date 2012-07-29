@@ -30,7 +30,7 @@ input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|
 input.each{ println "Input: $it" }
 
 // artwork/nfo utility
-include("fn:lib/htpc")
+include("lib/htpc")
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->

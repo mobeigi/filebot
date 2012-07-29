@@ -19,7 +19,9 @@ import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.MissingResourceException;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
@@ -107,11 +109,26 @@ public class ArgumentProcessor {
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 				
-				ScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
-				Analytics.trackEvent("CLI", "ExecuteScript", scriptProvider.getScriptLocation(args.script).getScheme());
+				DefaultScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
+				URI script = scriptProvider.getScriptLocation(args.script);
 				
+				if (!scriptProvider.isInlineScheme(script.getScheme())) {
+					if (scriptProvider.getResourceTemplate(script.getScheme()) != null) {
+						scriptProvider.setBaseScheme(new URI(script.getScheme(), "%s", null));
+					} else if ("file".equals(script.getScheme())) {
+						File base = new File(script).getParentFile();
+						File template = new File(base, "%s.groovy");
+						scriptProvider.setBaseScheme(template.toURI());
+					} else {
+						File base = new File(script.getPath()).getParentFile();
+						String template = normalizePathSeparators(new File(base, "%s.groovy").getPath());
+						scriptProvider.setBaseScheme(new URI(script.getScheme(), script.getHost(), template, script.getQuery(), script.getFragment()));
+					}
+				}
+				
+				Analytics.trackEvent("CLI", "ExecuteScript", script.getScheme());
 				ScriptShell shell = new ScriptShell(cli, args, AccessController.getContext(), scriptProvider);
-				shell.runScript(args.script, bindings);
+				shell.runScript(script.toString(), bindings);
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
@@ -128,9 +145,30 @@ public class ArgumentProcessor {
 		
 		private final boolean trustRemoteScript;
 		
+		private URI baseScheme;
+		
 		
 		public DefaultScriptProvider(boolean trustRemoteScript) {
 			this.trustRemoteScript = trustRemoteScript;
+		}
+		
+		
+		public void setBaseScheme(URI baseScheme) {
+			this.baseScheme = baseScheme;
+		}
+		
+		
+		public String getResourceTemplate(String scheme) {
+			try {
+				return getApplicationProperty("script." + scheme);
+			} catch (MissingResourceException e) {
+				return null;
+			}
+		}
+		
+		
+		public boolean isInlineScheme(String scheme) {
+			return "g".equals(scheme) || "system".equals(scheme);
 		}
 		
 		
@@ -138,29 +176,36 @@ public class ArgumentProcessor {
 		public URI getScriptLocation(String input) {
 			try {
 				return new URL(input).toURI();
-			} catch (Exception eu) {
+			} catch (Exception _) {
 				try {
-					// fn:sortivo
-					if (input.startsWith("fn:")) {
-						return new URI("fn", input.substring(3), null, null, null);
-					}
-					
-					// script:println 'hello world'
-					if (input.startsWith("script:")) {
-						return new URI("script", input.substring(7), null, null, null);
-					}
-					
 					// system:in
 					if (input.equals("system:in")) {
-						return new URI("system", "in", null, null, null);
+						return new URI("system", "in", null);
+					}
+					
+					// g:println 'hello world'
+					if (input.startsWith("g:")) {
+						return new URI("g", input.substring(2), null);
+					}
+					
+					// fn:sortivo / svn:sortivo
+					if (Pattern.matches("\\w+:.+", input)) {
+						String scheme = input.substring(0, input.indexOf(':'));
+						if (getResourceTemplate(scheme) != null) {
+							return new URI(scheme, input.substring(scheme.length() + 1, input.length()), null);
+						}
+					}
+					
+					File file = new File(input);
+					if (baseScheme != null && !file.isAbsolute()) {
+						return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
 					}
 					
 					// X:/foo/bar.groovy
-					File file = new File(input);
 					if (!file.isFile()) {
 						throw new FileNotFoundException(file.getPath());
 					}
-					return file.toURI();
+					return file.getAbsoluteFile().toURI();
 				} catch (Exception e) {
 					throw new IllegalArgumentException(e);
 				}
@@ -178,26 +223,21 @@ public class ArgumentProcessor {
 				return new Script(readAll(new InputStreamReader(System.in)), true);
 			}
 			
-			if (uri.getScheme().equals("script")) {
-				return new Script(uri.getAuthority(), true);
+			if (uri.getScheme().equals("g")) {
+				return new Script(uri.getSchemeSpecificPart(), true);
 			}
 			
-			String url = uri.toString();
-			boolean trusted = trustRemoteScript;
+			// remote script
+			String url;
+			boolean trusted;
 			
-			// special handling for endorsed online scripts
-			if (uri.getScheme().equals("fn")) {
-				String path = "/scripts/" + uri.getAuthority() + ".groovy";
-				
-				// check for local override
-				File local = new File(getApplicationFolder(), path);
-				if (local.exists()) {
-					return new Script(readAll(new InputStreamReader(new FileInputStream(local), "UTF-8")), true);
-				} else {
-					// script repository
-					url = new URL("http", "filebot.sourceforge.net", path).toString();
-					trusted = true;
-				}
+			String resolver = getResourceTemplate(uri.getScheme());
+			if (resolver != null) {
+				url = String.format(resolver, uri.getSchemeSpecificPart());
+				trusted = true;
+			} else {
+				url = uri.toString();
+				trusted = trustRemoteScript;
 			}
 			
 			// fetch remote script only if modified

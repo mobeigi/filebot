@@ -5,7 +5,7 @@
  */
 
 // artwork/nfo helpers
-include("fn:lib/htpc")
+include("lib/htpc")
 
 
 args.eachMediaFolder { dir ->
