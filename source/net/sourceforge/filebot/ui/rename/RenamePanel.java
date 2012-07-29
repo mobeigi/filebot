@@ -10,9 +10,13 @@ import static net.sourceforge.tuned.ui.LoadingOverlayPane.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -22,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -168,8 +173,54 @@ public class RenamePanel extends JComponent {
 		// open rename log button
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap 0");
 		
-		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
+		// reveal file location on double click
+		filesList.getListComponent().addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent evt) {
+				if (evt.getClickCount() == 2) {
+					getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					try {
+						JList list = (JList) evt.getSource();
+						File item = (File) list.getSelectedValue();
+						Desktop.getDesktop().browse(item.getParentFile().toURI());
+					} catch (Exception e) {
+						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+					} finally {
+						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
+					}
+				}
+			}
+		});
 		
+		// reveal file location on double click
+		namesList.getListComponent().addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent evt) {
+				if (evt.getClickCount() == 2) {
+					try {
+						JList list = (JList) evt.getSource();
+						Object item = ((FormattedFuture) list.getSelectedValue()).getMatch().getValue();
+						if (item instanceof Movie) {
+							getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+							Movie m = (Movie) item;
+							if (m.getTmdbId() > 0) {
+								Desktop.getDesktop().browse(WebServices.TMDb.getMoviePageLink(m.getTmdbId()));
+							} else if (m.getImdbId() > 0) {
+								Desktop.getDesktop().browse(WebServices.IMDb.getMoviePageLink(m.getImdbId()));
+							}
+						}
+					} catch (Exception e) {
+						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+					} finally {
+						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
+					}
+				}
+			}
+		});
+		
+		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
 		add(filesList, "grow, sizegroupx list");
 		
 		// make buttons larger

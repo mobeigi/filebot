@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -94,6 +95,11 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 		}
 		return result;
+	}
+	
+	
+	public URI getMoviePageLink(int tmdbid) {
+		return URI.create("http://www.themoviedb.org/movie/" + tmdbid);
 	}
 	
 	

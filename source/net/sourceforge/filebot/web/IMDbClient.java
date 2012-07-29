@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -175,6 +176,11 @@ public class IMDbClient implements MovieIdentificationService {
 		};
 		
 		return getHtmlDocument(page.get());
+	}
+	
+	
+	public URI getMoviePageLink(int imdbId) {
+		return URI.create(String.format("http://www.imdb.com/title/tt%07d/", imdbId));
 	}
 	
 	
