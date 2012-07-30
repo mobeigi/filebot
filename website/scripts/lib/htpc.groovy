@@ -66,7 +66,7 @@ def fetchSeriesFanart(outputFile, series, type, season, locale) {
 
 def fetchSeriesNfo(outputFile, series, locale) {
 	def info = TheTVDB.getSeriesInfo(series, locale)
-	info.applyXmlTemplate('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
+	info.applyXml('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<year>$firstAired.year</year>
 			<rating>$rating</rating>
@@ -188,7 +188,7 @@ def createFileInfoXml(file) {
 }
 
 def fetchMovieNfo(outputFile, movieInfo, movieFile) {
-	movieInfo.applyXmlTemplate('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
+	movieInfo.applyXml('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<originaltitle>$originalName</originaltitle>
 			<set>$collection</set>

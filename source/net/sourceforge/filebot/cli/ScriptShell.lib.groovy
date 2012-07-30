@@ -95,8 +95,19 @@ import groovy.text.GStringTemplateEngine
 import net.sourceforge.filebot.format.PropertyBindings
 import net.sourceforge.filebot.format.UndefinedObject
 
-Object.metaClass.applyXmlTemplate = { template -> new XmlTemplateEngine("\t", false).createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
-Object.metaClass.applyTextTemplate = { template -> new GStringTemplateEngine().createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
+Object.metaClass.applyXml = { template -> new XmlTemplateEngine("\t", false).createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
+Object.metaClass.applyText = { template -> new GStringTemplateEngine().createTemplate(template).make(new PropertyBindings(delegate, new UndefinedObject(""))).toString() }
+
+
+// MarkupBuilder helper
+import groovy.xml.MarkupBuilder
+
+def XML(bc) {
+	def out = new StringWriter()
+	def xmb = new MarkupBuilder(out)
+	bc.rehydrate(bc.delegate, xmb, xmb).call() // call closure in MarkupBuilder context
+	return out.toString()
+}
 
 
 // Shell helper
@@ -156,7 +167,7 @@ List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 def getRenameLog(complete = false) {
 	def spooler = net.sourceforge.filebot.HistorySpooler.getInstance()
 	def history = complete ? spooler.completeHistory : spooler.sessionHistory
-	return history.sequences*.elements.flatten().collectEntries{ [new File(it.dir, it.from), new File(it.dir, it.to)] }
+	return history.sequences*.elements.flatten().collectEntries{ [new File(it.dir, it.from), new File(it.to).isAbsolute() ? new File(it.to) : new File(it.dir, it.to)] }
 }
 
 // Season / Episode helpers
