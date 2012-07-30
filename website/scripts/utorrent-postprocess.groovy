@@ -1,10 +1,20 @@
-// filebot -script "fn:utorrent-postprocess" --output "X:/media" --action copy --conflict override --def xbmc=localhost "ut_dir=%D" "ut_file=%F" "ut_kind=%K" "ut_label=%L" "ut_state=%S"
+// filebot -script "fn:utorrent-postprocess" --output "X:/media" --action copy --conflict override --def subtitles=true artwork=true xbmc=localhost plex=10.0.0.3 "ut_dir=%D" "ut_file=%F" "ut_kind=%K" "ut_label=%L" "ut_state=%S"
 def input = []
 def failOnError = _args.conflict == 'fail'
 
 // print input parameters
 _args.bindings?.each{ println "Parameter: $it.key = $it.value" }
 
+// disable enable features as specified via --def parameters
+def subtitles = tryQuietly{ subtitles.toBoolean() }
+def artwork   = tryQuietly{ artwork.toBoolean() }
+
+// array of xbmc/plex hosts
+def xbmc = tryQuietly{ xbmc.split(/[\s,|]+/) }
+def plex = tryQuietly{ plex.split(/[\s,|]+/) }
+
+
+// collect input fileset as specified by the given --def parameters
 if (args.empty) {
 	// assume we're called with utorrent parameters
 	if (ut_kind == "single") {
@@ -66,12 +76,14 @@ def groups = input.groupBy{ f ->
 
 groups.each{ group, files ->
 	// fetch subtitles
-	files += getMissingSubtitles(file:files, output:"srt", encoding:"utf-8")
+	if (subtitles) {
+		files += getMissingSubtitles(file:files, output:"srt", encoding:"utf-8")
+	}
 	
 	// EPISODE MODE
 	if (group.tvs && !group.mov) {
 		def dest = rename(file:files, format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB')
-		if (dest || failOnError) {
+		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheTVDB"
 				def sxe = fs.findResult{ eps -> parseEpisodeNumber(eps) }
@@ -84,16 +96,22 @@ groups.each{ group, files ->
 				fetchSeriesArtworkAndNfo(dir.dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
 			}
 		}
+		if (dest == null && failOnError) {
+			throw new Exception("Failed to rename series: $group.tvs")
+		}
 	}
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs) {
 		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}', db:'TheMovieDB')
-		if (dest || failOnError) {
+		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
 				fetchMovieArtworkAndNfo(dir, group.mov)
 			}
+		}
+		if (dest == null && failOnError) {
+			throw new Exception("Failed to rename movie: $group.mov")
 		}
 	}
 }
@@ -101,10 +119,12 @@ groups.each{ group, files ->
 
 
 // make xbmc or plex scan for new content
-xbmc.split(/[\s,|]+/).each{
+xbmc?.each{
 	println "Notify XBMC: $it"
 	invokeScanVideoLibrary(it)
-	
+}
+
+plex?.each{
 	println "Notify Plex: $it"
 	refreshPlexLibrary(it)
 }
