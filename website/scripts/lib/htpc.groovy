@@ -102,7 +102,7 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 		fetchSeriesNfo(seriesDir['tvshow.nfo'], series, locale)
 		
 		// fetch series banner, fanart, posters, etc
-		["680x1000",  null].findResult{ fetchSeriesBanner(seriesDir['folder.jpg'], series, "poster", it, null, locale) }
+		["680x1000",  null].findResult{ fetchSeriesBanner(seriesDir['poster.jpg'], series, "poster", it, null, locale) }
 		["graphical", null].findResult{ fetchSeriesBanner(seriesDir['banner.jpg'], series, "series", it, null, locale) }
 		
 		// fetch highest resolution fanart
@@ -110,18 +110,18 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 		
 		// fetch season banners
 		if (seasonDir != seriesDir) {
-			fetchSeriesBanner(seasonDir["folder.jpg"], series, "season", "season", season, locale)
+			fetchSeriesBanner(seasonDir["poster.jpg"], series, "season", "season", season, locale)
 			fetchSeriesBanner(seasonDir["banner.jpg"], series, "season", "seasonwide", season, locale)
 		}
 		
 		// fetch fanart
-		fetchSeriesFanart(seriesDir['clearlogo.png'], series, 'clearlogo', null, locale)
 		fetchSeriesFanart(seriesDir['clearart.png'], series, 'clearart', null, locale)
-		fetchSeriesFanart(seriesDir['thumb.jpg'], series, 'tvthumb', null, locale)
+		fetchSeriesFanart(seriesDir['logo.png'], series, 'clearlogo', null, locale)
+		fetchSeriesFanart(seriesDir['landscape.jpg'], series, 'tvthumb', null, locale)
 		
 		// fetch season fanart
 		if (seasonDir != seriesDir) {
-			fetchSeriesFanart(seasonDir['thumb.jpg'], series, 'seasonthumb', season, locale)
+			fetchSeriesFanart(seasonDir['landscape.jpg'], series, 'seasonthumb', season, locale)
 		}
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
@@ -190,11 +190,11 @@ def fetchMovieArtworkAndNfo(movieDir, movie, locale = _args.locale) {
 		fetchMovieNfo(movieDir['movie.nfo'], movieInfo)
 		
 		// fetch series banner, fanart, posters, etc
-		fetchMovieArtwork(movieDir['folder.jpg'], movieInfo, 'posters', locale.language)
-		fetchMovieArtwork(movieDir['backdrop.jpg'], movieInfo, 'backdrops', locale.language)
+		fetchMovieArtwork(movieDir['poster.jpg'], movieInfo, 'posters', locale.language)
+		fetchMovieArtwork(movieDir['fanart.jpg'], movieInfo, 'backdrops', locale.language)
 		
+		fetchMovieFanart(movieDir['clearart.png'], movieInfo, 'movieart', null, locale)
 		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, locale)
-		fetchMovieFanart(movieDir['fanart.png'], movieInfo, 'movieart', null, locale)
 		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, locale) }
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
