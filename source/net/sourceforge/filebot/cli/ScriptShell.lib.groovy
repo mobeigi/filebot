@@ -328,7 +328,7 @@ def _defaults(args) {
 def _guarded(c) {
 	try {
 		return c.call() 
-	} catch (e) {
+	} catch (Throwable e) {
 		_log.severe("${e.class.simpleName}: ${e.message}")
 		return null
 	}
@@ -340,7 +340,7 @@ def _guarded(c) {
 def tryQuietly(c) {
 	try {
 		return c.call() 
-	} catch (e) {
+	} catch (Throwable e) {
 		return null
 	}
 }

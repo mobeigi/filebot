@@ -1,19 +1,19 @@
 
 import static net.sourceforge.filebot.WebServices.*
 
+import groovy.xml.*
+import net.sourceforge.filebot.mediainfo.*
+
+
 
 /**
  * XBMC helper functions
  */
 def invokeScanVideoLibrary(host, port = 9090) {
-	try {
+	_guarded {
 		telnet(host, port) { writer, reader ->
 			writer.println('{"id":1,"method":"VideoLibrary.Scan","params":[],"jsonrpc":"2.0"}') // API call for latest XBMC release
 		}
-		return true
-	} catch(e) {
-		println "${e.class.simpleName}: ${e.message}"
-		return false
 	}
 }
 
@@ -23,7 +23,7 @@ def invokeScanVideoLibrary(host, port = 9090) {
  * Plex helpers
  */
 def refreshPlexLibrary(server, port = 32400, files = null) {
-	try {
+	_guarded {
 		def sections = new URL("http://$server:$port/plex").getXml()
 		def locations = sections.Directory.Location.collect{ [path:it.'@path', key:it.parent().'@key'] }
 		
@@ -35,10 +35,6 @@ def refreshPlexLibrary(server, port = 32400, files = null) {
 		locations*.key.unique().each{ key ->
 			new URL("http://$server:$port/library/sections/$key/refresh/").get()
 		}
-		return true
-	} catch(e) {
-		println "${e.class.simpleName}: ${e.message}"
-		return false
 	}
 }
 
@@ -97,7 +93,7 @@ def fetchSeriesNfo(outputFile, series, locale) {
 }
 
 def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _args.locale) {
-	try {
+	_guarded {
 		// fetch nfo
 		fetchSeriesNfo(seriesDir['tvshow.nfo'], series, locale)
 		
@@ -123,8 +119,6 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 		if (seasonDir != seriesDir) {
 			fetchSeriesFanart(seasonDir['landscape.jpg'], series, 'seasonthumb', season, locale)
 		}
-	} catch(e) {
-		println "${e.class.simpleName}: ${e.message}"
 	}
 }
 
@@ -155,7 +149,45 @@ def fetchMovieFanart(outputFile, movieInfo, type, diskType, locale) {
 	return fanart.url.saveAs(outputFile)
 }
 
-def fetchMovieNfo(outputFile, movieInfo) {
+def createFileInfoXml(file) {
+	_guarded {
+		def mi = MediaInfo.snapshot(file)
+		def out = new StringWriter()
+		def xml = new MarkupBuilder(out)
+		xml.fileinfo() {
+			streamdetails() {
+				mi.each { kind, streams ->
+					def section = kind.toString().toLowerCase()
+					streams.each { s ->
+						if (section == 'video') {
+							video() {
+								codec((s.'Encoded_Library/Name' ?: s.'CodecID/Hint' ?: s.'Format').replaceAll(/[ ].+/, '').trim())
+								aspect(s.'DisplayAspectRatio')
+								width(s.'Width')
+								height(s.'Height')
+							}
+						}
+						if (section == 'audio') {
+							audio() {
+								codec((s.'CodecID/Hint' ?: s.'Format').replaceAll(/\p{Punct}/, '').trim())
+								language(s.'Language/String3')
+								channels(s.'Channel(s)')
+							}
+						}
+						if (section == 'text') {
+							subtitle() {
+								language(s.'Language/String3')
+							}
+						}
+					}
+				}
+			}
+		}
+		return out.toString()
+	}
+}
+
+def fetchMovieNfo(outputFile, movieInfo, movieFile) {
 	movieInfo.applyXmlTemplate('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<originaltitle>$originalName</originaltitle>
@@ -176,18 +208,21 @@ def fetchMovieNfo(outputFile, movieInfo) {
 					<role>${it?.character}</role>
 				</actor>
 			<gsp:scriptlet> } </gsp:scriptlet>
+			''' + (createFileInfoXml(movieFile) ?: '') + '''
+			<imdb id='tt${imdbId.pad(7)}'>http://www.imdb.com/title/tt${imdbId.pad(7)}/</imdb>
+			<tmdb id='$id'>http://www.themoviedb.org/movie/$id</tmdb>
 		</movie>
 	''')
 	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
 	.saveAs(outputFile)
 }
 
-def fetchMovieArtworkAndNfo(movieDir, movie, locale = _args.locale) {
-	try {
+def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, locale = _args.locale) {
+	_guarded {
 		def movieInfo = TheMovieDB.getMovieInfo(movie, locale)
 		
 		// fetch nfo
-		fetchMovieNfo(movieDir['movie.nfo'], movieInfo)
+		fetchMovieNfo(movieDir['movie.nfo'], movieInfo, movieFile)
 		
 		// fetch series banner, fanart, posters, etc
 		fetchMovieArtwork(movieDir['poster.jpg'], movieInfo, 'posters', locale.language)
@@ -196,7 +231,5 @@ def fetchMovieArtworkAndNfo(movieDir, movie, locale = _args.locale) {
 		fetchMovieFanart(movieDir['clearart.png'], movieInfo, 'movieart', null, locale)
 		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, locale)
 		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, locale) }
-	} catch(e) {
-		println "${e.class.simpleName}: ${e.message}"
 	}
 }

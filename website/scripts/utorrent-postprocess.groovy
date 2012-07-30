@@ -107,7 +107,7 @@ groups.each{ group, files ->
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
-				fetchMovieArtworkAndNfo(dir, group.mov)
+				fetchMovieArtworkAndNfo(dir, group.mov, fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it })
 			}
 		}
 		if (dest == null && failOnError) {
