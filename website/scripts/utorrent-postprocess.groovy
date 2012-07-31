@@ -47,11 +47,12 @@ if (args.empty) {
 	input += args.getFiles()
 }
 
-// extract archives if necessary
-input += extract(file:input, output:".", conflict:"override")
+
+// extract archives (zip, rar, etc) that contain at least one video file
+input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() }
+input = input.unique().findAll{ it.isVideo() || it.isSubtitle() }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/) }

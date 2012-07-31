@@ -264,7 +264,7 @@ def compute(args) { args = _defaults(args)
 
 def extract(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.extract(_files(args), args.output as String, args.conflict as String) }
+		_guarded { _cli.extract(_files(args), args.output as String, args.conflict as String, args.filter instanceof Closure ? args.filter as FileFilter : null, args.forceExtractAll != null ? args.forceExtractAll : false) }
 	}
 }
 
@@ -319,17 +319,10 @@ def _renameFunction(fn) {
  * Fill in default values from cmdline arguments
  */
 def _defaults(args) {
-		args.action      = args.action     ?: _args.action
-		args.conflict    = args.conflict   ?: _args.conflict
-		args.query       = args.query      ?: _args.query
-		args.filter      = args.filter     ?: _args.filter
-		args.format      = args.format     ?: _args.format
-		args.db          = args.db         ?: _args.db
-		args.order       = args.order      ?: _args.order
-		args.lang        = args.lang       ?: _args.lang
-		args.output      = args.output     ?: _args.output
-		args.encoding    = args.encoding   ?: _args.encoding
-		args.strict      = args.strict     != null ? args.strict : !_args.nonStrict
+		['action', 'conflict', 'query', 'filter', 'format', 'db', 'order', 'lang', 'output', 'encoding'].each{ k ->
+				args[k] = args.containsKey(k) ? args[k] : _args[k]
+		}
+		args.strict = args.strict != null ? args.strict : !_args.nonStrict // invert strict/non-strict
 		return args
 }
 

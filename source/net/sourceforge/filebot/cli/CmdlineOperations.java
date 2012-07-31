@@ -980,7 +980,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	@Override
-	public List<File> extract(Collection<File> files, String output, String conflict) throws Exception {
+	public List<File> extract(Collection<File> files, String output, String conflict, FileFilter filter, boolean forceExtractAll) throws Exception {
 		ConflictAction conflictAction = ConflictAction.forName(conflict);
 		
 		// only keep single-volume archives or first part of multi-volume archives
@@ -995,22 +995,51 @@ public class CmdlineOperations implements CmdlineInterface {
 					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
 				}
 				
-				CLILogger.info(String.format("Extract archive [%s] to [%s]", file.getName(), outputFolder));
+				CLILogger.info(String.format("Read archive [%s] to [%s]", file.getName(), outputFolder));
 				FileMapper outputMapper = new FileMapper(outputFolder, false);
 				
-				List<File> entries = archive.listFiles();
+				final List<File> outputMapping = new ArrayList<File>();
+				for (File entry : archive.listFiles()) {
+					outputMapping.add(outputMapper.getOutputFile(entry));
+				}
+				
+				final Set<File> selection = new TreeSet<File>();
+				for (File future : outputMapping) {
+					if (filter == null || filter.accept(future)) {
+						selection.add(future);
+					}
+				}
+				
+				// check if there is anything to extract at all
+				if (selection.isEmpty()) {
+					continue;
+				}
+				
 				boolean skip = true;
-				for (File entry : entries) {
-					File outputFile = outputMapper.getOutputFile(entry);
-					skip &= outputFile.exists();
-					extractedFiles.add(outputFile);
+				for (File future : filter == null || forceExtractAll ? outputMapping : selection) {
+					skip &= future.exists();
 				}
 				
 				if (!skip || conflictAction == ConflictAction.OVERRIDE) {
-					CLILogger.finest("Extracting files " + entries);
-					archive.extract(outputMapper);
+					if (filter == null || forceExtractAll) {
+						CLILogger.finest("Extracting files " + outputMapping);
+						// extract all files
+						archive.extract(outputMapper);
+						extractedFiles.addAll(outputMapping);
+					} else {
+						CLILogger.finest("Extracting files " + selection);
+						// extract files selected by the given filter
+						archive.extract(outputMapper, new FileFilter() {
+							
+							@Override
+							public boolean accept(File entry) {
+								return selection.contains(entry);
+							}
+						});
+						extractedFiles.addAll(selection);
+					}
 				} else {
-					CLILogger.finest("Skipped extracting files " + entries);
+					CLILogger.finest("Skipped extracting files " + selection);
 				}
 			} finally {
 				archive.close();
@@ -1019,5 +1048,4 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		return extractedFiles;
 	}
-	
 }

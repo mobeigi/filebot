@@ -95,6 +95,27 @@ public class Archive implements Closeable {
 	}
 	
 	
+	public void extract(ExtractOutProvider outputMapper, FileFilter filter) throws SevenZipException {
+		List<Integer> selection = new ArrayList<Integer>();
+		
+		for (int i = 0; i < inArchive.getNumberOfItems(); i++) {
+			boolean isFolder = (Boolean) inArchive.getProperty(i, PropID.IS_FOLDER);
+			if (!isFolder) {
+				String path = (String) inArchive.getProperty(i, PropID.PATH);
+				if (path != null && filter.accept(new File(path))) {
+					selection.add(i);
+				}
+			}
+		}
+		
+		int[] indices = new int[selection.size()];
+		for (int i = 0; i < indices.length; i++) {
+			indices[i] = selection.get(i);
+		}
+		inArchive.extract(indices, false, new ExtractCallback(inArchive, outputMapper));
+	}
+	
+	
 	@Override
 	public void close() throws IOException {
 		try {
@@ -120,7 +141,6 @@ public class Archive implements Closeable {
 		
 		return extensions;
 	}
-	
 	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		

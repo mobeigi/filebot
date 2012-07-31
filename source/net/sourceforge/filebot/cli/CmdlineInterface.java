@@ -3,6 +3,7 @@ package net.sourceforge.filebot.cli;
 
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,6 @@ public interface CmdlineInterface {
 	String getMediaInfo(File file, String format) throws Exception;
 	
 	
-	List<File> extract(Collection<File> files, String output, String conflict) throws Exception;
+	List<File> extract(Collection<File> files, String output, String conflict, FileFilter filter, boolean forceExtractAll) throws Exception;
 	
 }
