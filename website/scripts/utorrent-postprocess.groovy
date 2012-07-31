@@ -106,7 +106,7 @@ def groups = input.groupBy{ f ->
 }
 
 // log movie/series/anime detection results
-groups.each{ group -> _log.finest("Group: $group") }
+groups.each{ group, files -> _log.finest("Group: $group => ${files*.name}") }
 
 // process each batch
 groups.each{ group, files ->
@@ -198,7 +198,7 @@ if (gmail && getRenameLog().size() > 0) {
 			}
 		},
 		messagemimetype: "text/html",
-		to: tryQuietly{ gmail2 } ?: gmail[0] =~ /@/ ? gmail[0] : gmail[0] + '@gmail.com',
+		to: tryQuietly{ gmail2 } ?: gmail[0] + '@gmail.com',
 		user: gmail[0], password: gmail[1]
 	)
 }
