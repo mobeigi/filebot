@@ -68,6 +68,7 @@ def fetchSeriesNfo(outputFile, series, locale) {
 	def info = TheTVDB.getSeriesInfo(series, locale)
 	info.applyXml('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
+			<sorttitle>${[name, firstAired as String].findAll{ !it.empty }.join(/ :: /)}</sorttitle>
 			<year>$firstAired.year</year>
 			<rating>$rating</rating>
 			<votes>$ratingCount</votes>
@@ -191,6 +192,7 @@ def fetchMovieNfo(outputFile, movieInfo, movieFile) {
 	movieInfo.applyXml('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
 			<title>$name</title>
 			<originaltitle>$originalName</originaltitle>
+			<sorttitle>${[collection, name, released as String].findAll{ !it.empty }.join(/ :: /)}</sorttitle>
 			<set>$collection</set>
 			<year>$released.year</year>
 			<rating>$rating</rating>
@@ -208,7 +210,7 @@ def fetchMovieNfo(outputFile, movieInfo, movieFile) {
 					<role>${it?.character}</role>
 				</actor>
 			<gsp:scriptlet> } </gsp:scriptlet>
-			''' + (createFileInfoXml(movieFile) ?: '') + '''
+			''' + ((movieFile != null ? createFileInfoXml(movieFile) : null) ?: '') + '''
 			<imdb id='tt${imdbId.pad(7)}'>http://www.imdb.com/title/tt${imdbId.pad(7)}/</imdb>
 			<tmdb id='$id'>http://www.themoviedb.org/movie/$id</tmdb>
 		</movie>

@@ -286,7 +286,7 @@ public class ReleaseInfo {
 			List<Movie> movies = new ArrayList<Movie>();
 			while (scanner.hasNext()) {
 				int imdbid = scanner.nextInt();
-				String name = scanner.next();
+				String name = scanner.next().trim();
 				int year = scanner.nextInt();
 				movies.add(new Movie(name, year, imdbid, -1));
 			}

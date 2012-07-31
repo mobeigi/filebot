@@ -198,7 +198,7 @@ if (gmail && getRenameLog().size() > 0) {
 			}
 		},
 		messagemimetype: "text/html",
-		to: tryQuietly{ gmail2 } ?: gmail[0] + '@gmail.com',
+		to: tryQuietly{ mailto } ?: gmail[0] + '@gmail.com', // mail to self by default
 		user: gmail[0], password: gmail[1]
 	)
 }
