@@ -5,13 +5,13 @@ def failOnError = _args.conflict == 'fail'
 // print input parameters
 _args.bindings?.each{ _log.finest("Parameter: $it.key = $it.value") }
 
-// disable enable features as specified via --def parameters
+// enable/disable features as specified via --def parameters
 def subtitles = tryQuietly{ subtitles.toBoolean() }
 def artwork   = tryQuietly{ artwork.toBoolean() }
 
 // array of xbmc/plex hosts
-def xbmc = tryQuietly{ xbmc.split(/[\s,|]+/) }
-def plex = tryQuietly{ plex.split(/[\s,|]+/) }
+def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
+def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 
 // email notifications
 def gmail = tryQuietly{ gmail.split(':', 2) }
@@ -49,7 +49,7 @@ if (args.empty) {
 
 
 // extract archives (zip, rar, etc) that contain at least one video file
-input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
+input += extract(file: input, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
 
 // process only media files
 input = input.unique().findAll{ it.isVideo() || it.isSubtitle() }
@@ -169,7 +169,7 @@ plex?.each{
 }
 
 // send status email
-if (gmail && getRenameLog().size() > 0) {
+if (gmail && !getRenameLog().isEmpty()) {
 	// ant/mail utility
 	include('lib/ant')
 	
