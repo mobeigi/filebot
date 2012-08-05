@@ -30,7 +30,7 @@ def forceAnime(f) {
 }
 
 def forceIgnore(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Music|Ebook|other)/
+	tryQuietly{ ut_label } =~ /^(?i:Music|Audio|Ebook|other|what.cd|waffles.fm)/
 }
 
 
@@ -120,7 +120,7 @@ groups.each{ group, files ->
 	if ((group.tvs || group.anime) && !group.mov) {
 		// choose series / anime config
 		def config = group.tvs ? [name: group.tvs,   format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB']
-					           : [name: group.anime, format:'Anime/{n}/{n} - {e.pad(2)} - {t}', db:'AniDB']
+					           : [name: group.anime, format:'Anime/{n}/{n} - {sxe} - {t}', db:'AniDB']
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->

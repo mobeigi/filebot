@@ -1,6 +1,10 @@
 // File selector methods
 import static groovy.io.FileType.*
 
+// MediaDetection
+import net.sourceforge.filebot.media.*
+
+
 File.metaClass.resolve = { Object name -> new File(delegate, name.toString()) }
 File.metaClass.getAt = { String name -> new File(delegate, name) }
 File.metaClass.listFiles = { c -> delegate.isDirectory() ? delegate.listFiles().findAll(c) : []}
@@ -10,6 +14,7 @@ File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 File.metaClass.isArchive = { _types.getFilter("archive").accept(delegate) }
+File.metaClass.isDisk = { MediaDetection.isDiskFolder(delegate) }
 
 File.metaClass.getDir = { getParentFile() }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
@@ -171,7 +176,6 @@ def getRenameLog(complete = false) {
 }
 
 // Season / Episode helpers
-import net.sourceforge.filebot.media.*
 import net.sourceforge.filebot.similarity.*
 
 def stripReleaseInfo(name, strict = true) {

@@ -32,6 +32,8 @@
 ^VIDEO_TS$
 A.Release.Lounge
 ABC
+Action
+Adventure
 Anime[s]?
 Arte
 BBC
@@ -43,6 +45,8 @@ Channel.4
 Channel.5
 CLASSIC
 CN
+Comedy
+Crime
 CVCD
 DC
 Demonoid
@@ -50,15 +54,18 @@ Director's.Cut
 Directors.Cut
 Discovery.Channel
 docu
+Documentary
 Dual.Audio
 dubbed
 DVDXvID
 DVSKY
 ENG
+Erotic
 EXTENDED
 Extended.Version
 ExtraScene
 ExtraTorrent
+Fantasy
 Final.Cut
 FIXED
 Fra
@@ -69,6 +76,7 @@ HBO
 HDRip
 Hindi
 History.Channel
+Horror
 HQ
 info
 iNT
@@ -109,8 +117,10 @@ ReRip
 RESYNC
 RETAIL
 RiffTrax
+Romance
 sample[s]?
 SBS
+Science.Fiction
 Screenshot
 ShareGo
 ShareReactor
