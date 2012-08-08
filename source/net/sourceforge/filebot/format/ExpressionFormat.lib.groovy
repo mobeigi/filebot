@@ -1,5 +1,7 @@
-// File operations
-import static net.sourceforge.tuned.FileUtilities.*;
+
+import static net.sourceforge.tuned.FileUtilities.*
+import java.util.regex.Pattern
+
 
 // simplified switch/case pattern matching
 Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
@@ -39,7 +41,7 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 /**
  * Return a substring matching the given pattern or break.
  */
-String.metaClass.match = { String pattern, int matchGroup = 0 -> def matcher = delegate =~ pattern; if (matcher.find()) return matcher.group(matchGroup) else throw new Exception("Match failed") }
+String.metaClass.match = { String pattern, int matchGroup = 0 -> def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(delegate); if (matcher.find()) return matcher.group(matchGroup) else throw new Exception("Match failed") }
 
 
 /**
