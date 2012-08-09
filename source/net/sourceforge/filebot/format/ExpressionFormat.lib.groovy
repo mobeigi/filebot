@@ -41,7 +41,28 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
 /**
  * Return a substring matching the given pattern or break.
  */
-String.metaClass.match = { String pattern, int matchGroup = 0 -> def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(delegate); if (matcher.find()) return matcher.group(matchGroup) else throw new Exception("Match failed") }
+String.metaClass.match = { String pattern, int matchGroup = 0 -> 
+	def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(delegate)
+	if (matcher.find())
+		return matcher.group(matchGroup)
+	else
+		throw new Exception("Match failed")
+}
+
+/**
+ * Return a list of all matching patterns or break.
+ */
+String.metaClass.matchAll = { String pattern, int matchGroup = 0 ->
+	def matches = []
+	def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(delegate)
+	while(matcher.find())
+		matches += matcher.group(matchGroup)
+	
+	if (matches.size() > 0)
+		return matches
+	else
+		throw new Exception("Match failed")
+}
 
 
 /**
