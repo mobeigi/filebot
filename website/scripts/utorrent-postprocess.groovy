@@ -49,13 +49,16 @@ if (args.empty) {
 
 
 // extract archives (zip, rar, etc) that contain at least one video file
-input += extract(file: input, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
+input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
 
 // process only media files
-input = input.unique().findAll{ it.isVideo() || it.isSubtitle() }
+input = input.findAll{ it.isVideo() || it.isSubtitle() }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/) }
+
+// sanitize input
+input = input.findAll{ it.exists() }.collect{ it.canonicalFile }.unique()
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
@@ -69,11 +72,11 @@ def groups = input.groupBy{ f ->
 	if (forceIgnore(f))
 		return []
 	if (forceMovie(f))
-		return [mov: detectMovie(f, false)]
+		return [mov:   detectMovie(f, false)]
 	if (forceSeries(f))
-		return [tvs: detectSeriesName(f)]
+		return [tvs:   detectSeriesName(f) ?: detectSeriesName(f.dir.listFiles{ it.isVideo() })]
 	if (forceAnime(f))
-		return [anime: detectSeriesName(f)]
+		return [anime: detectSeriesName(f) ?: detectSeriesName(f.dir.listFiles{ it.isVideo() })]
 	
 	
 	def tvs = detectSeriesName(f)
