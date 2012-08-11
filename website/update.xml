@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 2.64</name>
-	<revision>1024</revision>
+	<name>FileBot 3.0</name>
+	<revision>1200</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 2.64 is out !!</b><br>
+		<b>FileBot 3.0</b><br>
 		This release features:<br>
-		+ Improved movie detection<br>
-		+ Lots of minor enhancements<br>
+		+ Lots of UI enhancements<br>
+		+ Improved movie/series/episode detection<br>
+		+ Updated Subscene/Sublight plugins<br>
+		+ Major upgrades for Scripting<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=82&p=1134#p1134]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=227#p1621]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
