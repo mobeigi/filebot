@@ -2,8 +2,6 @@
 package net.sourceforge.filebot.web;
 
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
@@ -19,7 +17,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -38,6 +35,8 @@ import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -190,20 +189,14 @@ public class IMDbClient implements MovieIdentificationService {
 	}
 	
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<String, String> getImdbApiData(Integer i, String t, String y, boolean tomatoes) throws IOException {
-		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
-		String url = String.format("http://www.imdbapi.com/?i=%s&t=%s&y=%s&r=xml&tomatoes=%s", String.format(i == null ? "" : "tt%07d", i), t, y, tomatoes);
-		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class, 7 * 24 * 60 * 60 * 1000) {
+	@SuppressWarnings("unchecked")
+	public Map<String, String> getImdbApiData(Integer i, String t, String y) throws IOException {
+		String url = i != null ? String.format("http://www.deanclatworthy.com/imdb/?id=tt%07d", i) : String.format("http://www.deanclatworthy.com/imdb/?q=%s&year=%s", encode(t), encode(y));
+		CachedResource<JSONObject> data = new CachedResource<JSONObject>(url, JSONObject.class, 7 * 24 * 60 * 60 * 1000) {
 			
 			@Override
-			public HashMap process(ByteBuffer data) throws Exception {
-				Document xml = getDocument(Charset.forName("UTF-8").decode(data).toString());
-				HashMap attr = new HashMap();
-				for (Node it : selectNodes("//@*", xml)) {
-					attr.put(it.getNodeName(), it.getTextContent());
-				}
-				return attr;
+			public JSONObject process(ByteBuffer data) throws Exception {
+				return (JSONObject) JSONValue.parse(Charset.forName("UTF-8").decode(data).toString());
 			}
 			
 			
@@ -218,31 +211,19 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	
 	public MovieInfo getImdbApiMovieInfo(Movie movie) throws IOException {
-		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(movie.getImdbId(), "", "", false) : getImdbApiData(null, movie.getName(), String.valueOf(movie.getYear()), false);
+		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(movie.getImdbId(), null, null) : getImdbApiData(null, movie.getName(), String.valueOf(movie.getYear()));
 		
 		// sanity check
-		if (!Boolean.parseBoolean(data.get("response"))) {
-			throw new IllegalArgumentException("Movie not found: " + data);
+		if (data.get("error") != null) {
+			throw new IllegalArgumentException(data.get("error"));
 		}
 		
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
 		fields.put(MovieProperty.title, data.get("title"));
-		fields.put(MovieProperty.certification, data.get("rated"));
-		fields.put(MovieProperty.tagline, data.get("plot"));
-		fields.put(MovieProperty.vote_average, data.get("imdbRating"));
-		fields.put(MovieProperty.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
-		fields.put(MovieProperty.imdb_id, data.get("imdbID"));
+		fields.put(MovieProperty.vote_average, data.get("rating"));
+		fields.put(MovieProperty.vote_count, data.get("votes"));
+		fields.put(MovieProperty.imdb_id, data.get("imdbid"));
 		
-		List<String> genres = new ArrayList<String>();
-		for (String it : data.get("genre").split(",")) {
-			genres.add(it.trim());
-		}
-		
-		List<Person> actors = new ArrayList<Person>();
-		for (String it : data.get("actors").split(",")) {
-			actors.add(new Person(it.trim(), null, null));
-		}
-		
-		return new MovieInfo(fields, genres, new ArrayList<String>(0), actors);
+		return new MovieInfo(fields, new ArrayList<String>(0), new ArrayList<String>(0), new ArrayList<Person>(0));
 	}
 }

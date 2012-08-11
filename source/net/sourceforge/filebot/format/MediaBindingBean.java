@@ -420,7 +420,7 @@ public class MediaBindingBean {
 			}
 			if (infoObject instanceof Movie) {
 				Movie m = getMovie();
-				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH).getId(), -1));
+				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH).getImdbId(), -1));
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
