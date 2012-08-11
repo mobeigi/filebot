@@ -17,6 +17,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
@@ -70,6 +71,10 @@ public class Main {
 		// initialize this stuff before anything else
 		initializeCache();
 		initializeSecurityManager();
+		
+		// make sure tmpdir exists
+		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+		tmpdir.mkdirs();
 		
 		try {
 			// parse arguments
@@ -134,9 +139,11 @@ public class Main {
 						startUserInterface(args);
 					}
 				});
-			} catch (Exception e) {
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+			} catch (InvocationTargetException e) {
+				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getCause().getMessage(), e.getCause());
 				System.exit(-1); // starting up UI failed
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e); // won't happen
 			}
 			
 			// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
