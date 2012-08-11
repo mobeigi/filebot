@@ -182,8 +182,10 @@ public class RenamePanel extends JComponent {
 					getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					try {
 						JList list = (JList) evt.getSource();
-						File item = (File) list.getSelectedValue();
-						Desktop.getDesktop().browse(item.getParentFile().toURI());
+						if (list.getSelectedIndex() >= 0) {
+							File item = (File) list.getSelectedValue();
+							Desktop.getDesktop().browse(item.getParentFile().toURI());
+						}
 					} catch (Exception e) {
 						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
 					} finally {
@@ -201,14 +203,16 @@ public class RenamePanel extends JComponent {
 				if (evt.getClickCount() == 2) {
 					try {
 						JList list = (JList) evt.getSource();
-						Object item = ((FormattedFuture) list.getSelectedValue()).getMatch().getValue();
-						if (item instanceof Movie) {
-							getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-							Movie m = (Movie) item;
-							if (m.getTmdbId() > 0) {
-								Desktop.getDesktop().browse(WebServices.TMDb.getMoviePageLink(m.getTmdbId()));
-							} else if (m.getImdbId() > 0) {
-								Desktop.getDesktop().browse(WebServices.IMDb.getMoviePageLink(m.getImdbId()));
+						if (list.getSelectedIndex() >= 0) {
+							Object item = ((FormattedFuture) list.getSelectedValue()).getMatch().getValue();
+							if (item instanceof Movie) {
+								getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+								Movie m = (Movie) item;
+								if (m.getTmdbId() > 0) {
+									Desktop.getDesktop().browse(WebServices.TMDb.getMoviePageLink(m.getTmdbId()));
+								} else if (m.getImdbId() > 0) {
+									Desktop.getDesktop().browse(WebServices.IMDb.getMoviePageLink(m.getImdbId()));
+								}
 							}
 						}
 					} catch (Exception e) {
