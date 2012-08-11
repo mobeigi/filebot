@@ -97,7 +97,9 @@ public class Main {
 				System.out.println("Reset preferences and clear cache");
 				for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
 					if (matches("cache|temp|grape", cache.getName())) {
-						delete(cache);
+						for (File it : cache.listFiles()) {
+							delete(it);
+						}
 					}
 				}
 				Settings.forPackage(Main.class).clear();
