@@ -1,6 +1,27 @@
 // filebot -script BuildData.groovy
 
 
+// UPDATE release-groups.txt FROM http://scenegrouplist.com/lists_sgl.php
+@Grab('org.jsoup:jsoup')
+import org.jsoup.*
+
+def sgl = []
+for (def page = 0; true; page++) {
+	def dom = Jsoup.parse(new URL('http://scenegrouplist.com/lists_sgl.php?pageNum_RSSGL=' + page), 10000)
+	def table = dom.select("table[border=1] tr").collect{ it.select("td")*.text()*.trim() }.findAll{ it[2] =~ /\d{4}/ }
+	sgl += table
+	if (table.empty) break
+}
+sgl = sgl.findAll{ it[1] =~ /\b(DVD|DVDR|HD|TV)\b/ && it[0] =~ /\p{Alpha}/}.findResults{ it[0] }
+sgl = sgl.collect{ it.before(/ - /).trim().space('.') }.collect{ it ==~ /\p{Upper}?\p{Lower}+/ ? it.toUpperCase() : it }
+
+// append release group names
+new File('website/data/release-groups.txt') << '\n' << sgl.join('\n')
+
+
+// ------------------------------------------------------------------------- //
+
+
 def sortRegexList(path) {
 	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 	new File(path).eachLine('UTF-8'){
