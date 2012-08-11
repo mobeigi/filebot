@@ -128,7 +128,7 @@ public class ArgumentProcessor {
 				
 				Analytics.trackEvent("CLI", "ExecuteScript", script.getScheme());
 				ScriptShell shell = new ScriptShell(cli, args, AccessController.getContext(), scriptProvider);
-				shell.runScript(script.toString(), bindings);
+				shell.runScript(script, bindings);
 			}
 			
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");

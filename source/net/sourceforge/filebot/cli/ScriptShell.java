@@ -83,9 +83,12 @@ class ScriptShell {
 	
 	
 	public Object runScript(String input, Bindings bindings) throws Throwable {
-		URI resource = scriptProvider.getScriptLocation(input);
+		return runScript(scriptProvider.getScriptLocation(input), bindings);
+	}
+	
+	
+	public Object runScript(URI resource, Bindings bindings) throws Throwable {
 		Script script = scriptProvider.fetchScript(resource);
-		
 		return evaluate(script.code, bindings, script.trusted);
 	}
 	
