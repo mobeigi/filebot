@@ -6,6 +6,7 @@ import static java.util.Collections.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ExceptionUtilities.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
@@ -24,10 +25,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -65,12 +68,12 @@ class RenameAction extends AbstractAction {
 	
 	@Override
 	public void actionPerformed(ActionEvent evt) {
-		if (model.getRenameMap().isEmpty()) {
-			return;
-		}
-		
 		Window window = getWindow(evt.getSource());
 		try {
+			if (model.getRenameMap().isEmpty()) {
+				return;
+			}
+			
 			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window));
 			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
 			
@@ -103,8 +106,9 @@ class RenameAction extends AbstractAction {
 					dialog.setVisible(true);
 				}
 			}
+		} catch (ExecutionException e) {
+			// ignore, handled in rename worker
 		} catch (Throwable e) {
-			// could not rename one of the files, revert all changes
 			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
 		
@@ -273,7 +277,11 @@ class RenameAction extends AbstractAction {
 				postprocess.acquire();
 				this.get(); // grab exception if any
 			} catch (Exception e) {
-				UILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+				if (!isCancelled()) {
+					UILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+				} else {
+					Logger.getLogger(RenameAction.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+				}
 			}
 			
 			// collect renamed types
@@ -329,7 +337,7 @@ class RenameAction extends AbstractAction {
 			} finally {
 				// check status of renamed files
 				for (Entry<File, File> it : renameMap.entrySet()) {
-					if (it.getValue().exists()) {
+					if (resolveDestination(it.getKey(), it.getValue(), false).exists()) {
 						renameLog.put(it.getKey(), it.getValue());
 					}
 				}
