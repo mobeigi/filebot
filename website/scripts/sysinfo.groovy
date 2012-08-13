@@ -14,7 +14,7 @@ try {
 // 7-Zip-JBinding: OK
 try {
 	print '7-Zip-JBinding: '
-	ClassLoader.systemClassLoader.loadClass("net.sourceforge.filebot.archive.SevenZipLoader") // load 7-Zip-JBinding native libs
+	net.sourceforge.filebot.archive.SevenZipLoader.requireNativeLibraries() // load 7-Zip-JBinding native libs
 	println "OK"
 } catch(Throwable error) {
 	println error
