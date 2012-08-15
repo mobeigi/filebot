@@ -106,6 +106,11 @@ public class Main {
 				CacheManager.getInstance().clearAll();
 			}
 			
+			// set unixfs system property
+			if (args.unixfs) {
+				System.setProperty("unixfs", "true");
+			}
+			
 			// initialize analytics
 			Analytics.setEnabled(!args.disableAnalytics);
 			
