@@ -125,11 +125,6 @@ def execute(Object... args) {
 		cmd = ['cmd', '/c'] + cmd
 	}
 	
-	if (!_args.trustScript) {
-		_log.severe("Execute failed: Script is not trusted: " + cmd)
-		return -1
-	}
-	
 	// run command and print output
 	def process = cmd.execute()
 	process.waitForProcessOutput(System.out, System.err)
