@@ -69,6 +69,7 @@ ACCLAiM
 aceford
 ACF
 AckTiv3
+ACX
 ADAPT
 ADHD
 AE
@@ -106,6 +107,7 @@ AonE
 APB
 ARCHiViST
 ARGON
+Arigatou
 ARiGOLD
 ARiSCRAPAYSiTES
 ARROW
@@ -130,6 +132,7 @@ AXE
 AXIAL
 AXiNE
 aXXo
+Ayako
 AYMO
 AzNiNVASiAN
 AZuRRaY
@@ -251,6 +254,7 @@ CHDSUBS
 CHDTV
 Chel
 CHGRP
+Chihiro
 ChiLLuM
 CHIPTEC
 Chotab
@@ -276,10 +280,12 @@ CLUE
 CME
 cNLDVDR
 cntc
+Coalgirls
 COALiTiON
 COC
 COCAIN
 Cocksure
+Commie
 COMPLIANT
 COMPULSION
 CONDITION
@@ -292,6 +298,7 @@ CoWRY
 CP
 CPtScene
 CPY
+CR
 CREEDANCE
 CREMOSA
 CRF
@@ -392,6 +399,7 @@ DnB
 DNL
 DNR
 DOCUMENT
+Doki
 DOLLHEAD
 dominion
 DOMiNO
@@ -475,6 +483,7 @@ eVoD
 EwDp
 eXD
 EXiLE
+Exiled-Destiny
 EXIST3NC3
 EXQUiSiTE
 ExtraTorrentRG
@@ -498,6 +507,7 @@ Feel-Free
 FELONY
 FESTiS
 fez
+FFF
 FFNDVD
 FHD
 FHM
@@ -556,6 +566,7 @@ FUA
 FUCT
 FULLSIZE
 FUNNER
+furzi
 FXG
 FxM
 FZERO
@@ -617,6 +628,7 @@ HaB
 HabanaSCR
 HAC
 HACO
+Hadena
 HAFVCD
 HAGGiS
 HAiDEAF
@@ -626,6 +638,8 @@ HaNc0cK
 HANGOVER
 HANGPUNG
 hannibal
+Hatsuyuki
+Hatsuyuki-Tsuki
 HCA
 HD-UNiT3D
 HD1080
@@ -665,6 +679,7 @@ HiDt
 HiFi
 HiGHTIMES
 HiNT
+Hiryuu
 Hivrolta
 HLS
 HNR
@@ -672,6 +687,7 @@ HNRDVD
 HoodBag
 HooKah
 HORiZON
+HorribleSubs
 HOSTiLE
 HOWL
 HqDTS
@@ -978,6 +994,7 @@ OCTi
 ODOP
 OEM
 OEM1080
+OhShit
 OldsMan
 OMERTA
 OMiCRON
@@ -1096,6 +1113,7 @@ RANDi
 RAP
 Rare.Share
 RAWKiNS
+RaX
 Razor1911
 RBT
 RC
@@ -1104,6 +1122,7 @@ Reaperza
 REAVERS
 REBELS
 RedFox109e
+ReDone
 RedRay
 Redµx
 REFiNED
@@ -1124,6 +1143,7 @@ RETREAT
 RETRO
 Rets
 REVEiLLE
+REVO
 REVOLTE
 REWARD
 RFtA
@@ -1163,6 +1183,7 @@ S8
 SADPANDA
 SAiMORNY
 SAiNTS
+Saitei
 SAiVERT
 SAMFD
 SANTI
@@ -1189,6 +1210,7 @@ SEVcD
 SEVENTWENTY
 SexSh0p
 SFM
+SFW
 SGKK
 Shadow
 Shadowman
@@ -1228,6 +1250,7 @@ SLM
 SLO
 SLOMO
 SlowHD
+SMC
 SMoKeR
 SMRKings
 SMRPRTY
@@ -1255,6 +1278,8 @@ SPRiNTER
 SQsR
 SQUiZZiEs
 sRu
+SS
+SS-Eclipse
 SSF
 STAGEMAN
 STARS
@@ -1270,6 +1295,8 @@ STRONG
 STV
 StyleZz
 StyLishSaLH
+SubDESU
+SubDESU-H
 Subject16
 SUBMERGE
 SuBoXoNe
@@ -1296,6 +1323,7 @@ tantrum
 TARGET
 TASTE
 TASTETV
+TastyMelon
 TB
 TBS
 TCM
@@ -1342,6 +1370,7 @@ TiTANS
 TjHD
 TKO
 tla
+tlacatlc6
 TLF
 TM
 TMSF
@@ -1397,6 +1426,7 @@ UKVcd
 ULF
 ULTiMATE
 UMF
+Underwater-Mahjong
 UNiQUE
 UNiT
 UNSKiLLED
@@ -1456,6 +1486,7 @@ WHATELSE
 WHEELS
 WHiiZz
 WhoKnow
+WhyNot
 WiDE
 WiKi
 WILDER
@@ -1519,5 +1550,6 @@ ZeRO
 Zeus.Dias
 ZMG
 Zox
+Zurako
 Zuzuu
 ZZGtv
