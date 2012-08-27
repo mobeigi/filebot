@@ -308,7 +308,7 @@ def _renameFunction(fn) {
 	if (fn instanceof String)
 		return StandardRenameAction.forName(fn)
 	if (fn instanceof Closure)
-		return [rename:fn as Closure, toString:{'CLOSURE'}] as RenameAction
+		return [rename:{ from, to -> def result = fn.call(from, to); result instanceof File ? result : to }, toString:{'CLOSURE'}] as RenameAction
 		
 	return fn as RenameAction
 }
