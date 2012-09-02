@@ -80,7 +80,11 @@ public abstract class FolderWatchService implements Closeable {
 		final SortedSet<File> files = new TreeSet<File>();
 		
 		synchronized (commitSet) {
-			files.addAll(commitSet);
+			for (File it : commitSet) {
+				if (it.isFile()) {
+					files.add(it);
+				}
+			}
 			commitSet.clear();
 		}
 		
@@ -154,6 +158,7 @@ public abstract class FolderWatchService implements Closeable {
 					// start watching newly created folder
 					if (watchTree) {
 						try {
+							commitSet.addAll(listFiles(singleton(file), Integer.MAX_VALUE, false));
 							watchFolder(file);
 						} catch (IOException e) {
 							Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
