@@ -44,7 +44,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode episode = (Episode) object;
 				
 				if (episode.getSpecial() != null) {
-					return emptySet(); // make sure specials can't take priority over normal episodes
+					return singleton(new SxE(0, episode.getSpecial()));
 				}
 				
 				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
