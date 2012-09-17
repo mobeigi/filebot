@@ -49,10 +49,13 @@ class TypeTool extends Tool<TreeModel> {
 		
 		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
 			File file = iterator.next();
-			String extension = FileUtilities.getExtension(file).toLowerCase();
+			
+			String extension = FileUtilities.getExtension(file);
+			if (extension != null) {
+				extension = extension.toLowerCase();
+			}
 			
 			List<File> files = map.get(extension);
-			
 			if (files == null) {
 				files = new ArrayList<File>(50);
 				map.put(extension, files);
