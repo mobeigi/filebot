@@ -1,8 +1,8 @@
 // filebot -script fn:housekeeping /path/to/folder/ --output /output/folder/ --format <expression>
 
 /*
-* Watch folder for new tv shows and automatically move/rename new episodes
-*/
+ * Watch folder for new tv shows and automatically move/rename new episodes
+ */
 
 // check for new media files once every 5 minutes
 def updateFrequency = 5 * 60 * 1000

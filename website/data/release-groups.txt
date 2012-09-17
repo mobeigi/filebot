@@ -92,6 +92,7 @@ ALANiS
 ALeSiO
 ALLiANCE
 ALLZINE
+AMBASSADOR
 AMIABLE
 AMSTEL
 AN0NYM0US
@@ -232,6 +233,7 @@ C4TV
 CAMELOT
 CAMERA
 CAMSTAiN
+Caph
 CarVeR
 CATCH
 catflap
@@ -352,6 +354,7 @@ DELiCiOUS
 DEPRAViTY
 DEPRiVED
 dEr
+DerSchuft
 DESiRED
 desnsurrender
 DETAiLS
@@ -442,8 +445,10 @@ ECHiZEN
 ECHOS
 ECI
 Eclipse
+eDi
 eeye
 EFTERLYST
+EHLE
 EiMi
 Ekolb
 Electri4ka
@@ -459,6 +464,7 @@ ENCOUNTERS
 ENCRyPTED
 EnDoR
 eots
+EPHEMERiD
 EPiC
 EPiK
 EPiSODE
@@ -480,6 +486,7 @@ EuReKA
 EUROPA
 EUSTASS
 eVoD
+EVOLVE
 EwDp
 eXD
 EXiLE
@@ -506,6 +513,7 @@ FEATURE
 Feel-Free
 FELONY
 FESTiS
+FEVER
 fez
 FFF
 FFNDVD
@@ -616,6 +624,7 @@ Grond
 GTVG
 gudhak
 GUPDVDR
+GVD
 GW
 GWP
 GWViD
@@ -638,6 +647,7 @@ HaNc0cK
 HANGOVER
 HANGPUNG
 hannibal
+harmy
 Hatsuyuki
 Hatsuyuki-Tsuki
 HCA
@@ -667,6 +677,7 @@ HDRoad
 HDS
 HDVD
 HDViSiON
+HDW
 HDX
 HDxT
 HEH
@@ -691,9 +702,11 @@ HorribleSubs
 HOSTiLE
 HOWL
 HqDTS
+HQE
 HR
 HuBBaTiX
 HUBRiS
+HuNTER
 hV
 HWD
 HWE
@@ -708,6 +721,7 @@ iBEX
 iCANDY
 ICE
 iCEHD
+iD
 iDiB
 idTV
 iFN
@@ -735,12 +749,14 @@ imNaKeD
 iMPERiUM
 iMSORNY
 iNBEV
+iNCEPTiON
 iNCiTE
 iNCLUSION
 iNCOGNiTO
 iND
 iNFAMOUS
 iNfInItE_424
+iNFOTv
 iNGOT
 iNjECT
 InSaNiTy
@@ -822,10 +838,12 @@ Kyuubi
 LACHUH
 LAJ
 LamB
+LameHD
 LAP
 LARCENY
 LCHD
 leetay
+LeetHD
 LEGEND
 LEGi0N
 LeON
@@ -989,6 +1007,7 @@ NYDIC
 NyTT
 O2
 OAS
+OBLiGATED
 Occor
 OCTi
 ODOP
@@ -1016,6 +1035,7 @@ OSiTV
 Osuald
 OUTDATED
 OUZO
+OYHD
 OZC
 P0W4
 P4DGE
@@ -1025,6 +1045,7 @@ PAPAi
 papi
 PAROVOZ
 PARTICLE
+Pate
 PaTHe
 PaYxXx
 PeeWee
@@ -1068,6 +1089,7 @@ PriMeHD
 PRiNCE
 PRIPPS
 prithwi
+PRiViLEGED
 PRoDJi
 PROGRESS
 PROMiSE
@@ -1097,6 +1119,7 @@ QDP
 QiX
 qnr
 QoM
+QRC
 QSP
 Quali.SlaYer
 QXE
@@ -1148,6 +1171,7 @@ REVOLTE
 REWARD
 RFtA
 rG
+RHD
 RHyTM
 RiFF
 RightSiZE
@@ -1161,6 +1185,8 @@ RMT
 RMx
 RoCK&BlueLadyRG
 RoCKRioT
+ROOR
+ROTATE
 ROVERS
 Royskatt
 RS
@@ -1262,6 +1288,7 @@ SoCkS
 SOF
 Softfeng
 SomeTV
+SONS
 SoW
 SoXu
 SPABLAUW
@@ -1448,6 +1475,7 @@ VeGaN
 Vegapunk
 VeggTeppe
 Vex
+VIAHD
 VIAZAC
 ViCiOsO
 ViD
@@ -1499,6 +1527,7 @@ WNFN
 WoLF
 WOLFPACK
 Wolky
+WOMBAT
 WooDY
 WoRKZ
 WORLDVD
@@ -1506,10 +1535,12 @@ WPi
 WRCR
 WRD
 WuSiWuG
+x264Crew
 XanaX
 Xander
 XF
 XiA
+XII
 XMC
 XOR
 XOXO
