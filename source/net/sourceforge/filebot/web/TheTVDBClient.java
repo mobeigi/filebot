@@ -213,7 +213,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				zipInputStream.close();
 			}
 		} catch (FileNotFoundException e) {
-			throw new IllegalArgumentException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, seriesRecord));
+			throw new FileNotFoundException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, seriesRecord));
 		}
 	}
 	

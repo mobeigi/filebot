@@ -32,7 +32,7 @@ console.println('OK')
 
 console.print('Testing Sublight... ')
 WebServices.Sublight.setClient(sublightClientId, sublightApiKey)
-WebServices.Sublight.setUser(osdbUser, osdbPwd)
+WebServices.Sublight.setUser(sublightUser, sublightPwd)
 WebServices.Sublight.getSubtitleList(null, 'Avatar', 2009, 'English')
 console.println('OK')
 
