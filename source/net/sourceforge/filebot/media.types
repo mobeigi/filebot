@@ -24,6 +24,9 @@
 		<extension>sha1</extension>
 		<extension>sha</extension>
 	</type>
+	<type name="verification/ed2k">
+		<extension>ed2k</extension>
+	</type>
 	
 	<!-- Archives -->
 	<type name="archive/zip">

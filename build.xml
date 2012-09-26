@@ -135,6 +135,12 @@
 				<include name="com/ibm/icu/**" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/jacksum.jar">
+				<include name="jonelo/jacksum/adapt/**" />
+				<include name="jonelo/jacksum/algorithm/**" />
+				<include name="jonelo/sugar/util/**" />
+			</zipfileset>
+
 			<zipfileset src="${dir.lib}/sublight-ws.jar">
 				<include name="net/sublight/webservice/**" />
 			</zipfileset>
