@@ -219,7 +219,6 @@ public class IMDbClient implements MovieIdentificationService {
 		}
 		
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
-		fields.put(MovieProperty.title, data.get("title"));
 		fields.put(MovieProperty.vote_average, data.get("rating"));
 		fields.put(MovieProperty.vote_count, data.get("votes"));
 		fields.put(MovieProperty.imdb_id, data.get("imdbid"));

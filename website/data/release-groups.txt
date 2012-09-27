@@ -83,6 +83,7 @@ AFG
 AFO
 AHD
 aheintz
+Aiden0
 AiHD
 AiRWAVES
 AJAX
@@ -103,10 +104,12 @@ ANGELiC
 Ani-Kraze
 ANiHLS
 ANiVCD
+anoXmous
 AOE
 AonE
 APB
 ARCHiViST
+ArenaBG
 ARGON
 Arigatou
 ARiGOLD
@@ -796,6 +799,7 @@ JMT
 JoLLyRoGeR
 Jozzep
 JunkyCez
+Junoon
 JUPiLER
 K-F
 k2
@@ -888,6 +892,7 @@ MANGACiTY
 MARiNES
 marioBombo
 MaRVeLouS
+MAXiMUM
 MAXSPEED
 maz
 MC
@@ -1041,6 +1046,7 @@ P0W4
 P4DGE
 Pa@Ph
 PADDO
+Pankhabd
 PAPAi
 papi
 PAROVOZ
@@ -1101,6 +1107,7 @@ PS3-TEAM
 PSiG
 PSV
 PSYCHD
+PTBR
 Pti
 PtP
 PtS
@@ -1122,6 +1129,7 @@ QoM
 QRC
 QSP
 Quali.SlaYer
+quietE
 QXE
 R&C
 R0CKED
@@ -1176,6 +1184,7 @@ RHyTM
 RiFF
 RightSiZE
 RiplleyHD
+RiPRG
 RiPTATORz
 RiTALiN
 RiTALiX
@@ -1510,6 +1519,7 @@ WATBATH
 WATCHABLE
 WATERS
 WAVEY
+WBZ
 WHATELSE
 WHEELS
 WHiiZz
@@ -1554,6 +1564,7 @@ xSCR
 XSHD
 XSTREEM
 XTM
+xTriLL
 XTSF
 xV
 XviK
