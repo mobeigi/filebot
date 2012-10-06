@@ -49,6 +49,7 @@ public class FileBotList<E> extends JComponent {
 		removeAction.setEnabled(false);
 		
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed BACK_SPACE"), removeAction);
 	}
 	
 

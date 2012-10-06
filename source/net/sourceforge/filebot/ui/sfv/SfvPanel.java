@@ -91,6 +91,7 @@ public class SfvPanel extends JComponent {
 		
 		// Shortcut DELETE
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("DELETE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("BACK_SPACE"), removeAction);
 	}
 	
 	
