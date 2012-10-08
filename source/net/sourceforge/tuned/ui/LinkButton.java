@@ -5,7 +5,6 @@ package net.sourceforge.tuned.ui;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
-import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -23,14 +22,14 @@ import javax.swing.JButton;
 public class LinkButton extends JButton {
 	
 	private Color color = getForeground();
-	private Color rolloverColor = SystemColor.textHighlight;
+	private Color rolloverColor = new Color(0x3399FF);
 	
-
+	
 	public LinkButton(String text, Icon icon, URI uri) {
 		this(new OpenUriAction(text, icon, uri));
 	}
 	
-
+	
 	public LinkButton(Action action) {
 		setAction(action);
 		
@@ -46,7 +45,7 @@ public class LinkButton extends JButton {
 		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	}
 	
-
+	
 	@Override
 	public void setRolloverEnabled(boolean enabled) {
 		super.setRolloverEnabled(enabled);
@@ -60,28 +59,27 @@ public class LinkButton extends JButton {
 		}
 	}
 	
-
+	
 	public Color getColor() {
 		return color;
 	}
 	
-
+	
 	public void setColor(Color color) {
 		this.color = color;
 		this.setForeground(color);
 	}
 	
-
+	
 	public Color getRolloverColor() {
 		return rolloverColor;
 	}
 	
-
+	
 	public void setRolloverColor(Color rolloverColor) {
 		this.rolloverColor = rolloverColor;
 	}
 	
-
 	protected final MouseListener rolloverListener = new MouseAdapter() {
 		
 		@Override
@@ -89,25 +87,25 @@ public class LinkButton extends JButton {
 			setForeground(rolloverColor);
 		}
 		
-
+		
 		@Override
 		public void mouseExited(MouseEvent e) {
 			setForeground(color);
 		}
 	};
 	
-
+	
 	protected static class OpenUriAction extends AbstractAction {
 		
 		public static final String URI = "uri";
 		
-
+		
 		public OpenUriAction(String text, Icon icon, URI uri) {
 			super(text, icon);
 			putValue(URI, uri);
 		}
 		
-
+		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			try {
