@@ -3,9 +3,8 @@ package net.sourceforge.filebot.subtitle;
 
 
 import static java.lang.Math.*;
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -30,6 +29,7 @@ import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.MetricAvg;
+import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
@@ -46,10 +46,8 @@ public final class SubtitleUtilities {
 	public static Map<File, SubtitleDescriptor> matchSubtitles(Collection<File> files, Collection<SubtitleDescriptor> subtitles, boolean strict) throws InterruptedException {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new LinkedHashMap<File, SubtitleDescriptor>();
 		
-		SimilarityMetric[] metrics = EpisodeMetrics.defaultSequence(false);
-		
 		// optimize for generic media <-> subtitle matching
-		replaceAll(asList(metrics), EpisodeMetrics.SubstringFields, EpisodeMetrics.SubstringSequence);
+		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringSequence, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
 		
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);

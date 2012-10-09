@@ -21,34 +21,39 @@ public class Date implements Serializable {
 	private int month;
 	private int day;
 	
-
+	
 	protected Date() {
 		// used by serializer
 	}
 	
-
+	
 	public Date(int year, int month, int day) {
 		this.year = year;
 		this.month = month;
 		this.day = day;
 	}
 	
-
+	
 	public int getYear() {
 		return year;
 	}
 	
-
+	
 	public int getMonth() {
 		return month;
 	}
 	
-
+	
 	public int getDay() {
 		return day;
 	}
 	
-
+	
+	public long getTimeStamp() {
+		return new GregorianCalendar(year, month, day).getTimeInMillis();
+	}
+	
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Date) {
@@ -59,29 +64,29 @@ public class Date implements Serializable {
 		return super.equals(obj);
 	}
 	
-
+	
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(new Object[] { year, month, day });
 	}
 	
-
+	
 	@Override
 	public String toString() {
 		return String.format("%04d-%02d-%02d", year, month, day);
 	}
 	
-
+	
 	public String format(String pattern) {
 		return format(pattern, Locale.ROOT);
 	}
 	
-
+	
 	public String format(String pattern, Locale locale) {
 		return new SimpleDateFormat(pattern, locale).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
 	}
 	
-
+	
 	public static Date parse(String string, String pattern) {
 		if (string == null || string.isEmpty())
 			return null;

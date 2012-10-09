@@ -284,6 +284,26 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			
 			return null;
 		}
+	}),
+	
+	// Match by file last modified and episode release dates
+	TimeStamp(new TimeStampMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			// adjust differentiation accuracy to about a year
+			return (float) (floor(super.getSimilarity(o1, o2) * 40) / 40);
+		}
+		
+		
+		@Override
+		public long getTimeStamp(Object object) {
+			if (object instanceof Episode) {
+				return ((Episode) object).airdate().getTimeStamp();
+			}
+			
+			return super.getTimeStamp(object);
+		}
 	});
 	
 	// inner metric
@@ -338,11 +358,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 4 pass: divide by folder / file name and show name / episode title
 		// 5 pass: divide by name (rounded into n levels)
 		// 6 pass: divide by generic numeric similarity
-		// 7 pass: resolve remaining collisions via absolute string similarity
+		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
+		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, Name, TimeStamp, new NameSimilarityMetric() };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, new MetricCascade(SubstringSequence, Name), Numeric, Name, TimeStamp, new NameSimilarityMetric() };
 		}
 	}
 	
