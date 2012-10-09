@@ -299,7 +299,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		@Override
 		public long getTimeStamp(Object object) {
 			if (object instanceof Episode) {
-				return ((Episode) object).airdate().getTimeStamp();
+				try {
+					return ((Episode) object).airdate().getTimeStamp();
+				} catch (RuntimeException e) {
+					return -1; // some episodes may not have airdate defined
+				}
 			}
 			
 			return super.getTimeStamp(object);
