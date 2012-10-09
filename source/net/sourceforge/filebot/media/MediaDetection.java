@@ -229,12 +229,20 @@ public class MediaDetection {
 	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
 		List<String> names = new ArrayList<String>();
 		
+		// try to detect series name via nfo files
 		try {
 			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
 				names.add(it.getName());
 			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage(), e);
+		}
+		
+		// try to detect series name via known patterns
+		try {
+			names.addAll(matchSeriesByDirectMapping(files));
+		} catch (Exception e) {
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e.getMessage(), e);
 		}
 		
 		// cross-reference known series names against file structure
@@ -281,6 +289,22 @@ public class MediaDetection {
 			unique.put(it.toLowerCase(), it);
 		}
 		return new ArrayList<String>(unique.values());
+	}
+	
+	
+	public static List<String> matchSeriesByDirectMapping(Collection<File> files) throws Exception {
+		Map<Pattern, String> seriesDirectMappings = releaseInfo.getSeriesDirectMappings();
+		List<String> matches = new ArrayList<String>();
+		
+		for (File file : files) {
+			for (Entry<Pattern, String> it : seriesDirectMappings.entrySet()) {
+				if (it.getKey().matcher(getName(file)).find()) {
+					matches.add(it.getValue());
+				}
+			}
+		}
+		
+		return matches;
 	}
 	
 	

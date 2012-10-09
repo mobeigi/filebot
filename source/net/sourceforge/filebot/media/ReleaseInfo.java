@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -241,6 +242,18 @@ public class ReleaseInfo {
 	}
 	
 	
+	public Map<Pattern, String> getSeriesDirectMappings() throws IOException {
+		Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
+		for (String line : seriesDirectMappingsResource.get()) {
+			String[] tsv = line.split("\t", 2);
+			if (tsv.length == 2) {
+				mappings.put(compile("(?<!\\p{Alnum})(" + tsv[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE), tsv[1]);
+			}
+		}
+		return mappings;
+	}
+	
+	
 	public FileFilter getDiskFolderFilter() {
 		return new FolderEntryFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
 	}
@@ -256,6 +269,7 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.exclude-blacklist"));
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
 	protected final CachedResource<String[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
+	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getBundle(getClass().getName()).getString("url.series-mappings"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {

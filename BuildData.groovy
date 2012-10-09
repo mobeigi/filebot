@@ -38,6 +38,7 @@ def sortRegexList(path) {
 sortRegexList("website/data/release-groups.txt")
 sortRegexList("website/data/query-blacklist.txt")
 sortRegexList("website/data/exclude-blacklist.txt")
+sortRegexList("website/data/series-mappings.txt")
 
 
 // ------------------------------------------------------------------------- //
