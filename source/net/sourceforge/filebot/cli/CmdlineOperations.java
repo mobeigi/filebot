@@ -323,12 +323,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (query == null) {
 			if (movieFiles.size() > 0) {
 				try {
-					CLILogger.fine(format("Looking up movie by filehash via [%s]", service.getName()));
+					CLILogger.finest(format("Looking up movie by filehash via [%s]", service.getName()));
 					Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
 					movieByFile.putAll(hashLookup);
 					Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
 				} catch (UnsupportedOperationException e) {
-					CLILogger.fine(format("%s: Hash lookup not supported", service.getName()));
+					CLILogger.finest(format("%s: Hash lookup not supported", service.getName()));
 				}
 			}
 			
