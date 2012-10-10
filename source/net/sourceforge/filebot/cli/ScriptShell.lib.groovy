@@ -51,6 +51,9 @@ String.metaClass.hasExtension = { String... ext -> hasExtension(delegate, ext) }
 String.metaClass.validateFileName = { validateFileName(delegate) }
 String.metaClass.validateFilePath = { validateFilePath(delegate) }
 
+// helper for enforcing filename length limits, e.g. truncate filename but keep extension
+String.metaClass.truncateFileName = { int limit = 255 -> def ext = getExtension(delegate); def name = getNameWithoutExtension(delegate); return name.substring(0, Math.min(limit - (ext ? 1+ext.length() : 0), name.length())) + (ext ? '.'+ext : '') }
+
 
 // Parallel helper
 import java.util.concurrent.*
