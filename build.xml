@@ -27,6 +27,9 @@
 	<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
 	<property name="deploy.website" value="web.sourceforge.net:htdocs" />
 
+	<property name="deploy.data" value="web.sourceforge.net:htdocs/data" />
+	<property name="deploy.data.frs" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/data" />
+	
 
 	<target name="jar" depends="build">
 		<!-- create dist dir -->
@@ -551,8 +554,6 @@
 				<include name="*.png" />
 				<include name="*.ico" />
 				<include name="images/**" />
-				<include name="data/**" />
-				<include name="scripts/**" />
 				<include name="screenshots/**" />
 			</fileset>
 		</copy>
@@ -572,9 +573,15 @@
 
 
 	<target name="upload-data" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
-			<fileset dir="${dir.website}">
-				<include name="data/**" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.data}" trust="yes" verbose="true">
+			<fileset dir="${dir.website}/data">
+				<include name=".htaccess" />
+				<include name="*.txt" />
+			</fileset>
+		</scp>
+		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true">
+			<fileset dir="${dir.website}/data">
+				<include name="*.gz" />
 			</fileset>
 		</scp>
 	</target>

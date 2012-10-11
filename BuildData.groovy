@@ -60,7 +60,7 @@ def gz(file, lines) {
 
 
 // LOAD osdb-imdb.txt (already verified data)
-def imdb_tsv = new File("website/data/osdb-imdb.txt")
+def imdb_tsv = new File("osdb-imdb.txt")
 def imdb = [].asSynchronized() // thread-safe list
 
 imdb_tsv.getText('UTF-8').eachLine{
