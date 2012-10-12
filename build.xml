@@ -579,6 +579,10 @@
 				<include name="*.txt" />
 			</fileset>
 		</scp>
+	</target>
+
+
+	<target name="upload-data-frs" depends="login">
 		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true">
 			<fileset dir="${dir.website}/data">
 				<include name="*.gz" />
