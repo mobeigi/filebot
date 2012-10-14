@@ -1,4 +1,4 @@
-// filebot -script fn:replace --action copy --filter [.]srt$ --def e=[.](eng|english) r=.en
+// filebot -script fn:replace --action copy --filter "[.]srt$" --def "e=[.](eng|english)" "r=.en"
 
 // imports
 import net.sourceforge.filebot.StandardRenameAction

@@ -35,7 +35,7 @@ def forceIgnore(f) {
 
 
 // collect input fileset as specified by the given --def parameters
-if (args.empty) {
+if (args.empty || ['single', 'multi'].contains(ut_kind)) {
 	// assume we're called with utorrent parameters
 	if (ut_kind == 'single') {
 		input += new File(ut_dir, ut_file) // single-file torrent
@@ -122,8 +122,8 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if ((group.tvs || group.anime) && !group.mov) {
 		// choose series / anime config
-		def config = group.tvs ? [name: group.tvs,   format:'TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}', db:'TheTVDB']
-					           : [name: group.anime, format:'Anime/{n}/{n} - {sxe} - {t}', db:'AniDB']
+		def config = group.tvs ? [name: group.tvs,   format:'''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''', db:'TheTVDB']
+					           : [name: group.anime, format:'''Anime/{n}/{n} - {sxe} - {t}''', db:'AniDB']
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
@@ -145,7 +145,7 @@ groups.each{ group, files ->
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs && !group.anime) {
-		def dest = rename(file:files, format:'Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}', db:'TheMovieDB')
+		def dest = rename(file:files, format:'''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}''', db:'TheMovieDB')
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"

@@ -22,6 +22,7 @@
 ^Crime$
 ^Documentary$
 ^download[s]?$
+^downloading$
 ^DVD
 ^Erotic$
 ^Film[s]?
@@ -33,6 +34,7 @@
 ^Romance$
 ^Science.Fiction$
 ^Season.[0-9]+
+^seeding$
 ^storage$
 ^Test$
 ^Torrents[s]?
