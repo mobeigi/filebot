@@ -128,6 +128,9 @@ public final class WebServices {
 						return set(object.getName());
 					}
 				};
+				
+				// make local search more restrictive
+				localIndex.setResultMinimumSimilarity(0.7f);
 			}
 			
 			return localIndex;

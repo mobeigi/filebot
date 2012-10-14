@@ -27,8 +27,8 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 public class LocalSearch<T> {
 	
 	private final AbstractStringMetric metric = new QGramsDistance();
-	private final float resultMinimumSimilarity = 0.5f;
-	private final int resultSetSize = 20;
+	private float resultMinimumSimilarity = 0.5f;
+	private int resultSetSize = 20;
 	
 	private final List<T> objects;
 	private final List<Set<String>> fields;
@@ -107,6 +107,16 @@ public class LocalSearch<T> {
 				return Math.min(resultSetSize, resultSet.size());
 			}
 		};
+	}
+	
+	
+	public void setResultMinimumSimilarity(float resultMinimumSimilarity) {
+		this.resultMinimumSimilarity = resultMinimumSimilarity;
+	}
+	
+	
+	public void setResultSetSize(int resultSetSize) {
+		this.resultSetSize = resultSetSize;
 	}
 	
 	
