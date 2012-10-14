@@ -19,8 +19,8 @@ def gmail = tryQuietly{ gmail.split(':', 2) }
 
 // series/anime/movie format expressions
 def format = [
-    tvs:   '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''',
-    anime: '''Anime/{n}/{n} - {sxe} - {t}''',
+	tvs:   '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''',
+	anime: '''Anime/{n}/{n} - {sxe} - {t}''',
 	mov:   '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}'''
 ]
 
