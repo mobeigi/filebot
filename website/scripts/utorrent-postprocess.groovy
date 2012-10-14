@@ -16,6 +16,15 @@ def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 // email notifications
 def gmail = tryQuietly{ gmail.split(':', 2) }
 
+
+// series/anime/movie format expressions
+def format = [
+    tvs:   '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''',
+    anime: '''Anime/{n}/{n} - {sxe} - {t}''',
+	mov:   '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}'''
+]
+
+
 // force movie/series/anime logic
 def forceMovie(f) {
 	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/
@@ -122,8 +131,8 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if ((group.tvs || group.anime) && !group.mov) {
 		// choose series / anime config
-		def config = group.tvs ? [name: group.tvs,   format:'''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''', db:'TheTVDB']
-					           : [name: group.anime, format:'''Anime/{n}/{n} - {sxe} - {t}''', db:'AniDB']
+		def config = group.tvs ? [name:group.tvs, format:format.tvs, db:'TheTVDB']
+					           : [name:group.anime, format:format.anime, db:'AniDB']
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
@@ -145,7 +154,7 @@ groups.each{ group, files ->
 	
 	// MOVIE MODE
 	if (group.mov && !group.tvs && !group.anime) {
-		def dest = rename(file:files, format:'''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}''', db:'TheMovieDB')
+		def dest = rename(file:files, format:format.mov, db:'TheMovieDB')
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
