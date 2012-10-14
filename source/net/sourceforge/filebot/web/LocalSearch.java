@@ -24,7 +24,7 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
 
-class LocalSearch<T> {
+public class LocalSearch<T> {
 	
 	private final AbstractStringMetric metric = new QGramsDistance();
 	private final float resultMinimumSimilarity = 0.5f;
@@ -75,9 +75,13 @@ class LocalSearch<T> {
 				if (entry.get() != null) {
 					resultSet.add(entry.get());
 				}
+				
+				if (Thread.interrupted()) {
+					throw new InterruptedException();
+				}
 			}
 		} finally {
-			executor.shutdown();
+			executor.shutdownNow();
 		}
 		
 		// sort by similarity descending (best matches first)

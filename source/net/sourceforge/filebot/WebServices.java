@@ -2,14 +2,33 @@
 package net.sourceforge.filebot;
 
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.Settings.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.FanartTV;
 import net.sourceforge.filebot.web.IMDbClient;
+import net.sourceforge.filebot.web.LocalSearch;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
+import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
 import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient;
@@ -28,8 +47,10 @@ public final class WebServices {
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
 	public static final AnidbClient AniDB = new AnidbClient(getApplicationName().toLowerCase(), 3);
-	public static final TheTVDBClient TheTVDB = new TheTVDBClient(getApplicationProperty("thetvdb.apikey"));
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
+	
+	// extended TheTVDB module with local search
+	public static final TheTVDBClient TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
 	
 	// movie dbs
 	public static final IMDbClient IMDb = new IMDbClient();
@@ -81,6 +102,81 @@ public final class WebServices {
 		}
 		
 		return null; // default
+	}
+	
+	
+	private static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
+		
+		public TheTVDBClientWithLocalSearch(String apikey) {
+			super(apikey);
+		}
+		
+		// index of local thetvdb data dump
+		private static LocalSearch<SearchResult> localIndex;
+		
+		
+		private synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
+			if (localIndex == null) {
+				// fetch data dump
+				TheTVDBSearchResult[] data = MediaDetection.releaseInfo.getTheTVDBIndex();
+				
+				// index data dump
+				localIndex = new LocalSearch<SearchResult>(asList(data)) {
+					
+					@Override
+					protected Set<String> getFields(SearchResult object) {
+						return set(object.getName());
+					}
+				};
+			}
+			
+			return localIndex;
+		}
+		
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
+			Callable<List<SearchResult>> apiSearch = new Callable<List<SearchResult>>() {
+				
+				@Override
+				public List<SearchResult> call() throws Exception {
+					return TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
+				}
+			};
+			Callable<List<SearchResult>> localSearch = new Callable<List<SearchResult>>() {
+				
+				@Override
+				public List<SearchResult> call() throws Exception {
+					try {
+						return getLocalIndex().search(query);
+					} catch (Exception e) {
+						Logger.getLogger(TheTVDBClientWithLocalSearch.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+					}
+					
+					// let local search fail gracefully without affecting API search
+					return emptyList();
+				}
+			};
+			
+			ExecutorService executor = Executors.newFixedThreadPool(2);
+			try {
+				Set<SearchResult> results = new LinkedHashSet<SearchResult>();
+				
+				for (Future<List<SearchResult>> resultSet : executor.invokeAll(asList(localSearch, apiSearch))) {
+					try {
+						results.addAll(resultSet.get());
+					} catch (ExecutionException e) {
+						if (e.getCause() instanceof Exception) {
+							throw (Exception) e.getCause(); // unwrap cause
+						}
+					}
+				}
+				return new ArrayList<SearchResult>(results);
+			} finally {
+				executor.shutdownNow();
+			}
+		};
 	}
 	
 	

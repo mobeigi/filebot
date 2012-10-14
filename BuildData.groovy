@@ -44,8 +44,9 @@ sortRegexList("website/data/series-mappings.txt")
 // ------------------------------------------------------------------------- //
 
 
-def series_out = new File("website/data/series.list.gz")
-def movies_out = new File("website/data/movies.txt.gz")
+def series_out  = new File("website/data/series.list.gz")
+def movies_out  = new File("website/data/movies.txt.gz")
+def thetvdb_out = new File("website/data/thetvdb.txt.gz")
 
 def gz(file, lines) {
 	file.withOutputStream{ out ->
@@ -114,15 +115,23 @@ println "Movie Count: " + movies.size()
 
 // ------------------------------------------------------------------------- //
 
+// BUILD thetvdb-index.gz
+def thetvdb_index_url = new URL('http://thetvdb.com/?string=&searchseriesid=&tab=listseries&function=Search')
+def thetvdb_index = thetvdb_index_url.fetch().getHtml('UTF-8')
+.depthFirst().TABLE.find{it['@id'] == "listtable"}
+.depthFirst().TR.findAll{ it.TD.size() == 3 && it.TD[1].text() == 'English' && it.TD[0].A.text() }
+.findResults{ [it.TD[2].text(), it.TD[0].A.text()] }
+
+// join and sort
+def thetvdb = thetvdb_index.findResults{ [it[0].pad(6), it[1]].join('\t') }.sort()
+gz(thetvdb_out, thetvdb)
+println "TheTVDB Index: " + thetvdb.size()
+
 
 // BUILD series.list.gz
 
 // TheTVDB
-def thetvdb_index = new URL('http://thetvdb.com/?string=&searchseriesid=&tab=listseries&function=Search')
-def thetvdb_names = thetvdb_index.fetch().getHtml('UTF-8')
-.depthFirst().TABLE.find{it['@id'] == "listtable"}
-.depthFirst().TR.findAll{ it.TD.size() == 3 && it.TD[1].text() == 'English'}
-.findResults{ it.TD[0].A.text() }
+def thetvdb_names = thetvdb_index.findResults{ it[1] }
 
 // AniDB
 def anidb_names = net.sourceforge.filebot.WebServices.AniDB.getAnimeTitles().findResults{ [it.getPrimaryTitle(), it.getOfficialTitle('en')] }.flatten()
@@ -141,7 +150,7 @@ dokuwiki_index.getText('UTF-8').eachLine{
 
 def names = [thetvdb_names, anidb_names]
 names.each{ if (it.size() == 0) throw new Exception("Failed to scrape series names") } // sanity check
-names = names.flatten().findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) } // collect and normalize names
+names = names.flatten().findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it).toLowerCase() } // collect and normalize names
 
 def seriesSorter = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 seriesSorter.addAll(names)

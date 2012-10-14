@@ -37,6 +37,7 @@ import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 import net.sourceforge.tuned.ByteBufferInputStream;
 
 
@@ -242,6 +243,11 @@ public class ReleaseInfo {
 	}
 	
 	
+	public TheTVDBSearchResult[] getTheTVDBIndex() throws IOException {
+		return theTVDBIndexResource.get();
+	}
+	
+	
 	public Map<Pattern, String> getSeriesDirectMappings() throws IOException {
 		Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
 		for (String line : seriesDirectMappingsResource.get()) {
@@ -268,8 +274,9 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
 	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.exclude-blacklist"));
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
-	protected final CachedResource<String[]> seriesListResource = new SeriesResource(getBundle(getClass().getName()).getString("url.series-list"));
+	protected final CachedResource<String[]> seriesListResource = new SeriesListResource(getBundle(getClass().getName()).getString("url.series-list"));
 	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getBundle(getClass().getName()).getString("url.series-mappings"));
+	protected final CachedResource<TheTVDBSearchResult[]> theTVDBIndexResource = new TheTVDBIndexResource(getBundle(getClass().getName()).getString("url.thetvdb-index"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {
@@ -310,16 +317,39 @@ public class ReleaseInfo {
 	}
 	
 	
-	protected static class SeriesResource extends CachedResource<String[]> {
+	protected static class SeriesListResource extends CachedResource<String[]> {
 		
-		public SeriesResource(String resource) {
+		public SeriesListResource(String resource) {
 			super(resource, String[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
 		}
 		
 		
 		@Override
 		public String[] process(ByteBuffer data) throws IOException {
-			return readAll(new InputStreamReader(new GZIPInputStream(new ByteBufferInputStream(data)), "utf-8")).split("\\n");
+			return readAll(new InputStreamReader(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8")).split("\\n");
+		}
+	}
+	
+	
+	protected static class TheTVDBIndexResource extends CachedResource<TheTVDBSearchResult[]> {
+		
+		public TheTVDBIndexResource(String resource) {
+			super(resource, TheTVDBSearchResult[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
+		}
+		
+		
+		@Override
+		public TheTVDBSearchResult[] process(ByteBuffer data) throws IOException {
+			Scanner scanner = new Scanner(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			
+			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>();
+			while (scanner.hasNext()) {
+				int id = scanner.nextInt();
+				String name = scanner.next().trim();
+				tvshows.add(new TheTVDBSearchResult(name, id));
+			}
+			
+			return tvshows.toArray(new TheTVDBSearchResult[0]);
 		}
 	}
 	
