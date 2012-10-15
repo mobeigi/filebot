@@ -150,7 +150,7 @@ dokuwiki_index.getText('UTF-8').eachLine{
 
 def names = [thetvdb_names, anidb_names]
 names.each{ if (it.size() == 0) throw new Exception("Failed to scrape series names") } // sanity check
-names = names.flatten().findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it).toLowerCase() } // collect and normalize names
+names = names.flatten().findAll{ it =~ /^[A-Z0-9]/ && it =~ /[\p{Alpha}]{3}/}.findResults{ net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(it) } // collect and normalize names
 
 def seriesSorter = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 seriesSorter.addAll(names)
