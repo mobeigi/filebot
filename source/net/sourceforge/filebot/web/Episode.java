@@ -118,6 +118,12 @@ public class Episode implements Serializable {
 	
 	
 	@Override
+	public Episode clone() {
+		return new Episode(this);
+	}
+	
+	
+	@Override
 	public String toString() {
 		return EpisodeFormat.SeasonEpisode.format(this);
 	}

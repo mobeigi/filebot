@@ -231,7 +231,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			for (Future<List<Match<File, ?>>> future : executor.invokeAll(taskPerFolder)) {
 				// make sure each episode has unique object data
 				for (Match<File, ?> it : future.get()) {
-					matches.add(new Match<File, Episode>(it.getValue(), new Episode((Episode) it.getCandidate())));
+					matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
 				}
 			}
 			
@@ -243,7 +243,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			for (File file : derivateFiles) {
 				for (Match<File, ?> match : matches) {
 					if (file.getParentFile().equals(match.getValue().getParentFile()) && isDerived(file, match.getValue()) && match.getCandidate() instanceof Episode) {
-						derivateMatches.add(new Match<File, Object>(file, new Episode((Episode) match.getCandidate())));
+						derivateMatches.add(new Match<File, Object>(file, ((Episode) match.getCandidate()).clone()));
 						break;
 					}
 				}

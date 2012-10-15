@@ -39,6 +39,12 @@ public class MultiEpisode extends Episode {
 	
 	
 	@Override
+	public MultiEpisode clone() {
+		return new MultiEpisode(this.episodes);
+	}
+	
+	
+	@Override
 	public String toString() {
 		return EpisodeFormat.SeasonEpisode.formatMultiEpisode(getEpisodes());
 	}
