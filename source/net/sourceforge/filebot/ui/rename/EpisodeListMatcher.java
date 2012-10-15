@@ -229,7 +229,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			// merge all episodes
 			List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 			for (Future<List<Match<File, ?>>> future : executor.invokeAll(taskPerFolder)) {
-				matches.addAll(future.get());
+				// make sure each episode has unique object data
+				for (Match<File, ?> it : future.get()) {
+					matches.add(new Match<File, Episode>(it.getValue(), new Episode((Episode) it.getCandidate())));
+				}
 			}
 			
 			// handle derived files
