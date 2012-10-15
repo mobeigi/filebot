@@ -166,14 +166,18 @@ public class MediaDetection {
 				Map<Object, List<File>> filesByEpisode = new LinkedHashMap<Object, List<File>>();
 				for (File file : combinedFileSet) {
 					Object eid = getEpisodeIdentifier(file.getName(), true);
-					if (eid != null) {
-						List<File> episodeFiles = filesByEpisode.get(eid);
-						if (episodeFiles == null) {
-							episodeFiles = new ArrayList<File>();
-							filesByEpisode.put(eid, episodeFiles);
-						}
-						episodeFiles.add(file);
+					
+					// merge specials into first SxE group
+					if (eid == null) {
+						eid = file; // open new SxE group for each unrecognized file
 					}
+					
+					List<File> episodeFiles = filesByEpisode.get(eid);
+					if (episodeFiles == null) {
+						episodeFiles = new ArrayList<File>();
+						filesByEpisode.put(eid, episodeFiles);
+					}
+					episodeFiles.add(file);
 				}
 				
 				for (int i = 0; true; i++) {
