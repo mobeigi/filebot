@@ -4,6 +4,7 @@ def failOnError = _args.conflict == 'fail'
 
 // print input parameters
 _args.bindings?.each{ _log.finest("Parameter: $it.key = $it.value") }
+args.each{ _log.finest("Argument: $it") }
 
 // enable/disable features as specified via --def parameters
 def subtitles = tryQuietly{ subtitles.toBoolean() }
@@ -44,7 +45,7 @@ def forceIgnore(f) {
 
 
 // collect input fileset as specified by the given --def parameters
-if (args.empty || ['single', 'multi'].contains(ut_kind)) {
+if (args.empty) {
 	// assume we're called with utorrent parameters
 	if (ut_kind == 'single') {
 		input += new File(ut_dir, ut_file) // single-file torrent
