@@ -10,14 +10,14 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class OpenSubtitlesXmlRpcTest {
@@ -35,7 +35,7 @@ public class OpenSubtitlesXmlRpcTest {
 	@Test
 	public void search() throws Exception {
 		List<Movie> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
-		Movie sample = (Movie) list.get(0);
+		Movie sample = list.get(0);
 		
 		// check sample entry
 		assertEquals("Babylon 5", sample.getName());
@@ -131,7 +131,7 @@ public class OpenSubtitlesXmlRpcTest {
 	
 	@Test
 	public void checkMovieHash() throws Exception {
-		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"));
+		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("d7aa0275cace4410"), 0);
 		Movie movie = results.get("d7aa0275cace4410");
 		
 		assertEquals("Iron Man", movie.getName());
@@ -142,7 +142,7 @@ public class OpenSubtitlesXmlRpcTest {
 	
 	@Test
 	public void checkMovieHashInvalid() throws Exception {
-		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"));
+		Map<String, Movie> results = xmlrpc.checkMovieHash(singleton("0123456789abcdef"), 0);
 		
 		// no movie info
 		assertTrue(results.isEmpty());

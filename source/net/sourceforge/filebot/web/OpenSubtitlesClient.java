@@ -281,7 +281,8 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			for (int bn = 0; bn < ceil((float) hashes.size() / batchSize); bn++) {
 				List<String> batch = hashes.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashes.size()));
 				
-				for (Entry<String, Movie> it : xmlrpc.checkMovieHash(batch).entrySet()) {
+				int minSeenCount = 20; // make sure we don't get mismatches by making sure the hash has not been confirmed numerous times
+				for (Entry<String, Movie> it : xmlrpc.checkMovieHash(batch, minSeenCount).entrySet()) {
 					result.put(hashMap.get(it.getKey()), it.getValue());
 					getCache().putData("getMovieDescriptor", it.getKey(), locale, it.getValue());
 				}

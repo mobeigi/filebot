@@ -223,23 +223,45 @@ public class OpenSubtitlesXmlRpc {
 	
 	
 	@SuppressWarnings("unchecked")
-	public Map<String, Movie> checkMovieHash(Collection<String> hashes) throws XmlRpcFault {
-		Map<?, ?> response = invoke("CheckMovieHash", token, hashes);
-		
-		Map<String, ?> movieHashData = (Map<String, ?>) response.get("data");
+	public Map<String, Movie> checkMovieHash(Collection<String> hashes, int minSeenCount) throws XmlRpcFault {
 		Map<String, Movie> movieHashMap = new HashMap<String, Movie>();
 		
-		for (Entry<String, ?> entry : movieHashData.entrySet()) {
-			// empty associative arrays are deserialized as array, not as map
-			if (entry.getValue() instanceof Map) {
-				Map<String, String> info = (Map<String, String>) entry.getValue();
-				
-				String hash = info.get("MovieHash");
-				String name = info.get("MovieName");
-				int year = Integer.parseInt(info.get("MovieYear"));
-				int imdb = Integer.parseInt(info.get("MovieImdbID"));
-				
-				movieHashMap.put(hash, new Movie(name, year, imdb, -1));
+		Map<?, ?> response = invoke("CheckMovieHash2", token, hashes);
+		Object payload = response.get("data");
+		
+		if (payload instanceof Map) {
+			Map<String, ?> movieHashData = (Map<String, ?>) payload;
+			for (Entry<String, ?> entry : movieHashData.entrySet()) {
+				// empty associative arrays are deserialized as array, not as map
+				if (entry.getValue() instanceof List) {
+					String hash = entry.getKey();
+					List<Movie> matches = new ArrayList<Movie>();
+					
+					List<?> hashMatches = (List<?>) entry.getValue();
+					for (Object match : hashMatches) {
+						if (match instanceof Map) {
+							Map<String, String> info = (Map<String, String>) match;
+							int seenCount = Integer.parseInt(info.get("SeenCount"));
+							
+							// require minimum SeenCount before this hash match is considered trusted
+							if (seenCount >= minSeenCount) {
+								String name = info.get("MovieName");
+								int year = Integer.parseInt(info.get("MovieYear"));
+								int imdb = Integer.parseInt(info.get("MovieImdbID"));
+								
+								matches.add(new Movie(name, year, imdb, -1));
+							}
+						}
+					}
+					
+					if (matches.size() == 1) {
+						// perfect unambiguous match
+						movieHashMap.put(hash, matches.get(0));
+					} else if (matches.size() > 1) {
+						// multiple hash matches => ignore all
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Ignore hash match due to hash collision: " + matches);
+					}
+				}
 			}
 		}
 		
