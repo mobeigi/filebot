@@ -3,7 +3,9 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.util.Arrays.*;
+import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
 
+import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -37,7 +39,25 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 	
 	
 	@Override
+	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
+		if (action == TransferAction.LINK) {
+			// special handling for do-not-resolve-folders-drop
+			clear();
+			load(getFilesFromTransferable(tr), false);
+		} else {
+			// load files recursively by default
+			super.handleTransferable(tr, action);
+		}
+	}
+	
+	
+	@Override
 	protected void load(List<File> files) {
+		load(files, true);
+	}
+	
+	
+	protected void load(List<File> files, boolean recursive) {
 		List<File> entries = new ArrayList<File>();
 		LinkedList<File> queue = new LinkedList<File>(files);
 		
@@ -47,7 +67,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			if (f.isHidden())
 				continue;
 			
-			if (f.isFile() || MediaDetection.isDiskFolder(f)) {
+			if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
 				entries.add(f);
 			} else {
 				queue.addAll(0, asList(f.listFiles()));
