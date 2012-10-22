@@ -459,6 +459,11 @@ public class MediaDetection {
 	
 	
 	public static File guessMovieFolder(File movieFile) throws IOException {
+		// special case for folder mode 
+		if (movieFile.isDirectory()) {
+			return movieFile;
+		}
+		
 		// first meaningful parent folder (max 2 levels deep)
 		File f = movieFile.getParentFile();
 		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
