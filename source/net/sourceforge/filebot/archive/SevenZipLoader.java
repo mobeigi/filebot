@@ -2,13 +2,15 @@
 package net.sourceforge.filebot.archive;
 
 
-import com.sun.jna.Platform;
+import java.util.logging.Logger;
 
 import net.sf.sevenzipjbinding.IArchiveOpenCallback;
 import net.sf.sevenzipjbinding.IInStream;
 import net.sf.sevenzipjbinding.ISevenZipInArchive;
 import net.sf.sevenzipjbinding.SevenZip;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
+
+import com.sun.jna.Platform;
 
 
 public class SevenZipLoader {
@@ -23,8 +25,12 @@ public class SevenZipLoader {
 		
 		// initialize 7z-JBinding native libs
 		try {
-			if (Platform.isWindows()) {
-				System.loadLibrary(Platform.is64Bit() ? "libgcc_s_sjlj-1" : "mingwm10");
+			try {
+				if (Platform.isWindows()) {
+					System.loadLibrary(Platform.is64Bit() ? "libgcc_s_sjlj-1" : "mingwm10");
+				}
+			} catch (Throwable e) {
+				Logger.getLogger(SevenZipLoader.class.getName()).warning("Failed to preload library: " + e);
 			}
 			
 			System.loadLibrary("7-Zip-JBinding");

@@ -119,11 +119,11 @@ def XML(bc) {
 
 
 // Shell helper
-import static com.sun.jna.Platform.*
+import com.sun.jna.Platform
 
 def execute(Object... args) {
 	def cmd = args.toList()*.toString()
-	if (isWindows()) {
+	if (tryQuietly{ Platform.isWindows() }) {
 		// normalize file separator for windows and run with cmd so any executable in PATH will just work
 		cmd = ['cmd', '/c'] + cmd
 	}

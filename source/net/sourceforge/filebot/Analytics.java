@@ -30,7 +30,7 @@ public class Analytics {
 	private static boolean enabled = false;
 	
 	
-	public static synchronized JGoogleAnalyticsTracker getTracker() {
+	public static synchronized JGoogleAnalyticsTracker getTracker() throws Throwable {
 		if (tracker != null)
 			return tracker;
 		
@@ -66,10 +66,18 @@ public class Analytics {
 		
 		if (currentView == null) {
 			// track application startup
-			getTracker().trackPageViewFromSearch(view, title, host, getJavaRuntimeIdentifier(), getDeploymentMethod());
+			try {
+				getTracker().trackPageViewFromSearch(view, title, host, getJavaRuntimeIdentifier(), getDeploymentMethod());
+			} catch (Throwable e) {
+				Logger.getLogger(Analytics.class.getName()).log(Level.WARNING, e.toString());
+			}
 		} else {
 			// track application state change
-			getTracker().trackPageViewFromReferrer(view, title, host, host, currentView);
+			try {
+				getTracker().trackPageViewFromReferrer(view, title, host, host, currentView);
+			} catch (Throwable e) {
+				Logger.getLogger(Analytics.class.getName()).log(Level.WARNING, e.toString());
+			}
 		}
 		
 		currentView = view;
@@ -85,7 +93,11 @@ public class Analytics {
 		if (!enabled)
 			return;
 		
-		getTracker().trackEvent(normalize(category), normalize(action), normalize(label), value);
+		try {
+			getTracker().trackEvent(normalize(category), normalize(action), normalize(label), value);
+		} catch (Throwable e) {
+			Logger.getLogger(Analytics.class.getName()).log(Level.WARNING, e.toString());
+		}
 	}
 	
 	
@@ -134,28 +146,30 @@ public class Analytics {
 	
 	
 	private static String getUserAgent() {
-		String wm = null;
-		String os = null;
+		// initialize with default values
+		String wm = System.getProperty("os.name");
+		String os = System.getProperty("os.name") + " " + System.getProperty("os.version");
 		
-		if (Platform.isWindows()) {
-			wm = "Windows";
-			os = "Windows NT " + System.getProperty("os.version");
-		} else if (Platform.isX11()) {
-			wm = "X11";
-			if (Platform.isLinux())
-				os = "Linux " + System.getProperty("os.arch");
-			else if (Platform.isSolaris())
-				os = "SunOS " + System.getProperty("os.version");
-			else if (Platform.isFreeBSD())
-				os = "FreeBSD";
-			else if (Platform.isOpenBSD())
-				os = "OpenBSD";
-		} else if (Platform.isMac()) {
-			wm = "Macintosh";
-			os = System.getProperty("os.name");
-		} else {
-			wm = System.getProperty("os.name");
-			os = System.getProperty("os.name") + " " + System.getProperty("os.version");
+		try {
+			if (Platform.isWindows()) {
+				wm = "Windows";
+				os = "Windows NT " + System.getProperty("os.version");
+			} else if (Platform.isX11()) {
+				wm = "X11";
+				if (Platform.isLinux())
+					os = "Linux " + System.getProperty("os.arch");
+				else if (Platform.isSolaris())
+					os = "SunOS " + System.getProperty("os.version");
+				else if (Platform.isFreeBSD())
+					os = "FreeBSD";
+				else if (Platform.isOpenBSD())
+					os = "OpenBSD";
+			} else if (Platform.isMac()) {
+				wm = "Macintosh";
+				os = System.getProperty("os.name");
+			}
+		} catch (Throwable e) {
+			// ignore any Platform detection issues and especially ignore LinkageErrors that might occur on headless machines
 		}
 		
 		return String.format("%s/%s (%s; U; %s; JRE %s)", getApplicationName(), getApplicationVersion(), wm, os, System.getProperty("java.version"));
@@ -207,7 +221,6 @@ public class Analytics {
 		return sb.toString();
 	}
 	
-	
 	private static final String VISITOR_ID = "visitorId";
 	private static final String TIMESTAMP_FIRST = "timestampFirst";
 	private static final String TIMESTAMP_LAST = "timestampLast";
@@ -251,7 +264,6 @@ public class Analytics {
 	private Analytics() {
 		throw new UnsupportedOperationException();
 	}
-	
 	
 	static {
 		// disable useless background logging, if it doesn't work it doesn't work, won't affect anything (putting it here works for Java 7)

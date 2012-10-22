@@ -66,7 +66,11 @@ public enum NativeRenameAction implements RenameAction {
 	
 	
 	public static boolean isSupported() {
-		return Platform.isWindows();
+		try {
+			return Platform.isWindows();
+		} catch (Throwable e) {
+			return false;
+		}
 	}
 	
 }
