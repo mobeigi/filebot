@@ -57,6 +57,7 @@ import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
+import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -115,7 +116,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		for (File f : mediaFiles) {
 			// count SxE matches
-			if (nameMatcher.matchByEpisodeIdentifier(f.getName()) != null) {
+			if (MediaDetection.getEpisodeIdentifier(f.getName(), true) != null) {
 				sxe++;
 			}
 			
@@ -129,7 +130,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
-		if (sxe >= (max * 0.65) || cws >= (max * 0.65)) {
+		if (sxe > (max * 0.65) || cws > (max * 0.65)) {
 			return renameSeries(files, action, conflictAction, outputDir, format, WebServices.TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
 			return renameMovie(files, action, conflictAction, outputDir, format, WebServices.TMDb, query, locale, strict); // use default movie db
