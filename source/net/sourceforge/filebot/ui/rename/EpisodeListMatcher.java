@@ -287,8 +287,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		if (episodes.isEmpty()) {
 			String suggestion = new SeriesNameMatcher(locale).matchByEpisodeIdentifier(getName(files.get(0)));
 			if (suggestion != null) {
-				// clean media info / release group info / etc 
-				suggestion = stripReleaseInfo(suggestion);
+				// clean media info / release group info / etc
+				try {
+					suggestion = stripReleaseInfo(suggestion);
+				} catch (Exception e) {
+					// ignore
+				}
 			} else {
 				// use folder name
 				suggestion = files.get(0).getParentFile().getName();

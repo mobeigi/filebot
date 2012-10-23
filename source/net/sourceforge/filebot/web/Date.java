@@ -50,7 +50,7 @@ public class Date implements Serializable {
 	
 	
 	public long getTimeStamp() {
-		return new GregorianCalendar(year, month, day).getTimeInMillis();
+		return new GregorianCalendar(year, month - 1, day).getTimeInMillis(); // Month value is 0-based, e.g. 0 for January
 	}
 	
 	

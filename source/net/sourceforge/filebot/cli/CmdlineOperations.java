@@ -207,6 +207,15 @@ public class CmdlineOperations implements CmdlineInterface {
 			Object episode = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			
+			// first write all the metadata if xattr is enabled
+			if (useExtendedFileAttributes()) {
+				try {
+					MediaDetection.storeMetaInfo(file, episode);
+				} catch (Throwable e) {
+					CLILogger.warning(e.getMessage());
+				}
+			}
+			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
 		}
 		
@@ -466,6 +475,15 @@ public class CmdlineOperations implements CmdlineInterface {
 			File file = match.getValue();
 			Object movie = match.getCandidate();
 			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
+			
+			// first write all the metadata if xattr is enabled
+			if (useExtendedFileAttributes()) {
+				try {
+					MediaDetection.storeMetaInfo(file, movie);
+				} catch (Throwable e) {
+					CLILogger.warning(e.getMessage());
+				}
+			}
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
 		}

@@ -54,6 +54,11 @@ public final class Settings {
 	}
 	
 	
+	public static boolean useExtendedFileAttributes() {
+		return Boolean.parseBoolean(System.getProperty("useExtendedFileAttributes"));
+	}
+	
+	
 	public static int getPreferredThreadPoolSize() {
 		try {
 			return Integer.parseInt(System.getProperty("threadPool"));

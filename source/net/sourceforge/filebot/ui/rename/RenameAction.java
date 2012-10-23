@@ -41,6 +41,8 @@ import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.NativeRenameAction;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.StandardRenameAction;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.tuned.ui.ProgressDialog;
 import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
 import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
@@ -79,6 +81,17 @@ class RenameAction extends AbstractAction {
 			
 			// start processing
 			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			
+			// first write all the metadata if xattr is enabled
+			if (useExtendedFileAttributes()) {
+				for (Match<Object, File> match : model.matches()) {
+					try {
+						MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
+					} catch (Throwable e) {
+						Logger.getLogger(RenameAction.class.getName()).log(Level.WARNING, e.getMessage());
+					}
+				}
+			}
 			
 			if (useNativeShell() && isNativeActionSupported(action)) {
 				RenameJob renameJob = new NativeRenameJob(renameMap, NativeRenameAction.valueOf(action.name()));

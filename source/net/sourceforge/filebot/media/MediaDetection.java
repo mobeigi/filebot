@@ -5,6 +5,7 @@ package net.sourceforge.filebot.media;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -50,6 +51,7 @@ import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
@@ -233,6 +235,18 @@ public class MediaDetection {
 	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
 		List<String> names = new ArrayList<String>();
 		
+		// try xattr metadata if enabled
+		if (useExtendedFileAttributes()) {
+			for (File it : files) {
+				try {
+					Episode episode = (Episode) new MetaAttributes(it).getMetaData();
+					names.add(episode.getSeriesName());
+				} catch (Throwable e) {
+					// ignore
+				}
+			}
+		}
+		
 		// try to detect series name via nfo files
 		try {
 			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
@@ -345,6 +359,18 @@ public class MediaDetection {
 	
 	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
 		Set<Movie> options = new LinkedHashSet<Movie>();
+		
+		// try xattr metadata if enabled
+		if (useExtendedFileAttributes()) {
+			try {
+				Movie movie = (Movie) new MetaAttributes(movieFile).getMetaData();
+				if (movie != null) {
+					options.add(movie);
+				}
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
 		
 		// lookup by file hash
 		if (hashLookupService != null && movieFile.isFile()) {
@@ -739,6 +765,25 @@ public class MediaDetection {
 		
 		public String normalize(String sequence) {
 			return normalizePunctuation(sequence); // only normalize punctuation, make sure we keep the year (important for movie matching)
+		}
+	}
+	
+	
+	public static void storeMetaInfo(File file, Object model) {
+		// original filename
+		MetaAttributes metadata = new MetaAttributes(file);
+		metadata.putFileName(file.getName());
+		
+		// store model as metadata 
+		if (model instanceof Episode || model instanceof Movie) {
+			metadata.putMetaData(model);
+		}
+		
+		// set creation date to episode / movie release date
+		if (model instanceof Episode) {
+			metadata.setCreationDate(((Episode) model).airdate().getTimeStamp());
+		} else if (model instanceof Movie) {
+			metadata.setCreationDate(new Date(((Movie) model).getYear(), 1, 1).getTimeStamp());
 		}
 	}
 	
