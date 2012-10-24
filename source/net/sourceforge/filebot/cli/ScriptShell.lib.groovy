@@ -98,6 +98,14 @@ def telnet(host, int port, csn = 'utf-8', Closure handler) {
 }
 
 
+// json-io helpers
+import com.cedarsoftware.util.io.*
+
+Object.metaClass.objectToJson = { pretty = true -> JsonWriter.objectToJson(delegate, pretty) }
+String.metaClass.jsonToObject = { JsonReader.jsonToJava(delegate) }
+String.metaClass.jsonToMap = { JsonReader.jsonToMaps(delegate) }
+
+
 // Template Engine helpers
 import groovy.text.XmlTemplateEngine
 import groovy.text.GStringTemplateEngine

@@ -88,7 +88,7 @@ class RenameAction extends AbstractAction {
 					try {
 						MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
 					} catch (Throwable e) {
-						Logger.getLogger(RenameAction.class.getName()).log(Level.WARNING, e.getMessage());
+						Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
 					}
 				}
 			}

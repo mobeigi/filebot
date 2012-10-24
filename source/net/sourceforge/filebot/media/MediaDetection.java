@@ -237,13 +237,18 @@ public class MediaDetection {
 		
 		// try xattr metadata if enabled
 		if (useExtendedFileAttributes()) {
-			for (File it : files) {
-				try {
-					Episode episode = (Episode) new MetaAttributes(it).getMetaData();
-					names.add(episode.getSeriesName());
-				} catch (Throwable e) {
-					// ignore
+			try {
+				for (File it : files) {
+					MetaAttributes xattr = new MetaAttributes(it);
+					try {
+						Episode episode = (Episode) xattr.getMetaData();
+						names.add(episode.getSeriesName());
+					} catch (Exception e) {
+						// can't read meta attributes => ignore
+					}
 				}
+			} catch (Throwable e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
 			}
 		}
 		
@@ -363,12 +368,17 @@ public class MediaDetection {
 		// try xattr metadata if enabled
 		if (useExtendedFileAttributes()) {
 			try {
-				Movie movie = (Movie) new MetaAttributes(movieFile).getMetaData();
-				if (movie != null) {
-					options.add(movie);
+				MetaAttributes xattr = new MetaAttributes(movieFile);
+				try {
+					Movie movie = (Movie) xattr.getMetaData();
+					if (movie != null) {
+						options.add(movie);
+					}
+				} catch (Exception e) {
+					// can't read meta attributes => ignore
 				}
 			} catch (Throwable e) {
-				// ignore
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
 			}
 		}
 		
@@ -781,9 +791,15 @@ public class MediaDetection {
 		
 		// set creation date to episode / movie release date
 		if (model instanceof Episode) {
-			metadata.setCreationDate(((Episode) model).airdate().getTimeStamp());
+			Episode episode = (Episode) model;
+			if (episode.airdate() != null) {
+				metadata.setCreationDate(episode.airdate().getTimeStamp());
+			}
 		} else if (model instanceof Movie) {
-			metadata.setCreationDate(new Date(((Movie) model).getYear(), 1, 1).getTimeStamp());
+			Movie movie = (Movie) model;
+			if (movie.getYear() > 0) {
+				metadata.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
+			}
 		}
 	}
 	

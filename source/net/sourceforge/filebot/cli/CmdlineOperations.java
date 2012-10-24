@@ -212,7 +212,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					MediaDetection.storeMetaInfo(file, episode);
 				} catch (Throwable e) {
-					CLILogger.warning(e.getMessage());
+					CLILogger.warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 			
@@ -481,7 +481,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					MediaDetection.storeMetaInfo(file, movie);
 				} catch (Throwable e) {
-					CLILogger.warning(e.getMessage());
+					CLILogger.warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 			
