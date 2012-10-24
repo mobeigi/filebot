@@ -33,7 +33,7 @@ public class MetaAttributes {
 		try {
 			fileAttributeView.setTimes(null, null, FileTime.fromMillis(millis));
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			// creationTime not supported => ignore
 		}
 	}
 	
