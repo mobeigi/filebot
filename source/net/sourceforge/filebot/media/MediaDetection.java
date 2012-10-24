@@ -782,11 +782,11 @@ public class MediaDetection {
 	public static void storeMetaInfo(File file, Object model) {
 		// original filename
 		MetaAttributes metadata = new MetaAttributes(file);
-		metadata.putFileName(file.getName());
+		metadata.setOriginalName(file.getName());
 		
 		// store model as metadata 
 		if (model instanceof Episode || model instanceof Movie) {
-			metadata.putMetaData(model);
+			metadata.setMetaData(model);
 		}
 		
 		// set creation date to episode / movie release date

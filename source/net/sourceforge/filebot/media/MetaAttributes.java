@@ -41,23 +41,23 @@ public class MetaAttributes {
 	public long getCreationDate(long time) {
 		try {
 			return fileAttributeView.readAttributes().creationTime().toMillis();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return 0;
 		}
 	}
 	
 	
-	public void putFileName(String name) {
+	public void setOriginalName(String name) {
 		metaAttributeView.put(FILENAME_KEY, name);
 	}
 	
 	
-	public void getFileName(String name) {
-		metaAttributeView.get(FILENAME_KEY);
+	public String getOriginalName() {
+		return metaAttributeView.get(FILENAME_KEY);
 	}
 	
 	
-	public void putMetaData(Object object) {
+	public void setMetaData(Object object) {
 		metaAttributeView.put(METADATA_KEY, JsonWriter.toJson(object));
 	}
 	

@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
+import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.web.Date;
@@ -278,6 +279,12 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("original")
+	public String getOriginalFileName() {
+		return getOriginalFileName(mediaFile);
+	}
+	
+	
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
 		// use inferred media file
@@ -326,7 +333,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// look for video source patterns in media file and it's parent folder
-		return releaseInfo.getVideoSource(inferredMediaFile);
+		return releaseInfo.getVideoSource(inferredMediaFile.getParent(), getOriginalFileName(inferredMediaFile), inferredMediaFile.getName());
 	}
 	
 	
@@ -336,7 +343,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// look for release group names in media file and it's parent folder
-		return releaseInfo.getReleaseGroup(inferredMediaFile);
+		return releaseInfo.getReleaseGroup(inferredMediaFile.getParent(), getOriginalFileName(inferredMediaFile), inferredMediaFile.getName());
 	}
 	
 	
@@ -619,4 +626,14 @@ public class MediaBindingBean {
 		cache.put(file, hash);
 		return hash;
 	}
+	
+	
+	private String getOriginalFileName(File file) {
+		try {
+			return new MetaAttributes(file).getOriginalName();
+		} catch (Throwable e) {
+			return null;
+		}
+	}
+	
 }

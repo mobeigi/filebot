@@ -43,23 +43,22 @@ import net.sourceforge.tuned.ByteBufferInputStream;
 
 public class ReleaseInfo {
 	
-	public String getVideoSource(File file) {
+	public String getVideoSource(String... strings) {
 		// check parent and itself for group names
-		return matchLast(getVideoSourcePattern(), getBundle(getClass().getName()).getString("pattern.video.source").split("[|]"), file.getParent(), file.getName());
+		return matchLast(getVideoSourcePattern(), getBundle(getClass().getName()).getString("pattern.video.source").split("[|]"), strings);
 	}
 	
 	
-	public String getReleaseGroup(File file) throws IOException {
+	public String getReleaseGroup(String... strings) throws IOException {
 		// check file and folder for release group names
 		String[] groups = releaseGroupResource.get();
-		String[] files = new String[] { file.getParentFile().getName(), file.getName() };
 		
 		// try case-sensitive match
-		String match = matchLast(getReleaseGroupPattern(true), groups, files);
+		String match = matchLast(getReleaseGroupPattern(true), groups, strings);
 		
 		// try case-insensitive match as fallback
 		if (match == null) {
-			match = matchLast(getReleaseGroupPattern(false), groups, files);
+			match = matchLast(getReleaseGroupPattern(false), groups, strings);
 		}
 		
 		return match;
