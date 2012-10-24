@@ -29,12 +29,8 @@ public class MetaAttributes {
 	}
 	
 	
-	public void setCreationDate(long millis) {
-		try {
-			fileAttributeView.setTimes(null, null, FileTime.fromMillis(millis));
-		} catch (IOException e) {
-			// creationTime not supported => ignore
-		}
+	public void setCreationDate(long millis) throws IOException {
+		fileAttributeView.setTimes(null, null, FileTime.fromMillis(millis));
 	}
 	
 	

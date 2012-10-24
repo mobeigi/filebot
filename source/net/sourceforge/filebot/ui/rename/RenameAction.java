@@ -84,12 +84,12 @@ class RenameAction extends AbstractAction {
 			
 			// first write all the metadata if xattr is enabled
 			if (useExtendedFileAttributes()) {
-				for (Match<Object, File> match : model.matches()) {
-					try {
+				try {
+					for (Match<Object, File> match : model.matches()) {
 						MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
-					} catch (Throwable e) {
-						Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
 					}
+				} catch (Throwable e) {
+					Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 			

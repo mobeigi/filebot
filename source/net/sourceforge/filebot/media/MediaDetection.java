@@ -780,26 +780,33 @@ public class MediaDetection {
 	
 	
 	public static void storeMetaInfo(File file, Object model) {
-		// original filename
-		MetaAttributes metadata = new MetaAttributes(file);
-		metadata.setOriginalName(file.getName());
+		MetaAttributes xattr = new MetaAttributes(file);
 		
-		// store model as metadata 
-		if (model instanceof Episode || model instanceof Movie) {
-			metadata.setMetaData(model);
+		// store original name and model as xattr 
+		try {
+			if (model instanceof Episode || model instanceof Movie) {
+				xattr.setMetaData(model);
+			}
+			xattr.setOriginalName(file.getName());
+		} catch (Exception e) {
+			Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
 		}
 		
 		// set creation date to episode / movie release date
-		if (model instanceof Episode) {
-			Episode episode = (Episode) model;
-			if (episode.airdate() != null) {
-				metadata.setCreationDate(episode.airdate().getTimeStamp());
+		try {
+			if (model instanceof Episode) {
+				Episode episode = (Episode) model;
+				if (episode.airdate() != null) {
+					xattr.setCreationDate(episode.airdate().getTimeStamp());
+				}
+			} else if (model instanceof Movie) {
+				Movie movie = (Movie) model;
+				if (movie.getYear() > 0) {
+					xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
+				}
 			}
-		} else if (model instanceof Movie) {
-			Movie movie = (Movie) model;
-			if (movie.getYear() > 0) {
-				metadata.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
-			}
+		} catch (Exception e) {
+			Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 		}
 	}
 	

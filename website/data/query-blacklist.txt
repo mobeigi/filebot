@@ -161,7 +161,6 @@ unrated
 unrated.edition
 UsaBit.com
 video[s]?
-VOSTFR
 www[.][\w-.]+[.](com|net|tk|ro|cd)
 xRipp
 Zune
