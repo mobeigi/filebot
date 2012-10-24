@@ -16,7 +16,7 @@ public class ReleaseInfoTest {
 		ReleaseInfo info = new ReleaseInfo();
 		File f = new File("Jurassic.Park[1993]DvDrip-aXXo.avi");
 		
-		assertEquals("DVDRip", info.getVideoSource(f));
+		assertEquals("DVDRip", info.getVideoSource(f.getName()));
 	}
 	
 	
@@ -25,7 +25,7 @@ public class ReleaseInfoTest {
 		ReleaseInfo info = new ReleaseInfo();
 		File f = new File("Jurassic.Park[1993]DvDrip-aXXo.avi");
 		
-		assertEquals("aXXo", info.getReleaseGroup(f));
+		assertEquals("aXXo", info.getReleaseGroup(f.getName()));
 	}
 	
 }
