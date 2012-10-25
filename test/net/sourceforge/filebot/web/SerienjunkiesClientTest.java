@@ -5,20 +5,21 @@ package net.sourceforge.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Locale;
+
+import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.web.SerienjunkiesClient.SerienjunkiesSearchResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.SerienjunkiesClient.SerienjunkiesSearchResult;
 
 
 public class SerienjunkiesClientTest {
 	
 	private SerienjunkiesClient serienjunkies = new SerienjunkiesClient("9fbhw9uebfiwvbefzuwv");
 	
-
+	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = serienjunkies.search("alias die agentin");
@@ -33,10 +34,10 @@ public class SerienjunkiesClientTest {
 		assertEquals("2001-09-30", series.getStartDate().toString());
 	}
 	
-
+	
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "greys-anatomy", "Grey's Anatomy", null, null));
+		List<Episode> list = serienjunkies.getEpisodeList(new SerienjunkiesSearchResult(260, "greys-anatomy", "Grey's Anatomy", null, null), null, Locale.GERMAN);
 		
 		// check ordinary episode
 		Episode eps = list.get(0);
@@ -56,7 +57,7 @@ public class SerienjunkiesClientTest {
 		assertEquals("2005-04-10", eps.airdate().toString());
 	}
 	
-
+	
 	@BeforeClass
 	@AfterClass
 	public static void clearCache() {

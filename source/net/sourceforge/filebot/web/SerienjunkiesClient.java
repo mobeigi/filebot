@@ -130,10 +130,15 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			
 			Integer season = new Integer((String) obj.get("season"));
 			Integer episode = new Integer((String) obj.get("episode"));
-			String title = (String) obj.get("german");
 			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 			
-			episodes.add(new Episode(seriesName.trim(), series.getStartDate(), season, episode, title.trim(), i + 1, null, airdate));
+			String title = (String) obj.get("original");
+			String german = (String) obj.get("german");
+			if (title == null || (Locale.GERMAN.equals(locale) && german != null)) {
+				title = german;
+			}
+			
+			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, airdate));
 		}
 		
 		// make sure episodes are in ordered correctly
