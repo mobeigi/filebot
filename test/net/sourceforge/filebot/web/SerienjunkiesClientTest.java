@@ -47,14 +47,6 @@ public class SerienjunkiesClientTest {
 		assertEquals("1", eps.getSeason().toString());
 		assertEquals("1", eps.getAbsolute().toString());
 		assertEquals("2005-03-27", eps.airdate().toString());
-		
-		// check umlaut in title
-		eps = list.get(2);
-		assertEquals("Überleben ist alles", eps.getTitle());
-		assertEquals("1", eps.getSeason().toString());
-		assertEquals("3", eps.getEpisode().toString());
-		assertEquals("3", eps.getAbsolute().toString());
-		assertEquals("2005-04-10", eps.airdate().toString());
 	}
 	
 	

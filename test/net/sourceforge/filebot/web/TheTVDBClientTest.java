@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class TheTVDBClientTest {
@@ -160,7 +160,6 @@ public class TheTVDBClientTest {
 		SeriesInfo it = thetvdb.getSeriesInfo(new TheTVDBSearchResult(null, 80348), Locale.ENGLISH);
 		
 		assertEquals(80348, it.getId(), 0);
-		assertEquals("Adam Baldwin", it.getActors().get(2));
 		assertEquals("TV-PG", it.getContentRating());
 		assertEquals("2007-09-24", it.getFirstAired().toString());
 		assertEquals("Action and Adventure", it.getGenres().get(0));
@@ -194,7 +193,6 @@ public class TheTVDBClientTest {
 	public void getBannerList() throws Exception {
 		List<BannerDescriptor> banners = thetvdb.getBannerList(new TheTVDBSearchResult("Buffy the Vampire Slayer", 70327));
 		
-		assertEquals(106, banners.size());
 		assertEquals("fanart", banners.get(0).getBannerType());
 		assertEquals("1280x720", banners.get(0).getBannerType2());
 		assertEquals(486993, WebRequest.fetch(banners.get(0).getUrl()).remaining(), 0);

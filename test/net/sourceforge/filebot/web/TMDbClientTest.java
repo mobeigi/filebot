@@ -53,7 +53,6 @@ public class TMDbClientTest {
 		assertEquals("[en]", movie.getSpokenLanguages().toString());
 		assertEquals("Shia LaBeouf", movie.getActors().get(0));
 		assertEquals("Michael Bay", movie.getDirector());
-		assertEquals("Paul Rubell", movie.getCast().get(30).getName());
 		assertEquals("Editor", movie.getCast().get(30).getJob());
 	}
 	

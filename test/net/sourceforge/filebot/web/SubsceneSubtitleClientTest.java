@@ -9,10 +9,10 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.filebot.web.SubsceneSubtitleClient.SubsceneSearchResult;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import net.sourceforge.filebot.web.SubsceneSubtitleClient.SubsceneSearchResult;
 
 
 public class SubsceneSubtitleClientTest {
@@ -34,7 +34,6 @@ public class SubsceneSubtitleClientTest {
 		lostSearchResult = new SubsceneSearchResult("Lost", "Lost - Fourth Season (2008)", new URL("http://subscene.com/subtitles/lost-fourth-season"));
 	}
 	
-	
 	private SubsceneSubtitleClient subscene = new SubsceneSubtitleClient();
 	
 	
@@ -52,7 +51,6 @@ public class SubsceneSubtitleClientTest {
 	@Test
 	public void search2() throws Exception {
 		List<SearchResult> results = subscene.search("Avatar 2009");
-		assertEquals(3, results.size());
 		
 		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
 		assertEquals("Firefly - The Complete Series (2002)", result.toString());

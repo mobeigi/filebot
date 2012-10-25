@@ -5,10 +5,9 @@ package net.sourceforge.filebot.similarity;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
 import static org.junit.Assert.*;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;
-
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 
 public class SeasonEpisodeMatcherTest {
@@ -31,7 +30,7 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(new SxE(1, 1), matcher.match("1x01").get(0));
 		
 		// test multiple matches
-		assertEquals(new SxE(1, 2), matcher.match("Test - 1x01 and 1.02 - Multiple MatchCollection").get(1));
+		assertEquals(new SxE(1, 2), matcher.match("Test - 1x01 and 1x02 - Multiple MatchCollection").get(1));
 		
 		// test high values
 		assertEquals(new SxE(12, 345), matcher.match("Test - 12x345 - High Values").get(0));
