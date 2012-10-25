@@ -501,48 +501,48 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.source.zip}" />
 
 		<!-- deploy source zip first so it will be the oldest file in the release folder -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*-src.zip" />
 		</scp>
 
 		<!-- deploy fatjar -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
 		</scp>
 
 		<!-- deploy portable application package -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*-portable.zip" />
 		</scp>
 
 		<!-- deploy windows installers -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.msi" />
 		</scp>
 
 		<!-- deploy debian packages -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
 		</scp>
 
 		<!-- deploy ipkg packages -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.ipk" />
 		</scp>
 
 		<!-- deploy osx app bundle -->
 		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*.app.tar.gz" />
 		</scp>
 
 		<!-- deploy webstart jars and jnlp descriptors -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}/webstart" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}/webstart" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/webstart" />
 		</scp>
 	</target>
@@ -572,14 +572,14 @@
 		</replace>
 
 		<!-- upload -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/website" />
 		</scp>
 	</target>
 
 
 	<target name="upload-data" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.data}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.data}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}/data">
 				<include name=".htaccess" />
 				<include name="*.txt" />
@@ -589,7 +589,7 @@
 
 
 	<target name="upload-data-frs" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}/data">
 				<include name="*.gz" />
 			</fileset>
@@ -598,7 +598,7 @@
 
 
 	<target name="upload-scripts" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true">
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}">
 				<include name="scripts/**" />
 			</fileset>
@@ -609,7 +609,7 @@
 	<target name="deploy-test-package" depends="svn-update, fatjar, login">
 		<!-- deploy fatjar -->
 		<input message="Mark:" addproperty="mark" />
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" sftp="true" />
 	</target>
 
 
