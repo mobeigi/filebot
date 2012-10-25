@@ -354,6 +354,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	
 	
 	protected static String normalizeObject(Object object) {
+		if (object == null) {
+			return "";
+		}
+		
 		String result = transformCache.get(object);
 		if (result != null) {
 			return result;

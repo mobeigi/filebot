@@ -138,6 +138,11 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 				title = german;
 			}
 			
+			// enforce sanity
+			if (title == null) {
+				title = "";
+			}
+			
 			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, airdate));
 		}
 		
