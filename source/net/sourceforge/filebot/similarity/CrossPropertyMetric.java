@@ -27,15 +27,19 @@ public class CrossPropertyMetric implements SimilarityMetric {
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		Map<String, Object> m1 = getProperties(o1);
-		Map<String, Object> m2 = getProperties(o2);
+		if (m1.isEmpty())
+			return 0;
 		
+		Map<String, Object> m2 = getProperties(o2);
+		if (m2.isEmpty())
+			return 0;
+		
+		// works with commons keys
 		Set<String> keys = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		keys.addAll(m1.keySet());
 		keys.retainAll(m2.keySet());
-		
-		if (keys.isEmpty()) {
+		if (keys.isEmpty())
 			return 0;
-		}
 		
 		float feedback = 0;
 		for (String k : keys) {

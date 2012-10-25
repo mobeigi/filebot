@@ -5,6 +5,7 @@ package net.sourceforge.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -320,8 +321,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return super.getProperties(object);
 			}
 			
-			// deserialize MetaAttributes if available
-			if (object instanceof File) {
+			// deserialize MetaAttributes if enabled and available 
+			if (object instanceof File && useExtendedFileAttributes()) {
 				try {
 					return super.getProperties(new net.sourceforge.filebot.media.MetaAttributes((File) object).getMetaData());
 				} catch (Throwable e) {
