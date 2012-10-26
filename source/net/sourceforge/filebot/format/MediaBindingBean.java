@@ -5,6 +5,7 @@ package net.sourceforge.filebot.format;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
@@ -629,11 +630,14 @@ public class MediaBindingBean {
 	
 	
 	private String getOriginalFileName(File file) {
-		try {
-			return new MetaAttributes(file).getOriginalName();
-		} catch (Throwable e) {
-			return null;
+		if (useExtendedFileAttributes()) {
+			try {
+				return new MetaAttributes(file).getOriginalName();
+			} catch (Throwable e) {
+				// ignore
+			}
 		}
+		return null;
 	}
 	
 }
