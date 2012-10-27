@@ -4,9 +4,12 @@
  * Delete orphaned "clutter" files like nfo, jpg, etc and sample files
  */
 def isClutter(f) {
-	def blacklist = f.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/ && f.length() < 100 * 1024 * 1024  
-	def extension = f.hasExtension("jpg", "jpeg", "png", "gif", "nfo", "xml", "htm", "html", "log", "srt", "sub", "idx", "md5", "sfv", "txt", "rtf", "url", "db", "dna")
-	return blacklist || extension // path contains blacklisted terms or extension is blacklisted
+	def exts    = tryQuietly{ exts }            ?: /jpg|jpeg|png|gif|nfo|xml|htm|html|log|srt|sub|idx|md5|sfv|txt|rtf|url|db|dna|log/
+	def terms   = tryQuietly{ terms }           ?: /sample|trailer|extras|deleted.scenes|music.video|scrapbook/
+	def maxsize = tryQuietly{ maxsize as Long } ?: 100 * 1024 * 1024
+	
+	// path contains blacklisted terms or extension is blacklisted
+	return f.extension ==~ "(?i)($exts)" || (f.path =~ "(?i)\\b($terms)\\b" && f.length() < maxsize)
 }
 
 
@@ -14,7 +17,7 @@ def clean(f) {
 	println "Delete $f"
 	
 	// do a dry run via --action test
-	if (_args.action == 'test') { 
+	if (_args.action == 'test') {
 		return false
 	}
 	

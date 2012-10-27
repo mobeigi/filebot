@@ -20,6 +20,28 @@ try {
 	println error
 }
 
+// Extended File Attributes
+try {
+	print 'Extended Attributes: '
+	
+	if (net.sourceforge.filebot.Settings.useExtendedFileAttributes()){
+		// create new temp file
+		def f = new File('.xattr-test')
+		f.createNewFile() && f.deleteOnExit()
+		
+		// xattr write, read and verify
+		def xattr = new net.sourceforge.filebot.media.MetaAttributes(f)
+		def payload = new Date()
+		xattr.setMetaData(payload)
+		assert xattr.getMetaData() == payload
+		println "OK"
+	} else {
+		println "DISABLED"
+	}
+} catch(Throwable error) {
+	println error
+}
+
 // Java(TM) SE Runtime Environment 1.6.0_30 (headless)
 println net.sourceforge.filebot.Settings.javaRuntimeIdentifier
 
