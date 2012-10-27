@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
@@ -28,6 +29,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.script.Compilable;
 import javax.script.ScriptException;
@@ -57,6 +59,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.mediainfo.MediaInfoException;
@@ -243,6 +247,13 @@ class BindingDialog extends JDialog {
 	
 	public Object getInfoObject() {
 		try {
+			// try known object
+			Object model = infoTextField.getClientProperty("model");
+			if (model != null) {
+				return model;
+			}
+			
+			// or parse user input
 			return infoObjectFormat.parseObject(infoTextField.getText());
 		} catch (Exception e) {
 			return null;
@@ -256,7 +267,6 @@ class BindingDialog extends JDialog {
 		// allow only absolute paths
 		return file.isAbsolute() ? file : null;
 	}
-	
 	
 	protected final Action approveAction = new AbstractAction("Use Bindings", ResourceManager.getIcon("dialog.continue")) {
 		
@@ -383,7 +393,31 @@ class BindingDialog extends JDialog {
 			
 			if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
 				// update text field
-				mediaFileTextField.setText(chooser.getSelectedFile().getAbsolutePath());
+				File file = chooser.getSelectedFile();
+				
+				// set file
+				mediaFileTextField.setText(file.getAbsolutePath());
+				
+				// reset known model
+				infoTextField.putClientProperty("model", null);
+				infoTextField.setEnabled(true);
+				
+				// set info object from xattr if possible
+				if (useExtendedFileAttributes()) {
+					try {
+						MetaAttributes xattr = new MetaAttributes(file);
+						try {
+							Object object = xattr.getMetaData();
+							infoTextField.setText(infoObjectFormat.format(object));
+							infoTextField.putClientProperty("model", object);
+							infoTextField.setEnabled(false);
+						} catch (Exception e) {
+							// ignore invalid data
+						}
+					} catch (Throwable e) {
+						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
+					}
+				}
 			}
 		}
 	};
