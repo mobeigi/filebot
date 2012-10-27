@@ -200,7 +200,7 @@ class FormatDialog extends JDialog {
 		});
 		
 		// install editor suggestions popup
-		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("DOWN"), displayRecentFormatHistory);
+		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("pressed DOWN"), displayRecentFormatHistory);
 		
 		// episode mode by default
 		setMode(Mode.Episode);
