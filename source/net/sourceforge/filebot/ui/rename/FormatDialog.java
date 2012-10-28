@@ -54,6 +54,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
@@ -200,7 +202,15 @@ class FormatDialog extends JDialog {
 		});
 		
 		// install editor suggestions popup
-		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), displayRecentFormatHistory);
+		editor.setComponentPopupMenu(createRecentFormatPopup());
+		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction("Recent") {
+			
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				// display popup below format editor
+				editor.getComponentPopupMenu().show(editor, 0, editor.getHeight() + 3);
+			}
+		});
 		
 		// episode mode by default
 		setMode(Mode.Episode);
@@ -539,6 +549,43 @@ class FormatDialog extends JDialog {
 		dispose();
 	}
 	
+	
+	private JPopupMenu createRecentFormatPopup() {
+		JPopupMenu popup = new JPopupMenu();
+		popup.addPopupMenuListener(new PopupMenuListener() {
+			
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
+				JPopupMenu popup = (JPopupMenu) evt.getSource();
+				for (final String expression : mode.persistentFormatHistory()) {
+					JMenuItem item = popup.add(new AbstractAction(expression) {
+						
+						@Override
+						public void actionPerformed(ActionEvent evt) {
+							editor.setText(expression);
+						}
+					});
+					
+					item.setFont(new Font(MONOSPACED, PLAIN, 11));
+				}
+			}
+			
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+				JPopupMenu popup = (JPopupMenu) evt.getSource();
+				popup.removeAll();
+			}
+			
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent evt) {
+				// ignore
+			}
+		});
+		return popup;
+	}
+	
 	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variable")) {
 		
 		@Override
@@ -566,29 +613,6 @@ class FormatDialog extends JDialog {
 				// reevaluate everything
 				fireSampleChanged();
 			}
-		}
-	};
-	
-	protected final Action displayRecentFormatHistory = new AbstractAction("Recent") {
-		
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			JPopupMenu popup = new JPopupMenu();
-			
-			for (final String expression : mode.persistentFormatHistory()) {
-				JMenuItem item = popup.add(new AbstractAction(expression) {
-					
-					@Override
-					public void actionPerformed(ActionEvent evt) {
-						editor.setText(expression);
-					}
-				});
-				
-				item.setFont(new Font(MONOSPACED, PLAIN, 11));
-			}
-			
-			// display popup below format editor
-			popup.show(editor, 0, editor.getHeight() + 3);
 		}
 	};
 	
