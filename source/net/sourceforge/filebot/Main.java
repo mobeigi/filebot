@@ -68,14 +68,6 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String... arguments) {
-		// initialize this stuff before anything else
-		initializeCache();
-		initializeSecurityManager();
-		
-		// make sure tmpdir exists
-		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-		tmpdir.mkdirs();
-		
 		try {
 			// parse arguments
 			final ArgumentProcessor cli = new ArgumentProcessor();
@@ -92,6 +84,14 @@ public class Main {
 				System.exit(0);
 			}
 			
+			// initialize this stuff before anything else
+			initializeCache();
+			initializeSecurityManager();
+			
+			// make sure tmpdir exists
+			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+			tmpdir.mkdirs();
+			
 			if (args.clearUserData()) {
 				// clear preferences and cache
 				System.out.println("Reset preferences and clear cache");
@@ -104,6 +104,9 @@ public class Main {
 				}
 				Settings.forPackage(Main.class).clear();
 				CacheManager.getInstance().clearAll();
+				
+				// just clear all data and then exit
+				System.exit(0);
 			}
 			
 			// set unixfs system property
@@ -338,10 +341,6 @@ public class Main {
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
 	private static void initializeCache() {
-		// auto-shutdown ehcache
-		System.setProperty("net.sf.ehcache.enableShutdownHook", "true");
-		Logger.getLogger("net.sf.ehcache.CacheManager").setLevel(Level.OFF);
-		
 		// prepare cache folder for this application instance
 		File cacheRoot = new File(getApplicationFolder(), "cache");
 		
@@ -365,14 +364,19 @@ public class Main {
 						@Override
 						public void run() {
 							try {
+								CacheManager.getInstance().shutdown();
+							} catch (Exception e) {
+								// ignore, shutting down anyway
+							}
+							try {
 								lock.release();
 							} catch (Exception e) {
-								Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString());
+								// ignore, shutting down anyway
 							}
 							try {
 								handle.close();
 							} catch (Exception e) {
-								Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString());
+								// ignore, shutting down anyway
 							}
 						}
 					});
