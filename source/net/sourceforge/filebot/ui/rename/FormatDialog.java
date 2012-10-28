@@ -556,6 +556,9 @@ class FormatDialog extends JDialog {
 			
 			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
+				// make sure to reset state
+				popupMenuWillBecomeInvisible(evt);
+				
 				JPopupMenu popup = (JPopupMenu) evt.getSource();
 				for (final String expression : mode.persistentFormatHistory()) {
 					JMenuItem item = popup.add(new AbstractAction(expression) {
@@ -580,7 +583,7 @@ class FormatDialog extends JDialog {
 			
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent evt) {
-				// ignore
+				popupMenuWillBecomeInvisible(evt);
 			}
 		});
 		return popup;
