@@ -359,3 +359,20 @@ def tryQuietly(c) {
 		return null
 	}
 }
+
+/**
+ * Retry given closure until it returns successfully (indefinitely by default)
+ */
+def retry(n = -1, quiet = false, c) {
+	for(int i = 1; i <= n; i++) {
+		try {
+			return c.call()
+		} catch(Throwable e) {
+			if (i >= 0 && i >= n) {
+				throw e
+			} else if (!quiet) {
+				_log.warning("retry $i: ${e.class.simpleName}: ${e.message}")
+			}
+		}
+	}
+}
