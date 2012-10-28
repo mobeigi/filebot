@@ -208,7 +208,7 @@
 		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
 			<javaproperty name="application.deployment" value="app" />
 			<javaproperty name="unixfs" value="false" />
-			<javaproperty name="useExtendedFileAttributes" value="false" />
+			<javaproperty name="useExtendedFileAttributes" value="true" />
 			<javaproperty name="sun.net.client.defaultConnectTimeout" value="10000" />
 			<javaproperty name="sun.net.client.defaultReadTimeout" value="60000" />
 		</jarbundler>
