@@ -9,6 +9,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,11 +31,6 @@ import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
-import ca.odell.glazedlists.matchers.TextMatcherEditor;
-import ca.odell.glazedlists.swing.AutoCompleteSupport;
-
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
@@ -43,6 +39,10 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
+import ca.odell.glazedlists.BasicEventList;
+import ca.odell.glazedlists.EventList;
+import ca.odell.glazedlists.matchers.TextMatcherEditor;
+import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
 
 public abstract class AbstractSearchPanel<S, E> extends JComponent {
@@ -57,7 +57,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 	
 	protected final EventList<String> searchHistory = createSearchHistory();
 	
-
+	
 	public AbstractSearchPanel() {
 		historyPanel.setColumnHeader(2, "Duration");
 		
@@ -99,22 +99,22 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
 		
-		installAction(this, KeyStroke.getKeyStroke("ENTER"), searchAction);
+		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), searchAction);
 	}
 	
-
+	
 	protected abstract S[] getSearchEngines();
 	
-
+	
 	protected abstract LabelProvider<S> getSearchEngineLabelProvider();
 	
-
+	
 	protected abstract Settings getSettings();
 	
-
+	
 	protected abstract RequestProcessor<?, E> createRequestProcessor();
 	
-
+	
 	private void search(RequestProcessor<?, E> requestProcessor) {
 		FileBotTab<?> tab = requestProcessor.tab;
 		
@@ -130,7 +130,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		new SearchTask(requestProcessor).execute();
 	}
 	
-
+	
 	protected EventList<String> createSearchHistory() {
 		// create in-memory history
 		BasicEventList<String> history = new BasicEventList<String>();
@@ -148,9 +148,9 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		return history;
 	}
 	
-
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand() == null) {
 				// command triggered by auto-completion
@@ -161,17 +161,17 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		}
 	};
 	
-
+	
 	private class SearchTask extends SwingWorker<Collection<? extends SearchResult>, Void> {
 		
 		private final RequestProcessor<?, E> requestProcessor;
 		
-
+		
 		public SearchTask(RequestProcessor<?, E> requestProcessor) {
 			this.requestProcessor = requestProcessor;
 		}
 		
-
+		
 		@Override
 		protected Collection<? extends SearchResult> doInBackground() throws Exception {
 			long start = System.currentTimeMillis();
@@ -183,7 +183,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			}
 		}
 		
-
+		
 		@Override
 		public void done() {
 			FileBotTab<?> tab = requestProcessor.tab;
@@ -235,17 +235,17 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		}
 	}
 	
-
+	
 	private class FetchTask extends SwingWorker<Collection<E>, Void> {
 		
 		private final RequestProcessor<?, E> requestProcessor;
 		
-
+		
 		public FetchTask(RequestProcessor<?, E> requestProcessor) {
 			this.requestProcessor = requestProcessor;
 		}
 		
-
+		
 		@Override
 		protected final Collection<E> doInBackground() throws Exception {
 			long start = System.currentTimeMillis();
@@ -257,7 +257,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			}
 		}
 		
-
+		
 		@Override
 		public void done() {
 			FileBotTab<?> tab = requestProcessor.tab;
@@ -291,24 +291,24 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		}
 	}
 	
-
+	
 	protected static class Request {
 		
 		private final String searchText;
 		
-
+		
 		public Request(String searchText) {
 			this.searchText = searchText;
 		}
 		
-
+		
 		public String getSearchText() {
 			return searchText;
 		}
 		
 	}
 	
-
+	
 	protected abstract static class RequestProcessor<R extends Request, E> {
 		
 		protected final R request;
@@ -319,45 +319,45 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		private long duration = 0;
 		
-
+		
 		public RequestProcessor(R request, JComponent component) {
 			this.request = request;
 			this.tab = new FileBotTab<JComponent>(component);
 		}
 		
-
+		
 		public abstract Collection<? extends SearchResult> search() throws Exception;
 		
-
+		
 		public abstract Collection<E> fetch() throws Exception;
 		
-
+		
 		public abstract void process(Collection<E> elements);
 		
-
+		
 		public abstract URI getLink();
 		
-
+		
 		public JComponent getComponent() {
 			return tab.getComponent();
 		}
 		
-
+		
 		public SearchResult getSearchResult() {
 			return searchResult;
 		}
 		
-
+		
 		public void setSearchResult(SearchResult searchResult) {
 			this.searchResult = searchResult;
 		}
 		
-
+		
 		public String getStatusMessage(Collection<E> result) {
 			return String.format("%d elements found", result.size());
 		}
 		
-
+		
 		public String getTitle() {
 			if (searchResult != null)
 				return searchResult.getName();
@@ -365,7 +365,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			return request.getSearchText();
 		}
 		
-
+		
 		public String getHistoryEntry() {
 			SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
 			
@@ -374,12 +374,12 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			return nameMatcher.matchByFirstCommonWordSequence(searchResult.getName(), request.getSearchText());
 		}
 		
-
+		
 		public Icon getIcon() {
 			return null;
 		}
 		
-
+		
 		protected SearchResult selectSearchResult(Collection<? extends SearchResult> searchResults, Window window) throws Exception {
 			// multiple results have been found, user must select one
 			SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(window, searchResults);
@@ -391,14 +391,14 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			return selectDialog.getSelectedValue();
 		}
 		
-
+		
 		protected void configureSelectDialog(SelectDialog<SearchResult> selectDialog) {
 			selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
 			selectDialog.setIconImage(getImage(getIcon()));
 			selectDialog.setMinimumSize(new Dimension(250, 150));
 		}
 		
-
+		
 		public long getDuration() {
 			return duration;
 		}

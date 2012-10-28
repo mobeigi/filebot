@@ -16,6 +16,7 @@ import java.awt.Window;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
@@ -115,7 +116,7 @@ public final class TunedUtilities {
 		component.getDocument().addUndoableEditListener(undoSupport);
 		
 		// install undo action
-		installAction(component, KeyStroke.getKeyStroke("control Z"), new AbstractAction("Undo") {
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_MASK), new AbstractAction("Undo") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -125,7 +126,7 @@ public final class TunedUtilities {
 		});
 		
 		// install redo action
-		installAction(component, KeyStroke.getKeyStroke("control Y"), new AbstractAction("Redo") {
+		installAction(component, KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_MASK), new AbstractAction("Redo") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -255,8 +256,7 @@ public final class TunedUtilities {
 	
 	
 	/**
-	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead
-	 * of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
+	 * When trying to drag a row of a multi-select JTable, it will start selecting rows instead of initiating a drag. This TableUI will give the JTable proper dnd behaviour.
 	 */
 	public static class DragDropRowTableUI extends BasicTableUI {
 		

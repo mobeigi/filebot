@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,27 +54,28 @@ public class SelectButtonTextField<T> extends JComponent {
 		editor.setRenderer(new CompletionCellRenderer());
 		editor.setUI(new TextFieldComboBoxUI());
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ctrl UP"), new SpinClientAction(-1));
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ctrl DOWN"), new SpinClientAction(1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_MASK), new SpinClientAction(1));
 	}
 	
-
+	
 	public String getText() {
 		return ((TextFieldComboBoxUI) editor.getUI()).getEditor().getText();
 	}
 	
-
+	
 	public JComboBox getEditor() {
 		return editor;
 	}
 	
-
+	
 	public SelectButton<T> getSelectButton() {
 		return selectButton;
 	}
 	
 	private final ActionListener textFieldFocusOnClick = new ActionListener() {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			getEditor().requestFocus();
 		}
@@ -91,13 +93,14 @@ public class SelectButtonTextField<T> extends JComponent {
 			this.spin = spin;
 		}
 		
-
+		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			selectButton.spinValue(spin);
 		}
 	}
 	
-
+	
 	private class CompletionCellRenderer extends DefaultListCellRenderer {
 		
 		@Override
@@ -128,7 +131,7 @@ public class SelectButtonTextField<T> extends JComponent {
 		}
 	}
 	
-
+	
 	private class TextFieldComboBoxUI extends BasicComboBoxUI {
 		
 		@Override
@@ -136,7 +139,7 @@ public class SelectButtonTextField<T> extends JComponent {
 			return new JButton(ResourceManager.getIcon("action.list"));
 		}
 		
-
+		
 		@Override
 		public void configureArrowButton() {
 			super.configureArrowButton();
@@ -145,7 +148,7 @@ public class SelectButtonTextField<T> extends JComponent {
 			arrowButton.setFocusable(false);
 		}
 		
-
+		
 		@Override
 		protected void configureEditor() {
 			JTextComponent editor = getEditor();
@@ -164,13 +167,13 @@ public class SelectButtonTextField<T> extends JComponent {
 					popup.getList().repaint();
 				}
 				
-
+				
 				@Override
 				public void insertUpdate(DocumentEvent e) {
 					popup.getList().repaint();
 				}
 				
-
+				
 				@Override
 				public void removeUpdate(DocumentEvent e) {
 					popup.getList().repaint();
@@ -179,12 +182,12 @@ public class SelectButtonTextField<T> extends JComponent {
 			});
 		}
 		
-
+		
 		public JTextComponent getEditor() {
 			return (JTextComponent) editor;
 		}
 		
-
+		
 		@Override
 		protected ComboPopup createPopup() {
 			return new BasicComboPopup(comboBox) {
@@ -194,7 +197,7 @@ public class SelectButtonTextField<T> extends JComponent {
 					super.show(invoker, x - selectButton.getWidth(), y);
 				}
 				
-
+				
 				@Override
 				protected Rectangle computePopupBounds(int px, int py, int pw, int ph) {
 					Rectangle bounds = super.computePopupBounds(px, py, pw, ph);
@@ -205,7 +208,7 @@ public class SelectButtonTextField<T> extends JComponent {
 			};
 		}
 		
-
+		
 		@Override
 		protected FocusListener createFocusListener() {
 			return new FocusHandler() {

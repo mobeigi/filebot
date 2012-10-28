@@ -9,6 +9,7 @@ import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,12 +85,13 @@ public class ListPanel extends JComponent {
 		
 		list.add(buttonPanel, BorderLayout.SOUTH);
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("ENTER"), createAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), createAction);
 	}
 	
 
 	private AbstractAction createAction = new AbstractAction("Create") {
 		
+		@Override
 		public void actionPerformed(ActionEvent evt) {
 			
 			// clear selection

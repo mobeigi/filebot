@@ -14,6 +14,7 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -100,8 +101,7 @@ class FormatDialog extends JDialog {
 	
 	
 	public enum Mode {
-		Episode,
-		Movie;
+		Episode, Movie;
 		
 		public Mode next() {
 			if (ordinal() < values().length - 1)
@@ -200,7 +200,7 @@ class FormatDialog extends JDialog {
 		});
 		
 		// install editor suggestions popup
-		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke("pressed DOWN"), displayRecentFormatHistory);
+		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), displayRecentFormatHistory);
 		
 		// episode mode by default
 		setMode(Mode.Episode);
@@ -538,7 +538,6 @@ class FormatDialog extends JDialog {
 		setVisible(false);
 		dispose();
 	}
-	
 	
 	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variable")) {
 		

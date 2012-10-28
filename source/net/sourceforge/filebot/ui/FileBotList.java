@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -48,48 +49,48 @@ public class FileBotList<E> extends JComponent {
 		// Shortcut DELETE, disabled by default
 		removeAction.setEnabled(false);
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed DELETE"), removeAction);
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("pressed BACK_SPACE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeAction);
 	}
 	
-
+	
 	public EventList<E> getModel() {
 		return model;
 	}
 	
-
+	
 	public void setModel(EventList<E> model) {
 		this.model = model;
 		list.setModel(new EventListModel<E>(model));
 	}
 	
-
+	
 	public JList getListComponent() {
 		return list;
 	}
 	
-
+	
 	public JScrollPane getListScrollPane() {
 		return listScrollPane;
 	}
 	
-
+	
 	@Override
 	public DefaultTransferHandler getTransferHandler() {
 		return (DefaultTransferHandler) list.getTransferHandler();
 	}
 	
-
+	
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
 		getTransferHandler().setTransferablePolicy(transferablePolicy);
 	}
 	
-
+	
 	public TransferablePolicy getTransferablePolicy() {
 		return getTransferHandler().getTransferablePolicy();
 	}
 	
-
+	
 	public void setExportHandler(TextFileExportHandler exportHandler) {
 		getTransferHandler().setExportHandler(exportHandler);
 		
@@ -97,17 +98,17 @@ public class FileBotList<E> extends JComponent {
 		list.setDragEnabled(exportHandler != null);
 	}
 	
-
+	
 	public TextFileExportHandler getExportHandler() {
 		return (TextFileExportHandler) getTransferHandler().getExportHandler();
 	}
 	
-
+	
 	public String getTitle() {
 		return (String) getClientProperty("title");
 	}
 	
-
+	
 	public void setTitle(String title) {
 		putClientProperty("title", title);
 		
@@ -119,13 +120,14 @@ public class FileBotList<E> extends JComponent {
 		}
 	}
 	
-
+	
 	public Action getRemoveAction() {
 		return removeAction;
 	}
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = list.getSelectedIndex();
 			Object values[] = list.getSelectedValues();

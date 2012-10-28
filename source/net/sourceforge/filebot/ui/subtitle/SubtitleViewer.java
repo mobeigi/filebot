@@ -66,7 +66,7 @@ public class SubtitleViewer extends JFrame {
 	private Color defaultFilterForeground = filterEditor.getForeground();
 	private Color disabledFilterForeground = Color.lightGray;
 	
-
+	
 	public SubtitleViewer(String title) {
 		super(title);
 		
@@ -102,7 +102,7 @@ public class SubtitleViewer extends JFrame {
 		pack();
 	}
 	
-
+	
 	private JTable createTable(TableModel model) {
 		final JTable table = new JTable(model);
 		table.setBackground(Color.white);
@@ -141,7 +141,7 @@ public class SubtitleViewer extends JFrame {
 		});
 		
 		// focus around selected time stamp
-		installAction(table, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("focus") {
+		installAction(table, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("focus") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -168,7 +168,7 @@ public class SubtitleViewer extends JFrame {
 		return table;
 	}
 	
-
+	
 	private JTextField createFilterEditor() {
 		final JTextField editor = new JTextField() {
 			
@@ -205,13 +205,13 @@ public class SubtitleViewer extends JFrame {
 		return editor;
 	}
 	
-
+	
 	private RowFilter<?, ?> getTableFilter() {
 		TableRowSorter<?> sorter = (TableRowSorter<?>) subtitleTable.getRowSorter();
 		return sorter.getRowFilter();
 	}
 	
-
+	
 	private void setTableFilter(String filter) {
 		// filter by words
 		List<SubtitleFilter> filterList = new ArrayList<SubtitleFilter>();
@@ -230,22 +230,21 @@ public class SubtitleViewer extends JFrame {
 		filterEditor.setForeground(filterList.isEmpty() ? disabledFilterForeground : defaultFilterForeground);
 	}
 	
-
+	
 	public void setData(List<SubtitleElement> data) {
 		model.setData(data);
 	}
 	
-
+	
 	public JLabel getTitleLabel() {
 		return titleLabel;
 	}
 	
-
+	
 	public JLabel getInfoLabel() {
 		return infoLabel;
 	}
 	
-
 	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
 		
 		@Override
@@ -254,17 +253,17 @@ public class SubtitleViewer extends JFrame {
 		}
 	};
 	
-
+	
 	private static class SubtitleFilter extends RowFilter<Object, Integer> {
 		
 		private final Pattern filter;
 		
-
+		
 		public SubtitleFilter(String filter) {
 			this.filter = compile(quote(filter), CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
 		}
 		
-
+		
 		@Override
 		public boolean include(Entry<?, ? extends Integer> entry) {
 			SubtitleTableModel model = (SubtitleTableModel) entry.getModel();
@@ -275,12 +274,12 @@ public class SubtitleViewer extends JFrame {
 		
 	}
 	
-
+	
 	private static class SubtitleTableModel extends AbstractTableModel {
 		
 		private List<SubtitleElement> data = emptyList();
 		
-
+		
 		public void setData(List<SubtitleElement> data) {
 			this.data = new ArrayList<SubtitleElement>(data);
 			
@@ -288,12 +287,12 @@ public class SubtitleViewer extends JFrame {
 			fireTableDataChanged();
 		}
 		
-
+		
 		public SubtitleElement getRow(int row) {
 			return data.get(row);
 		}
 		
-
+		
 		@Override
 		public String getColumnName(int column) {
 			switch (column) {
@@ -310,19 +309,19 @@ public class SubtitleViewer extends JFrame {
 			}
 		}
 		
-
+		
 		@Override
 		public int getColumnCount() {
 			return 4;
 		}
 		
-
+		
 		@Override
 		public int getRowCount() {
 			return data.size();
 		}
 		
-
+		
 		@Override
 		public Class<?> getColumnClass(int column) {
 			switch (column) {
@@ -339,7 +338,7 @@ public class SubtitleViewer extends JFrame {
 			}
 		}
 		
-
+		
 		@Override
 		public Object getValueAt(int row, int column) {
 			switch (column) {

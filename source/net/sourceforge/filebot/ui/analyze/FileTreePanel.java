@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.analyze;
 import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -54,6 +55,7 @@ class FileTreePanel extends JComponent {
 		// update tree when loading is finished
 		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
 			
+			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (LOADING_PROPERTY.equals(evt.getPropertyName()) && !(Boolean) evt.getNewValue()) {
 					fireFileTreeChange();
@@ -62,8 +64,8 @@ class FileTreePanel extends JComponent {
 		});
 		
 		// Shortcut DELETE
-		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke("DELETE"), removeAction);
-		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke("BACK_SPACE"), removeAction);
+		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
+		TunedUtilities.installAction(fileTree, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeAction);
 	}
 	
 	
@@ -76,11 +78,11 @@ class FileTreePanel extends JComponent {
 		return transferablePolicy;
 	}
 	
-	
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			transferablePolicy.reset();
 			fileTree.clear();
@@ -90,6 +92,7 @@ class FileTreePanel extends JComponent {
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (fileTree.getSelectionCount() < 1)
 				return;

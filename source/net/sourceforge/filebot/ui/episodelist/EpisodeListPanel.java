@@ -9,6 +9,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -81,8 +82,8 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("shift UP"), new SpinSeasonAction(1));
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("shift DOWN"), new SpinSeasonAction(-1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_MASK), new SpinSeasonAction(1));
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_MASK), new SpinSeasonAction(-1));
 	}
 	
 	
@@ -115,9 +116,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season, order, language));
 	};
 	
-	
 	private final PropertyChangeListener selectButtonListener = new PropertyChangeListener() {
 		
+		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 			
@@ -139,6 +140,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		}
 		
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			seasonSpinnerModel.spin((Integer) getValue("spin"));
 		}

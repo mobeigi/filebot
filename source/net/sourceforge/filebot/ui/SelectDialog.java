@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -77,7 +78,7 @@ public class SelectDialog<T> extends JDialog {
 		setSize(new Dimension(210, 210));
 		
 		// Shortcut Enter
-		TunedUtilities.installAction(list, KeyStroke.getKeyStroke("ENTER"), selectAction);
+		TunedUtilities.installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
 	}
 	
 	
@@ -115,9 +116,9 @@ public class SelectDialog<T> extends JDialog {
 		return cancelAction;
 	}
 	
-	
 	private final Action selectAction = new AbstractAction("Select", ResourceManager.getIcon("dialog.continue")) {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			valueSelected = true;
 			close();
@@ -126,6 +127,7 @@ public class SelectDialog<T> extends JDialog {
 	
 	private final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			valueSelected = false;
 			close();

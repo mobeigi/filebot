@@ -9,6 +9,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -38,6 +39,16 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
+import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.subtitle.SubtitleFormat;
+import net.sourceforge.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
+import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
+import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.tuned.ui.ListView;
+import net.sourceforge.tuned.ui.TunedUtilities;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;
@@ -51,17 +62,6 @@ import ca.odell.glazedlists.swing.EventListModel;
 import ca.odell.glazedlists.swing.EventSelectionModel;
 import ca.odell.glazedlists.swing.TextComponentMatcherEditor;
 
-import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.subtitle.SubtitleFormat;
-import net.sourceforge.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.ui.ListView;
-import net.sourceforge.tuned.ui.TunedUtilities;
-
 
 class SubtitleDownloadComponent extends JComponent {
 	
@@ -73,7 +73,7 @@ class SubtitleDownloadComponent extends JComponent {
 	
 	private JTextField filterEditor = new JTextField();
 	
-
+	
 	public SubtitleDownloadComponent() {
 		final JList packageList = new JList(createPackageListModel());
 		packageList.setFixedCellHeight(32);
@@ -96,7 +96,7 @@ class SubtitleDownloadComponent extends JComponent {
 				return file.getName();
 			}
 			
-
+			
 			@Override
 			protected Icon convertValueToIcon(Object value) {
 				if (SUBTITLE_FILES.accept(value.toString()))
@@ -133,7 +133,7 @@ class SubtitleDownloadComponent extends JComponent {
 		add(scrollPane, "newline, hmin max(80px, 30%)");
 		
 		// install fetch action
-		TunedUtilities.installAction(packageList, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("Fetch") {
+		TunedUtilities.installAction(packageList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Fetch") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -142,7 +142,7 @@ class SubtitleDownloadComponent extends JComponent {
 		});
 		
 		// install open action
-		TunedUtilities.installAction(fileList, KeyStroke.getKeyStroke("ENTER"), new AbstractAction("Open") {
+		TunedUtilities.installAction(fileList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Open") {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -151,7 +151,7 @@ class SubtitleDownloadComponent extends JComponent {
 		});
 	}
 	
-
+	
 	protected ListModel createPackageListModel() {
 		// allow filtering by language name and subtitle name
 		MatcherEditor<SubtitlePackage> matcherEditor = new TextComponentMatcherEditor<SubtitlePackage>(filterEditor, new TextFilterator<SubtitlePackage>() {
@@ -176,7 +176,7 @@ class SubtitleDownloadComponent extends JComponent {
 		return new EventListModel<SubtitlePackage>(source);
 	}
 	
-
+	
 	protected ListModel createFileListModel() {
 		// source list
 		EventList<MemoryFile> source = getFileModel();
@@ -194,7 +194,7 @@ class SubtitleDownloadComponent extends JComponent {
 		return new EventListModel<MemoryFile>(source);
 	}
 	
-
+	
 	public void reset() {
 		// cancel and reset download workers
 		for (SubtitlePackage subtitle : packages) {
@@ -204,29 +204,29 @@ class SubtitleDownloadComponent extends JComponent {
 		files.clear();
 	}
 	
-
+	
 	public EventList<SubtitlePackage> getPackageModel() {
 		return packages;
 	}
 	
-
+	
 	public EventList<MemoryFile> getFileModel() {
 		return files;
 	}
 	
-
+	
 	public void setLanguageVisible(boolean visible) {
 		renderer.getLanguageLabel().setVisible(visible);
 	}
 	
-
+	
 	private void fetch(Object[] selection) {
 		for (Object value : selection) {
 			fetch((SubtitlePackage) value);
 		}
 	}
 	
-
+	
 	private void fetch(final SubtitlePackage subtitle) {
 		if (subtitle.getDownload().isStarted()) {
 			// download has been started already
@@ -262,7 +262,7 @@ class SubtitleDownloadComponent extends JComponent {
 		subtitle.getDownload().start();
 	}
 	
-
+	
 	private void open(Object[] selection) {
 		try {
 			for (Object object : selection) {
@@ -278,7 +278,7 @@ class SubtitleDownloadComponent extends JComponent {
 		}
 	}
 	
-
+	
 	private void open(MemoryFile file) throws IOException {
 		SubtitleViewer viewer = new SubtitleViewer(file.getName());
 		viewer.getTitleLabel().setText("Subtitle Viewer");
@@ -288,7 +288,7 @@ class SubtitleDownloadComponent extends JComponent {
 		viewer.setVisible(true);
 	}
 	
-
+	
 	private void save(Object[] selection) {
 		try {
 			if (selection.length == 1) {
@@ -321,7 +321,7 @@ class SubtitleDownloadComponent extends JComponent {
 		}
 	}
 	
-
+	
 	private void export(Object[] selection) {
 		try {
 			if (selection.length == 1) {
@@ -365,7 +365,6 @@ class SubtitleDownloadComponent extends JComponent {
 		}
 	}
 	
-
 	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
 		
 		@Override
@@ -386,19 +385,19 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 		}
 		
-
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				JList list = (JList) e.getSource();
@@ -431,7 +430,7 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 		}
 		
-
+		
 		private boolean isPending(Object[] selection) {
 			for (Object value : selection) {
 				SubtitlePackage subtitle = (SubtitlePackage) value;
@@ -459,19 +458,19 @@ class SubtitleDownloadComponent extends JComponent {
 			}
 		}
 		
-
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);
 		}
 		
-
+		
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				JList list = (JList) e.getSource();

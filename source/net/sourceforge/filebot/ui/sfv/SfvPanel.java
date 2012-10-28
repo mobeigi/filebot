@@ -7,6 +7,7 @@ import static net.sourceforge.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -90,8 +91,8 @@ public class SfvPanel extends JComponent {
 		putClientProperty("transferablePolicy", transferablePolicy);
 		
 		// Shortcut DELETE
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("DELETE"), removeAction);
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke("BACK_SPACE"), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeAction);
 	}
 	
 	
@@ -128,13 +129,13 @@ public class SfvPanel extends JComponent {
 		}
 	}
 	
-	
 	private final SaveAction saveAction = new ChecksumTableSaveAction();
 	
 	private final LoadAction loadAction = new LoadAction(transferablePolicy);
 	
 	private final AbstractAction clearAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			transferablePolicy.reset();
 			computationService.reset();
@@ -145,6 +146,7 @@ public class SfvPanel extends JComponent {
 	
 	private final AbstractAction removeAction = new AbstractAction("Remove") {
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (table.getSelectedRowCount() < 1)
 				return;

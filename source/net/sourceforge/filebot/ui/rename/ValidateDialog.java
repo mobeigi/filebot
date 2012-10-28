@@ -12,6 +12,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -93,7 +94,7 @@ class ValidateDialog extends JDialog {
 		content.add(new JButton(continueAction), "gap related");
 		content.add(new JButton(cancelAction), "gap 12mm");
 		
-		installAction(content, KeyStroke.getKeyStroke("ESCAPE"), cancelAction);
+		installAction(content, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), cancelAction);
 		
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setMinimumSize(new Dimension(365, 280));
@@ -117,7 +118,6 @@ class ValidateDialog extends JDialog {
 		setVisible(false);
 		dispose();
 	}
-	
 	
 	private final Action validateAction = new AbstractAction("Validate", ResourceManager.getIcon("dialog.continue")) {
 		
