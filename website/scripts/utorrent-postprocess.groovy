@@ -188,13 +188,14 @@ if (gmail && !getRenameLog().isEmpty()) {
 	
 	// send html mail
 	def renameLog = getRenameLog()
+	def emailTitle = tryQuietly { ut_title } ?: input*.dir.unique()
 	
 	sendGmail(
-		subject: '[FileBot] ' + ut_title,
+		subject: "[FileBot] ${emailTitle}",
 		message: XML {
 			html {
 				body {
-					p("FileBot finished processing ${ut_title} (${renameLog.size()} files).");
+					p("FileBot finished processing ${emailTitle} (${renameLog.size()} files).");
 					hr(); table {
 						th("Parameter"); th("Value")
 						_args.bindings.findAll{ param -> param.key =~ /^ut_/ }.each{ param ->
