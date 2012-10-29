@@ -17,6 +17,8 @@ import java.security.Permissions;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PropertyPermission;
 
@@ -131,6 +133,14 @@ class ScriptShell {
 		bindings.put("_script", new File(args.script));
 		bindings.put("_args", args);
 		bindings.put("_shell", this);
+		
+		Map<String, String> defines = new LinkedHashMap<String, String>();
+		if (args.bindings != null) {
+			for (Entry<String, String> it : args.bindings) {
+				defines.put(it.getKey(), it.getValue());
+			}
+		}
+		bindings.put("_def", defines);
 		
 		bindings.put("_types", MediaTypes.getDefault());
 		bindings.put("_log", CLILogger);

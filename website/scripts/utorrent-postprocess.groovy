@@ -188,7 +188,7 @@ if (gmail && !getRenameLog().isEmpty()) {
 	
 	// send html mail
 	def renameLog = getRenameLog()
-	def emailTitle = tryQuietly { ut_title } ?: input*.dir.unique()
+	def emailTitle = tryQuietly { ut_title } ?: input*.dir.name.unique()
 	
 	sendGmail(
 		subject: "[FileBot] ${emailTitle}",
