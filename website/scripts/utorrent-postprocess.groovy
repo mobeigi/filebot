@@ -44,19 +44,30 @@ def forceIgnore(f) {
 }
 
 
+// specify how to resolve input folders, e.g. grab files from all folders except disk folders
+def resolveInput(f) {
+	if (f.isDirectory() && !f.isDisk())
+		return f.listFiles().toList().findResults{ resolveInput(it) }
+	else
+		return f
+}
+
 // collect input fileset as specified by the given --def parameters
 if (args.empty) {
 	// assume we're called with utorrent parameters
 	if (ut_kind == 'single') {
 		input += new File(ut_dir, ut_file) // single-file torrent
 	} else {
-		input += new File(ut_dir).getFiles() // multi-file torrent
+		input += resolveInput(ut_dir as File) // multi-file torrent
 	}
 } else {
 	// assume we're called normally with arguments
-	input += args.getFiles()
+	input += args.findResults{ resolveInput(it) }
 }
 
+
+// flatten nested file structure
+input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
 input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
@@ -65,7 +76,7 @@ input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() }
+input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/) }

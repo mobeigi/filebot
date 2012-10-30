@@ -194,8 +194,8 @@ def isEpisode(path, strict = true) {
 	return MediaDetection.isEpisode(input, strict)
 }
 
-def guessMovieFolder(path) {
-	return MediaDetection.guessMovieFolder(path as File)
+def guessMovieFolder(File path) {
+	return MediaDetection.guessMovieFolder(path)
 }
 
 def parseEpisodeNumber(path, strict = true) {
@@ -214,7 +214,7 @@ def detectSeriesName(files, locale = Locale.ENGLISH) {
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
-def detectMovie(movieFile, strict = true, queryLookupService = TheMovieDB, hashLookupService = OpenSubtitles, locale = Locale.ENGLISH) {
+def detectMovie(File movieFile, strict = true, queryLookupService = TheMovieDB, hashLookupService = OpenSubtitles, locale = Locale.ENGLISH) {
 	def movies = MediaDetection.detectMovie(movieFile, hashLookupService, queryLookupService, locale, strict)
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
