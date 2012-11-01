@@ -43,6 +43,7 @@
 ^Season.[0-9]+
 ^Seeding$
 ^Seeds$
+^Sort$
 ^Staging$
 ^Storage$
 ^Test$
@@ -151,6 +152,7 @@ SYNC
 SYNCFIX
 TC
 theatrical.cut
+ToSort
 TPB
 TRUEFRENCH
 TS

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <update>
-	<name>FileBot 3.0</name>
-	<revision>1200</revision>
+	<name>FileBot 3.1</name>
+	<revision>1287</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.0</b><br>
+		<b>FileBot 3.1</b><br>
 		This release features:<br>
-		+ Lots of UI enhancements<br>
-		+ Improved movie/series/episode detection<br>
-		+ Updated Subscene/Sublight plugins<br>
-		+ Major upgrades for Scripting<br>
+		+ Enhanced TheTVDB series lookup<br>
+		+ Improved episode matching<br>
+		+ Rename folders via Link-Drop<br>
+		+ Support ed2k hash algorithm<br>
+		+ Support Extended Attributes<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=227#p1621]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=331]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
