@@ -62,4 +62,10 @@ public class MetaAttributes {
 		return JsonReader.toJava(metaAttributeView.get(METADATA_KEY));
 	}
 	
+	
+	public void clear() {
+		metaAttributeView.remove(FILENAME_KEY);
+		metaAttributeView.remove(METADATA_KEY);
+	}
+	
 }
