@@ -52,7 +52,7 @@ public enum NativeRenameAction implements RenameAction {
 		// configure parameter structure
 		SHFILEOPSTRUCT op = new SHFILEOPSTRUCT();
 		op.wFunc = (action == MOVE) ? ShellAPI.FO_MOVE : ShellAPI.FO_COPY;
-		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCONFIRMMKDIR;
+		op.fFlags = Shell32.FOF_MULTIDESTFILES | Shell32.FOF_NOCONFIRMATION | Shell32.FOF_NOCONFIRMMKDIR;
 		
 		op.pFrom = new WString(op.encodePaths(src));
 		op.pTo = new WString(op.encodePaths(dst));
