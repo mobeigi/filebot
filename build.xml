@@ -307,11 +307,11 @@
 		<mkdir dir="${dir.dist}/portable" />
 		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
 		<copy todir="${dir.dist}/portable">
-			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.sh" />
+			<fileset dir="${dir.installer}/portable" includes="*.exe, *.ini, *.cmd, *.sh" />
 		</copy>
 
 		<zip destfile="${dir.dist}/FileBot_${version}-portable.zip">
-			<zipfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini" />
+			<zipfileset dir="${dir.dist}/portable" includes="*.jar, *.exe, *.ini, *.cmd" />
 			<zipfileset dir="${dir.dist}/portable" includes="*.sh" filemode="755" />
 		</zip>
 	</target>
