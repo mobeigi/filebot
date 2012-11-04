@@ -123,6 +123,20 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("d")
+	public Object getReleaseDate() {
+		if (infoObject instanceof Episode) {
+			return getEpisode().airdate();
+		}
+		if (infoObject instanceof Movie) {
+			return getMetaInfo().getProperty("released");
+		}
+		
+		// no date info for the model
+		return null;
+	}
+	
+	
 	@Define("airdate")
 	public Date airdate() {
 		return getEpisode().airdate();
