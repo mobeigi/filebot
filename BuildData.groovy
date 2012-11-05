@@ -81,21 +81,23 @@ osdb_tsv.getText('UTF-8').eachLine{
 osdb = osdb.findAll{ it[0] <= 9999999 && it[2] >= 1930 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
 
 
-osdb.each{ row ->
-	// update new data
-	if (!imdb_ids.contains(row[0])) {
-		// get original title and english title
-		[Locale.ROOT, Locale.ENGLISH].collect{ locale -> net.sourceforge.filebot.WebServices.IMDb.getMovieDescriptor(row[0] as int, locale) }.unique{ it as String }.each { mov ->
-			if (mov != null && mov.name.length() > 0 && mov.year > 0) {
-				println "Adding $mov"
-				imdb << [row[0], mov.name, mov.year]
-			} else {
-				println "Blacklisting $row"
-				imdb << [row[0], null]
+parallel(osdb.collect{ row ->
+	return {		
+		// update new data
+		if (!imdb_ids.contains(row[0])) {
+			// get original title and english title
+			[Locale.ROOT, Locale.ENGLISH].collect{ locale -> net.sourceforge.filebot.WebServices.IMDb.getMovieDescriptor(row[0] as int, locale) }.unique{ it as String }.each { mov ->
+				if (mov != null && mov.name.length() > 0 && mov.year > 0) {
+					println "Adding $mov"
+					imdb << [row[0], mov.name, mov.year]
+				} else {
+					println "Blacklisting $row"
+					imdb << [row[0], null]
+				}
 			}
 		}
 	}
-}
+}, 20)
 
 // save updated imdb data
 imdb.collect{ it.join('\t') }.sort().join('\n').saveAs(imdb_tsv)

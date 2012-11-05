@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <update>
 	<name>FileBot 3.1</name>
-	<revision>1292</revision>
+	<revision>1296</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.1</b><br>
+		<b>FileBot 3.1 (r1296)</b><br>
 		This release features:<br>
 		+ Enhanced TheTVDB series lookup<br>
 		+ Improved episode matching<br>
