@@ -54,8 +54,8 @@ def resolveInput(f) {
 
 // collect input fileset as specified by the given --def parameters
 if (args.empty) {
-	// assume we're called with utorrent parameters
-	if (ut_kind == 'single') {
+	// assume we're called with utorrent parameters (account for older and newer versions of uTorrents)
+	if (ut_kind == 'single' || (ut_kind != 'multi' && ut_dir && ut_file)) {
 		input += new File(ut_dir, ut_file) // single-file torrent
 	} else {
 		input += resolveInput(ut_dir as File) // multi-file torrent
@@ -85,7 +85,7 @@ input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|
 input.each{ f -> _log.finest("Input: $f") }
 
 // artwork/nfo utility
-include("lib/htpc")
+include('fn:lib/htpc')
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
@@ -195,7 +195,7 @@ plex?.each{
 // send status email
 if (gmail && !getRenameLog().isEmpty()) {
 	// ant/mail utility
-	include('lib/ant')
+	include('fn:lib/ant')
 	
 	// send html mail
 	def renameLog = getRenameLog()
