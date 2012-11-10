@@ -407,7 +407,8 @@ public class MediaDetection {
 		}
 		
 		// search by file name or folder name
-		List<String> terms = new ArrayList<String>();
+		Collection<String> terms = new LinkedHashSet<String>();
+		
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
 		terms.add(reduceMovieName(getName(movieFile)));
 		
@@ -494,10 +495,17 @@ public class MediaDetection {
 	}
 	
 	
-	public static File guessMovieFolder(File movieFile) throws IOException {
+	public static File guessMovieFolder(File movieFile) throws Exception {
 		// special case for folder mode 
 		if (movieFile.isDirectory()) {
-			return movieFile;
+			File f = movieFile;
+			
+			// check for double nested structures 
+			if (matchMovieFile(f.getParentFile()) != null && matchMovieFile(f) == null) {
+				return f.getParentFile();
+			} else {
+				return f;
+			}
 		}
 		
 		// first meaningful parent folder (max 2 levels deep)
@@ -505,10 +513,22 @@ public class MediaDetection {
 		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
-				return f;
+				// check for double nested structures 
+				if (matchMovieFile(f.getParentFile()) != null && matchMovieFile(f) == null) {
+					return f.getParentFile();
+				} else {
+					return f;
+				}
 			}
 		}
+		
 		return null;
+	}
+	
+	
+	private static Movie matchMovieFile(File file) throws Exception {
+		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 0) : null;
+		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 	
 	private static List<Entry<String, Movie>> movieIndex;
@@ -533,7 +553,7 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<Movie> matchMovieName(final List<String> files, boolean strict, int maxStartIndex) throws Exception {
+	public static List<Movie> matchMovieName(final Collection<String> files, boolean strict, int maxStartIndex) throws Exception {
 		// cross-reference file / folder name with movie list
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
@@ -570,7 +590,7 @@ public class MediaDetection {
 	}
 	
 	
-	public static List<Movie> matchMovieFromStringWithoutSpacing(List<String> names, boolean strict) throws IOException {
+	public static List<Movie> matchMovieFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
 		Pattern spacing = Pattern.compile("[\\p{Punct}\\p{Space}]+");
 		
 		List<String> terms = new ArrayList<String>(names.size());
@@ -605,7 +625,7 @@ public class MediaDetection {
 	}
 	
 	
-	private static Collection<Movie> queryMovieByFileName(List<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
+	private static Collection<Movie> queryMovieByFileName(Collection<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
 		// remove blacklisted terms
 		Set<String> querySet = new LinkedHashSet<String>();
 		querySet.addAll(stripReleaseInfo(files, true));
@@ -654,7 +674,7 @@ public class MediaDetection {
 		List<File> nfoFiles = new ArrayList<File>();
 		if (file.isDirectory()) {
 			nfoFiles.addAll(filter(listFiles(singleton(file), 10, false), NFO_FILES));
-		} else {
+		} else if (file.getParentFile().isDirectory()) {
 			addAll(nfoFiles, file.getParentFile().listFiles(NFO_FILES));
 		}
 		
