@@ -248,7 +248,7 @@ public class MediaDetection {
 					}
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
+				// ignore
 			}
 		}
 		
@@ -378,7 +378,7 @@ public class MediaDetection {
 					// can't read meta attributes => ignore
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
+				// ignore
 			}
 		}
 		
