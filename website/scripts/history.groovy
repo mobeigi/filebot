@@ -6,7 +6,7 @@ def template = new groovy.text.GStringTemplateEngine().createTemplate(format)
 
 // use args to list history only for the given folders if desired
 def accept(from, to) {
-	args.empty ? true : args.find{ to.absolutePath.startsWith(it.absolutePath) }
+	args.empty ? true : args.find{ to.absolutePath.startsWith(it.absolutePath) } && to.exists()
 }
 
 
