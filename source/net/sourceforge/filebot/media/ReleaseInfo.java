@@ -129,7 +129,7 @@ public class ReleaseInfo {
 				Pattern queryBlacklist = getBlacklistPattern();
 				
 				stopwords = new Pattern[] { languageTag, videoSource, videoFormat, resolution, languageSuffix };
-				blacklist = new Pattern[] { clutterBracket, releaseGroup, languageTag, videoSource, videoFormat, resolution, languageSuffix, queryBlacklist };
+				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoFormat, resolution, languageSuffix };
 				
 				// cache compiled patterns for common usage
 				this.stopwords.put(strict, stopwords);

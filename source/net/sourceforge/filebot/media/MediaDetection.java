@@ -283,7 +283,8 @@ public class MediaDetection {
 			
 			// check all filenames if necessary
 			if (matches.isEmpty()) {
-				matches = matchSeriesByName(stripReleaseInfo(filenames, true), 0);
+				matches.addAll(matchSeriesByName(filenames, 0));
+				matches.addAll(matchSeriesByName(stripReleaseInfo(filenames, false), 0));
 			}
 			
 			// use lenient sub sequence matching only as fallback
