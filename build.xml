@@ -209,8 +209,9 @@
 			<javaproperty name="application.deployment" value="app" />
 			<javaproperty name="unixfs" value="false" />
 			<javaproperty name="useExtendedFileAttributes" value="true" />
+			<javaproperty name="java.net.useSystemProxies" value="true" />
 			<javaproperty name="sun.net.client.defaultConnectTimeout" value="10000" />
-			<javaproperty name="sun.net.client.defaultReadTimeout" value="60000" />
+			<javaproperty name="sun.net.client.defaultReadTimeout"    value="60000" />
 		</jarbundler>
 
 		<!-- shell scripts -->
