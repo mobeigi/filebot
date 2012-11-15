@@ -728,6 +728,7 @@ iD
 iDiB
 idTV
 iFN
+iFPD
 iGNHD
 iGNiTE
 iGNiTiON
@@ -1298,6 +1299,7 @@ SOF
 Softfeng
 SomeTV
 SONS
+SOV
 SoW
 SoXu
 SPABLAUW
@@ -1446,6 +1448,7 @@ TvD
 TVFi
 TvNORGE
 TVP
+TVS
 TvTiME
 TVTUPA
 TW
@@ -1489,6 +1492,7 @@ VIAZAC
 ViCiOsO
 ViD
 VideoCD
+VideoStar
 ViKAT
 ViLD
 ViNYL
