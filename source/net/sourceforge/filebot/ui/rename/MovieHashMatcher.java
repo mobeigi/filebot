@@ -289,13 +289,28 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 	
+	protected String checkedStripReleaseInfo(File file) throws Exception {
+		String name = stripReleaseInfo(getName(file));
+		
+		// try to redeem possible false negative matches
+		if (name.length() < 2) {
+			Movie match = checkMovie(file);
+			if (match != null) {
+				return match.getName();
+			}
+		}
+		
+		return name;
+	}
+	
+	
 	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
 		// 1. movie by filename
-		final String fileQuery = stripReleaseInfo(getName(movieFile));
+		final String fileQuery = checkedStripReleaseInfo(movieFile);
 		
 		// 2. movie by directory
 		final File movieFolder = guessMovieFolder(movieFile);
-		final String folderQuery = (movieFolder == null) ? "" : stripReleaseInfo(movieFolder.getName());
+		final String folderQuery = (movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder);
 		
 		// auto-ignore invalid files
 		if (fileQuery.length() < 2 && folderQuery.length() < 2) {

@@ -501,7 +501,7 @@ public class MediaDetection {
 			File f = movieFile;
 			
 			// check for double nested structures 
-			if (matchMovieFile(f.getParentFile()) != null && matchMovieFile(f) == null) {
+			if (checkMovie(f.getParentFile()) != null && checkMovie(f) == null) {
 				return f.getParentFile();
 			} else {
 				return f;
@@ -514,7 +514,7 @@ public class MediaDetection {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
 				// check for double nested structures 
-				if (matchMovieFile(f.getParentFile()) != null && matchMovieFile(f) == null) {
+				if (checkMovie(f.getParentFile()) != null && checkMovie(f) == null) {
 					return f.getParentFile();
 				} else {
 					return f;
@@ -526,7 +526,7 @@ public class MediaDetection {
 	}
 	
 	
-	private static Movie matchMovieFile(File file) throws Exception {
+	public static Movie checkMovie(File file) throws Exception {
 		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 0) : null;
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}

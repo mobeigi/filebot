@@ -40,6 +40,7 @@
 ^other$
 ^Romance$
 ^Science.Fiction$
+^Scratch$
 ^Season.[0-9]+
 ^Seeding$
 ^Seeds$
