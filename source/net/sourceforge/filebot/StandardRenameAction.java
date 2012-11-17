@@ -78,6 +78,20 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 	
+	RENAME {
+		
+		@Override
+		public File rename(File from, File to) throws IOException {
+			// rename only the filename
+			File dest = new File(from.getParentFile(), to.getName());
+			
+			if (!from.renameTo(dest))
+				throw new IOException("Rename failed: " + dest);
+			
+			return dest;
+		}
+	},
+	
 	TEST {
 		
 		@Override

@@ -29,6 +29,7 @@
 ^Downloads$
 ^DVD
 ^Erotic$
+^Extract$
 ^Film[s]?
 ^Finished
 ^Horror$
@@ -72,8 +73,8 @@ Demonoid
 Director's.Cut
 Directors.Cut
 Discovery.Channel
-DLLValley.eu
 DLLValley
+DLLValley.eu
 docu
 Dual.Audio
 dubbed
