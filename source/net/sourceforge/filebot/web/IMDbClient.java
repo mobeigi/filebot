@@ -98,7 +98,7 @@ public class IMDbClient implements MovieIdentificationService {
 			try {
 				int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
 				Movie movie = getMovieDescriptor(imdbid, locale);
-				if (movie == null) {
+				if (movie != null) {
 					results.add(movie);
 				}
 			} catch (Exception e) {
