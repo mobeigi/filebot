@@ -96,7 +96,7 @@ public class FanartTV {
 	
 	public String getResource(String category, String id, String format, String type, int sort, int limit) throws MalformedURLException {
 		// e.g. http://fanart.tv/webservice/series/780b986b22c35e6f7a134a2f392c2deb/70327/xml/all/1/2
-		return String.format("http://fanart.tv/webservice/%s/%s/%s/%s/%s/%s/%s", category, apikey, id, format, type, sort, limit);
+		return String.format("http://api.fanart.tv/webservice/%s/%s/%s/%s/%s/%s/%s", category, apikey, id, format, type, sort, limit);
 	}
 	
 	
