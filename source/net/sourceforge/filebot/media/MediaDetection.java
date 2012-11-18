@@ -310,7 +310,7 @@ public class MediaDetection {
 		// don't allow duplicates
 		Map<String, String> unique = new LinkedHashMap<String, String>();
 		for (String it : names) {
-			unique.put(it.toLowerCase(), it);
+			unique.put(normalizePunctuation(it).toLowerCase(), it);
 		}
 		return new ArrayList<String>(unique.values());
 	}
