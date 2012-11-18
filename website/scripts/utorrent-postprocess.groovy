@@ -32,7 +32,7 @@ def forceMovie(f) {
 }
 
 def forceSeries(f) {
-	parseEpisodeNumber(f) || parseDate(f) || tryQuietly{ ut_label } =~ /^(?i:TV)/
+	parseEpisodeNumber(f) || parseDate(f) || tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/
 }
 
 def forceAnime(f) {

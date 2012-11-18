@@ -36,6 +36,7 @@
 ^HVDVD_TS$
 ^In.Progress$
 ^Incoming$
+^mnt$
 ^Movie[s]?
 ^new$
 ^other$
@@ -52,6 +53,7 @@
 ^Torrent[s]?
 ^Tracker
 ^Trailer
+^user$
 ^VCD$
 ^VIDEO_TS$
 A.Release.Lounge
