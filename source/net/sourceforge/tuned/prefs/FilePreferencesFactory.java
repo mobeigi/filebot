@@ -7,9 +7,6 @@ import java.io.File;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * PreferencesFactory implementation that stores the preferences in a user-defined file. To use it, set the system
@@ -24,8 +21,6 @@ import org.slf4j.LoggerFactory;
  */
 public class FilePreferencesFactory implements PreferencesFactory {
 	
-	private static final Logger log = LoggerFactory.getLogger(FilePreferencesFactory.class.getName());
-	
 	Preferences rootPreferences;
 	
 	public static final String SYSTEM_PROPERTY_FILE = "net.sourceforge.tuned.prefs.file";
@@ -38,14 +33,11 @@ public class FilePreferencesFactory implements PreferencesFactory {
 	
 	public Preferences userRoot() {
 		if (rootPreferences == null) {
-			log.debug("Instantiating root preferences");
-			
 			rootPreferences = new FilePreferences(null, "");
 		}
 		
 		return rootPreferences;
 	}
-	
 	
 	private static File preferencesFile;
 	
@@ -59,8 +51,6 @@ public class FilePreferencesFactory implements PreferencesFactory {
 			}
 			
 			preferencesFile = new File(prefsFile).getAbsoluteFile();
-			
-			log.info("Preferences file is {}", preferencesFile);
 		}
 		
 		return preferencesFile;
