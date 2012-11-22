@@ -132,7 +132,8 @@ class HistoryDialog extends JDialog {
 		
 		content.add(new JButton(importAction), "wmin button, hmin 25px, gap indent, sg button");
 		content.add(new JButton(new SaveAction("Export", null, exportHandler)), "gap rel, sg button");
-		content.add(new JButton(closeAction), "gap left unrel:push, gap right indent, sg button");
+		content.add(new JButton(new RevertCurrentSelectionAction()), "gap left unrel:push, sgy button");
+		content.add(new JButton(closeAction), "gap left unrel, gap right indent, sg button");
 		
 		JComponent pane = (JComponent) getContentPane();
 		pane.setLayout(new MigLayout("fill, insets 0, nogrid"));
@@ -315,7 +316,6 @@ class HistoryDialog extends JDialog {
 		return table;
 	}
 	
-	
 	private final Action closeAction = new AbstractAction("Close") {
 		
 		@Override
@@ -377,7 +377,7 @@ class HistoryDialog extends JDialog {
 				
 				if (selection.size() > 0) {
 					JPopupMenu menu = new JPopupMenu();
-					menu.add(new RevertAction(selection, HistoryDialog.this));
+					menu.add(new RevertSelectionAction(selection));
 					
 					// display popup
 					menu.show(table, e.getX(), e.getY());
@@ -387,22 +387,65 @@ class HistoryDialog extends JDialog {
 	};
 	
 	
-	private static class RevertAction extends AbstractAction {
+	private class RevertCurrentSelectionAction extends RevertAction {
+		
+		public RevertCurrentSelectionAction() {
+			super("Revert Selection", HistoryDialog.this);
+		}
+		
+		
+		@Override
+		public List<Element> elements() {
+			List<Element> selection = new ArrayList<Element>();
+			
+			if (sequenceTable.getSelectedRow() >= 0) {
+				for (int i : sequenceTable.getSelectedRows()) {
+					int index = sequenceTable.convertRowIndexToModel(i);
+					selection.addAll(sequenceModel.getRow(index).elements());
+				}
+			} else if (elementTable.getSelectedRow() >= 0) {
+				for (int i : elementTable.getSelectedRows()) {
+					int index = elementTable.convertRowIndexToModel(i);
+					selection.add(elementModel.getRow(index));
+				}
+			}
+			
+			return selection;
+		}
+	}
+	
+	
+	private class RevertSelectionAction extends RevertAction {
 		
 		public static final String ELEMENTS = "elements";
+		
+		
+		public RevertSelectionAction(Collection<Element> elements) {
+			super("Revert...", HistoryDialog.this);
+			putValue(ELEMENTS, elements.toArray(new Element[0]));
+		}
+		
+		
+		@Override
+		public List<Element> elements() {
+			return Arrays.asList((Element[]) getValue(ELEMENTS));
+		}
+	}
+	
+	
+	private static abstract class RevertAction extends AbstractAction {
+		
 		public static final String PARENT = "parent";
 		
 		
-		public RevertAction(Collection<Element> elements, HistoryDialog parent) {
-			putValue(NAME, "Revert...");
-			putValue(ELEMENTS, elements.toArray(new Element[0]));
+		public RevertAction(String name, HistoryDialog parent) {
+			putValue(NAME, name);
+			putValue(SMALL_ICON, ResourceManager.getIcon("action.revert"));
 			putValue(PARENT, parent);
 		}
 		
 		
-		public Element[] elements() {
-			return (Element[]) getValue(ELEMENTS);
-		}
+		public abstract List<Element> elements();
 		
 		
 		public HistoryDialog parent() {
@@ -437,6 +480,10 @@ class HistoryDialog extends JDialog {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			List<Element> elements = elements();
+			if (elements.isEmpty())
+				return;
+			
 			// use default directory
 			File directory = null;
 			
@@ -451,7 +498,7 @@ class HistoryDialog extends JDialog {
 				Set<Option> options;
 				
 				if (missingFiles.isEmpty()) {
-					message = String.format("Are you sure you want to rename %d file(s)?", elements().length);
+					message = String.format("Are you sure you want to rename %d file(s)?", elements.size());
 					type = QUESTION_MESSAGE;
 					options = EnumSet.of(Option.Rename, Option.ChangeDirectory, Option.Cancel);
 				} else {
@@ -500,12 +547,12 @@ class HistoryDialog extends JDialog {
 			
 			// rename files
 			if (selectedOption == Option.Rename) {
-				rename(directory);
+				rename(directory, elements);
 			}
 		}
 		
 		
-		private void rename(File directory) {
+		private void rename(File directory, List<Element> elements) {
 			int count = 0;
 			
 			for (Entry<File, File> entry : getRenameMap(directory).entrySet()) {
@@ -519,11 +566,11 @@ class HistoryDialog extends JDialog {
 			
 			JLabel status = parent().getInfoLabel();
 			
-			if (count == elements().length) {
+			if (count == elements.size()) {
 				status.setText(String.format("%d file(s) have been renamed.", count));
 				status.setIcon(ResourceManager.getIcon("status.ok"));
 			} else {
-				status.setText(String.format("Failed to revert %d file(s).", elements().length - count, elements().length));
+				status.setText(String.format("Failed to revert %d file(s).", elements.size() - count, elements.size()));
 				status.setIcon(ResourceManager.getIcon("status.error"));
 			}
 			
@@ -567,7 +614,6 @@ class HistoryDialog extends JDialog {
 			return missingFiles;
 		}
 	}
-	
 	
 	private final FileTransferablePolicy importHandler = new FileTransferablePolicy() {
 		
