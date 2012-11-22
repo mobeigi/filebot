@@ -69,7 +69,7 @@ public class ReleaseInfo {
 		// match locale identifier and lookup Locale object
 		Map<String, Locale> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
 		
-		String lang = matchLast(getLanguageSuffixPattern(languages.keySet()), null, name);
+		String lang = matchLast(getLanguageSuffixPattern(languages.keySet(), false), null, name);
 		if (lang == null)
 			return null;
 		
@@ -121,7 +121,7 @@ public class ReleaseInfo {
 				Set<String> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault()).keySet();
 				Pattern clutterBracket = getClutterBracketPattern(strict);
 				Pattern releaseGroup = getReleaseGroupPattern(strict);
-				Pattern languageSuffix = getLanguageSuffixPattern(languages);
+				Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
 				Pattern languageTag = getLanguageTagPattern(languages);
 				Pattern videoSource = getVideoSourcePattern();
 				Pattern videoFormat = getVideoFormatPattern();
@@ -181,9 +181,9 @@ public class ReleaseInfo {
 	}
 	
 	
-	public Pattern getLanguageSuffixPattern(Collection<String> languages) {
+	public Pattern getLanguageSuffixPattern(Collection<String> languages, boolean strict) {
 		// .en.srt
-		return compile("(?<=[\\p{Punct}\\p{Space}])(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", CASE_INSENSITIVE | UNICODE_CASE);
+		return compile("(?<=" + (strict ? "[.]" : "[\\p{Punct}\\p{Space}]") + ")(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", (strict ? 0 : CASE_INSENSITIVE) | UNICODE_CASE);
 	}
 	
 	
@@ -422,7 +422,7 @@ public class ReleaseInfo {
 			for (Locale language : new HashSet<Locale>(asList(supportedDisplayLocale))) {
 				// make sure language name is properly normalized so accents and whatever don't break the regex pattern syntax
 				String languageName = Normalizer.normalize(locale.getDisplayLanguage(language), Form.NFKD);
-				languageMap.put(languageName, locale);
+				languageMap.put(languageName.toLowerCase(), locale);
 			}
 		}
 		
