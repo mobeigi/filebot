@@ -115,7 +115,7 @@ abstract class SubtitleDropTarget extends JButton {
 		// initialize window properties
 		dialog.setIconImage(getImage(getIcon(DropAction.Download)));
 		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialog.setSize(670, 575);
+		dialog.setSize(700, 575);
 		
 		// show dialog
 		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
