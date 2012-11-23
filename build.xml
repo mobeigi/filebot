@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <project name="filebot" default="fatjar">
+	<!-- include default inputs (optional) -->
+	<property file="profile.properties" />
 
 	<!-- include application properties -->
 	<property file="source/net/sourceforge/filebot/Settings.properties" />
@@ -29,7 +31,7 @@
 
 	<property name="deploy.data" value="web.sourceforge.net:htdocs/data" />
 	<property name="deploy.data.frs" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/data" />
-	
+
 
 	<target name="jar" depends="build">
 		<!-- create dist dir -->
@@ -245,7 +247,7 @@
 	<target name="deb-arch">
 		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="default-jre-headless" recommends="default-jre" suggests="openjdk-7-jre" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
-			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
+			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your movies, tv shows or anime and downloading subtitles. It's smart, streamlined for simplicity and just works. Plus there's a full-featured command-line interface for all sorts of automation.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
 			<tarfileset prefix="usr/share/filebot" file="${dir.installer}/icons/icon.svg" />
@@ -579,6 +581,29 @@
 	</target>
 
 
+	<target name="chocolatey-push" description="chocolatey package">
+		<copy todir="${dir.dist}/chocolatey">
+			<fileset dir="${dir.installer}/chocolatey" />
+		</copy>
+
+		<!-- replace variables for new release -->
+		<replace dir="${dir.dist}/chocolatey" encoding="utf-8" summary="yes">
+			<include name="**/*.ps1" />
+			<include name="**/*.nuspec" />
+			<replacefilter token="@{version}" value="${version}" />
+		</replace>
+
+		<!-- chocolatey pack -->
+		<exec executable="chocolatey.bat" dir="${dir.dist}/chocolatey" failonerror="true">
+			<arg line="pack" />
+		</exec>
+
+		<exec executable="chocolatey.bat" dir="${dir.dist}/chocolatey" failonerror="true">
+			<arg line="push ${dir.dist}/chocolatey/filebot.${version}.nupkg" />
+		</exec>
+	</target>
+
+
 	<target name="upload-data" depends="login">
 		<scp todir="${sf.user}:${sf.password}@${deploy.data}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}/data">
@@ -616,8 +641,8 @@
 
 	<target name="login">
 		<!-- ask for sourceforge password -->
-		<property name="sf.user" value="rednoah,filebot" />
-		<input message="Please enter password:" addproperty="sf.password" />
+		<input message="Please enter sourceforge username:" addproperty="sf.user" />
+		<input message="Please enter sourceforge password:" addproperty="sf.password" />
 	</target>
 
 </project>
