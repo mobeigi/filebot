@@ -733,7 +733,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
 		// fetch subtitle archive
-		CLILogger.info(format("Fetching [%s]", descriptor.getPath()));
+		CLILogger.config(format("Fetching [%s]", descriptor.getPath()));
 		MemoryFile subtitleFile = fetchSubtitle(descriptor);
 		
 		// subtitle filename is based on movie filename
@@ -751,7 +751,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		File destination = new File(movieFile.getParentFile(), formatSubtitle(base, descriptor.getLanguageName(), ext));
-		CLILogger.config(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
+		CLILogger.info(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
 		
 		writeFile(data, destination);
 		return destination;
