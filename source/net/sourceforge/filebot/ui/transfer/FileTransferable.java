@@ -120,14 +120,14 @@ public class FileTransferable implements Transferable {
 					try {
 						// file URIs
 						file = new File(uri);
-					} catch (IllegalArgumentException e) {
+					} catch (IllegalArgumentException exception) {
 						// try handle other GVFS URI schemes
 						try {
 							if (GVFS.isSupported()) {
 								file = GVFS.getPathForURI(uri);
 							}
 						} catch (LinkageError error) {
-							Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Unable to resolve GVFS URI", e);
+							Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Unable to resolve GVFS URI", error);
 						}
 					}
 					

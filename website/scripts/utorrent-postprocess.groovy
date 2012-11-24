@@ -144,7 +144,7 @@ groups.each{ group, files ->
 	if ((group.tvs || group.anime) && !group.mov) {
 		// choose series / anime config
 		def config = group.tvs ? [name:group.tvs,   format:format.tvs,   db:'TheTVDB', seasonFolder:true ]
-					           : [name:group.anime, format:format.anime, db:'AniDB',   seasonFolder:false]
+		                       : [name:group.anime, format:format.anime, db:'AniDB',   seasonFolder:false]
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
