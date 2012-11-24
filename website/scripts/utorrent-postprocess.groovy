@@ -143,8 +143,8 @@ groups.each{ group, files ->
 	// EPISODE MODE
 	if ((group.tvs || group.anime) && !group.mov) {
 		// choose series / anime config
-		def config = group.tvs ? [name:group.tvs, format:format.tvs, db:'TheTVDB']
-					           : [name:group.anime, format:format.anime, db:'AniDB']
+		def config = group.tvs ? [name:group.tvs,   format:format.tvs,   db:'TheTVDB', seasonFolder:true ]
+					           : [name:group.anime, format:format.anime, db:'AniDB',   seasonFolder:false]
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
@@ -156,7 +156,7 @@ groups.each{ group, files ->
 					return
 				}
 				options = options.sortBySimilarity(config.name, { s -> s.name })
-				fetchSeriesArtworkAndNfo(dir.dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
+				fetchSeriesArtworkAndNfo(config.seasonFolder ? dir.dir : dir, dir, options[0], sxe && sxe.season > 0 ? sxe.season : 1)
 			}
 		}
 		if (dest == null && failOnError) {
