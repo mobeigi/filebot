@@ -122,19 +122,23 @@ public class FileTransferable implements Transferable {
 						file = new File(uri);
 					} catch (IllegalArgumentException e) {
 						// try handle other GVFS URI schemes
-						if (GVFS.isSupported()) {
-							file = GVFS.getPathForURI(uri);
+						try {
+							if (GVFS.isSupported()) {
+								file = GVFS.getPathForURI(uri);
+							}
+						} catch (LinkageError error) {
+							Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Unable to resolve GVFS URI", e);
 						}
 					}
 					
-					if (!file.exists()) {
-						throw new FileNotFoundException(file.toString());
+					if (file == null || !file.exists()) {
+						throw new FileNotFoundException(line);
 					}
 					
 					files.add(file);
 				} catch (Throwable e) {
 					// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
-					Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Invalid file URI: " + line, e);
+					Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Invalid file URI: " + line);
 				}
 				return files;
 			}
