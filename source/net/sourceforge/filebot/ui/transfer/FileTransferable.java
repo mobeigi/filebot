@@ -132,7 +132,7 @@ public class FileTransferable implements Transferable {
 					}
 					
 					if (file == null || !file.exists()) {
-						throw new FileNotFoundException(line);
+						throw new FileNotFoundException(file != null ? file.getPath() : line);
 					}
 					
 					files.add(file);
@@ -140,8 +140,9 @@ public class FileTransferable implements Transferable {
 					// URISyntaxException, IllegalArgumentException, FileNotFoundException, LinkageError, etc
 					Logger.getLogger(FileTransferable.class.getName()).log(Level.WARNING, "Invalid file URI: " + line);
 				}
-				return files;
 			}
+			
+			return files;
 		} else if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
 			// file list flavor
 			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
