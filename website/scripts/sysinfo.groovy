@@ -3,6 +3,14 @@
 // FileBot 2.62 (r993)
 println net.sourceforge.filebot.Settings.applicationIdentifier
 
+// JNA Native: 3.5.0
+try {
+	print 'JNA Native: '
+	println com.sun.jna.Native.nativeVersion
+} catch(error) {
+	println error.cause
+}
+
 // MediaInfo: MediaInfoLib - v0.7.48
 try {
 	print 'MediaInfo: '
@@ -15,7 +23,7 @@ try {
 try {
 	print '7-Zip-JBinding: '
 	net.sourceforge.filebot.archive.SevenZipLoader.requireNativeLibraries() // load 7-Zip-JBinding native libs
-	println "OK"
+	println 'OK'
 } catch(Throwable error) {
 	println error
 }
@@ -23,7 +31,6 @@ try {
 // Extended File Attributes
 try {
 	print 'Extended Attributes: '
-	
 	if (net.sourceforge.filebot.Settings.useExtendedFileAttributes()){
 		// create new temp file
 		def f = new File('.xattr-test')
@@ -34,9 +41,20 @@ try {
 		def payload = new Date()
 		xattr.setMetaData(payload)
 		assert xattr.getMetaData() == payload
-		println "OK"
+		println 'OK'
 	} else {
-		println "DISABLED"
+		println 'DISABLED'
+	}
+} catch(Throwable error) {
+	println error
+}
+
+// GIO and GVFS
+try {
+	if (net.sourceforge.filebot.gio.GVFS.supported) {
+		print 'GVFS: '
+		assert net.sourceforge.filebot.gio.GVFS.defaultVFS != null
+		println 'OK'
 	}
 } catch(Throwable error) {
 	println error
