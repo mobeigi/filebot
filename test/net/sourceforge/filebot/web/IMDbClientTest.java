@@ -18,12 +18,22 @@ public class IMDbClientTest {
 	@Test
 	public void searchMovie() throws Exception {
 		List<Movie> results = imdb.searchMovie("Avatar", null);
-		
 		Movie movie = results.get(0);
 		
 		assertEquals("Avatar", movie.getName());
 		assertEquals(2009, movie.getYear());
 		assertEquals(499549, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
+	public void searchMovie2() throws Exception {
+		List<Movie> results = imdb.searchMovie("Heat", null);
+		Movie movie = results.get(0);
+		
+		assertEquals("Heat", movie.getName());
+		assertEquals(1995, movie.getYear());
+		assertEquals(113277, movie.getImdbId(), 0);
 	}
 	
 	

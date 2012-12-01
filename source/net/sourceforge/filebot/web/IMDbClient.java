@@ -75,7 +75,7 @@ public class IMDbClient implements MovieIdentificationService {
 		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
 		
 		// select movie links followed by year in parenthesis
-		List<Node> nodes = selectNodes("//TABLE//A[substring-after(substring-before(following::text(),')'),'(')]", dom);
+		List<Node> nodes = selectNodes("//TABLE[@class='findList']//TD/A[substring-after(substring-before(following::text(),')'),'(')]", dom);
 		List<Movie> results = new ArrayList<Movie>(nodes.size());
 		
 		for (Node node : nodes) {
