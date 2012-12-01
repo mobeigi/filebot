@@ -478,10 +478,10 @@
 	</target>
 
 
-	<target name="svn-update">
+	<target name="svn-update" depends="login">
 		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
 		<groovy>
-			properties['svn.revision'] = 'svn update'.execute().text.split(/\n/).last().replaceAll(/\D/, '')
+			properties['svn.revision'] = "svn update --password ${properties['sf.password']}".execute().text.split(/\n/).last().replaceAll(/\D/, '')
 		</groovy>
 		<fail unless="svn.revision" />
 		<echo>Revision: ${svn.revision}</echo>
