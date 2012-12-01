@@ -113,7 +113,7 @@ public class ArgumentBean {
 	
 	
 	public boolean runCLI() {
-		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
+		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || clear || script != null;
 	}
 	
 	
