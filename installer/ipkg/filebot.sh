@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Dunixfs=false -DuseExtendedFileAttributes=false -Dsun.jnu.encoding=UTF-8 -Dfile.encoding=UTF-8 -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Dapplication.deployment=ipkg -Dapplication.dir=$HOME/.filebot -Djava.io.tmpdir=$HOME/.filebot/temp -Djna.library.path=/usr/share/filebot -Djava.library.path=/usr/share/filebot -jar /usr/share/filebot/FileBot.jar "$@"
+java -Dunixfs=false -DuseExtendedFileAttributes=false -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Dapplication.deployment=ipkg -Dapplication.dir=$HOME/.filebot -Djava.io.tmpdir=$HOME/.filebot/temp -Djna.library.path=/usr/share/filebot -Djava.library.path=/usr/share/filebot -jar /usr/share/filebot/FileBot.jar "$@"
