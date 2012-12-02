@@ -79,7 +79,7 @@ input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() }
 
 // ignore clutter files
-input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook)\b/) }
+input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }

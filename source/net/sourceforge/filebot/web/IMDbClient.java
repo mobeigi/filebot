@@ -43,9 +43,6 @@ import org.xml.sax.SAXException;
 
 public class IMDbClient implements MovieIdentificationService {
 	
-	private final String host = "akas.imdb.com";
-	
-	
 	@Override
 	public String getName() {
 		return "IMDb";
@@ -55,6 +52,12 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.imdb");
+	}
+	
+	
+	protected String getHost() {
+		String host = System.getProperty("imdb.hostname"); // default to akas.imdb.com but allow override via -Dimdb.host
+		return host == null ? "akas.imdb.com" : host;
 	}
 	
 	
@@ -72,7 +75,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
-		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query)));
+		Document dom = parsePage(new URL("http", getHost(), "/find?s=tt&q=" + encode(query)));
 		
 		// select movie links followed by year in parenthesis
 		List<Node> nodes = selectNodes("//TABLE[@class='findList']//TD/A[substring-after(substring-before(following::text(),')'),'(')]", dom);
@@ -152,7 +155,7 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		try {
-			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/releaseinfo", imdbid))), locale);
+			return scrapeMovie(parsePage(new URL("http", getHost(), String.format("/title/tt%07d/releaseinfo", imdbid))), locale);
 		} catch (FileNotFoundException e) {
 			return null; // illegal imdbid
 		}
