@@ -364,7 +364,7 @@ def tryQuietly(c) {
  * Retry given closure until it returns successfully (indefinitely by default)
  */
 def retry(n = -1, quiet = false, c) {
-	for(int i = 1; i <= n; i++) {
+	for(int i = 0; n < 0 || i <= n; i++) {
 		try {
 			return c.call()
 		} catch(Throwable e) {
