@@ -229,7 +229,8 @@ def similarity(o1, o2) {
 }
 
 List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> obj.toString() } ->
-	return delegate.sort{ a, b -> similarity(toStringFunction(b), prime).compareTo(similarity(toStringFunction(a), prime)) }
+	def simetric = new NameSimilarityMetric() 
+	return delegate.sort{ a, b -> simetric.getSimilarity(toStringFunction(b), prime).compareTo(simetric.getSimilarity(toStringFunction(a), prime)) }
 }
 
 // call scripts

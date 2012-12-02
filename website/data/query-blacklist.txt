@@ -22,6 +22,8 @@
 ^Completed$
 ^Cover
 ^Crime$
+^data$
+^deluge$
 ^Documentary$
 ^Done$
 ^Download$
@@ -40,7 +42,9 @@
 ^Movie[s]?
 ^new$
 ^other$
+^private$
 ^Romance$
+^rtorrent$
 ^Science.Fiction$
 ^Scratch$
 ^Season.[0-9]+
@@ -50,12 +54,14 @@
 ^Staging$
 ^Storage$
 ^Test$
+^testdata$
 ^Torrent[s]?
 ^Tracker
 ^Trailer
 ^user$
 ^VCD$
 ^VIDEO_TS$
+^watch$
 A.Release.Lounge
 ABC
 Anime[s]?
