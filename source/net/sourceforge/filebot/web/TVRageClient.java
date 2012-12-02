@@ -48,7 +48,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
-		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query));
+		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query, true));
 		Document dom = getDocument(searchUrl);
 		
 		List<Node> nodes = selectNodes("Results/show", dom);

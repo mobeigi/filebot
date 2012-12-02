@@ -25,15 +25,11 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	public static final String DOWNLOAD_STATE = "download state";
 	public static final String DOWNLOAD_PROGRESS = "download progress";
 	
-
+	
 	public static enum DownloadState {
-		PENDING,
-		CONNECTING,
-		DOWNLOADING,
-		DONE
+		PENDING, CONNECTING, DOWNLOADING, DONE
 	}
 	
-
 	private URL url;
 	
 	private long contentLength = -1;
@@ -43,12 +39,12 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 	private Map<String, String> requestHeaders;
 	private Map<String, List<String>> responseHeaders;
 	
-
+	
 	public DownloadTask(URL url) {
 		this.url = url;
 	}
 	
-
+	
 	protected HttpURLConnection createConnection() throws Exception {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		
@@ -61,7 +57,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		return connection;
 	}
 	
-
+	
 	@Override
 	protected ByteBuffer doInBackground() throws Exception {
 		setDownloadState(DownloadState.CONNECTING);
@@ -69,7 +65,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		HttpURLConnection connection = createConnection();
 		
 		if (postParameters != null) {
-			ByteBuffer postData = Charset.forName("UTF-8").encode(encodeParameters(postParameters));
+			ByteBuffer postData = Charset.forName("UTF-8").encode(encodeParameters(postParameters, true));
 			
 			// add content type and content length headers
 			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -118,53 +114,53 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		return buffer.getByteBuffer();
 	}
 	
-
+	
 	protected void setDownloadState(DownloadState state) {
 		this.state = state;
 		firePropertyChange(DOWNLOAD_STATE, null, state);
 	}
 	
-
+	
 	public DownloadState getDownloadState() {
 		return state;
 	}
 	
-
+	
 	public URL getUrl() {
 		return url;
 	}
 	
-
+	
 	public boolean isContentLengthKnown() {
 		return contentLength >= 0;
 	}
 	
-
+	
 	public long getContentLength() {
 		return contentLength;
 	}
 	
-
+	
 	public void setRequestHeaders(Map<String, String> requestHeaders) {
 		this.requestHeaders = new HashMap<String, String>(requestHeaders);
 	}
 	
-
+	
 	public void setPostParameters(Map<String, String> postParameters) {
 		this.postParameters = new HashMap<String, String>(postParameters);
 	}
 	
-
+	
 	public Map<String, List<String>> getResponseHeaders() {
 		return responseHeaders;
 	}
 	
-
+	
 	public Map<String, String> getPostParameters() {
 		return postParameters;
 	}
 	
-
+	
 	public Map<String, String> getRequestHeaders() {
 		return requestHeaders;
 	}

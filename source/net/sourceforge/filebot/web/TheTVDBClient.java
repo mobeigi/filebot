@@ -106,7 +106,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// perform online search
-		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query) + "&language=" + getLanguageCode(locale));
+		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 		Document dom = getDocument(url);
 		
 		List<Node> nodes = selectNodes("Data/Series", dom);

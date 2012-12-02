@@ -53,7 +53,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 	
 	@Override
 	public List<SearchResult> search(String query) throws IOException, SAXException {
-		URL searchUrl = new URL("http", host, "/subtitles/title.aspx?q=" + encode(query));
+		URL searchUrl = new URL("http", host, "/subtitles/title.aspx?q=" + encode(query, true));
 		Document dom = getHtmlDocument(searchUrl);
 		
 		List<Node> nodes = selectNodes("//H2[text()='Close']//following::DIV[@class='title']//A", dom);

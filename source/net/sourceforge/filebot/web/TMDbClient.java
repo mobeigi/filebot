@@ -236,7 +236,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		data.put("api_key", apikey);
 		
-		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data));
+		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data, true));
 		
 		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class, 7 * 24 * 60 * 60 * 1000) {
 			

@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,7 +55,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	protected String getHost() {
 		String host = System.getProperty("imdb.hostname"); // default to akas.imdb.com but allow override via -Dimdb.host
-		return host == null ? "akas.imdb.com" : host;
+		return host == null ? "imdb.com" : host;
 	}
 	
 	
@@ -75,7 +73,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
-		Document dom = parsePage(new URL("http", getHost(), "/find?s=tt&q=" + encode(query)));
+		Document dom = parsePage(new URL("http", getHost(), "/find?s=tt&q=" + encode(query, false)));
 		
 		// select movie links followed by year in parenthesis
 		List<Node> nodes = selectNodes("//TABLE[@class='findList']//TD/A[substring-after(substring-before(following::text(),')'),'(')]", dom);
@@ -119,32 +117,11 @@ public class IMDbClient implements MovieIdentificationService {
 			if (header.contains("(VG)")) // ignore video games and videos
 				return null;
 			
-			String name = selectString("//H1/A/text()", dom).replaceAll("\\s+", " ").trim();
-			String year = new Scanner(selectString("//H1/A/following::A/text()", dom)).useDelimiter("\\D+").next();
-			String url = selectString("//H1/A/@href", dom);
+			String name = selectString("//H1/text()", dom).replaceAll("\\s+", " ").trim();
+			String year = new Scanner(selectString("//H1//A/text()", dom)).useDelimiter("\\D+").next();
+			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
 			
-			// try to get localized name
-			if (locale != null && locale != Locale.ROOT) {
-				try {
-					String language = String.format("(%s title)", locale.getDisplayLanguage(Locale.ENGLISH).toLowerCase());
-					List<Node> akaRows = selectNodes("//*[@name='akas']//following::TABLE[1]//TR", dom);
-					
-					for (Node aka : akaRows) {
-						List<Node> columns = getChildren("TD", aka);
-						String akaTitle = getTextContent(columns.get(0));
-						String languageDesc = getTextContent(columns.get(1)).toLowerCase();
-						
-						if (language.length() > 0 && languageDesc.contains(language) && languageDesc.contains("international")) {
-							name = akaTitle;
-							break;
-						}
-					}
-				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to grep localized name: " + name);
-				}
-			}
-			
-			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, getImdbId(url), -1);
+			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, imdbid, -1);
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
 			return null;
@@ -155,7 +132,7 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		try {
-			return scrapeMovie(parsePage(new URL("http", getHost(), String.format("/title/tt%07d/releaseinfo", imdbid))), locale);
+			return scrapeMovie(parsePage(new URL("http", getHost(), String.format("/title/tt%07d", imdbid))), locale);
 		} catch (FileNotFoundException e) {
 			return null; // illegal imdbid
 		}
@@ -169,8 +146,11 @@ public class IMDbClient implements MovieIdentificationService {
 			protected Reader openConnection(URL url) throws IOException {
 				URLConnection connection = url.openConnection();
 				
-				// IMDb refuses default user agent (Java/1.6.0_12)
-				connection.addRequestProperty("User-Agent", "Mozilla");
+				// IMDb refuses default user agent (Java/1.6.0_12) => SPOOF GOOGLEBOT
+				connection.addRequestProperty("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)");
+				connection.addRequestProperty("From", "googlebot(at)googlebot.com");
+				connection.addRequestProperty("Accept", "*/*");
+				connection.addRequestProperty("X-Forwarded-For", "66.249.73.100"); // TRICK ANNOYING IMDB GEO-LOCATION LOCALIZATION
 				
 				return getReader(connection);
 			}

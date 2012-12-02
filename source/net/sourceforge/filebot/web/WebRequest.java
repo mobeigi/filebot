@@ -35,12 +35,12 @@ import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import net.sourceforge.tuned.ByteBufferOutputStream;
+
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
 public final class WebRequest {
@@ -168,7 +168,7 @@ public final class WebRequest {
 	
 	
 	public static ByteBuffer post(HttpURLConnection connection, Map<String, ?> parameters) throws IOException {
-		return post(connection, encodeParameters(parameters).getBytes("UTF-8"), "application/x-www-form-urlencoded");
+		return post(connection, encodeParameters(parameters, true).getBytes("UTF-8"), "application/x-www-form-urlencoded");
 	}
 	
 	
@@ -236,7 +236,7 @@ public final class WebRequest {
 	}
 	
 	
-	public static String encodeParameters(Map<String, ?> parameters) {
+	public static String encodeParameters(Map<String, ?> parameters, boolean unicode) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (Entry<String, ?> entry : parameters.entrySet()) {
@@ -247,7 +247,7 @@ public final class WebRequest {
 			sb.append(entry.getKey());
 			if (entry.getValue() != null) {
 				sb.append("=");
-				sb.append(encode(entry.getValue().toString()));
+				sb.append(encode(entry.getValue().toString(), unicode));
 			}
 		}
 		
@@ -255,9 +255,9 @@ public final class WebRequest {
 	}
 	
 	
-	public static String encode(String string) {
+	public static String encode(String string, boolean unicode) {
 		try {
-			return URLEncoder.encode(string, "UTF-8");
+			return URLEncoder.encode(string, unicode ? "UTF-8" : "ISO-8859-1");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
@@ -268,15 +268,18 @@ public final class WebRequest {
 		// create a trust manager that does not validate certificate chains
 		TrustManager trustAnyCertificate = new X509TrustManager() {
 			
+			@Override
 			public X509Certificate[] getAcceptedIssuers() {
 				return null;
 			}
 			
 			
+			@Override
 			public void checkClientTrusted(X509Certificate[] certs, String authType) {
 			}
 			
 			
+			@Override
 			public void checkServerTrusted(X509Certificate[] certs, String authType) {
 			}
 		};
