@@ -23,12 +23,16 @@ import java.util.concurrent.Future;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
+import com.ibm.icu.text.Transliterator;
+
 
 public class LocalSearch<T> {
 	
 	private final AbstractStringMetric metric = new QGramsDistance();
 	private float resultMinimumSimilarity = 0.5f;
 	private int resultSetSize = 20;
+	
+	private final Transliterator transliterator = Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove");
 	
 	private final List<T> objects;
 	private final List<Set<String>> fields;
@@ -138,7 +142,7 @@ public class LocalSearch<T> {
 	
 	protected String normalize(String value) {
 		// normalize separator, normalize case and trim
-		return normalizePunctuation(value).toLowerCase();
+		return normalizePunctuation(transliterator.transform(value)).toLowerCase();
 	}
 	
 }

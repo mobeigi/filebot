@@ -21,6 +21,8 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.Movie;
 
+import com.ibm.icu.text.Transliterator;
+
 
 public enum EpisodeMetrics implements SimilarityMetric {
 	
@@ -351,6 +353,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}
 	
 	private static final Map<Object, String> transformCache = synchronizedMap(new HashMap<Object, String>(64, 4));
+	private static final Transliterator transliterator = Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove");
 	
 	
 	protected static String normalizeObject(Object object) {
@@ -374,6 +377,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		// remove checksums, any [...] or (...)
 		name = removeEmbeddedChecksum(name);
+		
+		synchronized (transliterator) {
+			name = transliterator.transform(name);
+		}
 		
 		// remove/normalize special characters
 		name = normalizePunctuation(name);

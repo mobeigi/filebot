@@ -49,6 +49,28 @@ public class IMDbClientTest {
 	
 	
 	@Test
+	public void searchMovie4() throws Exception {
+		List<Movie> results = imdb.searchMovie("Heat", null);
+		Movie movie = results.get(0);
+		
+		assertEquals("Heat", movie.getName());
+		assertEquals(1995, movie.getYear());
+		assertEquals(113277, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
+	public void searchMovie5() throws Exception {
+		List<Movie> results = imdb.searchMovie("Det sjunde inseglet", null);
+		Movie movie = results.get(0);
+		
+		assertEquals("The Seventh Seal", movie.getName());
+		assertEquals(1957, movie.getYear());
+		assertEquals(50976, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
 	public void searchMovieRedirect() throws Exception {
 		List<Movie> results = imdb.searchMovie("(500) Days of Summer (2009)", null);
 		

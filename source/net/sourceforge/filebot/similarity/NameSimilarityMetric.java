@@ -7,15 +7,24 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3;
 
+import com.ibm.icu.text.Transliterator;
+
 
 public class NameSimilarityMetric implements SimilarityMetric {
 	
 	private final AbstractStringMetric metric;
+	private final Transliterator transliterator;
 	
 	
 	public NameSimilarityMetric() {
 		// QGramsDistance with a QGram tokenizer seems to work best for similarity of names
-		metric = new QGramsDistance(new TokeniserQGram3());
+		this(new QGramsDistance(new TokeniserQGram3()), Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove"));
+	}
+	
+	
+	public NameSimilarityMetric(AbstractStringMetric metric, Transliterator transliterator) {
+		this.metric = metric;
+		this.transliterator = transliterator;
 	}
 	
 	
@@ -28,6 +37,11 @@ public class NameSimilarityMetric implements SimilarityMetric {
 	protected String normalize(Object object) {
 		// use string representation
 		String name = object.toString();
+		
+		// apply transliterator
+		if (transliterator != null) {
+			name = transliterator.transform(name);
+		}
 		
 		// normalize separators
 		name = normalizePunctuation(name);
