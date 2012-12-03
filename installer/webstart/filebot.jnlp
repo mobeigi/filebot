@@ -26,7 +26,7 @@
 		<property name="application.update"        value="skip"     />
 		<property name="unixfs"                    value="false"    />
 		<property name="useNativeShell"            value="false"    />
-		<property name="useExtendedFileAttributes" value="true"     />
+		<property name="useExtendedFileAttributes" value="false"    />
 		<property name="java.net.useSystemProxies" value="true"     />
 		<property name="sun.net.client.defaultConnectTimeout" value="10000" />
 		<property name="sun.net.client.defaultReadTimeout"    value="60000" />

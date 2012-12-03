@@ -122,6 +122,8 @@ def thetvdb_index = thetvdb_index_url.fetch().getHtml('UTF-8')
 .depthFirst().TR.findAll{ it.TD.size() == 3 && it.TD[1].text() == 'English' && it.TD[0].A.text() }
 .findResults{ [it.TD[2].text(), it.TD[0].A.text()] }
 
+thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].empty) } as HashSet
+
 // join and sort
 def thetvdb = thetvdb_index.findResults{ [it[0].pad(6), it[1]].join('\t') }.sort()
 gz(thetvdb_out, thetvdb)

@@ -27,7 +27,7 @@ public final class OpenSubtitlesHasher {
 	public static final int HASH_CHUNK_SIZE = 64 * 1024;
 	
 
-	public static String computeHash(File file) throws IOException {
+	public static String computeHashNIO(File file) throws IOException {
 		long size = file.length();
 		long chunkSizeForFile = Math.min(HASH_CHUNK_SIZE, size);
 		
@@ -40,6 +40,16 @@ public final class OpenSubtitlesHasher {
 			return String.format("%016x", size + head + tail);
 		} finally {
 			fileChannel.close();
+		}
+	}
+	
+	
+	public static String computeHash(File file) throws IOException {
+		FileInputStream in = new FileInputStream(file);
+		try {
+			return computeHash(in, file.length());
+		} finally {
+			in.close();
 		}
 	}
 	

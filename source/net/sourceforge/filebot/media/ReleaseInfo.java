@@ -342,7 +342,7 @@ public class ReleaseInfo {
 			Scanner scanner = new Scanner(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
 			
 			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>();
-			while (scanner.hasNext()) {
+			while (scanner.hasNext() && scanner.hasNextInt()) {
 				int id = scanner.nextInt();
 				String name = scanner.next().trim();
 				tvshows.add(new TheTVDBSearchResult(name, id));
