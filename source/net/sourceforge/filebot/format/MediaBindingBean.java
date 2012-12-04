@@ -16,6 +16,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -92,6 +93,16 @@ public class MediaBindingBean {
 	@Define("e")
 	public Integer getEpisodeNumber() {
 		return getEpisode().getEpisode();
+	}
+	
+	
+	@Define("es")
+	public List<Integer> getEpisodeNumbers() {
+		List<Integer> n = new ArrayList<Integer>();
+		for (Episode it : getEpisodes()) {
+			n.add(it.getEpisode());
+		}
+		return n;
 	}
 	
 	
