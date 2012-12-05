@@ -1,4 +1,4 @@
-// filebot -script "fn:sysinfo"
+// filebot -script fn:sysinfo
 
 // FileBot 2.62 (r993)
 println net.sourceforge.filebot.Settings.applicationIdentifier

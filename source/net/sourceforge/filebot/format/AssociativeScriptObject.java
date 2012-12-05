@@ -9,13 +9,14 @@ import java.util.AbstractSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
 
-public class AssociativeScriptObject extends GroovyObjectSupport {
+public class AssociativeScriptObject extends GroovyObjectSupport implements Iterable<Entry<Object, Object>> {
 	
-	private final Map<?, ?> properties;
+	private final Map<Object, Object> properties;
 	
 	
 	public AssociativeScriptObject(Map<?, ?> properties) {
@@ -26,8 +27,10 @@ public class AssociativeScriptObject extends GroovyObjectSupport {
 	/**
 	 * Get the property with the given name.
 	 * 
-	 * @param name the property name
-	 * @param start the object where the lookup began
+	 * @param name
+	 *            the property name
+	 * @param start
+	 *            the object where the lookup began
 	 */
 	@Override
 	public Object getProperty(String name) {
@@ -38,6 +41,12 @@ public class AssociativeScriptObject extends GroovyObjectSupport {
 	@Override
 	public void setProperty(String name, Object value) {
 		// ignore, object is immutable
+	}
+	
+	
+	@Override
+	public Iterator<Entry<Object, Object>> iterator() {
+		return properties.entrySet().iterator();
 	}
 	
 	
@@ -92,7 +101,6 @@ public class AssociativeScriptObject extends GroovyObjectSupport {
 		public Set<Entry<Object, Object>> entrySet() {
 			return new AbstractSet<Entry<Object, Object>>() {
 				
-				@SuppressWarnings("unchecked")
 				@Override
 				public Iterator<Entry<Object, Object>> iterator() {
 					return (Iterator) lookup.values().iterator();

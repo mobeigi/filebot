@@ -71,15 +71,22 @@ imdb_ids = new HashSet(imdb.collect{ it[0] })
 
 // BUILD movies.txt.gz
 def osdb_tsv = new URL("http://www.opensubtitles.org/addons/export_movie.php")
-def osdb = []
+def osdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
 osdb_tsv.getText('UTF-8').eachLine{
 	def line = it.split(/\t/)*.replaceAll(/\s+/, ' ')*.trim()
 	if (line.size() == 4 && line[0] =~ /\d+/) {
 		osdb << [line[1].toInteger(), line[2], line[3].toInteger()]
 	}
 }
-osdb = osdb.findAll{ it[0] <= 9999999 && it[2] >= 1930 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
+new File('omdb.txt').eachLine{
+	def line = it.split(/\t/)
+	if (line.length > 11 && line[5] =~ /h/ && line[3].toInteger() >= 1970 && (tryQuietly{ line[11].toFloat() } ?: 0) > 1 && (tryQuietly{ line[12].toInteger() } ?: 0) >= 10) {
+		line = line*.replaceAll(/\s+/, ' ')*.trim()
+		osdb << [line[0].toInteger(), line[2], line[3].toInteger()]
+	}
+}
 
+osdb = osdb.findAll{ it[0] <= 9999999 && it[2] >= 1930 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
 
 parallel(osdb.collect{ row ->
 	return {		
