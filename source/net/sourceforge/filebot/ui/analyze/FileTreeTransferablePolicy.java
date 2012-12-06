@@ -21,18 +21,18 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	
 	private final FileTree tree;
 	
-
+	
 	public FileTreeTransferablePolicy(FileTree tree) {
 		this.tree = tree;
 	}
 	
-
+	
 	@Override
 	protected boolean accept(List<File> files) {
 		return true;
 	}
 	
-
+	
 	@Override
 	protected void clear() {
 		super.clear();
@@ -40,7 +40,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		tree.clear();
 	}
 	
-
+	
 	@Override
 	protected void process(List<AbstractTreeNode> chunks) {
 		FolderNode root = tree.getRoot();
@@ -52,13 +52,13 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		tree.getModel().reload();
 	}
 	
-
+	
 	@Override
 	protected void process(Exception e) {
 		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 	
-
+	
 	@Override
 	protected void load(List<File> files) {
 		try {
@@ -74,14 +74,13 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		}
 	}
 	
-
+	
 	private AbstractTreeNode getTreeNode(File file) throws InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
 		
-		if (file.isDirectory()) {
-			File[] files = file.listFiles();
-			
+		File[] files = file.listFiles();
+		if (files != null && file.isDirectory()) {
 			FolderNode node = new FolderNode(FileUtilities.getFolderName(file), files.length);
 			
 			// add folders first
@@ -103,7 +102,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 		return new FileNode(file);
 	}
 	
-
+	
 	@Override
 	public String getFileFilterDescription() {
 		return "files and folders";

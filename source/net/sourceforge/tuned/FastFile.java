@@ -46,12 +46,13 @@ public class FastFile extends File {
 	@Override
 	public File[] listFiles() {
 		String[] names = list();
-		File[] files = new File[names.length];
+		if (names == null)
+			return null;
 		
+		File[] files = new File[names.length];
 		for (int i = 0; i < names.length; i++) {
 			files[i] = new FastFile(this, names[i]);
 		}
-		
 		return files;
 	}
 	
