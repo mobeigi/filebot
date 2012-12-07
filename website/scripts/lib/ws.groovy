@@ -38,17 +38,17 @@ class MyEpisodesScraper {
 	}
 	
 	def getShows = {
-		def shows = cache.get("MyEpisodes.Shows")
+		def shows = cache.get('MyEpisodes.Shows')
 		if (shows == null) {
 			shows = ['other', 'A'..'Z'].flatten().findResults{ section ->
 				get("http://myepisodes.com/shows.php?list=${section}").select('a').findResults{ a ->
 					try {
-						return [id:a.absUrl('href').match(/showid=(\d+)/).toInteger(), name:a.text()]
+						return [id:a.absUrl('href').match(/showid=(\d+)/).toInteger(), name:a.text().trim()]
 					} catch(e) {
 						return null
 					}
 				}
-			}.flatten()
+			}.flatten().sort{ it.name }
 			cache.put('MyEpisodes.Shows', shows)
 		}
 		return shows
@@ -57,7 +57,7 @@ class MyEpisodesScraper {
 	def getShowList = {
 		get("http://www.myepisodes.com/shows.php?type=manage").select('option').findResults{ option ->
 			try {
-				return [id:option.attr('value').toInteger(), name:option.text()]
+				return [id:option.attr('value').toInteger(), name:option.text().trim()]
 			} catch(e) {
 				return null
 			}
@@ -68,7 +68,7 @@ class MyEpisodesScraper {
 		get("http://myepisodes.com/views.php?type=manageshow&mode=add&showid=${showid}")
 	}
 	
-	def update = { showid, season, episode, tick = 'acquired', value = '0'->
+	def update = { showid, season, episode, tick = 'acquired', value = '0' ->
 		get("http://myepisodes.com/myshows.php?action=Update&showid=${showid}&season=${season}&episode=${episode}&${tick}=${value}")
 	}
 	
