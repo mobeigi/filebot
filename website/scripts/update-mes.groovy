@@ -5,7 +5,7 @@ def mesadd = tryQuietly{ addshows.toBoolean() }
 def mesupdate = tryQuietly { tick } ?: 'acquired'
 
 // import myepisodes scraper
-include('lib/ws')
+include('fn:lib/ws')
 
 def mes = MyEpisodes(mesacc[0], mesacc[1])
 def myshows = mes.getShowList()

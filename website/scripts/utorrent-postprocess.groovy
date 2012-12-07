@@ -192,6 +192,12 @@ plex?.each{
 	refreshPlexLibrary(it)
 }
 
+// mark episodes as 'acquired'
+if (myepisodes) {
+	println "Update MyEpisodes"
+	include('fn:update-mes', [login:myepisodes, addshows:false], getRenameLog().values())
+}
+
 // send status email
 if (gmail && !getRenameLog().isEmpty()) {
 	// ant/mail utility
