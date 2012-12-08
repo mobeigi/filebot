@@ -54,7 +54,6 @@
 		<extension>mp3</extension>
 	</type>
 	<type name="audio/mp4">
-		<extension>mp4</extension>
 		<extension>m4a</extension>
 	</type>
 	<type name="audio/flac">
