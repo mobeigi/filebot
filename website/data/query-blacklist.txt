@@ -77,10 +77,14 @@ CLASSIC
 CN
 CVCD
 DC
+DD2[.]0
+DD5[.]1
+ded
 Demonoid
 Director's.Cut
 Directors.Cut
 Discovery.Channel
+dl
 DLLValley
 DLLValley.eu
 docu
@@ -147,6 +151,7 @@ RiffTrax
 sample[s]?
 SBS
 Screenshot
+sed
 ShareGo
 ShareReactor
 ShareZONE
@@ -169,6 +174,7 @@ TPB
 TRUEFRENCH
 TS
 TSXVID
+tvs
 ultimate.edition
 UNCUT
 unrated

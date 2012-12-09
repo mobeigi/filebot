@@ -13,9 +13,9 @@ def artwork   = tryQuietly{ artwork.toBoolean() }
 // array of xbmc/plex hosts
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
 def plex = tryQuietly{ plex.split(/[ ,|]+/) }
-def myepisodes = tryQuietly { myepisodes.split(/:/, 2) }
 
-// email notifications
+// myepisodes updates and email notifications
+def myepisodes = tryQuietly { myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
 
 
