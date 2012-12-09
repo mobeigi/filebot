@@ -13,6 +13,7 @@ def artwork   = tryQuietly{ artwork.toBoolean() }
 // array of xbmc/plex hosts
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
 def plex = tryQuietly{ plex.split(/[ ,|]+/) }
+def myepisodes = tryQuietly { myepisodes.split(/:/, 2) }
 
 // email notifications
 def gmail = tryQuietly{ gmail.split(':', 2) }
@@ -195,7 +196,7 @@ plex?.each{
 // mark episodes as 'acquired'
 if (myepisodes) {
 	println "Update MyEpisodes"
-	include('fn:update-mes', [login:myepisodes, addshows:false], getRenameLog().values())
+	include('fn:update-mes', [login:myepisodes.join(':'), addshows:false], getRenameLog().values())
 }
 
 // send status email
