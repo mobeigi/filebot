@@ -26,7 +26,8 @@
 ^Downloads$
 ^DVD
 ^Erotic$
-^Extract$
+^extract$
+^extracted$
 ^Film$
 ^Film[s]?
 ^Filme$
@@ -67,6 +68,7 @@
 ^watch$
 A.Release.Lounge
 ABC
+AC3D
 Anime[s]?
 Arte
 BBC
@@ -93,6 +95,8 @@ DLLValley.eu
 docu
 Dual.Audio
 dubbed
+DVD5
+DVD9
 DVDXvID
 DVSKY
 ENG
