@@ -84,7 +84,7 @@ Demonoid
 Director's.Cut
 Directors.Cut
 Discovery.Channel
-dl
+DL
 DLLValley
 DLLValley.eu
 docu
@@ -166,6 +166,7 @@ Subtit
 Subtitle
 swe.?sub
 SYNC
+SYNCED
 SYNCFIX
 TC
 theatrical.cut
@@ -174,7 +175,6 @@ TPB
 TRUEFRENCH
 TS
 TSXVID
-tvs
 ultimate.edition
 UNCUT
 unrated
