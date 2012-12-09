@@ -419,7 +419,10 @@ public class MediaDetection {
 			terms.add(reduceMovieName(getName(movieFolder)));
 		}
 		
-		List<Movie> movieNameMatches = matchMovieName(terms, strict, 3);
+		List<Movie> movieNameMatches = matchMovieName(terms, true, 0);
+		if (movieNameMatches.isEmpty()) {
+			movieNameMatches = matchMovieName(terms, strict, 2);
+		}
 		
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
@@ -429,7 +432,10 @@ public class MediaDetection {
 		
 		// if matching name+year failed, try matching only by name
 		if (movieNameMatches.isEmpty() && strict) {
-			movieNameMatches = matchMovieName(terms, false, 3);
+			movieNameMatches = matchMovieName(terms, false, 0);
+			if (movieNameMatches.isEmpty()) {
+				movieNameMatches = matchMovieName(terms, false, 2);
+			}
 		}
 		
 		// assume name without spacing will mess up any lookup
