@@ -37,7 +37,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -285,18 +284,15 @@ public class CmdlineOperations implements CmdlineInterface {
 			Set<Episode> episodes = new LinkedHashSet<Episode>();
 			
 			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
-				try {
-					episodes.addAll(future.get());
-				} catch (ExecutionException e) {
-					CLILogger.finest(e.getCause().getMessage());
-				}
+				// if anything goes wrong make sure to unwind as a partial episode set possibly missing important data can lead to bad matches
+				episodes.addAll(future.get());
 			}
 			
 			// all background workers have finished
 			return episodes;
 		} finally {
 			// destroy background threads
-			executor.shutdown();
+			executor.shutdownNow();
 		}
 	}
 	
