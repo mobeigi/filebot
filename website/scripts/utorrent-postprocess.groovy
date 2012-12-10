@@ -6,6 +6,11 @@ def failOnError = _args.conflict == 'fail'
 _args.bindings?.each{ _log.finest("Parameter: $it.key = $it.value") }
 args.each{ _log.finest("Argument: $it") }
 
+// check user-defined pre-condition
+if (tryQuietly{ ut_state != ut_state_allow }) {
+	throw new Exception("Invalid state: ut_state = $ut_state (expected $ut_state_allow)")
+}
+
 // enable/disable features as specified via --def parameters
 def subtitles = tryQuietly{ subtitles.toBoolean() }
 def artwork   = tryQuietly{ artwork.toBoolean() }
