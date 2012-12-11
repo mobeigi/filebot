@@ -84,17 +84,22 @@ public class Main {
 				System.exit(0);
 			}
 			
+			// make sure java.io.tmpdir exists
+			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+			tmpdir.mkdirs();
+			
 			// initialize this stuff before anything else
 			initializeCache();
 			initializeSecurityManager();
 			
-			// make sure tmpdir exists
-			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-			tmpdir.mkdirs();
-			
 			if (args.clearUserData()) {
+				System.out.println("Reset preferences");
+				Settings.forPackage(Main.class).clear();
+			}
+			
+			if (args.clearCache()) {
 				// clear preferences and cache
-				System.out.println("Reset preferences and clear cache");
+				System.out.println("Clear cache and temporary files");
 				for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
 					if (matches("cache|temp|grape", cache.getName())) {
 						for (File it : cache.listFiles()) {
@@ -102,11 +107,7 @@ public class Main {
 						}
 					}
 				}
-				Settings.forPackage(Main.class).clear();
 				CacheManager.getInstance().clearAll();
-				
-				// just clear all data and then exit
-				System.exit(0);
 			}
 			
 			// set unixfs system property

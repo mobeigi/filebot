@@ -90,8 +90,11 @@ public class ArgumentBean {
 	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
 	public boolean open = false;
 	
-	@Option(name = "-clear", usage = "Clear cache and application settings")
-	public boolean clear = false;
+	@Option(name = "-clear-cache", usage = "Clear cached and temporary data")
+	public boolean clearCache = false;
+	
+	@Option(name = "-clear-prefs", usage = "Clear application settings")
+	public boolean clearPrefs = false;
 	
 	@Option(name = "-unixfs", usage = "Do not strip invalid characters from file paths")
 	public boolean unixfs = false;
@@ -113,7 +116,7 @@ public class ArgumentBean {
 	
 	
 	public boolean runCLI() {
-		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || clear || script != null;
+		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
 	}
 	
 	
@@ -132,8 +135,13 @@ public class ArgumentBean {
 	}
 	
 	
+	public boolean clearCache() {
+		return clearCache;
+	}
+	
+	
 	public boolean clearUserData() {
-		return clear;
+		return clearPrefs;
 	}
 	
 	
