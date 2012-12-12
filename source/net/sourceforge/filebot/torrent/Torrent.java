@@ -17,17 +17,21 @@ import java.util.Map;
 
 public class Torrent {
 	
-	private final String name;
-	private final String encoding;
-	private final String createdBy;
-	private final String announce;
-	private final String comment;
-	private final Long creationDate;
-	private final Long pieceLength;
+	private String name;
+	private String encoding;
+	private String createdBy;
+	private String announce;
+	private String comment;
+	private Long creationDate;
+	private Long pieceLength;
 	
-	private final List<Entry> files;
+	private List<Entry> files;
+	private boolean singleFileTorrent;
 	
-	private final boolean singleFileTorrent;
+	
+	protected Torrent() {
+		// used by serializer
+	}
 	
 	
 	public Torrent(File torrent) throws IOException {
