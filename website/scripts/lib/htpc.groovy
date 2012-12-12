@@ -24,7 +24,7 @@ def invokeScanVideoLibrary(host, port = 9090) {
  */
 def refreshPlexLibrary(server, port = 32400, files = null) {
 	_guarded {
-		def sections = new URL("http://$server:$port/plex").getXml()
+		def sections = new URL("http://$server:$port/library/sections/").getXml()
 		def locations = sections.Directory.Location.collect{ [path:it.'@path', key:it.parent().'@key'] }
 		
 		// limit refresh locations

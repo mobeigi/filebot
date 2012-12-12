@@ -9,7 +9,7 @@ def isClutter(f) {
 	def maxsize = tryQuietly{ maxsize as Long } ?: 100 * 1024 * 1024
 	
 	// path contains blacklisted terms or extension is blacklisted
-	return f.extension ==~ "(?i)($exts)" || (f.path =~ "(?i)\\b($terms)\\b" && f.length() < maxsize)
+	return (f.extension ==~ "(?i)($exts)" || f.path =~ "(?i)\\b($terms)\\b") && f.length() < maxsize
 }
 
 
