@@ -553,6 +553,7 @@
 		<!-- prepare website resources -->
 		<copy todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
+				<include name="*.json" />
 				<include name="*.xml" />
 				<include name="*.php" />
 				<include name="*.html" />
