@@ -62,6 +62,7 @@
 ^Tracker
 ^Trailer
 ^transfer$
+^TV$
 ^user$
 ^VCD$
 ^VIDEO_TS$

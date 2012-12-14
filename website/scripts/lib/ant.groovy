@@ -7,7 +7,10 @@
  */
 def sshexec(param) {
 	param << [trust: true] // auto-trust remote hosts
-	ant().sshexec(param)
+	
+	_guarded {
+		ant().sshexec(param)
+	}
 }
 
 
@@ -21,9 +24,11 @@ def sendmail(param) {
 	def sender    = param.remove('from')
 	def recipient = param.remove('to')
 	
-	ant().mail(param) {
-		from(address:sender)
-		to(address:recipient)
+	_guarded {
+		ant().mail(param) {
+			from(address:sender)
+			to(address:recipient)
+		}
 	}
 }
 
