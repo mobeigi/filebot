@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.1</name>
-	<revision>1296</revision>
+	<name>FileBot 3.2</name>
+	<revision>1370</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.1 (r1296)</b><br>
+		<b>FileBot 3.2</b><br>
 		This release features:<br>
-		+ Enhanced TheTVDB series lookup<br>
-		+ Improved episode matching<br>
-		+ Rename folders via Link-Drop<br>
-		+ Support ed2k hash algorithm<br>
+		+ More reliable movie detection<br>
+		+ New and improved IMDb scraper<br>
+		+ Use System Proxy by default<br>
+		+ Support GVFS URIs in DnD<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=331]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=396]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>

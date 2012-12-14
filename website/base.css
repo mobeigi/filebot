@@ -423,7 +423,7 @@ div.screencast:hover .play {
 .adsense.sidead.second {
 	position: absolute;
 	left: 7px;
-	top: 2160px;
+	top: 2340px;
 }
 
 .adsense.adbox {
@@ -447,19 +447,19 @@ div.screencast:hover .play {
 	max-width: 380px;
 }
 
-.review p{
-    font-size: 11px;
-    line-height: 18px;
+.review p {
+	font-size: 11px;
+	line-height: 18px;
 	color: #555555;
-    margin:0px 0px 0px 48px
+	margin:0px 0px 0px 48px
 }
 
-.review .text{
+.review .text {
 	font-family: 'Dawning of a New Day', cursive;
 	font-size: 24px;
 }
 
-.review .user{
+.review .user {
 	font-size: 12px;
 	font-weight: bold;
 	color: #0077AA;
@@ -477,7 +477,7 @@ div.screencast:hover .play {
 	width: 42px;
 }
 
-.thumbs img{
+.thumbs img {
 	position:relative;
 	top: 8px;
 }
