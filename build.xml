@@ -28,8 +28,6 @@
 
 	<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
 	<property name="deploy.website" value="web.sourceforge.net:htdocs" />
-
-	<property name="deploy.data" value="web.sourceforge.net:htdocs/data" />
 	<property name="deploy.data.frs" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/data" />
 
 
@@ -605,10 +603,11 @@
 
 
 	<target name="upload-data" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.data}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.website}/data">
-				<include name=".htaccess" />
-				<include name="*.txt" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
+			<fileset dir="${dir.website}">
+				<include name="data/.htaccess" />
+				<include name="data/*.txt" />
+				<include name="*.json" />
 			</fileset>
 		</scp>
 	</target>

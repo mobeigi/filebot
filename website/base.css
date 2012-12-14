@@ -430,3 +430,54 @@ div.screencast:hover .play {
 	width: 300px;
 	margin: 25px auto;
 }
+
+.message.box {
+	background-color: #F5F5F5;
+	border-radius: 4px;
+	box-shadow: 0 2px 5px #A2A2A2;
+	background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+}
+
+.review {
+	margin: 30px 25px;
+	display: block;
+	text-decoration: none !important;
+	padding: 10px;
+	min-height: 44px;
+	max-width: 380px;
+}
+
+.review p{
+    font-size: 11px;
+    line-height: 18px;
+	color: #555555;
+    margin:0px 0px 0px 48px
+}
+
+.review .text{
+	font-family: 'Dawning of a New Day', cursive;
+	font-size: 24px;
+}
+
+.review .user{
+	font-size: 12px;
+	font-weight: bold;
+	color: #0077AA;
+	vertical-align: baseline;
+}
+
+.thumbs {
+	float:left;
+	border-radius: 4px 4px 4px 4px;
+	background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
+	background-color: #0088BB;
+	border: 1px solid #006699;
+	text-align: center;
+	height: 42px;
+	width: 42px;
+}
+
+.thumbs img{
+	position:relative;
+	top: 8px;
+}

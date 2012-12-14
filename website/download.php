@@ -44,11 +44,11 @@ if ($mode != 's') {
 				<img src="images/money.png" style="float:left; margin:5px 10px 5px 5px; width:48px; height:48px" />
 				<p style="margin: 13px 20px">
 					Shutter at the thought of how many hours and days of time FileBot has saved you?
-					You can show your appreciation and <b>support for future development</b> by donating!
+					You can show your appreciation and <b>support for future development</b> by donating.
 				</p>
 			</div>
 		</div>
-		<iframe src="<? print($downloadPage) ?>" name="sourceforge" width="100%" height="1200" frameBorder="0" scrolling="no" seamless="true"></iframe>
+		<iframe src="<? print($downloadPage) ?>" name="sourceforge" width="100%" height="1200" frameBorder="0" scrolling="no" seamless="seamless"></iframe>
 	</body>
 </html>
 <?

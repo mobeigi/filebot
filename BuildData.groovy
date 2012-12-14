@@ -2,7 +2,7 @@
 
 
 // UPDATE release-groups.txt FROM http://scenegrouplist.com/lists_sgl.php
-@Grab('org.jsoup:jsoup')
+@Grab(group='org.jsoup', module='jsoup', version='1.7.1')
 import org.jsoup.*
 
 def sgl = []
@@ -168,3 +168,19 @@ names = seriesSorter as List
 
 gz(series_out, names)
 println "Series Count: " + names.size()
+
+
+
+
+// prepare reviews from SF.net for website
+def reviewPage = retry(10, 1000){ Jsoup.connect('https://sourceforge.net/projects/filebot/reviews/?sort=usefulness&filter=thumbs_up').get() }
+def reviews = reviewPage.select('article[itemtype~=Review]').findResults{ article ->
+	article.select('*[itemprop=reviewBody]').findAll{ !(it.attr('class') =~ /spam/) }.findResults{ review ->
+		[user:article.select('*[itemprop=name]').text(), date:article.select('*[datetime]').text(), text:review.text()]
+	}
+}.flatten()
+
+use (groovy.json.JsonOutput) {
+	println "Reviews: ${reviews.size()}"
+	reviews.toJson().prettyPrint().saveAs('website/reviews.json')
+}

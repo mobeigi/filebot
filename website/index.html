@@ -23,8 +23,12 @@
 		<link rel="stylesheet" href="base.css" type="text/css" />
 		<link rel="icon" href="favicon.png" />
 		
+		<!-- Fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Dawning+of+a+New+Day' rel='stylesheet' type='text/css'>
+		
 		<!-- Java Deployment Toolkit -->
 		<script type="text/javascript" src="http://www.java.com/js/deployJava.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		
 		<!-- google analytics -->
 		<script type="text/javascript">
@@ -154,6 +158,29 @@
 						<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
 					</a>
 				</div>
+				
+				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
+				<div class="thumbs up">
+					<img src="images/thumbs_up.png" />
+				</div>
+				<div>
+					<script type="text/javascript">
+						$.ajax({
+							url: 'reviews.json',
+							dataType: 'json',
+							success: function(data) {
+								var review = data[Math.floor(Math.random() * data.length)]
+								$('#review .user').text(review.user)
+								$('#review .date').text(review.date)
+								$('#review .text').text(review.text)
+								$('#review').show()
+							}
+						});
+					</script>
+					<p class="head">Posted by <span class="user"></span> on <span class="date"></span></p>
+					<p class="text quote"></p>
+				</div>
+				</a>
 				
 				<div class="section first tutorial">
 					<img class="icon" src="images/starthere.png" alt="start" width="48" height="48" />
@@ -294,7 +321,7 @@
 					<span class="quote">Will you join us?</span>
 					<h2>Contact</h2>
 					<p>
-						The project is continuously seeking for improvements, so anykind of <a onclick="_gaq.push(['_trackPageview', '/project/feedback'])" target="_blank" href="http://alternativeto.net/software/filebot/reviews">feedback</a> is more than welcome 
+						The project is continuously seeking for improvements, so anykind of <a onclick="_gaq.push(['_trackPageview', '/project/feedback'])" target="_blank" href="https://sourceforge.net/projects/filebot/reviews/?sort=usefulness#review-form">feedback</a> is more than welcome 
 						and if there's any questions or problems just start posting in the <a target="_blank" href="http://filebot.sourceforge.net/forums/">forums</a> or check the <a target="_blank" href="http://filebot.sourceforge.net/forums/viewtopic.php?f=3&amp;t=7"><acronym title="frequently asked questions">FAQ</acronym></a>.
 						We're social as well. Follow us on <a onclick="_gaq.push(['_trackPageview', '/project/twitter'])" target="_blank" href="https://twitter.com/#!/filebot_renamer">twitter</a> and become a fan on <a onclick="_gaq.push(['_trackPageview', '/project/facebook'])" target="_blank" href="https://www.facebook.com/filebot">facebook</a>.
 					</p>
