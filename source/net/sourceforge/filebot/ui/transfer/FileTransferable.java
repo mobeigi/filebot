@@ -99,6 +99,11 @@ public class FileTransferable implements Transferable {
 	
 	@SuppressWarnings("unchecked")
 	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
+		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && !GVFS.isSupported()) {
+			// file list flavor
+			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+		}
+		
 		if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
 			// file URI list flavor (Linux)
 			Readable transferData = (Readable) tr.getTransferData(FileTransferable.uriListFlavor);
@@ -143,12 +148,10 @@ public class FileTransferable implements Transferable {
 			}
 			
 			return files;
-		} else if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-			// file list flavor
-			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 		}
 		
 		// cannot get files from transferable
 		throw new UnsupportedFlavorException(null);
 	}
+	
 }

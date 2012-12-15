@@ -49,6 +49,7 @@ import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.cli.CmdlineOperations;
 import net.sourceforge.filebot.format.ExpressionFormat;
+import net.sourceforge.filebot.gio.GVFS;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
@@ -159,6 +160,7 @@ public class Main {
 			
 			// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
+			GVFS.isSupported();
 			
 			// pre-load certain resources in the background
 			warmupCachedResources();
