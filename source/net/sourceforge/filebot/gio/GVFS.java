@@ -42,7 +42,7 @@ public class GVFS {
 	public static boolean isSupported() {
 		try {
 			return Platform.isLinux() || Platform.isFreeBSD();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return false;
 		}
 	}
