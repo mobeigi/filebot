@@ -130,6 +130,21 @@ def fetchMovieArtwork(outputFile, movieInfo, category, language) {
 	return selection.url.saveAs(outputFile)
 }
 
+def fetchAllMovieArtwork(outputFolder, movieInfo, category, language) {
+	// select and fetch artwork
+	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
+	def selection = [language, 'en', null].findResults{ l -> artwork.findAll{ (l == it.language || l == null) && it.category == category } }.flatten().unique()
+	if (selection == null) {
+		println "Artwork not found: $outputFolder"
+		return null
+	}
+	selection.eachWithIndex{ s, i ->
+		def outputFile = new File(outputFolder, "$category-${(i+1).pad(2)}.jpg")
+		println "Fetching $outputFile => $s"
+		s.url.saveAs(outputFile)
+	}
+}
+
 def fetchMovieFanart(outputFile, movieInfo, type, diskType, locale) {
 	def fanart = [locale, null].findResult{ lang -> FanartTV.getMovieArtwork(movieInfo.id).find{ type == it.type && (diskType == null || diskType == it.diskType) && (lang == null || lang == it.language) }}
 	if (fanart == null) {
@@ -209,7 +224,7 @@ def fetchMovieNfo(outputFile, movieInfo, movieFile) {
 	.saveAs(outputFile)
 }
 
-def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, locale = _args.locale) {
+def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, fetchAll = false, locale = _args.locale) {
 	_guarded {
 		def movieInfo = TheMovieDB.getMovieInfo(movie, locale)
 		
@@ -223,5 +238,9 @@ def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, locale = _args.lo
 		fetchMovieFanart(movieDir['clearart.png'], movieInfo, 'movieart', null, locale)
 		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, locale)
 		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, locale) }
+		
+		if (fetchAll) {
+			fetchAllMovieArtwork(movieDir['backdrops'], movieInfo, 'backdrops', locale.language)
+		}
 	}
 }

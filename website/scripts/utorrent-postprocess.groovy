@@ -14,6 +14,7 @@ if (tryQuietly{ ut_state != ut_state_allow }) {
 // enable/disable features as specified via --def parameters
 def subtitles = tryQuietly{ subtitles.toBoolean() }
 def artwork   = tryQuietly{ artwork.toBoolean() }
+def backdrops = tryQuietly{ backdrops.toBoolean() }
 
 // array of xbmc/plex hosts
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
@@ -176,7 +177,7 @@ groups.each{ group, files ->
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				println "Fetching artwork for $dir from TheMovieDB"
-				fetchMovieArtworkAndNfo(dir, group.mov, fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it })
+				fetchMovieArtworkAndNfo(dir, group.mov, fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, backdrops)
 			}
 		}
 		if (dest == null && failOnError) {
