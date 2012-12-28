@@ -8,9 +8,9 @@
 include("lib/htpc")
 
 
-args.eachMediaFolder { dir ->
+args.eachMediaFolder{ dir ->
 	// fetch only missing artwork by default
-	if (_args.conflict == "skip" && dir.hasFile{it =~ /tvshow.nfo$/} && dir.hasFile{it =~ /folder.jpg$/} && dir.hasFile{it =~ /banner.jpg$/}) {
+	if (_args.conflict == "skip" && [dir, dir.dir].find{ it.hasFile{it =~ /banner.jpg$/} }) {
 		println "Skipping $dir"
 		return
 	}
