@@ -172,6 +172,23 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("tmdbid")
+	public String getTmdbId() throws Exception {
+		int tmdbid = getMovie().getTmdbId();
+		
+		if (tmdbid <= 0) {
+			if (getMovie().getImdbId() <= 0) {
+				return null;
+			}
+			
+			// lookup IMDbID for TMDbID
+			tmdbid = WebServices.TMDb.getMovieInfo(getMovie(), null).getId();
+		}
+		
+		return String.valueOf(tmdbid);
+	}
+	
+	
 	@Define("imdbid")
 	public String getImdbId() throws Exception {
 		int imdbid = getMovie().getImdbId();
@@ -185,7 +202,7 @@ public class MediaBindingBean {
 			imdbid = WebServices.TMDb.getMovieInfo(getMovie(), null).getImdbId();
 		}
 		
-		return String.format("%07d", imdbid);
+		return String.format("tt%07d", imdbid);
 	}
 	
 	
