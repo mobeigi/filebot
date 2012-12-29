@@ -376,7 +376,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// look for video source patterns in media file and it's parent folder
-		return releaseInfo.getVideoSource(inferredMediaFile.getParent(), getOriginalFileName(inferredMediaFile), inferredMediaFile.getName());
+		return releaseInfo.getVideoSource(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
 	}
 	
 	
@@ -386,7 +386,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 		
 		// look for release group names in media file and it's parent folder
-		return releaseInfo.getReleaseGroup(inferredMediaFile.getParent(), getOriginalFileName(inferredMediaFile), inferredMediaFile.getName());
+		return releaseInfo.getReleaseGroup(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
 	}
 	
 	
