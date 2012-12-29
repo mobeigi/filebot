@@ -398,6 +398,13 @@ public class MediaDetection {
 		
 		// lookup by id from nfo file
 		if (queryLookupService != null) {
+			for (int imdbid : grepImdbId(movieFile.getPath())) {
+				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
+				if (movie != null) {
+					options.add(movie);
+				}
+			}
+			
 			// try to grep imdb id from nfo files
 			for (int imdbid : grepImdbIdFor(movieFile)) {
 				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
