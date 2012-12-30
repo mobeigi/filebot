@@ -25,6 +25,7 @@
 ^Downloading$
 ^Downloads$
 ^DVD
+^episode[s]?$
 ^Erotic$
 ^extract$
 ^extracted$
@@ -40,7 +41,7 @@
 ^jukebox$
 ^media$
 ^mnt$
-^Movie[s]?
+^movie[s]?
 ^new$
 ^other$
 ^private$
@@ -137,7 +138,6 @@ LIMITED
 LMAO
 Los.Sustitutos
 mkvonly
-Movies
 MultiSub
 MVGroup.org
 National.Geographic
