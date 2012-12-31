@@ -17,15 +17,23 @@ args.eachMediaFolder{ dir ->
 	
 	def videos = dir.listFiles{ it.isVideo() }
 	
-	def query = _args.query ?: dir.name
-	def options = TheMovieDB.searchMovie(query, _args.locale)
+	def query = _args.query
+	def options = []
+	
+	if (query) {
+		// manual search
+		options = TheMovieDB.searchMovie(query, _args.locale)
+		// sort by relevance
+		options = options.sortBySimilarity(query, { it.name })
+	} else {
+		// auto-detection
+		options = net.sourceforge.filebot.media.MediaDetection.detectMovie(videos[0], null, TheMovieDB, _args.locale, true)
+	}
+	
 	if (options.isEmpty()) {
 		println "Movie not found: $query"
 		return
 	}
-	
-	// sort by relevance
-	options = options.sortBySimilarity(query, { it.name })
 	
 	// auto-select movie
 	def movie = options[0]
