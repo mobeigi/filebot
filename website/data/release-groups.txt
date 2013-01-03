@@ -1054,6 +1054,7 @@ P4DGE
 Pa@Ph
 PADDO
 Pankhabd
+panos
 PAPAi
 papi
 PAROVOZ
