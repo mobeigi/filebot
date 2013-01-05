@@ -15,6 +15,7 @@ if (tryQuietly{ ut_state != ut_state_allow }) {
 def subtitles = tryQuietly{ subtitles.toBoolean() }
 def artwork   = tryQuietly{ artwork.toBoolean() }
 def backdrops = tryQuietly{ backdrops.toBoolean() }
+def clean     = tryQuietly{ clean.toBoolean() }
 
 // array of xbmc/plex hosts
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
@@ -201,7 +202,7 @@ plex?.each{
 
 // mark episodes as 'acquired'
 if (myepisodes) {
-	println "Update MyEpisodes"
+	println 'Update MyEpisodes'
 	include('fn:update-mes', [login:myepisodes.join(':'), addshows:false], getRenameLog().values())
 }
 
@@ -240,4 +241,10 @@ if (gmail && !getRenameLog().isEmpty()) {
 		to: tryQuietly{ mailto } ?: gmail[0] + '@gmail.com', // mail to self by default
 		user: gmail[0], password: gmail[1]
 	)
+}
+
+// clean empty folders, clutter files, etc after move
+if (clean) {
+	println 'Clean clutter files and empty folders'
+	include('fn:cleaner', [:], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
 }
