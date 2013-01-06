@@ -187,7 +187,10 @@ groups.each{ group, files ->
 	}
 }
 
-
+// skip notifications if nothing was renamed anyway
+if (getRenameLog().isEmpty()) {
+	return
+}
 
 // make xbmc or plex scan for new content
 xbmc?.each{
@@ -207,7 +210,7 @@ if (myepisodes) {
 }
 
 // send status email
-if (gmail && !getRenameLog().isEmpty()) {
+if (gmail) {
 	// ant/mail utility
 	include('fn:lib/ant')
 	
