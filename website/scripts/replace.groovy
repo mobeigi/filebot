@@ -14,11 +14,15 @@ args.getFiles{ accept(it)  }.each{
 		
 		// override files only when --conflict override is set
 		if (!it.equals(nfile)) {
-			if ((nfile.exists() || _args.conflict == 'override') && action != StandardRenameAction.TEST) {
+			if (nfile.exists() && _args.conflict == 'override' && action != StandardRenameAction.TEST) {
 				nfile.delete(); // resolve conflict
 			}
 			
-			println action.rename(it, nfile)
+			if (!nfile.exists()) {
+				println action.rename(it, nfile)
+			} else {
+				println "Skipped $nfile"
+			}
 		}
 	}
 }
