@@ -257,6 +257,10 @@ public class RenamePanel extends JComponent {
 		}
 		
 		actionPopup.addSeparator();
+		actionPopup.addDescription(new JLabel("Music Mode:"));
+		actionPopup.add(new AutoCompleteAction("AcoustID", ResourceManager.getIcon("search.acoustid"), new AudioFingerprintMatcher(WebServices.AcoustID)));
+		
+		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
 		
 		actionPopup.add(new AbstractAction("Edit Format", ResourceManager.getIcon("action.format")) {

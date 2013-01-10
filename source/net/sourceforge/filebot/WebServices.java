@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.audio.AcoustID;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -61,8 +62,9 @@ public final class WebServices {
 	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
 	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient();
 	
-	// fanart.tv
+	// misc
 	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
+	public static final AcoustID AcoustID = new AcoustID(Settings.getApplicationProperty("acoustid.apikey"));
 	
 	
 	public static EpisodeListProvider[] getEpisodeListProviders() {

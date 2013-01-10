@@ -23,8 +23,8 @@
 	Short-lived (48 hours) persistent cache for web responses.
 	-->
 	<cache name="web-datasource"
-		maxElementsInMemory="120"
-		maxElementsOnDisk="1200"
+		maxElementsInMemory="200"
+		maxElementsOnDisk="5000"
 		eternal="false"
 		timeToIdleSeconds="172800"
 		timeToLiveSeconds="172800"
