@@ -530,6 +530,7 @@ FiCODVDR
 FiddleGoose
 FiHTV
 FilmHD
+Filmikz
 FiNaLe
 FiTTY
 FiXi0N

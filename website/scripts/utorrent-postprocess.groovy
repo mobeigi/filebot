@@ -30,7 +30,8 @@ def gmail = tryQuietly{ gmail.split(':', 2) }
 def format = [
 	tvs:   tryQuietly{ seriesFormat } ?: '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''',
 	anime: tryQuietly{ animeFormat  } ?: '''Anime/{n}/{n} - {sxe} - {t}''',
-	mov:   tryQuietly{ movieFormat  } ?: '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}'''
+	mov:   tryQuietly{ movieFormat  } ?: '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}''',
+	music: tryQuietly{ musicFormat  } ?: '''Music/{n}/{album}/{n} - {t}'''
 ]
 
 
@@ -78,13 +79,13 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() }, forceExtractAll: true)
+input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || it.isAudio() }, forceExtractAll: true)
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() }
+input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || it.isAudio() }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
@@ -100,6 +101,8 @@ def groups = input.groupBy{ f ->
 	// skip auto-detection if possible
 	if (forceIgnore(f))
 		return []
+	if (f.isAudio()) // PROCESS MUSIC FOLDER BY FOLDER
+		return [music: f.dir.name]
 	if (forceMovie(f))
 		return [mov:   detectMovie(f, false)]
 	if (forceSeries(f))
@@ -183,6 +186,14 @@ groups.each{ group, files ->
 		}
 		if (dest == null && failOnError) {
 			throw new Exception("Failed to rename movie: $group.mov")
+		}
+	}
+	
+	// MUSIC MODE
+	if (group.music) {
+		def dest = rename(file:files, format:format.music, db:'AcoustID')
+		if (dest == null && failOnError) {
+			throw new Exception("Failed to rename music: $group.music")
 		}
 	}
 }

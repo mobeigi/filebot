@@ -15,7 +15,7 @@ args.getFiles{ accept(it)  }.each{
 		// override files only when --conflict override is set
 		if (!it.equals(nfile)) {
 			if (nfile.exists() && _args.conflict == 'override' && action != StandardRenameAction.TEST) {
-				nfile.delete(); // resolve conflict
+				nfile.delete() // resolve conflict
 			}
 			
 			if (!nfile.exists()) {
