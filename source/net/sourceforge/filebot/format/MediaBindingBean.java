@@ -32,6 +32,7 @@ import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -68,6 +69,8 @@ public class MediaBindingBean {
 			return getEpisode().getSeriesName();
 		if (infoObject instanceof Movie)
 			return getMovie().getName();
+		if (infoObject instanceof AudioTrack)
+			return getMusic().getArtist();
 		
 		return null;
 	}
@@ -120,6 +123,10 @@ public class MediaBindingBean {
 	
 	@Define("t")
 	public String getTitle() {
+		if (infoObject instanceof AudioTrack) {
+			return getMusic().getTitle();
+		}
+		
 		// single episode format
 		if (getEpisodes().size() == 1) {
 			return getEpisode().getTitle();
@@ -510,6 +517,24 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("artist")
+	public String getArtist() {
+		return getMusic().getArtist();
+	}
+	
+	
+	@Define("title")
+	public String getSongTitle() {
+		return getMusic().getTitle();
+	}
+	
+	
+	@Define("album")
+	public String getAlbum() {
+		return getMusic().getAlbum();
+	}
+	
+	
 	@Define("episode")
 	public Episode getEpisode() {
 		return (Episode) infoObject;
@@ -525,6 +550,12 @@ public class MediaBindingBean {
 	@Define("movie")
 	public Movie getMovie() {
 		return (Movie) infoObject;
+	}
+	
+	
+	@Define("music")
+	public AudioTrack getMusic() {
+		return (AudioTrack) infoObject;
 	}
 	
 	

@@ -66,6 +66,8 @@ import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.web.AcoustID;
+import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -99,6 +101,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (getMovieIdentificationService(db) != null) {
 			// movie mode
 			return renameMovie(files, action, conflictAction, outputDir, format, getMovieIdentificationService(db), query, locale, strict);
+		}
+		
+		if (WebServices.AcoustID.getName().equalsIgnoreCase(db) || containsOnly(files, AUDIO_FILES)) {
+			// music mode
+			return renameMusic(files, action, conflictAction, outputDir, format, WebServices.AcoustID);
 		}
 		
 		// auto-determine mode
@@ -494,6 +501,25 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// rename movies
 		Analytics.trackEvent("CLI", "Rename", "Movie", renameMap.size());
+		return renameAll(renameMap, renameAction, conflictAction);
+	}
+	
+	
+	private List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, AcoustID service) throws Exception {
+		// map old files to new paths by applying formatting and validating filenames
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+		
+		// check audio files against acoustid
+		for (Entry<File, AudioTrack> match : service.lookup(filter(files, AUDIO_FILES)).entrySet()) {
+			File file = match.getKey();
+			AudioTrack music = match.getValue();
+			String newName = (format != null) ? format.format(new MediaBindingBean(music, file)) : validateFileName(music.toString());
+			
+			renameMap.put(file, getDestinationFile(file, newName, outputDir));
+		}
+		
+		// rename movies
+		Analytics.trackEvent("CLI", "Rename", "Music", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction);
 	}
 	

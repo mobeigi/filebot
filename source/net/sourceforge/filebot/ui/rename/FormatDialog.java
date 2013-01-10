@@ -64,6 +64,7 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.format.BindingException;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.MediaBindingBean;
+import net.sourceforge.filebot.web.AudioTrackFormat;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.tuned.DefaultThreadFactory;
@@ -103,7 +104,7 @@ class FormatDialog extends JDialog {
 	
 	
 	public enum Mode {
-		Episode, Movie;
+		Episode, Movie, Music;
 		
 		public Mode next() {
 			if (ordinal() < values().length - 1)
@@ -122,8 +123,10 @@ class FormatDialog extends JDialog {
 			switch (this) {
 				case Episode:
 					return new EpisodeFormat(true, true);
-				default: // case Movie
+				case Movie: // case Movie
 					return new MovieFormat(true, true, false);
+				default:
+					return new AudioTrackFormat();
 			}
 		}
 		
@@ -228,7 +231,7 @@ class FormatDialog extends JDialog {
 		title.setText(this.getTitle());
 		status.setVisible(false);
 		
-		switchEditModeAction.putValue(Action.NAME, String.format("%s Format", mode.next()));
+		switchEditModeAction.putValue(Action.NAME, String.format("Switch to %s Format", mode.next()));
 		updateHelpPanel(mode);
 		
 		// update preview to current format

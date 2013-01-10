@@ -55,6 +55,8 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
+import net.sourceforge.filebot.web.AudioTrack;
+import net.sourceforge.filebot.web.AudioTrackFormat;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -83,6 +85,7 @@ public class RenamePanel extends JComponent {
 	
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
+	private static final PreferencesEntry<String> persistentMusicFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.music");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 	
@@ -258,7 +261,7 @@ public class RenamePanel extends JComponent {
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Music Mode:"));
-		actionPopup.add(new AutoCompleteAction("AcoustID", ResourceManager.getIcon("search.acoustid"), new AudioFingerprintMatcher(WebServices.AcoustID)));
+		actionPopup.add(new AutoCompleteAction(WebServices.AcoustID.getName(), WebServices.AcoustID.getIcon(), new AudioFingerprintMatcher(WebServices.AcoustID)));
 		
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
@@ -280,6 +283,10 @@ public class RenamePanel extends JComponent {
 						case Movie:
 							renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
 							persistentMovieFormat.setValue(dialog.getFormat().getExpression());
+							break;
+						case Music:
+							renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+							persistentMusicFormat.setValue(dialog.getFormat().getExpression());
 							break;
 					}
 				}

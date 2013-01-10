@@ -20,8 +20,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.audio.AcoustID;
 import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.FanartTV;
