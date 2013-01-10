@@ -53,6 +53,7 @@
 						<File Id='MediaInfo.dll' Name='MediaInfo.dll' Source='$(var.mediainfo)' />
 						<File Id='lib7_Zip_JBinding.dll' Name='7-Zip-JBinding.dll' Source='$(var.lib7z_binding)' />
 						<File Id='libgcc.dll' Name='$(var.libgcc_name)' Source='$(var.libgcc_path)' />
+						<File Id='fpcalc.exe' Name='fpcalc.exe' Source='$(var.fpcalc_path)' />
 					</Component>
 				</Directory>
 			</Directory>

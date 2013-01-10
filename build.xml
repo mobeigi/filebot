@@ -225,8 +225,9 @@
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" />
 			<!-- IMPORTANT application stub must be executable!! -->
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" />
+			<tarfileset dir="${dir.lib}/native/mac-x86_64" includes="fpcalc" filemode="755" prefix="${title}.app/Contents/Resources/Java" />
 		</tar>
 	</target>
 
@@ -293,10 +294,11 @@
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
 		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
 		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
+		<property name="fpcalc_path" location="${dir.lib}/native/win32-x86/fpcalc.exe" />
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path}" />
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path} -dfpcalc_path=${fpcalc_path}" />
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
@@ -401,7 +403,11 @@
 		<!-- copy native libs to temp dir -->
 		<copy todir="${dir.dist}/webstart/native/${arch}" flatten="true">
 			<zipfileset src="${dir.lib}/jna.jar" includes="com/sun/jna/${arch}/*" />
-			<fileset dir="${dir.lib}/native" includes="${arch}/*" />
+			<fileset dir="${dir.lib}/native">
+				<include name="${arch}/**.dll" />
+				<include name="${arch}/**.dylib" />
+				<include name="${arch}/**.so" />
+			</fileset>
 		</copy>
 
 		<!-- create native lib jar -->
