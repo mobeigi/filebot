@@ -505,7 +505,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	private List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, AcoustID service) throws Exception {
+	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, AcoustID service) throws Exception {
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
@@ -519,7 +519,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// rename movies
-		Analytics.trackEvent("CLI", "Rename", "Music", renameMap.size());
+		Analytics.trackEvent("CLI", "Rename", "AudioTrack", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction);
 	}
 	
