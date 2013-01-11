@@ -75,19 +75,28 @@ public class AcoustID {
 		if (!data.get("status").equals("ok")) {
 			throw new IOException("acoustid responded with error: " + data.get("status"));
 		}
-		
-		Map<?, ?> recording = (Map<?, ?>) ((List<?>) ((Map<?, ?>) ((List<?>) data.get("results")).get(0)).get("recordings")).get(0);
-		String artist = (String) ((Map<?, ?>) ((List<?>) recording.get("artists")).get(0)).get("name");
-		String title = (String) recording.get("title");
-		String album = (String) ((Map<?, ?>) ((List<?>) recording.get("releasegroups")).get(0)).get("title");
-		audioTrack = new AudioTrack(artist, title, album);
-		
-		cache.put(url, audioTrack);
-		return audioTrack;
+		try {
+			Map<?, ?> recording = (Map<?, ?>) ((List<?>) ((Map<?, ?>) ((List<?>) data.get("results")).get(0)).get("recordings")).get(0);
+			String artist = (String) ((Map<?, ?>) ((List<?>) recording.get("artists")).get(0)).get("name");
+			String title = (String) recording.get("title");
+			String album = null;
+			try {
+				album = (String) ((Map<?, ?>) ((List<?>) recording.get("releasegroups")).get(0)).get("title");
+			} catch (Exception e) {
+				// allow album to be null
+			}
+			
+			audioTrack = new AudioTrack(artist, title, album);
+			cache.put(url, audioTrack);
+			return audioTrack;
+		} catch (Exception e) {
+			// no results
+			return null;
+		}
 	}
 	
 	
-	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException {
+	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException, InterruptedException {
 		List<String> command = new ArrayList<String>();
 		command.add("fpcalc");
 		for (File f : files) {
@@ -117,6 +126,10 @@ public class AcoustID {
 			}
 		} finally {
 			scanner.close();
+		}
+		
+		if (process.waitFor() != 0) {
+			throw new IOException("Failed to exec fpcalc: Exit code " + process.exitValue());
 		}
 		
 		return results;
