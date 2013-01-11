@@ -49,7 +49,7 @@ def forceAnime(f) {
 }
 
 def forceIgnore(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Music|Audio|Ebook|other|what.cd|waffles.fm)/
+	tryQuietly{ ut_label } =~ /^(?i:Ebook|other|ignore)/
 }
 
 
