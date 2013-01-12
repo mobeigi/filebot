@@ -5,7 +5,6 @@ package net.sourceforge.filebot.gio;
 import java.io.File;
 import java.net.URI;
 
-import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
 
@@ -14,7 +13,7 @@ public class GVFS {
 	private static Pointer gvfs;
 	
 	
-	private synchronized static Pointer getDefaultVFS() {
+	public synchronized static Pointer getDefaultVFS() {
 		if (gvfs == null) {
 			GIOLibrary.INSTANCE.g_type_init();
 			gvfs = GIOLibrary.INSTANCE.g_vfs_get_default();
@@ -35,15 +34,6 @@ public class GVFS {
 		} finally {
 			GIOLibrary.INSTANCE.g_object_unref(gfile);
 			GIOLibrary.INSTANCE.g_free(chars);
-		}
-	}
-	
-	
-	public static boolean isSupported() {
-		try {
-			return Platform.isLinux() || Platform.isFreeBSD();
-		} catch (Throwable e) {
-			return false;
 		}
 	}
 	

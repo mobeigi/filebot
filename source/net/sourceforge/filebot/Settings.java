@@ -54,6 +54,11 @@ public final class Settings {
 	}
 	
 	
+	public static boolean useGVFS() {
+		return Boolean.parseBoolean(System.getProperty("useGVFS"));
+	}
+	
+	
 	public static boolean useExtendedFileAttributes() {
 		return Boolean.parseBoolean(System.getProperty("useExtendedFileAttributes"));
 	}

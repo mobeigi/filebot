@@ -2,6 +2,8 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
+import static net.sourceforge.filebot.Settings.*;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -99,7 +101,7 @@ public class FileTransferable implements Transferable {
 	
 	@SuppressWarnings("unchecked")
 	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
-		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && !GVFS.isSupported()) {
+		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && !useGVFS()) {
 			// file list flavor
 			return (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
 		}
@@ -128,7 +130,7 @@ public class FileTransferable implements Transferable {
 					} catch (IllegalArgumentException exception) {
 						// try handle other GVFS URI schemes
 						try {
-							if (GVFS.isSupported()) {
+							if (useGVFS()) {
 								file = GVFS.getPathForURI(uri);
 							}
 						} catch (LinkageError error) {

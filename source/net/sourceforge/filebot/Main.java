@@ -158,9 +158,15 @@ public class Main {
 				throw new RuntimeException(e); // won't happen
 			}
 			
-			// pre-load media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+			// pre-load media.types and JNA/GIO (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
-			GVFS.isSupported();
+			if (useGVFS()) {
+				try {
+					GVFS.getDefaultVFS();
+				} catch (Throwable e) {
+					Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
+				}
+			}
 			
 			// pre-load certain resources in the background
 			warmupCachedResources();
