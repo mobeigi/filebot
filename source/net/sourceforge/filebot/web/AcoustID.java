@@ -25,7 +25,7 @@ import net.sourceforge.filebot.ResourceManager;
 import com.cedarsoftware.util.io.JsonReader;
 
 
-public class AcoustID {
+public class AcoustID implements MusicIdentificationService {
 	
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(3, 1, TimeUnit.SECONDS);
 	
@@ -37,16 +37,19 @@ public class AcoustID {
 	}
 	
 	
+	@Override
 	public String getName() {
 		return "AcoustID";
 	}
 	
 	
+	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.acoustid");
 	}
 	
 	
+	@Override
 	public Map<File, AudioTrack> lookup(Iterable<File> files) throws Exception {
 		Map<File, AudioTrack> results = new LinkedHashMap<File, AudioTrack>();
 		

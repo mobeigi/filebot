@@ -13,17 +13,17 @@ import java.util.Locale;
 import java.util.Map.Entry;
 
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AudioTrack;
+import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.SortOrder;
 
 
 class AudioFingerprintMatcher implements AutoCompleteMatcher {
 	
-	private AcoustID service;
+	private MusicIdentificationService service;
 	
 	
-	public AudioFingerprintMatcher(AcoustID service) {
+	public AudioFingerprintMatcher(MusicIdentificationService service) {
 		this.service = service;
 	}
 	

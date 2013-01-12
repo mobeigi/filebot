@@ -66,7 +66,6 @@ import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
@@ -75,6 +74,7 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
+import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
@@ -103,9 +103,9 @@ public class CmdlineOperations implements CmdlineInterface {
 			return renameMovie(files, action, conflictAction, outputDir, format, getMovieIdentificationService(db), query, locale, strict);
 		}
 		
-		if (WebServices.AcoustID.getName().equalsIgnoreCase(db) || containsOnly(files, AUDIO_FILES)) {
+		if (getMusicIdentificationService(db) != null || containsOnly(files, AUDIO_FILES)) {
 			// music mode
-			return renameMusic(files, action, conflictAction, outputDir, format, WebServices.AcoustID);
+			return renameMusic(files, action, conflictAction, outputDir, format, getMusicIdentificationService(db) == null ? AcoustID : getMusicIdentificationService(db));
 		}
 		
 		// auto-determine mode
@@ -505,7 +505,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 	
 	
-	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, AcoustID service) throws Exception {
+	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		

@@ -25,9 +25,11 @@ import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.FanartTV;
+import net.sourceforge.filebot.web.ID3Lookup;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.LocalSearch;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
@@ -87,6 +89,11 @@ public final class WebServices {
 	}
 	
 	
+	public static MusicIdentificationService[] getMusicIdentificationServices() {
+		return new MusicIdentificationService[] { AcoustID, new ID3Lookup() };
+	}
+	
+	
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
 		for (EpisodeListProvider it : WebServices.getEpisodeListProviders()) {
 			if (it.getName().equalsIgnoreCase(name))
@@ -99,6 +106,16 @@ public final class WebServices {
 	
 	public static MovieIdentificationService getMovieIdentificationService(String name) {
 		for (MovieIdentificationService it : getMovieIdentificationServices()) {
+			if (it.getName().equalsIgnoreCase(name))
+				return it;
+		}
+		
+		return null; // default
+	}
+	
+	
+	public static MusicIdentificationService getMusicIdentificationService(String name) {
+		for (MusicIdentificationService it : getMusicIdentificationServices()) {
 			if (it.getName().equalsIgnoreCase(name))
 				return it;
 		}

@@ -82,6 +82,8 @@ public class MediaBindingBean {
 			return getEpisode().getSeriesStartDate().getYear();
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
+		if (infoObject instanceof AudioTrack)
+			return new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
 		
 		return null;
 	}
@@ -422,6 +424,9 @@ public class MediaBindingBean {
 	
 	@Define("genres")
 	public Object getGenres() {
+		if (infoObject instanceof AudioTrack)
+			return asList(getMediaInfo(StreamKind.General, 0, "Genre").split(";"));
+		
 		return getMetaInfo().getProperty("genres");
 	}
 	
@@ -561,7 +566,12 @@ public class MediaBindingBean {
 	
 	@Define("pi")
 	public Integer getPart() {
-		return ((MoviePart) infoObject).getPartIndex();
+		if (infoObject instanceof AudioTrack)
+			return Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position"));
+		if (infoObject instanceof MoviePart)
+			return ((MoviePart) infoObject).getPartIndex();
+		
+		return null;
 	}
 	
 	
