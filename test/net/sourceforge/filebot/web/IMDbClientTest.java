@@ -71,6 +71,17 @@ public class IMDbClientTest {
 	
 	
 	@Test
+	public void searchMovie6() throws Exception {
+		List<Movie> results = imdb.searchMovie("Drive 2011", null);
+		Movie movie = results.get(0);
+		
+		assertEquals("Drive", movie.getName());
+		assertEquals(2011, movie.getYear());
+		assertEquals(780504, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
 	public void searchMovieRedirect() throws Exception {
 		List<Movie> results = imdb.searchMovie("(500) Days of Summer (2009)", null);
 		

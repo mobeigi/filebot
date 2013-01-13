@@ -85,7 +85,7 @@ public class IMDbClient implements MovieIdentificationService {
 				if (name.startsWith("\""))
 					continue;
 				
-				String year = node.getNextSibling().getTextContent().replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
+				String year = node.getNextSibling().getTextContent().trim().replaceFirst("^\\(I\\)", "").replaceAll("[\\p{Punct}\\p{Space}]+", ""); // remove non-number characters
 				String href = getAttribute("href", node);
 				
 				results.add(new Movie(name, Integer.parseInt(year), getImdbId(href), -1));
