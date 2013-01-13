@@ -59,59 +59,19 @@ def gz(file, lines) {
 
 // ------------------------------------------------------------------------- //
 
-
-// LOAD osdb-imdb.txt (already verified data)
-def imdb_tsv = new File("osdb-imdb.txt")
-def imdb = [].asSynchronized() // thread-safe list
-
-imdb_tsv.getText('UTF-8').eachLine{
-	imdb << it.split(/\t/)
-}
-imdb_ids = new HashSet(imdb.collect{ it[0] })
-
 // BUILD movies.txt.gz
-def osdb_tsv = new URL("http://www.opensubtitles.org/addons/export_movie.php")
-def osdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
-osdb_tsv.getText('UTF-8').eachLine{
-	def line = it.split(/\t/)*.replaceAll(/\s+/, ' ')*.trim()
-	if (line.size() == 4 && line[0] =~ /\d+/) {
-		osdb << [line[1].toInteger(), line[2], line[3].toInteger()]
-	}
-}
-new File('omdb.txt').eachLine{
+def omdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
+new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
-	if (line.length > 11 && line[5] =~ /h/ && line[3].toInteger() >= 1970 && (tryQuietly{ line[11].toFloat() } ?: 0) > 1 && (tryQuietly{ line[12].toInteger() } ?: 0) >= 10) {
+	if (line.length > 11 && line[5] =~ /h/ && (tryQuietly{ line[11].toFloat() } ?: 0) > 1 && (tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0) >= 50) {
 		line = line*.replaceAll(/\s+/, ' ')*.trim()
-		osdb << [line[0].toInteger(), line[2], line[3].toInteger()]
+		omdb << [line[0].toInteger(), line[2], line[3].toInteger()]
 	}
 }
-
-osdb = osdb.findAll{ it[0] <= 9999999 && it[2] >= 1930 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
-
-parallel(osdb.collect{ row ->
-	return {		
-		// update new data
-		if (!imdb_ids.contains(row[0])) {
-			// get original title and english title
-			[Locale.ROOT, Locale.ENGLISH].collect{ locale -> net.sourceforge.filebot.WebServices.IMDb.getMovieDescriptor(row[0] as int, locale) }.unique{ it as String }.each { mov ->
-				if (mov != null && mov.name.length() > 0 && mov.year > 0) {
-					println "Adding $mov"
-					imdb << [row[0], mov.name, mov.year]
-				} else {
-					println "Blacklisting $row"
-					imdb << [row[0], null]
-				}
-			}
-		}
-	}
-}, 20)
-
-// save updated imdb data
-imdb.collect{ it.join('\t') }.sort().join('\n').saveAs(imdb_tsv)
+omdb = omdb.findAll{ it[0] <= 9999999 && it[2] >= 1970 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
 
 // save movie data
-def movies = imdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
-
+def movies = omdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
 def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
 movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), it) }
 movies = movieSorter.values().collect{ it.join('\t') }
