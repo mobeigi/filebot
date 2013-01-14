@@ -506,16 +506,28 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
+		CLILogger.config(format("Rename music using [%s]", service.getName()));
+		List<File> audioFiles = filter(files, AUDIO_FILES);
+		
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
 		// check audio files against acoustid
-		for (Entry<File, AudioTrack> match : service.lookup(filter(files, AUDIO_FILES)).entrySet()) {
+		for (Entry<File, AudioTrack> match : service.lookup(audioFiles).entrySet()) {
 			File file = match.getKey();
 			AudioTrack music = match.getValue();
 			String newName = (format != null) ? format.format(new MediaBindingBean(music, file)) : validateFileName(music.toString());
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
+		}
+		
+		// error logging
+		if (renameMap.size() != audioFiles.size()) {
+			for (File f : audioFiles) {
+				if (!renameMap.containsKey(f)) {
+					CLILogger.warning("Failed to lookup audio file: " + f.getName());
+				}
+			}
 		}
 		
 		// rename movies
