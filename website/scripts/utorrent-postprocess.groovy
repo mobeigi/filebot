@@ -101,7 +101,7 @@ def groups = input.groupBy{ f ->
 	// skip auto-detection if possible
 	if (forceIgnore(f))
 		return []
-	if (f.isAudio()) // PROCESS MUSIC FOLDER BY FOLDER
+	if (f.isAudio() && !f.isVideo()) // PROCESS MUSIC FOLDER BY FOLDER
 		return [music: f.dir.name]
 	if (forceMovie(f))
 		return [mov:   detectMovie(f, false)]
