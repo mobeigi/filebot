@@ -2,17 +2,15 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static java.util.Collections.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
-import java.net.HttpURLConnection;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 
 public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
@@ -21,7 +19,6 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	private String language;
 	
 	private URL subtitlePage;
-	private Map<String, String> subtitleInfo;
 	
 	
 	public SubsceneSubtitleDescriptor(String title, String language, URL subtitlePage) {
@@ -51,30 +48,14 @@ public class SubsceneSubtitleDescriptor implements SubtitleDescriptor {
 	
 	@Override
 	public ByteBuffer fetch() throws Exception {
-		URL downloadLink = new URL(subtitlePage.getProtocol(), subtitlePage.getHost(), "/subtitle/download");
-		
-		HttpURLConnection connection = (HttpURLConnection) downloadLink.openConnection();
-		connection.addRequestProperty("Referer", subtitlePage.toString());
-		
-		return WebRequest.post(connection, getSubtitleInfo());
+		return WebRequest.fetch(getDownloadLink(), 0, singletonMap("Referer", subtitlePage.toString()));
 	}
 	
 	
-	private synchronized Map<String, String> getSubtitleInfo() {
-		// extract subtitle information from subtitle page if necessary
-		if (subtitleInfo == null) {
-			subtitleInfo = new HashMap<String, String>();
-			try {
-				Document dom = getHtmlDocument(subtitlePage);
-				for (Node input : selectNodes("id('dl')//INPUT[@name]", dom)) {
-					subtitleInfo.put(getAttribute("name", input), getAttribute("value", input));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new RuntimeException("Failed to extract subtitle info", e);
-			}
-		}
-		return subtitleInfo;
+	private URL getDownloadLink() throws IOException, SAXException {
+		Document page = WebRequest.getHtmlDocument(subtitlePage);
+		String file = selectString("id('downloadButton')/@href", page);
+		return new URL(subtitlePage.getProtocol(), subtitlePage.getHost(), file);
 	}
 	
 	

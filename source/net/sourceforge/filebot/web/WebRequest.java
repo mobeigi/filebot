@@ -133,7 +133,9 @@ public final class WebRequest {
 	
 	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters) throws IOException {
 		URLConnection connection = url.openConnection();
-		connection.setIfModifiedSince(ifModifiedSince);
+		if (ifModifiedSince > 0) {
+			connection.setIfModifiedSince(ifModifiedSince);
+		}
 		
 		if (requestParameters != null) {
 			for (Entry<String, String> parameter : requestParameters.entrySet()) {

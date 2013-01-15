@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.filebot.vfs.ArchiveType;
+import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubsceneSubtitleClient.SubsceneSearchResult;
 
 import org.junit.BeforeClass;
@@ -50,7 +52,7 @@ public class SubsceneSubtitleClientTest {
 	
 	@Test
 	public void search2() throws Exception {
-		List<SearchResult> results = subscene.search("Avatar 2009");
+		List<SearchResult> results = subscene.search("firefly");
 		
 		SubsceneSearchResult result = (SubsceneSearchResult) results.get(0);
 		assertEquals("Firefly - The Complete Series (2002)", result.toString());
@@ -100,10 +102,12 @@ public class SubsceneSubtitleClientTest {
 	public void downloadSubtitleArchive() throws Exception {
 		SearchResult selectedResult = subscene.search("firefly").get(0);
 		SubtitleDescriptor subtitleDescriptor = subscene.getSubtitleList(selectedResult, "English").get(0);
-		assertEquals("Firefly.S01E00-13.DVDRip-Rogue.eng-RETAIL", subtitleDescriptor.getName());
+		assertEquals("Firefly  The Complete Series", subtitleDescriptor.getName());
 		
-		ByteBuffer archive = subtitleDescriptor.fetch();
-		assertEquals(254549, archive.remaining());
+		ByteBuffer data = subtitleDescriptor.fetch();
+		Iterable<MemoryFile> archive = ArchiveType.RAR.fromData(data);
+		MemoryFile file = archive.iterator().next();
+		assertEquals("Firefly - 1x01 - Serenity.srt", file.getName());
 	}
 	
 }
