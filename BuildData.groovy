@@ -63,12 +63,22 @@ def gz(file, lines) {
 def omdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
 new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
-	if (line.length > 11 && line[5] =~ /h/ && (tryQuietly{ line[11].toFloat() } ?: 0) > 1 && (tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0) >= 50) {
-		line = line*.replaceAll(/\s+/, ' ')*.trim()
-		omdb << [line[0].toInteger(), line[2], line[3].toInteger()]
+	
+	if (line.length > 11 && line[0] ==~ /\d+/) {
+		def imdbid = line[1].substring(2).toInteger()
+		def name = line[2]
+		def year = line[3].toInteger()
+		def runtime = line[5]
+		def rating = tryQuietly{ line[11].toFloat() } ?: 0
+		def votes = tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0
+		
+		if ((year >= 1970 && runtime =~ /h/ && rating >= 1 && votes >= 50) || (votes >= 2000)) {
+			line = line*.replaceAll(/\s+/, ' ')*.trim()
+			omdb << [imdbid, name, year]
+		}
 	}
 }
-omdb = omdb.findAll{ it[0] <= 9999999 && it[2] >= 1970 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
+omdb = omdb.findAll{ it[0] <= 9999999 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ }.collect{ [it[0].pad(7), it[1], it[2]] }
 
 // save movie data
 def movies = omdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
