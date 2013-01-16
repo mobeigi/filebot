@@ -135,6 +135,7 @@ KORSUB
 LAB
 LIMITED
 LMAO
+lol
 Los.Sustitutos
 mkvonly
 MultiSub
@@ -196,4 +197,5 @@ UsaBit.com
 video[s]?
 www[.][\w-.]+[.](com|net|tk|ro|cd)
 xRipp
+XtremeDoN
 Zune

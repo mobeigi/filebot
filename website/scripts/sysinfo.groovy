@@ -51,7 +51,7 @@ try {
 
 // GIO and GVFS
 try {
-	if (net.sourceforge.filebot.gio.GVFS.supported) {
+	if (net.sourceforge.filebot.Settings.useGVFS()) {
 		print 'GVFS: '
 		assert net.sourceforge.filebot.gio.GVFS.defaultVFS != null
 		println 'OK'
