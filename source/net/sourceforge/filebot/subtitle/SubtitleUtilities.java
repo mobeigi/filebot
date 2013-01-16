@@ -53,7 +53,11 @@ public final class SubtitleUtilities {
 			
 			@Override
 			public float getSimilarity(Object o1, Object o2) {
-				return SeasonEpisode.getSimilarity(o1, o2) < 1 ? -1 : 1;
+				float f = SeasonEpisode.getSimilarity(o1, o2);
+				if (f == 0)
+					return 0;
+				
+				return f < 1 ? -1 : 1;
 			}
 		};
 		SimilarityMetric sanity = new MetricCascade(FileSize, FileName, absoluteSeasonEpisode, AirDate, Title, Name);
