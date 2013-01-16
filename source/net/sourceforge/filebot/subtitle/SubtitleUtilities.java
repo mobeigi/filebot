@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.MetricAvg;
@@ -49,12 +48,21 @@ public final class SubtitleUtilities {
 		// optimize for generic media <-> subtitle matching
 		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringSequence, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
 		
+		// subtitle verification metric specifically excluding SxE mismatches 
+		SimilarityMetric absoluteSeasonEpisode = new SimilarityMetric() {
+			
+			@Override
+			public float getSimilarity(Object o1, Object o2) {
+				return SeasonEpisode.getSimilarity(o1, o2) < 1 ? -1 : 1;
+			}
+		};
+		SimilarityMetric sanity = new MetricCascade(FileSize, FileName, absoluteSeasonEpisode, AirDate, Title, Name);
+		
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);
-		SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 		
 		for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.5f)) {
+			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.6f)) {
 				subtitleByVideo.put(it.getValue(), it.getCandidate());
 			}
 		}

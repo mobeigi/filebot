@@ -794,7 +794,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 					throw e;
 				} catch (Exception e) {
 					// log and ignore
-					Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					Logger.getLogger(SubtitleAutoMatchDialog.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}
 			
@@ -997,7 +997,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				
 				// still no luck... na women ye mei banfa
 				if (subtitles.isEmpty()) {
-					throw new Exception("Unable to lookup subtitles:" + querySet);
+					throw new Exception("Unable to lookup subtitles: " + querySet);
 				}
 			}
 			
