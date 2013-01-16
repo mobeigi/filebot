@@ -142,6 +142,9 @@ public class EpisodeFormat extends Format {
 		StringBuilder sb = new StringBuilder();
 		Integer ps = null;
 		for (Episode it : episodes) {
+			if (sb.length() > 0) {
+				sb.append("-");
+			}
 			if (!it.getSeason().equals(ps)) {
 				sb.append(String.format("S%02d", it.getSeason())).append(String.format("E%02d", it.getEpisode()));
 			} else {
@@ -152,7 +155,6 @@ public class EpisodeFormat extends Format {
 		
 		return sb.toString();
 	}
-	
 	
 	private final Pattern sxePattern = Pattern.compile("- (?:(\\d{1,2})x)?(Special )?(\\d{1,3}) -");
 	private final Pattern airdatePattern = Pattern.compile("\\[(\\d{4}-\\d{1,2}-\\d{1,2})\\]");
