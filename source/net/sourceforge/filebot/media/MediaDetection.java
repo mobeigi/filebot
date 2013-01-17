@@ -45,6 +45,7 @@ import net.sourceforge.filebot.similarity.DateMetric;
 import net.sourceforge.filebot.similarity.MetricAvg;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodePattern;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
@@ -167,7 +168,15 @@ public class MediaDetection {
 				// divide file set per complete series set
 				Map<Object, List<File>> filesByEpisode = new LinkedHashMap<Object, List<File>>();
 				for (File file : combinedFileSet) {
-					Object eid = getEpisodeIdentifier(file.getPath(), true);
+					Object eid = getEpisodeIdentifier(file.getName(), true);
+					
+					// SPECIAL CASE: 101, 201, 202, etc 3-digit SxE pattern 
+					if (eid == null) {
+						List<SxE> d3sxe = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(\\d)(\\d{2})(?!\\p{Alnum})").match(file.getName());
+						if (d3sxe != null && d3sxe.size() > 0) {
+							eid = d3sxe;
+						}
+					}
 					
 					// merge specials into first SxE group
 					if (eid == null) {
