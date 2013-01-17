@@ -167,7 +167,7 @@ public class MediaDetection {
 				// divide file set per complete series set
 				Map<Object, List<File>> filesByEpisode = new LinkedHashMap<Object, List<File>>();
 				for (File file : combinedFileSet) {
-					Object eid = getEpisodeIdentifier(file.getName(), true);
+					Object eid = getEpisodeIdentifier(file.getPath(), true);
 					
 					// merge specials into first SxE group
 					if (eid == null) {
