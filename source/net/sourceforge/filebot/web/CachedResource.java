@@ -30,6 +30,11 @@ public abstract class CachedResource<T extends Serializable> {
 	}
 	
 	
+	public CachedResource(String resource, Class<T> type) {
+		this(resource, type, Long.MAX_VALUE);
+	}
+	
+	
 	protected Cache getCache() {
 		return CacheManager.getInstance().getCache("web-persistent-datasource");
 	}

@@ -238,7 +238,7 @@ public class TMDbClient implements MovieIdentificationService {
 		
 		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data, true));
 		
-		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class, 7 * 24 * 60 * 60 * 1000) {
+		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class) {
 			
 			@Override
 			public String process(ByteBuffer data) throws Exception {
@@ -263,7 +263,7 @@ public class TMDbClient implements MovieIdentificationService {
 			
 			@Override
 			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-data-diskcache");
+				return CacheManager.getInstance().getCache("web-datasource");
 			}
 		};
 		

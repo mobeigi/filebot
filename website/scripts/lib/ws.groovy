@@ -11,7 +11,7 @@ class MyEpisodesScraper {
 	def username
 	def password
 	
-	def cache = Cache.getCache('web-persistent-datasource')
+	def cache = Cache.getCache('web-datasource')
 	def session = [:]
 	
 	def login = {

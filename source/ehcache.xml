@@ -1,5 +1,4 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false">
-
 	<!--
 	Persistent disk store location
 	-->
@@ -7,7 +6,7 @@
 	
 	<!--
 	Mandatory Default Cache configuration. These settings will be applied to caches
-	created pragmatically using CacheManager.add(String cacheName).
+	created pragmatically using CacheManager.add(String cacheName)
 	-->
 	<defaultCache
 		maxElementsInMemory="100"
@@ -20,52 +19,38 @@
 	/>
 	
 	<!--
-	Short-lived (48 hours) persistent cache for web responses.
+	Long-lived (2 week) persistent disk cache for web responses
 	-->
 	<cache name="web-datasource"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="5000"
+		maxElementsOnDisk="10000"
 		eternal="false"
-		timeToIdleSeconds="172800"
-		timeToLiveSeconds="172800"
+		timeToIdleSeconds="1209600"
+		timeToLiveSeconds="1209600"
 		overflowToDisk="true"
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
 	
 	<!--
-	Long-lived (1 week) persistent disk cache for full web pages
+	Very long-lived cache (2 months) anime/series lists, movie index, etc
 	-->
-	<cache name="web-data-diskcache"
+	<cache name="web-persistent-datasource"
 		maxElementsInMemory="50"
 		maxElementsOnDisk="5000"
 		eternal="false"
-		timeToIdleSeconds="604800"
-		timeToLiveSeconds="604800"
+		timeToIdleSeconds="5259000"
+		timeToLiveSeconds="5259000"
 		overflowToDisk="true"
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
 	
 	<!--
-	Very long-lived cache (one month!) anime/series list and episode information.
-	-->
-	<cache name="web-persistent-datasource"
-		maxElementsInMemory="40"
-		maxElementsOnDisk="240"
-		eternal="false"
-		timeToIdleSeconds="2628000"
-		timeToLiveSeconds="2628000"
-		overflowToDisk="true"
-		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-	
-	<!--
-	Simple memory cache for calculated checksums. Time to live is 2 hours. This cache is used in EpisodeFormatBindingBean
+	Simple memory cache for calculated checksums. Time to live is 2 hours.
 	-->
 	<cache name="checksum"
-		maxElementsInMemory="4200"
+		maxElementsInMemory="5000"
 		eternal="false"
 		timeToIdleSeconds="7200"
 		timeToLiveSeconds="7200"

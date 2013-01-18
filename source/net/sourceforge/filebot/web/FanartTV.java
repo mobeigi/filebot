@@ -60,7 +60,7 @@ public class FanartTV {
 		String resource = getResource(category, id, "xml", type, sort, limit);
 		
 		// cache results
-		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class, 7 * 24 * 60 * 60 * 1000) {
+		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class) {
 			
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
@@ -86,7 +86,7 @@ public class FanartTV {
 			
 			@Override
 			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-data-diskcache");
+				return CacheManager.getInstance().getCache("web-datasource");
 			}
 		};
 		

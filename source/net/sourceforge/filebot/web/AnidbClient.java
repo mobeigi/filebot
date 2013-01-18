@@ -70,7 +70,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, Cache.getCache("web-persistent-datasource"));
+		return new ResultCache(host, Cache.getCache("web-datasource"));
 	}
 	
 	

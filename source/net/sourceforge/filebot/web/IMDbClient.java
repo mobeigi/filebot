@@ -175,7 +175,7 @@ public class IMDbClient implements MovieIdentificationService {
 	public Map<String, String> getImdbApiData(Integer i, String t, String y, boolean tomatoes) throws IOException {
 		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
 		String url = String.format("http://www.omdbapi.com/?i=%s&t=%s&y=%s&r=xml&tomatoes=%s", String.format(i == null ? "" : "tt%07d", i), t, y, tomatoes);
-		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class, 7 * 24 * 60 * 60 * 1000) {
+		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class) {
 			
 			@Override
 			public HashMap process(ByteBuffer data) throws Exception {
@@ -190,7 +190,7 @@ public class IMDbClient implements MovieIdentificationService {
 			
 			@Override
 			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-data-diskcache");
+				return CacheManager.getInstance().getCache("web-datasource");
 			}
 		};
 		
