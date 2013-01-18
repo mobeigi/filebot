@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.2</name>
-	<revision>1370</revision>
+	<name>FileBot 3.3</name>
+	<revision>1412</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.2</b><br>
+		<b>FileBot 3.3</b><br>
 		This release features:<br>
-		+ More reliable movie detection<br>
-		+ New and improved IMDb scraper<br>
-		+ Use System Proxy by default<br>
-		+ Support GVFS URIs in DnD<br>
+		+ New Music Mode using AcoustID<br>
+		+ Better support certain SxE patterns<br>
+		+ Improved movie detection<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=396]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=460]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>
