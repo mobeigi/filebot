@@ -1,8 +1,8 @@
 // PERSONALIZED SETTINGS
-def episodeDir    = "V:/in/TV"
-def episodeFormat = "V:/out/TV/{n}{'/Season '+s}/{episode}"
-def movieDir      = "V:/in/Movies"
-def movieFormat   = "V:/out/Movies/{movie}/{movie}"
+def episodeDir    = '''V:/in/TV'''
+def episodeFormat = '''V:/out/TV/{n}{'/Season '+s}/{episode}'''
+def movieDir      = '''V:/in/Movies'''
+def movieFormat   = '''V:/out/Movies/{movie}/{movie}'''
 
 // XBMC ON LOCAL MACHINE 
 def xbmc = ['localhost'] // (use [] to not notify any XBMC instances about updates)
