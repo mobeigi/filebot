@@ -7,6 +7,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
@@ -108,7 +111,13 @@ public class AcoustID implements MusicIdentificationService {
 		
 		Process process = null;
 		try {
-			process = new ProcessBuilder(command).start();
+			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			try {
+				processBuilder.redirectError(Redirect.INHERIT);
+			} catch (Throwable e) {
+				Logger.getLogger(AcoustID.class.getName()).log(Level.WARNING, "Unable to inherit IO: " + e.getMessage());
+			}
+			process = processBuilder.start();
 		} catch (Exception e) {
 			throw new IOException("Failed to exec fpcalc: " + e.getMessage());
 		}
