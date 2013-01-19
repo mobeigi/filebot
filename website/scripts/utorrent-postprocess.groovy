@@ -12,7 +12,7 @@ if (tryQuietly{ ut_state != ut_state_allow }) {
 }
 
 // enable/disable features as specified via --def parameters
-def subtitles = tryQuietly{ subtitles.toBoolean() }
+def subtitles = tryQuietly{ subtitles.toBoolean() ? ['en'] : subtitles.split(/[ ,|]+/).findAll{ it.length() >= 2 } }
 def artwork   = tryQuietly{ artwork.toBoolean() }
 def backdrops = tryQuietly{ backdrops.toBoolean() }
 def clean     = tryQuietly{ clean.toBoolean() }
@@ -28,7 +28,7 @@ def gmail = tryQuietly{ gmail.split(':', 2) }
 
 // series/anime/movie format expressions
 def format = [
-	tvs:   tryQuietly{ seriesFormat } ?: '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}''',
+	tvs:   tryQuietly{ seriesFormat } ?: '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}{".$lang"}''',
 	anime: tryQuietly{ animeFormat  } ?: '''Anime/{n}/{n} - {sxe} - {t}''',
 	mov:   tryQuietly{ movieFormat  } ?: '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}''',
 	music: tryQuietly{ musicFormat  } ?: '''Music/{n}/{album}/{n} - {t}'''
@@ -148,7 +148,9 @@ groups.each{ group, files -> _log.finest("Group: $group => ${files*.name}") }
 groups.each{ group, files ->
 	// fetch subtitles
 	if (subtitles) {
-		files += getMissingSubtitles(file:files, output:"srt", encoding:"utf-8")
+		subtitles.each{ languageCode ->
+			files += getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode)
+		}
 	}
 	
 	// EPISODE MODE

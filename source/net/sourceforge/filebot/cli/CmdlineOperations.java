@@ -621,6 +621,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, boolean strict) throws Exception {
 		final Language language = getLanguage(languageName);
 		final Pattern databaseFilter = (db != null) ? Pattern.compile(db, Pattern.CASE_INSENSITIVE) : null;
+		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), files.size()));
 		
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
 		final Charset outputEncoding = (csn != null) ? Charset.forName(csn) : (output != null) ? Charset.forName("UTF-8") : null;
@@ -743,7 +744,6 @@ public class CmdlineOperations implements CmdlineInterface {
 			return emptyList();
 		}
 		
-		CLILogger.finest(format("Missing subtitles for %d video files", videoFiles.size()));
 		return getSubtitles(videoFiles, db, query, languageName, output, csn, strict);
 	}
 	
