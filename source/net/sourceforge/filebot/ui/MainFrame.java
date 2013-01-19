@@ -2,7 +2,11 @@
 package net.sourceforge.filebot.ui;
 
 
+import static java.awt.event.InputEvent.*;
+import static java.awt.event.KeyEvent.*;
+import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
+import static net.sourceforge.filebot.ui.NotificationLogging.*;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -12,9 +16,11 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -29,6 +35,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
+import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
@@ -98,6 +105,16 @@ public class MainFrame extends JFrame {
 		});
 		
 		setSize(860, 630);
+		
+		// KEYBOARD SHORTCUTS
+		TunedUtilities.installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), new AbstractAction("Clear Cache") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CacheManager.getInstance().clearAll();
+				UILogger.info("Cache has been cleared");
+			}
+		});
 	}
 	
 	
