@@ -198,4 +198,5 @@ video[s]?
 www[.][\w-.]+[.](com|net|tk|ro|cd)
 xRipp
 XtremeDoN
+YIFY
 Zune

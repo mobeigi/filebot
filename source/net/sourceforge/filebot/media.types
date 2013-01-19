@@ -73,6 +73,7 @@
 	</type>
 	<type name="video/mkv">
 		<extension>mkv</extension>
+		<extension>mk3d</extension>
 	</type>
 	<type name="video/ogm">
 		<extension>ogm</extension>
@@ -105,6 +106,7 @@
 	<type name="video/realmedia">
 		<extension>rm</extension>
 		<extension>rmvb</extension>
+		<extension>rmp4</extension>
 	</type>
 	<type name="video/tivo">
 		<extension>tivo</extension>
