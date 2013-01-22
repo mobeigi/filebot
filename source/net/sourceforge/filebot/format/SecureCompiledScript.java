@@ -33,6 +33,7 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
+		permissions.add(new RuntimePermission("getFileSystemAttributes"));
 		
 		// write permissions for temp and cache folders
 		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));

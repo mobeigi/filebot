@@ -14,6 +14,8 @@ Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { s
 */
 File.metaClass.getAt = { Range range -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(range).join(File.separator) }
 File.metaClass.getAt = { int index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
+File.metaClass.getRoot = { listPath(delegate)[0] }
+File.metaClass.listPath = { listPath(delegate) }
 
 
 /**
