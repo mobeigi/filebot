@@ -24,6 +24,7 @@ def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 // myepisodes updates and email notifications
 def myepisodes = tryQuietly { myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
+def pushover = tryQuietly{ pushover }
 
 
 // series/anime/movie format expressions
@@ -220,6 +221,14 @@ plex?.each{
 if (myepisodes) {
 	println 'Update MyEpisodes'
 	include('fn:update-mes', [login:myepisodes.join(':'), addshows:false], getRenameLog().values())
+}
+
+if (pushover) {
+	// include webservice utility
+	include('fn:lib/ws')
+	
+	println('Sending Pushover notification')
+	Pushover(pushover).send("Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).")
 }
 
 // send status email

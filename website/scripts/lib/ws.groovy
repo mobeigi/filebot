@@ -1,3 +1,33 @@
+/****************************************************************************
+ * Pushover
+ * 				https://pushover.net
+ ****************************************************************************/
+def Pushover(user, token = 'wcckDz3oygHSU2SdIptvnHxJ92SQKK') {
+	new PushoverClient(user:user, token:token)
+}
+
+class PushoverClient {
+	def user
+	def token
+	
+	def endpoint =  new URL('https://api.pushover.net/1/messages.xml')
+	
+	def send = { text, parameters = [:] ->
+		// inject default post parameters
+		parameters << [token:token, user:user, message:text as String]
+		
+		// post and process response
+		endpoint.post(parameters).text.xml
+	}
+}
+
+
+
+
+/****************************************************************************
+ * MyEpisodes
+ * 				http://www.myepisodes.com
+ ****************************************************************************/
 @Grab(group='org.jsoup', module='jsoup', version='1.7.1')
 import org.jsoup.Jsoup
 import org.jsoup.Connection.Method
