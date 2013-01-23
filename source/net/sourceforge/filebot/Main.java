@@ -169,7 +169,9 @@ public class Main {
 			}
 			
 			// pre-load certain resources in the background
-			warmupCachedResources();
+			if (!"skip".equals(System.getProperty("application.warmup"))) {
+				warmupCachedResources();
+			}
 			
 			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
 			if (!"skip".equals(System.getProperty("application.update"))) {
