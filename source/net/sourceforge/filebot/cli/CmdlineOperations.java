@@ -516,6 +516,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (Entry<File, AudioTrack> match : service.lookup(audioFiles).entrySet()) {
 			File file = match.getKey();
 			AudioTrack music = match.getValue();
+			if (music == null)
+				continue;
+			
 			String newName = (format != null) ? format.format(new MediaBindingBean(music, file)) : validateFileName(music.toString());
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));

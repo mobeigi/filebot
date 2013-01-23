@@ -70,7 +70,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovie().getName();
 		if (infoObject instanceof AudioTrack)
-			return getMusic().getArtist();
+			return getAlbumArtist() != null ? getAlbumArtist() : getArtist();
 		
 		return null;
 	}
@@ -83,7 +83,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		if (infoObject instanceof AudioTrack)
-			return new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
+			return getReleaseDate() != null ? ((Date) getReleaseDate()).getYear() : new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
 		
 		return null;
 	}
@@ -126,7 +126,7 @@ public class MediaBindingBean {
 	@Define("t")
 	public String getTitle() {
 		if (infoObject instanceof AudioTrack) {
-			return getMusic().getTitle();
+			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
 		}
 		
 		// single episode format
@@ -150,6 +150,9 @@ public class MediaBindingBean {
 		}
 		if (infoObject instanceof Movie) {
 			return getMetaInfo().getProperty("released");
+		}
+		if (infoObject instanceof AudioTrack) {
+			return getMusic().getAlbumReleaseDate();
 		}
 		
 		// no date info for the model
@@ -528,9 +531,9 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("title")
-	public String getSongTitle() {
-		return getMusic().getTitle();
+	@Define("albumArtist")
+	public String getAlbumArtist() {
+		return getMusic().getAlbumArtist();
 	}
 	
 	
@@ -567,7 +570,7 @@ public class MediaBindingBean {
 	@Define("pi")
 	public Integer getPart() {
 		if (infoObject instanceof AudioTrack)
-			return Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position"));
+			return getMusic().getTrack() != null ? getMusic().getTrack() : Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position"));
 		if (infoObject instanceof MoviePart)
 			return ((MoviePart) infoObject).getPartIndex();
 		
@@ -577,7 +580,12 @@ public class MediaBindingBean {
 	
 	@Define("pn")
 	public Integer getPartCount() {
-		return ((MoviePart) infoObject).getPartCount();
+		if (infoObject instanceof AudioTrack)
+			return getMusic().getTrackCount();
+		if (infoObject instanceof MoviePart)
+			return ((MoviePart) infoObject).getPartCount();
+		
+		return null;
 	}
 	
 	
