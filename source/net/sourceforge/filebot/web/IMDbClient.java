@@ -115,7 +115,7 @@ public class IMDbClient implements MovieIdentificationService {
 				return null;
 			
 			String name = selectString("//H1/text()", dom).replaceAll("\\s+", " ").trim();
-			String year = new Scanner(selectNode("//H1/SPAN", dom).getTextContent()).useDelimiter("\\D+").next();
+			String year = new Scanner(selectNode("//H1/SPAN[@class='nobr']", dom).getTextContent()).useDelimiter("\\D+").next();
 			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
 			
 			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, imdbid, -1);

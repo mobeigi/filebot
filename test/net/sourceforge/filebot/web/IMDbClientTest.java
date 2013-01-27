@@ -124,6 +124,16 @@ public class IMDbClientTest {
 	
 	
 	@Test
+	public void getMovieDescriptor4() throws Exception {
+		Movie movie = imdb.getMovieDescriptor(369702, null);
+		
+		assertEquals("The Sea Inside", movie.getName());
+		assertEquals(2004, movie.getYear());
+		assertEquals(369702, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
 	public void getAkaMovieDescriptor() throws Exception {
 		Movie movie = imdb.getMovieDescriptor(106559, Locale.ENGLISH);
 		
