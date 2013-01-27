@@ -33,6 +33,7 @@ import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
@@ -660,8 +661,15 @@ public class MediaBindingBean {
 				}
 			}
 			
-			// still no good match found -> just take any video from the same folder
+			// still no good match found -> just take the most probable video from the same folder
 			if (videos.length > 0) {
+				sort(videos, new SimilarityComparator(FileUtilities.getName(mediaFile)) {
+					
+					@Override
+					public int compare(Object o1, Object o2) {
+						return super.compare(FileUtilities.getName((File) o1), FileUtilities.getName((File) o2));
+					}
+				});
 				return videos[0];
 			}
 		}

@@ -17,7 +17,7 @@ public class SimilarityComparator implements Comparator<Object> {
 	}
 	
 	
-	public SimilarityComparator(String... paragon) {
+	public SimilarityComparator(Object... paragon) {
 		this(new NameSimilarityMetric(), paragon);
 	}
 	
