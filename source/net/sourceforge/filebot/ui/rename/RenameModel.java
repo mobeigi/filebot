@@ -7,10 +7,13 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -45,12 +48,12 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 		@Override
 		public String preview(Match<?, ?> match) {
-			return format(match);
+			return format(match, null);
 		}
 		
 		
 		@Override
-		public String format(Match<?, ?> match) {
+		public String format(Match<?, ?> match, Map<?, ?> context) {
 			// clean up path separators like / or \
 			return replacePathSeparators(String.valueOf(match.getValue())).trim();
 		}
@@ -207,7 +210,7 @@ public class RenameModel extends MatchModel<Object, File> {
 					Match<Object, File> match = getMatch(index);
 					
 					// create new future
-					final FormattedFuture future = new FormattedFuture(match, getFormatter(match));
+					final FormattedFuture future = new FormattedFuture(match, getFormatter(match), getContext());
 					
 					// update data
 					if (type == ListEvent.INSERT) {
@@ -255,7 +258,7 @@ public class RenameModel extends MatchModel<Object, File> {
 			
 			for (int i = 0; i < size(); i++) {
 				FormattedFuture obsolete = futures.get(i);
-				FormattedFuture future = new FormattedFuture(obsolete.getMatch(), getFormatter(obsolete.getMatch()));
+				FormattedFuture future = new FormattedFuture(obsolete.getMatch(), getFormatter(obsolete.getMatch()), getContext());
 				
 				// replace and cancel old future
 				cancel(futures.set(i, future));
@@ -267,6 +270,23 @@ public class RenameModel extends MatchModel<Object, File> {
 			}
 			
 			updates.commitEvent();
+		}
+		
+		
+		private Map<File, Object> getContext() {
+			return new AbstractMap<File, Object>() {
+				
+				@Override
+				public Set<Entry<File, Object>> entrySet() {
+					Set<Entry<File, Object>> context = new LinkedHashSet<Entry<File, Object>>();
+					for (Match<Object, File> it : matches()) {
+						if (it.getValue() != null && it.getCandidate() != null) {
+							context.add(new SimpleImmutableEntry<File, Object>(it.getCandidate(), it.getValue()));
+						}
+					}
+					return context;
+				}
+			};
 		}
 		
 		
@@ -305,13 +325,15 @@ public class RenameModel extends MatchModel<Object, File> {
 	public static class FormattedFuture extends SwingWorker<String, Void> {
 		
 		private final Match<Object, File> match;
+		private final Map<File, Object> context;
 		
 		private final MatchFormatter formatter;
 		
 		
-		private FormattedFuture(Match<Object, File> match, MatchFormatter formatter) {
+		private FormattedFuture(Match<Object, File> match, MatchFormatter formatter, Map<File, Object> context) {
 			this.match = match;
 			this.formatter = formatter;
+			this.context = context;
 		}
 		
 		
@@ -332,7 +354,7 @@ public class RenameModel extends MatchModel<Object, File> {
 		
 		@Override
 		protected String doInBackground() throws Exception {
-			return formatter.format(match).trim();
+			return formatter.format(match, context).trim();
 		}
 		
 		

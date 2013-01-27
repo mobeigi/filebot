@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
@@ -46,13 +47,16 @@ public class MediaBindingBean {
 	
 	private final Object infoObject;
 	private final File mediaFile;
+	private final Map<File, Object> context;
+	
 	private MediaInfo mediaInfo;
 	private Object metaInfo;
 	
 	
-	public MediaBindingBean(Object infoObject, File mediaFile) {
+	public MediaBindingBean(Object infoObject, File mediaFile, Map<File, Object> context) {
 		this.infoObject = infoObject;
 		this.mediaFile = mediaFile;
+		this.context = context;
 	}
 	
 	
@@ -597,7 +601,7 @@ public class MediaBindingBean {
 	
 	@Define("folder")
 	public File getMediaParentFolder() {
-		return mediaFile.getParentFile();
+		return getMediaFile().getParentFile();
 	}
 	
 	
@@ -607,8 +611,21 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("object")
 	public Object getInfoObject() {
 		return infoObject;
+	}
+	
+	
+	@Define("index")
+	public Integer getIndex() {
+		return new ArrayList<File>(getContext().keySet()).indexOf(getMediaFile()) + 1;
+	}
+	
+	
+	@Define("model")
+	public Map<File, Object> getContext() {
+		return context;
 	}
 	
 	
@@ -622,7 +639,16 @@ public class MediaBindingBean {
 			if (videos.size() > 0) {
 				return videos.iterator().next();
 			}
-		} else if (!VIDEO_FILES.accept(mediaFile)) {
+		} else if ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(mediaFile)) {
+			// prefer equal match from current context if possible
+			if (getContext() != null) {
+				for (Entry<File, Object> it : getContext().entrySet()) {
+					if (infoObject.equals(it.getValue()) && VIDEO_FILES.accept(it.getKey())) {
+						return it.getKey();
+					}
+				}
+			}
+			
 			// file is a subtitle, or nfo, etc
 			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
 			File[] videos = mediaFile.getParentFile().listFiles(VIDEO_FILES);

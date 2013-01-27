@@ -405,7 +405,7 @@ class FormatDialog extends JDialog {
 			media = new File(path);
 		}
 		
-		return new MediaBindingBean(info, media);
+		return new MediaBindingBean(info, media, null);
 	}
 	
 	
@@ -610,7 +610,7 @@ class FormatDialog extends JDialog {
 				File file = dialog.getMediaFile();
 				
 				// change sample
-				sample = new MediaBindingBean(info, file);
+				sample = new MediaBindingBean(info, file, null);
 				
 				// remember
 				mode.persistentSample().setValue(info == null ? "" : mode.getFormat().format(info));

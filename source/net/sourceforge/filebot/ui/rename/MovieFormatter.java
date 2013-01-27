@@ -5,6 +5,7 @@ package net.sourceforge.filebot.ui.rename;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.util.Formatter;
+import java.util.Map;
 
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.web.MoviePart;
@@ -20,12 +21,12 @@ class MovieFormatter implements MatchFormatter {
 	
 	@Override
 	public String preview(Match<?, ?> match) {
-		return format(match);
+		return format(match, null);
 	}
 	
 	
 	@Override
-	public String format(Match<?, ?> match) {
+	public String format(Match<?, ?> match, Map<?, ?> context) {
 		MoviePart video = (MoviePart) match.getValue();
 		Formatter name = new Formatter(new StringBuilder());
 		

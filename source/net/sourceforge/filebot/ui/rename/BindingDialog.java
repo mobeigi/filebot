@@ -119,7 +119,7 @@ class BindingDialog extends JDialog {
 				if (bindingModel.executor.isShutdown())
 					return;
 				
-				bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile()));
+				bindingModel.setModel(getSampleExpressions(), new MediaBindingBean(getInfoObject(), getMediaFile(), null));
 			}
 		};
 		

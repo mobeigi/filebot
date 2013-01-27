@@ -19,6 +19,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -153,7 +154,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// similarity metrics for matching
-		List<Match<File, Object>> matches = new ArrayList<Match<File, Object>>();
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		
 		// auto-determine optimal batch sets
 		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
@@ -188,7 +189,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					CLILogger.fine(String.format("Apply Filter: {%s}", filter.getExpression()));
 					for (Iterator<Episode> itr = episodes.iterator(); itr.hasNext();) {
 						Episode episode = itr.next();
-						if (filter.matches(new MediaBindingBean(episode, null))) {
+						if (filter.matches(new MediaBindingBean(episode, null, null))) {
 							CLILogger.finest(String.format("Include [%s]", episode));
 						} else {
 							itr.remove();
@@ -221,10 +222,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
-		for (Match<File, Object> match : matches) {
+		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
 			Object episode = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file)) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
+			String newName = (format != null) ? format.format(new MediaBindingBean(episode, file, getContext(matches))) : validateFileName(EpisodeFormat.SeasonEpisode.format(episode));
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
 		}
@@ -494,7 +495,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
 			Object movie = match.getCandidate();
-			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file)) : validateFileName(MovieFormat.NameYear.format(movie));
+			String newName = (format != null) ? format.format(new MediaBindingBean(movie, file, getContext(matches))) : validateFileName(MovieFormat.NameYear.format(movie));
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
 		}
@@ -509,17 +510,21 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename music using [%s]", service.getName()));
 		List<File> audioFiles = filter(files, AUDIO_FILES);
 		
+		// check audio files against acoustid
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+		for (Entry<File, AudioTrack> it : service.lookup(audioFiles).entrySet()) {
+			if (it.getKey() != null && it.getValue() != null) {
+				matches.add(new Match<File, AudioTrack>(it.getKey(), it.getValue()));
+			}
+		}
+		
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 		
-		// check audio files against acoustid
-		for (Entry<File, AudioTrack> match : service.lookup(audioFiles).entrySet()) {
-			File file = match.getKey();
-			AudioTrack music = match.getValue();
-			if (music == null)
-				continue;
-			
-			String newName = (format != null) ? format.format(new MediaBindingBean(music, file)) : validateFileName(music.toString());
+		for (Match<File, ?> it : matches) {
+			File file = it.getValue();
+			AudioTrack music = (AudioTrack) it.getCandidate();
+			String newName = (format != null) ? format.format(new MediaBindingBean(music, file, getContext(matches))) : validateFileName(music.toString());
 			
 			renameMap.put(file, getDestinationFile(file, newName, outputDir));
 		}
@@ -536,6 +541,23 @@ public class CmdlineOperations implements CmdlineInterface {
 		// rename movies
 		Analytics.trackEvent("CLI", "Rename", "AudioTrack", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction);
+	}
+	
+	
+	private Map<File, Object> getContext(final Collection<Match<File, ?>> matches) {
+		return new AbstractMap<File, Object>() {
+			
+			@Override
+			public Set<Entry<File, Object>> entrySet() {
+				Set<Entry<File, Object>> context = new LinkedHashSet<Entry<File, Object>>();
+				for (Match<File, ?> it : matches) {
+					if (it.getValue() != null && it.getCandidate() != null) {
+						context.add(new SimpleImmutableEntry<File, Object>(it.getValue(), it.getCandidate()));
+					}
+				}
+				return context;
+			}
+		};
 	}
 	
 	
@@ -1028,7 +1050,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<String> episodes = new ArrayList<String>();
 		
 		for (Episode it : service.getEpisodeList(hit, sortOrder, locale)) {
-			String name = (format != null) ? format.format(new MediaBindingBean(it, null)) : EpisodeFormat.SeasonEpisode.format(it);
+			String name = (format != null) ? format.format(new MediaBindingBean(it, null, null)) : EpisodeFormat.SeasonEpisode.format(it);
 			episodes.add(name);
 		}
 		
@@ -1039,7 +1061,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	@Override
 	public String getMediaInfo(File file, String expression) throws Exception {
 		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
-		return format.format(new MediaBindingBean(file, file));
+		return format.format(new MediaBindingBean(file, file, null));
 	}
 	
 	

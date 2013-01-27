@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import java.io.File;
+import java.util.Map;
 
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.vfs.FileInfo;
@@ -27,12 +28,12 @@ class FileNameFormatter implements MatchFormatter {
 	
 	@Override
 	public String preview(Match<?, ?> match) {
-		return format(match);
+		return format(match, null);
 	}
 	
 	
 	@Override
-	public String format(Match<?, ?> match) {
+	public String format(Match<?, ?> match, Map<?, ?> context) {
 		Object value = match.getValue();
 		
 		if (value instanceof File) {

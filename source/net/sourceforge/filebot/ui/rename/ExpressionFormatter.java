@@ -4,6 +4,7 @@ package net.sourceforge.filebot.ui.rename;
 
 import java.io.File;
 import java.text.Format;
+import java.util.Map;
 
 import javax.script.ScriptException;
 
@@ -20,7 +21,7 @@ class ExpressionFormatter implements MatchFormatter {
 	private Format preview;
 	private Class<?> target;
 	
-
+	
 	public ExpressionFormatter(String expression, Format preview, Class<?> target) {
 		if (expression == null || expression.isEmpty())
 			throw new IllegalArgumentException("Expression must not be null or empty");
@@ -31,29 +32,29 @@ class ExpressionFormatter implements MatchFormatter {
 		
 	}
 	
-
+	
 	@Override
 	public boolean canFormat(Match<?, ?> match) {
 		// target object is required, file is optional
 		return target.isInstance(match.getValue()) && (match.getCandidate() == null || match.getCandidate() instanceof File);
 	}
 	
-
+	
 	@Override
 	public String preview(Match<?, ?> match) {
 		return preview != null ? preview.format(match.getValue()) : match.getValue().toString();
 	}
 	
-
+	
 	@Override
-	public synchronized String format(Match<?, ?> match) throws ScriptException {
+	public synchronized String format(Match<?, ?> match, Map<?, ?> context) throws ScriptException {
 		// lazy initialize script engine
 		if (format == null) {
 			format = new ExpressionFormat(expression);
 		}
 		
 		// evaluate the expression using the given bindings
-		Object bindingBean = new MediaBindingBean(match.getValue(), (File) match.getCandidate());
+		Object bindingBean = new MediaBindingBean(match.getValue(), (File) match.getCandidate(), (Map<File, Object>) context);
 		String result = format.format(bindingBean).trim();
 		
 		// if result is empty, check for script exceptions
