@@ -430,6 +430,7 @@ public class ReleaseInfo {
 		languageMap.remove("");
 		languageMap.remove("II");
 		languageMap.remove("III");
+		languageMap.remove("hi"); // hi => hearing-impaired subtitles, NOT hindi language
 		
 		Map<String, Locale> result = unmodifiableMap(languageMap);
 		return result;
