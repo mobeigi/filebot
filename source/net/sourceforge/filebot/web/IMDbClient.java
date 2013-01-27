@@ -41,6 +41,9 @@ import org.xml.sax.SAXException;
 
 public class IMDbClient implements MovieIdentificationService {
 	
+	private String host = "www.imdb.com";
+	
+	
 	@Override
 	public String getName() {
 		return "IMDb";
@@ -50,12 +53,6 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("search.imdb");
-	}
-	
-	
-	protected String getHost() {
-		String host = System.getProperty("imdb.hostname"); // default to akas.imdb.com but allow override via -Dimdb.host
-		return host == null ? "imdb.com" : host;
 	}
 	
 	
@@ -73,7 +70,7 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
-		Document dom = parsePage(new URL("http", getHost(), "/find?s=tt&q=" + encode(query, false)));
+		Document dom = parsePage(new URL("http", host, "/find?s=tt&q=" + encode(query, false)));
 		
 		// select movie links followed by year in parenthesis
 		List<Node> nodes = selectNodes("//TABLE[@class='findList']//TD/A[substring-after(substring-before(following::text(),')'),'(')]", dom);
@@ -118,7 +115,7 @@ public class IMDbClient implements MovieIdentificationService {
 				return null;
 			
 			String name = selectString("//H1/text()", dom).replaceAll("\\s+", " ").trim();
-			String year = new Scanner(selectString("//H1//A/text()", dom)).useDelimiter("\\D+").next();
+			String year = new Scanner(selectNode("//H1/SPAN", dom).getTextContent()).useDelimiter("\\D+").next();
 			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
 			
 			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, imdbid, -1);
@@ -132,7 +129,7 @@ public class IMDbClient implements MovieIdentificationService {
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
 		try {
-			return scrapeMovie(parsePage(new URL("http", getHost(), String.format("/title/tt%07d", imdbid))), locale);
+			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/", imdbid))), locale);
 		} catch (FileNotFoundException e) {
 			return null; // illegal imdbid
 		}

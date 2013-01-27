@@ -114,6 +114,16 @@ public class IMDbClientTest {
 	
 	
 	@Test
+	public void getMovieDescriptor3() throws Exception {
+		Movie movie = imdb.getMovieDescriptor(75610, null);
+		
+		assertEquals("21", movie.getName());
+		assertEquals(1977, movie.getYear());
+		assertEquals(75610, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
 	public void getAkaMovieDescriptor() throws Exception {
 		Movie movie = imdb.getMovieDescriptor(106559, Locale.ENGLISH);
 		
