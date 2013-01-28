@@ -128,6 +128,7 @@ class BindingDialog extends JDialog {
 		mediaFileTextField.getDocument().addDocumentListener(changeListener);
 		
 		// disabled by default
+		infoTextField.setEnabled(false);
 		mediaInfoAction.setEnabled(false);
 		
 		// disable media info action if media file is invalid
@@ -236,6 +237,7 @@ class BindingDialog extends JDialog {
 	
 	
 	public void setInfoObject(Object info) {
+		infoTextField.putClientProperty("model", info);
 		infoTextField.setText(info == null ? "" : infoObjectFormat.format(info));
 	}
 	
@@ -246,18 +248,7 @@ class BindingDialog extends JDialog {
 	
 	
 	public Object getInfoObject() {
-		try {
-			// try known object
-			Object model = infoTextField.getClientProperty("model");
-			if (model != null) {
-				return model;
-			}
-			
-			// or parse user input
-			return infoObjectFormat.parseObject(infoTextField.getText());
-		} catch (Exception e) {
-			return null;
-		}
+		return infoTextField.getClientProperty("model");
 	}
 	
 	
@@ -398,19 +389,15 @@ class BindingDialog extends JDialog {
 				// set file
 				mediaFileTextField.setText(file.getAbsolutePath());
 				
-				// reset known model
-				infoTextField.putClientProperty("model", null);
-				infoTextField.setEnabled(true);
-				
 				// set info object from xattr if possible
 				if (useExtendedFileAttributes()) {
 					try {
 						MetaAttributes xattr = new MetaAttributes(file);
 						try {
 							Object object = xattr.getMetaData();
-							infoTextField.setText(infoObjectFormat.format(object));
-							infoTextField.putClientProperty("model", object);
-							infoTextField.setEnabled(false);
+							if (infoObjectFormat.format(object) != null) {
+								setInfoObject(object);
+							}
 						} catch (Exception e) {
 							// ignore invalid data
 						}

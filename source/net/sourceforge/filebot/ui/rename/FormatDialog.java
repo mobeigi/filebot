@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URI;
 import java.text.Format;
-import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -78,6 +77,9 @@ import net.sourceforge.tuned.ui.ProgressIndicator;
 import net.sourceforge.tuned.ui.TunedUtilities;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder;
 import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 
 
 class FormatDialog extends JDialog {
@@ -386,14 +388,17 @@ class FormatDialog extends JDialog {
 		try {
 			// restore sample from user preferences
 			String sample = mode.persistentSample().getValue();
-			info = mode.getFormat().parseObject(sample);
+			info = JsonReader.toJava(sample);
+			if (info == null) {
+				throw new NullPointerException();
+			}
 		} catch (Exception e) {
 			try {
 				// restore sample from application properties
 				ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
 				String sample = bundle.getString(mode.key() + ".sample");
-				info = mode.getFormat().parseObject(sample);
-			} catch (ParseException illegalSample) {
+				info = JsonReader.toJava(sample);
+			} catch (Exception illegalSample) {
 				throw new RuntimeException(illegalSample); // won't happen
 			}
 		}
@@ -613,7 +618,7 @@ class FormatDialog extends JDialog {
 				sample = new MediaBindingBean(info, file, null);
 				
 				// remember
-				mode.persistentSample().setValue(info == null ? "" : mode.getFormat().format(info));
+				mode.persistentSample().setValue(info == null ? "" : JsonWriter.toJson(info));
 				persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
 				
 				// reevaluate everything
