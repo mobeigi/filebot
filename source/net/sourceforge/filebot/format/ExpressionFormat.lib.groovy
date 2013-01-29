@@ -44,7 +44,7 @@ String.metaClass.pad = Number.metaClass.pad = { length = 2, padding = "0" -> del
  * Return a substring matching the given pattern or break.
  */
 String.metaClass.match = { String pattern, matchGroup = null -> 
-	def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE).matcher(delegate)
+	def matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.MULTILINE).matcher(delegate)
 	if (matcher.find())
 		return matcher.groupCount() > 0 && matchGroup == null ? matcher.group(1) : matcher.group(matchGroup ?: 0)
 	else
