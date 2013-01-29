@@ -13,7 +13,9 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -30,6 +32,7 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 public class ExpressionFormat extends Format {
 	
 	private static ScriptEngine engine;
+	private static Map<String, CompiledScript> scriptletCache = new HashMap<String, CompiledScript>();
 	
 	
 	protected static synchronized ScriptEngine getGroovyScriptEngine() throws ScriptException {
@@ -41,6 +44,16 @@ public class ExpressionFormat extends Format {
 	}
 	
 	
+	protected static synchronized CompiledScript compileScriptlet(String expression) throws ScriptException {
+		Compilable engine = (Compilable) getGroovyScriptEngine();
+		CompiledScript scriptlet = scriptletCache.get(expression);
+		if (scriptlet == null) {
+			scriptlet = engine.compile(expression);
+			scriptletCache.put(expression, scriptlet);
+		}
+		return scriptlet;
+	}
+	
 	private final String expression;
 	
 	private final Object[] compilation;
@@ -50,7 +63,7 @@ public class ExpressionFormat extends Format {
 	
 	public ExpressionFormat(String expression) throws ScriptException {
 		this.expression = expression;
-		this.compilation = secure(compile(expression, (Compilable) getGroovyScriptEngine()));
+		this.compilation = secure(compile(expression));
 	}
 	
 	
@@ -59,7 +72,7 @@ public class ExpressionFormat extends Format {
 	}
 	
 	
-	protected Object[] compile(String expression, Compilable engine) throws ScriptException {
+	protected Object[] compile(String expression) throws ScriptException {
 		List<Object> compilation = new ArrayList<Object>();
 		
 		char open = '{';
@@ -87,7 +100,7 @@ public class ExpressionFormat extends Format {
 				if (level == 1) {
 					if (token.length() > 0) {
 						try {
-							compilation.add(engine.compile(token.toString()));
+							compilation.add(compileScriptlet(token.toString()));
 						} catch (ScriptException e) {
 							// try to extract syntax exception
 							ScriptException illegalSyntax = e;

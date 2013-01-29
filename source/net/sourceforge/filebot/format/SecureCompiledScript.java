@@ -36,12 +36,15 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new RuntimePermission("getFileSystemAttributes"));
 		
 		// write permissions for temp and cache folders
-		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
-		permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
+		try {
+			permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
+			permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));
+		} catch (Exception e) {
+			// ignore
+		}
 		
 		return permissions;
 	}
-	
 	
 	private final CompiledScript compiledScript;
 	private final AccessControlContext sandbox;

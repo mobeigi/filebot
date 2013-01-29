@@ -31,7 +31,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.script.Compilable;
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -432,9 +431,9 @@ class BindingDialog extends JDialog {
 			ExpressionFormat format = new ExpressionFormat(expression) {
 				
 				@Override
-				protected Object[] compile(String expression, Compilable engine) throws ScriptException {
+				protected Object[] compile(String expression) throws ScriptException {
 					// simple expression format, everything as one expression
-					return new Object[] { engine.compile(expression) };
+					return new Object[] { compileScriptlet(expression) };
 				}
 			};
 			

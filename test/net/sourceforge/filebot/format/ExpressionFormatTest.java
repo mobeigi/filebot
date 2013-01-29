@@ -5,7 +5,6 @@ package net.sourceforge.filebot.format;
 import static org.junit.Assert.*;
 
 import javax.script.Bindings;
-import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
@@ -19,7 +18,7 @@ public class ExpressionFormatTest {
 	public void compile() throws Exception {
 		ExpressionFormat format = new TestScriptFormat("");
 		
-		Object[] expression = format.compile("name: {name}, number: {number}", (Compilable) ExpressionFormat.getGroovyScriptEngine());
+		Object[] expression = format.compile("name: {name}, number: {number}");
 		
 		assertTrue(expression[0] instanceof String);
 		assertTrue(expression[1] instanceof CompiledScript);
