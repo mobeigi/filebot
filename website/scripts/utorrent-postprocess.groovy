@@ -80,7 +80,8 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-input += extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || it.isAudio() }, forceExtractAll: true)
+def extractedFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || it.isAudio() }, forceExtractAll: true)
+input += extractedFiles
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
@@ -270,6 +271,27 @@ if (gmail) {
 
 // clean empty folders, clutter files, etc after move
 if (clean) {
-	println 'Clean clutter files and empty folders'
-	include('fn:cleaner', [:], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+	if ('COPY'.equalsIgnoreCase(_args.action) && extractedFiles?.size() > 0) {
+		println 'Clean temporary extracted files'
+		// delete extracted files
+		extractedFiles.each{
+			if(it.isFile()) {
+				println "Delete $it"
+				it.delete()
+			}
+		}
+		// delete remaining empty folders
+		extractedFiles*.dir.unique().findAll{ it.listFiles().length == 0 }.each{
+			if(it.isDirectory()) {
+				println "Delete $it"
+				it.delete()
+			}
+		}
+	}
+	
+	// deleting remaining files only makes sense after moving files
+	if ('MOVE'.equalsIgnoreCase(_args.action)) {
+		println 'Clean clutter files and empty folders'
+		include('fn:cleaner', [:], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+	}
 }
