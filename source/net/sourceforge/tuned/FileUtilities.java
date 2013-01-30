@@ -194,6 +194,7 @@ public final class FileUtilities {
 	 * e.g. "file.txt" -> match "txt", ".hidden" -> no match
 	 */
 	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
+	public static final String UNC_PREFIX = "\\\\";
 	
 	
 	public static String getExtension(File file) {
@@ -248,7 +249,7 @@ public final class FileUtilities {
 	
 	
 	public static String getName(File file) {
-		if (file.getName().isEmpty())
+		if (file.getName().isEmpty() || UNC_PREFIX.equals(file.getParent()))
 			return getFolderName(file);
 		
 		return getNameWithoutExtension(file.getName());
@@ -256,10 +257,11 @@ public final class FileUtilities {
 	
 	
 	public static String getFolderName(File file) {
-		String name = file.getName();
+		if (UNC_PREFIX.equals(file.getParent()))
+			return file.toString();
 		
-		if (!name.isEmpty())
-			return name;
+		if (file.getName().length() > 0)
+			return file.getName();
 		
 		// file might be a drive (only has a path, but no name)
 		return replacePathSeparators(file.toString(), "");
@@ -351,7 +353,7 @@ public final class FileUtilities {
 	public static List<File> listPath(File file) {
 		LinkedList<File> nodes = new LinkedList<File>();
 		
-		for (File node = file; node != null; node = node.getParentFile()) {
+		for (File node = file; node != null && !UNC_PREFIX.equals(node.toString()); node = node.getParentFile()) {
 			nodes.addFirst(node);
 		}
 		
@@ -492,6 +494,10 @@ public final class FileUtilities {
 	
 	
 	public static String normalizePathSeparators(String path) {
+		// special handling for UNC paths
+		if (path.startsWith(UNC_PREFIX) && path.length() > 2) {
+			return UNC_PREFIX + path.substring(2).replace('\\', '/');
+		}
 		return path.replace('\\', '/');
 	}
 	
