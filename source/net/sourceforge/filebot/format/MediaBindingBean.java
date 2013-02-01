@@ -42,6 +42,7 @@ import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.MultiEpisode;
 import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
 
 
 public class MediaBindingBean {
@@ -417,9 +418,22 @@ public class MediaBindingBean {
 			return new Locale(languageSuffix.getISO3Language()); // force ISO3 letter-code
 			
 		// require subtitle file
-		if (!SUBTITLE_FILES.accept(mediaFile))
+		if (!SUBTITLE_FILES.accept(mediaFile)) {
 			return null;
+		}
 		
+		// exclude VobSub from any normal text-based subtitle processing
+		if (hasExtension(mediaFile, "idx")) {
+			return null;
+		} else if (hasExtension(mediaFile, "sub")) {
+			for (File idx : mediaFile.getParentFile().listFiles(new ExtensionFileFilter("idx"))) {
+				if (isDerived(idx, mediaFile)) {
+					return null;
+				}
+			}
+		}
+		
+		// try statistical language detection
 		return WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile));
 	}
 	
