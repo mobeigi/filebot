@@ -209,9 +209,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			// normalize absolute similarity to similarity rank (5 ranks in total),
+			// normalize absolute similarity to similarity rank (4 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(super.getSimilarity(o1, o2) * 5) / 5);
+			return (float) (floor(super.getSimilarity(o1, o2) * 4) / 4);
 		}
 		
 		
@@ -219,6 +219,15 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String normalize(Object object) {
 			// simplify file name, if possible
 			return normalizeObject(object);
+		}
+	}),
+	
+	NumericSequence(new SequenceMatchSimilarity() {
+		
+		@Override
+		protected String normalize(Object object) {
+			// simplify file name, if possible
+			return normalizeObject(object).replaceAll("\\D+", " ").trim();
 		}
 	}),
 	
@@ -402,9 +411,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(SubstringSequence, Name), Numeric, Name, TimeStamp, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(SubstringSequence, Name), Numeric, NumericSequence, Name, TimeStamp, new NameSimilarityMetric() };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(SubstringSequence, Name), Numeric, Name, TimeStamp, new NameSimilarityMetric() };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(SubstringSequence, Name), Numeric, NumericSequence, Name, TimeStamp, new NameSimilarityMetric() };
 		}
 	}
 	

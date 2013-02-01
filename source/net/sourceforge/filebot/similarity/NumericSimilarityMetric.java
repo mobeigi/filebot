@@ -3,7 +3,7 @@ package net.sourceforge.filebot.similarity;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -18,31 +18,31 @@ public class NumericSimilarityMetric implements SimilarityMetric {
 	
 	private final AbstractStringMetric metric;
 	
-
+	
 	public NumericSimilarityMetric() {
 		// I don't exactly know why, but I get a good matching behavior 
 		// when using QGramsDistance or BlockDistance
 		metric = new QGramsDistance(new NumberTokeniser());
 	}
 	
-
+	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		return metric.getSimilarity(normalize(o1), normalize(o2));
 	}
 	
-
+	
 	protected String normalize(Object object) {
 		// no need to do anything special here, because we don't care about anything but number patterns anyway
 		return object.toString();
 	}
 	
-
+	
 	private static class NumberTokeniser implements InterfaceTokeniser {
 		
 		private final String delimiter = "\\D+";
 		
-
+		
 		@Override
 		public ArrayList<String> tokenizeToArrayList(String input) {
 			ArrayList<String> tokens = new ArrayList<String>();
@@ -58,34 +58,33 @@ public class NumericSimilarityMetric implements SimilarityMetric {
 			return tokens;
 		}
 		
-
+		
 		@Override
 		public Set<String> tokenizeToSet(String input) {
-			return new HashSet<String>(tokenizeToArrayList(input));
+			return new LinkedHashSet<String>(tokenizeToArrayList(input));
 		}
 		
-
+		
 		@Override
 		public String getShortDescriptionString() {
 			return getClass().getSimpleName();
 		}
 		
-
+		
 		@Override
 		public String getDelimiters() {
 			return delimiter;
 		}
 		
-
 		private InterfaceTermHandler stopWordHandler = new DummyStopTermHandler();
 		
-
+		
 		@Override
 		public InterfaceTermHandler getStopWordHandler() {
 			return stopWordHandler;
 		}
 		
-
+		
 		@Override
 		public void setStopWordHandler(InterfaceTermHandler stopWordHandler) {
 			this.stopWordHandler = stopWordHandler;
