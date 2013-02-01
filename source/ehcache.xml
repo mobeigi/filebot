@@ -19,14 +19,14 @@
 	/>
 	
 	<!--
-	Long-lived (5 days) persistent disk cache for web responses
+	Long-lived (2 days) persistent disk cache for web responses
 	-->
 	<cache name="web-datasource"
 		maxElementsInMemory="200"
 		maxElementsOnDisk="10000"
 		eternal="false"
-		timeToIdleSeconds="432000"
-		timeToLiveSeconds="432000"
+		timeToIdleSeconds="172800"
+		timeToLiveSeconds="172800"
 		overflowToDisk="true"
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
