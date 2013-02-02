@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 
 // simplified switch/case pattern matching
 Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
+def x(c) { try { c.call() } catch (Throwable e) { null } }
 
 
 /**
