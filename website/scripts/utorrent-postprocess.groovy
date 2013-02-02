@@ -12,6 +12,7 @@ if (tryQuietly{ ut_state != ut_state_allow }) {
 }
 
 // enable/disable features as specified via --def parameters
+def music     = tryQuietly{ music.toBoolean() }
 def subtitles = tryQuietly{ subtitles.toBoolean() ? ['en'] : subtitles.split(/[ ,|]+/).findAll{ it.length() >= 2 } }
 def artwork   = tryQuietly{ artwork.toBoolean() }
 def backdrops = tryQuietly{ backdrops.toBoolean() }
@@ -50,7 +51,7 @@ def forceAnime(f) {
 }
 
 def forceIgnore(f) {
-	tryQuietly{ ut_label } =~ /^(?i:ebook|other|ignore)/
+	tryQuietly{ ut_label } =~ /^(?i:ebook|other|ignore)/ || f.path =~ tryQuietly{ ignore }
 }
 
 
@@ -80,14 +81,14 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def extractedFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || it.isAudio() }, forceExtractAll: true)
+def extractedFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true)
 input += extractedFiles
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || it.isAudio() }
+input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
@@ -148,8 +149,8 @@ groups.each{ group, files -> _log.finest("Group: $group => ${files*.name}") }
 
 // process each batch
 groups.each{ group, files ->
-	// fetch subtitles
-	if (subtitles) {
+	// fetch subtitles (but not for anime)
+	if (subtitles && !group.anime) {
 		subtitles.each{ languageCode ->
 			files += getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode)
 		}
