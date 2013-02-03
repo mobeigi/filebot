@@ -92,12 +92,9 @@ public final class Settings {
 		if (applicationDirPath != null && applicationDirPath.length() > 0) {
 			// use given path
 			applicationFolder = new File(applicationDirPath);
-		} else if (getApplicationDeployment() != null) {
+		} else {
 			// create folder in user home (can't use working directory for web start applications)
 			applicationFolder = new File(System.getProperty("user.home"), ".filebot");
-		} else {
-			// use working directory
-			applicationFolder = new File(System.getProperty("user.dir"));
 		}
 		
 		// create folder if necessary
