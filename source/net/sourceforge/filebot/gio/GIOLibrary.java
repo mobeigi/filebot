@@ -3,14 +3,10 @@ package net.sourceforge.filebot.gio;
 
 
 import com.sun.jna.Library;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 
 interface GIOLibrary extends Library {
-	
-	GIOLibrary INSTANCE = (GIOLibrary) Native.loadLibrary("gio-2.0", GIOLibrary.class);
-	
 	
 	void g_type_init();
 	
