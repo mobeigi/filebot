@@ -115,9 +115,12 @@ public class Main {
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");
 			}
+			if (args.disableAnalytics) {
+				System.setProperty("application.analytics", "false");
+			}
 			
 			// initialize analytics
-			Analytics.setEnabled(!args.disableAnalytics);
+			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.getBoolean(System.getProperty("application.analytics")));
 			
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
