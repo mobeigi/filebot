@@ -154,8 +154,13 @@ public class Analytics {
 			if (Platform.isWindows()) {
 				wm = "Windows";
 				os = "Windows NT " + System.getProperty("os.version");
-			} else if (Platform.isX11()) {
-				wm = "X11";
+			} else if (Platform.isMac()) {
+				wm = "Macintosh";
+				os = System.getProperty("os.name");
+			} else {
+				if (!GraphicsEnvironment.isHeadless() && Platform.isX11())
+					wm = "X11";
+				
 				if (Platform.isLinux())
 					os = "Linux " + System.getProperty("os.arch");
 				else if (Platform.isSolaris())
@@ -164,9 +169,6 @@ public class Analytics {
 					os = "FreeBSD";
 				else if (Platform.isOpenBSD())
 					os = "OpenBSD";
-			} else if (Platform.isMac()) {
-				wm = "Macintosh";
-				os = System.getProperty("os.name");
 			}
 		} catch (Throwable e) {
 			// ignore any Platform detection issues and especially ignore LinkageErrors that might occur on headless machines

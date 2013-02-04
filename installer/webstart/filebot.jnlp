@@ -4,7 +4,7 @@
 		<title>FileBot</title>
 		<vendor>Reinhard Pointner</vendor>
 		<homepage href="http://filebot.sourceforge.net" />
-		<description>The ultimate TV Renamer and Subtitle Downloader</description>
+		<description>The ultimate TV and Movie Renamer</description>
 		
 		<icon href="icon48.png" width="48" height="48" />
 		<icon href="icon32.png" width="32" height="32" />
