@@ -24,6 +24,7 @@
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
 	<property name="path.appbundle.tar.gz" location="${dir.dist}/${title}_${version}.app.tar.gz" />
+	<property name="path.ubuntu-binary.tar.gz" location="${dir.dist}/filebot-${version}-ubuntu.tar.gz" />
 	<property name="path.source.zip" location="${dir.dist}/filebot-${version}-src.zip" />
 
 	<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
@@ -211,7 +212,7 @@
 			<javaproperty name="useExtendedFileAttributes" value="true" />
 			<javaproperty name="java.net.useSystemProxies" value="true" />
 			<javaproperty name="sun.net.client.defaultConnectTimeout" value="10000" />
-			<javaproperty name="sun.net.client.defaultReadTimeout"    value="60000" />
+			<javaproperty name="sun.net.client.defaultReadTimeout" value="60000" />
 		</jarbundler>
 
 		<!-- shell scripts -->
@@ -232,9 +233,24 @@
 	</target>
 
 
+	<target name="ppa-binary" depends="fatjar">
+		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
+			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="amd64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
+			<tarfileset prefix="amd64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+			<tarfileset prefix="i386/opt/filebot" file="${dir.installer}/ubuntu/FileBot.desktop" />
+			<tarfileset prefix="amd64/opt/filebot" file="${dir.installer}/ubuntu/FileBot.desktop" />
+			<tarfileset prefix="i386/opt/filebot" file="${dir.installer}/icons/icon.svg" />
+			<tarfileset prefix="amd64/opt/filebot" file="${dir.installer}/icons/icon.svg" />
+			<tarfileset prefix="i386/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="amd64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+		</tar>
+	</target>
+
+
 	<target name="deb" depends="fatjar" description="Build debian package for i386 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
-
 		<antcall target="deb-arch">
 			<param name="arch" value="i386" />
 		</antcall>
@@ -244,7 +260,7 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="openjdk-7-jre | default-jre-headless" recommends="libchromaprint-tools" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="openjdk-7-jre, libchromaprint-tools" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -270,7 +286,7 @@
 	<target name="ipkg-arch">
 		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://filebot.sourceforge.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
-			<description synopsis="The ultimate tv renamer / subtitle downloader / sfv validator">FileBot is the ultimate tool for renaming your tv shows and anime, downloading subtitles from various sources or just simple file verification.</description>
+			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="usr/share/filebot" dir="${dir.lib}/native/linux-${arch}" includes="*.so" />
 			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />

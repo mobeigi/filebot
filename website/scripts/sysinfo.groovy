@@ -33,7 +33,7 @@ try {
 	print 'Extended Attributes: '
 	if (net.sourceforge.filebot.Settings.useExtendedFileAttributes()){
 		// create new temp file
-		def f = new File('.xattr-test')
+		def f = new File(net.sourceforge.filebot.Settings.applicationFolder, '.xattr-test')
 		f.createNewFile() && f.deleteOnExit()
 		
 		// xattr write, read and verify
