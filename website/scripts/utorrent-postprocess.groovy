@@ -264,7 +264,7 @@ if (gmail) {
 				}
 			}
 		},
-		messagemimetype: "text/html",
+		messagemimetype: 'text/html',
 		to: tryQuietly{ mailto } ?: gmail[0] + '@gmail.com', // mail to self by default
 		user: gmail[0], password: gmail[1]
 	)
@@ -272,7 +272,7 @@ if (gmail) {
 
 // clean empty folders, clutter files, etc after move
 if (clean) {
-	if ('COPY'.equalsIgnoreCase(_args.action) && extractedFiles?.size() > 0) {
+	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && extractedFiles?.size() > 0) {
 		println 'Clean temporary extracted files'
 		// delete extracted files
 		extractedFiles.each{
