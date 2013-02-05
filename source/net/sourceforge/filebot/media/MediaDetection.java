@@ -297,12 +297,13 @@ public class MediaDetection {
 			}
 			
 			// use lenient sub sequence matching only as fallback
-			if (matches.size() > 0) {
-				names.addAll(matches);
-			} else {
-				names.addAll(matchSeriesByName(folders, 3));
-				names.addAll(matchSeriesByName(filenames, 3));
+			if (matches.isEmpty()) {
+				matches.addAll(matchSeriesByName(folders, 3));
+				matches.addAll(matchSeriesByName(filenames, 3));
 			}
+			
+			// pass along only valid terms
+			names.addAll(stripBlacklistedTerms(matches));
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
 		}
@@ -689,6 +690,18 @@ public class MediaDetection {
 	
 	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws IOException {
 		return releaseInfo.cleanRelease(names, strict);
+	}
+	
+	
+	public static List<String> stripBlacklistedTerms(Collection<String> names) throws IOException {
+		Pattern blacklist = releaseInfo.getBlacklistPattern();
+		List<String> acceptables = new ArrayList<String>(names.size());
+		for (String it : names) {
+			if (blacklist.matcher(it).replaceAll("").trim().length() > 0) {
+				acceptables.add(it);
+			}
+		}
+		return acceptables;
 	}
 	
 	
