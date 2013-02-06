@@ -1082,7 +1082,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 				
 				CLILogger.info(String.format("Read archive [%s] to [%s]", file.getName(), outputFolder));
-				FileMapper outputMapper = new FileMapper(outputFolder, false);
+				final FileMapper outputMapper = new FileMapper(outputFolder, false);
 				
 				final List<File> outputMapping = new ArrayList<File>();
 				for (File entry : archive.listFiles()) {
@@ -1119,7 +1119,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							
 							@Override
 							public boolean accept(File entry) {
-								return selection.contains(entry);
+								return selection.contains(outputMapper.getOutputFile(entry));
 							}
 						});
 						extractedFiles.addAll(selection);
