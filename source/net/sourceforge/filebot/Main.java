@@ -111,7 +111,10 @@ public class Main {
 				CacheManager.getInstance().clearAll();
 			}
 			
-			// set unixfs system property
+			// update system properties
+			if (System.getProperty("http.agent") == null) {
+				System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
+			}
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");
 			}
