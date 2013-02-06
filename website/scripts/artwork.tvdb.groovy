@@ -5,18 +5,17 @@
  */
 
 // artwork/nfo helpers
-include("lib/htpc")
+include('lib/htpc')
 
 
 args.eachMediaFolder{ dir ->
 	// fetch only missing artwork by default
-	if (_args.conflict == "skip" && [dir, dir.dir].find{ it.hasFile{it =~ /banner.jpg$/} }) {
+	if (_args.conflict == 'skip' && [dir, dir.dir].find{ it.hasFile{it.name == 'banner.jpg'} }) {
 		println "Skipping $dir"
 		return
 	}
 	
 	def videos = dir.listFiles{ it.isVideo() }
-	
 	def query = _args.query ?: detectSeriesName(videos, _args.locale)
 	def sxe = videos.findResult{ parseEpisodeNumber(it) }
 	
@@ -39,7 +38,7 @@ args.eachMediaFolder{ dir ->
 	
 	// maybe require user input
 	if (options.size() != 1 && !_args.nonStrict && !java.awt.GraphicsEnvironment.headless) {
-		series = javax.swing.JOptionPane.showInputDialog(null, "Please select TV Show:", dir.path, 3, null, options.toArray(), series);
+		series = javax.swing.JOptionPane.showInputDialog(null, 'Please select TV Show:', dir.path, 3, null, options.toArray(), series)
 		if (series == null) return
 	}
 	
@@ -48,5 +47,5 @@ args.eachMediaFolder{ dir ->
 	def season = sxe && sxe.season > 0 ? sxe.season : 1
 	
 	println "$dir => $series"
-	fetchSeriesArtworkAndNfo(seriesDir, dir, series, season)
+	fetchSeriesArtworkAndNfo(seriesDir, dir, series, season, true)
 }

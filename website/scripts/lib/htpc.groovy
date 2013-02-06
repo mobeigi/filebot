@@ -33,7 +33,12 @@ def refreshPlexLibrary(server, port = 32400) {
 /**
  * TheTVDB artwork/nfo helpers
  */
-def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, locale) {
+def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, override, locale) {
+	if (outputFile.exists() && !override) {
+		println "Banner already exists: $outputFile"
+		return outputFile
+	}
+	
 	// select and fetch banner
 	def banner = [locale, null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
 	if (banner == null) {
@@ -44,7 +49,12 @@ def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, local
 	return banner.url.saveAs(outputFile)
 }
 
-def fetchSeriesFanart(outputFile, series, type, season, locale) {
+def fetchSeriesFanart(outputFile, series, type, season, override, locale) {
+	if (outputFile.exists() && !override) {
+		println "Fanart already exists: $outputFile"
+		return outputFile
+	}
+	
 	def fanart = [locale, null].findResult{ lang -> FanartTV.getSeriesArtwork(series.seriesId).find{ type == it.type && (season == null || season == it.season) && (lang == null || lang == it.language) }}
 	if (fanart == null) {
 		println "Fanart not found: $outputFile / $type"
@@ -54,61 +64,64 @@ def fetchSeriesFanart(outputFile, series, type, season, locale) {
 	return fanart.url.saveAs(outputFile)
 }
 
-def fetchSeriesNfo(outputFile, series, locale) {
-	def info = TheTVDB.getSeriesInfo(series, locale)
-	info.applyXml('''<tvshow xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
-			<title>$name</title>
-			<sorttitle>${[name, firstAired as String].findAll{ !it.empty }.join(/ :: /)}</sorttitle>
-			<year>$firstAired.year</year>
-			<rating>$rating</rating>
-			<votes>$ratingCount</votes>
-			<plot>$overview</plot>
-			<runtime>$runtime</runtime>
-			<mpaa>$contentRating</mpaa>
-			<id>$id</id>
-			<episodeguide><url cache="${id}.xml">http://www.thetvdb.com/api/1D62F2F90030C444/series/${id}/all/''' + locale.language + '''.zip</url></episodeguide>
-			<genre>${!genres.empty ? genres[0] : ''}</genre>
-			<thumb>$bannerUrl</thumb>
-			<premiered>$firstAired</premiered>
-			<status>$status</status>
-			<studio>$network</studio>
-			<gsp:scriptlet> actors.each { </gsp:scriptlet>
-				<actor>
-					<name>$it</name>
-				</actor>
-			<gsp:scriptlet> } </gsp:scriptlet>
-		</tvshow>
-	''')
-	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
+def fetchSeriesNfo(outputFile, seriesInfo, override, locale) {
+	def i = seriesInfo
+	XML {
+		tvshow {
+			title(i.name)
+			sorttitle([i.name, i.firstAired as String].findAll{ it?.length() > 0 }.join('::'))
+			year(i.firstAired?.year)
+			rating(i.rating)
+			votes(i.ratingCount)
+			plot(i.overview)
+			runtime(i.runtime)
+			mpaa(i.contentRating)
+			id(i.id)
+			episodeguide {
+				url(cache:"${i.id}.xml", "http://www.thetvdb.com/api/1D62F2F90030C444/series/${i.id}/all/${locale.language}.zip")
+			}
+			genre(i.genres?.size() > 0 ? i.genres[0] : null)
+			thumb(i.bannerUrl)
+			premiered(i.firstAired)
+			status(i.status)
+			studio(i.network)
+			i.actors?.each{ n ->
+				actor {
+					name(n)
+				}
+			}
+		}
+	}
 	.saveAs(outputFile)
 }
 
-def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _args.locale) {
+def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, override = false, locale = _args.locale) {
 	_guarded {
 		// fetch nfo
-		fetchSeriesNfo(seriesDir['tvshow.nfo'], series, locale)
+		def seriesInfo = TheTVDB.getSeriesInfo(series, locale)
+		fetchSeriesNfo(seriesDir['tvshow.nfo'], seriesInfo, override, locale)
 		
 		// fetch series banner, fanart, posters, etc
-		["680x1000",  null].findResult{ fetchSeriesBanner(seriesDir['poster.jpg'], series, "poster", it, null, locale) }
-		["graphical", null].findResult{ fetchSeriesBanner(seriesDir['banner.jpg'], series, "series", it, null, locale) }
+		["680x1000",  null].findResult{ fetchSeriesBanner(seriesDir['poster.jpg'], series, "poster", it, null, override, locale) }
+		["graphical", null].findResult{ fetchSeriesBanner(seriesDir['banner.jpg'], series, "series", it, null, override, locale) }
 		
 		// fetch highest resolution fanart
-		["1920x1080", "1280x720", null].findResult{ fetchSeriesBanner(seriesDir["fanart.jpg"], series, "fanart", it, null, locale) }
+		["1920x1080", "1280x720", null].findResult{ fetchSeriesBanner(seriesDir["fanart.jpg"], series, "fanart", it, null, override, locale) }
 		
 		// fetch season banners
 		if (seasonDir != seriesDir) {
-			fetchSeriesBanner(seasonDir["poster.jpg"], series, "season", "season", season, locale)
-			fetchSeriesBanner(seasonDir["banner.jpg"], series, "season", "seasonwide", season, locale)
+			fetchSeriesBanner(seasonDir["poster.jpg"], series, "season", "season", season, override, locale)
+			fetchSeriesBanner(seasonDir["banner.jpg"], series, "season", "seasonwide", season, override, locale)
 		}
 		
 		// fetch fanart
-		fetchSeriesFanart(seriesDir['clearart.png'], series, 'clearart', null, locale)
-		fetchSeriesFanart(seriesDir['logo.png'], series, 'clearlogo', null, locale)
-		fetchSeriesFanart(seriesDir['landscape.jpg'], series, 'tvthumb', null, locale)
+		fetchSeriesFanart(seriesDir['clearart.png'], series, 'clearart', null, override, locale)
+		fetchSeriesFanart(seriesDir['logo.png'], series, 'clearlogo', null, override, locale)
+		fetchSeriesFanart(seriesDir['landscape.jpg'], series, 'tvthumb', null, override, locale)
 		
 		// fetch season fanart
 		if (seasonDir != seriesDir) {
-			fetchSeriesFanart(seasonDir['landscape.jpg'], series, 'seasonthumb', season, locale)
+			fetchSeriesFanart(seasonDir['landscape.jpg'], series, 'seasonthumb', season, override, locale)
 		}
 	}
 }
@@ -118,10 +131,15 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, locale = _arg
 /**
  * TheMovieDB artwork/nfo helpers
  */
-def fetchMovieArtwork(outputFile, movieInfo, category, language) {
+def fetchMovieArtwork(outputFile, movieInfo, category, override, locale) {
+	if (outputFile.exists() && !override) {
+		println "Artwork already exists: $outputFile"
+		return outputFile
+	}
+	
 	// select and fetch artwork
 	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
-	def selection = [language, 'en', null].findResult{ l -> artwork.find{ (l == it.language || l == null) && it.category == category } }
+	def selection = [locale.language, 'en', null].findResult{ l -> artwork.find{ (l == it.language || l == null) && it.category == category } }
 	if (selection == null) {
 		println "Artwork not found: $outputFile"
 		return null
@@ -130,22 +148,31 @@ def fetchMovieArtwork(outputFile, movieInfo, category, language) {
 	return selection.url.saveAs(outputFile)
 }
 
-def fetchAllMovieArtwork(outputFolder, movieInfo, category, language) {
+def fetchAllMovieArtwork(outputFolder, movieInfo, category, override, locale) {
 	// select and fetch artwork
 	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
-	def selection = [language, 'en', null].findResults{ l -> artwork.findAll{ (l == it.language || l == null) && it.category == category } }.flatten().findAll{ it?.url }.unique()
+	def selection = [locale.language, 'en', null].findResults{ l -> artwork.findAll{ (l == it.language || l == null) && it.category == category } }.flatten().findAll{ it?.url }.unique()
 	if (selection == null) {
 		println "Artwork not found: $outputFolder"
 		return null
 	}
 	selection.eachWithIndex{ s, i ->
 		def outputFile = new File(outputFolder, "$category-${(i+1).pad(2)}.jpg")
-		println "Fetching $outputFile => $s"
-		s.url.saveAs(outputFile)
+		if (outputFile.exists() && !override) {
+			println "Artwork already exists: $outputFile"
+		} else {
+			println "Fetching $outputFile => $s"
+			s.url.saveAs(outputFile)
+		}
 	}
 }
 
-def fetchMovieFanart(outputFile, movieInfo, type, diskType, locale) {
+def fetchMovieFanart(outputFile, movieInfo, type, diskType, override, locale) {
+	if (outputFile.exists() && !override) {
+		println "Fanart already exists: $outputFile"
+		return outputFile
+	}
+	
 	def fanart = [locale, null].findResult{ lang -> FanartTV.getMovieArtwork(movieInfo.id).find{ type == it.type && (diskType == null || diskType == it.diskType) && (lang == null || lang == it.language) }}
 	if (fanart == null) {
 		println "Fanart not found: $outputFile / $type"
@@ -155,92 +182,92 @@ def fetchMovieFanart(outputFile, movieInfo, type, diskType, locale) {
 	return fanart.url.saveAs(outputFile)
 }
 
-def createFileInfoXml(file) {
-	_guarded {
-		def mi = MediaInfo.snapshot(file)
-		def out = new StringWriter()
-		def xml = new MarkupBuilder(out)
-		xml.fileinfo() {
-			streamdetails() {
-				mi.each { kind, streams ->
-					def section = kind.toString().toLowerCase()
-					streams.each { s ->
-						if (section == 'video') {
-							video() {
-								codec((s.'Encoded_Library/Name' ?: s.'CodecID/Hint' ?: s.'Format').replaceAll(/[ ].+/, '').trim())
-								aspect(s.'DisplayAspectRatio')
-								width(s.'Width')
-								height(s.'Height')
+def fetchMovieNfo(outputFile, movieInfo, movieFile, override) {
+	def i = movieInfo
+	def mi = _guarded{ movieFile ? MediaInfo.snapshot(movieFile) : null }
+	XML {
+		movie {
+			title(i.name)
+			originaltitle(i.originalName)
+			sorttitle([i.collection, i.name, i.released as String].findAll{ it?.length() > 0 }.join('::'))
+			set(i.collection)
+			year(i.released?.year)
+			rating(i.rating)
+			votes(i.votes)
+			mpaa(i.certification)
+			id("tt" + (i.imdbId ?: 0).pad(7))
+			plot(i.overview)
+			tagline(i.tagline)
+			runtime(i.runtime)
+			genre(i.genres?.size() > 0 ? i.genres[0] : null)
+			director(i.director)
+			i.cast?.each{ a ->
+				actor {
+					name(a.name)
+					role(a.character)
+				}
+			}
+			fileinfo {
+				streamdetails {
+					mi?.each { kind, streams ->
+						def section = kind.toString().toLowerCase()
+						streams.each { s ->
+							if (section == 'video') {
+								video {
+									codec((s.'Encoded_Library/Name' ?: s.'CodecID/Hint' ?: s.'Format').replaceAll(/[ ].+/, '').trim())
+									aspect(s.'DisplayAspectRatio')
+									width(s.'Width')
+									height(s.'Height')
+								}
 							}
-						}
-						if (section == 'audio') {
-							audio() {
-								codec((s.'CodecID/Hint' ?: s.'Format').replaceAll(/\p{Punct}/, '').trim())
-								language(s.'Language/String3')
-								channels(s.'Channel(s)')
+							if (section == 'audio') {
+								audio {
+									codec((s.'CodecID/Hint' ?: s.'Format').replaceAll(/\p{Punct}/, '').trim())
+									language(s.'Language/String3')
+									channels(s.'Channel(s)')
+								}
 							}
-						}
-						if (section == 'text') {
-							subtitle() {
-								language(s.'Language/String3')
+							if (section == 'text') {
+								subtitle {
+									language(s.'Language/String3')
+								}
 							}
 						}
 					}
 				}
 			}
+			imdb(id:"tt" + (i.imdbId ?: 0).pad(7), "http://www.imdb.com/title/tt" + (i.imdbId ?: 0).pad(7))
+			tmdb(id:i.id, "http://www.themoviedb.org/movie/${i.id}")
 		}
-		return out.toString()
 	}
-}
-
-def fetchMovieNfo(outputFile, movieInfo, movieFile) {
-	movieInfo.applyXml('''<movie xmlns:gsp='http://groovy.codehaus.org/2005/gsp'>
-			<title>$name</title>
-			<originaltitle>$originalName</originaltitle>
-			<sorttitle>${[collection, name, released as String].findAll{ !it.empty }.join(/ :: /)}</sorttitle>
-			<set>$collection</set>
-			<year>$released.year</year>
-			<rating>$rating</rating>
-			<votes>$votes</votes>
-			<mpaa>$certification</mpaa>
-			<id>tt${imdbId.pad(7)}</id>
-			<plot>$overview</plot>
-			<tagline>$tagline</tagline>
-			<runtime>$runtime</runtime>
-			<genre>${!genres.empty ? genres[0] : ''}</genre>
-			<director>$director</director>
-			<gsp:scriptlet> cast.each { </gsp:scriptlet>
-				<actor>
-					<name>${it?.name}</name>
-					<role>${it?.character}</role>
-				</actor>
-			<gsp:scriptlet> } </gsp:scriptlet>
-			''' + ((movieFile != null ? createFileInfoXml(movieFile) : null) ?: '') + '''
-			<imdb id='tt${imdbId.pad(7)}'>http://www.imdb.com/title/tt${imdbId.pad(7)}/</imdb>
-			<tmdb id='$id'>http://www.themoviedb.org/movie/$id</tmdb>
-		</movie>
-	''')
-	.replaceAll(/\t|\r|\n/, '') // xbmc can't handle leading/trailing whitespace properly
 	.saveAs(outputFile)
 }
 
-def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, fetchAll = false, locale = _args.locale) {
+def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, fetchAll = false, override = false, locale = _args.locale) {
 	_guarded {
 		def movieInfo = TheMovieDB.getMovieInfo(movie, locale)
 		
 		// fetch nfo
-		fetchMovieNfo(movieDir['movie.nfo'], movieInfo, movieFile)
+		fetchMovieNfo(movieDir['movie.nfo'], movieInfo, movieFile, override)
+		
+		// generate url files
+		[[db:'imdb', id:movieInfo.imdbId, url:"http://www.imdb.com/title/tt{movieInfo.imdbId?.pad(7)}"], [db:'tmdb', id:movieInfo.id, url:"http://www.themoviedb.org/movie/${movieInfo.id}"]].each{
+			if (it.id > 0) {
+				def content = "[InternetShortcut]\nURL=${it.url}\n"
+				content.saveAs(new File(movieDir, "${it.db}.url"))
+			}
+		}
 		
 		// fetch series banner, fanart, posters, etc
-		fetchMovieArtwork(movieDir['poster.jpg'], movieInfo, 'posters', locale.language)
-		fetchMovieArtwork(movieDir['fanart.jpg'], movieInfo, 'backdrops', locale.language)
+		fetchMovieArtwork(movieDir['poster.jpg'], movieInfo, 'posters', override, locale)
+		fetchMovieArtwork(movieDir['fanart.jpg'], movieInfo, 'backdrops', override, locale)
 		
-		fetchMovieFanart(movieDir['clearart.png'], movieInfo, 'movieart', null, locale)
-		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, locale)
-		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, locale) }
+		fetchMovieFanart(movieDir['clearart.png'], movieInfo, 'movieart', null, override, locale)
+		fetchMovieFanart(movieDir['logo.png'], movieInfo, 'movielogo', null, override, locale)
+		['bluray', 'dvd', null].findResult { diskType -> fetchMovieFanart(movieDir['disc.png'], movieInfo, 'moviedisc', diskType, override, locale) }
 		
 		if (fetchAll) {
-			fetchAllMovieArtwork(movieDir['backdrops'], movieInfo, 'backdrops', locale.language)
+			fetchAllMovieArtwork(movieDir['backdrops'], movieInfo, 'backdrops', override, locale)
 		}
 	}
 }

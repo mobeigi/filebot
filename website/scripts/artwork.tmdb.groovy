@@ -5,18 +5,17 @@
  */
 
 // artwork/nfo helpers
-include("lib/htpc")
+include('lib/htpc')
 
 
 args.eachMediaFolder{ dir ->
 	// fetch only missing artwork by default
-	if (_args.conflict == "skip" && dir.hasFile{it =~ /movie.nfo$/} && dir.hasFile{it =~ /poster.jpg$/} && dir.hasFile{it =~ /fanart.jpg$/}) {
+	if (_args.conflict == 'skip' && dir.hasFile{it.name == 'movie.nfo'} && dir.hasFile{it.name == 'poster.jpg'} && dir.hasFile{it.name == 'fanart.jpg'}) {
 		println "Skipping $dir"
 		return
 	}
 	
 	def videos = dir.listFiles{ it.isVideo() }
-	
 	def query = _args.query
 	def options = []
 	
@@ -40,13 +39,13 @@ args.eachMediaFolder{ dir ->
 	
 	// maybe require user input
 	if (options.size() != 1 && !_args.nonStrict && !java.awt.GraphicsEnvironment.headless) {
-		movie = javax.swing.JOptionPane.showInputDialog(null, "Please select Movie:", dir.path, 3, null, options.toArray(), movie);
+		movie = javax.swing.JOptionPane.showInputDialog(null, 'Please select Movie:', dir.path, 3, null, options.toArray(), movie)
 		if (movie == null) return null
 	}
 	
 	println "$dir => $movie"
 	try {
-		fetchMovieArtworkAndNfo(dir, movie, dir.getFiles{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, true)
+		fetchMovieArtworkAndNfo(dir, movie, dir.getFiles{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, true, true)
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
 	}
