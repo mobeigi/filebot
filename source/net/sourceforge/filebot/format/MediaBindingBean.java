@@ -17,6 +17,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -632,9 +633,22 @@ public class MediaBindingBean {
 	}
 	
 	
-	@Define("index")
-	public Integer getIndex() {
-		return new ArrayList<File>(getContext().keySet()).indexOf(getMediaFile()) + 1;
+	@Define("i")
+	public Integer getModelIndex() {
+		return identityIndexOf(getContext().values(), getInfoObject());
+	}
+	
+	
+	@Define("di")
+	public Integer getDuplicateIndex() {
+		List<Object> duplicates = new ArrayList<Object>();
+		for (Object it : getContext().values()) {
+			if (getInfoObject().equals(it)) {
+				duplicates.add(it);
+			}
+		}
+		int di = identityIndexOf(duplicates, getInfoObject());
+		return di == 0 ? null : di;
 	}
 	
 	
@@ -715,6 +729,18 @@ public class MediaBindingBean {
 		}
 		
 		return mediaInfo;
+	}
+	
+	
+	private Integer identityIndexOf(Iterable<?> c, Object o) {
+		Iterator<?> itr = c.iterator();
+		for (int i = 0; itr.hasNext(); i++) {
+			Object next = itr.next();
+			System.out.println(String.format("%s VS %s", System.identityHashCode(o), System.identityHashCode(next)));
+			if (o == next)
+				return i;
+		}
+		return null;
 	}
 	
 	

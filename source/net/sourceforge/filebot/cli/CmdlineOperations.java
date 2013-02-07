@@ -514,7 +514,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		for (Entry<File, AudioTrack> it : service.lookup(audioFiles).entrySet()) {
 			if (it.getKey() != null && it.getValue() != null) {
-				matches.add(new Match<File, AudioTrack>(it.getKey(), it.getValue()));
+				matches.add(new Match<File, AudioTrack>(it.getKey(), it.getValue().clone()));
 			}
 		}
 		

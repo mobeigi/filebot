@@ -24,6 +24,20 @@ public class AudioTrack implements Serializable {
 	}
 	
 	
+	public AudioTrack(AudioTrack other) {
+		this.artist = other.artist;
+		this.title = other.title;
+		this.album = other.album;
+		this.albumArtist = other.albumArtist;
+		this.trackTitle = other.trackTitle;
+		this.albumReleaseDate = other.albumReleaseDate;
+		this.mediumIndex = other.mediumIndex;
+		this.mediumCount = other.mediumCount;
+		this.trackIndex = other.trackIndex;
+		this.trackCount = other.trackCount;
+	}
+	
+	
 	public AudioTrack(String artist, String title, String album) {
 		this.artist = artist;
 		this.title = title;
@@ -92,6 +106,12 @@ public class AudioTrack implements Serializable {
 	
 	public Integer getTrackCount() {
 		return trackCount;
+	}
+	
+	
+	@Override
+	public AudioTrack clone() {
+		return new AudioTrack(this);
 	}
 	
 	

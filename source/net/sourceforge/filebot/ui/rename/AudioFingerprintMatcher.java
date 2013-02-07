@@ -35,7 +35,7 @@ class AudioFingerprintMatcher implements AutoCompleteMatcher {
 		// check audio files against acoustid
 		for (Entry<File, AudioTrack> it : service.lookup(filter(files, AUDIO_FILES)).entrySet()) {
 			if (it.getKey().exists() && it.getValue() != null) {
-				matches.add(new Match<File, AudioTrack>(it.getKey(), it.getValue()));
+				matches.add(new Match<File, AudioTrack>(it.getKey(), it.getValue().clone()));
 			}
 		}
 		
