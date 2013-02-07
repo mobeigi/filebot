@@ -24,6 +24,7 @@
 	<resources>
 		<property name="application.deployment"    value="webstart" />
 		<property name="application.update"        value="skip"     />
+		<property name="application.warmup"        value="false"    />
 		<property name="unixfs"                    value="false"    />
 		<property name="useNativeShell"            value="false"    />
 		<property name="useExtendedFileAttributes" value="false"    />

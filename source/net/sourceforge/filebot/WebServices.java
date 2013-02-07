@@ -53,7 +53,7 @@ public final class WebServices {
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
 	
 	// extended TheTVDB module with local search
-	public static final TheTVDBClient TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
+	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
 	
 	// movie dbs
 	public static final IMDbClient IMDb = new IMDbClient();
@@ -124,7 +124,7 @@ public final class WebServices {
 	}
 	
 	
-	private static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
+	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 		
 		public TheTVDBClientWithLocalSearch(String apikey) {
 			super(apikey);
@@ -134,7 +134,7 @@ public final class WebServices {
 		private static LocalSearch<SearchResult> localIndex;
 		
 		
-		private synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
+		public synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
 			if (localIndex == null) {
 				// fetch data dump
 				TheTVDBSearchResult[] data = MediaDetection.releaseInfo.getTheTVDBIndex();

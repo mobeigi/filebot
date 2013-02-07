@@ -27,6 +27,7 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -175,7 +176,7 @@ public class Main {
 			}
 			
 			// pre-load certain resources in the background
-			if (!"skip".equals(System.getProperty("application.warmup"))) {
+			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
 				warmupCachedResources();
 			}
 			
@@ -316,6 +317,10 @@ public class Main {
 					MediaDetection.stripReleaseInfo(dummy, true);
 					MediaDetection.matchSeriesByName(dummy, -1);
 					MediaDetection.matchMovieName(dummy, true, -1);
+					
+					Collection<File> empty = Collections.emptyList();
+					MediaDetection.matchSeriesByDirectMapping(empty);
+					WebServices.TheTVDB.getLocalIndex();
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 				}
@@ -415,8 +420,7 @@ public class Main {
 	
 	
 	/**
-	 * Initialize default SecurityManager and grant all permissions via security policy.
-	 * Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
+	 * Initialize default SecurityManager and grant all permissions via security policy. Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
 	 */
 	private static void initializeSecurityManager() {
 		try {
