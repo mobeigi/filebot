@@ -119,6 +119,7 @@ GER
 German
 Hard.Subbed
 HBO
+hd
 HDRip
 Hindi
 History.Channel
@@ -166,6 +167,7 @@ RiffTrax
 sample[s]?
 SBS
 Screenshot
+sd
 sed
 ShareGo
 ShareReactor
