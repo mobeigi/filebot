@@ -27,7 +27,7 @@ public class PropertyBindings extends AbstractMap<String, Object> {
 		
 		// get method bindings
 		for (Method method : object.getClass().getMethods()) {
-			if (method.getReturnType() != void.class && method.getParameterTypes().length == 0) {
+			if (method.getReturnType() != void.class && method.getParameterTypes().length == 0 && !method.getDeclaringClass().getName().startsWith("java")) {
 				// normal properties
 				if (method.getName().length() > 3 && method.getName().substring(0, 3).equalsIgnoreCase("get")) {
 					properties.put(method.getName().substring(3), method);
