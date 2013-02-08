@@ -239,12 +239,10 @@
 			<tarfileset fullpath="amd64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
 			<tarfileset prefix="amd64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
-			<tarfileset prefix="i386/opt/filebot" file="${dir.installer}/ubuntu/FileBot.desktop" />
-			<tarfileset prefix="amd64/opt/filebot" file="${dir.installer}/ubuntu/FileBot.desktop" />
-			<tarfileset prefix="i386/opt/filebot" file="${dir.installer}/icons/icon.svg" />
-			<tarfileset prefix="amd64/opt/filebot" file="${dir.installer}/icons/icon.svg" />
 			<tarfileset prefix="i386/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset prefix="amd64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
+			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 		</tar>
 	</target>
 

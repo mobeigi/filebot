@@ -1,9 +1,10 @@
 [Desktop Entry]
-Version=1.0
-Type=Application
-Terminal=false
 Name=FileBot
-Comment=The ultimate TV and Movie Renamer
+Comment=Rename Movies and TV Shows
+Type=Application
 Exec=/opt/filebot/bin/filebot.sh
-Icon=/opt/filebot/icon.svg
-Categories=AudioVideo;Video;Renamer
+Icon=filebot
+Terminal=false
+StartupNotify=true
+Categories=AudioVideo;Video;FileTools;Java
+X-Ubuntu-Gettext-Domain=filebot
