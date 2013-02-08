@@ -174,7 +174,8 @@ public class RenamePanel extends JComponent {
 		namesList.getButtonPanel().add(settingsButton, "gap indent");
 		
 		// open rename log button
-		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap 0");
+		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0");
+		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
 		
 		// reveal file location on double click
 		filesList.getListComponent().addMouseListener(new MouseAdapter() {
@@ -361,11 +362,23 @@ public class RenamePanel extends JComponent {
 		
 		actionPopup.addDescription(new JLabel("Action:"));
 		for (StandardRenameAction action : EnumSet.of(StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK)) {
-			actionPopup.add(new SetRenameAction(action, action.toString().toLowerCase(), ResourceManager.getIcon("rename.action." + action.toString().toLowerCase())));
+			actionPopup.add(new SetRenameAction(action, action.getDisplayName(), ResourceManager.getIcon("rename.action." + action.toString().toLowerCase())));
 		}
 		
 		return actionPopup;
 	}
+	
+	protected final Action clearFilesAction = new AbstractAction("Clear Files", ResourceManager.getIcon("action.clear")) {
+		
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if ((evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0) {
+				renameModel.files().clear();
+			} else {
+				renameModel.clear();
+			}
+		}
+	};
 	
 	protected final Action openHistoryAction = new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
 		
@@ -441,9 +454,13 @@ public class RenamePanel extends JComponent {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			renameAction.putValue(RenameAction.RENAME_ACTION, action);
-			renameAction.putValue(NAME, this.getValue(NAME));
-			renameAction.putValue(SMALL_ICON, this.getValue(SMALL_ICON));
+			if (action == StandardRenameAction.MOVE) {
+				renameAction.resetValues();
+			} else {
+				renameAction.putValue(RenameAction.RENAME_ACTION, action);
+				renameAction.putValue(NAME, this.getValue(NAME));
+				renameAction.putValue(SMALL_ICON, this.getValue(SMALL_ICON));
+			}
 		}
 	}
 	

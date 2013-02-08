@@ -100,6 +100,24 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	};
 	
+	public String getDisplayName() {
+		switch (this) {
+			case MOVE:
+				return "Rename";
+			case COPY:
+				return "Copy";
+			case KEEPLINK:
+				return "Keeplink";
+			case SYMLINK:
+				return "Symlink";
+			case HARDLINK:
+				return "Hardlink";
+			default:
+				return null;
+		}
+	}
+	
+	
 	public static StandardRenameAction forName(String action) {
 		for (StandardRenameAction it : values()) {
 			if (it.name().equalsIgnoreCase(action))
@@ -108,4 +126,5 @@ public enum StandardRenameAction implements RenameAction {
 		
 		throw new IllegalArgumentException("Illegal rename action: " + action);
 	}
+	
 }

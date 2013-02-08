@@ -3,6 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
+import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ExceptionUtilities.*;
@@ -10,6 +11,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -34,6 +36,9 @@ import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.Analytics;
@@ -76,8 +81,11 @@ class RenameAction extends AbstractAction {
 				return;
 			}
 			
-			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window));
+			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window), window);
 			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
+			if (renameMap.isEmpty()) {
+				return;
+			}
 			
 			// start processing
 			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -138,10 +146,11 @@ class RenameAction extends AbstractAction {
 	}
 	
 	
-	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan) {
+	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) {
 		// build rename map and perform some sanity checks
 		Map<File, File> renameMap = new HashMap<File, File>();
 		Set<File> destinationSet = new HashSet<File>();
+		List<String> issues = new ArrayList<String>();
 		
 		for (Entry<File, File> mapping : renamePlan) {
 			File source = mapping.getKey();
@@ -153,18 +162,44 @@ class RenameAction extends AbstractAction {
 				destination = new File(source.getParentFile(), destination.getPath());
 			}
 			
-			if (renameMap.containsKey(source))
-				throw new IllegalArgumentException("Duplicate source file: " + source.getName());
+			try {
+				if (renameMap.containsKey(source))
+					throw new IllegalArgumentException("Duplicate source file: " + source.getPath());
+				
+				if (destinationSet.contains(destination))
+					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
+				
+				if (destination.exists() && !source.equals(destination))
+					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
+				
+				// use original mapping values
+				renameMap.put(mapping.getKey(), mapping.getValue());
+				destinationSet.add(destination);
+			} catch (Exception e) {
+				issues.add(e.getMessage());
+			}
+		}
+		
+		if (issues.size() > 0) {
+			String text = "Unable to rename files:";
+			JList issuesComponent = new JList(issues.toArray()) {
+				
+				@Override
+				public Dimension getPreferredScrollableViewportSize() {
+					// adjust component size
+					return new Dimension(80, 80);
+				}
+			};
+			Object[] message = new Object[] { text, new JScrollPane(issuesComponent) };
+			String[] actions = new String[] { "Continue", "Cancel" };
+			JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, YES_NO_OPTION, null, actions, actions[1]);
 			
-			if (destinationSet.contains(destination))
-				throw new IllegalArgumentException("Conflict detected: " + mapping.getValue());
+			// display option dialog
+			pane.createDialog(getWindow(parent), "Conflicting Files").setVisible(true);
 			
-			if (destination.exists() && !source.equals(destination))
-				throw new IllegalArgumentException("File already exists: " + mapping.getValue());
-			
-			// use original mapping values
-			renameMap.put(mapping.getKey(), mapping.getValue());
-			destinationSet.add(destination);
+			if (pane.getValue() != actions[0]) {
+				return emptyMap();
+			}
 		}
 		
 		return renameMap;
