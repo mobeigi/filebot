@@ -181,7 +181,7 @@ class RenameAction extends AbstractAction {
 		}
 		
 		if (issues.size() > 0) {
-			String text = "Unable to rename files:";
+			String text = "Some files cannot be renamed:";
 			JList issuesComponent = new JList(issues.toArray()) {
 				
 				@Override
