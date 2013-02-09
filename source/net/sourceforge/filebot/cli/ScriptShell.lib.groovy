@@ -243,7 +243,7 @@ def include(String input, Map bindings = [:], Object... args) {
 	bindings.args = (args as List).flatten().findResults{ it as File }
 	
 	// run given script and catch exceptions
-	_guarded { _shell.runScript(input, new javax.script.SimpleBindings(bindings)) }
+	_guarded { _shell.runScript(input, new javax.script.SimpleBindings(bindings ?: [:])) }
 }
 
 
