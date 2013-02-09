@@ -4,6 +4,7 @@ package net.sourceforge.filebot.subtitle;
 
 import static java.lang.Math.*;
 import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -54,13 +55,13 @@ public final class SubtitleUtilities {
 			@Override
 			public float getSimilarity(Object o1, Object o2) {
 				float f = SeasonEpisode.getSimilarity(o1, o2);
-				if (f == 0)
+				if (f == 0 && (getEpisodeIdentifier(o1.toString(), true) == null) == (getEpisodeIdentifier(o2.toString(), true) == null)) {
 					return 0;
-				
+				}
 				return f < 1 ? -1 : 1;
 			}
 		};
-		SimilarityMetric sanity = new MetricCascade(FileSize, FileName, absoluteSeasonEpisode, AirDate, Title, Name);
+		SimilarityMetric sanity = new MetricCascade(absoluteSeasonEpisode, AirDate, new MetricAvg(SubstringSequence, Name));
 		
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);
@@ -102,7 +103,7 @@ public final class SubtitleUtilities {
 		
 		// find probable matches using name similarity > threshold
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f) {
+			if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f || result.getName().toLowerCase().startsWith(query.toLowerCase())) {
 				probableMatches.add(result);
 			}
 		}
