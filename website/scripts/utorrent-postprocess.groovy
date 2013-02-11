@@ -222,7 +222,7 @@ plex?.each{
 // mark episodes as 'acquired'
 if (myepisodes) {
 	println 'Update MyEpisodes'
-	include('fn:update-mes', [login:myepisodes.join(':'), addshows:false], getRenameLog().values())
+	include('fn:update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
 }
 
 if (pushover) {

@@ -17,7 +17,7 @@ File.metaClass.getAt = { Range range -> listPath(delegate).collect{ replacePathS
 File.metaClass.getAt = { int index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
 File.metaClass.getRoot = { listPath(delegate)[0] }
 File.metaClass.listPath = { listPath(delegate) }
-File.metaClass.getDiskSpace = { listPath(delegate).reverse().find{ it.exists() }.usableSpace }
+File.metaClass.getDiskSpace = { listPath(delegate).reverse().find{ it.exists() }?.usableSpace ?: 0 }
 
 
 /**
