@@ -119,7 +119,7 @@ public class Main {
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");
 			}
-			if (args.disableAnalytics) {
+			if (args.disableAnalytics || args.action.equalsIgnoreCase("test")) {
 				System.setProperty("application.analytics", "false");
 			}
 			

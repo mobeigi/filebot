@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public final class FileUtilities {
 		} else {
 			// move file
 			try {
-				java.nio.file.Files.move(source.toPath(), destination.toPath());
+				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			} catch (LinkageError e) {
 				org.apache.commons.io.FileUtils.moveFile(source, destination); // use "copy and delete" as fallback if standard rename fails
 			}
@@ -72,7 +73,7 @@ public final class FileUtilities {
 		} else {
 			// copy file
 			try {
-				java.nio.file.Files.copy(source.toPath(), destination.toPath());
+				java.nio.file.Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			} catch (LinkageError e) {
 				org.apache.commons.io.FileUtils.copyFile(source, destination);
 			}
