@@ -53,7 +53,7 @@ public final class FileUtilities {
 		} else {
 			// move file
 			try {
-				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			} catch (LinkageError e) {
 				org.apache.commons.io.FileUtils.moveFile(source, destination); // use "copy and delete" as fallback if standard rename fails
 			}
