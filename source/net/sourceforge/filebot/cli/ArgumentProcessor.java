@@ -134,7 +134,7 @@ public class ArgumentProcessor {
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Throwable e) {
-			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e.getClass() == Exception.class ? null : getRootCause(e));
+			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e).getClass() == Exception.class ? null : getRootCause(e));
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
