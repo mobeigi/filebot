@@ -5,7 +5,7 @@ def failOnError = _args.conflict == 'fail'
 // print input parameters
 _args.bindings?.each{ _log.finest("Parameter: $it.key = $it.value") }
 args.each{ _log.finest("Argument: $it") }
-args.findAll{ !it.exists() }.each{ throw new Exception("$it doesn't exist") }
+args.findAll{ !it.exists() }.each{ throw new Exception("File not found: $it") }
 
 // check user-defined pre-condition
 if (tryQuietly{ ut_state != ut_state_allow }) {

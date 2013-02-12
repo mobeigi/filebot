@@ -1,0 +1,3 @@
+options +indexes
+
+redirect 301 /scripts/utorrent-postprocess.groovy /scripts/amc.groovy
