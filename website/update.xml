@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.3</name>
-	<revision>1412</revision>
+	<name>FileBot 3.4</name>
+	<revision>1468</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.3</b><br>
+		<b>FileBot 3.4</b><br>
 		This release features:<br>
-		+ New Music Mode using AcoustID<br>
-		+ Better support certain SxE patterns<br>
-		+ Improved movie detection<br>
+		+ Better handling of conflicts<br>
+		+ Improved episode/subtitle matching<br>
+		+ Improved music mode<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=460]]></discussion>
+	<discussion><![CDATA[http://filebot.sourceforge.net/forums/viewtopic.php?f=7&t=522]]></discussion>
 	<download><![CDATA[http://filebot.sourceforge.net/#download]]></download>
 </update>

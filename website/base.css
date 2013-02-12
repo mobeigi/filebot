@@ -481,3 +481,13 @@ div.screencast:hover .play {
 	position:relative;
 	top: 8px;
 }
+
+#download li.ubuntu {
+	list-style: none; 
+	background: url('http://www.ubuntu.com/static/u/img/favicon.ico') no-repeat 0.3em center;
+	margin: 0em 0em 0em -1.2em;
+	padding: 0.5em 0.6em 0.5em 1.6em;
+	border: thin #C03F11 dashed;
+	border-radius: 4px 4px 4px 4px;
+	display: inline-block;
+}
