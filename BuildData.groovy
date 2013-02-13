@@ -146,9 +146,11 @@ println "Series Count: " + names.size()
 def reviewPage = retry(10, 1000){ Jsoup.connect('https://sourceforge.net/projects/filebot/reviews/?sort=usefulness&filter=thumbs_up').get() }
 def reviews = reviewPage.select('article[itemtype~=Review]').findResults{ article ->
 	article.select('*[itemprop=reviewBody]').findAll{ !(it.attr('class') =~ /spam/) }.findResults{ review ->
-		[user:article.select('*[itemprop=name]').text() ?: 'OpenID User', date:article.select('*[datetime]').text(), text:review.text()]
+		[user:article.select('*[itemprop=name]').text(), date:article.select('*[datetime]').text(), text:review.text()]
 	}
 }.flatten()
+
+reviews = reviews.findAll{ it.user && !(it.date =~ /[a-z]/) }
 
 use (groovy.json.JsonOutput) {
 	println "Reviews: ${reviews.size()}"

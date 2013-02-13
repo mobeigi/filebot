@@ -13,6 +13,7 @@
 ^Adventure$
 ^AUDIO_TS$
 ^BDMV$
+^Big$
 ^Comedy$
 ^Complete$
 ^Completed$

@@ -251,7 +251,7 @@ def fetchMovieArtworkAndNfo(movieDir, movie, movieFile = null, fetchAll = false,
 		fetchMovieNfo(movieDir['movie.nfo'], movieInfo, movieFile, override)
 		
 		// generate url files
-		[[db:'imdb', id:movieInfo.imdbId, url:"http://www.imdb.com/title/tt{movieInfo.imdbId?.pad(7)}"], [db:'tmdb', id:movieInfo.id, url:"http://www.themoviedb.org/movie/${movieInfo.id}"]].each{
+		[[db:'imdb', id:movieInfo.imdbId, url:"http://www.imdb.com/title/tt" + (movieInfo.imdbId ?: 0).pad(7)], [db:'tmdb', id:movieInfo.id, url:"http://www.themoviedb.org/movie/${movieInfo.id}"]].each{
 			if (it.id > 0) {
 				def content = "[InternetShortcut]\nURL=${it.url}\n"
 				content.saveAs(new File(movieDir, "${it.db}.url"))
