@@ -352,13 +352,30 @@ public final class FileUtilities {
 	
 	
 	public static List<File> listPath(File file) {
+		return listPathTail(file, Integer.MAX_VALUE);
+	}
+	
+	
+	public static List<File> listPathTail(File file, int tailSize) {
 		LinkedList<File> nodes = new LinkedList<File>();
 		
-		for (File node = file; node != null && !UNC_PREFIX.equals(node.toString()); node = node.getParentFile()) {
+		File node = file;
+		for (int i = 0; node != null && i < tailSize && !UNC_PREFIX.equals(node.toString()); i++, node = node.getParentFile()) {
 			nodes.addFirst(node);
 		}
 		
 		return nodes;
+	}
+	
+	
+	public static File getRelativePathTail(File file, int tailSize) {
+		File f = null;
+		for (File it : listPathTail(file, tailSize)) {
+			if (it.getParentFile() != null) {
+				f = new File(f, it.getName());
+			}
+		}
+		return f;
 	}
 	
 	

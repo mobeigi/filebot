@@ -47,7 +47,7 @@ public final class SubtitleUtilities {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new LinkedHashMap<File, SubtitleDescriptor>();
 		
 		// optimize for generic media <-> subtitle matching
-		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringSequence, new MetricCascade(SubstringSequence, Name), Numeric, new NameSimilarityMetric() };
+		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, NameSubstringSequence, new MetricCascade(NameSubstringSequence, Name), Numeric, new NameSimilarityMetric() };
 		
 		// subtitle verification metric specifically excluding SxE mismatches 
 		SimilarityMetric absoluteSeasonEpisode = new SimilarityMetric() {
@@ -61,7 +61,7 @@ public final class SubtitleUtilities {
 				return f < 1 ? -1 : 1;
 			}
 		};
-		SimilarityMetric sanity = new MetricCascade(absoluteSeasonEpisode, AirDate, new MetricAvg(SubstringSequence, Name));
+		SimilarityMetric sanity = new MetricCascade(absoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name));
 		
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);

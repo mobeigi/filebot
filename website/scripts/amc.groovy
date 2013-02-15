@@ -3,8 +3,8 @@ def input = []
 def failOnError = _args.conflict == 'fail'
 
 // print input parameters
-_args.bindings?.each{ _log.finest("Parameter: $it.key = $it.value") }
-args.each{ _log.finest("Argument: $it") }
+_args.bindings?.each{ _log.fine("Parameter: $it.key = $it.value") }
+args.each{ _log.fine("Argument: $it") }
 args.findAll{ !it.exists() }.each{ throw new Exception("File not found: $it") }
 
 // check user-defined pre-condition
@@ -34,7 +34,7 @@ def format = [
 	tvs:   tryQuietly{ seriesFormat } ?: '''TV Shows/{n}/{episode.special ? "Special" : "Season "+s}/{n} - {episode.special ? "S00E"+special.pad(2) : s00e00} - {t}{".$lang"}''',
 	anime: tryQuietly{ animeFormat  } ?: '''Anime/{n}/{n} - {sxe} - {t}''',
 	mov:   tryQuietly{ movieFormat  } ?: '''Movies/{n} ({y})/{n} ({y}){" CD$pi"}{".$lang"}''',
-	music: tryQuietly{ musicFormat  } ?: '''Music/{n}/{album}/{n} - {t}'''
+	music: tryQuietly{ musicFormat  } ?: '''Music/{n}/{album+'/'}{pi.pad(2)+'. '}{artist} - {t}'''
 ]
 
 
@@ -117,7 +117,7 @@ def groups = input.groupBy{ f ->
 	
 	def tvs = detectSeriesName(f)
 	def mov = detectMovie(f, false)
-	println "$f.name [series: $tvs, movie: $mov]"
+	_log.fine("$f.name [series: $tvs, movie: $mov]")
 	
 	// DECIDE EPISODE VS MOVIE (IF NOT CLEAR)
 	if (tvs && mov) {
@@ -129,10 +129,10 @@ def groups = input.groupBy{ f ->
 		
 		// S00E00 | 2012.07.21 | One Piece 217 | Firefly - Serenity | [Taken 1, Taken 2, Taken 3, Taken 4, ..., Taken 10]
 		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn =~ sn && parseEpisodeNumber(fn.after(sn), false)) || fn.after(sn) =~ / - .+/ || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
-			println "Exclude Movie: $mov"
+			_log.fine("Exclude Movie: $mov")
 			mov = null
 		} else if ((detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) }) {
-			println "Exclude Series: $tvs"
+			_log.fine("Exclude Series: $tvs")
 			tvs = null
 		}
 	}

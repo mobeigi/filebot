@@ -148,13 +148,14 @@ public class Matcher<V, C> {
 		for (Match<V, C> possibleMatch : possibleMatches) {
 			float similarity = metric.getSimilarity(possibleMatch.getValue(), possibleMatch.getCandidate());
 			
-			Set<Match<V, C>> matchSet = similarityMap.get(similarity);
+			// DEBUG
+			// System.out.format("%s: %.04f: %s%n", metric, similarity, possibleMatch);
 			
+			Set<Match<V, C>> matchSet = similarityMap.get(similarity);
 			if (matchSet == null) {
 				matchSet = new LinkedHashSet<Match<V, C>>();
 				similarityMap.put(similarity, matchSet);
 			}
-			
 			matchSet.add(possibleMatch);
 			
 			// unwind this thread if we have been interrupted

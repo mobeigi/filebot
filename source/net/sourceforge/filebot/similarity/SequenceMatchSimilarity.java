@@ -24,6 +24,11 @@ public class SequenceMatchSimilarity implements SimilarityMetric {
 		if (match == null)
 			return 0;
 		
+		return similarity(match, s1, s2);
+	}
+	
+	
+	protected float similarity(String match, String s1, String s2) {
 		return (float) match.length() / min(s1.length(), s2.length());
 	}
 	
