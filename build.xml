@@ -206,7 +206,7 @@
 		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
 
 		<!-- build app bundle folder and add native libs -->
-		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+" vmoptions="-Xmx256m">
+		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$APP_PACKAGE/Contents/Resources/Java" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+">
 			<javaproperty name="application.deployment" value="app" />
 			<javaproperty name="unixfs" value="false" />
 			<javaproperty name="useExtendedFileAttributes" value="true" />

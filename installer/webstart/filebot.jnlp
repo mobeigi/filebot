@@ -33,7 +33,7 @@
 		<property name="sun.net.client.defaultReadTimeout"    value="60000" />
 		
 		
-		<java version="1.6+" max-heap-size="256m" />
+		<java version="1.6+" />
 		<property name="jnlp.packEnabled"       value="true" />
 		
 		<jar href="filebot.jar"       download="eager" main="true" />
