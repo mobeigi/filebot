@@ -80,6 +80,26 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	}
 	
 	
+	@Override
+	public int size() {
+		try {
+			return attributeView.list().size();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	
+	
+	@Override
+	public boolean isEmpty() {
+		try {
+			return attributeView.list().isEmpty();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	
+	
 	private class AttributeEntry implements Entry<String, String> {
 		
 		private final String name;
