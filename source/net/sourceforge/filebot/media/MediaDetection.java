@@ -836,37 +836,36 @@ public class MediaDetection {
 	
 	
 	public static void storeMetaInfo(File file, Object model) {
-		MetaAttributes xattr = new MetaAttributes(file);
-		
-		// store original name and model as xattr 
-		try {
-			if (model instanceof Episode || model instanceof Movie) {
-				xattr.setMetaData(model);
-				
+		// only for Episode / Movie objects
+		if (model instanceof Episode || model instanceof Movie) {
+			MetaAttributes xattr = new MetaAttributes(file);
+			
+			// store original name and model as xattr 
+			try {
 				if (xattr.getOriginalName() == null) {
 					xattr.setOriginalName(file.getName());
 				}
+				xattr.setMetaData(model);
+			} catch (Exception e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
 			}
-		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
-		}
-		
-		// set creation date to episode / movie release date
-		try {
-			if (model instanceof Episode) {
-				Episode episode = (Episode) model;
-				if (episode.airdate() != null) {
-					xattr.setCreationDate(episode.airdate().getTimeStamp());
+			
+			// set creation date to episode / movie release date
+			try {
+				if (model instanceof Episode) {
+					Episode episode = (Episode) model;
+					if (episode.airdate() != null) {
+						xattr.setCreationDate(episode.airdate().getTimeStamp());
+					}
+				} else if (model instanceof Movie) {
+					Movie movie = (Movie) model;
+					if (movie.getYear() > 0) {
+						xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
+					}
 				}
-			} else if (model instanceof Movie) {
-				Movie movie = (Movie) model;
-				if (movie.getYear() > 0) {
-					xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
-				}
+			} catch (Exception e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 			}
-		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 		}
 	}
-	
 }
