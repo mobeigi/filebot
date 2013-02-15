@@ -842,9 +842,10 @@ public class MediaDetection {
 		try {
 			if (model instanceof Episode || model instanceof Movie) {
 				xattr.setMetaData(model);
-			}
-			if (xattr.getOriginalName() == null) {
-				xattr.setOriginalName(file.getName());
+				
+				if (xattr.getOriginalName() == null) {
+					xattr.setOriginalName(file.getName());
+				}
 			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
