@@ -297,6 +297,7 @@ Commie
 COMPLIANT
 COMPULSION
 CONDITION
+CONFiDENT
 Connaz-AKA-MrPirate
 cottage
 COUNCiL
@@ -346,6 +347,7 @@ DCP
 DDC
 dddc
 DDR
+DEA
 DeadFish
 DEAL
 DeBCz
@@ -712,6 +714,7 @@ HORiZON
 HorribleSubs
 HOSTiLE
 HOWL
+HP
 HqDTS
 HQE
 HR
@@ -805,6 +808,7 @@ JFKXVID
 JJH
 JKR
 JMT
+JN
 JoLLyRoGeR
 Jozzep
 JunkyCez
@@ -928,6 +932,7 @@ MiNT
 MiRAGETV
 MiRAMAX
 MIS
+MiSFiTS
 Mish
 MissRipZ
 MLW
@@ -1091,6 +1096,7 @@ playXD
 PLEADERS
 PLT
 PlutO
+pmHD
 PMSVCD
 POCHER
 POD
@@ -1117,6 +1123,7 @@ PROPHETS
 ProPL
 PROXY
 PRXHD
+PS
 PS3-TEAM
 PSiG
 PSV
@@ -1612,6 +1619,7 @@ ZEN
 ZER0
 ZeRO
 Zeus.Dias
+zman
 ZMG
 Zox
 Zurako
