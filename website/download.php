@@ -43,7 +43,7 @@ if ($mode != 's') {
 				</form>
 				<img src="images/money.png" style="float:left; margin:5px 10px 5px 5px; width:48px; height:48px" />
 				<p style="margin: 13px 20px">
-					Shutter at the thought of how many hours and days of time FileBot has saved you?
+					Shudder at the thought of how many hours and days of time FileBot has saved you?
 					You can show your appreciation and <b>support for future development</b> by donating.
 				</p>
 			</div>

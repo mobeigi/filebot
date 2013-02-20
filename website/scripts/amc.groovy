@@ -8,7 +8,7 @@ args.each{ _log.fine("Argument: $it") }
 args.findAll{ !it.exists() }.each{ throw new Exception("File not found: $it") }
 
 // check user-defined pre-condition
-if (tryQuietly{ ut_state != ut_state_allow }) {
+if (tryQuietly{ ut_state ==~ ut_state_allow }) {
 	throw new Exception("Invalid state: ut_state = $ut_state (expected $ut_state_allow)")
 }
 

@@ -110,7 +110,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, true));
 					
 					String ext = getExtension(path);
-					typeRenderer.setText(ext != null ? ext.toLowerCase() : "NO EXTENSION");
+					typeRenderer.setText(ext != null ? ext.toLowerCase() : "MISSING EXTENSION");
 					if (file.isDirectory()) {
 						typeRenderer.setText("Folder");
 					}
