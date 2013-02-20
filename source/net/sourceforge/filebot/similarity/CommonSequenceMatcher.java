@@ -97,6 +97,7 @@ public class CommonSequenceMatcher {
 	
 	
 	protected <E extends Comparable<E>> E[] firstCommonSequence(E[] seq1, E[] seq2, int maxStartIndex) {
+		E[] matchSeq = null;
 		for (int i = 0; i < seq1.length && i <= maxStartIndex; i++) {
 			for (int j = 0; j < seq2.length && j <= maxStartIndex; j++) {
 				// common sequence length
@@ -108,16 +109,11 @@ public class CommonSequenceMatcher {
 				}
 				
 				// check if a common sequence was found
-				if (len > 0) {
-					if (i == 0 && len == seq1.length)
-						return seq1;
-					
-					return copyOfRange(seq1, i, i + len);
+				if (len > (matchSeq == null ? 0 : matchSeq.length)) {
+					matchSeq = copyOfRange(seq1, i, i + len);
 				}
 			}
 		}
-		
-		// no intersection at all
-		return null;
+		return matchSeq;
 	}
 }
