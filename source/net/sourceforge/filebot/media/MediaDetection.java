@@ -655,6 +655,9 @@ public class MediaDetection {
 		querySet.addAll(stripReleaseInfo(files, true));
 		querySet.addAll(stripReleaseInfo(files, false));
 		
+		// DEBUG
+		// System.out.format("%s: %s%n", queryLookupService.getName(), querySet);
+		
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		for (String query : querySet) {
