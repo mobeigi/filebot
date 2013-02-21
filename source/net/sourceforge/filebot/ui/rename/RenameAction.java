@@ -169,7 +169,7 @@ class RenameAction extends AbstractAction {
 				if (destinationSet.contains(destination))
 					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
 				
-				if (destination.exists() && !source.equals(destination))
+				if (destination.exists())
 					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
 				
 				// use original mapping values
