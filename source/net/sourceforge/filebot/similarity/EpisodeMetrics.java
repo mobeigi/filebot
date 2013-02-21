@@ -124,8 +124,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by SxE and airdate
 	EpisodeIdentifier(new MetricCascade(SeasonEpisode, AirDate)),
 	
-	// Advanced episode <-> file matching
-	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)), EpisodeBalancer(new SimilarityMetric() {
+	// Advanced episode <-> file matching Lv1 
+	EpisodeFunnel(new MetricCascade(SeasonEpisode, AirDate, Title)),
+	
+	// Advanced episode <-> file matching Lv2
+	EpisodeBalancer(new SimilarityMetric() {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {

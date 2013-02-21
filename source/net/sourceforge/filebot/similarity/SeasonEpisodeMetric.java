@@ -26,8 +26,8 @@ public class SeasonEpisodeMetric implements SimilarityMetric {
 		float similarity = -1;
 		for (SxE sxe1 : sxeVector1) {
 			for (SxE sxe2 : sxeVector2) {
-				if (sxe1.season == sxe2.season && sxe1.episode == sxe2.episode) {
-					// vectors have at least one perfect episode match in common
+				if (sxe1.season == sxe2.season && sxe1.episode == sxe2.episode && sxe1.season >= 0 && sxe2.season >= 0) {
+					// vectors have at least one perfect episode match in common (require season >= 0 as to put less trust in single-number matches)
 					return 1;
 				}
 				
