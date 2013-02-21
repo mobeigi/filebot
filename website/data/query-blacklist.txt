@@ -1,3 +1,4 @@
+(pro7|rtl2|zdf|ard|vox).\b\d{2,3}
 .+sample$
 1-3-3-8.com
 10.bit
@@ -6,6 +7,7 @@
 [1-3]CD
 [1-3]CDRip
 [1-9].?of.?[1-9]
+\d{2,4}.\b\d{2}.\b\d{2}.\b\d{2}.\b\d{2}
 ^(TV.)?(Show|Serie)[s]?
 ^[0-9]{1,2}[.]
 ^[lp]
@@ -145,6 +147,7 @@ LMAO
 lol
 Los.Sustitutos
 mkvonly
+mpg$
 MultiSub
 MVGroup.org
 National.Geographic
@@ -197,6 +200,7 @@ TPB
 TRUEFRENCH
 TS
 TSXVID
+TVOON.DE
 tvp
 ultimate.edition
 UNCUT

@@ -271,6 +271,7 @@ CHRONO
 CHUPPI
 CHwDgB
 CiA
+CiC
 CiELO
 CiNEFiLE
 CiNEFOX
@@ -1409,6 +1410,7 @@ tff
 TFiN
 TGP
 THE
+The3DTeam
 TheBatman
 TheNewSquad
 THENiGHTMARE
