@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,15 +109,14 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	protected Movie scrapeMovie(Document dom, Locale locale) {
 		try {
-			String header = selectString("//H1", dom).toUpperCase();
-			if (header.contains("(VG)")) // ignore video games and videos
+			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
+			String title = selectString("//META[@property='og:title']/@content", dom);
+			
+			Matcher titleMatcher = Pattern.compile("(.+)\\s\\((?i:TV\\s)?(\\d{4})\\)$").matcher(title);
+			if (!titleMatcher.matches())
 				return null;
 			
-			String name = selectString("//H1/text()", dom).replaceAll("\\s+", " ").trim();
-			String year = new Scanner(selectNode("//H1/SPAN[@class='nobr']", dom).getTextContent()).useDelimiter("\\D+").next();
-			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
-			
-			return new Movie(name, Pattern.matches("\\d{4}", year) ? Integer.parseInt(year) : -1, imdbid, -1);
+			return new Movie(titleMatcher.group(1), Integer.parseInt(titleMatcher.group(2)), imdbid, -1);
 		} catch (Exception e) {
 			// ignore, we probably got redirected to an error page
 			return null;
