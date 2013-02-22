@@ -82,7 +82,7 @@
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/json-io.jar">
-				<include name="com/cedarsoftware/util/io/**" />
+				<include name="com/cedarsoftware/util/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/simmetrics.jar">
