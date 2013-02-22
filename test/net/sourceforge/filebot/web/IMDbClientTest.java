@@ -134,6 +134,16 @@ public class IMDbClientTest {
 	
 	
 	@Test
+	public void getMovieDescriptor5() throws Exception {
+		Movie movie = imdb.getMovieDescriptor(1020960, null);
+		
+		assertEquals("God, the Universe and Everything Else", movie.getName());
+		assertEquals(1988, movie.getYear());
+		assertEquals(1020960, movie.getImdbId(), 0);
+	}
+	
+	
+	@Test
 	public void getAkaMovieDescriptor() throws Exception {
 		Movie movie = imdb.getMovieDescriptor(106559, Locale.ENGLISH);
 		

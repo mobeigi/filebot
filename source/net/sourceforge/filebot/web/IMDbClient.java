@@ -112,7 +112,7 @@ public class IMDbClient implements MovieIdentificationService {
 			int imdbid = getImdbId(selectString("//LINK[@rel='canonical']/@href", dom));
 			String title = selectString("//META[@property='og:title']/@content", dom);
 			
-			Matcher titleMatcher = Pattern.compile("(.+)\\s\\((?i:TV\\s)?(\\d{4})\\)$").matcher(title);
+			Matcher titleMatcher = Pattern.compile("(.+)\\s\\((?i:tv.|video.)?(\\d{4})\\)$").matcher(title);
 			if (!titleMatcher.matches())
 				return null;
 			
