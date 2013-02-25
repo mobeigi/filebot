@@ -3,7 +3,6 @@ package net.sourceforge.filebot;
 
 
 import static net.sourceforge.filebot.History.*;
-import static net.sourceforge.filebot.Settings.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,22 +24,20 @@ public final class HistorySpooler {
 		return instance;
 	}
 	
-	
-	private final File file = new File(getApplicationFolder(), "history.xml");
-	
-	private final History sessionHistory = new History();
+	private HistoryStorage persistentHistory = null;
+	private History sessionHistory = new History();
 	
 	
 	public synchronized History getCompleteHistory() {
 		History history = new History();
 		
 		// add persistent history
-		if (file.exists()) {
-			try {
-				history.addAll(importHistory(file).sequences());
-			} catch (IOException e) {
-				Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load history", e);
+		try {
+			if (getPersistentHistory() != null) {
+				history.addAll(getPersistentHistory().read().sequences());
 			}
+		} catch (IOException e) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load history", e);
 		}
 		
 		// add session history
@@ -71,7 +68,9 @@ public final class HistorySpooler {
 	
 	public synchronized void commit(History history) {
 		try {
-			exportHistory(history, file);
+			if (getPersistentHistory() != null) {
+				getPersistentHistory().write(history);
+			}
 			
 			// clear session history
 			sessionHistory.clear();
@@ -89,14 +88,49 @@ public final class HistorySpooler {
 	}
 	
 	
-	private HistorySpooler() {
-		// commit session history on shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				commit();
-			}
-		}));
+	public synchronized void setPersistentHistory(HistoryStorage persistentHistory) {
+		this.persistentHistory = persistentHistory;
 	}
+	
+	
+	public synchronized HistoryStorage getPersistentHistory() {
+		return persistentHistory;
+	}
+	
+	
+	public static interface HistoryStorage {
+		
+		History read() throws IOException;
+		
+		
+		void write(History history) throws IOException;
+	}
+	
+	
+	public static class HistoryFileStorage implements HistoryStorage {
+		
+		private final File file;
+		
+		
+		public HistoryFileStorage(File file) {
+			this.file = file;
+		}
+		
+		
+		@Override
+		public History read() throws IOException {
+			if (file.exists()) {
+				return importHistory(file);
+			} else {
+				return new History();
+			}
+		}
+		
+		
+		@Override
+		public void write(History history) throws IOException {
+			exportHistory(history, file);
+		}
+	}
+	
 }

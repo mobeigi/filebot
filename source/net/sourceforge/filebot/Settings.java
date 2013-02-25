@@ -64,6 +64,16 @@ public final class Settings {
 	}
 	
 	
+	public static boolean useDonationReminder() {
+		String value = System.getProperty("useDonationReminder");
+		if (value != null) {
+			return Boolean.parseBoolean(value);
+		} else {
+			return getApplicationDeployment() == null || !getApplicationDeployment().equalsIgnoreCase("ppa");
+		}
+	}
+	
+	
 	public static int getPreferredThreadPoolSize() {
 		try {
 			return Integer.parseInt(System.getProperty("threadPool"));

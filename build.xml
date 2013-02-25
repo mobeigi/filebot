@@ -583,6 +583,7 @@
 				<include name="*.ico" />
 				<include name="images/**" />
 				<include name="screenshots/**" />
+				<include name=".htaccess" />
 			</fileset>
 		</copy>
 

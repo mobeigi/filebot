@@ -4,7 +4,7 @@ package net.sourceforge.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
 import static java.util.regex.Pattern.*;
-import static javax.swing.JFrame.*;
+import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -30,6 +30,7 @@ import java.security.ProtectionDomain;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -46,6 +48,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.HistorySpooler.HistoryFileStorage;
+import net.sourceforge.filebot.HistorySpooler.HistoryStorage;
 import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.cli.CmdlineOperations;
@@ -93,6 +97,7 @@ public class Main {
 			// initialize this stuff before anything else
 			initializeCache();
 			initializeSecurityManager();
+			HistorySpooler.getInstance().setPersistentHistory(new HistoryFileStorage(new File(getApplicationFolder(), "history.xml")));
 			
 			if (args.clearUserData()) {
 				System.out.println("Reset preferences");
@@ -132,6 +137,15 @@ public class Main {
 			
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
+				// commit session history on shutdown
+				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						HistorySpooler.getInstance().commit();
+					}
+				}));
+				
 				// default cross-platform laf used in scripting to nimbus instead of metal (if possible)
 				if (args.script != null && !isHeadless()) {
 					try {
@@ -192,6 +206,48 @@ public class Main {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
+			
+			// hook donation reminder into rename history
+			if (useDonationReminder()) {
+				System.out.println("Main.main()");
+				final HistoryStorage fileStorage = HistorySpooler.getInstance().getPersistentHistory();
+				HistorySpooler.getInstance().setPersistentHistory(new HistoryStorage() {
+					
+					@Override
+					public void write(History history) throws IOException {
+						// store history
+						fileStorage.write(history);
+						
+						// display donation reminder
+						try {
+							PreferencesEntry<String> persistentDonateLv = Settings.forPackage(Main.class).entry("donate.lv").defaultValue("0");
+							int donateLv = Integer.parseInt(persistentDonateLv.getValue());
+							int donateStep = 10000;
+							int usage = history.totalSize();
+							
+							if (usage / donateStep > donateLv) {
+								persistentDonateLv.setValue(String.valueOf(Math.max(donateLv + 1, usage / donateStep)));
+								
+								String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", history.totalSize());
+								String[] actions = new String[] { "Donate!", "Later" };
+								JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
+								pane.createDialog(null, "Please Donate").setVisible(true);
+								if (pane.getValue() == actions[0]) {
+									Desktop.getDesktop().browse(URI.create(getApplicationProperty("donate.url")));
+								}
+							}
+						} catch (Exception e) {
+							Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+						}
+					}
+					
+					
+					@Override
+					public History read() throws IOException {
+						return fileStorage.read();
+					}
+				});
+			}
 		} catch (CmdLineException e) {
 			// illegal arguments => just print CLI error message and stop
 			System.err.println(e.getMessage());
@@ -213,7 +269,15 @@ public class Main {
 		}
 		
 		frame.setLocationByPlatform(true);
-		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				e.getWindow().setVisible(false);
+				HistorySpooler.getInstance().commit();
+				System.exit(0);
+			}
+		});
 		
 		try {
 			// restore previous size and location

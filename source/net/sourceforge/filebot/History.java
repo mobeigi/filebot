@@ -173,6 +173,15 @@ public class History {
 	}
 	
 	
+	public int totalSize() {
+		int i = 0;
+		for (Sequence it : sequences()) {
+			i += it.elements.size();
+		}
+		return i;
+	}
+	
+	
 	public void clear() {
 		sequences.clear();
 	}
