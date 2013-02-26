@@ -82,8 +82,8 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def extractedFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true)
-input += extractedFiles
+def tempFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true)
+input += tempFiles
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
@@ -153,7 +153,9 @@ groups.each{ group, files ->
 	// fetch subtitles (but not for anime)
 	if (subtitles && !group.anime) {
 		subtitles.each{ languageCode ->
-			files += getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode)
+			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode)
+			files += subtitleFiles
+			tempFiles += subtitleFiles // if downloaded for temporarily extraced files delete later
 		}
 	}
 	
@@ -273,17 +275,17 @@ if (gmail) {
 
 // clean empty folders, clutter files, etc after move
 if (clean) {
-	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && extractedFiles?.size() > 0) {
+	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && tempFiles?.size() > 0) {
 		println 'Clean temporary extracted files'
 		// delete extracted files
-		extractedFiles.each{
+		tempFiles.each{
 			if(it.isFile()) {
 				println "Delete $it"
 				it.delete()
 			}
 		}
 		// delete remaining empty folders
-		extractedFiles*.dir.unique().findAll{ it.listFiles().length == 0 }.each{
+		tempFiles*.dir.unique().findAll{ it.listFiles().length == 0 }.each{
 			if(it.isDirectory()) {
 				println "Delete $it"
 				it.delete()
