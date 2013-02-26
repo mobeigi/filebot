@@ -210,7 +210,6 @@ public class Main {
 			
 			// hook donation reminder into rename history
 			if (useDonationReminder()) {
-				System.out.println("Main.main()");
 				final HistoryStorage fileStorage = HistorySpooler.getInstance().getPersistentHistory();
 				HistorySpooler.getInstance().setPersistentHistory(new HistoryStorage() {
 					

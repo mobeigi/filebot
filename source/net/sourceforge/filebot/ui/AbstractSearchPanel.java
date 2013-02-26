@@ -68,15 +68,13 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		
 		tabbedPaneGroup.setBorder(BorderFactory.createTitledBorder("Search Results"));
 		tabbedPaneGroup.add(tabbedPane, "grow, wrap");
-		
 		setLayout(new MigLayout("nogrid, fill, insets 10px 10px 15px 10px", "align center", "[pref!]10px[fill]"));
 		
 		add(searchTextField);
-		add(new JButton(searchAction), "gap 18px, wrap");
-		add(tabbedPaneGroup, "grow");
+		add(new JButton(searchAction), "gap 18px, id search");
+		add(tabbedPaneGroup, "newline, grow");
 		
 		searchTextField.getEditor().setAction(searchAction);
-		
 		searchTextField.getSelectButton().setModel(Arrays.asList(getSearchEngines()));
 		searchTextField.getSelectButton().setLabelProvider(getSearchEngineLabelProvider());
 		
@@ -98,7 +96,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		});
 		
 		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
-		
 		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), searchAction);
 	}
 	

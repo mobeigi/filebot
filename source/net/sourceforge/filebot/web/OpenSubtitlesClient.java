@@ -322,7 +322,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 	
 	
-	protected synchronized void login() throws Exception {
+	public synchronized void login() throws Exception {
 		if (!xmlrpc.isLoggedOn()) {
 			xmlrpc.login(username, password, "en");
 		}

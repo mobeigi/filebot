@@ -358,13 +358,12 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	public synchronized void setClient(String id, String key) {
 		clientInfo.setClientId(id);
 		clientInfo.setApiKey(key);
-		
 	}
 	
 	
 	public synchronized void setUser(String username, String password) {
 		this.username = username;
-		this.passwordHash = getPasswordHash(password);
+		this.passwordHash = password != null && password.length() > 0 ? getPasswordHash(password) : null;
 	}
 	
 	
@@ -379,7 +378,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	}
 	
 	
-	protected synchronized void login() throws WebServiceException {
+	public synchronized void login() throws WebServiceException {
 		if (clientInfo.getClientId() == null || clientInfo.getClientId().isEmpty()) {
 			throw new IllegalStateException("Sublight login has not been configured");
 		}
@@ -438,7 +437,6 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 			throw new WebServiceException("Response indicates error: " + error.value);
 		}
 	}
-	
 	
 	protected final Timer logoutTimer = new Timer() {
 		

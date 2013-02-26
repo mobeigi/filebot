@@ -224,16 +224,31 @@ public final class WebServices {
 	}
 	
 	
-	private static String[] getLogin(String key) {
-		// try system property first
-		String login = System.getProperty(key);
-		
-		// try settings second
-		if (login == null) {
-			login = Settings.forPackage(WebServices.class).get(key, ":");
+	public static String[] getLogin(String key) {
+		return Settings.forPackage(WebServices.class).get(key, ":").split(":", 2);
+	}
+	
+	
+	public static void setLogin(String id, String user, String password) {
+		Settings settings = Settings.forPackage(WebServices.class);
+		String value = user.length() > 0 && password.length() > 0 ? user + ":" + password : null;
+		if (value == null) {
+			user = "";
+			password = "";
 		}
 		
-		return login.split(":", 2);
+		if (id.equals("osdb.user")) {
+			settings.put(id, value);
+			OpenSubtitles.setUser(user, password);
+		} else if (id.equals("sublight.user")) {
+			settings.put(id, value);
+			Sublight.setUser(user, password);
+		} else if (id.equals("sublight.client")) {
+			settings.put(id, value);
+			Sublight.setClient(user, password);
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 	
 }

@@ -144,7 +144,11 @@ public final class Settings {
 	
 	
 	public void put(String key, String value) {
-		prefs.put(key, value);
+		if (value != null) {
+			prefs.put(key, value);
+		} else {
+			remove(key);
+		}
 	}
 	
 	
