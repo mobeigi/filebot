@@ -225,7 +225,7 @@ public class Main {
 							int donateStep = 10000;
 							int usage = history.totalSize();
 							
-							if (usage / donateStep > donateLv || new Random().nextInt(donateStep) == 777) {
+							if (usage / donateStep > donateLv || new Random().nextInt(1000) == 777) {
 								persistentDonateLv.setValue(String.valueOf(Math.max(donateLv + 1, usage / donateStep)));
 								
 								String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", history.totalSize());
@@ -235,6 +235,7 @@ public class Main {
 								if (pane.getValue() == actions[0]) {
 									Desktop.getDesktop().browse(URI.create(getApplicationProperty("donate.url")));
 								}
+								Analytics.trackEvent("GUI", "Donate", "Lv " + donateLv, pane.getValue() == actions[0] ? 1 : 0);
 							}
 						} catch (Exception e) {
 							Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
