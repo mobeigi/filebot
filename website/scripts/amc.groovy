@@ -212,9 +212,12 @@ if (getRenameLog().isEmpty()) {
 }
 
 // make xbmc or plex scan for new content
-xbmc?.each{
-	println "Notify XBMC: $it"
-	invokeScanVideoLibrary(it)
+xbmc?.each{ host ->
+	println "Notify XBMC: $host"
+	_guarded{
+		XBMC(host, 8080).showNotification('FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
+		XBMC(host, 8080).scanVideoLibrary()
+	}
 }
 
 plex?.each{

@@ -1,19 +1,29 @@
 
 import static net.sourceforge.filebot.WebServices.*
+import static groovy.json.StringEscapeUtils.*
 
 import groovy.xml.*
 import net.sourceforge.filebot.mediainfo.*
 
 
-
 /**
  * XBMC helper functions
  */
-def invokeScanVideoLibrary(host, port = 9090) {
-	_guarded {
-		telnet(host, port) { writer, reader ->
-			writer.println('{"id":1,"method":"VideoLibrary.Scan","params":[],"jsonrpc":"2.0"}') // API call for latest XBMC release
-		}
+def XBMC(host, port = 8080) {
+	new XBMCJsonRpc(endpoint:new URL("http://${host}:${port}/jsonrpc"))
+}
+
+class XBMCJsonRpc {
+	def endpoint
+	
+	def invoke(json) {
+		endpoint.post(json.getBytes('UTF-8'), 'application/json').text
+	}
+	def scanVideoLibrary() {
+		invoke("""{"jsonrpc":"2.0","method":"VideoLibrary.Scan","id":1}""")
+	}
+	def showNotification(title, message, image) {
+		invoke("""{"jsonrpc":"2.0","method":"GUI.ShowNotification","params":{"title":"${escapeJavaScript(title)}","message":"${escapeJavaScript(message)}", "image":"${escapeJavaScript(image)}"},"id":1}""")
 	}
 }
 

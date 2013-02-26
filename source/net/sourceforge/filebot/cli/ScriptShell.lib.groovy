@@ -83,7 +83,7 @@ String.metaClass.getXml = { new XmlParser().parseText(delegate) }
 URL.metaClass.get = { delegate.getText() }
 URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
 URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
-URL.metaClass.post = { String text, csn = 'utf-8' -> delegate.post(text.getBytes(csn), 'text/plain') }
+URL.metaClass.post = { String text, contentType = 'text/plain', csn = 'utf-8' -> delegate.post(text.getBytes(csn), contentType) }
 
 ByteBuffer.metaClass.saveAs = { f -> f = f as File; f = f.absoluteFile; f.parentFile.mkdirs(); writeFile(delegate.duplicate(), f); f }
 URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
