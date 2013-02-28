@@ -9,21 +9,19 @@ import net.sourceforge.filebot.mediainfo.*
 /**
  * XBMC helper functions
  */
-def XBMC(host, port = 8080) {
-	new XBMCJsonRpc(endpoint:new URL("http://${host}:${port}/jsonrpc"))
+def scanVideoLibrary(host, port) {
+	_guarded {
+		telnet(host, port) { writer, reader ->
+			writer.println("""{"jsonrpc":"2.0","method":"VideoLibrary.Scan","id":1}""")
+		}
+	}
 }
 
-class XBMCJsonRpc {
-	def endpoint
-	
-	def invoke(json) {
-		endpoint.post(json.getBytes('UTF-8'), 'application/json').text
-	}
-	def scanVideoLibrary() {
-		invoke("""{"jsonrpc":"2.0","method":"VideoLibrary.Scan","id":1}""")
-	}
-	def showNotification(title, message, image) {
-		invoke("""{"jsonrpc":"2.0","method":"GUI.ShowNotification","params":{"title":"${escapeJavaScript(title)}","message":"${escapeJavaScript(message)}", "image":"${escapeJavaScript(image)}"},"id":1}""")
+def showNotification(host, port, title, message, image) {
+	_guarded {
+		telnet(host, port) { writer, reader ->
+			writer.println("""{"jsonrpc":"2.0","method":"GUI.ShowNotification","params":{"title":"${escapeJavaScript(title)}","message":"${escapeJavaScript(message)}", "image":"${escapeJavaScript(image)}"},"id":1}""")
+		}
 	}
 }
 

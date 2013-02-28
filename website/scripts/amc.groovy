@@ -215,8 +215,8 @@ if (getRenameLog().isEmpty()) {
 xbmc?.each{ host ->
 	println "Notify XBMC: $host"
 	_guarded{
-		XBMC(host, 8080).showNotification('FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
-		XBMC(host, 8080).scanVideoLibrary()
+		showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
+		scanVideoLibrary(host, 9090)
 	}
 }
 
