@@ -18,6 +18,7 @@ def subtitles = tryQuietly{ subtitles.toBoolean() ? ['en'] : subtitles.split(/[ 
 def artwork   = tryQuietly{ artwork.toBoolean() }
 def backdrops = tryQuietly{ backdrops.toBoolean() }
 def clean     = tryQuietly{ clean.toBoolean() }
+def exec      = tryQuietly{ exec.toString() }
 
 // array of xbmc/plex hosts
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
@@ -26,7 +27,7 @@ def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 // myepisodes updates and email notifications
 def myepisodes = tryQuietly { myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
-def pushover = tryQuietly{ pushover }
+def pushover = tryQuietly{ pushover.toString() }
 
 
 // series/anime/movie format expressions
@@ -211,18 +212,32 @@ if (getRenameLog().isEmpty()) {
 	return
 }
 
-// make xbmc or plex scan for new content
-xbmc?.each{ host ->
-	println "Notify XBMC: $host"
-	_guarded{
-		showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
-		scanVideoLibrary(host, 9090)
+// run program on newly processed files
+if (exec) {
+	getRenameLog().each{ from, to ->
+		def command = getMediaInfo(format: exec, file: to)
+		_log.finest("Execute: $command")
+		execute(command)
 	}
 }
 
-plex?.each{
-	println "Notify Plex: $it"
-	refreshPlexLibrary(it)
+// make XMBC scan for new content and display notification message
+if (xbmc) {
+	xbmc.each{ host ->
+		println "Notify XBMC: $host"
+		_guarded{
+			showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
+			scanVideoLibrary(host, 9090)
+		}
+	}
+}
+
+// make Plex scan for new content
+if (plex) {
+	plex.each{
+		println "Notify Plex: $it"
+		refreshPlexLibrary(it)
+	}
 }
 
 // mark episodes as 'acquired'
