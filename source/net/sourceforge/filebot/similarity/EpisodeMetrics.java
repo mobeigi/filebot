@@ -275,13 +275,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			String[] f2 = fields(o2);
 			
 			// match all fields and average similarity
-			float sum = 0;
+			float max = 0;
 			for (String s1 : f1) {
 				for (String s2 : f2) {
-					sum += super.getSimilarity(s1, s2);
+					max = max(super.getSimilarity(s1, s2), max);
 				}
 			}
-			return sum / (f1.length * f2.length);
+			return max;
 		}
 		
 		
