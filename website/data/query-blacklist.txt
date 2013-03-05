@@ -62,8 +62,11 @@
 ^Sort$
 ^Staging$
 ^Storage$
+^temp$
+^temporary$
 ^Test$
 ^testdata$
+^tmp$
 ^Torrent[s]?
 ^Tracker
 ^Trailer
@@ -72,6 +75,7 @@
 ^user$
 ^VCD$
 ^VIDEO_TS$
+^volume[0-9]?$
 ^watch$
 A.Release.Lounge
 ABC

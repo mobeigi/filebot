@@ -615,7 +615,8 @@ public class MediaDetection {
 	
 	
 	public static List<Movie> matchMovieFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
-		Pattern spacing = Pattern.compile("[\\p{Punct}\\p{Space}]+");
+		// clear name of punctuation, spacing, and leading 'The' or 'A' that are common causes for word-lookup to fail
+		Pattern spacing = Pattern.compile("(^(?i)(The|A)\\b)|[\\p{Punct}\\p{Space}]+");
 		
 		List<String> terms = new ArrayList<String>(names.size());
 		for (String it : names) {
