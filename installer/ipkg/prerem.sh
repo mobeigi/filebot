@@ -1,2 +1,2 @@
 #!/bin/sh
-rm /usr/bin/filebot
+rm /opt/usr/bin/filebot
