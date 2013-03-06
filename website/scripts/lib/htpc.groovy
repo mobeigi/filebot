@@ -43,32 +43,32 @@ def refreshPlexLibrary(server, port = 32400) {
  */
 def fetchSeriesBanner(outputFile, series, bannerType, bannerType2, season, override, locale) {
 	if (outputFile.exists() && !override) {
-		println "Banner already exists: $outputFile"
+		_log.finest "Banner already exists: $outputFile"
 		return outputFile
 	}
 	
 	// select and fetch banner
 	def banner = [locale, null].findResult { TheTVDB.getBanner(series, [BannerType:bannerType, BannerType2:bannerType2, Season:season, Language:it]) }
 	if (banner == null) {
-		println "Banner not found: $outputFile / $bannerType:$bannerType2"
+		_log.finest "Banner not found: $outputFile / $bannerType:$bannerType2"
 		return null
 	}
-	println "Fetching $outputFile => $banner"
+	_log.finest "Fetching $outputFile => $banner"
 	return banner.url.saveAs(outputFile)
 }
 
 def fetchSeriesFanart(outputFile, series, type, season, override, locale) {
 	if (outputFile.exists() && !override) {
-		println "Fanart already exists: $outputFile"
+		_log.finest "Fanart already exists: $outputFile"
 		return outputFile
 	}
 	
 	def fanart = [locale, null].findResult{ lang -> FanartTV.getSeriesArtwork(series.seriesId).find{ type == it.type && (season == null || season == it.season) && (lang == null || lang == it.language) }}
 	if (fanart == null) {
-		println "Fanart not found: $outputFile / $type"
+		_log.finest "Fanart not found: $outputFile / $type"
 		return null
 	}
-	println "Fetching $outputFile => $fanart"
+	_log.finest "Fetching $outputFile => $fanart"
 	return fanart.url.saveAs(outputFile)
 }
 
@@ -141,7 +141,7 @@ def fetchSeriesArtworkAndNfo(seriesDir, seasonDir, series, season, override = fa
  */
 def fetchMovieArtwork(outputFile, movieInfo, category, override, locale) {
 	if (outputFile.exists() && !override) {
-		println "Artwork already exists: $outputFile"
+		_log.finest "Artwork already exists: $outputFile"
 		return outputFile
 	}
 	
@@ -149,10 +149,10 @@ def fetchMovieArtwork(outputFile, movieInfo, category, override, locale) {
 	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
 	def selection = [locale.language, 'en', null].findResult{ l -> artwork.find{ (l == it.language || l == null) && it.category == category } }
 	if (selection == null) {
-		println "Artwork not found: $outputFile"
+		_log.finest "Artwork not found: $outputFile"
 		return null
 	}
-	println "Fetching $outputFile => $selection"
+	_log.finest "Fetching $outputFile => $selection"
 	return selection.url.saveAs(outputFile)
 }
 
@@ -161,15 +161,15 @@ def fetchAllMovieArtwork(outputFolder, movieInfo, category, override, locale) {
 	def artwork = TheMovieDB.getArtwork(movieInfo.id as String)
 	def selection = [locale.language, 'en', null].findResults{ l -> artwork.findAll{ (l == it.language || l == null) && it.category == category } }.flatten().findAll{ it?.url }.unique()
 	if (selection == null) {
-		println "Artwork not found: $outputFolder"
+		_log.finest "Artwork not found: $outputFolder"
 		return null
 	}
 	selection.eachWithIndex{ s, i ->
 		def outputFile = new File(outputFolder, "$category-${(i+1).pad(2)}.jpg")
 		if (outputFile.exists() && !override) {
-			println "Artwork already exists: $outputFile"
+			_log.finest "Artwork already exists: $outputFile"
 		} else {
-			println "Fetching $outputFile => $s"
+			_log.finest "Fetching $outputFile => $s"
 			s.url.saveAs(outputFile)
 		}
 	}
@@ -177,16 +177,16 @@ def fetchAllMovieArtwork(outputFolder, movieInfo, category, override, locale) {
 
 def fetchMovieFanart(outputFile, movieInfo, type, diskType, override, locale) {
 	if (outputFile.exists() && !override) {
-		println "Fanart already exists: $outputFile"
+		_log.finest "Fanart already exists: $outputFile"
 		return outputFile
 	}
 	
 	def fanart = [locale, null].findResult{ lang -> FanartTV.getMovieArtwork(movieInfo.id).find{ type == it.type && (diskType == null || diskType == it.diskType) && (lang == null || lang == it.language) }}
 	if (fanart == null) {
-		println "Fanart not found: $outputFile / $type"
+		_log.finest "Fanart not found: $outputFile / $type"
 		return null
 	}
-	println "Fetching $outputFile => $fanart"
+	_log.finest "Fetching $outputFile => $fanart"
 	return fanart.url.saveAs(outputFile)
 }
 

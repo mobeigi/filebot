@@ -841,7 +841,7 @@ public class MediaDetection {
 	
 	public static void storeMetaInfo(File file, Object model) {
 		// only for Episode / Movie objects
-		if (model instanceof Episode || model instanceof Movie) {
+		if ((model instanceof Episode || model instanceof Movie) && file.exists()) {
 			MetaAttributes xattr = new MetaAttributes(file);
 			
 			// store original name and model as xattr 

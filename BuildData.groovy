@@ -5,6 +5,7 @@
 @Grab(group='org.jsoup', module='jsoup', version='1.7.1')
 import org.jsoup.*
 
+/*
 def sgl = []
 for (def page = 0; true; page++) {
 	def dom = Jsoup.parse(new URL('http://scenegrouplist.com/lists_sgl.php?pageNum_RSSGL=' + page), 10000)
@@ -17,6 +18,7 @@ sgl = sgl.collect{ it.before(/ - /).trim().space('.') }.collect{ it ==~ /\p{Uppe
 
 // append release group names
 new File('website/data/release-groups.txt') << '\n' << sgl.join('\n')
+*/
 
 
 // ------------------------------------------------------------------------- //

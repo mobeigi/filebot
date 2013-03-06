@@ -83,7 +83,7 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def tempFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true)
+def tempFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
 input += tempFiles
 
 // sanitize input
@@ -154,7 +154,7 @@ groups.each{ group, files ->
 	// fetch subtitles (but not for anime)
 	if (subtitles && !group.anime) {
 		subtitles.each{ languageCode ->
-			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode)
+			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode) ?: []
 			files += subtitleFiles
 			tempFiles += subtitleFiles // if downloaded for temporarily extraced files delete later
 		}
@@ -168,11 +168,11 @@ groups.each{ group, files ->
 		def dest = rename(file: files, format: config.format, db: config.db)
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
-				println "Fetching artwork for $dir from TheTVDB"
+				_log.finest "Fetching artwork for $dir from TheTVDB"
 				def sxe = fs.findResult{ eps -> parseEpisodeNumber(eps) }
 				def options = TheTVDB.search(config.name)
 				if (options.isEmpty()) {
-					println "TV Series not found: $config.name"
+					_log.warning "TV Series not found: $config.name"
 					return
 				}
 				options = options.sortBySimilarity(config.name, { s -> s.name })
@@ -189,7 +189,7 @@ groups.each{ group, files ->
 		def dest = rename(file:files, format:format.mov, db:'TheMovieDB')
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
-				println "Fetching artwork for $dir from TheMovieDB"
+				_log.finest "Fetching artwork for $dir from TheMovieDB"
 				fetchMovieArtworkAndNfo(dir, group.mov, fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, backdrops)
 			}
 		}
@@ -224,7 +224,7 @@ if (exec) {
 // make XMBC scan for new content and display notification message
 if (xbmc) {
 	xbmc.each{ host ->
-		println "Notify XBMC: $host"
+		_log.info "Notify XBMC: $host"
 		_guarded{
 			showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
 			scanVideoLibrary(host, 9090)
@@ -235,14 +235,14 @@ if (xbmc) {
 // make Plex scan for new content
 if (plex) {
 	plex.each{
-		println "Notify Plex: $it"
+		_log.info "Notify Plex: $it"
 		refreshPlexLibrary(it)
 	}
 }
 
 // mark episodes as 'acquired'
 if (myepisodes) {
-	println 'Update MyEpisodes'
+	_log.info 'Update MyEpisodes'
 	include('fn:update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
 }
 
@@ -250,7 +250,7 @@ if (pushover) {
 	// include webservice utility
 	include('fn:lib/ws')
 	
-	println('Sending Pushover notification')
+	_log.info 'Sending Pushover notification'
 	Pushover(pushover).send("Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).")
 }
 
@@ -293,19 +293,19 @@ if (gmail) {
 
 // clean empty folders, clutter files, etc after move
 if (clean) {
-	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && tempFiles?.size() > 0) {
-		println 'Clean temporary extracted files'
+	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && tempFiles.size() > 0) {
+		_log.info 'Clean temporary extracted files'
 		// delete extracted files
 		tempFiles.each{
 			if(it.isFile()) {
-				println "Delete $it"
+				_log.finest "Delete $it"
 				it.delete()
 			}
 		}
 		// delete remaining empty folders
 		tempFiles*.dir.unique().findAll{ it.listFiles().length == 0 }.each{
 			if(it.isDirectory()) {
-				println "Delete $it"
+				_log.finest "Delete $it"
 				it.delete()
 			}
 		}
@@ -313,7 +313,7 @@ if (clean) {
 	
 	// deleting remaining files only makes sense after moving files
 	if ('MOVE'.equalsIgnoreCase(_args.action)) {
-		println 'Clean clutter files and empty folders'
+		_log.info 'Clean clutter files and empty folders'
 		include('fn:cleaner', [:], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
 	}
 }

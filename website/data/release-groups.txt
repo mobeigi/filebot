@@ -223,6 +223,7 @@ BRiGHT
 BRMP
 BRUTUS
 BRZONE
+BS
 BTSD
 BTSFilms
 BTT
@@ -1105,6 +1106,7 @@ POD
 POKERUS
 PoRNDoCtOR
 PORNOHOLiCS
+PorphyriA
 PosTX
 PoT
 PoTuS
@@ -1410,7 +1412,6 @@ TFE
 tff
 TFiN
 TGP
-THE
 The3DTeam
 TheBatman
 TheNewSquad
