@@ -532,8 +532,16 @@ public class MediaDetection {
 			}
 		}
 		
-		// first meaningful parent folder (max 2 levels deep)
+		// first parent folder that matches a movie (max 3 levels deep)
 		File f = movieFile.getParentFile();
+		for (int i = 0; f != null && i < 3; f = f.getParentFile(), i++) {
+			String term = stripReleaseInfo(f.getName());
+			if (term.length() > 0 && checkMovie(f) != null) {
+				return f;
+			}
+		}
+		
+		// otherwise try the first potentially meaningful parent folder (max 2 levels deep)
 		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
@@ -551,7 +559,7 @@ public class MediaDetection {
 	
 	
 	public static Movie checkMovie(File file) throws Exception {
-		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 0) : null;
+		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 2) : null;
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 	
