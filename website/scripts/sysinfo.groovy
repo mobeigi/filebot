@@ -7,7 +7,7 @@ println net.sourceforge.filebot.Settings.applicationIdentifier
 try {
 	print 'JNA Native: '
 	println com.sun.jna.Native.nativeVersion
-} catch(error) {
+} catch(Throwable error) {
 	println error.cause
 }
 
@@ -15,7 +15,7 @@ try {
 try {
 	print 'MediaInfo: '
 	println net.sourceforge.filebot.mediainfo.MediaInfo.version()
-} catch(error) {
+} catch(Throwable error) {
 	println error.cause
 }
 

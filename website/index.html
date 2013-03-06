@@ -86,20 +86,6 @@
 			</script>
 		</div>
 		
-		<div class="adsense sidead second">
-			<script type="text/javascript"><!--
-			google_ad_client = "ca-pub-2833958633371388";
-			/* FileBot SideAd Wide 2 */
-			google_ad_slot = "5493651869";
-			google_ad_width = 160;
-			google_ad_height = 600;
-			//-->
-			</script>
-			<script type="text/javascript"
-			src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-			</script>
-		</div>
-		
 		<div class="page" style="background-image: url('images/bg.hint.tutorial.png'); background-position: 565px 122px;">
 			<div class="navigation">
 				<div>
@@ -160,7 +146,7 @@
 					</a>
 				</div>
 				
-				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
+				<a id="review" class="review message box" style="visibility:hidden" href="reviews.php" target="_blank">
 				<div class="thumbs up">
 					<img src="images/thumbs_up.png" />
 				</div>
@@ -174,7 +160,7 @@
 								$('#review .user').text(review.user)
 								$('#review .date').text(review.date)
 								$('#review .text').text(review.text)
-								$('#review').show()
+								$('#review').css('visibility', 'visible')
 							}
 						});
 					</script>
@@ -213,7 +199,12 @@
 						<li>Update your XBMC or Plex library and MyEpisodes.com account</li>
 						... and more!
 					</ul>
-					<p>Setting up a <strong>fully automated media center</strong> – extract archives, organize tv shows and movies, download subtitles, fetch artwork and metadata, update XBMC – with µTorrent and FileBot it's <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&amp;t=215#p1561">that</a> easy!</p>
+					<p>Setting up a <strong>fully automated media center</strong> – extract archives, organize tv shows and movies, download subtitles, fetch artwork and metadata, update XBMC – with FileBot it's <a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&amp;t=215#p1561">that</a> easy!</p>
+					<ul style="list-style-type:  square; border: thin dotted lavender; background: #FDFDFF">
+						<li><a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=215#p1561" target="_blank">µTorrent Integration for Windows</a></li>
+						<li><a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=520#p3470" target="_blank">Transmission Integration for Mac</a></li>
+						<li><a href="http://filebot.sourceforge.net/forums/viewtopic.php?f=4&t=215#p3382" target="_blank">Deluge Integration for Linux</a></li>
+					</ul>
 				</div>
 				
 				
@@ -320,7 +311,23 @@
 						<li>Synology NAS package is available <a target="_blank" href="http://missilehugger.com/735/synology-package-filebot/">from MissileHugger</a></li>
 					</ul>
 				</div>
-
+				
+				
+				<div class="adsense adbox">
+					<script type="text/javascript"><!--
+					google_ad_client = "ca-pub-2833958633371388";
+					/* FileBot Downloads Large Rectangle */
+					google_ad_slot = "6212971030";
+					google_ad_width = 336;
+					google_ad_height = 280;
+					//-->
+					</script>
+					<script type="text/javascript"
+					src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+					</script>
+				</div>
+				
+				
 				<div class="section contact">
 					<img class="icon" src="images/contact.png" alt="contact" width="48" height="48" />
 					<span class="quote">Will you join us?</span>
