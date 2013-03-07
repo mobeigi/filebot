@@ -10,6 +10,9 @@ def revert(from, to) {
 	
 	println "[$action] Revert [$from] to [$to]"
 	action.rename(from, to)
+	
+	// reset extended attributes
+	tryQuietly{ to.xattr.clear() }
 }
 
 
