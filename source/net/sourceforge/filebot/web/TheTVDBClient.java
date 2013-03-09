@@ -106,7 +106,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// perform online search
-		URL url = getResource(null, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
+		URL url = getResource(MirrorType.SEARCH, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 		Document dom = getDocument(url);
 		
 		List<Node> nodes = selectNodes("Data/Series", dom);
@@ -375,9 +375,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	protected static enum MirrorType {
-		XML(1),
-		BANNER(2),
-		ZIP(4);
+		XML(1), BANNER(2), ZIP(4), SEARCH(1);
 		
 		private final int bitMask;
 		
@@ -390,14 +388,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		public static EnumSet<MirrorType> fromTypeMask(int typeMask) {
 			// initialize enum set with all types
 			EnumSet<MirrorType> enumSet = EnumSet.allOf(MirrorType.class);
-			
 			for (MirrorType type : values()) {
 				if ((typeMask & type.bitMask) == 0) {
 					// remove types that are not set
 					enumSet.remove(type);
 				}
 			}
-			
 			return enumSet;
 		};
 		
