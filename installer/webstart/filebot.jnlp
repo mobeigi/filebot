@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp spec="1.6+" codebase="http://filebot.sourceforge.net/webstart/" href="filebot.jnlp">
+<jnlp spec="1.6+" codebase="http://www.filebot.net/webstart/" href="filebot.jnlp">
 	<information>
 		<title>FileBot</title>
 		<vendor>Reinhard Pointner</vendor>
-		<homepage href="http://filebot.sourceforge.net" />
+		<homepage href="http://www.filebot.net" />
 		<description>The ultimate TV and Movie Renamer</description>
 		
 		<icon href="icon48.png" width="48" height="48" />

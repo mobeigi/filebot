@@ -226,7 +226,7 @@ if (xbmc) {
 	xbmc.each{ host ->
 		_log.info "Notify XBMC: $host"
 		_guarded{
-			showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://filebot.sourceforge.net/images/icon.png')
+			showNotification(host, 9090, 'FileBot', "Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).", 'http://www.filebot.net/images/icon.png')
 			scanVideoLibrary(host, 9090)
 		}
 	}

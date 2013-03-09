@@ -84,7 +84,7 @@
 		
 		<!-- These properties define links that will appear in the Add/Remove Programs control panel when    -->
 		<!-- this product is installed on the system.                                                        -->
-		<Property Id="ARPURLINFOABOUT" Value="http://filebot.sourceforge.net/" />
+		<Property Id="ARPURLINFOABOUT" Value="http://www.filebot.net/" />
 		
 		<!-- This property is used as the default installation directory, and the user can change this path  -->
 		<!-- during setup. The Id must be set to WIXUI_INSTALLDIR and the value must match the directory Id  -->
