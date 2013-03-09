@@ -83,7 +83,7 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def tempFiles = extract(file: input.findAll{ it.isArchive() }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
+def tempFiles = extract(file: input.findAll{ it.isArchive() || it.extension == '001' }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
 input += tempFiles
 
 // sanitize input

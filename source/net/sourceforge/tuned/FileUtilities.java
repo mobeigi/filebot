@@ -226,11 +226,13 @@ public final class FileUtilities {
 	
 	
 	public static boolean hasExtension(String filename, String... extensions) {
-		String extension = getExtension(filename);
-		
-		for (String value : extensions) {
-			if ((extension == null && value == null) || (extension != null && extension.equalsIgnoreCase(value)))
-				return true;
+		for (String it : extensions) {
+			if (filename.length() - it.length() >= 2 && filename.charAt(filename.length() - it.length() - 1) == '.') {
+				String tail = filename.substring(filename.length() - it.length(), filename.length());
+				if (tail.equalsIgnoreCase(it)) {
+					return true;
+				}
+			}
 		}
 		
 		return false;

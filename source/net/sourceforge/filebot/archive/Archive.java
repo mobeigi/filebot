@@ -144,13 +144,13 @@ public class Archive implements Closeable {
 	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		
-		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
+		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+[.][0-9a-z]+$|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
 		private FileFilter archives = new ExtensionFileFilter(getArchiveTypes());
 		
 		
 		@Override
 		public boolean accept(File path) {
-			if (!archives.accept(path))
+			if (!archives.accept(path) && !volume.matcher(path.getName()).find())
 				return false;
 			
 			Matcher matcher = volume.matcher(path.getName());
