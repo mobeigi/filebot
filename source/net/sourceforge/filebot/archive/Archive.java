@@ -8,7 +8,6 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -20,8 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.sevenzipjbinding.ArchiveFormat;
-import net.sf.sevenzipjbinding.IArchiveOpenCallback;
-import net.sf.sevenzipjbinding.IInStream;
 import net.sf.sevenzipjbinding.ISevenZipInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
@@ -41,13 +38,15 @@ public class Archive implements Closeable {
 			throw new FileNotFoundException(file.getAbsolutePath());
 		}
 		
-		// 7-Zip-JBinding NATIVE LIBS MUST BE LOADED WITH SYSTEM CLASSLOADER
-		Class<?> clazz = ClassLoader.getSystemClassLoader().loadClass("net.sourceforge.filebot.archive.SevenZipLoader");
-		Method m = clazz.getMethod("open", new Class[] { IInStream.class, IArchiveOpenCallback.class });
-		
 		try {
 			openVolume = new ArchiveOpenVolumeCallback();
-			inArchive = (ISevenZipInArchive) m.invoke(null, openVolume.getStream(file.getAbsolutePath()), openVolume);
+			if (!hasMultiPartIndex(file)) {
+				// single volume archives and multi-volume rar archives
+				inArchive = SevenZipLoader.open(openVolume.getStream(file.getAbsolutePath()), openVolume);
+			} else {
+				// raw multi-volume archives
+				inArchive = SevenZipLoader.open(new VolumedArchiveInStream(file.getAbsolutePath(), openVolume), null);
+			}
 		} catch (InvocationTargetException e) {
 			throw (Exception) e.getTargetException();
 		}
@@ -142,16 +141,24 @@ public class Archive implements Closeable {
 		return extensions;
 	}
 	
+	private static final Pattern multiPartIndex = Pattern.compile("[.][0-9]{3}+$");
+	
+	
+	public static boolean hasMultiPartIndex(File file) {
+		return multiPartIndex.matcher(file.getName()).find();
+	}
+	
 	public static final FileFilter VOLUME_ONE_FILTER = new FileFilter() {
 		
-		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+[.][0-9a-z]+$|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
+		private Pattern volume = Pattern.compile("[.]r[0-9]+$|[.]part[0-9]+|[.][0-9]+$", Pattern.CASE_INSENSITIVE);
 		private FileFilter archives = new ExtensionFileFilter(getArchiveTypes());
 		
 		
 		@Override
 		public boolean accept(File path) {
-			if (!archives.accept(path) && !volume.matcher(path.getName()).find())
+			if (!archives.accept(path) && !hasMultiPartIndex(path)) {
 				return false;
+			}
 			
 			Matcher matcher = volume.matcher(path.getName());
 			if (matcher.find()) {

@@ -46,7 +46,11 @@ public class SevenZipLoader {
 		// initialize 7-Zip-JBinding
 		requireNativeLibraries();
 		
-		return SevenZip.openInArchive(null, stream, callback);
+		if (callback == null) {
+			return SevenZip.openInArchive(null, stream);
+		} else {
+			return SevenZip.openInArchive(null, stream, callback);
+		}
 	}
 	
 }
