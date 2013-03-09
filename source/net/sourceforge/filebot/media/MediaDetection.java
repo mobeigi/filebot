@@ -826,7 +826,7 @@ public class MediaDetection {
 		
 		
 		public HighPerformanceMatcher(int maxStartIndex) {
-			super(collator, maxStartIndex);
+			super(collator, maxStartIndex, true);
 		}
 		
 		

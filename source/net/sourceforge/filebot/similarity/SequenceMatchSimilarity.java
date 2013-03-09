@@ -11,7 +11,7 @@ import java.util.Locale;
 
 public class SequenceMatchSimilarity implements SimilarityMetric {
 	
-	private final CommonSequenceMatcher commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(Locale.ROOT), 10);
+	private final CommonSequenceMatcher commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(Locale.ROOT), 10, false);
 	
 	
 	@Override

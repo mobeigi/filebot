@@ -24,11 +24,13 @@ public class CommonSequenceMatcher {
 	
 	protected final Collator collator;
 	protected final int commonSequenceMaxStartIndex;
+	protected final boolean returnFirstMatch;
 	
 	
-	public CommonSequenceMatcher(Collator collator, int commonSequenceMaxStartIndex) {
+	public CommonSequenceMatcher(Collator collator, int commonSequenceMaxStartIndex, boolean returnFirstMatch) {
 		this.collator = collator;
 		this.commonSequenceMaxStartIndex = commonSequenceMaxStartIndex;
+		this.returnFirstMatch = returnFirstMatch;
 	}
 	
 	
@@ -48,7 +50,7 @@ public class CommonSequenceMatcher {
 				common = words;
 			} else {
 				// find common sequence
-				common = firstCommonSequence(common, words, commonSequenceMaxStartIndex);
+				common = firstCommonSequence(common, words, commonSequenceMaxStartIndex, returnFirstMatch);
 				
 				if (common == null) {
 					// no common sequence
@@ -96,7 +98,7 @@ public class CommonSequenceMatcher {
 	}
 	
 	
-	protected <E extends Comparable<E>> E[] firstCommonSequence(E[] seq1, E[] seq2, int maxStartIndex) {
+	protected <E extends Comparable<E>> E[] firstCommonSequence(E[] seq1, E[] seq2, int maxStartIndex, boolean returnFirstMatch) {
 		E[] matchSeq = null;
 		for (int i = 0; i < seq1.length && i <= maxStartIndex; i++) {
 			for (int j = 0; j < seq2.length && j <= maxStartIndex; j++) {
@@ -111,6 +113,11 @@ public class CommonSequenceMatcher {
 				// check if a common sequence was found
 				if (len > (matchSeq == null ? 0 : matchSeq.length)) {
 					matchSeq = copyOfRange(seq1, i, i + len);
+					
+					// look for first match
+					if (returnFirstMatch) {
+						return matchSeq;
+					}
 				}
 			}
 		}

@@ -46,7 +46,7 @@ public class SeriesNameMatcher {
 	
 	
 	public SeriesNameMatcher(Locale locale) {
-		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3) {
+		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3, true) {
 			
 			@Override
 			protected CollationKey[] split(String sequence) {
