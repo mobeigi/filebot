@@ -5,6 +5,8 @@ package net.sourceforge.filebot.similarity;
 import static java.lang.Math.*;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 
 
 public class TimeStampMetric implements SimilarityMetric {
@@ -26,7 +28,18 @@ public class TimeStampMetric implements SimilarityMetric {
 	
 	public long getTimeStamp(Object obj) {
 		if (obj instanceof File) {
-			return ((File) obj).lastModified();
+			try {
+				BasicFileAttributes attr = Files.readAttributes(((File) obj).toPath(), BasicFileAttributes.class);
+				long creationTime = attr.creationTime().toMillis();
+				if (creationTime > 0) {
+					return creationTime;
+				} else {
+					return attr.lastModifiedTime().toMillis();
+				}
+			} catch (Throwable e) {
+				// ignore Java 6 issues
+				return ((File) obj).lastModified();
+			}
 		}
 		if (obj instanceof Number) {
 			return ((Number) obj).longValue();
@@ -34,5 +47,4 @@ public class TimeStampMetric implements SimilarityMetric {
 		
 		return -1;
 	}
-	
 }
