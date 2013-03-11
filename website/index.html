@@ -146,21 +146,47 @@
 					<img class="icon" src="images/information.png" alt="about" width="48" height="48" />
 					<h2>About</h2>
 					<p>
-						<strong>FileBot</strong> is the ultimate tool for renaming your tv shows, anime, and movies, as well as music, 
-						downloading subtitles from various sources or just simple file verification.
+						<strong>FileBot</strong> is the ultimate tool for organizing and renaming your movies, tv shows or anime, and music well as downloading subtitles and artwork. It's smart and just works.
 					</p>
+				</div>
+				
+				<div id="webstart" class="section deployment webstart" style="display:none">
+					<script type="text/javascript">
+						$(document).ready(function () {
+							if (deployJava.isWebStartInstalled('1.7')) {
+								$("#webstart").show();
+							}
+						});
+					</script>
 					<p>
 						FileBot can be launched via Java Web Start. No manual download or installation required.
 					</p>
-				</div>
-
-				<div class="webstart">
-					<a onclick="_gaq.push(['_trackPageview', '/webstart/filebot.jnlp']); return deployJava.launchWebStartApplication('webstart/filebot.jnlp') == false ? true : false" href="http://www.filebot.net/webstart/filebot.jnlp">
-						<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
-					</a>
+					<div class="webstart button">
+						<a onclick="_gaq.push(['_trackPageview', '/webstart/filebot.jnlp']); return deployJava.launchWebStartApplication('webstart/filebot.jnlp') == false ? true : false" href="http://www.filebot.net/webstart/filebot.jnlp">
+							<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
+						</a>
+					</div>
 				</div>
 				
-				<a id="review" class="review message box" style="visibility:hidden" href="reviews.php" target="_blank">
+				<div id="ubuntu" class="section deployment ubuntu" style="display:none">
+					<script type="text/javascript">
+						$(document).ready(function () {
+							if (navigator.userAgent.indexOf('Ubuntu') >= 0) {
+								$("#ubuntu").show();
+							}
+						});
+					</script>
+					<p>
+						FileBot is available in the Ubuntu Software Center. Just fire it up to install the latest FileBot.
+					</p>
+					<div class="ubuntu-install button">
+						<a href="apt://filebot">
+							<img class="fancy-install" width="200" height="60" alt="" src="https://apps.ubuntu.com/assets/images/scbutton-non-free-200px.png" title="Buy FileBot from the Ubuntu Software Centre!">
+						</a>
+					</div>
+				</div>
+				
+				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
 				<div class="thumbs up">
 					<img src="images/thumbs_up.png" />
 				</div>
@@ -174,7 +200,7 @@
 								$('#review .user').text(review.user)
 								$('#review .date').text(review.date)
 								$('#review .text').text(review.text)
-								$('#review').css('visibility', 'visible')
+								$('#review').show();
 							}
 						});
 					</script>
@@ -366,5 +392,14 @@
 				Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © 2012
 			</div>
 		</div>
+		
+		<!-- FIX SCROLLING ISSUES CAUSED BY DYNAMICALLY CHANGES TO THE CONTENT BY JQUERY -->
+		<script type="text/javascript">
+			$(document).ready(function () {
+				if (window.location.hash) {
+					window.location.hash = window.location.hash
+				}
+			});
+		</script>
 	</body>
 </html>

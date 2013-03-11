@@ -228,12 +228,6 @@ div.screencast:hover .play {
 	margin-left: 20px;
 }
 
-.webstart {
-	margin: 15px;
-	min-height: 25px;
-	text-align: center;
-}
-
 .comment, a.source {
 	font-size: xx-small;
 	font-weight: normal;
@@ -241,12 +235,24 @@ div.screencast:hover .play {
 	margin-left: 2px;
 }
 
-.webstart a img {
+.ubuntu-install.button {
+	margin: 0px;
+	min-height: 25px;
+	text-align: center;
+}
+
+.webstart.button {
+	margin: 15px;
+	min-height: 25px;
+	text-align: center;
+}
+
+.webstart.button a img {
 	box-shadow: 0px 0px 5px lightgray;
 	-moz-box-shadow: 0px 0px 5px lightgray;
 }
 
-.webstart a:hover img {
+.webstart.button a:hover img {
 	box-shadow: 0px 1px 8px darkorange;
 	-moz-box-shadow: 0px 1px 8px darkorange;
 }
