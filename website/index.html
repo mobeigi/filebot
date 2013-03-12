@@ -153,7 +153,7 @@
 				<div id="webstart" class="section deployment webstart" style="display:none">
 					<script type="text/javascript">
 						$(document).ready(function () {
-							if (deployJava.isWebStartInstalled('1.7')) {
+							if (navigator.userAgent.indexOf('Ubuntu') < 0 && navigator.userAgent.indexOf('Mac') < 0 && deployJava.isWebStartInstalled('1.7')) {
 								$("#webstart").show();
 							}
 						});
@@ -181,7 +181,7 @@
 					</p>
 					<div class="ubuntu-install button">
 						<a href="apt://filebot">
-							<img class="fancy-install" width="200" height="60" alt="" src="https://apps.ubuntu.com/assets/images/scbutton-non-free-200px.png" title="Buy FileBot from the Ubuntu Software Centre!">
+							<img class="fancy-install" width="200" height="60" alt="Install" src="https://apps.ubuntu.com/assets/images/scbutton-non-free-200px.png" title="Buy FileBot from the Ubuntu Software Centre!" />
 						</a>
 					</div>
 				</div>

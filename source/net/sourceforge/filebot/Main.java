@@ -222,7 +222,7 @@ public class Main {
 						try {
 							PreferencesEntry<String> persistentDonateLv = Settings.forPackage(Main.class).entry("donate.lv").defaultValue("0");
 							int donateLv = Integer.parseInt(persistentDonateLv.getValue());
-							int donateStep = 10000;
+							int donateStep = 1000;
 							int usage = history.totalSize();
 							
 							if (usage / donateStep > donateLv || new Random().nextInt(100) == 42) {
