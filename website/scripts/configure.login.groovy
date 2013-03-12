@@ -25,16 +25,20 @@ setLogin('sublight.user', sublightUser, sublightPwd)
 
 import net.sourceforge.filebot.*
 
-console.print('Testing OpenSubtitles... ')
-WebServices.OpenSubtitles.setUser(osdbUser, osdbPwd)
-WebServices.OpenSubtitles.login()
-console.println('OK')
+if (osdbUser) {
+	console.print('Testing OpenSubtitles... ')
+	WebServices.OpenSubtitles.setUser(osdbUser, osdbPwd)
+	WebServices.OpenSubtitles.login()
+	console.println('OK')
+}
 
-console.print('Testing Sublight... ')
-WebServices.Sublight.setClient(sublightClientId, sublightApiKey)
-WebServices.Sublight.setUser(sublightUser, sublightPwd)
-WebServices.Sublight.getSubtitleList(null, 'Avatar', 2009, 'English')
-console.println('OK')
+if (sublightUser) {
+	console.print('Testing Sublight... ')
+	WebServices.Sublight.setClient(sublightClientId, sublightApiKey)
+	WebServices.Sublight.setUser(sublightUser, sublightPwd)
+	WebServices.Sublight.getSubtitleList(null, 'Avatar', 2009, 'English')
+	console.println('OK')
+}
 
 /* --------------------------------------------------------------------- */
 
