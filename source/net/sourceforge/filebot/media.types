@@ -115,6 +115,9 @@
 	<type name="video/WindowsRecordedTV">
 		<extension>wtv</extension>
 	</type>
+	<type name="video/iso">
+		<extension>iso</extension>
+	</type>
 	
 	<!-- Subtitles -->
 	<type name="subtitle/SubRip">
@@ -137,10 +140,5 @@
 	<type name="subtitle/VobSub">
 		<extension>sub</extension>
 		<extension>idx</extension>
-	</type>
-	
-	<!-- Disk Images -->
-	<type name="disk/iso">
-		<extension>iso</extension>
 	</type>
 </media-types>
