@@ -134,6 +134,7 @@ FRE
 French
 GER
 German
+H.SBS
 Hard.Subbed
 HBO
 hd
@@ -142,6 +143,7 @@ Hi10P
 Hindi
 History.Channel
 HQ
+HSBS
 info
 iNT
 iNTERNAL
@@ -184,7 +186,8 @@ ReRip
 RESYNC
 RETAIL
 RiffTrax
-sample[s]?
+sample
+samples
 SBS
 Screenshot
 sd

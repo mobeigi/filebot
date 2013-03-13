@@ -11,7 +11,7 @@ def mes = MyEpisodes(mesacc[0], mesacc[1])
 def myshows = mes.getShowList()
 
 // series name => series key (e.g. Doctor Who (2005) => doctorwho)
-def collationKey = { s -> s.replaceAll(/\W/).replaceAll(/(?<!\d)\d{4}$/).lower() }
+def collationKey = { s -> s == null ? '' : s.replaceAll(/\W/).replaceAll(/(?<!\d)\d{4}$/).lower() }
 
 args.getFiles{ it.isVideo() && parseEpisodeNumber(it) && detectSeriesName(it) }.groupBy{ detectSeriesName(it) }.each{ series, files ->
 	def show = myshows.find{ collationKey(it.name) == collationKey(series) }
