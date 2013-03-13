@@ -138,4 +138,9 @@
 		<extension>sub</extension>
 		<extension>idx</extension>
 	</type>
+	
+	<!-- Disk Images -->
+	<type name="disk/iso">
+		<extension>iso</extension>
+	</type>
 </media-types>
