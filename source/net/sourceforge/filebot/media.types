@@ -115,6 +115,10 @@
 	<type name="video/WindowsRecordedTV">
 		<extension>wtv</extension>
 	</type>
+	<type name="video/3DSBS">
+		<extension>3DSBS</extension>
+		<extension>3DTAB</extension>
+	</type>
 	<type name="video/iso">
 		<extension>iso</extension>
 	</type>
