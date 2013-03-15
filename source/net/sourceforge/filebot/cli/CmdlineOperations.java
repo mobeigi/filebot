@@ -23,7 +23,6 @@ import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,10 +36,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -250,58 +245,34 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	
 	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {
-		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
+		Set<SearchResult> shows = new LinkedHashSet<SearchResult>();
+		Set<Episode> episodes = new LinkedHashSet<Episode>();
 		
 		// detect series names and create episode list fetch tasks
-		for (final String query : names) {
-			tasks.add(new Callable<List<Episode>>() {
+		for (String query : names) {
+			List<SearchResult> results = db.search(query, locale);
+			
+			// select search result
+			if (results.size() > 0) {
+				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, strict);
 				
-				@Override
-				public List<Episode> call() throws Exception {
-					List<SearchResult> results = db.search(query, locale);
-					
-					// select search result
-					if (results.size() > 0) {
-						List<SearchResult> selectedSearchResults = selectSearchResult(query, results, strict);
-						
-						if (selectedSearchResults != null) {
-							List<Episode> episodes = new ArrayList<Episode>();
-							for (SearchResult it : selectedSearchResults) {
-								try {
-									CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
-									episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
-									Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
-								} catch (IOException e) {
-									CLILogger.log(Level.SEVERE, e.getMessage(), e);
-								}
+				if (selectedSearchResults != null) {
+					for (SearchResult it : selectedSearchResults) {
+						if (shows.add(it)) {
+							try {
+								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
+								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
+								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
+							} catch (IOException e) {
+								CLILogger.log(Level.SEVERE, e.getMessage(), e);
 							}
-							return episodes;
 						}
 					}
-					
-					return Collections.emptyList();
 				}
-			});
-		}
-		
-		// fetch episode lists concurrently
-		ExecutorService executor = Executors.newCachedThreadPool();
-		
-		try {
-			// merge all episodes
-			Set<Episode> episodes = new LinkedHashSet<Episode>();
-			
-			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
-				// if anything goes wrong make sure to unwind as a partial episode set possibly missing important data can lead to bad matches
-				episodes.addAll(future.get());
 			}
-			
-			// all background workers have finished
-			return episodes;
-		} finally {
-			// destroy background threads
-			executor.shutdownNow();
 		}
+		
+		return episodes;
 	}
 	
 	
