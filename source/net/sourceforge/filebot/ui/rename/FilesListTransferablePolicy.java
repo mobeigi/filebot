@@ -76,16 +76,23 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 				// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
 				try {
 					Scanner scanner = new Scanner(createTextReader(f));
+					List<File> paths = new ArrayList<File>();
 					while (scanner.hasNextLine()) {
 						String line = scanner.nextLine().trim();
 						if (line.length() > 0) {
 							File path = new File(line);
 							if (path.isAbsolute() && path.exists()) {
-								queue.add(0, path);
+								paths.add(path);
 							}
 						}
 					}
 					scanner.close();
+					
+					if (paths.isEmpty()) {
+						entries.add(f); // treat as simple text file
+					} else {
+						queue.addAll(0, paths); // add paths from text file
+					}
 				} catch (Exception e) {
 					Logger.getLogger(FilesListTransferablePolicy.class.getName()).log(Level.WARNING, e.getMessage());
 				}
