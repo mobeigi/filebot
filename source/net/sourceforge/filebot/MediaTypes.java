@@ -92,4 +92,5 @@ public class MediaTypes {
 	public static final ExtensionFileFilter VIDEO_FILES = getDefaultFilter("video");
 	public static final ExtensionFileFilter SUBTITLE_FILES = getDefaultFilter("subtitle");
 	public static final ExtensionFileFilter NFO_FILES = getDefaultFilter("application/nfo");
+	public static final ExtensionFileFilter LIST_FILES = getDefaultFilter("application/list");
 }

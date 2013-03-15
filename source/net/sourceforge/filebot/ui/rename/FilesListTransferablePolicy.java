@@ -3,13 +3,18 @@ package net.sourceforge.filebot.ui.rename;
 
 
 import static java.util.Arrays.*;
+import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
@@ -67,7 +72,24 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			if (f.isHidden())
 				continue;
 			
-			if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
+			if (recursive && LIST_FILES.accept(f)) {
+				// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
+				try {
+					Scanner scanner = new Scanner(createTextReader(f));
+					while (scanner.hasNextLine()) {
+						String line = scanner.nextLine().trim();
+						if (line.length() > 0) {
+							File path = new File(line);
+							if (path.isAbsolute() && path.exists()) {
+								queue.add(0, path);
+							}
+						}
+					}
+					scanner.close();
+				} catch (Exception e) {
+					Logger.getLogger(FilesListTransferablePolicy.class.getName()).log(Level.WARNING, e.getMessage());
+				}
+			} else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
 				entries.add(f);
 			} else {
 				queue.addAll(0, asList(f.listFiles()));
