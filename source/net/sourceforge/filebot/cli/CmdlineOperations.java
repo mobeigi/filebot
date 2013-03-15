@@ -863,7 +863,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	
 	public List<SearchResult> findProbableMatches(final String query, Collection<? extends SearchResult> searchResults, boolean strict) {
 		// auto-select most probable search result
-		Map<String, SearchResult> probableMatches = new LinkedHashMap<String, SearchResult>();
+		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
 		
 		// use name similarity metric
 		final SimilarityMetric metric = new NameSimilarityMetric();
@@ -872,18 +872,17 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
 			if (f >= (strict && searchResults.size() > 1 ? 0.85 : 0.75) || ((f >= 0.5 || !strict) && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
-				if (!probableMatches.containsKey(result.toString().toLowerCase())) {
-					probableMatches.put(result.toString().toLowerCase(), result);
+				if (!probableMatches.contains(result)) {
+					probableMatches.add(result);
 				}
 			}
 		}
 		
 		// sort results by similarity to query
-		List<SearchResult> results = new ArrayList<SearchResult>(probableMatches.values());
 		if (query != null) {
-			sort(results, new SimilarityComparator(query));
+			sort(probableMatches, new SimilarityComparator(query));
 		}
-		return results;
+		return probableMatches;
 	}
 	
 	
