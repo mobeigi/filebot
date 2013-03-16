@@ -56,6 +56,8 @@ String.metaClass.validateFilePath = { validateFilePath(delegate) }
 // helper for enforcing filename length limits, e.g. truncate filename but keep extension
 String.metaClass.truncateFileName = { int limit = 255 -> def ext = getExtension(delegate); def name = getNameWithoutExtension(delegate); return name.substring(0, Math.min(limit - (ext ? 1+ext.length() : 0), name.length())) + (ext ? '.'+ext : '') }
 
+// helper for simplifying strings
+String.metaClass.normalizePunctuation = { net.sourceforge.filebot.similarity.Normalization.normalizePunctuation(delegate) }
 
 // Parallel helper
 import java.util.concurrent.*
@@ -223,10 +225,10 @@ def detectMovie(File movieFile, strict = true, queryLookupService = TheMovieDB, 
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
 
-def matchMovie(movieFile, strict = false) { // same as detectMovie() using only the local movie index making it VERY FAST
-	return detectMovie(movieFile, strict, Locale.ENGLISH, null, null)
+def matchMovie(String filename, strict = true, maxStartIndex = 0) {
+	def movies = MediaDetection.matchMovieName([filename], strict, maxStartIndex)
+	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
-
 
 def similarity(o1, o2) {
 	return new NameSimilarityMetric().getSimilarity(o1, o2)
