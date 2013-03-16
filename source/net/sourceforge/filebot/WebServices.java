@@ -185,7 +185,7 @@ public final class WebServices {
 			try {
 				Set<SearchResult> results = new LinkedHashSet<SearchResult>();
 				
-				for (Future<List<SearchResult>> resultSet : executor.invokeAll(asList(localSearch, apiSearch))) {
+				for (Future<List<SearchResult>> resultSet : executor.invokeAll(asList(apiSearch, localSearch))) {
 					try {
 						results.addAll(resultSet.get());
 					} catch (ExecutionException e) {
