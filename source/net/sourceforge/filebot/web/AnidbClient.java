@@ -70,7 +70,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, Cache.getCache("web-datasource"));
+		return new ResultCache(host, Cache.getCache("web-datasource-lv2"));
 	}
 	
 	
@@ -87,7 +87,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			
 			@Override
 			protected Set<String> getFields(AnidbSearchResult anime) {
-				return set(anime.getPrimaryTitle(), anime.getOfficialTitle("en"), anime.getOfficialTitle(locale.getLanguage()));
+				return set(anime.getPrimaryTitle(), anime.getOfficialTitle("en"));
 			}
 		};
 		
@@ -154,7 +154,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	
 	
 	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
-		URL url = new URL("http", host, "/api/animetitles.dat.gz");
+		URL url = new URL("http", host, "/api/anime-titles.dat.gz");
 		ResultCache cache = getCache();
 		
 		@SuppressWarnings("unchecked")

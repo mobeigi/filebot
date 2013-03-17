@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
+import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
@@ -243,7 +244,12 @@ public class ReleaseInfo {
 	
 	
 	public TheTVDBSearchResult[] getTheTVDBIndex() throws IOException {
-		return theTVDBIndexResource.get();
+		return tvdbIndexResource.get();
+	}
+	
+	
+	public AnidbSearchResult[] getAnidbIndex() throws IOException {
+		return anidbIndexResource.get();
 	}
 	
 	
@@ -275,7 +281,8 @@ public class ReleaseInfo {
 	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
 	protected final CachedResource<String[]> seriesListResource = new SeriesListResource(getBundle(getClass().getName()).getString("url.series-list"));
 	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getBundle(getClass().getName()).getString("url.series-mappings"));
-	protected final CachedResource<TheTVDBSearchResult[]> theTVDBIndexResource = new TheTVDBIndexResource(getBundle(getClass().getName()).getString("url.thetvdb-index"));
+	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getBundle(getClass().getName()).getString("url.thetvdb-index"));
+	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getBundle(getClass().getName()).getString("url.anidb-index"));
 	
 	
 	protected static class PatternResource extends CachedResource<String[]> {
@@ -349,6 +356,35 @@ public class ReleaseInfo {
 			}
 			
 			return tvshows.toArray(new TheTVDBSearchResult[0]);
+		}
+	}
+	
+	
+	protected static class AnidbIndexResource extends CachedResource<AnidbSearchResult[]> {
+		
+		public AnidbIndexResource(String resource) {
+			super(resource, AnidbSearchResult[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
+		}
+		
+		
+		@Override
+		public AnidbSearchResult[] process(ByteBuffer data) throws IOException {
+			Scanner scanner = new Scanner(new GZIPInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			
+			List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>();
+			while (scanner.hasNext() && scanner.hasNextInt()) {
+				int aid = scanner.nextInt();
+				String primaryTitle = scanner.next().trim();
+				String englishTitle = scanner.next().trim();
+				
+				if (englishTitle.isEmpty() || englishTitle.equals(primaryTitle)) {
+					anime.add(new AnidbSearchResult(aid, primaryTitle, null));
+				} else {
+					anime.add(new AnidbSearchResult(aid, primaryTitle, singletonMap("en", englishTitle)));
+				}
+			}
+			
+			return anime.toArray(new AnidbSearchResult[0]);
 		}
 	}
 	
