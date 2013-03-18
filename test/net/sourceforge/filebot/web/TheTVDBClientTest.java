@@ -132,7 +132,7 @@ public class TheTVDBClientTest {
 		assertEquals(EnumSet.noneOf(MirrorType.class), MirrorType.fromTypeMask(0));
 		
 		// xml and zip flags set
-		assertEquals(EnumSet.of(MirrorType.ZIP, MirrorType.XML), MirrorType.fromTypeMask(5));
+		assertEquals(EnumSet.of(MirrorType.ZIP, MirrorType.XML, MirrorType.SEARCH), MirrorType.fromTypeMask(5));
 		
 		// all flags set
 		assertEquals(EnumSet.allOf(MirrorType.class), MirrorType.fromTypeMask(7));
@@ -162,7 +162,7 @@ public class TheTVDBClientTest {
 		assertEquals(80348, it.getId(), 0);
 		assertEquals("TV-PG", it.getContentRating());
 		assertEquals("2007-09-24", it.getFirstAired().toString());
-		assertEquals("Action and Adventure", it.getGenres().get(0));
+		assertEquals("Action", it.getGenres().get(0));
 		assertEquals(934814, it.getImdbId(), 0);
 		assertEquals("English", it.getLanguage().getDisplayLanguage(Locale.ENGLISH));
 		assertEquals(310, it.getOverview().length());

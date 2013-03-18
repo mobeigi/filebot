@@ -73,8 +73,8 @@ public class OpenSubtitlesXmlRpcTest {
 		
 		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
 		
-		assertEquals("Wonderfalls", sample.getProperty(Property.MovieName));
-		assertEquals("Hungarian", sample.getProperty(Property.LanguageName));
+		assertEquals("\"Wonderfalls\" Wound-up Penguin", sample.getProperty(Property.MovieName));
+		assertEquals("German", sample.getProperty(Property.LanguageName));
 		assertEquals("imdbid", sample.getProperty(Property.MatchedBy));
 		
 		// check size
@@ -106,7 +106,7 @@ public class OpenSubtitlesXmlRpcTest {
 		TryUploadResponse response = xmlrpc.tryUploadSubtitles(subtitle);
 		
 		assertFalse(response.isUploadRequired());
-		assertEquals("100705", response.getSubtitleData().get(Property.IDSubtitle));
+		assertEquals("4513264", response.getSubtitleData().get(Property.IDSubtitle));
 		assertEquals("eng", response.getSubtitleData().get(Property.SubLanguageID));
 	}
 	
@@ -191,7 +191,7 @@ public class OpenSubtitlesXmlRpcTest {
 		ByteBuffer data = list.get(0).fetch();
 		
 		// check size
-		assertEquals(48550, data.remaining(), 0);
+		assertEquals(48717, data.remaining(), 0);
 	}
 	
 	

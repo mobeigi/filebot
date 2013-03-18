@@ -11,12 +11,11 @@ public class FileUtilitiesTest {
 	
 	@Test
 	public void hasExtension() {
-		assertTrue(FileUtilities.hasExtension("abc.txt", null, "txt"));
-		assertTrue(FileUtilities.hasExtension(".hidden", null, "txt"));
+		assertTrue(FileUtilities.hasExtension("abc.txt", "txt"));
 		assertFalse(FileUtilities.hasExtension(".hidden", "txt"));
 	}
 	
-
+	
 	@Test
 	public void getExtension() {
 		assertEquals("txt", FileUtilities.getExtension("abc.txt"));
@@ -29,7 +28,7 @@ public class FileUtilitiesTest {
 		assertEquals(null, FileUtilities.getExtension("archive.invalid extension"));
 	}
 	
-
+	
 	@Test
 	public void getNameWithoutExtension() {
 		assertEquals("abc", FileUtilities.getNameWithoutExtension("abc.txt"));

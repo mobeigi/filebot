@@ -7,12 +7,12 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.ehcache.CacheManager;
+import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 
 
 public class AnidbClientTest {
@@ -40,23 +40,12 @@ public class AnidbClientTest {
 		princessTutuSearchResult = new AnidbSearchResult(516, "Princess Tutu", null);
 	}
 	
-	
-	private AnidbClient anidb = new AnidbClient("filebot", 2);
+	private AnidbClient anidb = new AnidbClient("filebot", 4);
 	
 	
 	@Test
 	public void search() throws Exception {
 		List<SearchResult> results = anidb.search("one piece");
-		
-		AnidbSearchResult result = (AnidbSearchResult) results.get(0);
-		assertEquals("One Piece", result.getName());
-		assertEquals(69, result.getAnimeId());
-	}
-	
-	
-	@Test
-	public void searchJapanese() throws Exception {
-		List<SearchResult> results = anidb.search("ワンピース", Locale.JAPANESE);
 		
 		AnidbSearchResult result = (AnidbSearchResult) results.get(0);
 		assertEquals("One Piece", result.getName());
