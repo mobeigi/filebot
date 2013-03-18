@@ -47,10 +47,10 @@ public class FileBotList<E> extends JComponent {
 		add(listScrollPane, BorderLayout.CENTER);
 		
 		// Shortcut DELETE, disabled by default
-		removeAction.setEnabled(false);
+		getRemoveAction().setEnabled(false);
 		
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeAction);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeHook);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeHook);
 	}
 	
 	
@@ -120,12 +120,7 @@ public class FileBotList<E> extends JComponent {
 		}
 	}
 	
-	
-	public Action getRemoveAction() {
-		return removeAction;
-	}
-	
-	private final AbstractAction removeAction = new AbstractAction("Remove") {
+	private final AbstractAction defaultRemoveAction = new AbstractAction("Remove") {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -141,6 +136,28 @@ public class FileBotList<E> extends JComponent {
 				index = maxIndex;
 			
 			list.setSelectedIndex(index);
+		}
+	};
+	
+	private Action removeAction = defaultRemoveAction;
+	
+	
+	public Action getRemoveAction() {
+		return removeAction;
+	}
+	
+	
+	public void setRemoveAction(Action action) {
+		this.removeAction = action;
+	}
+	
+	private final AbstractAction removeHook = new AbstractAction("Remove") {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (getRemoveAction() != null && getRemoveAction().isEnabled()) {
+				getRemoveAction().actionPerformed(e);
+			}
 		}
 	};
 	

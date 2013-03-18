@@ -132,6 +132,30 @@ public class RenamePanel extends JComponent {
 		// synchronize viewports
 		new ScrollPaneSynchronizer(namesList, filesList);
 		
+		// delete items from both lists
+		Action removeAction = new AbstractAction("Remove") {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JList list = ((RenameList) e.getSource()).getListComponent();
+				int index = list.getSelectedIndex();
+				if (index >= 0) {
+					if (isShiftDown(e)) {
+						((RenameList) e.getSource()).remove(index);
+					} else {
+						renameModel.matches().remove(index);
+					}
+					int maxIndex = list.getModel().getSize() - 1;
+					if (index > maxIndex) {
+						index = maxIndex;
+					}
+					list.setSelectedIndex(index);
+				}
+			}
+		};
+		namesList.setRemoveAction(removeAction);
+		filesList.setRemoveAction(removeAction);
+		
 		// create Match button
 		JButton matchButton = new JButton(matchAction);
 		matchButton.setVerticalTextPosition(SwingConstants.BOTTOM);
