@@ -70,12 +70,12 @@ public final class WebServices {
 	
 	
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TVRage, AniDB, TheTVDB, Serienjunkies };
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage, Serienjunkies };
 	}
 	
 	
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
-		return new MovieIdentificationService[] { OpenSubtitles, IMDb, TMDb };
+		return new MovieIdentificationService[] { TMDb, IMDb, OpenSubtitles };
 	}
 	
 	

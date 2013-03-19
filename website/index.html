@@ -200,7 +200,7 @@
 								$('#review .user').text(review.user)
 								$('#review .date').text(review.date)
 								$('#review .text').text(review.text)
-								$('#review').show();
+								if (review.text.length() > 0) { $('#review').show() }
 							}
 						});
 					</script>

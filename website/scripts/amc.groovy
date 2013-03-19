@@ -86,14 +86,14 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def tempFiles = extract(file: input.findAll{ it.isArchive() || it.extension == '001' }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
+def tempFiles = extract(file: input.findAll{ it.isArchive() || it.hasExtension('iso', '001') }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
 input += tempFiles
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
+input = input.findAll{ (it.isVideo() && !it.hasExtension('iso')) || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
