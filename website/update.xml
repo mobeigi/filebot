@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.4</name>
-	<revision>1467</revision>
+	<name>FileBot 3.5</name>
+	<revision>1546</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.4</b><br>
+		<b>FileBot 3.5</b><br>
 		This release features:<br>
-		+ Better handling of conflicts<br>
-		+ Improved episode/subtitle matching<br>
-		+ Improved music mode<br>
+		+ UI enhancements<br>
+		+ Improved episode/movie detection<br>
+		+ Better JRE auto-detection for cmdline<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=522]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=611]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
