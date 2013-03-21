@@ -144,7 +144,7 @@ String.metaClass.replaceTrailingBrackets = { replacement = "" -> replaceAll(/\s*
  */
 String.metaClass.replacePart = { replacement = "" ->
 	// handle '(n)', '(Part n)' and ': Part n' like syntax
-	for (pattern in [/\s*[(](\w+)[)]$/, /(?i)\W*Part (\w+)\W*$/]) {
+	for (pattern in [/\s*[(](\w+)[)]$/, /(?i)\W+Part (\w+)\W*$/]) {
 		if ((delegate =~ pattern).find()) {
 			return replaceAll(pattern, replacement);
 		}
