@@ -19,4 +19,4 @@ watchman.commitDelay = 5 * 1000			// default = 5s
 watchman.commitPerFolder = true			// default = true
 
 println "Waiting for events"
-console.readLine() // keep running and watch for changes
+if (console) { console.readLine() } else { sleep(Long.MAX_VALUE) } // keep running and watch for changes
