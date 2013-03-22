@@ -134,7 +134,7 @@ public class Main {
 			}
 			
 			// initialize analytics
-			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.getBoolean(System.getProperty("application.analytics")));
+			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.parseBoolean(System.getProperty("application.analytics")));
 			
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
