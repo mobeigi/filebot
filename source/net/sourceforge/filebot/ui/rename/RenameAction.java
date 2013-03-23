@@ -94,7 +94,9 @@ class RenameAction extends AbstractAction {
 			if (useExtendedFileAttributes()) {
 				try {
 					for (Match<Object, File> match : model.matches()) {
-						MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
+						if (renameMap.containsKey(match.getCandidate()) && match.getValue() != null) {
+							MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
+						}
 					}
 				} catch (Throwable e) {
 					Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
@@ -168,9 +170,6 @@ class RenameAction extends AbstractAction {
 				
 				if (destinationSet.contains(destination))
 					throw new IllegalArgumentException("Conflict detected: " + mapping.getValue().getPath());
-				
-				if (destination.exists())
-					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
 				
 				// use original mapping values
 				renameMap.put(mapping.getKey(), mapping.getValue());
@@ -304,8 +303,10 @@ class RenameAction extends AbstractAction {
 					firePropertyChange("currentFile", mapping.getKey(), mapping.getValue());
 					
 					// rename file, throw exception on failure
-					if (!mapping.getKey().equals(mapping.getValue())) {
-						action.rename(mapping.getKey(), mapping.getValue());
+					File source = mapping.getKey();
+					File destination = resolveDestination(mapping.getKey(), mapping.getValue(), false);
+					if (!source.equals(destination)) {
+						action.rename(source, destination);
 					}
 					
 					// remember successfully renamed matches for history entry and possible revert
@@ -375,9 +376,19 @@ class RenameAction extends AbstractAction {
 		protected Map<File, File> doInBackground() throws Exception {
 			NativeRenameAction shell = (NativeRenameAction) action;
 			
+			// prepare delta, ignore files already named as desired
+			Map<File, File> todo = new LinkedHashMap<File, File>();
+			for (Entry<File, File> mapping : renameMap.entrySet()) {
+				File source = mapping.getKey();
+				File destination = resolveDestination(mapping.getKey(), mapping.getValue(), false);
+				if (!source.equals(destination)) {
+					todo.put(source, destination);
+				}
+			}
+			
 			// call native shell move/copy
 			try {
-				shell.rename(renameMap);
+				shell.rename(todo);
 			} catch (CancellationException e) {
 				// set as cancelled and propagate the exception
 				super.cancel(false);
