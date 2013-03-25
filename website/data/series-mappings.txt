@@ -2,3 +2,5 @@ HIMYM	How I Met your Mother
 Hml8p	Homeland
 hoc	House of Cards
 NCIS.LA	NCIS: Los Angeles
+M.A.S.H	M*A*S*H
+MASH	M*A*S*H
