@@ -326,12 +326,16 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	
 	
 	protected URL getResource(MirrorType mirrorType, String path) throws Exception {
-		// use default server
-		if (mirrorType == null)
-			return new URL("http", host, path);
+		if (mirrorType != null) {
+			// use mirror
+			String mirror = getMirror(mirrorType);
+			if (mirror != null && mirror.length() > 0) {
+				return new URL(mirror + path);
+			}
+		}
 		
-		// use mirror
-		return new URL(getMirror(mirrorType) + path);
+		// use default server
+		return new URL("http", host, path);
 	}
 	
 	

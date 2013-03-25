@@ -3,7 +3,7 @@ def input = []
 def failOnError = _args.conflict == 'fail'
 
 // CHECK MINIMUM VERSION
-// if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 1540) { throw new Exception("Please update to FileBot v3.5 or higher") }
+if (net.sourceforge.filebot.Settings.applicationRevisionNumber < 1540) { throw new Exception("Please update to FileBot v3.5 or higher") }
 
 // print input parameters
 _args.bindings?.each{ _log.fine("Parameter: $it.key = $it.value") }
