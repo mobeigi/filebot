@@ -86,14 +86,14 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def tempFiles = extract(file: input.findAll{ it.isArchive() || it.hasExtension('iso', '001') }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
+def tempFiles = extract(file: input.findAll{ it.isArchive() || it.hasExtension('001') }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
 input += tempFiles
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ (it.isVideo() && !it.hasExtension('iso')) || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
+input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
@@ -132,10 +132,10 @@ def groups = input.groupBy{ f ->
 		def mn = norm(mov.name)
 		
 		// S00E00 | 2012.07.21 | One Piece 217 | Firefly - Serenity | [Taken 1, Taken 2, Taken 3, Taken 4, ..., Taken 10]
-		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn =~ sn && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
+		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn.contains(sn) && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
 			_log.fine("Exclude Movie: $mov")
 			mov = null
-		} else if ((detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) }) {
+		} else if ((detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) }) {
 			_log.fine("Exclude Series: $tvs")
 			tvs = null
 		}
