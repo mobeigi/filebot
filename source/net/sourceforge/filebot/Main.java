@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
@@ -61,8 +62,8 @@ import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
+import net.sourceforge.tuned.TeePrintStream;
 
-import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.NodeList;
 
 
@@ -76,6 +77,13 @@ public class Main {
 			// parse arguments
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean args = cli.parse(arguments);
+			
+			// tee stdout and stderr to log file if set
+			if (args.logFile != null) {
+				FileOutputStream log = new FileOutputStream(args.getLogFile(), true);
+				System.setOut(new TeePrintStream(log, true, "UTF-8", System.out));
+				System.setErr(new TeePrintStream(log, true, "UTF-8", System.err));
+			}
 			
 			if (args.printHelp() || args.printVersion() || (!args.runCLI() && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
@@ -203,7 +211,7 @@ public class Main {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
-		} catch (CmdLineException e) {
+		} catch (Exception e) {
 			// illegal arguments => just print CLI error message and stop
 			System.err.println(e.getMessage());
 			System.exit(-1);

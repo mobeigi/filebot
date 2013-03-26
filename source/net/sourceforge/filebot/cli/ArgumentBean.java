@@ -6,6 +6,7 @@ import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -83,6 +84,9 @@ public class ArgumentBean {
 	
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
+	
+	@Option(name = "--log-file", usage = "Log file", metaVar = "path/to/log.txt")
+	public String logFile = null;
 	
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
@@ -178,6 +182,15 @@ public class ArgumentBean {
 	
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
+	}
+	
+	
+	public File getLogFile() throws IOException {
+		File f = new File(logFile);
+		if (!f.exists() && !f.getParentFile().mkdirs() && !f.createNewFile()) {
+			throw new IOException("Failed to create log file: " + f.getAbsolutePath());
+		}
+		return f;
 	}
 	
 }
