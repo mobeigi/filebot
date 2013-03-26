@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,8 +48,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.HistorySpooler.HistoryFileStorage;
-import net.sourceforge.filebot.HistorySpooler.HistoryStorage;
 import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.cli.ArgumentProcessor;
 import net.sourceforge.filebot.cli.CmdlineOperations;
@@ -98,7 +95,6 @@ public class Main {
 			// initialize this stuff before anything else
 			initializeCache();
 			initializeSecurityManager();
-			HistorySpooler.getInstance().setPersistentHistory(new HistoryFileStorage(new File(getApplicationFolder(), "history.xml")));
 			
 			if (args.clearUserData()) {
 				System.out.println("Reset preferences");
@@ -207,48 +203,6 @@ public class Main {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
 				}
 			}
-			
-			// hook donation reminder into rename history
-			if (useDonationReminder()) {
-				final HistoryStorage fileStorage = HistorySpooler.getInstance().getPersistentHistory();
-				HistorySpooler.getInstance().setPersistentHistory(new HistoryStorage() {
-					
-					@Override
-					public void write(History history) throws IOException {
-						// store history
-						fileStorage.write(history);
-						
-						// display donation reminder
-						try {
-							PreferencesEntry<String> persistentDonateLv = Settings.forPackage(Main.class).entry("donate.lv").defaultValue("0");
-							int donateLv = Integer.parseInt(persistentDonateLv.getValue());
-							int donateStep = 1000;
-							int usage = history.totalSize();
-							
-							if (usage / donateStep > donateLv || new Random().nextInt(100) == 42) {
-								persistentDonateLv.setValue(String.valueOf(Math.max(donateLv + 1, usage / donateStep)));
-								
-								String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", history.totalSize());
-								String[] actions = new String[] { "Donate!", "Later" };
-								JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
-								pane.createDialog(null, "Please Donate").setVisible(true);
-								if (pane.getValue() == actions[0]) {
-									Desktop.getDesktop().browse(URI.create(getApplicationProperty("donate.url")));
-								}
-								Analytics.trackEvent("GUI", "Donate", "Lv " + donateLv, pane.getValue() == actions[0] ? 1 : 0);
-							}
-						} catch (Exception e) {
-							Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-						}
-					}
-					
-					
-					@Override
-					public History read() throws IOException {
-						return fileStorage.read();
-					}
-				});
-			}
 		} catch (CmdLineException e) {
 			// illegal arguments => just print CLI error message and stop
 			System.err.println(e.getMessage());
@@ -276,6 +230,11 @@ public class Main {
 			public void windowClosing(WindowEvent e) {
 				e.getWindow().setVisible(false);
 				HistorySpooler.getInstance().commit();
+				
+				if (useDonationReminder()) {
+					showDonationReminder();
+				}
+				
 				System.exit(0);
 			}
 		});
@@ -368,6 +327,38 @@ public class Main {
 				}
 			});
 		}
+	}
+	
+	
+	private static void showDonationReminder() {
+		int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
+		if (renameCount <= 0)
+			return;
+		
+		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("donation").defaultValue("0");
+		int donationRev = Integer.parseInt(donation.getValue());
+		int currentRev = getApplicationRevisionNumber();
+		if (donationRev >= currentRev) {
+			return;
+		}
+		
+		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
+		String[] actions = new String[] { "Donate!", "Later" };
+		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
+		pane.createDialog(null, "Please Donate").setVisible(true);
+		if (pane.getValue() == actions[0]) {
+			try {
+				Desktop.getDesktop().browse(URI.create(getApplicationProperty("donate.url")));
+				donation.setValue(String.valueOf(currentRev));
+			} catch (Exception e) {
+				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to open URL.", e);
+			}
+		} else {
+			if (donationRev > 0 && donationRev < currentRev) {
+				donation.setValue(String.valueOf(currentRev));
+			}
+		}
+		Analytics.trackEvent("GUI", "Donate", "r" + currentRev, pane.getValue() == actions[0] ? 1 : 0);
 	}
 	
 	

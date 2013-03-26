@@ -6,6 +6,8 @@ import static java.util.Collections.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -204,23 +206,21 @@ public class History {
 	}
 	
 	
-	public static void exportHistory(History history, File file) throws IOException {
+	public static void exportHistory(History history, OutputStream output) throws IOException {
 		try {
 			Marshaller marshaller = JAXBContext.newInstance(History.class).createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			
-			marshaller.marshal(history, file);
+			marshaller.marshal(history, output);
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
 	}
 	
 	
-	public static History importHistory(File file) throws IOException {
+	public static History importHistory(InputStream stream) throws IOException {
 		try {
 			Unmarshaller unmarshaller = JAXBContext.newInstance(History.class).createUnmarshaller();
-			
-			return ((History) unmarshaller.unmarshal(file));
+			return ((History) unmarshaller.unmarshal(stream));
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}

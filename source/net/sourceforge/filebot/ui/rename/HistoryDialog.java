@@ -17,6 +17,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -635,7 +637,7 @@ class HistoryDialog extends JDialog {
 			
 			try {
 				for (File file : files) {
-					history.merge(History.importHistory(file));
+					history.merge(History.importHistory(new FileInputStream(file)));
 				}
 			} finally {
 				// update view
@@ -661,7 +663,7 @@ class HistoryDialog extends JDialog {
 		
 		@Override
 		public void export(File file) throws IOException {
-			History.exportHistory(getModel(), file);
+			History.exportHistory(getModel(), new FileOutputStream(file));
 		}
 		
 		

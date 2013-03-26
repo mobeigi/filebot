@@ -407,19 +407,18 @@ public class RenamePanel extends JComponent {
 	protected final Action openHistoryAction = new AbstractAction("Open History", ResourceManager.getIcon("action.report")) {
 		
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			History model = HistorySpooler.getInstance().getCompleteHistory();
-			
-			HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
-			dialog.setLocationRelativeTo(RenamePanel.this);
-			dialog.setModel(model);
-			
-			// show and block
-			dialog.setVisible(true);
-			
-			if (!model.equals(dialog.getModel())) {
-				// model was changed, switch to the new model
-				HistorySpooler.getInstance().commit(dialog.getModel());
+		public void actionPerformed(ActionEvent evt) {
+			try {
+				History model = HistorySpooler.getInstance().getCompleteHistory();
+				
+				HistoryDialog dialog = new HistoryDialog(getWindow(RenamePanel.this));
+				dialog.setLocationRelativeTo(RenamePanel.this);
+				dialog.setModel(model);
+				
+				// show and block
+				dialog.setVisible(true);
+			} catch (Exception e) {
+				UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
 			}
 		}
 	};

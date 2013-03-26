@@ -2,10 +2,13 @@
 package net.sourceforge.filebot;
 
 
-import static net.sourceforge.filebot.History.*;
+import static net.sourceforge.filebot.Settings.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -13,6 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.History.Element;
+import net.sourceforge.tuned.ByteBufferInputStream;
+import net.sourceforge.tuned.ByteBufferOutputStream;
 
 
 public final class HistorySpooler {
@@ -24,31 +29,72 @@ public final class HistorySpooler {
 		return instance;
 	}
 	
-	private HistoryStorage persistentHistory = null;
+	private File persistentHistoryFile = new File(getApplicationFolder(), "history.xml");
+	private int persistentHistoryTotalSize = -1;
+	
 	private History sessionHistory = new History();
 	
 	
-	public synchronized History getCompleteHistory() {
-		History history = new History();
-		
-		// add persistent history
-		try {
-			if (getPersistentHistory() != null) {
-				history.addAll(getPersistentHistory().read().sequences());
-			}
-		} catch (IOException e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load history", e);
+	public synchronized History getCompleteHistory() throws IOException {
+		if (persistentHistoryFile.length() <= 0) {
+			return new History();
 		}
 		
-		// add session history
-		history.addAll(sessionHistory.sequences());
-		
-		return history;
+		RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
+		FileChannel channel = f.getChannel();
+		FileLock lock = channel.lock();
+		try {
+			ByteBufferOutputStream data = new ByteBufferOutputStream(f.length());
+			data.transferFully(channel);
+			
+			History history = History.importHistory(new ByteBufferInputStream(data.getByteBuffer()));
+			history.addAll(sessionHistory.sequences());
+			return history;
+		} finally {
+			lock.release();
+			channel.close();
+			f.close();
+		}
 	}
 	
 	
-	public History getSessionHistory() {
-		return sessionHistory;
+	public synchronized void commit() {
+		if (sessionHistory.sequences().isEmpty()) {
+			return;
+		}
+		
+		try {
+			if (persistentHistoryFile.length() <= 0) {
+				persistentHistoryFile.createNewFile();
+			}
+			RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
+			FileChannel channel = f.getChannel();
+			FileLock lock = channel.lock();
+			try {
+				ByteBufferOutputStream data = new ByteBufferOutputStream(f.length());
+				int read = data.transferFully(channel);
+				
+				History history = read > 0 ? History.importHistory(new ByteBufferInputStream(data.getByteBuffer())) : new History();
+				history.addAll(sessionHistory.sequences());
+				
+				data.rewind();
+				History.exportHistory(history, data);
+				
+				channel.position(0);
+				channel.write(data.getByteBuffer());
+				
+				sessionHistory.clear();
+				persistentHistoryTotalSize = history.totalSize();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				lock.release();
+				channel.close();
+				f.close();
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to write rename history.", e);
+		}
 	}
 	
 	
@@ -66,71 +112,13 @@ public final class HistorySpooler {
 	}
 	
 	
-	public synchronized void commit(History history) {
-		try {
-			if (getPersistentHistory() != null) {
-				getPersistentHistory().write(history);
-			}
-			
-			// clear session history
-			sessionHistory.clear();
-		} catch (IOException e) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to store history", e);
-		}
+	public History getSessionHistory() {
+		return sessionHistory;
 	}
 	
 	
-	public synchronized void commit() {
-		// check if session history is not empty
-		if (sessionHistory.sequences().size() > 0) {
-			commit(getCompleteHistory());
-		}
-	}
-	
-	
-	public synchronized void setPersistentHistory(HistoryStorage persistentHistory) {
-		this.persistentHistory = persistentHistory;
-	}
-	
-	
-	public synchronized HistoryStorage getPersistentHistory() {
-		return persistentHistory;
-	}
-	
-	
-	public static interface HistoryStorage {
-		
-		History read() throws IOException;
-		
-		
-		void write(History history) throws IOException;
-	}
-	
-	
-	public static class HistoryFileStorage implements HistoryStorage {
-		
-		private final File file;
-		
-		
-		public HistoryFileStorage(File file) {
-			this.file = file;
-		}
-		
-		
-		@Override
-		public History read() throws IOException {
-			if (file.exists()) {
-				return importHistory(file);
-			} else {
-				return new History();
-			}
-		}
-		
-		
-		@Override
-		public void write(History history) throws IOException {
-			exportHistory(history, file);
-		}
+	public int getPersistentHistoryTotalSize() {
+		return persistentHistoryTotalSize;
 	}
 	
 }
