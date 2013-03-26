@@ -65,12 +65,13 @@ public final class Settings {
 	
 	
 	public static boolean useDonationReminder() {
-		String value = System.getProperty("useDonationReminder");
-		if (value != null) {
-			return Boolean.parseBoolean(value);
-		} else {
-			return getApplicationDeployment() == null || !getApplicationDeployment().equalsIgnoreCase("ppa");
+		String deployment = getApplicationDeployment();
+		for (String it : new String[] { "ppa", "appstore" }) {
+			if (it.equalsIgnoreCase(deployment)) {
+				return false;
+			}
 		}
+		return true;
 	}
 	
 	
