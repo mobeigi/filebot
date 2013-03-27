@@ -148,7 +148,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		public Object getTitle(Object o) {
 			if (o instanceof Episode) {
-				return ((Episode) o).getTitle();
+				Episode e = (Episode) o;
+				return String.format("%s %s", e.getSeriesName(), e.getTitle());
 			}
 			return o;
 		}
