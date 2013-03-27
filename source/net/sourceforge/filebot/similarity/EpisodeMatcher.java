@@ -22,8 +22,9 @@ import net.sourceforge.filebot.web.MultiEpisode;
 
 public class EpisodeMatcher extends Matcher<File, Object> {
 	
-	public EpisodeMatcher(Collection<File> values, Collection<Episode> candidates, boolean strictMetrics) {
-		super(values, candidates, true, strictMetrics ? StrictEpisodeMetrics.defaultSequence(false) : EpisodeMetrics.defaultSequence(false));
+	public EpisodeMatcher(Collection<File> values, Collection<Episode> candidates, boolean strict) {
+		// use strict matcher as to force a result from the final top similarity set
+		super(values, candidates, strict, strict ? StrictEpisodeMetrics.defaultSequence(false) : EpisodeMetrics.defaultSequence(false));
 	}
 	
 	
