@@ -265,7 +265,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		@Override
 		protected String normalize(Object object) {
 			if (object instanceof Episode) {
-				object = EpisodeFormat.SeasonEpisode.formatSxE((Episode) object);
+				Episode e = (Episode) object;
+				object = String.format("%s %s", e.getSeriesName(), EpisodeFormat.SeasonEpisode.formatSxE(e));
 			} else if (object instanceof Movie) {
 				object = ((Movie) object).getYear();
 			}
@@ -302,12 +303,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				return new String[] { EpisodeFormat.SeasonEpisode.formatSxE(episode), String.valueOf(episode.getAbsolute()) };
+				return new String[] { episode.getSeriesName(), EpisodeFormat.SeasonEpisode.formatSxE(episode), String.valueOf(episode.getAbsolute()) };
 			}
 			
 			if (object instanceof Movie) {
 				Movie movie = (Movie) object;
-				return new String[] { String.valueOf(movie.getYear()) };
+				return new String[] { movie.getName(), String.valueOf(movie.getYear()) };
 			}
 			
 			return new String[] { normalizeObject(object) };
