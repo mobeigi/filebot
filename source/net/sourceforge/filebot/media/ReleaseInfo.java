@@ -271,7 +271,7 @@ public class ReleaseInfo {
 	
 	
 	public FileFilter getClutterFileFilter() throws IOException {
-		return new FileFolderNameFilter(getExcludePattern());
+		return new ClutterFileFilter(getExcludePattern(), 262144000); // only files smaller than 250 MB may be considered clutter
 	}
 	
 	// fetch release group names online and try to update the data every other day
@@ -426,6 +426,24 @@ public class ReleaseInfo {
 		@Override
 		public boolean accept(File file) {
 			return (namePattern.matcher(file.getName()).find() || (file.isFile() && namePattern.matcher(file.getParentFile().getName()).find()));
+		}
+	}
+	
+	
+	public static class ClutterFileFilter extends FileFolderNameFilter {
+		
+		private long maxFileSize;
+		
+		
+		public ClutterFileFilter(Pattern namePattern, long maxFileSize) {
+			super(namePattern);
+			this.maxFileSize = maxFileSize;
+		}
+		
+		
+		@Override
+		public boolean accept(File file) {
+			return super.accept(file) && file.isFile() && file.length() < maxFileSize;
 		}
 	}
 	

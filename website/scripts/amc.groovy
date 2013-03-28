@@ -135,7 +135,7 @@ def groups = input.groupBy{ f ->
 		if (parseEpisodeNumber(fn, true) || parseDate(fn) || (fn.contains(sn) && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
 			_log.fine("Exclude Movie: $mov")
 			mov = null
-		} else if ((detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) }) {
+		} else if (mn ==~ fn || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) }) {
 			_log.fine("Exclude Series: $tvs")
 			tvs = null
 		}
