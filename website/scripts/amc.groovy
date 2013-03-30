@@ -49,7 +49,8 @@ def forceSeries(f) {
 }
 
 def forceAnime(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Anime)/ || (f.isVideo() && (f.name =~ "[\\(\\[]\\p{XDigit}{8}[\\]\\)]" || getMediaInfo(file:f, format:'''{media.AudioLanguageList} {media.TextCodecList}''').tokenize().containsAll(['Japanese', 'ASS'])))
+	// tryQuietly{ ut_label } =~ /^(?i:Anime)/ || (f.isVideo() && (f.name =~ "[\\(\\[]\\p{XDigit}{8}[\\]\\)]" || getMediaInfo(file:f, format:'''{media.AudioLanguageList} {media.TextCodecList}''').tokenize().containsAll(['Japanese', 'ASS'])))
+	return false
 }
 
 def forceIgnore(f) {
