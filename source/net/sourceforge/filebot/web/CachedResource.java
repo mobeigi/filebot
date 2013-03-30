@@ -22,16 +22,26 @@ public abstract class CachedResource<T extends Serializable> {
 	private Class<T> type;
 	private long expirationTime;
 	
-	
-	public CachedResource(String resource, Class<T> type, long expirationTime) {
-		this.resource = resource;
-		this.type = type;
-		this.expirationTime = expirationTime;
-	}
+	private int retryCountLimit;
+	private long retryWaitTime;
 	
 	
 	public CachedResource(String resource, Class<T> type) {
 		this(resource, type, Long.MAX_VALUE);
+	}
+	
+	
+	public CachedResource(String resource, Class<T> type, long expirationTime) {
+		this(resource, type, expirationTime, 2, 1000);
+	}
+	
+	
+	public CachedResource(String resource, Class<T> type, long expirationTime, int retryCountLimit, long retryWaitTime) {
+		this.resource = resource;
+		this.type = type;
+		this.expirationTime = expirationTime;
+		this.retryCountLimit = retryCountLimit;
+		this.retryWaitTime = retryWaitTime;
 	}
 	
 	
@@ -82,9 +92,13 @@ public abstract class CachedResource<T extends Serializable> {
 		IOException networkException = null;
 		
 		try {
-			data = fetchData(new URL(resource), element != null ? lastUpdateTime : 0);
+			long lastModified = element != null ? lastUpdateTime : 0;
+			URL url = new URL(resource);
+			data = fetch(url, lastModified);
 		} catch (IOException e) {
 			networkException = e;
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 		
 		if (data != null) {
@@ -114,8 +128,9 @@ public abstract class CachedResource<T extends Serializable> {
 		
 		// throw network error only if we can't use previously cached data
 		if (networkException != null) {
-			if (product == null)
+			if (product == null) {
 				throw networkException;
+			}
 			
 			// just log error and continue with cached data
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, networkException.toString());
@@ -124,4 +139,18 @@ public abstract class CachedResource<T extends Serializable> {
 		return product;
 	}
 	
+	
+	protected ByteBuffer fetch(URL url, long lastModified) throws IOException, InterruptedException {
+		for (int i = 0; retryCountLimit < 0 || i <= retryCountLimit; i++) {
+			try {
+				return fetchData(url, lastModified);
+			} catch (IOException e) {
+				if (i >= 0 && i >= retryCountLimit) {
+					throw e;
+				}
+				Thread.sleep(retryWaitTime);
+			}
+		}
+		return null; // can't happen
+	}
 }
