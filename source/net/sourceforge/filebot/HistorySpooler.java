@@ -31,12 +31,13 @@ public final class HistorySpooler {
 	
 	private File persistentHistoryFile = new File(getApplicationFolder(), "history.xml");
 	private int persistentHistoryTotalSize = -1;
+	private boolean persistentHistoryEnabled = true;
 	
 	private History sessionHistory = new History();
 	
 	
 	public synchronized History getCompleteHistory() throws IOException {
-		if (persistentHistoryFile.length() <= 0) {
+		if (!persistentHistoryEnabled || persistentHistoryFile.length() <= 0) {
 			return new History();
 		}
 		
@@ -59,7 +60,7 @@ public final class HistorySpooler {
 	
 	
 	public synchronized void commit() {
-		if (sessionHistory.sequences().isEmpty()) {
+		if (!persistentHistoryEnabled || sessionHistory.sequences().isEmpty()) {
 			return;
 		}
 		
@@ -119,6 +120,11 @@ public final class HistorySpooler {
 	
 	public int getPersistentHistoryTotalSize() {
 		return persistentHistoryTotalSize;
+	}
+	
+	
+	public void setPersistentHistoryEnabled(boolean persistentHistoryEnabled) {
+		this.persistentHistoryEnabled = persistentHistoryEnabled;
 	}
 	
 }

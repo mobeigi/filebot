@@ -146,6 +146,7 @@ public class Main {
 			if (args.action.equalsIgnoreCase("test")) {
 				System.setProperty("useExtendedFileAttributes", "false");
 				System.setProperty("application.analytics", "false");
+				HistorySpooler.getInstance().setPersistentHistoryEnabled(false); // don't keep history of --action test rename operations
 			}
 			
 			// initialize analytics
@@ -351,7 +352,7 @@ public class Main {
 	
 	private static void showDonationReminder() {
 		int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
-		if (renameCount <= 0)
+		if (renameCount < 2000)
 			return;
 		
 		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("donation").defaultValue("0");
