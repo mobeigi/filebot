@@ -126,7 +126,7 @@ public class SubsceneSubtitleClient implements SubtitleProvider {
 		}
 		
 		// try cache first
-		Cache cache = Cache.getCache("web-persistent-datasource");
+		Cache cache = Cache.getCache("web-datasource-lv2");
 		String cacheKey = getClass().getName() + ".languageFilter";
 		
 		Map<String, String> filters = cache.get(cacheKey, Map.class);

@@ -190,7 +190,7 @@ public class ArgumentBean {
 	
 	
 	public File getLogFile() throws IOException {
-		File f = new File(output, logFile).getAbsoluteFile();
+		File f = new File(logFile).getAbsoluteFile();
 		if (!f.exists() && !f.getParentFile().mkdirs() && !f.createNewFile()) {
 			throw new IOException("Failed to create log file: " + f);
 		}

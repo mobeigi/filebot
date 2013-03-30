@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -264,10 +266,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				Movie entry = getCache().getData("getMovieDescriptor", hash, locale, Movie.class);
 				if (entry == null) {
 					hashMap.put(hash, file); // map file by hash
-				} else {
+				} else if (entry.getName().length() > 0) {
 					result.put(file, entry);
 				}
-				
 			}
 		}
 		
@@ -280,13 +281,25 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			int batchSize = 50;
 			for (int bn = 0; bn < ceil((float) hashes.size() / batchSize); bn++) {
 				List<String> batch = hashes.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashes.size()));
+				Set<String> unmatchedHashes = new HashSet<String>(batch);
 				
 				int minSeenCount = 20; // make sure we don't get mismatches by making sure the hash has not been confirmed numerous times
 				for (Entry<String, Movie> it : xmlrpc.checkMovieHash(batch, minSeenCount).entrySet()) {
-					result.put(hashMap.get(it.getKey()), it.getValue());
-					getCache().putData("getMovieDescriptor", it.getKey(), locale, it.getValue());
+					String hash = it.getKey();
+					Movie movie = it.getValue();
+					
+					result.put(hashMap.get(hash), movie);
+					getCache().putData("getMovieDescriptor", hash, locale, movie);
+					
+					unmatchedHashes.remove(hash);
+				}
+				
+				// note hashes that are not matched to any items so we can ignore them in the future
+				for (String hash : unmatchedHashes) {
+					getCache().putData("getMovieDescriptor", hash, locale, new Movie("", -1, -1, -1));
 				}
 			}
+			
 		}
 		
 		return result;
@@ -357,7 +370,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	 */
 	@SuppressWarnings("unchecked")
 	protected synchronized Map<String, String> getSubLanguageMap() throws Exception {
-		Cache cache = Cache.getCache("web-persistent-datasource");
+		Cache cache = Cache.getCache("web-datasource-lv2");
 		String cacheKey = getClass().getName() + ".subLanguageMap";
 		
 		Map<String, String> subLanguageMap = cache.get(cacheKey, Map.class);
