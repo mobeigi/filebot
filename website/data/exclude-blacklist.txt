@@ -3,6 +3,7 @@
 (sample|trailer)-
 (sample|trailer)[.]
 -(sample|trailer)
+-s[.]
 \((sample|trailer)\)
 \[(sample|trailer)\]
 ^(sample|trailer)
