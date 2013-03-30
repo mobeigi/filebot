@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -31,6 +32,8 @@ import org.w3c.dom.Node;
 
 
 public class AnidbClient extends AbstractEpisodeListProvider {
+	
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(5, 12, TimeUnit.SECONDS); // no more than 5 requests within a 10 second window (+2 seconds for good measure)
 	
 	private final String host = "anidb.net";
 	
@@ -101,6 +104,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
 		URL url = new URL("http", "api." + host, 9001, "/httpapi?request=anime&client=" + client + "&clientver=" + clientver + "&protover=1&aid=" + anime.getAnimeId());
+		
+		// respect flood protection limits
+		REQUEST_LIMIT.acquirePermit();
 		
 		// get anime page as xml
 		Document dom = getDocument(url);
