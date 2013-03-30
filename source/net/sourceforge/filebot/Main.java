@@ -17,10 +17,13 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.security.CodeSource;
 import java.security.Permission;
@@ -78,13 +81,6 @@ public class Main {
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean args = cli.parse(arguments);
 			
-			// tee stdout and stderr to log file if set
-			if (args.logFile != null) {
-				FileOutputStream log = new FileOutputStream(args.getLogFile(), true);
-				System.setOut(new TeePrintStream(log, true, "UTF-8", System.out));
-				System.setErr(new TeePrintStream(log, true, "UTF-8", System.err));
-			}
-			
 			if (args.printHelp() || args.printVersion() || (!args.runCLI() && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
 				
@@ -94,6 +90,21 @@ public class Main {
 				
 				// just print help message or version string and then exit
 				System.exit(0);
+			}
+			
+			// tee stdout and stderr to log file if set
+			if (args.logFile != null) {
+				File logFile = args.getLogFile();
+				FileChannel logChannel = new FileOutputStream(logFile, true).getChannel();
+				
+				if (args.logLock) {
+					System.out.println("Locking " + logFile);
+					logChannel.lock();
+				}
+				
+				OutputStream out = Channels.newOutputStream(logChannel);
+				System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
+				System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
 			}
 			
 			// make sure java.io.tmpdir exists

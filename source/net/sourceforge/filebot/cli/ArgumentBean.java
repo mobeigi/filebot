@@ -18,6 +18,7 @@ import net.sourceforge.filebot.MediaTypes;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 
 public class ArgumentBean {
@@ -87,6 +88,9 @@ public class ArgumentBean {
 	
 	@Option(name = "--log-file", usage = "Log file", metaVar = "path/to/log.txt")
 	public String logFile = null;
+	
+	@Option(name = "--log-lock", usage = "Lock log file", metaVar = "[yes, no]", handler = ExplicitBooleanOptionHandler.class)
+	public boolean logLock = true;
 	
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
@@ -186,9 +190,9 @@ public class ArgumentBean {
 	
 	
 	public File getLogFile() throws IOException {
-		File f = new File(logFile);
+		File f = new File(output, logFile).getAbsoluteFile();
 		if (!f.exists() && !f.getParentFile().mkdirs() && !f.createNewFile()) {
-			throw new IOException("Failed to create log file: " + f.getAbsolutePath());
+			throw new IOException("Failed to create log file: " + f);
 		}
 		return f;
 	}
