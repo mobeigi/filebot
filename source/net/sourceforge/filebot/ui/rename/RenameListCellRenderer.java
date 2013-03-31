@@ -16,8 +16,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -26,7 +24,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.MetricMin;
@@ -223,14 +220,6 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	protected String getType(File file) {
 		if (file.isDirectory()) {
 			return "Folder";
-		}
-		
-		try {
-			if (MediaDetection.getClutterFileFilter().accept(file)) {
-				return "Sample";
-			}
-		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 		}
 		
 		String extension = FileUtilities.getExtension(file);

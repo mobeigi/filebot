@@ -94,7 +94,7 @@ public abstract class CachedResource<T extends Serializable> {
 		try {
 			long lastModified = element != null ? lastUpdateTime : 0;
 			URL url = new URL(resource);
-			data = fetch(url, lastModified);
+			data = fetch(url, lastModified, element != null ? 0 : retryCountLimit);
 		} catch (IOException e) {
 			networkException = e;
 		} catch (InterruptedException e) {
@@ -140,15 +140,17 @@ public abstract class CachedResource<T extends Serializable> {
 	}
 	
 	
-	protected ByteBuffer fetch(URL url, long lastModified) throws IOException, InterruptedException {
-		for (int i = 0; retryCountLimit < 0 || i <= retryCountLimit; i++) {
+	protected ByteBuffer fetch(URL url, long lastModified, int retries) throws IOException, InterruptedException {
+		for (int i = 0; retries < 0 || i <= retries; i++) {
 			try {
+				if (i > 0) {
+					Thread.sleep(retryWaitTime);
+				}
 				return fetchData(url, lastModified);
 			} catch (IOException e) {
-				if (i >= 0 && i >= retryCountLimit) {
+				if (i >= 0 && i >= retries) {
 					throw e;
 				}
-				Thread.sleep(retryWaitTime);
 			}
 		}
 		return null; // can't happen
