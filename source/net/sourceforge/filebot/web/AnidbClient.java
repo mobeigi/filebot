@@ -90,7 +90,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			
 			@Override
 			protected Set<String> getFields(AnidbSearchResult anime) {
-				return set(anime.getPrimaryTitle(), anime.getOfficialTitle("en"));
+				return set(anime.getPrimaryTitle(), anime.getEnglishTitle());
 			}
 		};
 		
@@ -260,6 +260,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		
 		public String getPrimaryTitle() {
 			return primaryTitle;
+		}
+		
+		
+		public String getEnglishTitle() {
+			return officialTitle != null ? officialTitle.get("en") : null;
 		}
 		
 		

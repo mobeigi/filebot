@@ -2,6 +2,7 @@
 package net.sourceforge.filebot.media;
 
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
@@ -51,6 +52,7 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -283,7 +285,7 @@ public class MediaDetection {
 			Set<String> filenames = new LinkedHashSet<String>();
 			for (File f : files) {
 				for (int i = 0; i < 3 && f != null; i++, f = f.getParentFile()) {
-					(i == 0 ? filenames : folders).add(normalizeBrackets(f.getName()));
+					(i == 0 ? filenames : folders).add(normalizeBrackets(getName(f)));
 				}
 			}
 			
@@ -300,6 +302,22 @@ public class MediaDetection {
 			if (matches.isEmpty()) {
 				matches.addAll(matchSeriesByName(folders, 3));
 				matches.addAll(matchSeriesByName(filenames, 3));
+			}
+			
+			// assume name without spacing will mess up any lookup
+			if (matches.isEmpty()) {
+				// try to narrow down file to series name as best as possible
+				SeriesNameMatcher snm = new SeriesNameMatcher();
+				String[] sns = filenames.toArray(new String[0]);
+				for (int i = 0; i < sns.length; i++) {
+					String sn = snm.matchByEpisodeIdentifier(sns[i]);
+					if (sn != null) {
+						sns[i] = sn;
+					}
+				}
+				for (SearchResult it : matchSeriesFromStringWithoutSpacing(stripReleaseInfo(asList(sns), false), true)) {
+					matches.add(it.getName());
+				}
 			}
 			
 			// pass along only valid terms
@@ -341,15 +359,40 @@ public class MediaDetection {
 		return matches;
 	}
 	
+	private static List<Entry<String, SearchResult>> seriesIndex = new ArrayList<Entry<String, SearchResult>>(75000);
+	
+	
+	public static synchronized List<Entry<String, SearchResult>> getSeriesIndex() throws IOException {
+		if (seriesIndex.isEmpty()) {
+			try {
+				for (TheTVDBSearchResult it : releaseInfo.getTheTVDBIndex()) {
+					seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getName()).toLowerCase(), it));
+				}
+				for (AnidbSearchResult it : releaseInfo.getAnidbIndex()) {
+					seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getPrimaryTitle()).toLowerCase(), it));
+					if (it.getEnglishTitle() != null) {
+						seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getEnglishTitle()).toLowerCase(), it));
+					}
+				}
+			} catch (Exception e) {
+				// can't load movie index, just try again next time
+				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e.getMessage(), e);
+				return emptyList();
+			}
+		}
+		
+		return seriesIndex;
+	}
+	
 	
 	public static List<String> matchSeriesByName(Collection<String> names, int maxStartIndex) throws Exception {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		List<String> matches = new ArrayList<String>();
 		
-		String[] seriesIndex = releaseInfo.getSeriesList();
 		for (String name : names) {
 			String bestMatch = "";
-			for (String identifier : seriesIndex) {
+			for (Entry<String, SearchResult> it : getSeriesIndex()) {
+				String identifier = it.getKey();
 				String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
 				if (commonName != null && commonName.length() >= identifier.length() && commonName.length() > bestMatch.length()) {
 					bestMatch = commonName;
@@ -370,6 +413,38 @@ public class MediaDetection {
 		});
 		
 		return matches;
+	}
+	
+	
+	public static List<SearchResult> matchSeriesFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
+		// clear name of punctuation, spacing, and leading 'The' or 'A' that are common causes for word-lookup to fail
+		Pattern spacing = Pattern.compile("(^(?i)(The|A)\\b)|[\\p{Punct}\\p{Space}]+");
+		
+		List<String> terms = new ArrayList<String>(names.size());
+		for (String it : names) {
+			String term = spacing.matcher(it).replaceAll("").toLowerCase();
+			if (term.length() >= 3) {
+				terms.add(term); // only consider words, not just random letters
+			}
+		}
+		
+		// similarity threshold based on strict/non-strict
+		SimilarityMetric metric = new NameSimilarityMetric();
+		float similarityThreshold = strict ? 0.75f : 0.5f;
+		
+		List<SearchResult> seriesList = new ArrayList<SearchResult>();
+		for (Entry<String, SearchResult> it : getSeriesIndex()) {
+			String name = spacing.matcher(it.getKey()).replaceAll("").toLowerCase();
+			for (String term : terms) {
+				if (term.contains(name)) {
+					if (metric.getSimilarity(term, name) >= similarityThreshold) {
+						seriesList.add(it.getValue());
+					}
+					break;
+				}
+			}
+		}
+		return seriesList;
 	}
 	
 	
@@ -563,15 +638,13 @@ public class MediaDetection {
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 	
-	private static List<Entry<String, Movie>> movieIndex;
+	private static List<Entry<String, Movie>> movieIndex = new ArrayList<Entry<String, Movie>>(100000);
 	
 	
-	private static synchronized List<Entry<String, Movie>> getMovieIndex() throws IOException {
-		if (movieIndex == null) {
+	public static synchronized List<Entry<String, Movie>> getMovieIndex() throws IOException {
+		if (movieIndex.isEmpty()) {
 			try {
-				Movie[] movies = releaseInfo.getMovieList();
-				movieIndex = new ArrayList<Entry<String, Movie>>(movies.length);
-				for (Movie movie : movies) {
+				for (Movie movie : releaseInfo.getMovieList()) {
 					movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(movie.getName()).toLowerCase(), movie));
 				}
 			} catch (Exception e) {
