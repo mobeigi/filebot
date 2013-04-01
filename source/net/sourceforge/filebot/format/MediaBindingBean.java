@@ -347,6 +347,12 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("xattr")
+	public Object getMetaAttributesObject() {
+		return getMetaAttributesObject(mediaFile);
+	}
+	
+	
 	@Define("crc32")
 	public String getCRC32() throws IOException, InterruptedException {
 		// use inferred media file
@@ -798,6 +804,18 @@ public class MediaBindingBean {
 		if (useExtendedFileAttributes()) {
 			try {
 				return new MetaAttributes(file).getOriginalName();
+			} catch (Throwable e) {
+				// ignore
+			}
+		}
+		return null;
+	}
+	
+	
+	private Object getMetaAttributesObject(File file) {
+		if (useExtendedFileAttributes()) {
+			try {
+				return new MetaAttributes(file).getMetaData();
 			} catch (Throwable e) {
 				// ignore
 			}
