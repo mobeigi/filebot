@@ -227,6 +227,7 @@ unrated
 unrated.edition
 UsaBit.com
 video[s]?
+www.Cpasbien.me
 www[.][\w-.]+[.](com|net|tk|ro|cd)
 xRipp
 XtremeDoN

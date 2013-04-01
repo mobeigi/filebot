@@ -139,7 +139,7 @@ public class ReleaseInfo {
 		List<String> output = new ArrayList<String>(items.size());
 		for (String it : items) {
 			it = strict ? clean(it, stopwords) : substringBefore(it, stopwords);
-			it = clean(it, blacklist);
+			it = normalizePunctuation(clean(it, blacklist));
 			
 			// ignore empty values
 			if (it.length() > 0) {
@@ -155,8 +155,7 @@ public class ReleaseInfo {
 		for (Pattern it : blacklisted) {
 			item = it.matcher(item).replaceAll("");
 		}
-		
-		return normalizePunctuation(item);
+		return item;
 	}
 	
 	

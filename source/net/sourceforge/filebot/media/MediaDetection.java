@@ -629,12 +629,12 @@ public class MediaDetection {
 			}
 		}
 		
-		return null;
+		return movieFile.getParentFile();
 	}
 	
 	
 	public static Movie checkMovie(File file) throws Exception {
-		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 2) : null;
+		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 4) : null;
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 	
