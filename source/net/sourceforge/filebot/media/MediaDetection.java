@@ -629,7 +629,10 @@ public class MediaDetection {
 			}
 		}
 		
-		return movieFile.getParentFile();
+		if (stripReleaseInfo(f.getParentFile().getName()).length() > 0) {
+			return f.getParentFile();
+		}
+		return null;
 	}
 	
 	
