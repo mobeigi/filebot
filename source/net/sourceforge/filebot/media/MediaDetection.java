@@ -629,8 +629,8 @@ public class MediaDetection {
 			}
 		}
 		
-		if (stripReleaseInfo(f.getParentFile().getName()).length() > 0) {
-			return f.getParentFile();
+		if (movieFile.getParentFile() != null && stripReleaseInfo(movieFile.getParentFile().getName()).length() > 0) {
+			return movieFile.getParentFile();
 		}
 		return null;
 	}
