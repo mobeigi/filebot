@@ -6,7 +6,6 @@ import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -186,15 +185,6 @@ public class ArgumentBean {
 	
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
-	}
-	
-	
-	public File getLogFile() throws IOException {
-		File f = new File(logFile).getAbsoluteFile();
-		if (!f.exists() && !f.getParentFile().mkdirs() && !f.createNewFile()) {
-			throw new IOException("Failed to create log file: " + f);
-		}
-		return f;
 	}
 	
 }

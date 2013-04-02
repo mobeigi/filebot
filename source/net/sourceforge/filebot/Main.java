@@ -94,9 +94,16 @@ public class Main {
 			
 			// tee stdout and stderr to log file if set
 			if (args.logFile != null) {
-				File logFile = args.getLogFile();
-				FileChannel logChannel = new FileOutputStream(logFile, true).getChannel();
+				File logFile = new File(args.logFile);
+				if (!logFile.isAbsolute()) {
+					logFile = new File(new File(getApplicationFolder(), "logs"), logFile.getPath()).getAbsoluteFile(); // by default resolve relative paths against {applicationFolder}/logs/{logFile}
+				}
+				if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
+					throw new IOException("Failed to create log file: " + logFile);
+				}
 				
+				// open file channel and lock
+				FileChannel logChannel = new FileOutputStream(logFile, true).getChannel();
 				if (args.logLock) {
 					System.out.println("Locking " + logFile);
 					logChannel.lock();
