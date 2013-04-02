@@ -17,7 +17,7 @@ public class TimeStampMetric implements SimilarityMetric {
 		long t2 = getTimeStamp(o2);
 		
 		if (t1 <= 0 || t2 <= 0)
-			return 0;
+			return -1;
 		
 		float min = min(t1, t2);
 		float max = max(t1, t2);
