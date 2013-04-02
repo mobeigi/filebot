@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
@@ -252,12 +253,63 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}),
 	
 	// Match by generic name similarity (absolute)
-	AbsoluteName(new NameSimilarityMetric() {
+	SeriesName(new NameSimilarityMetric() {
+		
+		private ReleaseInfo releaseInfo = new ReleaseInfo();
+		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher();
+		
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			float lowerBound = super.getSimilarity(normalize(o1, true), normalize(o2, true));
+			float upperBound = super.getSimilarity(normalize(o1, false), normalize(o2, false));
+			
+			return (float) (floor(max(lowerBound, upperBound) * 4) / 4);
+		};
+		
 		
 		@Override
 		protected String normalize(Object object) {
+			return object.toString();
+		};
+		
+		
+		protected String normalize(Object object, boolean strict) {
+			if (object instanceof Episode) {
+				if (strict) {
+					object = ((Episode) object).getSeriesName(); // focus on series name
+				} else {
+					object = removeTrailingBrackets(((Episode) object).getSeriesName()); // focus on series name (without US/UK 1967/2005 differentiation)
+				}
+			} else if (object instanceof File) {
+				object = ((File) object).getName(); // try to narrow down on series name
+				String sn = seriesNameMatcher.matchByEpisodeIdentifier(object.toString());
+				if (sn != null) {
+					object = sn;
+				}
+			}
+			
+			// equally strip away strip potential any clutter
+			try {
+				object = releaseInfo.cleanRelease(singleton(object.toString()), strict).iterator().next();
+			} catch (Exception e) {
+				// keep default value in case all tokens are stripped away
+			}
+			
 			// simplify file name, if possible
 			return normalizeObject(object);
+		}
+	}),
+	
+	// Match by generic name similarity (absolute)
+	AbsolutePath(new NameSimilarityMetric() {
+		
+		@Override
+		protected String normalize(Object object) {
+			if (object instanceof File) {
+				object = normalizePathSeparators(getRelativePathTail((File) object, 3).getPath());
+			}
+			return normalizeObject(object.toString()); // simplify file name, if possible
 		}
 	}),
 	
@@ -462,9 +514,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, Name, TimeStamp, AbsoluteName };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, TimeStamp, AbsolutePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, Name, TimeStamp, AbsoluteName };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, TimeStamp, AbsolutePath };
 		}
 	}
 	
