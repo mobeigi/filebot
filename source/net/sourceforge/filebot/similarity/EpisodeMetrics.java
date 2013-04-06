@@ -325,12 +325,35 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	NumericSequence(new SequenceMatchSimilarity() {
 		
 		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			float lowerBound = super.getSimilarity(normalize(o1, true), normalize(o2, true));
+			float upperBound = super.getSimilarity(normalize(o1, false), normalize(o2, false));
+			
+			return max(lowerBound, upperBound);
+		};
+		
+		
+		@Override
 		protected String normalize(Object object) {
+			return object.toString();
+		};
+		
+		
+		protected String normalize(Object object, boolean numbersOnly) {
 			if (object instanceof Episode) {
 				Episode e = (Episode) object;
-				object = EpisodeFormat.SeasonEpisode.formatSxE(e);
+				if (numbersOnly) {
+					object = EpisodeFormat.SeasonEpisode.formatSxE(e);
+				} else {
+					object = String.format("%s %s", e.getSeriesName(), EpisodeFormat.SeasonEpisode.formatSxE(e));
+				}
 			} else if (object instanceof Movie) {
-				object = ((Movie) object).getYear();
+				Movie m = (Movie) object;
+				if (numbersOnly) {
+					object = m.getYear();
+				} else {
+					object = String.format("%s %s", m.getName(), m.getYear());
+				}
 			}
 			
 			// simplify file name if possible and extract numbers
