@@ -79,8 +79,8 @@ public final class TunedUtilities {
 	}
 	
 	
-	public static boolean isShiftDown(ActionEvent evt) {
-		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK);
+	public static boolean isShiftOrAltDown(ActionEvent evt) {
+		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK) || checkModifiers(evt.getModifiers(), ActionEvent.ALT_MASK);
 	}
 	
 	

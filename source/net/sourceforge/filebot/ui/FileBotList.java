@@ -50,7 +50,9 @@ public class FileBotList<E> extends JComponent {
 		getRemoveAction().setEnabled(false);
 		
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeHook);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.ALT_DOWN_MASK), removeHook);
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), removeHook);
+		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, KeyEvent.ALT_DOWN_MASK), removeHook);
 	}
 	
 	

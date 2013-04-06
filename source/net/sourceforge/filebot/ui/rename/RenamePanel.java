@@ -67,6 +67,7 @@ import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
 import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
 
@@ -140,16 +141,21 @@ public class RenamePanel extends JComponent {
 				JList list = ((RenameList) e.getSource()).getListComponent();
 				int index = list.getSelectedIndex();
 				if (index >= 0) {
-					if (isShiftDown(e)) {
-						((RenameList) e.getSource()).remove(index);
+					if (isShiftOrAltDown(e)) {
+						EventList eventList = ((RenameList) e.getSource()).getModel();
+						if (index < eventList.size()) {
+							((RenameList) e.getSource()).getModel().remove(index);
+						}
 					} else {
 						renameModel.matches().remove(index);
 					}
-					int maxIndex = list.getModel().getSize() - 1;
+					int maxIndex = ((RenameList) e.getSource()).getModel().size() - 1;
 					if (index > maxIndex) {
 						index = maxIndex;
 					}
-					list.setSelectedIndex(index);
+					if (index >= 0) {
+						list.setSelectedIndex(index);
+					}
 				}
 			}
 		};
@@ -396,7 +402,7 @@ public class RenamePanel extends JComponent {
 		
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			if ((evt.getModifiers() & ActionEvent.SHIFT_MASK) != 0) {
+			if (isShiftOrAltDown(evt)) {
 				renameModel.files().clear();
 			} else {
 				renameModel.clear();
@@ -524,7 +530,7 @@ public class RenamePanel extends JComponent {
 				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
 				private final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
 				private final Locale locale = new Locale(persistentPreferredLanguage.getValue());
-				private final boolean autodetection = !isShiftDown(evt); // skip name auto-detection if SHIFT is pressed
+				private final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
 				
 				
 				@Override
