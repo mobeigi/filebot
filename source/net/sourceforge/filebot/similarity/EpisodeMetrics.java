@@ -319,7 +319,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String normalize(Object object) {
 			if (object instanceof Episode) {
 				Episode e = (Episode) object;
-				object = String.format("%s %s", e.getSeriesName(), EpisodeFormat.SeasonEpisode.formatSxE(e));
+				object = EpisodeFormat.SeasonEpisode.formatSxE(e);
 			} else if (object instanceof Movie) {
 				object = ((Movie) object).getYear();
 			}
