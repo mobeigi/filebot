@@ -11,13 +11,19 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
@@ -25,6 +31,7 @@ import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -292,8 +299,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			// equally strip away strip potential any clutter
 			try {
 				object = releaseInfo.cleanRelease(singleton(object.toString()), strict).iterator().next();
-			} catch (Exception e) {
+			} catch (NoSuchElementException e) {
 				// keep default value in case all tokens are stripped away
+			} catch (IOException e) {
+				Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
 			}
 			
 			// simplify file name, if possible
@@ -426,6 +435,29 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 	
+	SeriesRating(new SimilarityMetric() {
+		
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			return max(getRating(o1), getRating(o2)) >= 0.4 ? 1 : 0;
+		}
+		
+		
+		public float getRating(Object o) {
+			if (o instanceof Episode) {
+				try {
+					SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) o).getSeriesName(), Locale.ENGLISH);
+					if (seriesInfo != null && seriesInfo.getRatingCount() >= 10) {
+						return max(0, seriesInfo.getRating().floatValue());
+					}
+				} catch (Exception e) {
+					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+				}
+			}
+			return 0;
+		}
+	}),
+	
 	// Match by stored MetaAttributes if possible
 	MetaAttributes(new CrossPropertyMetric() {
 		
@@ -515,9 +547,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, SeriesRating, TimeStamp, AbsolutePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, SeriesRating, TimeStamp, AbsolutePath };
 		}
 	}
 	

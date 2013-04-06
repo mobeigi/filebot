@@ -40,8 +40,7 @@ public class TimeStampMetric implements SimilarityMetric {
 				// ignore Java 6 issues
 				return ((File) obj).lastModified();
 			}
-		}
-		if (obj instanceof Number) {
+		} else if (obj instanceof Number) {
 			return ((Number) obj).longValue();
 		}
 		
