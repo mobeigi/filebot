@@ -465,13 +465,24 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return max(getRating(o1), getRating(o2)) >= 0.4 ? 1 : 0;
 		}
 		
+		private final Map<String, SeriesInfo> seriesInfoCache = new HashMap<String, SeriesInfo>();
+		
 		
 		public float getRating(Object o) {
 			if (o instanceof Episode) {
 				try {
-					SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
-					if (seriesInfo != null && seriesInfo.getRatingCount() >= 10) {
-						return max(0, seriesInfo.getRating().floatValue());
+					synchronized (seriesInfoCache) {
+						String n = ((Episode) o).getSeriesName();
+						
+						SeriesInfo seriesInfo = seriesInfoCache.get(n);
+						if (seriesInfo == null && !seriesInfoCache.containsKey(n)) {
+							seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
+							seriesInfoCache.put(n, seriesInfo);
+						}
+						
+						if (seriesInfo != null && seriesInfo.getRatingCount() >= 10) {
+							return max(0, seriesInfo.getRating().floatValue());
+						}
 					}
 				} catch (Exception e) {
 					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
