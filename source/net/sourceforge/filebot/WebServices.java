@@ -156,6 +156,16 @@ public final class WebServices {
 		}
 		
 		
+		public SeriesInfo getSeriesInfoByLocalIndex(String name, Locale locale) throws Exception {
+			for (SearchResult it : getLocalIndex().search(name)) {
+				if (name.equals(it.getName())) {
+					return getSeriesInfo((TheTVDBSearchResult) it, locale);
+				}
+			}
+			return null;
+		}
+		
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {

@@ -469,7 +469,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public float getRating(Object o) {
 			if (o instanceof Episode) {
 				try {
-					SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) o).getSeriesName(), Locale.ENGLISH);
+					SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
 					if (seriesInfo != null && seriesInfo.getRatingCount() >= 10) {
 						return max(0, seriesInfo.getRating().floatValue());
 					}
