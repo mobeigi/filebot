@@ -154,7 +154,7 @@ groups.each{ group, files ->
 	// fetch subtitles (but not for anime)
 	if (subtitles && !group.anime) {
 		subtitles.each{ languageCode ->
-			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode) ?: []
+			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode, strict:true) ?: []
 			files += subtitleFiles
 			tempFiles += subtitleFiles // if downloaded for temporarily extraced files delete later
 		}
