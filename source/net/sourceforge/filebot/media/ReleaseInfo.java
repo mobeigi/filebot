@@ -181,7 +181,7 @@ public class ReleaseInfo {
 	
 	public Pattern getLanguageSuffixPattern(Collection<String> languages, boolean strict) {
 		// .en.srt
-		return compile("(?<=" + (strict ? "[.]" : "[\\p{Punct}\\p{Space}]") + ")(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", (strict ? 0 : CASE_INSENSITIVE) | UNICODE_CASE);
+		return compile("(?<=[.])(" + join(quoteAll(languages), "|") + ")(?=[._ ]*$)", (strict ? 0 : CASE_INSENSITIVE) | UNICODE_CASE);
 	}
 	
 	

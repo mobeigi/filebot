@@ -336,11 +336,7 @@ public class MediaDetection {
 		names.addAll(matches);
 		
 		// don't allow duplicates
-		Map<String, String> unique = new LinkedHashMap<String, String>();
-		for (String it : names) {
-			unique.put(normalizePunctuation(it).toLowerCase(), it);
-		}
-		return new ArrayList<String>(unique.values());
+		return getUniqueQuerySet(names);
 	}
 	
 	
@@ -503,13 +499,16 @@ public class MediaDetection {
 		Collection<String> terms = new LinkedHashSet<String>();
 		
 		// 1. term: try to match movie pattern 'name (year)' or use filename as is
-		terms.add(reduceMovieName(getName(movieFile)));
+		terms.add(getName(movieFile));
 		
 		// 2. term: first meaningful parent folder
 		File movieFolder = guessMovieFolder(movieFile);
 		if (movieFolder != null) {
-			terms.add(reduceMovieName(getName(movieFolder)));
+			terms.add(getName(movieFolder));
 		}
+		
+		// reduce movie names
+		terms = new LinkedHashSet<String>(reduceMovieNamePermutations(terms));
 		
 		List<Movie> movieNameMatches = matchMovieName(terms, true, 0);
 		if (movieNameMatches.isEmpty()) {
@@ -585,12 +584,32 @@ public class MediaDetection {
 	}
 	
 	
-	public static String reduceMovieName(String name) throws IOException {
-		Matcher reluctantMatcher = compile("^(.+)[\\[\\(]((?:19|20)\\d{2})[\\]\\)]").matcher(name);
-		if (reluctantMatcher.find()) {
-			return String.format("%s %s", reluctantMatcher.group(1).trim(), reluctantMatcher.group(2));
+	public static String reduceMovieName(String name, boolean strict) throws IOException {
+		Matcher matcher = compile(strict ? "^(.+)[\\[\\(]((?:19|20)\\d{2})[\\]\\)]" : "^(.+?)((?:19|20)\\d{2})").matcher(name);
+		if (matcher.find()) {
+			return String.format("%s %s", normalizePunctuation(matcher.group(1)), matcher.group(2));
 		}
-		return name;
+		return null;
+	}
+	
+	
+	public static Collection<String> reduceMovieNamePermutations(Collection<String> terms) throws IOException {
+		LinkedList<String> names = new LinkedList<String>();
+		
+		for (String it : terms) {
+			String rn = reduceMovieName(it, true);
+			if (rn != null) {
+				names.addFirst(rn);
+			} else {
+				names.addLast(it); // unsure, keep original term just in case, but also try non-strict reduce
+				rn = reduceMovieName(it, false);
+				if (rn != null) {
+					names.addLast(rn);
+				}
+			}
+		}
+		
+		return names;
 	}
 	
 	
@@ -736,12 +755,15 @@ public class MediaDetection {
 	
 	private static Collection<Movie> queryMovieByFileName(Collection<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
 		// remove blacklisted terms
-		Set<String> querySet = new LinkedHashSet<String>();
+		List<String> querySet = new ArrayList<String>();
 		querySet.addAll(stripReleaseInfo(files, true));
 		querySet.addAll(stripReleaseInfo(files, false));
 		
+		// remove duplicates
+		querySet = getUniqueQuerySet(querySet);
+		
 		// DEBUG
-		// System.out.format("%s: %s%n", queryLookupService.getName(), querySet);
+		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
 		
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
@@ -762,6 +784,15 @@ public class MediaDetection {
 		});
 		
 		return results;
+	}
+	
+	
+	private static List<String> getUniqueQuerySet(Collection<String> terms) {
+		Map<String, String> unique = new LinkedHashMap<String, String>();
+		for (String it : terms) {
+			unique.put(normalizePunctuation(it).toLowerCase(), it);
+		}
+		return new ArrayList<String>(unique.values());
 	}
 	
 	

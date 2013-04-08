@@ -100,6 +100,7 @@ Channel.4
 Channel.5
 CLASSIC
 CN
+Custom.DKsubs
 CVCD
 DC
 DD2[.,]0
@@ -112,6 +113,7 @@ ded
 Demonoid
 Director's.Cut
 Directors.Cut
+DKsubs
 DL
 docu
 Dual.Audio
