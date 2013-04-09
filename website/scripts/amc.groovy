@@ -83,8 +83,17 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
-def tempFiles = extract(file: input.findAll{ it.isArchive() || it.hasExtension('001') }, output: null, conflict: 'override', filter: { it.isVideo() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
-input += tempFiles
+def tempFiles = []
+input = input.flatten{ f ->
+	if (f.isArchive() || f.hasExtension('001')) {
+		def extractDir = new File(f.parentFile, f.nameWithoutExtension)
+		def extractFiles = extract(file: f, output: extractDir, conflict: 'override', filter: { it.isArchive() || it.isVideo() || it.isSubtitle() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
+		tempFiles += extractDir
+		tempFiles += extractFiles
+		return extractFiles
+	}
+	return f
+}
 
 // sanitize input
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
@@ -296,18 +305,14 @@ if (clean) {
 	if (['COPY', 'HARDLINK'].find{ it.equalsIgnoreCase(_args.action) } && tempFiles.size() > 0) {
 		_log.info 'Clean temporary extracted files'
 		// delete extracted files
-		tempFiles.each{
-			if(it.isFile()) {
-				_log.finest "Delete $it"
-				it.delete()
-			}
+		tempFiles.findAll{ it.isFile() }.sort().each{
+			_log.finest "Delete $it"
+			it.delete()
 		}
 		// delete remaining empty folders
-		tempFiles*.dir.unique().findAll{ it.listFiles().length == 0 }.each{
-			if(it.isDirectory()) {
-				_log.finest "Delete $it"
-				it.delete()
-			}
+		tempFiles.findAll{ it.isDirectory() }.sort().reverse().each{
+			_log.finest "Delete $it"
+			if (it.getFiles().isEmpty()) it.deleteDir()
 		}
 	}
 	
