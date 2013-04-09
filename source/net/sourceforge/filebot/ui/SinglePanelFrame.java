@@ -43,7 +43,7 @@ public class SinglePanelFrame extends JFrame {
 		c.add(headerPanel, "growx, dock north");
 		c.add(panel);
 		
-		setSize(760, 615);
+		setSize(760, 480);
 	}
 	
 	

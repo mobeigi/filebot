@@ -255,6 +255,13 @@ public class Main {
 			}
 		}
 		
+		try {
+			// restore previous size and location
+			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
+		} catch (Exception e) {
+			// don't care, doesn't make a difference
+		}
+		
 		frame.setLocationByPlatform(true);
 		frame.addWindowListener(new WindowAdapter() {
 			
@@ -270,13 +277,6 @@ public class Main {
 				System.exit(0);
 			}
 		});
-		
-		try {
-			// restore previous size and location
-			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
-		} catch (Exception e) {
-			// don't care, doesn't make a difference
-		}
 		
 		// start application
 		frame.setVisible(true);
