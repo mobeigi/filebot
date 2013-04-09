@@ -118,7 +118,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	
-	protected PanelBuilder[] createPanelBuilders() {
+	public static PanelBuilder[] createPanelBuilders() {
 		return new PanelBuilder[] { new ListPanelBuilder(), new RenamePanelBuilder(), new AnalyzePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder() };
 	}
 	

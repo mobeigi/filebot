@@ -59,9 +59,8 @@ import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.gio.GVFS;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.MainFrame;
+import net.sourceforge.filebot.ui.PanelBuilder;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
-import net.sourceforge.filebot.ui.sfv.SfvPanelBuilder;
-import net.sourceforge.filebot.ui.transfer.FileTransferable;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
@@ -239,15 +238,21 @@ public class Main {
 	
 	
 	private static void startUserInterface(ArgumentBean args) {
-		JFrame frame;
+		JFrame frame = null;
 		
-		if (args.openSFV()) {
-			// single panel frame
-			FileTransferable files = new FileTransferable(args.getFiles(false));
-			frame = new SinglePanelFrame(new SfvPanelBuilder()).publish(files);
-		} else {
+		if (args.mode == null) {
 			// default frame
 			frame = new MainFrame();
+		} else {
+			// single panel frame
+			for (PanelBuilder it : MainFrame.createPanelBuilders()) {
+				if (args.mode.equalsIgnoreCase(it.getName())) {
+					frame = new SinglePanelFrame(it);
+				}
+			}
+			if (frame == null) {
+				throw new IllegalArgumentException("Illegal mode: " + args.mode);
+			}
 		}
 		
 		frame.setLocationByPlatform(true);

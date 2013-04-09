@@ -13,8 +13,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.MediaTypes;
-
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
@@ -94,8 +92,8 @@ public class ArgumentBean {
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
 	
-	@Option(name = "-open", usage = "Open file in GUI", metaVar = "file")
-	public boolean open = false;
+	@Option(name = "--mode", usage = "Open GUI with the specified mode only", metaVar = "[rename, sfv, etc]")
+	public String mode = null;
 	
 	@Option(name = "-clear-cache", usage = "Clear cached and temporary data")
 	public boolean clearCache = false;
@@ -124,11 +122,6 @@ public class ArgumentBean {
 	
 	public boolean runCLI() {
 		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
-	}
-	
-	
-	public boolean openSFV() {
-		return open && containsOnly(getFiles(false), MediaTypes.getDefaultFilter("verification"));
 	}
 	
 	

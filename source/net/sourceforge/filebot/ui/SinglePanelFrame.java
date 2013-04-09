@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -23,8 +24,7 @@ public class SinglePanelFrame extends JFrame {
 	
 	
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(builder.getName());
-		
+		super(Settings.getApplicationName() + " - " + builder.getName());
 		panel = builder.create();
 		
 		// set taskbar / taskswitch icons
