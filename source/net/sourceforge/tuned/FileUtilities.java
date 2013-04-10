@@ -306,12 +306,14 @@ public final class FileUtilities {
 	}
 	
 	
-	public static boolean containsOnly(Iterable<File> files, FileFilter filter) {
+	public static boolean containsOnly(Collection<File> files, FileFilter filter) {
+		if (files.isEmpty()) {
+			return false;
+		}
 		for (File file : files) {
 			if (!filter.accept(file))
 				return false;
 		}
-		
 		return true;
 	}
 	

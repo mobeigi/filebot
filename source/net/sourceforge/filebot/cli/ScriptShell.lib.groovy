@@ -1,5 +1,6 @@
 // File selector methods
 import static groovy.io.FileType.*
+import static groovy.io.FileVisitResult.*
 
 // MediaDetection
 import net.sourceforge.filebot.media.*
@@ -27,9 +28,10 @@ String.metaClass.getFolders = { c -> new File(delegate).getFolders(c) }
 File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return c ? folders.findAll(c).sort() : folders.sort() }
 List.metaClass.getFolders = { c -> findResults{ it.getFolders(c) }.flatten().unique() }
 
+File.metaClass.getMediaFolders = { def folders = []; traverse(type:DIRECTORIES, visitRoot:true, preDir:{ it.isDisk() ? SKIP_SUBTREE : CONTINUE }) { folders += it }; folders.findAll{ it.hasFile{ it.isVideo() } || it.isDisk() }.sort() }
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
-File.metaClass.eachMediaFolder = { c -> getFolders{ it.hasFile{ it.isVideo() } }.each(c) }
-List.metaClass.eachMediaFolder = { c -> getFolders{ it.hasFile{ it.isVideo() } }.each(c) }
+File.metaClass.eachMediaFolder = { c -> delegate.getMediaFolders().each(c) }
+List.metaClass.eachMediaFolder = { c -> delegate.findResults{ it.getMediaFolders() }.flatten().unique().each(c) }
 
 
 // File utility methods
