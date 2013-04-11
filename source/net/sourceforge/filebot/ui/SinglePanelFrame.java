@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.sourceforge.tuned.ExceptionUtilities;
@@ -24,7 +23,7 @@ public class SinglePanelFrame extends JFrame {
 	
 	
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(Settings.getApplicationName() + " - " + builder.getName());
+		super(builder.getName());
 		panel = builder.create();
 		
 		// set taskbar / taskswitch icons
@@ -36,11 +35,6 @@ public class SinglePanelFrame extends JFrame {
 		
 		JComponent c = (JComponent) getContentPane();
 		c.setLayout(new MigLayout("insets 0, nogrid, fill", "fill", "fill"));
-		
-		HeaderPanel headerPanel = new HeaderPanel();
-		headerPanel.setTitle(builder.getName());
-		
-		c.add(headerPanel, "growx, dock north");
 		c.add(panel);
 		
 		setSize(760, 480);
