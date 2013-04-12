@@ -327,7 +327,20 @@ public class MediaDetection {
 		}
 		
 		// match common word sequence and clean detected word sequence from unwanted elements
-		Collection<String> matches = new SeriesNameMatcher(locale).matchAll(files.toArray(new File[files.size()]));
+		Collection<String> matches = new LinkedHashSet<String>();
+		
+		// check CWS matches
+		SeriesNameMatcher snm = new SeriesNameMatcher(locale);
+		matches.addAll(snm.matchAll(files.toArray(new File[files.size()])));
+		
+		// check for known pattern matches
+		for (File f : files) {
+			String sn = snm.matchByEpisodeIdentifier(getName(f.getParentFile()));
+			if (sn != null) {
+				matches.add(sn);
+			}
+		}
+		
 		try {
 			matches = stripReleaseInfo(matches, true);
 		} catch (Exception e) {
