@@ -294,7 +294,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		
 		// try to redeem possible false negative matches
 		if (name.length() < 2) {
-			Movie match = checkMovie(file);
+			Movie match = checkMovie(file, false);
 			if (match != null) {
 				return match.getName();
 			}

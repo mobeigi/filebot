@@ -632,7 +632,7 @@ public class MediaDetection {
 			File f = movieFile;
 			
 			// check for double nested structures 
-			if (checkMovie(f.getParentFile()) != null && checkMovie(f) == null) {
+			if (checkMovie(f.getParentFile(), false) != null && checkMovie(f, false) == null) {
 				return f.getParentFile();
 			} else {
 				return f;
@@ -640,20 +640,23 @@ public class MediaDetection {
 		}
 		
 		// first parent folder that matches a movie (max 3 levels deep)
-		File f = movieFile.getParentFile();
-		for (int i = 0; f != null && i < 3; f = f.getParentFile(), i++) {
-			String term = stripReleaseInfo(f.getName());
-			if (term.length() > 0 && checkMovie(f) != null) {
-				return f;
+		for (boolean strictness : new boolean[] { true, false }) {
+			File f = movieFile.getParentFile();
+			for (int i = 0; f != null && i < 3; f = f.getParentFile(), i++) {
+				String term = stripReleaseInfo(f.getName());
+				if (term.length() > 0 && checkMovie(f, strictness) != null) {
+					return f;
+				}
 			}
 		}
 		
 		// otherwise try the first potentially meaningful parent folder (max 2 levels deep)
+		File f = movieFile.getParentFile();
 		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
 				// check for double nested structures 
-				if (checkMovie(f.getParentFile()) != null && checkMovie(f) == null) {
+				if (checkMovie(f.getParentFile(), false) != null && checkMovie(f, false) == null) {
 					return f.getParentFile();
 				} else {
 					return f;
@@ -668,8 +671,8 @@ public class MediaDetection {
 	}
 	
 	
-	public static Movie checkMovie(File file) throws Exception {
-		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), false, 4) : null;
+	public static Movie checkMovie(File file, boolean strict) throws Exception {
+		List<Movie> matches = file != null ? matchMovieName(singleton(file.getName()), strict, 4) : null;
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 	
