@@ -97,6 +97,7 @@
 		<extension>ts</extension>
 		<extension>tp</extension>
 		<extension>m2ts</extension>
+		<extension>rec</extension>
 	</type>
 	<type name="video/wmv">
 		<extension>wmv</extension>

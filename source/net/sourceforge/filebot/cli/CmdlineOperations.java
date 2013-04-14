@@ -201,6 +201,23 @@ public class CmdlineOperations implements CmdlineInterface {
 			throw new Exception("Unable to match files to episode data");
 		}
 		
+		// handle derived files
+		List<Match<File, ?>> derivateMatches = new ArrayList<Match<File, ?>>();
+		SortedSet<File> derivateFiles = new TreeSet<File>(files);
+		derivateFiles.removeAll(mediaFiles);
+		
+		for (File file : derivateFiles) {
+			for (Match<File, ?> match : matches) {
+				if (file.getParentFile().equals(match.getValue().getParentFile()) && isDerived(file, match.getValue()) && match.getCandidate() instanceof Episode) {
+					derivateMatches.add(new Match<File, Object>(file, ((Episode) match.getCandidate()).clone()));
+					break;
+				}
+			}
+		}
+		
+		// add matches from other files that are linked via filenames
+		matches.addAll(derivateMatches);
+		
 		// first write all the metadata if xattr is enabled
 		if (useExtendedFileAttributes()) {
 			try {
