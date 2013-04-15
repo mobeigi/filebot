@@ -60,7 +60,7 @@
 ^rtorrent$
 ^Science.Fiction$
 ^Scratch$
-^Season.[0-9]+
+^Season$
 ^Seeding$
 ^Seeds$
 ^share$
@@ -193,6 +193,7 @@ samples
 SBS
 Screenshot
 sd
+Season.[0-9]+
 sed
 ShareGo
 ShareReactor
