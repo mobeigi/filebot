@@ -98,7 +98,7 @@ class MyEpisodesScraper {
 		get("http://www.myepisodes.com/views.php?type=manageshow&mode=add&showid=${showid}")
 	}
 	
-	def update = { showid, season, episode, tick = 'acquired', value = '0' ->
+	def update = { showid, season, episode, tick = 'acquired', value = '1' ->
 		get("http://www.myepisodes.com/myshows.php?action=Update&showid=${showid}&season=${season}&episode=${episode}&${tick}=${value}")
 	}
 	
