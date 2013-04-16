@@ -885,7 +885,11 @@ public class CmdlineOperations implements CmdlineInterface {
 				return new ArrayList<SearchResult>(searchResults);
 			}
 			
-			throw new Exception("Unable to auto-select search result: " + searchResults);
+			if (strict) {
+				throw new Exception("Multiple options: Force auto-select requires non-strict matching: " + searchResults);
+			} else {
+				throw new Exception("Unable to auto-select search result: " + searchResults);
+			}
 		}
 		
 		// return first and only value

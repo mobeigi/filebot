@@ -41,7 +41,7 @@ public class ArgumentBean {
 	@Option(name = "--format", usage = "Episode/Movie naming scheme", metaVar = "expression")
 	public String format;
 	
-	@Option(name = "-non-strict", usage = "Use less strict matching")
+	@Option(name = "-non-strict", usage = "Enable advanced matching and more aggressive guess work")
 	public boolean nonStrict = false;
 	
 	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "fileset")
