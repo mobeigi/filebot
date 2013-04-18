@@ -4,7 +4,9 @@ package net.sourceforge.filebot.similarity;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +22,7 @@ public class SeasonEpisodeMatcher {
 	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000);
 	
 	private SeasonEpisodePattern[] patterns;
+	private Pattern seasonPattern;
 	
 	
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
@@ -86,6 +89,9 @@ public class SeasonEpisodeMatcher {
 		if (strict) {
 			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1], patterns[2] };
 		}
+		
+		// season folder pattern for complementing partial sxe info from filename
+		seasonPattern = compile("Season\\D?(\\d{1,2})", CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
@@ -102,6 +108,27 @@ public class SeasonEpisodeMatcher {
 			
 			if (!match.isEmpty()) {
 				// current pattern did match
+				return match;
+			}
+		}
+		return null;
+	}
+	
+	
+	public List<SxE> match(File file) {
+		for (SeasonEpisodePattern pattern : patterns) {
+			List<SxE> match = pattern.match(file.getName());
+			
+			if (!match.isEmpty()) {
+				// current pattern did match
+				for (int i = 0; i < match.size(); i++) {
+					if (match.get(i).season < 0) {
+						Matcher sm = seasonPattern.matcher(file.getPath());
+						if (sm.find()) {
+							match.set(i, new SxE(Integer.parseInt(sm.group(1)), match.get(i).episode));
+						}
+					}
+				}
 				return match;
 			}
 		}

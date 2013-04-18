@@ -105,6 +105,11 @@ public class MediaDetection {
 	}
 	
 	
+	public static List<SxE> parseEpisodeNumber(File file, boolean strict) {
+		return new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(file);
+	}
+	
+	
 	public static Date parseDate(Object object) {
 		return new DateMetric().parse(object);
 	}

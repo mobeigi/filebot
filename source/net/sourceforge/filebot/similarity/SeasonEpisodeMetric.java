@@ -44,8 +44,7 @@ public class SeasonEpisodeMetric implements SimilarityMetric {
 	
 	protected Collection<SxE> parse(Object object) {
 		if (object instanceof File) {
-			// parse file name
-			object = ((File) object).getName();
+			return seasonEpisodeMatcher.match((File) object);
 		}
 		
 		return seasonEpisodeMatcher.match(object.toString());

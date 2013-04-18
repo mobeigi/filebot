@@ -193,7 +193,7 @@ samples
 SBS
 Screenshot
 sd
-Season.[0-9]+
+Season.?[0-9]+
 sed
 ShareGo
 ShareReactor
