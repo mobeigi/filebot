@@ -2,7 +2,6 @@
 package net.sourceforge.filebot.media;
 
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.MediaTypes.*;
@@ -298,26 +297,26 @@ public class MediaDetection {
 				matches.addAll(matchSeriesByName(stripReleaseInfo(filenames, false), 0));
 			}
 			
-			// use lenient sub sequence matching only as fallback
-			if (matches.isEmpty()) {
-				matches.addAll(matchSeriesByName(folders, 3));
-				matches.addAll(matchSeriesByName(filenames, 3));
-			}
-			
-			// assume name without spacing will mess up any lookup
+			// use lenient sub sequence matching only as fallback and try name without spacing logic that may mess up any lookup
 			if (matches.isEmpty()) {
 				// try to narrow down file to series name as best as possible
 				SeriesNameMatcher snm = new SeriesNameMatcher();
-				String[] sns = filenames.toArray(new String[0]);
-				for (int i = 0; i < sns.length; i++) {
-					String sn = snm.matchByEpisodeIdentifier(sns[i]);
+				List<String> sns = new ArrayList<String>();
+				sns.addAll(folders);
+				sns.addAll(filenames);
+				for (int i = 0; i < sns.size(); i++) {
+					String sn = snm.matchByEpisodeIdentifier(sns.get(i));
 					if (sn != null) {
-						sns[i] = sn;
+						sns.set(i, sn);
 					}
 				}
-				for (SearchResult it : matchSeriesFromStringWithoutSpacing(stripReleaseInfo(asList(sns), false), true)) {
+				for (SearchResult it : matchSeriesFromStringWithoutSpacing(stripReleaseInfo(sns, false), true)) {
 					matches.add(it.getName());
 				}
+				
+				// less reliable CWS deep matching
+				matches.addAll(matchSeriesByName(folders, 2));
+				matches.addAll(matchSeriesByName(filenames, 2));
 			}
 			
 			// pass along only valid terms

@@ -8,6 +8,7 @@ import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Component;
@@ -44,7 +45,6 @@ import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Episode;
@@ -285,24 +285,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		
 		// require user input if auto-detection has failed or has been disabled 
 		if (episodes.isEmpty()) {
-			String suggestion = new SeriesNameMatcher(locale).matchByEpisodeIdentifier(getName(files.get(0)));
-			if (suggestion != null) {
-				// clean media info / release group info / etc
-				try {
-					suggestion = stripReleaseInfo(suggestion);
-				} catch (Exception e) {
-					// ignore
-				}
-			} else {
-				// use folder name
-				suggestion = files.get(0).getParentFile().getName();
-			}
+			List<String> detectedSeriesNames = detectSeriesNames(files, locale);
+			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
+			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, ", ") : parentPathHint;
 			
 			List<String> input = emptyList();
 			synchronized (inputMemory) {
 				input = inputMemory.get(suggestion);
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
-					input = showMultiValueInputDialog("Enter series name:", suggestion, files.get(0).getParentFile().getName(), parent);
+					input = showMultiValueInputDialog("Enter series name:", suggestion, parentPathHint, parent);
 					inputMemory.put(suggestion, input);
 				}
 			}

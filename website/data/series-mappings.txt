@@ -1,3 +1,4 @@
+epl	English Premier League
 HIMYM	How I Met your Mother
 Hml8p	Homeland
 hoc	House of Cards
