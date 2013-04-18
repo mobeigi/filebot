@@ -29,4 +29,4 @@ def clean(f) {
 args.getFiles{ isClutter(it) && !it.dir.hasFile{ (it.isVideo() || it.isAudio()) && !isClutter(it) }}.each { clean(it) }
 
 // delete empty folders but exclude given args
-args.getFolders{ it.listFiles().length == 0 }.each { clean(it) }
+args.getFolders().sort().reverse().each { if (it.listFiles().length == 0) { clean(it) } }
