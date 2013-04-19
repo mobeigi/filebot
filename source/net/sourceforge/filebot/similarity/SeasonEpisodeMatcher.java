@@ -91,7 +91,7 @@ public class SeasonEpisodeMatcher {
 		}
 		
 		// season folder pattern for complementing partial sxe info from filename
-		seasonPattern = compile("Season\\D?(\\d{1,2})", CASE_INSENSITIVE | UNICODE_CASE);
+		seasonPattern = compile("Season[-._ ]?(\\d{1,2})", CASE_INSENSITIVE | UNICODE_CASE);
 	}
 	
 	
@@ -132,7 +132,6 @@ public class SeasonEpisodeMatcher {
 				return match;
 			}
 		}
-		
 		return null;
 	}
 	
