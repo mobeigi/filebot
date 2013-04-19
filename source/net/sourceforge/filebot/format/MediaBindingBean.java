@@ -815,7 +815,7 @@ public class MediaBindingBean {
 	private Object getMetaAttributesObject(File file) {
 		if (useExtendedFileAttributes()) {
 			try {
-				return new MetaAttributes(file).getMetaData();
+				return new MetaAttributes(file).getObject();
 			} catch (Throwable e) {
 				// ignore
 			}

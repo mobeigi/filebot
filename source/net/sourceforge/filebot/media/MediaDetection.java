@@ -256,7 +256,7 @@ public class MediaDetection {
 				for (File it : files) {
 					MetaAttributes xattr = new MetaAttributes(it);
 					try {
-						Episode episode = (Episode) xattr.getMetaData();
+						Episode episode = (Episode) xattr.getObject();
 						names.add(episode.getSeriesName());
 					} catch (Exception e) {
 						// can't read meta attributes => ignore
@@ -469,7 +469,7 @@ public class MediaDetection {
 			try {
 				MetaAttributes xattr = new MetaAttributes(movieFile);
 				try {
-					Movie movie = (Movie) xattr.getMetaData();
+					Movie movie = (Movie) xattr.getObject();
 					if (movie != null) {
 						options.add(new Movie(movie)); // normalize as movie object
 					}
@@ -984,7 +984,7 @@ public class MediaDetection {
 				if (xattr.getOriginalName() == null) {
 					xattr.setOriginalName(file.getName());
 				}
-				xattr.setMetaData(model);
+				xattr.setObject(model);
 			} catch (Exception e) {
 				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
 			}

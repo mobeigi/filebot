@@ -505,7 +505,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			// deserialize MetaAttributes if enabled and available 
 			if (object instanceof File && useExtendedFileAttributes()) {
 				try {
-					return super.getProperties(new net.sourceforge.filebot.media.MetaAttributes((File) object).getMetaData());
+					return super.getProperties(new net.sourceforge.filebot.media.MetaAttributes((File) object).getObject());
 				} catch (Throwable e) {
 					// ignore
 				}

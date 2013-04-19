@@ -41,11 +41,11 @@ def format = [
 
 // force movie/series/anime logic
 def forceMovie(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/
+	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/ || f.path =~ /(?<=tt)\\d{7}/ ||  tryQuietly{ def m = detectMovie(f, true); m.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ m.year } } || tryQuietly{ f.metadata?.object?.class.name =~ /Movie/ }
 }
 
 def forceSeries(f) {
-	parseEpisodeNumber(f) || parseDate(f) || f.path =~ /(?i:Season)\D?[0-9]{1,2}/ || tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/
+	tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/ || parseEpisodeNumber(f) || parseDate(f) || f.path =~ /(?i:Season)\D?[0-9]{1,2}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Episode/ }
 }
 
 def forceAnime(f) {

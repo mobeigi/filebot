@@ -183,12 +183,19 @@ File.metaClass.watch = { c -> createWatchService(c, [delegate], true) }
 List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
+// FileBot MetaAttributes helpers
+import net.sourceforge.filebot.media.MetaAttributes
+
+File.metaClass.getMetadata = { net.sourceforge.filebot.Settings.useExtendedFileAttributes() ? new MetaAttributes(delegate) : null }
+
+
 // Complete or session rename history
 def getRenameLog(complete = false) {
 	def spooler = net.sourceforge.filebot.HistorySpooler.getInstance()
 	def history = complete ? spooler.completeHistory : spooler.sessionHistory
 	return history.sequences*.elements.flatten().collectEntries{ [new File(it.dir, it.from), new File(it.to).isAbsolute() ? new File(it.to) : new File(it.dir, it.to)] }
 }
+
 
 // Season / Episode helpers
 import net.sourceforge.filebot.similarity.*

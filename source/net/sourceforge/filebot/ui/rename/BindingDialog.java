@@ -393,7 +393,7 @@ class BindingDialog extends JDialog {
 					try {
 						MetaAttributes xattr = new MetaAttributes(file);
 						try {
-							Object object = xattr.getMetaData();
+							Object object = xattr.getObject();
 							if (infoObjectFormat.format(object) != null) {
 								setInfoObject(object);
 							}

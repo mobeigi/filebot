@@ -53,12 +53,12 @@ public class MetaAttributes {
 	}
 	
 	
-	public void setMetaData(Object object) {
+	public void setObject(Object object) {
 		metaAttributeView.put(METADATA_KEY, JsonWriter.toJson(object));
 	}
 	
 	
-	public Object getMetaData() {
+	public Object getObject() {
 		return JsonReader.toJava(metaAttributeView.get(METADATA_KEY));
 	}
 	
