@@ -41,7 +41,7 @@ def format = [
 
 // force movie/series/anime logic
 def forceMovie(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/ || f.path =~ /(?<=tt)\\d{7}/ ||  tryQuietly{ def m = detectMovie(f, true); m.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ m.year } } || tryQuietly{ f.metadata?.object?.class.name =~ /Movie/ }
+	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/ || f.path =~ /(?<=tt)\\d{7}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Movie/ }
 }
 
 def forceSeries(f) {
@@ -138,7 +138,7 @@ def groups = input.groupBy{ f ->
 		def mn = norm(mov.name)
 		
 		// S00E00 | 2012.07.21 | One Piece 217 | Firefly - Serenity | [Taken 1, Taken 2, Taken 3, Taken 4, ..., Taken 10]
-		if (parseEpisodeNumber(fn, true) || parseDate(fn) || ([dn, fn].find{ it =~ sn && matchMovie(it, true) == null } && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) {
+		if ((parseEpisodeNumber(fn, true) || parseDate(fn) || ([dn, fn].find{ it =~ sn && matchMovie(it, true) == null } && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) && !tryQuietly{ def m = detectMovie(f, true); m.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ m.year } }) {
 			_log.fine("Exclude Movie: $mov")
 			mov = null
 		} else if (mn ==~ fn || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) }) {
