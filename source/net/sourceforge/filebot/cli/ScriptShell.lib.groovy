@@ -139,7 +139,8 @@ def XML(bc) {
 import com.sun.jna.Platform
 
 def execute(Object... args) {
-	def cmd = args.toList()*.toString()
+	def cmd = args.length == 1 ? args[0] as String : args.collect{ it as String }
+	
 	if (tryQuietly{ Platform.isWindows() }) {
 		// normalize file separator for windows and run with cmd so any executable in PATH will just work
 		cmd = ['cmd', '/c'] + cmd
