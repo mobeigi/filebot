@@ -1,4 +1,5 @@
 // filebot -script fn:artwork.tmdb /path/to/movies/
+def override = _args.conflict == 'override'
 
 /*
  * Fetch movie artwork. The movie is determined using the parent folders name.
@@ -10,7 +11,7 @@ include('lib/htpc')
 
 args.eachMediaFolder{ dir ->
 	// fetch only missing artwork by default
-	if (_args.conflict == 'skip' && dir.hasFile{it.name == 'movie.nfo'} && dir.hasFile{it.name == 'poster.jpg'} && dir.hasFile{it.name == 'fanart.jpg'}) {
+	if (!override && dir.hasFile{it.name == 'movie.nfo'} && dir.hasFile{it.name == 'poster.jpg'} && dir.hasFile{it.name == 'fanart.jpg'}) {
 		println "Skipping $dir"
 		return
 	}
@@ -45,7 +46,7 @@ args.eachMediaFolder{ dir ->
 	
 	println "$dir => $movie"
 	try {
-		fetchMovieArtworkAndNfo(dir, movie, dir.getFiles{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, true, true)
+		fetchMovieArtworkAndNfo(dir, movie, dir.getFiles{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, true, override)
 	} catch(e) {
 		println "${e.class.simpleName}: ${e.message}"
 	}

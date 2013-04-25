@@ -98,6 +98,7 @@ def fetchSeriesNfo(outputFile, seriesInfo, override, locale) {
 					name(n)
 				}
 			}
+			tvdb(id:i.id, "http://www.thetvdb.com/?tab=series&id=${i.id}")
 		}
 	}
 	.saveAs(outputFile)

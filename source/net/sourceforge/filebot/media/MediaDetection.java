@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -870,8 +871,16 @@ public class MediaDetection {
 	public static Set<SearchResult> lookupSeriesNameByInfoFile(Collection<File> files, Locale language) throws Exception {
 		Set<SearchResult> names = new LinkedHashSet<SearchResult>();
 		
+		SortedSet<File> folders = new TreeSet<File>(reverseOrder());
+		for (File f : files) {
+			for (int i = 0; i < 2 && f.getParentFile() != null; i++) {
+				f = f.getParentFile();
+				folders.add(f);
+			}
+		}
+		
 		// search for id in sibling nfo files
-		for (File folder : mapByFolder(files).keySet()) {
+		for (File folder : folders) {
 			if (!folder.exists())
 				continue;
 			

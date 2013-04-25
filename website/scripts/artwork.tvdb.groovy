@@ -1,4 +1,5 @@
 // filebot -script fn:artwork.tvdb /path/to/media/
+def override = _args.conflict == 'override'
 
 /*
  * Fetch series and season banners for all tv shows. Series name is auto-detected if possible or the folder name is used.
@@ -10,7 +11,7 @@ include('lib/htpc')
 
 args.eachMediaFolder{ dir ->
 	// fetch only missing artwork by default
-	if (_args.conflict == 'skip' && [dir, dir.dir].find{ it.hasFile{it.name == 'banner.jpg'} }) {
+	if (!override && dir.hasFile{it.name == 'banner.jpg'}) {
 		println "Skipping $dir"
 		return
 	}
@@ -47,5 +48,5 @@ args.eachMediaFolder{ dir ->
 	def season = sxe && sxe.season > 0 ? sxe.season : 1
 	
 	println "$dir => $series"
-	fetchSeriesArtworkAndNfo(seriesDir, dir, series, season, true)
+	fetchSeriesArtworkAndNfo(seriesDir, dir, series, season, override)
 }
