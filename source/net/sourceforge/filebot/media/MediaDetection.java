@@ -632,6 +632,18 @@ public class MediaDetection {
 	
 	
 	public static File guessMovieFolder(File movieFile) throws Exception {
+		File folder = guessMovieFolderWithoutSanity(movieFile);
+		
+		// perform sanity checks
+		if (folder == null || folder.equals(new File(System.getProperty("user.home")))) {
+			return null;
+		}
+		
+		return folder;
+	}
+	
+	
+	private static File guessMovieFolderWithoutSanity(File movieFile) throws Exception {
 		// special case for folder mode 
 		if (movieFile.isDirectory()) {
 			File f = movieFile;
