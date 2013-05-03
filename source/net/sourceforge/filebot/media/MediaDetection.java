@@ -635,7 +635,7 @@ public class MediaDetection {
 		File folder = guessMovieFolderWithoutSanity(movieFile);
 		
 		// perform sanity checks
-		if (folder == null || folder.equals(new File(System.getProperty("user.home")))) {
+		if (folder == null || folder.getName().isEmpty() || folder.equals(new File(System.getProperty("user.home")))) {
 			return null;
 		}
 		

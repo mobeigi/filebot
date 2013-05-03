@@ -85,6 +85,7 @@
 ^VCD$
 ^VIDEO_TS$
 ^volume[0-9]?$
+^Volumes$
 ^watch$
 A.Release.Lounge
 ABC
@@ -93,6 +94,7 @@ Addic7ed.com
 Anime[s]?
 Arte
 BBC
+bt.downloads
 btarena.org
 By.Cool.Release
 C.orig
@@ -180,6 +182,7 @@ NL.Subs
 NLT
 o2.pl
 onlinetvrecorder
+P2P
 PBS
 Pre.?DVD
 PROPER
