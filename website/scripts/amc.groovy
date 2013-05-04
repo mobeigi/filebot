@@ -29,6 +29,8 @@ def myepisodes = tryQuietly { myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
 def pushover = tryQuietly{ pushover.toString() }
 
+// user-defined filters
+def minFileSize = tryQuietly{ minFileSize.toLong() }; if (minFileSize == null) { minFileSize = 104857600 }; // files smaller than 100 MB will be considered clutter by default
 
 // series/anime/movie format expressions
 def format = [
@@ -102,7 +104,7 @@ input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
 
 // ignore clutter files
-input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/) }
+input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/ || (it.isFile() && it.length() < minFileSize)) }
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
