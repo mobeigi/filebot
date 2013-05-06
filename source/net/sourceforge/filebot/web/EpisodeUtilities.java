@@ -60,6 +60,10 @@ public final class EpisodeUtilities {
 				if (diff != 0)
 					return diff;
 				
+				diff = compareValue(a.getSpecial(), b.getSpecial());
+				if (diff != 0)
+					return diff;
+				
 				return compareValue(a.getTitle(), b.getTitle());
 			}
 			

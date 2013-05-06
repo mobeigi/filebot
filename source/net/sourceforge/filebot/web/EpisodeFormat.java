@@ -54,7 +54,11 @@ public class EpisodeFormat extends Format {
 			}
 		} else {
 			// episode, but no season
-			sb.append(" - ").append(episodeNumber);
+			if (episode.getEpisode() != null) {
+				sb.append(" - ").append(episodeNumber);
+			} else if (includeSpecial && episode.getSpecial() != null) {
+				sb.append(" - ").append("Special " + episode.getSpecial());
+			}
 		}
 		
 		sb.append(" - ").append(episode.getTitle());
