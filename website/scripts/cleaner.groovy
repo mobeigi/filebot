@@ -1,4 +1,5 @@
 // filebot -script fn:cleaner [--action test] /path/to/media/
+def deleteRootFolder = tryQuietly{ root.toBoolean() }
 
 /*
  * Delete orphaned "clutter" files like nfo, jpg, etc and sample files
@@ -29,4 +30,4 @@ def clean(f) {
 args.getFiles{ isClutter(it) && !it.dir.hasFile{ (it.isVideo() || it.isAudio()) && !isClutter(it) }}.each { clean(it) }
 
 // delete empty folders but exclude given args
-args.getFolders().sort().reverse().each { if (it.listFiles().length == 0) { clean(it) } }
+args.getFolders().sort().reverse().each { if (it.listFiles().length == 0) { if (deleteRootFolder || !args.contains(it)) clean(it) } }

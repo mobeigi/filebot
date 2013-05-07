@@ -321,6 +321,6 @@ if (clean) {
 	// deleting remaining files only makes sense after moving files
 	if ('MOVE'.equalsIgnoreCase(_args.action)) {
 		_log.info 'Clean clutter files and empty folders'
-		include('fn:cleaner', [:], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+		include('fn:cleaner', [root:true], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
 	}
 }
