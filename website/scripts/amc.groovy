@@ -47,7 +47,7 @@ def forceMovie(f) {
 }
 
 def forceSeries(f) {
-	tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/ || parseEpisodeNumber(f) || parseDate(f) || f.path =~ /(?i:Season)\D?[0-9]{1,2}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Episode/ }
+	tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/ || parseEpisodeNumber(f.path) || parseDate(f.path) || f.path =~ /(?i:Season)\D?[0-9]{1,2}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Episode/ }
 }
 
 def forceAnime(f) {

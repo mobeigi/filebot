@@ -83,6 +83,7 @@ AFG
 AFO
 AHD
 aheintz
+AHQ
 Aiden0
 AiHD
 AiRWAVES
@@ -164,6 +165,7 @@ BAVARiA
 BAWLS
 BBDvDR
 BBFiTA
+BBT-RMX
 BBV
 BBZ
 bc10
@@ -382,6 +384,7 @@ DFQ
 DFTU
 DGAS
 DGX
+DGz
 DHD
 DiAMOND
 Diamonds
@@ -473,6 +476,7 @@ ELECTRiC
 Electrichka
 ELiA
 elizabethtga
+ELYSIUM
 EM0C0RE
 EmC
 EMERALD
@@ -540,6 +544,7 @@ FiCeLLo
 FiCO
 FiCODVDR
 FiddleGoose
+FIG
 FiHTV
 FilmHD
 Filmikz
@@ -598,6 +603,7 @@ FxM
 FZERO
 g0tm1Lk
 G3N3
+G_P
 GAGE
 GALACTiCA
 GAYGAY
@@ -671,6 +677,7 @@ hannibal
 harmy
 Hatsuyuki
 Hatsuyuki-Tsuki
+Hauu
 HBHD
 HCA
 HD-UNiT3D
@@ -1070,6 +1077,7 @@ Osuald
 OUTDATED
 OUZO
 OYHD
+OZC
 OZC-EZ8
 P0W4
 P4DGE
@@ -1394,6 +1402,7 @@ T0nK4
 T33V33
 T3RR0R1STS
 Taka
+Taka-THORA
 tantrum
 TARGET
 TASTE
@@ -1573,6 +1582,7 @@ WhyNot
 WiDE
 WiKi
 WILDER
+WinD
 WiRA
 WiRE
 WLF
