@@ -199,7 +199,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				return new Object[] { removeTrailingBrackets(episode.getSeriesName()), episode.getTitle() };
+				String seriesName = removeTrailingBrackets(episode.getSeriesName());
+				String episodeTitle = episode.getTitle();
+				if (!seriesName.equalsIgnoreCase(episodeTitle)) {
+					return new Object[] { seriesName, episodeTitle };
+				} else {
+					return new Object[] { seriesName, null };
+				}
 			}
 			
 			if (object instanceof File) {
