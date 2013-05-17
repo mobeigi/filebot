@@ -223,6 +223,7 @@ SYNCED
 SYNCFIX
 TC
 theatrical.cut
+to.be.sorted
 ToSort
 TPB
 TRUEFRENCH

@@ -293,6 +293,7 @@ CLDD
 CLERKS
 CLUE
 CME
+CMS
 cNLDVDR
 cntc
 Coalgirls
@@ -1014,6 +1015,7 @@ NicoNico
 NicoNicoDaoga
 NiF
 NightHawk
+niizk
 NikonXP
 Nile
 NiX

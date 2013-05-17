@@ -39,8 +39,8 @@ try {
 		// xattr write, read and verify
 		def xattr = new net.sourceforge.filebot.media.MetaAttributes(f)
 		def payload = new Date()
-		xattr.setMetaData(payload)
-		assert xattr.getMetaData() == payload
+		xattr.setObject(payload)
+		assert xattr.getObject() == payload
 		println 'OK'
 	} else {
 		println 'DISABLED'

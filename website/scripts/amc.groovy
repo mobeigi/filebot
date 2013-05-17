@@ -30,7 +30,7 @@ def gmail = tryQuietly{ gmail.split(':', 2) }
 def pushover = tryQuietly{ pushover.toString() }
 
 // user-defined filters
-def minFileSize = tryQuietly{ minFileSize.toLong() }; if (minFileSize == null) { minFileSize = 104857600 }; // files smaller than 100 MB will be considered clutter by default
+def minFileSize = tryQuietly{ minFileSize.toLong() }; if (minFileSize == null) { minFileSize = 0 };
 
 // series/anime/movie format expressions
 def format = [

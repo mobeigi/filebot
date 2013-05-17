@@ -1,7 +1,9 @@
+BSG	Battlestar Galactica
 epl	English Premier League
 HIMYM	How I Met your Mother
 Hml8p	Homeland
 hoc	House of Cards
+law.and.order.svu	Law & Order: Special Victims Unit
 M.A.S.H	M*A*S*H
 MASH	M*A*S*H
 NCIS.LA	NCIS: Los Angeles
