@@ -168,4 +168,4 @@ String.metaClass.transliterate = { transformIdentifier -> com.ibm.icu.text.Trans
 * e.g. "Österreich" -> "Osterreich"
 *      "カタカナ" -> "katakana"
 */
-String.metaClass.ascii = { fallback = '?' -> delegate.transliterate("Any-Latin;Latin-ASCII;[:Diacritic:]remove").replaceAll("[^\\p{ASCII}]", fallback) }
+String.metaClass.ascii = { fallback = ' ' -> delegate.transliterate("Any-Latin;Latin-ASCII;[:Diacritic:]remove").replaceAll("[^\\p{ASCII}]+", fallback) }
