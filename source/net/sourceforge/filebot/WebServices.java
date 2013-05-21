@@ -157,10 +157,9 @@ public final class WebServices {
 		
 		
 		public SeriesInfo getSeriesInfoByLocalIndex(String name, Locale locale) throws Exception {
-			for (SearchResult it : getLocalIndex().search(name)) {
-				if (name.equals(it.getName())) {
-					return getSeriesInfo((TheTVDBSearchResult) it, locale);
-				}
+			List<SearchResult> results = getLocalIndex().search(name);
+			if (results.size() > 0) {
+				return getSeriesInfo((TheTVDBSearchResult) results.get(0), locale);
 			}
 			return null;
 		}

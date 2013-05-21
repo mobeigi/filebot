@@ -858,10 +858,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		// use name similarity metric
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		
-		// find probable matches using name similarity > 0.85 (or > 0.75 in non-strict mode)
+		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
 		for (SearchResult result : searchResults) {
 			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
-			if (f >= (strict && searchResults.size() > 1 ? 0.85 : 0.75) || ((f >= 0.5 || !strict) && result.getName().toLowerCase().startsWith(query.toLowerCase()))) {
+			if (f >= (strict && searchResults.size() > 1 ? 0.8 : 0.6) || ((f >= 0.5 || !strict) && (result.getName().toLowerCase().startsWith(query.toLowerCase())))) {
 				if (!probableMatches.contains(result)) {
 					probableMatches.add(result);
 				}

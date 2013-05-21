@@ -486,7 +486,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 							seriesInfoCache.put(n, seriesInfo);
 						}
 						
-						if (seriesInfo != null && seriesInfo.getRatingCount() >= 10) {
+						if (seriesInfo != null && seriesInfo.getRatingCount() >= 20) {
 							return max(0, seriesInfo.getRating().floatValue());
 						}
 					}
