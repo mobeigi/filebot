@@ -8,3 +8,5 @@ M.A.S.H	M*A*S*H
 MASH	M*A*S*H
 NCIS.LA	NCIS: Los Angeles
 tvs.got	Game of Thrones
+UndG7p	Underemployed
+vampire	The Vampire Diaries

@@ -56,8 +56,10 @@
 9.GiRL
 9FisH
 9RS
+A-Et
 a-S
 A40
+a4e
 aacrime
 aAF
 AaS
@@ -70,6 +72,7 @@ aceford
 ACF
 AckTiv3
 ACX
+ACX-SaintDeath
 ADAPT
 ADHD
 AE
@@ -98,12 +101,18 @@ AMBASSADOR
 AMIABLE
 AMSTEL
 AN0NYM0US
+AnaF
 ANARCHY
 aNBc
 ANBU
+AnCo.2
 ANGELiC
 Ani-Kraze
 ANiHLS
+Anime-Supreme
+Anime-Takeover
+AnimeKai
+Anipl0x
 ANiVCD
 anoXmous
 AOE
@@ -121,6 +130,7 @@ ArtSubs
 asaadas
 ASAP
 AsiSter
+ASO
 aTerFalleT
 ATiEM
 Atlas47
@@ -142,6 +152,7 @@ Ayako
 AYMO
 AzNiNVASiAN
 AZuRRaY
+B-A
 BABYLON
 babylonad
 BaCKToRG
@@ -163,7 +174,9 @@ Bassline
 BAUM
 BAVARiA
 BAWLS
+Bazinga-Subs
 BBDvDR
+BBF
 BBFiTA
 BBT-RMX
 BBV
@@ -175,6 +188,7 @@ BDiSC
 BDP
 BDr
 beAst
+Beave
 BEEF.STEW
 BeefStew
 BeFree
@@ -193,6 +207,7 @@ BiFOS
 BIGTOPS
 Billman424
 BiQ
+BKT
 BlaZe
 Blixten
 BLooDWeiSeR
@@ -249,10 +264,12 @@ CarVeR
 CATCH
 catflap
 CBGB
+cbm
 CCAT
 CCS-Speed
 CDD
 CDDHD
+CEB
 CENTi
 CENTROPY
 CFE
@@ -270,6 +287,7 @@ Chel
 CHGRP
 Chihiro
 ChiLLuM
+Chinurarete
 CHIPTEC
 Chotab
 CHRONiCLES
@@ -297,6 +315,7 @@ CMS
 cNLDVDR
 cntc
 Coalgirls
+CoalGuys
 COALiTiON
 COC
 COCAIN
@@ -343,6 +362,7 @@ D0PE
 D2V
 D3Si
 DaDuck
+Daman
 danger2u
 danirl
 Danny
@@ -459,6 +479,7 @@ DVL
 dvsky
 DXO
 DYNAMiCS
+E-D
 E7
 EBi
 EbP
@@ -466,10 +487,12 @@ ECHiZEN
 ECHOS
 ECI
 Eclipse
+ED
 eDi
 eeye
 EFTERLYST
 EHLE
+EightBit
 EiMi
 Ekolb
 Electri4ka
@@ -507,6 +530,8 @@ euHD
 EuReKA
 EUROPA
 EUSTASS
+EveTaku
+Eveyuu
 eVoD
 EVOLVE
 EwDp
@@ -528,6 +553,7 @@ FAiRYTALE
 FaNSuB
 FASM
 FATAL1TY
+Fate-Force
 FBO
 FCC
 FEAR
@@ -549,6 +575,7 @@ FIG
 FiHTV
 FilmHD
 Filmikz
+Final8
 FiNaLe
 FiTTY
 FiXi0N
@@ -573,6 +600,7 @@ FoA
 FoAC
 FOOTBALL
 ForceBleue
+FORGE
 FoRM
 FORWARD
 FourGHD
@@ -582,6 +610,7 @@ FQM
 FR34KTV
 FRAGMENT
 FraMeSToR
+FREEDOM
 FRiAR
 FRIGGHD
 FROST
@@ -615,6 +644,7 @@ GDR
 GECKOS
 GEHENNA
 GENESIDE
+GENESIS
 Genesis-RG
 GENUiNE
 GEO
@@ -677,6 +707,7 @@ HANGPUNG
 hannibal
 harmy
 Hatsuyuki
+Hatsuyuki-Kaitou
 Hatsuyuki-Tsuki
 Hauu
 HBHD
@@ -828,6 +859,8 @@ JKR
 JMT
 JN
 JoLLyRoGeR
+joseole99
+joseole99-TCL
 Jozzep
 JunkyCez
 Junoon
@@ -838,6 +871,9 @@ KAFFEREP
 KaKa
 KALAVALE
 KAMERA
+Kametsu
+Kamigami
+Kanarianime
 KART3LDVD
 KATA
 KBEC
@@ -851,6 +887,8 @@ KiLT
 KINGDOM
 KiNGS
 KiNOWELT
+Kira
+Kira-Fansub
 kirklestat
 KiSS
 KLASSiGER
@@ -871,6 +909,7 @@ Kuth
 KYR
 Kyuubi
 LACHUH
+Lag-Taka
 LAJ
 LamB
 LameHD
@@ -907,11 +946,14 @@ LP
 LPD
 lrc
 LRH
+LTN
 LTRG
 LTT
 LTU
 LU3UR
+Lulusubs
 Lum1x
+LupinTheNerd
 LUSO
 M794
 MACHD
@@ -1028,12 +1070,14 @@ NoGrp
 NOHD
 NOiR
 NoneStop
+noobkg
 NORARS
 NoSCR
 NOsegmenT
 NOTV
 NOVO
 nox
+NPC
 NPW
 NSN
 NSUBS
@@ -1057,6 +1101,7 @@ ODOP
 OEM
 OEM1080
 OhShit
+ohys
 OldsMan
 OMERTA
 OMiCRON
@@ -1251,6 +1296,8 @@ RUBLU
 RUBY
 RuDE
 RUDOS
+RUELL
+RUELL-Raws
 RULLSTOL
 RUNNER
 RUSTLE
@@ -1264,6 +1311,7 @@ S4A
 S8
 SADPANDA
 SAiMORNY
+SaintDeath
 SAiNTS
 Saitei
 SAiVERT
@@ -1298,6 +1346,7 @@ SGKK
 Shadow
 Shadowman
 SHAMNBOYZ
+ShaqSalazar
 ShareReactor
 SHD
 SHDXXX
@@ -1310,6 +1359,7 @@ SHUNPO
 SiAT
 SiBV
 SiC
+Sick-Fansubs
 sickboy88
 SiGHTHD
 SiHD
@@ -1326,6 +1376,7 @@ SKALiWAGZ
 SkipTowne
 SKiTFiSKE
 SKYLIGHT
+SkyLord
 SLiGHT
 SLikt
 SLIVE
@@ -1352,6 +1403,7 @@ SoXu
 SPABLAUW
 SpaceHD
 SPAREL
+SPEED
 sPHD
 SPiRO
 SPiROTV
@@ -1365,6 +1417,8 @@ sRu
 SS
 SS-Eclipse
 SSF
+SSK
+SSP-Corp
 STAGEMAN
 STARS
 StarWars
@@ -1412,6 +1466,7 @@ TASTETV
 TastyMelon
 TB
 TBS
+TCL
 TCM
 TCPA
 TDF
@@ -1467,6 +1522,7 @@ ToF
 TOKUS
 TOPAZ
 TOPHD
+Tormaid
 TorrenTGui
 TosKMV
 Towelie
@@ -1484,9 +1540,11 @@ tRuE
 TRUEFRENCH
 tRuEHD
 trulle
+TSFnF
 TSGroup
 TsH
 tsn
+TSP
 TURKiSO
 TUSAHD
 Tushar
@@ -1523,7 +1581,10 @@ UNTOUCHED
 UNVEiL
 USELESS
 UTOPiA
+UTW
 UTW-Mazui
+UTW-Thora
+UTW-Vivid
 UVall
 VaAr3
 VALiOMEDiA
@@ -1602,7 +1663,9 @@ WPi
 WRCR
 WRD
 WuSiWuG
+WZF
 x264Crew
+x4subs
 XanaX
 Xander
 XF
@@ -1646,10 +1709,12 @@ ZEKTORM
 ZEN
 ZER0
 ZeRO
-Zeus.Dias
+Zero-Raws
+Zeus-Dias
 zman
 ZMG
 Zox
 Zurako
 Zuzuu
 ZZGtv
+~AA~
