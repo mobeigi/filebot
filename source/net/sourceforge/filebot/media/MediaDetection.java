@@ -347,7 +347,10 @@ public class MediaDetection {
 		}
 		
 		try {
-			matches = stripReleaseInfo(matches, true);
+			Collection<String> priorityMatchSet = new LinkedHashSet<String>();
+			priorityMatchSet.addAll(stripReleaseInfo(matches, true));
+			priorityMatchSet.addAll(stripReleaseInfo(matches, false));
+			matches = priorityMatchSet;
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
 		}
