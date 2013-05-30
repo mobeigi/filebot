@@ -458,7 +458,7 @@ public final class FileUtilities {
 	/**
 	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
 	 */
-	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]|[.]+$");
+	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]|[. ]+$");
 	
 	
 	/**
