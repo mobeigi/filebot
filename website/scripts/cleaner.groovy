@@ -27,7 +27,7 @@ def clean(f) {
 
 
 // delete clutter files in orphaned media folders
-args.getFiles{ isClutter(it) && !it.dir.hasFile{ (it.isVideo() || it.isAudio()) && !isClutter(it) }}.each { clean(it) }
+args.getFiles{ isClutter(it) && !it.dir.getFiles().find{ (it.isVideo() || it.isAudio()) && !isClutter(it) }}.each { clean(it) }
 
 // delete empty folders but exclude given args
 args.getFolders().sort().reverse().each { if (it.listFiles().length == 0) { if (deleteRootFolder || !args.contains(it)) clean(it) } }
