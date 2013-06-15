@@ -91,9 +91,11 @@ A.Release.Lounge
 ABC
 AC3D
 Addic7ed.com
+Anaglyph
 Anime[s]?
 Arte
 BBC
+Best.Quality
 bt.downloads
 btarena.org
 By.Cool.Release
@@ -125,11 +127,15 @@ Dual.Audio
 dubbed
 DVD5
 DVD9
+DVDsize
 DVDXvID
 DVSKY
+ECE
 ENG
 English
 EXTENDED
+Extended.Collectors.Cut
+Extended.Collectors.Edition
 Extended.Version
 ExtraScene
 ExtraTorrent

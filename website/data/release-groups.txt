@@ -65,6 +65,9 @@ A-K
 A-KA
 A-KF
 A-Kraze
+A-L
+A-M
+A-nim-e
 A-R
 A-Ru
 a-S
@@ -159,9 +162,13 @@ AniCom
 ANiHLS
 AniKami
 Anime-Conan
+Anime-Koi
+Anime-Legion
 anime-rg
 Anime-Supreme
 Anime-Takeover
+AniMecha
+AnimeClipse
 AnimeKai
 Anipl0x
 AniTen
@@ -183,6 +190,7 @@ ARGON
 Arigatou
 ARiGOLD
 ARiSCRAPAYSiTES
+ARR
 ARROW
 ARTHOUSE
 ArtSubs
@@ -193,6 +201,7 @@ ASAP
 AsiSter
 ASO
 ass-h
+Ass-Hentai
 ASU
 Atavus
 aTerFalleT
@@ -210,6 +219,7 @@ AVF
 AVS720
 AW
 aWake
+AWGS
 AXE
 AXIAL
 AXiNE
@@ -234,6 +244,7 @@ BaCo
 BaDTaStE
 BAF
 BAJSKORV
+Baka-Anime
 Bakaniichan
 Bakura2
 BaLD
@@ -322,6 +333,7 @@ BRMP
 BRUTUS
 BRZONE
 BS
+BSEnc
 BSS
 BTN
 BTSD
@@ -410,7 +422,10 @@ CLASSiC
 CLD
 CLDD
 CLERKS
+cloudyvision
+cLT
 CLUE
+Cman
 CME
 CMS
 CnK
@@ -466,6 +481,7 @@ CYBERMEN
 CyberTyger
 Cyphanix
 CyTSuNee
+D-A
 D-F
 D-FS
 D-R
@@ -531,6 +547,7 @@ DFTU
 DGAS
 DGX
 DGz
+dH
 DHD
 DiAMOND
 Diamonds
@@ -632,6 +649,7 @@ EFTERLYST
 EHLE
 EightBit
 EiMi
+Eiri
 Ekolb
 Electri4ka
 ELECTRiC
@@ -696,6 +714,7 @@ FAIRPLAY
 FAiRYTALE
 FAKKU
 FAN
+FANDANGO
 FaNSuB
 FASM
 FATAL1TY
@@ -785,6 +804,7 @@ FULLSIZE
 Fun
 FUNNER
 furzi
+Fussoir
 FXG
 FxM
 FZERO
@@ -827,6 +847,7 @@ GHOST
 GHS
 GiGAS
 GiNJi
+ginseng
 gizzmo
 GK
 GK.GAX
@@ -854,6 +875,7 @@ GR0GG
 greenbud1969
 GREiD
 GREVO
+GrimRipper
 GRiMRPR
 GriOTS
 GRMV
@@ -870,6 +892,7 @@ GW
 GWP
 GWViD
 GxP
+H-Chu
 H-S
 H2
 h264iRMU
@@ -885,11 +908,13 @@ HAGGiS
 HAiDEAF
 HALCYON
 Hammer71
+Hanako
 HaNc0cK
 HANGOVER
 HANGPUNG
 hannibal
 harmy
+Haterman
 Hatsuyuki
 Hatsuyuki-Kaitou
 Hatsuyuki-Tsuki
@@ -929,6 +954,7 @@ HDX
 HDxT
 HEH
 Helix
+Hentai-Legacy
 Herakler
 HEroAP
 HFS
@@ -936,6 +962,7 @@ HHH
 HHI
 HIDD3N
 HiDt
+Hien
 HiFi
 HiGHTIMES
 Himi
@@ -945,6 +972,7 @@ HiNT
 Hiryuu
 Hivrolta
 HJS
+HL
 HLS
 HNR
 HNRDVD
@@ -979,6 +1007,7 @@ HyDe
 HYDROGEN
 HYFS
 HYPE
+HZ
 I-F
 I-Z
 i7
@@ -1053,8 +1082,11 @@ ITZ
 JACKAL
 JACKVID
 JADE
+Jan55
 JaneDoe
 JAPHSON
+Jarzka
+Jav-Fans
 JAVLiU
 JBS
 JCH
@@ -1101,6 +1133,8 @@ KEG
 keltz
 Kemo-Subs
 KFC
+KH
+Khmer-Hentai
 kHzViD
 KICKOFF
 KiLLARMAN
@@ -1110,6 +1144,7 @@ KiNGS
 KiNOWELT
 Kira
 Kira-Fansub
+Kira-H
 kirklestat
 KiSS
 Kizuna
@@ -1132,6 +1167,7 @@ Kole
 KonzillaRG
 KooKoo
 KRaLiMaRKo
+Krispy
 KS
 KSH
 KSi
@@ -1148,6 +1184,7 @@ Lag-Taka
 LAJ
 LamB
 LameHD
+Lamonae
 LAP
 LARCENY
 Lazy-Subs
@@ -1200,6 +1237,7 @@ Lum1x
 Lunarian
 LupinTheNerd
 LUSO
+LUST
 LX-Sub
 M-AF
 M-F
@@ -1236,6 +1274,7 @@ MEDDY
 MEDiAMANiACS
 MEDiEVAL
 MEDIUS
+MeiohSubs
 MELiTE
 MEMORiES
 Mental.RG
@@ -1310,6 +1349,7 @@ nanku
 NANO
 napisyPL
 NaRB
+Narcolepsy
 Narutoverse
 NaSaMo
 NaSu
@@ -1337,6 +1377,7 @@ NhaNc3
 NHD
 NHH
 NiBURU
+nick64
 NicoNico
 NicoNicoDaoga
 NiF
@@ -1346,6 +1387,7 @@ NikonXP
 niku
 Nile
 Nimu
+NinjaPanda
 NiviSubs
 NiX
 NiXX
@@ -1436,6 +1478,7 @@ OUZO
 OYHD
 OZC
 OZC-EZ8
+p-a
 P-S
 P0W4
 P4DGE
@@ -1552,10 +1595,12 @@ R0CKED
 R10
 R3QU3ST
 R4F
+Ra-C
 rabomil
 RaDiuS
 RAGEDVD
 RAiNCOAT
+Raizel
 RANDi
 RAP
 RAPiDCOWS
@@ -1567,6 +1612,7 @@ RBT
 RC
 RCDiVX
 RCP
+RDK123
 Reaperza
 REAVERS
 REBELS
@@ -1604,7 +1650,9 @@ RHD
 RHyTM
 RiFF
 RightSiZE
+RiP
 RiplleyHD
+RippingGods
 RiPRG
 RiPTATORz
 RisingSun
@@ -1622,6 +1670,7 @@ ROOR
 ROTATE
 ROVERS
 Royskatt
+Rpyleoh
 RS
 RS-F
 RsF
@@ -1643,6 +1692,7 @@ RWD
 Rx
 RyS
 Ryugan
+S-A
 s-f
 S-G
 S-K
@@ -1661,6 +1711,7 @@ Saitei
 SAiVERT
 Saizen
 Saizen-HnG
+SakuraCircle
 SAMFD
 SamuSubs
 SANTI
@@ -1759,6 +1810,7 @@ snavE
 SNCo
 Sneak
 SnF
+SNS
 SNUGGLER
 SoCkS
 SOF
@@ -1798,6 +1850,7 @@ StarWars
 Stealthmaster
 Steins;Sub
 STELLA
+Stickya
 stieg
 STOCK
 stoffinho17
@@ -1860,6 +1913,7 @@ Tass
 TASTE
 TASTETV
 TastyMelon
+TayTO
 TB
 TBF
 TBS
@@ -1911,6 +1965,7 @@ TilMigSelv
 TiMELORDS
 TiMPE
 TiMTY
+Tipota
 TiTANS
 TjHD
 TK
@@ -1928,6 +1983,7 @@ TnF
 TnH
 ToF
 TOKUS
+TOMA
 TOPAZ
 TOPHD
 Tormaid
@@ -1978,6 +2034,7 @@ TVTUPA
 TW
 TweakAnime
 TWiST
+TWISTER
 TWiZTED
 TwoPhat
 TX
@@ -2008,6 +2065,7 @@ UTW-Thora
 UTW-Vivid
 UTWoots
 UVall
+V-A
 VaAr3
 VALiOMEDiA
 VALKYRiA
@@ -2036,6 +2094,7 @@ ViLD
 ViNYL
 ViP3R
 ViSiON
+Vision-Anime
 ViSTA
 ViSTA™
 ViTE
@@ -2050,6 +2109,7 @@ VoXHD
 vrs
 VS
 VST
+W-B
 w.0.0.f
 w0rm
 W4F
@@ -2083,6 +2143,7 @@ WLF
 WLM
 WMZ
 WNFN
+woh
 WoLF
 WOLFPACK
 Wolky
@@ -2095,6 +2156,7 @@ WRCR
 WRD
 WuSiWuG
 WZF
+X-Death
 X-S
 x264Crew
 x4subs
@@ -2124,6 +2186,7 @@ XviK
 XXX4U
 XYZ
 Y-T
+YA
 YaGAF
 YAKU
 YaKuZa
@@ -2148,6 +2211,8 @@ YuS-m.3.3.w
 YuS-MaiWaiFu
 YuS-マイワイフ
 Yuurisan-Subs
+Zalis
+zan
 ZBS
 ZEKTORM
 ZEN
