@@ -105,8 +105,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 				if (!renameModel.preserveExtension() && renameModel.hasComplement(index)) {
 					// absolute path mode
 					File file = renameModel.getMatch(index).getCandidate();
-					File targetDir = file.getParentFile();
-					File path = resolveAbsolutePath(targetDir, formattedFuture.toString());
+					File path = resolveAbsolutePath(file.getParentFile(), formattedFuture.toString(), null);
 					setText(isSelected || matchProbablity < 1 ? formatPath(path) : colorizePath(path, true));
 					
 					String ext = getExtension(path);
@@ -148,7 +147,18 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 							typeRenderer.setText(formattedFuture.getMatch().getValue().toString());
 						}
 					}
-					
+				}
+				
+				// check if files already exist
+				FormattedFuture pathFuture = (FormattedFuture) value;
+				if (pathFuture.isDone() && !pathFuture.isCancelled()) {
+					File from = renameModel.getMatch(index).getCandidate();
+					File to = resolveAbsolutePath(from.getParentFile(), pathFuture.toString(), renameModel.preserveExtension() ? getExtension(from) : null);
+					if (from.equals(to)) {
+						setIcon(ResourceManager.getIcon("dialog.continue"));
+					} else if (to.exists()) {
+						setIcon(ResourceManager.getIcon("dialog.cancel"));
+					}
 				}
 			}
 		}
@@ -187,10 +197,10 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 	
 	
-	protected File resolveAbsolutePath(File targetDir, String path) {
-		File f = new File(path);
+	protected File resolveAbsolutePath(File targetDir, String path, String extension) {
+		File f = new File(extension == null || extension.isEmpty() ? path : String.format("%s.%s", path, extension));
 		if (!f.isAbsolute()) {
-			f = new File(targetDir, path); // resolve path against target folder
+			f = new File(targetDir, f.getPath()); // resolve path against target folder
 		}
 		
 		try {
