@@ -33,8 +33,6 @@ import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SerienjunkiesClient;
-import net.sourceforge.filebot.web.SublightSubtitleClient;
-import net.sourceforge.filebot.web.SubsceneSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVRageClient;
@@ -61,8 +59,7 @@ public final class WebServices {
 	
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
-	public static final SubsceneSubtitleClient Subscene = new SubsceneSubtitleClient();
-	public static final SublightSubtitleClient Sublight = new SublightSubtitleClient();
+	//TODO remove Subscene/Sublight from codebase
 	
 	// misc
 	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
@@ -238,12 +235,6 @@ public final class WebServices {
 	static {
 		String[] osdbLogin = getLogin("osdb.user");
 		OpenSubtitles.setUser(osdbLogin[0], osdbLogin[1]);
-		
-		String[] sublightClientLogin = getLogin("sublight.client");
-		Sublight.setClient(sublightClientLogin[0], sublightClientLogin[1]);
-		
-		String[] sublightUserLogin = getLogin("sublight.user");
-		Sublight.setUser(sublightUserLogin[0], sublightUserLogin[1]);
 	}
 	
 	
@@ -263,12 +254,6 @@ public final class WebServices {
 		if (id.equals("osdb.user")) {
 			settings.put(id, value);
 			OpenSubtitles.setUser(user, password);
-		} else if (id.equals("sublight.user")) {
-			settings.put(id, value);
-			Sublight.setUser(user, password);
-		} else if (id.equals("sublight.client")) {
-			settings.put(id, value);
-			Sublight.setClient(user, password);
 		} else {
 			throw new IllegalArgumentException();
 		}

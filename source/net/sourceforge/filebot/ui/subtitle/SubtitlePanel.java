@@ -43,7 +43,6 @@ import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SublightSubtitleClient;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -250,22 +249,11 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			final JPasswordField osdbPass = new JPasswordField(12);
 			osdbGroup.add(osdbPass, "growx, wrap rel");
 			
-			JPanel sublGroup = new JPanel(new MigLayout("fill, insets panel"));
-			sublGroup.setBorder(new TitledBorder("Sublight"));
-			sublGroup.add(new JLabel("Username:"), "gap rel");
-			final JTextField sublUser = new JTextField(12);
-			sublGroup.add(sublUser, "growx, wrap rel");
-			
-			sublGroup.add(new JLabel("Password:"), "gap rel");
-			final JPasswordField sublPass = new JPasswordField(12);
-			sublGroup.add(sublPass, "growx, wrap rel");
-			
 			JRootPane container = authPanel.getRootPane();
 			container.setLayout(new MigLayout("fill, insets dialog"));
 			container.removeAll();
 			
 			container.add(osdbGroup, "growx, wrap");
-			container.add(sublGroup, "growx, wrap");
 			
 			Action ok = new AbstractAction("OK") {
 				
@@ -284,22 +272,10 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 						UILogger.log(Level.WARNING, "OpenSubtitles: " + e.getMessage());
 						approved = false;
 					}
-					try {
-						if (sublUser.getText().length() > 0 && sublPass.getPassword().length > 0) {
-							SublightSubtitleClient sublight = new SublightSubtitleClient();
-							sublight.setClient(getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
-							sublight.setUser(sublUser.getText(), new String(sublPass.getPassword()));
-							sublight.login();
-						}
-					} catch (Exception e) {
-						UILogger.log(Level.WARNING, "Sublight: " + e.getMessage());
-						approved = false;
-					}
+					
 					authPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					if (approved) {
 						WebServices.setLogin("osdb.user", osdbUser.getText(), new String(osdbPass.getPassword()));
-						WebServices.setLogin("sublight.user", sublUser.getText(), new String(sublPass.getPassword()));
-						WebServices.setLogin("sublight.client", getApplicationProperty("sublight.clientid"), getApplicationProperty("sublight.apikey"));
 						authPanel.setVisible(false);
 					}
 				}
@@ -318,9 +294,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			String[] osdbAuth = WebServices.getLogin("osdb.user");
 			osdbUser.setText(osdbAuth[0]);
 			osdbPass.setText(osdbAuth[1]);
-			String[] sublAuth = WebServices.getLogin("sublight.user");
-			sublUser.setText(sublAuth[0]);
-			sublPass.setText(sublAuth[1]);
 			
 			authPanel.pack();
 			authPanel.setVisible(true);
