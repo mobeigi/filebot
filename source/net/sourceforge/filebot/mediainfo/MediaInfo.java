@@ -5,6 +5,8 @@ package net.sourceforge.filebot.mediainfo;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -46,7 +48,15 @@ public class MediaInfo implements Closeable {
 	
 	
 	public synchronized boolean open(File file) {
-		return file.isFile() && MediaInfoLibrary.INSTANCE.Open(handle, new WString(file.getAbsolutePath())) > 0;
+		if (!file.isFile())
+			return false;
+		
+		// MacOS filesystem may require NFD unicode decomposition (forcing NFD seems to work for System.out() but passing to libmediainfo is still not working)
+		String path = file.getAbsolutePath();
+		if (Platform.isMac()) {
+			path = Normalizer.normalize(path, Form.NFD);
+		}
+		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(path)) > 0;
 	}
 	
 	
