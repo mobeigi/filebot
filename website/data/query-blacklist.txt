@@ -106,6 +106,7 @@ Channel.4
 Channel.5
 CLASSIC
 CN
+ConvertedTV
 Custom.DKsubs
 CVCD
 DC
@@ -195,6 +196,7 @@ PROPER
 PSP
 READNFO
 REAL.PROPER
+RecordedTV
 REMASTERED
 REPACK
 ReRip
@@ -227,6 +229,7 @@ Swedish
 SYNC
 SYNCED
 SYNCFIX
+t\d{2,4}
 TC
 theatrical.cut
 to.be.sorted
@@ -235,6 +238,7 @@ TPB
 TRUEFRENCH
 TS
 TSXVID
+tt\d{2,8}
 TVOON.DE
 tvp
 tvrecorder
@@ -244,6 +248,8 @@ unrated
 unrated.edition
 UsaBit.com
 video[s]?
+vo
+Volume.TB
 www.Cpasbien.me
 www[.][\w-.]+[.](com|net|tk|ro|cd)
 xRipp
