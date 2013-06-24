@@ -80,12 +80,12 @@ public final class WebServices {
 	
 	
 	public static SubtitleProvider[] getSubtitleProviders() {
-		return new SubtitleProvider[] { OpenSubtitles, Sublight, Subscene };
+		return new SubtitleProvider[] { OpenSubtitles };
 	}
 	
 	
 	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
-		return new VideoHashSubtitleService[] { OpenSubtitles, Sublight };
+		return new VideoHashSubtitleService[] { OpenSubtitles };
 	}
 	
 	
