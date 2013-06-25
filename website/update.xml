@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.6</name>
-	<revision>1600</revision>
+	<name>FileBot 3.61</name>
+	<revision>1646</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.6</b><br>
+		<b>FileBot 3.61</b><br>
 		This release features:<br>
-		+ Improved episode/movie detection<br>
-		+ Improved automated processing<br>
+		+ Tweaked episode/movie detection<br>
+		+ Improved filename validation<br>
+		+ Disallow overriding files<br>
+		+ Removed broken Sublight support
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=665]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=665&p=5012#p5012]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
