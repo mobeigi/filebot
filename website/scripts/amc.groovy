@@ -12,6 +12,11 @@ if (tryQuietly{ !(ut_state ==~ ut_state_allow) }) {
 	throw new Exception("Invalid state: ut_state = $ut_state (expected $ut_state_allow)")
 }
 
+// check ut mode vs standalone mode
+if (args.size() > 0 && (tryQuietly{ ut_dir }?.size() > 0 || tryQuietly{ ut_file }?.size() > 0)) {
+	throw new Exception("Conflicting arguments: pass in either file arguments or ut_dir/ut_file parameters but not both")
+}
+
 // enable/disable features as specified via --def parameters
 def music     = tryQuietly{ music.toBoolean() }
 def subtitles = tryQuietly{ subtitles.toBoolean() ? ['en'] : subtitles.split(/[ ,|]+/).findAll{ it.length() >= 2 } }
