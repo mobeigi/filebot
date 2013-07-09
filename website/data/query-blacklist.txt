@@ -15,6 +15,7 @@
 ^[lp]
 ^Action$
 ^Adventure$
+^and$
 ^AUDIO_TS$
 ^BDMV$
 ^Big$
@@ -250,8 +251,7 @@ UsaBit.com
 video[s]?
 vo
 Volume.TB
-www.Cpasbien.me
-www[.][\w-.]+[.](com|net|tk|ro|cd)
+www[.][\w-.]+[.](com|net|tk|ro|cd|me|de)
 xRipp
 XtremeDoN
 YIFY

@@ -4,9 +4,9 @@ import java.util.regex.Pattern
 
 
 // simplified switch/case pattern matching
-Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
-def csv(path, delim = ';', keyIndex = 0, valueIndex = 1) { def f = path as File; def values = [:]; f.splitEachLine(delim) { values.put(it[keyIndex], it[valueIndex]) }; return values }
 def c(c) { try { c.call() } catch (Throwable e) { null } }
+def csv(path, delim = ';', keyIndex = 0, valueIndex = 1) { def f = path as File; def values = [:]; f.splitEachLine(delim) { line -> values.put(line[keyIndex], valueIndex < line.size() ? line[valueIndex] : null) }; return values }
+Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
 
 
 /**

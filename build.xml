@@ -233,7 +233,7 @@
 	</target>
 
 
-	<target name="ppa-binary" depends="fatjar">
+	<target name="ppa-binary" depends="svn-update, fatjar">
 		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
 			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="amd64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
