@@ -454,7 +454,14 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public long getTimeStamp(Object object) {
 			if (object instanceof Episode) {
 				try {
-					return ((Episode) object).airdate().getTimeStamp();
+					long ts = ((Episode) object).airdate().getTimeStamp();
+					
+					// big penalty for episodes not yet aired
+					if (ts > System.currentTimeMillis()) {
+						return -1;
+					}
+					
+					return ts;
 				} catch (RuntimeException e) {
 					return -1; // some episodes may not have airdate defined
 				}
