@@ -1003,16 +1003,6 @@ public class MediaDetection {
 		if ((model instanceof Episode || model instanceof Movie) && file.exists()) {
 			MetaAttributes xattr = new MetaAttributes(file);
 			
-			// store original name and model as xattr 
-			try {
-				if (xattr.getOriginalName() == null) {
-					xattr.setOriginalName(file.getName());
-				}
-				xattr.setObject(model);
-			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
-			}
-			
 			// set creation date to episode / movie release date
 			try {
 				if (model instanceof Episode) {
@@ -1029,6 +1019,17 @@ public class MediaDetection {
 			} catch (Exception e) {
 				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 			}
+			
+			// store original name and model as xattr 
+			try {
+				if (xattr.getOriginalName() == null) {
+					xattr.setOriginalName(file.getName());
+				}
+				xattr.setObject(model);
+			} catch (Exception e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
+			}
+			
 		}
 	}
 }
