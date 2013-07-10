@@ -551,6 +551,24 @@ public class MediaBindingBean {
 	}
 	
 	
+	@Define("videos")
+	public List<Map<String, String>> getVideoInfoList() {
+		return getMediaInfo().snapshot().get(StreamKind.Video);
+	}
+	
+	
+	@Define("audios")
+	public List<Map<String, String>> getAudioInfoList() {
+		return getMediaInfo().snapshot().get(StreamKind.Audio);
+	}
+	
+	
+	@Define("texts")
+	public List<Map<String, String>> getTextInfoList() {
+		return getMediaInfo().snapshot().get(StreamKind.Text);
+	}
+	
+	
 	@Define("artist")
 	public String getArtist() {
 		return getMusic().getArtist();
