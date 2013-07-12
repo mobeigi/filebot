@@ -56,6 +56,7 @@
 	</type>
 	<type name="audio/mp4">
 		<extension>m4a</extension>
+		<extension>aac</extension>
 	</type>
 	<type name="audio/flac">
 		<extension>flac</extension>
@@ -67,7 +68,12 @@
 		<extension>ogm</extension>
 		<extension>ogg</extension>
 	</type>
-
+	<type name="audio/wav">
+		<extension>wav</extension>
+		<extension>aiff</extension>
+		<extension>alac</extension>
+	</type>
+	
 	<!-- Video -->
 	<type name="video/avi">
 		<extension>avi</extension>
