@@ -186,7 +186,7 @@ groups.each{ group, files ->
 			dest.mapByFolder().each{ dir, fs ->
 				_log.finest "Fetching artwork for $dir from TheTVDB"
 				def sxe = fs.findResult{ eps -> parseEpisodeNumber(eps) }
-				def options = TheTVDB.search(config.name)
+				def options = TheTVDB.search(config.name, _args.locale)
 				if (options.isEmpty()) {
 					_log.warning "TV Series not found: $config.name"
 					return
