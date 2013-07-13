@@ -32,6 +32,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
+import net.sourceforge.filebot.web.TheTVDBSearchResult;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -475,7 +476,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			return max(getRating(o1), getRating(o2)) >= 0.4 ? 1 : 0;
+			float r1 = getRating(o1);
+			float r2 = getRating(o2);
+			return max(r1, r2) >= 0.4 ? 1 : min(r1, r2) < 0 ? -1 : 0;
 		}
 		
 		private final Map<String, SeriesInfo> seriesInfoCache = new HashMap<String, SeriesInfo>();
@@ -489,12 +492,21 @@ public enum EpisodeMetrics implements SimilarityMetric {
 						
 						SeriesInfo seriesInfo = seriesInfoCache.get(n);
 						if (seriesInfo == null && !seriesInfoCache.containsKey(n)) {
-							seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
+							try {
+								seriesInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) ((Episode) o).getSeries(), Locale.ENGLISH);
+							} catch (Exception e) {
+								seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
+							}
 							seriesInfoCache.put(n, seriesInfo);
 						}
 						
-						if (seriesInfo != null && seriesInfo.getRatingCount() >= 20) {
-							return max(0, seriesInfo.getRating().floatValue());
+						if (seriesInfo != null) {
+							if (seriesInfo.getRatingCount() > 0) {
+								float rating = max(0, seriesInfo.getRating().floatValue());
+								return seriesInfo.getRatingCount() >= 15 ? rating : rating / 2; // PENALIZE SHOWS WITH FEW RATINGS
+							} else {
+								return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
+							}
 						}
 					}
 				} catch (Exception e) {
