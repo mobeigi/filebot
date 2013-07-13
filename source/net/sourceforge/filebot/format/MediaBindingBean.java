@@ -578,20 +578,20 @@ public class MediaBindingBean {
 	
 	
 	@Define("videos")
-	public List<Map<String, String>> getVideoInfoList() {
-		return getMediaInfo().snapshot().get(StreamKind.Video);
+	public List<AssociativeScriptObject> getVideoInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Video));
 	}
 	
 	
 	@Define("audios")
-	public List<Map<String, String>> getAudioInfoList() {
-		return getMediaInfo().snapshot().get(StreamKind.Audio);
+	public List<AssociativeScriptObject> getAudioInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Audio));
 	}
 	
 	
 	@Define("texts")
-	public List<Map<String, String>> getTextInfoList() {
-		return getMediaInfo().snapshot().get(StreamKind.Text);
+	public List<AssociativeScriptObject> getTextInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Text));
 	}
 	
 	
@@ -831,6 +831,15 @@ public class MediaBindingBean {
 				return value;
 			}
 		};
+	}
+	
+	
+	private List<AssociativeScriptObject> createMapBindingsList(List<Map<String, String>> mapList) {
+		List<AssociativeScriptObject> bindings = new ArrayList<AssociativeScriptObject>();
+		for (Map<?, ?> it : mapList) {
+			bindings.add(createMapBindings(it));
+		}
+		return bindings;
 	}
 	
 	
