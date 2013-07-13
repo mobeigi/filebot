@@ -159,7 +159,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				
 				// use given episode number as special number or count specials by ourselves
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate));
+				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate, searchResult));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
@@ -176,7 +176,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 					}
 				}
 				
-				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate));
+				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, searchResult));
 			}
 		}
 		
@@ -339,45 +339,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 	
 	
-	public static class TheTVDBSearchResult extends SearchResult {
-		
-		protected int seriesId;
-		
-		
-		protected TheTVDBSearchResult() {
-			// used by serializer
-		}
-		
-		
-		public TheTVDBSearchResult(String seriesName, int seriesId) {
-			super(seriesName);
-			this.seriesId = seriesId;
-		}
-		
-		
-		public int getSeriesId() {
-			return seriesId;
-		}
-		
-		
-		@Override
-		public int hashCode() {
-			return seriesId;
-		}
-		
-		
-		@Override
-		public boolean equals(Object object) {
-			if (object instanceof TheTVDBSearchResult) {
-				TheTVDBSearchResult other = (TheTVDBSearchResult) object;
-				return this.seriesId == other.seriesId;
-			}
-			
-			return false;
-		}
-	}
-	
-	
 	protected static enum MirrorType {
 		XML(1), BANNER(2), ZIP(4), SEARCH(1);
 		
@@ -457,26 +418,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	public static class SeriesInfo implements Serializable {
 		
 		public static enum SeriesProperty {
-			id,
-			Actors,
-			Airs_DayOfWeek,
-			Airs_Time,
-			ContentRating,
-			FirstAired,
-			Genre,
-			IMDB_ID,
-			Language,
-			Network,
-			Overview,
-			Rating,
-			RatingCount,
-			Runtime,
-			SeriesName,
-			Status,
-			BannerMirror,
-			banner,
-			fanart,
-			poster
+			id, Actors, Airs_DayOfWeek, Airs_Time, ContentRating, FirstAired, Genre, IMDB_ID, Language, Network, Overview, Rating, RatingCount, Runtime, SeriesName, Status, BannerMirror, banner, fanart, poster
 		}
 		
 		protected Map<SeriesProperty, String> fields;
@@ -746,19 +688,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	public static class BannerDescriptor implements Serializable {
 		
 		public static enum BannerProperty {
-			id,
-			BannerMirror,
-			BannerPath,
-			BannerType,
-			BannerType2,
-			Season,
-			Colors,
-			Language,
-			Rating,
-			RatingCount,
-			SeriesName,
-			ThumbnailPath,
-			VignettePath
+			id, BannerMirror, BannerPath, BannerType, BannerType2, Season, Colors, Language, Rating, RatingCount, SeriesName, ThumbnailPath, VignettePath
 		}
 		
 		protected Map<BannerProperty, String> fields;

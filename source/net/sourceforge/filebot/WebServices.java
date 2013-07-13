@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AnidbClient;
+import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.FanartTV;
 import net.sourceforge.filebot.web.ID3Lookup;
@@ -37,6 +38,7 @@ import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVRageClient;
 import net.sourceforge.filebot.web.TheTVDBClient;
+import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
 
 

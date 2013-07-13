@@ -92,7 +92,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 				// handle as special episode
 				seasonNumber = getIntegerContent("season", node);
 				int specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, title, null, specialNumber, airdate));
+				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, title, null, specialNumber, airdate, searchResult));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
@@ -100,7 +100,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 					seasonNumber = null;
 				}
 				
-				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, title, null, null, airdate));
+				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, title, null, null, airdate, searchResult));
 			}
 		}
 		
@@ -114,52 +114,6 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
 		return URI.create(((TVRageSearchResult) searchResult).getLink() + "/episode_list/all");
-	}
-	
-	
-	public static class TVRageSearchResult extends SearchResult {
-		
-		protected int showId;
-		protected String link;
-		
-		
-		protected TVRageSearchResult() {
-			// used by serializer
-		}
-		
-		
-		public TVRageSearchResult(String name, int showId, String link) {
-			super(name);
-			this.showId = showId;
-			this.link = link;
-		}
-		
-		
-		public int getSeriesId() {
-			return showId;
-		}
-		
-		
-		public String getLink() {
-			return link;
-		}
-		
-		
-		@Override
-		public int hashCode() {
-			return showId;
-		}
-		
-		
-		@Override
-		public boolean equals(Object object) {
-			if (object instanceof TVRageSearchResult) {
-				TVRageSearchResult other = (TVRageSearchResult) object;
-				return this.showId == other.showId;
-			}
-			
-			return false;
-		}
 	}
 	
 }

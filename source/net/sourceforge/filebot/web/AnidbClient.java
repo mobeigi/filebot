@@ -133,9 +133,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				}
 				
 				if (type == 1) {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, airdate)); // normal episode, no seasons for anime
+					episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, airdate, searchResult)); // normal episode, no seasons for anime
 				} else {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, null, title, null, number, airdate)); // special episode
+					episodes.add(new Episode(animeTitle, seriesStartDate, null, null, title, null, number, airdate, searchResult)); // special episode
 				}
 			}
 		}
@@ -224,74 +224,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				localizedTitles.putAll(officialTitleMap.get(entry.getKey())); // primarily use official title if available
 			}
 			
-			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), localizedTitles));
+			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), localizedTitles.get("en")));
 		}
 		
 		// populate cache
 		return cache.putSearchResult(null, Locale.ROOT, anime);
-	}
-	
-	
-	public static class AnidbSearchResult extends SearchResult {
-		
-		protected int aid;
-		protected String primaryTitle; // one per anime
-		protected Map<String, String> officialTitle; // one per language
-		
-		
-		protected AnidbSearchResult() {
-			// used by serializer
-		}
-		
-		
-		public AnidbSearchResult(int aid, String primaryTitle, Map<String, String> officialTitle) {
-			this.aid = aid;
-			this.primaryTitle = primaryTitle;
-			this.officialTitle = officialTitle;
-		}
-		
-		
-		public int getAnimeId() {
-			return aid;
-		}
-		
-		
-		@Override
-		public String getName() {
-			return primaryTitle;
-		}
-		
-		
-		public String getPrimaryTitle() {
-			return primaryTitle;
-		}
-		
-		
-		public String getEnglishTitle() {
-			return officialTitle != null ? officialTitle.get("en") : null;
-		}
-		
-		
-		public String getOfficialTitle(String key) {
-			return officialTitle != null ? officialTitle.get(key) : null;
-		}
-		
-		
-		@Override
-		public int hashCode() {
-			return aid;
-		}
-		
-		
-		@Override
-		public boolean equals(Object object) {
-			if (object instanceof AnidbSearchResult) {
-				AnidbSearchResult other = (AnidbSearchResult) object;
-				return this.aid == other.aid;
-			}
-			
-			return false;
-		}
 	}
 	
 }

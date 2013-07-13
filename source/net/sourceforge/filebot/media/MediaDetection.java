@@ -52,14 +52,14 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
+import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
-import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
+import net.sourceforge.filebot.web.TheTVDBSearchResult;
 
 
 public class MediaDetection {
@@ -1007,8 +1007,8 @@ public class MediaDetection {
 			try {
 				if (model instanceof Episode) {
 					Episode episode = (Episode) model;
-					if (episode.airdate() != null) {
-						xattr.setCreationDate(episode.airdate().getTimeStamp());
+					if (episode.getAirdate() != null) {
+						xattr.setCreationDate(episode.getAirdate().getTimeStamp());
 					}
 				} else if (model instanceof Movie) {
 					Movie movie = (Movie) model;

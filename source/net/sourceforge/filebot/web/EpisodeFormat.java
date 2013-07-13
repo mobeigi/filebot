@@ -63,8 +63,8 @@ public class EpisodeFormat extends Format {
 		
 		sb.append(" - ").append(episode.getTitle());
 		
-		if (includeAirdate && episode.airdate() != null) {
-			sb.append(" [").append(episode.airdate().format("yyyy-MM-dd")).append("]");
+		if (includeAirdate && episode.getAirdate() != null) {
+			sb.append(" [").append(episode.getAirdate().format("yyyy-MM-dd")).append("]");
 		}
 		
 		return sb;
@@ -195,7 +195,7 @@ public class EpisodeFormat extends Format {
 			
 			// did parse input
 			pos.setIndex(source.length());
-			return new Episode(name, null, season, episode, title, season == null ? episode : null, special, airdate);
+			return new Episode(name, null, season, episode, title, season == null ? episode : null, special, airdate, null);
 		}
 		
 		// failed to parse input

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.SerienjunkiesClient.SerienjunkiesSearchResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -46,7 +45,7 @@ public class SerienjunkiesClientTest {
 		assertEquals("1", eps.getEpisode().toString());
 		assertEquals("1", eps.getSeason().toString());
 		assertEquals("1", eps.getAbsolute().toString());
-		assertEquals("2005-03-27", eps.airdate().toString());
+		assertEquals("2005-03-27", eps.getAirdate().toString());
 	}
 	
 	

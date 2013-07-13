@@ -92,7 +92,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				Episode episode = (Episode) object;
 				
 				// use airdate from episode
-				return episode.airdate();
+				return episode.getAirdate();
 			}
 			
 			Date result = transformCache.get(object);
@@ -454,7 +454,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public long getTimeStamp(Object object) {
 			if (object instanceof Episode) {
 				try {
-					long ts = ((Episode) object).airdate().getTimeStamp();
+					long ts = ((Episode) object).getAirdate().getTimeStamp();
 					
 					// big penalty for episodes not yet aired
 					if (ts > System.currentTimeMillis()) {

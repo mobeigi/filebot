@@ -24,6 +24,9 @@ public class Episode implements Serializable {
 	// episode airdate
 	private Date airdate;
 	
+	// original series descriptor
+	private SearchResult series;
+	
 	
 	protected Episode() {
 		// used by serializer
@@ -31,16 +34,16 @@ public class Episode implements Serializable {
 	
 	
 	public Episode(Episode obj) {
-		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate);
+		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.series);
 	}
 	
 	
-	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title) {
-		this(seriesName, seriesStartDate, season, episode, title, null, null, null);
+	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, SearchResult series) {
+		this(seriesName, seriesStartDate, season, episode, title, null, null, null, series);
 	}
 	
 	
-	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate) {
+	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate, SearchResult series) {
 		this.seriesName = seriesName;
 		this.seriesStartDate = seriesStartDate;
 		this.season = season;
@@ -49,6 +52,7 @@ public class Episode implements Serializable {
 		this.absolute = absolute;
 		this.special = special;
 		this.airdate = airdate;
+		this.series = series;
 	}
 	
 	
@@ -87,8 +91,13 @@ public class Episode implements Serializable {
 	}
 	
 	
-	public Date airdate() {
+	public Date getAirdate() {
 		return airdate;
+	}
+	
+	
+	public SearchResult getSeries() {
+		return series;
 	}
 	
 	

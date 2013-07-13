@@ -33,10 +33,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
-import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
+import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
+import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.tuned.ByteBufferInputStream;
 
 
@@ -357,7 +357,7 @@ public class ReleaseInfo {
 				if (englishTitle.isEmpty() || englishTitle.equals(primaryTitle)) {
 					anime.add(new AnidbSearchResult(aid, primaryTitle, null));
 				} else {
-					anime.add(new AnidbSearchResult(aid, primaryTitle, singletonMap("en", englishTitle)));
+					anime.add(new AnidbSearchResult(aid, primaryTitle, englishTitle));
 				}
 			}
 			

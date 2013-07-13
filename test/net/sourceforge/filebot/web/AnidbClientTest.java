@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.AnidbClient.AnidbSearchResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -86,7 +85,7 @@ public class AnidbClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals(null, first.getSeason());
-		assertEquals("2004-04-07", first.airdate().toString());
+		assertEquals("2004-04-07", first.getAirdate().toString());
 	}
 	
 	
@@ -104,7 +103,7 @@ public class AnidbClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getAbsolute().toString());
 		assertEquals(null, first.getSeason());
-		assertEquals("2002-04-09", first.airdate().toString());
+		assertEquals("2002-04-09", first.getAirdate().toString());
 	}
 	
 	
@@ -125,7 +124,7 @@ public class AnidbClientTest {
 		assertEquals("74", last.getEpisode().toString());
 		assertEquals("74", last.getAbsolute().toString());
 		assertEquals(null, last.getSeason());
-		assertEquals("2005-09-28", last.airdate().toString());
+		assertEquals("2005-09-28", last.getAirdate().toString());
 	}
 	
 	

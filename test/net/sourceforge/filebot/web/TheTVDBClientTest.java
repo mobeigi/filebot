@@ -14,7 +14,6 @@ import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
-import net.sourceforge.filebot.web.TheTVDBClient.TheTVDBSearchResult;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,7 +66,7 @@ public class TheTVDBClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
 		assertEquals("1", first.getAbsolute().toString());
-		assertEquals("1997-03-10", first.airdate().toString());
+		assertEquals("1997-03-10", first.getAirdate().toString());
 		
 		// check special episode
 		Episode last = list.get(list.size() - 1);
@@ -77,7 +76,7 @@ public class TheTVDBClientTest {
 		assertEquals(null, last.getEpisode());
 		assertEquals(null, last.getAbsolute());
 		assertEquals("1", last.getSpecial().toString());
-		assertEquals(null, last.airdate());
+		assertEquals(null, last.getAirdate());
 	}
 	
 	
@@ -93,7 +92,7 @@ public class TheTVDBClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute()); // should be "1" but data has not yet been entered
-		assertEquals("2004-03-12", first.airdate().toString());
+		assertEquals("2004-03-12", first.getAirdate().toString());
 	}
 	
 	
@@ -108,7 +107,7 @@ public class TheTVDBClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
 		assertEquals("1", first.getAbsolute().toString());
-		assertEquals("2002-12-20", first.airdate().toString());
+		assertEquals("2002-12-20", first.getAirdate().toString());
 	}
 	
 	

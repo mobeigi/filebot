@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import net.sourceforge.filebot.web.TVRageClient.TVRageSearchResult;
 
 
 public class TVRageClientTest {
@@ -48,7 +47,7 @@ public class TVRageClientTest {
 		assertEquals("22", chosen.getEpisode().toString());
 		assertEquals("7", chosen.getSeason().toString());
 		assertEquals(null, chosen.getAbsolute());
-		assertEquals("2003-05-20", chosen.airdate().toString());
+		assertEquals("2003-05-20", chosen.getAirdate().toString());
 	}
 	
 	
@@ -65,7 +64,7 @@ public class TVRageClientTest {
 		assertEquals("1", first.getEpisode().toString());
 		assertEquals("1", first.getSeason().toString());
 		assertEquals(null, first.getAbsolute());
-		assertEquals("1997-03-10", first.airdate().toString());
+		assertEquals("1997-03-10", first.getAirdate().toString());
 	}
 	
 	
