@@ -204,7 +204,6 @@ public class MediaBindingBean {
 	
 	@Define("primaryTitle")
 	public String getOfficialTitle() throws Exception {
-		System.out.println(getSeriesObject());
 		if (getSeriesObject() instanceof TheTVDBSearchResult) {
 			return WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) getSeriesObject(), Locale.ENGLISH).getName();
 		}
@@ -792,7 +791,6 @@ public class MediaBindingBean {
 		Iterator<?> itr = c.iterator();
 		for (int i = 0; itr.hasNext(); i++) {
 			Object next = itr.next();
-			System.out.println(String.format("%s VS %s", System.identityHashCode(o), System.identityHashCode(next)));
 			if (o == next)
 				return i;
 		}
