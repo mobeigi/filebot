@@ -108,6 +108,9 @@
 	<type name="video/wmv">
 		<extension>wmv</extension>
 	</type>
+	<type name="video/WebM">
+		<extension>webm</extension>
+	</type>
 	<type name="video/flash">
 		<extension>flv</extension>
 	</type>
