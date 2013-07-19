@@ -252,13 +252,23 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 	return delegate.sort{ a, b -> simetric.getSimilarity(toStringFunction(b), prime).compareTo(simetric.getSimilarity(toStringFunction(a), prime)) }
 }
 
+
 // call scripts
-def include(String input, Map bindings = [:], Object... args) {
-	// initialize default parameter
-	bindings.args = (args as List).flatten().findResults{ it as File }
+def executeScript(String input, Map bindings = [:], Object... args) {
+	// apply parent script defines
+	def parameters = new javax.script.SimpleBindings(bindings != null ? _def : [:])
+	parameters.putAll(bindings)
 	
+	// initialize default parameter
+	parameters['args'] = (args as List).flatten().findResults{ it as File }
+	
+	// run given script
+	_shell.runScript(input, parameters)
+}
+
+def include(String input, Map bindings = [:], Object... args) {
 	// run given script and catch exceptions
-	_guarded { _shell.runScript(input, new javax.script.SimpleBindings(bindings ?: [:])) }
+	_guarded { executeScript(input, bindings, args) }
 }
 
 
