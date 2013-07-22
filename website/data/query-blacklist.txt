@@ -192,6 +192,7 @@ o2.pl
 onlinetvrecorder
 P2P
 PBS
+plex
 Pre.?DVD
 PROPER
 PSP
@@ -252,6 +253,7 @@ video[s]?
 vo
 Volume.TB
 www[.][\w-.]+[.](com|net|tk|ro|cd|me|de)
+xbmc
 xRipp
 XtremeDoN
 YIFY
