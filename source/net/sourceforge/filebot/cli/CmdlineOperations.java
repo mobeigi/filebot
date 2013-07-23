@@ -897,7 +897,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// return first and only value
-		return probableMatches;
+		return probableMatches.size() <= 5 ? probableMatches : probableMatches.subList(0, 5);
 	}
 	
 	

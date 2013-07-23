@@ -45,6 +45,7 @@ import net.sourceforge.filebot.similarity.DateMatcher;
 import net.sourceforge.filebot.similarity.DateMetric;
 import net.sourceforge.filebot.similarity.MetricAvg;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
+import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodePattern;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
@@ -589,18 +590,35 @@ public class MediaDetection {
 	}
 	
 	
-	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
-		List<String> paragon = stripReleaseInfo(terms, true);
-		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new NameSimilarityMetric() {
+	private static SimilarityMetric getMovieMatchMetric() {
+		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true), new NumericSimilarityMetric() {
+			
+			private Pattern year = Pattern.compile("\\b\\d{4}\\b");
+			
 			
 			@Override
 			protected String normalize(Object object) {
-				return super.normalize(stripReleaseInfo(object.toString()).replaceAll("\\D+", " ")); // similarity of number patterns
+				Matcher ym = year.matcher(object.toString());
+				StringBuilder sb = new StringBuilder();
+				while (ym.find()) {
+					sb.append(ym.group()).append(' ');
+				}
+				return sb.toString().trim();
+			}
+			
+			
+			@Override
+			public float getSimilarity(Object o1, Object o2) {
+				return super.getSimilarity(o1, o2) * 2; // DOUBLE WEIGHT FOR YEAR MATCH
 			}
 		});
-		
+	}
+	
+	
+	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
+		List<String> paragon = stripReleaseInfo(terms, true);
 		List<T> sorted = new ArrayList<T>(options);
-		sort(sorted, new SimilarityComparator(metric, paragon.toArray()));
+		sort(sorted, new SimilarityComparator(getMovieMatchMetric(), paragon.toArray()));
 		return sorted;
 	}
 	
@@ -801,8 +819,8 @@ public class MediaDetection {
 		// DEBUG
 		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
 		
-		final SimilarityMetric metric = new NameSimilarityMetric();
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
+		final SimilarityMetric metric = getMovieMatchMetric();
 		for (String query : querySet) {
 			for (Movie movie : queryLookupService.searchMovie(query.toLowerCase(), locale)) {
 				probabilityMap.put(movie, metric.getSimilarity(query, movie));

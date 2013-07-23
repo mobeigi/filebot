@@ -57,12 +57,8 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 			
 			if (uniqueFiles.equals(uniqueEpisodes)) {
 				Episode[] episodes = episodeSets.get(file).toArray(new Episode[0]);
-				Set<String> seriesNames = new HashSet<String>();
-				for (Episode ep : episodes) {
-					seriesNames.add(ep.getSeriesName());
-				}
 				
-				if (seriesNames.size() == 1) {
+				if (isMultiEpisode(episodes)) {
 					MultiEpisode episode = new MultiEpisode(episodes);
 					disjointMatchCollection.add(new Match<File, Object>(file, episode));
 					modified = true;
@@ -97,6 +93,29 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		
 		transformCache.put(file, result);
 		return result;
+	}
+	
+	
+	private boolean isMultiEpisode(Episode[] episodes) {
+		// check episode sequence integrity
+		Integer seqIndex = null;
+		for (Episode ep : episodes) {
+			if (seqIndex != null && !ep.getEpisode().equals(seqIndex + 1))
+				return false;
+			
+			seqIndex = ep.getEpisode();
+		}
+		
+		// check drill-down integrity
+		String seriesName = null;
+		for (Episode ep : episodes) {
+			if (seriesName != null && !seriesName.equals(ep.getSeriesName()))
+				return false;
+			
+			seriesName = ep.getSeriesName();
+		}
+		
+		return true;
 	}
 	
 }

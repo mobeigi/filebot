@@ -92,6 +92,7 @@ A.Release.Lounge
 ABC
 AC3D
 Addic7ed.com
+AMC-TEST
 Anaglyph
 Anime[s]?
 Arte
@@ -142,6 +143,7 @@ Extended.Version
 ExtraScene
 ExtraTorrent
 Fantasy
+FileBot
 Final.Cut
 FIXED
 Fra
@@ -244,6 +246,7 @@ tt\d{2,8}
 TVOON.DE
 tvp
 tvrecorder
+UE
 ultimate.edition
 UNCUT
 unrated

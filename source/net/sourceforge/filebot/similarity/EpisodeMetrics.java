@@ -503,7 +503,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 						if (seriesInfo != null) {
 							if (seriesInfo.getRatingCount() > 0) {
 								float rating = max(0, seriesInfo.getRating().floatValue());
-								return seriesInfo.getRatingCount() >= 15 ? rating : rating / 2; // PENALIZE SHOWS WITH FEW RATINGS
+								return seriesInfo.getRatingCount() >= 15 ? rating : 0; // PENALIZE SHOWS WITH FEW RATINGS
 							} else {
 								return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
 							}
