@@ -6,8 +6,10 @@ import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.security.MessageDigest;
@@ -32,7 +34,12 @@ import javax.swing.Icon;
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.Cache.Key;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.mediainfo.MediaInfo;
+import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.BaseInfo;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
+import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
 import net.sourceforge.tuned.Timer;
 import redstone.xmlrpc.XmlRpcException;
 
@@ -191,8 +198,50 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	
 	
 	@Override
-	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
-		//TODO implement upload feature
+	public boolean publishSubtitle(int imdbid, String languageName, File[] videoFile, File[] subtitleFile) throws Exception {
+		SubFile[] subs = new SubFile[subtitleFile.length];
+		
+		// subhash (md5 of subtitles), subfilename, moviehash, moviebytesize, moviefilename.
+		for (int i = 0; i < subtitleFile.length; i++) {
+			SubFile sub = new SubFile();
+			sub.setSubHash(md5(subtitleFile[i]));
+			sub.setSubFileName(subtitleFile[i].getName());
+			sub.setMovieHash(computeHash(videoFile[i]));
+			sub.setMovieByteSize(videoFile[i].length());
+			sub.setMovieFileName(videoFile[i].getName());
+			subs[i] = sub;
+		}
+		
+		// require login
+		login();
+		
+		// check if subs already exist in db
+		TryUploadResponse response = xmlrpc.tryUploadSubtitles(subs);
+		System.out.println(response); // TODO only upload if necessary OR return false
+		
+		BaseInfo info = new BaseInfo();
+		info.setIDMovieImdb(imdbid);
+		info.setSubLanguageID(getSubLanguageID(languageName));
+		
+		// encode subtitle contents
+		for (int i = 0; i < subtitleFile.length; i++) {
+			// grab subtitle content
+			subs[i].setSubContent(readFile(subtitleFile[i]));
+			
+			try {
+				// grab media info
+				MediaInfo mi = new MediaInfo();
+				mi.open(videoFile[i]);
+				subs[i].setMovieFPS(mi.get(StreamKind.Video, 0, "FrameRate"));
+				subs[i].setMovieTimeMS(mi.get(StreamKind.General, 0, "Duration"));
+				mi.close();
+			} catch (Throwable e) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+			}
+		}
+		
+		URI resource = xmlrpc.uploadSubtitles(info, subs);
+		System.out.println(resource);
 		return false;
 	}
 	
@@ -200,10 +249,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	/**
 	 * Calculate MD5 hash.
 	 */
-	private String md5(byte[] data) {
+	private String md5(File file) throws IOException {
 		try {
 			MessageDigest hash = MessageDigest.getInstance("MD5");
-			hash.update(data);
+			hash.update(readFile(file));
 			return String.format("%032x", new BigInteger(1, hash.digest())); // as hex string
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e); // won't happen

@@ -106,8 +106,8 @@ public class OpenSubtitlesXmlRpcTest {
 		TryUploadResponse response = xmlrpc.tryUploadSubtitles(subtitle);
 		
 		assertFalse(response.isUploadRequired());
-		assertEquals("4513264", response.getSubtitleData().get(Property.IDSubtitle));
-		assertEquals("eng", response.getSubtitleData().get(Property.SubLanguageID));
+		assertEquals("4513264", response.getSubtitleData().get(0).get(Property.IDSubtitle.toString()));
+		assertEquals("eng", response.getSubtitleData().get(0).get(Property.SubLanguageID.toString()));
 	}
 	
 	

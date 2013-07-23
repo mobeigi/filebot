@@ -246,7 +246,7 @@ public class SublightSubtitleClient implements SubtitleProvider, VideoHashSubtit
 	
 	
 	@Override
-	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception {
+	public boolean publishSubtitle(int imdbid, String languageName, File[] videoFile, File[] subtitleFile) throws Exception {
 		//TODO implement upload feature
 		return false;
 	}

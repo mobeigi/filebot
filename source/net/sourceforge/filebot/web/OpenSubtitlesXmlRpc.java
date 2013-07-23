@@ -166,9 +166,15 @@ public class OpenSubtitlesXmlRpc {
 		Map<?, ?> response = invoke("TryUploadSubtitles", token, struct);
 		
 		boolean uploadRequired = response.get("alreadyindb").equals("0");
-		Map<String, String> subtitleData = (Map<String, String>) response.get("data");
+		List<Map<String, String>> subtitleData = new ArrayList<Map<String, String>>();
 		
-		return new TryUploadResponse(uploadRequired, Property.asEnumMap(subtitleData));
+		if (response.get("data") instanceof Map) {
+			subtitleData.add((Map<String, String>) response.get("data"));
+		} else if (response.get("data") instanceof List) {
+			subtitleData.addAll((List<Map<String, String>>) response.get("data"));
+		}
+		
+		return new TryUploadResponse(uploadRequired, subtitleData);
 	}
 	
 	
@@ -457,21 +463,6 @@ public class OpenSubtitlesXmlRpc {
 		}
 		
 		
-		public void setMovieTimeMS(int movietimems) {
-			put("movietimems", movietimems);
-		}
-		
-		
-		public void setMovieFrames(int movieframes) {
-			put("movieframes", movieframes);
-		}
-		
-		
-		public void setMovieFPS(double moviefps) {
-			put("moviefps", moviefps);
-		}
-		
-		
 		public void setMovieFileName(String moviefilename) {
 			put("moviefilename", moviefilename);
 		}
@@ -480,6 +471,28 @@ public class OpenSubtitlesXmlRpc {
 		public void setSubContent(byte[] data) {
 			put("subcontent", encodeData(data));
 		}
+		
+		
+		public void setMovieTimeMS(String movietimems) {
+			if (movietimems.length() > 0) {
+				put("movietimems", movietimems);
+			}
+		}
+		
+		
+		public void setMovieFPS(String moviefps) {
+			if (moviefps.length() > 0) {
+				put("moviefps", moviefps);
+			}
+		}
+		
+		
+		public void setMovieFrames(String movieframes) {
+			if (movieframes.length() > 0) {
+				put("movieframes", movieframes);
+			}
+		}
+		
 	}
 	
 	
@@ -487,10 +500,10 @@ public class OpenSubtitlesXmlRpc {
 		
 		private final boolean uploadRequired;
 		
-		private final Map<Property, String> subtitleData;
+		private final List<Map<String, String>> subtitleData;
 		
 		
-		private TryUploadResponse(boolean uploadRequired, Map<Property, String> subtitleData) {
+		private TryUploadResponse(boolean uploadRequired, List<Map<String, String>> subtitleData) {
 			this.uploadRequired = uploadRequired;
 			this.subtitleData = subtitleData;
 		}
@@ -501,8 +514,14 @@ public class OpenSubtitlesXmlRpc {
 		}
 		
 		
-		public Map<Property, String> getSubtitleData() {
+		public List<Map<String, String>> getSubtitleData() {
 			return subtitleData;
+		}
+		
+		
+		@Override
+		public String toString() {
+			return String.format("TryUploadResponse: %s => %s", uploadRequired, subtitleData);
 		}
 	}
 	

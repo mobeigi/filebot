@@ -14,16 +14,16 @@ public interface VideoHashSubtitleService {
 	
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] videoFiles, String languageName) throws Exception;
 	
-
-	public boolean publishSubtitle(int imdbid, String languageName, File videoFile, File subtitleFile) throws Exception;
 	
-
+	public boolean publishSubtitle(int imdbid, String languageName, File[] videoFile, File[] subtitleFile) throws Exception;
+	
+	
 	public String getName();
 	
-
+	
 	public URI getLink();
 	
-
+	
 	public Icon getIcon();
 	
 }
