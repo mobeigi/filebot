@@ -619,6 +619,10 @@ public class MediaDetection {
 		List<String> paragon = stripReleaseInfo(terms, true);
 		List<T> sorted = new ArrayList<T>(options);
 		sort(sorted, new SimilarityComparator(getMovieMatchMetric(), paragon.toArray()));
+		
+		// DEBUG
+		// System.out.format("sortBySimilarity %s => %s", terms, options);
+		
 		return sorted;
 	}
 	
@@ -814,7 +818,7 @@ public class MediaDetection {
 		querySet.addAll(stripReleaseInfo(files, false));
 		
 		// remove duplicates
-		querySet = getUniqueQuerySet(querySet);
+		querySet = getUniqueQuerySet(stripBlacklistedTerms(querySet));
 		
 		// DEBUG
 		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);

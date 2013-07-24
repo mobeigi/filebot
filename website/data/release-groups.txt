@@ -1494,7 +1494,7 @@ PAPAi
 papi
 PAROVOZ
 PARTICLE
-Pate
+PATE
 PaTHe
 PaYxXx
 PC
