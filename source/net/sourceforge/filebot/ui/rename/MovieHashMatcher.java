@@ -276,16 +276,19 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			String input = inputMemory.get(suggestion);
 			if (input == null || suggestion == null || suggestion.isEmpty()) {
 				File movieFolder = guessMovieFolder(movieFile);
-				input = showInputDialog("Enter movie name:", suggestion, movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
+				input = showInputDialog("Enter movie name:", suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
 				inputMemory.put(suggestion, input);
 			}
 			
 			if (input != null) {
 				options = service.searchMovie(input, locale);
+				if (options.size() > 0) {
+					return selectMovie(movieFile, input, options, memory, parent);
+				}
 			}
 		}
 		
-		return options.isEmpty() ? null : selectMovie(movieFile, options, memory, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, null, options, memory, parent);
 	}
 	
 	
@@ -304,16 +307,16 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 	
 	
-	protected Movie selectMovie(final File movieFile, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
+	protected Movie selectMovie(final File movieFile, final String userQuery, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
 		// 1. movie by filename
-		final String fileQuery = checkedStripReleaseInfo(movieFile);
+		final String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile);
 		
 		// 2. movie by directory
 		final File movieFolder = guessMovieFolder(movieFile);
-		final String folderQuery = (movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder);
+		final String folderQuery = (userQuery != null || movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder);
 		
 		// auto-ignore invalid files
-		if (fileQuery.length() < 2 && folderQuery.length() < 2) {
+		if (userQuery == null && fileQuery.length() < 2 && folderQuery.length() < 2) {
 			return null;
 		}
 		
