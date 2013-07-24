@@ -148,15 +148,20 @@ def groups = input.groupBy{ f ->
 		if ((parseEpisodeNumber(fn, true) || parseDate(fn) || ([dn, fn].find{ it =~ sn && matchMovie(it, true) == null } && (parseEpisodeNumber(fn.after(sn), false) || fn.after(sn) =~ /\d{1,2}\D+\d{1,2}/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && norm(it.name) =~ sn && it.name =~ /\b\d{1,3}\b/}.size() >= 10) && !(mov.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ mov.year }) || mov.year < 1900) {
 			_log.fine("Exclude Movie: $mov")
 			mov = null
-		} else if (mn ==~ fn || [dn, fn].find{ it =~ /\b/+mov.year+/\b/ } || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) } || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ })) {
+		} else if (similarity(mn, fn) >= 0.8 || [dn, fn].find{ it =~ /\b/+mov.year+/\b/ } || [dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && !(it.before(mn).contains(sn)) } || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ })) {
 			_log.fine("Exclude Series: $tvs")
 			tvs = null
 		}
 	}
 	
 	// CHECK CONFLICT
-	if (((mov && tvs) || (!mov && !tvs)) && failOnError) {
-		throw new Exception("Media detection failed")
+	if (((mov && tvs) || (!mov && !tvs))) {
+		if (failOnError) {
+			throw new Exception("Media detection failed")
+		} else {
+			_log.fine("Unable to differentiate: [$f.name] => [$tvs] VS [$mov]")
+			return [tvs: null, mov: null, anime: null]
+		}
 	}
 	
 	return [tvs: tvs, mov: mov, anime: null]
