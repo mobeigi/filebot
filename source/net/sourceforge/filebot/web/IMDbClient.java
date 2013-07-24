@@ -155,6 +155,11 @@ public class IMDbClient implements MovieIdentificationService {
 	}
 	
 	
+	public String scrape(String imdbid, String xpath) throws IOException, SAXException {
+		return selectString(xpath, parsePage(getMoviePageLink(getImdbId(imdbid)).toURL())); // helper for scraping data in user scripts
+	}
+	
+	
 	public URI getMoviePageLink(int imdbId) {
 		return URI.create(String.format("http://www.imdb.com/title/tt%07d/", imdbId));
 	}
