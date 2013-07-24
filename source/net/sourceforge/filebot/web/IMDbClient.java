@@ -156,7 +156,12 @@ public class IMDbClient implements MovieIdentificationService {
 	
 	
 	public String scrape(String imdbid, String xpath) throws IOException, SAXException {
-		return selectString(xpath, parsePage(getMoviePageLink(getImdbId(imdbid)).toURL())); // helper for scraping data in user scripts
+		return scrape(getMoviePageLink(getImdbId(imdbid)).toURL(), xpath); // helper for scraping data in user scripts
+	}
+	
+	
+	public String scrape(URL url, String xpath) throws IOException, SAXException {
+		return selectString(xpath, parsePage(url)); // helper for scraping data in user scripts
 	}
 	
 	
