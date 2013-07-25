@@ -104,6 +104,9 @@ public class ArgumentBean {
 	@Option(name = "-unixfs", usage = "Do not strip invalid characters from file paths")
 	public boolean unixfs = false;
 	
+	@Option(name = "-no-xattr", usage = "Disable extended attributes")
+	public boolean disableExtendedAttributes = false;
+	
 	@Option(name = "-no-analytics", usage = "Disable analytics")
 	public boolean disableAnalytics = false;
 	

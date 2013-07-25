@@ -149,6 +149,9 @@ public class Main {
 			if (args.disableAnalytics) {
 				System.setProperty("application.analytics", "false");
 			}
+			if (args.disableExtendedAttributes) {
+				System.setProperty("useExtendedFileAttributes", "false");
+			}
 			if (args.action.equalsIgnoreCase("test")) {
 				System.setProperty("useExtendedFileAttributes", "false");
 				System.setProperty("application.analytics", "false");
