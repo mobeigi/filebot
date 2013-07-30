@@ -590,7 +590,7 @@ public class MediaDetection {
 	}
 	
 	
-	private static SimilarityMetric getMovieMatchMetric() {
+	public static SimilarityMetric getMovieMatchMetric() {
 		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true), new NumericSimilarityMetric() {
 			
 			private Pattern year = Pattern.compile("\\b\\d{4}\\b");
