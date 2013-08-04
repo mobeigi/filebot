@@ -6,7 +6,7 @@ def mesupdate = tryQuietly { tick } ?: 'acquired'
 def mesvalue = tryQuietly { value } ?: '1'
 
 // import myepisodes scraper
-include('fn:lib/ws')
+include('fn:lib/scraper')
 
 def mes = MyEpisodes(mesacc[0], mesacc[1])
 def myshows = mes.getShowList()
