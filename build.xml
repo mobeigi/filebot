@@ -76,6 +76,10 @@
 			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="org/cyberneko/html/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/jsoup.jar">
+				<include name="org/jsoup/**" />
+			</zipfileset>
 
 			<zipfileset src="${dir.lib}/json-simple.jar">
 				<include name="org/json/simple/**" />
@@ -147,10 +151,6 @@
 				<include name="jonelo/jacksum/adapt/**" />
 				<include name="jonelo/jacksum/algorithm/**" />
 				<include name="jonelo/sugar/util/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/sublight-ws.jar">
-				<include name="net/sublight/webservice/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/junrar-custom.jar">
