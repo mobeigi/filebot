@@ -61,7 +61,6 @@ public final class WebServices {
 	
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
-	//TODO remove Subscene/Sublight from codebase
 	
 	// misc
 	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
