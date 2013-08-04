@@ -216,6 +216,11 @@ def fetchMovieNfo(outputFile, movieInfo, movieFile, override) {
 					role(a.character)
 				}
 			}
+			i.trailers?.each{ t ->
+				t.sources.each { s, v ->
+					trailer(type:t.type, name:t.name, size:s, v)
+				}
+			}
 			fileinfo {
 				streamdetails {
 					mi?.each { kind, streams ->

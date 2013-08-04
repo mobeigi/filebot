@@ -115,7 +115,7 @@ input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|
 input.each{ f -> _log.finest("Input: $f") }
 
 // artwork/nfo utility
-include('fn:lib/htpc')
+include('lib/htpc')
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
@@ -264,12 +264,12 @@ if (plex) {
 // mark episodes as 'acquired'
 if (myepisodes) {
 	_log.info 'Update MyEpisodes'
-	include('fn:update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
+	include('update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
 }
 
 if (pushover) {
 	// include webservice utility
-	include('fn:lib/ws')
+	include('lib/ws')
 	
 	_log.info 'Sending Pushover notification'
 	Pushover(pushover).send("Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).")
@@ -278,7 +278,7 @@ if (pushover) {
 // send status email
 if (gmail) {
 	// ant/mail utility
-	include('fn:lib/ant')
+	include('lib/ant')
 	
 	// send html mail
 	def renameLog = getRenameLog()
@@ -331,6 +331,6 @@ if (clean) {
 	// deleting remaining files only makes sense after moving files
 	if ('MOVE'.equalsIgnoreCase(_args.action)) {
 		_log.info 'Clean clutter files and empty folders'
-		include('fn:cleaner', [root:true], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+		include('cleaner', [root:true], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
 	}
 }

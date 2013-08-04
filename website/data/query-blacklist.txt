@@ -54,6 +54,7 @@
 ^movie[s]?
 ^new$
 ^other$
+^Part$
 ^private$
 ^public$
 ^pyload$
