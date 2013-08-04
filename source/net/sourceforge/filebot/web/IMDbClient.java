@@ -2,8 +2,13 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.XPathUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.encode;
+import static net.sourceforge.filebot.web.WebRequest.getDocument;
+import static net.sourceforge.filebot.web.WebRequest.getHtmlDocument;
+import static net.sourceforge.filebot.web.WebRequest.getReader;
+import static net.sourceforge.tuned.XPathUtilities.getAttribute;
+import static net.sourceforge.tuned.XPathUtilities.selectNodes;
+import static net.sourceforge.tuned.XPathUtilities.selectString;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +37,7 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person;
+import net.sourceforge.filebot.web.TMDbClient.Trailer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -245,6 +251,6 @@ public class IMDbClient implements MovieIdentificationService {
 			actors.add(new Person(writer, null, "Writer"));
 		}
 		
-		return new MovieInfo(fields, genres, new ArrayList<String>(0), actors);
+		return new MovieInfo(fields, genres, new ArrayList<String>(0), actors, new ArrayList<Trailer>(0));
 	}
 }
