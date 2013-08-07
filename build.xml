@@ -608,12 +608,12 @@
 		</replace>
 
 		<!-- chocolatey pack -->
-		<exec executable="chocolatey.bat" dir="${dir.dist}/chocolatey" failonerror="true">
+		<exec executable="C:\Chocolatey\bin\chocolatey.bat" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg line="pack" />
 		</exec>
 
-		<exec executable="chocolatey.bat" dir="${dir.dist}/chocolatey" failonerror="true">
-			<arg line="push ${dir.dist}/chocolatey/filebot.${version}.nupkg" />
+		<exec executable="C:\Chocolatey\bin\chocolatey.bat" dir="${dir.dist}\chocolatey" failonerror="true">
+			<arg line="push ${dir.dist}\chocolatey\filebot.${version}.nupkg" />
 		</exec>
 	</target>
 
