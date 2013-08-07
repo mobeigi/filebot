@@ -2,17 +2,60 @@
 package net.sourceforge.filebot.cli;
 
 
-import static java.lang.String.*;
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.WebServices.*;
-import static net.sourceforge.filebot.cli.CLILogging.*;
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.addAll;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.sort;
+import static net.sourceforge.filebot.MediaTypes.AUDIO_FILES;
+import static net.sourceforge.filebot.MediaTypes.NFO_FILES;
+import static net.sourceforge.filebot.MediaTypes.SUBTITLE_FILES;
+import static net.sourceforge.filebot.MediaTypes.VIDEO_FILES;
+import static net.sourceforge.filebot.Settings.isUnixFS;
+import static net.sourceforge.filebot.Settings.useExtendedFileAttributes;
+import static net.sourceforge.filebot.WebServices.AcoustID;
+import static net.sourceforge.filebot.WebServices.TheTVDB;
+import static net.sourceforge.filebot.WebServices.getEpisodeListProvider;
+import static net.sourceforge.filebot.WebServices.getMovieIdentificationService;
+import static net.sourceforge.filebot.WebServices.getMusicIdentificationService;
+import static net.sourceforge.filebot.cli.CLILogging.CLILogger;
+import static net.sourceforge.filebot.hash.VerificationUtilities.computeHash;
+import static net.sourceforge.filebot.hash.VerificationUtilities.getHashType;
+import static net.sourceforge.filebot.hash.VerificationUtilities.getHashTypeByExtension;
+import static net.sourceforge.filebot.media.MediaDetection.detectMovie;
+import static net.sourceforge.filebot.media.MediaDetection.detectSeriesNames;
+import static net.sourceforge.filebot.media.MediaDetection.getClutterFileFilter;
+import static net.sourceforge.filebot.media.MediaDetection.grepMovie;
+import static net.sourceforge.filebot.media.MediaDetection.guessMovieFolder;
+import static net.sourceforge.filebot.media.MediaDetection.isDiskFolder;
+import static net.sourceforge.filebot.media.MediaDetection.isEpisode;
+import static net.sourceforge.filebot.media.MediaDetection.mapSeriesNamesByFiles;
+import static net.sourceforge.filebot.media.MediaDetection.stripReleaseInfo;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.exportSubtitles;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.fetchSubtitle;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.findSubtitles;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.formatSubtitle;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.getSubtitleFormatByName;
+import static net.sourceforge.filebot.subtitle.SubtitleUtilities.matchSubtitles;
+import static net.sourceforge.tuned.FileUtilities.FILES;
+import static net.sourceforge.tuned.FileUtilities.FOLDERS;
+import static net.sourceforge.tuned.FileUtilities.containsOnly;
+import static net.sourceforge.tuned.FileUtilities.createTextReader;
+import static net.sourceforge.tuned.FileUtilities.filter;
+import static net.sourceforge.tuned.FileUtilities.getExtension;
+import static net.sourceforge.tuned.FileUtilities.getName;
+import static net.sourceforge.tuned.FileUtilities.isDerived;
+import static net.sourceforge.tuned.FileUtilities.isInvalidFilePath;
+import static net.sourceforge.tuned.FileUtilities.listPath;
+import static net.sourceforge.tuned.FileUtilities.mapByExtension;
+import static net.sourceforge.tuned.FileUtilities.mapByFolder;
+import static net.sourceforge.tuned.FileUtilities.normalizePathSeparators;
+import static net.sourceforge.tuned.FileUtilities.not;
+import static net.sourceforge.tuned.FileUtilities.validateFileName;
+import static net.sourceforge.tuned.FileUtilities.validateFilePath;
+import static net.sourceforge.tuned.FileUtilities.writeFile;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -1039,7 +1082,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		
 		// find series on the web and fetch episode list
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
-		EpisodeListProvider service = (db == null) ? TVRage : getEpisodeListProvider(db);
+		EpisodeListProvider service = (db == null) ? TheTVDB : getEpisodeListProvider(db);
 		SortOrder sortOrder = SortOrder.forName(sortOrderName);
 		Locale locale = getLanguage(languageName).toLocale();
 		
