@@ -306,7 +306,7 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 	${endif}
 	
 	DetailPrint "Installing latest version..."
-	nsExec::Exec 'msiexec /quiet /i "$PLUGINSDIR\FileBot.msi"'
+	nsExec::Exec 'msiexec /passive /i "$PLUGINSDIR\FileBot.msi"'
 	Pop $MSI_STATUS # grab return value
 	
 	${if} $MSI_STATUS == "0"
@@ -317,6 +317,7 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 			!insertmacro OpenCandyInstallEmbedded
 		# [/OpenCandy]
 	${else}
+		DetailPrint "msiexec error $MSI_STATUS"
 		DetailPrint "Install failed."
 		Abort
 	${endif}
