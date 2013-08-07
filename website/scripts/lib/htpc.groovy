@@ -1,4 +1,3 @@
-
 import static net.sourceforge.filebot.WebServices.*
 import static groovy.json.StringEscapeUtils.*
 

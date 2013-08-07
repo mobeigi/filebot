@@ -2,7 +2,6 @@
  * MyEpisodes
  * 				http://www.myepisodes.com
  ****************************************************************************/
-@Grab(group='org.jsoup', module='jsoup', version='1.7.1')
 import org.jsoup.Jsoup
 import org.jsoup.Connection.Method
 import net.sourceforge.filebot.Cache
