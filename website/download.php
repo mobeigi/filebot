@@ -5,19 +5,23 @@ $type = $_GET['type'];
 
 $folder = 'http://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version;
 $file = 'undefined';
-if ($type == 'msi')
+
+if ($type == 'nsis') {
+	$folder = 'http://sourceforge.net/projects/filebot/files/filebot/HEAD';
+	$file = 'FileBot-setup.exe';
+} else if ($type == 'msi')
 	$file = 'FileBot_'.$version.'_'.$arch.'.msi';
-if ($type == 'deb')
+else if ($type == 'deb')
 	$file =  'filebot_'.$version.'_'.$arch.'.deb';
-if ($type == 'app')
+else if ($type == 'app')
 	$file = 'FileBot_'.$version.'.app.tar.gz';
-if ($type == 'jar')
+else if ($type == 'jar')
 	$file = 'FileBot_'.$version.'.jar';
-if ($type == 'portable')
+else if ($type == 'portable')
 	$file = 'FileBot_'.$version.'-portable.zip';
-if ($type == 'ipkg')
+else if ($type == 'ipkg')
 	$file =  'filebot_'.$version.'_'.$arch.'.ipk';
-if ($type == 'src')
+else if ($type == 'src')
 	$file = 'filebot-'.$version.'-src.zip';
 
 
