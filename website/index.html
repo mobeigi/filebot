@@ -197,10 +197,12 @@
 							dataType: 'json',
 							success: function(data) {
 								var review = data[Math.floor(Math.random() * data.length)]
-								$('#review .user').text(review.user)
-								$('#review .date').text(review.date)
-								$('#review .text').text(review.text)
-								if (review.text.length > 0) { $('#review').show() }
+								if (review.user.length > 0 && review.date.length > 0 && review.text.length > 0) {
+									$('#review .user').text(review.user)
+									$('#review .date').text(review.date)
+									$('#review .text').text(review.text)
+									$('#review').show()
+								}
 							}
 						});
 					</script>

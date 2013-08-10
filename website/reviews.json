@@ -1,18 +1,38 @@
 [
     {
-        "user": "Jan",
-        "date": "2013-03-21",
-        "text": "Kudos :) Great time saver keeping my collection organized. Stable, useful, easy to use. Donation has been made. Keep up the good work"
+        "user": "Amit Singhal",
+        "date": "2010-05-23",
+        "text": "one of the best tv-ep renamers out there! kudos! to the author, rednoah"
     },
     {
-        "user": "hfurius",
-        "date": "2013-02-24",
-        "text": "easy to use and easy to work. thanks a lot!"
+        "user": "lakis koulourakis",
+        "date": "2011-02-18",
+        "text": "best app on series renaming i could find"
     },
     {
-        "user": "akya",
-        "date": "2013-02-21",
-        "text": "Extremely efficient.. especially for renaming single episodes."
+        "user": "mark",
+        "date": "2012-03-25",
+        "text": "one of the most liked \"must have\" programs i use. much thanks to author!"
+    },
+    {
+        "user": "Jackson",
+        "date": "2012-03-26",
+        "text": "Stable and works."
+    },
+    {
+        "user": "Milos Kaurin",
+        "date": "2012-04-14",
+        "text": "One of the best (if not the best) multiplatform episode renamer/subtitle downloader"
+    },
+    {
+        "user": "Gillardino Boccacio",
+        "date": "2012-05-12",
+        "text": "indispensable tool for people with a large library of videos. Through this program, I was able to restore order in films and serials. Thank you!"
+    },
+    {
+        "user": "Ed Doran",
+        "date": "2012-08-25",
+        "text": "A must use tool. Really simplifies watching my favorite movies"
     },
     {
         "user": "Kate Smith",
@@ -25,39 +45,19 @@
         "text": "Extremely quick and efficient. Great for renaming anime, too - I was very impressed at Filebot's ability to consistently rename anime using AniDB. A must for keeping a large collection clean!"
     },
     {
-        "user": "Ed Doran",
-        "date": "2012-08-25",
-        "text": "A must use tool. Really simplifies watching my favorite movies"
+        "user": "akya",
+        "date": "2013-02-21",
+        "text": "Extremely efficient.. especially for renaming single episodes."
     },
     {
-        "user": "Gillardino Boccacio",
-        "date": "2012-05-12",
-        "text": "indispensable tool for people with a large library of videos. Through this program, I was able to restore order in films and serials. Thank you!"
+        "user": "hfurius",
+        "date": "2013-02-24",
+        "text": "easy to use and easy to work. thanks a lot!"
     },
     {
-        "user": "Jackson",
-        "date": "2012-03-26",
-        "text": "Stable and works."
-    },
-    {
-        "user": "mark",
-        "date": "2012-03-25",
-        "text": "one of the most liked \"must have\" programs i use. much thanks to author.!"
-    },
-    {
-        "user": "lakis koulourakis",
-        "date": "2011-02-18",
-        "text": "best app on series renaming i could find"
-    },
-    {
-        "user": "Amit Singhal",
-        "date": "2010-05-23",
-        "text": "one of the best tv-ep renamers out there! kudos! to the author, rednoah"
-    },
-    {
-        "user": "Milos Kaurin",
-        "date": "2012-04-14",
-        "text": "One of the best (if not the best) multiplatform episode renamer/subtitle downloader"
+        "user": "Jan",
+        "date": "2013-03-21",
+        "text": "Kudos :) Great time saver keeping my collection organized. Stable, useful, easy to use. Donation has been made. Keep up the good work"
     },
     {
         "user": "Bobby Scholtens",
@@ -65,8 +65,13 @@
         "text": "Pretty awesome piece of software. Very fast and easy to use. As it states: \"it just works\"."
     },
     {
-        "user": "pez",
-        "date": "2013-06-14",
-        "text": "Awesome stuff! I used to spend tons of time manually renaming all my tv shows, but this does all my work near instantly. Absolutly worth the money."
+        "user": "williamdanis",
+        "date": "2013-06-18",
+        "text": "Filebot is excellent! Thanks."
+    },
+    {
+        "user": "haywardb",
+        "date": "2013-08-08",
+        "text": "Wow, thank you so much for this program. I had a large collection of tv shows which I was not looking forward to sorting out. Dumped the files into FileBot and within minutes, all done. Even finds correct name within filenames with a load of junk in them."
     }
 ]
