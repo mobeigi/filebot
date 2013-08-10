@@ -2,8 +2,9 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.XPathUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.getDocument;
+import static net.sourceforge.tuned.XPathUtilities.getAttribute;
+import static net.sourceforge.tuned.XPathUtilities.selectNodes;
 
 import java.io.File;
 import java.io.Serializable;
@@ -150,7 +151,7 @@ public class FanartTV {
 		
 		public URL getUrl() {
 			try {
-				return new URL(fields.get(FanartProperty.url));
+				return new URL(fields.get(FanartProperty.url).replaceAll(" ", "%20")); // work around server-side url encoding issues
 			} catch (Exception e) {
 				return null;
 			}
