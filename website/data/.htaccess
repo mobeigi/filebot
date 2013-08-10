@@ -1,6 +1,9 @@
 options +indexes
 
+redirect 301 /data/movies.txt.xz http://sourceforge.net/projects/filebot/files/data/movies.txt.xz/download
+redirect 301 /data/thetvdb.txt.xz http://sourceforge.net/projects/filebot/files/data/thetvdb.txt.xz/download
+redirect 301 /data/anidb.txt.xz http://sourceforge.net/projects/filebot/files/data/anidb.txt.xz/download
+
 redirect 301 /data/movies.txt.gz http://sourceforge.net/projects/filebot/files/data/movies.txt.gz/download
-redirect 301 /data/series.list.gz http://sourceforge.net/projects/filebot/files/data/series.list.gz/download
 redirect 301 /data/thetvdb.txt.gz http://sourceforge.net/projects/filebot/files/data/thetvdb.txt.gz/download
 redirect 301 /data/anidb.txt.gz http://sourceforge.net/projects/filebot/files/data/anidb.txt.gz/download

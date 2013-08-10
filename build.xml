@@ -108,6 +108,10 @@
 			<zipfileset src="${dir.lib}/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/xz.jar">
+				<include name="org/tukaani/xz/**" />
+			</zipfileset>
 
 			<zipfileset src="${dir.lib}/ehcache.jar">
 				<include name="net/sf/ehcache/**" />
@@ -632,6 +636,7 @@
 	<target name="upload-data-frs" depends="login">
 		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}/data">
+				<include name="*.xz" />
 				<include name="*.gz" />
 			</fileset>
 		</scp>

@@ -1,3 +1,4 @@
+import  org.tukaani.xz.*
 
 // ------------------------------------------------------------------------- //
 
@@ -37,14 +38,13 @@ println "Reviews: " + reviews.size()
 // ------------------------------------------------------------------------- //
 
 
-def series_out  = new File("website/data/series.list.gz")
-def movies_out  = new File("website/data/movies.txt.gz")
-def thetvdb_out = new File("website/data/thetvdb.txt.gz")
-def anidb_out   = new File("website/data/anidb.txt.gz")
+def movies_out  = new File("website/data/movies.txt")
+def thetvdb_out = new File("website/data/thetvdb.txt")
+def anidb_out   = new File("website/data/anidb.txt")
 
-def gz(file, lines) {
-	file.withOutputStream{ out ->
-		new java.util.zip.GZIPOutputStream(out).withWriter('UTF-8'){ writer ->
+def pack(file, lines) {
+	new File(file.parentFile, file.name + '.xz').withOutputStream{ out ->
+		new XZOutputStream(out, new LZMA2Options(LZMA2Options.PRESET_DEFAULT)).withWriter('UTF-8'){ writer ->
 			lines.each{ writer.append(it).append('\n') }
 		}
 	}
@@ -80,7 +80,7 @@ def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
 movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), it) }
 movies = movieSorter.values().collect{ it.join('\t') }
 
-gz(movies_out, movies)
+pack(movies_out, movies)
 println "Movie Count: " + movies.size()
 
 // sanity check
@@ -146,7 +146,7 @@ thetvdb_index = thetvdb_index.sort(new Comparator() {
 
 // join and sort
 def thetvdb_txt = thetvdb_index.findResults{ [it[0].pad(6), it[1].trim()].join('\t') }
-gz(thetvdb_out, thetvdb_txt)
+pack(thetvdb_out, thetvdb_txt)
 println "TheTVDB Index: " + thetvdb_txt.size()
 
 // sanity check
@@ -160,8 +160,8 @@ def anidb = new net.sourceforge.filebot.web.AnidbClient(null, 0).getAnimeTitles(
 def anidb_index = anidb.findResults{ [it.getAnimeId(), it.getPrimaryTitle(), it.getEnglishTitle()] }
 
 // join and sort
-def anidb_txt = anidb_index.findResults{ [it[0].pad(5), it[1] ?: '', it[2] ?: ''].join('\t').replaceAll(/['`´‘’ʻ]+/, /'/) }.sort().unique()
-gz(anidb_out, anidb_txt)
+def anidb_txt = anidb_index.findResults{ [it[0].pad(5), it[1] ?: '', it[2] == null || it[2].equals(it[1]) ? '' : it[2]]*.replaceAll(/\s+/, ' ')*.trim().join('\t').replaceAll(/['`´‘’ʻ]+/, /'/) }.sort().unique()
+pack(anidb_out, anidb_txt)
 println "AniDB Index: " + anidb_txt.size()
 
 // sanity check
