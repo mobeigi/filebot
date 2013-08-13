@@ -192,18 +192,20 @@
 				</div>
 				<div>
 					<script type="text/javascript">
-						$.ajax({
-							url: 'reviews.json',
-							dataType: 'json',
-							success: function(data) {
-								var review = data[Math.floor(Math.random() * data.length)]
-								if (review.user.length > 0 && review.date.length > 0 && review.text.length > 0) {
-									$('#review .user').text(review.user)
-									$('#review .date').text(review.date)
-									$('#review .text').text(review.text)
-									$('#review').show()
+						$(document).ready(function () {
+							$.ajax({
+								url: 'reviews.json',
+								dataType: 'json',
+								success: function(data) {
+									var review = data[Math.floor(Math.random() * data.length)]
+									if (review.user.length > 0 && review.date.length > 0 && review.text.length > 0) {
+										$('#review .user').text(review.user)
+										$('#review .date').text(review.date)
+										$('#review .text').text(review.text)
+										$('#review').show()
+									}
 								}
-							}
+							});
 						});
 					</script>
 					<p class="head">Posted by <span class="user"></span> on <span class="date"></span></p>
