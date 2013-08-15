@@ -184,6 +184,7 @@ AOE
 AonE
 AP
 APB
+APT
 ARCHiViST
 ArenaBG
 ARGON
@@ -221,6 +222,7 @@ AW
 aWake
 AWGS
 AXE
+AXED
 AXIAL
 AXiNE
 aXXo
@@ -325,6 +327,7 @@ BountyHunters
 BOV
 BOW
 BoX
+BRADJE
 BRASTEMP
 bReAK
 BREiN
@@ -493,6 +496,7 @@ D0PE
 D2V
 D3Si
 DA-C
+DAA
 DaDuck
 Dali-Neko
 Daman
@@ -952,6 +956,7 @@ HDS
 HDVD
 HDViSiON
 HDW
+HDWinG
 HDX
 HDxT
 HEH
@@ -1109,6 +1114,7 @@ joseole99-TCL
 Jozzep
 JS
 jth
+JUMANJi
 JunkyCez
 Junoon
 JUPiLER
@@ -1138,6 +1144,7 @@ KFC
 KH
 Khmer-Hentai
 kHzViD
+KickFoot
 KICKOFF
 KiLLARMAN
 KILLERS
@@ -1149,6 +1156,7 @@ Kira
 Kira-Fansub
 Kira-H
 kirklestat
+KISA
 KiSS
 Kizuna
 Kizuna.FA
@@ -1736,6 +1744,7 @@ SCREAM
 ScWb
 SecretMyth
 SECTOR7
+SEiGHT
 SEMTEX
 SEPTiC
 SEQUA
@@ -2084,6 +2093,7 @@ VDE-Subs
 VeGaN
 Vegapunk
 VeggTeppe
+VERSATiLE
 Vex
 VIAHD
 VIAZAC
