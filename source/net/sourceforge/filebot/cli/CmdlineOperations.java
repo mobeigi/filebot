@@ -940,7 +940,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 		
 		// return first and only value
-		return probableMatches.size() <= 3 ? probableMatches : probableMatches.subList(0, 3); // trust that the correct match is in the Top 3
+		return probableMatches.size() <= 5 ? probableMatches : probableMatches.subList(0, 5); // trust that the correct match is in the Top 3
 	}
 	
 	

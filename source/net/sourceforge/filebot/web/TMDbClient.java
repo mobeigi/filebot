@@ -86,7 +86,7 @@ public class TMDbClient implements MovieIdentificationService {
 				}
 				result.add(new Movie(title, year, -1, (int) id));
 			} catch (Exception e) {
-				Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
 			}
 		}
 		return result;
