@@ -42,6 +42,8 @@
 ^Film[s]?
 ^Filme$
 ^Finished
+^HD[0-9]$
+^hdd[0-9]$
 ^home$
 ^Horror$
 ^HVDVD_TS$
@@ -49,6 +51,7 @@
 ^Incoming$
 ^I|II|III$
 ^jukebox$
+^Kids$
 ^MD0_DATA$
 ^media$
 ^mnt$
