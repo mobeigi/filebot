@@ -203,7 +203,7 @@ public class MediaBindingBean {
 	
 	
 	@Define("primaryTitle")
-	public String getOfficialTitle() throws Exception {
+	public String getPrimaryTitle() throws Exception {
 		if (getSeriesObject() instanceof TheTVDBSearchResult) {
 			return WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) getSeriesObject(), Locale.ENGLISH).getName();
 		}
