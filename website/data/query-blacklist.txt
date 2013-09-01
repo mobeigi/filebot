@@ -76,6 +76,7 @@
 ^Sort$
 ^Staging$
 ^Storage$
+^tank$
 ^temp$
 ^temporary$
 ^Test$
@@ -218,7 +219,7 @@ samples
 SBS
 Screenshot
 sd
-Season.?[0-9]+
+Season.?\d{1,2}(?!\d)
 sed
 ShareGo
 ShareReactor
