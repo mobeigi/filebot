@@ -231,6 +231,11 @@ public class IMDbClient implements MovieIdentificationService {
 		Date released = Date.parse(data.get("released"), "dd MMM yyyy");
 		if (released != null) {
 			fields.put(MovieProperty.release_date, released.format("yyyy-MM-dd"));
+		} else {
+			Date year = Date.parse(data.get("year"), "yyyy");
+			if (year != null) {
+				fields.put(MovieProperty.release_date, year.format("yyyy-MM-dd"));
+			}
 		}
 		
 		List<String> genres = new ArrayList<String>();
