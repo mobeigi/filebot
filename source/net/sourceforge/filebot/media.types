@@ -129,6 +129,9 @@
 		<extension>3DSBS</extension>
 		<extension>3DTAB</extension>
 	</type>
+	<type name="video/stream">
+		<extension>strm</extension>
+	</type>
 	<type name="video/iso">
 		<extension>iso</extension>
 	</type>
