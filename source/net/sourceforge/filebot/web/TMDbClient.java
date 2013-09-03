@@ -68,6 +68,9 @@ public class TMDbClient implements MovieIdentificationService {
 		List<Movie> result = new ArrayList<Movie>();
 
 		for (JSONObject it : jsonList(response.get("results"))) {
+			if (it == null)
+				continue;
+
 			// e.g.
 			// {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 			String title = (String) it.get("title");
