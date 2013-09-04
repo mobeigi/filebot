@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.web;
 
 
-import static java.util.Calendar.*;
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -11,8 +13,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class Date implements Serializable {
@@ -100,7 +100,7 @@ public class Date implements Serializable {
 			return new Date(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
 		} catch (ParseException e) {
 			// no result if date is invalid
-			Logger.getLogger(Date.class.getName()).log(Level.WARNING, e.getMessage());
+			// Logger.getLogger(Date.class.getName()).log(Level.WARNING, e.getMessage());
 			return null;
 		}
 	}
