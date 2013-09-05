@@ -47,9 +47,11 @@
 ^home$
 ^Horror$
 ^HVDVD_TS$
+^I$
+^II$
+^III$
 ^In.Progress$
 ^Incoming$
-^I|II|III$
 ^jukebox$
 ^Kids$
 ^MD0_DATA$
