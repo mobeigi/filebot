@@ -2,6 +2,7 @@
 0MNiDVD
 0PTiMUS
 0TV
+1080
 10Laughing
 128mns
 12paNDas
@@ -24,6 +25,7 @@
 310yuma
 3Li
 3LT0N
+3LTON
 3M4
 3Mhome
 3rD
@@ -127,6 +129,7 @@ aheintz
 AHQ
 Aiden0
 AiHD
+AiRLiNE
 AiRWAVES
 aiTen
 AJAX
@@ -155,6 +158,7 @@ aNBc
 ANBU
 Anbu-Solar
 AnCo.2
+aNDy
 AnFs
 ANGELiC
 Ani-Kraze
@@ -184,8 +188,11 @@ aO.PM
 AOE
 AonE
 AP
+APAX
 APB
+Appel
 APT
+Archerr
 ARCHiViST
 ArenaBG
 ARGON
@@ -218,6 +225,7 @@ AVCDVD
 AVCHD
 AVENUE
 AVF
+AVS1080
 AVS720
 AW
 aWake
@@ -226,6 +234,7 @@ AXE
 AXED
 AXIAL
 AXiNE
+AXNPL.N6
 aXXo
 Ayako
 Ayako-sae
@@ -290,6 +299,7 @@ BestHD
 BetaDoctor
 BETAMAX
 BFF
+BG
 BHATTI
 BiA
 BiDA
@@ -315,10 +325,12 @@ Bluereaper
 BlueTV
 BLUEYES
 blueZilla
+BluHD
 BluWave
 BMB
 BMF
 BnS
+BoB
 BoBo
 BOKUTOX
 BonG
@@ -363,7 +375,10 @@ C0NFUSED
 c0re
 C1
 C4DVD
+C4N4B1S
 C4TV
+CA
+CACHE
 CAF
 CAKE
 CAMELOT
@@ -374,6 +389,7 @@ Caph
 CarVeR
 CATCH
 catflap
+CBB
 CBGB
 cbm
 CCAT
@@ -465,6 +481,7 @@ CREMOSA
 CRF
 CRiMSON
 CRiSC
+CRiSP
 CROSSBOW
 CROWN
 CrunchySubs
@@ -479,7 +496,7 @@ CtrlHD
 CTU
 CTUSports
 CULT
-CULTHD
+CultHD
 CuMBuCKeTS
 CureCom
 CYBERMEN
@@ -493,9 +510,11 @@ D-R
 D-Subs
 D-Z0N3
 D.L
+D05
 D0PE
 D2V
 D3Si
+D_Z0N3
 DA-C
 DAA
 DaDuck
@@ -565,12 +584,15 @@ DiETER
 DiFFERENT
 DiGiCo
 DigiSubs
+DIMAPIKS
 DIMENSION
 DiMiTri
+DiMMAN
 DiNA
 DiR
 DiRTY
 disc
+DiSPOSABLE
 DiSSENT
 Distill
 DiSTRiCT
@@ -624,6 +646,7 @@ DUMBLE
 DUMMY
 DUPLI
 DUQA
+DURHAM
 DutchReleaseTeam
 DuX
 DVD4LiFE
@@ -708,6 +731,7 @@ Exiled-Destiny
 EXIST3NC3
 EXQUiSiTE
 ExtraTorrentRG
+EXTREME
 EXViD
 EXViDiNT
 eztv
@@ -724,6 +748,7 @@ FAN
 FANDANGO
 FaNSuB
 FASM
+FASTHD
 FATAL1TY
 Fate-Force
 FBO
@@ -765,6 +790,7 @@ FLAME
 fLAMEhd
 FLATLiNE
 FLAWL3SS
+FLHD
 FliK
 Flomp-Rumbel
 FLS
@@ -780,6 +806,7 @@ FoRM
 FORWARD
 FourGHD
 FoV
+FOXY
 FPG
 FQM
 FR34KTV
@@ -787,6 +814,7 @@ FRAGMENT
 FraMeSToR
 Freaks
 FREEDOM
+FREHD
 FRiAR
 FRIGGHD
 FROST
@@ -807,6 +835,7 @@ FTW-HD
 fty
 FUA
 FUCT
+FULLHD
 FULLSIZE
 Fun
 FUNNER
@@ -937,8 +966,10 @@ HDBRiSe
 HDBT
 HDC
 HDChina
+HDCLASSiCS
 HDClub
 HDCP
+HDDEViLS
 HDEncX
 HDEX
 HDFiRE
@@ -969,10 +1000,11 @@ HFS
 HHH
 HHI
 HIDD3N
+HiDeF
 HiDt
 Hien
 HiFi
-HiGHTIMES
+HiGHTiMES
 Himi
 Himi.No
 Hinshitsu
@@ -1115,6 +1147,7 @@ joseole99-TCL
 Jozzep
 JS
 jth
+jTV
 JUMANJi
 JunkyCez
 Junoon
@@ -1271,13 +1304,18 @@ Manatsu
 MANGACiTY
 MARiNES
 marioBombo
+MarkerB
 MaRVeLouS
+MaxHD
 MAXiMUM
 MAXSPEED
 maz
 Mazui
 MC
 McCain
+McFly
+MCH
+MCHD
 MCR
 MDW-Subs
 MEAW
@@ -1321,6 +1359,7 @@ MoH
 Mokyu~
 MOMENTUM
 MONK
+MOOVEE
 Morai
 MoreHD
 MORiCH
@@ -1339,6 +1378,7 @@ MsR
 MUSiX
 MuSt
 mV4U
+mvgroup
 MVM
 mVmHD
 MVN
@@ -1353,6 +1393,7 @@ N!K
 N-F
 N-Subs
 N0L
+n3xT
 NAFSG
 Naisu
 Nakama-Fansubs
@@ -1417,11 +1458,17 @@ NOiR
 NoneStop
 noobkg
 NORARS
+NORDIC.EDITION
+NORDIC.RELEASE
+NORDiCHD
 NoSCR
+NOSCREENS
 NOsegmenT
 NOTV
 noushi
+NoVA
 NOVO
+NOWiNHD
 nox
 NPC
 NPW
@@ -1440,6 +1487,7 @@ NVA
 NWO
 NwS
 NWTC
+NY2
 NYDIC
 Nyoro~n.Subs
 NYS
@@ -1523,9 +1571,11 @@ Pianex
 piepHD
 PiKACHU
 PiLAF
+PiMP
 Pimp4003
 PiMS
 PiNER
+PiPicK
 PiX
 PixelHD
 PKF
@@ -1540,6 +1590,7 @@ PlX
 PM
 pmHD
 PMSVCD
+PO2
 POCHER
 POD
 POKERUS
@@ -1552,6 +1603,7 @@ PoT
 PoTuS
 PP
 PPQ
+pradanada
 PRECiOUS
 PRETENTIOUS
 prevail
@@ -1561,6 +1613,7 @@ PRiNCE
 PRIPPS
 prithwi
 PRiViLEGED
+PROD
 PRoDJi
 PROGRESS
 PROMiSE
@@ -1578,6 +1631,7 @@ Pti
 PtP
 PTpOWeR
 PtS
+PTTeam
 Pudding
 PUKKA
 Purana
@@ -1586,6 +1640,7 @@ Puri
 PusherCrew
 PUZZLE
 PVR
+PWE
 pwq
 PxHD
 PZE
@@ -1608,6 +1663,7 @@ R0CKED
 R10
 R3QU3ST
 R4F
+R_Knorloading
 Ra-C
 rabomil
 RaDiuS
@@ -1642,9 +1698,11 @@ RELEASE
 Release.Lounge
 RELOADED
 REMAX
+REMUX
 Repivx
 REPLICA
 REPRiSE
+REPTiLE
 REPUBLIC
 REPULSiON
 RESiSTANCE
@@ -1660,11 +1718,13 @@ RFSD
 RFtA
 rG
 RHD
+RHooD
 RHyTM
 RiFF
 RightSiZE
 RiP
 RiplleyHD
+Ripp3rX
 RippingGods
 RiPRG
 RiPTATORz
@@ -1681,6 +1741,7 @@ RoCKRioT
 RoFL
 ROOR
 ROTATE
+ROUGH
 ROVERS
 Royskatt
 Rpyleoh
@@ -1759,6 +1820,7 @@ SFM
 SFP
 SFS
 SFS.subs4u
+SFT
 SFW
 SFWhine
 SG
@@ -1778,6 +1840,7 @@ Shinsen-Subs
 shinythings
 shiro
 SHiTONLYGERMAN
+SHiTSoNy
 Shitsu-Subs
 SHiTTy
 Shoku-dan
@@ -1794,6 +1857,7 @@ SiHD
 SiLU
 Silver.RG
 SiMbA
+SimplyReleaseS
 SINISTER
 SiNNERS
 SiRiUs.sHaRe
@@ -1801,6 +1865,7 @@ SiSO
 SiTV
 SKA
 SKALiWAGZ
+Skazhutin
 SkipTowne
 SKiTFiSKE
 SKYLIGHT
@@ -1832,6 +1897,7 @@ Softfeng
 SoKa
 Solar
 SomeTV
+SONiDO
 SONS
 SOV
 SoW
@@ -1848,6 +1914,7 @@ SPiROTV
 SPK
 SPOOKY
 SPORTSBAR
+SpotlandRules
 SPRiNTER
 SpS
 SQsR
@@ -1894,6 +1961,7 @@ subs4u.Vidom
 subs4u.YKS.No
 SubSmith
 SUBTiTLES
+Subtox
 SUBZERO
 sUN.sujaidr
 SUNSPOT
@@ -1932,6 +2000,7 @@ TayTO
 TB
 TBF
 TBS
+TC.Samurai
 TCL
 TCM
 TCPA
@@ -2016,6 +2085,7 @@ TRiPS
 TrollHD
 trosa
 TRSH
+tRuAVC
 TruCK
 tRuE
 TRUEFRENCH
@@ -2048,6 +2118,7 @@ TvTiME
 TVTUPA
 TW
 TweakAnime
+twentyforty
 TWiST
 TWISTER
 TWiZTED
@@ -2059,8 +2130,10 @@ UbM
 UBR
 uffowich
 UFW
+UKDHD
 UKVcd
 ULF
+ULSHD
 ULTiMATE
 umai
 umee
@@ -2068,7 +2141,9 @@ UMF
 Underwater-Mahjong
 UNiQUE
 UNiT
+UNKOWN
 UNSKiLLED
+UNTOUCHABLES
 UNTOUCHED
 UNVEiL
 ureshii
@@ -2080,6 +2155,8 @@ UTW-Thora
 UTW-Vivid
 UTWoots
 UVall
+UxO
+Uyirvani
 V-A
 VaAr3
 VALiOMEDiA
@@ -2091,10 +2168,13 @@ VCDVaULT
 VCF
 VCORE
 VDE-Subs
+VeDeTT
 VeGaN
 Vegapunk
 VeggTeppe
+VeroVenlo
 VERSATiLE
+VERTIGGO
 Vex
 VIAHD
 VIAZAC
@@ -2105,6 +2185,7 @@ VideoCD
 VideoStar
 vidom
 Vidom.FA
+ViGi
 ViKAT
 ViLD
 ViNYL
@@ -2134,6 +2215,7 @@ Wakku
 WaLMaRT
 WANKAZ
 WASABi
+WASHiPATO
 WASTE
 WastedTime
 Wasurenai
@@ -2143,6 +2225,7 @@ WATCHABLE
 WATERS
 WAVEY
 WBZ
+WEST
 WHATELSE
 WHEELS
 WHiiZz
@@ -2153,6 +2236,8 @@ WiKi
 WILDER
 WinD
 WinD-DE
+WingmanNZ
+Wings13
 WiRA
 WiRE
 WLF
@@ -2177,7 +2262,7 @@ X-S
 x264Crew
 x4subs
 XanaX
-Xander
+xander
 XF
 XiA
 XII
