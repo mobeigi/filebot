@@ -611,7 +611,7 @@ public class MediaDetection {
 		sort(sorted, new SimilarityComparator(getMovieMatchMetric(), paragon.toArray()));
 
 		// DEBUG
-		// System.out.format("sortBySimilarity %s => %s", terms, options);
+		// System.out.format("sortBySimilarity %s => %s", terms, sorted);
 
 		return sorted;
 	}

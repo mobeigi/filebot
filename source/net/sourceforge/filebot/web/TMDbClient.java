@@ -74,8 +74,9 @@ public class TMDbClient implements MovieIdentificationService {
 			// e.g.
 			// {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 			String title = (String) it.get("title");
+			String originalTitle = (String) it.get("original_title");
 			if (title == null || title.isEmpty()) {
-				title = (String) it.get("original_title");
+				title = originalTitle;
 			}
 
 			try {
@@ -87,7 +88,7 @@ public class TMDbClient implements MovieIdentificationService {
 				} catch (Exception e) {
 					throw new IllegalArgumentException("Missing data: year");
 				}
-				result.add(new Movie(title, year, -1, (int) id));
+				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, (int) id));
 			} catch (Exception e) {
 				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
 			}
