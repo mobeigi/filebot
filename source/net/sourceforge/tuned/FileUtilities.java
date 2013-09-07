@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -158,6 +159,18 @@ public final class FileUtilities {
 		} finally {
 			fileChannel.close();
 		}
+	}
+
+	public static List<String[]> readCSV(InputStream source, String charsetName, String separatorPattern) {
+		Scanner scanner = new Scanner(source, charsetName);
+		Pattern separator = Pattern.compile(separatorPattern);
+		List<String[]> rows = new ArrayList<String[]>(65536);
+
+		while (scanner.hasNextLine()) {
+			rows.add(separator.split(scanner.nextLine()));
+		}
+
+		return rows;
 	}
 
 	public static Reader createTextReader(File file) throws IOException {

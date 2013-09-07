@@ -1,12 +1,15 @@
 package net.sourceforge.filebot.media;
 
+import static java.lang.Integer.parseInt;
 import static java.util.Arrays.asList;
+import static java.util.Arrays.copyOfRange;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.ResourceBundle.getBundle;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.UNICODE_CASE;
 import static java.util.regex.Pattern.compile;
 import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
+import static net.sourceforge.tuned.FileUtilities.readCSV;
 import static net.sourceforge.tuned.StringUtilities.join;
 
 import java.io.File;
@@ -26,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -274,14 +276,15 @@ public class ReleaseInfo {
 
 		@Override
 		public Movie[] process(ByteBuffer data) throws IOException {
-			Scanner scanner = new Scanner(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
+			List<Movie> movies = new ArrayList<Movie>(rows.size());
 
-			List<Movie> movies = new ArrayList<Movie>();
-			while (scanner.hasNext()) {
-				int imdbid = scanner.nextInt();
-				String name = scanner.next().trim();
-				int year = scanner.nextInt();
-				movies.add(new Movie(name, year, imdbid, -1));
+			for (String[] row : rows) {
+				int imdbid = parseInt(row[0]);
+				int year = parseInt(row[1]);
+				String name = row[2];
+				String[] aliasNames = copyOfRange(row, 3, row.length);
+				movies.add(new Movie(name, aliasNames, year, imdbid, -1));
 			}
 
 			return movies.toArray(new Movie[0]);
@@ -296,13 +299,14 @@ public class ReleaseInfo {
 
 		@Override
 		public TheTVDBSearchResult[] process(ByteBuffer data) throws IOException {
-			Scanner scanner = new Scanner(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
+			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>(rows.size());
 
-			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>();
-			while (scanner.hasNext() && scanner.hasNextInt()) {
-				int id = scanner.nextInt();
-				String name = scanner.next().trim();
-				tvshows.add(new TheTVDBSearchResult(name, id));
+			for (String[] row : rows) {
+				int id = parseInt(row[0]);
+				String name = row[1];
+				String[] aliasNames = copyOfRange(row, 2, row.length);
+				tvshows.add(new TheTVDBSearchResult(name, aliasNames, id));
 			}
 
 			return tvshows.toArray(new TheTVDBSearchResult[0]);
@@ -317,15 +321,14 @@ public class ReleaseInfo {
 
 		@Override
 		public AnidbSearchResult[] process(ByteBuffer data) throws IOException {
-			Scanner scanner = new Scanner(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8").useDelimiter("\t|\n");
+			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
+			List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(rows.size());
 
-			List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>();
-			while (scanner.hasNext() && scanner.hasNextInt()) {
-				int aid = scanner.nextInt();
-				String primaryTitle = scanner.next().trim();
-				String englishTitle = scanner.next().trim();
-
-				anime.add(new AnidbSearchResult(aid, primaryTitle, englishTitle.isEmpty() ? null : englishTitle));
+			for (String[] row : rows) {
+				int aid = parseInt(row[0]);
+				String primaryTitle = row[1];
+				String[] aliasNames = copyOfRange(row, 2, row.length);
+				anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
 			}
 
 			return anime.toArray(new AnidbSearchResult[0]);

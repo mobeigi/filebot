@@ -1,6 +1,8 @@
 package net.sourceforge.filebot.web;
 
 import java.io.Serializable;
+import java.util.AbstractList;
+import java.util.List;
 
 public abstract class SearchResult implements Serializable {
 
@@ -22,6 +24,21 @@ public abstract class SearchResult implements Serializable {
 
 	public String[] getAliasNames() {
 		return aliasNames.clone();
+	}
+
+	public List<String> getNames() {
+		return new AbstractList<String>() {
+
+			@Override
+			public String get(int index) {
+				return index == 0 ? name : aliasNames[index - 1];
+			}
+
+			@Override
+			public int size() {
+				return 1 + aliasNames.length;
+			}
+		};
 	}
 
 	@Override

@@ -61,7 +61,6 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -377,13 +376,11 @@ public class MediaDetection {
 	public static synchronized List<Entry<String, SearchResult>> getSeriesIndex() throws IOException {
 		if (seriesIndex.isEmpty()) {
 			try {
-				for (TheTVDBSearchResult it : releaseInfo.getTheTVDBIndex()) {
-					seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getName()).toLowerCase(), it));
-				}
-				for (AnidbSearchResult it : releaseInfo.getAnidbIndex()) {
-					seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getPrimaryTitle()).toLowerCase(), it));
-					if (it.getEnglishTitle() != null) {
-						seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(it.getEnglishTitle()).toLowerCase(), it));
+				for (SearchResult[] index : new SearchResult[][] { releaseInfo.getTheTVDBIndex(), releaseInfo.getAnidbIndex() }) {
+					for (SearchResult item : index) {
+						for (String name : item.getNames()) {
+							seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(name).toLowerCase(), item));
+						}
 					}
 				}
 			} catch (Exception e) {

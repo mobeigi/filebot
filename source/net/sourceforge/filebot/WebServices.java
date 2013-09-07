@@ -2,9 +2,11 @@
 package net.sourceforge.filebot;
 
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static net.sourceforge.filebot.Settings.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static net.sourceforge.filebot.Settings.getApplicationName;
+import static net.sourceforge.filebot.Settings.getApplicationProperty;
+import static net.sourceforge.filebot.Settings.getApplicationVersion;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -142,7 +144,7 @@ public final class WebServices {
 					
 					@Override
 					protected Set<String> getFields(SearchResult object) {
-						return set(object.getName());
+						return set(object.getNames());
 					}
 				};
 				

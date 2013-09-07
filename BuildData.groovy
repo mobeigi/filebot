@@ -157,10 +157,15 @@ if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity fail
 // BUILD anidb-index.gz
 def anidb = new net.sourceforge.filebot.web.AnidbClient(null, 0).getAnimeTitles()
 
-def anidb_index = anidb.findResults{ [it.getAnimeId(), it.getPrimaryTitle(), it.getEnglishTitle()] }
+def anidb_index = anidb.findResults{
+	def row = []
+	row += it.getAnimeId().pad(5)
+	row += it.names*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique()
+	return row
+}
 
 // join and sort
-def anidb_txt = anidb_index.findResults{ [it[0].pad(5), it[1] ?: '', it[2] == null || it[2].equals(it[1]) ? '' : it[2]]*.replaceAll(/\s+/, ' ')*.trim().join('\t').replaceAll(/['`´‘’ʻ]+/, /'/) }.sort().unique()
+def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 pack(anidb_out, anidb_txt)
 println "AniDB Index: " + anidb_txt.size()
 
