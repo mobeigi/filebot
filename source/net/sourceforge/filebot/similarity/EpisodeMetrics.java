@@ -194,11 +194,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		protected String[] normalize(Object[] objects) {
 			String[] names = new String[objects.length];
-
 			for (int i = 0; i < objects.length; i++) {
 				names[i] = normalizeObject(objects[i]).replaceAll("\\s", "");
 			}
-
 			return names;
 		}
 
@@ -208,8 +206,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				LinkedHashSet<String> set = new LinkedHashSet<String>(4);
 				set.add(removeTrailingBrackets(episode.getSeriesName()));
 				set.add(removeTrailingBrackets(episode.getTitle()));
-				set.add(removeTrailingBrackets(episode.getSeries().getName()));
-				for (String it : episode.getSeries().getAliasNames()) {
+				for (String it : episode.getSeries().getNames()) {
 					set.add(removeTrailingBrackets(it));
 				}
 
