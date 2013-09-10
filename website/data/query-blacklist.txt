@@ -38,7 +38,6 @@
 ^extract$
 ^extracted$
 ^Family$
-^Film$
 ^Film[s]?
 ^Filme$
 ^Finished
@@ -57,7 +56,7 @@
 ^MD0_DATA$
 ^media$
 ^mnt$
-^movie[s]?
+^Movie[s]?$
 ^new$
 ^other$
 ^Part$

@@ -60,14 +60,13 @@ new File('omdb.txt').eachLine('Windows-1252'){
 	
 	if (line.length > 11 && line[0] ==~ /\d+/) {
 		def imdbid = line[1].substring(2).toInteger()
-		def name = line[2]
+		def name = line[2].replaceAll(/\s+/, ' ').trim()
 		def year = line[3].toInteger()
 		def runtime = line[5]
 		def rating = tryQuietly{ line[11].toFloat() } ?: 0
 		def votes = tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0
 		
-		if ((year >= 1970 && (runtime =~ /h/ || votes >= 200) && rating >= 1 && votes >= 50) || (votes >= 2000)) {
-			line = line*.replaceAll(/\s+/, ' ')*.trim()
+		if ((year >= 1970 && (runtime =~ /h/ || votes >= 200) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000)) {
 			omdb << [imdbid, name, year]
 		}
 	}
@@ -77,7 +76,7 @@ omdb = omdb.findAll{ it[0] <= 9999999 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{A
 // save movie data
 def movies = omdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
 def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
-movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), it) }
+movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), [it[0], it[2], it[1]]) } // ORDER => ID, YEAR, NAME
 movies = movieSorter.values().collect{ it.join('\t') }
 
 pack(movies_out, movies)
