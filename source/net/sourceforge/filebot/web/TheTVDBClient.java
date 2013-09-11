@@ -1,15 +1,9 @@
 package net.sourceforge.filebot.web;
 
-import static java.util.Arrays.asList;
-import static net.sourceforge.filebot.web.EpisodeUtilities.filterBySeason;
-import static net.sourceforge.filebot.web.EpisodeUtilities.sortEpisodes;
-import static net.sourceforge.filebot.web.WebRequest.encode;
-import static net.sourceforge.filebot.web.WebRequest.getDocument;
-import static net.sourceforge.tuned.XPathUtilities.getIntegerContent;
-import static net.sourceforge.tuned.XPathUtilities.getTextContent;
-import static net.sourceforge.tuned.XPathUtilities.selectNode;
-import static net.sourceforge.tuned.XPathUtilities.selectNodes;
-import static net.sourceforge.tuned.XPathUtilities.selectString;
+import static java.util.Arrays.*;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;

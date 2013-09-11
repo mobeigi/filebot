@@ -2,11 +2,9 @@
 package net.sourceforge.filebot.similarity;
 
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static java.util.regex.Pattern.UNICODE_CASE;
-import static java.util.regex.Pattern.compile;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
 
 import java.io.File;
 import java.util.ArrayList;

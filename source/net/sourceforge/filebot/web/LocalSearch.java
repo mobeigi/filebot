@@ -1,8 +1,7 @@
 package net.sourceforge.filebot.web;
 
-import static java.util.Collections.singleton;
-import static java.util.Collections.sort;
-import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
+import static java.util.Collections.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;

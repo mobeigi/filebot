@@ -1,23 +1,12 @@
 package net.sourceforge.filebot.similarity;
 
-import static java.lang.Math.ceil;
-import static java.lang.Math.floor;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static java.util.Collections.synchronizedMap;
-import static net.sourceforge.filebot.Settings.useExtendedFileAttributes;
-import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
-import static net.sourceforge.filebot.similarity.Normalization.removeEmbeddedChecksum;
-import static net.sourceforge.filebot.similarity.Normalization.removeTrailingBrackets;
-import static net.sourceforge.tuned.FileUtilities.getName;
-import static net.sourceforge.tuned.FileUtilities.getNameWithoutExtension;
-import static net.sourceforge.tuned.FileUtilities.getRelativePathTail;
-import static net.sourceforge.tuned.FileUtilities.normalizePathSeparators;
-import static net.sourceforge.tuned.StringUtilities.join;
+import static java.lang.Math.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,16 +1,13 @@
 package net.sourceforge.filebot.media;
 
-import static java.lang.Integer.parseInt;
-import static java.util.Arrays.asList;
-import static java.util.Arrays.copyOfRange;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.ResourceBundle.getBundle;
-import static java.util.regex.Pattern.CASE_INSENSITIVE;
-import static java.util.regex.Pattern.UNICODE_CASE;
-import static java.util.regex.Pattern.compile;
-import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
-import static net.sourceforge.tuned.FileUtilities.readCSV;
-import static net.sourceforge.tuned.StringUtilities.join;
+import static java.lang.Integer.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static java.util.ResourceBundle.*;
+import static java.util.regex.Pattern.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;

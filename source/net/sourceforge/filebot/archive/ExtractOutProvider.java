@@ -2,7 +2,9 @@
 package net.sourceforge.filebot.archive;
 
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
 
 public interface ExtractOutProvider {

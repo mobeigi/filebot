@@ -1,8 +1,7 @@
 package net.sourceforge.filebot.web;
 
-import static net.sourceforge.filebot.web.EpisodeUtilities.sortEpisodes;
-import static net.sourceforge.filebot.web.WebRequest.createIgnoreCertificateSocketFactory;
-import static net.sourceforge.filebot.web.WebRequest.getReader;
+import static net.sourceforge.filebot.web.EpisodeUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.io.Reader;

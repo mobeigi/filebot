@@ -1,22 +1,12 @@
 package net.sourceforge.filebot.media;
 
-import static java.util.Collections.addAll;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.reverseOrder;
-import static java.util.Collections.singleton;
-import static java.util.Collections.sort;
-import static java.util.Collections.synchronizedMap;
-import static java.util.regex.Pattern.compile;
-import static net.sourceforge.filebot.MediaTypes.NFO_FILES;
-import static net.sourceforge.filebot.Settings.useExtendedFileAttributes;
-import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.getLenientCollator;
-import static net.sourceforge.filebot.similarity.Normalization.normalizeBrackets;
-import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
-import static net.sourceforge.tuned.FileUtilities.filter;
-import static net.sourceforge.tuned.FileUtilities.getName;
-import static net.sourceforge.tuned.FileUtilities.listFiles;
-import static net.sourceforge.tuned.FileUtilities.mapByFolder;
-import static net.sourceforge.tuned.FileUtilities.readFile;
+import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
+import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;

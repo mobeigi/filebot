@@ -1,8 +1,8 @@
 package net.sourceforge.filebot.similarity;
 
-import static java.util.Arrays.asList;
-import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.UNDEFINED;
-import static org.junit.Assert.assertEquals;
+import static java.util.Arrays.*;
+import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
+import static org.junit.Assert.*;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;

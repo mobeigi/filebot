@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JSpinner;
-import javax.swing.SwingConstants;
 import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.SwingConstants;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 

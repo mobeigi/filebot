@@ -2,11 +2,19 @@
 package net.sourceforge.filebot.archive;
 
 
-import java.io.*;
-import java.util.*;
+import java.io.Closeable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.sf.sevenzipjbinding.*;
-import net.sf.sevenzipjbinding.impl.*;
+import net.sf.sevenzipjbinding.IArchiveOpenCallback;
+import net.sf.sevenzipjbinding.IArchiveOpenVolumeCallback;
+import net.sf.sevenzipjbinding.IInStream;
+import net.sf.sevenzipjbinding.PropID;
+import net.sf.sevenzipjbinding.SevenZipException;
+import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
 
 
 class ArchiveOpenVolumeCallback implements IArchiveOpenVolumeCallback, IArchiveOpenCallback, Closeable {

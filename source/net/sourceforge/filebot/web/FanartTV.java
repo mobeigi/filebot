@@ -2,9 +2,8 @@
 package net.sourceforge.filebot.web;
 
 
-import static net.sourceforge.filebot.web.WebRequest.getDocument;
-import static net.sourceforge.tuned.XPathUtilities.getAttribute;
-import static net.sourceforge.tuned.XPathUtilities.selectNodes;
+import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.File;
 import java.io.Serializable;

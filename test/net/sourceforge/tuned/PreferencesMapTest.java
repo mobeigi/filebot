@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
+import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
+import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import net.sourceforge.tuned.PreferencesMap.SerializableAdapter;
-import net.sourceforge.tuned.PreferencesMap.SimpleAdapter;
 
 
 public class PreferencesMapTest {

@@ -1,9 +1,8 @@
 package net.sourceforge.filebot.web;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
-import static java.util.Collections.unmodifiableList;
-import static net.sourceforge.filebot.web.WebRequest.encodeParameters;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

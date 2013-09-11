@@ -1,26 +1,16 @@
 package net.sourceforge.filebot.format;
 
-import static java.util.Arrays.asList;
-import static java.util.Arrays.sort;
-import static java.util.Collections.singleton;
-import static net.sourceforge.filebot.MediaTypes.SUBTITLE_FILES;
-import static net.sourceforge.filebot.MediaTypes.VIDEO_FILES;
-import static net.sourceforge.filebot.Settings.useExtendedFileAttributes;
-import static net.sourceforge.filebot.format.Define.undefined;
-import static net.sourceforge.filebot.hash.VerificationUtilities.computeHash;
-import static net.sourceforge.filebot.hash.VerificationUtilities.getEmbeddedChecksum;
-import static net.sourceforge.filebot.hash.VerificationUtilities.getHashFromVerificationFile;
-import static net.sourceforge.filebot.media.MediaDetection.releaseInfo;
-import static net.sourceforge.filebot.media.MediaDetection.stripReleaseInfo;
-import static net.sourceforge.filebot.similarity.Normalization.removeTrailingBrackets;
-import static net.sourceforge.filebot.web.EpisodeFormat.SeasonEpisode;
-import static net.sourceforge.tuned.FileUtilities.filter;
-import static net.sourceforge.tuned.FileUtilities.hasExtension;
-import static net.sourceforge.tuned.FileUtilities.isDerived;
-import static net.sourceforge.tuned.FileUtilities.listFiles;
-import static net.sourceforge.tuned.FileUtilities.readFile;
-import static net.sourceforge.tuned.FileUtilities.replacePathSeparators;
-import static net.sourceforge.tuned.StringUtilities.join;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.Settings.*;
+import static net.sourceforge.filebot.format.Define.*;
+import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
+import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.sourceforge.filebot.web.EpisodeFormat.*;
+import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;

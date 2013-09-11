@@ -2,9 +2,12 @@
 package net.sourceforge.filebot.archive;
 
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import net.sf.sevenzipjbinding.*;
+import net.sf.sevenzipjbinding.ISequentialOutStream;
+import net.sf.sevenzipjbinding.SevenZipException;
 
 
 class ExtractOutStream implements ISequentialOutStream, Closeable {

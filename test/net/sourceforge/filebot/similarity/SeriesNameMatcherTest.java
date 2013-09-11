@@ -3,10 +3,9 @@ package net.sourceforge.filebot.similarity;
 
 
 import static org.junit.Assert.*;
+import net.sourceforge.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 import org.junit.Test;
-
-import net.sourceforge.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 
 public class SeriesNameMatcherTest {

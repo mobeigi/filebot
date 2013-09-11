@@ -25,10 +25,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JSpinner.NumberEditor;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.format.ExpressionFormat;

@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.similarity;
 
-import static net.sourceforge.filebot.similarity.Normalization.normalizePunctuation;
+import static net.sourceforge.filebot.similarity.Normalization.*;
 
 public class SubstringMetric implements SimilarityMetric {
 

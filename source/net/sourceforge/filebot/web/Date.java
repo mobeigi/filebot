@@ -2,9 +2,7 @@
 package net.sourceforge.filebot.web;
 
 
-import static java.util.Calendar.DAY_OF_MONTH;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.YEAR;
+import static java.util.Calendar.*;
 
 import java.io.Serializable;
 import java.text.ParseException;

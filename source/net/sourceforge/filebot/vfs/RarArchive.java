@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.tuned.ByteBufferOutputStream;
-
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;
