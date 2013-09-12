@@ -41,6 +41,7 @@
 ^Film[s]?
 ^Filme$
 ^Finished
+^good$
 ^HD[0-9]$
 ^hdd[0-9]$
 ^home$
@@ -53,6 +54,7 @@
 ^Incoming$
 ^jukebox$
 ^Kids$
+^master$
 ^MD0_DATA$
 ^media$
 ^mnt$
@@ -77,6 +79,7 @@
 ^Sort$
 ^Staging$
 ^Storage$
+^System$
 ^tank$
 ^temp$
 ^temporary$
