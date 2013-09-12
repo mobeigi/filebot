@@ -125,6 +125,9 @@
 	<type name="video/WindowsRecordedTV">
 		<extension>wtv</extension>
 	</type>
+	<type name="video/NuppelVideo">
+		<extension>nuv</extension>
+	</type>
 	<type name="video/3DSBS">
 		<extension>3DSBS</extension>
 		<extension>3DTAB</extension>
