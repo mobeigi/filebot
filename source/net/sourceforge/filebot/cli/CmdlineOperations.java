@@ -369,14 +369,13 @@ public class CmdlineOperations implements CmdlineInterface {
 		} else {
 			CLILogger.fine(format("Looking up movie by query [%s]", query));
 			List<Movie> results = service.searchMovie(query, locale);
-			results = applyExpressionFilter(results, filter);
-
-			if (results.isEmpty()) {
-				throw new Exception(format("Failed to look up movie by query [%s]", query));
+			List<Movie> validResults = applyExpressionFilter(results, filter);
+			if (validResults.isEmpty()) {
+				throw new Exception("Unable to find a valid match: " + results);
 			}
 
 			// force all mappings
-			Movie result = (Movie) selectSearchResult(query, results, strict).get(0);
+			Movie result = (Movie) selectSearchResult(query, validResults, strict).get(0);
 			for (File file : files) {
 				movieByFile.put(file, result);
 			}
@@ -405,9 +404,11 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (movie == null) {
 				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
 				Collection<Movie> results = detectMovie(file, null, service, locale, strict);
-				results = applyExpressionFilter(results, filter);
+				List<Movie> validResults = applyExpressionFilter(results, filter);
 				try {
-					movie = (Movie) selectSearchResult(query, results, strict).get(0);
+					if (validResults.size() > 0) {
+						movie = (Movie) selectSearchResult(query, validResults, strict).get(0);
+					}
 				} catch (Exception e) {
 					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
 				}
@@ -556,6 +557,10 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction) throws Exception {
+		if (renameMap.isEmpty()) {
+			throw new Exception(format("[%s] Unable to process any files", renameAction));
+		}
+
 		// rename files
 		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
 
