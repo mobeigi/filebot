@@ -188,9 +188,13 @@ List.metaClass.watch = { c -> createWatchService(c, delegate, true) }
 
 
 // FileBot MetaAttributes helpers
-import net.sourceforge.filebot.media.MetaAttributes
+import net.sourceforge.filebot.media.*
+import net.sourceforge.filebot.format.*
+import net.sourceforge.filebot.web.*
 
 File.metaClass.getMetadata = { net.sourceforge.filebot.Settings.useExtendedFileAttributes() ? new MetaAttributes(delegate) : null }
+File.metaClass.getMediaBinding = { new MediaBindingBean(delegate.metadata, delegate, null) }
+Movie.metaClass.getMediaBinding = Episode.metaClass.getMediaBinding = { new MediaBindingBean(delegate, null, null) }
 
 
 // Complete or session rename history
