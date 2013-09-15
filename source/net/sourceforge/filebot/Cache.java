@@ -51,12 +51,18 @@ public class Cache {
 		try {
 			cache.remove(key);
 		} catch (Exception e1) {
-			Logger.getLogger(Cache.class.getName()).log(Level.WARNING, e1.getMessage());
+			Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e1.getMessage());
 			try {
 				Logger.getLogger(Cache.class.getName()).log(Level.INFO, "Cached data has become invalid: Clearing cache now");
 				cache.removeAll();
 			} catch (Exception e2) {
 				Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e2.getMessage());
+				try {
+					Logger.getLogger(Cache.class.getName()).log(Level.INFO, "Cache has become invalid: Reset all caches");
+					cache.getCacheManager().clearAll();
+				} catch (Exception e3) {
+					Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e3.getMessage());
+				}
 			}
 		}
 	}
