@@ -138,13 +138,13 @@ tvdb.values().each{
 }
 
 
-thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() <= 3) }
+thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
 thetvdb_index = thetvdb_index.sort(new Comparator() {
 	int compare(a, b) { a[0] <=> b[0] }
 })
 
 // join and sort
-def thetvdb_txt = thetvdb_index.findResults{ [it[0].pad(6), it[1].trim()].join('\t') }
+def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique()).join('\t') }
 pack(thetvdb_out, thetvdb_txt)
 println "TheTVDB Index: " + thetvdb_txt.size()
 
