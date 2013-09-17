@@ -13,7 +13,7 @@ if (tryQuietly{ !(ut_state ==~ ut_state_allow) }) {
 }
 
 // check ut mode vs standalone mode
-if (args.size() > 0 && (tryQuietly{ ut_dir }?.size() > 0 || tryQuietly{ ut_file }?.size() > 0)) {
+if ((args.size() > 0 && (tryQuietly{ ut_dir }?.size() > 0 || tryQuietly{ ut_file }?.size() > 0)) || (args.size() == 0 && (tryQuietly{ ut_dir } == null || tryQuietly{ ut_file } == null))) {
 	throw new Exception("Conflicting arguments: pass in either file arguments or ut_dir/ut_file parameters but not both")
 }
 
