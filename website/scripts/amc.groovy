@@ -106,7 +106,7 @@ input = input.flatten{ f ->
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ it.isVideo() || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
+input = input.findAll{ (it.isVideo() && !tryQuietly{ it.hasExtension('iso') && !it.isDisk() }) || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
 
 // ignore clutter files
 input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/ || (it.isFile() && it.length() < minFileSize)) }
