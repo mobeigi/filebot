@@ -38,6 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.DateMatcher;
 import net.sourceforge.filebot.similarity.DateMetric;
@@ -86,6 +87,23 @@ public class MediaDetection {
 
 	public static boolean isClutterFile(File file) throws IOException {
 		return getClutterFileFilter().accept(file);
+	}
+
+	public static boolean isVideoDiskFile(File file) throws Exception {
+		FileFilter diskFolderEntryFilter = releaseInfo.getDiskFolderEntryFilter();
+		Archive iso = new Archive(file);
+		try {
+			for (File path : iso.listFiles()) {
+				for (File entry : listPath(path)) {
+					if (diskFolderEntryFilter.accept(entry)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		} finally {
+			iso.close();
+		}
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {

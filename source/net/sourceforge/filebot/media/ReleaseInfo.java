@@ -36,6 +36,7 @@ import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.tuned.ByteBufferInputStream;
+import net.sourceforge.tuned.FileUtilities.RegexFileFilter;
 
 import org.tukaani.xz.XZInputStream;
 
@@ -238,6 +239,10 @@ public class ReleaseInfo {
 
 	public FileFilter getDiskFolderFilter() {
 		return new FolderEntryFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
+	}
+
+	public FileFilter getDiskFolderEntryFilter() {
+		return new RegexFileFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
 	}
 
 	public FileFilter getClutterFileFilter() throws IOException {

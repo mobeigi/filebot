@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -619,6 +620,25 @@ public final class FileUtilities {
 
 		public String[] extensions() {
 			return extensions.clone();
+		}
+	}
+
+	public static class RegexFileFilter implements FileFilter, FilenameFilter {
+
+		private final Pattern pattern;
+
+		public RegexFileFilter(Pattern pattern) {
+			this.pattern = pattern;
+		}
+
+		@Override
+		public boolean accept(File dir, String name) {
+			return pattern.matcher(name).find();
+		}
+
+		@Override
+		public boolean accept(File file) {
+			return accept(file.getParentFile(), file.getName());
 		}
 	}
 

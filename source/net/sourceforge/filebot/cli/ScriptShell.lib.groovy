@@ -15,7 +15,7 @@ File.metaClass.isAudio = { _types.getFilter("audio").accept(delegate) }
 File.metaClass.isSubtitle = { _types.getFilter("subtitle").accept(delegate) }
 File.metaClass.isVerification = { _types.getFilter("verification").accept(delegate) }
 File.metaClass.isArchive = { _types.getFilter("archive").accept(delegate) }
-File.metaClass.isDisk = { MediaDetection.isDiskFolder(delegate) }
+File.metaClass.isDisk = { (delegate.isDirectory() && MediaDetection.isDiskFolder(delegate)) || (delegate.isFile() && _types.getFilter("video/iso").accept(delegate) && MediaDetection.isVideoDiskFile(delegate)) }
 
 File.metaClass.getDir = { getParentFile() }
 File.metaClass.hasFile = { c -> isDirectory() && listFiles().find(c) }
