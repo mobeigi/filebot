@@ -106,10 +106,10 @@ input = input.flatten{ f ->
 input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 
 // process only media files
-input = input.findAll{ (it.isVideo() && !tryQuietly{ it.hasExtension('iso') && !it.isDisk() }) || it.isSubtitle() || it.isDisk() || (music && it.isAudio()) }
+input = input.findAll{ f -> (f.isVideo() && !tryQuietly{ f.hasExtension('iso') && !f.isDisk() }) || f.isSubtitle() || (f.isDirectory() && f.isDisk()) || (music && f.isAudio()) }
 
 // ignore clutter files
-input = input.findAll{ !(it.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/ || (it.isFile() && it.length() < minFileSize)) }
+input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/ || (f.isFile() && f.length() < minFileSize)) }
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
