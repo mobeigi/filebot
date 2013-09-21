@@ -2,6 +2,7 @@ package net.sourceforge.filebot.similarity;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -119,20 +120,25 @@ public class SeasonEpisodeMatcher {
 	}
 
 	public List<SxE> match(File file) {
-		for (SeasonEpisodePattern pattern : patterns) {
-			List<SxE> match = pattern.match(file.getName());
+		// take folder name into consideration as much as file name but put priority on file name
+		List<File> pathTail = listPathTail(file, 2, true);
 
-			if (!match.isEmpty()) {
-				// current pattern did match
-				for (int i = 0; i < match.size(); i++) {
-					if (match.get(i).season < 0) {
-						Matcher sm = seasonPattern.matcher(file.getPath());
-						if (sm.find()) {
-							match.set(i, new SxE(Integer.parseInt(sm.group(1)), match.get(i).episode));
+		for (SeasonEpisodePattern pattern : patterns) {
+			for (File tail : pathTail) {
+				List<SxE> match = pattern.match(tail.getName());
+
+				if (!match.isEmpty()) {
+					// current pattern did match
+					for (int i = 0; i < match.size(); i++) {
+						if (match.get(i).season < 0) {
+							Matcher sm = seasonPattern.matcher(file.getPath());
+							if (sm.find()) {
+								match.set(i, new SxE(Integer.parseInt(sm.group(1)), match.get(i).episode));
+							}
 						}
 					}
+					return match;
 				}
-				return match;
 			}
 		}
 		return null;
