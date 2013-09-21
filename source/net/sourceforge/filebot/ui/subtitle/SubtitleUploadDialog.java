@@ -1,0 +1,666 @@
+package net.sourceforge.filebot.ui.subtitle;
+
+import static net.sourceforge.filebot.MediaTypes.*;
+import static net.sourceforge.filebot.media.MediaDetection.*;
+import static net.sourceforge.tuned.ui.TunedUtilities.*;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.EventObject;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
+import javax.swing.SwingWorker;
+import javax.swing.event.CellEditorListener;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+
+import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.ui.LanguageComboBox;
+import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.web.Movie;
+import net.sourceforge.filebot.web.OpenSubtitlesClient;
+import net.sourceforge.filebot.web.VideoHashSubtitleService.CheckResult;
+import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.tuned.ui.AbstractBean;
+import net.sourceforge.tuned.ui.EmptySelectionModel;
+
+public class SubtitleUploadDialog extends JDialog {
+
+	private final JTable subtitleMappingTable = createTable();
+
+	private final OpenSubtitlesClient database;
+
+	private ExecutorService checkExecutorService;
+	private ExecutorService uploadExecutorService;
+
+	public SubtitleUploadDialog(OpenSubtitlesClient database, Window owner) {
+		super(owner, "Upload Subtitles", ModalityType.DOCUMENT_MODAL);
+
+		this.database = database;
+
+		JComponent content = (JComponent) getContentPane();
+		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));
+
+		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
+
+		content.add(new JButton(uploadAction), "tag ok");
+		content.add(new JButton(finishAction), "tag cancel");
+	}
+
+	protected JTable createTable() {
+		JTable table = new JTable(new SubtitleMappingTableModel());
+		table.setDefaultRenderer(Movie.class, new MovieRenderer());
+		table.setDefaultRenderer(File.class, new FileRenderer());
+		table.setDefaultRenderer(Language.class, new LanguageRenderer());
+		table.setDefaultRenderer(SubtitleMapping.Status.class, new StatusRenderer());
+
+		table.setRowHeight(28);
+		table.setIntercellSpacing(new Dimension(5, 5));
+
+		table.setBackground(Color.white);
+		table.setAutoCreateRowSorter(true);
+		table.setFillsViewportHeight(true);
+
+		LanguageComboBox languageEditor = new LanguageComboBox(Language.getLanguage("en"), null);
+
+		// disable selection
+		table.setSelectionModel(new EmptySelectionModel());
+		languageEditor.setFocusable(false);
+
+		table.setDefaultEditor(Language.class, new DefaultCellEditor(languageEditor) {
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				LanguageComboBox editor = (LanguageComboBox) super.getTableCellEditorComponent(table, value, isSelected, row, column);
+				editor.getModel().setSelectedItem(value);
+				return editor;
+			}
+		});
+
+		table.setDefaultEditor(Movie.class, new TableCellEditor() {
+
+			@Override
+			public boolean stopCellEditing() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldSelectCell(EventObject evt) {
+				return false;
+			}
+
+			@Override
+			public void removeCellEditorListener(CellEditorListener listener) {
+			}
+
+			@Override
+			public boolean isCellEditable(EventObject evt) {
+				return true;
+			}
+
+			@Override
+			public Object getCellEditorValue() {
+				return null;
+			}
+
+			@Override
+			public void cancelCellEditing() {
+			}
+
+			@Override
+			public void addCellEditorListener(CellEditorListener evt) {
+			}
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				table.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				try {
+					SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
+					SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
+
+					Object originalIdentity = mapping.getIdentity();
+					File video = mapping.getVideo();
+					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(FileUtilities.getName(video)), String.format("%s/%s", video.getParentFile().getName(), video.getName()), SubtitleUploadDialog.this);
+					if (input != null && input.length() > 0) {
+						List<Movie> options = database.searchMovie(input, Locale.ENGLISH);
+						if (options.size() > 0) {
+							SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
+							dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+							dialog.setVisible(true);
+							Movie selectedValue = dialog.getSelectedValue();
+							if (selectedValue != null) {
+								for (SubtitleMapping it : model.getData()) {
+									if (originalIdentity == it.getIdentity() || (originalIdentity != null && originalIdentity.equals(it.getIdentity()))) {
+										if (model.isCellEditable(table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column))) {
+											it.setIdentity(selectedValue);
+										}
+									}
+								}
+								if (mapping.getIdentity() != null && mapping.getLanguage() != null) {
+									mapping.setState(SubtitleMapping.Status.UploadReady);
+								}
+							}
+						}
+					}
+				} catch (Exception e) {
+					Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+				}
+				table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				return null;
+			}
+		});
+
+		return table;
+	}
+
+	public void setUploadPlan(Map<File, File> uploadPlan) {
+		List<SubtitleMapping> mappings = new ArrayList<SubtitleMapping>(uploadPlan.size());
+		for (Entry<File, File> entry : uploadPlan.entrySet()) {
+			File subtitle = entry.getKey();
+			File video = entry.getValue();
+
+			Locale locale = MediaDetection.guessLanguageFromSuffix(subtitle);
+			Language language = Language.getLanguage(locale);
+
+			mappings.add(new SubtitleMapping(subtitle, video, language));
+		}
+
+		subtitleMappingTable.setModel(new SubtitleMappingTableModel(mappings.toArray(new SubtitleMapping[0])));
+	}
+
+	public void startChecking() {
+		checkExecutorService = Executors.newFixedThreadPool(2);
+
+		SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
+		for (SubtitleMapping it : data) {
+			if (it.getSubtitle() != null && it.getVideo() != null) {
+				checkExecutorService.submit(new CheckTask(it));
+			} else {
+				it.setState(SubtitleMapping.Status.IllegalInput);
+			}
+		}
+
+		checkExecutorService.shutdown();
+	}
+
+	private final Action uploadAction = new AbstractAction("Upload", ResourceManager.getIcon("dialog.continue")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			// disable any active cell editor
+			if (subtitleMappingTable.getCellEditor() != null) {
+				subtitleMappingTable.getCellEditor().stopCellEditing();
+			}
+
+			// don't allow restart of upload as long as there are still unfinished download tasks
+			if (uploadExecutorService != null && !uploadExecutorService.isTerminated()) {
+				return;
+			}
+
+			uploadExecutorService = Executors.newFixedThreadPool(1);
+
+			SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
+			for (final SubtitleMapping it : data) {
+				if (it.getStatus() == SubtitleMapping.Status.UploadReady) {
+					uploadExecutorService.submit(new UploadTask(it));
+				}
+			}
+
+			// terminate after all uploads have been completed
+			uploadExecutorService.shutdown();
+		}
+	};
+
+	private final Action finishAction = new AbstractAction("Close", ResourceManager.getIcon("dialog.cancel")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if (checkExecutorService != null) {
+				checkExecutorService.shutdownNow();
+			}
+			if (uploadExecutorService != null) {
+				uploadExecutorService.shutdownNow();
+			}
+
+			setVisible(false);
+			dispose();
+		}
+	};
+
+	private class MovieRenderer extends DefaultTableCellRenderer {
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			String text = null;
+			String tooltip = null;
+			Icon icon = null;
+
+			Movie movie = (Movie) value;
+			if (movie != null) {
+				text = movie.toString();
+				tooltip = String.format("%s [tt%07d]", movie.toString(), movie.getImdbId());
+				icon = database.getIcon();
+			}
+
+			setText(text);
+			setToolTipText(tooltip);
+			setIcon(icon);
+			return this;
+		}
+	}
+
+	private class FileRenderer extends DefaultTableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			String text = null;
+			String tooltip = null;
+			Icon icon = null;
+
+			if (value != null) {
+				File file = (File) value;
+				text = file.getName();
+				tooltip = file.getPath();
+				if (SUBTITLE_FILES.accept(file)) {
+					icon = ResourceManager.getIcon("file.subtitle");
+				} else if (VIDEO_FILES.accept(file)) {
+					icon = ResourceManager.getIcon("file.video");
+				}
+			}
+
+			setText(text);
+			setToolTipText(text);
+			setIcon(icon);
+			return this;
+		}
+	}
+
+	private class LanguageRenderer implements TableCellRenderer, ListCellRenderer {
+
+		private DefaultTableCellRenderer tableCell = new DefaultTableCellRenderer();
+		private DefaultListCellRenderer listCell = new DefaultListCellRenderer();
+
+		private Component configure(JLabel c, Object value, boolean isSelected, boolean hasFocus) {
+			String text = null;
+			Icon icon = null;
+
+			if (value != null) {
+				Language language = (Language) value;
+				text = language.getName();
+				icon = ResourceManager.getFlagIcon(language.getCode());
+			}
+
+			c.setText(text);
+			c.setIcon(icon);
+			return c;
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			return configure((DefaultTableCellRenderer) tableCell.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column), value, isSelected, hasFocus);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			return configure((DefaultListCellRenderer) listCell.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus), value, isSelected, cellHasFocus);
+		}
+	}
+
+	private class StatusRenderer extends DefaultTableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			String text = null;
+			Icon icon = null;
+
+			// CheckPending, Checking, CheckFailed, AlreadyExists, Identifying, IdentificationRequired, UploadPending, Uploading, UploadComplete, UploadFailed;
+			switch ((SubtitleMapping.Status) value) {
+			case IllegalInput:
+				text = "No video/subtitle pair";
+				icon = ResourceManager.getIcon("status.error");
+				break;
+			case CheckPending:
+				text = "Pending...";
+				icon = ResourceManager.getIcon("worker.pending");
+				break;
+			case Checking:
+				text = "Checking database...";
+				icon = ResourceManager.getIcon("database.go");
+				break;
+			case CheckFailed:
+				text = "Failed to check database";
+				icon = ResourceManager.getIcon("database.error");
+				break;
+			case AlreadyExists:
+				text = "Subtitle already exists in database";
+				icon = ResourceManager.getIcon("database.ok");
+				break;
+			case Identifying:
+				text = "Auto-detect missing information";
+				icon = ResourceManager.getIcon("action.export");
+				break;
+			case IdentificationRequired:
+				text = "Unable to auto-detect movie / series info";
+				icon = ResourceManager.getIcon("dialog.continue.invalid");
+				break;
+			case UploadReady:
+				text = "Ready for upload";
+				icon = ResourceManager.getIcon("dialog.continue");
+				break;
+			case Uploading:
+				text = "Uploading...";
+				icon = ResourceManager.getIcon("database.go");
+				break;
+			case UploadComplete:
+				text = "Upload successful";
+				icon = ResourceManager.getIcon("database.ok");
+				break;
+			case UploadFailed:
+				text = "Upload failed";
+				icon = ResourceManager.getIcon("database.error");
+				break;
+			}
+
+			setText(text);
+			setIcon(icon);
+			return this;
+		}
+	}
+
+	private static class SubtitleMappingTableModel extends AbstractTableModel {
+
+		private final SubtitleMapping[] data;
+
+		public SubtitleMappingTableModel(SubtitleMapping... mappings) {
+			this.data = mappings.clone();
+
+			for (int i = 0; i < data.length; i++) {
+				data[i].addPropertyChangeListener(new SubtitleMappingListener(i));
+			}
+		}
+
+		public SubtitleMapping[] getData() {
+			return data.clone();
+		}
+
+		@Override
+		public int getColumnCount() {
+			return 5;
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			switch (column) {
+			case 0:
+				return "Movie / Series";
+			case 1:
+				return "Video";
+			case 2:
+				return "Subtitle";
+			case 3:
+				return "Language";
+			case 4:
+				return "Status";
+			}
+			return null;
+		}
+
+		@Override
+		public int getRowCount() {
+			return data.length;
+		}
+
+		@Override
+		public Object getValueAt(int row, int column) {
+			switch (column) {
+			case 0:
+				return data[row].getIdentity();
+			case 1:
+				return data[row].getVideo();
+			case 2:
+				return data[row].getSubtitle();
+			case 3:
+				return data[row].getLanguage();
+			case 4:
+				return data[row].getStatus();
+			}
+			return null;
+		}
+
+		@Override
+		public void setValueAt(Object value, int row, int column) {
+			if (getColumnClass(column) == Language.class && value instanceof Language) {
+				data[row].setLanguage((Language) value);
+			}
+		}
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return (EnumSet.of(SubtitleMapping.Status.IdentificationRequired, SubtitleMapping.Status.UploadReady).contains(data[row].getStatus())) && (getColumnClass(column) == Movie.class || getColumnClass(column) == Language.class);
+		}
+
+		@Override
+		public Class<?> getColumnClass(int column) {
+			switch (column) {
+			case 0:
+				return Movie.class;
+			case 1:
+				return File.class;
+			case 2:
+				return File.class;
+			case 3:
+				return Language.class;
+			case 4:
+				return SubtitleMapping.Status.class;
+			}
+
+			return null;
+		}
+
+		private class SubtitleMappingListener implements PropertyChangeListener {
+
+			private final int index;
+
+			public SubtitleMappingListener(int index) {
+				this.index = index;
+			}
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				// update state and subtitle options
+				fireTableRowsUpdated(index, index);
+			}
+		}
+	}
+
+	private static class SubtitleMapping extends AbstractBean {
+
+		enum Status {
+			IllegalInput, CheckPending, Checking, CheckFailed, AlreadyExists, Identifying, IdentificationRequired, UploadReady, Uploading, UploadComplete, UploadFailed;
+		}
+
+		private Object identity;
+		private File subtitle;
+		private File video;
+		private Language language;
+
+		private Status status = Status.CheckPending;
+		private String message = null;
+
+		public SubtitleMapping(File subtitle, File video, Language language) {
+			this.subtitle = subtitle;
+			this.video = video;
+			this.language = language;
+		}
+
+		public Object getIdentity() {
+			return identity;
+		}
+
+		public File getSubtitle() {
+			return subtitle;
+		}
+
+		public File getVideo() {
+			return video;
+		}
+
+		public Language getLanguage() {
+			return language;
+		}
+
+		public Status getStatus() {
+			return status;
+		}
+
+		public void setIdentity(Object identity) {
+			this.identity = identity;
+			firePropertyChange("identity", null, this.identity);
+		}
+
+		public void setLanguage(Language language) {
+			this.language = language;
+			firePropertyChange("language", null, this.language);
+		}
+
+		public void setState(Status status) {
+			this.status = status;
+			firePropertyChange("status", null, this.status);
+		}
+
+	}
+
+	private class CheckTask extends SwingWorker<Object, Void> {
+
+		private final SubtitleMapping mapping;
+
+		public CheckTask(SubtitleMapping mapping) {
+			this.mapping = mapping;
+		}
+
+		@Override
+		protected Object doInBackground() throws Exception {
+			try {
+				mapping.setState(SubtitleMapping.Status.Checking);
+				CheckResult checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
+
+				// accept identity hint from search result
+				mapping.setIdentity(checkResult.identity);
+
+				if (checkResult.exists) {
+					mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
+					mapping.setState(SubtitleMapping.Status.AlreadyExists);
+					return checkResult;
+				}
+
+				if (mapping.getLanguage() == null) {
+					mapping.setState(SubtitleMapping.Status.Identifying);
+					try {
+						Locale locale = database.detectLanguage(FileUtilities.readFile(mapping.getSubtitle()));
+						mapping.setLanguage(Language.getLanguage(locale));
+					} catch (Exception e) {
+						Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());
+					}
+				}
+
+				// default to English
+				if (mapping.getLanguage() == null) {
+					mapping.setLanguage(Language.getLanguage("en"));
+				}
+
+				if (mapping.getIdentity() == null) {
+					mapping.setState(SubtitleMapping.Status.Identifying);
+					try {
+						Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
+						for (Movie it : identity) {
+							if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
+								it = MediaDetection.tmdb2imdb(it);
+							}
+							if (it != null && it.getImdbId() > 0) {
+								mapping.setIdentity(it);
+								break;
+							}
+						}
+					} catch (Exception e) {
+						Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.WARNING, "Failed to auto-detect movie: " + e.getMessage());
+					}
+				}
+
+				if (mapping.getIdentity() == null) {
+					mapping.setState(SubtitleMapping.Status.IdentificationRequired);
+				} else {
+					mapping.setState(SubtitleMapping.Status.UploadReady);
+				}
+
+				return checkResult;
+			} catch (Exception e) {
+				Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+				mapping.setState(SubtitleMapping.Status.CheckFailed);
+			}
+			return null;
+		}
+	}
+
+	private class UploadTask extends SwingWorker<Object, Void> {
+
+		private final SubtitleMapping mapping;
+
+		public UploadTask(SubtitleMapping mapping) {
+			this.mapping = mapping;
+		}
+
+		@Override
+		protected Object doInBackground() {
+			try {
+				mapping.setState(SubtitleMapping.Status.Uploading);
+				if (true)
+					throw new RuntimeException();
+
+				database.uploadSubtitle(mapping.getIdentity(), mapping.getLanguage().toLocale(), mapping.getVideo(), mapping.getSubtitle());
+				mapping.setState(SubtitleMapping.Status.UploadComplete);
+			} catch (Exception e) {
+				Logger.getLogger(UploadTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+				mapping.setState(SubtitleMapping.Status.UploadFailed);
+			}
+			return null;
+		}
+	}
+
+}

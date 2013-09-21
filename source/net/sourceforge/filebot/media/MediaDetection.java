@@ -57,6 +57,7 @@ import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 
@@ -104,6 +105,10 @@ public class MediaDetection {
 		} finally {
 			iso.close();
 		}
+	}
+
+	public static Locale guessLanguageFromSuffix(File file) {
+		return releaseInfo.getLanguageSuffix(getName(file));
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {
@@ -963,6 +968,14 @@ public class MediaDetection {
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
 		return WebServices.TheTVDB.getSeriesInfoByID(grepTheTvdbId(new String(readFile(nfo), "UTF-8")).iterator().next(), locale);
+	}
+
+	public static Movie tmdb2imdb(Movie m) throws IOException {
+		if (m.getTmdbId() <= 0 && m.getImdbId() <= 0)
+			throw new IllegalArgumentException();
+
+		MovieInfo info = WebServices.TMDb.getMovieInfo(m, Locale.ENGLISH);
+		return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
 	}
 
 	/*

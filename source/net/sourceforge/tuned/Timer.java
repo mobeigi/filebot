@@ -1,6 +1,4 @@
-
 package net.sourceforge.tuned;
-
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -9,29 +7,27 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public abstract class Timer implements Runnable {
-	
+
 	private final ThreadFactory threadFactory = new DefaultThreadFactory("Timer", Thread.NORM_PRIORITY, true);
-	
+
 	private ScheduledThreadPoolExecutor executor;
 	private ScheduledFuture<?> scheduledFuture;
 	private Thread shutdownHook;
-	
-	
+
 	public synchronized void set(long delay, TimeUnit unit, boolean runBeforeShutdown) {
 		// create executor if necessary
 		if (executor == null) {
 			executor = new ScheduledThreadPoolExecutor(1, threadFactory);
 		}
-		
+
 		// cancel existing future task
 		if (scheduledFuture != null) {
 			scheduledFuture.cancel(true);
 		}
-		
+
 		Runnable runnable = this;
-		
+
 		if (runBeforeShutdown) {
 			try {
 				addShutdownHook();
@@ -39,10 +35,10 @@ public abstract class Timer implements Runnable {
 				// may fail if running with restricted permissions
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
 			}
-			
+
 			// remove shutdown hook after execution
 			runnable = new Runnable() {
-				
+
 				@Override
 				public void run() {
 					try {
@@ -61,30 +57,27 @@ public abstract class Timer implements Runnable {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getClass().getName() + ": " + e.getMessage());
 			}
 		}
-		
+
 		scheduledFuture = executor.schedule(runnable, delay, unit);
 	}
-	
-	
+
 	public synchronized void cancel() {
 		removeShutdownHook();
-		
-		// stop executor
-		executor.shutdownNow();
-		
+		if (executor != null) {
+			executor.shutdownNow();
+		}
+
 		scheduledFuture = null;
 		executor = null;
 	}
-	
-	
+
 	private synchronized void addShutdownHook() {
 		if (shutdownHook == null) {
 			shutdownHook = new Thread(this);
 			Runtime.getRuntime().addShutdownHook(shutdownHook);
 		}
 	}
-	
-	
+
 	private synchronized void removeShutdownHook() {
 		if (shutdownHook != null) {
 			try {
@@ -98,5 +91,5 @@ public abstract class Timer implements Runnable {
 			}
 		}
 	}
-	
+
 }
