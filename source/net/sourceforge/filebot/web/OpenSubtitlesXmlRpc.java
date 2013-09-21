@@ -5,6 +5,7 @@ import static net.sourceforge.tuned.StringUtilities.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import net.sourceforge.tuned.ByteBufferOutputStream;
@@ -300,7 +302,16 @@ public class OpenSubtitlesXmlRpc {
 
 	protected Map<?, ?> invoke(String method, Object... arguments) throws XmlRpcFault {
 		try {
-			XmlRpcClient rpc = new XmlRpcClient(getXmlRpcUrl(), false);
+			XmlRpcClient rpc = new XmlRpcClient(getXmlRpcUrl(), false) {
+				public void parse(InputStream input) throws XmlRpcException {
+					try {
+						super.parse(new GZIPInputStream(input));
+					} catch (IOException e) {
+						throw new XmlRpcException(e.getMessage(), e);
+					}
+				};
+			};
+			rpc.setRequestProperty("Accept-Encoding", "gzip");
 
 			Map<?, ?> response = (Map<?, ?>) rpc.invoke(method, arguments);
 			checkResponse(response);
