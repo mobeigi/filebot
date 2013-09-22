@@ -131,13 +131,13 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			JFileChooser chooser = new JFileChooser();
+			chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 			chooser.setMultiSelectionEnabled(true);
 
 			// collect media file extensions (video and subtitle files)
 			List<String> extensions = new ArrayList<String>();
 			Collections.addAll(extensions, VIDEO_FILES.extensions());
 			Collections.addAll(extensions, SUBTITLE_FILES.extensions());
-
 			chooser.setFileFilter(new FileNameExtensionFilter("Media files", extensions.toArray(new String[0])));
 
 			if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
