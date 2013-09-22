@@ -139,7 +139,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getActionCommand() == null) {
+			if (e.getActionCommand() == null || searchTextField.getText().trim().isEmpty()) {
 				// command triggered by auto-completion
 				return;
 			}
