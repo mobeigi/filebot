@@ -166,6 +166,11 @@ abstract class SubtitleDropTarget extends JButton {
 
 		@Override
 		protected boolean handleDrop(List<File> input) {
+			if (getQueryLanguage() == null) {
+				UILogger.info("Please select a specific subtitle language.");
+				return false;
+			}
+
 			// perform a drop action depending on the given files
 			final Collection<File> videoFiles = new TreeSet<File>();
 
@@ -234,15 +239,17 @@ abstract class SubtitleDropTarget extends JButton {
 
 		@Override
 		protected DropAction getDropAction(List<File> input) {
-			if (getSubtitleService().isAnonymous())
-				return DropAction.Cancel;
-
 			// accept video files and folders
 			return (filter(input, VIDEO_FILES).size() > 0 && filter(input, SUBTITLE_FILES).size() > 0) || filter(input, FOLDERS).size() > 0 ? DropAction.Accept : DropAction.Cancel;
 		}
 
 		@Override
 		protected boolean handleDrop(List<File> input) {
+			if (getSubtitleService().isAnonymous()) {
+				UILogger.info("Please login. Anonymous user is not allowed to upload subtitles.");
+				return false;
+			}
+
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 			// perform a drop action depending on the given files
@@ -310,14 +317,11 @@ abstract class SubtitleDropTarget extends JButton {
 		}
 
 		protected Icon getIcon(DropAction dropAction) {
-			switch (dropAction) {
-			case Accept:
+			if (dropAction == DropAction.Accept)
 				return ResourceManager.getIcon("subtitle.exact.upload");
-			default:
-				return ResourceManager.getIcon("message.error");
-			}
-		}
 
+			return ResourceManager.getIcon("message.error");
+		}
 	}
 
 }
