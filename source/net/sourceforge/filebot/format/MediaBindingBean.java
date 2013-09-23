@@ -279,8 +279,8 @@ public class MediaBindingBean {
 		int height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
 
 		int ns = 0;
-		int[] ws = new int[] { 1920, 1280, 720, 360, 240, 120 };
-		int[] hs = new int[] { 1080, 720, 480, 360, 240, 120 };
+		int[] ws = new int[] { 1920, 1280, 720, 720, 360, 240, 120 };
+		int[] hs = new int[] { 1080, 720, 576, 480, 360, 240, 120 };
 		for (int i = 0; i < ws.length - 1; i++) {
 			if (width > ws[i + 1] && height > hs[i + 1]) {
 				ns = hs[i];
