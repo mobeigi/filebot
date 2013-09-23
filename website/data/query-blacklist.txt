@@ -99,6 +99,7 @@
 ^volume[0-9]?$
 ^Volumes$
 ^watch$
+A.PROCESAR
 A.Release.Lounge
 ABC
 AC3D
@@ -205,6 +206,7 @@ o2.pl
 onlinetvrecorder
 P2P
 PBS
+PELICULAS
 plex
 Pre.?DVD
 PROPER

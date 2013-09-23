@@ -616,7 +616,10 @@ public class MediaDetection {
 	}
 
 	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
-		List<String> paragon = stripReleaseInfo(terms, true);
+		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		paragon.addAll(stripReleaseInfo(terms, true));
+		paragon.addAll(stripReleaseInfo(terms, false));
+
 		List<T> sorted = new ArrayList<T>(options);
 		sort(sorted, new SimilarityComparator(getMovieMatchMetric(), paragon.toArray()));
 
