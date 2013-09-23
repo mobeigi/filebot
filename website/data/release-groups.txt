@@ -14,6 +14,7 @@
 1TiME
 1TV
 21TH
+2Brothers
 2DVD
 2HD
 2Lions
@@ -132,6 +133,7 @@ AiHD
 AiRLiNE
 AiRWAVES
 aiTen
+AJA
 AJAX
 Ajna
 AK
@@ -192,6 +194,7 @@ APAX
 APB
 Appel
 APT
+ARC
 Archerr
 ARCHiViST
 ArenaBG
@@ -395,11 +398,13 @@ CBGB
 cbm
 CCAT
 CCS-Speed
+CDC
 CDD
 CDDHD
 CDevils
 CEA
 CEB
+CENSORED
 CENTi
 CENTROPY
 CFE
@@ -441,9 +446,11 @@ CiRCLE
 CIS
 CLASS
 CLASSiC
+CLASSiCAL
 CLD
 CLDD
 CLERKS
+Clitori
 cloudyvision
 cLT
 CLUE
@@ -467,6 +474,7 @@ COMPULSION
 CONDITION
 CONFiDENT
 Connaz-AKA-MrPirate
+CONTRiBUTiON
 CoolGuys
 cottage
 COUNCiL
@@ -483,6 +491,7 @@ CRF
 CRiMSON
 CRiSC
 CRiSP
+CriTiCAL
 CROSSBOW
 CROWN
 CrunchySubs
@@ -519,6 +528,7 @@ D_Z0N3
 DA-C
 DAA
 DaDuck
+DAFTPUNK
 Dali-Neko
 Daman
 danger2u
@@ -730,6 +740,7 @@ eXD
 EXiLE
 Exiled-Destiny
 EXIST3NC3
+EXPS
 EXQUiSiTE
 ExtraTorrentRG
 EXTREME
@@ -761,6 +772,7 @@ FELONY
 FESTiS
 FEVER
 fez
+FF
 FFF
 FFNDVD
 FFS
@@ -895,6 +907,8 @@ GK.subs4u
 GL
 gleam
 GM4F
+GME
+GME2000
 GMoRK
 GNARLY
 Goblin10
@@ -1030,6 +1044,7 @@ hoschi
 HOSTiLE
 HOWL
 HP
+HP4F
 HqDTS
 HQE
 HR
@@ -1207,6 +1222,7 @@ KN3
 KNIGHTY1973
 KnK
 KnU-FS
+KOC
 KOENiG
 Koffe
 Koharubi
@@ -1239,6 +1255,7 @@ Lazy-Subs
 LCHD
 leetay
 LeetHD
+LeetXD
 LEGEND
 LEGi0N
 LeON
@@ -1255,6 +1272,7 @@ LionsDen
 LiPAN
 LiTE
 Live-eviL
+LizardGods
 LKRG
 LMAO
 LMG
@@ -1294,6 +1312,7 @@ M-S
 m.3.3.w
 M.O
 M2
+m4u
 M794
 MACHD
 macro
@@ -1315,6 +1334,7 @@ MAXiMUM
 MAXSPEED
 maz
 Mazui
+MB
 MC
 McCain
 McFly
@@ -1328,6 +1348,7 @@ MEDDY
 MEDiAMANiACS
 MEDiEVAL
 MEDIUS
+MEG
 MeiohSubs
 MELiTE
 MEMORiES
@@ -1380,6 +1401,7 @@ MS
 mSD
 MsR
 mthodmn101
+MUC
 MUSiX
 MuSt
 mV4U
@@ -1598,6 +1620,7 @@ PMSVCD
 PO2
 POCHER
 POD
+POE
 POKERUS
 Polar
 PoRNDoCtOR
@@ -1884,6 +1907,7 @@ SLIVE
 SLM
 SLO
 SLOMO
+SLOW
 SlowHD
 SM-Subs
 SM_LoC
@@ -2026,6 +2050,7 @@ TenkSu
 TeNNReeD
 Tensai-Anime
 Tenzinn
+TERMi
 TERRA
 terribleHD
 terribleSD
@@ -2089,6 +2114,7 @@ TRG
 Triad
 TRiMEDIA
 TRiPS
+TROJAN
 TrollHD
 trosa
 TRSH
@@ -2183,6 +2209,7 @@ VeroVenlo
 VERSATiLE
 VERTIGGO
 Vex
+VhV
 VIAHD
 VIAZAC
 ViCiOsO
@@ -2216,6 +2243,7 @@ VST
 W-B
 w.0.0.f
 w0rm
+W23
 W4F
 WAF
 Wakku
@@ -2270,9 +2298,11 @@ x264Crew
 x4subs
 XanaX
 xander
+XC
 XF
 XiA
 XII
+XM4F
 XMC
 XOR
 XOXO
