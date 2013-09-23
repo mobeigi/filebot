@@ -266,8 +266,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 
-		URI resource = xmlrpc.uploadSubtitles(info, sub);
-		System.out.println(resource);
+		// require login
+		login();
+
+		xmlrpc.uploadSubtitles(info, sub);
 	}
 
 	/**
