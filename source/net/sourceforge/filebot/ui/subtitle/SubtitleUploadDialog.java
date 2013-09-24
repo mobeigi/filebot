@@ -47,6 +47,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.Language;
@@ -581,6 +582,8 @@ public class SubtitleUploadDialog extends JDialog {
 				mapping.setState(SubtitleMapping.Status.Checking);
 				CheckResult checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
 
+				Analytics.trackEvent(database.getName(), "CheckSubtitle", null, checkResult.exists ? 1 : 0);
+
 				// accept identity hint from search result
 				mapping.setIdentity(checkResult.identity);
 
@@ -650,11 +653,11 @@ public class SubtitleUploadDialog extends JDialog {
 		protected Object doInBackground() {
 			try {
 				mapping.setState(SubtitleMapping.Status.Uploading);
-				if (true)
-					throw new RuntimeException();
 
 				database.uploadSubtitle(mapping.getIdentity(), mapping.getLanguage().toLocale(), mapping.getVideo(), mapping.getSubtitle());
 				mapping.setState(SubtitleMapping.Status.UploadComplete);
+
+				Analytics.trackEvent(database.getName(), "UploadSubtitle", mapping.getLanguage().getName(), 1);
 			} catch (Exception e) {
 				Logger.getLogger(UploadTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 				mapping.setState(SubtitleMapping.Status.UploadFailed);
