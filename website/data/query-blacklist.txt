@@ -108,7 +108,6 @@ AMC-TEST
 Anaglyph
 Anime[s]?
 Arte
-BBC
 Best.Quality
 bt.downloads
 btarena.org
