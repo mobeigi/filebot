@@ -114,7 +114,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 				// don't use title for matching if title equals series name
 				String normalizedToken = normalizeObject(e.getTitle());
-				if (normalizedToken.length() >= 3 && !normalizeObject(e.getSeriesName()).contains(normalizedToken)) {
+				if (normalizedToken.length() >= 4 && !normalizeObject(e.getSeriesName()).contains(normalizedToken)) {
 					return normalizedToken;
 				}
 			}
@@ -140,6 +140,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public float getSimilarity(Object o1, Object o2) {
 			float sxe = EpisodeIdentifier.getSimilarity(o1, o2);
 			float title = Title.getSimilarity(o1, o2);
+
+			// allow title to override SxE only if series name also is a good match
+			if (sxe < 1 && title == 1 && SeriesName.getSimilarity(o1, o2) < 0.5f) {
+				title = 0;
+			}
 
 			// account for misleading SxE patterns in the episode title
 			if (sxe < 0 && title == 1 && EpisodeIdentifier.getSimilarity(getTitle(o1), getTitle(o2)) == 1) {
