@@ -141,14 +141,14 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float sxe = EpisodeIdentifier.getSimilarity(o1, o2);
 			float title = Title.getSimilarity(o1, o2);
 
-			// allow title to override SxE only if series name also is a good match
-			if (sxe < 1 && title == 1 && SeriesName.getSimilarity(o1, o2) < 0.5f) {
-				title = 0;
-			}
-
 			// account for misleading SxE patterns in the episode title
 			if (sxe < 0 && title == 1 && EpisodeIdentifier.getSimilarity(getTitle(o1), getTitle(o2)) == 1) {
 				sxe = 1;
+				title = 0;
+			}
+
+			// allow title to override SxE only if series name also is a good match
+			if (title == 1 && SeriesName.getSimilarity(o1, o2) < 0.5f) {
 				title = 0;
 			}
 
