@@ -53,6 +53,7 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
+import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.AudioTrackFormat;
 import net.sourceforge.filebot.web.Episode;
@@ -183,7 +184,12 @@ public class RenamePanel extends JComponent {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// show popup on actionPerformed only when names list is empty
-				if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
+				if (renameModel.size() == 0) {
+					new LoadAction(filesList.getTransferablePolicy()).actionPerformed(e);
+					if (renameModel.size() > 0) {
+						fetchPopupAction.actionPerformed(e);
+					}
+				} else if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
 					fetchPopupAction.actionPerformed(e);
 				}
 			}
