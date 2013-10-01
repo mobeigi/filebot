@@ -34,6 +34,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -41,6 +42,7 @@ import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 import javax.swing.event.CellEditorListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -66,7 +68,7 @@ public class SubtitleUploadDialog extends JDialog {
 
 	private final OpenSubtitlesClient database;
 
-	private ExecutorService checkExecutorService;
+	private ExecutorService checkExecutorService = Executors.newFixedThreadPool(2);
 	private ExecutorService uploadExecutorService;
 
 	public SubtitleUploadDialog(OpenSubtitlesClient database, Window owner) {
@@ -155,7 +157,7 @@ public class SubtitleUploadDialog extends JDialog {
 					SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
 					Object originalIdentity = mapping.getIdentity();
-					File video = mapping.getVideo();
+					File video = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
 					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(FileUtilities.getName(video)), String.format("%s/%s", video.getParentFile().getName(), video.getName()), SubtitleUploadDialog.this);
 					if (input != null && input.length() > 0) {
 						List<Movie> options = database.searchMovie(input, Locale.ENGLISH);
@@ -165,15 +167,10 @@ public class SubtitleUploadDialog extends JDialog {
 							dialog.setVisible(true);
 							Movie selectedValue = dialog.getSelectedValue();
 							if (selectedValue != null) {
-								for (SubtitleMapping it : model.getData()) {
-									if (originalIdentity == it.getIdentity() || (originalIdentity != null && originalIdentity.equals(it.getIdentity()))) {
-										if (model.isCellEditable(table.convertRowIndexToModel(row), table.convertColumnIndexToModel(column))) {
-											it.setIdentity(selectedValue);
-										}
-									}
-								}
+								mapping.setIdentity(selectedValue);
 								if (mapping.getIdentity() != null && mapping.getLanguage() != null) {
-									mapping.setState(SubtitleMapping.Status.UploadReady);
+									mapping.setState(SubtitleMapping.Status.CheckPending);
+									startChecking();
 								}
 							}
 						}
@@ -182,6 +179,60 @@ public class SubtitleUploadDialog extends JDialog {
 					Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 				}
 				table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				return null;
+			}
+		});
+
+		table.setDefaultEditor(File.class, new TableCellEditor() {
+
+			@Override
+			public boolean stopCellEditing() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldSelectCell(EventObject evt) {
+				return false;
+			}
+
+			@Override
+			public void removeCellEditorListener(CellEditorListener listener) {
+			}
+
+			@Override
+			public boolean isCellEditable(EventObject evt) {
+				return true;
+			}
+
+			@Override
+			public Object getCellEditorValue() {
+				return null;
+			}
+
+			@Override
+			public void cancelCellEditing() {
+			}
+
+			@Override
+			public void addCellEditorListener(CellEditorListener evt) {
+			}
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
+				SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
+
+				JFileChooser chooser = new JFileChooser(mapping.getSubtitle().getParentFile());
+				chooser.setFileFilter(new FileNameExtensionFilter("Video files", VIDEO_FILES.extensions()));
+				chooser.setMultiSelectionEnabled(false);
+
+				if (chooser.showOpenDialog(getWindow(SubtitleUploadDialog.this)) == JFileChooser.APPROVE_OPTION) {
+					if (chooser.getSelectedFile() != null) {
+						mapping.setVideo(chooser.getSelectedFile());
+						mapping.setState(SubtitleMapping.Status.CheckPending);
+						startChecking();
+					}
+				}
 				return null;
 			}
 		});
@@ -205,18 +256,16 @@ public class SubtitleUploadDialog extends JDialog {
 	}
 
 	public void startChecking() {
-		checkExecutorService = Executors.newFixedThreadPool(2);
-
 		SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
 		for (SubtitleMapping it : data) {
 			if (it.getSubtitle() != null && it.getVideo() != null) {
-				checkExecutorService.submit(new CheckTask(it));
+				if (it.getStatus() == SubtitleMapping.Status.CheckPending) {
+					checkExecutorService.submit(new CheckTask(it));
+				}
 			} else {
 				it.setState(SubtitleMapping.Status.IllegalInput);
 			}
 		}
-
-		checkExecutorService.shutdown();
 	}
 
 	private final Action uploadAction = new AbstractAction("Upload", ResourceManager.getIcon("dialog.continue")) {
@@ -474,7 +523,7 @@ public class SubtitleUploadDialog extends JDialog {
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return (EnumSet.of(SubtitleMapping.Status.IdentificationRequired, SubtitleMapping.Status.UploadReady).contains(data[row].getStatus())) && (getColumnClass(column) == Movie.class || getColumnClass(column) == Language.class);
+			return (column == 0 || column == 1 || column == 3) && EnumSet.of(SubtitleMapping.Status.IdentificationRequired, SubtitleMapping.Status.UploadReady, SubtitleMapping.Status.IllegalInput).contains(data[row].getStatus());
 		}
 
 		@Override
@@ -549,6 +598,11 @@ public class SubtitleUploadDialog extends JDialog {
 
 		public Status getStatus() {
 			return status;
+		}
+
+		public void setVideo(File video) {
+			this.video = video;
+			firePropertyChange("video", null, this.video);
 		}
 
 		public void setIdentity(Object identity) {
