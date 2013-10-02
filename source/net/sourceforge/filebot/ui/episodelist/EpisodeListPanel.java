@@ -20,7 +20,6 @@ import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
@@ -40,7 +39,6 @@ import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
 import net.sourceforge.filebot.ui.transfer.CompositeTranserable;
 import net.sourceforge.filebot.ui.transfer.FileExportHandler;
-import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
@@ -72,9 +70,6 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		add(seasonSpinner, "sgy button, gap indent", 1);
 		add(sortOrderComboBox, "sgy button, gap rel", 2);
 		add(languageComboBox, "sgy button, gap indent+5", 3);
-
-		// add after tabbed pane
-		tabbedPaneGroup.add(new JButton(new SaveAction(new SelectedTabExportHandler())));
 
 		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, selectButtonListener);
 
