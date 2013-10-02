@@ -71,8 +71,8 @@ class RenameAction extends AbstractAction {
 	public void actionPerformed(ActionEvent evt) {
 		Window window = getWindow(evt.getSource());
 		try {
-			if (model.getRenameMap().isEmpty()) {
-				UILogger.info("Nothing to rename. Please add some files and create matches first.");
+			if (model.files().isEmpty()) {
+				UILogger.info("Nothing to rename. Please add some files and fetch data first.");
 				return;
 			}
 

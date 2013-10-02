@@ -12,7 +12,6 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -53,7 +52,6 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.AudioTrackFormat;
 import net.sourceforge.filebot.web.Episode;
@@ -131,27 +129,37 @@ public class RenamePanel extends JComponent {
 		new ScrollPaneSynchronizer(namesList, filesList);
 
 		// delete items from both lists
-		Action removeAction = new AbstractAction("Remove") {
+		Action removeAction = new AbstractAction("Remove", ResourceManager.getIcon("dialog.cancel")) {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JList list = ((RenameList) e.getSource()).getListComponent();
-				int index = list.getSelectedIndex();
+				RenameList list = null;
+				boolean deleteCell;
+
+				if (e.getSource() instanceof JButton) {
+					list = filesList;
+					deleteCell = isShiftOrAltDown(e);
+				} else {
+					list = ((RenameList) e.getSource());
+					deleteCell = isShiftOrAltDown(e);
+				}
+
+				int index = list.getListComponent().getSelectedIndex();
 				if (index >= 0) {
-					if (isShiftOrAltDown(e)) {
-						EventList eventList = ((RenameList) e.getSource()).getModel();
+					if (deleteCell) {
+						EventList eventList = list.getModel();
 						if (index < eventList.size()) {
-							((RenameList) e.getSource()).getModel().remove(index);
+							list.getModel().remove(index);
 						}
 					} else {
 						renameModel.matches().remove(index);
 					}
-					int maxIndex = ((RenameList) e.getSource()).getModel().size() - 1;
+					int maxIndex = list.getModel().size() - 1;
 					if (index > maxIndex) {
 						index = maxIndex;
 					}
 					if (index >= 0) {
-						list.setSelectedIndex(index);
+						list.getListComponent().setSelectedIndex(index);
 					}
 				}
 			}
@@ -172,28 +180,13 @@ public class RenamePanel extends JComponent {
 		// create fetch popup
 		ActionPopup fetchPopup = createFetchPopup();
 
-		final Action fetchPopupAction = new ShowPopupAction("Fetch", ResourceManager.getIcon("action.fetch"));
+		final Action fetchPopupAction = new ShowPopupAction("Fetch Data", ResourceManager.getIcon("action.fetch"));
 		JButton fetchButton = new JButton(fetchPopupAction);
 		filesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		fetchButton.setComponentPopupMenu(fetchPopup);
 		matchButton.setComponentPopupMenu(fetchPopup);
 		namesList.getButtonPanel().add(fetchButton, "gap 0");
-		matchButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// show popup on actionPerformed only when names list is empty
-				if (renameModel.size() == 0) {
-					new LoadAction(filesList.getTransferablePolicy()).actionPerformed(e);
-					if (renameModel.size() > 0) {
-						fetchPopupAction.actionPerformed(e);
-					}
-				} else if (renameModel.size() > 0 && !renameModel.hasComplement(0)) {
-					fetchPopupAction.actionPerformed(e);
-				}
-			}
-		});
 
 		namesList.getListComponent().setComponentPopupMenu(fetchPopup);
 		fetchButton.setComponentPopupMenu(fetchPopup);
@@ -207,7 +200,8 @@ public class RenamePanel extends JComponent {
 		namesList.getButtonPanel().add(settingsButton, "gap indent");
 
 		// open rename log button
-		filesList.getButtonPanel().add(new JButton(clearFilesAction), "gap 0");
+		filesList.getButtonPanel().add(createImageButton(removeAction), "gap 0", 2);
+		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0");
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
 
 		// reveal file location on double click
