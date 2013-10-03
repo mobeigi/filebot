@@ -407,7 +407,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 			SubtitleDescriptorBean subtitleBean = (SubtitleDescriptorBean) value;
 			setText(subtitleBean.getText());
-			setIcon(subtitleBean.getError() == null ? subtitleBean.getIcon() : ResourceManager.getIcon("status.warning"));
+
+			if (subtitleBean.getError() == null) {
+				setIcon(subtitleBean.getIcon());
+				setToolTipText(null);
+			} else {
+				setIcon(ResourceManager.getIcon("status.warning"));
+				setToolTipText(subtitleBean.getError().getMessage());
+			}
 
 			if (!isSelected) {
 				float f = subtitleBean.getMatchProbability();
@@ -860,6 +867,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		@Override
+		public String getName() {
+			return String.format("%s (by hash)", service.getName());
+		}
+
+		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
 			return service.getSubtitleList(files.toArray(new File[0]), languageName);
 		}
@@ -879,6 +891,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 			super(service.getName(), service.getIcon(), service.getLink());
 			this.service = service;
 			this.inputProvider = inputProvider;
+		}
+
+		@Override
+		public String getName() {
+			return String.format("%s (by name)", service.getName());
 		}
 
 		@Override
