@@ -60,6 +60,7 @@
 		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
 		<jar href="mediainfo.jar"        download="lazy" part="native"  />
 		<jar href="sevenzipjbinding.jar" download="lazy" part="native"  />
+		<jar href="rsyntaxtextarea.jar"  download="eager" />
 	</resources>
 	
 	<resources os="Windows" arch="x86">

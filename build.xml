@@ -101,6 +101,10 @@
 				<include name="net/miginfocom/**" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/rsyntaxtextarea.jar">
+				<include name="org/fife/**" />
+			</zipfileset>
+
 			<zipfileset src="${dir.lib}/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
