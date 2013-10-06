@@ -10,9 +10,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -46,7 +46,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -174,7 +173,8 @@ public class FormatDialog extends JDialog {
 		editorScrollPane.setOpaque(true);
 
 		content.add(editorScrollPane, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
-		content.add(createImageButton(changeSampleAction), "w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
+		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
+		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-27 n");
 
 		content.add(help, "growx, wrap 25px:push");
 
@@ -209,6 +209,11 @@ public class FormatDialog extends JDialog {
 		addWindowListener(new WindowAdapter() {
 
 			@Override
+			public void windowActivated(WindowEvent e) {
+				revalidate();
+			}
+
+			@Override
 			public void windowClosing(WindowEvent e) {
 				finish(false);
 			}
@@ -216,14 +221,6 @@ public class FormatDialog extends JDialog {
 
 		// install editor suggestions popup
 		editor.setComponentPopupMenu(createRecentFormatPopup());
-		TunedUtilities.installAction(editor, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), new AbstractAction("Recent") {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				// display popup below format editor
-				editor.getComponentPopupMenu().show(editor, 0, editor.getHeight() + 3);
-			}
-		});
 
 		// episode mode by default
 		setMode(Mode.Episode);
@@ -247,7 +244,7 @@ public class FormatDialog extends JDialog {
 		sample = restoreSample(mode);
 
 		// restore editor state
-		editor.setText(mode.persistentFormatHistory().isEmpty() ? "" : mode.persistentFormatHistory().get(0));
+		setFormatCode(mode.persistentFormatHistory().isEmpty() ? "" : mode.persistentFormatHistory().get(0));
 
 		// update examples
 		fireSampleChanged();
@@ -263,6 +260,14 @@ public class FormatDialog extends JDialog {
 		help.add(createExamplesPanel(mode), "growx, h pref!, gapx indent indent");
 
 		return help;
+	}
+
+	public void setFormatCode(String text) {
+		editor.setText(text);
+		editor.requestFocusInWindow();
+
+		editor.scrollRectToVisible(new Rectangle(0, 0)); // reset scroll
+		editor.setCaretPosition(text.length()); // scroll to end of format
 	}
 
 	private RSyntaxTextArea createEditor() {
@@ -341,7 +346,7 @@ public class FormatDialog extends JDialog {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					editor.setText(format);
+					setFormatCode(format);
 				}
 			});
 
@@ -566,7 +571,7 @@ public class FormatDialog extends JDialog {
 
 						@Override
 						public void actionPerformed(ActionEvent evt) {
-							editor.setText(expression);
+							setFormatCode(expression);
 						}
 					});
 
@@ -615,6 +620,16 @@ public class FormatDialog extends JDialog {
 				// reevaluate everything
 				fireSampleChanged();
 			}
+		}
+	};
+
+	protected final Action showRecentAction = new AbstractAction("Recent", ResourceManager.getIcon("action.expand")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			// display popup below format editor
+			JComponent c = (JComponent) evt.getSource();
+			editor.getComponentPopupMenu().show(c, 0, c.getHeight() + 3);
 		}
 	};
 
