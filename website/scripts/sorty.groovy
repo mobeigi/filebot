@@ -1,8 +1,8 @@
 // PERSONALIZED SETTINGS
-def episodeDir    = '''V:/in/TV'''
-def episodeFormat = '''V:/out/TV/{n}{'/Season '+s}/{episode}'''
-def movieDir      = '''V:/in/Movies'''
-def movieFormat   = '''V:/out/Movies/{movie}/{movie}'''
+def episodeDir    = '''/in/TV'''
+def episodeFormat = '''/out/TV/{n}/{"Season ${s.pad(2)}"}/{n} - {s00e00} - {t}'''
+def movieDir      = '''/in/Movies'''
+def movieFormat   = '''/out/Movies/{n} ({y})/{n} ({y}){" CD$pi"}'''
 
 // XBMC ON LOCAL MACHINE 
 def xbmc = ['localhost'] // (use [] to not notify any XBMC instances about updates)
@@ -10,7 +10,7 @@ def xbmc = ['localhost'] // (use [] to not notify any XBMC instances about updat
 
 
 // ignore chunk, part, par and hidden files
-def incomplete(f) { f.name =~ /[.]incomplete|[.]chunk|[.]par$|[.]dat$/ || f.isHidden() }
+def incomplete(f) { f.name =~ /[.]incomplete|[.]chunk|[.]par$|[.]dat$/ }
 
 
 // extract completed multi-volume rar files
@@ -36,7 +36,7 @@ episodeDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo()
 	files += getSubtitles(file:files)
 	
 	// sort episodes / subtitles
-	rename(file:files, db:'TVRage', format:episodeFormat)
+	rename(file:files, db:'TheTVDB', format:episodeFormat)
 }
 
 movieDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() } }.each{ dir ->
@@ -47,7 +47,7 @@ movieDir.getFolders{ !it.hasFile{ incomplete(it) } && it.hasFile{ it.isVideo() }
 	files += getSubtitles(file:files)
 	
 	// sort movies / subtitles
-	rename(file:files, db:'OpenSubtitles', format:movieFormat)
+	rename(file:files, db:'TheMovieDB', format:movieFormat)
 }
 
 
