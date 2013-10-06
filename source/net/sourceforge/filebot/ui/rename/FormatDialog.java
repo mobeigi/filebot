@@ -46,18 +46,15 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
@@ -83,6 +80,7 @@ import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
@@ -101,7 +99,7 @@ public class FormatDialog extends JDialog {
 	private JLabel preview = new JLabel();
 	private JLabel status = new JLabel();
 
-	private JTextComponent editor = createEditor();
+	private RSyntaxTextArea editor = createEditor();
 	private ProgressIndicator progressIndicator = new ProgressIndicator();
 
 	private JLabel title = new JLabel();
@@ -164,7 +162,18 @@ public class FormatDialog extends JDialog {
 
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 
-		content.add(editor, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
+		RTextScrollPane editorScrollPane = new RTextScrollPane(editor, false);
+		editorScrollPane.setLineNumbersEnabled(false);
+		editorScrollPane.setFoldIndicatorEnabled(false);
+		editorScrollPane.setIconRowHeaderEnabled(false);
+
+		editorScrollPane.setVerticalScrollBarPolicy(RTextScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		editorScrollPane.setHorizontalScrollBarPolicy(RTextScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		editorScrollPane.setViewportBorder(new EmptyBorder(7, 0, 7, 0));
+		editorScrollPane.setBackground(editor.getBackground());
+		editorScrollPane.setOpaque(true);
+
+		content.add(editorScrollPane, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
 
 		content.add(help, "growx, wrap 25px:push");
@@ -256,7 +265,7 @@ public class FormatDialog extends JDialog {
 		return help;
 	}
 
-	private JTextComponent createEditor() {
+	private RSyntaxTextArea createEditor() {
 		final RSyntaxTextArea editor = new RSyntaxTextArea(new RSyntaxDocument(SyntaxConstants.SYNTAX_STYLE_GROOVY) {
 			@Override
 			public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
@@ -276,7 +285,6 @@ public class FormatDialog extends JDialog {
 		editor.setHighlightCurrentLine(false);
 		editor.setLineWrap(false);
 
-		editor.setBorder(new CompoundBorder(new JTextField().getBorder(), new EmptyBorder(7, 2, 7, 2)));
 		editor.setFont(new Font(MONOSPACED, PLAIN, 14));
 
 		// update format on change
