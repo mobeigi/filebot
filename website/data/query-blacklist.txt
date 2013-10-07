@@ -94,6 +94,7 @@
 ^TV$
 ^user$
 ^utorrent$
+^vari$
 ^VCD$
 ^VIDEO_TS$
 ^volume[0-9]?$
