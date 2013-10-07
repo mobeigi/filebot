@@ -76,7 +76,7 @@
 			<zipfileset src="${dir.lib}/nekohtml.jar">
 				<include name="org/cyberneko/html/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/jsoup.jar">
 				<include name="org/jsoup/**" />
 			</zipfileset>
@@ -112,15 +112,17 @@
 			<zipfileset src="${dir.lib}/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
-			
+
 			<zipfileset src="${dir.lib}/xz.jar">
 				<include name="org/tukaani/xz/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/ehcache.jar">
+				<include name="META-INF/services/**" />
 				<include name="net/sf/ehcache/**" />
+				<include name="org/terracotta/**" />
 				<include name="ehcache-failsafe.xml" />
-				<include name="ehcache-version.properties" />
+				<include name="build-info.properties" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/slf4j.jar">
