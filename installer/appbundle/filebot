@@ -1,7 +1,7 @@
 #!/bin/bash
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
-dir_bin="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+BIN_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-dir_app=$dir_bin/../Resources/Java
-java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -Djava.net.useSystemProxies=true -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Dapplication.deployment=app "-Djna.library.path=$dir_app" "-Djava.library.path=$dir_app" -jar "$dir_app/FileBot.jar" "$@"
+JAVAROOT=$BIN_DIR/../Resources/Java
+java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -Djava.net.useSystemProxies=true -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Dapplication.deployment=app "-Djna.library.path=$JAVAROOT" "-Djava.library.path=$JAVAROOT" "-Dnet.sourceforge.filebot.AcoustID.fpcalc=$JAVAROOT/fpcalc" -jar "$JAVAROOT/FileBot.jar" "$@"

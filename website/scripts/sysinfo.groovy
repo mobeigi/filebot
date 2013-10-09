@@ -3,6 +3,16 @@
 // FileBot 2.62 (r993)
 println net.sourceforge.filebot.Settings.applicationIdentifier
 
+// chromaprint-tools
+try {
+	print 'chromaprint-tools: '
+	def fpcalc = System.getProperty('net.sourceforge.filebot.AcoustID.fpcalc', 'fpcalc')
+	def version = [fpcalc, '-version'].execute().text.trim() ?: 'fpcalc -version failed'
+	println "$version ($fpcalc)"
+} catch(Throwable error) {
+	println error
+}
+
 // JNA Native: 3.5.0
 try {
 	print 'JNA Native: '
