@@ -242,6 +242,7 @@ aXXo
 Ayako
 Ayako-sae
 AYMO
+AyoSuzy
 Ayu
 AzNiNVASiAN
 Azrael
@@ -301,6 +302,7 @@ BeStDvD
 BestHD
 BetaDoctor
 BETAMAX
+BF1
 BFF
 BG
 BHATTI
@@ -1231,6 +1233,7 @@ Koharubi
 Kole
 KonzillaRG
 KooKoo
+KOR
 KRaLiMaRKo
 Krispy
 KS
@@ -1268,6 +1271,7 @@ LGLuX
 Lightmaker
 lilwoodenboy
 LiMiTED
+LIMO
 LiNE
 LionsDen
 LiPAN
@@ -1684,6 +1688,7 @@ QiX
 qnr
 QoM
 QRC
+QRUS
 QSP
 Quali.SlaYer
 quietE
@@ -2088,7 +2093,7 @@ TjHD
 TK
 TK.STORM
 TKO
-tla
+TLA
 tlacatlc6
 TLF
 TM
@@ -2336,6 +2341,7 @@ YCDV
 YellowBeast
 YesMAX
 YesTV
+YFN
 Ygt
 YHBT
 Yibis

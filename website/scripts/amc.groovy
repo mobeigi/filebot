@@ -275,7 +275,7 @@ if (plex) {
 // mark episodes as 'acquired'
 if (myepisodes) {
 	_log.info 'Update MyEpisodes'
-	include('update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
+	executeScript('update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
 }
 
 if (pushover) {
@@ -342,6 +342,6 @@ if (clean) {
 	// deleting remaining files only makes sense after moving files
 	if ('MOVE'.equalsIgnoreCase(_args.action)) {
 		_log.info 'Clean clutter files and empty folders'
-		include('cleaner', args.empty ? [root:true] : [root:false], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+		executeScript('cleaner', args.empty ? [root:true] : [root:false], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
 	}
 }
