@@ -26,7 +26,7 @@ public abstract class SearchResult implements Serializable {
 		return aliasNames.clone();
 	}
 
-	public List<String> getNames() {
+	public List<String> getEffectiveNames() {
 		return new AbstractList<String>() {
 
 			@Override

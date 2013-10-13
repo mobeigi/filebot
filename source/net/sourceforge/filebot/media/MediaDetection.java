@@ -391,7 +391,7 @@ public class MediaDetection {
 			try {
 				for (SearchResult[] index : new SearchResult[][] { releaseInfo.getTheTVDBIndex(), releaseInfo.getAnidbIndex() }) {
 					for (SearchResult item : index) {
-						for (String name : item.getNames()) {
+						for (String name : item.getEffectiveNames()) {
 							seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(name).toLowerCase(), item));
 						}
 					}
@@ -541,7 +541,7 @@ public class MediaDetection {
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
 			options.addAll(movieNameMatches);
-			return sortBySimilarity(options, terms);
+			return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
 		}
 
 		// if matching name+year failed, try matching only by name
@@ -590,7 +590,7 @@ public class MediaDetection {
 		options.addAll(movieNameMatches);
 
 		// sort by relevance
-		return sortBySimilarity(options, terms);
+		return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
 	}
 
 	public static SimilarityMetric getMovieMatchMetric() {
@@ -615,18 +615,43 @@ public class MediaDetection {
 		});
 	}
 
-	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms) throws IOException {
-		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		paragon.addAll(stripReleaseInfo(terms, true));
-		paragon.addAll(stripReleaseInfo(terms, false));
+	public static SimilarityMetric getSeriesMatchMetric() {
+		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true));
+	}
 
-		List<T> sorted = new ArrayList<T>(options);
-		sort(sorted, new SimilarityComparator(getMovieMatchMetric(), paragon.toArray()));
+	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric, boolean stripReleaseInfo) throws IOException {
+		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+
+		// clean clutter tokens if required
+		if (stripReleaseInfo) {
+			paragon.addAll(stripReleaseInfo(terms, true));
+			paragon.addAll(stripReleaseInfo(terms, false));
+		} else {
+			paragon.addAll(terms);
+		}
+
+		// similarity comparator with multi-value support
+		SimilarityComparator comparator = new SimilarityComparator(metric, paragon.toArray()) {
+
+			@Override
+			public float getMaxSimilarity(Object obj) {
+				float f = 0;
+				Collection<?> names = obj instanceof SearchResult ? ((SearchResult) obj).getEffectiveNames() : singleton(obj);
+				for (Object it : names) {
+					f = Math.max(f, super.getMaxSimilarity(it));
+				}
+				return f;
+			}
+		};
+
+		// sort output array
+		List<T> result = new ArrayList<T>(options);
+		sort(result, comparator);
 
 		// DEBUG
-		// System.out.format("sortBySimilarity %s => %s", terms, sorted);
+		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
 
-		return sorted;
+		return result;
 	}
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {

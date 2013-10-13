@@ -65,7 +65,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 
 			@Override
 			protected Set<String> getFields(SearchResult series) {
-				return set(series.getNames());
+				return set(series.getEffectiveNames());
 			}
 		};
 

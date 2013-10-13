@@ -200,7 +200,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				LinkedHashSet<String> set = new LinkedHashSet<String>(4);
 				set.add(removeTrailingBrackets(episode.getSeriesName()));
 				set.add(removeTrailingBrackets(episode.getTitle()));
-				for (String it : episode.getSeries().getNames()) {
+				for (String it : episode.getSeries().getEffectiveNames()) {
 					set.add(removeTrailingBrackets(it));
 				}
 

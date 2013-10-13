@@ -1,6 +1,8 @@
 package net.sourceforge.filebot.web;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Movie extends SearchResult {
 
@@ -40,6 +42,16 @@ public class Movie extends SearchResult {
 	}
 
 	@Override
+	public List<String> getEffectiveNames() {
+		List<String> names = new ArrayList<String>(1 + aliasNames.length);
+		names.add(toString(name, year));
+		for (String alias : aliasNames) {
+			names.add(toString(alias, year));
+		}
+		return names;
+	}
+
+	@Override
 	public boolean equals(Object object) {
 		if (object instanceof Movie) {
 			Movie other = (Movie) object;
@@ -67,6 +79,10 @@ public class Movie extends SearchResult {
 
 	@Override
 	public String toString() {
+		return toString(name, year);
+	}
+
+	private static String toString(String name, int year) {
 		return String.format("%s (%04d)", name, year < 0 ? 0 : year);
 	}
 

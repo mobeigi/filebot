@@ -28,8 +28,8 @@ public class SerienjunkiesClientTest {
 		assertEquals(34, series.getSeriesId());
 		assertEquals("Alias", series.getLink());
 		assertEquals("Alias - Die Agentin", series.getName());
-		assertEquals("Alias", series.getNames().get(1));
-		assertEquals("Alias - Die Agentin", series.getNames().get(0));
+		assertEquals("Alias", series.getEffectiveNames().get(1));
+		assertEquals("Alias - Die Agentin", series.getEffectiveNames().get(0));
 		assertEquals("2001-09-30", series.getStartDate().toString());
 	}
 	

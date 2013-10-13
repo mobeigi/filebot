@@ -377,7 +377,7 @@ C-N.NTFS
 C-N.NTFS.No
 C-P-S
 C-Subs
-C0NFUSED
+c0nFuSed
 c0re
 C1
 C4DVD

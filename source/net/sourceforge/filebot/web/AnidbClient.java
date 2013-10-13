@@ -79,7 +79,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 			@Override
 			protected Set<String> getFields(SearchResult it) {
-				return set(it.getNames());
+				return set(it.getEffectiveNames());
 			}
 		};
 
