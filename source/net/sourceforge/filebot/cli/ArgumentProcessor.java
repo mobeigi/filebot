@@ -1,6 +1,4 @@
-
 package net.sourceforge.filebot.cli;
-
 
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
@@ -36,26 +34,23 @@ import net.sourceforge.filebot.web.CachedResource;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
-
 public class ArgumentProcessor {
-	
+
 	public void printHelp(ArgumentBean argumentBean) {
 		new CmdLineParser(argumentBean).printUsage(System.out);
 	}
-	
-	
+
 	public ArgumentBean parse(String[] args) throws CmdLineException {
 		ArgumentBean bean = new ArgumentBean();
 		CmdLineParser parser = new CmdLineParser(bean);
 		parser.parseArgument(args);
 		return bean;
 	}
-	
-	
+
 	public int process(ArgumentBean args, CmdlineInterface cli) {
 		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
 		CLILogger.setLevel(args.getLogLevel());
-		
+
 		try {
 			// print episode info
 			if (args.list) {
@@ -64,7 +59,7 @@ public class ArgumentProcessor {
 				}
 				return 0;
 			}
-			
+
 			// print media info
 			if (args.mediaInfo) {
 				for (File file : args.getFiles(true)) {
@@ -72,26 +67,26 @@ public class ArgumentProcessor {
 				}
 				return 0;
 			}
-			
+
 			// execute CLI operations
 			if (args.script == null) {
 				// file operations
 				Collection<File> files = new LinkedHashSet<File>(args.getFiles(true));
-				
+
 				if (args.extract) {
 					files.addAll(cli.extract(files, args.output, args.conflict, null, true));
 				}
-				
+
 				if (args.getSubtitles) {
 					files.addAll(cli.getSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
 				} else if (args.getMissingSubtitles) {
 					files.addAll(cli.getMissingSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, !args.nonStrict));
 				}
-				
+
 				if (args.rename) {
 					cli.rename(files, StandardRenameAction.forName(args.action), args.conflict, args.output, args.format, args.db, args.query, args.order, args.filter, args.lang, !args.nonStrict);
 				}
-				
+
 				if (args.check) {
 					// check verification file
 					if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
@@ -105,13 +100,13 @@ public class ArgumentProcessor {
 			} else {
 				// execute user script
 				System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
-				
+
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
-				
+
 				DefaultScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
 				URI script = scriptProvider.getScriptLocation(args.script);
-				
+
 				if (!scriptProvider.isInlineScheme(script.getScheme())) {
 					if (scriptProvider.getResourceTemplate(script.getScheme()) != null) {
 						scriptProvider.setBaseScheme(new URI(script.getScheme(), "%s", null));
@@ -125,12 +120,11 @@ public class ArgumentProcessor {
 						scriptProvider.setBaseScheme(new URI(script.getScheme(), script.getHost(), template, script.getQuery(), script.getFragment()));
 					}
 				}
-				
-				Analytics.trackEvent("CLI", "ExecuteScript", script.getScheme());
+
 				ScriptShell shell = new ScriptShell(cli, args, AccessController.getContext(), scriptProvider);
 				shell.runScript(script, bindings);
 			}
-			
+
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Throwable e) {
@@ -139,25 +133,21 @@ public class ArgumentProcessor {
 			return -1;
 		}
 	}
-	
-	
+
 	public static class DefaultScriptProvider implements ScriptProvider {
-		
+
 		private final boolean trustRemoteScript;
-		
+
 		private URI baseScheme;
-		
-		
+
 		public DefaultScriptProvider(boolean trustRemoteScript) {
 			this.trustRemoteScript = trustRemoteScript;
 		}
-		
-		
+
 		public void setBaseScheme(URI baseScheme) {
 			this.baseScheme = baseScheme;
 		}
-		
-		
+
 		public String getResourceTemplate(String scheme) {
 			try {
 				return getApplicationProperty("script." + scheme);
@@ -165,13 +155,11 @@ public class ArgumentProcessor {
 				return null;
 			}
 		}
-		
-		
+
 		public boolean isInlineScheme(String scheme) {
 			return "g".equals(scheme) || "system".equals(scheme);
 		}
-		
-		
+
 		@Override
 		public URI getScriptLocation(String input) {
 			try {
@@ -182,12 +170,12 @@ public class ArgumentProcessor {
 					if (input.equals("system:in")) {
 						return new URI("system", "in", null);
 					}
-					
+
 					// g:println 'hello world'
 					if (input.startsWith("g:")) {
 						return new URI("g", input.substring(2), null);
 					}
-					
+
 					// fn:sortivo / svn:sortivo
 					if (Pattern.matches("\\w+:.+", input)) {
 						String scheme = input.substring(0, input.indexOf(':'));
@@ -195,12 +183,12 @@ public class ArgumentProcessor {
 							return new URI(scheme, input.substring(scheme.length() + 1, input.length()), null);
 						}
 					}
-					
+
 					File file = new File(input);
 					if (baseScheme != null && !file.isAbsolute()) {
 						return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
 					}
-					
+
 					// X:/foo/bar.groovy
 					if (!file.isFile()) {
 						throw new FileNotFoundException(file.getPath());
@@ -211,26 +199,25 @@ public class ArgumentProcessor {
 				}
 			}
 		}
-		
-		
+
 		@Override
 		public Script fetchScript(URI uri) throws IOException {
 			if (uri.getScheme().equals("file")) {
 				return new Script(readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8")), true);
 			}
-			
+
 			if (uri.getScheme().equals("system")) {
 				return new Script(readAll(new InputStreamReader(System.in)), true);
 			}
-			
+
 			if (uri.getScheme().equals("g")) {
 				return new Script(uri.getSchemeSpecificPart(), true);
 			}
-			
+
 			// remote script
 			String url;
 			boolean trusted;
-			
+
 			String resolver = getResourceTemplate(uri.getScheme());
 			if (resolver != null) {
 				url = String.format(resolver, uri.getSchemeSpecificPart());
@@ -239,10 +226,10 @@ public class ArgumentProcessor {
 				url = uri.toString();
 				trusted = trustRemoteScript;
 			}
-			
+
 			// fetch remote script only if modified
 			CachedResource<String> script = new CachedResource<String>(url, String.class, 24 * 60 * 60 * 1000) {
-				
+
 				@Override
 				public String process(ByteBuffer data) {
 					return Charset.forName("UTF-8").decode(data).toString();
@@ -251,5 +238,5 @@ public class ArgumentProcessor {
 			return new Script(script.get(), trusted);
 		}
 	}
-	
+
 }

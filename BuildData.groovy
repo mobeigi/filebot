@@ -159,7 +159,7 @@ def anidb = new net.sourceforge.filebot.web.AnidbClient(null, 0).getAnimeTitles(
 def anidb_index = anidb.findResults{
 	def row = []
 	row += it.getAnimeId().pad(5)
-	row += it.names*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique()
+	row += it.effectiveNames*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique()
 	return row
 }
 

@@ -85,11 +85,11 @@ public class TMDbClient implements MovieIdentificationService {
 					String release = (String) it.get("release_date");
 					year = new Scanner(release).useDelimiter("\\D+").nextInt();
 				} catch (Exception e) {
-					throw new IllegalArgumentException("Missing data: year");
+					throw new IllegalArgumentException("Missing data: release date");
 				}
 				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, (int) id));
 			} catch (Exception e) {
-				Logger.getLogger(TMDbClient.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+				Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
 			}
 		}
 		return result;
