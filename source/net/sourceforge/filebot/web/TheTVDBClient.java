@@ -3,13 +3,17 @@ package net.sourceforge.filebot.web;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -25,12 +29,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.Icon;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo.SeriesProperty;
+import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.FileUtilities;
 
 import org.w3c.dom.Document;
@@ -95,8 +99,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// perform online search
-		URL url = getResource(MirrorType.SEARCH, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
-		Document dom = getDocument(url);
+		Document dom = getXmlResource(MirrorType.SEARCH, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 
 		List<Node> nodes = selectNodes("Data/Series", dom);
 		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
@@ -182,31 +185,52 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return episodes;
 	}
 
-	public Document getSeriesRecord(TheTVDBSearchResult searchResult, String languageCode) throws Exception {
-		URL seriesRecord = getResource(MirrorType.ZIP, "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + languageCode + ".zip");
+	public Document getSeriesRecord(final TheTVDBSearchResult searchResult, final String languageCode) throws Exception {
+		final String path = "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + languageCode + ".zip";
+		final MirrorType mirror = MirrorType.ZIP;
 
-		try {
-
-			ZipInputStream zipInputStream = new ZipInputStream(seriesRecord.openStream());
-			ZipEntry zipEntry;
-
-			try {
-				String seriesRecordName = languageCode + ".xml";
-
-				while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-					if (seriesRecordName.equals(zipEntry.getName())) {
-						return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(zipInputStream);
-					}
-				}
-
-				// zip file must contain the series record
-				throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, seriesRecord));
-			} finally {
-				zipInputStream.close();
+		CachedXmlResource record = new CachedXmlResource(path) {
+			@Override
+			protected URL getResourceLocation(String resource) throws IOException {
+				return getResourceURL(mirror, path);
 			}
-		} catch (FileNotFoundException e) {
-			throw new FileNotFoundException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, seriesRecord));
-		}
+
+			@Override
+			protected String fetchData(URL url, long lastModified) throws IOException {
+				try {
+					ByteBuffer data = WebRequest.fetchIfModified(url, lastModified);
+					if (data == null)
+						return null; // not modified
+
+					ZipInputStream zipInputStream = new ZipInputStream(new ByteBufferInputStream(data));
+					ZipEntry zipEntry;
+
+					try {
+						String seriesRecordName = languageCode + ".xml";
+
+						while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+							if (seriesRecordName.equals(zipEntry.getName())) {
+								return readAll(new InputStreamReader(zipInputStream, "UTF-8"));
+							}
+						}
+
+						// zip file must contain the series record
+						throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, getResourceURL(mirror, path)));
+					} finally {
+						zipInputStream.close();
+					}
+				} catch (FileNotFoundException e) {
+					throw new FileNotFoundException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, getResourceURL(mirror, path)));
+				}
+			}
+
+			@Override
+			public String process(String data) throws Exception {
+				return data;
+			}
+		};
+
+		return record.getDocument();
 	}
 
 	public TheTVDBSearchResult lookupByID(int id, Locale locale) throws Exception {
@@ -216,10 +240,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 
 		try {
-			URL baseRecordLocation = getResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
-			Document baseRecord = getDocument(baseRecordLocation);
-
-			String name = selectString("//SeriesName", baseRecord);
+			Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
+			String name = selectString("//SeriesName", dom);
 
 			TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
 			getCache().putData("lookupByID", id, locale, series);
@@ -237,8 +259,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 
-		URL query = getResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
-		Document dom = getDocument(query);
+		Document dom = getXmlResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
 
 		String id = selectString("//seriesid", dom);
 		String name = selectString("//SeriesName", dom);
@@ -256,7 +277,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return URI.create("http://" + host + "/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
 	}
 
-	protected String getMirror(MirrorType mirrorType) throws Exception {
+	protected String getMirror(MirrorType mirrorType) throws IOException {
 		synchronized (mirrors) {
 			if (mirrors.isEmpty()) {
 				// try cache first
@@ -272,7 +293,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				}
 
 				// initialize mirrors
-				Document dom = getDocument(getResource(null, "/api/" + apikey + "/mirrors.xml"));
+				Document dom = getXmlResource(null, "/api/" + apikey + "/mirrors.xml");
 
 				// all mirrors by type
 				Map<MirrorType, List<String>> mirrorListMap = new EnumMap<MirrorType, List<String>>(MirrorType.class);
@@ -312,7 +333,19 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 	}
 
-	protected URL getResource(MirrorType mirrorType, String path) throws Exception {
+	protected Document getXmlResource(final MirrorType mirrorType, final String path) throws IOException {
+		CachedXmlResource resource = new CachedXmlResource(path) {
+
+			protected URL getResourceLocation(String path) throws IOException {
+				return getResourceURL(mirrorType, path);
+			};
+		};
+
+		// fetch data or retrieve from cache
+		return resource.getDocument();
+	}
+
+	protected URL getResourceURL(MirrorType mirrorType, String path) throws IOException {
 		if (mirrorType != null) {
 			// use mirror
 			String mirror = getMirror(mirrorType);
@@ -373,13 +406,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 
-		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + getLanguageCode(locale) + ".xml"));
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + getLanguageCode(locale) + ".xml");
 
 		Node node = selectNode("//Series", dom);
 		Map<SeriesProperty, String> fields = new EnumMap<SeriesProperty, String>(SeriesProperty.class);
 
 		// remember banner mirror
-		fields.put(SeriesProperty.BannerMirror, getResource(MirrorType.BANNER, "/banners/").toString());
+		fields.put(SeriesProperty.BannerMirror, getResourceURL(MirrorType.BANNER, "/banners/").toString());
 
 		// copy values from xml
 		for (SeriesProperty key : SeriesProperty.values()) {
@@ -603,7 +636,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return asList(cachedList);
 		}
 
-		Document dom = getDocument(getResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.seriesId + "/banners.xml"));
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.seriesId + "/banners.xml");
 
 		List<Node> nodes = selectNodes("//Banner", dom);
 		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
@@ -613,7 +646,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				Map<BannerProperty, String> item = new EnumMap<BannerProperty, String>(BannerProperty.class);
 
 				// insert banner mirror
-				item.put(BannerProperty.BannerMirror, getResource(MirrorType.BANNER, "/banners/").toString());
+				item.put(BannerProperty.BannerMirror, getResourceURL(MirrorType.BANNER, "/banners/").toString());
 
 				// copy values from xml
 				for (BannerProperty key : BannerProperty.values()) {

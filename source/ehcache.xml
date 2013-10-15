@@ -51,7 +51,7 @@
 	-->
 	<cache name="web-persistent-datasource"
 		maxElementsInMemory="50"
-		maxElementsOnDisk="5000"
+		maxElementsOnDisk="50000"
 		eternal="false"
 		timeToIdleSeconds="5259000"
 		timeToLiveSeconds="5259000"
