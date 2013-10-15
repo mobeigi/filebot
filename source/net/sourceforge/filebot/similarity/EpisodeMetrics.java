@@ -381,7 +381,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			float max = 0;
 			for (String s1 : f1) {
 				for (String s2 : f2) {
-					max = max(super.getSimilarity(s1, s2), max);
+					if (s1 != null && s2 != null) {
+						max = max(super.getSimilarity(s1, s2), max);
+					}
 				}
 			}
 			return max;
@@ -390,7 +392,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected String[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				return new String[] { episode.getSeriesName(), EpisodeFormat.SeasonEpisode.formatSxE(episode), String.valueOf(episode.getAbsolute()) };
+				String[] f = new String[4];
+				f[0] = episode.getSeriesName();
+				f[1] = EpisodeFormat.SeasonEpisode.formatSxE(episode);
+				f[2] = episode.getAbsolute() == null ? null : episode.getAbsolute().toString();
+				f[3] = episode.getSeason() == null || episode.getEpisode() == null ? null : String.format("%02d%02d", episode.getSeason(), episode.getEpisode());
+				return f;
 			}
 
 			if (object instanceof Movie) {
