@@ -1067,7 +1067,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
 				}
 
-				CLILogger.info(String.format("Read archive [%s] to [%s]", file.getName(), outputFolder));
+				CLILogger.info(String.format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
 				final FileMapper outputMapper = new FileMapper(outputFolder, false);
 
 				final List<File> outputMapping = new ArrayList<File>();
