@@ -3,17 +3,14 @@ package net.sourceforge.filebot.web;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -25,8 +22,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.Icon;
 
@@ -34,7 +29,6 @@ import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo.SeriesProperty;
-import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.FileUtilities;
 
 import org.w3c.dom.Document;
@@ -124,13 +118,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		Document seriesRecord = getSeriesRecord(series, getLanguageCode(locale));
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getSeriesId() + "/all/" + locale.getLanguage() + ".xml");
 
 		// we could get the series name from the search result, but the language may not match the given parameter
-		String seriesName = selectString("Data/Series/SeriesName", seriesRecord);
-		Date seriesStartDate = Date.parse(selectString("Data/Series/FirstAired", seriesRecord), "yyyy-MM-dd");
+		String seriesName = selectString("Data/Series/SeriesName", dom);
+		Date seriesStartDate = Date.parse(selectString("Data/Series/FirstAired", dom), "yyyy-MM-dd");
 
-		List<Node> nodes = selectNodes("Data/Episode", seriesRecord);
+		List<Node> nodes = selectNodes("Data/Episode", dom);
 
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
 		List<Episode> specials = new ArrayList<Episode>(5);
@@ -183,54 +177,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		episodes.addAll(specials);
 
 		return episodes;
-	}
-
-	public Document getSeriesRecord(final TheTVDBSearchResult searchResult, final String languageCode) throws Exception {
-		final String path = "/api/" + apikey + "/series/" + searchResult.getSeriesId() + "/all/" + languageCode + ".zip";
-		final MirrorType mirror = MirrorType.ZIP;
-
-		CachedXmlResource record = new CachedXmlResource(path) {
-			@Override
-			protected URL getResourceLocation(String resource) throws IOException {
-				return getResourceURL(mirror, path);
-			}
-
-			@Override
-			protected String fetchData(URL url, long lastModified) throws IOException {
-				try {
-					ByteBuffer data = WebRequest.fetchIfModified(url, lastModified);
-					if (data == null)
-						return null; // not modified
-
-					ZipInputStream zipInputStream = new ZipInputStream(new ByteBufferInputStream(data));
-					ZipEntry zipEntry;
-
-					try {
-						String seriesRecordName = languageCode + ".xml";
-
-						while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-							if (seriesRecordName.equals(zipEntry.getName())) {
-								return readAll(new InputStreamReader(zipInputStream, "UTF-8"));
-							}
-						}
-
-						// zip file must contain the series record
-						throw new FileNotFoundException(String.format("Archive must contain %s: %s", seriesRecordName, getResourceURL(mirror, path)));
-					} finally {
-						zipInputStream.close();
-					}
-				} catch (FileNotFoundException e) {
-					throw new FileNotFoundException(String.format("Series record not found: %s [%s]: %s", searchResult.getName(), languageCode, getResourceURL(mirror, path)));
-				}
-			}
-
-			@Override
-			public String process(String data) throws Exception {
-				return data;
-			}
-		};
-
-		return record.getDocument();
 	}
 
 	public TheTVDBSearchResult lookupByID(int id, Locale locale) throws Exception {
@@ -342,7 +288,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		};
 
 		// fetch data or retrieve from cache
-		return resource.getDocument();
+		try {
+			return resource.getDocument();
+		} catch (FileNotFoundException e) {
+			throw new FileNotFoundException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
+		}
 	}
 
 	protected URL getResourceURL(MirrorType mirrorType, String path) throws IOException {

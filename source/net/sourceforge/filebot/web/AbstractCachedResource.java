@@ -1,5 +1,6 @@
 package net.sourceforge.filebot.web;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -124,6 +125,9 @@ public abstract class AbstractCachedResource<R, T extends Serializable> {
 					Thread.sleep(retryWaitTime);
 				}
 				return fetchData(url, lastModified);
+			} catch (FileNotFoundException e) {
+				// if the resource doesn't exist no need for retries
+				throw e;
 			} catch (IOException e) {
 				if (i >= 0 && i >= retries) {
 					throw e;
