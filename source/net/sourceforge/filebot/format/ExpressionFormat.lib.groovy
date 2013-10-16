@@ -97,7 +97,7 @@ String.metaClass.upperInitial = { replaceAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[a-
 *
 * e.g. "Deep Space 9" -> "DS9"
 */
-String.metaClass.acronym = { delegate.after(/^(?i)(The|A)\s/).trim().findAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[\p{Alnum}]/).join().toUpperCase() }
+String.metaClass.acronym = { delegate.after(/^(?i)(The|A|An)\s/).trim().findAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[\p{Alnum}]/).join().toUpperCase() }
 
 /**
  * Lower-case all letters that are not initials.
