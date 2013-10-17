@@ -158,9 +158,9 @@
 }</code></pre>Fetch subtitles, rename and compute checksums for all media folders in the file hierarchy.</div>
 
 <div class="description">
-<pre><code>[<span class="string">'E:/tvshows'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'tvrage'</span>) }
-[<span class="string">'E:/anime'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'anidb'</span>) }
-[<span class="string">'E:/movies'</span>].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'opensubtitles'</span>) }
+<pre><code>[<span class="string">'E:/TV Shows'</span> as File].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'TheTVDB'</span>) }
+[<span class="string">'E:/Anime'</span> as File].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'AniDB'</span>) }
+[<span class="string">'E:/Movies'</span> as File].<span class="method">eachMediaFolder</span>{ <span class="method">rename</span>(<span class="property">folder</span>:it, <span class="property">db</span>:<span class="string">'TheMovieDB'</span>) }
 </code></pre>Run rename on different folder hierarchies using different episode/movie datasources.</div>
 
 <div class="description">

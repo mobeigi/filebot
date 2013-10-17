@@ -1,9 +1,8 @@
-
 package net.sourceforge.filebot.format;
-
 
 import java.io.File;
 import java.io.FilePermission;
+import java.lang.management.ManagementPermission;
 import java.net.SocketPermission;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
@@ -22,12 +21,11 @@ import javax.script.ScriptException;
 
 import net.sourceforge.tuned.ExceptionUtilities;
 
-
 public class SecureCompiledScript extends CompiledScript {
-	
+
 	public static PermissionCollection getDefaultSandboxPermissions() {
 		Permissions permissions = new Permissions();
-		
+
 		permissions.add(new RuntimePermission("createClassLoader"));
 		permissions.add(new RuntimePermission("modifyThread"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
@@ -35,7 +33,8 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
 		permissions.add(new RuntimePermission("getFileSystemAttributes"));
-		
+		permissions.add(new ManagementPermission("monitor"));
+
 		// write permissions for temp and cache folders
 		try {
 			permissions.add(new FilePermission(new File(System.getProperty("java.io.tmpdir")).getAbsolutePath() + File.separator + "-", "write, delete"));
@@ -43,30 +42,27 @@ public class SecureCompiledScript extends CompiledScript {
 		} catch (Exception e) {
 			// ignore
 		}
-		
+
 		return permissions;
 	}
-	
+
 	private final CompiledScript compiledScript;
 	private final AccessControlContext sandbox;
-	
-	
+
 	public SecureCompiledScript(CompiledScript compiledScript) {
 		this(compiledScript, new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, getDefaultSandboxPermissions()) }));
 	}
-	
-	
+
 	public SecureCompiledScript(CompiledScript compiledScript, AccessControlContext sandbox) {
 		this.compiledScript = compiledScript;
 		this.sandbox = sandbox;
 	}
-	
-	
+
 	@Override
 	public Object eval(final ScriptContext context) throws ScriptException {
 		try {
 			return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-				
+
 				@Override
 				public Object run() throws ScriptException {
 					return compiledScript.eval(context);
@@ -74,22 +70,21 @@ public class SecureCompiledScript extends CompiledScript {
 			}, sandbox);
 		} catch (PrivilegedActionException e) {
 			AccessControlException accessException = ExceptionUtilities.findCause(e, AccessControlException.class);
-			
+
 			// try to unwrap AccessControlException
 			if (accessException != null)
 				throw new ExpressionException(accessException);
-			
+
 			// forward ScriptException
 			// e.getException() should be an instance of ScriptException,
 			// as only "checked" exceptions will be "wrapped" in a PrivilegedActionException
 			throw (ScriptException) e.getException();
 		}
 	}
-	
-	
+
 	@Override
 	public ScriptEngine getEngine() {
 		return compiledScript.getEngine();
 	}
-	
+
 }
