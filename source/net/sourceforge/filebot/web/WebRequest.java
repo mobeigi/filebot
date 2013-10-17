@@ -124,7 +124,7 @@ public final class WebRequest {
 		}
 
 		try {
-			connection.addRequestProperty("Accept-Encoding", "gzip");
+			connection.addRequestProperty("Accept-Encoding", "gzip,deflate");
 			connection.addRequestProperty("Accept-Charset", "UTF-8");
 		} catch (IllegalStateException e) {
 			// too bad, can't request gzipped data
@@ -140,8 +140,10 @@ public final class WebRequest {
 		String encoding = connection.getContentEncoding();
 
 		InputStream in = connection.getInputStream();
-		if ("gzip".equalsIgnoreCase(encoding)) {
+		if ("gzip".equalsIgnoreCase(encoding))
 			in = new GZIPInputStream(in);
+		else if ("deflate".equalsIgnoreCase(encoding)) {
+			in = new InflaterInputStream(in, new Inflater(true));
 		}
 
 		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 4 * 1024);
