@@ -1,6 +1,4 @@
-
 package net.sourceforge.filebot;
-
 
 import static java.awt.GraphicsEnvironment.*;
 import static java.util.regex.Pattern.*;
@@ -68,9 +66,8 @@ import net.sourceforge.tuned.TeePrintStream;
 
 import org.w3c.dom.NodeList;
 
-
 public class Main {
-	
+
 	/**
 	 * @param args
 	 */
@@ -79,18 +76,18 @@ public class Main {
 			// parse arguments
 			final ArgumentProcessor cli = new ArgumentProcessor();
 			final ArgumentBean args = cli.parse(arguments);
-			
+
 			if (args.printHelp() || args.printVersion() || (!args.runCLI() && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
-				
+
 				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
 					cli.printHelp(args);
 				}
-				
+
 				// just print help message or version string and then exit
 				System.exit(0);
 			}
-			
+
 			// tee stdout and stderr to log file if set
 			if (args.logFile != null) {
 				File logFile = new File(args.logFile);
@@ -100,32 +97,32 @@ public class Main {
 				if (!logFile.exists() && !logFile.getParentFile().mkdirs() && !logFile.createNewFile()) {
 					throw new IOException("Failed to create log file: " + logFile);
 				}
-				
+
 				// open file channel and lock
 				FileChannel logChannel = new FileOutputStream(logFile, true).getChannel();
 				if (args.logLock) {
 					System.out.println("Locking " + logFile);
 					logChannel.lock();
 				}
-				
+
 				OutputStream out = Channels.newOutputStream(logChannel);
 				System.setOut(new TeePrintStream(out, true, "UTF-8", System.out));
 				System.setErr(new TeePrintStream(out, true, "UTF-8", System.err));
 			}
-			
+
 			// make sure java.io.tmpdir exists
 			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 			tmpdir.mkdirs();
-			
+
 			// initialize this stuff before anything else
 			initializeCache();
 			initializeSecurityManager();
-			
+
 			if (args.clearUserData()) {
 				System.out.println("Reset preferences");
 				Settings.forPackage(Main.class).clear();
 			}
-			
+
 			if (args.clearCache()) {
 				// clear preferences and cache
 				System.out.println("Clear cache and temporary files");
@@ -138,7 +135,7 @@ public class Main {
 				}
 				CacheManager.getInstance().clearAll();
 			}
-			
+
 			// update system properties
 			if (System.getProperty("http.agent") == null) {
 				System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
@@ -155,23 +152,24 @@ public class Main {
 			if (args.action.equalsIgnoreCase("test")) {
 				System.setProperty("useExtendedFileAttributes", "false");
 				System.setProperty("application.analytics", "false");
-				HistorySpooler.getInstance().setPersistentHistoryEnabled(false); // don't keep history of --action test rename operations
+				System.setProperty("application.rename.history", "false"); // don't keep history of --action test rename operations
 			}
-			
+
 			// initialize analytics
 			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.parseBoolean(System.getProperty("application.analytics")));
-			
+			HistorySpooler.getInstance().setPersistentHistoryEnabled(System.getProperty("application.rename.history") == null ? true : Boolean.parseBoolean(System.getProperty("application.rename.history")));
+
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
 				// commit session history on shutdown
 				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						HistorySpooler.getInstance().commit();
 					}
 				}));
-				
+
 				// default cross-platform laf used in scripting to nimbus instead of metal (if possible)
 				if (args.script != null && !isHeadless()) {
 					try {
@@ -181,15 +179,15 @@ public class Main {
 						// ignore all errors and stick with default cross-platform laf
 					}
 				}
-				
+
 				int status = cli.process(args, new CmdlineOperations());
 				System.exit(status);
 			}
-			
+
 			// GUI mode => start user interface
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						try {
@@ -198,7 +196,7 @@ public class Main {
 						} catch (Exception e) {
 							Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
 						}
-						
+
 						startUserInterface(args);
 					}
 				});
@@ -208,7 +206,7 @@ public class Main {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e); // won't happen
 			}
-			
+
 			// pre-load media.types and JNA/GIO (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
 			if (useGVFS()) {
@@ -218,12 +216,12 @@ public class Main {
 					Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 				}
 			}
-			
+
 			// pre-load certain resources in the background
 			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
 				warmupCachedResources();
 			}
-			
+
 			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
 			if (!"skip".equals(System.getProperty("application.update"))) {
 				try {
@@ -238,11 +236,10 @@ public class Main {
 			System.exit(-1);
 		}
 	}
-	
-	
+
 	private static void startUserInterface(ArgumentBean args) {
 		JFrame frame = null;
-		
+
 		if (args.mode == null) {
 			// default frame
 			frame = new MainFrame();
@@ -257,42 +254,40 @@ public class Main {
 				throw new IllegalArgumentException("Illegal mode: " + args.mode);
 			}
 		}
-		
+
 		try {
 			// restore previous size and location
 			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
 		} catch (Exception e) {
 			// don't care, doesn't make a difference
 		}
-		
+
 		frame.setLocationByPlatform(true);
 		frame.addWindowListener(new WindowAdapter() {
-			
+
 			@Override
 			public void windowClosing(WindowEvent e) {
 				e.getWindow().setVisible(false);
 				HistorySpooler.getInstance().commit();
-				
+
 				if (useDonationReminder()) {
 					showDonationReminder();
 				}
-				
+
 				System.exit(0);
 			}
 		});
-		
+
 		// start application
 		frame.setVisible(true);
 	}
-	
-	
+
 	/**
 	 * Show update notifications if updates are available
 	 */
 	private static void checkUpdate() throws Exception {
-		final PreferencesEntry<String> updateIgnoreRevision = Settings.forPackage(Main.class).entry("update.revision.ignore");
-		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, 24 * 60 * 60 * 1000) {
-			
+		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, 24 * 60 * 60 * 1000, 0, 0) {
+
 			@Override
 			public Properties process(ByteBuffer data) {
 				try {
@@ -307,24 +302,24 @@ public class Main {
 				}
 			}
 		}.get();
-		
+
 		// check if update is required
 		int latestRev = Integer.parseInt(updateProperties.getProperty("revision"));
-		int latestIgnoreRev = Math.max(getApplicationRevisionNumber(), updateIgnoreRevision.getValue() == null ? 0 : Integer.parseInt(updateIgnoreRevision.getValue()));
-		
-		if (latestRev > latestIgnoreRev) {
+		int currentRev = getApplicationRevisionNumber();
+
+		if (latestRev > currentRev && currentRev > 0) {
 			SwingUtilities.invokeLater(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					final JDialog dialog = new JDialog(JFrame.getFrames()[0], updateProperties.getProperty("title"), ModalityType.APPLICATION_MODAL);
 					final JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
 					dialog.setContentPane(pane);
-					
+
 					pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
 					pane.add(new JLabel(updateProperties.getProperty("message")), "gap 10, wrap paragraph:push");
 					pane.add(new JButton(new AbstractAction("Download", ResourceManager.getIcon("dialog.continue")) {
-						
+
 						@Override
 						public void actionPerformed(ActionEvent evt) {
 							try {
@@ -337,7 +332,7 @@ public class Main {
 						}
 					}), "tag ok");
 					pane.add(new JButton(new AbstractAction("Details", ResourceManager.getIcon("action.report")) {
-						
+
 						@Override
 						public void actionPerformed(ActionEvent evt) {
 							try {
@@ -348,14 +343,13 @@ public class Main {
 						}
 					}), "tag help2");
 					pane.add(new JButton(new AbstractAction("Ignore", ResourceManager.getIcon("dialog.cancel")) {
-						
+
 						@Override
 						public void actionPerformed(ActionEvent evt) {
-							updateIgnoreRevision.setValue(updateProperties.getProperty("revision"));
 							dialog.setVisible(false);
 						}
 					}), "tag cancel");
-					
+
 					dialog.pack();
 					dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 					dialog.setVisible(true);
@@ -363,20 +357,19 @@ public class Main {
 			});
 		}
 	}
-	
-	
+
 	private static void showDonationReminder() {
 		int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 		if (renameCount < 2000)
 			return;
-		
+
 		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("donation").defaultValue("0");
 		int donationRev = Integer.parseInt(donation.getValue());
 		int currentRev = getApplicationRevisionNumber();
 		if (donationRev >= currentRev) {
 			return;
 		}
-		
+
 		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
 		String[] actions = new String[] { "Donate!", "Later" };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
@@ -395,24 +388,23 @@ public class Main {
 		}
 		Analytics.trackEvent("GUI", "Donate", "r" + currentRev, pane.getValue() == actions[0] ? 1 : 0);
 	}
-	
-	
+
 	private static void warmupCachedResources() {
 		Thread warmup = new Thread("warmupCachedResources") {
-			
+
 			@Override
 			public void run() {
 				try {
 					// pre-load filter data
 					MediaDetection.getClutterFileFilter();
 					MediaDetection.getDiskFolderFilter();
-					
+
 					// pre-load movie/series index
 					List<String> dummy = Collections.singletonList("");
 					MediaDetection.stripReleaseInfo(dummy, true);
 					MediaDetection.matchSeriesByName(dummy, -1);
 					MediaDetection.matchMovieName(dummy, true, -1);
-					
+
 					Collection<File> empty = Collections.emptyList();
 					MediaDetection.matchSeriesByDirectMapping(empty);
 					WebServices.TheTVDB.getLocalIndex();
@@ -421,18 +413,17 @@ public class Main {
 				}
 			}
 		};
-		
+
 		// start background thread
 		warmup.setDaemon(true);
 		warmup.setPriority(Thread.MIN_PRIORITY);
 		warmup.start();
 	}
-	
-	
+
 	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
 		// store bounds on close
 		window.addWindowListener(new WindowAdapter() {
-			
+
 			@Override
 			public void windowClosing(WindowEvent e) {
 				// don't save window bounds if window is maximized
@@ -444,7 +435,7 @@ public class Main {
 				}
 			}
 		});
-		
+
 		// restore bounds
 		int x = Integer.parseInt(settings.get("window.x"));
 		int y = Integer.parseInt(settings.get("window.y"));
@@ -452,32 +443,31 @@ public class Main {
 		int height = Integer.parseInt(settings.get("window.height"));
 		window.setBounds(x, y, width, height);
 	}
-	
-	
+
 	/**
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
 	private static void initializeCache() {
 		// prepare cache folder for this application instance
 		File cacheRoot = new File(getApplicationFolder(), "cache");
-		
+
 		try {
 			for (int i = 0; true; i++) {
 				File cache = new File(cacheRoot, String.format("%d", i));
 				if (!cache.isDirectory() && !cache.mkdirs()) {
 					throw new IOException("Failed to create cache dir: " + cache);
 				}
-				
+
 				File lockFile = new File(cache, ".lock");
 				final RandomAccessFile handle = new RandomAccessFile(lockFile, "rw");
 				final FileLock lock = handle.getChannel().tryLock();
 				if (lock != null) {
 					// setup cache dir for ehcache
 					System.setProperty("ehcache.disk.store.dir", cache.getAbsolutePath());
-					
+
 					// make sure to orderly shutdown cache
 					Runtime.getRuntime().addShutdownHook(new Thread() {
-						
+
 						@Override
 						public void run() {
 							try {
@@ -497,23 +487,22 @@ public class Main {
 							}
 						}
 					});
-					
+
 					// cache for this application instance is successfully set up and locked
 					return;
 				}
-				
+
 				// try next lock file
 				handle.close();
 			}
 		} catch (Exception e) {
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
-		
+
 		// use cache root itself as fail-safe fallback
 		System.setProperty("ehcache.disk.store.dir", new File(cacheRoot, "default").getAbsolutePath());
 	}
-	
-	
+
 	/**
 	 * Initialize default SecurityManager and grant all permissions via security policy. Initialization is required in order to run {@link ExpressionFormat} in a secure sandbox.
 	 */
@@ -522,22 +511,21 @@ public class Main {
 			// initialize security policy used by the default security manager
 			// because default the security policy is very restrictive (e.g. no FilePermission)
 			Policy.setPolicy(new Policy() {
-				
+
 				@Override
 				public boolean implies(ProtectionDomain domain, Permission permission) {
 					// all permissions
 					return true;
 				}
-				
-				
+
 				@Override
 				public PermissionCollection getPermissions(CodeSource codesource) {
-					// VisualVM can't connect if this method does return 
+					// VisualVM can't connect if this method does return
 					// a checked immutable PermissionCollection
 					return new Permissions();
 				}
 			});
-			
+
 			// set default security manager
 			System.setSecurityManager(new SecurityManager());
 		} catch (Exception e) {
@@ -545,5 +533,5 @@ public class Main {
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
 	}
-	
+
 }
