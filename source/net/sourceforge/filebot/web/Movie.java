@@ -2,6 +2,7 @@ package net.sourceforge.filebot.web;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Movie extends SearchResult {
@@ -43,6 +44,10 @@ public class Movie extends SearchResult {
 
 	@Override
 	public List<String> getEffectiveNames() {
+		if (aliasNames == null || aliasNames.length == 0) {
+			return Collections.singletonList(toString(name, year));
+		}
+
 		List<String> names = new ArrayList<String>(1 + aliasNames.length);
 		names.add(toString(name, year));
 		for (String alias : aliasNames) {

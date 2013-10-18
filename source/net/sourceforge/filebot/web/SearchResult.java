@@ -2,6 +2,7 @@ package net.sourceforge.filebot.web;
 
 import java.io.Serializable;
 import java.util.AbstractList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class SearchResult implements Serializable {
@@ -27,6 +28,10 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	public List<String> getEffectiveNames() {
+		if (aliasNames == null || aliasNames.length == 0) {
+			return Collections.singletonList(name);
+		}
+
 		return new AbstractList<String>() {
 
 			@Override
