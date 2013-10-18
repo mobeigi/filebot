@@ -170,3 +170,38 @@ String.metaClass.transliterate = { transformIdentifier -> com.ibm.icu.text.Trans
 *      "カタカナ" -> "katakana"
 */
 String.metaClass.ascii = { fallback = ' ' -> delegate.transliterate("Any-Latin;Latin-ASCII;[:Diacritic:]remove").replaceAll("[^\\p{ASCII}]+", fallback) }
+
+
+
+
+/**
+* Web and File IO helpers
+*/
+import net.sourceforge.filebot.web.WebRequest
+import net.sourceforge.tuned.FileUtilities
+import net.sourceforge.tuned.XPathUtilities
+
+URL.metaClass.getText = { FileUtilities.readAll(WebRequest.getReader(delegate.openConnection())) }
+URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate.getText()) }
+URL.metaClass.getXml = { new XmlParser().parseText(delegate.getText()) }
+URL.metaClass.scrape = { xpath -> XPathUtilities.selectString(xpath, WebRequest.getHtmlDocument(delegate)) }
+URL.metaClass.scrapeAll = { xpath -> XPathUtilities.selectNodes(xpath, WebRequest.getHtmlDocument(delegate)).findResults{ XPathUtilities.getTextContent(it) } }
+
+
+/**
+* XML / XPath utility functions
+*/
+import javax.xml.xpath.XPathFactory
+import javax.xml.xpath.XPathConstants
+
+File.metaClass.xpath = URL.metaClass.xpath = { String xpath -> 
+	def input = new org.xml.sax.InputSource(new StringReader(delegate.getText()))
+	def result = XPathFactory.newInstance().newXPath().evaluate(xpath, input, XPathConstants.STRING)
+	return result.trim();
+}
+
+File.metaClass.xpath = URL.metaClass.xpathAll = { String xpath -> 
+	def input = new org.xml.sax.InputSource(new StringReader(delegate.getText()))
+	def nodes = XPathFactory.newInstance().newXPath().evaluate(xpath, input, XPathConstants.NODESET)
+	return [0..nodes.length-1].findResults{ i -> nodes.item(i).getTextContent().trim() }
+}
