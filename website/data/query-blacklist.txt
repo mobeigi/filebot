@@ -120,6 +120,7 @@ Channel.4
 Channel.5
 CLASSIC
 CN
+CODIFICAR
 ConvertedTV
 Custom.DKsubs
 CVCD

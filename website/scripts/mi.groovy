@@ -3,8 +3,11 @@
 /*
  * Print media info of all video files to CSV file  
  */
-def model = 'Name;Container;Resolution;Video Codec;Video Format;Audio Codec;Audio Format;Audio Language(s);Duration;File Size;Path'
-def template = '{fn};{cf};{resolution};{vc};{vf};{ac};{af};{media.AudioLanguageList};{media.DurationString3};{file.length()};{file.getCanonicalPath()}'
+def model = '''Name;Container;Resolution;Video Codec;Video Format;Audio Codec;Audio Format;Audio Language(s);Duration;File Size;Folder Size;Folder Count;Path'''
+def template = '''{fn};{cf};{resolution};{vc};{vf};{ac};{af};{media.AudioLanguageList};{media.DurationString3};{file.length()};{folder.listFiles().sum{ it.length() }};{folder.listFiles().sum{ it.isFile() ? 1 : 0 }};{file.getCanonicalPath()}'''
+
+// sanity check
+if (args.size() != 2) throw new Exception('Invalid arguments:' + args)
 
 // open destination file (writing files requires -trust-script)
 args[1].withWriter{ output ->
