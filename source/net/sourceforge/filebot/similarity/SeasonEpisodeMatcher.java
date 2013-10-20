@@ -24,7 +24,7 @@ public class SeasonEpisodeMatcher {
 	private Pattern seasonPattern;
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
-		patterns = new SeasonEpisodePattern[5];
+		patterns = new SeasonEpisodePattern[6];
 
 		// match patterns like Season 01 Episode 02, ...
 		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
@@ -44,7 +44,21 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ... 1x01-02-03-04, 1x01x02x03x04 ...
-		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[xe.](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
+		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[xe](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
+
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				List<SxE> matches = new ArrayList<SxE>(2);
+				Scanner epno = new Scanner(match.group(2)).useDelimiter("\\D+");
+				while (epno.hasNext()) {
+					matches.add(new SxE(match.group(1), epno.next()));
+				}
+				return matches;
+			}
+		};
+
+		// match patterns 1.02, ..., 10.02, ...
+		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -58,7 +72,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like ep1, ep.1, ...
-		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:e|ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
+		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:e|ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -68,7 +82,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
-		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
+		patterns[5] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -93,7 +107,7 @@ public class SeasonEpisodeMatcher {
 
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
-			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1], patterns[2] };
+			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1], patterns[2], patterns[3] };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename

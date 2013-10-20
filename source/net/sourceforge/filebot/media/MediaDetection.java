@@ -332,10 +332,13 @@ public class MediaDetection {
 				// less reliable CWS deep matching
 				matches.addAll(matchSeriesByName(folders, 2));
 				matches.addAll(matchSeriesByName(filenames, 2));
-			}
 
-			// pass along only valid terms
-			names.addAll(stripBlacklistedTerms(matches));
+				// pass along only valid terms
+				names.addAll(stripBlacklistedTerms(matches));
+			} else {
+				// trust terms matched by 0-stance
+				names.addAll(matches);
+			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
 		}
