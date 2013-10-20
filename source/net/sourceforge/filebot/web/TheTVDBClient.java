@@ -185,18 +185,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 
-		try {
-			Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
-			String name = selectString("//SeriesName", dom);
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
+		String name = selectString("//SeriesName", dom);
 
-			TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
-			getCache().putData("lookupByID", id, locale, series);
-			return series;
-		} catch (FileNotFoundException e) {
-			// illegal series id
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to retrieve base series record: " + e.getMessage());
-			return null;
-		}
+		TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
+		getCache().putData("lookupByID", id, locale, series);
+		return series;
 	}
 
 	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
@@ -291,7 +285,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		try {
 			return resource.getDocument();
 		} catch (FileNotFoundException e) {
-			throw new FileNotFoundException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
+			throw new IllegalArgumentException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
 		}
 	}
 

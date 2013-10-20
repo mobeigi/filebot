@@ -89,7 +89,10 @@ public class TMDbClient implements MovieIdentificationService {
 				}
 				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, (int) id));
 			} catch (Exception e) {
-				Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+				// only print 'missing release date' warnings for matching movie titles
+				if (query.equalsIgnoreCase(title) || query.equalsIgnoreCase(originalTitle)) {
+					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+				}
 			}
 		}
 		return result;
