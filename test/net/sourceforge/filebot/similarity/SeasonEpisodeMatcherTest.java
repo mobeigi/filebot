@@ -32,6 +32,9 @@ public class SeasonEpisodeMatcherTest {
 
 		// test look-ahead and look-behind
 		assertEquals(new SxE(1, 3), matcher.match("Test_-_103_[1280x720]").get(0));
+
+		// test look-ahead and look-behind
+		assertEquals(new SxE(1, 4), new SeasonEpisodeMatcher(null, true).match("Atlantis.2013.1x04.Twist.of.Fate").get(0));
 	}
 
 	@Test
