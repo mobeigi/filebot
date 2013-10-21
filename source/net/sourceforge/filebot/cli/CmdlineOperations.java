@@ -264,7 +264,7 @@ public class CmdlineOperations implements CmdlineInterface {
 								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
 								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
 							} catch (IOException e) {
-								CLILogger.log(Level.SEVERE, e.getMessage(), e);
+								CLILogger.log(Level.SEVERE, e.getMessage());
 							}
 						}
 					}

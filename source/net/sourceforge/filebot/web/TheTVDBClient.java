@@ -285,7 +285,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		try {
 			return resource.getDocument();
 		} catch (FileNotFoundException e) {
-			throw new IllegalArgumentException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
+			throw new FileNotFoundException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
 		}
 	}
 
