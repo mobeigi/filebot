@@ -8,6 +8,7 @@ import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FilePermission;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementPermission;
 import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
 import java.net.URI;
@@ -170,10 +171,14 @@ class ScriptShell {
 		Permissions permissions = new Permissions();
 		
 		permissions.add(new RuntimePermission("createClassLoader"));
+		permissions.add(new RuntimePermission("accessClassInPackage.*"));
+		permissions.add(new RuntimePermission("modifyThread"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
 		permissions.add(new RuntimePermission("getenv.*"));
+		permissions.add(new RuntimePermission("getFileSystemAttributes"));
+		permissions.add(new ManagementPermission("monitor"));
 		
 		// write permissions for temp and cache folders
 		permissions.add(new FilePermission(new File(System.getProperty("ehcache.disk.store.dir")).getAbsolutePath() + File.separator + "-", "write, delete"));

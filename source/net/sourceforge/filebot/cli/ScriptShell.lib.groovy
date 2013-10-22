@@ -257,11 +257,12 @@ List.metaClass.sortBySimilarity = { prime, Closure toStringFunction = { obj -> o
 // call scripts
 def executeScript(String input, Map bindings = [:], Object... args) {
 	// apply parent script defines
-	def parameters = new javax.script.SimpleBindings(bindings != null ? _def : [:])
-	parameters.putAll(bindings)
-	
+	def parameters = new javax.script.SimpleBindings()
+		
 	// initialize default parameter
-	parameters['args'] = (args as List).flatten().findResults{ it as File }
+	parameters.putAll(_def)
+	parameters.putAll(bindings)
+	parameters.put('args', args.toList().flatten().findResults{ it as File })
 	
 	// run given script
 	_shell.runScript(input, parameters)
