@@ -78,3 +78,18 @@ println String.format('%d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, _sy
 
 // Windows 7 (x86)
 println String.format('%s (%s)', _system['os.name'], _system['os.arch'])
+
+
+
+// check for updates
+try {
+	def update = new net.sourceforge.filebot.web.CachedXmlResource(net.sourceforge.filebot.Settings.getApplicationProperty('update.url')).get().xml
+	def latestRev = update.revision.text() as int
+	def latestApp  = update.name.text()
+	
+	if (latestRev > net.sourceforge.filebot.Settings.applicationRevisionNumber) {
+		println "\n--- UPDATE AVAILABLE: $latestApp (r$latestRev) ---\n"
+	}
+} catch(Throwable error) {
+	// ignore
+}
