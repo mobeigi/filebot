@@ -83,7 +83,7 @@ println String.format('%s (%s)', _system['os.name'], _system['os.arch'])
 
 // check for updates
 try {
-	def update = new net.sourceforge.filebot.web.CachedXmlResource(net.sourceforge.filebot.Settings.getApplicationProperty('update.url')).get().xml
+	def update = new XmlSlurper().parse('http://filebot.net/update.xml')
 	def latestRev = update.revision.text() as int
 	def latestApp  = update.name.text()
 	
