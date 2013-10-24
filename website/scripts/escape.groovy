@@ -1,7 +1,26 @@
-net.sourceforge.filebot.cli.CLILogging.CLILogger.setLevel(java.util.logging.Level.OFF)
 
-console.printf('Enter: ')
-def s = console.readLine()
 
-// ‘$’, ‘`’, or ‘\’
-console.printf('%n"' + s.replaceAll('["$`\\\\]', {'\\'+it}) + '"%n')
+
+def escapeShell(String arg) {
+    return arg.replaceAll(/["$`<>^\\"']/, /\\$0/)
+}
+
+
+
+if (java.awt.GraphicsEnvironment.headless) {
+	// CLI mode
+	console.printf('Enter: ')
+	def s = console.readLine()
+	console.println('\n' + escapeShell(s) + '\n')
+	System.exit(0)
+} else {
+	// GUI mode
+	new groovy.swing.SwingBuilder().edt {
+	    frame(title: 'Escape', size: [350, 230], show: true, defaultCloseOperation: javax.swing.JFrame.EXIT_ON_CLOSE) { 
+	        gridLayout(cols: 1, rows: 2)
+	            textArea id: 'value', lineWrap: true, font: new java.awt.Font('Monospaced', 0, 16)
+	            textArea id: 'escape', lineWrap: true, text: bind(source:value, sourceProperty:'text', converter: { escapeShell(it) }), font: new java.awt.Font('Monospaced', 0, 16)
+		}
+	}
+	System.in.read() // wait for GUI to close
+}
