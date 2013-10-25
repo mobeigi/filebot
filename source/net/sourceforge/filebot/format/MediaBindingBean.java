@@ -308,7 +308,7 @@ public class MediaBindingBean {
 
 	@Define("af")
 	public String getAudioChannels() {
-		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)");
+		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
 
 		if (channels == null)
 			return null;
