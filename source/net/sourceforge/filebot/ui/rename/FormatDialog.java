@@ -20,6 +20,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.URI;
 import java.text.Format;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -416,7 +417,7 @@ public class FormatDialog extends JDialog {
 			media = new File(path);
 		}
 
-		return new MediaBindingBean(info, media, null);
+		return new MediaBindingBean(info, media, Collections.singletonMap(media, info));
 	}
 
 	private ExecutorService createExecutor() {
@@ -611,7 +612,7 @@ public class FormatDialog extends JDialog {
 				File file = dialog.getMediaFile();
 
 				// change sample
-				sample = new MediaBindingBean(info, file, null);
+				sample = new MediaBindingBean(info, file, Collections.singletonMap(file, info));
 
 				// remember
 				mode.persistentSample().setValue(info == null ? "" : JsonWriter.toJson(info));
