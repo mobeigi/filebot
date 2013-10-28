@@ -115,7 +115,7 @@ input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|deleted.sce
 input.each{ f -> _log.finest("Input: $f") }
 
 // artwork/nfo utility
-if (artwork || xbmc) { include('lib/htpc') }
+if (artwork || xbmc || plex) { include('lib/htpc') }
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
