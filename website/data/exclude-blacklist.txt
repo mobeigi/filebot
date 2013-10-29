@@ -7,3 +7,5 @@
 \((sample|trailer)\)
 \[(sample|trailer)\]
 ^(sample|trailer)
+Deleted.and.Extended.Scenes
+Deleted.Scenes

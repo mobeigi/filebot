@@ -246,7 +246,7 @@ public class ReleaseInfo {
 	}
 
 	public FileFilter getClutterFileFilter() throws IOException {
-		return new ClutterFileFilter(getExcludePattern(), 262144000); // only files smaller than 250 MB may be considered clutter
+		return new ClutterFileFilter(getExcludePattern(), Long.parseLong(getBundle(getClass().getName()).getString("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
 	}
 
 	// fetch release group names online and try to update the data every other day
