@@ -3,6 +3,7 @@ package net.sourceforge.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,8 +22,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.media.ReleaseInfo;
@@ -516,6 +521,50 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 
+	// Match by (region) or (year) hints
+	RegionHint(new SimilarityMetric() {
+
+		private Pattern hint = compile("[(](\\p{Alpha}+|\\p{Digit}+)[)]$");
+
+		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher();
+		private Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
+
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			Set<String> h1 = getHint(o1);
+			Set<String> h2 = getHint(o2);
+
+			return h1.isEmpty() || h2.isEmpty() ? 0 : h1.containsAll(h2) || h2.containsAll(h1) ? 1 : 0;
+		}
+
+		public Set<String> getHint(Object o) {
+			if (o instanceof Episode) {
+				Matcher m = hint.matcher(((Episode) o).getSeriesName());
+				if (m.find()) {
+					return singleton(m.group(1).trim().toLowerCase());
+				}
+			} else if (o instanceof File) {
+				Set<String> h = new HashSet<String>();
+				for (File f : listPathTail((File) o, 3, true)) {
+					// try to focus on series name
+					String n = f.getName();
+					String sn = seriesNameMatcher.matchByEpisodeIdentifier(n);
+
+					// tokenize
+					String[] tokens = punctuation.split(sn != null ? sn : n);
+					for (String s : tokens) {
+						if (s.length() > 0) {
+							h.add(s.trim().toLowerCase());
+						}
+					}
+				}
+				return h;
+			}
+
+			return emptySet();
+		}
+	}),
+
 	// Match by stored MetaAttributes if possible
 	MetaAttributes(new CrossPropertyMetric() {
 
@@ -601,9 +650,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, SubstringFields, MetaAttributes, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
 		}
 	}
 
