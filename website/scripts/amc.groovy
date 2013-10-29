@@ -109,7 +109,7 @@ input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 input = input.findAll{ f -> (f.isVideo() && !tryQuietly{ f.hasExtension('iso') && !f.isDisk() }) || f.isSubtitle() || (f.isDirectory() && f.isDisk()) || (music && f.isAudio()) }
 
 // ignore clutter files
-input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|deleted.scenes|music.video|scrapbook|behind.the.scenes)\b/ || (f.isFile() && f.length() < minFileSize)) }
+input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|music.video|scrapbook|behind.the.scenes|extended.scenes|deleted.scenes)\b/ || (f.isFile() && f.length() < minFileSize)) }
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
