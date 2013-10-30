@@ -66,6 +66,7 @@
 ^public$
 ^pyload$
 ^Qmultimedia$
+^QUEUE$
 ^raid$
 ^rename$
 ^Romance$
