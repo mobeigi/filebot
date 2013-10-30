@@ -159,16 +159,29 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			for (List<File> batch : batchSets) {
+				Collection<String> seriesNames;
+
 				// auto-detect series name if not given
-				Collection<String> seriesNames = (query == null) ? detectSeriesQuery(batch, locale) : asList(query.split("[|]"));
+				if (query == null) {
+					// detect series name by common word sequence
+					seriesNames = detectSeriesNames(batch, locale);
+					CLILogger.config("Auto-detected query: " + seriesNames);
+				} else {
+					// use --q option
+					seriesNames = asList(query.split("[|]"));
+				}
 
 				if (strict && seriesNames.size() > 1) {
 					throw new Exception("Handling multiple shows requires non-strict matching");
 				}
 
+				if (seriesNames.size() == 0) {
+					CLILogger.warning("Failed to detect query for files: " + batch);
+					continue;
+				}
+
 				// fetch episode data
 				Collection<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
-
 				if (episodes.size() == 0) {
 					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
 					continue;
@@ -819,18 +832,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		return emptyMap();
-	}
-
-	private List<String> detectSeriesQuery(Collection<File> mediaFiles, Locale locale) throws Exception {
-		// detect series name by common word sequence
-		List<String> names = detectSeriesNames(mediaFiles, locale);
-
-		if (names.isEmpty()) {
-			throw new Exception("Failed to auto-detect query");
-		}
-
-		CLILogger.config("Auto-detected query: " + names);
-		return names;
 	}
 
 	private <T> List<T> applyExpressionFilter(Collection<T> input, ExpressionFilter filter) throws Exception {
