@@ -202,7 +202,7 @@ groups.each{ group, files ->
 			dest.mapByFolder().each{ dir, fs ->
 				_log.finest "Fetching artwork for $dir from TheTVDB"
 				def sxe = fs.findResult{ eps -> parseEpisodeNumber(eps) }
-				def options = TheTVDB.search(config.name, _args.locale)
+				def options = TheTVDB.search(detectSeriesName(fs), _args.locale)
 				if (options.isEmpty()) {
 					_log.warning "TV Series not found: $config.name"
 					return
@@ -222,7 +222,8 @@ groups.each{ group, files ->
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
 				_log.finest "Fetching artwork for $dir from TheMovieDB"
-				fetchMovieArtworkAndNfo(dir, group.mov, fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }, backdrops)
+				def movieFile = fs.findAll{ it.isVideo() }.sort{ it.length() }.reverse().findResult{ it }
+				fetchMovieArtworkAndNfo(dir, detectMovie(movieFile), movieFile, backdrops)
 			}
 		}
 		if (dest == null && failOnError) {

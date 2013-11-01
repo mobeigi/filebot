@@ -77,7 +77,8 @@
 ^Seeding$
 ^Seeds$
 ^share$
-^Sort$
+^SORT$
+^SORTED$
 ^Staging$
 ^Storage$
 ^System$
@@ -93,6 +94,7 @@
 ^transfer$
 ^transmission$
 ^TV$
+^UNSORTED$
 ^user$
 ^utorrent$
 ^vari$
