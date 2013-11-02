@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class SeasonEpisodeMatcher {
 
-	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000);
+	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000, 1970, 2100);
 
 	private SeasonEpisodePattern[] patterns;
 	private Pattern seasonPattern;
@@ -30,7 +30,7 @@ public class SeasonEpisodeMatcher {
 		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
 
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
-		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}[Ee][Pp]?(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
+		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -72,12 +72,12 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like ep1, ep.1, ...
-		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(?i:e|ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
+		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|p|ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
 				// regex doesn't match season
-				return singleton(new SxE(null, match.group(1)));
+				return singleton(new SxE(match.group(1), match.group(2)));
 			}
 		};
 
@@ -236,15 +236,19 @@ public class SeasonEpisodeMatcher {
 		public final int seasonLimit;
 		public final int seasonEpisodeLimit;
 		public final int absoluteEpisodeLimit;
+		public final int seasonYearBegin;
+		public final int seasonYearEnd;
 
-		public SeasonEpisodeFilter(int seasonLimit, int seasonEpisodeLimit, int absoluteEpisodeLimit) {
+		public SeasonEpisodeFilter(int seasonLimit, int seasonEpisodeLimit, int absoluteEpisodeLimit, int seasonYearBegin, int seasonYearEnd) {
 			this.seasonLimit = seasonLimit;
 			this.seasonEpisodeLimit = seasonEpisodeLimit;
 			this.absoluteEpisodeLimit = absoluteEpisodeLimit;
+			this.seasonYearBegin = seasonYearBegin;
+			this.seasonYearEnd = seasonYearEnd;
 		}
 
 		boolean filter(SxE sxe) {
-			return (sxe.season >= 0 && sxe.season < seasonLimit && sxe.episode < seasonEpisodeLimit) || (sxe.season < 0 && sxe.episode < absoluteEpisodeLimit);
+			return (sxe.season >= 0 && (sxe.season < seasonLimit || (sxe.season > seasonYearBegin && sxe.season < seasonYearEnd)) && sxe.episode < seasonEpisodeLimit) || (sxe.season < 0 && sxe.episode < absoluteEpisodeLimit);
 		}
 	}
 

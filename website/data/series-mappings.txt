@@ -12,3 +12,4 @@ SuiG7p	Suits
 tvs.got	Game of Thrones
 UndG7p	Underemployed
 vampire	The Vampire Diaries
+wsop	World Series of Poker
