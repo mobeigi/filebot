@@ -79,7 +79,7 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 
 			try {
-				long id = (Long) it.get("id");
+				int id = Float.valueOf(it.get("id").toString()).intValue();
 				int year = -1;
 				try {
 					String release = (String) it.get("release_date");
@@ -87,7 +87,7 @@ public class TMDbClient implements MovieIdentificationService {
 				} catch (Exception e) {
 					throw new IllegalArgumentException("Missing data: release date");
 				}
-				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, (int) id));
+				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, id));
 			} catch (Exception e) {
 				// only print 'missing release date' warnings for matching movie titles
 				if (query.equalsIgnoreCase(title) || query.equalsIgnoreCase(originalTitle)) {
@@ -224,10 +224,10 @@ public class TMDbClient implements MovieIdentificationService {
 			for (JSONObject it : jsonList(images.get(section))) {
 				try {
 					String url = baseUrl + "original" + (String) it.get("file_path");
-					long width = (Long) it.get("width");
-					long height = (Long) it.get("height");
+					int width = Float.valueOf(it.get("width").toString()).intValue();
+					int height = Float.valueOf(it.get("height").toString()).intValue();
 					String lang = (String) it.get("iso_639_1");
-					artwork.add(new Artwork(section, new URL(url), (int) width, (int) height, lang));
+					artwork.add(new Artwork(section, new URL(url), width, height, lang));
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Invalid artwork: " + it, e);
 				}
