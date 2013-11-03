@@ -20,17 +20,18 @@ public class SeasonEpisodeMatcher {
 
 	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000, 1970, 2100);
 
-	private SeasonEpisodePattern[] patterns;
+	private SeasonEpisodeParser[] patterns;
 	private Pattern seasonPattern;
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
-		patterns = new SeasonEpisodePattern[6];
+		// define variables
+		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101;
 
 		// match patterns like Season 01 Episode 02, ...
-		patterns[0] = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
+		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
 
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
-		patterns[1] = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
+		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -44,7 +45,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like 1x01, 1.02, ..., 1x01a, 10x01, 10.02, ... 1x01-02-03-04, 1x01x02x03x04 ...
-		patterns[2] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[xe](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
+		SxE = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[xe](((?<=[^._ ])\\d{2,3}(\\D|$))+)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -58,7 +59,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns 1.02, ..., 10.02, ...
-		patterns[3] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)") {
+		Dot101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum}|\\d{4}[.])(\\d{1,2})[.](((?<=[^._ ])\\d{2}(\\D|$))+)") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -72,7 +73,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like ep1, ep.1, ...
-		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
+		EP0 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -82,7 +83,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
-		patterns[5] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
+		Num101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -107,7 +108,9 @@ public class SeasonEpisodeMatcher {
 
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
-			patterns = new SeasonEpisodePattern[] { patterns[0], patterns[1], patterns[2], patterns[3] };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101 };
+		} else {
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101) };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename
@@ -122,7 +125,7 @@ public class SeasonEpisodeMatcher {
 	 * @return the matches returned by the first pattern that returns any matches for this string, or null if no pattern returned any matches
 	 */
 	public List<SxE> match(CharSequence name) {
-		for (SeasonEpisodePattern pattern : patterns) {
+		for (SeasonEpisodeParser pattern : patterns) {
 			List<SxE> match = pattern.match(name);
 
 			if (!match.isEmpty()) {
@@ -137,7 +140,7 @@ public class SeasonEpisodeMatcher {
 		// take folder name into consideration as much as file name but put priority on file name
 		List<File> pathTail = listPathTail(file, 2, true);
 
-		for (SeasonEpisodePattern pattern : patterns) {
+		for (SeasonEpisodeParser pattern : patterns) {
 			for (File tail : pathTail) {
 				List<SxE> match = pattern.match(tail.getName());
 
@@ -159,7 +162,7 @@ public class SeasonEpisodeMatcher {
 	}
 
 	public int find(CharSequence name, int fromIndex) {
-		for (SeasonEpisodePattern pattern : patterns) {
+		for (SeasonEpisodeParser pattern : patterns) {
 			int index = pattern.find(name, fromIndex);
 
 			if (index >= 0) {
@@ -169,20 +172,6 @@ public class SeasonEpisodeMatcher {
 		}
 
 		return -1;
-	}
-
-	public Matcher matcher(CharSequence name) {
-		for (SeasonEpisodePattern pattern : patterns) {
-			Matcher matcher = pattern.matcher(name);
-
-			// check if current pattern matches
-			if (matcher.find()) {
-				// reset matcher state
-				return matcher.reset();
-			}
-		}
-
-		return null;
 	}
 
 	public static class SxE {
@@ -252,7 +241,14 @@ public class SeasonEpisodeMatcher {
 		}
 	}
 
-	public static class SeasonEpisodePattern {
+	public static interface SeasonEpisodeParser {
+
+		public abstract List<SxE> match(CharSequence name);
+
+		public abstract int find(CharSequence name, int fromIndex);
+	}
+
+	public static class SeasonEpisodePattern implements SeasonEpisodeParser {
 
 		protected final Pattern pattern;
 		protected final SeasonEpisodeFilter sanity;
@@ -270,6 +266,7 @@ public class SeasonEpisodeMatcher {
 			return singleton(new SxE(match.group(1), match.group(2)));
 		}
 
+		@Override
 		public List<SxE> match(CharSequence name) {
 			// name will probably contain no more than two matches
 			List<SxE> matches = new ArrayList<SxE>(2);
@@ -287,6 +284,7 @@ public class SeasonEpisodeMatcher {
 			return matches;
 		}
 
+		@Override
 		public int find(CharSequence name, int fromIndex) {
 			Matcher matcher = matcher(name).region(fromIndex, name.length());
 
@@ -299,6 +297,38 @@ public class SeasonEpisodeMatcher {
 			}
 
 			return -1;
+		}
+	}
+
+	public static class SeasonEpisodeUnion implements SeasonEpisodeParser {
+
+		private final SeasonEpisodeParser[] parsers;
+
+		public SeasonEpisodeUnion(SeasonEpisodeParser... parsers) {
+			this.parsers = parsers;
+		}
+
+		@Override
+		public List<SxE> match(CharSequence name) {
+			Set<SxE> matches = new LinkedHashSet<SxE>();
+			for (SeasonEpisodeParser it : parsers) {
+				matches.addAll(it.match(name));
+			}
+
+			return new ArrayList<SxE>(matches);
+		}
+
+		@Override
+		public int find(CharSequence name, int fromIndex) {
+			int min = -1;
+			for (SeasonEpisodeParser it : parsers) {
+				int pos = it.find(name, fromIndex);
+				if (pos >= 0 && pos > min) {
+					min = pos;
+				}
+			}
+
+			return min;
 		}
 	}
 
