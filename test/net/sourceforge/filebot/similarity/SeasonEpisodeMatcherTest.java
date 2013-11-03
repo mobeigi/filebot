@@ -18,6 +18,10 @@ public class SeasonEpisodeMatcherTest {
 
 		assertEquals(new SxE(1, 2), matcher.match("[s01]_[e02]").get(0));
 		assertEquals(new SxE(2013, 10), matcher.match("2013.P10").get(0));
+		assertEquals(new SxE(2013, 10), matcher.match("2013.P10").get(0));
+
+		assertEquals(new SxE(null, 11), matcher.match("wsop.2013.me.p11.720p-yestv").get(0));
+		assertEquals(new SxE(null, 18), matcher.match("World.Series.Of.Poker.2013.Main.Event.Part18.480p.HDTV.x264-mSD").get(0));
 
 		// multiple values
 		assertEquals(new SxE(1, 2), matcher.match("Test.42.s01e01.s01e02.300").get(1));

@@ -72,7 +72,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like ep1, ep.1, ...
-		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|p|ep|episode)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
+		patterns[4] = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{2}|\\d{4})?[^\\p{Alnum}]{0,3}(?i:e|ep|episode|p|part)[^\\p{Alnum}]{0,3}(\\d{1,3})(?!\\p{Digit})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
