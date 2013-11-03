@@ -47,14 +47,14 @@
 	/>
 	
 	<!--
-	Very long-lived cache (2 months) anime/series lists, movie index, etc
+	Very long-lived cache (4 months) anime/series lists, movie index, etc
 	-->
 	<cache name="web-persistent-datasource"
 		maxElementsInMemory="50"
 		maxElementsOnDisk="50000"
 		eternal="false"
-		timeToIdleSeconds="5259000"
-		timeToLiveSeconds="5259000"
+		timeToIdleSeconds="10512000"
+		timeToLiveSeconds="10512000"
 		overflowToDisk="true"
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"

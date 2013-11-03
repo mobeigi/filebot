@@ -261,7 +261,7 @@ public class ReleaseInfo {
 	protected static class PatternResource extends CachedResource<String[]> {
 
 		public PatternResource(String resource) {
-			super(resource, String[].class, 24 * 60 * 60 * 1000); // 24h update interval
+			super(resource, String[].class, ONE_WEEK); // 1 week update interval
 		}
 
 		@Override
@@ -273,7 +273,7 @@ public class ReleaseInfo {
 	protected static class MovieResource extends CachedResource<Movie[]> {
 
 		public MovieResource(String resource) {
-			super(resource, Movie[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
+			super(resource, Movie[].class, ONE_MONTH); // check for updates every month
 		}
 
 		@Override
@@ -296,7 +296,7 @@ public class ReleaseInfo {
 	protected static class TheTVDBIndexResource extends CachedResource<TheTVDBSearchResult[]> {
 
 		public TheTVDBIndexResource(String resource) {
-			super(resource, TheTVDBSearchResult[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
+			super(resource, TheTVDBSearchResult[].class, ONE_MONTH); // check for updates once a week
 		}
 
 		@Override
@@ -318,7 +318,7 @@ public class ReleaseInfo {
 	protected static class AnidbIndexResource extends CachedResource<AnidbSearchResult[]> {
 
 		public AnidbIndexResource(String resource) {
-			super(resource, AnidbSearchResult[].class, 7 * 24 * 60 * 60 * 1000); // check for updates once a week
+			super(resource, AnidbSearchResult[].class, ONE_MONTH); // check for updates once a week
 		}
 
 		@Override

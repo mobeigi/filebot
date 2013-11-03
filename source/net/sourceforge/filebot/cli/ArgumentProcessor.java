@@ -228,7 +228,7 @@ public class ArgumentProcessor {
 			}
 
 			// fetch remote script only if modified
-			CachedResource<String> script = new CachedResource<String>(url, String.class, 24 * 60 * 60 * 1000) {
+			CachedResource<String> script = new CachedResource<String>(url, String.class, CachedResource.ONE_DAY) {
 
 				@Override
 				public String process(ByteBuffer data) {

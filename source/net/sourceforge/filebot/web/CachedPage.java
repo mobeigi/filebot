@@ -13,7 +13,7 @@ import net.sf.ehcache.CacheManager;
 public class CachedPage extends AbstractCachedResource<String, String> {
 
 	public CachedPage(URL url) {
-		super(url.toString(), String.class, 24 * 60 * 60 * 1000, 0, 0); // 24h update interval
+		super(url.toString(), String.class, ONE_DAY, 0, 0); // 24h update interval
 	}
 
 	@Override

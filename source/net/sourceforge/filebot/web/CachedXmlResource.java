@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 	public CachedXmlResource(String resource) {
-		super(resource, String.class, 24 * 60 * 60 * 1000, 2, 1000);
+		super(resource, String.class, ONE_WEEK, 2, 1000);
 	}
 
 	@Override
