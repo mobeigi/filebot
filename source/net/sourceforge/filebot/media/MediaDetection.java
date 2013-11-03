@@ -1061,10 +1061,10 @@ public class MediaDetection {
 
 			// store original name and model as xattr
 			try {
+				xattr.setObject(model);
 				if (xattr.getOriginalName() == null) {
 					xattr.setOriginalName(file.getName());
 				}
-				xattr.setObject(model);
 			} catch (Exception e) {
 				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
 			}
