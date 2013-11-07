@@ -109,7 +109,7 @@ input = input.findAll{ it?.exists() }.collect{ it.canonicalFile }.unique()
 input = input.findAll{ f -> (f.isVideo() && !tryQuietly{ f.hasExtension('iso') && !f.isDisk() }) || f.isSubtitle() || (f.isDirectory() && f.isDisk()) || (music && f.isAudio()) }
 
 // ignore clutter files
-input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|music.video|scrapbook|behind.the.scenes|extended.scenes|deleted.scenes|s\d{2}c\d{2})\b/ || (f.isFile() && f.length() < minFileSize)) }
+input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|music.video|scrapbook|behind.the.scenes|extended.scenes|deleted.scenes|s\d{2}c\d{2}|mini.series)\b/ || (f.isFile() && f.length() < minFileSize)) }
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
@@ -184,7 +184,7 @@ groups.each{ group, files -> _log.finest("Group: $group => ${files*.name}") }
 // process each batch
 groups.each{ group, files ->
 	// fetch subtitles (but not for anime)
-	if (subtitles && !group.anime) {
+	if (subtitles && !group.anime && files.findAll{ it.isVideo() }.size() > 0) {
 		subtitles.each{ languageCode ->
 			def subtitleFiles = getMissingSubtitles(file:files, output:'srt', encoding:'UTF-8', lang:languageCode, strict:true) ?: []
 			files += subtitleFiles
@@ -217,7 +217,7 @@ groups.each{ group, files ->
 	}
 	
 	// MOVIE MODE
-	if (group.mov && !group.tvs && !group.anime) {
+	else if (group.mov && !group.tvs && !group.anime) {
 		def dest = rename(file:files, format:format.mov, db:'TheMovieDB')
 		if (dest && artwork) {
 			dest.mapByFolder().each{ dir, fs ->
@@ -232,7 +232,7 @@ groups.each{ group, files ->
 	}
 	
 	// MUSIC MODE
-	if (group.music) {
+	else if (group.music) {
 		def dest = rename(file:files, format:format.music, db:'AcoustID')
 		if (dest == null && failOnError) {
 			throw new Exception("Failed to rename music: $group.music")
