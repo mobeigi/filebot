@@ -88,6 +88,31 @@ public class Main {
 				System.exit(0);
 			}
 
+			if (args.clearCache() || args.clearUserData()) {
+				if (args.clearUserData()) {
+					System.out.println("Reset preferences");
+					Settings.forPackage(Main.class).clear();
+				}
+
+				if (args.clearCache()) {
+					// clear preferences and cache
+					System.out.println("Clear cache and temporary files");
+					for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
+						if (matches("cache|temp|grape", cache.getName())) {
+							for (File it : cache.listFiles()) {
+								delete(it);
+							}
+						}
+					}
+
+					initializeCache();
+					CacheManager.getInstance().clearAll();
+				}
+
+				// just clear cache and/or settings and then exit
+				System.exit(0);
+			}
+
 			// tee stdout and stderr to log file if set
 			if (args.logFile != null) {
 				File logFile = new File(args.logFile);
@@ -117,24 +142,6 @@ public class Main {
 			// initialize this stuff before anything else
 			initializeCache();
 			initializeSecurityManager();
-
-			if (args.clearUserData()) {
-				System.out.println("Reset preferences");
-				Settings.forPackage(Main.class).clear();
-			}
-
-			if (args.clearCache()) {
-				// clear preferences and cache
-				System.out.println("Clear cache and temporary files");
-				for (File cache : getApplicationFolder().listFiles(FOLDERS)) {
-					if (matches("cache|temp|grape", cache.getName())) {
-						for (File it : cache.listFiles()) {
-							delete(it);
-						}
-					}
-				}
-				CacheManager.getInstance().clearAll();
-			}
 
 			// update system properties
 			if (System.getProperty("http.agent") == null) {
