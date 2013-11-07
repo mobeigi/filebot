@@ -63,7 +63,7 @@
 
 
 	<target name="fatjar" depends="jar" description="Merge all class files into a single executable jar file">
-		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail">
+		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" index="yes">
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
