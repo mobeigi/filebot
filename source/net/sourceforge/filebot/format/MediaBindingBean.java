@@ -707,8 +707,9 @@ public class MediaBindingBean {
 
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
-		if (mediaFile == null)
-			throw new RuntimeException("Invalid media file: " + mediaFile);
+		if (mediaFile == null) {
+			throw new RuntimeException("Path to media file has not been set");
+		}
 	}
 
 	private synchronized MediaInfo getMediaInfo() {
