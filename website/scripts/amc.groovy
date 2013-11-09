@@ -30,6 +30,7 @@ def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
 def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 
 // myepisodes updates and email notifications
+def excludeList = tryQuietly { new File(_args.output, excludeList) }
 def myepisodes = tryQuietly { myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
 def pushover = tryQuietly{ pushover.toString() }
@@ -110,6 +111,17 @@ input = input.findAll{ f -> (f.isVideo() && !tryQuietly{ f.hasExtension('iso') &
 
 // ignore clutter files
 input = input.findAll{ f -> !(f.path =~ /\b(?i:sample|trailer|extras|music.video|scrapbook|behind.the.scenes|extended.scenes|deleted.scenes|s\d{2}c\d{2}|mini.series)\b/ || (f.isFile() && f.length() < minFileSize)) }
+
+// check and update exclude list (e.g. to make sure files are only processed once)
+if (excludeList) {
+	// check excludes from previous runs
+	def excludePathSet = excludeList.exists() ? excludeList.text.split('\n') as HashSet : []
+	input = input.findAll{ f -> !excludePathSet.contains(f.path) }
+	
+	// update excludes with input of this run
+	excludePathSet += input
+	excludePathSet.join('\n').saveAs(excludeList)
+}
 
 // print input fileset
 input.each{ f -> _log.finest("Input: $f") }
