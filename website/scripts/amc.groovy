@@ -354,7 +354,11 @@ if (clean) {
 	
 	// deleting remaining files only makes sense after moving files
 	if ('MOVE'.equalsIgnoreCase(_args.action)) {
-		_log.info 'Clean clutter files and empty folders'
-		executeScript('cleaner', args.empty ? [root:true] : [root:false], !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : [])
+		def cleanerInput = !args.empty ? args : ut_kind == 'multi' && ut_dir ? [ut_dir as File] : []
+		cleanerInput = cleanerInput.findAll{ f -> f.exists() }
+		if (cleanerInput.size() > 0) {
+			_log.info 'Clean clutter files and empty folders'
+			executeScript('cleaner', args.empty ? [root:true] : [root:false], cleanerInput)
+		}
 	}
 }
