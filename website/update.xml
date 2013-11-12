@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
 	<name>FileBot 3.8</name>
-	<revision>1835</revision>
+	<revision>1840</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.8</b><br>
+		<b>FileBot 3.8 (r1840)</b><br>
 		This release features:<br>
 		+ Support for Subtitle Upload<br>
 		+ Support checking Music Videos via AcoustID<br>
