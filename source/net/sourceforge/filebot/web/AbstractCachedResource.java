@@ -12,9 +12,11 @@ import net.sf.ehcache.Element;
 
 public abstract class AbstractCachedResource<R, T extends Serializable> {
 
-	public static final long ONE_MONTH = 30 * 24 * 60 * 60 * 1000L;
-	public static final long ONE_WEEK = 7 * 24 * 60 * 60 * 1000L;
-	public static final long ONE_DAY = 24 * 60 * 60 * 1000L;
+	public static final long ONE_MINUTE = 60 * 1000;
+	public static final long ONE_HOUR = 60 * ONE_MINUTE;
+	public static final long ONE_DAY = 24 * ONE_HOUR;
+	public static final long ONE_WEEK = 7 * ONE_DAY;
+	public static final long ONE_MONTH = 30 * ONE_DAY;
 
 	private String resource;
 	private Class<T> type;

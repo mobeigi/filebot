@@ -536,8 +536,8 @@ public final class FileUtilities {
 	}
 
 	public static final long KILO = 1024;
-	public static final long MEGA = KILO * 1024;
-	public static final long GIGA = MEGA * 1024;
+	public static final long MEGA = 1024 * KILO;
+	public static final long GIGA = 1024 * MEGA;
 
 	public static String formatSize(long size) {
 		if (size >= MEGA)
