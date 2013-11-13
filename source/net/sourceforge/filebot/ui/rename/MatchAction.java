@@ -40,8 +40,12 @@ class MatchAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent evt) {
-		if (model.names().isEmpty() || model.files().isEmpty()) {
+		if (model.files().isEmpty()) {
 			UILogger.info("Nothing to match. Please add some files and fetch data first.");
+			return;
+		}
+
+		if (model.names().isEmpty()) {
 			return;
 		}
 

@@ -12,6 +12,7 @@ import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -203,6 +204,17 @@ public class RenamePanel extends JComponent {
 		filesList.getButtonPanel().add(createImageButton(removeAction), "gap 0", 2);
 		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0");
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
+
+		matchButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// show popup on actionPerformed only when names list is empty
+				if (renameModel.files().size() > 0 && renameModel.names().isEmpty()) {
+					fetchPopupAction.actionPerformed(e);
+				}
+			}
+		});
 
 		// reveal file location on double click
 		filesList.getListComponent().addMouseListener(new MouseAdapter() {
