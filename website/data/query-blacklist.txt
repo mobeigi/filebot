@@ -38,9 +38,11 @@
 ^extract$
 ^extracted$
 ^Family$
+^file[s]?$
 ^Film[s]?
 ^Filme$
 ^Finished
+^folder$
 ^good$
 ^HD[0-9]$
 ^hdd[0-9]$
@@ -48,6 +50,7 @@
 ^Horror$
 ^HVDVD_TS$
 ^I$
+^ignore.folder$
 ^II$
 ^III$
 ^In.Progress$

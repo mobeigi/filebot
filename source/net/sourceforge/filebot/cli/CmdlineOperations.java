@@ -810,8 +810,11 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videoFiles.toArray(new File[0]), language.getName()).entrySet()) {
 			if (it.getValue() != null && it.getValue().size() > 0) {
-				CLILogger.finest(format("Matched [%s] to [%s] via filehash", it.getKey().getName(), it.getValue().get(0).getName()));
-				subtitleByVideo.put(it.getKey(), it.getValue().get(0));
+				// guess best hash match (default order is open bad due to invalid hash links)
+				Entry<File, SubtitleDescriptor> bestMatch = matchSubtitles(singleton(it.getKey()), it.getValue(), false).entrySet().iterator().next();
+
+				CLILogger.finest(format("Matched [%s] to [%s] via filehash", bestMatch.getKey().getName(), bestMatch.getValue().getName()));
+				subtitleByVideo.put(bestMatch.getKey(), bestMatch.getValue());
 			}
 		}
 

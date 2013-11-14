@@ -1,5 +1,6 @@
 package net.sourceforge.filebot.ui.subtitle;
 
+import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
@@ -23,10 +24,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
@@ -716,13 +719,20 @@ class SubtitleAutoMatchDialog extends JDialog {
 				try {
 					Map<File, List<SubtitleDescriptorBean>> subtitleSet = new HashMap<File, List<SubtitleDescriptorBean>>();
 					for (final Entry<File, List<SubtitleDescriptor>> result : service.lookupSubtitles(remainingVideos, languageName, parent).entrySet()) {
-						List<SubtitleDescriptorBean> subtitles = new ArrayList<SubtitleDescriptorBean>();
+						Set<SubtitleDescriptor> subtitlesByRelevance = new LinkedHashSet<SubtitleDescriptor>();
+
+						// guess best hash match (default order is open bad due to invalid hash links)
+						if (result.getValue().size() > 0) {
+							Entry<File, SubtitleDescriptor> bestMatch = matchSubtitles(singleton(result.getKey()), result.getValue(), false).entrySet().iterator().next();
+							subtitlesByRelevance.add(bestMatch.getValue());
+						}
+						subtitlesByRelevance.addAll(result.getValue());
 
 						// associate subtitles with services
-						for (SubtitleDescriptor subtitleDescriptor : result.getValue()) {
-							subtitles.add(new SubtitleDescriptorBean(result.getKey(), subtitleDescriptor, service));
+						List<SubtitleDescriptorBean> subtitles = new ArrayList<SubtitleDescriptorBean>();
+						for (SubtitleDescriptor it : subtitlesByRelevance) {
+							subtitles.add(new SubtitleDescriptorBean(result.getKey(), it, service));
 						}
-
 						subtitleSet.put(result.getKey(), subtitles);
 					}
 
