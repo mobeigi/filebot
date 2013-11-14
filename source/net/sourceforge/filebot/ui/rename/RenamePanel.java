@@ -61,6 +61,7 @@ import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieFormat;
 import net.sourceforge.filebot.web.MovieIdentificationService;
+import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
 import net.sourceforge.tuned.ui.ActionPopup;
@@ -300,7 +301,9 @@ public class RenamePanel extends JComponent {
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Music Mode:"));
-		actionPopup.add(new AutoCompleteAction(WebServices.AcoustID.getName(), WebServices.AcoustID.getIcon(), new AudioFingerprintMatcher(WebServices.AcoustID)));
+		for (MusicIdentificationService it : WebServices.getMusicIdentificationServices()) {
+			actionPopup.add(new AutoCompleteAction(it.getName(), it.getIcon(), new AudioFingerprintMatcher(it)));
+		}
 
 		actionPopup.addSeparator();
 		actionPopup.addDescription(new JLabel("Options:"));
