@@ -10,7 +10,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
 
-import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
@@ -53,11 +52,6 @@ public class LoadAction extends AbstractAction {
 		chooser.setFileFilter(new TransferablePolicyFileFilter(transferablePolicy));
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		chooser.setMultiSelectionEnabled(true);
-
-		// tell noobs to use drag-n-drop (but avoid annoying people that got it from the app stores)
-		if (Analytics.isEnabled()) {
-			UILogger.info("Why do you not use drag-and-drop to directly drop in your files?");
-		}
 
 		if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
 			return;
