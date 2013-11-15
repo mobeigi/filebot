@@ -167,6 +167,9 @@ class RenameAction extends AbstractAction {
 				if (destination.exists() && !resolveDestination(mapping.getKey(), mapping.getValue(), false).equals(mapping.getKey()))
 					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
 
+				if (getExtension(destination) == null)
+					throw new IllegalArgumentException("Missing extension: " + mapping.getValue().getPath());
+
 				// use original mapping values
 				renameMap.put(mapping.getKey(), mapping.getValue());
 				destinationSet.add(destination);
@@ -176,7 +179,7 @@ class RenameAction extends AbstractAction {
 		}
 
 		if (issues.size() > 0) {
-			String text = "Some files cannot be renamed:";
+			String text = "We found some issues. Do you to continue?";
 			JList issuesComponent = new JList(issues.toArray()) {
 
 				@Override
