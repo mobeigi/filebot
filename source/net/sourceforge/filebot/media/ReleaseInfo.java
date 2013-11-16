@@ -166,6 +166,22 @@ public class ReleaseInfo {
 		return item;
 	}
 
+	// cached patterns
+	private Pattern structureRootFolderPattern;
+
+	public Pattern getStructureRootPattern() throws IOException {
+		if (structureRootFolderPattern == null) {
+			List<String> folders = new ArrayList<String>();
+			for (String it : queryBlacklistResource.get()) {
+				if (it.startsWith("^")) {
+					folders.add(it);
+				}
+			}
+			structureRootFolderPattern = compile(join(folders, "|"), CASE_INSENSITIVE | UNICODE_CASE);
+		}
+		return structureRootFolderPattern;
+	}
+
 	public Pattern getLanguageTagPattern(Collection<String> languages) {
 		// [en]
 		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CASE);

@@ -701,7 +701,7 @@ public class MediaDetection {
 			File f = movieFile;
 
 			// check for double nested structures
-			if (checkMovie(f.getParentFile(), false) != null && checkMovie(f, false) == null) {
+			if (!isStructureRoot(f.getParentFile()) && checkMovie(f.getParentFile(), false) != null && checkMovie(f, false) == null) {
 				return f.getParentFile();
 			} else {
 				return f;
@@ -711,7 +711,7 @@ public class MediaDetection {
 		// first parent folder that matches a movie (max 3 levels deep)
 		for (boolean strictness : new boolean[] { true, false }) {
 			File f = movieFile.getParentFile();
-			for (int i = 0; f != null && i < 3; f = f.getParentFile(), i++) {
+			for (int i = 0; f != null && i < 3 && !isStructureRoot(f); f = f.getParentFile(), i++) {
 				String term = stripReleaseInfo(f.getName());
 				if (term.length() > 0 && checkMovie(f, strictness) != null) {
 					return f;
@@ -721,7 +721,7 @@ public class MediaDetection {
 
 		// otherwise try the first potentially meaningful parent folder (max 2 levels deep)
 		File f = movieFile.getParentFile();
-		for (int i = 0; f != null && i < 2; f = f.getParentFile(), i++) {
+		for (int i = 0; f != null && i < 2 && !isStructureRoot(f); f = f.getParentFile(), i++) {
 			String term = stripReleaseInfo(f.getName());
 			if (term.length() > 0) {
 				// check for double nested structures
@@ -733,7 +733,7 @@ public class MediaDetection {
 			}
 		}
 
-		if (movieFile.getParentFile() != null && stripReleaseInfo(movieFile.getParentFile().getName()).length() > 0) {
+		if (movieFile.getParentFile() != null && !isStructureRoot(f.getParentFile()) && stripReleaseInfo(movieFile.getParentFile().getName()).length() > 0) {
 			return movieFile.getParentFile();
 		}
 		return null;
@@ -884,6 +884,10 @@ public class MediaDetection {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static boolean isStructureRoot(File folder) throws IOException {
+		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
 	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws IOException {
