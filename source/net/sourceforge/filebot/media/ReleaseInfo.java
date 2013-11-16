@@ -167,7 +167,36 @@ public class ReleaseInfo {
 	}
 
 	// cached patterns
+	private Set<File> volumeRoots;
 	private Pattern structureRootFolderPattern;
+
+	public Set<File> getVolumeRoots() {
+		if (volumeRoots == null) {
+			Set<File> volumes = new HashSet<File>();
+
+			// user root folder
+			volumes.add(new File(System.getProperty("user.home")));
+
+			// Windows / Linux / Mac system roots
+			addAll(volumes, File.listRoots());
+
+			// media root folders
+			if (File.separator.equals("/")) {
+				// Linux and Mac
+				for (File root : File.listRoots()) {
+					addAll(volumes, root.listFiles(FOLDERS));
+				}
+				for (String path : asList("/Volumes", "/home", "/media", "/mnt")) {
+					File root = new File(path);
+					if (root.isDirectory()) {
+						addAll(volumes, root.listFiles(FOLDERS));
+					}
+				}
+			}
+			volumeRoots = volumes;
+		}
+		return volumeRoots;
+	}
 
 	public Pattern getStructureRootPattern() throws IOException {
 		if (structureRootFolderPattern == null) {

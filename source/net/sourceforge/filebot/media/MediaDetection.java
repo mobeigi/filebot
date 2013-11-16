@@ -685,17 +685,6 @@ public class MediaDetection {
 	}
 
 	public static File guessMovieFolder(File movieFile) throws Exception {
-		File folder = guessMovieFolderWithoutSanity(movieFile);
-
-		// perform sanity checks
-		if (folder == null || folder.getName().isEmpty() || folder.equals(new File(System.getProperty("user.home")))) {
-			return null;
-		}
-
-		return folder;
-	}
-
-	private static File guessMovieFolderWithoutSanity(File movieFile) throws Exception {
 		// special case for folder mode
 		if (movieFile.isDirectory()) {
 			File f = movieFile;
@@ -704,7 +693,7 @@ public class MediaDetection {
 			if (!isStructureRoot(f.getParentFile()) && checkMovie(f.getParentFile(), false) != null && checkMovie(f, false) == null) {
 				return f.getParentFile();
 			} else {
-				return f;
+				return isStructureRoot(f) ? null : f;
 			}
 		}
 
@@ -887,6 +876,10 @@ public class MediaDetection {
 	}
 
 	public static boolean isStructureRoot(File folder) throws IOException {
+		if (folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder)) {
+			return true;
+		}
+
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
