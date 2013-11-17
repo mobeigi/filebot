@@ -29,9 +29,10 @@ def exec      = tryQuietly{ exec.toString() }
 def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
 def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 
-// myepisodes updates and email notifications
-def excludeList = tryQuietly { new File(_args.output, excludeList) }
-def myepisodes = tryQuietly { myepisodes.split(':', 2) }
+// extra options, myepisodes updates and email notifications
+def deleteArchives = tryQuietly{ archives.equals('delete') }
+def excludeList = tryQuietly{ new File(_args.output, excludeList) }
+def myepisodes = tryQuietly{ myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
 def pushover = tryQuietly{ pushover.toString() }
 
@@ -98,6 +99,16 @@ input = input.flatten{ f ->
 		def extractFiles = extract(file: f, output: new File(extractDir, f.dir.name), conflict: 'skip', filter: { it.isArchive() || it.isVideo() || it.isSubtitle() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
 		tempFiles += extractDir
 		tempFiles += extractFiles
+
+		if (deleteArchives) {
+			_log.finest("Mark archive for deletion: $f")
+			f.deleteOnExit()
+			f.dir.listFiles().toList().findAll{ v -> v.name.startsWith(f.nameWithoutExtension) && v.extension ==~ /r\d+/ }.each{ v ->
+				_log.finest("Mark volume for deletion: $v")
+				v.deleteOnExit()
+			}
+		}
+
 		return extractFiles
 	}
 	return f
