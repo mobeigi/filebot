@@ -1,6 +1,4 @@
-
 package net.sourceforge.filebot;
-
 
 import static net.sourceforge.filebot.Settings.*;
 
@@ -19,35 +17,32 @@ import net.sourceforge.filebot.History.Element;
 import net.sourceforge.tuned.ByteBufferInputStream;
 import net.sourceforge.tuned.ByteBufferOutputStream;
 
-
 public final class HistorySpooler {
-	
+
 	private static final HistorySpooler instance = new HistorySpooler();
-	
-	
+
 	public static HistorySpooler getInstance() {
 		return instance;
 	}
-	
+
 	private File persistentHistoryFile = new File(getApplicationFolder(), "history.xml");
 	private int persistentHistoryTotalSize = -1;
 	private boolean persistentHistoryEnabled = true;
-	
+
 	private History sessionHistory = new History();
-	
-	
+
 	public synchronized History getCompleteHistory() throws IOException {
 		if (!persistentHistoryEnabled || persistentHistoryFile.length() <= 0) {
 			return new History();
 		}
-		
+
 		RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
 		FileChannel channel = f.getChannel();
 		FileLock lock = channel.lock();
 		try {
 			ByteBufferOutputStream data = new ByteBufferOutputStream(f.length());
 			data.transferFully(channel);
-			
+
 			History history = History.importHistory(new ByteBufferInputStream(data.getByteBuffer()));
 			history.addAll(sessionHistory.sequences());
 			return history;
@@ -57,13 +52,12 @@ public final class HistorySpooler {
 			f.close();
 		}
 	}
-	
-	
+
 	public synchronized void commit() {
 		if (!persistentHistoryEnabled || sessionHistory.sequences().isEmpty()) {
 			return;
 		}
-		
+
 		try {
 			if (persistentHistoryFile.length() <= 0) {
 				persistentHistoryFile.createNewFile();
@@ -72,18 +66,18 @@ public final class HistorySpooler {
 			FileChannel channel = f.getChannel();
 			FileLock lock = channel.lock();
 			try {
-				ByteBufferOutputStream data = new ByteBufferOutputStream(f.length());
+				ByteBufferOutputStream data = new ByteBufferOutputStream((int) (f.length() > 0 ? f.length() : 1024), 0.2f);
 				int read = data.transferFully(channel);
-				
+
 				History history = read > 0 ? History.importHistory(new ByteBufferInputStream(data.getByteBuffer())) : new History();
 				history.addAll(sessionHistory.sequences());
-				
+
 				data.rewind();
 				History.exportHistory(history, data);
-				
+
 				channel.position(0);
 				channel.write(data.getByteBuffer());
-				
+
 				sessionHistory.clear();
 				persistentHistoryTotalSize = history.totalSize();
 			} catch (Exception e) {
@@ -97,34 +91,30 @@ public final class HistorySpooler {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to write rename history.", e);
 		}
 	}
-	
-	
+
 	public synchronized void append(Iterable<Entry<File, File>> elements) {
 		List<Element> sequence = new ArrayList<Element>();
-		
+
 		for (Entry<File, File> element : elements) {
 			sequence.add(new Element(element.getKey().getName(), element.getValue().getPath(), element.getKey().getParentFile()));
 		}
-		
+
 		// append to session history
 		if (sequence.size() > 0) {
 			sessionHistory.add(sequence);
 		}
 	}
-	
-	
+
 	public History getSessionHistory() {
 		return sessionHistory;
 	}
-	
-	
+
 	public int getPersistentHistoryTotalSize() {
 		return persistentHistoryTotalSize;
 	}
-	
-	
+
 	public void setPersistentHistoryEnabled(boolean persistentHistoryEnabled) {
 		this.persistentHistoryEnabled = persistentHistoryEnabled;
 	}
-	
+
 }
