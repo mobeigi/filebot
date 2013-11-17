@@ -145,6 +145,7 @@ Directors.Cut
 DKsubs
 DL
 docu
+dreambox.cut
 Dual.Audio
 dubbed
 DVD5
@@ -172,6 +173,7 @@ GER
 German
 H.SBS
 Hard.Subbed
+HAVE.TO.BE.CUT
 HBO
 hd
 HDRip
@@ -190,6 +192,7 @@ iTALIA
 Italian
 jigaxx
 KIDZCORNER
+Kino.und.TV
 KOR
 KORSUB
 LAB
