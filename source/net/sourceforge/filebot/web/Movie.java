@@ -1,9 +1,10 @@
 package net.sourceforge.filebot.web;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Movie extends SearchResult {
 
@@ -66,7 +67,13 @@ public class Movie extends SearchResult {
 				return tmdbId == other.tmdbId;
 			}
 
-			return year == other.year && name.equals(other.name);
+			if (year != other.year) {
+				return false;
+			}
+
+			Set<String> intersection = new HashSet<String>(this.getEffectiveNames());
+			intersection.retainAll(other.getEffectiveNames());
+			return intersection.size() > 0;
 		}
 
 		return false;
@@ -79,7 +86,7 @@ public class Movie extends SearchResult {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { name.toLowerCase(), year });
+		return year;
 	}
 
 	@Override
