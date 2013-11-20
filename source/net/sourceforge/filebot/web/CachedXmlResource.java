@@ -17,6 +17,10 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 		super(resource, String.class, ONE_WEEK, 2, 1000);
 	}
 
+	public CachedXmlResource(String resource, long expirationTime, int retryCountLimit, long retryWaitTime) {
+		super(resource, String.class, expirationTime, retryCountLimit, retryWaitTime);
+	}
+
 	@Override
 	protected Cache getCache() {
 		return CacheManager.getInstance().getCache("web-persistent-datasource");

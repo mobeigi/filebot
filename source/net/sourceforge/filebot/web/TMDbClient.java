@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
@@ -250,7 +249,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data, true));
 
-		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class) {
+		CachedResource<String> json = new ETagCachedResource<String>(url.toString(), String.class) {
 
 			@Override
 			public String process(ByteBuffer data) throws Exception {
@@ -260,20 +259,21 @@ public class TMDbClient implements MovieIdentificationService {
 			@Override
 			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
 				try {
+					ScheduledFuture<?> permit = null;
 					if (limit != null) {
-						limit.acquirePermit();
+						permit = limit.acquirePermit();
 					}
-					return super.fetchData(url, lastModified);
+
+					ByteBuffer data = super.fetchData(url, lastModified);
+					if (data == null && limit != null && permit != null) {
+						limit.releaseNow(permit);
+					}
+					return data;
 				} catch (FileNotFoundException e) {
 					return ByteBuffer.allocate(0);
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
-			}
-
-			@Override
-			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-datasource");
 			}
 		};
 

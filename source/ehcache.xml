@@ -50,7 +50,7 @@
 	Very long-lived cache (4 months) anime/series lists, movie index, etc
 	-->
 	<cache name="web-persistent-datasource"
-		maxElementsInMemory="50"
+		maxElementsInMemory="200"
 		maxElementsOnDisk="50000"
 		eternal="false"
 		timeToIdleSeconds="10512000"

@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -110,14 +111,14 @@ public final class WebRequest {
 	}
 
 	public static ByteBuffer fetch(URL resource) throws IOException {
-		return fetch(resource, 0, null);
+		return fetch(resource, 0, null, null);
 	}
 
 	public static ByteBuffer fetchIfModified(URL resource, long ifModifiedSince) throws IOException {
-		return fetch(resource, ifModifiedSince, null);
+		return fetch(resource, ifModifiedSince, null, null);
 	}
 
-	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters) throws IOException {
+	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters, Map<String, List<String>> responseParameters) throws IOException {
 		URLConnection connection = url.openConnection();
 		if (ifModifiedSince > 0) {
 			connection.setIfModifiedSince(ifModifiedSince);
@@ -144,6 +145,11 @@ public final class WebRequest {
 			in = new GZIPInputStream(in);
 		else if ("deflate".equalsIgnoreCase(encoding)) {
 			in = new InflaterInputStream(in, new Inflater(true));
+		}
+
+		// store response headers
+		if (responseParameters != null) {
+			responseParameters.putAll(connection.getHeaderFields());
 		}
 
 		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 4 * 1024);
