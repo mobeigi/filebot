@@ -328,10 +328,11 @@ public class ReleaseInfo {
 
 			for (String[] row : rows) {
 				int imdbid = parseInt(row[0]);
-				int year = parseInt(row[1]);
-				String name = row[2];
-				String[] aliasNames = copyOfRange(row, 3, row.length);
-				movies.add(new Movie(name, aliasNames, year, imdbid, -1));
+				int tmdbid = parseInt(row[1]);
+				int year = parseInt(row[2]);
+				String name = row[3];
+				String[] aliasNames = copyOfRange(row, 4, row.length);
+				movies.add(new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1));
 			}
 
 			return movies.toArray(new Movie[0]);

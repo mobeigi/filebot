@@ -3,17 +3,11 @@ import static net.sourceforge.tuned.FileUtilities.*
 import java.util.regex.Pattern
 
 
-// simplified switch/case pattern matching
-def c(c) { try { c.call() } catch (Throwable e) { null } }
-def csv(path, delim = ';', keyIndex = 0, valueIndex = 1) { def f = path as File; def values = [:]; f.splitEachLine(delim) { line -> values.put(line[keyIndex], valueIndex < line.size() ? line[valueIndex] : null) }; return values }
-Object.metaClass.match = { Map cases -> def val = delegate; cases.findResult { switch(val) { case it.key: return it.value} } }
-
-
 /**
-* Allow getAt() for File paths
-*
-* e.g. file[0] -> "F:"
-*/
+ * Allow getAt() for File paths
+ *
+ * e.g. file[0] -> "F:"
+ */
 File.metaClass.getAt = { Range range -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(range).join(File.separator) }
 File.metaClass.getAt = { int index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
 File.metaClass.getRoot = { listPath(delegate)[0] }
@@ -22,7 +16,7 @@ File.metaClass.getDiskSpace = { listPath(delegate).reverse().find{ it.exists() }
 
 
 /**
- * Convenience methods for String.toLowerCase()and String.toUpperCase()
+ * Convenience methods for String.toLowerCase() and String.toUpperCase()
  */
 String.metaClass.lower = { toLowerCase() }
 String.metaClass.upper = { toUpperCase() }
@@ -93,10 +87,10 @@ String.metaClass.upperInitial = { replaceAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[a-
 
 
 /**
-* Get acronym, i.e. first letter of each word.
-*
-* e.g. "Deep Space 9" -> "DS9"
-*/
+ * Get acronym, i.e. first letter of each word.
+ *
+ * e.g. "Deep Space 9" -> "DS9"
+ */
 String.metaClass.acronym = { delegate.sortName('$2').findAll(/(?<=[&()+.,-;<=>?\[\]_{|}~ ]|^)[\p{Alnum}]/).join().toUpperCase() }
 String.metaClass.sortName = { replacement = '$2, $1' -> delegate.replaceFirst(/^(?i)(The|A|An)\s(.+)/, replacement).trim() }
 
@@ -165,19 +159,49 @@ String.metaClass.transliterate = { transformIdentifier -> com.ibm.icu.text.Trans
 
 
 /**
-* Convert Unicode to ASCII as best as possible. Works with most alphabets/scripts used in the world.
-*
-* e.g. "Österreich" -> "Osterreich"
-*      "カタカナ" -> "katakana"
-*/
+ * Convert Unicode to ASCII as best as possible. Works with most alphabets/scripts used in the world.
+ *
+ * e.g. "Österreich" -> "Osterreich"
+ *      "カタカナ" -> "katakana"
+ */
 String.metaClass.ascii = { fallback = ' ' -> delegate.transliterate("Any-Latin;Latin-ASCII;[:Diacritic:]remove").replaceAll("[^\\p{ASCII}]+", fallback) }
 
 
 
+/**
+ * General helpers and utilities
+ */
+def c(c) {
+	try {
+		return c.call()
+	} catch (Throwable e) {
+		return null
+	}
+}
+
+def csv(path, delim = ';', keyIndex = 0, valueIndex = 1) {
+	def f = path as File
+	def values = [:]
+	if (f.isFile()) {
+		f.splitEachLine(delim) { line ->
+			values.put(line[keyIndex], c{ line[valueIndex] })
+		}
+	}
+	return values
+}
+
+Object.metaClass.match = { Map cases ->
+	def val = delegate;
+	cases.findResult {
+		switch(val) { case it.key: return it.value}
+	}
+}
+
+
 
 /**
-* Web and File IO helpers
-*/
+ * Web and File IO helpers
+ */
 import net.sourceforge.filebot.web.WebRequest
 import net.sourceforge.tuned.FileUtilities
 import net.sourceforge.tuned.XPathUtilities
@@ -190,8 +214,8 @@ URL.metaClass.scrapeAll = { xpath -> XPathUtilities.selectNodes(xpath, WebReques
 
 
 /**
-* XML / XPath utility functions
-*/
+ * XML / XPath utility functions
+ */
 import javax.xml.xpath.XPathFactory
 import javax.xml.xpath.XPathConstants
 

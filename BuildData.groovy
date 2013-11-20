@@ -1,6 +1,7 @@
 import  org.tukaani.xz.*
 
-// ------------------------------------------------------------------------- //
+
+/* ------------------------------------------------------------------------- */
 
 
 def sortRegexList(path) {
@@ -9,7 +10,6 @@ def sortRegexList(path) {
 		// check if regex compiles
 		set += java.util.regex.Pattern.compile(it.trim()).pattern()
 	}
-	
 	def out = set.join('\n').saveAs(path)
 	println "$out\n$out.text\n"
 }
@@ -22,11 +22,14 @@ sortRegexList("website/data/exclude-blacklist.txt")
 sortRegexList("website/data/series-mappings.txt")
 
 
-// ------------------------------------------------------------------------- //
+/* ------------------------------------------------------------------------- */
 
 
 def reviews = []
-new File('reviews.csv').eachLine('UTF-8'){ def s = it.split(';', 3); reviews << [user: s[0], date: s[1], text: s[2].replaceAll(/^["]|["]$/, '').replaceAll(/["]{2}/, '"')] }
+new File('reviews.csv').eachLine('UTF-8'){
+	def s = it.split(';', 3)
+	reviews << [user: s[0], date: s[1], text: s[2].replaceAll(/^\"|\"$/, '').replaceAll(/["]{2}/, '"') ]
+}
 reviews = reviews.sort{ it.date }
 
 def json = new groovy.json.JsonBuilder()
@@ -35,10 +38,10 @@ json.toPrettyString().saveAs('website/reviews.json')
 println "Reviews: " + reviews.size()
 
 
-// ------------------------------------------------------------------------- //
+/* ------------------------------------------------------------------------- */
 
 
-def movies_out  = new File("website/data/movies.txt")
+def movies_out  = new File("website/data/moviedb.txt")
 def thetvdb_out = new File("website/data/thetvdb.txt")
 def anidb_out   = new File("website/data/anidb.txt")
 
@@ -51,9 +54,19 @@ def pack(file, lines) {
 }
 
 
-// ------------------------------------------------------------------------- //
+/* ------------------------------------------------------------------------- */
 
-// BUILD movies.txt.gz
+
+// BUILD moviedb index
+def treeSort(list, keyFunction) {
+	def sorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
+	list.each{
+		sorter.put(keyFunction(it), it)
+	}
+	return sorter.values()
+}
+
+
 def omdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
 new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
@@ -67,27 +80,57 @@ new File('omdb.txt').eachLine('Windows-1252'){
 		def votes = tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0
 		
 		if ((year >= 1970 && (runtime =~ /h/ || votes >= 200) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000)) {
-			omdb << [imdbid, name, year]
+			omdb << [imdbid.pad(7), name, year]
 		}
 	}
 }
-omdb = omdb.findAll{ it[0] <= 9999999 && it[1] =~ /^[A-Z0-9]/ && it[1] =~ /[\p{Alpha}]{3}/ && it[1].length() >= 4}.collect{ [it[0].pad(7), it[1], it[2]] }
+def isValidMovieName = { s -> s =~ /^[A-Z0-9]/ && s =~ /[\p{Alpha}]{3}/ }
+omdb = omdb.findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }
 
-// save movie data
-def movies = omdb.findAll{ it.size() >= 3 && !it[1].startsWith('"') }
-def movieSorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
-movies.each{ movieSorter.put([it[1], it[2], it[0]].join('\t'), [it[0], it[2], it[1]]) } // ORDER => ID, YEAR, NAME
-movies = movieSorter.values().collect{ it.join('\t') }
 
-pack(movies_out, movies)
+def tmdb_txt = new File('tmdb.txt')
+def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
+
+def tmdb = omdb.findResults{ m ->
+	if (tmdb_index.containsKey(m[0])) {
+		return tmdb_index[m[0]]
+	}
+	
+	def sync = System.currentTimeMillis()
+	def row = [sync, m[0].pad(7), 0, m[2], m[1]]
+	try {
+		def info = net.sourceforge.filebot.WebServices.TMDb.getMovieInfo("tt${m[0]}", Locale.ENGLISH, false)
+		def names = [info.name, info.originalName, m[1]]
+		row = [sync, m[0].pad(7), info.id.pad(7), info.released?.year ?: m[2]] + names.findResults{ it ?: '' }
+	} catch(FileNotFoundException e) {
+	}
+	
+	println row
+	tmdb_txt << row.join('\t') << '\n'
+	return row
+}
+
+movies = tmdb.findResults{
+	def ity = it[1..3] // imdb id, tmdb id, year
+	def names = it[4..-1].findAll{ isValidMovieName(it) }.unique{ it.toLowerCase().normalizePunctuation() }
+	if (ity[1].toInteger() > 0 && names.size() > 0)
+		return ity + names
+	else
+		return null
+}
+movies = treeSort(movies, { it[3, 2].join(' ') })
+
+pack(movies_out, movies.findResults{ it.join('\t') })
 println "Movie Count: " + movies.size()
 
 // sanity check
-if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
+if (movies.size() < 40000) { throw new Exception('Movie index sanity failed') }
 
-// ------------------------------------------------------------------------- //
 
-// BUILD thetvdb-index.gz
+/* ------------------------------------------------------------------------- */
+
+
+// BUILD tvdb index
 def tvdb = new HashMap()
 def tvdb_txt = new File('tvdb.txt')
 new File('tvdb.txt').eachLine{
@@ -139,9 +182,7 @@ tvdb.values().each{
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
-thetvdb_index = thetvdb_index.sort(new Comparator() {
-	int compare(a, b) { a[0] <=> b[0] }
-})
+thetvdb_index = thetvdb_index.sort(new Comparator() { int compare(a, b) { a[0] <=> b[0] } })
 
 // join and sort
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique()).join('\t') }
@@ -152,8 +193,10 @@ println "TheTVDB Index: " + thetvdb_txt.size()
 if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed') }
 
 
+/* ------------------------------------------------------------------------- */
 
-// BUILD anidb-index.gz
+
+// BUILD anidb index
 def anidb = new net.sourceforge.filebot.web.AnidbClient(null, 0).getAnimeTitles()
 
 def anidb_index = anidb.findResults{
