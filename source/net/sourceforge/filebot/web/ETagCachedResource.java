@@ -36,7 +36,7 @@ public abstract class ETagCachedResource<T extends Serializable> extends CachedR
 		Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
 		ByteBuffer data = WebRequest.fetch(url, requestParameters.size() > 0 ? -1 : lastModified, requestParameters, responseHeaders);
 
-		if (data != null && responseHeaders.containsKey("ETag")) {
+		if (responseHeaders.containsKey("ETag")) {
 			getCache().put(new Element(etagKey, responseHeaders.get("ETag").get(0)));
 		}
 
