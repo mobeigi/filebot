@@ -41,7 +41,7 @@ println "Reviews: " + reviews.size()
 /* ------------------------------------------------------------------------- */
 
 
-def movies_out  = new File("website/data/moviedb.txt")
+def moviedb_out  = new File("website/data/moviedb.txt")
 def thetvdb_out = new File("website/data/thetvdb.txt")
 def anidb_out   = new File("website/data/anidb.txt")
 
@@ -58,6 +58,10 @@ def pack(file, lines) {
 
 
 // BUILD moviedb index
+def isValidMovieName(s) {
+	return s=~ /^[A-Z0-9]/ && s =~ /[\p{Alpha}]{3}/
+}
+
 def treeSort(list, keyFunction) {
 	def sorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
 	list.each{
@@ -67,10 +71,9 @@ def treeSort(list, keyFunction) {
 }
 
 
-def omdb = new TreeSet({ a, b -> a[0].compareTo(b[0]) } as Comparator)
+def omdb = []
 new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
-	
 	if (line.length > 11 && line[0] ==~ /\d+/) {
 		def imdbid = line[1].substring(2).toInteger()
 		def name = line[2].replaceAll(/\s+/, ' ').trim()
@@ -84,7 +87,6 @@ new File('omdb.txt').eachLine('Windows-1252'){
 		}
 	}
 }
-def isValidMovieName = { s -> s =~ /^[A-Z0-9]/ && s =~ /[\p{Alpha}]{3}/ }
 omdb = omdb.findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }
 
 
@@ -109,6 +111,7 @@ def tmdb = omdb.findResults{ m ->
 	tmdb_txt << row.join('\t') << '\n'
 	return row
 }
+tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
 
 movies = tmdb.findResults{
 	def ity = it[1..3] // imdb id, tmdb id, year
@@ -120,11 +123,11 @@ movies = tmdb.findResults{
 }
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
-pack(movies_out, movies.findResults{ it.join('\t') })
+pack(moviedb_out, movies.findResults{ it.join('\t') })
 println "Movie Count: " + movies.size()
 
 // sanity check
-if (movies.size() < 40000) { throw new Exception('Movie index sanity failed') }
+if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
 
 
 /* ------------------------------------------------------------------------- */
