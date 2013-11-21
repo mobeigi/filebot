@@ -2,7 +2,7 @@
 
 
 def escapeShell(String arg) {
-    return '"' + arg.replaceAll(/["$`<>^\\"']/, /\\$0/) + '"'
+    return '"' + arg.replaceAll(/["$`<>^\\"]/, /\\$0/) + '"'
 }
 
 
