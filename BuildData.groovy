@@ -11,7 +11,7 @@ def sortRegexList(path) {
 		set += java.util.regex.Pattern.compile(it.trim()).pattern()
 	}
 	def out = set.join('\n').saveAs(path)
-	println "$out\n$out.text\n"
+	println "${out}\n${out.text}\n"
 }
 
 
@@ -41,7 +41,7 @@ println "Reviews: " + reviews.size()
 /* ------------------------------------------------------------------------- */
 
 
-def moviedb_out  = new File("website/data/moviedb.txt")
+def moviedb_out = new File("website/data/moviedb.txt")
 def thetvdb_out = new File("website/data/thetvdb.txt")
 def anidb_out   = new File("website/data/anidb.txt")
 
@@ -115,15 +115,15 @@ tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
 
 movies = tmdb.findResults{
 	def ity = it[1..3] // imdb id, tmdb id, year
-	def names = it[4..-1].findAll{ isValidMovieName(it) }.unique{ it.toLowerCase().normalizePunctuation() }
-	if (ity[1].toInteger() > 0 && names.size() > 0)
+	def names = it[4..-2].findAll{ isValidMovieName(it) }.unique{ it.toLowerCase().normalizePunctuation() }
+	if (ity[0].toInteger() > 0 && ity[1].toInteger() > 0 && names.size() > 0)
 		return ity + names
 	else
 		return null
 }
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
-pack(moviedb_out, movies.findResults{ it.join('\t') })
+pack(moviedb_out, movies*.join('\t'))
 println "Movie Count: " + movies.size()
 
 // sanity check
@@ -167,7 +167,6 @@ tvdb_updates.each{ update ->
 		}
 	}
 }
-
 tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 

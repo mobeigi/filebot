@@ -61,17 +61,18 @@ public class Movie extends SearchResult {
 	public boolean equals(Object object) {
 		if (object instanceof Movie) {
 			Movie other = (Movie) object;
-			if (imdbId > 0 && other.imdbId > 0) {
-				return imdbId == other.imdbId;
-			} else if (tmdbId > 0 && other.tmdbId > 0) {
+
+			if (tmdbId > 0 && other.tmdbId > 0) {
 				return tmdbId == other.tmdbId;
 			}
-
+			if (imdbId > 0 && other.imdbId > 0) {
+				return imdbId == other.imdbId;
+			}
 			if (year != other.year) {
 				return false;
 			}
 
-			Set<String> intersection = new HashSet<String>(this.getEffectiveNames());
+			Set<String> intersection = new HashSet<String>(getEffectiveNames());
 			intersection.retainAll(other.getEffectiveNames());
 			return intersection.size() > 0;
 		}
