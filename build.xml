@@ -320,6 +320,7 @@
 	</target>
 
 	<target name="msi-arch">
+		<property name="jnidispatch" location="${dir.lib}/native/win32-${arch}/jnidispatch.dll" />
 		<property name="mediainfo" location="${dir.lib}/native/win32-${arch}/MediaInfo.dll" />
 		<property name="lib7z_binding" location="${dir.lib}/native/win32-${arch}/7-Zip-JBinding.dll" />
 		<property name="libgcc_path" location="${dir.lib}/native/win32-${arch}/${libgcc_name}" />
@@ -327,7 +328,7 @@
 		<property name="installer" location="${dir.dist}/FileBot_${version}_${arch}.msi" />
 
 		<exec executable="candle.exe" dir="${dir.installer}/msi" failonerror="true">
-			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path} -dfpcalc_path=${fpcalc_path}" />
+			<arg line="filebot-wix.xml -out ${dir.dist}/msi.wixobj -darch=${arch} -dreleaseversion=${version} -dfatjar=${path.fatjar} -djnidispatch=${jnidispatch} -dmediainfo=${mediainfo} -dlib7z_binding=${lib7z_binding} -dlibgcc_name=${libgcc_name} -dlibgcc_path=${libgcc_path} -dfpcalc_path=${fpcalc_path}" />
 		</exec>
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
