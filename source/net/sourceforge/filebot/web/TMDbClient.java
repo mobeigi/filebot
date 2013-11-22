@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -259,16 +258,10 @@ public class TMDbClient implements MovieIdentificationService {
 			@Override
 			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
 				try {
-					ScheduledFuture<?> permit = null;
 					if (limit != null) {
-						permit = limit.acquirePermit();
+						limit.acquirePermit();
 					}
-
-					ByteBuffer data = super.fetchData(url, lastModified);
-					if (data == null && limit != null && permit != null) {
-						limit.releaseNow(permit);
-					}
-					return data;
+					return super.fetchData(url, lastModified);
 				} catch (FileNotFoundException e) {
 					return ByteBuffer.allocate(0);
 				} catch (InterruptedException e) {
