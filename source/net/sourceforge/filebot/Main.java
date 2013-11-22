@@ -378,7 +378,7 @@ public class Main {
 		}
 
 		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to the author of this software. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
-		String[] actions = new String[] { "Donate!", "Later" };
+		String[] actions = new String[] { "Donate! :)", "Later" };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
 		pane.createDialog(null, "Please Donate").setVisible(true);
 		if (pane.getValue() == actions[0]) {
