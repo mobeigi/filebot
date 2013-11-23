@@ -138,7 +138,7 @@ if (excludeList) {
 input.each{ f -> _log.finest("Input: $f") }
 
 // artwork/nfo utility
-if (artwork || xbmc || plex) { include('lib/htpc') }
+if (artwork || xbmc || plex) { include('fn:lib/htpc') }
 
 // group episodes/movies and rename according to XBMC standards
 def groups = input.groupBy{ f ->
@@ -299,12 +299,12 @@ if (plex) {
 // mark episodes as 'acquired'
 if (myepisodes) {
 	_log.info 'Update MyEpisodes'
-	executeScript('update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
+	executeScript('fn:update-mes', [login:myepisodes.join(':'), addshows:true], getRenameLog().values())
 }
 
 if (pushover) {
 	// include webservice utility
-	include('lib/ws')
+	include('fn:lib/ws')
 	
 	_log.info 'Sending Pushover notification'
 	Pushover(pushover).send("Finished processing ${tryQuietly { ut_title } ?: input*.dir.name.unique()} (${getRenameLog().size()} files).")
@@ -313,7 +313,7 @@ if (pushover) {
 // send status email
 if (gmail) {
 	// ant/mail utility
-	include('lib/ant')
+	include('fn:lib/ant')
 	
 	// send html mail
 	def renameLog = getRenameLog()
@@ -369,7 +369,7 @@ if (clean) {
 		cleanerInput = cleanerInput.findAll{ f -> f.exists() }
 		if (cleanerInput.size() > 0) {
 			_log.info 'Clean clutter files and empty folders'
-			executeScript('cleaner', args.empty ? [root:true] : [root:false], cleanerInput)
+			executeScript('fn:cleaner', args.empty ? [root:true] : [root:false], cleanerInput)
 		}
 	}
 }
