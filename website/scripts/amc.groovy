@@ -30,7 +30,7 @@ def xbmc = tryQuietly{ xbmc.split(/[ ,|]+/) }
 def plex = tryQuietly{ plex.split(/[ ,|]+/) }
 
 // extra options, myepisodes updates and email notifications
-def deleteArchives = tryQuietly{ archives.equals('delete') }
+def deleteAfterExtract = tryQuietly{ deleteAfterExtract.toBoolean() }
 def excludeList = tryQuietly{ new File(_args.output, excludeList) }
 def myepisodes = tryQuietly{ myepisodes.split(':', 2) }
 def gmail = tryQuietly{ gmail.split(':', 2) }
@@ -100,7 +100,7 @@ input = input.flatten{ f ->
 		tempFiles += extractDir
 		tempFiles += extractFiles
 
-		if (deleteArchives) {
+		if (deleteAfterExtract) {
 			_log.finest("Mark archive for deletion: $f")
 			f.deleteOnExit()
 			f.dir.listFiles().toList().findAll{ v -> v.name.startsWith(f.nameWithoutExtension) && v.extension ==~ /r\d+/ }.each{ v ->
