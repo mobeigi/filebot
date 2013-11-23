@@ -3,16 +3,6 @@
 // FileBot 2.62 (r993)
 println net.sourceforge.filebot.Settings.applicationIdentifier
 
-// chromaprint-tools
-try {
-	print 'chromaprint-tools: '
-	def fpcalc = System.getProperty('net.sourceforge.filebot.AcoustID.fpcalc', 'fpcalc')
-	def version = [fpcalc, '-version'].execute().text.trim() ?: 'fpcalc -version failed'
-	println "$version ($fpcalc)"
-} catch(Throwable error) {
-	println error
-}
-
 // JNA Native: 3.5.0
 try {
 	print 'JNA Native: '
@@ -34,6 +24,16 @@ try {
 	print '7-Zip-JBinding: '
 	net.sourceforge.filebot.archive.SevenZipLoader.requireNativeLibraries() // load 7-Zip-JBinding native libs
 	println 'OK'
+} catch(Throwable error) {
+	println error
+}
+
+// chromaprint-tools
+try {
+	print 'chromaprint-tools: '
+	def fpcalc = System.getProperty('net.sourceforge.filebot.AcoustID.fpcalc', 'fpcalc')
+	def version = [fpcalc, '-version'].execute().text.trim() ?: 'fpcalc -version failed'
+	println "$version ($fpcalc)"
 } catch(Throwable error) {
 	println error
 }
@@ -69,6 +69,9 @@ try {
 } catch(Throwable error) {
 	println error
 }
+
+// Groovy Engine: 2.1.7
+println 'Groovy Engine: ' + groovy.lang.GroovySystem.version
 
 // Java(TM) SE Runtime Environment 1.6.0_30 (headless)
 println net.sourceforge.filebot.Settings.javaRuntimeIdentifier
