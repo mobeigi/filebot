@@ -92,23 +92,18 @@ if (args.empty) {
 input = input.flatten()
 
 // extract archives (zip, rar, etc) that contain at least one video file
+def extractedArchives = []
 def tempFiles = []
 input = input.flatten{ f ->
 	if (f.isArchive() || f.hasExtension('001')) {
 		def extractDir = new File(f.dir, f.nameWithoutExtension)
 		def extractFiles = extract(file: f, output: new File(extractDir, f.dir.name), conflict: 'skip', filter: { it.isArchive() || it.isVideo() || it.isSubtitle() || (music && it.isAudio()) }, forceExtractAll: true) ?: []
-		tempFiles += extractDir
-		tempFiles += extractFiles
-
-		if (deleteAfterExtract) {
-			_log.finest("Mark archive for deletion: $f")
-			f.deleteOnExit()
-			f.dir.listFiles().toList().findAll{ v -> v.name.startsWith(f.nameWithoutExtension) && v.extension ==~ /r\d+/ }.each{ v ->
-				_log.finest("Mark volume for deletion: $v")
-				v.deleteOnExit()
-			}
+		
+		if (extractFiles.size() > 0) {
+			extractedArchives += f
+			tempFiles += extractDir
+			tempFiles += extractFiles
 		}
-
 		return extractFiles
 	}
 	return f
@@ -345,6 +340,17 @@ if (gmail) {
 		to: tryQuietly{ mailto } ?: gmail[0] + '@gmail.com', // mail to self by default
 		user: gmail[0], password: gmail[1]
 	)
+}
+
+if (deleteAfterExtract) {
+	extractedArchives.each{ a ->
+		_log.finest("Delete archive $a")
+		a.delete()
+		a.dir.listFiles().toList().findAll{ v -> v.name.startsWith(a.nameWithoutExtension) && v.extension ==~ /r\d+/ }.each{ v ->
+			_log.finest("Delete archive volume $v")
+			v.delete()
+		}
+	}
 }
 
 // clean empty folders, clutter files, etc after move
