@@ -151,6 +151,7 @@
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
 				<include name="META-INF/services/**" />
+				<include name="META-INF/*.properties" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/icu4j.jar">
