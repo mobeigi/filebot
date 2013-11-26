@@ -50,19 +50,19 @@ def format = [
 
 // force movie/series/anime logic
 def forceMovie(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/ || f.dir.path =~ /(?i:Movies)/ || f.path =~ /(?<=tt)\\d{7}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Movie/ }
+	tryQuietly{ ut_label } =~ /^(?i:Movie|Couch.Potato)/ || f.dir.path =~ /\b(?i:Movies)\b/ || f.path =~ /(?<=tt)\\d{7}/ || tryQuietly{ f.metadata?.object?.class.name =~ /Movie/ }
 }
 
 def forceSeries(f) {
-	tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/ || f.dir.path =~ /(?i:TV.Shows)/ || parseEpisodeNumber(f.path) || parseDate(f.path) || f.path =~ /(?i:Season)\D?[0-9]{1,2}\D/ || tryQuietly{ f.metadata?.object?.class.name =~ /Episode/ }
+	tryQuietly{ ut_label } =~ /^(?i:TV|Kids.Shows)/ || f.dir.path =~ /\b(?i:TV.Shows)\b/ || parseEpisodeNumber(f.path) || parseDate(f.path) || f.path =~ /(?i:Season)\D?[0-9]{1,2}\D/ || tryQuietly{ f.metadata?.object?.class.name =~ /Episode/ }
 }
 
 def forceAnime(f) {
-	tryQuietly{ ut_label } =~ /^(?i:Anime)/ || f.dir.path =~ /(?i:Anime)/ || (f.isVideo() && (f.name =~ "[\\(\\[]\\p{XDigit}{8}[\\]\\)]" || getMediaInfo(file:f, format:'''{media.AudioLanguageList} {media.TextCodecList}''').tokenize().containsAll(['Japanese', 'ASS'])))
+	tryQuietly{ ut_label } =~ /^(?i:Anime)/ || f.dir.path =~ /\b(?i:Anime)\b/ || (f.isVideo() && (f.name =~ "[\\(\\[]\\p{XDigit}{8}[\\]\\)]" || getMediaInfo(file:f, format:'''{media.AudioLanguageList} {media.TextCodecList}''').tokenize().containsAll(['Japanese', 'ASS'])))
 }
 
 def forceIgnore(f) {
-	tryQuietly{ ut_label } =~ /^(?i:ebook|other|ignore)/ || f.dir.path =~ /(?i:other)/ || f.path =~ tryQuietly{ ignore }
+	tryQuietly{ ut_label } =~ /^(?i:ebook|other|ignore)/ || f.path =~ tryQuietly{ ignore }
 }
 
 
