@@ -107,7 +107,7 @@ public class SeasonEpisodeMatcher {
 			}
 		};
 
-		// match patterns like 101, 102 (and greedily just grab the first)
+		// (last-resort) match patterns like 101, 102 (and greedily just grab the first)
 		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "(\\d{1})(\\d{2}).+") {
 
 			@Override
@@ -148,17 +148,17 @@ public class SeasonEpisodeMatcher {
 
 	public List<SxE> match(File file) {
 		// take folder name into consideration as much as file name but put priority on file name
-		List<File> pathTail = listPathTail(file, 2, true);
+		List<String> tail = tokenizeTail(file);
 
 		for (SeasonEpisodeParser pattern : patterns) {
-			for (File tail : pathTail) {
-				List<SxE> match = pattern.match(tail.getName());
+			for (int t = 0; t < tail.size(); t++) {
+				List<SxE> match = pattern.match(tail.get(t));
 
 				if (!match.isEmpty()) {
 					// current pattern did match
 					for (int i = 0; i < match.size(); i++) {
-						if (match.get(i).season < 0) {
-							Matcher sm = seasonPattern.matcher(file.getPath());
+						if (match.get(i).season < 0 && t < tail.size() - 1) {
+							Matcher sm = seasonPattern.matcher(tail.get(t + 1));
 							if (sm.find()) {
 								match.set(i, new SxE(Integer.parseInt(sm.group(1)), match.get(i).episode));
 							}
@@ -169,6 +169,14 @@ public class SeasonEpisodeMatcher {
 			}
 		}
 		return null;
+	}
+
+	protected List<String> tokenizeTail(File file) {
+		List<String> tail = new ArrayList<String>(2);
+		for (File f : listPathTail(file, 2, true)) {
+			tail.add(getName(f));
+		}
+		return tail;
 	}
 
 	public int find(CharSequence name, int fromIndex) {

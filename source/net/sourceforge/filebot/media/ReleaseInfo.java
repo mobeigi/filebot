@@ -119,7 +119,7 @@ public class ReleaseInfo {
 				Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
 				Pattern languageTag = getLanguageTagPattern(languages);
 				Pattern videoSource = getVideoSourcePattern();
-				Pattern videoFormat = getVideoFormatPattern();
+				Pattern videoFormat = getVideoFormatPattern(strict);
 				Pattern resolution = getResolutionPattern();
 				Pattern queryBlacklist = getBlacklistPattern();
 
@@ -226,10 +226,10 @@ public class ReleaseInfo {
 		return compile("(?<!\\p{Alnum})(\\d{4}|[6-9]\\d{2})x(\\d{4}|[4-9]\\d{2})(?!\\p{Alnum})");
 	}
 
-	public Pattern getVideoFormatPattern() {
+	public Pattern getVideoFormatPattern(boolean strict) {
 		// pattern matching any video source name
 		String pattern = getBundle(getClass().getName()).getString("pattern.video.format");
-		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+		return strict ? compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE) : compile(pattern, CASE_INSENSITIVE);
 	}
 
 	public Pattern getVideoSourcePattern() {

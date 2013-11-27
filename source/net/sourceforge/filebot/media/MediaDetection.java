@@ -111,16 +111,20 @@ public class MediaDetection {
 		return releaseInfo.getLanguageSuffix(getName(file));
 	}
 
+	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
+		return new SeasonEpisodeMatcherWithFilter(strict);
+	}
+
 	public static boolean isEpisode(String name, boolean strict) {
 		return parseEpisodeNumber(name, strict) != null || parseDate(name) != null;
 	}
 
 	public static List<SxE> parseEpisodeNumber(String string, boolean strict) {
-		return new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(string);
+		return getSeasonEpisodeMatcher(strict).match(string);
 	}
 
 	public static List<SxE> parseEpisodeNumber(File file, boolean strict) {
-		return new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(file);
+		return getSeasonEpisodeMatcher(strict).match(file);
 	}
 
 	public static Date parseDate(Object object) {
@@ -248,7 +252,7 @@ public class MediaDetection {
 
 	public static Object getEpisodeIdentifier(CharSequence name, boolean strict) {
 		// check SxE first
-		Object match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true).match(name);
+		Object match = getSeasonEpisodeMatcher(true).match(name);
 
 		// then Date pattern
 		if (match == null) {
@@ -257,7 +261,7 @@ public class MediaDetection {
 
 		// check SxE non-strict
 		if (match == null && !strict) {
-			match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false).match(name);
+			match = getSeasonEpisodeMatcher(false).match(name);
 		}
 
 		return match;
@@ -1037,6 +1041,33 @@ public class MediaDetection {
 
 		public String normalize(String sequence) {
 			return normalizePunctuation(sequence); // only normalize punctuation, make sure we keep the year (important for movie matching)
+		}
+	}
+
+	private static class SeasonEpisodeMatcherWithFilter extends SeasonEpisodeMatcher {
+
+		private final Pattern ignorePattern = MediaDetection.releaseInfo.getVideoFormatPattern(false);
+
+		public SeasonEpisodeMatcherWithFilter(boolean strict) {
+			super(DEFAULT_SANITY, strict);
+		}
+
+		protected String clean(CharSequence name) {
+			return ignorePattern.matcher(name).replaceAll("");
+		}
+
+		@Override
+		public List<SxE> match(CharSequence name) {
+			return super.match(clean(name));
+		}
+
+		@Override
+		protected List<String> tokenizeTail(File file) {
+			List<String> tail = super.tokenizeTail(file);
+			for (int i = 0; i < tail.size(); i++) {
+				tail.set(i, clean(tail.get(i)));
+			}
+			return tail;
 		}
 	}
 
