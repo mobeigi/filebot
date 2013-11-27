@@ -111,8 +111,11 @@ public class MediaDetection {
 		return releaseInfo.getLanguageSuffix(getName(file));
 	}
 
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SeasonEpisodeMatcherWithFilter(true);
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SeasonEpisodeMatcherWithFilter(false);
+
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
-		return new SeasonEpisodeMatcherWithFilter(strict);
+		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {
