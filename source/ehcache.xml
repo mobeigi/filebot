@@ -23,7 +23,7 @@
 	-->
 	<cache name="web-datasource"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="10000"
+		maxElementsOnDisk="20000"
 		eternal="false"
 		timeToIdleSeconds="172800"
 		timeToLiveSeconds="172800"
@@ -37,7 +37,7 @@
 	-->
 	<cache name="web-datasource-lv2"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="10000"
+		maxElementsOnDisk="20000"
 		eternal="false"
 		timeToIdleSeconds="1209600"
 		timeToLiveSeconds="1209600"
@@ -51,7 +51,7 @@
 	-->
 	<cache name="web-persistent-datasource"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="50000"
+		maxElementsOnDisk="95000"
 		eternal="false"
 		timeToIdleSeconds="10512000"
 		timeToLiveSeconds="10512000"
