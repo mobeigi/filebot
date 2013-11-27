@@ -248,11 +248,17 @@ public class MediaDetection {
 
 	public static Object getEpisodeIdentifier(CharSequence name, boolean strict) {
 		// check SxE first
-		Object match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict).match(name);
+		Object match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true).match(name);
 
 		// then Date pattern
-		if (match == null)
+		if (match == null) {
 			match = new DateMatcher().match(name);
+		}
+
+		// check SxE non-strict
+		if (match == null && !strict) {
+			match = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false).match(name);
+		}
 
 		return match;
 	}

@@ -74,14 +74,17 @@ public class SeasonEpisodeMatcherTest {
 		// test season digits <= 19
 		assertEquals(new SxE(null, 16), matcher.match("E16").get(0));
 
-		// test look-behind
-		assertEquals(null, matcher.match("720p"));
+		// test look-ahead
+		assertEquals(asList(new SxE(7, 20)), matcher.match("720p"));
 
 		// test ambiguous match processing
 		assertEquals(asList(new SxE(1, 1), new SxE(UNDEFINED, 101)), matcher.match("Test.101"));
 
 		// test 4-digit
 		assertEquals(asList(new SxE(23, 21)), matcher.match("the.simpsons.2321.hdtv-lol"));
+
+		// test Num101_SUBSTRING
+		assertEquals(asList(new SxE(4, 07)), matcher.match("TWalkingDead4071080p"));
 	}
 
 	@Test

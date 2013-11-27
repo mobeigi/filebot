@@ -19,13 +19,14 @@ import java.util.regex.Pattern;
 public class SeasonEpisodeMatcher {
 
 	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000, 1970, 2100);
+	public static final SeasonEpisodeFilter STRICT_SANITY = new SeasonEpisodeFilter(10, 30, -1, -1, -1);
 
 	private SeasonEpisodeParser[] patterns;
 	private Pattern seasonPattern;
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		// define variables
-		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101;
+		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101_TOKEN, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
@@ -83,7 +84,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// match patterns like 01, 102, 1003, 10102 (enclosed in separators)
-		Num101 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
+		Num101_TOKEN = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})([0-2]?\\d?)(\\d{2})(\\d{2})?(?!\\p{Alnum})") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -106,11 +107,20 @@ public class SeasonEpisodeMatcher {
 			}
 		};
 
+		// match patterns like 101, 102 (and greedily just grab the first)
+		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "(\\d{1})(\\d{2}).+") {
+
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				return singleton(new SxE(match.group(1), match.group(2)));
+			}
+		};
+
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
 			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101 };
 		} else {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101) };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN), Num101_SUBSTRING };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename
