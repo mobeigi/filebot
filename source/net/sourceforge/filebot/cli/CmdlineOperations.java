@@ -138,7 +138,10 @@ public class CmdlineOperations implements CmdlineInterface {
 	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
-		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
+		// ignore sample files
+		List<File> fileset = filter(files, not(getClutterFileFilter()));
+
+		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
 			throw new Exception("No media files: " + files);
 		}
@@ -201,7 +204,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// handle derived files
 		List<Match<File, ?>> derivateMatches = new ArrayList<Match<File, ?>>();
-		SortedSet<File> derivateFiles = new TreeSet<File>(files);
+		SortedSet<File> derivateFiles = new TreeSet<File>(fileset);
 		derivateFiles.removeAll(mediaFiles);
 
 		for (File file : derivateFiles) {
