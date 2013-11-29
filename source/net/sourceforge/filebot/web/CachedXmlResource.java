@@ -23,7 +23,7 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 	@Override
 	protected Cache getCache() {
-		return CacheManager.getInstance().getCache("web-persistent-datasource");
+		return CacheManager.getInstance().getCache("web-datasource-lv3");
 	}
 
 	public Document getDocument() throws IOException {

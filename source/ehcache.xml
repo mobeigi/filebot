@@ -47,11 +47,25 @@
 	/>
 	
 	<!--
+	Long-lived (2 months) persistent disk cache for web responses (that can be updated via If-Modified or If-None-Match)
+	-->
+	<cache name="web-datasource-lv3"
+		maxElementsInMemory="200"
+		maxElementsOnDisk="95000"
+		eternal="false"
+		timeToIdleSeconds="5256000"
+		timeToLiveSeconds="5256000"
+		overflowToDisk="true"
+		diskPersistent="true"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+	
+	<!--
 	Very long-lived cache (4 months) anime/series lists, movie index, etc
 	-->
 	<cache name="web-persistent-datasource"
-		maxElementsInMemory="200"
-		maxElementsOnDisk="95000"
+		maxElementsInMemory="50"
+		maxElementsOnDisk="5000"
 		eternal="false"
 		timeToIdleSeconds="10512000"
 		timeToLiveSeconds="10512000"

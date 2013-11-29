@@ -45,7 +45,7 @@ public abstract class ETagCachedResource<T extends Serializable> extends CachedR
 
 	@Override
 	protected Cache getCache() {
-		return CacheManager.getInstance().getCache("web-persistent-datasource");
+		return CacheManager.getInstance().getCache("web-datasource-lv3");
 	}
 
 }
