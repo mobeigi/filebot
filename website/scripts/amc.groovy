@@ -172,8 +172,8 @@ def groups = input.groupBy{ f ->
 		println (mov.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ mov.year })
 		println (mn =~ sn && [dn, fn].find{ it =~ /(19|20)\d{2}/ })
 		println '--- MOVIE FILTER (POS) ---'
-		println (similarity(mn, fn) >= 0.8 || [dn, fn].find{ it =~ /\b/+mov.year+/\b/ } != null)
-		println ([dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && (similarity(it, mn) > similarity(it, sn)) } != null)
+		println (similarity(mn, fn) >= 0.8 || [dn, fn].find{ it.findAll( ~/\d{4}/ ).findAll{ y -> [mov.year-1, mov.year, mov.year+1].contains(y.toInteger()) }.size() > 0 } != null)
+		println ([dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && (similarity(it, mn) > 0.2 + similarity(it, sn)) } != null)
 		println (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ } != null)
 		**/
 		
@@ -181,7 +181,7 @@ def groups = input.groupBy{ f ->
 		if ((parseEpisodeNumber(fn, true) || parseDate(fn) || ([dn, fn].find{ it =~ sn && matchMovie(it, true) == null } && (parseEpisodeNumber(stripReleaseInfo(fn.after(sn), false), false) || fn.after(sn) =~ /\D\d{1,2}\D{1,3}\d{1,2}\D/) && matchMovie(fn, true) == null) || (fn.after(sn) ==~ /.{0,3} - .+/ && matchMovie(fn, true) == null) || f.dir.listFiles{ it.isVideo() && (dn =~ sn || norm(it.name) =~ sn) && it.name =~ /\d{1,3}/}.findResults{ it.name.matchAll(/\d{1,3}/) as Set }.unique().size() >= 10 || mov.year < 1900) && !( (mov.year >= 1950 && f.listPath().reverse().take(3).find{ it.name =~ mov.year }) || (mn =~ sn && [dn, fn].find{ it =~ /(19|20)\d{2}/ }) ) ) {
 			_log.fine("Exclude Movie: $mov")
 			mov = null
-		} else if ((similarity(mn, fn) >= 0.8 || [dn, fn].find{ it =~ /\b/+mov.year+/\b/ } != null) || ([dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && (similarity(it, mn) > similarity(it, sn)) } != null) || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ } != null)) {
+		} else if ((similarity(mn, fn) >= 0.8 || [dn, fn].find{ it.findAll( ~/\d{4}/ ).findAll{ y -> [mov.year-1, mov.year, mov.year+1].contains(y.toInteger()) }.size() > 0 } != null) || ([dn, fn].find{ it =~ mn && !(it.after(mn) =~ /\b\d{1,3}\b/) && (similarity(it, mn) > 0.2 + similarity(it, sn)) } != null) || (detectMovie(f, true) && [dn, fn].find{ it =~ /(19|20)\d{2}/ } != null)) {
 			_log.fine("Exclude Series: $tvs")
 			tvs = null
 		}
