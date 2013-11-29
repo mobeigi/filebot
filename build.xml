@@ -656,15 +656,6 @@
 	</target>
 
 
-	<target name="upload-scripts" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.website}">
-				<include name="scripts/**" />
-			</fileset>
-		</scp>
-	</target>
-
-
 	<target name="deploy-test-package" depends="svn-update, fatjar, login">
 		<!-- deploy fatjar -->
 		<input message="Mark:" addproperty="mark" />
