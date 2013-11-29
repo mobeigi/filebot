@@ -100,6 +100,7 @@
 	<type name="video/mpeg">
 		<extension>mpg</extension>
 		<extension>mpeg</extension>
+		<extension>vob</extension>
 		<extension>ts</extension>
 		<extension>tp</extension>
 		<extension>m2ts</extension>
