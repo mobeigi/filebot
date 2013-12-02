@@ -889,10 +889,9 @@ public class MediaDetection {
 	}
 
 	public static boolean isStructureRoot(File folder) throws IOException {
-		if (folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder)) {
+		if (folder == null || folder.getName() == null || folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder)) {
 			return true;
 		}
-
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
