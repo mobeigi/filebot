@@ -4,7 +4,6 @@ import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 import static net.sourceforge.tuned.StringUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,8 +40,6 @@ import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
@@ -67,18 +63,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = new LinkedList<SearchResult>();
-
-		// use name similarity metric
-		SimilarityMetric metric = new NameSimilarityMetric();
-
-		// find probable matches using name similarity >= 0.85
-		for (SearchResult result : searchResults) {
-			// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
-			if (metric.getSimilarity(removeTrailingBrackets(query), removeTrailingBrackets(result.getName())) >= 0.85) {
-				probableMatches.add(result);
-			}
-		}
+		List<SearchResult> probableMatches = getProbableMatches(query, searchResults);
 
 		// auto-select first and only probable search result
 		if (probableMatches.size() == 1) {

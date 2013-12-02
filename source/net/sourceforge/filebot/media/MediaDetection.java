@@ -1019,6 +1019,31 @@ public class MediaDetection {
 		return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
 	}
 
+	public static List<SearchResult> getProbableMatches(String query, Collection<SearchResult> options) {
+		// auto-select most probable search result
+		List<SearchResult> probableMatches = new LinkedList<SearchResult>();
+
+		// use name similarity metric
+		SimilarityMetric metric = new NameSimilarityMetric();
+		float threshold = 0.85f;
+
+		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
+		query = removeTrailingBrackets(query);
+
+		// find probable matches using name similarity >= 0.85
+		for (SearchResult option : options) {
+			float f = 0;
+			for (String n : option.getEffectiveNames()) {
+				f = Math.max(f, metric.getSimilarity(query, removeTrailingBrackets(n)));
+			}
+			if (f >= threshold) {
+				probableMatches.add(option);
+			}
+		}
+
+		return probableMatches;
+	}
+
 	/*
 	 * Heavy-duty name matcher used for matching a file to or more movies (out of a list of ~50k)
 	 */
