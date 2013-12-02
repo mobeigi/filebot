@@ -134,8 +134,8 @@ if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
 
 
 // BUILD tvdb index
-def tvdb = new HashMap()
 def tvdb_txt = new File('tvdb.txt')
+def tvdb = [:]
 new File('tvdb.txt').eachLine{
 	def line = it.split('\t', 5).toList()
 	tvdb.put(line[0] as Integer, [line[0] as Integer, line[1], line[2], line[3], line[4] as Integer])
@@ -167,6 +167,16 @@ tvdb_updates.each{ update ->
 		}
 	}
 }
+
+// remove entries that have become invalid
+def tvdb_ids = tvdb_updates.findResults{ it.id } as HashSet
+tvdb.keySet().toList().each{ id ->
+	if (!tvdb_ids.contains(id)) {
+		println "Invalid ID found: ${tvdb[id]}"
+		tvdb.remove(id)
+	}
+}
+
 tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 

@@ -216,6 +216,12 @@ public final class WebRequest {
 		return buffer.getByteBuffer();
 	}
 
+	public static int head(URL url) throws IOException {
+		HttpURLConnection c = (HttpURLConnection) url.openConnection();
+		c.setRequestMethod("HEAD");
+		return c.getResponseCode();
+	}
+
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
