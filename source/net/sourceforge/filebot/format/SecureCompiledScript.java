@@ -27,6 +27,7 @@ public class SecureCompiledScript extends CompiledScript {
 		Permissions permissions = new Permissions();
 
 		permissions.add(new RuntimePermission("createClassLoader"));
+		permissions.add(new RuntimePermission("accessDeclaredMembers"));
 		permissions.add(new RuntimePermission("accessClassInPackage.*"));
 		permissions.add(new RuntimePermission("modifyThread"));
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
