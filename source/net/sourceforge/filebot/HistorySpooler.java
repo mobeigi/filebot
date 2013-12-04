@@ -5,6 +5,7 @@ import static net.sourceforge.filebot.Settings.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
@@ -14,8 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.History.Element;
-import net.sourceforge.tuned.ByteBufferInputStream;
-import net.sourceforge.tuned.ByteBufferOutputStream;
+
+import org.apache.commons.io.input.CloseShieldInputStream;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 
 public final class HistorySpooler {
 
@@ -40,10 +42,7 @@ public final class HistorySpooler {
 		FileChannel channel = f.getChannel();
 		FileLock lock = channel.lock();
 		try {
-			ByteBufferOutputStream data = new ByteBufferOutputStream(f.length());
-			data.transferFully(channel);
-
-			History history = History.importHistory(new ByteBufferInputStream(data.getByteBuffer()));
+			History history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
 			history.addAll(sessionHistory.sequences());
 			return history;
 		} finally {
@@ -66,17 +65,19 @@ public final class HistorySpooler {
 			FileChannel channel = f.getChannel();
 			FileLock lock = channel.lock();
 			try {
-				ByteBufferOutputStream data = new ByteBufferOutputStream((int) (f.length() > 0 ? f.length() : 1024), 0.2f);
-				int read = data.transferFully(channel);
-
-				History history = read > 0 ? History.importHistory(new ByteBufferInputStream(data.getByteBuffer())) : new History();
+				History history = new History();
+				if (persistentHistoryFile.length() > 0) {
+					try {
+						channel.position(0); // rewind
+						history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
+					} catch (Exception e) {
+						Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load rename history.", e);
+					}
+				}
 				history.addAll(sessionHistory.sequences());
 
-				data.rewind();
-				History.exportHistory(history, data);
-
 				channel.position(0);
-				channel.write(data.getByteBuffer());
+				History.exportHistory(history, new CloseShieldOutputStream(Channels.newOutputStream(channel))); // keep JAXB from closing the stream
 
 				sessionHistory.clear();
 				persistentHistoryTotalSize = history.totalSize();
