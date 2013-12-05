@@ -211,7 +211,7 @@ public class RenamePanel extends JComponent {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// show popup on actionPerformed only when names list is empty
-				if (renameModel.files().size() > 0 && renameModel.names().isEmpty()) {
+				if (renameModel.names().isEmpty()) {
 					fetchPopupAction.actionPerformed(e);
 				}
 			}

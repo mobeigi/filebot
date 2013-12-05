@@ -1,6 +1,5 @@
 package net.sourceforge.filebot.ui.rename;
 
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
@@ -40,12 +39,7 @@ class MatchAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent evt) {
-		if (model.files().isEmpty()) {
-			UILogger.info("Nothing to match. Please add some files and fetch data first.");
-			return;
-		}
-
-		if (model.names().isEmpty()) {
+		if (model.names().isEmpty() || model.files().isEmpty()) {
 			return;
 		}
 
