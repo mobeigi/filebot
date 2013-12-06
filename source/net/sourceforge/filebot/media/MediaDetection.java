@@ -311,7 +311,7 @@ public class MediaDetection {
 			Set<String> folders = new LinkedHashSet<String>();
 			Set<String> filenames = new LinkedHashSet<String>();
 			for (File f : files) {
-				for (int i = 0; i < 3 && f != null && f.getParentFile() != null; i++, f = f.getParentFile()) {
+				for (int i = 0; i < 3 && f != null && !isStructureRoot(f); i++, f = f.getParentFile()) {
 					(i == 0 ? filenames : folders).add(normalizeBrackets(getName(f)));
 				}
 			}
