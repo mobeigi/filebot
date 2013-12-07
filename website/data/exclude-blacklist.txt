@@ -1,5 +1,4 @@
 !(sample|trailer)
-(?<!\p{Alnum})(extras|deleted.scenes)(?!\p{Alnum})
 (sample|trailer)-
 (sample|trailer)[.]
 -(sample|trailer)
@@ -7,5 +6,6 @@
 \((sample|trailer)\)
 \[(sample|trailer)\]
 ^(sample|trailer)
-Deleted.and.Extended.Scenes
-Deleted.Scenes
+^Deleted.and.Extended.Scenes$
+^Deleted.Scenes$
+^Extras$
