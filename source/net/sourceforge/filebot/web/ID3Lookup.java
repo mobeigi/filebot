@@ -38,7 +38,9 @@ public class ID3Lookup implements MusicIdentificationService {
 			String album = mediaInfo.get(StreamKind.General, 0, "Album");
 			mediaInfo.close();
 
-			info.put(f, new AudioTrack(artist, title, album));
+			if (artist.length() > 0 && title.length() > 0 && album.length() > 0) {
+				info.put(f, new AudioTrack(artist, title, album));
+			}
 		}
 
 		return info;
