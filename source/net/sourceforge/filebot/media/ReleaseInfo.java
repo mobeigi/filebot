@@ -193,7 +193,7 @@ public class ReleaseInfo {
 					}
 				}
 			}
-			volumeRoots = volumes;
+			volumeRoots = unmodifiableSet(volumes);
 		}
 		return volumeRoots;
 	}
@@ -271,15 +271,20 @@ public class ReleaseInfo {
 		return anidbIndexResource.get();
 	}
 
+	private Map<Pattern, String> seriesDirectMappings;
+
 	public Map<Pattern, String> getSeriesDirectMappings() throws IOException {
-		Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
-		for (String line : seriesDirectMappingsResource.get()) {
-			String[] tsv = line.split("\t", 2);
-			if (tsv.length == 2) {
-				mappings.put(compile("(?<!\\p{Alnum})(" + tsv[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE), tsv[1]);
+		if (seriesDirectMappings == null) {
+			Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
+			for (String line : seriesDirectMappingsResource.get()) {
+				String[] tsv = line.split("\t", 2);
+				if (tsv.length == 2) {
+					mappings.put(compile("(?<!\\p{Alnum})(" + tsv[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE), tsv[1]);
+				}
 			}
+			seriesDirectMappings = unmodifiableMap(mappings);
 		}
-		return mappings;
+		return seriesDirectMappings;
 	}
 
 	public FileFilter getDiskFolderFilter() {
