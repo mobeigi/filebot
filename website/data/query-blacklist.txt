@@ -38,6 +38,7 @@
 ^Downloading$
 ^Downloads$
 ^DVD
+^ENTERTAINMENT$
 ^episode[s]?$
 ^Erotic$
 ^extract$
