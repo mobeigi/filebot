@@ -184,20 +184,34 @@ def thetvdb_index = []
 tvdb.values().each{
 	def n1 = it[2].trim()
 	def n2 = it[3].replaceAll(/^(?i)(The|A)\s/, '').replaceAll(/\s&\s/, ' and ').replaceAll(/\([^\)]*\)$/, '').trim()
+	
+	thetvdb_index << [it[0], n1]
 	if (similarity(n1,n2) < 1) {
-		thetvdb_index << [it[0], n1]
 		thetvdb_index << [it[0], n2]
-	} else {
-		thetvdb_index << [it[0], n1]
 	}
 }
 
+def addSeriesAlias = { from, to ->
+	def se = thetvdb_index.find{ from == it[1] }
+	thetvdb_index << [se[0], to]
+	// println "Added alias '${to}' for ${se}"
+}
+
+// additional custom mappings
+addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
+addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
+addSeriesAlias('CSI: Crime Scene Investigation', 'CSI')
+addSeriesAlias('M*A*S*H', 'MASH')
+addSeriesAlias('M*A*S*H', 'M.A.S.H.')
+addSeriesAlias('NCIS: Los Angeles', 'NCIS LA')
+addSeriesAlias('World Series of Poker', 'WSOP')
+
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
-thetvdb_index = thetvdb_index.sort(new Comparator() { int compare(a, b) { a[0] <=> b[0] } })
+thetvdb_index = thetvdb_index.sort({a,b -> a[0] <=> b[0]} as Comparator)
 
 // join and sort
-def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique()).join('\t') }
+def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{it.toLowerCase()}).join('\t') }
 pack(thetvdb_out, thetvdb_txt)
 println "TheTVDB Index: " + thetvdb_txt.size()
 
