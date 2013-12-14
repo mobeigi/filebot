@@ -447,10 +447,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
 				// map id by name
 				subLanguageMap.put(entry.getValue().toLowerCase(), entry.getKey().toLowerCase());
+				subLanguageMap.put(entry.getKey().toLowerCase(), entry.getKey().toLowerCase()); // add reverse mapping as well for improved compatibility
 			}
 
 			// some additional special handling
 			subLanguageMap.put("brazilian", "pob");
+			subLanguageMap.put("pob", "pob");
 
 			// cache data
 			cache.put(cacheKey, subLanguageMap);

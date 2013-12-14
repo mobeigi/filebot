@@ -449,20 +449,27 @@ public class ReleaseInfo {
 
 		@SuppressWarnings("unchecked")
 		Comparator<String> order = (Comparator) collator;
-		Map<String, Locale> languageMap = languageMap = new TreeMap<String, Locale>(order);
+		Map<String, Locale> languageMap = new TreeMap<String, Locale>(order);
 
 		for (String code : Locale.getISOLanguages()) {
-			Locale locale = new Locale(code);
-			languageMap.put(locale.getLanguage(), locale);
-			languageMap.put(locale.getISO3Language(), locale);
+			Locale locale = new Locale(code); // force ISO3 language as default toString() value
+			Locale iso3locale = new Locale(locale.getISO3Language());
+
+			languageMap.put(locale.getLanguage(), iso3locale);
+			languageMap.put(locale.getISO3Language(), iso3locale);
 
 			// map display language names for given locales
 			for (Locale language : new HashSet<Locale>(asList(supportedDisplayLocale))) {
 				// make sure language name is properly normalized so accents and whatever don't break the regex pattern syntax
 				String languageName = Normalizer.normalize(locale.getDisplayLanguage(language), Form.NFKD);
-				languageMap.put(languageName.toLowerCase(), locale);
+				languageMap.put(languageName.toLowerCase(), iso3locale);
 			}
 		}
+
+		// unofficial language for pb/pob for Portuguese (Brazil)
+		Locale brazil = new Locale("pob");
+		languageMap.put("pb", brazil);
+		languageMap.put("pob", brazil);
 
 		// remove illegal tokens
 		languageMap.remove("");
