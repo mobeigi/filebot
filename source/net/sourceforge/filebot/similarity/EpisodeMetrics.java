@@ -236,22 +236,46 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
+			String[] f1 = getNormalizedEffectiveIdentifiers(o1);
+			String[] f2 = getNormalizedEffectiveIdentifiers(o2);
+
+			// match all fields and average similarity
+			float max = 0;
+			for (String s1 : f1) {
+				for (String s2 : f2) {
+					max = max(super.getSimilarity(s1, s2), max);
+				}
+			}
+
 			// normalize absolute similarity to similarity rank (4 ranks in total),
 			// so we are less likely to fall for false positives in this pass, and move on to the next one
-			return (float) (floor(super.getSimilarity(o1, o2) * 4) / 4);
+			return (float) (floor(max * 4) / 4);
 		}
 
 		@Override
 		protected String normalize(Object object) {
-			if (object instanceof Episode) {
-				object = removeTrailingBrackets(((Episode) object).getSeriesName());
-			} else if (object instanceof Movie) {
-				object = ((Movie) object).getName();
-			} else if (object instanceof File) {
-				object = getNameWithoutExtension(getRelativePathTail((File) object, 3).getPath());
+			return object.toString();
+		}
+
+		protected String[] getNormalizedEffectiveIdentifiers(Object object) {
+			List<?> identifiers = getEffectiveIdentifiers(object);
+			String[] names = new String[identifiers.size()];
+
+			for (int i = 0; i < names.length; i++) {
+				names[i] = normalizeObject(identifiers.get(i));
 			}
-			// simplify file name, if possible
-			return normalizeObject(object);
+			return names;
+		}
+
+		protected List<?> getEffectiveIdentifiers(Object object) {
+			if (object instanceof Episode) {
+				return ((Episode) object).getSeries().getEffectiveNames();
+			} else if (object instanceof Movie) {
+				return ((Movie) object).getEffectiveNames();
+			} else if (object instanceof File) {
+				return listPathTail((File) object, 3, true);
+			}
+			return singletonList(object);
 		}
 	}),
 
@@ -300,9 +324,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				}
 			} else if (object instanceof File) {
 				object = ((File) object).getName(); // try to narrow down on series name
-				String sn = seriesNameMatcher.matchByEpisodeIdentifier(object.toString());
-				if (sn != null) {
-					object = sn;
+
+				try {
+					object = resolveSeriesDirectMapping((String) object);
+				} catch (IOException e) {
+					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+				}
+
+				String snm = seriesNameMatcher.matchByEpisodeIdentifier((String) object);
+				if (snm != null) {
+					object = snm;
 				}
 			}
 
@@ -317,6 +348,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// simplify file name, if possible
 			return normalizeObject(object);
+		}
+
+		protected String resolveSeriesDirectMapping(String input) throws IOException {
+			for (Pattern it : releaseInfo.getSeriesDirectMappings().keySet()) {
+				Matcher m = it.matcher(input);
+				if (m.find()) {
+					return m.replaceAll(releaseInfo.getSeriesDirectMappings().get(it));
+				}
+			}
+			return input;
 		}
 	}),
 
