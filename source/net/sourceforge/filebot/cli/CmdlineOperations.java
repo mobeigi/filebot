@@ -599,7 +599,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 						if (conflictAction == ConflictAction.OVERRIDE) {
 							if (!destination.delete()) {
-								throw new Exception("Failed to override file: " + destination);
+								CLILogger.log(Level.SEVERE, "Failed to override file: " + destination);
 							}
 						}
 					}
