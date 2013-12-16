@@ -72,6 +72,7 @@
 ^Movie[s]?$
 ^Musique$
 ^new$
+^of$
 ^other$
 ^Part$
 ^private$
