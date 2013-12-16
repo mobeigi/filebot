@@ -193,19 +193,22 @@ tvdb.values().each{
 
 def addSeriesAlias = { from, to ->
 	def se = thetvdb_index.find{ from == it[1] }
+	if (se == null) throw new Exception("Unabled to find series '${from}'")
 	thetvdb_index << [se[0], to]
-	// println "Added alias '${to}' for ${se}"
 }
 
 // additional custom mappings
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law & Order SVU')
-addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
 addSeriesAlias('CSI: Crime Scene Investigation', 'CSI')
 addSeriesAlias('M*A*S*H', 'MASH')
 addSeriesAlias('M*A*S*H', 'M.A.S.H.')
 addSeriesAlias('NCIS: Los Angeles', 'NCIS LA')
+addSeriesAlias('How I Met Your Mother', 'HIMYM')
+addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
 addSeriesAlias('World Series of Poker', 'WSOP')
+addSeriesAlias('English Premier League', 'EPL')
+addSeriesAlias('House of Cards', 'HOC')
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }

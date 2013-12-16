@@ -1,7 +1,7 @@
 BSG	Battlestar Galactica
 CSI(?!.{0,3}(NY|LA|Miami|Academy))	CSI: Crime Scene Investigation
 epl	English Premier League
-HIMYM	How I Met your Mother
+HIMYM	How I Met Your Mother
 Hml8p	Homeland
 hoc	House of Cards
 law.and.order.svu	Law & Order: Special Victims Unit
@@ -11,5 +11,4 @@ NCIS.LA	NCIS: Los Angeles
 SuiG7p	Suits
 tvs.got	Game of Thrones
 UndG7p	Underemployed
-vampire	The Vampire Diaries
 wsop	World Series of Poker
