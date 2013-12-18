@@ -604,7 +604,7 @@ public class MediaBindingBean {
 	@Define("pn")
 	public Integer getPartCount() {
 		if (infoObject instanceof AudioTrack)
-			return getMusic().getTrackCount();
+			return getMusic().getTrackCount() != null ? getMusic().getTrackCount() : Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position_Total"));
 		if (infoObject instanceof MoviePart)
 			return ((MoviePart) infoObject).getPartCount();
 
