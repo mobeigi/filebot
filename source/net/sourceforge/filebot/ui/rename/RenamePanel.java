@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,8 +51,10 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.ui.rename.FormatDialog.Mode;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.AudioTrackFormat;
@@ -85,6 +88,8 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentMusicFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.music");
+
+	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 
@@ -245,19 +250,15 @@ public class RenamePanel extends JComponent {
 			@Override
 			public void mouseClicked(MouseEvent evt) {
 				if (evt.getClickCount() == 2) {
+					getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					try {
 						JList list = (JList) evt.getSource();
 						if (list.getSelectedIndex() >= 0) {
-							Object item = ((FormattedFuture) list.getSelectedValue()).getMatch().getValue();
-							if (item instanceof Movie) {
-								getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-								Movie m = (Movie) item;
-								if (m.getTmdbId() > 0) {
-									Desktop.getDesktop().browse(WebServices.TMDb.getMoviePageLink(m.getTmdbId()));
-								} else if (m.getImdbId() > 0) {
-									Desktop.getDesktop().browse(WebServices.IMDb.getMoviePageLink(m.getImdbId()));
-								}
-							}
+							Match<Object, File> match = renameModel.getMatch(list.getSelectedIndex());
+							Map<File, Object> context = renameModel.getMatchContext();
+
+							MediaBindingBean sample = new MediaBindingBean(match.getValue(), match.getCandidate(), context);
+							showFormatEditor(sample);
 						}
 					} catch (Exception e) {
 						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
@@ -312,26 +313,7 @@ public class RenamePanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this));
-				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-				dialog.setVisible(true);
-
-				if (dialog.submit()) {
-					switch (dialog.getMode()) {
-					case Episode:
-						renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-						persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					case Movie:
-						renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-						persistentMovieFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					case Music:
-						renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-						persistentMusicFormat.setValue(dialog.getFormat().getExpression());
-						break;
-					}
-				}
+				showFormatEditor(null);
 			}
 		});
 
@@ -406,6 +388,52 @@ public class RenamePanel extends JComponent {
 		}
 
 		return actionPopup;
+	}
+
+	protected void showFormatEditor(MediaBindingBean lockOnBinding) {
+		// default to Episode mode
+		Mode initMode = null;
+
+		if (lockOnBinding == null || lockOnBinding.getInfoObject() instanceof Episode) {
+			initMode = Mode.Episode;
+		} else if (lockOnBinding.getInfoObject() instanceof Movie) {
+			initMode = Mode.Movie;
+		} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
+			initMode = Mode.Music;
+		}
+
+		// restore previous mode
+		if (lockOnBinding == null) {
+			try {
+				initMode = Mode.valueOf(persistentLastFormatState.getValue());
+			} catch (Exception e) {
+				Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+			}
+		}
+
+		FormatDialog dialog = new FormatDialog(getWindowAncestor(RenamePanel.this), initMode, lockOnBinding);
+		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+		dialog.setVisible(true);
+
+		if (dialog.submit()) {
+			switch (dialog.getMode()) {
+			case Episode:
+				renameModel.useFormatter(Episode.class, new ExpressionFormatter(dialog.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+				persistentEpisodeFormat.setValue(dialog.getFormat().getExpression());
+				break;
+			case Movie:
+				renameModel.useFormatter(Movie.class, new ExpressionFormatter(dialog.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+				persistentMovieFormat.setValue(dialog.getFormat().getExpression());
+				break;
+			case Music:
+				renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+				persistentMusicFormat.setValue(dialog.getFormat().getExpression());
+				break;
+			}
+			if (lockOnBinding == null) {
+				persistentLastFormatState.setValue(dialog.getMode().name());
+			}
+		}
 	}
 
 	protected final Action clearFilesAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {

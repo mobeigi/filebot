@@ -141,7 +141,7 @@ public class FormatDialog extends JDialog {
 		}
 	}
 
-	public FormatDialog(Window owner) {
+	public FormatDialog(Window owner, Mode initMode, MediaBindingBean lockOnBinding) {
 		super(owner, ModalityType.DOCUMENT_MODAL);
 
 		// initialize hidden
@@ -223,26 +223,29 @@ public class FormatDialog extends JDialog {
 		// install editor suggestions popup
 		editor.setComponentPopupMenu(createRecentFormatPopup());
 
-		// episode mode by default
-		setMode(Mode.Episode);
-
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setSize(610, 430);
+
+		// initialize data
+		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
 	}
 
-	public void setMode(Mode mode) {
+	public void setState(Mode mode, MediaBindingBean bindings, boolean locked) {
 		this.mode = mode;
 
-		this.setTitle(String.format("%s Format", mode));
+		this.setTitle(String.format(locked ? "%s Format - %s ⇔ %s" : "%s Format", mode, bindings.getInfoObject(), bindings.getMediaFile().getName()));
 		title.setText(this.getTitle());
 		status.setVisible(false);
 
 		switchEditModeAction.putValue(Action.NAME, String.format("Switch to %s Format", mode.next()));
+		switchEditModeAction.setEnabled(!locked);
+		changeSampleAction.setEnabled(!locked);
+
 		updateHelpPanel(mode);
 
 		// update preview to current format
-		sample = restoreSample(mode);
+		sample = bindings;
 
 		// restore editor state
 		setFormatCode(mode.persistentFormatHistory().isEmpty() ? "" : mode.persistentFormatHistory().get(0));
@@ -388,7 +391,7 @@ public class FormatDialog extends JDialog {
 		return panel;
 	}
 
-	private MediaBindingBean restoreSample(Mode mode) {
+	protected MediaBindingBean restoreSample(Mode mode) {
 		Object info = null;
 		File media = null;
 
@@ -646,7 +649,8 @@ public class FormatDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			setMode(mode.next());
+			Mode next = mode.next();
+			setState(next, restoreSample(next), false);
 		}
 	};
 
