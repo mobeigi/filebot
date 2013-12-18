@@ -11,7 +11,8 @@ import java.util.regex.Pattern
 File.metaClass.getAt = { Range range -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(range).join(File.separator) }
 File.metaClass.getAt = { int index -> listPath(delegate).collect{ replacePathSeparators(getName(it)).trim() }.getAt(index) }
 File.metaClass.getRoot = { listPath(delegate)[0] }
-File.metaClass.listPath = { int tailSize = 100, boolean reversePath = false -> listPathTail(delegate, tailSize, reversePath) }
+File.metaClass.listPath = { int tailSize = 255, boolean reversePath = false -> listPathTail(delegate, tailSize, reversePath) }
+File.metaClass.getRelativePathTail = { int tailSize -> getRelativePathTail(delegate, tailSize) }
 File.metaClass.getDiskSpace = { listPath(delegate).reverse().find{ it.exists() }?.usableSpace ?: 0 }
 
 
