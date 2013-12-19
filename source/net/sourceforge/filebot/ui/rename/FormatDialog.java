@@ -234,8 +234,13 @@ public class FormatDialog extends JDialog {
 	public void setState(Mode mode, MediaBindingBean bindings, boolean locked) {
 		this.mode = mode;
 
-		this.setTitle(String.format(locked ? "%s Format - %s ⇔ %s" : "%s Format", mode, bindings.getInfoObject(), bindings.getMediaFile().getName()));
-		title.setText(this.getTitle());
+		if (locked) {
+			this.setTitle(String.format("%s Format", mode));
+			title.setText(String.format("%s Format - %s ⇔ %s", mode, bindings.getInfoObject(), bindings.getMediaFile().getName()));
+		} else {
+			this.setTitle(String.format("%s Format", mode));
+			title.setText(String.format("%s Format", mode));
+		}
 		status.setVisible(false);
 
 		switchEditModeAction.putValue(Action.NAME, String.format("Switch to %s Format", mode.next()));
