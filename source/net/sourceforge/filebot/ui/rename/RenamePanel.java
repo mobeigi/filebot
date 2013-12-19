@@ -392,18 +392,18 @@ public class RenamePanel extends JComponent {
 
 	protected void showFormatEditor(MediaBindingBean lockOnBinding) {
 		// default to Episode mode
-		Mode initMode = null;
+		Mode initMode = Mode.Episode;
 
-		if (lockOnBinding == null || lockOnBinding.getInfoObject() instanceof Episode) {
-			initMode = Mode.Episode;
-		} else if (lockOnBinding.getInfoObject() instanceof Movie) {
-			initMode = Mode.Movie;
-		} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
-			initMode = Mode.Music;
-		}
-
-		// restore previous mode
-		if (lockOnBinding == null) {
+		if (lockOnBinding != null) {
+			if (lockOnBinding.getInfoObject() instanceof Episode) {
+				initMode = Mode.Episode;
+			} else if (lockOnBinding.getInfoObject() instanceof Movie) {
+				initMode = Mode.Movie;
+			} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
+				initMode = Mode.Music;
+			}
+		} else {
+			// restore previous mode
 			try {
 				initMode = Mode.valueOf(persistentLastFormatState.getValue());
 			} catch (Exception e) {

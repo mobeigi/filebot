@@ -73,6 +73,7 @@
 ^Movie$
 ^Movies$
 ^Musique$
+^mynas$
 ^new$
 ^of$
 ^other$
@@ -100,6 +101,7 @@
 ^Stuff$
 ^System$
 ^tank$
+^TBR$
 ^Telechargements$
 ^temp$
 ^temporary$
