@@ -225,7 +225,7 @@ public class FormatDialog extends JDialog {
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setSize(610, 430);
+		setSize(620, 445);
 
 		// initialize data
 		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
