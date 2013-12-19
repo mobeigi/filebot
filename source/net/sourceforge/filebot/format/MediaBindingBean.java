@@ -521,6 +521,16 @@ public class MediaBindingBean {
 		return WebServices.TheTVDB.getEpisodeList(WebServices.TheTVDB.search(getEpisode().getSeriesName()).get(0), SortOrder.Airdate, Locale.ENGLISH);
 	}
 
+	@Define("duration")
+	public Integer getDuration() {
+		return new Integer(getMediaInfo(StreamKind.General, 0, "Duration"));
+	}
+
+	@Define("minutes")
+	public Integer getDurationInMinutes() {
+		return Math.round(getDuration() / 60000f);
+	}
+
 	@Define("media")
 	public AssociativeScriptObject getGeneralMediaInfo() {
 		return createMapBindings(getMediaInfo().snapshot(StreamKind.General, 0));
