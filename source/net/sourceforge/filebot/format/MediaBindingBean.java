@@ -526,6 +526,11 @@ public class MediaBindingBean {
 		return new Integer(getMediaInfo(StreamKind.General, 0, "Duration"));
 	}
 
+	@Define("seconds")
+	public Integer getSeconds() {
+		return Math.round(getDuration() / 1000f);
+	}
+
 	@Define("minutes")
 	public Integer getDurationInMinutes() {
 		return Math.round(getDuration() / 60000f);
