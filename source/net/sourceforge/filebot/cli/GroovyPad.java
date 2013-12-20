@@ -5,6 +5,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog.ModalExclusionType;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -16,6 +17,8 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.AccessController;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.script.ScriptException;
@@ -86,6 +89,7 @@ public class GroovyPad extends JFrame {
 		console.hook();
 
 		shell = createScriptShell();
+		editor.requestFocusInWindow();
 
 		setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -312,10 +316,17 @@ public class GroovyPad extends JFrame {
 			@Override
 			public void run() {
 				try {
+					GroovyPad pad = new GroovyPad();
+
+					List<Image> images = new ArrayList<Image>(3);
+					for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
+						images.add(ResourceManager.getImage(i));
+					}
+					pad.setIconImages(images);
+
 					// ignore analytics in developer mode
 					Analytics.setEnabled(false);
 
-					GroovyPad pad = new GroovyPad();
 					pad.setDefaultCloseOperation(EXIT_ON_CLOSE);
 					pad.setVisible(true);
 				} catch (IOException e) {
