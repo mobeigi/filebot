@@ -144,6 +144,8 @@ public class Main {
 			initializeSecurityManager();
 
 			// update system properties
+			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
+
 			if (System.getProperty("http.agent") == null) {
 				System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
 			}

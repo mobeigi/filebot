@@ -99,8 +99,6 @@ public class ArgumentProcessor {
 				}
 			} else {
 				// execute user script
-				System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
-
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 

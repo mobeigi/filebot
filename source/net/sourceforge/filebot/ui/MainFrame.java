@@ -37,6 +37,7 @@ import net.sf.ehcache.CacheManager;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.cli.GroovyPad;
 import net.sourceforge.filebot.ui.analyze.AnalyzePanelBuilder;
 import net.sourceforge.filebot.ui.episodelist.EpisodeListPanelBuilder;
 import net.sourceforge.filebot.ui.list.ListPanelBuilder;
@@ -109,6 +110,15 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				CacheManager.getInstance().clearAll();
 				UILogger.info("Cache has been cleared");
+			}
+		});
+
+		TunedUtilities.installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), new AbstractAction("Run") {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				MainFrame.this.dispose();
+				GroovyPad.main(new String[0]);
 			}
 		});
 	}
