@@ -172,11 +172,31 @@ String.metaClass.ascii = { fallback = ' ' -> delegate.transliterate("Any-Latin;L
 /**
  * General helpers and utilities
  */
-def c(c) {
+def c(Closure c) {
 	try {
 		return c.call()
 	} catch (Throwable e) {
 		return null
+	}
+}
+
+def	any(Closure... closures) {
+	return closures.findResult{ c ->
+		try {
+			return c.call()
+		} catch (Throwable e) {
+			return null
+		}
+	}
+}
+
+def	allOf(Closure... closures) {
+	return closures.toList().findResults{ c ->
+		try {
+			return c.call()
+		} catch (Throwable e) {
+			return null
+		}
 	}
 }
 
