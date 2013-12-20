@@ -1,4 +1,5 @@
 !(sample|trailer)
+(?<=\b|_)(NCED|NCOP|(OP|ED)\p{Digit}\p{Alpha})(?=\b|_)
 (sample|trailer)-
 (sample|trailer)[.]
 -(sample|trailer)
