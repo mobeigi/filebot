@@ -228,8 +228,14 @@ public class GroovyPad extends JFrame {
 					try {
 						result = shell.evaluate(script, new SimpleBindings(), true);
 
-						// make sure to flush Groovy output
-						shell.evaluate("println()", new SimpleBindings(), true);
+						// print result and make sure to flush Groovy output
+						SimpleBindings binding = new SimpleBindings();
+						binding.put("result", result);
+						if (result != null) {
+							shell.evaluate("print('Result: '); println(result);", binding, true);
+						} else {
+							shell.evaluate("println();", binding, true);
+						}
 					} catch (ScriptException e) {
 						e.getCause().getCause().printStackTrace();
 					} catch (Throwable e) {

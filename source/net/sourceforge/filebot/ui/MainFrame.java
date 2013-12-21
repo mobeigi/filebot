@@ -117,7 +117,7 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				MainFrame.this.dispose();
+				MainFrame.this.setVisible(false);
 				GroovyPad.main(new String[0]);
 			}
 		});
