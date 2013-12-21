@@ -28,6 +28,8 @@
 ^bad$
 ^BDMV$
 ^Big$
+^clean$
+^cleaned$
 ^Comedy$
 ^Complete$
 ^Completed$
