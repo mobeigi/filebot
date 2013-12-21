@@ -237,7 +237,10 @@ public class GroovyPad extends JFrame {
 							shell.evaluate("println();", binding, true);
 						}
 					} catch (ScriptException e) {
-						e.getCause().getCause().printStackTrace();
+						while (e.getCause() instanceof ScriptException) {
+							e = (ScriptException) e.getCause();
+						}
+						e.printStackTrace();
 					} catch (Throwable e) {
 						e.printStackTrace();
 					}
