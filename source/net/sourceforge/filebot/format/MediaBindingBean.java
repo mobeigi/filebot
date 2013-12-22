@@ -27,6 +27,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.media.MetaAttributes;
@@ -624,6 +625,11 @@ public class MediaBindingBean {
 			return ((MoviePart) infoObject).getPartCount();
 
 		return null;
+	}
+
+	@Define("mediaType")
+	public List<String> getMediaType() throws Exception {
+		return asList(MediaTypes.getDefault().getMediaType(getExtension()).split("/")); // format engine does not allow / in binding value
 	}
 
 	@Define("file")
