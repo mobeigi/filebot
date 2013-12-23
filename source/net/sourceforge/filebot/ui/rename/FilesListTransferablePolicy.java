@@ -1,6 +1,4 @@
-
 package net.sourceforge.filebot.ui.rename;
-
 
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.MediaTypes.*;
@@ -20,29 +18,24 @@ import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.tuned.FastFile;
 
-
 class FilesListTransferablePolicy extends FileTransferablePolicy {
-	
+
 	private final List<File> model;
-	
-	
+
 	public FilesListTransferablePolicy(List<File> model) {
 		this.model = model;
 	}
-	
-	
+
 	@Override
 	protected boolean accept(List<File> files) {
 		return true;
 	}
-	
-	
+
 	@Override
 	protected void clear() {
 		model.clear();
 	}
-	
-	
+
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		if (action == TransferAction.LINK) {
@@ -54,24 +47,22 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			super.handleTransferable(tr, action);
 		}
 	}
-	
-	
+
 	@Override
 	protected void load(List<File> files) {
 		load(files, true);
 	}
-	
-	
+
 	protected void load(List<File> files, boolean recursive) {
 		List<File> entries = new ArrayList<File>();
 		LinkedList<File> queue = new LinkedList<File>(files);
-		
+
 		while (queue.size() > 0) {
 			File f = queue.removeFirst();
-			
+
 			if (f.isHidden())
 				continue;
-			
+
 			if (recursive && LIST_FILES.accept(f)) {
 				// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
 				try {
@@ -87,7 +78,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 						}
 					}
 					scanner.close();
-					
+
 					if (paths.isEmpty()) {
 						entries.add(f); // treat as simple text file
 					} else {
@@ -98,18 +89,20 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 				}
 			} else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
 				entries.add(f);
-			} else {
-				queue.addAll(0, asList(f.listFiles()));
+			} else if (f.isDirectory()) {
+				File[] children = f.listFiles();
+				if (children != null) {
+					queue.addAll(0, asList(children));
+				}
 			}
 		}
-		
+
 		model.addAll(FastFile.foreach(entries));
 	}
-	
-	
+
 	@Override
 	public String getFileFilterDescription() {
 		return "files and folders";
 	}
-	
+
 }
