@@ -88,11 +88,12 @@ import com.cedarsoftware.util.io.JsonWriter;
 public class FormatDialog extends JDialog {
 
 	private boolean submit = false;
-
-	private Mode mode;
 	private ExpressionFormat format;
 
-	private MediaBindingBean sample;
+	private Mode mode;
+	private boolean locked = false;
+	private MediaBindingBean sample = null;
+
 	private ExecutorService executor = createExecutor();
 	private RunnableFuture<String> currentPreviewFuture;
 
@@ -233,6 +234,7 @@ public class FormatDialog extends JDialog {
 
 	public void setState(Mode mode, MediaBindingBean bindings, boolean locked) {
 		this.mode = mode;
+		this.locked = locked;
 
 		if (locked) {
 			this.setTitle(String.format("%s Format", mode));
@@ -245,7 +247,6 @@ public class FormatDialog extends JDialog {
 
 		switchEditModeAction.putValue(Action.NAME, String.format("Switch to %s Format", mode.next()));
 		switchEditModeAction.setEnabled(!locked);
-		changeSampleAction.setEnabled(!locked);
 
 		updateHelpPanel(mode);
 
@@ -606,7 +607,7 @@ public class FormatDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat());
+			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat(), !locked);
 
 			dialog.setInfoObject(sample.getInfoObject());
 			dialog.setMediaFile(sample.getMediaFile());
