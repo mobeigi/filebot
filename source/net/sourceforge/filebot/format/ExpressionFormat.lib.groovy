@@ -168,6 +168,22 @@ String.metaClass.transliterate = { transformIdentifier -> com.ibm.icu.text.Trans
 String.metaClass.ascii = { fallback = ' ' -> delegate.transliterate("Any-Latin;Latin-ASCII;[:Diacritic:]remove").replaceAll("[^\\p{ASCII}]+", fallback) }
 
 
+/**
+ * Replace multiple replacement pairs
+ *
+ * e.g. replace('ä', 'ae', 'ö', 'oe', 'ü', 'ue')
+ */
+String.metaClass.replace = { String... tr ->
+	String s = delegate;
+	for (int i = 0; i < tr.length-1; i+=2) {
+		CharSequence t = tr[i]
+		CharSequence r = tr[i+1]
+		s = s.replace(t, r)
+	}
+	return s
+}
+
+
 
 /**
  * General helpers and utilities
