@@ -296,6 +296,8 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 	; there's some code in the .onInit callback that prevents
 	; the user from disabling this section on the components
 	; selection screen.
+	DetailPrint "Uninstalling previous versions..."
+	nsExec::Exec `Powershell.exe -inputformat none -noprofile -windowstyle hidden -Command "(Get-WmiObject -Class Win32_Product -Filter \"Name = 'FileBot'\").uninstall()"`
 	
 	DetailPrint "Downloading latest version..."
 	;Install latest FileBot
@@ -306,7 +308,7 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 	${endif}
 	
 	DetailPrint "Installing latest version..."
-	nsExec::Exec 'msiexec /passive /i "$PLUGINSDIR\FileBot.msi"'
+	nsExec::Exec `msiexec /passive /i "$PLUGINSDIR\FileBot.msi"`
 	Pop $MSI_STATUS # grab return value
 	
 	${if} $MSI_STATUS == "0"
