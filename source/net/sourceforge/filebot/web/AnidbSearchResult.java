@@ -8,8 +8,8 @@ public class AnidbSearchResult extends SearchResult {
 		// used by serializer
 	}
 
-	public AnidbSearchResult(int aid, String primaryTitle, String[] localizedTitles) {
-		super(primaryTitle, localizedTitles);
+	public AnidbSearchResult(int aid, String primaryTitle, String[] aliasNames) {
+		super(primaryTitle, aliasNames);
 		this.aid = aid;
 	}
 

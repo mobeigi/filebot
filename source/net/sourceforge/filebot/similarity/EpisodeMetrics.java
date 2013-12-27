@@ -300,64 +300,72 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	SeriesName(new NameSimilarityMetric() {
 
 		private ReleaseInfo releaseInfo = new ReleaseInfo();
-		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher();
+		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ROOT, false);
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			float lowerBound = super.getSimilarity(normalize(o1, true), normalize(o2, true));
-			float upperBound = super.getSimilarity(normalize(o1, false), normalize(o2, false));
+			String[] f1 = getNormalizedEffectiveIdentifiers(o1);
+			String[] f2 = getNormalizedEffectiveIdentifiers(o2);
 
-			return (float) (floor(max(lowerBound, upperBound) * 4) / 4);
-		};
+			// match all fields and average similarity
+			float max = 0;
+			for (String s1 : f1) {
+				for (String s2 : f2) {
+					max = max(super.getSimilarity(s1, s2), max);
+				}
+			}
+
+			// normalize absolute similarity to similarity rank (4 ranks in total),
+			// so we are less likely to fall for false positives in this pass, and move on to the next one
+			return (float) (floor(max * 4) / 4);
+		}
 
 		@Override
 		protected String normalize(Object object) {
 			return object.toString();
-		};
+		}
 
-		protected String normalize(Object object, boolean strict) {
+		protected String[] getNormalizedEffectiveIdentifiers(Object object) {
+			List<?> identifiers = getEffectiveIdentifiers(object);
+			String[] names = new String[identifiers.size()];
+
+			for (int i = 0; i < names.length; i++) {
+				names[i] = normalizeObject(identifiers.get(i));
+			}
+			return names;
+		}
+
+		protected List<?> getEffectiveIdentifiers(Object object) {
+			List<String> names = null;
+
 			if (object instanceof Episode) {
-				if (strict) {
-					object = ((Episode) object).getSeriesName(); // focus on series name
-				} else {
-					object = removeTrailingBrackets(((Episode) object).getSeriesName()); // focus on series name (without US/UK 1967/2005 differentiation)
-				}
+				names = ((Episode) object).getSeries().getEffectiveNames();
 			} else if (object instanceof File) {
-				object = ((File) object).getName(); // try to narrow down on series name
-
-				try {
-					object = resolveSeriesDirectMapping((String) object);
-				} catch (IOException e) {
-					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
-				}
-
-				String snm = seriesNameMatcher.matchByEpisodeIdentifier((String) object);
-				if (snm != null) {
-					object = snm;
+				names = new ArrayList<String>(3);
+				for (File f : listPathTail((File) object, 3, true)) {
+					String fn = getName(f);
+					String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
+					if (sn != null) {
+						names.add(sn);
+					} else {
+						names.add(fn);
+					}
 				}
 			}
 
 			// equally strip away strip potential any clutter
-			try {
-				object = releaseInfo.cleanRelease(singleton(object.toString()), strict).iterator().next();
-			} catch (NoSuchElementException e) {
-				// keep default value in case all tokens are stripped away
-			} catch (IOException e) {
-				Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+			if (names != null) {
+				try {
+					return releaseInfo.cleanRelease(names, false);
+				} catch (NoSuchElementException e) {
+					// keep default value in case all tokens are stripped away
+				} catch (IOException e) {
+					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+				}
 			}
 
 			// simplify file name, if possible
-			return normalizeObject(object);
-		}
-
-		protected String resolveSeriesDirectMapping(String input) throws IOException {
-			for (Pattern it : releaseInfo.getSeriesDirectMappings().keySet()) {
-				Matcher m = it.matcher(input);
-				if (m.find()) {
-					return m.replaceAll(releaseInfo.getSeriesDirectMappings().get(it));
-				}
-			}
-			return input;
+			return emptyList();
 		}
 	}),
 

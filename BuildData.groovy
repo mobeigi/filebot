@@ -228,7 +228,7 @@ if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity fail
 
 
 // BUILD anidb index
-def anidb = new net.sourceforge.filebot.web.AnidbClient(null, 0).getAnimeTitles()
+def anidb = new net.sourceforge.filebot.web.AnidbClient('filebot', 4).getAnimeTitles()
 
 def anidb_index = anidb.findResults{
 	def row = []
@@ -243,4 +243,4 @@ pack(anidb_out, anidb_txt)
 println "AniDB Index: " + anidb_txt.size()
 
 // sanity check
-if (anidb_txt.size() < 5000) { throw new Exception('AniDB index sanity failed') }
+if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed') }

@@ -360,7 +360,7 @@ public class MediaDetection {
 		Collection<String> matches = new LinkedHashSet<String>();
 
 		// check CWS matches
-		SeriesNameMatcher snm = new SeriesNameMatcher(locale);
+		SeriesNameMatcher snm = new SeriesNameMatcher(locale, true);
 		matches.addAll(snm.matchAll(files.toArray(new File[files.size()])));
 
 		// check for known pattern matches

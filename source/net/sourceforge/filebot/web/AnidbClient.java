@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -27,6 +29,7 @@ import javax.swing.Icon;
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.ResourceManager;
 
+import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -165,13 +168,15 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// type: 1=primary title (one per anime), 2=synonyms (multiple per anime), 3=shorttitles (multiple per anime), 4=official title (one per language)
 		Pattern pattern = Pattern.compile("^(?!#)(\\d+)[|](\\d)[|]([\\w-]+)[|](.+)$");
 
-		Map<Integer, String> primaryTitleMap = new HashMap<Integer, String>();
-		Map<Integer, Map<String, String>> officialTitleMap = new HashMap<Integer, Map<String, String>>();
-		Map<Integer, Map<String, String>> synonymsTitleMap = new HashMap<Integer, Map<String, String>>();
+		List<String> languageOrder = new ArrayList<String>();
+		languageOrder.add("x-jat");
+		languageOrder.add("en");
+		languageOrder.add("ja");
 
 		// fetch data
-		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
+		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
 
+		Scanner scanner = new Scanner(new GZIPInputStream(url.openStream()), "UTF-8");
 		try {
 			while (scanner.hasNextLine()) {
 				Matcher matcher = pattern.matcher(scanner.nextLine());
@@ -182,17 +187,17 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					String language = matcher.group(3);
 					String title = matcher.group(4);
 
-					if (type.equals("1")) {
-						primaryTitleMap.put(aid, title);
-					} else if (type.equals("2") || type.equals("4")) {
-						Map<Integer, Map<String, String>> titleMap = (type.equals("4") ? officialTitleMap : synonymsTitleMap);
-						Map<String, String> languageTitleMap = titleMap.get(aid);
-						if (languageTitleMap == null) {
-							languageTitleMap = new HashMap<String, String>();
-							titleMap.put(aid, languageTitleMap);
+					if (aid > 0 && title.length() > 0 && languageOrder.contains(language)) {
+						List<Object[]> names = entriesByAnime.get(aid);
+						if (names == null) {
+							names = new ArrayList<Object[]>();
+							entriesByAnime.put(aid, names);
 						}
 
-						languageTitleMap.put(language, title);
+						// resolve HTML entities
+						title = Jsoup.parse(title).text();
+
+						names.add(new Object[] { Integer.parseInt(type), languageOrder.indexOf(language), title });
 					}
 				}
 			}
@@ -201,23 +206,36 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		// build up a list of all possible AniDB search results
-		anime = new ArrayList<AnidbSearchResult>(primaryTitleMap.size());
+		anime = new ArrayList<AnidbSearchResult>(entriesByAnime.size());
 
-		for (Entry<Integer, String> entry : primaryTitleMap.entrySet()) {
-			Map<String, String> localizedTitles = new HashMap<String, String>();
-			if (synonymsTitleMap.containsKey(entry.getKey())) {
-				localizedTitles.putAll(synonymsTitleMap.get(entry.getKey())); // use synonym as fallback
-			}
-			if (officialTitleMap.containsKey(entry.getKey())) {
-				localizedTitles.putAll(officialTitleMap.get(entry.getKey())); // primarily use official title if available
+		for (Entry<Integer, List<Object[]>> entry : entriesByAnime.entrySet()) {
+			int aid = entry.getKey();
+			List<Object[]> triples = entry.getValue();
+
+			Collections.sort(triples, new Comparator<Object[]>() {
+
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				@Override
+				public int compare(Object[] a, Object[] b) {
+					for (int i = 0; i < a.length; i++) {
+						if (!a[i].equals(b[i]))
+							return ((Comparable) a[i]).compareTo(b[i]);
+					}
+					return 0;
+				}
+			});
+
+			List<String> names = new ArrayList<String>(triples.size());
+			for (Object[] it : triples) {
+				names.add((String) it[2]);
 			}
 
-			String englishTitle = localizedTitles.get("en"); // ONLY SUPPORT ENGLISH LOCALIZATION
-			anime.add(new AnidbSearchResult(entry.getKey(), entry.getValue(), englishTitle == null || englishTitle.isEmpty() ? new String[] {} : new String[] { englishTitle }));
+			String primaryTitle = names.get(0);
+			String[] aliasNames = names.subList(1, names.size()).toArray(new String[0]);
+			anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
 		}
 
 		// populate cache
 		return cache.putSearchResult(null, Locale.ROOT, anime);
 	}
-
 }

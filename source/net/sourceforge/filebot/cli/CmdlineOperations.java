@@ -106,7 +106,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		int sxe = 0; // SxE
 		int cws = 0; // common word sequence
 
-		SeriesNameMatcher nameMatcher = new SeriesNameMatcher(locale);
+		SeriesNameMatcher nameMatcher = new SeriesNameMatcher(locale, true);
 		Collection<String> cwsList = emptySet();
 		if (max >= 5) {
 			cwsList = nameMatcher.matchAll(mediaFiles.toArray(new File[0]));
