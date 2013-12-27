@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -134,7 +136,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// sanity check
 		if (episodes.isEmpty()) {
 			// anime page xml doesn't work sometimes
-			throw new RuntimeException(String.format("Failed to parse episode data from xml: %s (%d)", anime, anime.getAnimeId()));
+			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse any episode data from xml: %s (%d)", anime, anime.getAnimeId()));
 		}
 
 		return episodes;
