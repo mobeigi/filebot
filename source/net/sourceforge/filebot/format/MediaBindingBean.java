@@ -42,7 +42,6 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.MultiEpisode;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
@@ -519,7 +518,13 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
-		return WebServices.TheTVDB.getEpisodeList(WebServices.TheTVDB.search(getEpisode().getSeriesName()).get(0), SortOrder.Airdate, Locale.ENGLISH);
+		if (getSeriesObject() instanceof TheTVDBSearchResult) {
+			return WebServices.TheTVDB.getEpisodeList(getSeriesObject());
+		}
+		if (getSeriesObject() instanceof AnidbSearchResult) {
+			return WebServices.AniDB.getEpisodeList(getSeriesObject());
+		}
+		return null; // default to original search result
 	}
 
 	@Define("duration")
