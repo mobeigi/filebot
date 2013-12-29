@@ -192,7 +192,7 @@ tvdb.values().each{
 }
 
 def addSeriesAlias = { from, to ->
-	def se = thetvdb_index.find{ from == it[1] }
+	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
 	if (se == null) throw new Exception("Unabled to find series '${from}'")
 	thetvdb_index << [se[0], to]
 }
@@ -233,7 +233,7 @@ def anidb = new net.sourceforge.filebot.web.AnidbClient('filebot', 4).getAnimeTi
 def anidb_index = anidb.findResults{
 	def row = []
 	row += it.getAnimeId().pad(5)
-	row += it.effectiveNames*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique()
+	row += it.effectiveNames*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique{ it.toLowerCase() }
 	return row
 }
 

@@ -52,6 +52,7 @@
 ^files$
 ^Film$
 ^Filme$
+^Filme.neu$
 ^Films$
 ^Finished$
 ^folder$
