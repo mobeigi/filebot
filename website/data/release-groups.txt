@@ -224,6 +224,7 @@ ATS
 AtsA
 ATTENTATET
 AURORA
+AuSy
 AUTV
 AVCDVD
 AVCHD
@@ -577,6 +578,7 @@ DEMAND
 DEPRAViTY
 DEPRiVED
 dEr
+DERANGED
 DerSchuft
 DESiRED
 desnsurrender
@@ -1235,6 +1237,7 @@ KLAXXON
 KLL
 KlockreN
 KN3
+knifesharp
 KNIGHTY1973
 KnK
 KnU-FS
@@ -1773,6 +1776,7 @@ RHD
 RHooD
 RHyTM
 RiFF
+RIG
 RightSiZE
 RiP
 RiplleyHD
