@@ -55,7 +55,7 @@ public class MainFrame extends JFrame {
 
 	private HeaderPanel headerPanel = new HeaderPanel();
 
-	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("1");
+	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
 
 	public MainFrame() {
 		super(Settings.getApplicationName());
@@ -124,7 +124,7 @@ public class MainFrame extends JFrame {
 	}
 
 	public static PanelBuilder[] createPanelBuilders() {
-		return new PanelBuilder[] { new ListPanelBuilder(), new RenamePanelBuilder(), new AnalyzePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder() };
+		return new PanelBuilder[] { new RenamePanelBuilder(), new EpisodeListPanelBuilder(), new SubtitlePanelBuilder(), new SfvPanelBuilder(), new AnalyzePanelBuilder(), new ListPanelBuilder() };
 	}
 
 	protected void showPanel(PanelBuilder selectedBuilder) {
