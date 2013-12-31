@@ -14,7 +14,7 @@ import net.sourceforge.filebot.Language;
 
 public class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 
-	public static final Language ALL_LANGUAGES = new Language("", "", "All Languages");
+	public static final Language ALL_LANGUAGES = new Language("undefined", "undefined", "All Languages");
 
 	private Language defaultLanguage;
 	private Language selection;

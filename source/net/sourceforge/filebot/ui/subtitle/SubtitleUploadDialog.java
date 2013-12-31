@@ -50,9 +50,9 @@ import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
@@ -427,7 +427,7 @@ public class SubtitleUploadDialog extends JDialog {
 				icon = ResourceManager.getIcon("action.export");
 				break;
 			case IdentificationRequired:
-				text = "Unable to auto-detect movie / series info";
+				text = "Please input the missing information";
 				icon = ResourceManager.getIcon("dialog.continue.invalid");
 				break;
 			case UploadReady:
@@ -454,7 +454,7 @@ public class SubtitleUploadDialog extends JDialog {
 		}
 	}
 
-	private static class SubtitleMappingTableModel extends AbstractTableModel {
+	private class SubtitleMappingTableModel extends AbstractTableModel {
 
 		private final SubtitleMapping[] data;
 
@@ -518,6 +518,11 @@ public class SubtitleUploadDialog extends JDialog {
 		public void setValueAt(Object value, int row, int column) {
 			if (getColumnClass(column) == Language.class && value instanceof Language) {
 				data[row].setLanguage((Language) value);
+
+				if (data[row].getStatus() == SubtitleMapping.Status.IdentificationRequired) {
+					data[row].setState(SubtitleMapping.Status.CheckPending);
+					startChecking();
+				}
 			}
 		}
 
@@ -657,11 +662,6 @@ public class SubtitleUploadDialog extends JDialog {
 					}
 				}
 
-				// default to English
-				if (mapping.getLanguage() == null) {
-					mapping.setLanguage(Language.getLanguage("en"));
-				}
-
 				if (mapping.getIdentity() == null) {
 					mapping.setState(SubtitleMapping.Status.Identifying);
 					try {
@@ -680,7 +680,7 @@ public class SubtitleUploadDialog extends JDialog {
 					}
 				}
 
-				if (mapping.getIdentity() == null) {
+				if (mapping.getIdentity() == null || mapping.getLanguage() == null) {
 					mapping.setState(SubtitleMapping.Status.IdentificationRequired);
 				} else {
 					mapping.setState(SubtitleMapping.Status.UploadReady);

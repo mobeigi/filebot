@@ -68,11 +68,7 @@ public class Language implements Serializable {
 			String[] values = bundle.getString(code).split("\\t", 2);
 			return new Language(code, values[0], values[1]);
 		} catch (Exception e) {
-			if (code == null || code.isEmpty()) {
-				return null;
-			}
-			Locale locale = new Locale(code);
-			return new Language(locale.getLanguage(), locale.getISO3Language(), locale.getDisplayLanguage(Locale.ENGLISH));
+			return null;
 		}
 	}
 
@@ -94,7 +90,6 @@ public class Language implements Serializable {
 					return it;
 				}
 			}
-			return new Language(code, locale.getISO3Language(), locale.getDisplayName(Locale.ENGLISH));
 		}
 		return null;
 	}

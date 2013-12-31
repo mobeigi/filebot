@@ -37,7 +37,11 @@ public class LanguageComboBox extends JComboBox {
 		}
 
 		// restore selected language
-		getModel().setSelectedItem(Language.getLanguage(persistentSelectedLanguage.getValue()));
+		try {
+			getModel().setSelectedItem(Language.getLanguage(persistentSelectedLanguage.getValue()));
+		} catch (Exception e) {
+			getModel().setSelectedItem(LanguageComboBoxModel.ALL_LANGUAGES);
+		}
 
 		// restore favorite languages
 		for (String favoriteLanguage : persistentFavoriteLanguages) {
