@@ -6,6 +6,7 @@ import static net.sourceforge.tuned.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.util.ArrayList;
@@ -177,7 +178,7 @@ public class AcoustID implements MusicIdentificationService {
 			throw new IOException("Failed to exec fpcalc: " + e.getMessage());
 		}
 
-		Scanner scanner = new Scanner(process.getInputStream());
+		Scanner scanner = new Scanner(new InputStreamReader(process.getInputStream(), "UTF-8"));
 		LinkedList<Map<String, String>> results = new LinkedList<Map<String, String>>();
 
 		try {
