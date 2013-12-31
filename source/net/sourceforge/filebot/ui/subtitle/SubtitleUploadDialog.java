@@ -708,7 +708,7 @@ public class SubtitleUploadDialog extends JDialog {
 			try {
 				mapping.setState(SubtitleMapping.Status.Uploading);
 
-				database.uploadSubtitle(mapping.getIdentity(), mapping.getLanguage().toLocale(), mapping.getVideo(), mapping.getSubtitle());
+				database.uploadSubtitle(mapping.getIdentity(), mapping.getLanguage().getLocale(), mapping.getVideo(), mapping.getSubtitle());
 				mapping.setState(SubtitleMapping.Status.UploadComplete);
 
 				Analytics.trackEvent(database.getName(), "UploadSubtitle", mapping.getLanguage().getName(), 1);

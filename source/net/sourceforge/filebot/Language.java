@@ -3,6 +3,7 @@ package net.sourceforge.filebot;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-public class Language {
+public class Language implements Serializable {
 
 	private final String iso2;
 	private final String iso3;
@@ -40,10 +41,10 @@ public class Language {
 
 	@Override
 	public String toString() {
-		return name;
+		return iso3;
 	}
 
-	public Locale toLocale() {
+	public Locale getLocale() {
 		return new Locale(getCode());
 	}
 
@@ -86,14 +87,14 @@ public class Language {
 	}
 
 	public static Language getLanguage(Locale locale) {
-		if (locale == null)
-			return null;
-
-		String code = locale.getLanguage();
-		for (Language it : availableLanguages()) {
-			if (it.getISO2().equals(code) || it.getISO3().equals(code)) {
-				return it;
+		if (locale != null) {
+			String code = locale.getLanguage();
+			for (Language it : availableLanguages()) {
+				if (it.getISO2().equals(code) || it.getISO3().equals(code)) {
+					return it;
+				}
 			}
+			return new Language(code, locale.getISO3Language(), locale.getDisplayName(Locale.ENGLISH));
 		}
 		return null;
 	}

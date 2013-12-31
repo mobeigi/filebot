@@ -27,6 +27,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.sourceforge.filebot.Cache;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
@@ -420,13 +421,13 @@ public class MediaBindingBean {
 	}
 
 	@Define("lang")
-	public Locale detectSubtitleLanguage() throws Exception {
+	public Language detectSubtitleLanguage() throws Exception {
 		// make sure media file is defined
 		checkMediaFile();
 
 		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(mediaFile));
 		if (languageSuffix != null)
-			return languageSuffix;
+			return Language.getLanguage(languageSuffix);
 
 		// require subtitle file
 		if (!SUBTITLE_FILES.accept(mediaFile)) {
@@ -445,7 +446,7 @@ public class MediaBindingBean {
 		}
 
 		// try statistical language detection
-		return WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile));
+		return Language.getLanguage(WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile)));
 	}
 
 	@Define("actors")

@@ -98,7 +98,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		String text = searchTextField.getText().trim();
 		int season = seasonSpinnerModel.getSeason();
 		SortOrder order = (SortOrder) sortOrderComboBox.getSelectedItem();
-		Locale language = languageComboBox.getModel().getSelectedItem().toLocale();
+		Locale language = languageComboBox.getModel().getSelectedItem().getLocale();
 
 		return new EpisodeListRequestProcessor(new EpisodeListRequest(provider, text, season, order, language));
 	};

@@ -82,7 +82,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		ExpressionFormat format = (formatExpression != null) ? new ExpressionFormat(formatExpression) : null;
 		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
 		File outputDir = (output != null && output.length() > 0) ? new File(output).getAbsoluteFile() : null;
-		Locale locale = getLanguage(lang).toLocale();
+		Locale locale = getLanguage(lang).getLocale();
 		ConflictAction conflictAction = ConflictAction.forName(conflict);
 
 		if (getEpisodeListProvider(db) != null) {
@@ -683,12 +683,12 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (query == null) {
 				try {
 					List<File> videoFiles = filter(files, VIDEO_FILES);
-					querySet.addAll(detectSeriesNames(videoFiles, language.toLocale()));
+					querySet.addAll(detectSeriesNames(videoFiles, language.getLocale()));
 
 					// auto-detect movie names
 					for (File f : videoFiles) {
 						if (!isEpisode(f.getName(), false)) {
-							for (Movie movie : detectMovie(f, null, null, language.toLocale(), strict)) {
+							for (Movie movie : detectMovie(f, null, null, language.getLocale(), strict)) {
 								querySet.add(movie.getName());
 							}
 						}
@@ -1039,7 +1039,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
 		EpisodeListProvider service = (db == null) ? TheTVDB : getEpisodeListProvider(db);
 		SortOrder sortOrder = SortOrder.forName(sortOrderName);
-		Locale locale = getLanguage(languageName).toLocale();
+		Locale locale = getLanguage(languageName).getLocale();
 
 		SearchResult hit = selectSearchResult(query, service.search(query, locale), false).get(0);
 		List<String> episodes = new ArrayList<String>();
