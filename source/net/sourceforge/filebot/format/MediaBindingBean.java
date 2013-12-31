@@ -652,6 +652,11 @@ public class MediaBindingBean {
 		return new File(System.getProperty("user.home"));
 	}
 
+	@Define("now")
+	public long getNow() {
+		return System.currentTimeMillis();
+	}
+
 	@Define("object")
 	public Object getInfoObject() {
 		return infoObject;
