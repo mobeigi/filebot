@@ -32,7 +32,7 @@ import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;

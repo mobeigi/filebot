@@ -57,7 +57,7 @@ import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;

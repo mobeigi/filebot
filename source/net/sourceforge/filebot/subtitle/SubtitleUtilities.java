@@ -33,7 +33,7 @@ import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SearchResult;

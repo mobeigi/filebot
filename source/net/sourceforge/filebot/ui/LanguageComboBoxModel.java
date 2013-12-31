@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.ui;
 
-import static net.sourceforge.filebot.ui.Language.*;
+import static net.sourceforge.filebot.Language.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -10,9 +10,11 @@ import java.util.Set;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
+import net.sourceforge.filebot.Language;
+
 public class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 
-	public static final Language ALL_LANGUAGES = new Language("undefined", "All Languages");
+	public static final Language ALL_LANGUAGES = new Language("", "", "All Languages");
 
 	private Language defaultLanguage;
 	private Language selection;

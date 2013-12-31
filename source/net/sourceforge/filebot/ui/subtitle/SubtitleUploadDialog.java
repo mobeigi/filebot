@@ -52,7 +52,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
@@ -423,7 +423,7 @@ public class SubtitleUploadDialog extends JDialog {
 				icon = ResourceManager.getIcon("database.ok");
 				break;
 			case Identifying:
-				text = "Auto-detect missing information";
+				text = "Auto-detecting missing information";
 				icon = ResourceManager.getIcon("action.export");
 				break;
 			case IdentificationRequired:

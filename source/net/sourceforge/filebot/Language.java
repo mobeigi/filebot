@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.ui;
+package net.sourceforge.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
@@ -12,16 +12,26 @@ import java.util.Set;
 
 public class Language {
 
-	private final String code;
+	private final String iso2;
+	private final String iso3;
 	private final String name;
 
-	public Language(String code, String name) {
-		this.code = code;
+	public Language(String iso2, String iso3, String name) {
+		this.iso2 = iso2;
+		this.iso3 = iso3;
 		this.name = name;
 	}
 
 	public String getCode() {
-		return code;
+		return iso2;
+	}
+
+	public String getISO2() {
+		return iso2;
+	}
+
+	public String getISO3() {
+		return iso3;
 	}
 
 	public String getName() {
@@ -39,7 +49,7 @@ public class Language {
 
 	@Override
 	public Language clone() {
-		return new Language(code, name);
+		return new Language(iso2, iso3, name);
 	}
 
 	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
@@ -54,12 +64,14 @@ public class Language {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 
 		try {
-			return new Language(code, bundle.getString(code + ".name"));
+			String[] values = bundle.getString(code).split("\\t", 2);
+			return new Language(code, values[0], values[1]);
 		} catch (Exception e) {
 			if (code == null || code.isEmpty()) {
 				return null;
 			}
-			return new Language(code, new Locale(code).getDisplayLanguage(Locale.ROOT));
+			Locale locale = new Locale(code);
+			return new Language(locale.getLanguage(), locale.getISO3Language(), locale.getDisplayLanguage(Locale.ENGLISH));
 		}
 	}
 
@@ -74,7 +86,16 @@ public class Language {
 	}
 
 	public static Language getLanguage(Locale locale) {
-		return locale == null ? null : getLanguageByName(locale.getDisplayLanguage(Locale.ENGLISH));
+		if (locale == null)
+			return null;
+
+		String code = locale.getLanguage();
+		for (Language it : availableLanguages()) {
+			if (it.getISO2().equals(code) || it.getISO3().equals(code)) {
+				return it;
+			}
+		}
+		return null;
 	}
 
 	public static Language getLanguageByName(String name) {
@@ -87,16 +108,11 @@ public class Language {
 	}
 
 	public static String getISO3LanguageCodeByName(String languageName) {
-		Language language = Language.getLanguageByName(languageName);
-		if (language != null) {
-			try {
-				return new Locale(language.getCode()).getISO3Language();
-			} catch (Exception e) {
-				return language.getCode();
-			}
+		try {
+			return Language.getLanguageByName(languageName).getISO3();
+		} catch (Exception e) {
+			return null;
 		}
-
-		return null;
 	}
 
 	public static List<Language> availableLanguages() {

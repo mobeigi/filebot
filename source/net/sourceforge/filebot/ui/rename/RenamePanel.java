@@ -53,7 +53,7 @@ import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.ui.Language;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.rename.FormatDialog.Mode;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AudioTrack;
