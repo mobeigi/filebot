@@ -923,63 +923,67 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		@Override
-		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
+		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> fileSet, String languageName, Component parent) throws Exception {
 			// ignore clutter files from processing
-			files = filter(files, not(getClutterFileFilter()));
+			fileSet = filter(fileSet, not(getClutterFileFilter()));
 
-			// auto-detect query and search for subtitles
-			Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+			// collect results
+			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
 
-			// auto-detect series names
-			querySet.addAll(detectSeriesNames(files, Locale.ROOT));
+			for (List<File> files : mapByMediaFolder(fileSet).values()) {
+				// auto-detect query and search for subtitles
+				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
-			// auto-detect movie names
-			for (File f : files) {
-				if (!isEpisode(f.getName(), false)) {
-					for (Movie movie : detectMovie(f, null, null, Locale.ROOT, false)) {
-						querySet.add(movie.getName());
+				// auto-detect series names
+				querySet.addAll(detectSeriesNames(files, Locale.ROOT));
+
+				// auto-detect movie names
+				for (File f : files) {
+					if (!isEpisode(f.getName(), false)) {
+						for (Movie movie : detectMovie(f, null, null, Locale.ROOT, false)) {
+							querySet.add(movie.getName());
+						}
 					}
 				}
-			}
 
-			List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+				List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 
-			// if auto-detection fails, ask user for input
-			if (subtitles.isEmpty()) {
 				// dialog may have been cancelled by now
 				if (Thread.interrupted()) {
 					throw new CancellationException();
 				}
 
-				querySet = inputProvider.getUserQuery(join(querySet, ","), service.getName(), parent);
-				subtitles = findSubtitles(service, querySet, languageName);
-
-				// still no luck... na women ye mei banfa
+				// if auto-detection fails, ask user for input
 				if (subtitles.isEmpty()) {
-					throw new Exception("Unable to lookup subtitles: " + querySet);
+					querySet = inputProvider.getUserQuery(join(querySet, ","), service.getName(), parent);
+					subtitles = findSubtitles(service, querySet, languageName);
+
+					// still no luck... na women ye mei banfa
+					if (subtitles.isEmpty()) {
+						throw new Exception("Unable to lookup subtitles: " + querySet);
+					}
 				}
-			}
 
-			// files by possible subtitles matches
-			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
-			for (File file : files) {
-				subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
-			}
+				// files by possible subtitles matches
+				for (File file : files) {
+					subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
+				}
 
-			// first match everything as best as possible, then filter possibly bad matches
-			for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
-				subtitlesByFile.get(it.getKey()).add(it.getValue());
-			}
+				// first match everything as best as possible, then filter possibly bad matches
+				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
+					subtitlesByFile.get(it.getKey()).add(it.getValue());
+				}
 
-			// add other possible matches to the options
-			SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
-			float minMatchSimilarity = 0.5f;
+				// add other possible matches to the options
+				SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+				float minMatchSimilarity = 0.5f;
 
-			for (File file : files) {
-				// add matching subtitles
-				for (SubtitleDescriptor it : subtitles) {
-					if (!subtitlesByFile.get(file).contains(it) && sanity.getSimilarity(file, it) >= minMatchSimilarity) {
-						subtitlesByFile.get(file).add(it);
+				for (File file : files) {
+					// add matching subtitles
+					for (SubtitleDescriptor it : subtitles) {
+						if (!subtitlesByFile.get(file).contains(it) && sanity.getSimilarity(file, it) >= minMatchSimilarity) {
+							subtitlesByFile.get(file).add(it);
+						}
 					}
 				}
 			}

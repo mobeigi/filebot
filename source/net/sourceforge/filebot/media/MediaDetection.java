@@ -895,6 +895,36 @@ public class MediaDetection {
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
+	public static Map<File, List<File>> mapByMediaFolder(Collection<File> files) {
+		Map<File, List<File>> mediaFolders = new HashMap<File, List<File>>();
+		for (File f : files) {
+			File folder = guessMediaFolder(f);
+			List<File> value = mediaFolders.get(folder);
+			if (value == null) {
+				value = new ArrayList<File>();
+				mediaFolders.put(folder, value);
+			}
+			value.add(f);
+		}
+		return mediaFolders;
+	}
+
+	public static File guessMediaFolder(File file) {
+		List<File> tail = listPathTail(file, 3, true);
+
+		// skip file itself (first entry)
+		for (int i = 1; i < tail.size(); i++) {
+			File folder = tail.get(i);
+			String term = stripReleaseInfo(folder.getName());
+			if (term.length() > 0) {
+				return folder;
+			}
+		}
+
+		// simply default to parent folder
+		return file.getParentFile();
+	}
+
 	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws IOException {
 		return releaseInfo.cleanRelease(names, strict);
 	}
