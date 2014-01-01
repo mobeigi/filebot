@@ -47,6 +47,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -64,12 +65,12 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.subtitle.SubtitleNaming;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.AbstractBean;
 import net.sourceforge.tuned.ui.EmptySelectionModel;
 import net.sourceforge.tuned.ui.LinkButton;
@@ -85,11 +86,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 	private final List<SubtitleServiceBean> services = new ArrayList<SubtitleServiceBean>();
 	private final JTable subtitleMappingTable = createTable();
 
+	private final JComboBox<SubtitleNaming> preferredSubtitleNaming = new JComboBox<SubtitleNaming>(SubtitleNaming.values());
+
 	private ExecutorService queryService;
 	private ExecutorService downloadService;
 
 	public SubtitleAutoMatchDialog(Window owner) {
 		super(owner, "Download Subtitles", ModalityType.DOCUMENT_MODAL);
+		preferredSubtitleNaming.setSelectedItem(SubtitleNaming.MATCH_VIDEO);
 
 		JComponent content = (JComponent) getContentPane();
 		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));
@@ -97,6 +101,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
 		content.add(hashMatcherServicePanel, "gap after rel");
 		content.add(nameMatcherServicePanel, "gap after indent*2");
+
+		JLabel namingLabel = new JLabel("Preferred Naming:");
+		namingLabel.setHorizontalAlignment(JLabel.RIGHT);
+		content.add(namingLabel, "gap after rel, grow");
+		content.add(preferredSubtitleNaming, "gap after indent*2");
 
 		content.add(new JButton(downloadAction), "tag ok");
 		content.add(new JButton(finishAction), "tag cancel");
@@ -275,7 +284,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				SubtitleDescriptorBean subtitleBean = mapping.getSelectedOption();
 
 				if (subtitleBean != null && subtitleBean.getState() == null) {
-					downloadQueue.add(new DownloadTask(mapping.getVideoFile(), subtitleBean) {
+					downloadQueue.add(new DownloadTask(mapping.getVideoFile(), subtitleBean, (SubtitleNaming) preferredSubtitleNaming.getSelectedItem()) {
 
 						@Override
 						protected void done() {
@@ -632,6 +641,10 @@ class SubtitleAutoMatchDialog extends JDialog {
 			this.service = service;
 		}
 
+		public SubtitleDescriptor getDescriptor() {
+			return descriptor;
+		}
+
 		public float getMatchProbability() {
 			return service.getMatchProbabilty(videoFile, descriptor);
 		}
@@ -764,10 +777,12 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		private final File video;
 		private final SubtitleDescriptorBean descriptor;
+		private final SubtitleNaming naming;
 
-		public DownloadTask(File video, SubtitleDescriptorBean descriptor) {
+		public DownloadTask(File video, SubtitleDescriptorBean descriptor, SubtitleNaming naming) {
 			this.video = video;
 			this.descriptor = descriptor;
+			this.naming = naming;
 		}
 
 		public SubtitleDescriptorBean getSubtitleBean() {
@@ -779,9 +794,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 				return null;
 
 			// prefer type from descriptor because we need to know before we download the actual subtitle file
-			String base = FileUtilities.getName(video);
-			String ext = (descriptor.getType() != null) ? descriptor.getType() : getExtension(subtitle.getName());
-			return new File(video.getParentFile(), formatSubtitle(base, descriptor.getLanguageName(), ext));
+			String name = naming.format(video, descriptor.getDescriptor());
+			return new File(video.getParentFile(), name);
 		}
 
 		@Override
