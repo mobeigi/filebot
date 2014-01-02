@@ -706,7 +706,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}
 
 	public static SimilarityMetric verificationMetric() {
-		return new MetricCascade(FileSize, FileName, SeasonEpisode, AirDate, Title, Name);
+		return new MetricCascade(FileName, SeasonEpisode, AirDate, Title, Name);
 	}
 
 }
