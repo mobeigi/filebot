@@ -430,6 +430,17 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 	};
 
+	public Map<?, ?> getServerInfo() throws Exception {
+		// require login
+		login();
+
+		return xmlrpc.getServerInfo();
+	}
+
+	public Map<?, ?> getDownloadLimits() throws Exception {
+		return (Map<?, ?>) getServerInfo().get("download_limits");
+	}
+
 	/**
 	 * SubLanguageID by English language name
 	 */
