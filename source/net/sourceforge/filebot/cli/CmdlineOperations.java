@@ -908,16 +908,11 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	private Language getLanguage(String lang) throws Exception {
 		// try to look up by language code
-		Language language = Language.getLanguage(lang);
+		Language language = Language.findLanguage(lang);
 
 		if (language == null) {
-			// try too look up by language name
-			language = Language.getLanguageByName(lang);
-
-			if (language == null) {
-				// unable to lookup language
-				throw new Exception("Illegal language code: " + lang);
-			}
+			// unable to lookup language
+			throw new Exception("Illegal language code: " + lang);
 		}
 
 		return language;

@@ -94,18 +94,18 @@ public class Language implements Serializable {
 		return null;
 	}
 
-	public static Language getLanguageByName(String name) {
+	public static Language findLanguage(String lang) {
 		for (Language it : availableLanguages()) {
-			if (name.equalsIgnoreCase(it.getName()))
+			if (lang.equalsIgnoreCase(it.getISO2()) || lang.equalsIgnoreCase(it.getISO3()) || lang.equalsIgnoreCase(it.getName())) {
 				return it;
+			}
 		}
-
 		return null;
 	}
 
 	public static String getISO3LanguageCodeByName(String languageName) {
 		try {
-			return Language.getLanguageByName(languageName).getISO3();
+			return Language.findLanguage(languageName).getISO3();
 		} catch (Exception e) {
 			return null;
 		}
