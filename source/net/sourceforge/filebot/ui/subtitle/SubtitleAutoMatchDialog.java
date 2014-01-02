@@ -794,7 +794,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				return null;
 
 			// prefer type from descriptor because we need to know before we download the actual subtitle file
-			String name = naming.format(video, descriptor.getDescriptor());
+			String name = naming.format(video, descriptor.getDescriptor(), descriptor.getType());
 			return new File(video.getParentFile(), name);
 		}
 

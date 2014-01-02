@@ -220,7 +220,7 @@ def csv(path, delim = ';', keyIndex = 0, valueIndex = 1) {
 	def f = path as File
 	def values = [:]
 	if (f.isFile()) {
-		f.splitEachLine(delim) { line ->
+		f.splitEachLine(delim, 'UTF-8') { line ->
 			values.put(line[keyIndex], c{ line[valueIndex] })
 		}
 	}

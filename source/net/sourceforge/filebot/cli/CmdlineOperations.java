@@ -58,6 +58,7 @@ import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
+import net.sourceforge.filebot.subtitle.SubtitleNaming;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
@@ -641,9 +642,10 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, boolean strict) throws Exception {
+	public List<File> getSubtitles(Collection<File> files, String db, String query, String languageName, String output, String csn, String format, boolean strict) throws Exception {
 		final Language language = getLanguage(languageName);
 		final Pattern databaseFilter = (db != null) ? Pattern.compile(db, Pattern.CASE_INSENSITIVE) : null;
+		final SubtitleNaming naming = getSubtitleNaming(format);
 		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), files.size()));
 
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
@@ -669,7 +671,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			try {
 				CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
 				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos);
-				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
+				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -714,7 +716,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					CLILogger.fine(format("Searching for %s at [%s]", querySet, service.getName()));
 					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos, strict);
-					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding);
+					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
 					remainingVideos.removeAll(downloads.keySet());
 					subtitleFiles.addAll(downloads.values());
 				} catch (Exception e) {
@@ -734,11 +736,13 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, final String languageName, String output, String csn, boolean strict) throws Exception {
+	public List<File> getMissingSubtitles(Collection<File> files, String db, String query, final String languageName, String output, String csn, final String format, boolean strict) throws Exception {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 
 			// save time on repeating filesystem calls
 			private final Map<File, File[]> cache = new HashMap<File, File[]>();
+
+			private final SubtitleNaming naming = getSubtitleNaming(format);
 
 			// get language code suffix for given language (.eng)
 			private final String languageCodeSuffix = "." + Language.getISO3LanguageCodeByName(getLanguage(languageName).getName());
@@ -752,10 +756,17 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				for (File subtitle : subtitlesByFolder) {
-					if (isDerived(subtitle, video) && (subtitle.getName().contains(languageCodeSuffix)))
+					// can't tell which subtitle belongs to which file -> if any subtitles exist skip the whole folder
+					if (naming == SubtitleNaming.ORIGINAL) {
 						return false;
+					} else if (isDerived(subtitle, video)) {
+						if (naming == SubtitleNaming.MATCH_VIDEO) {
+							return false;
+						} else if (subtitle.getName().contains(languageCodeSuffix)) {
+							return false;
+						}
+					}
 				}
-
 				return true;
 			}
 		});
@@ -765,16 +776,25 @@ public class CmdlineOperations implements CmdlineInterface {
 			return emptyList();
 		}
 
-		return getSubtitles(videoFiles, db, query, languageName, output, csn, strict);
+		return getSubtitles(videoFiles, db, query, languageName, output, csn, format, strict);
 	}
 
-	private Map<File, File> downloadSubtitleBatch(String service, Map<File, SubtitleDescriptor> subtitles, SubtitleFormat outputFormat, Charset outputEncoding) {
+	private SubtitleNaming getSubtitleNaming(String format) {
+		SubtitleNaming naming = SubtitleNaming.forName(format);
+		if (naming != null) {
+			return naming;
+		} else {
+			return SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG;
+		}
+	}
+
+	private Map<File, File> downloadSubtitleBatch(String service, Map<File, SubtitleDescriptor> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
 		Map<File, File> downloads = new HashMap<File, File>();
 
 		// fetch subtitle
 		for (Entry<File, SubtitleDescriptor> it : subtitles.entrySet()) {
 			try {
-				downloads.put(it.getKey(), downloadSubtitle(it.getValue(), it.getKey(), outputFormat, outputEncoding));
+				downloads.put(it.getKey(), downloadSubtitle(it.getValue(), it.getKey(), outputFormat, outputEncoding, naming));
 				Analytics.trackEvent(service, "DownloadSubtitle", it.getValue().getLanguageName(), 1);
 			} catch (Exception e) {
 				CLILogger.warning(format("Failed to download %s: %s", it.getValue().getPath(), e.getMessage()));
@@ -784,13 +804,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		return downloads;
 	}
 
-	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding) throws Exception {
+	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) throws Exception {
 		// fetch subtitle archive
 		CLILogger.config(format("Fetching [%s]", descriptor.getPath()));
 		MemoryFile subtitleFile = fetchSubtitle(descriptor);
 
 		// subtitle filename is based on movie filename
-		String base = getName(movieFile);
 		String ext = getExtension(subtitleFile.getName());
 		ByteBuffer data = subtitleFile.getData();
 
@@ -803,7 +822,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 
-		File destination = new File(movieFile.getParentFile(), formatSubtitle(base, descriptor.getLanguageName(), ext));
+		File destination = new File(movieFile.getParentFile(), naming.format(movieFile, descriptor, ext));
 		CLILogger.info(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
 
 		writeFile(data, destination);

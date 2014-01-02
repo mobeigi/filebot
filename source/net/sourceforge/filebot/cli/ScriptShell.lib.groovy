@@ -283,13 +283,13 @@ def rename(args) { args = _defaults(args)
 
 def getSubtitles(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.getSubtitles(_files(args), args.db as String, args.query as String, args.lang as String, args.output as String, args.encoding as String, args.strict as Boolean) }
+		_guarded { _cli.getSubtitles(_files(args), args.db as String, args.query as String, args.lang as String, args.output as String, args.encoding as String, args.format as String, args.strict as Boolean) }
 	}
 }
 
 def getMissingSubtitles(args) { args = _defaults(args)
 	synchronized (_cli) {
-		_guarded { _cli.getMissingSubtitles(_files(args), args.db as String, args.query as String, args.lang as String, args.output as String, args.encoding as String, args.strict as Boolean) }
+		_guarded { _cli.getMissingSubtitles(_files(args), args.db as String, args.query as String, args.lang as String, args.output as String, args.encoding as String, args.format as String, args.strict as Boolean) }
 	}
 }
 

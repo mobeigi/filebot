@@ -11,8 +11,8 @@ public enum SubtitleNaming {
 	ORIGINAL {
 
 		@Override
-		public String format(File video, SubtitleDescriptor subtitle) {
-			return String.format("%s.%s", getName(video), subtitle.getType());
+		public String format(File video, SubtitleDescriptor subtitle, String ext) {
+			return String.format("%s.%s", subtitle.getName(), ext);
 		}
 
 		@Override
@@ -24,8 +24,8 @@ public enum SubtitleNaming {
 	MATCH_VIDEO {
 
 		@Override
-		public String format(File video, SubtitleDescriptor subtitle) {
-			return SubtitleUtilities.formatSubtitle(getName(video), null, subtitle.getType());
+		public String format(File video, SubtitleDescriptor subtitle, String ext) {
+			return SubtitleUtilities.formatSubtitle(getName(video), null, ext);
 		}
 
 		@Override
@@ -37,8 +37,8 @@ public enum SubtitleNaming {
 	MATCH_VIDEO_ADD_LANGUAGE_TAG {
 
 		@Override
-		public String format(File video, SubtitleDescriptor subtitle) {
-			return SubtitleUtilities.formatSubtitle(getName(video), subtitle.getLanguageName(), subtitle.getType());
+		public String format(File video, SubtitleDescriptor subtitle, String ext) {
+			return SubtitleUtilities.formatSubtitle(getName(video), subtitle.getLanguageName(), ext);
 		}
 
 		@Override
@@ -47,6 +47,15 @@ public enum SubtitleNaming {
 		}
 	};
 
-	public abstract String format(File video, SubtitleDescriptor subtitle);
+	public abstract String format(File video, SubtitleDescriptor subtitle, String ext);
+
+	public static SubtitleNaming forName(String s) {
+		for (SubtitleNaming it : values()) {
+			if (it.name().equalsIgnoreCase(s) || it.toString().equalsIgnoreCase(s)) {
+				return it;
+			}
+		}
+		return null;
+	}
 
 }
