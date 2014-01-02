@@ -892,7 +892,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		public String getName() {
-			return String.format("%s (by hash)", service.getName());
+			return String.format("%s [via hash]", service.getName());
 		}
 
 		@Override
@@ -919,7 +919,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		public String getName() {
-			return String.format("%s (by name)", service.getName());
+			return String.format("%s [via name]", service.getName());
 		}
 
 		@Override
@@ -946,7 +946,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 					}
 				}
 
-				List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 
 				// dialog may have been cancelled by now
 				if (Thread.interrupted()) {
@@ -978,6 +978,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
 				float minMatchSimilarity = 0.5f;
 
+				// this could be very slow, lets hope at this point there is not much left due to positive hash matches
 				for (File file : files) {
 					// add matching subtitles
 					for (SubtitleDescriptor it : subtitles) {

@@ -828,7 +828,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
 		// search for subtitles
-		List<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, language.getName());
+		Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, language.getName());
 
 		// match subtitle files to video files
 		if (subtitles.size() > 0) {
