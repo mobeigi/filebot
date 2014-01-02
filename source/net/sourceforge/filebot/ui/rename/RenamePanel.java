@@ -47,13 +47,13 @@ import javax.swing.border.TitledBorder;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.History;
 import net.sourceforge.filebot.HistorySpooler;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.rename.FormatDialog.Mode;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.AudioTrack;
@@ -333,6 +333,7 @@ public class RenamePanel extends JComponent {
 					public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 						super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 						if (value != null) {
+							setText(((Language) value).getName());
 							setIcon(ResourceManager.getFlagIcon(((Language) value).getCode()));
 						}
 						return this;
