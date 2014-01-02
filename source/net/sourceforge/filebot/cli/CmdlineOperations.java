@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.HistorySpooler;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.RenameAction;
 import net.sourceforge.filebot.WebServices;
@@ -57,7 +58,6 @@ import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
-import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
@@ -451,22 +451,24 @@ public class CmdlineOperations implements CmdlineInterface {
 		// collect all File/MoviePart matches
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
-		for (Entry<Movie, SortedSet<File>> entry : filesByMovie.entrySet()) {
-			for (List<File> fileSet : mapByExtension(entry.getValue()).values()) {
-				// resolve movie parts
-				for (int i = 0; i < fileSet.size(); i++) {
-					Movie moviePart = entry.getKey();
-					if (fileSet.size() > 1) {
-						moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
-					}
+		for (Entry<Movie, SortedSet<File>> byMovie : filesByMovie.entrySet()) {
+			for (List<File> movieFileListByMediaFolder : mapByMediaFolder(byMovie.getValue()).values()) {
+				for (List<File> fileSet : mapByExtension(movieFileListByMediaFolder).values()) {
+					// resolve movie parts
+					for (int i = 0; i < fileSet.size(); i++) {
+						Movie moviePart = byMovie.getKey();
+						if (fileSet.size() > 1) {
+							moviePart = new MoviePart(moviePart, i + 1, fileSet.size());
+						}
 
-					matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
+						matches.add(new Match<File, Movie>(fileSet.get(i), moviePart.clone()));
 
-					// automatically add matches for derivate files
-					List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
-					if (derivates != null) {
-						for (File derivate : derivates) {
-							matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
+						// automatically add matches for derivate files
+						List<File> derivates = derivatesByMovieFile.get(fileSet.get(i));
+						if (derivates != null) {
+							for (File derivate : derivates) {
+								matches.add(new Match<File, Movie>(derivate, moviePart.clone()));
+							}
 						}
 					}
 				}
