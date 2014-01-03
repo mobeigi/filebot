@@ -209,6 +209,7 @@ addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
 addSeriesAlias('World Series of Poker', 'WSOP')
 addSeriesAlias('English Premier League', 'EPL')
 addSeriesAlias('House of Cards', 'HOC')
+addSeriesAlias('The Big Bang Theory', 'TBBT')
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
