@@ -41,10 +41,12 @@ import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
+import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.MultiEpisode;
 import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
@@ -521,13 +523,21 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
-		if (getSeriesObject() instanceof TheTVDBSearchResult) {
-			return WebServices.TheTVDB.getEpisodeList(getSeriesObject());
+		return ((EpisodeListProvider) getDatabase()).getEpisodeList(getSeriesObject(), SortOrder.Airdate, Locale.ENGLISH);
+	}
+
+	@Define("database")
+	public Object getDatabase() {
+		if (infoObject instanceof Episode) {
+			return WebServices.getServiceBySearchResult(getSeriesObject());
 		}
-		if (getSeriesObject() instanceof AnidbSearchResult) {
-			return WebServices.AniDB.getEpisodeList(getSeriesObject());
+		if (infoObject instanceof Movie) {
+			return WebServices.getServiceBySearchResult(getMovie());
 		}
-		return null; // default to original search result
+		if (infoObject instanceof AudioTrack) {
+			return WebServices.getServiceBySearchResult(getMusic());
+		}
+		return null;
 	}
 
 	@Define("duration")

@@ -21,11 +21,13 @@ import java.util.logging.Logger;
 import net.sourceforge.filebot.web.AcoustID;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.AnidbSearchResult;
+import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.FanartTV;
 import net.sourceforge.filebot.web.ID3Lookup;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.LocalSearch;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MusicIdentificationService;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
@@ -34,6 +36,7 @@ import net.sourceforge.filebot.web.SerienjunkiesClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.TMDbClient;
 import net.sourceforge.filebot.web.TVRageClient;
+import net.sourceforge.filebot.web.TVRageSearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -107,6 +110,21 @@ public final class WebServices {
 		}
 
 		return null; // default
+	}
+
+	public static Object getServiceBySearchResult(Object r) {
+		if (r instanceof TheTVDBSearchResult)
+			return WebServices.TheTVDB;
+		if (r instanceof AnidbSearchResult)
+			return WebServices.AniDB;
+		if (r instanceof TVRageSearchResult)
+			return WebServices.TVRage;
+		if (r instanceof Movie)
+			return WebServices.TMDb;
+		if (r instanceof AudioTrack)
+			return WebServices.AcoustID;
+
+		return null;
 	}
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
