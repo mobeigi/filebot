@@ -1,5 +1,6 @@
 package net.sourceforge.filebot.cli;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.tuned.FileUtilities.*;
 
@@ -170,6 +171,16 @@ public class ArgumentBean {
 
 	public Level getLogLevel() {
 		return Level.parse(log.toUpperCase());
+	}
+
+	private final String[] array;
+
+	public ArgumentBean(String... array) {
+		this.array = array;
+	}
+
+	public List<String> getArray() {
+		return unmodifiableList(asList(array));
 	}
 
 }

@@ -41,7 +41,7 @@ public class ArgumentProcessor {
 	}
 
 	public ArgumentBean parse(String[] args) throws CmdLineException {
-		ArgumentBean bean = new ArgumentBean();
+		ArgumentBean bean = new ArgumentBean(args);
 		CmdLineParser parser = new CmdLineParser(bean);
 		parser.parseArgument(args);
 		return bean;
@@ -126,7 +126,13 @@ public class ArgumentProcessor {
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (Throwable e) {
-			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e).getClass() == Exception.class ? null : getRootCause(e));
+			if (e.getClass() == Exception.class) {
+				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)));
+			} else if (e.getClass() == IllegalArgumentException.class) {
+				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), String.format("%s %s", getRootCauseMessage(e), args.getArray())));
+			} else {
+				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
+			}
 			CLILogger.finest("Failure (°_°)");
 			return -1;
 		}
@@ -159,42 +165,38 @@ public class ArgumentProcessor {
 		}
 
 		@Override
-		public URI getScriptLocation(String input) {
+		public URI getScriptLocation(String input) throws Exception {
 			try {
 				return new URL(input).toURI();
 			} catch (Exception _) {
-				try {
-					// system:in
-					if (input.equals("system:in")) {
-						return new URI("system", "in", null);
-					}
-
-					// g:println 'hello world'
-					if (input.startsWith("g:")) {
-						return new URI("g", input.substring(2), null);
-					}
-
-					// fn:sortivo / svn:sortivo
-					if (Pattern.matches("\\w+:.+", input)) {
-						String scheme = input.substring(0, input.indexOf(':'));
-						if (getResourceTemplate(scheme) != null) {
-							return new URI(scheme, input.substring(scheme.length() + 1, input.length()), null);
-						}
-					}
-
-					File file = new File(input);
-					if (baseScheme != null && !file.isAbsolute()) {
-						return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
-					}
-
-					// X:/foo/bar.groovy
-					if (!file.isFile()) {
-						throw new FileNotFoundException(file.getPath());
-					}
-					return file.getAbsoluteFile().toURI();
-				} catch (Exception e) {
-					throw new IllegalArgumentException(e);
+				// system:in
+				if (input.equals("system:in")) {
+					return new URI("system", "in", null);
 				}
+
+				// g:println 'hello world'
+				if (input.startsWith("g:")) {
+					return new URI("g", input.substring(2), null);
+				}
+
+				// fn:sortivo / svn:sortivo
+				if (Pattern.matches("\\w+:.+", input)) {
+					String scheme = input.substring(0, input.indexOf(':'));
+					if (getResourceTemplate(scheme) != null) {
+						return new URI(scheme, input.substring(scheme.length() + 1, input.length()), null);
+					}
+				}
+
+				File file = new File(input);
+				if (baseScheme != null && !file.isAbsolute()) {
+					return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
+				}
+
+				// X:/foo/bar.groovy
+				if (!file.isFile()) {
+					throw new FileNotFoundException(file.getPath());
+				}
+				return file.getAbsoluteFile().toURI();
 			}
 		}
 

@@ -60,7 +60,7 @@ public class ScriptShell {
 
 	public static interface ScriptProvider {
 
-		public URI getScriptLocation(String input);
+		public URI getScriptLocation(String input) throws Exception;
 
 		public Script fetchScript(URI uri) throws Exception;
 	}
@@ -103,6 +103,9 @@ public class ScriptShell {
 				throw e.getException();
 			}
 		} catch (Throwable e) {
+			while (e.getClass() == ScriptException.class && e.getCause() != null) {
+				e = e.getCause();
+			}
 			throw StackTraceUtils.deepSanitize(e); // make Groovy stack human-readable
 		}
 	}
