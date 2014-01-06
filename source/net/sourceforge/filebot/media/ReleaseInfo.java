@@ -180,19 +180,26 @@ public class ReleaseInfo {
 			// Windows / Linux / Mac system roots
 			addAll(volumes, File.listRoots());
 
-			// media root folders
 			if (File.separator.equals("/")) {
-				// Linux and Mac
+				// Linux and Mac system root folders
 				for (File root : File.listRoots()) {
-					addAll(volumes, root.listFiles(FOLDERS));
+					File[] f = root.listFiles(FOLDERS);
+					if (f != null) {
+						addAll(volumes, f);
+					}
 				}
-				for (String path : asList("/Volumes", "/home", "/media", "/mnt")) {
-					File root = new File(path);
+
+				// user-specific media roots
+				for (File root : getMediaRoots()) {
 					if (root.isDirectory()) {
-						addAll(volumes, root.listFiles(FOLDERS));
+						File[] f = root.listFiles(FOLDERS);
+						if (f != null) {
+							addAll(volumes, f);
+						}
 					}
 				}
 			}
+
 			volumeRoots = unmodifiableSet(volumes);
 		}
 		return volumeRoots;
@@ -297,6 +304,14 @@ public class ReleaseInfo {
 
 	public FileFilter getClutterFileFilter() throws IOException {
 		return new ClutterFileFilter(getExcludePattern(), Long.parseLong(getBundle(getClass().getName()).getString("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
+	}
+
+	public List<File> getMediaRoots() {
+		List<File> roots = new ArrayList<File>();
+		for (String it : getBundle(getClass().getName()).getString("folder.media.roots").split(":")) {
+			roots.add(new File(it));
+		}
+		return roots;
 	}
 
 	// fetch release group names online and try to update the data every other day
