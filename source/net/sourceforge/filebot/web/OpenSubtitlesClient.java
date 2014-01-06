@@ -597,7 +597,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 						Thread.sleep(retryWaitTime);
 					}
 					return super.invoke(method, arguments);
-				} catch (XmlRpcFault | XmlRpcException e) {
+				} catch (XmlRpcException e) {
 					IOException ioException = ExceptionUtilities.findCause(e, IOException.class);
 					if (ioException == null || i >= 0 && i >= retryCountLimit) {
 						throw e;
