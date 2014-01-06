@@ -62,6 +62,20 @@ def isValidMovieName(s) {
 	return s=~ /^[A-Z0-9]/ && s =~ /[\p{Alpha}]{3}/
 }
 
+def getNamePermutations(names) {
+	def fn1 = { s -> s.replaceAll(/^(?i)(The|A)\s/, '') }
+	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
+	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
+
+	def out = new LinkedHashSet()
+	out += names*.trim()
+	[fn1, fn2, fn3].each{ fn ->
+		def results = out.findResults{ fn(it) }
+		out += results*.trim();
+	}
+	return out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
+}
+
 def treeSort(list, keyFunction) {
 	def sorter = new TreeMap(String.CASE_INSENSITIVE_ORDER)
 	list.each{
@@ -115,7 +129,7 @@ tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
 
 movies = tmdb.findResults{
 	def ity = it[1..3] // imdb id, tmdb id, year
-	def names = it[4..-2].findAll{ isValidMovieName(it) }.unique{ it.toLowerCase().normalizePunctuation() }
+	def names = getNamePermutations(it[4..-1]).findAll{ isValidMovieName(it) }
 	if (ity[0].toInteger() > 0 && ity[1].toInteger() > 0 && names.size() > 0)
 		return ity + names
 	else
@@ -181,24 +195,24 @@ tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 
 def thetvdb_index = []
-tvdb.values().each{
-	def n1 = it[2].trim()
-	def n2 = it[3].replaceAll(/^(?i)(The|A)\s/, '').replaceAll(/\s&\s/, ' and ').replaceAll(/\([^\)]*\)$/, '').trim()
+tvdb.values().each{ r ->
+	def tvdb_name = r[2]
+	def imdb_name = r[3].replaceAll(/\([^\)]*\)$/, '').trim()
 	
-	thetvdb_index << [it[0], n1]
-	if (similarity(n1,n2) < 1) {
-		thetvdb_index << [it[0], n2]
+	getNamePermutations([tvdb_name, imdb_name]).each{ n ->
+		thetvdb_index << [r[0], n]
 	}
 }
 
 def addSeriesAlias = { from, to ->
 	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
 	if (se == null) throw new Exception("Unabled to find series '${from}'")
-	thetvdb_index << [se[0], to]
+	getNamePermutations([to]).each{ n ->
+		thetvdb_index << [se[0], n]
+	}
 }
 
 // additional custom mappings
-addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law & Order SVU')
 addSeriesAlias('CSI: Crime Scene Investigation', 'CSI')
 addSeriesAlias('M*A*S*H', 'MASH')

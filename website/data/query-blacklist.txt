@@ -137,6 +137,7 @@ AMC-BL
 AMC-TEST
 Anaglyph
 Arte
+Best.of.\d{4}
 Best.Quality
 bt.downloads
 btarena.org
@@ -209,6 +210,7 @@ info
 iNT
 iNTERNAL
 iPod
+IPT
 ISO
 iTA
 iTALIA
@@ -225,6 +227,7 @@ lol
 Los.Sustitutos
 M.HD
 mkvonly
+Movie.Pack
 mpg$
 MultiSub
 MVGroup.org

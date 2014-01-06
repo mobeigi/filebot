@@ -752,7 +752,9 @@ public class MediaDetection {
 		if (movieIndex.isEmpty()) {
 			try {
 				for (Movie movie : releaseInfo.getMovieList()) {
-					movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(movie.getName()).toLowerCase(), movie));
+					for (String name : movie.getEffectiveNames()) {
+						movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(name).toLowerCase(), movie));
+					}
 				}
 			} catch (Exception e) {
 				// can't load movie index, just try again next time
