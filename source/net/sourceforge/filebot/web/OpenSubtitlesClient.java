@@ -38,8 +38,10 @@ import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.BaseInfo;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
+import net.sourceforge.tuned.ExceptionUtilities;
 import net.sourceforge.tuned.Timer;
 import redstone.xmlrpc.XmlRpcException;
+import redstone.xmlrpc.XmlRpcFault;
 
 /**
  * SubtitleClient for OpenSubtitles.
@@ -52,7 +54,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	private String password = "";
 
 	public OpenSubtitlesClient(String useragent) {
-		this.xmlrpc = new OpenSubtitlesXmlRpc(useragent);
+		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetry(useragent, 2, 3000);
 	}
 
 	public synchronized void setUser(String username, String password) {
@@ -572,6 +574,39 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			}
 
 			return null;
+		}
+
+	}
+
+	protected static class OpenSubtitlesXmlRpcWithRetry extends OpenSubtitlesXmlRpc {
+
+		private int retryCountLimit;
+		private long retryWaitTime;
+
+		public OpenSubtitlesXmlRpcWithRetry(String useragent, int retryCountLimit, long retryWaitTime) {
+			super(useragent);
+			this.retryCountLimit = retryCountLimit;
+			this.retryWaitTime = retryWaitTime;
+		}
+
+		@Override
+		protected Map<?, ?> invoke(String method, Object... arguments) throws XmlRpcFault {
+			for (int i = 0; retryCountLimit < 0 || i <= retryCountLimit; i++) {
+				try {
+					if (i > 0) {
+						Thread.sleep(retryWaitTime);
+					}
+					return super.invoke(method, arguments);
+				} catch (XmlRpcFault | XmlRpcException e) {
+					IOException ioException = ExceptionUtilities.findCause(e, IOException.class);
+					if (ioException == null || i >= 0 && i >= retryCountLimit) {
+						throw e;
+					}
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			return null; // can't happen
 		}
 
 	}

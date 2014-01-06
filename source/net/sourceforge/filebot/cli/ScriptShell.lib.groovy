@@ -234,8 +234,8 @@ def detectSeriesName(files, locale = Locale.ENGLISH) {
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
-def detectMovie(File movieFile, strict = true, queryLookupService = TheMovieDB, hashLookupService = OpenSubtitles, locale = Locale.ENGLISH) {
-	def movies = MediaDetection.detectMovie(movieFile, hashLookupService, queryLookupService, locale, strict)
+def detectMovie(File file, strict = true, queryLookupService = TheMovieDB, hashLookupService = OpenSubtitles, locale = Locale.ENGLISH) {
+	def movies = MediaDetection.matchMovieName([file.name, file.parentFile.name], true, 0) ?: MediaDetection.detectMovie(file, hashLookupService, queryLookupService, locale, strict)
 	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
 }
 
