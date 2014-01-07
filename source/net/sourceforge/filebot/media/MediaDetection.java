@@ -432,13 +432,13 @@ public class MediaDetection {
 		for (CollationKey[] name : names) {
 			IndexEntry<SearchResult> bestMatch = null;
 			for (IndexEntry<SearchResult> it : getSeriesIndex()) {
-				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, it.lenientKey);
-				if (commonName != null && commonName.length >= it.lenientKey.length && (bestMatch == null || commonName.length > bestMatch.lenientKey.length)) {
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, it.getLenientKey());
+				if (commonName != null && commonName.length >= it.getLenientKey().length && (bestMatch == null || commonName.length > bestMatch.getLenientKey().length)) {
 					bestMatch = it;
 				}
 			}
 			if (bestMatch != null) {
-				matches.add(bestMatch.lenientName);
+				matches.add(bestMatch.getLenientName());
 			}
 		}
 
@@ -472,7 +472,7 @@ public class MediaDetection {
 
 		List<SearchResult> seriesList = new ArrayList<SearchResult>();
 		for (IndexEntry<SearchResult> it : getSeriesIndex()) {
-			String name = spacing.matcher(it.lenientName).replaceAll("").toLowerCase();
+			String name = spacing.matcher(it.getLenientName()).replaceAll("").toLowerCase();
 			for (String term : terms) {
 				if (term.contains(name)) {
 					if (metric.getSimilarity(term, name) >= similarityThreshold) {
@@ -785,15 +785,15 @@ public class MediaDetection {
 
 		for (IndexEntry<Movie> movie : getMovieIndex()) {
 			for (CollationKey[] name : names) {
-				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, movie.lenientKey);
-				if (commonName != null && commonName.length >= movie.lenientKey.length) {
-					CollationKey[] strictCommonName = nameMatcher.matchFirstCommonSequence(name, movie.strictKey);
-					if (strictCommonName != null && strictCommonName.length >= movie.strictKey.length) {
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, movie.getLenientKey());
+				if (commonName != null && commonName.length >= movie.getLenientKey().length) {
+					CollationKey[] strictCommonName = nameMatcher.matchFirstCommonSequence(name, movie.getStrictKey());
+					if (strictCommonName != null && strictCommonName.length >= movie.getStrictKey().length) {
 						// prefer strict match
-						matchMap.put(movie.object, movie.strictName);
+						matchMap.put(movie.getObject(), movie.getStrictName());
 					} else if (!strict) {
 						// make sure the common identifier is not just the year
-						matchMap.put(movie.object, movie.lenientName);
+						matchMap.put(movie.getObject(), movie.getLenientName());
 					}
 				}
 			}
@@ -830,14 +830,14 @@ public class MediaDetection {
 
 		LinkedList<Movie> movies = new LinkedList<Movie>();
 		for (IndexEntry<Movie> it : getMovieIndex()) {
-			String name = spacing.matcher(it.lenientName).replaceAll("").toLowerCase();
+			String name = spacing.matcher(it.getLenientName()).replaceAll("").toLowerCase();
 			for (String term : terms) {
 				if (term.contains(name)) {
-					String year = String.valueOf(it.object.getYear());
+					String year = String.valueOf(it.getObject().getYear());
 					if (term.contains(year) && metric.getSimilarity(term, name + year) > similarityThreshold) {
-						movies.addFirst(it.object);
+						movies.addFirst(it.getObject());
 					} else if (metric.getSimilarity(term, name) > similarityThreshold) {
-						movies.addLast(it.object);
+						movies.addLast(it.getObject());
 					}
 					break;
 				}
@@ -1086,18 +1086,43 @@ public class MediaDetection {
 
 	public static class IndexEntry<T> implements Serializable {
 
-		private final T object;
-		private final String lenientName;
-		private final String strictName;
-		private final CollationKey[] lenientKey;
-		private final CollationKey[] strictKey;
+		private T object;
+		private String lenientName;
+		private String strictName;
 
-		public IndexEntry(T object, String lenientName, String strictName, CollationKey[] lenientKey, CollationKey[] strictKey) {
+		private transient CollationKey[] lenientKey;
+		private transient CollationKey[] strictKey;
+
+		public IndexEntry(T object, String lenientName, String strictName) {
 			this.object = object;
 			this.lenientName = lenientName;
 			this.strictName = strictName;
-			this.lenientKey = lenientKey;
-			this.strictKey = strictKey;
+		}
+
+		public T getObject() {
+			return object;
+		}
+
+		public String getLenientName() {
+			return lenientName;
+		}
+
+		public String getStrictName() {
+			return strictName;
+		}
+
+		public CollationKey[] getLenientKey() {
+			if (lenientKey == null && lenientName != null) {
+				lenientKey = HighPerformanceMatcher.prepare(lenientName);
+			}
+			return lenientKey;
+		}
+
+		public CollationKey[] getStrictKey() {
+			if (strictKey == null && strictName != null) {
+				strictKey = HighPerformanceMatcher.prepare(strictName);
+			}
+			return strictKey;
 		}
 	}
 
@@ -1110,7 +1135,7 @@ public class MediaDetection {
 		private static final Pattern space = Pattern.compile("\\s+");
 
 		public static CollationKey[] prepare(String sequence) {
-			String[] words = space.split(normalizePunctuation(sequence));
+			String[] words = space.split(sequence);
 			CollationKey[] keys = new CollationKey[words.length];
 			for (int i = 0; i < words.length; i++) {
 				keys[i] = collator.getCollationKey(words[i]);
@@ -1121,7 +1146,7 @@ public class MediaDetection {
 		public static List<CollationKey[]> prepare(Collection<String> sequences) {
 			List<CollationKey[]> result = new ArrayList<CollationKey[]>(sequences.size());
 			for (String it : sequences) {
-				result.add(prepare(it));
+				result.add(prepare(normalizePunctuation(it)));
 			}
 			return result;
 		}
@@ -1134,7 +1159,7 @@ public class MediaDetection {
 			for (int i = 0; i < effectiveNames.size(); i++) {
 				String lenientName = normalizePunctuation(effectiveNamesWithoutYear.get(i));
 				String strictName = normalizePunctuation(effectiveNames.get(i));
-				index.add(new IndexEntry<Movie>(m, lenientName, strictName, prepare(lenientName), prepare(strictName)));
+				index.add(new IndexEntry<Movie>(m, lenientName, strictName));
 			}
 			return index;
 		}
@@ -1145,7 +1170,7 @@ public class MediaDetection {
 
 			for (int i = 0; i < effectiveNames.size(); i++) {
 				String lenientName = normalizePunctuation(effectiveNames.get(i));
-				index.add(new IndexEntry<SearchResult>(r, lenientName, null, prepare(lenientName), null));
+				index.add(new IndexEntry<SearchResult>(r, lenientName, null));
 			}
 			return index;
 		}
