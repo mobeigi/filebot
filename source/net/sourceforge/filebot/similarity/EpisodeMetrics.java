@@ -202,7 +202,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				LinkedHashSet<String> set = new LinkedHashSet<String>(5);
+				LinkedHashSet<String> set = new LinkedHashSet<String>(4);
 				set.add(removeTrailingBrackets(episode.getSeriesName()));
 				set.add(removeTrailingBrackets(episode.getTitle()));
 				for (String it : episode.getSeries().getEffectiveNames()) {
@@ -210,7 +210,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				}
 
 				Iterator<String> itr = set.iterator();
-				Object[] f = new Object[5];
+				Object[] f = new Object[4];
 				for (int i = 0; i < f.length; i++) {
 					f[i] = itr.hasNext() ? itr.next() : null;
 				}

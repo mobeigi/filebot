@@ -51,6 +51,9 @@ def pack(file, lines) {
 			lines.each{ writer.append(it).append('\n') }
 		}
 	}
+	def rows = lines.size()
+	def columns = lines.collect{ it.split(/\t/).length }.max()
+	println "$file ($rows rows, $columns columns)"
 }
 
 
@@ -67,13 +70,15 @@ def getNamePermutations(names) {
 	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
 	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
-	def out = new LinkedHashSet()
-	out += names*.trim()
+	def out = new LinkedHashSet(names*.trim())
+	def res = out
 	[fn1, fn2, fn3].each{ fn ->
-		def results = out.findResults{ fn(it) }
-		out += results*.trim();
+		res = res.findResults{ fn(it) }
 	}
-	return out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
+	out += res
+	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }.toList()
+	out = out.size() <= 4 ? out : out.subList(0, 4)
+	return out
 }
 
 def treeSort(list, keyFunction) {
@@ -137,10 +142,8 @@ movies = tmdb.findResults{
 }
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
-pack(moviedb_out, movies*.join('\t'))
-println "Movie Count: " + movies.size()
-
 // sanity check
+pack(moviedb_out, movies*.join('\t'))
 if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
 
 
@@ -207,12 +210,11 @@ tvdb.values().each{ r ->
 def addSeriesAlias = { from, to ->
 	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
 	if (se == null) throw new Exception("Unabled to find series '${from}'")
-	getNamePermutations([to]).each{ n ->
-		thetvdb_index << [se[0], n]
-	}
+	thetvdb_index << [se[0], to]
 }
 
 // additional custom mappings
+addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law & Order SVU')
 addSeriesAlias('CSI: Crime Scene Investigation', 'CSI')
 addSeriesAlias('M*A*S*H', 'MASH')
@@ -232,10 +234,8 @@ thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
 // join and sort
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
-pack(thetvdb_out, thetvdb_txt)
-println "TheTVDB Index: " + thetvdb_txt.size()
-
 // sanity check
+pack(thetvdb_out, thetvdb_txt)
 if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed') }
 
 
@@ -248,14 +248,13 @@ def anidb = new net.sourceforge.filebot.web.AnidbClient('filebot', 4).getAnimeTi
 def anidb_index = anidb.findResults{
 	def row = []
 	row += it.getAnimeId().pad(5)
-	row += it.effectiveNames*.replaceAll(/\s+/, ' ')*.replaceAll(/['`´‘’ʻ]+/, /'/)*.trim().unique{ it.toLowerCase() }
+	row += getNamePermutations(it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/))
 	return row
 }
 
 // join and sort
 def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
-pack(anidb_out, anidb_txt)
-println "AniDB Index: " + anidb_txt.size()
 
 // sanity check
+pack(anidb_out, anidb_txt)
 if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed') }
