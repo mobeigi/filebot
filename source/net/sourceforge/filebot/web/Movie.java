@@ -43,6 +43,10 @@ public class Movie extends SearchResult {
 		return tmdbId;
 	}
 
+	public String getNameWithYear() {
+		return toString(name, year);
+	}
+
 	@Override
 	public List<String> getEffectiveNames() {
 		if (aliasNames == null || aliasNames.length == 0) {

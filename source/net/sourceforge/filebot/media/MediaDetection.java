@@ -11,11 +11,11 @@ import static net.sourceforge.tuned.FileUtilities.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.CollationKey;
 import java.text.Collator;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -400,43 +400,45 @@ public class MediaDetection {
 		return matches;
 	}
 
-	private static List<Entry<String, SearchResult>> seriesIndex = new ArrayList<Entry<String, SearchResult>>(75000);
+	private static final List<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>(100000);
 
-	public static synchronized List<Entry<String, SearchResult>> getSeriesIndex() throws IOException {
-		if (seriesIndex.isEmpty()) {
-			try {
-				for (SearchResult[] index : new SearchResult[][] { releaseInfo.getTheTVDBIndex(), releaseInfo.getAnidbIndex() }) {
-					for (SearchResult item : index) {
-						for (String name : item.getEffectiveNames()) {
-							seriesIndex.add(new SimpleEntry<String, SearchResult>(normalizePunctuation(name).toLowerCase(), item));
+	public static List<IndexEntry<SearchResult>> getSeriesIndex() throws IOException {
+		synchronized (seriesIndex) {
+			if (seriesIndex.isEmpty()) {
+				try {
+					for (SearchResult[] index : new SearchResult[][] { releaseInfo.getTheTVDBIndex(), releaseInfo.getAnidbIndex() }) {
+						for (SearchResult it : index) {
+							seriesIndex.addAll(HighPerformanceMatcher.prepare(it));
 						}
 					}
-				}
-			} catch (Exception e) {
-				// can't load movie index, just try again next time
-				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e.getMessage(), e);
-				return emptyList();
-			}
-		}
+				} catch (Exception e) {
+					// can't load movie index, just try again next time
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e.getMessage(), e);
 
-		return seriesIndex;
+					// rely on online search
+					return emptyList();
+				}
+			}
+			return seriesIndex;
+		}
 	}
 
-	public static List<String> matchSeriesByName(Collection<String> names, int maxStartIndex) throws Exception {
+	public static List<String> matchSeriesByName(Collection<String> files, int maxStartIndex) throws Exception {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		List<String> matches = new ArrayList<String>();
 
-		for (String name : names) {
-			String bestMatch = "";
-			for (Entry<String, SearchResult> it : getSeriesIndex()) {
-				String identifier = it.getKey();
-				String commonName = nameMatcher.matchFirstCommonSequence(name, identifier);
-				if (commonName != null && commonName.length() >= identifier.length() && commonName.length() > bestMatch.length()) {
-					bestMatch = commonName;
+		List<CollationKey[]> names = HighPerformanceMatcher.prepare(files);
+
+		for (CollationKey[] name : names) {
+			IndexEntry<SearchResult> bestMatch = null;
+			for (IndexEntry<SearchResult> it : getSeriesIndex()) {
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, it.lenientKey);
+				if (commonName != null && commonName.length >= it.lenientKey.length && (bestMatch == null || commonName.length > bestMatch.lenientKey.length)) {
+					bestMatch = it;
 				}
 			}
-			if (bestMatch.length() > 0) {
-				matches.add(bestMatch);
+			if (bestMatch != null) {
+				matches.add(bestMatch.lenientName);
 			}
 		}
 
@@ -469,12 +471,12 @@ public class MediaDetection {
 		float similarityThreshold = strict ? 0.75f : 0.5f;
 
 		List<SearchResult> seriesList = new ArrayList<SearchResult>();
-		for (Entry<String, SearchResult> it : getSeriesIndex()) {
-			String name = spacing.matcher(it.getKey()).replaceAll("").toLowerCase();
+		for (IndexEntry<SearchResult> it : getSeriesIndex()) {
+			String name = spacing.matcher(it.lenientName).replaceAll("").toLowerCase();
 			for (String term : terms) {
 				if (term.contains(name)) {
 					if (metric.getSimilarity(term, name) >= similarityThreshold) {
-						seriesList.add(it.getValue());
+						seriesList.add(it.object);
 					}
 					break;
 				}
@@ -753,24 +755,25 @@ public class MediaDetection {
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 
-	private static List<Entry<String, Movie>> movieIndex = new ArrayList<Entry<String, Movie>>(100000);
+	private static final List<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>(100000);
 
-	public static synchronized List<Entry<String, Movie>> getMovieIndex() throws IOException {
-		if (movieIndex.isEmpty()) {
-			try {
-				for (Movie movie : releaseInfo.getMovieList()) {
-					for (String name : movie.getEffectiveNamesWithoutYear()) {
-						movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(name).toLowerCase(), movie));
+	public static List<IndexEntry<Movie>> getMovieIndex() throws IOException {
+		synchronized (movieIndex) {
+			if (movieIndex.isEmpty()) {
+				try {
+					for (Movie it : releaseInfo.getMovieList()) {
+						movieIndex.addAll(HighPerformanceMatcher.prepare(it));
 					}
-				}
-			} catch (Exception e) {
-				// can't load movie index, just try again next time
-				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e.getMessage(), e);
-				return emptyList();
-			}
-		}
+				} catch (Exception e) {
+					// can't load movie index, just try again next time
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e.getMessage(), e);
 
-		return movieIndex;
+					// if we can't use internal index we can only rely on online search
+					return emptyList();
+				}
+			}
+			return movieIndex;
+		}
 	}
 
 	public static List<Movie> matchMovieName(final Collection<String> files, boolean strict, int maxStartIndex) throws Exception {
@@ -778,19 +781,19 @@ public class MediaDetection {
 		final HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		final Map<Movie, String> matchMap = new HashMap<Movie, String>();
 
-		for (Entry<String, Movie> movie : getMovieIndex()) {
-			for (String name : files) {
-				String movieIdentifier = movie.getKey();
-				String commonName = nameMatcher.matchFirstCommonSequence(name, movieIdentifier);
-				if (commonName != null && commonName.length() >= movieIdentifier.length()) {
-					String strictMovieIdentifier = movie.getKey() + " " + movie.getValue().getYear();
-					String strictCommonName = nameMatcher.matchFirstCommonSequence(name, strictMovieIdentifier);
-					if (strictCommonName != null && strictCommonName.length() >= strictMovieIdentifier.length()) {
+		List<CollationKey[]> names = HighPerformanceMatcher.prepare(files);
+
+		for (IndexEntry<Movie> movie : getMovieIndex()) {
+			for (CollationKey[] name : names) {
+				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, movie.lenientKey);
+				if (commonName != null && commonName.length >= movie.lenientKey.length) {
+					CollationKey[] strictCommonName = nameMatcher.matchFirstCommonSequence(name, movie.strictKey);
+					if (strictCommonName != null && strictCommonName.length >= movie.strictKey.length) {
 						// prefer strict match
-						matchMap.put(movie.getValue(), strictCommonName);
+						matchMap.put(movie.object, movie.strictName);
 					} else if (!strict) {
 						// make sure the common identifier is not just the year
-						matchMap.put(movie.getValue(), commonName);
+						matchMap.put(movie.object, movie.lenientName);
 					}
 				}
 			}
@@ -826,21 +829,20 @@ public class MediaDetection {
 		float similarityThreshold = strict ? 0.9f : 0.5f;
 
 		LinkedList<Movie> movies = new LinkedList<Movie>();
-		for (Entry<String, Movie> it : getMovieIndex()) {
-			String name = spacing.matcher(it.getKey()).replaceAll("").toLowerCase();
+		for (IndexEntry<Movie> it : getMovieIndex()) {
+			String name = spacing.matcher(it.lenientName).replaceAll("").toLowerCase();
 			for (String term : terms) {
 				if (term.contains(name)) {
-					String year = String.valueOf(it.getValue().getYear());
+					String year = String.valueOf(it.object.getYear());
 					if (term.contains(year) && metric.getSimilarity(term, name + year) > similarityThreshold) {
-						movies.addFirst(it.getValue());
+						movies.addFirst(it.object);
 					} else if (metric.getSimilarity(term, name) > similarityThreshold) {
-						movies.addLast(it.getValue());
+						movies.addLast(it.object);
 					}
 					break;
 				}
 			}
 		}
-
 		return new ArrayList<Movie>(movies);
 	}
 
@@ -1082,31 +1084,79 @@ public class MediaDetection {
 		return probableMatches;
 	}
 
+	public static class IndexEntry<T> implements Serializable {
+
+		private final T object;
+		private final String lenientName;
+		private final String strictName;
+		private final CollationKey[] lenientKey;
+		private final CollationKey[] strictKey;
+
+		public IndexEntry(T object, String lenientName, String strictName, CollationKey[] lenientKey, CollationKey[] strictKey) {
+			this.object = object;
+			this.lenientName = lenientName;
+			this.strictName = strictName;
+			this.lenientKey = lenientKey;
+			this.strictKey = strictKey;
+		}
+	}
+
 	/*
 	 * Heavy-duty name matcher used for matching a file to or more movies (out of a list of ~50k)
 	 */
 	private static class HighPerformanceMatcher extends CommonSequenceMatcher {
 
 		private static final Collator collator = getLenientCollator(Locale.ENGLISH);
+		private static final Pattern space = Pattern.compile("\\s+");
 
-		private static final Map<String, CollationKey[]> transformCache = synchronizedMap(new HashMap<String, CollationKey[]>(65536));
+		public static CollationKey[] prepare(String sequence) {
+			String[] words = space.split(normalizePunctuation(sequence));
+			CollationKey[] keys = new CollationKey[words.length];
+			for (int i = 0; i < words.length; i++) {
+				keys[i] = collator.getCollationKey(words[i]);
+			}
+			return keys;
+		}
+
+		public static List<CollationKey[]> prepare(Collection<String> sequences) {
+			List<CollationKey[]> result = new ArrayList<CollationKey[]>(sequences.size());
+			for (String it : sequences) {
+				result.add(prepare(it));
+			}
+			return result;
+		}
+
+		public static List<IndexEntry<Movie>> prepare(Movie m) {
+			List<String> effectiveNamesWithoutYear = m.getEffectiveNamesWithoutYear();
+			List<String> effectiveNames = m.getEffectiveNames();
+			List<IndexEntry<Movie>> index = new ArrayList<IndexEntry<Movie>>(effectiveNames.size());
+
+			for (int i = 0; i < effectiveNames.size(); i++) {
+				String lenientName = normalizePunctuation(effectiveNamesWithoutYear.get(i));
+				String strictName = normalizePunctuation(effectiveNames.get(i));
+				index.add(new IndexEntry<Movie>(m, lenientName, strictName, prepare(lenientName), prepare(strictName)));
+			}
+			return index;
+		}
+
+		public static List<IndexEntry<SearchResult>> prepare(SearchResult r) {
+			List<String> effectiveNames = r.getEffectiveNames();
+			List<IndexEntry<SearchResult>> index = new ArrayList<IndexEntry<SearchResult>>(effectiveNames.size());
+
+			for (int i = 0; i < effectiveNames.size(); i++) {
+				String lenientName = normalizePunctuation(effectiveNames.get(i));
+				index.add(new IndexEntry<SearchResult>(r, lenientName, null, prepare(lenientName), null));
+			}
+			return index;
+		}
 
 		public HighPerformanceMatcher(int maxStartIndex) {
 			super(collator, maxStartIndex, true);
 		}
 
 		@Override
-		protected CollationKey[] split(String sequence) {
-			CollationKey[] value = transformCache.get(sequence);
-			if (value == null) {
-				value = super.split(normalize(sequence));
-				transformCache.put(sequence, value);
-			}
-			return value;
-		}
-
-		public String normalize(String sequence) {
-			return normalizePunctuation(sequence); // only normalize punctuation, make sure we keep the year (important for movie matching)
+		public CollationKey[] split(String sequence) {
+			throw new UnsupportedOperationException("requires ahead-of-time collation");
 		}
 	}
 

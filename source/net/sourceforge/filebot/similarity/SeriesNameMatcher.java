@@ -48,7 +48,7 @@ public class SeriesNameMatcher {
 		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3, true) {
 
 			@Override
-			protected CollationKey[] split(String sequence) {
+			public CollationKey[] split(String sequence) {
 				return super.split(normalize(sequence));
 			}
 		};
