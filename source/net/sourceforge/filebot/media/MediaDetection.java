@@ -550,6 +550,13 @@ public class MediaDetection {
 		terms = new LinkedHashSet<String>(reduceMovieNamePermutations(terms));
 
 		List<Movie> movieNameMatches = matchMovieName(terms, true, 0);
+
+		// skip further queries if collected matches are already sufficient
+		if (movieNameMatches.size() > 0) {
+			options.addAll(movieNameMatches);
+			return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
+		}
+
 		if (movieNameMatches.isEmpty()) {
 			movieNameMatches = matchMovieName(terms, strict, 2);
 		}
@@ -752,7 +759,7 @@ public class MediaDetection {
 		if (movieIndex.isEmpty()) {
 			try {
 				for (Movie movie : releaseInfo.getMovieList()) {
-					for (String name : movie.getEffectiveNames()) {
+					for (String name : movie.getEffectiveNamesWithoutYear()) {
 						movieIndex.add(new SimpleEntry<String, Movie>(normalizePunctuation(name).toLowerCase(), movie));
 					}
 				}

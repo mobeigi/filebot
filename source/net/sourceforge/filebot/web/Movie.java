@@ -57,6 +57,10 @@ public class Movie extends SearchResult {
 		return names;
 	}
 
+	public List<String> getEffectiveNamesWithoutYear() {
+		return super.getEffectiveNames();
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof Movie) {
