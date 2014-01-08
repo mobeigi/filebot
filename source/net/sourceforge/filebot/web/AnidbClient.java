@@ -154,6 +154,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 	}
 
+	/**
+	 * This method is (and must be!) overridden by {@link WebServices.AnidbClientWithLocalSearch} to use our own anime index from sourceforge (as to not abuse anidb servers)
+	 */
 	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/anime-titles.dat.gz");
 		ResultCache cache = getCache();
