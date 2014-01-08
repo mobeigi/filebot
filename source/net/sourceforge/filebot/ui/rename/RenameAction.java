@@ -123,7 +123,7 @@ class RenameAction extends AbstractAction {
 						if (renameMap.containsKey(file) && meta != null) {
 							File destination = resolveDestination(file, renameMap.get(file), false);
 							if (destination.isFile()) {
-								MediaDetection.storeMetaInfo(destination, meta);
+								MediaDetection.storeMetaInfo(destination, meta, file.getName());
 							}
 						}
 					}

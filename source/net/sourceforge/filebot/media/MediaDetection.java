@@ -1249,7 +1249,7 @@ public class MediaDetection {
 		}
 	}
 
-	public static void storeMetaInfo(File file, Object model) {
+	public static void storeMetaInfo(File file, Object model, String original) {
 		// only for Episode / Movie objects
 		if ((model instanceof Episode || model instanceof Movie) && file.exists()) {
 			try {
@@ -1275,8 +1275,8 @@ public class MediaDetection {
 				// store original name and model as xattr
 				try {
 					xattr.setObject(model);
-					if (xattr.getOriginalName() == null) {
-						xattr.setOriginalName(file.getName());
+					if (xattr.getOriginalName() == null && original != null) {
+						xattr.setOriginalName(original);
 					}
 				} catch (Exception e) {
 					Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
