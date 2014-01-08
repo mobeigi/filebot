@@ -167,7 +167,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				// auto-detect series name if not given
 				if (query == null) {
 					// detect series name by common word sequence
-					seriesNames = detectSeriesNames(batch, locale, db != AniDB, db == AniDB);
+					seriesNames = detectSeriesNames(batch, db != AniDB, db == AniDB, locale);
 					CLILogger.config("Auto-detected query: " + seriesNames);
 				} else {
 					// use --q option
@@ -686,7 +686,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (query == null) {
 				try {
 					List<File> videoFiles = filter(files, VIDEO_FILES);
-					querySet.addAll(detectSeriesNames(videoFiles, language.getLocale(), true, false));
+					querySet.addAll(detectSeriesNames(videoFiles, true, false, language.getLocale()));
 
 					// auto-detect movie names
 					for (File f : videoFiles) {

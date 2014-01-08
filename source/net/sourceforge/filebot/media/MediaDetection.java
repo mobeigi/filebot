@@ -141,7 +141,7 @@ public class MediaDetection {
 
 		for (Entry<File, List<File>> it : filesByFolder.entrySet()) {
 			Set<String> namesForFolder = new TreeSet<String>(getLenientCollator(locale));
-			namesForFolder.addAll(detectSeriesNames(it.getValue(), locale, useSeriesIndex, useAnimeIndex));
+			namesForFolder.addAll(detectSeriesNames(it.getValue(), useSeriesIndex, useAnimeIndex, locale));
 
 			seriesNamesByFolder.put(it.getKey(), namesForFolder);
 		}
@@ -270,11 +270,7 @@ public class MediaDetection {
 		return match;
 	}
 
-	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
-		return detectSeriesNames(files, locale, true, true);
-	}
-
-	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
+	public static List<String> detectSeriesNames(Collection<File> files, boolean useSeriesIndex, boolean useAnimeIndex, Locale locale) throws Exception {
 		List<IndexEntry<SearchResult>> index = new ArrayList<IndexEntry<SearchResult>>();
 		if (useSeriesIndex)
 			index.addAll(getSeriesIndex());

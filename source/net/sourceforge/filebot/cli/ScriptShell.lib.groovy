@@ -229,8 +229,8 @@ def parseDate(path) {
 	return MediaDetection.parseDate(input)
 }
 
-def detectSeriesName(files, locale = Locale.ENGLISH) {
-	def names = MediaDetection.detectSeriesNames(files instanceof Collection ? files : [files as File], locale)
+def detectSeriesName(files, boolean useSeriesIndex = true, boolean useAnimeIndex = false, Locale locale = Locale.ENGLISH) {
+	def names = MediaDetection.detectSeriesNames(files instanceof Collection ? files : [files as File], useSeriesIndex, useAnimeIndex, locale)
 	return names == null || names.isEmpty() ? null : names.toList()[0]
 }
 
