@@ -128,6 +128,7 @@
 ^volume[0-9]?$
 ^Volumes$
 ^watch$
+^www$
 A.PROCESAR
 A.Release.Lounge
 ABC
@@ -309,7 +310,7 @@ video[s]?
 vo
 Volume.TB
 WS
-www[.][\w-.]+[.](com|net|tk|ro|cd|me|de)
+www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de)
 xbmc
 xRipp
 XtremeDoN

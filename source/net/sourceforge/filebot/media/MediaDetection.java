@@ -1124,6 +1124,11 @@ public class MediaDetection {
 			}
 			return strictKey;
 		}
+
+		@Override
+		public String toString() {
+			return strictName != null ? strictName : lenientName;
+		}
 	}
 
 	/*

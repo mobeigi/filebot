@@ -1,5 +1,5 @@
-import  org.tukaani.xz.*
-
+import org.tukaani.xz.*
+import net.sourceforge.filebot.media.*
 
 /* ------------------------------------------------------------------------- */
 
@@ -209,7 +209,7 @@ tvdb.values().each{ r ->
 
 def addSeriesAlias = { from, to ->
 	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
-	if (se == null) throw new Exception("Unabled to find series '${from}'")
+	if (se == null) throw new Exception("Unabled to find series '${from}': '${to}'")
 	thetvdb_index << [se[0], to]
 }
 
@@ -246,10 +246,11 @@ if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity fail
 def anidb = new net.sourceforge.filebot.web.AnidbClient('filebot', 4).getAnimeTitles()
 
 def anidb_index = anidb.findResults{
-	def row = []
-	row += it.getAnimeId().pad(5)
-	row += getNamePermutations(it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/))
-	return row
+	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
+	names = getNamePermutations(names)
+	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
+
+	return names.empty ? null : [it.getAnimeId().pad(5)] + names
 }
 
 // join and sort
