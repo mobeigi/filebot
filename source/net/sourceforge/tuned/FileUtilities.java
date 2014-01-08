@@ -100,6 +100,10 @@ public final class FileUtilities {
 
 	public static File createRelativeSymlink(File link, File target, boolean relativize) throws IOException {
 		if (relativize) {
+			// make sure we're working with the full path
+			link = link.getCanonicalFile();
+			target = target.getCanonicalFile();
+
 			try {
 				target = link.getParentFile().toPath().relativize(target.toPath()).toFile();
 			} catch (Throwable e) {

@@ -19,7 +19,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	private final Charset encoding;
 
 	public MetaAttributeView(File file) throws IOException {
-		Path path = file.toPath();
+		Path path = file.getCanonicalFile().toPath();
 		while (isSymbolicLink(path)) {
 			Path link = readSymbolicLink(path);
 			if (!link.isAbsolute()) {
