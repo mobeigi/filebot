@@ -134,14 +134,14 @@ public class MediaDetection {
 		return new DateMetric().parse(object);
 	}
 
-	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale) throws Exception {
+	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
 		// map series names by folder
 		Map<File, Set<String>> seriesNamesByFolder = new HashMap<File, Set<String>>();
 		Map<File, List<File>> filesByFolder = mapByFolder(files);
 
 		for (Entry<File, List<File>> it : filesByFolder.entrySet()) {
 			Set<String> namesForFolder = new TreeSet<String>(getLenientCollator(locale));
-			namesForFolder.addAll(detectSeriesNames(it.getValue(), locale));
+			namesForFolder.addAll(detectSeriesNames(it.getValue(), locale, useSeriesIndex, useAnimeIndex));
 
 			seriesNamesByFolder.put(it.getKey(), namesForFolder);
 		}
@@ -271,6 +271,20 @@ public class MediaDetection {
 	}
 
 	public static List<String> detectSeriesNames(Collection<File> files, Locale locale) throws Exception {
+		return detectSeriesNames(files, locale, true, true);
+	}
+
+	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
+		List<IndexEntry<SearchResult>> index = new ArrayList<IndexEntry<SearchResult>>();
+		if (useSeriesIndex)
+			index.addAll(getSeriesIndex());
+		if (useAnimeIndex)
+			index.addAll(getAnimeIndex());
+
+		return detectSeriesNames(files, locale, index);
+	}
+
+	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, List<IndexEntry<SearchResult>> seriesIndex) throws Exception {
 		List<String> names = new ArrayList<String>();
 
 		// try xattr metadata if enabled
@@ -400,16 +414,15 @@ public class MediaDetection {
 		return matches;
 	}
 
-	private static final List<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>(100000);
+	private static final ArrayList<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>(0);
 
 	public static List<IndexEntry<SearchResult>> getSeriesIndex() throws IOException {
 		synchronized (seriesIndex) {
 			if (seriesIndex.isEmpty()) {
+				seriesIndex.ensureCapacity(100000);
 				try {
-					for (SearchResult[] index : new SearchResult[][] { releaseInfo.getTheTVDBIndex(), releaseInfo.getAnidbIndex() }) {
-						for (SearchResult it : index) {
-							seriesIndex.addAll(HighPerformanceMatcher.prepare(it));
-						}
+					for (SearchResult it : releaseInfo.getTheTVDBIndex()) {
+						seriesIndex.addAll(HighPerformanceMatcher.prepare(it));
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
@@ -420,6 +433,28 @@ public class MediaDetection {
 				}
 			}
 			return seriesIndex;
+		}
+	}
+
+	private static final ArrayList<IndexEntry<SearchResult>> animeIndex = new ArrayList<IndexEntry<SearchResult>>(0);
+
+	public static List<IndexEntry<SearchResult>> getAnimeIndex() throws IOException {
+		synchronized (animeIndex) {
+			if (animeIndex.isEmpty()) {
+				animeIndex.ensureCapacity(50000);
+				try {
+					for (SearchResult it : releaseInfo.getAnidbIndex()) {
+						animeIndex.addAll(HighPerformanceMatcher.prepare(it));
+					}
+				} catch (Exception e) {
+					// can't load movie index, just try again next time
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load anime index: " + e.getMessage(), e);
+
+					// rely on online search
+					return emptyList();
+				}
+			}
+			return animeIndex;
 		}
 	}
 
@@ -755,11 +790,12 @@ public class MediaDetection {
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 
-	private static final List<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>(100000);
+	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>(0);
 
 	public static List<IndexEntry<Movie>> getMovieIndex() throws IOException {
 		synchronized (movieIndex) {
 			if (movieIndex.isEmpty()) {
+				movieIndex.ensureCapacity(100000);
 				try {
 					for (Movie it : releaseInfo.getMovieList()) {
 						movieIndex.addAll(HighPerformanceMatcher.prepare(it));

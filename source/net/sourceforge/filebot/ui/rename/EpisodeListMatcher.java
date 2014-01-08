@@ -50,11 +50,16 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	private final EpisodeListProvider provider;
 
+	private boolean useAnimeIndex;
+	private boolean useSeriesIndex;
+
 	// only allow one fetch session at a time so later requests can make use of cached results
 	private final Object providerLock = new Object();
 
-	public EpisodeListMatcher(EpisodeListProvider provider) {
+	public EpisodeListMatcher(EpisodeListProvider provider, boolean useSeriesIndex, boolean useAnimeIndex) {
 		this.provider = provider;
+		this.useSeriesIndex = useSeriesIndex;
+		this.useAnimeIndex = useAnimeIndex;
 	}
 
 	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, final Component parent) throws Exception {
@@ -180,7 +185,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
 
 		// detect series names and create episode list fetch tasks
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, useSeriesIndex, useAnimeIndex).entrySet()) {
 			final List<List<File>> batchSets = new ArrayList<List<File>>();
 			final Collection<String> queries = sameSeriesGroup.getValue();
 
@@ -265,7 +270,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		// require user input if auto-detection has failed or has been disabled
 		if (episodes.isEmpty()) {
-			List<String> detectedSeriesNames = detectSeriesNames(files, locale);
+			List<String> detectedSeriesNames = detectSeriesNames(files, locale, useSeriesIndex, useAnimeIndex);
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, ", ") : parentPathHint;
 

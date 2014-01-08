@@ -935,7 +935,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
 				// auto-detect series names
-				querySet.addAll(detectSeriesNames(files, Locale.ROOT));
+				querySet.addAll(detectSeriesNames(files, Locale.ROOT, true, false));
 
 				// auto-detect movie names
 				for (File f : files) {

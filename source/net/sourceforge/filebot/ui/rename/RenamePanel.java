@@ -288,8 +288,8 @@ public class RenamePanel extends JComponent {
 		actionPopup.addDescription(new JLabel("Episode Mode:"));
 
 		// create actions for match popup episode list completion
-		for (EpisodeListProvider provider : WebServices.getEpisodeListProviders()) {
-			actionPopup.add(new AutoCompleteAction(provider.getName(), provider.getIcon(), new EpisodeListMatcher(provider)));
+		for (EpisodeListProvider db : WebServices.getEpisodeListProviders()) {
+			actionPopup.add(new AutoCompleteAction(db.getName(), db.getIcon(), new EpisodeListMatcher(db, db != WebServices.AniDB, db == WebServices.AniDB)));
 		}
 
 		actionPopup.addSeparator();

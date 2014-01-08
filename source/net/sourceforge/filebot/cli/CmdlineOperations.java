@@ -41,7 +41,6 @@ import net.sourceforge.filebot.HistorySpooler;
 import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.RenameAction;
-import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.archive.FileMapper;
 import net.sourceforge.filebot.format.ExpressionFilter;
@@ -130,9 +129,9 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe > (max * 0.65) || cws > (max * 0.65)) {
-			return renameSeries(files, action, conflictAction, outputDir, format, WebServices.TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
+			return renameSeries(files, action, conflictAction, outputDir, format, TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, action, conflictAction, outputDir, format, WebServices.TMDb, query, filter, locale, strict); // use default movie db
+			return renameMovie(files, action, conflictAction, outputDir, format, TMDb, query, filter, locale, strict); // use default movie db
 		}
 	}
 
@@ -151,7 +150,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
 		// auto-determine optimal batch sets
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale).entrySet()) {
+		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, db != AniDB, db == AniDB).entrySet()) {
 			List<List<File>> batchSets = new ArrayList<List<File>>();
 
 			if (sameSeriesGroup.getValue() != null && sameSeriesGroup.getValue().size() > 0) {
@@ -168,7 +167,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				// auto-detect series name if not given
 				if (query == null) {
 					// detect series name by common word sequence
-					seriesNames = detectSeriesNames(batch, locale);
+					seriesNames = detectSeriesNames(batch, locale, db != AniDB, db == AniDB);
 					CLILogger.config("Auto-detected query: " + seriesNames);
 				} else {
 					// use --q option
@@ -663,7 +662,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// lookup subtitles by hash
-		for (VideoHashSubtitleService service : WebServices.getVideoHashSubtitleServices()) {
+		for (VideoHashSubtitleService service : getVideoHashSubtitleServices()) {
 			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
 				continue;
 			}
@@ -687,7 +686,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			if (query == null) {
 				try {
 					List<File> videoFiles = filter(files, VIDEO_FILES);
-					querySet.addAll(detectSeriesNames(videoFiles, language.getLocale()));
+					querySet.addAll(detectSeriesNames(videoFiles, language.getLocale(), true, false));
 
 					// auto-detect movie names
 					for (File f : videoFiles) {
@@ -708,7 +707,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				querySet.add(query);
 			}
 
-			for (SubtitleProvider service : WebServices.getSubtitleProviders()) {
+			for (SubtitleProvider service : getSubtitleProviders()) {
 				if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
 					continue;
 				}
