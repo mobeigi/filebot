@@ -546,8 +546,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("duration")
-	public Integer getDuration() {
-		return new Integer(getMediaInfo(StreamKind.General, 0, "Duration"));
+	public Float getDuration() {
+		return new Float(getMediaInfo(StreamKind.General, 0, "Duration"));
 	}
 
 	@Define("seconds")
