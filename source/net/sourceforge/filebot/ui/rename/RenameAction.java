@@ -77,26 +77,15 @@ class RenameAction extends AbstractAction {
 			}
 
 			Map<File, File> renameMap = checkRenamePlan(validate(model.getRenameMap(), window), window);
-			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
 			if (renameMap.isEmpty()) {
 				return;
 			}
 
 			// start processing
-			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			List<Match<Object, File>> matches = new ArrayList<Match<Object, File>>(model.matches());
+			StandardRenameAction action = (StandardRenameAction) getValue(RENAME_ACTION);
 
-			// first write all the metadata if xattr is enabled
-			if (useExtendedFileAttributes()) {
-				try {
-					for (Match<Object, File> match : model.matches()) {
-						if (renameMap.containsKey(match.getCandidate()) && match.getValue() != null) {
-							MediaDetection.storeMetaInfo(match.getCandidate(), match.getValue());
-						}
-					}
-				} catch (Throwable e) {
-					Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
-				}
-			}
+			window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 			if (useNativeShell() && isNativeActionSupported(action)) {
 				RenameJob renameJob = new NativeRenameJob(renameMap, NativeRenameAction.valueOf(action.name()));
@@ -122,6 +111,24 @@ class RenameAction extends AbstractAction {
 					// display progress dialog and stop blocking EDT
 					window.setCursor(Cursor.getDefaultCursor());
 					dialog.setVisible(true);
+				}
+			}
+
+			// write metadata into xattr if xattr is enabled
+			if (useExtendedFileAttributes()) {
+				try {
+					for (Match<Object, File> match : matches) {
+						File file = match.getCandidate();
+						Object meta = match.getValue();
+						if (renameMap.containsKey(file) && meta != null) {
+							File destination = resolveDestination(file, renameMap.get(file), false);
+							if (destination.isFile()) {
+								MediaDetection.storeMetaInfo(destination, meta);
+							}
+						}
+					}
+				} catch (Throwable e) {
+					Logger.getLogger(RenameAction.class.getName()).warning("Failed to write xattr: " + e.getMessage());
 				}
 			}
 		} catch (ExecutionException e) {

@@ -219,19 +219,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		// add matches from other files that are linked via filenames
 		matches.addAll(derivateMatches);
 
-		// first write all the metadata if xattr is enabled
-		if (useExtendedFileAttributes()) {
-			try {
-				for (Match<File, ?> match : matches) {
-					if (match.getCandidate() instanceof Episode) {
-						MediaDetection.storeMetaInfo(match.getValue(), match.getCandidate());
-					}
-				}
-			} catch (Throwable e) {
-				CLILogger.warning("Failed to write xattr: " + e.getMessage());
-			}
-		}
-
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
@@ -245,7 +232,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// rename episodes
 		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
-		return renameAll(renameMap, renameAction, conflictAction);
+		return renameAll(renameMap, renameAction, conflictAction, matches);
 	}
 
 	private List<Match<File, Object>> matchEpisodes(Collection<File> files, Collection<Episode> episodes, boolean strict) throws Exception {
@@ -475,19 +462,6 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		// first write all the metadata if xattr is enabled
-		if (useExtendedFileAttributes()) {
-			try {
-				for (Match<File, ?> match : matches) {
-					if (match.getCandidate() instanceof Movie) {
-						MediaDetection.storeMetaInfo(match.getValue(), match.getCandidate());
-					}
-				}
-			} catch (Throwable e) {
-				CLILogger.warning("Failed to write xattr: " + e.getMessage());
-			}
-		}
-
 		// map old files to new paths by applying formatting and validating filenames
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
@@ -501,7 +475,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// rename movies
 		Analytics.trackEvent("CLI", "Rename", "Movie", renameMap.size());
-		return renameAll(renameMap, renameAction, conflictAction);
+		return renameAll(renameMap, renameAction, conflictAction, matches);
 	}
 
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
@@ -538,7 +512,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// rename movies
 		Analytics.trackEvent("CLI", "Rename", "AudioTrack", renameMap.size());
-		return renameAll(renameMap, renameAction, conflictAction);
+		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
 	private Map<File, Object> getContext(final Collection<Match<File, ?>> matches) {
@@ -574,7 +548,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return newFile;
 	}
 
-	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction) throws Exception {
+	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
 		if (renameMap.isEmpty()) {
 			throw new Exception(format("[%s] Unable to process any files", renameAction));
 		}
@@ -628,6 +602,24 @@ public class CmdlineOperations implements CmdlineInterface {
 
 				// printer number of renamed files if any
 				CLILogger.fine(format("Processed %d files", renameLog.size()));
+			}
+		}
+
+		// write metadata into xattr if xattr is enabled
+		if (matches != null && useExtendedFileAttributes()) {
+			try {
+				for (Match<File, ?> match : matches) {
+					File file = match.getValue();
+					Object meta = match.getCandidate();
+					if (renameMap.containsKey(file) && meta != null) {
+						File destination = resolveDestination(file, renameMap.get(file), false);
+						if (destination.isFile()) {
+							MediaDetection.storeMetaInfo(destination, meta);
+						}
+					}
+				}
+			} catch (Throwable e) {
+				CLILogger.warning("Failed to write xattr: " + e.getMessage());
 			}
 		}
 

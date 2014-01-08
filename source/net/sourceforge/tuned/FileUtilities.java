@@ -71,7 +71,7 @@ public final class FileUtilities {
 		} else {
 			// copy file
 			try {
-				java.nio.file.Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				java.nio.file.Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 			} catch (LinkageError e) {
 				org.apache.commons.io.FileUtils.copyFile(source, destination);
 			}
