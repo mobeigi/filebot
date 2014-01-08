@@ -540,6 +540,11 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("bitrate")
+	public Float getBitRate() {
+		return new Float(getMediaInfo(StreamKind.General, 0, "OverallBitRate"));
+	}
+
 	@Define("duration")
 	public Integer getDuration() {
 		return new Integer(getMediaInfo(StreamKind.General, 0, "Duration"));
