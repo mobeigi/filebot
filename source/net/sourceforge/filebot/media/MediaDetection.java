@@ -1252,35 +1252,38 @@ public class MediaDetection {
 	public static void storeMetaInfo(File file, Object model) {
 		// only for Episode / Movie objects
 		if ((model instanceof Episode || model instanceof Movie) && file.exists()) {
-			MetaAttributes xattr = new MetaAttributes(file);
-
-			// set creation date to episode / movie release date
 			try {
-				if (model instanceof Episode) {
-					Episode episode = (Episode) model;
-					if (episode.getAirdate() != null) {
-						xattr.setCreationDate(episode.getAirdate().getTimeStamp());
-					}
-				} else if (model instanceof Movie) {
-					Movie movie = (Movie) model;
-					if (movie.getYear() > 0) {
-						xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
-					}
-				}
-			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
-			}
+				MetaAttributes xattr = new MetaAttributes(file);
 
-			// store original name and model as xattr
-			try {
-				xattr.setObject(model);
-				if (xattr.getOriginalName() == null) {
-					xattr.setOriginalName(file.getName());
+				// set creation date to episode / movie release date
+				try {
+					if (model instanceof Episode) {
+						Episode episode = (Episode) model;
+						if (episode.getAirdate() != null) {
+							xattr.setCreationDate(episode.getAirdate().getTimeStamp());
+						}
+					} else if (model instanceof Movie) {
+						Movie movie = (Movie) model;
+						if (movie.getYear() > 0) {
+							xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
+						}
+					}
+				} catch (Exception e) {
+					Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 				}
-			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
-			}
 
+				// store original name and model as xattr
+				try {
+					xattr.setObject(model);
+					if (xattr.getOriginalName() == null) {
+						xattr.setOriginalName(file.getName());
+					}
+				} catch (Exception e) {
+					Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
+				}
+			} catch (Throwable t) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning(t.toString());
+			}
 		}
 	}
 }
