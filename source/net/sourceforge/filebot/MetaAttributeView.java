@@ -21,7 +21,11 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	public MetaAttributeView(File file) throws IOException {
 		Path path = file.toPath();
 		while (isSymbolicLink(path)) {
-			path = readSymbolicLink(path);
+			Path link = readSymbolicLink(path);
+			if (!link.isAbsolute()) {
+				link = path.getParent().resolve(link);
+			}
+			path = link;
 		}
 
 		attributeView = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
