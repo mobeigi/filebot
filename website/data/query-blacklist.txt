@@ -111,6 +111,7 @@
 ^test$
 ^testdata$
 ^tmp$
+^to$
 ^Torrent$
 ^Torrents$
 ^Tracker$

@@ -409,15 +409,15 @@ public class Main {
 					MediaDetection.getClutterFileFilter();
 					MediaDetection.getDiskFolderFilter();
 
+					Collection<File> empty = Collections.emptyList();
+					MediaDetection.matchSeriesByDirectMapping(empty);
+
 					// pre-load movie/series index
 					List<String> dummy = Collections.singletonList("");
 					MediaDetection.stripReleaseInfo(dummy, true);
-					MediaDetection.matchSeriesByName(dummy, -1);
+					MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
+					MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
 					MediaDetection.matchMovieName(dummy, true, -1);
-
-					Collection<File> empty = Collections.emptyList();
-					MediaDetection.matchSeriesByDirectMapping(empty);
-					WebServices.TheTVDB.getLocalIndex();
 				} catch (Exception e) {
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 				}

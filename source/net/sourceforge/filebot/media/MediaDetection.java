@@ -280,7 +280,7 @@ public class MediaDetection {
 		return detectSeriesNames(files, locale, index);
 	}
 
-	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, List<IndexEntry<SearchResult>> seriesIndex) throws Exception {
+	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, List<IndexEntry<SearchResult>> index) throws Exception {
 		List<String> names = new ArrayList<String>();
 
 		// try xattr metadata if enabled
@@ -327,12 +327,12 @@ public class MediaDetection {
 			}
 
 			// check foldernames first
-			List<String> matches = matchSeriesByName(folders, 0);
+			List<String> matches = matchSeriesByName(folders, 0, index);
 
 			// check all filenames if necessary
 			if (matches.isEmpty()) {
-				matches.addAll(matchSeriesByName(filenames, 0));
-				matches.addAll(matchSeriesByName(stripReleaseInfo(filenames, false), 0));
+				matches.addAll(matchSeriesByName(filenames, 0, index));
+				matches.addAll(matchSeriesByName(stripReleaseInfo(filenames, false), 0, index));
 			}
 
 			// use lenient sub sequence matching only as fallback and try name without spacing logic that may mess up any lookup
@@ -348,13 +348,13 @@ public class MediaDetection {
 						sns.set(i, sn);
 					}
 				}
-				for (SearchResult it : matchSeriesFromStringWithoutSpacing(stripReleaseInfo(sns, false), true)) {
+				for (SearchResult it : matchSeriesFromStringWithoutSpacing(stripReleaseInfo(sns, false), true, index)) {
 					matches.add(it.getName());
 				}
 
 				// less reliable CWS deep matching
-				matches.addAll(matchSeriesByName(folders, 2));
-				matches.addAll(matchSeriesByName(filenames, 2));
+				matches.addAll(matchSeriesByName(folders, 2, index));
+				matches.addAll(matchSeriesByName(filenames, 2, index));
 
 				// pass along only valid terms
 				names.addAll(stripBlacklistedTerms(matches));
@@ -454,7 +454,7 @@ public class MediaDetection {
 		}
 	}
 
-	public static List<String> matchSeriesByName(Collection<String> files, int maxStartIndex) throws Exception {
+	public static List<String> matchSeriesByName(Collection<String> files, int maxStartIndex, List<IndexEntry<SearchResult>> index) throws Exception {
 		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
 		List<String> matches = new ArrayList<String>();
 
@@ -462,7 +462,7 @@ public class MediaDetection {
 
 		for (CollationKey[] name : names) {
 			IndexEntry<SearchResult> bestMatch = null;
-			for (IndexEntry<SearchResult> it : getSeriesIndex()) {
+			for (IndexEntry<SearchResult> it : index) {
 				CollationKey[] commonName = nameMatcher.matchFirstCommonSequence(name, it.getLenientKey());
 				if (commonName != null && commonName.length >= it.getLenientKey().length && (bestMatch == null || commonName.length > bestMatch.getLenientKey().length)) {
 					bestMatch = it;
@@ -485,7 +485,7 @@ public class MediaDetection {
 		return matches;
 	}
 
-	public static List<SearchResult> matchSeriesFromStringWithoutSpacing(Collection<String> names, boolean strict) throws IOException {
+	public static List<SearchResult> matchSeriesFromStringWithoutSpacing(Collection<String> names, boolean strict, List<IndexEntry<SearchResult>> index) throws IOException {
 		// clear name of punctuation, spacing, and leading 'The' or 'A' that are common causes for word-lookup to fail
 		Pattern spacing = Pattern.compile("(^(?i)(The|A)\\b)|[\\p{Punct}\\p{Space}]+");
 
@@ -502,7 +502,7 @@ public class MediaDetection {
 		float similarityThreshold = strict ? 0.75f : 0.5f;
 
 		List<SearchResult> seriesList = new ArrayList<SearchResult>();
-		for (IndexEntry<SearchResult> it : getSeriesIndex()) {
+		for (IndexEntry<SearchResult> it : index) {
 			String name = spacing.matcher(it.getLenientName()).replaceAll("").toLowerCase();
 			for (String term : terms) {
 				if (term.contains(name)) {

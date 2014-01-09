@@ -180,6 +180,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		typeOrder.add("1");
 		typeOrder.add("4");
 		typeOrder.add("2");
+		typeOrder.add("3");
 
 		// fetch data
 		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
@@ -196,15 +197,18 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					String title = matcher.group(4);
 
 					if (aid > 0 && title.length() > 0 && typeOrder.contains(type) && languageOrder.contains(language)) {
+						// resolve HTML entities
+						title = Jsoup.parse(title).text();
+
+						if (type.equals("3") && (title.length() < 5 || !Character.isUpperCase(title.charAt(0)) || Character.isUpperCase(title.charAt(title.length() - 1)))) {
+							continue;
+						}
+
 						List<Object[]> names = entriesByAnime.get(aid);
 						if (names == null) {
 							names = new ArrayList<Object[]>();
 							entriesByAnime.put(aid, names);
 						}
-
-						// resolve HTML entities
-						title = Jsoup.parse(title).text();
-
 						names.add(new Object[] { typeOrder.indexOf(type), languageOrder.indexOf(language), title });
 					}
 				}
