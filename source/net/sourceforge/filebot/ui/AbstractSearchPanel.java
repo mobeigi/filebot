@@ -8,10 +8,11 @@ import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,13 +33,11 @@ import javax.swing.event.ChangeListener;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.ListChangeSynchronizer;
 import net.sourceforge.tuned.ui.LabelProvider;
+import net.sourceforge.tuned.ui.SelectButton;
 import ca.odell.glazedlists.BasicEventList;
-import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;
 
@@ -52,7 +51,7 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 	protected final SelectButtonTextField<S> searchTextField = new SelectButtonTextField<S>();
 
-	protected final EventList<String> searchHistory = createSearchHistory();
+	protected final BasicEventList<String> searchHistory = new BasicEventList<String>(100000);
 
 	public AbstractSearchPanel() {
 		historyPanel.setColumnHeader(2, "Duration");
@@ -74,6 +73,35 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		searchTextField.getSelectButton().setModel(Arrays.asList(getSearchEngines()));
 		searchTextField.getSelectButton().setLabelProvider(getSearchEngineLabelProvider());
 
+		searchTextField.getSelectButton().addPropertyChangeListener(SelectButton.SELECTED_VALUE, new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				new SwingWorker<Collection<String>, Void>() {
+
+					private final S engine = searchTextField.getSelectButton().getSelectedValue();
+
+					@Override
+					protected Collection<String> doInBackground() throws Exception {
+						return getHistory(engine);
+					}
+
+					@Override
+					protected void done() {
+						if (engine == searchTextField.getSelectButton().getSelectedValue()) {
+							try {
+								searchHistory.clear();
+								searchHistory.addAll(get());
+							} catch (Exception e) {
+								Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+							}
+						}
+
+					};
+				}.execute();
+			}
+		});
+
 		try {
 			// restore selected subtitle client
 			searchTextField.getSelectButton().setSelectedIndex(Integer.parseInt(getSettings().get("engine.selected", "0")));
@@ -91,9 +119,17 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			}
 		});
 
-		AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory).setFilterMode(TextMatcherEditor.CONTAINS);
+		// high-performance auto-completion
+		AutoCompleteSupport<String> acs = AutoCompleteSupport.install(searchTextField.getEditor(), searchHistory);
+		acs.setTextMatchingStrategy(TextMatcherEditor.IDENTICAL_STRATEGY);
+		acs.setFilterMode(TextMatcherEditor.CONTAINS);
+		acs.setCorrectsCase(true);
+		acs.setStrict(false);
+
 		installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), searchAction);
 	}
+
+	protected abstract Collection<String> getHistory(S engine) throws Exception;
 
 	protected abstract S[] getSearchEngines();
 
@@ -116,23 +152,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 		// search in background
 		new SearchTask(requestProcessor).execute();
-	}
-
-	protected EventList<String> createSearchHistory() {
-		// create in-memory history
-		BasicEventList<String> history = new BasicEventList<String>();
-
-		// get the preferences node that contains the history entries
-		// and get a StringList that read and writes directly from and to the preferences
-		List<String> persistentHistory = getSettings().node("history").asList();
-
-		// add history from the preferences to the current in-memory history (for completion)
-		history.addAll(persistentHistory);
-
-		// perform all insert/add/remove operations on the in-memory history on the preferences node as well
-		ListChangeSynchronizer.syncEventListToList(history, persistentHistory);
-
-		return history;
 	}
 
 	private final AbstractAction searchAction = new AbstractAction("Find", ResourceManager.getIcon("action.find")) {
@@ -199,12 +218,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 				// set search result
 				requestProcessor.setSearchResult(selectedSearchResult);
-
-				String historyEntry = requestProcessor.getHistoryEntry();
-
-				if (historyEntry != null && !searchHistory.contains(historyEntry)) {
-					searchHistory.add(historyEntry);
-				}
 
 				tab.setTitle(requestProcessor.getTitle());
 
@@ -330,14 +343,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 			return request.getSearchText();
 		}
 
-		public String getHistoryEntry() {
-			SeriesNameMatcher nameMatcher = new SeriesNameMatcher();
-
-			// the common word sequence of query and search result
-			// common name will maintain the exact word characters (incl. case) of the first argument
-			return nameMatcher.matchByFirstCommonWordSequence(searchResult.getName(), request.getSearchText());
-		}
-
 		public Icon getIcon() {
 			return null;
 		}
@@ -362,7 +367,6 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 		public long getDuration() {
 			return duration;
 		}
-
 	}
 
 }

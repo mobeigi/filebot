@@ -125,7 +125,7 @@
 ^Video$
 ^VIDEO_TS$
 ^Videos$
-^volume[0-9]?$
+^volume\D?\d?$
 ^Volumes$
 ^watch$
 ^www$

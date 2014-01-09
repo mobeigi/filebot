@@ -17,6 +17,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -32,13 +33,16 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.similarity.Normalization;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
-import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
@@ -136,6 +140,19 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			super.paintComponent(g2d);
 			g2d.dispose();
 		}
+	};
+
+	protected Collection<String> getHistory(SubtitleProvider engine) throws Exception {
+		final List<String> names = new ArrayList<String>(200000);
+		for (Movie it : MediaDetection.releaseInfo.getMovieList()) {
+			names.addAll(it.getEffectiveNamesWithoutYear());
+		}
+		for (SearchResult it : MediaDetection.releaseInfo.getTheTVDBIndex()) {
+			for (String n : it.getEffectiveNames()) {
+				names.add(Normalization.removeTrailingBrackets(n));
+			}
+		}
+		return new TreeSet<String>(names);
 	};
 
 	@Override

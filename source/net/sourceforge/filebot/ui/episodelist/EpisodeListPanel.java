@@ -13,10 +13,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -26,13 +28,15 @@ import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
 import net.sourceforge.filebot.Analytics;
+import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.similarity.Normalization;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.FileBotTab;
-import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
@@ -75,6 +79,18 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.SHIFT_MASK), new SpinSeasonAction(1));
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.SHIFT_MASK), new SpinSeasonAction(-1));
+	}
+
+	@Override
+	protected Collection<String> getHistory(EpisodeListProvider engine) throws Exception {
+		final List<String> names = new ArrayList<String>(100000);
+		final SearchResult[] index = (engine == WebServices.AniDB) ? MediaDetection.releaseInfo.getAnidbIndex() : MediaDetection.releaseInfo.getTheTVDBIndex();
+		for (SearchResult it : index) {
+			for (String n : it.getEffectiveNames()) {
+				names.add(Normalization.removeTrailingBrackets(n));
+			}
+		}
+		return new TreeSet<String>(names);
 	}
 
 	@Override

@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.filebot.Language;
+
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
@@ -167,6 +169,10 @@ public class ArgumentBean {
 
 	public Locale getLocale() {
 		return new Locale(lang);
+	}
+
+	public Language getLanguage() {
+		return Language.findLanguage(lang);
 	}
 
 	public Level getLogLevel() {

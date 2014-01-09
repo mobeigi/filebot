@@ -76,6 +76,7 @@ def getNamePermutations(names) {
 		res = res.findResults{ fn(it) }
 	}
 	out += res
+	out = out.findAll{ it.length() >= 2 && !(it =~ /^[a-z]/) && it =~ /^[.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }.toList()
 	out = out.size() <= 4 ? out : out.subList(0, 4)
 	return out

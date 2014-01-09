@@ -155,7 +155,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	/**
-	 * This method is (and must be!) overridden by {@link WebServices.AnidbClientWithLocalSearch} to use our own anime index from sourceforge (as to not abuse anidb servers)
+	 * This method is (and must be!) overridden by WebServices.AnidbClientWithLocalSearch to use our own anime index from sourceforge (as to not abuse anidb servers)
 	 */
 	public synchronized List<AnidbSearchResult> getAnimeTitles() throws Exception {
 		URL url = new URL("http", host, "/api/anime-titles.dat.gz");
@@ -176,6 +176,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		languageOrder.add("en");
 		languageOrder.add("ja");
 
+		List<String> typeOrder = new ArrayList<String>();
+		typeOrder.add("1");
+		typeOrder.add("4");
+		typeOrder.add("2");
+
 		// fetch data
 		Map<Integer, List<Object[]>> entriesByAnime = new HashMap<Integer, List<Object[]>>(65536);
 
@@ -190,7 +195,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 					String language = matcher.group(3);
 					String title = matcher.group(4);
 
-					if (aid > 0 && title.length() > 0 && languageOrder.contains(language)) {
+					if (aid > 0 && title.length() > 0 && typeOrder.contains(type) && languageOrder.contains(language)) {
 						List<Object[]> names = entriesByAnime.get(aid);
 						if (names == null) {
 							names = new ArrayList<Object[]>();
@@ -200,7 +205,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 						// resolve HTML entities
 						title = Jsoup.parse(title).text();
 
-						names.add(new Object[] { Integer.parseInt(type), languageOrder.indexOf(language), title });
+						names.add(new Object[] { typeOrder.indexOf(type), languageOrder.indexOf(language), title });
 					}
 				}
 			}
