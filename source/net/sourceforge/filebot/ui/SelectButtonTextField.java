@@ -108,7 +108,11 @@ public class SelectButtonTextField<T> extends JComponent {
 			StringBuffer htmlText = new StringBuffer("<html><nobr>");
 
 			if (matcher.find()) {
-				matcher.appendReplacement(htmlText, "<span style='font-weight: bold; text-decoration: underline;'>$0</span>");
+				if (isSelected) {
+					matcher.appendReplacement(htmlText, "<span style='font-weight: bold;'>$0</span>");
+				} else {
+					matcher.appendReplacement(htmlText, "<span style='color: " + TunedUtilities.toHex(list.getSelectionBackground()) + "; font-weight: bold;'>$0</span>");
+				}
 			}
 
 			matcher.appendTail(htmlText);

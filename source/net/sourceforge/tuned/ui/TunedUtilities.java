@@ -71,6 +71,10 @@ public final class TunedUtilities {
 		return new Color(((int) ((alpha * 255)) << 24) | (color.getRGB() & 0x00FFFFFF), true);
 	}
 
+	public static String toHex(Color c) {
+		return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+	}
+
 	public static boolean isShiftOrAltDown(ActionEvent evt) {
 		return checkModifiers(evt.getModifiers(), ActionEvent.SHIFT_MASK) || checkModifiers(evt.getModifiers(), ActionEvent.ALT_MASK);
 	}

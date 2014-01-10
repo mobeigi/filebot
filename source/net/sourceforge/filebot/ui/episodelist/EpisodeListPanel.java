@@ -90,7 +90,10 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 				names.add(Normalization.removeTrailingBrackets(n));
 			}
 		}
-		return new TreeSet<String>(names);
+
+		TreeSet<String> treeSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		treeSet.addAll(names);
+		return treeSet;
 	}
 
 	@Override
