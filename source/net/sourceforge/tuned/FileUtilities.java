@@ -471,7 +471,7 @@ public final class FileUtilities {
 	 */
 	public static String validateFileName(CharSequence filename) {
 		// strip invalid characters from file name
-		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("").trim();
+		return ILLEGAL_CHARACTERS.matcher(filename).replaceAll("").replaceAll("\\s+", " ").trim();
 	}
 
 	public static boolean isInvalidFileName(CharSequence filename) {
