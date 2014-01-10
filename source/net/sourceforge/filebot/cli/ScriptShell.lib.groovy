@@ -47,6 +47,7 @@ File.metaClass.validateFilePath = { validateFilePath(delegate) }
 File.metaClass.moveTo = { f -> moveRename(delegate, f as File) }
 File.metaClass.copyTo = { dir -> copyAs(delegate, new File(dir, delegate.getName())) }
 File.metaClass.getXattr = { new net.sourceforge.filebot.MetaAttributeView(delegate) }
+File.metaClass.relativize = { f -> delegate.canonicalFile.toPath().relativize(f.canonicalFile.toPath()).toFile() }
 List.metaClass.mapByFolder = { mapByFolder(delegate) }
 List.metaClass.mapByExtension = { mapByExtension(delegate) }
 String.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate) }
