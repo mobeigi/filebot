@@ -20,6 +20,7 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -140,10 +141,12 @@ public final class TunedUtilities {
 			return emptyList();
 		}
 
-		for (char separator : new char[] { '|', ';', ',' }) {
+		for (char separator : new char[] { '|', ';' }) {
 			if (input.indexOf(separator) >= 0) {
 				List<String> values = new ArrayList<String>();
-				for (String field : input.split(Character.toString(separator))) {
+				for (String field : input.split(Pattern.quote(Character.toString(separator)))) {
+					field = field.trim();
+
 					if (field.length() > 0) {
 						values.add(field);
 					}
@@ -167,7 +170,7 @@ public final class TunedUtilities {
 			public void run() {
 				Object value = JOptionPane.showInputDialog(parent, text, title, PLAIN_MESSAGE, null, null, initialValue);
 				if (value != null) {
-					buffer.append(value);
+					buffer.append(value.toString().trim());
 				}
 			}
 		};

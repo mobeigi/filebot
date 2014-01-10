@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +66,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 
 	@Override
 	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
+		if (files.isEmpty()) {
+			return justFetchMovieInfo(locale, parent);
+		}
+
 		// ignore sample files
 		List<File> fileset = filter(files, not(getClutterFileFilter()));
 
@@ -412,4 +417,25 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		selectionMemory.put(fileQuery, showSelectDialog.get());
 		return showSelectDialog.get();
 	}
+
+	public List<Match<File, ?>> justFetchMovieInfo(final Locale locale, final Component parent) throws Exception {
+		// require user input
+		String input = showInputDialog("Enter movie name:", "", "Fetch Movie Info", parent);
+
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+		if (input != null && input.length() > 0) {
+			Collection<Movie> results = new LinkedHashSet<Movie>();
+			results.addAll(service.searchMovie(input, locale));
+			results.addAll(matchMovieName(singleton(input), false, 2));
+
+			// improve ranking
+			results = sortBySimilarity(results, singleton(input), getMovieMatchMetric(), false);
+
+			for (Movie it : results) {
+				matches.add(new Match<File, Movie>(null, it));
+			}
+		}
+		return matches;
+	}
+
 }

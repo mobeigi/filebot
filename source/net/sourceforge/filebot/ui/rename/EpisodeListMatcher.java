@@ -171,6 +171,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 	@Override
 	public List<Match<File, ?>> match(List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
+		if (files.isEmpty()) {
+			return justFetchEpisodeList(sortOrder, locale, parent);
+		}
+
 		// ignore sample files
 		final List<File> fileset = filter(files, not(getClutterFileFilter()));
 
@@ -304,4 +308,21 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 		return matches;
 	}
+
+	public List<Match<File, ?>> justFetchEpisodeList(final SortOrder sortOrder, final Locale locale, final Component parent) throws Exception {
+		// require user input
+		String input = showInputDialog("Enter series name:", "", "Fetch Episode List", parent);
+
+		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
+		if (input != null && input.length() > 0) {
+			synchronized (providerLock) {
+				Set<Episode> episodes = fetchEpisodeSet(singleton(input), sortOrder, locale, new HashMap<String, SearchResult>(), parent);
+				for (Episode it : episodes) {
+					matches.add(new Match<File, Episode>(null, it));
+				}
+			}
+		}
+		return matches;
+	}
+
 }

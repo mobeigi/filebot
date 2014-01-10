@@ -261,7 +261,7 @@ public class RenamePanel extends JComponent {
 							showFormatEditor(sample);
 						}
 					} catch (Exception e) {
-						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
 					} finally {
 						getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 					}
@@ -546,11 +546,6 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(final ActionEvent evt) {
-			if (renameModel.files().isEmpty()) {
-				UILogger.info("Original Files is empty. Please add some files first.");
-				return;
-			}
-
 			// clear names list
 			renameModel.values().clear();
 
