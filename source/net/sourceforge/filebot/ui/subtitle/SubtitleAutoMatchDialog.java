@@ -93,7 +93,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 	public SubtitleAutoMatchDialog(Window owner) {
 		super(owner, "Download Subtitles", ModalityType.DOCUMENT_MODAL);
-		preferredSubtitleNaming.setSelectedItem(SubtitleNaming.MATCH_VIDEO);
+		preferredSubtitleNaming.setSelectedItem(SubtitleNaming.MATCH_VIDEO_ADD_LANGUAGE_TAG);
 
 		JComponent content = (JComponent) getContentPane();
 		content.setLayout(new MigLayout("fill, insets dialog, nogrid", "", "[fill][pref!]"));

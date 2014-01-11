@@ -43,7 +43,7 @@ public enum SubtitleNaming {
 
 		@Override
 		public String toString() {
-			return "By Video/Language";
+			return "Match Video and Language";
 		}
 	};
 

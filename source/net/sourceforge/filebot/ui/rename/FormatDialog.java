@@ -238,7 +238,7 @@ public class FormatDialog extends JDialog {
 
 		if (locked) {
 			this.setTitle(String.format("%s Format", mode));
-			title.setText(String.format("%s Format - %s ⇔ %s", mode, bindings.getInfoObject(), bindings.getMediaFile() == null ? null : bindings.getMediaFile().getName()));
+			title.setText(String.format("%s ⇔ %s", mode, bindings.getInfoObject(), bindings.getMediaFile() == null ? null : bindings.getMediaFile().getName()));
 		} else {
 			this.setTitle(String.format("%s Format", mode));
 			title.setText(String.format("%s Format", mode));
