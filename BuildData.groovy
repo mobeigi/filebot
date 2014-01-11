@@ -70,14 +70,17 @@ def getNamePermutations(names) {
 	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
 	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
-	def out = new LinkedHashSet(names*.trim())
+	def out = new LinkedHashSet(names*.trim()).toList()
 	def res = out
 	[fn1, fn2, fn3].each{ fn ->
 		res = res.findResults{ fn(it) }
 	}
 	out += res
+	
 	out = out.findAll{ it.length() >= 2 && !(it =~ /^[a-z]/) && it =~ /^[.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
-	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }.toList()
+	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
+	
+	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
 	out = out.size() <= 4 ? out : out.subList(0, 4)
 	return out
 }

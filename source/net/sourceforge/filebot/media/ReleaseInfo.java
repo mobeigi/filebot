@@ -209,7 +209,7 @@ public class ReleaseInfo {
 		if (structureRootFolderPattern == null) {
 			List<String> folders = new ArrayList<String>();
 			for (String it : queryBlacklistResource.get()) {
-				if (it.startsWith("^")) {
+				if (it.startsWith("^") && it.endsWith("$")) {
 					folders.add(it);
 				}
 			}
