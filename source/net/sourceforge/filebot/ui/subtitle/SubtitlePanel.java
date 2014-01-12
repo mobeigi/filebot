@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -152,10 +151,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 				names.add(Normalization.removeTrailingBrackets(n));
 			}
 		}
-
-		TreeSet<String> treeSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		treeSet.addAll(names);
-		return treeSet;
+		return names;
 	};
 
 	@Override

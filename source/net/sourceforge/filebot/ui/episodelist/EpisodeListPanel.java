@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -90,10 +89,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 				names.add(Normalization.removeTrailingBrackets(n));
 			}
 		}
-
-		TreeSet<String> treeSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-		treeSet.addAll(names);
-		return treeSet;
+		return names;
 	}
 
 	@Override

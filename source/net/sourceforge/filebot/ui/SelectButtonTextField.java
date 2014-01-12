@@ -47,9 +47,10 @@ public class SelectButtonTextField<T> extends JComponent {
 		add(selectButton, "h pref!, w pref!, sizegroupy this");
 		add(editor, "gap 0, w 195px!, sizegroupy this");
 
-		editor.setRenderer(new CompletionCellRenderer());
 		editor.setPrototypeDisplayValue("X");
+		editor.setRenderer(new CompletionCellRenderer());
 		editor.setUI(new TextFieldComboBoxUI());
+		editor.setMaximumRowCount(10);
 
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
 		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_MASK), new SpinClientAction(1));
@@ -170,6 +171,7 @@ public class SelectButtonTextField<T> extends JComponent {
 
 			});
 
+			// massive performance boost for list rendering is cell height is fixed
 			popup.getList().setPrototypeCellValue("X");
 		}
 

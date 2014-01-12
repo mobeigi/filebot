@@ -13,6 +13,7 @@ import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,7 +84,9 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 
 					@Override
 					protected Collection<String> doInBackground() throws Exception {
-						return getHistory(engine);
+						TreeSet<String> set = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+						set.addAll(getHistory(engine));
+						return set;
 					}
 
 					@Override
