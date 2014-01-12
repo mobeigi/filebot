@@ -218,17 +218,13 @@ public class Main {
 
 			// pre-load media.types and JNA/GIO (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
+
 			if (useGVFS()) {
 				try {
 					GVFS.getDefaultVFS();
 				} catch (Throwable e) {
 					Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 				}
-			}
-
-			// pre-load certain resources in the background
-			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
-				warmupCachedResources();
 			}
 
 			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
@@ -238,6 +234,11 @@ public class Main {
 				} catch (Exception e) {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
 				}
+			}
+
+			// pre-load certain resources in the background
+			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
+				warmupCachedResources();
 			}
 		} catch (Exception e) {
 			// illegal arguments => just print CLI error message and stop
@@ -400,34 +401,23 @@ public class Main {
 	}
 
 	private static void warmupCachedResources() {
-		Thread warmup = new Thread("warmupCachedResources") {
+		try {
+			// pre-load filter data
+			MediaDetection.getClutterFileFilter();
+			MediaDetection.getDiskFolderFilter();
 
-			@Override
-			public void run() {
-				try {
-					// pre-load filter data
-					MediaDetection.getClutterFileFilter();
-					MediaDetection.getDiskFolderFilter();
+			Collection<File> empty = Collections.emptyList();
+			MediaDetection.matchSeriesByDirectMapping(empty);
 
-					Collection<File> empty = Collections.emptyList();
-					MediaDetection.matchSeriesByDirectMapping(empty);
-
-					// pre-load movie/series index
-					List<String> dummy = Collections.singletonList("");
-					MediaDetection.stripReleaseInfo(dummy, true);
-					MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
-					MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
-					MediaDetection.matchMovieName(dummy, true, -1);
-				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-				}
-			}
-		};
-
-		// start background thread
-		warmup.setDaemon(true);
-		warmup.setPriority(Thread.MIN_PRIORITY);
-		warmup.start();
+			// pre-load movie/series index
+			List<String> dummy = Collections.singletonList("");
+			MediaDetection.stripReleaseInfo(dummy, true);
+			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
+			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
+			MediaDetection.matchMovieName(dummy, true, -1);
+		} catch (Exception e) {
+			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
 	}
 
 	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
