@@ -461,9 +461,12 @@ public class Main {
 				}
 
 				final File lockFile = new File(cache, ".lock");
+				boolean isNewCache = !lockFile.exists();
+
 				final RandomAccessFile handle = new RandomAccessFile(lockFile, "rw");
 				final FileChannel channel = handle.getChannel();
 				final FileLock lock = channel.tryLock();
+
 				if (lock != null) {
 					// setup cache dir for ehcache
 					System.setProperty("ehcache.disk.store.dir", cache.getAbsolutePath());
@@ -476,8 +479,11 @@ public class Main {
 						// ignore
 					}
 
-					if (cacheRevision != applicationRevision && applicationRevision > 0) {
+					if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
 						Logger.getLogger(Main.class.getName()).log(Level.WARNING, String.format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
+
+						// tag cache with new revision number
+						isNewCache = true;
 
 						// delete all files related to previous cache instances
 						for (File it : cache.listFiles()) {
@@ -485,7 +491,9 @@ public class Main {
 								delete(cache);
 							}
 						}
+					}
 
+					if (isNewCache) {
 						// set new cache revision
 						channel.position(0);
 						channel.write(Charset.forName("UTF-8").encode(String.valueOf(applicationRevision)));
