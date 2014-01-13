@@ -83,6 +83,7 @@
 ^private$
 ^public$
 ^pyload$
+^Multimedia$
 ^Qmultimedia$
 ^queue$
 ^raid$

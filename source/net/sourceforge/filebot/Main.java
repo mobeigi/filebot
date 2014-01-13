@@ -477,7 +477,7 @@ public class Main {
 					}
 
 					if (cacheRevision != applicationRevision && applicationRevision > 0) {
-						System.out.format("Application (r%d) does not match cache (r%d): reset cache%n", applicationRevision, cacheRevision);
+						Logger.getLogger(Main.class.getName()).log(Level.WARNING, String.format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
 
 						// delete all files related to previous cache instances
 						for (File it : cache.listFiles()) {
