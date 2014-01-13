@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.charset.Charset;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -34,6 +35,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -458,12 +460,37 @@ public class Main {
 					throw new IOException("Failed to create cache dir: " + cache);
 				}
 
-				File lockFile = new File(cache, ".lock");
+				final File lockFile = new File(cache, ".lock");
 				final RandomAccessFile handle = new RandomAccessFile(lockFile, "rw");
-				final FileLock lock = handle.getChannel().tryLock();
+				final FileChannel channel = handle.getChannel();
+				final FileLock lock = channel.tryLock();
 				if (lock != null) {
 					// setup cache dir for ehcache
 					System.setProperty("ehcache.disk.store.dir", cache.getAbsolutePath());
+
+					int applicationRevision = getApplicationRevisionNumber();
+					int cacheRevision = 0;
+					try {
+						cacheRevision = new Scanner(channel, "UTF-8").nextInt();
+					} catch (Exception e) {
+						// ignore
+					}
+
+					if (cacheRevision != applicationRevision && applicationRevision > 0) {
+						System.out.format("Application (r%d) does not match cache (r%d): reset cache%n", applicationRevision, cacheRevision);
+
+						// delete all files related to previous cache instances
+						for (File it : cache.listFiles()) {
+							if (!it.equals(lockFile)) {
+								delete(cache);
+							}
+						}
+
+						// set new cache revision
+						channel.position(0);
+						channel.write(Charset.forName("UTF-8").encode(String.valueOf(applicationRevision)));
+						channel.truncate(channel.position());
+					}
 
 					// make sure to orderly shutdown cache
 					Runtime.getRuntime().addShutdownHook(new Thread() {

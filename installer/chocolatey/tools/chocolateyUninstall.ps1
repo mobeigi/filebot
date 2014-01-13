@@ -1,3 +1,5 @@
+Invoke-Expression 'filebot -clear-cache'
+
 $app = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name = 'FileBot'"
 echo $app
 

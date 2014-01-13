@@ -312,6 +312,10 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 	Pop $MSI_STATUS # grab return value
 	
 	${if} $MSI_STATUS == "0"
+		DetailPrint "Clear cache and temporary files"
+		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -clear-cache`
+		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -script "g:net.sourceforge.filebot.Main.warmupCachedResources()"`
+		
 		# [OpenCandy]
 			; This section is hidden. It will always execute during installation
 			; but it won't appear on your component selection screen.
@@ -320,7 +324,7 @@ Section "$(Section_Name_MainProduct)" SECTIONID_MAINPRODUCT
 		# [/OpenCandy]
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
-		DetailPrint "Install failed."
+		DetailPrint "Install failed. Please download the .msi package manually."
 		Abort
 	${endif}
 SectionEnd
