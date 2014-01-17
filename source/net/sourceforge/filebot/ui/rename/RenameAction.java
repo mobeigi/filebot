@@ -303,7 +303,7 @@ class RenameAction extends AbstractAction {
 					// rename file, throw exception on failure
 					File source = mapping.getKey();
 					File destination = resolveDestination(mapping.getKey(), mapping.getValue(), false);
-					if (!source.equals(destination)) {
+					if (!source.getAbsolutePath().equals(destination.getAbsolutePath())) {
 						action.rename(source, destination);
 					}
 
