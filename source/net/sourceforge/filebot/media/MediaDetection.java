@@ -18,6 +18,7 @@ import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1286,4 +1287,25 @@ public class MediaDetection {
 			}
 		}
 	}
+
+	public static void warmupCachedResources() {
+		try {
+			// pre-load filter data
+			MediaDetection.getClutterFileFilter();
+			MediaDetection.getDiskFolderFilter();
+
+			Collection<File> empty = Collections.emptyList();
+			MediaDetection.matchSeriesByDirectMapping(empty);
+
+			// pre-load movie/series index
+			List<String> dummy = Collections.singletonList("");
+			MediaDetection.stripReleaseInfo(dummy, true);
+			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
+			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
+			MediaDetection.matchMovieName(dummy, true, -1);
+		} catch (Exception e) {
+			Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+
 }

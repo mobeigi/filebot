@@ -30,9 +30,6 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
@@ -240,7 +237,7 @@ public class Main {
 
 			// pre-load certain resources in the background
 			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
-				warmupCachedResources();
+				MediaDetection.warmupCachedResources();
 			}
 		} catch (Exception e) {
 			// illegal arguments => just print CLI error message and stop
@@ -400,26 +397,6 @@ public class Main {
 			}
 		}
 		Analytics.trackEvent("GUI", "Donate", "r" + currentRev, pane.getValue() == actions[0] ? 1 : 0);
-	}
-
-	private static void warmupCachedResources() {
-		try {
-			// pre-load filter data
-			MediaDetection.getClutterFileFilter();
-			MediaDetection.getDiskFolderFilter();
-
-			Collection<File> empty = Collections.emptyList();
-			MediaDetection.matchSeriesByDirectMapping(empty);
-
-			// pre-load movie/series index
-			List<String> dummy = Collections.singletonList("");
-			MediaDetection.stripReleaseInfo(dummy, true);
-			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
-			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
-			MediaDetection.matchMovieName(dummy, true, -1);
-		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-		}
 	}
 
 	private static void restoreWindowBounds(final JFrame window, final Settings settings) {
