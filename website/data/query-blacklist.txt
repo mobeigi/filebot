@@ -74,6 +74,7 @@
 ^More$
 ^Movie$
 ^Movies$
+^Multimedia$
 ^Musique$
 ^mynas$
 ^new$
@@ -83,7 +84,6 @@
 ^private$
 ^public$
 ^pyload$
-^Multimedia$
 ^Qmultimedia$
 ^queue$
 ^raid$
@@ -102,6 +102,7 @@
 ^staging$
 ^Storage$
 ^Stuff$
+^sync$
 ^System$
 ^tank$
 ^TBR$

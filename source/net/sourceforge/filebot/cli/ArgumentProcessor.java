@@ -128,8 +128,6 @@ public class ArgumentProcessor {
 		} catch (Throwable e) {
 			if (e.getClass() == Exception.class) {
 				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)));
-			} else if (e.getClass() == IllegalArgumentException.class) {
-				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), String.format("%s %s", getRootCauseMessage(e), args.getArray())));
 			} else {
 				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
 			}
