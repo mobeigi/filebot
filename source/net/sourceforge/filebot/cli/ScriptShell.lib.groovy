@@ -27,6 +27,7 @@ List.metaClass.getFiles = { c -> findResults{ it.getFiles(c) }.flatten().unique(
 String.metaClass.getFolders = { c -> new File(delegate).getFolders(c) }
 File.metaClass.getFolders = { c -> def folders = []; traverse(type:DIRECTORIES, visitRoot:true) { folders += it }; return c ? folders.findAll(c).sort() : folders.sort() }
 List.metaClass.getFolders = { c -> findResults{ it.getFolders(c) }.flatten().unique() }
+File.metaClass.listFolders = { c -> delegate.listFiles().findAll{ it.isDirectory() } }
 
 File.metaClass.getMediaFolders = { def folders = []; traverse(type:DIRECTORIES, visitRoot:true, preDir:{ it.isDisk() ? SKIP_SUBTREE : CONTINUE }) { folders += it }; folders.findAll{ it.hasFile{ it.isVideo() } || it.isDisk() }.sort() }
 String.metaClass.eachMediaFolder = { c -> new File(delegate).eachMediaFolder(c) }
