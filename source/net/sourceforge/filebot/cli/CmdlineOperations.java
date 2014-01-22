@@ -60,6 +60,7 @@ import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.vfs.SimpleFileInfo;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
@@ -574,7 +575,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							throw new Exception("File already exists: " + destination);
 						}
 
-						if (conflictAction == ConflictAction.OVERRIDE) {
+						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VIDEO_SIZE_ORDER.compare(source, destination) > 0)) {
 							if (!destination.delete()) {
 								CLILogger.log(Level.SEVERE, "Failed to override file: " + destination);
 							}
@@ -1085,14 +1086,15 @@ public class CmdlineOperations implements CmdlineInterface {
 				CLILogger.info(String.format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
 				final FileMapper outputMapper = new FileMapper(outputFolder, false);
 
-				final List<File> outputMapping = new ArrayList<File>();
-				for (FileInfo entry : archive.listFiles()) {
-					outputMapping.add(outputMapper.getOutputFile(new File(entry.getPath())));
+				final List<FileInfo> outputMapping = new ArrayList<FileInfo>();
+				for (FileInfo it : archive.listFiles()) {
+					File outputPath = outputMapper.getOutputFile(it.toFile());
+					outputMapping.add(new SimpleFileInfo(outputPath.getPath(), it.getLength()));
 				}
 
-				final Set<File> selection = new TreeSet<File>();
-				for (File future : outputMapping) {
-					if (filter == null || filter.accept(future)) {
+				final Set<FileInfo> selection = new TreeSet<FileInfo>();
+				for (FileInfo future : outputMapping) {
+					if (filter == null || filter.accept(future.toFile())) {
 						selection.add(future);
 					}
 				}
@@ -1103,18 +1105,27 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				boolean skip = true;
-				for (File future : filter == null || forceExtractAll ? outputMapping : selection) {
-					skip &= future.exists();
+				for (FileInfo future : filter == null || forceExtractAll ? outputMapping : selection) {
+					if (conflictAction == ConflictAction.AUTO) {
+						skip &= (future.toFile().exists() && future.getLength() == future.toFile().length());
+					} else {
+						skip &= (future.toFile().exists());
+					}
 				}
 
 				if (!skip || conflictAction == ConflictAction.OVERRIDE) {
 					if (filter == null || forceExtractAll) {
 						CLILogger.finest("Extracting files " + outputMapping);
+
 						// extract all files
 						archive.extract(outputMapper);
-						extractedFiles.addAll(outputMapping);
+
+						for (FileInfo it : outputMapping) {
+							extractedFiles.add(it.toFile());
+						}
 					} else {
 						CLILogger.finest("Extracting files " + selection);
+
 						// extract files selected by the given filter
 						archive.extract(outputMapper, new FileFilter() {
 
@@ -1123,7 +1134,10 @@ public class CmdlineOperations implements CmdlineInterface {
 								return selection.contains(outputMapper.getOutputFile(entry));
 							}
 						});
-						extractedFiles.addAll(selection);
+
+						for (FileInfo it : selection) {
+							extractedFiles.add(it.toFile());
+						}
 					}
 				} else {
 					CLILogger.finest("Skipped extracting files " + selection);

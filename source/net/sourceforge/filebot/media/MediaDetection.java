@@ -17,6 +17,7 @@ import java.net.URL;
 import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.archive.Archive;
+import net.sourceforge.filebot.format.MediaBindingBean;
 import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.DateMatcher;
 import net.sourceforge.filebot.similarity.DateMetric;
@@ -97,7 +99,7 @@ public class MediaDetection {
 		Archive iso = new Archive(file);
 		try {
 			for (FileInfo it : iso.listFiles()) {
-				for (File entry : listPath(new File(it.getPath()))) {
+				for (File entry : listPath(it.toFile())) {
 					if (diskFolderEntryFilter.accept(entry)) {
 						return true;
 					}
@@ -1250,6 +1252,55 @@ public class MediaDetection {
 			return tail;
 		}
 	}
+
+	public static Comparator<File> VIDEO_SIZE_ORDER = new Comparator<File>() {
+
+		@Override
+		public int compare(File f1, File f2) {
+			long[] v1 = getSizeValues(f1);
+			long[] v2 = getSizeValues(f2);
+
+			for (int i = 0; i < v1.length; i++) {
+				// best to worst
+				int d = new Long(v1[i]).compareTo(new Long(v2[i]));
+				if (d != 0) {
+					return d;
+				}
+			}
+			return 0;
+		}
+
+		public long[] getSizeValues(File f) {
+			long[] v = new long[] { 0, 0 };
+
+			try {
+				if (VIDEO_FILES.accept(f) || SUBTITLE_FILES.accept(f)) {
+					MediaBindingBean media = new MediaBindingBean(null, f, null);
+
+					// 1. Video Resolution
+					List<Integer> dim = media.getDimension();
+					v[0] = dim.get(0).longValue() * dim.get(1).longValue();
+
+					// 2. File Size
+					v[1] = media.getInferredMediaFile().length();
+				} else if (AUDIO_FILES.accept(f)) {
+					// 1. Audio BitRate
+					v[0] = 0;
+
+					// 2. File Size
+					v[1] = f.length();
+				}
+			} catch (Exception e) {
+				// negative values for invalid files
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning(String.format("Unable to read media info: %s [%s]", e.getMessage(), f.getName()));
+
+				Arrays.fill(v, -1);
+				return v;
+			}
+
+			return v;
+		}
+	};
 
 	public static void storeMetaInfo(File file, Object model, String original) {
 		// only for Episode / Movie objects

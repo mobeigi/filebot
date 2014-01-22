@@ -217,7 +217,7 @@ class ExtractTool extends Tool<TableModel> {
 				return data[row].entry.getName();
 			case 1:
 				File root = new File(data[row].archive.getName());
-				File prefix = new File(data[row].entry.getPath()).getParentFile();
+				File prefix = data[row].entry.toFile().getParentFile();
 				File path = (prefix == null) ? root : new File(root, prefix.getPath());
 				return normalizePathSeparators(path.getPath());
 			case 2:

@@ -707,7 +707,7 @@ public class MediaBindingBean {
 		return JsonWriter.objectToJson(infoObject);
 	}
 
-	private File getInferredMediaFile() {
+	public File getInferredMediaFile() {
 		// make sure media file is defined
 		checkMediaFile();
 
@@ -717,7 +717,7 @@ public class MediaBindingBean {
 			if (videos.size() > 0) {
 				return videos.iterator().next();
 			}
-		} else if ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(mediaFile)) {
+		} else if (SUBTITLE_FILES.accept(mediaFile) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(mediaFile))) {
 			// prefer equal match from current context if possible
 			if (getContext() != null) {
 				for (Entry<File, Object> it : getContext().entrySet()) {
