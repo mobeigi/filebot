@@ -53,6 +53,7 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
@@ -95,8 +96,8 @@ public class MediaDetection {
 		FileFilter diskFolderEntryFilter = releaseInfo.getDiskFolderEntryFilter();
 		Archive iso = new Archive(file);
 		try {
-			for (File path : iso.listFiles()) {
-				for (File entry : listPath(path)) {
+			for (FileInfo it : iso.listFiles()) {
+				for (File entry : listPath(new File(it.getPath()))) {
 					if (diskFolderEntryFilter.accept(entry)) {
 						return true;
 					}

@@ -58,6 +58,7 @@ import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
+import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Episode;
@@ -1085,8 +1086,8 @@ public class CmdlineOperations implements CmdlineInterface {
 				final FileMapper outputMapper = new FileMapper(outputFolder, false);
 
 				final List<File> outputMapping = new ArrayList<File>();
-				for (File entry : archive.listFiles()) {
-					outputMapping.add(outputMapper.getOutputFile(entry));
+				for (FileInfo entry : archive.listFiles()) {
+					outputMapping.add(outputMapper.getOutputFile(new File(entry.getPath())));
 				}
 
 				final Set<File> selection = new TreeSet<File>();
