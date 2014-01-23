@@ -234,6 +234,6 @@ public class IMDbClient implements MovieIdentificationService {
 			actors.add(new Person(writer, null, "Writer"));
 		}
 
-		return new MovieInfo(fields, genres, new ArrayList<String>(0), actors, new ArrayList<Trailer>(0));
+		return new MovieInfo(fields, new ArrayList<String>(0), genres, new ArrayList<String>(0), actors, new ArrayList<Trailer>(0));
 	}
 }

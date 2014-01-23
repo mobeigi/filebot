@@ -17,10 +17,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,8 +67,9 @@ public class TMDbClient implements MovieIdentificationService {
 		List<Movie> result = new ArrayList<Movie>();
 
 		for (JSONObject it : jsonList(response.get("results"))) {
-			if (it == null)
+			if (it == null) {
 				continue;
+			}
 
 			// e.g.
 			// {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
@@ -85,7 +88,28 @@ public class TMDbClient implements MovieIdentificationService {
 				} catch (Exception e) {
 					throw new IllegalArgumentException("Missing data: release date");
 				}
-				result.add(new Movie(title, title.equals(originalTitle) ? new String[] {} : new String[] { originalTitle }, year, -1, id));
+
+				Set<String> alternativeTitles = new LinkedHashSet<String>();
+				if (originalTitle != null) {
+					alternativeTitles.add(originalTitle);
+				}
+
+				try {
+					String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
+					JSONObject titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
+					for (JSONObject node : jsonList(titles.get("titles"))) {
+						if (countryCode.equals(node.get("iso_3166_1"))) {
+							alternativeTitles.add((String) node.get("title"));
+						}
+					}
+				} catch (Exception e) {
+					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Unable to retrieve alternative titles [%s]: %s", title, e.getMessage()));
+				}
+
+				// make sure main title is not in the set of alternative titles
+				alternativeTitles.remove(title);
+
+				result.add(new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id));
 			} catch (Exception e) {
 				// only print 'missing release date' warnings for matching movie titles
 				if (query.equalsIgnoreCase(title) || query.equalsIgnoreCase(originalTitle)) {
@@ -102,9 +126,13 @@ public class TMDbClient implements MovieIdentificationService {
 
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
-		String id = String.format("tt%07d", imdbid);
+		return getMovieDescriptor(imdbid, locale, true);
+	}
+
+	public Movie getMovieDescriptor(int imdbtmdbid, Locale locale, boolean byIMDB) throws IOException {
+		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
 		try {
-			MovieInfo info = getMovieInfo(id, locale, false);
+			MovieInfo info = getMovieInfo(id, locale, false, false);
 			return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
 		} catch (FileNotFoundException e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);
@@ -122,20 +150,20 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws IOException {
 		if (movie.getTmdbId() >= 0) {
-			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true);
+			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true, true);
 		} else if (movie.getImdbId() >= 0) {
-			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, true);
+			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, true, true);
 		} else {
 			for (Movie result : searchMovie(movie.getName(), locale)) {
 				if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
-					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, true);
+					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, true, true);
 				}
 			}
 		}
 		return null;
 	}
 
-	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws IOException {
+	public MovieInfo getMovieInfo(String id, Locale locale, boolean includeAlternativeTitles, boolean includeExtendedInfo) throws IOException {
 		JSONObject response = request("movie/" + id, null, locale, REQUEST_LIMIT);
 
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
@@ -163,17 +191,29 @@ public class TMDbClient implements MovieIdentificationService {
 			spokenLanguages.add((String) it.get("iso_639_1"));
 		}
 
-		if (extendedInfo) {
+		List<String> alternativeTitles = new ArrayList<String>();
+		if (includeAlternativeTitles) {
+			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
+			JSONObject titles = request("movie/" + fields.get(MovieProperty.id) + "/alternative_titles", null, null, REQUEST_LIMIT);
+			for (JSONObject it : jsonList(titles.get("titles"))) {
+				if (countryCode.equals(it.get("iso_3166_1"))) {
+					alternativeTitles.add((String) it.get("title"));
+				}
+			}
+		}
+
+		if (includeExtendedInfo) {
+			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
 			JSONObject releases = request("movie/" + fields.get(MovieProperty.id) + "/releases", null, null, REQUEST_LIMIT);
 			for (JSONObject it : jsonList(releases.get("countries"))) {
-				if ("US".equals(it.get("iso_3166_1"))) {
+				if (countryCode.equals(it.get("iso_3166_1"))) {
 					fields.put(MovieProperty.certification, (String) it.get("certification"));
 				}
 			}
 		}
 
 		List<Person> cast = new ArrayList<Person>();
-		if (extendedInfo) {
+		if (includeExtendedInfo) {
 			JSONObject castResponse = request("movie/" + fields.get(MovieProperty.id) + "/casts", null, null, REQUEST_LIMIT);
 			for (String section : new String[] { "cast", "crew" }) {
 				for (JSONObject it : jsonList(castResponse.get(section))) {
@@ -190,7 +230,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		List<Trailer> trailers = new ArrayList<Trailer>();
-		if (extendedInfo) {
+		if (includeExtendedInfo) {
 			JSONObject trailerResponse = request("movie/" + fields.get(MovieProperty.id) + "/trailers", null, null, REQUEST_LIMIT);
 			for (String section : new String[] { "quicktime", "youtube" }) {
 				for (JSONObject it : jsonList(trailerResponse.get(section))) {
@@ -207,7 +247,7 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 		}
 
-		return new MovieInfo(fields, genres, spokenLanguages, cast, trailers);
+		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, cast, trailers);
 	}
 
 	public List<Artwork> getArtwork(String id) throws IOException {
@@ -300,6 +340,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 		protected Map<MovieProperty, String> fields;
 
+		protected String[] alternativeTitles;
 		protected String[] genres;
 		protected String[] spokenLanguages;
 
@@ -310,8 +351,9 @@ public class TMDbClient implements MovieIdentificationService {
 			// used by serializer
 		}
 
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> genres, List<String> spokenLanguages, List<Person> people, List<Trailer> trailers) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<Person> people, List<Trailer> trailers) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
+			this.alternativeTitles = alternativeTitles.toArray(new String[0]);
 			this.genres = genres.toArray(new String[0]);
 			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
 			this.people = people.toArray(new Person[0]);
@@ -474,6 +516,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 		public List<Trailer> getTrailers() {
 			return unmodifiableList(asList(trailers));
+		}
+
+		public List<String> getAlternativeTitles() {
+			return unmodifiableList(asList(alternativeTitles));
 		}
 
 		@Override

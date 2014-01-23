@@ -26,6 +26,7 @@
 ^AUDIO_TS$
 ^bad$
 ^BDMV$
+^Best$
 ^Big$
 ^clean$
 ^cleaned$
@@ -111,6 +112,7 @@
 ^temporary$
 ^test$
 ^testdata$
+^The.Best$
 ^tmp$
 ^to$
 ^Torrent$
@@ -233,6 +235,7 @@ LMAO
 lol
 Los.Sustitutos
 M.HD
+MegaPack
 mkvonly
 Movie.Pack
 mpg$

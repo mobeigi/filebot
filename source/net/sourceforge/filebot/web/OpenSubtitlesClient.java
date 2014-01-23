@@ -395,6 +395,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	public Locale detectLanguage(byte[] data) throws Exception {
+		if (data.length < 256) {
+			throw new IllegalArgumentException("data is not enough");
+		}
+
 		// require login
 		login();
 

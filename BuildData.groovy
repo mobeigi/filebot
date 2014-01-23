@@ -117,16 +117,20 @@ def tmdb_txt = new File('tmdb.txt')
 def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 
 def tmdb = omdb.findResults{ m ->
-	if (tmdb_index.containsKey(m[0])) {
+	def sync = System.currentTimeMillis()
+	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < (360 * 24 * 60 * 60 * 1000L) ) {
 		return tmdb_index[m[0]]
 	}
 	
-	def sync = System.currentTimeMillis()
 	def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 	try {
-		def info = net.sourceforge.filebot.WebServices.TMDb.getMovieInfo("tt${m[0]}", Locale.ENGLISH, false)
-		def names = [info.name, info.originalName, m[1]]
-		row = [sync, m[0].pad(7), info.id.pad(7), info.released?.year ?: m[2]] + names.findResults{ it ?: '' }
+		def info = net.sourceforge.filebot.WebServices.TMDb.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true, false)
+		def names = [info.name, info.originalName] + info.alternativeTitles
+		if (info.released != null) {
+			row = [sync, m[0].pad(7), info.id.pad(7), info.released.year] + names
+		} else {
+			println "Illegal movie: ${info.name} | ${m}"
+		}
 	} catch(FileNotFoundException e) {
 	}
 	

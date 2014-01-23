@@ -52,6 +52,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
@@ -668,7 +669,7 @@ public class SubtitleUploadDialog extends JDialog {
 						Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
 						for (Movie it : identity) {
 							if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
-								it = MediaDetection.tmdb2imdb(it);
+								it = WebServices.TMDb.getMovieDescriptor(it.getTmdbId(), Locale.ENGLISH, false);
 							}
 							if (it != null && it.getImdbId() > 0) {
 								mapping.setIdentity(it);
