@@ -1,12 +1,9 @@
 package net.sourceforge.filebot.ui.subtitle;
 
-import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
 import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.StringUtilities.*;
 import static net.sourceforge.tuned.ui.TunedUtilities.*;
 
 import java.awt.Color;
@@ -26,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -67,7 +63,6 @@ import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
 import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
@@ -190,18 +185,6 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		services.add(service);
 		servicePanel.add(component);
-	}
-
-	// remember last user input
-	private List<String> userQuery = new ArrayList<String>();
-
-	protected List<String> getUserQuery(String suggestion, String title, Component parent) throws Exception {
-		synchronized (userQuery) {
-			if (userQuery.isEmpty()) {
-				userQuery.addAll(showMultiValueInputDialog("Enter series / movie names:", suggestion, title, parent));
-			}
-			return userQuery;
-		}
 	}
 
 	public void startQuery(String languageName) {
@@ -735,10 +718,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 						Set<SubtitleDescriptor> subtitlesByRelevance = new LinkedHashSet<SubtitleDescriptor>();
 
 						// guess best hash match (default order is open bad due to invalid hash links)
-						if (result.getValue().size() > 0) {
-							Entry<File, SubtitleDescriptor> bestMatch = matchSubtitles(singleton(result.getKey()), result.getValue(), false).entrySet().iterator().next();
-							subtitlesByRelevance.add(bestMatch.getValue());
+						SubtitleDescriptor bestMatch = getBestMatch(result.getKey(), result.getValue(), false);
+						if (bestMatch != null) {
+							subtitlesByRelevance.add(bestMatch);
 						}
+
 						subtitlesByRelevance.addAll(result.getValue());
 
 						// associate subtitles with services
@@ -924,72 +908,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> fileSet, String languageName, Component parent) throws Exception {
-			// ignore clutter files from processing
-			fileSet = filter(fileSet, not(getClutterFileFilter()));
-
-			// collect results
-			Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
-
-			for (List<File> files : mapByMediaFolder(fileSet).values()) {
-				// auto-detect query and search for subtitles
-				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-
-				// auto-detect series names
-				querySet.addAll(detectSeriesNames(files, true, false, Locale.ROOT));
-
-				// auto-detect movie names
-				for (File f : files) {
-					if (!isEpisode(f.getName(), false)) {
-						for (Movie movie : detectMovie(f, null, null, Locale.ROOT, false)) {
-							querySet.add(movie.getName());
-						}
-					}
-				}
-
-				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
-
-				// dialog may have been cancelled by now
-				if (Thread.interrupted()) {
-					throw new CancellationException();
-				}
-
-				// if auto-detection fails, ask user for input
-				if (subtitles.isEmpty()) {
-					querySet = inputProvider.getUserQuery(join(querySet, ","), service.getName(), parent);
-					subtitles = findSubtitles(service, querySet, languageName);
-
-					// still no luck... na women ye mei banfa
-					if (subtitles.isEmpty()) {
-						throw new Exception("Unable to lookup subtitles: " + querySet);
-					}
-				}
-
-				// files by possible subtitles matches
-				for (File file : files) {
-					subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
-				}
-
-				// first match everything as best as possible, then filter possibly bad matches
-				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
-					subtitlesByFile.get(it.getKey()).add(it.getValue());
-				}
-
-				// add other possible matches to the options
-				SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
-				float minMatchSimilarity = 0.5f;
-
-				// this could be very slow, lets hope at this point there is not much left due to positive hash matches
-				for (File file : files) {
-					// add matching subtitles
-					for (SubtitleDescriptor it : subtitles) {
-						if (!subtitlesByFile.get(file).contains(it) && sanity.getSimilarity(file, it) >= minMatchSimilarity) {
-							subtitlesByFile.get(file).add(it);
-						}
-					}
-				}
-			}
-
-			return subtitlesByFile;
+			return findSubtitleMatches(service, fileSet, languageName, null, true, false);
 		}
 
 		@Override

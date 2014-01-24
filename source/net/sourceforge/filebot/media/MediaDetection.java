@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -953,6 +954,24 @@ public class MediaDetection {
 			value.add(f);
 		}
 		return mediaFolders;
+	}
+
+	public static Map<String, List<File>> mapBySeriesName(Collection<File> files, boolean useSeriesIndex, boolean useAnimeIndex, Locale locale) throws Exception {
+		Map<String, List<File>> result = new TreeMap<String, List<File>>(String.CASE_INSENSITIVE_ORDER);
+
+		for (File f : files) {
+			List<String> names = detectSeriesNames(singleton(f), useSeriesIndex, useAnimeIndex, locale);
+			String key = names.isEmpty() ? "" : names.get(0);
+
+			List<File> value = result.get(key);
+			if (value == null) {
+				value = new ArrayList<File>();
+				result.put(key, value);
+			}
+			value.add(f);
+		}
+
+		return result;
 	}
 
 	public static File guessMediaFolder(File file) {

@@ -1,6 +1,7 @@
 package net.sourceforge.filebot.subtitle;
 
 import static java.lang.Math.*;
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
@@ -15,16 +16,22 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.TreeSet;
 
 import net.sourceforge.filebot.Language;
+import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.MetricAvg;
@@ -34,11 +41,104 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 
 public final class SubtitleUtilities {
+
+	public static Map<File, List<SubtitleDescriptor>> findSubtitleMatches(SubtitleProvider service, Collection<File> fileSet, String languageName, String forceQuery, boolean addOptions, boolean strict) throws Exception {
+		// ignore anything that is not a video
+		fileSet = filter(fileSet, VIDEO_FILES);
+
+		// ignore clutter files from processing
+		fileSet = filter(fileSet, not(getClutterFileFilter()));
+
+		// collect results
+		Map<File, List<SubtitleDescriptor>> subtitlesByFile = new HashMap<File, List<SubtitleDescriptor>>();
+
+		for (List<File> byMediaFolder : mapByMediaFolder(fileSet).values()) {
+			for (Entry<String, List<File>> bySeries : mapBySeriesName(byMediaFolder, true, false, Locale.ENGLISH).entrySet()) {
+				// auto-detect query and search for subtitles
+				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+				List<File> files = bySeries.getValue();
+
+				if (forceQuery != null && forceQuery.length() > 0) {
+					querySet.add(forceQuery);
+				} else if (bySeries.getKey().length() > 0) {
+					// use auto-detected series name as query
+					querySet.add(bySeries.getKey());
+				} else {
+					for (File f : files) {
+						List<String> queries = new ArrayList<String>();
+
+						// might be a movie, auto-detect movie names
+						if (!isEpisode(f.getPath(), true)) {
+							for (Movie it : detectMovie(f, null, null, Locale.ENGLISH, strict)) {
+								queries.add(it.getName());
+							}
+						}
+
+						if (queries.isEmpty()) {
+							queries.add(stripReleaseInfo(getName(f)));
+						}
+
+						querySet.addAll(queries);
+					}
+				}
+
+				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+
+				// dialog may have been cancelled by now
+				if (Thread.interrupted()) {
+					throw new InterruptedException();
+				}
+
+				// files by possible subtitles matches
+				for (File file : files) {
+					subtitlesByFile.put(file, new ArrayList<SubtitleDescriptor>());
+				}
+
+				// add other possible matches to the options
+				SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+				float minMatchSimilarity = strict ? 0.9f : 0.6f;
+
+				// first match everything as best as possible, then filter possibly bad matches
+				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, strict).entrySet()) {
+					if (sanity.getSimilarity(it.getKey(), it.getValue()) >= minMatchSimilarity) {
+						subtitlesByFile.get(it.getKey()).add(it.getValue());
+					}
+				}
+
+				// this could be very slow, lets hope at this point there is not much left due to positive hash matches
+				for (File file : files) {
+					// add matching subtitles
+					for (SubtitleDescriptor it : subtitles) {
+						// grab only the first best option unless we really want all options
+						if (!addOptions && subtitlesByFile.get(file).size() >= 1)
+							continue;
+
+						// ignore if it's already been added
+						if (subtitlesByFile.get(file).contains(it))
+							continue;
+
+						// ignore if we're sure that SxE is a negative match
+						if (isEpisode(it.getName(), true) && isEpisode(file.getPath(), true) && EpisodeMetrics.EpisodeFunnel.getSimilarity(file, it) < 1)
+							continue;
+
+						// ignore if it's not similar enough
+						if (sanity.getSimilarity(file, it) < minMatchSimilarity)
+							continue;
+
+						subtitlesByFile.get(file).add(it);
+					}
+				}
+			}
+		}
+
+		return subtitlesByFile;
+	}
 
 	public static Map<File, SubtitleDescriptor> matchSubtitles(Collection<File> files, Collection<SubtitleDescriptor> subtitles, boolean strict) throws InterruptedException {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new LinkedHashMap<File, SubtitleDescriptor>();
@@ -104,6 +204,20 @@ public final class SubtitleUtilities {
 		}
 
 		return probableMatches;
+	}
+
+	public static SubtitleDescriptor getBestMatch(File file, Collection<SubtitleDescriptor> subtitles, boolean strict) {
+		if (file == null || subtitles == null || subtitles.isEmpty()) {
+			return null;
+		}
+
+		try {
+			return matchSubtitles(singleton(file), subtitles, strict).entrySet().iterator().next().getValue();
+		} catch (NoSuchElementException e) {
+			return null;
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

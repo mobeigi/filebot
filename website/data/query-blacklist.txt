@@ -92,7 +92,8 @@
 ^Romance$
 ^rtorrent$
 ^Science.Fiction$
-^Scratch$
+^scratch$
+^scratch.area$
 ^Season$
 ^Seeding$
 ^Seeds$
@@ -136,6 +137,7 @@
 ^Volumes$
 ^watch$
 ^www$
+^XXX+$
 A.PROCESAR
 A.Release.Lounge
 ABC

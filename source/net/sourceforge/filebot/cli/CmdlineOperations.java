@@ -639,18 +639,24 @@ public class CmdlineOperations implements CmdlineInterface {
 		final Language language = getLanguage(languageName);
 		final Pattern databaseFilter = (db != null) ? Pattern.compile(db, Pattern.CASE_INSENSITIVE) : null;
 		final SubtitleNaming naming = getSubtitleNaming(format);
-		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), files.size()));
 
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
 		final Charset outputEncoding = (csn != null) ? Charset.forName(csn) : (output != null) ? Charset.forName("UTF-8") : null;
 		final SubtitleFormat outputFormat = (output != null) ? getSubtitleFormatByName(output) : null;
 
+		// ignore anything that is not a video
+		files = filter(files, VIDEO_FILES);
+
+		// ignore clutter files from processing
+		files = filter(files, not(getClutterFileFilter()));
+
 		// try to find subtitles for each video file
-		List<File> remainingVideos = new ArrayList<File>(filter(files, VIDEO_FILES));
+		List<File> remainingVideos = new ArrayList<File>(files);
 
 		// parallel download
 		List<File> subtitleFiles = new ArrayList<File>();
 
+		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), remainingVideos.size()));
 		if (remainingVideos.isEmpty()) {
 			throw new Exception("No video files: " + files);
 		}
@@ -672,49 +678,24 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		// lookup subtitles via text search, only perform hash lookup in strict mode
-		if (!remainingVideos.isEmpty()) {
-			// auto-detect search query
-			Set<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-
-			if (query == null) {
-				try {
-					List<File> videoFiles = filter(files, VIDEO_FILES);
-					querySet.addAll(detectSeriesNames(videoFiles, true, false, language.getLocale()));
-
-					// auto-detect movie names
-					for (File f : videoFiles) {
-						if (!isEpisode(f.getName(), false)) {
-							for (Movie movie : detectMovie(f, null, null, language.getLocale(), strict)) {
-								querySet.add(movie.getName());
-							}
-						}
-					}
-				} catch (Exception e) {
-					CLILogger.warning("Movie detection failed: " + e.getMessage());
-				}
-
-				if (querySet.isEmpty()) {
-					throw new Exception("Failed to auto-detect query");
-				}
-			} else {
-				querySet.add(query);
+		for (SubtitleProvider service : getSubtitleProviders()) {
+			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+				continue;
 			}
 
-			for (SubtitleProvider service : getSubtitleProviders()) {
-				if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
-					continue;
+			try {
+				CLILogger.fine(format("Looking up subtitles by name via %s", service.getName()));
+				Map<File, SubtitleDescriptor> subtitles = new TreeMap<File, SubtitleDescriptor>();
+				for (Entry<File, List<SubtitleDescriptor>> it : findSubtitleMatches(service, remainingVideos, language.getName(), query, false, strict).entrySet()) {
+					if (it.getValue().size() > 0) {
+						subtitles.put(it.getKey(), it.getValue().get(0));
+					}
 				}
-
-				try {
-					CLILogger.fine(format("Searching for %s at [%s]", querySet, service.getName()));
-					Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByFileName(service, querySet, language, remainingVideos, strict);
-					Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
-					remainingVideos.removeAll(downloads.keySet());
-					subtitleFiles.addAll(downloads.values());
-				} catch (Exception e) {
-					CLILogger.warning(format("Search for %s failed: %s", querySet, e.getMessage()));
-				}
+				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
+				remainingVideos.removeAll(downloads.keySet());
+				subtitleFiles.addAll(downloads.values());
+			} catch (Exception e) {
+				CLILogger.warning(format("Search by name failed: %s", e.getMessage()));
 			}
 		}
 
@@ -823,35 +804,19 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles) throws Exception {
-		Map<File, SubtitleDescriptor> subtitleByVideo = new HashMap<File, SubtitleDescriptor>(videoFiles.size());
+		Map<File, SubtitleDescriptor> subtitleByVideo = new TreeMap<File, SubtitleDescriptor>();
 
 		for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videoFiles.toArray(new File[0]), language.getName()).entrySet()) {
-			if (it.getValue() != null && it.getValue().size() > 0) {
-				// guess best hash match (default order is open bad due to invalid hash links)
-				Entry<File, SubtitleDescriptor> bestMatch = matchSubtitles(singleton(it.getKey()), it.getValue(), false).entrySet().iterator().next();
+			// guess best hash match (default order is open bad due to invalid hash links)
+			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), false);
 
-				CLILogger.finest(format("Matched [%s] to [%s] via filehash", bestMatch.getKey().getName(), bestMatch.getValue().getName()));
-				subtitleByVideo.put(bestMatch.getKey(), bestMatch.getValue());
+			if (bestMatch != null) {
+				CLILogger.finest(format("Matched [%s] to [%s] via filehash", it.getKey().getName(), bestMatch.getName()));
+				subtitleByVideo.put(it.getKey(), bestMatch);
 			}
 		}
 
 		return subtitleByVideo;
-	}
-
-	private Map<File, SubtitleDescriptor> lookupSubtitleByFileName(SubtitleProvider service, Collection<String> querySet, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
-		// search for subtitles
-		Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, language.getName());
-
-		// match subtitle files to video files
-		if (subtitles.size() > 0) {
-			Map<File, SubtitleDescriptor> subtitleByVideo = matchSubtitles(videoFiles, subtitles, strict);
-			for (Entry<File, SubtitleDescriptor> it : subtitleByVideo.entrySet()) {
-				CLILogger.finest(format("Matched [%s] to [%s] via filename", it.getKey().getName(), it.getValue().getName()));
-			}
-			return subtitleByVideo;
-		}
-
-		return emptyMap();
 	}
 
 	private <T> List<T> applyExpressionFilter(Collection<T> input, ExpressionFilter filter) throws Exception {
