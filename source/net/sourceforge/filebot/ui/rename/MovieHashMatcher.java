@@ -335,10 +335,20 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		final List<Movie> probableMatches = new LinkedList<Movie>();
 
 		final SimilarityMetric metric = new NameSimilarityMetric();
+		final float threshold = 0.9f;
 
 		// find probable matches using name similarity >= 0.9
 		for (Movie result : options) {
-			if (metric.getSimilarity(fileQuery, result.getName()) >= 0.9 || metric.getSimilarity(folderQuery, result.getName()) >= 0.9) {
+			float maxSimilarity = 0;
+			for (String query : new String[] { fileQuery, folderQuery }) {
+				for (String name : result.getEffectiveNamesWithoutYear()) {
+					if (maxSimilarity >= threshold)
+						continue;
+
+					maxSimilarity = Math.max(maxSimilarity, metric.getSimilarity(query, name));
+				}
+			}
+			if (maxSimilarity >= threshold) {
 				probableMatches.add(result);
 			}
 		}

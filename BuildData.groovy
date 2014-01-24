@@ -151,8 +151,8 @@ movies = tmdb.findResults{
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
 // sanity check
-pack(moviedb_out, movies*.join('\t'))
 if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
+pack(moviedb_out, movies*.join('\t'))
 
 
 /* ------------------------------------------------------------------------- */
@@ -243,8 +243,8 @@ thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
 // sanity check
-pack(thetvdb_out, thetvdb_txt)
 if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed') }
+pack(thetvdb_out, thetvdb_txt)
 
 
 /* ------------------------------------------------------------------------- */
@@ -265,5 +265,5 @@ def anidb_index = anidb.findResults{
 def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 
 // sanity check
-pack(anidb_out, anidb_txt)
 if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed') }
+pack(anidb_out, anidb_txt)

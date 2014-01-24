@@ -207,7 +207,8 @@ def getRenameLog(complete = false) {
 import net.sourceforge.filebot.similarity.*
 
 def stripReleaseInfo(name, strict = true) {
-	return MediaDetection.stripReleaseInfo([name], strict)[0]
+	def result = MediaDetection.stripReleaseInfo([name], strict)
+	return result.size() > 0 ? result[0] : null
 }
 
 def isEpisode(path, strict = true) {
