@@ -50,6 +50,7 @@ import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
 import net.sourceforge.filebot.similarity.EpisodeMatcher;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
@@ -909,15 +910,25 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	@Override
 	public File compute(Collection<File> files, String output, String csn) throws Exception {
-		// check common parent for all given files
-		File root = null;
-		for (File it : files) {
-			if (root == null || root.getPath().startsWith(it.getParent()))
-				root = it.getParentFile();
+		// ignore folders and any sort of special files
+		files = filter(files, FILES);
 
-			if (!it.getParent().startsWith(root.getPath()))
-				throw new Exception("Paths don't share a common root: " + files);
+		// find common parent folder of all files
+		File[] fileList = files.toArray(new File[0]);
+		File[][] pathArray = new File[fileList.length][];
+		for (int i = 0; i < fileList.length; i++) {
+			pathArray[i] = listPath(fileList[i].getParentFile()).toArray(new File[0]);
 		}
+
+		CommonSequenceMatcher csm = new CommonSequenceMatcher(null, 0, true);
+		File[] common = csm.matchFirstCommonSequence(pathArray);
+
+		if (common == null) {
+			throw new Exception("Paths must be on the same filesystem: " + files);
+		}
+
+		// last element in the common sequence must be the root folder
+		File root = common[common.length - 1];
 
 		// create verification file
 		File outputFile;
@@ -937,7 +948,11 @@ public class CmdlineOperations implements CmdlineInterface {
 			throw new Exception("Illegal output type: " + output);
 		}
 
-		CLILogger.config("Using output file: " + outputFile);
+		if (files.isEmpty()) {
+			throw new Exception("No files: " + files);
+		}
+
+		CLILogger.info(format("Compute %s hash for %s files [%s]", hashType, files.size(), outputFile));
 		compute(root.getPath(), files, outputFile, hashType, csn);
 
 		return outputFile;
@@ -985,7 +1000,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		VerificationFileWriter out = new VerificationFileWriter(outputFile, hashType.getFormat(), csn != null ? csn : "UTF-8");
 
 		try {
-			CLILogger.fine("Computing hashes");
 			for (File it : files) {
 				if (it.isHidden() || MediaTypes.getDefaultFilter("verification").accept(it))
 					continue;

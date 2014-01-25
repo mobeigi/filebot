@@ -89,6 +89,7 @@
 ^queue$
 ^raid$
 ^rename$
+^rip$
 ^Romance$
 ^rtorrent$
 ^Science.Fiction$
@@ -97,6 +98,7 @@
 ^Season$
 ^Seeding$
 ^Seeds$
+^Serier$
 ^Series$
 ^share$
 ^sort$
