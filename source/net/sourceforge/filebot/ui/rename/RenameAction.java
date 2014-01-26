@@ -115,7 +115,7 @@ class RenameAction extends AbstractAction {
 			}
 
 			// write metadata into xattr if xattr is enabled
-			if (useExtendedFileAttributes()) {
+			if (useExtendedFileAttributes() || useCreationDate()) {
 				try {
 					for (Match<Object, File> match : matches) {
 						File file = match.getCandidate();
@@ -123,7 +123,7 @@ class RenameAction extends AbstractAction {
 						if (renameMap.containsKey(file) && meta != null) {
 							File destination = resolveDestination(file, renameMap.get(file), false);
 							if (destination.isFile()) {
-								MediaDetection.storeMetaInfo(destination, meta, file.getName());
+								MediaDetection.storeMetaInfo(destination, meta, file.getName(), useExtendedFileAttributes(), useCreationDate());
 							}
 						}
 					}

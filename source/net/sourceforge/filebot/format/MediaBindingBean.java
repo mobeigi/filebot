@@ -3,7 +3,6 @@ package net.sourceforge.filebot.format;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
@@ -358,13 +357,13 @@ public class MediaBindingBean {
 	}
 
 	@Define("original")
-	public String getOriginalFileName() {
+	public String getOriginalFileName() throws Exception {
 		return getOriginalFileName(mediaFile);
 	}
 
 	@Define("xattr")
-	public Object getMetaAttributesObject() {
-		return getMetaAttributesObject(mediaFile);
+	public Object getMetaAttributesObject() throws Exception {
+		return new MetaAttributes(mediaFile).getObject();
 	}
 
 	@Define("crc32")
@@ -860,25 +859,11 @@ public class MediaBindingBean {
 	}
 
 	private String getOriginalFileName(File file) {
-		if (useExtendedFileAttributes()) {
-			try {
-				return new MetaAttributes(file).getOriginalName();
-			} catch (Throwable e) {
-				// ignore
-			}
+		try {
+			return new MetaAttributes(file).getOriginalName();
+		} catch (Throwable e) {
+			return null;
 		}
-		return null;
-	}
-
-	private Object getMetaAttributesObject(File file) {
-		if (useExtendedFileAttributes()) {
-			try {
-				return new MetaAttributes(file).getObject();
-			} catch (Throwable e) {
-				// ignore
-			}
-		}
-		return null;
 	}
 
 }

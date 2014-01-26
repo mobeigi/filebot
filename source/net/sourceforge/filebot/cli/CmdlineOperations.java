@@ -609,7 +609,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// write metadata into xattr if xattr is enabled
-		if (matches != null && useExtendedFileAttributes()) {
+		if (matches != null && (useExtendedFileAttributes() || useCreationDate())) {
 			try {
 				for (Match<File, ?> match : matches) {
 					File file = match.getValue();
@@ -617,7 +617,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					if (renameMap.containsKey(file) && meta != null) {
 						File destination = resolveDestination(file, renameMap.get(file), false);
 						if (destination.isFile()) {
-							MediaDetection.storeMetaInfo(destination, meta, file.getName());
+							MediaDetection.storeMetaInfo(destination, meta, file.getName(), useExtendedFileAttributes(), useCreationDate());
 						}
 					}
 				}

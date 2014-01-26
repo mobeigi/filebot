@@ -156,6 +156,7 @@ public class Main {
 			}
 			if (args.disableExtendedAttributes) {
 				System.setProperty("useExtendedFileAttributes", "false");
+				System.setProperty("useCreationDate", "false");
 			}
 			if (args.action.equalsIgnoreCase("test")) {
 				System.setProperty("useExtendedFileAttributes", "false");

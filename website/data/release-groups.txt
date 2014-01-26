@@ -1284,6 +1284,7 @@ LeON
 LEVERAGE
 LEViTY
 LF
+LFF
 LGLuX
 Lightmaker
 lilwoodenboy
@@ -2338,6 +2339,7 @@ x4subs
 XanaX
 xander
 XC
+Xell
 XF
 XiA
 XII
