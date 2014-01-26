@@ -1,17 +1,17 @@
-
 package net.sourceforge.filebot.similarity;
 
-
 public class MetricAvg implements SimilarityMetric {
-	
+
 	private final SimilarityMetric[] metrics;
-	
-	
+
 	public MetricAvg(SimilarityMetric... metrics) {
 		this.metrics = metrics;
 	}
-	
-	
+
+	public SimilarityMetric[] getMetrics() {
+		return metrics.clone();
+	}
+
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
 		float f = 0;
@@ -20,5 +20,5 @@ public class MetricAvg implements SimilarityMetric {
 		}
 		return f / metrics.length;
 	}
-	
+
 }

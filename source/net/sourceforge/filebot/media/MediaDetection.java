@@ -56,6 +56,7 @@ import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
 import net.sourceforge.filebot.similarity.SeriesNameMatcher;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
+import net.sourceforge.filebot.similarity.StringEqualsMetric;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
 import net.sourceforge.filebot.web.Episode;
@@ -654,7 +655,13 @@ public class MediaDetection {
 	}
 
 	public static SimilarityMetric getMovieMatchMetric() {
-		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true), new NumericSimilarityMetric() {
+		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true), new StringEqualsMetric() {
+
+			@Override
+			protected String normalize(Object object) {
+				return super.normalize(removeTrailingBrackets(object.toString()));
+			}
+		}, new NumericSimilarityMetric() {
 
 			private Pattern year = Pattern.compile("\\b\\d{4}\\b");
 
