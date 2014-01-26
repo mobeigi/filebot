@@ -60,6 +60,10 @@ public final class SubtitleUtilities {
 
 		for (List<File> byMediaFolder : mapByMediaFolder(fileSet).values()) {
 			for (Entry<String, List<File>> bySeries : mapBySeriesName(byMediaFolder, true, false, Locale.ENGLISH).entrySet()) {
+				// allow early abort
+				if (Thread.interrupted())
+					throw new InterruptedException();
+
 				// auto-detect query and search for subtitles
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 				List<File> files = bySeries.getValue();
@@ -90,10 +94,9 @@ public final class SubtitleUtilities {
 
 				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
 
-				// dialog may have been cancelled by now
-				if (Thread.interrupted()) {
+				// allow early abort
+				if (Thread.interrupted())
 					throw new InterruptedException();
-				}
 
 				// files by possible subtitles matches
 				for (File file : files) {
@@ -105,7 +108,7 @@ public final class SubtitleUtilities {
 				float minMatchSimilarity = strict ? 0.9f : 0.6f;
 
 				// first match everything as best as possible, then filter possibly bad matches
-				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, strict).entrySet()) {
+				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
 					if (sanity.getSimilarity(it.getKey(), it.getValue()) >= minMatchSimilarity) {
 						subtitlesByFile.get(it.getKey()).add(it.getValue());
 					}
