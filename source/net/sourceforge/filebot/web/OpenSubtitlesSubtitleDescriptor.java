@@ -23,7 +23,7 @@ import net.sourceforge.tuned.FileUtilities;
 public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Serializable {
 
 	public static enum Property {
-		IDSubtitle, IDSubtitleFile, IDSubMovieFile, IDMovie, IDMovieImdb, SubFileName, SubFormat, SubHash, SubSize, MovieHash, MovieByteSize, MovieName, MovieNameEng, MovieYear, MovieReleaseName, MovieTimeMS, MovieFPS, MovieImdbRating, MovieKind, SeriesSeason, SeriesEpisode, SeriesIMDBParent, SubLanguageID, ISO639, LanguageName, UserID, UserRank, UserNickName, SubAddDate, SubAuthorComment, SubFeatured, SubComments, SubDownloadsCnt, SubHearingImpaired, SubRating, SubHD, SubBad, SubActualCD, SubSumCD, MatchedBy, SubtitlesLink, SubDownloadLink, ZipDownloadLink;
+		IDSubtitle, IDSubtitleFile, IDSubMovieFile, IDMovie, IDMovieImdb, SubFileName, SubFormat, SubHash, SubSize, MovieHash, MovieByteSize, MovieName, MovieNameEng, MovieYear, MovieReleaseName, MovieTimeMS, MovieFPS, MovieImdbRating, MovieKind, SeriesSeason, SeriesEpisode, SeriesIMDBParent, SubLanguageID, ISO639, LanguageName, UserID, UserRank, UserNickName, SubAddDate, SubAuthorComment, SubFeatured, SubComments, SubDownloadsCnt, SubHearingImpaired, SubRating, SubHD, SubBad, SubActualCD, SubSumCD, MatchedBy, QueryNumber, SubtitlesLink, SubDownloadLink, ZipDownloadLink;
 
 		public static <V> EnumMap<Property, V> asEnumMap(Map<String, V> stringMap) {
 			EnumMap<Property, V> enumMap = new EnumMap<Property, V>(Property.class);
@@ -45,6 +45,10 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 
 	public OpenSubtitlesSubtitleDescriptor(Map<Property, String> properties) {
 		this.properties = properties;
+	}
+
+	public Map<Property, String> getProperties() {
+		return properties;
 	}
 
 	public String getProperty(Property key) {
@@ -82,6 +86,14 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 
 	public long getMovieByteSize() {
 		return Long.parseLong(getProperty(Property.MovieByteSize));
+	}
+
+	public String getMovieReleaseName() {
+		return getProperty(Property.MovieReleaseName);
+	}
+
+	public int getQueryNumber() {
+		return Integer.parseInt(getProperty(Property.QueryNumber));
 	}
 
 	@Override

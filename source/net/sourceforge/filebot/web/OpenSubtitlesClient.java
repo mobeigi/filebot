@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -134,6 +135,29 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public Map<File, List<SubtitleDescriptor>> getSubtitleList(File[] files, String languageName) throws Exception {
+		Map<File, List<SubtitleDescriptor>> results = new HashMap<File, List<SubtitleDescriptor>>(files.length);
+		Set<File> remainingFiles = new LinkedHashSet<File>(asList(files));
+
+		// lookup subtitles by hash
+		if (remainingFiles.size() > 0) {
+			results.putAll(getSubtitleListByHash(remainingFiles.toArray(new File[0]), languageName));
+		}
+
+		for (Entry<File, List<SubtitleDescriptor>> it : results.entrySet()) {
+			if (it.getValue().size() > 0) {
+				remainingFiles.remove(it.getKey());
+			}
+		}
+
+		// lookup subtitles by tag
+		if (remainingFiles.size() > 0) {
+			results.putAll(getSubtitleListByTag(remainingFiles.toArray(new File[0]), languageName));
+		}
+
+		return results;
+	}
+
+	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 
@@ -142,10 +166,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		Map<File, List<SubtitleDescriptor>> resultMap = new HashMap<File, List<SubtitleDescriptor>>(files.length);
 
 		// create hash query for each file
-		List<Query> queryList = new ArrayList<Query>(files.length);
+		List<Query> hashQueryList = new ArrayList<Query>(files.length);
 
 		for (File file : files) {
-			// add query
+			// add hash query
 			if (file.length() > HASH_CHUNK_SIZE) {
 				String movieHash = computeHash(file);
 				Query query = Query.forHash(movieHash, file.length(), languageFilter);
@@ -153,7 +177,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// check hash
 				List<SubtitleDescriptor> cachedResults = getCache().getSubtitleDescriptorList(query, languageName);
 				if (cachedResults == null) {
-					queryList.add(query);
+					hashQueryList.add(query);
 					hashMap.put(query, file);
 				} else {
 					resultMap.put(file, cachedResults);
@@ -166,26 +190,92 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			}
 		}
 
-		if (queryList.size() > 0) {
+		if (hashQueryList.size() > 0) {
 			// require login
 			login();
 
 			// dispatch query for all hashes
 			int batchSize = 50;
-			for (int bn = 0; bn < ceil((float) queryList.size() / batchSize); bn++) {
-				List<Query> batch = queryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, queryList.size()));
+			for (int bn = 0; bn < ceil((float) hashQueryList.size() / batchSize); bn++) {
+				List<Query> batch = hashQueryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashQueryList.size()));
 
 				// submit query and map results to given files
 				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
 					// get file for hash
-					File file = hashMap.get(Query.forHash(subtitle.getMovieHash(), subtitle.getMovieByteSize(), languageFilter));
+					File file = hashMap.get((batch.get(subtitle.getQueryNumber())));
 
 					// add subtitle
-					resultMap.get(file).add(subtitle);
+					if (file != null) {
+						resultMap.get(file).add(subtitle);
+					} else {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Unable to map hash to file: " + subtitle.getMovieHash());
+					}
 				}
 
 				for (Query query : batch) {
 					getCache().putSubtitleDescriptorList(query, languageName, resultMap.get(hashMap.get(query)));
+				}
+			}
+		}
+
+		return resultMap;
+	}
+
+	public Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, String languageName) throws Exception {
+		// singleton array with or empty array
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+
+		// remember tag for each file
+		Map<Query, File> tagMap = new HashMap<Query, File>(files.length);
+		Map<File, List<SubtitleDescriptor>> resultMap = new HashMap<File, List<SubtitleDescriptor>>(files.length);
+
+		// create tag query for each file
+		List<Query> tagQueryList = new ArrayList<Query>(files.length);
+
+		for (File file : files) {
+			// add tag query
+			String tag = getNameWithoutExtension(file.getName());
+			Query query = Query.forTag(tag, languageFilter);
+
+			// check tag
+			List<SubtitleDescriptor> cachedResults = getCache().getSubtitleDescriptorList(query, languageName);
+			if (cachedResults == null) {
+				tagQueryList.add(query);
+				tagMap.put(query, file);
+			} else {
+				resultMap.put(file, cachedResults);
+			}
+
+			// prepare result map
+			if (resultMap.get(file) == null) {
+				resultMap.put(file, new LinkedList<SubtitleDescriptor>());
+			}
+		}
+
+		if (tagQueryList.size() > 0) {
+			// require login
+			login();
+
+			// dispatch query for all hashes
+			int batchSize = 50;
+			for (int bn = 0; bn < ceil((float) tagQueryList.size() / batchSize); bn++) {
+				List<Query> batch = tagQueryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, tagQueryList.size()));
+
+				// submit query and map results to given files
+				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
+					// get file for tag
+					File file = tagMap.get(batch.get(subtitle.getQueryNumber()));
+
+					// add subtitle
+					if (file != null) {
+						resultMap.get(file).add(subtitle);
+					} else {
+						Logger.getLogger(getClass().getName()).log(Level.WARNING, "Unable to map release name to file: " + subtitle.getMovieReleaseName());
+					}
+				}
+
+				for (Query query : batch) {
+					getCache().putSubtitleDescriptorList(query, languageName, resultMap.get(tagMap.get(query)));
 				}
 			}
 		}

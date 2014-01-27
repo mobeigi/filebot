@@ -377,23 +377,27 @@ public class OpenSubtitlesXmlRpc {
 
 	public static final class Query extends HashMap<String, Object> implements Serializable {
 
-		private Query(String imdbid, String... sublanguageids) {
-			put("imdbid", imdbid);
-			put("sublanguageid", join(sublanguageids, ","));
-		}
-
-		private Query(String moviehash, String moviebytesize, String... sublanguageids) {
-			put("moviehash", moviehash);
-			put("moviebytesize", moviebytesize);
+		private Query(String... sublanguageids) {
 			put("sublanguageid", join(sublanguageids, ","));
 		}
 
 		public static Query forHash(String moviehash, long moviebytesize, String... sublanguageids) {
-			return new Query(moviehash, Long.toString(moviebytesize), sublanguageids);
+			Query query = new Query(sublanguageids);
+			query.put("moviehash", moviehash);
+			query.put("moviebytesize", Long.toString(moviebytesize));
+			return query;
+		}
+
+		public static Query forTag(String tag, String... sublanguageids) {
+			Query query = new Query(sublanguageids);
+			query.put("tag", tag);
+			return query;
 		}
 
 		public static Query forImdbId(int imdbid, String... sublanguageids) {
-			return new Query(Integer.toString(imdbid), sublanguageids);
+			Query query = new Query(sublanguageids);
+			query.put("imdbid", Integer.toString(imdbid));
+			return query;
 		}
 	}
 
