@@ -221,6 +221,7 @@
 			<javaproperty name="application.deployment" value="app" />
 			<javaproperty name="unixfs" value="false" />
 			<javaproperty name="useExtendedFileAttributes" value="true" />
+			<javaproperty name="useCreationDate" value="false" />
 			<javaproperty name="net.sourceforge.filebot.AcoustID.fpcalc" value="$JAVAROOT/fpcalc" />
 			<javaproperty name="jna.library.path" value="$JAVAROOT" />
 			<javaproperty name="java.library.path" value="$JAVAROOT" />

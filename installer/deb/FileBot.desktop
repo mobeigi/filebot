@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=FileBot
-Comment=Rename Movies and TV Shows
+Comment=Rename Movies or TV Shows and download Subtitles
 Type=Application
 Exec=/usr/share/filebot/bin/filebot.sh
 Icon=/usr/share/filebot/icon.svg
