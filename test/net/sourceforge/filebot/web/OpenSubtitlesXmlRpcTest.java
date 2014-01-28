@@ -177,6 +177,15 @@ public class OpenSubtitlesXmlRpcTest {
 		assertEquals(48717, data.remaining(), 0);
 	}
 
+	// @Test(expected = IOException.class)
+	public void fetchSubtitlesExceedLimit() throws Exception {
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(773262, "eng");
+
+		for (int i = 0; true; i++) {
+			System.out.format("Fetch #%d: %s%n", i, list.get(i).fetch());
+		}
+	}
+
 	@AfterClass
 	public static void logout() throws Exception {
 		// logout manually

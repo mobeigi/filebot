@@ -108,7 +108,7 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 			try {
 				stream = new GZIPInputStream(stream);
 			} catch (ZipException e) {
-				throw new IOException(String.format("%s: anti-leech limit may have been reached", e.getMessage()));
+				throw new IOException(String.format("%s: anti-leech limit has been reached", e.getMessage()));
 			}
 
 			// fully download

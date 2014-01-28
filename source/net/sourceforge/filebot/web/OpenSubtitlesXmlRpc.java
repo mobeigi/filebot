@@ -96,7 +96,7 @@ public class OpenSubtitlesXmlRpc {
 	@SuppressWarnings("unchecked")
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
 		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
+		Map<?, ?> response = invoke("SearchSubtitles", token, queryList, singletonMap("limit", 2000));
 
 		try {
 			List<Map<String, String>> subtitleData = (List<Map<String, String>>) response.get("data");
