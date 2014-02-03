@@ -66,6 +66,7 @@
 	</type>
 	<type name="audio/ogm">
 		<extension>ogm</extension>
+		<extension>ogv</extension>
 		<extension>ogg</extension>
 	</type>
 	<type name="audio/wav">
