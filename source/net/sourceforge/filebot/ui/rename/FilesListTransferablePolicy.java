@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,7 +93,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			} else if (f.isDirectory()) {
 				File[] children = f.listFiles();
 				if (children != null) {
-					queue.addAll(0, asList(children));
+					queue.addAll(0, new TreeSet<File>(asList(children))); // FORCE NATURAL FILE ORDER
 				}
 			}
 		}
