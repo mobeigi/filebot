@@ -140,6 +140,9 @@ public class RenamePanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// lock cell with once user starts deleting cells (performance hack)
+				setFixedCellWidth(true);
+
 				RenameList list = null;
 				boolean deleteCell;
 
@@ -446,6 +449,9 @@ public class RenamePanel extends JComponent {
 			} else {
 				renameModel.clear();
 			}
+
+			// lock cell with once user starts deleting cells (performance hack)
+			setFixedCellWidth(false);
 		}
 	};
 
@@ -595,6 +601,12 @@ public class RenamePanel extends JComponent {
 			namesList.firePropertyChange(LOADING_PROPERTY, false, true);
 
 			worker.execute();
+		}
+	}
+
+	public void setFixedCellWidth(boolean fixed) {
+		for (RenameList<?> it : new RenameList[] { namesList, filesList }) {
+			it.getListComponent().setFixedCellWidth(fixed ? (int) it.getListComponent().getPreferredSize().getWidth() : -1);
 		}
 	}
 
