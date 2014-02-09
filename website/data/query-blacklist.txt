@@ -83,6 +83,7 @@
 ^other$
 ^Part$
 ^private$
+^Processed$
 ^public$
 ^pyload$
 ^Qmultimedia$
@@ -181,6 +182,7 @@ Directors.Cut
 DKsubs
 DL
 docu
+DownRev
 dreambox.cut
 Dual.Audio
 dubbed
@@ -213,6 +215,7 @@ HAVE.TO.BE.CUT
 HBO
 HD
 HDRip
+HebSubs
 Hi10P
 Hindi
 History.Channel
