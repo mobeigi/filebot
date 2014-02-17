@@ -174,7 +174,7 @@ class RenameAction extends AbstractAction {
 				if (destination.exists() && !resolveDestination(mapping.getKey(), mapping.getValue(), false).equals(mapping.getKey()))
 					throw new IllegalArgumentException("File already exists: " + mapping.getValue().getPath());
 
-				if (getExtension(destination) == null)
+				if (getExtension(destination) == null && destination.isFile())
 					throw new IllegalArgumentException("Missing extension: " + mapping.getValue().getPath());
 
 				// use original mapping values
