@@ -14,6 +14,7 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,11 @@ public final class FileUtilities {
 			// move file
 			try {
 				// * On Windows ATOMIC_MOVE allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
-				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+				try {
+					java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+				} catch (AtomicMoveNotSupportedException e) {
+					java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				}
 			} catch (LinkageError e) {
 				org.apache.commons.io.FileUtils.moveFile(source, destination); // use "copy and delete" as fallback if standard rename fails
 			}
