@@ -302,6 +302,7 @@ BaCKToRG
 BaCo
 BaDTaStE
 BAF
+BaibaKo
 BAJSKORV
 Baka-Anime
 Baka-Chi
@@ -350,6 +351,7 @@ BETAMAX
 BF1
 BFF
 BG
+BgFr
 BHATTI
 BiA
 BiDA
@@ -1047,6 +1049,7 @@ HANGPUNG
 HANNIBAL
 HANrel
 HARMY
+HarrHD
 Haterman
 Hatsuyuki
 Hatsuyuki-Kaitou
@@ -1235,6 +1238,7 @@ israntxa
 iSUBS
 iTA
 ITG
+iTOONZ
 iTSDVD
 ITZ
 IY-A_Excal
@@ -1934,6 +1938,7 @@ RMx
 RoCK&BlueLadyRG
 RoCKRioT
 RoFL
+ROGER
 ROOR
 ROTATE
 ROUGH
@@ -2097,6 +2102,7 @@ snavE
 SNCo
 Sneak
 SnF
+SNOW
 SNS
 SNUGGLER
 SoCkS

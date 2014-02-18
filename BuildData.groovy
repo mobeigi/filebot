@@ -102,8 +102,8 @@ new File('omdb.txt').eachLine('Windows-1252'){
 		def name = line[2].replaceAll(/\s+/, ' ').trim()
 		def year = line[3].toInteger()
 		def runtime = line[5]
-		def rating = tryQuietly{ line[11].toFloat() } ?: 0
-		def votes = tryQuietly{ line[12].replaceAll(/\D/, '').toInteger() } ?: 0
+		def rating = tryQuietly{ line[12].toFloat() } ?: 0
+		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
 		
 		if ((year >= 1970 && (runtime =~ /h/ || votes >= 200) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000)) {
 			omdb << [imdbid.pad(7), name, year]
