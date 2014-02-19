@@ -55,7 +55,7 @@ public final class FileUtilities {
 				// * On Windows ATOMIC_MOVE allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
 				try {
 					java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-				} catch (Exception e) {
+				} catch (IOException e) {
 					// HACK to keep things working on Java 6
 					if (e.getClass().getName().contains("AtomicMoveNotSupported")) {
 						java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
