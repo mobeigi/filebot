@@ -1,6 +1,8 @@
 package net.sourceforge.filebot.ui.rename;
 
+import static java.awt.event.KeyEvent.*;
 import static javax.swing.JOptionPane.*;
+import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.tuned.ExceptionUtilities.*;
@@ -283,6 +285,26 @@ public class RenamePanel extends JComponent {
 		add(renameButton, "gapy 30px, sizegroupx button");
 
 		add(new LoadingOverlayPane(namesList, namesList, "32px", "30px"), "grow, sizegroupx list");
+
+		// manual force name via F2
+		installAction(namesList.getListComponent(), getKeyStroke(VK_F2, 0), new AbstractAction("Force Name") {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					int index = namesList.getListComponent().getSelectedIndex();
+					File file = (File) filesList.getListComponent().getModel().getElementAt(index);
+					String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+
+					String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
+					if (forcedName != null && forcedName.length() > 0) {
+						renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+					}
+				} catch (Exception e) {
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
+				}
+			}
+		});
 	}
 
 	protected ActionPopup createFetchPopup() {
@@ -405,6 +427,9 @@ public class RenamePanel extends JComponent {
 				initMode = Mode.Movie;
 			} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
 				initMode = Mode.Music;
+			} else {
+				// illegal info object => ignore
+				return;
 			}
 		} else {
 			// restore previous mode
