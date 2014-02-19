@@ -9,6 +9,7 @@ import static net.sourceforge.tuned.ui.TunedUtilities.*;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.Window;
@@ -194,6 +195,21 @@ public class FormatDialog extends JDialog {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
+				// set size after initial sample evaluations
+				invokeLater(400, new Runnable() {
+
+					@Override
+					public void run() {
+						FormatDialog.this.pack();
+					}
+				});
+			}
+		});
+
+		addPropertyChangeListener("sample", new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
 				checkFormatInBackground();
 			}
 		});
@@ -226,7 +242,7 @@ public class FormatDialog extends JDialog {
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setSize(650, 450);
+		setMinimumSize(new Dimension(650, 450));
 
 		// initialize data
 		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
