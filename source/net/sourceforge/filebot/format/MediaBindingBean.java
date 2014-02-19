@@ -419,8 +419,26 @@ public class MediaBindingBean {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
 
+		// consider foldername, filename and original filename
+		String[] filenames = new String[] { inferredMediaFile.getParentFile().getName(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile) };
+
+		// reduce false positives by removing the know titles from the name
+		List<String> titles = new ArrayList<String>();
+		titles.add(getName());
+		titles.add(getYear().toString());
+		titles.addAll(getAliasNames());
+		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(titles);
+
+		for (int i = 0; i < filenames.length; i++) {
+			if (filenames[i] == null)
+				continue;
+
+			// normalize space characters
+			filenames[i] = nonGroupPattern.matcher(normalizeSpace(filenames[i], " ")).replaceAll("");
+		}
+
 		// look for release group names in media file and it's parent folder
-		return releaseInfo.getReleaseGroup(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
+		return releaseInfo.getReleaseGroup(filenames);
 	}
 
 	@Define("lang")

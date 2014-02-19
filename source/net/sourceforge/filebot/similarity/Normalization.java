@@ -30,6 +30,10 @@ public class Normalization {
 		return name;
 	}
 
+	public static String normalizeSpace(String name, String replacement) {
+		return name.replaceAll("[:?._]", " ").trim().replaceAll("\\s+", replacement);
+	}
+
 	public static String removeEmbeddedChecksum(String string) {
 		// match embedded checksum and surrounding brackets
 		return checksum.matcher(string).replaceAll("");

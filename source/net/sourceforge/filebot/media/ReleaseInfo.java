@@ -266,6 +266,10 @@ public class ReleaseInfo {
 		return compile(join(excludeBlacklistResource.get(), "|"), CASE_INSENSITIVE | UNICODE_CASE);
 	}
 
+	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
+		return compile("(?<!\\p{Alnum})(" + join(quoteAll(terms), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CASE);
+	}
+
 	public Movie[] getMovieList() throws IOException {
 		return movieListResource.get();
 	}
