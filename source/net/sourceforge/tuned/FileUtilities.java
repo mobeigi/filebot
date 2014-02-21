@@ -413,7 +413,11 @@ public final class FileUtilities {
 		if (depth > maxDepth)
 			return;
 
-		for (File file : folder.listFiles()) {
+		File[] children = folder.listFiles();
+		if (children == null)
+			return;
+
+		for (File file : children) {
 			if (!listHiddenFiles && file.isHidden()) // ignore hidden files
 				continue;
 
