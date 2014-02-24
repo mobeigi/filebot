@@ -536,7 +536,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	private File getDestinationFile(File original, String newName, File outputDir) {
 		String extension = getExtension(original);
-		File newFile = new File(extension != null ? newName + '.' + extension : newName);
+		File newFile = new File(extension != null ? newName + '.' + extension.toLowerCase() : newName);
 
 		// resolve against output dir
 		if (outputDir != null && !newFile.isAbsolute()) {
