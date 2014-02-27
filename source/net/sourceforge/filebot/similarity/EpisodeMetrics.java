@@ -125,10 +125,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 
 			if (object instanceof Movie) {
-				object = ((Movie) object).getName();
+				return normalizeObject(((Movie) object).getName());
 			}
 
-			return normalizeObject(object);
+			String s = normalizeObject(object);
+			return s.length() >= 4 ? s : null; // only consider long enough strings to avoid false matches
 		}
 	}),
 

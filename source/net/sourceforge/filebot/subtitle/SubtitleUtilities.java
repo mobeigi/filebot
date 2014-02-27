@@ -127,7 +127,7 @@ public final class SubtitleUtilities {
 							continue;
 
 						// ignore if we're sure that SxE is a negative match
-						if (isEpisode(it.getName(), true) && isEpisode(file.getPath(), true) && EpisodeMetrics.EpisodeFunnel.getSimilarity(file, it) < 1)
+						if ((isEpisode(it.getName(), true) || isEpisode(file.getPath(), true)) && EpisodeMetrics.EpisodeIdentifier.getSimilarity(file, it) < 1)
 							continue;
 
 						// ignore if it's not similar enough
