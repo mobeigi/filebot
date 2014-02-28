@@ -483,6 +483,11 @@ public class MediaBindingBean {
 		return getMetaInfo().getProperty("genres");
 	}
 
+	@Define("genre")
+	public Object getPrimaryGenre() {
+		return ((Iterable<?>) getGenres()).iterator().next();
+	}
+
 	@Define("director")
 	public Object getDirector() {
 		return getMetaInfo().getProperty("director");
