@@ -33,6 +33,7 @@
 ^Comedy$
 ^Complete$
 ^Completed$
+^Completed.Downloads$
 ^Crime$
 ^data$
 ^deluge$
@@ -83,6 +84,7 @@
 ^of$
 ^other$
 ^Part$
+^Plexserv$
 ^private$
 ^Processed$
 ^public$
@@ -129,6 +131,7 @@
 ^TV.Series$
 ^TV.Show$
 ^TV.Shows$
+^Uncompleted.Downloads$
 ^unsorted$
 ^user$
 ^utorrent$
