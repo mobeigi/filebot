@@ -37,6 +37,7 @@
 ^Crime$
 ^data$
 ^deluge$
+^disk[0-9]$
 ^Documentary$
 ^Done$
 ^Download$

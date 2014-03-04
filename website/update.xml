@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 3.8</name>
-	<revision>1840</revision>
+	<name>FileBot 4.0</name>
+	<revision>2052</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 3.8 (r1840)</b><br>
+		<b>FileBot 4.0</b><br>
 		This release features:<br>
-		+ Support for Subtitle Upload<br>
-		+ Support checking Music Videos via AcoustID<br>
-		+ Improved movie / episode detection<br>
-		+ Support for alias names<br>
-		+ Lots of UI improvements<br>
+		+ Improved subtitle lookup and auto-selection<br>
+		+ Subtitle naming preferences<br>
+		+ Improved series / movie detection<br>
+		+ Improved performance<br>
+		+ Lots of UI enhancements<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1080]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1382]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
