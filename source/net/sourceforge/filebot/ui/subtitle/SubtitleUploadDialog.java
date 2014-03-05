@@ -15,6 +15,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.EventObject;
 import java.util.List;
@@ -58,6 +59,9 @@ import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
+import net.sourceforge.filebot.web.SearchResult;
+import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
+import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.filebot.web.VideoHashSubtitleService.CheckResult;
 import net.sourceforge.tuned.FileUtilities;
 import net.sourceforge.tuned.ui.AbstractBean;
@@ -170,6 +174,7 @@ public class SubtitleUploadDialog extends JDialog {
 							if (selectedValue != null) {
 								mapping.setIdentity(selectedValue);
 								if (mapping.getIdentity() != null && mapping.getLanguage() != null) {
+									mapping.setForceIdentity(true);
 									mapping.setState(SubtitleMapping.Status.CheckPending);
 									startChecking();
 								}
@@ -579,6 +584,7 @@ public class SubtitleUploadDialog extends JDialog {
 
 		private Status status = Status.CheckPending;
 		private String message = null;
+		private boolean forceIdentity = false;
 
 		public SubtitleMapping(File subtitle, File video, Language language) {
 			this.subtitle = subtitle;
@@ -626,6 +632,13 @@ public class SubtitleUploadDialog extends JDialog {
 			firePropertyChange("status", null, this.status);
 		}
 
+		public boolean getForceIdentity() {
+			return this.forceIdentity;
+		}
+
+		public void setForceIdentity(boolean forceIdentity) {
+			this.forceIdentity = forceIdentity;
+		}
 	}
 
 	private class CheckTask extends SwingWorker<Object, Void> {
@@ -639,18 +652,22 @@ public class SubtitleUploadDialog extends JDialog {
 		@Override
 		protected Object doInBackground() throws Exception {
 			try {
-				mapping.setState(SubtitleMapping.Status.Checking);
-				CheckResult checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
+				CheckResult checkResult = null;
 
-				Analytics.trackEvent(database.getName(), "CheckSubtitle", null, checkResult.exists ? 1 : 0);
+				if (!mapping.getForceIdentity()) {
+					mapping.setState(SubtitleMapping.Status.Checking);
 
-				// accept identity hint from search result
-				mapping.setIdentity(checkResult.identity);
+					checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
+					Analytics.trackEvent(database.getName(), "CheckSubtitle", null, checkResult.exists ? 1 : 0);
 
-				if (checkResult.exists) {
-					mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
-					mapping.setState(SubtitleMapping.Status.AlreadyExists);
-					return checkResult;
+					// accept identity hint from search result
+					mapping.setIdentity(checkResult.identity);
+
+					if (checkResult.exists) {
+						mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
+						mapping.setState(SubtitleMapping.Status.AlreadyExists);
+						return checkResult;
+					}
 				}
 
 				if (mapping.getLanguage() == null) {
@@ -666,14 +683,29 @@ public class SubtitleUploadDialog extends JDialog {
 				if (mapping.getIdentity() == null) {
 					mapping.setState(SubtitleMapping.Status.Identifying);
 					try {
-						Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
-						for (Movie it : identity) {
-							if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
-								it = WebServices.TMDb.getMovieDescriptor(it.getTmdbId(), Locale.ENGLISH, false);
+						if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
+							List<String> seriesNames = MediaDetection.detectSeriesNames(Collections.singleton(mapping.getVideo()), true, false, Locale.ENGLISH);
+							for (String name : seriesNames) {
+								List<SearchResult> options = WebServices.TheTVDB.search(name, Locale.ENGLISH);
+								for (SearchResult entry : options) {
+									SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) entry, Locale.ENGLISH);
+									Integer imdbid = seriesInfo.getImdbId();
+									if (imdbid != null && imdbid > 0) {
+										mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(imdbid, Locale.ENGLISH));
+										break;
+									}
+								}
 							}
-							if (it != null && it.getImdbId() > 0) {
-								mapping.setIdentity(it);
-								break;
+						} else {
+							Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
+							for (Movie it : identity) {
+								if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
+									it = WebServices.TMDb.getMovieDescriptor(it.getTmdbId(), Locale.ENGLISH, false);
+								}
+								if (it != null && it.getImdbId() > 0) {
+									mapping.setIdentity(it);
+									break;
+								}
 							}
 						}
 					} catch (Exception e) {
