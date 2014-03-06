@@ -151,7 +151,7 @@ movies = tmdb.findResults{
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
 // sanity check
-if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
+if (movies.size() < 40000) { throw new Exception('Movie index sanity failed') }
 pack(moviedb_out, movies*.join('\t'))
 
 
