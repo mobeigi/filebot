@@ -62,7 +62,7 @@ def pack(file, lines) {
 
 // BUILD moviedb index
 def isValidMovieName(s) {
-	return s=~ /^[A-Z0-9]/ && s =~ /[\p{Alpha}]{3}/
+	return (s.normalizePunctuation().length() >= 4) || (s=~ /^[A-Z0-9]/ && s =~ /[\p{Alnum}]{3}/)
 }
 
 def getNamePermutations(names) {
@@ -105,7 +105,7 @@ new File('omdb.txt').eachLine('Windows-1252'){
 		def rating = tryQuietly{ line[12].toFloat() } ?: 0
 		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
 		
-		if ((year >= 1970 && (runtime =~ /h/ || votes >= 200) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000)) {
+		if ((year >= 1970 && (runtime =~ /(\d.h)|(\d{3}.min)/ || votes >= 200) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000)) {
 			omdb << [imdbid.pad(7), name, year]
 		}
 	}
@@ -151,7 +151,7 @@ movies = tmdb.findResults{
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
 // sanity check
-if (movies.size() < 40000) { throw new Exception('Movie index sanity failed') }
+if (movies.size() < 50000) { throw new Exception('Movie index sanity failed') }
 pack(moviedb_out, movies*.join('\t'))
 
 
