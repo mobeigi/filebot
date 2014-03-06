@@ -521,7 +521,7 @@ public class MediaDetection {
 		return seriesList;
 	}
 
-	public static Collection<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
+	public static List<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
 		Set<Movie> options = new LinkedHashSet<Movie>();
 
 		// try xattr metadata if enabled

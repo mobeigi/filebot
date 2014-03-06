@@ -237,8 +237,22 @@ def detectSeriesName(files, boolean useSeriesIndex = true, boolean useAnimeIndex
 }
 
 def detectMovie(File file, strict = true, queryLookupService = TheMovieDB, hashLookupService = OpenSubtitles, locale = Locale.ENGLISH) {
-	def movies = MediaDetection.matchMovieName(file.listPath(4, true).findResults{ it.name ?: null }, true, 0) ?: MediaDetection.detectMovie(file, hashLookupService, queryLookupService, locale, strict)
-	return movies == null || movies.isEmpty() ? null : movies.toList()[0]
+	// 1. xattr
+	def m = tryQuietly{ file.metadata.object as Movie }
+	if (m != null)
+		return m
+		
+	// 2. perfect filename match
+	m = MediaDetection.matchMovieName(file.listPath(4, true).findResults{ it.name ?: null }, true, 0)
+	if (m != null && m.size() > 0)
+		return m[0]
+		
+	// 3. run full-fledged movie detection	
+	m = MediaDetection.detectMovie(file, hashLookupService, queryLookupService, locale, strict)
+	if (m != null && m.size() > 0)
+		return m[0]
+		
+	return null
 }
 
 def matchMovie(String filename, strict = true, maxStartIndex = 0) {
