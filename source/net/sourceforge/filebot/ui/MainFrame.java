@@ -7,6 +7,8 @@ import static javax.swing.ScrollPaneConstants.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dialog.ModalExclusionType;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.dnd.DropTarget;
@@ -15,8 +17,13 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -117,8 +124,31 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				MainFrame.this.setVisible(false);
-				GroovyPad.main(new String[0]);
+				try {
+					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)); // loading Groovy might take a while
+					GroovyPad pad = new GroovyPad();
+
+					pad.addWindowListener(new WindowAdapter() {
+						public void windowOpened(WindowEvent e) {
+							MainFrame.this.setState(ICONIFIED);
+							MainFrame.this.setVisible(false);
+						};
+
+						public void windowClosing(WindowEvent e) {
+							MainFrame.this.setVisible(true);
+							MainFrame.this.setState(NORMAL);
+						};
+					});
+
+					pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+					pad.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+					pad.setLocationByPlatform(true);
+					pad.setVisible(true);
+				} catch (IOException e) {
+					Logger.getLogger(GroovyPad.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				} finally {
+					setCursor(Cursor.getDefaultCursor());
+				}
 			}
 		});
 	}

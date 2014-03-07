@@ -51,6 +51,12 @@ public class GroovyPad extends JFrame {
 	public GroovyPad() throws IOException {
 		super("Groovy Pad");
 
+		List<Image> images = new ArrayList<Image>(3);
+		for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
+			images.add(ResourceManager.getImage(i));
+		}
+		setIconImages(images);
+
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true, createEditor(), createOutputLog());
 		splitPane.setResizeWeight(0.7);
 
@@ -326,12 +332,6 @@ public class GroovyPad extends JFrame {
 			public void run() {
 				try {
 					GroovyPad pad = new GroovyPad();
-
-					List<Image> images = new ArrayList<Image>(3);
-					for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
-						images.add(ResourceManager.getImage(i));
-					}
-					pad.setIconImages(images);
 
 					// ignore analytics in developer mode
 					Analytics.setEnabled(false);
