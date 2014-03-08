@@ -26,7 +26,7 @@ public class SeasonEpisodeMatcher {
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		// define variables
-		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101_TOKEN, Num101_SUBSTRING;
+		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
@@ -107,6 +107,15 @@ public class SeasonEpisodeMatcher {
 			}
 		};
 
+		E1of2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2})[^._ ]?(?i:of)[^._ ]?(\\d{1,2})(?!\\p{Digit})") {
+
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				// regex doesn't match season
+				return singleton(new SxE(null, match.group(1)));
+			}
+		};
+
 		// (last-resort) match patterns like 101, 102 (and greedily just grab the first)
 		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "([1-9]{1})(\\d{2}).+") {
 
@@ -120,7 +129,7 @@ public class SeasonEpisodeMatcher {
 		if (strict) {
 			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101 };
 		} else {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN), Num101_SUBSTRING };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename
