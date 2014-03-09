@@ -1,3 +1,4 @@
+at.midnight	@midnight
 BSG	Battlestar Galactica
 CSI(?!.{0,3}(NY|LA|Miami|Academy))	CSI: Crime Scene Investigation
 epl	English Premier League

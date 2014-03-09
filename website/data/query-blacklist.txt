@@ -38,8 +38,8 @@
 ^data$
 ^deluge$
 ^disk[0-9]$
-^Documentary$
 ^Documentaries$
+^Documentary$
 ^Done$
 ^Download$
 ^Downloading$
