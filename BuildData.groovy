@@ -60,7 +60,6 @@ def pack(file, lines) {
 /* ------------------------------------------------------------------------- */
 
 
-// BUILD moviedb index
 def isValidMovieName(s) {
 	return (s.normalizePunctuation().length() >= 4) || (s=~ /^[A-Z0-9]/ && s =~ /[\p{Alnum}]{3}/)
 }
@@ -77,7 +76,7 @@ def getNamePermutations(names) {
 	}
 	out += res
 	
-	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1-9]?[0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
+	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
 	
 	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
@@ -94,6 +93,10 @@ def treeSort(list, keyFunction) {
 }
 
 
+/* ------------------------------------------------------------------------- */
+
+
+// BUILD moviedb index
 def omdb = []
 new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
@@ -161,9 +164,12 @@ pack(moviedb_out, movies*.join('\t'))
 // BUILD tvdb index
 def tvdb_txt = new File('tvdb.txt')
 def tvdb = [:]
-new File('tvdb.txt').eachLine{
-	def line = it.split('\t', 5).toList()
-	tvdb.put(line[0] as Integer, [line[0] as Integer, line[1], line[2], line[3], line[4] as Integer])
+
+if (tvdb_txt.exists()) {
+	tvdb_txt.eachLine{
+		def line = it.split('\t').toList()
+		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3], line[4], line[5] as Float, line[6] as Integer])
+	}
 }
 
 def tvdb_updates = new File('updates_all.xml').text.xml.'**'.Series.findResults{ s -> tryQuietly{ [id:s.id.text() as Integer, time:s.time.text() as Integer] } }
@@ -174,19 +180,23 @@ tvdb_updates.each{ update ->
 				def xml = new URL("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml").fetch().text.xml
 				def imdbid = xml.'**'.IMDB_ID.text()
 				def tvdb_name = xml.'**'.SeriesName.text()
+				
+				def rating = tryQuietly{ xml.'**'.Rating.text().toFloat() }
+				def votes = tryQuietly{ xml.'**'.RatingCount.text().toInteger() }
+				
 				def imdb_name = _guarded{
 					if (imdbid =~ /tt(\d+)/) {
 						def dom = IMDb.parsePage(IMDb.getMoviePageLink(imdbid.match(/tt(\d+)/) as int).toURL())
 						return net.sourceforge.tuned.XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
 					}
 				}
-				def data = [update.id, imdbid ?: '', tvdb_name ?: '', imdb_name ?: '', update.time]
+				def data = [update.time, update.id, imdbid, tvdb_name ?: '', imdb_name ?: '', rating ?: 0, votes ?: 0]
 				tvdb.put(update.id, data)
 				println "Update $update => $data"
 			}
 		}
 		catch(Throwable e) {
-			def data = [update.id, '', '', '', update.time]
+			def data = [update.time, update.id, '', '', '', 0, 0]
 			tvdb.put(update.id, data)
 			println "Update $update => $data"
 		}
@@ -207,11 +217,16 @@ tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 def thetvdb_index = []
 tvdb.values().each{ r ->
-	def tvdb_name = r[2]
-	def imdb_name = r[3].replaceAll(/\([^\)]*\)$/, '').trim()
+	def tvdb_id = r[1]
+	def tvdb_name = r[3]
+	def imdb_name = r[4].replaceAll(/\([^\)]*\)$/, '').trim()
+	def rating = r[5]
+	def votes = r[6]
 	
-	getNamePermutations([tvdb_name, imdb_name]).each{ n ->
-		thetvdb_index << [r[0], n]
+	if ((votes >= 5 && rating >= 4.0) || (votes >= 2 && rating >= 8.0)) {
+		getNamePermutations([tvdb_name, imdb_name]).each{ n ->
+			thetvdb_index << [tvdb_id, n]
+		}
 	}
 }
 
