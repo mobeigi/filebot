@@ -257,7 +257,7 @@ thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
 // sanity check
-if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
+if (thetvdb_txt.size() < 4000) { throw new Exception('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
 pack(thetvdb_out, thetvdb_txt)
 
 
