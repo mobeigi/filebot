@@ -109,6 +109,7 @@
 ^share$
 ^sort$
 ^sorted$
+^SortedMedia$
 ^staging$
 ^Storage$
 ^Stuff$

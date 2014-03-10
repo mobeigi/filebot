@@ -154,7 +154,7 @@ movies = tmdb.findResults{
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
 // sanity check
-if (movies.size() < 40000) { throw new Exception('Movie index sanity failed') }
+if (movies.size() < 40000) { throw new Exception('Movie index sanity failed:' + movies.size()) }
 pack(moviedb_out, movies*.join('\t'))
 
 
@@ -174,7 +174,7 @@ if (tvdb_txt.exists()) {
 
 def tvdb_updates = new File('updates_all.xml').text.xml.'**'.Series.findResults{ s -> tryQuietly{ [id:s.id.text() as Integer, time:s.time.text() as Integer] } }
 tvdb_updates.each{ update ->
-	if (tvdb[update.id] == null || update.time > tvdb[update.id][4]) {
+	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
 			retry(2, 500) {
 				def xml = new URL("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml").fetch().text.xml
@@ -246,7 +246,6 @@ addSeriesAlias('NCIS: Los Angeles', 'NCIS LA')
 addSeriesAlias('How I Met Your Mother', 'HIMYM')
 addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
 addSeriesAlias('World Series of Poker', 'WSOP')
-addSeriesAlias('English Premier League', 'EPL')
 addSeriesAlias('House of Cards', 'HOC')
 addSeriesAlias('The Big Bang Theory', 'TBBT')
 
@@ -258,7 +257,7 @@ thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
 // sanity check
-if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed') }
+if (thetvdb_txt.size() < 30000) { throw new Exception('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
 pack(thetvdb_out, thetvdb_txt)
 
 
@@ -280,5 +279,5 @@ def anidb_index = anidb.findResults{
 def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 
 // sanity check
-if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed') }
+if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed:' + anidb_txt.size()) }
 pack(anidb_out, anidb_txt)
