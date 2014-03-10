@@ -223,7 +223,7 @@ tvdb.values().each{ r ->
 	def rating = r[5]
 	def votes = r[6]
 	
-	if ((votes >= 5 && rating >= 4.0) || (votes >= 2 && rating >= 8.0)) {
+	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 8) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations([tvdb_name, imdb_name]).each{ n ->
 			thetvdb_index << [tvdb_id, n]
 		}

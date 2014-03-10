@@ -321,13 +321,24 @@ public class MediaDetection {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e.getMessage(), e);
 		}
 
+		// strict series name matcher for recognizing 1x01 patterns
+		SeriesNameMatcher snm = new SeriesNameMatcher(locale, true);
+
 		// cross-reference known series names against file structure
 		try {
 			Set<String> folders = new LinkedHashSet<String>();
 			Set<String> filenames = new LinkedHashSet<String>();
 			for (File f : files) {
 				for (int i = 0; i < 3 && f != null && !isStructureRoot(f); i++, f = f.getParentFile()) {
-					(i == 0 ? filenames : folders).add(normalizeBrackets(getName(f)));
+					String fn = getName(f);
+
+					// try to minimize noise
+					String sn = snm.matchByEpisodeIdentifier(fn);
+					if (sn != null) {
+						fn = sn;
+					}
+
+					(i == 0 ? filenames : folders).add(normalizeBrackets(fn));
 				}
 			}
 
@@ -343,7 +354,6 @@ public class MediaDetection {
 			// use lenient sub sequence matching only as fallback and try name without spacing logic that may mess up any lookup
 			if (matches.isEmpty()) {
 				// try to narrow down file to series name as best as possible
-				SeriesNameMatcher snm = new SeriesNameMatcher();
 				List<String> sns = new ArrayList<String>();
 				sns.addAll(folders);
 				sns.addAll(filenames);
@@ -375,7 +385,6 @@ public class MediaDetection {
 		Collection<String> matches = new LinkedHashSet<String>();
 
 		// check CWS matches
-		SeriesNameMatcher snm = new SeriesNameMatcher(locale, true);
 		matches.addAll(snm.matchAll(files.toArray(new File[files.size()])));
 
 		// check for known pattern matches
