@@ -28,6 +28,7 @@
 ^BDMV$
 ^Best$
 ^Big$
+^Cinema$
 ^clean$
 ^cleaned$
 ^Comedy$
@@ -69,6 +70,7 @@
 ^I+$
 ^ignore.folder$
 ^In.Progress$
+^inbox$
 ^Incoming$
 ^jukebox$
 ^Kids$

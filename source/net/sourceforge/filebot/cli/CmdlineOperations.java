@@ -508,7 +508,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (renameMap.size() != audioFiles.size()) {
 			for (File f : audioFiles) {
 				if (!renameMap.containsKey(f)) {
-					CLILogger.warning("Failed to lookup audio file: " + f.getName());
+					CLILogger.warning("Unable to lookup acoustic fingerprint: " + f.getName());
 				}
 			}
 		}
