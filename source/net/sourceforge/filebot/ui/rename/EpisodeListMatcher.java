@@ -299,7 +299,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
 		// group by subtitles first and then by files in general
-		for (List<File> filesPerType : mapByExtension(files).values()) {
+		for (List<File> filesPerType : mapByMediaExtension(files).values()) {
 			EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, false);
 			for (Match<File, Object> it : matcher.match()) {
 				matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));

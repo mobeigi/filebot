@@ -972,6 +972,37 @@ public class MediaDetection {
 		return mediaFolders;
 	}
 
+	public static Map<String, List<File>> mapByMediaExtension(Iterable<File> files) {
+		Map<String, List<File>> map = new LinkedHashMap<String, List<File>>();
+
+		for (File file : files) {
+			String key = getExtension(file);
+
+			// allow extended extensions for subtitles files, for example name.eng.srt => map by en.srt
+			if (key != null && SUBTITLE_FILES.accept(file)) {
+				Locale locale = releaseInfo.getLanguageSuffix(getName(file));
+				if (locale != null) {
+					key = locale.getLanguage() + '.' + key;
+				}
+			}
+
+			// normalize to lower-case
+			if (key != null) {
+				key = key.toLowerCase();
+			}
+
+			List<File> valueList = map.get(key);
+			if (valueList == null) {
+				valueList = new ArrayList<File>();
+				map.put(key, valueList);
+			}
+
+			valueList.add(file);
+		}
+
+		return map;
+	}
+
 	public static Map<String, List<File>> mapBySeriesName(Collection<File> files, boolean useSeriesIndex, boolean useAnimeIndex, Locale locale) throws Exception {
 		Map<String, List<File>> result = new TreeMap<String, List<File>>(String.CASE_INSENSITIVE_ORDER);
 

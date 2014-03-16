@@ -196,8 +196,9 @@ public class CmdlineOperations implements CmdlineInterface {
 				// filter episodes
 				episodes = applyExpressionFilter(episodes, filter);
 
-				matches.addAll(matchEpisodes(filter(batch, VIDEO_FILES), episodes, strict));
-				matches.addAll(matchEpisodes(filter(batch, SUBTITLE_FILES), episodes, strict));
+				for (List<File> filesPerType : mapByMediaExtension(filter(batch, VIDEO_FILES, SUBTITLE_FILES)).values()) {
+					matches.addAll(matchEpisodes(filesPerType, episodes, strict));
+				}
 			}
 		}
 
