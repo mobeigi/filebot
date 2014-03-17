@@ -12,5 +12,6 @@ NCIS.LA	NCIS: Los Angeles
 SuiG7p	Suits
 TBBT	The Big Bang Theory
 tvs.got	Game of Thrones
+TWD	The Walking Dead
 UndG7p	Underemployed
 wsop	World Series of Poker
