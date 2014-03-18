@@ -1,7 +1,6 @@
 package net.sourceforge.filebot.similarity;
 
 import static java.lang.Math.*;
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.Settings.*;
@@ -62,15 +61,22 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
 
-				if (episode.getSpecial() != null) {
-					return singleton(new SxE(0, episode.getSpecial()));
-				}
-
 				// get SxE from episode, both SxE for season/episode numbering and SxE for absolute episode numbering
-				SxE sxe = new SxE(episode.getSeason(), episode.getEpisode());
-				SxE abs = new SxE(null, episode.getAbsolute());
+				Set<SxE> sxe = new HashSet<SxE>(2);
 
-				result = (abs.episode < 0 || sxe.equals(abs)) ? singleton(sxe) : asList(sxe, abs);
+				// default SxE numbering
+				if (episode.getEpisode() != null) {
+					sxe.add(new SxE(episode.getSeason(), episode.getEpisode()));
+				}
+				// absolute numbering
+				if (episode.getAbsolute() != null) {
+					sxe.add(new SxE(null, episode.getAbsolute()));
+				}
+				// 0xSpecial numbering
+				if (episode.getSpecial() != null) {
+					sxe.add(new SxE(0, episode.getSpecial()));
+				}
+				result = sxe;
 			} else {
 				result = super.parse(object);
 			}

@@ -90,10 +90,12 @@ public class SeasonEpisodeMatcher {
 			protected Collection<SxE> process(MatchResult match) {
 				Set<SxE> sxe = new LinkedHashSet<SxE>(2);
 
-				// interpret match as season and episode
-				for (int i = 2; i <= match.groupCount(); i++) {
-					if (match.group(i) != null) {
-						sxe.add(new SxE(match.group(1), match.group(i)));
+				// interpret match as season and episode, but ignore 001 => 0x01 Season 0 matches
+				if (match.group(1).length() > 0 && Integer.parseInt(match.group(1)) > 0) {
+					for (int i = 2; i <= match.groupCount(); i++) {
+						if (match.group(i) != null) {
+							sxe.add(new SxE(match.group(1), match.group(i)));
+						}
 					}
 				}
 
