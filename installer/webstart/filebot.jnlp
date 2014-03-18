@@ -43,12 +43,13 @@
 		<jar href="commons-io.jar"    download="eager" />
 		<jar href="args4j.jar"        download="eager" />
 		<jar href="jna.jar"           download="eager" />
-		<jar href="miglayout.jar"     download="eager" />
+		<jar href="miglayout-core.jar"  download="eager" />
+		<jar href="miglayout-swing.jar" download="eager" />
 		<jar href="glazedlists.jar"   download="eager" />
 		<jar href="ehcache.jar"       download="eager" />
 		<jar href="simmetrics.jar"    download="eager" />
-		<jar href="slf4j.jar"         download="eager" />
-		<jar href="slf4j-jdk.jar"     download="eager" />
+		<jar href="slf4j-api.jar"     download="eager" />
+		<jar href="slf4j-jdk14.jar"   download="eager" />
 		<jar href="jgat-custom.jar"   download="eager" />
 		<jar href="xmlrpc.jar"        download="eager" />
 		<jar href="xz.jar"            download="eager" />
@@ -58,7 +59,7 @@
 		<jar href="jacksum.jar"       download="lazy" />
 		<jar href="jsoup.jar"         download="lazy" />
 		<jar href="nekohtml.jar"      download="lazy" part="scraper" />
-		<jar href="xercesImpl.jar"    download="lazy" part="scraper" />
+		<jar href="xercesMinimal.jar"    download="lazy" part="scraper" />
 		<jar href="mediainfo.jar"        download="lazy" part="native"  />
 		<jar href="sevenzipjbinding.jar" download="lazy" part="native"  />
 		<jar href="rsyntaxtextarea.jar"  download="eager" />

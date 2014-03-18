@@ -68,7 +68,7 @@
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
 			<!-- include libs -->
-			<zipfileset src="${dir.lib}/xercesImpl.jar">
+			<zipfileset src="${dir.lib}/xercesMinimal.jar">
 				<include name="org/apache/**" />
 				<include name="org/w3c/dom/html/**" />
 			</zipfileset>
@@ -97,7 +97,11 @@
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/miglayout.jar">
+			<zipfileset src="${dir.lib}/miglayout-core.jar">
+				<include name="net/miginfocom/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/miglayout-swing.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
 
@@ -125,11 +129,11 @@
 				<include name="build-info.properties" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/slf4j.jar">
+			<zipfileset src="${dir.lib}/slf4j-api.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/slf4j-jdk.jar">
+			<zipfileset src="${dir.lib}/slf4j-jdk14.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
 
@@ -142,7 +146,7 @@
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/platform.jar">
+			<zipfileset src="${dir.lib}/jna-platform.jar">
 				<include name="com/sun/jna/platform/win32/**" />
 			</zipfileset>
 
@@ -217,7 +221,7 @@
 		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
 
 		<!-- build app bundle folder and add native libs -->
-		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$JAVAROOT" mainclass="net.sourceforge.filebot.Main" jvmversion="1.6+">
+		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.sourceforge.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$JAVAROOT" mainclass="net.sourceforge.filebot.Main" jvmversion="1.7+">
 			<javaproperty name="application.deployment" value="app" />
 			<javaproperty name="unixfs" value="false" />
 			<javaproperty name="useExtendedFileAttributes" value="true" />
@@ -460,7 +464,7 @@
 		<mkdir dir="${dir.build}" />
 
 		<!-- compile -->
-		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" target="1.6" source="1.6" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" target="1.7" source="1.7" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
 				<fileset dir="${dir.lib}" includes="*.jar" />
 				<pathelement location="${dir.lib}/build/junit.jar" />

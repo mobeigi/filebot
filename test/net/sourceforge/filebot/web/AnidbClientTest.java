@@ -73,7 +73,7 @@ public class AnidbClientTest {
 	public void getEpisodeListAll() throws Exception {
 		List<Episode> list = anidb.getEpisodeList(monsterSearchResult);
 
-		assertEquals(74, list.size());
+		assertEquals(77, list.size());
 
 		Episode first = list.get(0);
 
@@ -90,7 +90,7 @@ public class AnidbClientTest {
 	public void getEpisodeListAllShortLink() throws Exception {
 		List<Episode> list = anidb.getEpisodeList(twelvekingdomsSearchResult);
 
-		assertEquals(45, list.size());
+		assertEquals(46, list.size());
 
 		Episode first = list.get(0);
 

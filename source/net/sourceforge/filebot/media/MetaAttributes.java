@@ -45,11 +45,19 @@ public class MetaAttributes {
 	}
 
 	public void setObject(Object object) {
-		metaAttributeView.put(METADATA_KEY, JsonWriter.toJson(object));
+		try {
+			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object));
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	public Object getObject() {
-		return JsonReader.toJava(metaAttributeView.get(METADATA_KEY));
+		try {
+			return JsonReader.jsonToJava(metaAttributeView.get(METADATA_KEY));
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public void clear() {

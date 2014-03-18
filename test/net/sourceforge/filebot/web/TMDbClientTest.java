@@ -54,17 +54,16 @@ public class TMDbClientTest {
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-07-02", movie.getReleased().toString());
 		assertEquals("PG-13", movie.getCertification());
-		assertEquals("[en]", movie.getSpokenLanguages().toString());
+		assertEquals("[en, es]", movie.getSpokenLanguages().toString());
 		assertEquals("Shia LaBeouf", movie.getActors().get(0));
 		assertEquals("Michael Bay", movie.getDirector());
-		assertEquals("Editor", movie.getCast().get(30).getJob());
 	}
 
 	@Test
 	public void getArtwork() throws Exception {
 		List<Artwork> artwork = tmdb.getArtwork("tt0418279");
 		assertEquals("backdrops", artwork.get(0).getCategory());
-		assertEquals("http://d3gtl9l2a4fn1j.cloudfront.net/t/p/original/jC4bQLEEcpM8N7BjpkMtP0zPakJ.jpg", artwork.get(0).getUrl().toString());
+		assertEquals("http://image.tmdb.org/t/p/original/dXTeZELpoVMDOTTLnNoCpsCngwW.jpg", artwork.get(0).getUrl().toString());
 	}
 
 	@Test

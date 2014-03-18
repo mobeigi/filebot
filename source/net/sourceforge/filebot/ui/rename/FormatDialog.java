@@ -19,6 +19,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.text.Format;
 import java.util.Collections;
@@ -420,7 +421,7 @@ public class FormatDialog extends JDialog {
 		try {
 			// restore sample from user preferences
 			String sample = mode.persistentSample().getValue();
-			info = JsonReader.toJava(sample);
+			info = JsonReader.jsonToJava(sample);
 			if (info == null) {
 				throw new NullPointerException();
 			}
@@ -429,7 +430,7 @@ public class FormatDialog extends JDialog {
 				// restore sample from application properties
 				ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
 				String sample = bundle.getString(mode.key() + ".sample");
-				info = JsonReader.toJava(sample);
+				info = JsonReader.jsonToJava(sample);
 			} catch (Exception illegalSample) {
 				throw new RuntimeException(illegalSample); // won't happen
 			}
@@ -639,9 +640,13 @@ public class FormatDialog extends JDialog {
 				// change sample
 				sample = new MediaBindingBean(info, file, Collections.singletonMap(file, info));
 
-				// remember
-				mode.persistentSample().setValue(info == null ? "" : JsonWriter.toJson(info));
-				persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
+				// remember sample
+				try {
+					mode.persistentSample().setValue(info == null ? "" : JsonWriter.objectToJson(info));
+					persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
+				} catch (IOException e) {
+					Logger.getLogger(FormatDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				}
 
 				// reevaluate everything
 				fireSampleChanged();

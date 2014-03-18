@@ -30,7 +30,7 @@ public class TheTVDBClientTest {
 		// test default language and query escaping (blanks)
 		List<SearchResult> results = thetvdb.search("babylon 5");
 		
-		assertEquals(1, results.size());
+		assertEquals(2, results.size());
 		
 		TheTVDBSearchResult first = (TheTVDBSearchResult) results.get(0);
 		

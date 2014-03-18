@@ -49,7 +49,7 @@ public class ExpressionFormatTest {
 		assertEquals("second", new TestScriptFormat("{value.after(/[^a-z]/)}").format("first|second"));
 		
 		// replace trailing braces
-		assertEquals("The IT Crowd", new TestScriptFormat("{value.replaceTrailingBraces()}").format("The IT Crowd (UK)"));
+		assertEquals("The IT Crowd", new TestScriptFormat("{value.replaceTrailingBrackets()}").format("The IT Crowd (UK)"));
 		
 		// replace part
 		assertEquals("Today Is the Day, Part 1", new TestScriptFormat("{value.replacePart(', Part $1')}").format("Today Is the Day (1)"));
@@ -101,7 +101,7 @@ public class ExpressionFormatTest {
 		format.format(new SimpleBindings());
 		
 		// check message
-		assertEquals("BindingError: \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("BindingException: \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
 	
 	
@@ -111,7 +111,7 @@ public class ExpressionFormatTest {
 		format.format("test");
 		
 		// check message
-		assertEquals("BindingError: \"xyz\": undefined", format.caughtScriptException().getMessage());
+		assertEquals("BindingException: \"xyz\": undefined", format.caughtScriptException().getMessage());
 	}
 	
 	

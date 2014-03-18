@@ -106,7 +106,7 @@ public class IMDbClientTest {
 	public void getMovieDescriptor3() throws Exception {
 		Movie movie = imdb.getMovieDescriptor(75610, null);
 
-		assertEquals("21", movie.getName());
+		assertEquals("21 Up", movie.getName());
 		assertEquals(1977, movie.getYear());
 		assertEquals(75610, movie.getImdbId(), 0);
 	}
@@ -152,7 +152,7 @@ public class IMDbClientTest {
 		MovieInfo movie = imdb.getImdbApiMovieInfo(new Movie(null, -1, 1287357, -1));
 		assertEquals("Sommersonntag", movie.getName());
 		assertEquals(2008, movie.getReleased().getYear());
-		assertEquals("2008-01-01", movie.getReleased().toString());
+		assertEquals("2008-06-07", movie.getReleased().toString());
 	}
 
 }

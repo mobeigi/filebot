@@ -55,7 +55,7 @@ public class TVRageClientTest {
 	public void getEpisodeListAll() throws Exception {
 		List<Episode> list = tvrage.getEpisodeList(buffySearchResult);
 		
-		assertEquals(144, list.size());
+		assertEquals(143, list.size());
 		
 		Episode first = list.get(0);
 		
