@@ -76,7 +76,7 @@ def getNamePermutations(names) {
 	}
 	out += res
 	
-	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
+	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
 	
 	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
@@ -249,6 +249,9 @@ addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
 addSeriesAlias('World Series of Poker', 'WSOP')
 addSeriesAlias('House of Cards', 'HOC')
 addSeriesAlias('The Big Bang Theory', 'TBBT')
+addSeriesAlias('The Walking Dead', 'TWD')
+addSeriesAlias('@midnight', 'At Midnight')
+
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
