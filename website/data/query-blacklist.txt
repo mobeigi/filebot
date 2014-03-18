@@ -48,7 +48,6 @@
 ^Dropbox$
 ^Entertainment$
 ^Episode$
-^Episodes$
 ^Erotic$
 ^extract$
 ^extracted$
