@@ -17,6 +17,7 @@
 \d{3,4}[pi]
 ^(amc|cover|dvd)
 ^[0-9]{1,2}[.]
+^[_]+$
 ^[lp]
 ^Action$
 ^Adventure$
