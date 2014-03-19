@@ -4,4 +4,4 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 BIN_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 JAVAROOT=$BIN_DIR/../Resources/Java
-java -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -Djava.net.useSystemProxies=true -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Djna.nosys=true -Dapplication.deployment=app "-Djna.library.path=$JAVAROOT" "-Djava.library.path=$JAVAROOT" "-Dnet.sourceforge.filebot.AcoustID.fpcalc=$JAVAROOT/fpcalc" -jar "$JAVAROOT/FileBot.jar" "$@"
+java -XX:+TieredCompilation -Djava.awt.headless=true -Dunixfs=false -DuseExtendedFileAttributes=true -Djava.net.useSystemProxies=true -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Djna.nosys=true -Dapplication.deployment=app "-Djna.library.path=$JAVAROOT" "-Djava.library.path=$JAVAROOT" "-Dnet.sourceforge.filebot.AcoustID.fpcalc=$JAVAROOT/fpcalc" -jar "$JAVAROOT/FileBot.jar" "$@"
