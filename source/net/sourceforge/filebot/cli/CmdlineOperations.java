@@ -22,7 +22,6 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -142,7 +141,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
-		List<File> fileset = filter(files, not(getClutterFileFilter()));
+		List<File> fileset = sortByUniquePath((filter(files, not(getClutterFileFilter()))));
 
 		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
@@ -224,7 +223,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		matches.addAll(derivateMatches);
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
 
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
@@ -286,7 +285,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename movies using [%s]", service.getName()));
 
 		// ignore sample files
-		List<File> fileset = filter(files, not(getClutterFileFilter()));
+		List<File> fileset = sortByUniquePath(filter(files, not(getClutterFileFilter())));
 
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
@@ -467,7 +466,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
 
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
@@ -484,7 +483,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
 		CLILogger.config(format("Rename music using [%s]", service.getName()));
-		List<File> audioFiles = filter(files, AUDIO_FILES);
+		List<File> audioFiles = sortByUniquePath(filter(files, AUDIO_FILES));
 
 		// check audio files against acoustid
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
@@ -495,7 +494,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
 
 		for (Match<File, ?> it : matches) {
 			File file = it.getValue();

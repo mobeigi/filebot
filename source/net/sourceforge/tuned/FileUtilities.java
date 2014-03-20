@@ -18,6 +18,7 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -320,6 +322,14 @@ public final class FileUtilities {
 				return false;
 		}
 		return true;
+	}
+
+	public static List<File> sortByUniquePath(Collection<File> files) {
+		// sort by unique lower-case paths
+		TreeSet<File> sortedSet = new TreeSet<File>(CASE_INSENSITIVE_PATH);
+		sortedSet.addAll(files);
+
+		return new ArrayList<File>(sortedSet);
 	}
 
 	public static List<File> filter(Iterable<File> files, FileFilter... filters) {
@@ -664,6 +674,14 @@ public final class FileUtilities {
 			return !filter.accept(file);
 		}
 	}
+
+	public static final Comparator<File> CASE_INSENSITIVE_PATH = new Comparator<File>() {
+
+		@Override
+		public int compare(File o1, File o2) {
+			return o1.getPath().compareToIgnoreCase(o2.getPath());
+		}
+	};
 
 	/**
 	 * Dummy constructor to prevent instantiation.
