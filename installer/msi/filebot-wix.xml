@@ -30,15 +30,15 @@
 
 					<Component Id='ApplicationStub' Guid='A7B21026-DA54-4AF8-9227-188565AB9C4E' Win64="$(var.Win64)">
 						<File Id='filebot.launcher.exe' Name='filebot.launcher.exe' Source='filebot.launcher.exe' KeyPath='yes'>
-							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
-							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
+							<Shortcut Id="shortcut.menu.filebot" Directory="ProgramMenuDir" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
+							<Shortcut Id="shortcut.desktop" Directory="DesktopFolder" Name="FileBot" Description="The ultimate TV Renamer and Subtitle Downloader" WorkingDirectory='INSTALLDIR' Icon="icon.ico" Advertise="no" />
 						</File>
 						<File Id='filebot.platform.launcher.exe' Name='filebot.platform.launcher.exe' Source='filebot.platform.launcher.exe'>
 							<Shortcut Id="shortcut.menu.filebot.platform" Directory="ProgramMenuDir" Name="FileBot (platform)" Description="Launch FileBot with platform-independent configuration" WorkingDirectory='INSTALLDIR' Icon="icon.ico" IconIndex="0" Advertise="no" />
 						</File>
 						<File Id='filebot.launcher.l4j.ini' Name='filebot.launcher.l4j.ini' Source='filebot.launcher.l4j.ini' />
 						<File Id='filebot.platform.launcher.l4j.ini' Name='filebot.platform.launcher.l4j.ini' Source='filebot.platform.launcher.l4j.ini' />
-						<Shortcut Id="shortcut.uninstall" Directory="ProgramMenuDir" Name="Uninstall" Description="Uninstall FileBot" Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" Advertise="no" />
+						<Shortcut Id="shortcut.uninstall" Directory="ProgramMenuDir" Name="Uninstall FileBot" Description="Uninstall FileBot" Icon="icon.ico" Target="[SystemFolder]msiexec.exe" Arguments="/x [ProductCode]" Advertise="no" />
 					</Component>
 					
 					<Component Id='ApplicationStubCmd' Guid='D2B1A845-3B5C-4B59-B0D0-A4E80C173220' Win64="$(var.Win64)">
