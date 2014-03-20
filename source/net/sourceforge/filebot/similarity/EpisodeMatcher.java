@@ -91,6 +91,10 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 	}
 
 	private boolean isMultiEpisode(Episode[] episodes) {
+		// sanity check that there is valid episode data for at least two episodes
+		if (episodes.length < 2)
+			return false;
+
 		// check episode sequence integrity
 		Integer seqIndex = null;
 		for (Episode ep : episodes) {
