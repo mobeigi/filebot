@@ -44,4 +44,10 @@ public class AnidbSearchResult extends SearchResult {
 
 		return false;
 	}
+
+	@Override
+	public AnidbSearchResult clone() {
+		return new AnidbSearchResult(aid, name, aliasNames);
+	}
+
 }

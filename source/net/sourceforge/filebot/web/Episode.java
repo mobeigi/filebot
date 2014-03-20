@@ -39,14 +39,14 @@ public class Episode implements Serializable {
 
 	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate, SearchResult series) {
 		this.seriesName = seriesName;
-		this.seriesStartDate = seriesStartDate;
+		this.seriesStartDate = (seriesStartDate == null ? null : seriesStartDate.clone());
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
 		this.absolute = absolute;
 		this.special = special;
-		this.airdate = airdate;
-		this.series = series;
+		this.airdate = (airdate == null ? null : airdate.clone());
+		this.series = (series == null ? null : series.clone());
 	}
 
 	public String getSeriesName() {

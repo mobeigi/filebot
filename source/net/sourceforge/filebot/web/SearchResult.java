@@ -47,6 +47,9 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	@Override
+	public abstract SearchResult clone();
+
+	@Override
 	public String toString() {
 		return name;
 	}

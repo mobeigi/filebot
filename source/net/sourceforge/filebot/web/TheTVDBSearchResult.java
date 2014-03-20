@@ -1,6 +1,5 @@
 package net.sourceforge.filebot.web;
 
-
 public class TheTVDBSearchResult extends SearchResult {
 
 	protected int seriesId;
@@ -40,4 +39,10 @@ public class TheTVDBSearchResult extends SearchResult {
 
 		return false;
 	}
+
+	@Override
+	public TheTVDBSearchResult clone() {
+		return new TheTVDBSearchResult(name, seriesId);
+	}
+
 }

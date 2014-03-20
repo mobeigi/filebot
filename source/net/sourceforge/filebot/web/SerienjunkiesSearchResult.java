@@ -47,4 +47,10 @@ public class SerienjunkiesSearchResult extends SearchResult {
 
 		return false;
 	}
+
+	@Override
+	public SerienjunkiesSearchResult clone() {
+		return new SerienjunkiesSearchResult(sid, link, name, aliasNames, startDate == null ? null : startDate.clone());
+	}
+
 }
