@@ -173,15 +173,23 @@ public final class WebRequest {
 		return buffer.getByteBuffer();
 	}
 
-	public static ByteBuffer post(HttpURLConnection connection, Map<String, ?> parameters) throws IOException {
-		return post(connection, encodeParameters(parameters, true).getBytes("UTF-8"), "application/x-www-form-urlencoded");
+	public static ByteBuffer post(URL url, Map<String, ?> parameters, Map<String, String> requestParameters) throws IOException {
+		return post(url, encodeParameters(parameters, true).getBytes("UTF-8"), "application/x-www-form-urlencoded", requestParameters);
 	}
 
-	public static ByteBuffer post(HttpURLConnection connection, byte[] postData, String contentType) throws IOException {
+	public static ByteBuffer post(URL url, byte[] postData, String contentType, Map<String, String> requestParameters) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
 		connection.addRequestProperty("Content-Length", String.valueOf(postData.length));
 		connection.addRequestProperty("Content-Type", contentType);
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
+
+		if (requestParameters != null) {
+			for (Entry<String, String> parameter : requestParameters.entrySet()) {
+				connection.addRequestProperty(parameter.getKey(), parameter.getValue());
+			}
+		}
 
 		// write post data
 		OutputStream out = connection.getOutputStream();

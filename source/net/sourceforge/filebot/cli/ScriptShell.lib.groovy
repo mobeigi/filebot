@@ -84,9 +84,9 @@ String.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXPar
 String.metaClass.getXml = { new XmlParser().parseText(delegate) }
 
 URL.metaClass.get = { delegate.getText() }
-URL.metaClass.post = { Map parameters -> post(delegate.openConnection(), parameters) }
-URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream' -> post(delegate.openConnection(), data, contentType) }
-URL.metaClass.post = { String text, contentType = 'text/plain', csn = 'utf-8' -> delegate.post(text.getBytes(csn), contentType) }
+URL.metaClass.post = { Map parameters, requestParameters = null -> post(delegate, parameters, requestParameters) }
+URL.metaClass.post = { byte[] data, contentType = 'application/octet-stream', requestParameters = null -> post(delegate, data, contentType, requestParameters) }
+URL.metaClass.post = { String text, contentType = 'text/plain', csn = 'utf-8', requestParameters = null -> post(delegate, text.getBytes(csn), contentType, requestParameters) }
 
 ByteBuffer.metaClass.saveAs = { f -> f = f as File; f = f.absoluteFile; f.parentFile.mkdirs(); writeFile(delegate.duplicate(), f); f }
 URL.metaClass.saveAs = { f -> fetch(delegate).saveAs(f) }
