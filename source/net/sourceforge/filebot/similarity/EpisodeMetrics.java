@@ -303,6 +303,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 
+	NameBalancer(new MetricCascade(NameSubstringSequence, Name)),
+
 	// Match by generic name similarity (absolute)
 	SeriesName(new NameSimilarityMetric() {
 
@@ -539,7 +541,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public float getSimilarity(Object o1, Object o2) {
 			float r1 = getRating(o1);
 			float r2 = getRating(o2);
-			return max(r1, r2) >= 0.4 ? 1 : min(r1, r2) < 0 ? -1 : 0;
+
+			if (r1 < 0 || r2 < 0)
+				return -1;
+
+			return max(r1, r2);
 		}
 
 		private final Map<String, SeriesInfo> seriesInfoCache = new HashMap<String, SeriesInfo>();
@@ -561,12 +567,16 @@ public enum EpisodeMetrics implements SimilarityMetric {
 						}
 
 						if (seriesInfo != null) {
-							if (seriesInfo.getRatingCount() > 0) {
-								float rating = max(0, seriesInfo.getRating().floatValue());
-								return seriesInfo.getRatingCount() >= 15 ? rating : 0; // PENALIZE SHOWS WITH FEW RATINGS
-							} else {
-								return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
+							if (seriesInfo.getRatingCount() >= 100) {
+								return (float) floor(seriesInfo.getRating() / 3) + 1; // BOOST POPULAR SHOWS
 							}
+							if (seriesInfo.getRatingCount() >= 10) {
+								return (float) floor(seriesInfo.getRating() / 3); // PUT INTO 3 GROUPS
+							}
+							if (seriesInfo.getRatingCount() >= 1) {
+								return 0; // PENALIZE SHOWS WITH FEW RATINGS
+							}
+							return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
 						}
 					}
 				} catch (Exception e) {
@@ -642,7 +652,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// ignore everything else
 			return emptyMap();
-		};
+		}
 
 	});
 
@@ -706,9 +716,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, NameBalancer, Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, new MetricCascade(NameSubstringSequence, Name), Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, NameBalancer, Numeric, NumericSequence, SeriesName, RegionHint, SeriesRating, TimeStamp, AbsolutePath };
 		}
 	}
 

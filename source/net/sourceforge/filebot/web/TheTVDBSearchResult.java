@@ -42,7 +42,7 @@ public class TheTVDBSearchResult extends SearchResult {
 
 	@Override
 	public TheTVDBSearchResult clone() {
-		return new TheTVDBSearchResult(name, seriesId);
+		return new TheTVDBSearchResult(name, aliasNames, seriesId);
 	}
 
 }

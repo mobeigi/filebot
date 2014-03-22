@@ -540,7 +540,7 @@ public class MediaDetection {
 				try {
 					Movie movie = (Movie) xattr.getObject();
 					if (movie != null) {
-						options.add(new Movie(movie)); // normalize as movie object
+						options.add(movie.clone()); // normalize as movie object
 					}
 				} catch (Exception e) {
 					// can't read meta attributes => ignore

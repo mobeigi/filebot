@@ -16,10 +16,6 @@ public class Movie extends SearchResult {
 		// used by serializer
 	}
 
-	public Movie(Movie obj) {
-		this(obj.name, obj.aliasNames, obj.year, obj.imdbId, obj.tmdbId);
-	}
-
 	public Movie(String name, int year, int imdbId, int tmdbId) {
 		this(name, new String[0], year, imdbId, tmdbId);
 	}
@@ -90,7 +86,7 @@ public class Movie extends SearchResult {
 
 	@Override
 	public Movie clone() {
-		return new Movie(this);
+		return new Movie(name, aliasNames, year, imdbId, tmdbId);
 	}
 
 	@Override
