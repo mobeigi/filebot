@@ -26,7 +26,7 @@ public class SeasonEpisodeMatcher {
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		// define variables
-		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
+		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
@@ -40,6 +40,20 @@ public class SeasonEpisodeMatcher {
 				Scanner epno = new Scanner(match.group(2)).useDelimiter("\\D+");
 				while (epno.hasNext()) {
 					matches.add(new SxE(match.group(1), epno.next()));
+				}
+				return matches;
+			}
+		};
+
+		// match patterns 1x01-1x02, ...
+		SxE1_SxE2 = new SeasonEpisodePattern(sanity, "(?<!\\p{Alnum})(\\d{1,2}x\\d{2}([-._ ]\\d{1,2}x\\d{2})+)(?!\\p{Digit})") {
+
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				List<SxE> matches = new ArrayList<SxE>(2);
+				String[] num = match.group(0).split("\\D+");
+				for (int i = 0; i < num.length; i += 2) {
+					matches.add(new SxE(num[i], num[i + 1])); // SxE-SxE-SxE
 				}
 				return matches;
 			}
@@ -129,9 +143,9 @@ public class SeasonEpisodeMatcher {
 
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101 };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101 };
 		} else {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename

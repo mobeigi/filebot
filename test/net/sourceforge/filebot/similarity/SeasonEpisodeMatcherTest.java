@@ -26,8 +26,11 @@ public class SeasonEpisodeMatcherTest {
 		assertEquals(asList(new SxE(null, 01), new SxE(1, 01), new SxE(null, 101)), matcher.match("alias.101.Part1"));
 		assertEquals(asList(new SxE(null, 01)), matcher.match("Documentaries.1of6"));
 
-		// multiple values
-		assertEquals(new SxE(1, 2), matcher.match("Test.42.s01e01.s01e02.300").get(1));
+		// multi-episode numbers
+		assertEquals("[1x01, 1x02]", matcher.match("Test.42.s01e01.s01e02.300").toString());
+		assertEquals("[1x01, 1x02]", matcher.match("1x01-02").toString());
+		assertEquals("[3x11, 3x12, 3x13, 3x14]", matcher.match("03x11-03x12-03x13-03x14").toString());
+		assertEquals("[9x09, 9x10]", matcher.match("09x09-09x10").toString());
 	}
 
 	@Test
