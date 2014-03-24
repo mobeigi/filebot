@@ -97,7 +97,7 @@ public class Main {
 					// clear preferences and cache
 					System.out.println("Clear cache and temporary files");
 					for (File folder : getApplicationFolder().getAbsoluteFile().listFiles(FOLDERS)) {
-						if (matches("cache|temp|grape|logs", folder.getName())) {
+						if (matches("cache|temp|grape|reports|logs", folder.getName())) {
 							if (delete(folder)) {
 								System.out.println("* Delete " + folder);
 							}

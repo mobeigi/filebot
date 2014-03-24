@@ -217,6 +217,10 @@ def isEpisode(path, strict = true) {
 	return MediaDetection.isEpisode(input, strict)
 }
 
+def isStructureRoot(path) {
+	return MediaDetection.isStructureRoot(path as File)
+}
+
 def guessMovieFolder(File path) {
 	return MediaDetection.guessMovieFolder(path)
 }
