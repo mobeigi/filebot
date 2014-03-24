@@ -321,6 +321,7 @@ Barba
 BARC0DE
 BaSS
 Bassline
+BATV
 BAUM
 BAVARiA
 BAWLS
@@ -545,6 +546,7 @@ CRiMSON
 CRiSC
 CRiSP
 CriTiCAL
+CROOKS
 CROSSBOW
 CROSSFADE
 CROWN
@@ -719,6 +721,7 @@ DS
 DS9
 DsM4U
 DTFS
+DUKES
 DUMBLE
 DUMMY
 DUPLI
@@ -1236,6 +1239,7 @@ ISHIN
 iSRAELiTE
 israntxa
 iSUBS
+iT00NZ
 iTA
 ITG
 iTOONZ
@@ -1303,6 +1307,7 @@ KEKKAI
 keltz
 Kemo-Subs
 KFC
+kgl
 KH
 Khmer-Hentai
 kHzViD
@@ -1741,6 +1746,7 @@ PAYiSO
 PaYxXx
 PC
 PCS
+pcsyndicate
 PDSG-Sentosha
 PeeWee
 PeKI
@@ -2198,6 +2204,7 @@ SWAGGERHD
 sweHD
 swePD
 Swesub
+SWOLLED
 Syndicate
 SYS
 SZN_I-O
