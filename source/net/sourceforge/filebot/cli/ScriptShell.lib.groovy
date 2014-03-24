@@ -127,8 +127,8 @@ def XML(bc) {
 	def out = new StringWriter()
 	def xmb = new MarkupBuilder(out)
 	xmb.omitNullAttributes = true
-	xmb.omitEmptyAttributes = true
-	xmb.expandEmptyElements= true
+	xmb.omitEmptyAttributes = false
+	xmb.expandEmptyElements= false
 	bc.rehydrate(bc.delegate, xmb, xmb).call() // call closure in MarkupBuilder context
 	return out.toString()
 }
