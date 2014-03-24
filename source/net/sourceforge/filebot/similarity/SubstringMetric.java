@@ -26,7 +26,22 @@ public class SubstringMetric implements SimilarityMetric {
 		if (s2 == null || s2.isEmpty())
 			return 0;
 
-		return (o1c2 && s1.contains(s2)) || (o2c1 && s2.contains(s1)) ? 1 : 0;
+		return (o1c2 && matches(s1, s2) || (o2c1 && matches(s2, s1))) ? 1 : 0;
+	}
+
+	protected boolean matches(String s1, String s2) {
+		int index = s1.lastIndexOf(s2);
+		if (index < 0)
+			return false;
+
+		// check before and after and make sure we're only matching between word boundries
+		if (index - 1 >= 0 && !Character.isLetterOrDigit(s1.charAt(index - 1)))
+			return false;
+
+		if (index + s2.length() < s1.length() && !Character.isLetterOrDigit(index + s2.length()))
+			return false;
+
+		return true;
 	}
 
 	protected String normalize(Object object) {
