@@ -44,6 +44,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		return (cache != null) ? cache.putSearchResult(query, locale, results) : results;
 	}
 
+	// helper for scripting
 	public List<Episode> getEpisodeList(SearchResult searchResult, String sortOrder, String locale) throws Exception {
 		return getEpisodeList(searchResult, sortOrder == null ? SortOrder.Airdate : SortOrder.forName(sortOrder), new Locale(locale));
 	}
