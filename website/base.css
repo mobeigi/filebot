@@ -400,12 +400,12 @@ div.screencast:hover .play {
 	text-align: center;
 }
 
-#flattr {
+#bitcoinate {
 	float: right;
 	height: 0px;
 	position: relative;
 	right: -6px;
-	top: -4px;
+	top: -6px;
 }
 
 #donate {
