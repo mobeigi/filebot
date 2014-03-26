@@ -98,7 +98,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			}
 		}
 
-		model.addAll(FastFile.foreach(entries));
+		model.addAll(FastFile.get(entries));
 	}
 
 	@Override

@@ -1359,6 +1359,21 @@ public class MediaDetection {
 		}
 	};
 
+	public static Object loadMetaInfo(File file) {
+		if (useExtendedFileAttributes()) {
+			try {
+				MetaAttributes xattr = new MetaAttributes(file);
+				Object meta = xattr.getObject();
+				if (meta instanceof Episode || meta instanceof Movie) {
+					return meta;
+				}
+			} catch (Throwable e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Unable to read xattr: " + e.getMessage());
+			}
+		}
+		return null;
+	}
+
 	public static void storeMetaInfo(File file, Object model, String original, boolean useExtendedFileAttributes, boolean useCreationDate) {
 		// only for Episode / Movie objects
 		if ((useExtendedFileAttributes || useCreationDate) && (model instanceof Episode || model instanceof Movie) && file.isFile()) {
@@ -1387,7 +1402,9 @@ public class MediaDetection {
 				// store original name and model as xattr
 				if (useExtendedFileAttributes) {
 					try {
-						xattr.setObject(model);
+						if (model instanceof Episode || model instanceof Movie) {
+							xattr.setObject(model);
+						}
 						if (xattr.getOriginalName() == null && original != null) {
 							xattr.setOriginalName(original);
 						}
