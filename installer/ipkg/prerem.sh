@@ -4,4 +4,4 @@
 filebot -clear-cache
 
 # remove /bin symlink
-rm /opt/usr/bin/filebot
+rm /opt/bin/filebot
