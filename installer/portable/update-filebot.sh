@@ -3,5 +3,6 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 INSTALL_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-echo "Update $INSTALL_DIR/FileBot.jar"
-curl -L -O -z "$INSTALL_DIR/FileBot.jar" "http://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar"
+JAR_FILE="$INSTALL_DIR/FileBot.jar"
+echo "Update $JAR_FILE"
+curl -L -o "$JAR_FILE" -z "$JAR_FILE" "http://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar"
