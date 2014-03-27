@@ -860,6 +860,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return probableMatches;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> searchResults, boolean strict) throws Exception {
 		List<SearchResult> probableMatches = findProbableMatches(query, searchResults, strict);
 
@@ -871,13 +872,10 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			if (strict) {
 				throw new Exception("Multiple options: Force auto-select requires non-strict matching: " + searchResults);
-			} else {
-				if (searchResults.size() > 5) {
-					throw new Exception("Unable to auto-select search result: " + searchResults);
-				} else {
-					return new ArrayList<SearchResult>(searchResults);
-				}
 			}
+
+			// just pick the best 5 matches
+			probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric(), false);
 		}
 
 		// return first and only value
