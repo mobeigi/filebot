@@ -72,7 +72,7 @@ def getNamePermutations(names) {
 	def out = new LinkedHashSet(names*.trim()).toList()
 	def res = out
 	[fn1, fn2, fn3].each{ fn ->
-		res = res.findResults{ fn(it) }
+		res = res.findResults{ fn(it).trim() }
 	}
 	out += res
 	

@@ -24,6 +24,7 @@
 2TU
 2WIRE
 310yuma
+3DA
 3Li
 3LT0N
 3LTON
@@ -95,12 +96,14 @@ aarinfantsy_RyRo
 AaS
 ABB
 aBD
+ABH
 ABiS
 Abjex
 AbSurdity
 ABU
 AC-Subs
 AC3HD
+ACAB
 ACCLAiM
 aceford
 ACF
@@ -165,6 +168,7 @@ ALLZINE
 AMBASSADOR
 Ame
 AMIABLE
+AMIRITE
 AMSTEL
 AN-Classic
 AN0NYM0US
@@ -226,6 +230,7 @@ APAX
 APB
 Appel
 APT
+AQOS
 AR
 ARC
 Archerr
@@ -248,6 +253,7 @@ ASO
 ASS
 ass-h
 Ass-Hentai
+ASSASSiNS
 ASU
 AT-X
 Atavus
@@ -366,7 +372,9 @@ BiRDHOUSE
 BiTo
 BKF
 BKT
+BladeBDP
 BlaZe
+BLiN
 Blixten
 BLooDWeiSeR
 BLOW
@@ -400,6 +408,7 @@ BRASTEMP
 bReAK
 BREiN
 BrG
+BRiGAND
 BRiGHT
 BRMP
 BRUTUS
@@ -533,6 +542,7 @@ CoolGuys
 cottage
 COUNCiL
 COUNTERFEIT
+COVEIRO
 COWiSO
 CoWRY
 CP
@@ -541,6 +551,7 @@ CPY
 CR
 CREEDANCE
 CREMOSA
+CREST
 CRF
 CRiMSON
 CRiSC
@@ -566,6 +577,7 @@ CULT
 CultHD
 CuMBuCKeTS
 CureCom
+Cutting.EDGE
 Cyber12.com
 CYBERMEN
 CyberTyger
@@ -626,6 +638,7 @@ DEFiNiTE
 DEFiNiTiON
 DEFUSED
 DeimonHigh-Marche
+DEiMOS
 DEiTY
 DELiCiOUS
 DEMAND
@@ -655,6 +668,7 @@ DiAMOND
 Diamonds
 DiCH
 DiDaKe
+DiDee
 DIE
 DiETER
 DiFFERENT
@@ -805,6 +819,7 @@ EUSTASS
 EveTaku
 Eveyuu
 eViLsCi
+EVO
 eVoD
 EVOLVE
 EwDp
@@ -833,6 +848,7 @@ FAKKU
 FAN
 FANDANGO
 FaNSuB
+FANTA
 FASM
 FASTHD
 FATAL1TY
@@ -888,6 +904,7 @@ FLX
 FmE
 FoA
 FoAC
+FooKas
 FOOTBALL
 FORCE
 ForceBleue
@@ -940,10 +957,12 @@ FyHD
 FZERO
 G.AX
 g0tm1Lk
+G3LHD
 G3N3
 G_P
 GAGE
 GALACTiCA
+GANOOL
 GAS
 GASM
 GASM.GAX
@@ -987,7 +1006,9 @@ GK.RTFS
 GK.Shayo
 GK.subs4u
 GL
+GLASSES
 gleam
+GLY
 GM4F
 GME
 GME2000
@@ -1023,6 +1044,7 @@ GTVG
 gudhak
 GUNSubs
 GUPDVDR
+GUR
 GVD
 GW
 GWP
@@ -1032,6 +1054,7 @@ H-Chu
 H-S
 H2
 h264iRMU
+H3LL2P4Y
 H3XDVD
 H72
 H@M
@@ -1098,6 +1121,7 @@ HDX
 HDxT
 HEH
 Helix
+HELLRAZ0R
 Hentai-Legacy
 Herakler
 HEroAP
@@ -1174,6 +1198,7 @@ iCANDY
 ICE
 iCEHD
 iD
+Idi0T
 iDiB
 idTV
 iFN
@@ -1275,11 +1300,13 @@ Jozzep
 JS
 jth
 jTV
+JUGGS
 JUMANJi
 JunkyCez
 Junoon
 JUPiLER
 Just4fun
+JYK
 JZ
 K-F
 K-Fans_AF-F
@@ -1318,6 +1345,7 @@ KILLERS
 KiLT
 KINGDOM
 KiNGS
+KingStoner
 KiNOWELT
 Kira
 Kira-Fansub
@@ -1385,6 +1413,7 @@ LameHD
 Lamonae
 LAP
 LARCENY
+LAZERS
 Lazy-Subs
 LCHD
 leetay
@@ -1470,6 +1499,7 @@ MANHOLE
 MARiNES
 marioBombo
 MarkerB
+MARS
 MaRVeLouS
 MaxHD
 MAXiMUM
@@ -1550,6 +1580,7 @@ mSD
 MsR
 mthodmn101
 MUC
+MURDER
 MUSiX
 MuSt
 mV4U
@@ -1557,6 +1588,7 @@ mvgroup
 MVM
 mVmHD
 MVN
+MVP
 MVS
 MWF
 MWND
@@ -1630,6 +1662,7 @@ NLSGDVDr
 NnH
 No
 No.TK.BKF
+NO1KNOWS
 NODLABS
 NoGrp
 NOHD
@@ -1757,8 +1790,10 @@ PerfectionHD
 PFa
 phase
 Philanthropy_Sekai
+PHOBOS
 PhoenixRG
 PhPh
+Phr0stY
 Pianex
 piepHD
 PiKACHU
@@ -1821,6 +1856,7 @@ PRXHD
 PS
 PS3-TEAM
 PSiG
+PsiX
 PSV
 PSYCHD
 PTBR
@@ -1900,6 +1936,7 @@ REiGN
 REiSERADiO
 RELEASE
 Release.Lounge
+ReLeNTLesS
 RELOADED
 REMARKABLE
 REMAX
@@ -2012,6 +2049,7 @@ SAVANNAH
 SB-Subs
 SbR
 SCARED
+SCD
 SChiZO
 Scratch404
 Scratched
@@ -2019,6 +2057,7 @@ SCREAM
 ScWb
 SD-Project
 SD_Taka
+SDH
 SecretMyth
 SECTOR7
 SEiGHT
@@ -2079,6 +2118,7 @@ SiMbA
 SimplyReleaseS
 SINISTER
 SiNNERS
+Sir.Paul
 SiRiUs.sHaRe
 SiSO
 SiTV
@@ -2194,6 +2234,7 @@ SUBZERO
 sUN.sujaidr
 SUNSPOT
 SUPERiER
+SuperNova
 SuPReME
 SURFER
 SuS
@@ -2244,6 +2285,7 @@ tdl
 TDR
 TEAM-KAI
 TeamRV
+TECH
 TeGijA
 TEKATE
 TELEFLiX
@@ -2299,6 +2341,7 @@ TMD
 TMSF
 TN
 TNAN
+tNe
 TnF
 TnH
 ToF
@@ -2378,6 +2421,7 @@ ULTiMATE
 umai
 umee
 UMF
+UNDEAD
 UNDERWATER
 Underwater-Mahjong
 UNDINE
@@ -2407,6 +2451,7 @@ VaAr3
 VAiN
 VALiOMEDiA
 VALKYRiA
+VALUE
 VAMPS
 Vanillapunk
 VanRay
@@ -2436,6 +2481,7 @@ Vidom.FA
 ViGi
 ViKAT
 ViLD
+ViLLiANS
 ViNYL
 ViP3R
 ViSiON
@@ -2475,6 +2521,7 @@ WATCHABLE
 WATERS
 WAVEY
 WBZ
+WELEEF
 WEST
 WESTSiDE
 WHATELSE
@@ -2529,6 +2576,7 @@ XPRESS
 XR5
 xRG
 xRipp
+XS
 xSCR
 XSHD
 XSTREEM
@@ -2538,6 +2586,7 @@ xTriLL
 XTSF
 xV
 XviK
+XWT
 XXX4U
 XYZ
 Y-T

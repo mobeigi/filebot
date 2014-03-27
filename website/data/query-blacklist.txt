@@ -61,6 +61,7 @@
 ^Films$
 ^Finished$
 ^folder$
+^Games$
 ^good$
 ^HD[0-9]$
 ^hdd[0-9]$
