@@ -553,7 +553,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
 		if (renameMap.isEmpty()) {
-			throw new Exception(format("[%s] Unable to process any files", renameAction));
+			throw new Exception("Unable to identify and process any files");
 		}
 
 		// rename files

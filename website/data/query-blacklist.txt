@@ -47,6 +47,7 @@
 ^Downloading$
 ^Downloads$
 ^Dropbox$
+^emule$
 ^Entertainment$
 ^Episode$
 ^Erotic$
@@ -110,6 +111,7 @@
 ^Serier$
 ^Series$
 ^share$
+^shared$
 ^sort$
 ^sorted$
 ^SortedMedia$
