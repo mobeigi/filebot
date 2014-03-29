@@ -1,5 +1,6 @@
 at.midnight	@midnight
 BSG	Battlestar Galactica
+Craig.Ferguson	The Late Late Show with Craig Ferguson
 CSI(?!.{0,3}(NY|LA|Miami|Academy))	CSI: Crime Scene Investigation
 epl	English Premier League
 HIMYM	How I Met Your Mother

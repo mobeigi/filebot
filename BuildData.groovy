@@ -211,7 +211,6 @@ tvdb.keySet().toList().each{ id ->
 		tvdb.remove(id)
 	}
 }
-
 tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 
@@ -223,7 +222,7 @@ tvdb.values().each{ r ->
 	def rating = r[5]
 	def votes = r[6]
 	
-	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 8) || (votes >= 1 && rating >= 10)) {
+	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 7) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations([tvdb_name, imdb_name]).each{ n ->
 			thetvdb_index << [tvdb_id, n]
 		}
@@ -251,7 +250,7 @@ addSeriesAlias('House of Cards', 'HOC')
 addSeriesAlias('The Big Bang Theory', 'TBBT')
 addSeriesAlias('The Walking Dead', 'TWD')
 addSeriesAlias('@midnight', 'At Midnight')
-
+addSeriesAlias('The Late Late Show with Craig Ferguson', 'Craig Ferguson')
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
