@@ -19,6 +19,7 @@
 ^[0-9]{1,2}[.]
 ^[_]+$
 ^[lp]
+^__.+$
 ^Action$
 ^Adventure$
 ^and$
@@ -50,6 +51,7 @@
 ^emule$
 ^Entertainment$
 ^Episode$
+^Episodes$
 ^Erotic$
 ^extract$
 ^extracted$

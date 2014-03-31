@@ -251,6 +251,8 @@ addSeriesAlias('The Big Bang Theory', 'TBBT')
 addSeriesAlias('The Walking Dead', 'TWD')
 addSeriesAlias('@midnight', 'At Midnight')
 addSeriesAlias('The Late Late Show with Craig Ferguson', 'Craig Ferguson')
+addSeriesAlias('Naruto Shippuden', 'Naruto Shippuuden')
+
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
