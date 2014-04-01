@@ -1,7 +1,7 @@
 package net.sourceforge.filebot.web;
 
-import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.filebot.util.XPathUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

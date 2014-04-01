@@ -7,9 +7,9 @@ import static net.sourceforge.filebot.format.Define.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.web.EpisodeFormat.*;
 import static net.sourceforge.filebot.util.FileUtilities.*;
 import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.sourceforge.filebot.web.EpisodeFormat.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,8 @@ import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.similarity.SimilarityComparator;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.Date;
@@ -47,8 +49,6 @@ import net.sourceforge.filebot.web.MultiEpisode;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 
 import com.cedarsoftware.util.io.JsonWriter;
 

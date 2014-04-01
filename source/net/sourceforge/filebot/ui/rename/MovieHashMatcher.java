@@ -50,11 +50,11 @@ import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.NameSimilarityMetric;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SortOrder;
-import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 class MovieHashMatcher implements AutoCompleteMatcher {
 

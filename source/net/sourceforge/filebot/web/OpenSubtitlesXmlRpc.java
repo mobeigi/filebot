@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
-import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import net.sourceforge.filebot.util.ByteBufferOutputStream;
+import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;

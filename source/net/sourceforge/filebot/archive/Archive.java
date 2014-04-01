@@ -21,9 +21,9 @@ import net.sf.sevenzipjbinding.ISevenZipInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.vfs.SimpleFileInfo;
-import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class Archive implements Closeable {
 

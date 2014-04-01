@@ -27,10 +27,10 @@ import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.MetricMin;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
-import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.sourceforge.filebot.web.Episode;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 

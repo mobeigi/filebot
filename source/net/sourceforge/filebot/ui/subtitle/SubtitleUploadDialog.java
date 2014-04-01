@@ -57,15 +57,15 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.AbstractBean;
+import net.sourceforge.filebot.util.ui.EmptySelectionModel;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.filebot.web.VideoHashSubtitleService.CheckResult;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.AbstractBean;
-import net.sourceforge.filebot.util.ui.EmptySelectionModel;
 
 public class SubtitleUploadDialog extends JDialog {
 

@@ -40,13 +40,13 @@ import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.ui.AbstractSearchPanel;
 import net.sourceforge.filebot.ui.LanguageComboBox;
 import net.sourceforge.filebot.ui.SelectDialog;
+import net.sourceforge.filebot.util.ui.LabelProvider;
+import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.filebot.util.ui.LabelProvider;
-import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 

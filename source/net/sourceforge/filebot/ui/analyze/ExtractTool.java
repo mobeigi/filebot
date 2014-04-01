@@ -36,7 +36,6 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.archive.FileMapper;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.util.ui.GradientStyle;
 import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
@@ -44,6 +43,7 @@ import net.sourceforge.filebot.util.ui.ProgressDialog;
 import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
 import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
+import net.sourceforge.filebot.vfs.FileInfo;
 
 class ExtractTool extends Tool<TableModel> {
 

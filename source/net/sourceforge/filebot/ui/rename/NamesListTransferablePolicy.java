@@ -20,9 +20,9 @@ import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
+import net.sourceforge.filebot.util.FastFile;
 import net.sourceforge.filebot.vfs.SimpleFileInfo;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.util.FastFile;
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 

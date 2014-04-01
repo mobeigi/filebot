@@ -1,9 +1,9 @@
 package net.sourceforge.filebot.web;
 
 import static java.util.Arrays.*;
+import static net.sourceforge.filebot.util.XPathUtilities.*;
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.filebot.util.XPathUtilities.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,9 +27,9 @@ import javax.swing.Icon;
 
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo.SeriesProperty;
-import net.sourceforge.filebot.util.FileUtilities;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

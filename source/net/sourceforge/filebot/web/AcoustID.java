@@ -1,8 +1,8 @@
 package net.sourceforge.filebot.web;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
 import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.IOException;

@@ -19,11 +19,11 @@ import javax.swing.SwingWorker;
 import javax.swing.event.SwingPropertyChangeSupport;
 
 import net.sourceforge.filebot.Language;
+import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.util.FileUtilities;
 
 public class SubtitlePackage {
 

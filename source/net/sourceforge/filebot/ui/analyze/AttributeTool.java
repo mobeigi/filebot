@@ -19,10 +19,10 @@ import javax.swing.table.TableModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
 
 class AttributeTool extends Tool<TableModel> {
 

@@ -62,14 +62,14 @@ import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
-import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.VideoHashSubtitleService;
 import net.sourceforge.filebot.util.ui.AbstractBean;
 import net.sourceforge.filebot.util.ui.EmptySelectionModel;
 import net.sourceforge.filebot.util.ui.LinkButton;
 import net.sourceforge.filebot.util.ui.RoundBorder;
+import net.sourceforge.filebot.vfs.MemoryFile;
+import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.sourceforge.filebot.web.SubtitleProvider;
+import net.sourceforge.filebot.web.VideoHashSubtitleService;
 
 class SubtitleAutoMatchDialog extends JDialog {
 

@@ -58,6 +58,7 @@ import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.vfs.SimpleFileInfo;
@@ -75,7 +76,6 @@ import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 public class CmdlineOperations implements CmdlineInterface {
 

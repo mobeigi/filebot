@@ -31,12 +31,12 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.filebot.util.ByteBufferInputStream;
+import net.sourceforge.filebot.util.FileUtilities.RegexFileFilter;
 import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
-import net.sourceforge.filebot.util.ByteBufferInputStream;
-import net.sourceforge.filebot.util.FileUtilities.RegexFileFilter;
 
 import org.tukaani.xz.XZInputStream;
 

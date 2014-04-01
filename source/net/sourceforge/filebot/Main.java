@@ -1,3 +1,4 @@
+//TODO MOVE package net.sourceforge.filebot to net.filebot
 package net.sourceforge.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
@@ -58,10 +59,10 @@ import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.PanelBuilder;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
-import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.util.ByteBufferInputStream;
 import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
 import net.sourceforge.filebot.util.TeePrintStream;
+import net.sourceforge.filebot.web.CachedResource;
 
 import org.w3c.dom.NodeList;
 

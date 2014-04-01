@@ -6,8 +6,8 @@ import java.io.File;
 import java.util.Map;
 
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.vfs.FileInfo;
 
 
 class FileNameFormatter implements MatchFormatter {

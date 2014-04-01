@@ -3,8 +3,8 @@ package net.sourceforge.filebot.web;
 import static java.lang.Math.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,12 +35,12 @@ import net.sourceforge.filebot.Cache.Key;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.Timer;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.BaseInfo;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
 import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.Timer;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
 

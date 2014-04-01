@@ -35,11 +35,11 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.sourceforge.filebot.ResourceManager;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 abstract class SubtitleDropTarget extends JButton {
 
