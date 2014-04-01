@@ -233,13 +233,13 @@ public final class WebRequest {
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
-			Matcher matcher = Pattern.compile("charset=(\\p{Graph}+)").matcher(contentType);
+			Matcher matcher = Pattern.compile("charset=[\"]?([\\p{Graph}&&[^\"]]+)[\"]?").matcher(contentType);
 
 			if (matcher.find()) {
 				try {
 					return Charset.forName(matcher.group(1));
 				} catch (IllegalArgumentException e) {
-					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, e.getMessage());
+					Logger.getLogger(WebRequest.class.getName()).log(Level.WARNING, "Illegal charset: " + contentType);
 				}
 			}
 
