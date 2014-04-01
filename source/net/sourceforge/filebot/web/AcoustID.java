@@ -155,12 +155,14 @@ public class AcoustID implements MusicIdentificationService {
 		return null;
 	}
 
-	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException, InterruptedException {
+	public String getChromaprintCommand() {
 		// use fpcalc executable path as specified by the cmdline or default to "fpcalc" and let the shell figure it out
-		String fpcalc = System.getProperty("net.sourceforge.filebot.AcoustID.fpcalc", "fpcalc");
+		return System.getProperty("net.sourceforge.filebot.AcoustID.fpcalc", "fpcalc");
+	}
 
+	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException, InterruptedException {
 		List<String> command = new ArrayList<String>();
-		command.add(fpcalc);
+		command.add(getChromaprintCommand());
 		for (File f : files) {
 			command.add(f.toString());
 		}
