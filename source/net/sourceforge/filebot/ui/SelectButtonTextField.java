@@ -29,8 +29,8 @@ import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.SelectButton;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ui.SelectButton;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 public class SelectButtonTextField<T> extends JComponent {
 

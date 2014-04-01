@@ -8,8 +8,8 @@ import javax.swing.JTree;
 import javax.swing.tree.TreeNode;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.FancyTreeCellRenderer;
-import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.FancyTreeCellRenderer;
+import net.sourceforge.filebot.util.ui.GradientStyle;
 
 
 public class FileTreeCellRenderer extends FancyTreeCellRenderer {

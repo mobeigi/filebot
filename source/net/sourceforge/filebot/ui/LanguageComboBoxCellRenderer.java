@@ -12,7 +12,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.DashedSeparator;
+import net.sourceforge.filebot.util.ui.DashedSeparator;
 
 public class LanguageComboBoxCellRenderer implements ListCellRenderer {
 

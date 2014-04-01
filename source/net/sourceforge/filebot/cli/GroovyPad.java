@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.cli;
 
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -39,7 +39,7 @@ import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
-import net.sourceforge.tuned.TeePrintStream;
+import net.sourceforge.filebot.util.TeePrintStream;
 
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;

@@ -17,7 +17,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.GradientStyle;
 
 
 class CharacterHighlightPainter implements Highlighter.HighlightPainter {

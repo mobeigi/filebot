@@ -1,7 +1,7 @@
 package net.sourceforge.filebot.web;
 
 import static java.util.Collections.*;
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
-import net.sourceforge.tuned.ByteBufferOutputStream;
+import net.sourceforge.filebot.util.ByteBufferOutputStream;
 import redstone.xmlrpc.XmlRpcClient;
 import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;

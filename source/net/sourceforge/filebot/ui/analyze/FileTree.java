@@ -32,9 +32,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FilterIterator;
-import net.sourceforge.tuned.TreeIterator;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.FilterIterator;
+import net.sourceforge.filebot.util.TreeIterator;
 
 
 public class FileTree extends JTree {

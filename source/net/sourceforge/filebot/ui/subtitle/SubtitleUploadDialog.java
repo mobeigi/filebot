@@ -2,7 +2,7 @@ package net.sourceforge.filebot.ui.subtitle;
 
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -63,9 +63,9 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 import net.sourceforge.filebot.web.VideoHashSubtitleService.CheckResult;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.AbstractBean;
-import net.sourceforge.tuned.ui.EmptySelectionModel;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.AbstractBean;
+import net.sourceforge.filebot.util.ui.EmptySelectionModel;
 
 public class SubtitleUploadDialog extends JDialog {
 

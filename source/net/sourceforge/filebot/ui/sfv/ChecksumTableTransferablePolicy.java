@@ -5,7 +5,7 @@ package net.sourceforge.filebot.ui.sfv;
 import static java.util.Collections.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileReader;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
 
 
 class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {

@@ -4,7 +4,7 @@ import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.text.CollationKey;
@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 public class SeriesNameMatcher {
 

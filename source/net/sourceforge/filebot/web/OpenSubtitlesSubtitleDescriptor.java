@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
 
-import net.sourceforge.tuned.ByteBufferOutputStream;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.ByteBufferOutputStream;
+import net.sourceforge.filebot.util.FileUtilities;
 
 /**
  * Describes a subtitle on OpenSubtitles.

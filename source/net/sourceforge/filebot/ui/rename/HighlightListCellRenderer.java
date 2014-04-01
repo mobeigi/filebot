@@ -19,8 +19,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ui.AbstractFancyListCellRenderer;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 class HighlightListCellRenderer extends AbstractFancyListCellRenderer {

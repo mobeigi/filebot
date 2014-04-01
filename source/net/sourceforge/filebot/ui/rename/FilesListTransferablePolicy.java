@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.tuned.FastFile;
+import net.sourceforge.filebot.util.FastFile;
 
 class FilesListTransferablePolicy extends FileTransferablePolicy {
 

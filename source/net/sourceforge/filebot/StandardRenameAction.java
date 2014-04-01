@@ -3,7 +3,7 @@ package net.sourceforge.filebot;
 import java.io.File;
 import java.io.IOException;
 
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 public enum StandardRenameAction implements RenameAction {
 

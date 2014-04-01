@@ -3,8 +3,8 @@ package net.sourceforge.filebot.ui.subtitle;
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -66,10 +66,10 @@ import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.ui.AbstractBean;
-import net.sourceforge.tuned.ui.EmptySelectionModel;
-import net.sourceforge.tuned.ui.LinkButton;
-import net.sourceforge.tuned.ui.RoundBorder;
+import net.sourceforge.filebot.util.ui.AbstractBean;
+import net.sourceforge.filebot.util.ui.EmptySelectionModel;
+import net.sourceforge.filebot.util.ui.LinkButton;
+import net.sourceforge.filebot.util.ui.RoundBorder;
 
 class SubtitleAutoMatchDialog extends JDialog {
 

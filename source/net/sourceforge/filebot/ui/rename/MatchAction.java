@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.ui.rename;
 
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
 import java.awt.Window;
@@ -22,9 +22,9 @@ import net.sourceforge.filebot.similarity.EpisodeMetrics;
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.similarity.Matcher;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.tuned.ui.ProgressDialog;
-import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
+import net.sourceforge.filebot.util.ui.ProgressDialog;
+import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
+import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 
 class MatchAction extends AbstractAction {
 

@@ -2,7 +2,7 @@ package net.sourceforge.filebot.ui;
 
 import static javax.swing.ScrollPaneConstants.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Dimension;
 import java.awt.Window;
@@ -35,9 +35,9 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.ui.LabelProvider;
-import net.sourceforge.tuned.ui.SelectButton;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.ui.LabelProvider;
+import net.sourceforge.filebot.util.ui.SelectButton;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;

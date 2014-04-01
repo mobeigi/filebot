@@ -3,7 +3,7 @@ package net.sourceforge.filebot.subtitle;
 
 
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.text.DateFormat;
 import java.text.ParseException;

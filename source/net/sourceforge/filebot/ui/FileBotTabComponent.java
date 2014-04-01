@@ -13,8 +13,8 @@ import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.ProgressIndicator;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ui.ProgressIndicator;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 public class FileBotTabComponent extends JComponent {

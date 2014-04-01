@@ -37,8 +37,8 @@ import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.FileBotListExportHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 public class ListPanel extends JComponent {

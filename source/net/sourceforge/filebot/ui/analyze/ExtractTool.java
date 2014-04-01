@@ -1,9 +1,9 @@
 package net.sourceforge.filebot.ui.analyze;
 
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.ExceptionUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ExceptionUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Window;
@@ -37,13 +37,13 @@ import net.sourceforge.filebot.archive.Archive;
 import net.sourceforge.filebot.archive.FileMapper;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import net.sourceforge.tuned.ui.ProgressDialog;
-import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.ui.ProgressDialog;
+import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
+import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
 
 class ExtractTool extends Tool<TableModel> {
 

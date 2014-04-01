@@ -2,7 +2,7 @@ package net.sourceforge.filebot.similarity;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.ArrayList;

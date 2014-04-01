@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.sourceforge.tuned.ByteBufferInputStream;
-import net.sourceforge.tuned.ByteBufferOutputStream;
+import net.sourceforge.filebot.util.ByteBufferInputStream;
+import net.sourceforge.filebot.util.ByteBufferOutputStream;
 
 
 public class ZipArchive implements Iterable<MemoryFile> {

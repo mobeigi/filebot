@@ -14,7 +14,7 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
-import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
 
 
 public class SinglePanelFrame extends JFrame {

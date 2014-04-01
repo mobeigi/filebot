@@ -6,7 +6,7 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;

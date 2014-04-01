@@ -19,8 +19,8 @@ import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.tuned.FastFile;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FastFile;
+import net.sourceforge.filebot.util.FileUtilities;
 
 
 class ChecksumTableModel extends AbstractTableModel {

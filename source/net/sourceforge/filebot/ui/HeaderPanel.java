@@ -16,9 +16,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
+import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder.Position;
 
 
 class HeaderPanel extends JComponent {

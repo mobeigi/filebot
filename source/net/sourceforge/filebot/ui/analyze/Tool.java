@@ -13,9 +13,9 @@ import javax.swing.SwingWorker;
 
 import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
 
 
 abstract class Tool<M> extends JComponent {

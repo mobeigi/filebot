@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.list;
 
 
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.torrent.Torrent;
 import net.sourceforge.filebot.ui.FileBotList;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 
 class FileListTransferablePolicy extends FileTransferablePolicy {

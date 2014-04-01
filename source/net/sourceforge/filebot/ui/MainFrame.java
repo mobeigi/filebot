@@ -51,10 +51,10 @@ import net.sourceforge.filebot.ui.list.ListPanelBuilder;
 import net.sourceforge.filebot.ui.rename.RenamePanelBuilder;
 import net.sourceforge.filebot.ui.sfv.SfvPanelBuilder;
 import net.sourceforge.filebot.ui.subtitle.SubtitlePanelBuilder;
-import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
-import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.ShadowBorder;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
+import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.sourceforge.filebot.util.ui.ShadowBorder;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 public class MainFrame extends JFrame {
 

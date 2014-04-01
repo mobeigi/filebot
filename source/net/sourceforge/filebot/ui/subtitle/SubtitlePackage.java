@@ -23,7 +23,7 @@ import net.sourceforge.filebot.vfs.ArchiveType;
 import net.sourceforge.filebot.vfs.MemoryFile;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 public class SubtitlePackage {
 

@@ -22,10 +22,10 @@ import javax.swing.tree.TreeModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
 
 
 class SplitTool extends Tool<TreeModel> implements ChangeListener {

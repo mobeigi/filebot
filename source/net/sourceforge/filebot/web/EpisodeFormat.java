@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.web;
 
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.text.FieldPosition;
 import java.text.Format;

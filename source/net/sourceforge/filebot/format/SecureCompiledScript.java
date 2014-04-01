@@ -19,7 +19,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
 
 public class SecureCompiledScript extends CompiledScript {
 

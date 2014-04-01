@@ -4,9 +4,9 @@ import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.ExceptionUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ExceptionUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -46,9 +46,9 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.tuned.ui.ProgressDialog;
-import net.sourceforge.tuned.ui.ProgressDialog.Cancellable;
-import net.sourceforge.tuned.ui.SwingWorkerPropertyChangeAdapter;
+import net.sourceforge.filebot.util.ui.ProgressDialog;
+import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
+import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 
 class RenameAction extends AbstractAction {
 

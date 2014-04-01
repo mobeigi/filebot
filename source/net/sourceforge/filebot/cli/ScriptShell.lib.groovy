@@ -36,7 +36,7 @@ List.metaClass.eachMediaFolder = { c -> delegate.findResults{ it.getMediaFolders
 
 
 // File utility methods
-import static net.sourceforge.tuned.FileUtilities.*
+import static net.sourceforge.filebot.util.FileUtilities.*
 
 File.metaClass.getNameWithoutExtension = { getNameWithoutExtension(delegate.getName()) }
 File.metaClass.getPathWithoutExtension = { new File(delegate.getParentFile(), getNameWithoutExtension(delegate.getName())).getPath() }

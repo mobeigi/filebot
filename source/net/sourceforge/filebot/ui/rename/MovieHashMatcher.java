@@ -7,8 +7,8 @@ import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -54,7 +54,7 @@ import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
 import net.sourceforge.filebot.web.MoviePart;
 import net.sourceforge.filebot.web.SortOrder;
-import net.sourceforge.tuned.FileUtilities.ParentFilter;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 class MovieHashMatcher implements AutoCompleteMatcher {
 

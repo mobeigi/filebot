@@ -6,8 +6,8 @@ import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
 import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -35,8 +35,8 @@ import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.CachedResource;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
-import net.sourceforge.tuned.ByteBufferInputStream;
-import net.sourceforge.tuned.FileUtilities.RegexFileFilter;
+import net.sourceforge.filebot.util.ByteBufferInputStream;
+import net.sourceforge.filebot.util.FileUtilities.RegexFileFilter;
 
 import org.tukaani.xz.XZInputStream;
 

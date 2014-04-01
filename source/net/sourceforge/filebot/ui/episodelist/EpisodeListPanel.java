@@ -47,11 +47,11 @@ import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SeasonOutOfBoundsException;
 import net.sourceforge.filebot.web.SortOrder;
-import net.sourceforge.tuned.StringUtilities;
-import net.sourceforge.tuned.ui.LabelProvider;
-import net.sourceforge.tuned.ui.SelectButton;
-import net.sourceforge.tuned.ui.SimpleLabelProvider;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.StringUtilities;
+import net.sourceforge.filebot.util.ui.LabelProvider;
+import net.sourceforge.filebot.util.ui.SelectButton;
+import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, Episode> {
 

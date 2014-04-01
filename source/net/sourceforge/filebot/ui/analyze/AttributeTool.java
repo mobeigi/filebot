@@ -22,7 +22,7 @@ import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
 
 class AttributeTool extends Tool<TableModel> {
 

@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.ui.rename;
 
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -23,8 +23,8 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;

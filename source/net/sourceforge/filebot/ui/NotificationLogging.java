@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui;
 
 
 import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.tuned.ui.notification.Direction.*;
+import static net.sourceforge.filebot.util.ui.notification.Direction.*;
 
 import java.awt.GraphicsEnvironment;
 import java.util.logging.ConsoleHandler;
@@ -16,10 +16,10 @@ import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.ui.notification.MessageNotification;
-import net.sourceforge.tuned.ui.notification.NotificationManager;
-import net.sourceforge.tuned.ui.notification.QueueNotificationLayout;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.ui.notification.MessageNotification;
+import net.sourceforge.filebot.util.ui.notification.NotificationManager;
+import net.sourceforge.filebot.util.ui.notification.QueueNotificationLayout;
 
 
 public class NotificationLogging extends Handler {

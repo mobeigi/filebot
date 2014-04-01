@@ -19,8 +19,8 @@ import javax.swing.tree.TreeModel;
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
 
 
 class TypeTool extends Tool<TreeModel> {

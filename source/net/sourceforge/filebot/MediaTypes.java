@@ -1,7 +1,7 @@
 package net.sourceforge.filebot;
 
 import static java.util.Collections.*;
-import static net.sourceforge.tuned.XPathUtilities.*;
+import static net.sourceforge.filebot.util.XPathUtilities.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
+import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

@@ -4,7 +4,7 @@ import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -73,12 +73,12 @@ import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
 import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
-import net.sourceforge.tuned.ui.GradientStyle;
-import net.sourceforge.tuned.ui.LazyDocumentListener;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder;
-import net.sourceforge.tuned.ui.notification.SeparatorBorder.Position;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.sourceforge.filebot.util.ui.LazyDocumentListener;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
+import net.sourceforge.filebot.util.ui.notification.SeparatorBorder.Position;
 
 class HistoryDialog extends JDialog {
 

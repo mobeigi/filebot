@@ -2,8 +2,8 @@ package net.sourceforge.filebot.cli;
 
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
-import static net.sourceforge.tuned.ExceptionUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.ExceptionUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -4,7 +4,7 @@ package net.sourceforge.filebot.web;
 
 import static net.sourceforge.filebot.web.EpisodeUtilities.*;
 import static net.sourceforge.filebot.web.WebRequest.*;
-import static net.sourceforge.tuned.XPathUtilities.*;
+import static net.sourceforge.filebot.util.XPathUtilities.*;
 
 import java.io.IOException;
 import java.net.URI;

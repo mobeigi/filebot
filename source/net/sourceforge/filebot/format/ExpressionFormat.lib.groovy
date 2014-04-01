@@ -1,5 +1,5 @@
 
-import static net.sourceforge.tuned.FileUtilities.*
+import static net.sourceforge.filebot.util.FileUtilities.*
 import java.util.regex.Pattern
 
 
@@ -240,8 +240,8 @@ Object.metaClass.match = { Map cases ->
  * Web and File IO helpers
  */
 import net.sourceforge.filebot.web.WebRequest
-import net.sourceforge.tuned.FileUtilities
-import net.sourceforge.tuned.XPathUtilities
+import net.sourceforge.filebot.util.FileUtilities
+import net.sourceforge.filebot.util.XPathUtilities
 
 URL.metaClass.getText = { FileUtilities.readAll(WebRequest.getReader(delegate.openConnection())) }
 URL.metaClass.getHtml = { new XmlParser(new org.cyberneko.html.parsers.SAXParser()).parseText(delegate.getText()) }

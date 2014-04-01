@@ -5,7 +5,7 @@ package net.sourceforge.filebot.hash;
 import java.util.zip.CRC32;
 
 import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.tuned.FileUtilities.ExtensionFileFilter;
+import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 
 
 public enum HashType {

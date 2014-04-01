@@ -20,8 +20,8 @@ import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.tuned.ui.LoadingOverlayPane;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 class FileTreePanel extends JComponent {

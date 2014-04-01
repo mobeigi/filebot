@@ -34,7 +34,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sourceforge.tuned.ByteBufferOutputStream;
+import net.sourceforge.filebot.util.ByteBufferOutputStream;
 
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;

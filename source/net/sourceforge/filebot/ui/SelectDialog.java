@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui;
 
 
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -26,8 +26,8 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 public class SelectDialog<T> extends JDialog {

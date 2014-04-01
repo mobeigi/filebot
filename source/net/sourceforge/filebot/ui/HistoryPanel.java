@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.tuned.ui.LinkButton;
+import net.sourceforge.filebot.util.ui.LinkButton;
 
 
 public class HistoryPanel extends JPanel {

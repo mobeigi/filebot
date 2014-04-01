@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.subtitle;
 
 
-import static net.sourceforge.tuned.StringUtilities.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 
 import java.util.ArrayList;
 import java.util.List;

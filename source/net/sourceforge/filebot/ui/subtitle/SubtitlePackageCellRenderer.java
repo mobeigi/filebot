@@ -12,8 +12,8 @@ import javax.swing.border.CompoundBorder;
 
 import net.miginfocom.swing.MigLayout;
 import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.tuned.ui.AbstractFancyListCellRenderer;
-import net.sourceforge.tuned.ui.DashedSeparator;
+import net.sourceforge.filebot.util.ui.AbstractFancyListCellRenderer;
+import net.sourceforge.filebot.util.ui.DashedSeparator;
 
 
 class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {

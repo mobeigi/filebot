@@ -36,8 +36,8 @@ import net.sourceforge.filebot.ui.SelectDialog;
 import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
 import net.sourceforge.filebot.ui.transfer.LoadAction;
 import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.TunedUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.TunedUtilities;
 
 
 public class SfvPanel extends JComponent {

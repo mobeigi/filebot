@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -61,8 +61,8 @@ import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.mediainfo.MediaInfo;
 import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
 import net.sourceforge.filebot.mediainfo.MediaInfoException;
-import net.sourceforge.tuned.DefaultThreadFactory;
-import net.sourceforge.tuned.ui.LazyDocumentListener;
+import net.sourceforge.filebot.util.DefaultThreadFactory;
+import net.sourceforge.filebot.util.ui.LazyDocumentListener;
 
 class BindingDialog extends JDialog {
 

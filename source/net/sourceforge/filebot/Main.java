@@ -4,8 +4,8 @@ import static java.awt.GraphicsEnvironment.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
 import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Desktop;
 import java.awt.Dialog.ModalityType;
@@ -59,9 +59,9 @@ import net.sourceforge.filebot.ui.MainFrame;
 import net.sourceforge.filebot.ui.PanelBuilder;
 import net.sourceforge.filebot.ui.SinglePanelFrame;
 import net.sourceforge.filebot.web.CachedResource;
-import net.sourceforge.tuned.ByteBufferInputStream;
-import net.sourceforge.tuned.PreferencesMap.PreferencesEntry;
-import net.sourceforge.tuned.TeePrintStream;
+import net.sourceforge.filebot.util.ByteBufferInputStream;
+import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
+import net.sourceforge.filebot.util.TeePrintStream;
 
 import org.w3c.dom.NodeList;
 

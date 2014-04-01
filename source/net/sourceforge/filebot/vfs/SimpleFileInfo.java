@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.vfs;
 
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.Arrays;

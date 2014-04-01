@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.subtitle;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.ui.LanguageComboBoxModel.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -45,8 +45,8 @@ import net.sourceforge.filebot.web.SearchResult;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.ui.LabelProvider;
-import net.sourceforge.tuned.ui.SimpleLabelProvider;
+import net.sourceforge.filebot.util.ui.LabelProvider;
+import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 

@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.sfv;
 
 
 import static java.awt.Font.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -14,7 +14,7 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
 
 
 public class ChecksumCellRenderer extends DefaultTableCellRenderer {

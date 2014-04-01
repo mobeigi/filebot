@@ -1,8 +1,8 @@
 package net.sourceforge.filebot.ui.rename;
 
 import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -28,9 +28,9 @@ import net.sourceforge.filebot.similarity.MetricMin;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.tuned.ui.GradientStyle;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.sourceforge.filebot.util.ui.GradientStyle;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 

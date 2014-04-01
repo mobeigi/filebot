@@ -12,9 +12,9 @@ import net.sourceforge.filebot.ui.analyze.FileTree.AbstractTreeNode;
 import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
 import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
 import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.sourceforge.tuned.ExceptionUtilities;
-import net.sourceforge.tuned.FastFile;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.sourceforge.filebot.util.FastFile;
+import net.sourceforge.filebot.util.FileUtilities;
 
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {

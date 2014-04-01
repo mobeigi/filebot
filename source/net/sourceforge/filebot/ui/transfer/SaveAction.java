@@ -2,7 +2,7 @@
 package net.sourceforge.filebot.ui.transfer;
 
 
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;

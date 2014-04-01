@@ -1,7 +1,7 @@
 package net.sourceforge.filebot.ui.rename;
 
 import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.Component;
 import java.io.File;

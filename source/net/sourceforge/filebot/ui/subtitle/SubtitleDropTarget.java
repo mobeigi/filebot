@@ -4,8 +4,8 @@ import static net.sourceforge.filebot.MediaTypes.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.ui.NotificationLogging.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.tuned.FileUtilities.*;
-import static net.sourceforge.tuned.ui.TunedUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -38,8 +38,8 @@ import net.sourceforge.filebot.ResourceManager;
 import net.sourceforge.filebot.web.OpenSubtitlesClient;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.FileUtilities;
-import net.sourceforge.tuned.FileUtilities.ParentFilter;
+import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 abstract class SubtitleDropTarget extends JButton {
 

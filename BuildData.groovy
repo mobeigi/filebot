@@ -187,7 +187,7 @@ tvdb_updates.each{ update ->
 				def imdb_name = _guarded{
 					if (imdbid =~ /tt(\d+)/) {
 						def dom = IMDb.parsePage(IMDb.getMoviePageLink(imdbid.match(/tt(\d+)/) as int).toURL())
-						return net.sourceforge.tuned.XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
+						return net.sourceforge.filebot.util.XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
 					}
 				}
 				def data = [update.time, update.id, imdbid, tvdb_name ?: '', imdb_name ?: '', rating ?: 0, votes ?: 0]

@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.transfer;
 
 
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;

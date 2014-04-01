@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.sourceforge.tuned.TestUtil;
+import net.sourceforge.filebot.util.TestUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

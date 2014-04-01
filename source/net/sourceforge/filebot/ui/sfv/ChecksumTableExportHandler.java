@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.hash.VerificationFileWriter;
 import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 
 class ChecksumTableExportHandler extends TextFileExportHandler {

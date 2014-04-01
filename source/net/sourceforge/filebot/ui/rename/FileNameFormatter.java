@@ -7,7 +7,7 @@ import java.util.Map;
 
 import net.sourceforge.filebot.similarity.Match;
 import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.tuned.FileUtilities;
+import net.sourceforge.filebot.util.FileUtilities;
 
 
 class FileNameFormatter implements MatchFormatter {

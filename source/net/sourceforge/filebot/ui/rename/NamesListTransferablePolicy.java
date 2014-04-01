@@ -3,7 +3,7 @@ package net.sourceforge.filebot.ui.rename;
 import static java.awt.datatransfer.DataFlavor.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -22,7 +22,7 @@ import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
 import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
 import net.sourceforge.filebot.vfs.SimpleFileInfo;
 import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.tuned.FastFile;
+import net.sourceforge.filebot.util.FastFile;
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 

@@ -10,7 +10,7 @@ import static net.sourceforge.filebot.cli.CLILogging.*;
 import static net.sourceforge.filebot.hash.VerificationUtilities.*;
 import static net.sourceforge.filebot.media.MediaDetection.*;
 import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -75,7 +75,7 @@ import net.sourceforge.filebot.web.SortOrder;
 import net.sourceforge.filebot.web.SubtitleDescriptor;
 import net.sourceforge.filebot.web.SubtitleProvider;
 import net.sourceforge.filebot.web.VideoHashSubtitleService;
-import net.sourceforge.tuned.FileUtilities.ParentFilter;
+import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 
 public class CmdlineOperations implements CmdlineInterface {
 

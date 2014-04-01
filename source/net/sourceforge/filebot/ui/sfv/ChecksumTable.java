@@ -12,7 +12,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-import net.sourceforge.tuned.ui.TunedUtilities.DragDropRowTableUI;
+import net.sourceforge.filebot.util.ui.TunedUtilities.DragDropRowTableUI;
 
 
 class ChecksumTable extends JTable {

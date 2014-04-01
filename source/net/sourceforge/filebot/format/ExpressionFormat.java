@@ -2,8 +2,8 @@
 package net.sourceforge.filebot.format;
 
 
-import static net.sourceforge.tuned.ExceptionUtilities.*;
-import static net.sourceforge.tuned.FileUtilities.*;
+import static net.sourceforge.filebot.util.ExceptionUtilities.*;
+import static net.sourceforge.filebot.util.FileUtilities.*;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.MissingPropertyException;
 

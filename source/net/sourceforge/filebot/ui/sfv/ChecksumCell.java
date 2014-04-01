@@ -13,7 +13,7 @@ import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.SwingPropertyChangeSupport;
 
 import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.tuned.ExceptionUtilities;
+import net.sourceforge.filebot.util.ExceptionUtilities;
 
 
 class ChecksumCell {
