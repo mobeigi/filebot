@@ -1,7 +1,4 @@
 #!/bin/sh
 
-# delete caches and logs
-filebot -clear-cache
-
 # remove /bin symlink
 rm /opt/bin/filebot
