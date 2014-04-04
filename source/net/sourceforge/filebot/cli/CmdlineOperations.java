@@ -58,6 +58,7 @@ import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleFormat;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
+import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.vfs.MemoryFile;
@@ -720,7 +721,16 @@ public class CmdlineOperations implements CmdlineInterface {
 			private final SubtitleNaming naming = getSubtitleNaming(format);
 
 			// get language code suffix for given language (.eng)
-			private final String languageCodeSuffix = "." + Language.getISO3LanguageCodeByName(getLanguage(languageName).getName());
+			private final String languageCode = Language.getISO3LanguageCodeByName(getLanguage(languageName).getName());
+
+			public boolean matchesLanguageCode(File f) {
+				Locale languageSuffix = MediaDetection.releaseInfo.getLanguageSuffix(FileUtilities.getName(f));
+				Language language = Language.getLanguage(languageSuffix);
+				if (language != null) {
+					return language.getISO3().equalsIgnoreCase(languageCode);
+				}
+				return false;
+			}
 
 			@Override
 			public boolean accept(File video) {
@@ -737,8 +747,8 @@ public class CmdlineOperations implements CmdlineInterface {
 					} else if (isDerived(subtitle, video)) {
 						if (naming == SubtitleNaming.MATCH_VIDEO) {
 							return false;
-						} else if (subtitle.getName().contains(languageCodeSuffix)) {
-							return false;
+						} else {
+							return !matchesLanguageCode(subtitle);
 						}
 					}
 				}
