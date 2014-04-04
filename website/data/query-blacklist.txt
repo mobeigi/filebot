@@ -88,6 +88,7 @@
 ^Multimedia$
 ^Musique$
 ^mynas$
+^net$
 ^new$
 ^of$
 ^other$
@@ -187,7 +188,7 @@ DDL
 ddlsource
 ddlsource.com
 DDLValley
-DDLValley.eu
+DDLValley.(eu|net)
 ded
 Demonoid
 Descargas
