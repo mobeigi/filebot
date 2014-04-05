@@ -52,6 +52,7 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
@@ -63,6 +64,7 @@ import net.sourceforge.filebot.similarity.MetricCascade;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.subtitle.SubtitleNaming;
 import net.sourceforge.filebot.util.ui.AbstractBean;
+import net.sourceforge.filebot.util.ui.DashedSeparator;
 import net.sourceforge.filebot.util.ui.EmptySelectionModel;
 import net.sourceforge.filebot.util.ui.LinkButton;
 import net.sourceforge.filebot.util.ui.RoundBorder;
@@ -127,7 +129,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		table.setFillsViewportHeight(true);
 
 		JComboBox editor = new SimpleComboBox();
-		editor.setRenderer(new SubtitleOptionRenderer());
+		editor.setRenderer(new SubtitleOptionRenderer(true));
 
 		// disable selection
 		table.setSelectionModel(new EmptySelectionModel());
@@ -138,11 +140,13 @@ class SubtitleAutoMatchDialog extends JDialog {
 			@Override
 			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 				JComboBox editor = (JComboBox) super.getTableCellEditorComponent(table, value, isSelected, row, column);
-
 				SubtitleMapping mapping = (SubtitleMapping) value;
-				editor.setModel(new DefaultComboBoxModel(mapping.getOptions()));
-				editor.setSelectedItem(mapping.getSelectedOption());
 
+				DefaultComboBoxModel model = new DefaultComboBoxModel(mapping.getOptions());
+				model.addElement(null); // option to cancel selection
+
+				editor.setModel(model);
+				editor.setSelectedItem(mapping.getSelectedOption());
 				return editor;
 			}
 		});
@@ -347,7 +351,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private final JComboBox optionComboBox = new SimpleComboBox();
 
 		public SubtitleMappingOptionRenderer() {
-			optionComboBox.setRenderer(new SubtitleOptionRenderer());
+			optionComboBox.setRenderer(new SubtitleOptionRenderer(false));
 		}
 
 		@Override
@@ -356,7 +360,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			SubtitleDescriptorBean subtitleBean = mapping.getSelectedOption();
 
 			// render combobox for subtitle options
-			if (mapping.isEditable()) {
+			if (mapping.isEditable() && subtitleBean != null) {
 				optionComboBox.setModel(new DefaultComboBoxModel(new Object[] { subtitleBean }));
 				return optionComboBox;
 			}
@@ -366,10 +370,17 @@ class SubtitleAutoMatchDialog extends JDialog {
 			setForeground(table.getForeground());
 
 			if (subtitleBean == null) {
-				// no subtitles found
-				setText("No subtitles found");
-				setIcon(null);
-				setForeground(Color.gray);
+				if (mapping.getOptions().length == 0) {
+					// no subtitles found
+					setText("No subtitles found");
+					setIcon(null);
+					setForeground(Color.gray);
+				} else {
+					// no subtitles found
+					setText("No subtitles selected");
+					setIcon(null);
+					setForeground(Color.gray);
+				}
 			} else if (subtitleBean.getState() == StateValue.PENDING) {
 				// download in the queue
 				setText(subtitleBean.getText());
@@ -394,6 +405,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 	private static class SubtitleOptionRenderer extends DefaultListCellRenderer {
 
 		private final Border padding = createEmptyBorder(3, 3, 3, 3);
+		private final boolean isEditor;
+
+		public SubtitleOptionRenderer(boolean isEditor) {
+			this.isEditor = isEditor;
+		}
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -401,25 +417,36 @@ class SubtitleAutoMatchDialog extends JDialog {
 			setBorder(padding);
 
 			SubtitleDescriptorBean subtitleBean = (SubtitleDescriptorBean) value;
-			setText(subtitleBean.getText());
 
-			if (subtitleBean.getError() == null) {
-				setIcon(subtitleBean.getIcon());
-				setToolTipText(null);
-			} else {
-				setIcon(ResourceManager.getIcon("status.warning"));
-				setToolTipText(subtitleBean.getError().getMessage());
+			if (isEditor && index == list.getModel().getSize() - 2) {
+				setBorder(new CompoundBorder(new DashedSeparator(10, 4, Color.lightGray, list.getBackground()), getBorder())); // this element is always the last one
 			}
 
-			if (!isSelected) {
-				float f = subtitleBean.getMatchProbability();
-				if (f < 1) {
-					setOpaque(true);
-					setBackground(nameMatchColor);
+			if (value == null) {
+				setText("Cancel selection");
+				setIcon(ResourceManager.getIcon("dialog.cancel"));
+				setToolTipText(null);
+			} else {
+				setText(subtitleBean.getText());
+
+				if (subtitleBean.getError() == null) {
+					setIcon(subtitleBean.getIcon());
+					setToolTipText(null);
+				} else {
+					setIcon(ResourceManager.getIcon("status.warning"));
+					setToolTipText(subtitleBean.getError().getMessage());
 				}
-				if (f < 0.9f) {
-					setOpaque(true);
-					setBackground(derive(Color.RED, (1 - f) * 0.5f));
+
+				if (!isSelected) {
+					float f = subtitleBean.getMatchProbability();
+					if (f < 1) {
+						setOpaque(true);
+						setBackground(nameMatchColor);
+					}
+					if (f < 0.9f) {
+						setOpaque(true);
+						setBackground(derive(Color.RED, (1 - f) * 0.5f));
+					}
 				}
 			}
 
@@ -570,7 +597,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		public boolean isEditable() {
-			return subtitleFile == null && selectedOption != null && (selectedOption.getState() == null || selectedOption.getError() != null);
+			return subtitleFile == null && options.size() > 0 && (selectedOption == null || (selectedOption.getState() == null || selectedOption.getError() != null));
 		}
 
 		public SubtitleDescriptorBean getSelectedOption() {
@@ -583,8 +610,9 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 
 			this.selectedOption = selectedOption;
-			this.selectedOption.addPropertyChangeListener(selectedOptionListener);
-
+			if (this.selectedOption != null) {
+				this.selectedOption.addPropertyChangeListener(selectedOptionListener);
+			}
 			firePropertyChange("selectedOption", null, this.selectedOption);
 		}
 
