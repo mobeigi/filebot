@@ -681,7 +681,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		for (SubtitleProvider service : getSubtitleProviders()) {
-			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+			if (strict || remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
 				continue;
 			}
 
