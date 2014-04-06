@@ -49,7 +49,7 @@ public class TMDbClientTest {
 
 	@Test
 	public void getMovieInfo() throws Exception {
-		MovieInfo movie = tmdb.getMovieInfo(new Movie(null, 0, 418279, -1), Locale.ENGLISH);
+		MovieInfo movie = tmdb.getMovieInfo(new Movie(null, 0, 418279, -1), Locale.ENGLISH, true);
 
 		assertEquals("Transformers", movie.getName());
 		assertEquals("2007-07-02", movie.getReleased().toString());

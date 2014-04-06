@@ -148,15 +148,15 @@ public class TMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 
-	public MovieInfo getMovieInfo(Movie movie, Locale locale) throws IOException {
+	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws IOException {
 		if (movie.getTmdbId() >= 0) {
-			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, true, true);
+			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo, extendedInfo);
 		} else if (movie.getImdbId() >= 0) {
-			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, true, true);
+			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo, extendedInfo);
 		} else {
 			for (Movie result : searchMovie(movie.getName(), locale)) {
 				if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
-					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, true, true);
+					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo, extendedInfo);
 				}
 			}
 		}

@@ -1390,8 +1390,9 @@ public class MediaDetection {
 							}
 						} else if (model instanceof Movie) {
 							Movie movie = (Movie) model;
-							if (movie.getYear() > 0) {
-								xattr.setCreationDate(new Date(movie.getYear(), 1, 1).getTimeStamp());
+							if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
+								Date releaseDate = WebServices.TMDb.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
+								xattr.setCreationDate(releaseDate.getTimeStamp());
 							}
 						}
 					} catch (Exception e) {
