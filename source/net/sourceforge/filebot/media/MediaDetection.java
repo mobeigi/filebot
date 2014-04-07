@@ -116,8 +116,8 @@ public class MediaDetection {
 		return releaseInfo.getLanguageSuffix(getName(file));
 	}
 
-	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SeasonEpisodeMatcherWithFilter(true);
-	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SeasonEpisodeMatcherWithFilter(false);
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(true);
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(false);
 
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
 		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;
@@ -1280,33 +1280,6 @@ public class MediaDetection {
 		@Override
 		public CollationKey[] split(String sequence) {
 			throw new UnsupportedOperationException("requires ahead-of-time collation");
-		}
-	}
-
-	private static class SeasonEpisodeMatcherWithFilter extends SeasonEpisodeMatcher {
-
-		private final Pattern ignorePattern = MediaDetection.releaseInfo.getVideoFormatPattern(false);
-
-		public SeasonEpisodeMatcherWithFilter(boolean strict) {
-			super(DEFAULT_SANITY, strict);
-		}
-
-		protected String clean(CharSequence name) {
-			return ignorePattern.matcher(name).replaceAll("");
-		}
-
-		@Override
-		public List<SxE> match(CharSequence name) {
-			return super.match(clean(name));
-		}
-
-		@Override
-		protected List<String> tokenizeTail(File file) {
-			List<String> tail = super.tokenizeTail(file);
-			for (int i = 0; i < tail.size(); i++) {
-				tail.set(i, clean(tail.get(i)));
-			}
-			return tail;
 		}
 	}
 

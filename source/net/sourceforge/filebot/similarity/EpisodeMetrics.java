@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.media.ReleaseInfo;
+import net.sourceforge.filebot.media.SmartSeasonEpisodeMatcher;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
 import net.sourceforge.filebot.web.Date;
@@ -43,7 +44,7 @@ import com.ibm.icu.text.Transliterator;
 public enum EpisodeMetrics implements SimilarityMetric {
 
 	// Match by season / episode numbers
-	SeasonEpisode(new SeasonEpisodeMetric() {
+	SeasonEpisode(new SeasonEpisodeMetric(new SmartSeasonEpisodeMatcher(null, false)) {
 
 		private final Map<Object, Collection<SxE>> transformCache = synchronizedMap(new HashMap<Object, Collection<SxE>>(64, 4));
 

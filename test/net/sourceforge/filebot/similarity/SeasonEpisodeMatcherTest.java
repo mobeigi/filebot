@@ -3,6 +3,7 @@ package net.sourceforge.filebot.similarity;
 import static java.util.Arrays.*;
 import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
 import static org.junit.Assert.*;
+import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;
@@ -78,9 +79,6 @@ public class SeasonEpisodeMatcherTest {
 		// test season digits <= 19
 		assertEquals(new SxE(null, 16), matcher.match("E16").get(0));
 
-		// test look-ahead
-		assertEquals(asList(new SxE(7, 20)), matcher.match("720p"));
-
 		// test ambiguous match processing
 		assertEquals(asList(new SxE(1, 1), new SxE(UNDEFINED, 101)), matcher.match("Test.101"));
 
@@ -110,6 +108,14 @@ public class SeasonEpisodeMatcherTest {
 
 		assertEquals(new SxE(1, 1), matcher.match("1x01.1x02.1x03.1x04").get(0));
 		assertEquals(new SxE(1, 4), matcher.match("1x01.1x02.1x03.1x04").get(3));
+	}
+
+	@Test
+	public void withReleaseInfo() {
+		assertEquals("[7x20]", matcher.match("720p").toString());
+
+		SeasonEpisodeMatcher smartMatcher = MediaDetection.getSeasonEpisodeMatcher(true);
+		assertEquals(null, smartMatcher.match("720p"));
 	}
 
 }
