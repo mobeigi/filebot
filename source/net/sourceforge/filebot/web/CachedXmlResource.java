@@ -1,15 +1,21 @@
 package net.sourceforge.filebot.web;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+
+import javax.xml.parsers.SAXParserFactory;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
@@ -36,6 +42,15 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 	@Override
 	public String process(String data) throws Exception {
+		// make sure xml data is valid and well-formed before caching it
+		SAXParserFactory sax = SAXParserFactory.newInstance();
+		sax.setValidating(false);
+		sax.setNamespaceAware(false);
+
+		XMLReader reader = sax.newSAXParser().getXMLReader();
+		reader.setErrorHandler(new DefaultHandler()); // unwind on error
+		reader.parse(new InputSource(new StringReader(data)));
+
 		return data;
 	}
 
