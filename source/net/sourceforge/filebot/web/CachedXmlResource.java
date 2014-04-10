@@ -49,7 +49,11 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 		XMLReader reader = sax.newSAXParser().getXMLReader();
 		reader.setErrorHandler(new DefaultHandler()); // unwind on error
-		reader.parse(new InputSource(new StringReader(data)));
+		try {
+			reader.parse(new InputSource(new StringReader(data)));
+		} catch (SAXException e) {
+			throw new IOException("Malformed XML: " + getResourceLocation(resource), e);
+		}
 
 		return data;
 	}

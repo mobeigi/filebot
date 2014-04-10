@@ -18,12 +18,12 @@ public abstract class AbstractCachedResource<R, T extends Serializable> {
 	public static final long ONE_WEEK = 7 * ONE_DAY;
 	public static final long ONE_MONTH = 30 * ONE_DAY;
 
-	private String resource;
-	private Class<T> type;
-	private long expirationTime;
+	protected final String resource;
+	protected final Class<T> type;
+	protected final long expirationTime;
 
-	private int retryCountLimit;
-	private long retryWaitTime;
+	protected final int retryCountLimit;
+	protected final long retryWaitTime;
 
 	public AbstractCachedResource(String resource, Class<T> type, long expirationTime, int retryCountLimit, long retryWaitTime) {
 		this.resource = resource;
