@@ -142,7 +142,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
-		List<File> fileset = sortByUniquePath((filter(files, not(getClutterFileFilter()))));
+		List<File> fileset = sortByUniquePath(filter(files, not(getClutterFileFilter())));
 
 		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
@@ -649,8 +649,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		// ignore anything that is not a video
 		files = filter(files, VIDEO_FILES);
 
-		// ignore clutter files from processing
-		files = filter(files, not(getClutterFileFilter()));
+		// ignore sample files
+		files = sortByUniquePath(filter(files, not(getClutterFileFilter())));
 
 		// try to find subtitles for each video file
 		List<File> remainingVideos = new ArrayList<File>(files);
