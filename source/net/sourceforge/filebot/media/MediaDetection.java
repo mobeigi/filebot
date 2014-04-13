@@ -305,6 +305,11 @@ public class MediaDetection {
 			}
 		}
 
+		// completely trust xattr metadata if all files are tagged
+		if (names.size() == files.size()) {
+			return getUniqueQuerySet(names);
+		}
+
 		// try to detect series name via nfo files
 		try {
 			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
@@ -338,7 +343,7 @@ public class MediaDetection {
 						fn = sn;
 					}
 
-					(i == 0 ? filenames : folders).add(normalizeBrackets(fn));
+					(i == 0 ? filenames : folders).add(fn); // keep series name unique with year
 				}
 			}
 
@@ -1364,7 +1369,7 @@ public class MediaDetection {
 						} else if (model instanceof Movie) {
 							Movie movie = (Movie) model;
 							if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
-								Date releaseDate = WebServices.TMDb.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
+								Date releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
 								xattr.setCreationDate(releaseDate.getTimeStamp());
 							}
 						}
