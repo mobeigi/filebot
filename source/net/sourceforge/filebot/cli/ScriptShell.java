@@ -1,6 +1,6 @@
 package net.sourceforge.filebot.cli;
 
-import static net.sourceforge.filebot.cli.CLILogging.*;
+import groovy.lang.GroovyClassLoader;
 
 import java.awt.AWTPermission;
 import java.io.File;
@@ -28,24 +28,21 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.script.SimpleScriptContext;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.format.AssociativeScriptObject;
 import net.sourceforge.filebot.format.ExpressionFormat;
 import net.sourceforge.filebot.format.PrivilegedInvocation;
-import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.MovieIdentificationService;
 
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.codehaus.groovy.runtime.StackTraceUtils;
 
 public class ScriptShell {
 
-	private final ScriptEngine engine = new GroovyScriptEngineFactory().getScriptEngine();
-
+	private final ScriptEngine engine;
 	private final ScriptProvider scriptProvider;
 
 	public ScriptShell(CmdlineInterface cli, ArgumentBean args, AccessControlContext acc, ScriptProvider scriptProvider) throws ScriptException {
+		this.engine = createScriptEngine();
 		this.scriptProvider = scriptProvider;
 
 		// setup script context
@@ -56,6 +53,25 @@ public class ScriptShell {
 		// import additional functions into the shell environment
 		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
 		engine.eval(new InputStreamReader(ScriptShell.class.getResourceAsStream("ScriptShell.lib.groovy")));
+	}
+
+	public ScriptEngine createScriptEngine() {
+		CompilerConfiguration config = new CompilerConfiguration();
+		config.setScriptBaseClass("net.sourceforge.filebot.cli.ScriptShellBaseClass");
+		config.setRecompileGroovySource(false);
+		config.setDebug(false);
+
+		// default imports
+		ImportCustomizer imports = new ImportCustomizer();
+		imports.addStarImports("net.sourceforge.filebot", "net.sourceforge.filebot.util", "net.sourceforge.filebot.web", "net.sourceforge.filebot.media", "net.sourceforge.filebot.mediainfo", "net.sourceforge.filebot.hash");
+		imports.addStaticStars("net.sourceforge.filebot.WebServices");
+		imports.addStarImports("groovy.io", "groovy.xml", "groovy.json", "org.jsoup");
+		imports.addStarImports("java.nio.file", "java.nio.file.attribute", "java.util.regex");
+		imports.addStaticStars("java.nio.file.Files");
+		config.addCompilationCustomizers(imports);
+
+		GroovyClassLoader classLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);
+		return new GroovyScriptEngineImpl(classLoader);
 	}
 
 	public static interface ScriptProvider {
@@ -115,7 +131,7 @@ public class ScriptShell {
 
 		// bind external parameters
 		if (args.bindings != null) {
-			for (Entry<String, String> it : args.bindings) {
+			for (Entry<String, String> it : args.bindings.entrySet()) {
 				bindings.put(it.getKey(), it.getValue());
 			}
 		}
@@ -128,31 +144,11 @@ public class ScriptShell {
 
 		Map<String, String> defines = new LinkedHashMap<String, String>();
 		if (args.bindings != null) {
-			for (Entry<String, String> it : args.bindings) {
+			for (Entry<String, String> it : args.bindings.entrySet()) {
 				defines.put(it.getKey(), it.getValue());
 			}
 		}
 		bindings.put("_def", defines);
-
-		bindings.put("_types", MediaTypes.getDefault());
-		bindings.put("_log", CLILogger);
-
-		// bind Java properties and environment variables
-		bindings.put("_system", new AssociativeScriptObject(System.getProperties()));
-		bindings.put("_environment", new AssociativeScriptObject(System.getenv()));
-
-		// bind console object
-		bindings.put("console", System.console());
-
-		// bind Episode data providers
-		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
-			bindings.put(service.getName(), service);
-		}
-
-		// bind Movie data providers
-		for (MovieIdentificationService service : WebServices.getMovieIdentificationServices()) {
-			bindings.put(service.getName(), service);
-		}
 
 		return bindings;
 	}
