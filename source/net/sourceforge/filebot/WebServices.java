@@ -18,12 +18,12 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.web.AcoustID;
+import net.sourceforge.filebot.web.AcoustIDClient;
 import net.sourceforge.filebot.web.AnidbClient;
 import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.AudioTrack;
 import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.FanartTV;
+import net.sourceforge.filebot.web.FanartTVClient;
 import net.sourceforge.filebot.web.ID3Lookup;
 import net.sourceforge.filebot.web.IMDbClient;
 import net.sourceforge.filebot.web.LocalSearch;
@@ -56,21 +56,21 @@ public final class WebServices {
 
 	// movie dbs
 	public static final IMDbClient IMDb = new IMDbClient();
-	public static final TMDbClient TMDb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	public static final TMDbClient TheMovieDB = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
 
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 
 	// misc
-	public static final FanartTV FanartTV = new FanartTV(Settings.getApplicationProperty("fanart.tv.apikey"));
-	public static final AcoustID AcoustID = new AcoustID(Settings.getApplicationProperty("acoustid.apikey"));
+	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApplicationProperty("fanart.tv.apikey"));
+	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApplicationProperty("acoustid.apikey"));
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
 		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage, Serienjunkies };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
-		return new MovieIdentificationService[] { TMDb, IMDb, OpenSubtitles };
+		return new MovieIdentificationService[] { TheMovieDB, IMDb, OpenSubtitles };
 	}
 
 	public static SubtitleProvider[] getSubtitleProviders() {
@@ -120,7 +120,7 @@ public final class WebServices {
 		if (r instanceof TVRageSearchResult)
 			return WebServices.TVRage;
 		if (r instanceof Movie)
-			return WebServices.TMDb;
+			return WebServices.TheMovieDB;
 		if (r instanceof AudioTrack)
 			return WebServices.AcoustID;
 

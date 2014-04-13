@@ -202,7 +202,7 @@ public class MediaBindingBean {
 	@Define("primaryTitle")
 	public String getPrimaryTitle() throws Exception {
 		if (infoObject instanceof Movie) {
-			return WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH, false).getName();
+			return WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getName();
 		}
 
 		if (infoObject instanceof Episode) {
@@ -228,7 +228,7 @@ public class MediaBindingBean {
 			}
 
 			// lookup IMDbID for TMDbID
-			tmdbid = WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH, false).getId();
+			tmdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getId();
 		}
 
 		return String.valueOf(tmdbid);
@@ -244,7 +244,7 @@ public class MediaBindingBean {
 			}
 
 			// lookup IMDbID for TMDbID
-			imdbid = WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId();
+			imdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId();
 		}
 
 		return String.format("tt%07d", imdbid);
@@ -515,7 +515,7 @@ public class MediaBindingBean {
 				if (infoObject instanceof Episode)
 					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
 				if (infoObject instanceof Movie)
-					metaInfo = WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH, true);
+					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, true);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
 			}
@@ -534,7 +534,7 @@ public class MediaBindingBean {
 			}
 			if (infoObject instanceof Movie) {
 				Movie m = getMovie();
-				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TMDb.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId(), -1));
+				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId(), -1));
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);

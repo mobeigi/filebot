@@ -18,16 +18,16 @@ import java.util.Map;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.FanartTV.FanartDescriptor.FanartProperty;
+import net.sourceforge.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class FanartTV {
+public class FanartTVClient {
 
 	private String apikey;
 
-	public FanartTV(String apikey) {
+	public FanartTVClient(String apikey) {
 		this.apikey = apikey;
 	}
 

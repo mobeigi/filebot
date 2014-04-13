@@ -28,13 +28,13 @@ import net.sourceforge.filebot.ResourceManager;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class AcoustID implements MusicIdentificationService {
+public class AcoustIDClient implements MusicIdentificationService {
 
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(3, 1, TimeUnit.SECONDS);
 
 	private String apikey;
 
-	public AcoustID(String apikey) {
+	public AcoustIDClient(String apikey) {
 		this.apikey = apikey;
 	}
 
@@ -173,7 +173,7 @@ public class AcoustID implements MusicIdentificationService {
 			try {
 				processBuilder.redirectError(Redirect.INHERIT);
 			} catch (Throwable e) {
-				Logger.getLogger(AcoustID.class.getName()).log(Level.WARNING, "Unable to inherit IO: " + e.getMessage());
+				Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, "Unable to inherit IO: " + e.getMessage());
 			}
 			process = processBuilder.start();
 		} catch (Exception e) {
