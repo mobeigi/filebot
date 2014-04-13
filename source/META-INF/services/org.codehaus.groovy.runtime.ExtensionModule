@@ -1,0 +1,4 @@
+moduleName=filebot-groovy-all
+moduleVersion=4.1
+extensionClasses=net.sourceforge.filebot.cli.ScriptShellMethods,net.sourceforge.filebot.format.ExpressionFormatMethods,org.codehaus.groovy.jsr223.ScriptExtensions
+staticExtensionClasses=org.codehaus.groovy.jsr223.ScriptStaticExtensions

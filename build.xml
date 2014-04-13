@@ -156,6 +156,8 @@
 				<include name="META-INF/dgminfo" />
 				<include name="META-INF/services/**" />
 				<include name="META-INF/*.properties" />
+				<!-- filebot already includes it's own extension modules -->
+				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule"/>
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/icu4j.jar">
