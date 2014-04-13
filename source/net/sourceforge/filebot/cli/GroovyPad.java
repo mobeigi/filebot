@@ -167,7 +167,7 @@ public class GroovyPad extends JFrame {
 			DefaultScriptProvider scriptProvider = new DefaultScriptProvider(true);
 			scriptProvider.setBaseScheme(new URI("fn", "%s", null));
 
-			return new ScriptShell(new CmdlineOperations(), new ArgumentBean(), AccessController.getContext(), scriptProvider);
+			return new ScriptShell(new CmdlineOperations(), ArgumentBean.parse(new String[0]), AccessController.getContext(), scriptProvider);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

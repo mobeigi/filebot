@@ -31,21 +31,7 @@ import net.sourceforge.filebot.cli.ScriptShell.Script;
 import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
 import net.sourceforge.filebot.web.CachedResource;
 
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-
 public class ArgumentProcessor {
-
-	public void printHelp(ArgumentBean argumentBean) {
-		new CmdLineParser(argumentBean).printUsage(System.out);
-	}
-
-	public ArgumentBean parse(String[] args) throws CmdLineException {
-		ArgumentBean bean = new ArgumentBean(args);
-		CmdLineParser parser = new CmdLineParser(bean);
-		parser.parseArgument(args);
-		return bean;
-	}
 
 	public int process(ArgumentBean args, CmdlineInterface cli) {
 		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");

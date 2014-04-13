@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import net.sourceforge.filebot.cli.ArgumentBean;
 import net.sourceforge.filebot.util.ExceptionUtilities;
 import net.sourceforge.filebot.util.PreferencesList;
 import net.sourceforge.filebot.util.PreferencesMap;
@@ -175,6 +176,20 @@ public final class Settings {
 		String version = System.getProperty("java.version");
 		String headless = GraphicsEnvironment.isHeadless() ? "(headless)" : null;
 		return joinBy(" ", name, version, headless);
+	}
+
+	private static String[] applicationArgumentArray;
+
+	protected static void setApplicationArgumentArray(String[] args) {
+		applicationArgumentArray = args;
+	}
+
+	public static ArgumentBean getApplicationArguments() {
+		try {
+			return ArgumentBean.parse(applicationArgumentArray);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 }

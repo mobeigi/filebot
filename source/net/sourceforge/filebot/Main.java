@@ -68,20 +68,16 @@ import org.w3c.dom.NodeList;
 
 public class Main {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String... arguments) {
+	public static void main(String[] argumentArray) {
 		try {
 			// parse arguments
-			final ArgumentProcessor cli = new ArgumentProcessor();
-			final ArgumentBean args = cli.parse(arguments);
+			final ArgumentBean args = ArgumentBean.parse(argumentArray);
 
 			if (args.printHelp() || args.printVersion() || (!(args.runCLI() || args.clearCache() || args.clearUserData()) && isHeadless())) {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
 
 				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
-					cli.printHelp(args);
+					ArgumentBean.printHelp(args);
 				}
 
 				// just print help message or version string and then exit
@@ -165,6 +161,9 @@ public class Main {
 				System.setProperty("application.rename.history", "false"); // don't keep history of --action test rename operations
 			}
 
+			// make sure we can access application arguments at any time
+			Settings.setApplicationArgumentArray(argumentArray);
+
 			// initialize analytics
 			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.parseBoolean(System.getProperty("application.analytics")));
 			HistorySpooler.getInstance().setPersistentHistoryEnabled(System.getProperty("application.rename.history") == null ? true : Boolean.parseBoolean(System.getProperty("application.rename.history")));
@@ -190,7 +189,7 @@ public class Main {
 					}
 				}
 
-				int status = cli.process(args, new CmdlineOperations());
+				int status = new ArgumentProcessor().process(args, new CmdlineOperations());
 				System.exit(status);
 			}
 

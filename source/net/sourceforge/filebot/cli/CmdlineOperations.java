@@ -134,7 +134,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (sxe > (max * 0.65) || cws > (max * 0.65)) {
 			return renameSeries(files, action, conflictAction, outputDir, format, TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
-			return renameMovie(files, action, conflictAction, outputDir, format, TMDb, query, filter, locale, strict); // use default movie db
+			return renameMovie(files, action, conflictAction, outputDir, format, TheMovieDB, query, filter, locale, strict); // use default movie db
 		}
 	}
 

@@ -6,15 +6,18 @@ import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.Language;
 
 import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
@@ -117,10 +120,10 @@ public class ArgumentBean {
 	public boolean help = false;
 
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
-	public List<Entry<String, String>> bindings;
+	public Map<String, String> bindings = new LinkedHashMap<String, String>();
 
 	@Argument
-	public List<String> arguments;
+	public List<String> arguments = new ArrayList<String>();
 
 	public boolean runCLI() {
 		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
@@ -181,12 +184,23 @@ public class ArgumentBean {
 
 	private final String[] array;
 
-	public ArgumentBean(String... array) {
+	private ArgumentBean(String... array) {
 		this.array = array;
 	}
 
 	public List<String> getArray() {
 		return unmodifiableList(asList(array));
+	}
+
+	public static ArgumentBean parse(String[] args) throws CmdLineException {
+		ArgumentBean bean = new ArgumentBean(args);
+		CmdLineParser parser = new CmdLineParser(bean);
+		parser.parseArgument(args);
+		return bean;
+	}
+
+	public static void printHelp(ArgumentBean argumentBean) {
+		new CmdLineParser(argumentBean).printUsage(System.out);
 	}
 
 }
