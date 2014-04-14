@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.security.AccessController;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.MissingResourceException;
@@ -27,7 +26,6 @@ import javax.script.SimpleBindings;
 import net.sourceforge.filebot.Analytics;
 import net.sourceforge.filebot.MediaTypes;
 import net.sourceforge.filebot.StandardRenameAction;
-import net.sourceforge.filebot.cli.ScriptShell.Script;
 import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
 import net.sourceforge.filebot.web.CachedResource;
 
@@ -88,7 +86,7 @@ public class ArgumentProcessor {
 				Bindings bindings = new SimpleBindings();
 				bindings.put("args", args.getFiles(false));
 
-				DefaultScriptProvider scriptProvider = new DefaultScriptProvider(args.trustScript);
+				DefaultScriptProvider scriptProvider = new DefaultScriptProvider();
 				URI script = scriptProvider.getScriptLocation(args.script);
 
 				if (!scriptProvider.isInlineScheme(script.getScheme())) {
@@ -105,7 +103,7 @@ public class ArgumentProcessor {
 					}
 				}
 
-				ScriptShell shell = new ScriptShell(cli, args, AccessController.getContext(), scriptProvider);
+				ScriptShell shell = new ScriptShell(scriptProvider, args.bindings);
 				shell.runScript(script, bindings);
 			}
 
@@ -124,13 +122,7 @@ public class ArgumentProcessor {
 
 	public static class DefaultScriptProvider implements ScriptProvider {
 
-		private final boolean trustRemoteScript;
-
 		private URI baseScheme;
-
-		public DefaultScriptProvider(boolean trustRemoteScript) {
-			this.trustRemoteScript = trustRemoteScript;
-		}
 
 		public void setBaseScheme(URI baseScheme) {
 			this.baseScheme = baseScheme;
@@ -145,19 +137,14 @@ public class ArgumentProcessor {
 		}
 
 		public boolean isInlineScheme(String scheme) {
-			return "g".equals(scheme) || "system".equals(scheme);
+			return "g".equals(scheme);
 		}
 
 		@Override
 		public URI getScriptLocation(String input) throws Exception {
 			try {
 				return new URL(input).toURI();
-			} catch (Exception _) {
-				// system:in
-				if (input.equals("system:in")) {
-					return new URI("system", "in", null);
-				}
-
+			} catch (Exception e) {
 				// g:println 'hello world'
 				if (input.startsWith("g:")) {
 					return new URI("g", input.substring(2), null);
@@ -185,31 +172,18 @@ public class ArgumentProcessor {
 		}
 
 		@Override
-		public Script fetchScript(URI uri) throws IOException {
+		public String fetchScript(URI uri) throws IOException {
 			if (uri.getScheme().equals("file")) {
-				return new Script(readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8")), true);
-			}
-
-			if (uri.getScheme().equals("system")) {
-				return new Script(readAll(new InputStreamReader(System.in)), true);
+				return readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8"));
 			}
 
 			if (uri.getScheme().equals("g")) {
-				return new Script(uri.getSchemeSpecificPart(), true);
+				return uri.getSchemeSpecificPart();
 			}
 
 			// remote script
-			String url;
-			boolean trusted;
-
 			String resolver = getResourceTemplate(uri.getScheme());
-			if (resolver != null) {
-				url = String.format(resolver, uri.getSchemeSpecificPart());
-				trusted = true;
-			} else {
-				url = uri.toString();
-				trusted = trustRemoteScript;
-			}
+			String url = (resolver != null) ? String.format(resolver, uri.getSchemeSpecificPart()) : uri.toString();
 
 			// fetch remote script only if modified
 			CachedResource<String> script = new CachedResource<String>(url, String.class, CachedResource.ONE_DAY) {
@@ -219,7 +193,7 @@ public class ArgumentProcessor {
 					return Charset.forName("UTF-8").decode(data).toString();
 				}
 			};
-			return new Script(script.get(), trusted);
+			return script.get();
 		}
 	}
 

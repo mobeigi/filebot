@@ -1,10 +1,12 @@
 package net.sourceforge.filebot.cli;
 
+import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import groovy.lang.Closure;
 import groovy.lang.Script;
 
 import java.io.Console;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import net.sourceforge.filebot.MediaTypes;
@@ -28,6 +30,16 @@ public abstract class ScriptShellBaseClass extends Script {
 	@Override
 	public Object run() {
 		return null;
+	}
+
+	// define global variable: _args
+	public ArgumentBean get_args() {
+		return getApplicationArguments();
+	}
+
+	// define global variable: _def
+	public Map<String, String> get_def() {
+		return getApplicationArguments().bindings;
 	}
 
 	// define global variable: _system

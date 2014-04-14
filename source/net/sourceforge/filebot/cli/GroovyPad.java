@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.security.AccessController;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -164,10 +164,10 @@ public class GroovyPad extends JFrame {
 
 	protected ScriptShell createScriptShell() {
 		try {
-			DefaultScriptProvider scriptProvider = new DefaultScriptProvider(true);
+			DefaultScriptProvider scriptProvider = new DefaultScriptProvider();
 			scriptProvider.setBaseScheme(new URI("fn", "%s", null));
 
-			return new ScriptShell(new CmdlineOperations(), ArgumentBean.parse(new String[0]), AccessController.getContext(), scriptProvider);
+			return new ScriptShell(scriptProvider, new HashMap<String, Object>());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -232,15 +232,15 @@ public class GroovyPad extends JFrame {
 				@Override
 				public void run() {
 					try {
-						result = shell.evaluate(script, new SimpleBindings(), true);
+						result = shell.evaluate(script, new SimpleBindings());
 
 						// print result and make sure to flush Groovy output
 						SimpleBindings binding = new SimpleBindings();
 						binding.put("result", result);
 						if (result != null) {
-							shell.evaluate("print('Result: '); println(result);", binding, true);
+							shell.evaluate("print('Result: '); println(result);", binding);
 						} else {
-							shell.evaluate("println();", binding, true);
+							shell.evaluate("println();", binding);
 						}
 					} catch (ScriptException e) {
 						while (e.getCause() instanceof ScriptException) {
