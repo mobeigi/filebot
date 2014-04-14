@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PropertyPermission;
+import java.util.ResourceBundle;
 
 import javax.script.Bindings;
 import javax.script.ScriptContext;
@@ -56,18 +57,17 @@ public class ScriptShell {
 	}
 
 	public ScriptEngine createScriptEngine() {
+		ResourceBundle bundle = ResourceBundle.getBundle(ScriptShell.class.getName());
+
 		CompilerConfiguration config = new CompilerConfiguration();
-		config.setScriptBaseClass("net.sourceforge.filebot.cli.ScriptShellBaseClass");
+		config.setScriptBaseClass(bundle.getString("scriptBaseClass"));
 		config.setRecompileGroovySource(false);
 		config.setDebug(false);
 
 		// default imports
 		ImportCustomizer imports = new ImportCustomizer();
-		imports.addStarImports("net.sourceforge.filebot", "net.sourceforge.filebot.util", "net.sourceforge.filebot.web", "net.sourceforge.filebot.media", "net.sourceforge.filebot.mediainfo", "net.sourceforge.filebot.hash");
-		imports.addStaticStars("net.sourceforge.filebot.WebServices");
-		imports.addStarImports("groovy.io", "groovy.xml", "groovy.json", "org.jsoup");
-		imports.addStarImports("java.nio.file", "java.nio.file.attribute", "java.util.regex");
-		imports.addStaticStars("java.nio.file.Files");
+		imports.addStarImports(bundle.getString("starImport").split(", "));
+		imports.addStaticStars(bundle.getString("starStaticImport").split(", "));
 		config.addCompilationCustomizers(imports);
 
 		GroovyClassLoader classLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), config);

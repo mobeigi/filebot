@@ -282,10 +282,10 @@ public class MediaDetection {
 		if (useAnimeIndex)
 			index.addAll(getAnimeIndex());
 
-		return detectSeriesNames(files, locale, index);
+		return detectSeriesNames(files, index, locale);
 	}
 
-	public static List<String> detectSeriesNames(Collection<File> files, Locale locale, List<IndexEntry<SearchResult>> index) throws Exception {
+	public static List<String> detectSeriesNames(Collection<File> files, List<IndexEntry<SearchResult>> index, Locale locale) throws Exception {
 		List<String> names = new ArrayList<String>();
 
 		// try xattr metadata if enabled
