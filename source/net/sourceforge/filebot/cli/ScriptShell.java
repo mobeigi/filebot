@@ -2,7 +2,6 @@ package net.sourceforge.filebot.cli;
 
 import groovy.lang.GroovyClassLoader;
 
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -11,9 +10,6 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
-
-import net.sourceforge.filebot.format.ExpressionFormat;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
@@ -21,6 +17,9 @@ import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.codehaus.groovy.runtime.StackTraceUtils;
 
 public class ScriptShell {
+
+	public static final String ARGV_BINDING_NAME = "args";
+	public static final String SHELL_BINDING_NAME = "__shell";
 
 	private final ScriptEngine engine;
 	private final ScriptProvider scriptProvider;
@@ -34,19 +33,10 @@ public class ScriptShell {
 		bindings.putAll(globals);
 
 		// bind API objects
-		// TODO remove
-		bindings.put("_cli", new CmdlineOperations());
-		bindings.put("_shell", this);
+		bindings.put(SHELL_BINDING_NAME, this);
 
 		// setup script context
-		ScriptContext context = new SimpleScriptContext();
-		context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-		engine.setContext(context);
-
-		// import additional functions into the shell environment
-		// TODO remove
-		engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
-		engine.eval(new InputStreamReader(ScriptShell.class.getResourceAsStream("ScriptShell.lib.groovy")));
+		engine.getContext().setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
 	}
 
 	public ScriptEngine createScriptEngine() {
