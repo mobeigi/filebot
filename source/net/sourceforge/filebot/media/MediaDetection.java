@@ -327,7 +327,7 @@ public class MediaDetection {
 		}
 
 		// strict series name matcher for recognizing 1x01 patterns
-		SeriesNameMatcher snm = new SeriesNameMatcher(locale, true);
+		SeriesNameMatcher strictSeriesNameMatcher = new SeriesNameMatcher(locale, true);
 
 		// cross-reference known series names against file structure
 		try {
@@ -338,7 +338,7 @@ public class MediaDetection {
 					String fn = getName(f);
 
 					// try to minimize noise
-					String sn = snm.matchByEpisodeIdentifier(fn);
+					String sn = strictSeriesNameMatcher.matchByEpisodeIdentifier(fn);
 					if (sn != null) {
 						fn = sn;
 					}
@@ -363,7 +363,7 @@ public class MediaDetection {
 				sns.addAll(folders);
 				sns.addAll(filenames);
 				for (int i = 0; i < sns.size(); i++) {
-					String sn = snm.matchByEpisodeIdentifier(sns.get(i));
+					String sn = strictSeriesNameMatcher.matchByEpisodeIdentifier(sns.get(i));
 					if (sn != null) {
 						sns.set(i, sn);
 					}
@@ -389,14 +389,25 @@ public class MediaDetection {
 		// match common word sequence and clean detected word sequence from unwanted elements
 		Collection<String> matches = new LinkedHashSet<String>();
 
-		// check CWS matches
-		matches.addAll(snm.matchAll(files.toArray(new File[files.size()])));
-
 		// check for known pattern matches
-		for (File f : files) {
-			String sn = snm.matchByEpisodeIdentifier(getName(f.getParentFile()));
-			if (sn != null) {
-				matches.add(sn);
+		for (boolean strict : new boolean[] { true, false }) {
+			if (matches.isEmpty()) {
+				// check CWS matches
+				SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, strict);
+				matches.addAll(strictSeriesNameMatcher.matchAll(files.toArray(new File[files.size()])));
+
+				// try before SxE pattern
+				if (matches.isEmpty()) {
+					for (File f : files) {
+						for (File path : listPathTail(f, 2, true)) {
+							String sn = seriesNameMatcher.matchByEpisodeIdentifier(getName(path));
+							if (sn != null && sn.length() > 0) {
+								matches.add(sn);
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -947,8 +958,12 @@ public class MediaDetection {
 	}
 
 	public static String stripReleaseInfo(String name) {
+		return stripReleaseInfo(name, true);
+	}
+
+	public static String stripReleaseInfo(String name, boolean strict) {
 		try {
-			return releaseInfo.cleanRelease(singleton(name), true).iterator().next();
+			return releaseInfo.cleanRelease(singleton(name), strict).iterator().next();
 		} catch (NoSuchElementException e) {
 			return ""; // default value in case all tokens are stripped away
 		} catch (IOException e) {
