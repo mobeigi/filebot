@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static net.sourceforge.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -120,7 +121,7 @@ public class ArgumentBean {
 	public boolean help = false;
 
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
-	public Map<String, String> bindings = new LinkedHashMap<String, String>();
+	public Map<String, String> defines = new LinkedHashMap<String, String>();
 
 	@Argument
 	public List<String> arguments = new ArrayList<String>();
@@ -199,8 +200,8 @@ public class ArgumentBean {
 		return bean;
 	}
 
-	public static void printHelp(ArgumentBean argumentBean) {
-		new CmdLineParser(argumentBean).printUsage(System.out);
+	public static void printHelp(ArgumentBean argumentBean, OutputStream out) {
+		new CmdLineParser(argumentBean).printUsage(out);
 	}
 
 }

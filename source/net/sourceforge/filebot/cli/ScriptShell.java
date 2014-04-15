@@ -54,8 +54,6 @@ public class ScriptShell {
 
 		CompilerConfiguration config = new CompilerConfiguration();
 		config.setScriptBaseClass(bundle.getString("scriptBaseClass"));
-		config.setRecompileGroovySource(false);
-		config.setDebug(false);
 
 		// default imports
 		ImportCustomizer imports = new ImportCustomizer();

@@ -77,7 +77,7 @@ public class Main {
 				System.out.format("%s / %s%n%n", getApplicationIdentifier(), getJavaRuntimeIdentifier());
 
 				if (args.printHelp() || (!args.printVersion() && isHeadless())) {
-					ArgumentBean.printHelp(args);
+					ArgumentBean.printHelp(args, System.out);
 				}
 
 				// just print help message or version string and then exit

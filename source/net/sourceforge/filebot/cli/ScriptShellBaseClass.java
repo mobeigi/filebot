@@ -39,7 +39,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: _def
 	public Map<String, String> get_def() {
-		return getApplicationArguments().bindings;
+		return getApplicationArguments().defines;
 	}
 
 	// define global variable: _system

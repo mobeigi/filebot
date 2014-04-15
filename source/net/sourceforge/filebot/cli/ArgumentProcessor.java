@@ -103,7 +103,7 @@ public class ArgumentProcessor {
 					}
 				}
 
-				ScriptShell shell = new ScriptShell(scriptProvider, args.bindings);
+				ScriptShell shell = new ScriptShell(scriptProvider, args.defines);
 				shell.runScript(script, bindings);
 			}
 
