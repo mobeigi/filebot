@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import net.sourceforge.filebot.Cache;
 import net.sourceforge.filebot.Language;
 import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.Settings;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.hash.HashType;
 import net.sourceforge.filebot.media.MetaAttributes;
@@ -695,6 +696,21 @@ public class MediaBindingBean {
 	@Define("now")
 	public long getNow() {
 		return System.currentTimeMillis();
+	}
+
+	@Define("defines")
+	public Map<String, String> getUserDefinedArguments() throws IOException {
+		return Settings.getApplicationArguments().defines;
+	}
+
+	@Define("label")
+	public String getUserDefinedLabel() throws IOException {
+		for (Entry<String, String> it : getUserDefinedArguments().entrySet()) {
+			if (it.getKey().endsWith("label")) {
+				return it.getValue();
+			}
+		}
+		return null;
 	}
 
 	@Define("object")
