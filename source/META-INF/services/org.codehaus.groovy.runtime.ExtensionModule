@@ -1,3 +1,3 @@
 moduleName=filebot-scripting-extension
-moduleVersion=4.0
+moduleVersion=4.1
 extensionClasses=net.sourceforge.filebot.cli.ScriptShellMethods,net.sourceforge.filebot.format.ExpressionFormatMethods
