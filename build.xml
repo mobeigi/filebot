@@ -484,6 +484,7 @@
 		<replace dir="${dir.build}" encoding="utf-8" summary="yes">
 			<include name="**/*.properties" />
 			<replacefilter token="@{svn.revision}" value="${svn.revision}" />
+			<replacefilter token="@{version}" value="${version}" />
 		</replace>
 	</target>
 
