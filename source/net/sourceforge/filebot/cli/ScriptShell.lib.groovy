@@ -248,7 +248,7 @@ def detectMovie(File file, strict = true, queryLookupService = TheMovieDB, hashL
 		return m
 		
 	// 2. perfect filename match
-	m = MediaDetection.matchMovieName(file.listPath(4, true).findResults{ it.name ?: null }, true, 0)
+	m = MediaDetection.matchMovieName(file.listPath(4).reverse().findResults{ it.name ?: null }, true, 0)
 	if (m != null && m.size() > 0)
 		return m[0]
 		

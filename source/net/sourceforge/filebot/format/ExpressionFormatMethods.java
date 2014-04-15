@@ -257,8 +257,12 @@ public class ExpressionFormatMethods {
 		return FileUtilities.listPath(self).get(0);
 	}
 
-	public static List<File> getPathList(File self) {
+	public static List<File> listPath(File self) {
 		return FileUtilities.listPath(self);
+	}
+
+	public static List<File> listPath(File self, int tailSize) {
+		return FileUtilities.listPath(FileUtilities.getRelativePathTail(self, tailSize));
 	}
 
 	public static File getRelativePathTail(File self, int tailSize) {
