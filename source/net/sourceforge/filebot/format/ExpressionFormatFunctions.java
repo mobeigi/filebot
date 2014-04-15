@@ -21,10 +21,10 @@ public class ExpressionFormatFunctions {
 		}
 	}
 
-	public static Object any(Closure<?>... closures) {
-		for (Closure<?> it : closures) {
+	public static Object any(Object a0, Object a1, Object... args) {
+		for (Object it : new Object[] { a0, a1 }) {
 			try {
-				Object result = it.call();
+				Object result = callIfCallable(it);
 				if (result != null) {
 					return result;
 				}
@@ -32,15 +32,38 @@ public class ExpressionFormatFunctions {
 				// ignore
 			}
 		}
+
+		for (Object it : args) {
+			try {
+				Object result = callIfCallable(it);
+				if (result != null) {
+					return result;
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+
 		return null;
 	}
 
-	public static List<Object> allOf(Closure<?>... closures) {
+	public static List<Object> allOf(Object a0, Object a1, Object... args) {
 		List<Object> values = new ArrayList<Object>();
 
-		for (Closure<?> it : closures) {
+		for (Object it : new Object[] { a0, a1 }) {
 			try {
-				Object result = it.call();
+				Object result = callIfCallable(it);
+				if (result != null) {
+					values.add(result);
+				}
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+
+		for (Object it : args) {
+			try {
+				Object result = callIfCallable(it);
 				if (result != null) {
 					values.add(result);
 				}
@@ -50,6 +73,13 @@ public class ExpressionFormatFunctions {
 		}
 
 		return values;
+	}
+
+	private static Object callIfCallable(Object obj) throws Exception {
+		if (obj instanceof Closure<?>) {
+			return ((Closure<?>) obj).call();
+		}
+		return obj;
 	}
 
 }
