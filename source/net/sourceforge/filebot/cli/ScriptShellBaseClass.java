@@ -27,12 +27,26 @@ public abstract class ScriptShellBaseClass extends Script {
 		System.out.println(this);
 	}
 
+	public void include(String input) throws Throwable {
+		try {
+			executeScript(input, null);
+		} catch (Exception e) {
+			printException(e);
+		}
+	}
+
+	public Object executeScript(String input) throws Throwable {
+		return executeScript(input, null);
+	}
+
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
 		// apply parent script defines
 		Bindings parameters = new SimpleBindings();
 
 		// initialize default parameter
-		parameters.putAll(bindings);
+		if (bindings != null) {
+			parameters.putAll(bindings);
+		}
 		parameters.put(ScriptShell.ARGV_BINDING_NAME, asFileList(args));
 
 		// run given script
@@ -77,9 +91,17 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return c.call();
 		} catch (Exception e) {
-			CLILogger.severe(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
+			printException(e);
 			return null;
 		}
+	}
+
+	public void printException(Throwable t) {
+		CLILogger.severe(String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
+	}
+
+	public void die(String message) throws Throwable {
+		throw new Exception(message);
 	}
 
 	@Override
