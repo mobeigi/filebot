@@ -13,8 +13,8 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class MetaAttributes {
 
-	private static final String FILENAME_KEY = "filename";
-	private static final String METADATA_KEY = "metadata";
+	private static final String FILENAME_KEY = "net.filebot.filename";
+	private static final String METADATA_KEY = "net.filebot.metadata";
 
 	private final BasicFileAttributeView fileAttributeView;
 	private final MetaAttributeView metaAttributeView;
