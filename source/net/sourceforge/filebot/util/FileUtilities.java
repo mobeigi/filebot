@@ -15,8 +15,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -395,6 +397,14 @@ public final class FileUtilities {
 		return f;
 	}
 
+	public static List<File> listFiles(File... folders) {
+		return listFiles(Arrays.asList(folders));
+	}
+
+	public static List<File> listFiles(Iterable<File> folders) {
+		return listFiles(folders, 255, false);
+	}
+
 	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean listHiddenFiles) {
 		List<File> files = new ArrayList<File>();
 
@@ -537,6 +547,20 @@ public final class FileUtilities {
 
 	public static String replacePathSeparators(CharSequence path, String replacement) {
 		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
+	}
+
+	public static List<File> asFileList(Object... paths) {
+		List<File> files = new ArrayList<File>(paths.length);
+		for (Object it : paths) {
+			if (it instanceof CharSequence) {
+				files.add(new File(it.toString()));
+			} else if (it instanceof File) {
+				files.add((File) it);
+			} else if (it instanceof Path) {
+				files.add(((Path) it).toFile());
+			}
+		}
+		return files;
 	}
 
 	public static String getXmlString(Document dom) throws TransformerException {

@@ -18,7 +18,14 @@ import org.w3c.dom.Node;
 
 public class MediaTypes {
 
-	private static final MediaTypes defaultInstance = parseDefault();
+	private static MediaTypes defaultInstance;
+
+	public static synchronized MediaTypes getDefault() {
+		if (defaultInstance == null) {
+			defaultInstance = parseDefault();
+		}
+		return defaultInstance;
+	}
 
 	private static MediaTypes parseDefault() {
 		try {
@@ -70,10 +77,6 @@ public class MediaTypes {
 		return filter;
 	}
 
-	public static MediaTypes getDefault() {
-		return defaultInstance;
-	}
-
 	public Map<String, List<String>> getTypes() {
 		return types;
 	}
@@ -88,13 +91,15 @@ public class MediaTypes {
 	}
 
 	public static ExtensionFileFilter getDefaultFilter(String name) {
-		return defaultInstance.getFilter(name);
+		return getDefault().getFilter(name);
 	}
 
 	// some convenience filters
 	public static final ExtensionFileFilter AUDIO_FILES = getDefaultFilter("audio");
 	public static final ExtensionFileFilter VIDEO_FILES = getDefaultFilter("video");
 	public static final ExtensionFileFilter SUBTITLE_FILES = getDefaultFilter("subtitle");
+	public static final ExtensionFileFilter ARCHIVE_FILES = getDefaultFilter("archive");
+	public static final ExtensionFileFilter VERIFICATION_FILES = getDefaultFilter("verification");
 	public static final ExtensionFileFilter NFO_FILES = getDefaultFilter("application/nfo");
 	public static final ExtensionFileFilter LIST_FILES = getDefaultFilter("application/list");
 }
