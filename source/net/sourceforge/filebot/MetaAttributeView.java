@@ -29,6 +29,9 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		}
 
 		attributeView = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		if (attributeView == null) {
+			throw new IOException("UserDefinedFileAttributeView is not supported");
+		}
 		encoding = Charset.forName("UTF-8");
 	}
 
