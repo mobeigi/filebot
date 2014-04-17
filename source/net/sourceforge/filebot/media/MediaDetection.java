@@ -1076,7 +1076,7 @@ public class MediaDetection {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 		List<File> nfoFiles = new ArrayList<File>();
 		if (file.isDirectory()) {
-			nfoFiles.addAll(filter(listFiles(singleton(file), 10, false), NFO_FILES));
+			nfoFiles.addAll(filter(listFiles(file), NFO_FILES));
 		} else if (file.getParentFile().isDirectory()) {
 			addAll(nfoFiles, file.getParentFile().listFiles(NFO_FILES));
 		}

@@ -164,8 +164,15 @@ public class ArgumentBean {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
 			}
 
-			// resolve folders
-			files.addAll(resolveFolders && file.isDirectory() ? listFiles(singleton(file), recursive ? 10 : 0, false) : singleton(file));
+			if (resolveFolders && file.isDirectory()) {
+				if (recursive) {
+					files.addAll(listFiles(file));
+				} else {
+					files.addAll(asList(file.listFiles()));
+				}
+			} else {
+				files.add(file);
+			}
 		}
 
 		return files;

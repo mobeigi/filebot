@@ -1,5 +1,7 @@
 package net.sourceforge.filebot.util;
 
+import static java.util.Arrays.*;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -18,7 +20,6 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -353,21 +354,6 @@ public final class FileUtilities {
 		return new NotFileFilter(filter);
 	}
 
-	public static List<File> flatten(Iterable<File> roots, int maxDepth, boolean listHiddenFiles) {
-		List<File> files = new ArrayList<File>();
-
-		// unfold/flatten file tree
-		for (File root : roots) {
-			if (root.isDirectory()) {
-				listFiles(root, 0, files, maxDepth, listHiddenFiles);
-			} else {
-				files.add(root);
-			}
-		}
-
-		return files;
-	}
-
 	public static List<File> listPath(File file) {
 		return listPathTail(file, Integer.MAX_VALUE, false);
 	}
@@ -398,25 +384,39 @@ public final class FileUtilities {
 	}
 
 	public static List<File> listFiles(File... folders) {
-		return listFiles(Arrays.asList(folders));
+		return listFiles(asList(folders));
 	}
 
 	public static List<File> listFiles(Iterable<File> folders) {
-		return listFiles(folders, 255, false);
+		return listFiles(folders, 32, false, true, false);
 	}
 
-	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean listHiddenFiles) {
+	public static List<File> listFolders(Iterable<File> folders) {
+		return listFiles(folders, 32, false, false, true);
+	}
+
+	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean addHidden, boolean addFiles, boolean addFolders) {
 		List<File> files = new ArrayList<File>();
 
 		// collect files from directory tree
-		for (File folder : folders) {
-			listFiles(folder, 0, files, maxDepth, listHiddenFiles);
+		for (File it : folders) {
+			if (!addHidden && it.isHidden()) // ignore hidden files
+				continue;
+
+			if (it.isDirectory()) {
+				if (addFolders) {
+					files.add(it);
+				}
+				listFiles(it, files, 0, maxDepth, addHidden, addFiles, addFolders);
+			} else if (addFiles) {
+				files.add(it);
+			}
 		}
 
 		return files;
 	}
 
-	private static void listFiles(File folder, int depth, List<File> files, int maxDepth, boolean listHiddenFiles) {
+	private static void listFiles(File folder, List<File> files, int depth, int maxDepth, boolean addHidden, boolean addFiles, boolean addFolders) {
 		if (depth > maxDepth)
 			return;
 
@@ -424,14 +424,17 @@ public final class FileUtilities {
 		if (children == null)
 			return;
 
-		for (File file : children) {
-			if (!listHiddenFiles && file.isHidden()) // ignore hidden files
+		for (File it : children) {
+			if (!addHidden && it.isHidden()) // ignore hidden files
 				continue;
 
-			if (file.isDirectory()) {
-				listFiles(file, depth + 1, files, maxDepth, listHiddenFiles);
-			} else {
-				files.add(file);
+			if (it.isDirectory()) {
+				if (addFolders) {
+					files.add(it);
+				}
+				listFiles(it, files, depth + 1, maxDepth, addHidden, addFiles, addFolders);
+			} else if (addFiles) {
+				files.add(it);
 			}
 		}
 	}

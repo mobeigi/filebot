@@ -751,7 +751,7 @@ public class MediaBindingBean {
 
 		if (mediaFile.isDirectory()) {
 			// just select the first video file in the folder as media sample
-			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(singleton(mediaFile), 2, false), VIDEO_FILES));
+			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(mediaFile), VIDEO_FILES));
 			if (videos.size() > 0) {
 				return videos.iterator().next();
 			}

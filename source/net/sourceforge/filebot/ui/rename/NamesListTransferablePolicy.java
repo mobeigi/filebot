@@ -95,8 +95,8 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			// torrent files
 			loadTorrentFiles(files, values);
 		} else {
-			// load all files from the given folders recursively up do a depth of 5
-			values.addAll(FastFile.get(flatten(files, 5, false)));
+			// load all files from the given folders recursively up do a depth of 32
+			values.addAll(FastFile.get(listFiles(files)));
 		}
 
 		model.addAll(values);

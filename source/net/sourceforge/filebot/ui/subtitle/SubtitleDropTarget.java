@@ -175,8 +175,7 @@ abstract class SubtitleDropTarget extends JButton {
 			final Collection<File> videoFiles = new TreeSet<File>();
 
 			// video files only
-			videoFiles.addAll(filter(input, VIDEO_FILES));
-			videoFiles.addAll(filter(listFiles(filter(input, FOLDERS), 5, false), VIDEO_FILES));
+			videoFiles.addAll(filter(listFiles(input), VIDEO_FILES));
 
 			if (videoFiles.size() > 0) {
 				// invoke later so we don't block the DnD operation with the download dialog
@@ -256,8 +255,7 @@ abstract class SubtitleDropTarget extends JButton {
 			final Collection<File> files = new TreeSet<File>();
 
 			// video files only
-			files.addAll(filter(input, FILES));
-			files.addAll(listFiles(filter(input, FOLDERS), 5, false));
+			files.addAll(listFiles(input));
 
 			final List<File> videos = filter(files, VIDEO_FILES);
 			final List<File> subtitles = filter(files, SUBTITLE_FILES);
