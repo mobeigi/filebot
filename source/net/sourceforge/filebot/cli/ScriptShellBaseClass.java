@@ -1,21 +1,42 @@
 package net.sourceforge.filebot.cli;
 
+import static java.util.Collections.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
+import groovy.xml.MarkupBuilder;
 
 import java.io.Console;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.StringWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import net.sourceforge.filebot.MediaTypes;
+import net.sourceforge.filebot.HistorySpooler;
+import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.AssociativeScriptObject;
+import net.sourceforge.filebot.media.MediaDetection;
+import net.sourceforge.filebot.media.MetaAttributes;
 import net.sourceforge.filebot.util.FileUtilities;
+import net.sourceforge.filebot.web.Movie;
+
+import com.sun.jna.Platform;
 
 public abstract class ScriptShellBaseClass extends Script {
 
@@ -107,7 +128,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: _def
 	public Map<String, String> get_def() {
-		return getApplicationArguments().defines;
+		return unmodifiableMap(getApplicationArguments().defines);
 	}
 
 	// define global variable: _system
@@ -120,13 +141,21 @@ public abstract class ScriptShellBaseClass extends Script {
 		return new AssociativeScriptObject(System.getenv());
 	}
 
-	// define global variable: _types
-	public MediaTypes get_types() {
-		return MediaTypes.getDefault();
+	// Complete or session rename history
+	public Map<File, File> getRenameLog() throws IOException {
+		return getRenameLog(false);
 	}
 
-	// define global variable: _log
-	public Logger get_log() {
+	public Map<File, File> getRenameLog(boolean complete) throws IOException {
+		if (complete) {
+			return HistorySpooler.getInstance().getCompleteHistory().getRenameMap();
+		} else {
+			return HistorySpooler.getInstance().getSessionHistory().getRenameMap();
+		}
+	}
+
+	// define global variable: log
+	public Logger getLog() {
 		return CLILogger;
 	}
 
@@ -140,4 +169,95 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
+	public String detectSeriesName(Object files) throws Exception {
+		List<String> names = MediaDetection.detectSeriesNames(FileUtilities.asFileList(files), true, false, Locale.ENGLISH);
+		return names.isEmpty() ? null : names.get(0);
+	}
+
+	public Movie detectMovie(File file, boolean strict) {
+		// 1. xattr
+		try {
+			return (Movie) new MetaAttributes(file).getObject();
+		} catch (Exception e) {
+			// ignore and move on
+		}
+
+		// 2. perfect filename match
+		try {
+			List<String> names = new ArrayList<String>();
+			for (File it : FileUtilities.listPathTail(file, 4, true)) {
+				names.add(it.getName());
+			}
+			return MediaDetection.matchMovieName(names, true, 0).get(0);
+		} catch (Exception e) {
+			// ignore and move on
+		}
+
+		// 3. run full-fledged movie detection
+		try {
+			return MediaDetection.detectMovie(file, WebServices.OpenSubtitles, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
+		} catch (Exception e) {
+			// ignore and fail
+		}
+
+		return null;
+	}
+
+	public int execute(Object... args) throws Exception {
+		List<String> cmd = new ArrayList<String>();
+
+		if (Platform.isWindows()) {
+			// normalize file separator for windows and run with cmd so any executable in PATH will just work
+			cmd.add("cmd");
+			cmd.add("/c");
+		} else if (args.length == 1) {
+			// make unix shell parse arguments
+			cmd.add("sh");
+			cmd.add("-c");
+		}
+
+		for (Object it : args) {
+			cmd.add(it.toString());
+		}
+
+		ProcessBuilder process = new ProcessBuilder(cmd).inheritIO();
+		return process.start().waitFor();
+	}
+
+	public String XML(Closure<?> buildClosure) {
+		StringWriter out = new StringWriter();
+		MarkupBuilder builder = new MarkupBuilder(out);
+		buildClosure.rehydrate(buildClosure.getDelegate(), builder, builder).call(); // call closure in MarkupBuilder context
+		return out.toString();
+	}
+
+	public void telnet(String host, int port, Closure<?> handler) throws IOException {
+		try (Socket socket = new Socket(host, port)) {
+			handler.call(new PrintStream(socket.getOutputStream(), true, "UTF-8"), new InputStreamReader(socket.getInputStream(), "UTF-8"));
+		}
+	}
+
+	private enum OptionName {
+		action, conflict, query, filter, format, db, order, lang, output, encoding, strict
+	}
+
+	private Map<OptionName, Object> withDefaultOptions(Map<String, ?> map) throws Exception {
+		Map<OptionName, Object> options = new EnumMap<OptionName, Object>(OptionName.class);
+
+		for (Entry<String, ?> it : map.entrySet()) {
+			options.put(OptionName.valueOf(it.getKey()), it.getValue());
+		}
+
+		ArgumentBean defaultValues = Settings.getApplicationArguments();
+		for (OptionName missing : EnumSet.complementOf(EnumSet.copyOf(options.keySet()))) {
+			if (missing == OptionName.strict) {
+				options.put(missing, !defaultValues.nonStrict);
+			} else {
+				Object value = defaultValues.getClass().getField(missing.name()).get(defaultValues);
+				options.put(missing, value);
+			}
+		}
+
+		return options;
+	}
 }

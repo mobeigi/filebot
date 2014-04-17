@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -175,6 +177,21 @@ public class History {
 	@Override
 	public int hashCode() {
 		return sequences.hashCode();
+	}
+
+	public Map<File, File> getRenameMap() {
+		Map<File, File> map = new LinkedHashMap<File, File>();
+		for (History.Sequence seq : this.sequences()) {
+			for (History.Element elem : seq.elements()) {
+				File to = new File(elem.to());
+				if (!to.isAbsolute()) {
+					to = new File(elem.dir(), elem.to());
+				}
+				File from = new File(elem.dir(), elem.from());
+				map.put(from, to);
+			}
+		}
+		return map;
 	}
 
 	public static void exportHistory(History history, OutputStream output) {

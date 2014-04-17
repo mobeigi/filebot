@@ -158,14 +158,11 @@ public final class FileUtilities {
 		return text.toString();
 	}
 
-	public static void writeFile(ByteBuffer data, File destination) throws IOException {
-		FileChannel fileChannel = new FileOutputStream(destination).getChannel();
-
-		try {
-			fileChannel.write(data);
-		} finally {
-			fileChannel.close();
+	public static File writeFile(ByteBuffer data, File destination) throws IOException {
+		try (FileOutputStream stream = new FileOutputStream(destination); FileChannel channel = stream.getChannel()) {
+			channel.write(data);
 		}
+		return destination;
 	}
 
 	public static List<String[]> readCSV(InputStream source, String charsetName, String separatorPattern) {
@@ -561,6 +558,8 @@ public final class FileUtilities {
 				files.add((File) it);
 			} else if (it instanceof Path) {
 				files.add(((Path) it).toFile());
+			} else if (it instanceof Collection<?>) {
+				files.addAll(asFileList(it)); // flatten object structure
 			}
 		}
 		return files;
