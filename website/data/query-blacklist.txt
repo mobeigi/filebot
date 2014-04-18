@@ -40,6 +40,7 @@
 ^Crime$
 ^data$
 ^deluge$
+^Disco[0-9]$
 ^disk[0-9]$
 ^Documentaries$
 ^Documentary$
@@ -67,6 +68,7 @@
 ^Games$
 ^good$
 ^HD[0-9]$
+^HD[A-Z].DATA$
 ^hdd[0-9]$
 ^home$
 ^Horror$
@@ -88,6 +90,7 @@
 ^Multimedia$
 ^Musique$
 ^mynas$
+^NAS$
 ^net$
 ^new$
 ^of$
@@ -151,7 +154,7 @@
 ^Video$
 ^VIDEO_TS$
 ^Videos$
-^volume\D?\d?$
+^Volume.[0-9]$
 ^Volumes$
 ^watch$
 ^www$
