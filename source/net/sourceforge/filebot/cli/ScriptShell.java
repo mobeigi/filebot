@@ -2,7 +2,6 @@ package net.sourceforge.filebot.cli;
 
 import groovy.lang.GroovyClassLoader;
 
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -38,13 +37,6 @@ public class ScriptShell {
 
 		// setup script context
 		engine.getContext().setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-
-		// import additional functions into the shell environment
-		// TODO remove
-		// engine.eval(new InputStreamReader(ExpressionFormat.class.getResourceAsStream("ExpressionFormat.lib.groovy")));
-		bindings.put("_shell", this);
-		bindings.put("_cli", new CmdlineOperations());
-		engine.eval(new InputStreamReader(ScriptShell.class.getResourceAsStream("ScriptShell.lib.groovy")));
 	}
 
 	public ScriptEngine createScriptEngine() {

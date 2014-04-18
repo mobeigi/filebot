@@ -115,7 +115,7 @@ Section MAIN
 		DetailPrint "Clearing cache and temporary files..."
 		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -clear-cache`
 		DetailPrint "Initializing Cache..."
-		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -script "g:net.sourceforge.filebot.media.MediaDetection.warmupCachedResources()"`
+		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -script "g:MediaDetection.warmupCachedResources()"`
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
 		DetailPrint "Install failed. Please download the .msi package manually."

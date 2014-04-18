@@ -1,5 +1,4 @@
 import org.tukaani.xz.*
-import net.sourceforge.filebot.media.*
 
 /* ------------------------------------------------------------------------- */
 
@@ -92,6 +91,16 @@ def treeSort(list, keyFunction) {
 	return sorter.values()
 }
 
+def csv(f, delim, keyIndex, valueIndex) {
+	def values = [:]
+	if (f.isFile()) {
+		f.splitEachLine(delim, 'UTF-8') { line ->
+			values.put(line[keyIndex], tryQuietly{ line[valueIndex] })
+		}
+	}
+	return values
+}
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -127,7 +136,7 @@ def tmdb = omdb.findResults{ m ->
 	
 	def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 	try {
-		def info = net.sourceforge.filebot.WebServices.TMDb.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true, false)
+		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true, false)
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		if (info.released != null) {
 			row = [sync, m[0].pad(7), info.id.pad(7), info.released.year] + names
@@ -172,22 +181,22 @@ if (tvdb_txt.exists()) {
 	}
 }
 
-def tvdb_updates = new File('updates_all.xml').text.xml.'**'.Series.findResults{ s -> tryQuietly{ [id:s.id.text() as Integer, time:s.time.text() as Integer] } }
+def tvdb_updates = new XmlSlurper().parse('updates_all.xml' as File).Series.findResults{ s -> tryQuietly{ [id:s.id.text() as Integer, time:s.time.text() as Integer] } }
 tvdb_updates.each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
 			retry(2, 500) {
-				def xml = new URL("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml").fetch().text.xml
-				def imdbid = xml.'**'.IMDB_ID.text()
-				def tvdb_name = xml.'**'.SeriesName.text()
+				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
+				def imdbid = xml.Series.IMDB_ID.text()
+				def tvdb_name = xml.Series.SeriesName.text()
 				
-				def rating = tryQuietly{ xml.'**'.Rating.text().toFloat() }
-				def votes = tryQuietly{ xml.'**'.RatingCount.text().toInteger() }
+				def rating = tryQuietly{ xml.Series.Rating.text().toFloat() }
+				def votes = tryQuietly{ xml.Series.RatingCount.text().toInteger() }
 				
-				def imdb_name = _guarded{
+				def imdb_name = tryLogCatch{
 					if (imdbid =~ /tt(\d+)/) {
 						def dom = IMDb.parsePage(IMDb.getMoviePageLink(imdbid.match(/tt(\d+)/) as int).toURL())
-						return net.sourceforge.filebot.util.XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
+						return XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
 					}
 				}
 				def data = [update.time, update.id, imdbid, tvdb_name ?: '', imdb_name ?: '', rating ?: 0, votes ?: 0]
@@ -271,7 +280,7 @@ pack(thetvdb_out, thetvdb_txt)
 
 
 // BUILD anidb index
-def anidb = new net.sourceforge.filebot.web.AnidbClient('filebot', 4).getAnimeTitles()
+def anidb = new AnidbClient('filebot', 4).getAnimeTitles()
 
 def anidb_index = anidb.findResults{
 	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)

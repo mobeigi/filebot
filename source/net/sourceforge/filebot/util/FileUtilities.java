@@ -559,7 +559,7 @@ public final class FileUtilities {
 			} else if (it instanceof Path) {
 				files.add(((Path) it).toFile());
 			} else if (it instanceof Collection<?>) {
-				files.addAll(asFileList(it)); // flatten object structure
+				files.addAll(asFileList(((Collection<?>) it).toArray())); // flatten object structure
 			}
 		}
 		return files;

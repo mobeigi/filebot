@@ -39,6 +39,14 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 public class ScriptShellMethods {
 
+	public static File plus(File self, String name) {
+		return new File(self.getPath().concat(name));
+	}
+
+	public static File div(File self, String name) {
+		return new File(self, name);
+	}
+
 	public static File resolve(File self, Object name) {
 		return new File(self, name.toString());
 	}
@@ -252,6 +260,18 @@ public class ScriptShellMethods {
 		return WebRequest.post(self, text.getBytes("UTF-8"), "text/plain", requestParameters);
 	}
 
+	public static File saveAs(ByteBuffer self, String path) throws IOException {
+		return saveAs(self, new File(path));
+	}
+
+	public static File saveAs(String self, String path) throws IOException {
+		return saveAs(self, new File(path));
+	}
+
+	public static File saveAs(URL self, String path) throws IOException {
+		return saveAs(self, new File(path));
+	}
+
 	public static File saveAs(ByteBuffer self, File file) throws IOException {
 		// resolve relative paths
 		file = file.getAbsoluteFile();
@@ -308,7 +328,7 @@ public class ScriptShellMethods {
 		return new NameSimilarityMetric().getSimilarity(self, other);
 	}
 
-	public static Collection<?> getSimilarity(Collection<?> self, final Object prime, final Closure<String> toStringFunction) {
+	public static Collection<?> sortBySimilarity(Collection<?> self, final Object prime, final Closure<String> toStringFunction) {
 		final SimilarityMetric metric = new NameSimilarityMetric();
 		List<Object> values = new ArrayList<Object>(self);
 		Collections.sort(values, new Comparator<Object>() {

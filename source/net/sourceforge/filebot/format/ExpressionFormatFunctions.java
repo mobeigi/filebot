@@ -2,8 +2,14 @@ package net.sourceforge.filebot.format;
 
 import groovy.lang.Closure;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Global functions available in the {@link ExpressionFormat}
@@ -80,6 +86,15 @@ public class ExpressionFormatFunctions {
 			return ((Closure<?>) obj).call();
 		}
 		return obj;
+	}
+
+	public Map<String, String> csv(String path) throws IOException {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		for (String line : Files.readAllLines(Paths.get(path), Charset.forName("UTF-8"))) {
+			String[] field = line.split(";", 2);
+			map.put(field[0], field[1]);
+		}
+		return map;
 	}
 
 }

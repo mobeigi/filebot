@@ -1,8 +1,10 @@
 package net.sourceforge.filebot.cli;
 
 import static java.util.Collections.*;
+import static java.util.EnumSet.*;
 import static net.sourceforge.filebot.Settings.*;
 import static net.sourceforge.filebot.cli.CLILogging.*;
+import static net.sourceforge.filebot.util.StringUtilities.*;
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
@@ -10,6 +12,7 @@ import groovy.xml.MarkupBuilder;
 
 import java.io.Console;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -17,7 +20,7 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,29 +31,31 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
 import net.sourceforge.filebot.HistorySpooler;
+import net.sourceforge.filebot.RenameAction;
 import net.sourceforge.filebot.Settings;
+import net.sourceforge.filebot.StandardRenameAction;
 import net.sourceforge.filebot.WebServices;
 import net.sourceforge.filebot.format.AssociativeScriptObject;
 import net.sourceforge.filebot.media.MediaDetection;
 import net.sourceforge.filebot.media.MetaAttributes;
+import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.web.Movie;
+
+import org.codehaus.groovy.runtime.StackTraceUtils;
+import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.sun.jna.Platform;
 
 public abstract class ScriptShellBaseClass extends Script {
 
-	public ScriptShellBaseClass() {
-		System.out.println(this);
-	}
-
-	private Map<String, ?> defaultValues;
+	private Map<String, Object> defaultValues;
 
 	public void setDefaultValues(Map<String, ?> values) {
-		this.defaultValues = values;
+		this.defaultValues = new LinkedHashMap<String, Object>(values);
 	}
 
-	public Map<String, ?> getDefaultValues() {
+	public Map<String, Object> getDefaultValues() {
 		return defaultValues;
 	}
 
@@ -64,7 +69,7 @@ public abstract class ScriptShellBaseClass extends Script {
 				return defaultValues.get(property);
 			}
 
-			// can't use default value, rethrow exception
+			// can't use default value, rethrow original exception
 			throw e;
 		}
 	}
@@ -104,7 +109,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
-	public Object tryLoudly(Closure<?> c) {
+	public Object tryLogCatch(Closure<?> c) {
 		try {
 			return c.call();
 		} catch (Exception e) {
@@ -114,7 +119,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public void printException(Throwable t) {
-		CLILogger.severe(String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
+		CLILogger.severe(String.format("%s: %s", t.getClass().getName(), t.getMessage()));
+
+		// DEBUG
+		StackTraceUtils.deepSanitize(t).printStackTrace();
 	}
 
 	public void die(String message) throws Throwable {
@@ -170,8 +178,21 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String detectSeriesName(Object files) throws Exception {
-		List<String> names = MediaDetection.detectSeriesNames(FileUtilities.asFileList(files), true, false, Locale.ENGLISH);
-		return names.isEmpty() ? null : names.get(0);
+		return detectSeriesName(files, true, false);
+	}
+
+	public String detectAnimeName(Object files) throws Exception {
+		return detectSeriesName(files, false, true);
+	}
+
+	public String detectSeriesName(Object files, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
+		List<String> names = MediaDetection.detectSeriesNames(FileUtilities.asFileList(files), useSeriesIndex, useAnimeIndex, Locale.ENGLISH);
+		return names == null || names.isEmpty() ? null : names.get(0);
+	}
+
+	public static SxE parseEpisodeNumber(Object object) {
+		List<SxE> matches = MediaDetection.parseEpisodeNumber(object.toString(), true);
+		return matches == null || matches.isEmpty() ? null : matches.get(0);
 	}
 
 	public Movie detectMovie(File file, boolean strict) {
@@ -237,27 +258,216 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
-	private enum OptionName {
-		action, conflict, query, filter, format, db, order, lang, output, encoding, strict
+	/**
+	 * Retry given closure until it returns successfully (indefinitely if -1 is passed as retry count)
+	 */
+	public Object retry(int retryCountLimit, int retryWaitTime, Closure<?> c) throws InterruptedException {
+		for (int i = 0; retryCountLimit < 0 || i <= retryCountLimit; i++) {
+			try {
+				return c.call();
+			} catch (Exception e) {
+				if (i >= 0 && i >= retryCountLimit) {
+					throw e;
+				}
+				Thread.sleep(retryWaitTime);
+			}
+		}
+		return null;
 	}
 
-	private Map<OptionName, Object> withDefaultOptions(Map<String, ?> map) throws Exception {
-		Map<OptionName, Object> options = new EnumMap<OptionName, Object>(OptionName.class);
+	private enum Option {
+		action, conflict, query, filter, format, db, order, lang, output, encoding, strict, forceExtractAll
+	}
 
-		for (Entry<String, ?> it : map.entrySet()) {
-			options.put(OptionName.valueOf(it.getKey()), it.getValue());
+	private static final CmdlineInterface cli = new CmdlineOperations();
+
+	public List<File> rename(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+		RenameAction action = getRenameFunction(option.get(Option.action));
+		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+
+		synchronized (cli) {
+			try {
+				return cli.rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public List<File> getSubtitles(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+
+		synchronized (cli) {
+			try {
+				return cli.getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public List<File> getMissingSubtitles(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+		boolean strict = DefaultTypeTransformation.castToBoolean(option.get(Option.strict));
+
+		synchronized (cli) {
+			try {
+				return cli.getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public boolean check(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+
+		synchronized (cli) {
+			try {
+				return cli.check(input);
+			} catch (Exception e) {
+				printException(e);
+				return false;
+			}
+		}
+	}
+
+	public File compute(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+
+		synchronized (cli) {
+			try {
+				return cli.compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public List<File> extract(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+		FileFilter filter = (FileFilter) DefaultTypeTransformation.castToType(option.get(Option.filter), FileFilter.class);
+		boolean forceExtractAll = DefaultTypeTransformation.castToBoolean(option.get(Option.forceExtractAll));
+
+		synchronized (cli) {
+			try {
+				return cli.extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public List<String> fetchEpisodeList(Map<String, ?> parameters) throws Exception {
+		Map<Option, Object> option = getDefaultOptions(parameters);
+
+		synchronized (cli) {
+			try {
+				return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.lang)));
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	public String getMediaInfo(Map<String, ?> parameters) throws Exception {
+		List<File> input = getInputFileList(parameters);
+		Map<Option, Object> option = getDefaultOptions(parameters);
+		synchronized (cli) {
+			try {
+				return cli.getMediaInfo(input.get(0), asString(option.get(Option.format)));
+			} catch (Exception e) {
+				printException(e);
+				return null;
+			}
+		}
+	}
+
+	private List<File> getInputFileList(Map<String, ?> map) {
+		Object file = map.get("file");
+		if (file != null) {
+			return FileUtilities.asFileList(file);
+		}
+
+		Object folder = map.get("folder");
+		if (folder != null) {
+			return FileUtilities.listFiles(FileUtilities.asFileList(folder), 0, false, true, false);
+		}
+
+		throw new IllegalArgumentException("file is not set");
+	}
+
+	private Map<Option, Object> getDefaultOptions(Map<String, ?> parameters) throws Exception {
+		Map<Option, Object> options = new EnumMap<Option, Object>(Option.class);
+
+		for (Entry<String, ?> it : parameters.entrySet()) {
+			try {
+				options.put(Option.valueOf(it.getKey()), it.getValue());
+			} catch (IllegalArgumentException e) {
+				// just ignore illegal options
+			}
 		}
 
 		ArgumentBean defaultValues = Settings.getApplicationArguments();
-		for (OptionName missing : EnumSet.complementOf(EnumSet.copyOf(options.keySet()))) {
-			if (missing == OptionName.strict) {
+		for (Option missing : complementOf(copyOf(options.keySet()))) {
+			switch (missing) {
+			case forceExtractAll:
+				options.put(missing, false);
+				break;
+			case strict:
 				options.put(missing, !defaultValues.nonStrict);
-			} else {
-				Object value = defaultValues.getClass().getField(missing.name()).get(defaultValues);
-				options.put(missing, value);
+				break;
+			default:
+				options.put(missing, defaultValues.getClass().getField(missing.name()).get(defaultValues));
+				break;
 			}
 		}
 
 		return options;
 	}
+
+	private RenameAction getRenameFunction(final Object obj) {
+		if (obj instanceof RenameAction) {
+			return (RenameAction) obj;
+		}
+		if (obj instanceof CharSequence) {
+			return StandardRenameAction.forName(obj.toString());
+		}
+		if (obj instanceof Closure<?>) {
+			return new RenameAction() {
+
+				private final Closure<?> closure = (Closure<?>) obj;
+
+				@Override
+				public File rename(File from, File to) throws Exception {
+					Object value = closure.call(from, to);
+
+					// must return File object, so we try the result of the closure, but if it's not a File we just return the original destination parameter
+					return value instanceof File ? (File) value : to;
+				}
+
+				@Override
+				public String toString() {
+					return "CLOSURE";
+				}
+			};
+		}
+
+		// object probably can't be casted
+		return (RenameAction) DefaultTypeTransformation.castToType(obj, RenameAction.class);
+	}
+
 }
