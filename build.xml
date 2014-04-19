@@ -4,7 +4,7 @@
 	<property file="profile.properties" />
 
 	<!-- include application properties -->
-	<property file="source/net/sourceforge/filebot/Settings.properties" />
+	<property file="source/net/filebot/Settings.properties" />
 	<property name="title" value="${application.name}" />
 	<property name="version" value="${application.version}" />
 
@@ -380,12 +380,12 @@
 
 		<!-- create mediainfo jar as seperate jar and use as trigger for lazy loading the native libs -->
 		<jar destfile="${dir.dist}/webstart/mediainfo.jar">
-			<fileset dir="${dir.build}" includes="net/sourceforge/filebot/mediainfo/**" />
+			<fileset dir="${dir.build}" includes="net/filebot/mediainfo/**" />
 		</jar>
 
 		<!-- create indexed main jar -->
 		<jar destfile="${dir.dist}/webstart/filebot.jar" index="yes">
-			<fileset dir="${dir.build}" excludes="**/*Test*, net/sourceforge/filebot/mediainfo/**" />
+			<fileset dir="${dir.build}" excludes="**/*Test*, net/filebot/mediainfo/**" />
 			<indexjars>
 				<!-- IMPORTANT if groovy is indexed things break during runtime!! -->
 				<fileset dir="${dir.dist}/webstart" includes="**/*.jar" excludes="filebot.jar, groovy.jar" />
