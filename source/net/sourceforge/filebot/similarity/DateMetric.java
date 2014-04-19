@@ -4,7 +4,7 @@ package net.sourceforge.filebot.similarity;
 
 import java.io.File;
 
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 
 
 public class DateMetric implements SimilarityMetric {
@@ -24,11 +24,11 @@ public class DateMetric implements SimilarityMetric {
 	
 	@Override
 	public float getSimilarity(Object o1, Object o2) {
-		Date d1 = parse(o1);
+		SimpleDate d1 = parse(o1);
 		if (d1 == null)
 			return 0;
 		
-		Date d2 = parse(o2);
+		SimpleDate d2 = parse(o2);
 		if (d2 == null)
 			return 0;
 		
@@ -36,7 +36,7 @@ public class DateMetric implements SimilarityMetric {
 	}
 	
 	
-	public Date parse(Object object) {
+	public SimpleDate parse(Object object) {
 		if (object instanceof File) {
 			// parse file name
 			object = ((File) object).getName();

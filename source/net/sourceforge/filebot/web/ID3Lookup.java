@@ -43,12 +43,12 @@ public class ID3Lookup implements MusicIdentificationService {
 
 				// extra info if available
 				String albumArtist = null, trackTitle = null;
-				Date albumReleaseDate = null;
+				SimpleDate albumReleaseDate = null;
 				Integer mediumIndex = null, mediumCount = null, trackIndex = null, trackCount = null;
 
 				try {
 					int year = new Scanner(mediaInfo.get(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
-					albumReleaseDate = new Date(year, 1, 1);
+					albumReleaseDate = new SimpleDate(year, 1, 1);
 				} catch (Exception e) {
 					// ignore
 				}

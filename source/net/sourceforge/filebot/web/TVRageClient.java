@@ -74,7 +74,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		Document dom = getDocument(episodeListUrl);
 		
 		String seriesName = selectString("Show/name", dom);
-		Date seriesStartDate = Date.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
+		SimpleDate seriesStartDate = SimpleDate.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
 		
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
@@ -85,7 +85,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 			Integer episodeNumber = getIntegerContent("seasonnum", node);
 			String seasonIdentifier = getAttribute("no", node.getParentNode());
 			Integer seasonNumber = seasonIdentifier == null ? null : new Integer(seasonIdentifier);
-			Date airdate = Date.parse(getTextContent("airdate", node), "yyyy-MM-dd");
+			SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
 			
 			// check if we have season and episode number, if not it must be a special episode
 			if (episodeNumber == null || seasonNumber == null) {

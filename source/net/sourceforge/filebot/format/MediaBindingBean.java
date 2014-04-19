@@ -41,7 +41,7 @@ import net.sourceforge.filebot.util.FileUtilities;
 import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.sourceforge.filebot.web.AnidbSearchResult;
 import net.sourceforge.filebot.web.AudioTrack;
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeListProvider;
 import net.sourceforge.filebot.web.Movie;
@@ -93,7 +93,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		if (infoObject instanceof AudioTrack)
-			return getReleaseDate() != null ? ((Date) getReleaseDate()).getYear() : new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
+			return getReleaseDate() != null ? ((SimpleDate) getReleaseDate()).getYear() : new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
 
 		return null;
 	}
@@ -163,12 +163,12 @@ public class MediaBindingBean {
 	}
 
 	@Define("airdate")
-	public Date airdate() {
+	public SimpleDate airdate() {
 		return getEpisode().getAirdate();
 	}
 
 	@Define("startdate")
-	public Date startdate() {
+	public SimpleDate startdate() {
 		return getEpisode().getSeriesStartDate();
 	}
 

@@ -10,17 +10,17 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class Date implements Serializable {
+public class SimpleDate implements Serializable {
 
 	private int year;
 	private int month;
 	private int day;
 
-	protected Date() {
+	protected SimpleDate() {
 		// used by serializer
 	}
 
-	public Date(int year, int month, int day) {
+	public SimpleDate(int year, int month, int day) {
 		this.year = year;
 		this.month = month;
 		this.day = day;
@@ -44,8 +44,8 @@ public class Date implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Date) {
-			Date other = (Date) obj;
+		if (obj instanceof SimpleDate) {
+			SimpleDate other = (SimpleDate) obj;
 			return year == other.year && month == other.month && day == other.day;
 		}
 
@@ -58,8 +58,8 @@ public class Date implements Serializable {
 	}
 
 	@Override
-	public Date clone() {
-		return new Date(year, month, day);
+	public SimpleDate clone() {
+		return new SimpleDate(year, month, day);
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class Date implements Serializable {
 		return new SimpleDateFormat(pattern, locale).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
 	}
 
-	public static Date parse(String string, String pattern) {
+	public static SimpleDate parse(String string, String pattern) {
 		if (string == null || string.isEmpty())
 			return null;
 
@@ -85,7 +85,7 @@ public class Date implements Serializable {
 		try {
 			Calendar date = new GregorianCalendar(Locale.ROOT);
 			date.setTime(formatter.parse(string));
-			return new Date(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
+			return new SimpleDate(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
 		} catch (ParseException e) {
 			// no result if date is invalid
 			// Logger.getLogger(Date.class.getName()).log(Level.WARNING, e.getMessage());

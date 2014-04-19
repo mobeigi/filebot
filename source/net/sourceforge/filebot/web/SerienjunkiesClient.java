@@ -94,7 +94,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 			String link = (String) obj.get("link");
 			String mainTitle = (String) obj.get("short");
 			String germanTitle = (String) obj.get("short_german");
-			Date startDate = Date.parse((String) obj.get("firstepisode"), "yyyy-MM-dd");
+			SimpleDate startDate = SimpleDate.parse((String) obj.get("firstepisode"), "yyyy-MM-dd");
 
 			Set<String> titleSet = new LinkedHashSet<String>(2);
 			for (String title : new String[] { germanTitle, mainTitle }) {
@@ -128,7 +128,7 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 
 			Integer season = new Integer((String) obj.get("season"));
 			Integer episode = new Integer((String) obj.get("episode"));
-			Date airdate = Date.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
+			SimpleDate airdate = SimpleDate.parse((String) ((JSONObject) obj.get("airdates")).get("premiere"), "yyyy-MM-dd");
 
 			String title = (String) obj.get("original");
 			String german = (String) obj.get("german");

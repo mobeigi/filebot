@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.TheTVDBSearchResult;
 
@@ -17,7 +17,7 @@ public class EpisodeMetricsTest {
 
 	@Test
 	public void substringMetrics() {
-		Episode eY1T1 = new Episode("Doctor Who", new Date(2005, 0, 0), 1, 1, "Rose", new TheTVDBSearchResult("Doctor Who", -1));
+		Episode eY1T1 = new Episode("Doctor Who", new SimpleDate(2005, 0, 0), 1, 1, "Rose", new TheTVDBSearchResult("Doctor Who", -1));
 		// Episode eY2T2 = new Episode("Doctor Who", new Date(1963, 0, 0), 1, 1, "An Unearthly Child");
 		File fY1T1 = new File("Doctor Who (2005)/Doctor Who - 1x01 - Rose");
 		File fY2T2 = new File("Doctor Who (1963)/Doctor Who - 1x01 - An Unearthly Child");

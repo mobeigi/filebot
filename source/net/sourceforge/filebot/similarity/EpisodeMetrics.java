@@ -32,7 +32,7 @@ import net.sourceforge.filebot.media.ReleaseInfo;
 import net.sourceforge.filebot.media.SmartSeasonEpisodeMatcher;
 import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.EpisodeFormat;
 import net.sourceforge.filebot.web.Movie;
@@ -90,10 +90,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match episode airdate
 	AirDate(new DateMetric() {
 
-		private final Map<Object, Date> transformCache = synchronizedMap(new HashMap<Object, Date>(64, 4));
+		private final Map<Object, SimpleDate> transformCache = synchronizedMap(new HashMap<Object, SimpleDate>(64, 4));
 
 		@Override
-		public Date parse(Object object) {
+		public SimpleDate parse(Object object) {
 			if (object instanceof Movie) {
 				return null;
 			}
@@ -105,7 +105,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return episode.getAirdate();
 			}
 
-			Date result = transformCache.get(object);
+			SimpleDate result = transformCache.get(object);
 			if (result != null) {
 				return result;
 			}

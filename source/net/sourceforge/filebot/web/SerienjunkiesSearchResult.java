@@ -4,13 +4,13 @@ public class SerienjunkiesSearchResult extends SearchResult {
 
 	protected int sid;
 	protected String link;
-	protected Date startDate;
+	protected SimpleDate startDate;
 
 	protected SerienjunkiesSearchResult() {
 		// used by serializer
 	}
 
-	public SerienjunkiesSearchResult(int sid, String link, String germanTitle, String[] otherTitles, Date startDate) {
+	public SerienjunkiesSearchResult(int sid, String link, String germanTitle, String[] otherTitles, SimpleDate startDate) {
 		super(germanTitle, otherTitles);
 		this.sid = sid;
 		this.link = link;
@@ -29,7 +29,7 @@ public class SerienjunkiesSearchResult extends SearchResult {
 		return link;
 	}
 
-	public Date getStartDate() {
+	public SimpleDate getStartDate() {
 		return startDate;
 	}
 

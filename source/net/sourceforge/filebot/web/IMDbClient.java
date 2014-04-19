@@ -206,11 +206,11 @@ public class IMDbClient implements MovieIdentificationService {
 		fields.put(MovieProperty.poster_path, data.get("poster"));
 
 		// convert release date to yyyy-MM-dd
-		Date released = Date.parse(data.get("released"), "dd MMM yyyy");
+		SimpleDate released = SimpleDate.parse(data.get("released"), "dd MMM yyyy");
 		if (released != null) {
 			fields.put(MovieProperty.release_date, released.format("yyyy-MM-dd"));
 		} else {
-			Date year = Date.parse(data.get("year"), "yyyy");
+			SimpleDate year = SimpleDate.parse(data.get("year"), "yyyy");
 			if (year != null) {
 				fields.put(MovieProperty.release_date, year.format("yyyy-MM-dd"));
 			}

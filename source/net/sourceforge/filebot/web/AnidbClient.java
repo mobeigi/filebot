@@ -105,7 +105,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		Document dom = getDocument(url);
 
 		// select main title and anime start date
-		Date seriesStartDate = Date.parse(selectString("//startdate", dom), "yyyy-MM-dd");
+		SimpleDate seriesStartDate = SimpleDate.parse(selectString("//startdate", dom), "yyyy-MM-dd");
 		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + language.getLanguage() + "']", dom);
 		if (animeTitle.isEmpty()) {
 			animeTitle = selectString("//titles/title[@type='main']", dom);
@@ -119,7 +119,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			int type = Integer.parseInt(getAttribute("type", epno));
 
 			if (type == 1 || type == 2) {
-				Date airdate = Date.parse(getTextContent("airdate", node), "yyyy-MM-dd");
+				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
 				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
 				if (title.isEmpty()) { // English language fall-back
 					title = selectString(".//title[@lang='en']", node);

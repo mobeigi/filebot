@@ -6,7 +6,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 
 
 public class DateMatcher {
@@ -30,9 +30,9 @@ public class DateMatcher {
 	}
 	
 	
-	public Date match(CharSequence seq) {
+	public SimpleDate match(CharSequence seq) {
 		for (DatePattern pattern : patterns) {
-			Date match = pattern.match(seq);
+			SimpleDate match = pattern.match(seq);
 			
 			if (match != null) {
 				return match;
@@ -68,12 +68,12 @@ public class DateMatcher {
 		}
 		
 		
-		protected Date process(MatchResult match) {
-			return new Date(Integer.parseInt(match.group(order[0])), Integer.parseInt(match.group(order[1])), Integer.parseInt(match.group(order[2])));
+		protected SimpleDate process(MatchResult match) {
+			return new SimpleDate(Integer.parseInt(match.group(order[0])), Integer.parseInt(match.group(order[1])), Integer.parseInt(match.group(order[2])));
 		}
 		
 		
-		public Date match(CharSequence seq) {
+		public SimpleDate match(CharSequence seq) {
 			Matcher matcher = pattern.matcher(seq);
 			
 			if (matcher.find()) {

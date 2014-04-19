@@ -13,7 +13,7 @@ public class AudioTrack implements Serializable {
 	
 	protected String albumArtist;
 	protected String trackTitle;
-	protected Date albumReleaseDate;
+	protected SimpleDate albumReleaseDate;
 	protected Integer mediumIndex;
 	protected Integer mediumCount;
 	protected Integer trackIndex;
@@ -45,7 +45,7 @@ public class AudioTrack implements Serializable {
 	}
 	
 	
-	public AudioTrack(String artist, String title, String album, String albumArtist, String trackTitle, Date albumReleaseDate, Integer mediumIndex, Integer mediumCount, Integer trackIndex, Integer trackCount) {
+	public AudioTrack(String artist, String title, String album, String albumArtist, String trackTitle, SimpleDate albumReleaseDate, Integer mediumIndex, Integer mediumCount, Integer trackIndex, Integer trackCount) {
 		this.artist = artist;
 		this.title = title;
 		this.album = album;
@@ -84,7 +84,7 @@ public class AudioTrack implements Serializable {
 	}
 	
 	
-	public Date getAlbumReleaseDate() {
+	public SimpleDate getAlbumReleaseDate() {
 		return albumReleaseDate;
 	}
 	

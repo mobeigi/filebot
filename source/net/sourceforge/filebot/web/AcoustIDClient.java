@@ -106,7 +106,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 								Map<?, ?> release = (Map<?, ?>) it;
 								Map<?, ?> date = (Map<?, ?>) release.get("date");
 								try {
-									thisRelease.albumReleaseDate = new Date(Integer.parseInt(date.get("year").toString()), Integer.parseInt(date.get("month").toString()), Integer.parseInt(date.get("day").toString()));
+									thisRelease.albumReleaseDate = new SimpleDate(Integer.parseInt(date.get("year").toString()), Integer.parseInt(date.get("month").toString()), Integer.parseInt(date.get("day").toString()));
 								} catch (Exception e) {
 									// ignore
 								}

@@ -122,7 +122,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		// we could get the series name from the search result, but the language may not match the given parameter
 		String seriesName = selectString("Data/Series/SeriesName", dom);
-		Date seriesStartDate = Date.parse(selectString("Data/Series/FirstAired", dom), "yyyy-MM-dd");
+		SimpleDate seriesStartDate = SimpleDate.parse(selectString("Data/Series/FirstAired", dom), "yyyy-MM-dd");
 
 		List<Node> nodes = selectNodes("Data/Episode", dom);
 
@@ -134,7 +134,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			String dvdSeasonNumber = getTextContent("DVD_season", node);
 			String dvdEpisodeNumber = getTextContent("DVD_episodenumber", node);
 			Integer absoluteNumber = getIntegerContent("absolute_number", node);
-			Date airdate = Date.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
+			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 
 			// default numbering
 			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
@@ -437,9 +437,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return get(SeriesProperty.Airs_Time);
 		}
 
-		public Date getFirstAired() {
+		public SimpleDate getFirstAired() {
 			// e.g. 2007-09-24
-			return Date.parse(get(SeriesProperty.FirstAired), "yyyy-MM-dd");
+			return SimpleDate.parse(get(SeriesProperty.FirstAired), "yyyy-MM-dd");
 		}
 
 		public String getContentRating() {

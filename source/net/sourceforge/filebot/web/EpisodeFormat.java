@@ -163,12 +163,12 @@ public class EpisodeFormat extends Format {
 		Integer season = null;
 		Integer episode = null;
 		Integer special = null;
-		Date airdate = null;
+		SimpleDate airdate = null;
 
 		Matcher m;
 
 		if ((m = airdatePattern.matcher(source)).find()) {
-			airdate = Date.parse(m.group(1), "yyyy-MM-dd");
+			airdate = SimpleDate.parse(m.group(1), "yyyy-MM-dd");
 			source.replace(m.start(), m.end(), ""); // remove matched part from text
 		}
 

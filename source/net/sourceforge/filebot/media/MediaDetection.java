@@ -58,7 +58,7 @@ import net.sourceforge.filebot.similarity.SimilarityComparator;
 import net.sourceforge.filebot.similarity.SimilarityMetric;
 import net.sourceforge.filebot.similarity.StringEqualsMetric;
 import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.filebot.web.Date;
+import net.sourceforge.filebot.web.SimpleDate;
 import net.sourceforge.filebot.web.Episode;
 import net.sourceforge.filebot.web.Movie;
 import net.sourceforge.filebot.web.MovieIdentificationService;
@@ -135,7 +135,7 @@ public class MediaDetection {
 		return getSeasonEpisodeMatcher(strict).match(file);
 	}
 
-	public static Date parseDate(Object object) {
+	public static SimpleDate parseDate(Object object) {
 		return new DateMetric().parse(object);
 	}
 
@@ -1384,7 +1384,7 @@ public class MediaDetection {
 						} else if (model instanceof Movie) {
 							Movie movie = (Movie) model;
 							if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
-								Date releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
+								SimpleDate releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
 								xattr.setCreationDate(releaseDate.getTimeStamp());
 							}
 						}

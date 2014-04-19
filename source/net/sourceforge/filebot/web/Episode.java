@@ -7,7 +7,7 @@ import java.util.List;
 public class Episode implements Serializable {
 
 	private String seriesName;
-	private Date seriesStartDate;
+	private SimpleDate seriesStartDate;
 
 	private Integer season;
 	private Integer episode;
@@ -20,7 +20,7 @@ public class Episode implements Serializable {
 	private Integer special;
 
 	// episode airdate
-	private Date airdate;
+	private SimpleDate airdate;
 
 	// original series descriptor
 	private SearchResult series;
@@ -33,11 +33,11 @@ public class Episode implements Serializable {
 		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.series);
 	}
 
-	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, SearchResult series) {
+	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, SearchResult series) {
 		this(seriesName, seriesStartDate, season, episode, title, null, null, null, series);
 	}
 
-	public Episode(String seriesName, Date seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, Date airdate, SearchResult series) {
+	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, SimpleDate airdate, SearchResult series) {
 		this.seriesName = seriesName;
 		this.seriesStartDate = (seriesStartDate == null ? null : seriesStartDate.clone());
 		this.season = season;
@@ -53,7 +53,7 @@ public class Episode implements Serializable {
 		return seriesName;
 	}
 
-	public Date getSeriesStartDate() {
+	public SimpleDate getSeriesStartDate() {
 		return seriesStartDate;
 	}
 
@@ -77,7 +77,7 @@ public class Episode implements Serializable {
 		return special;
 	}
 
-	public Date getAirdate() {
+	public SimpleDate getAirdate() {
 		return airdate;
 	}
 
