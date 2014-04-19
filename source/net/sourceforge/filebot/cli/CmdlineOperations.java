@@ -178,7 +178,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				if (strict && seriesNames.size() > 1) {
-					throw new Exception("Handling multiple shows requires non-strict matching");
+					throw new Exception("Processing multiple shows at once requires -non-strict");
 				}
 
 				if (seriesNames.size() == 0) {

@@ -19,6 +19,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -170,6 +171,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	// define global variable: console
 	public Console getConsole() {
 		return System.console();
+	}
+
+	public Date getNow() {
+		return new Date();
 	}
 
 	@Override
