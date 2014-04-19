@@ -81,6 +81,10 @@ public class ExpressionFormatMethods {
 		}
 	}
 
+	public static String replaceAll(String self, String pattern) {
+		return self.replaceAll(pattern, "");
+	}
+
 	public static String removeAll(String self, String pattern) {
 		return compile(pattern, CASE_INSENSITIVE | UNICODE_CASE | MULTILINE).matcher(self).replaceAll("").trim();
 	}

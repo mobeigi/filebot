@@ -260,6 +260,10 @@ public class ScriptShellMethods {
 		return WebRequest.post(self, text.getBytes("UTF-8"), "text/plain", requestParameters);
 	}
 
+	public static ByteBuffer post(URL self, byte[] postData, String contentType, Map<String, String> requestParameters) throws IOException {
+		return WebRequest.post(self, postData, contentType, requestParameters);
+	}
+
 	public static File saveAs(ByteBuffer self, String path) throws IOException {
 		return saveAs(self, new File(path));
 	}
