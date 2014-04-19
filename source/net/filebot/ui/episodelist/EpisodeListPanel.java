@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.ui.episodelist;
+package net.filebot.ui.episodelist;
 
-import static net.sourceforge.filebot.ui.episodelist.SeasonSpinnerModel.*;
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
+import static net.filebot.ui.episodelist.SeasonSpinnerModel.*;
+import static net.filebot.web.EpisodeUtilities.*;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -26,32 +26,32 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.similarity.Normalization;
-import net.sourceforge.filebot.ui.AbstractSearchPanel;
-import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.FileBotListExportHandler;
-import net.sourceforge.filebot.ui.FileBotTab;
-import net.sourceforge.filebot.ui.LanguageComboBox;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
-import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
-import net.sourceforge.filebot.ui.transfer.CompositeTranserable;
-import net.sourceforge.filebot.ui.transfer.FileExportHandler;
-import net.sourceforge.filebot.util.StringUtilities;
-import net.sourceforge.filebot.util.ui.LabelProvider;
-import net.sourceforge.filebot.util.ui.SelectButton;
-import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SeasonOutOfBoundsException;
-import net.sourceforge.filebot.web.SortOrder;
+import net.filebot.Analytics;
+import net.filebot.Language;
+import net.filebot.Settings;
+import net.filebot.WebServices;
+import net.filebot.media.MediaDetection;
+import net.filebot.similarity.Normalization;
+import net.filebot.ui.AbstractSearchPanel;
+import net.filebot.ui.FileBotList;
+import net.filebot.ui.FileBotListExportHandler;
+import net.filebot.ui.FileBotTab;
+import net.filebot.ui.LanguageComboBox;
+import net.filebot.ui.SelectDialog;
+import net.filebot.ui.transfer.ArrayTransferable;
+import net.filebot.ui.transfer.ClipboardHandler;
+import net.filebot.ui.transfer.CompositeTranserable;
+import net.filebot.ui.transfer.FileExportHandler;
+import net.filebot.util.StringUtilities;
+import net.filebot.util.ui.LabelProvider;
+import net.filebot.util.ui.SelectButton;
+import net.filebot.util.ui.SimpleLabelProvider;
+import net.filebot.util.ui.TunedUtilities;
+import net.filebot.web.Episode;
+import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.SearchResult;
+import net.filebot.web.SeasonOutOfBoundsException;
+import net.filebot.web.SortOrder;
 
 public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, Episode> {
 

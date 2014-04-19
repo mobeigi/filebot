@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -10,9 +10,9 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.DashedSeparator;
+import net.filebot.Language;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.DashedSeparator;
 
 public class LanguageComboBoxCellRenderer implements ListCellRenderer {
 

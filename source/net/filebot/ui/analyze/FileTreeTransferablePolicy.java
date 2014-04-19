@@ -1,20 +1,20 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.NotificationLogging.*;
 
 import java.io.File;
 import java.util.List;
 import java.util.logging.Level;
 
-import net.sourceforge.filebot.ui.analyze.FileTree.AbstractTreeNode;
-import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.FastFile;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.ui.analyze.FileTree.AbstractTreeNode;
+import net.filebot.ui.analyze.FileTree.FileNode;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.FastFile;
+import net.filebot.util.FileUtilities;
 
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {

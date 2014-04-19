@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
 import java.awt.Color;
@@ -12,7 +12,7 @@ import java.awt.geom.RectangularShape;
 
 import javax.swing.border.AbstractBorder;
 
-import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.GradientStyle;
 
 
 public class SeparatorBorder extends AbstractBorder {

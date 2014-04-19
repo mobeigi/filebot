@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util;
+package net.filebot.util;
 
 
 import static org.junit.Assert.*;
@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import net.sourceforge.filebot.util.PreferencesMap.SerializableAdapter;
-import net.sourceforge.filebot.util.PreferencesMap.SimpleAdapter;
+import net.filebot.util.PreferencesMap.SerializableAdapter;
+import net.filebot.util.PreferencesMap.SimpleAdapter;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

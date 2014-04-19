@@ -20,7 +20,7 @@
  * 8 Allee Lenotre, La Grille Royale, 78600 Le Mesnil le Roi, France.
  */
 
-package net.sourceforge.filebot.torrent;
+package net.filebot.torrent;
 
 
 import java.io.IOException;

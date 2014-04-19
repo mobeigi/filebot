@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.Cache;
-import net.sourceforge.filebot.Cache.Key;
+import net.filebot.Cache;
+import net.filebot.Cache.Key;
 
 public abstract class AbstractEpisodeListProvider implements EpisodeListProvider {
 

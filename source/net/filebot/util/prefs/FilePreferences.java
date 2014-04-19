@@ -1,6 +1,6 @@
 // https://github.com/sonatype/nexus/blob/2f0e154ec565969b4fd8698883ab76a461210f4f/nexus/nexus-test-harness/nexus-it-helper-plugin/src/main/java/org/sonatype/nexus/rt/prefs/FilePreferences.java
 
-package net.sourceforge.filebot.util.prefs;
+package net.filebot.util.prefs;
 
 
 import java.io.File;

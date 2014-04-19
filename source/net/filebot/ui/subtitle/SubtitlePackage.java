@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
+import static net.filebot.MediaTypes.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,12 +18,12 @@ import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
 import javax.swing.event.SwingPropertyChangeSupport;
 
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.vfs.ArchiveType;
-import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.filebot.web.SubtitleProvider;
+import net.filebot.Language;
+import net.filebot.util.FileUtilities;
+import net.filebot.vfs.ArchiveType;
+import net.filebot.vfs.MemoryFile;
+import net.filebot.web.SubtitleDescriptor;
+import net.filebot.web.SubtitleProvider;
 
 public class SubtitlePackage {
 

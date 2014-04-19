@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.filebot.hash.VerificationUtilities.*;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -12,7 +12,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
-import net.sourceforge.filebot.util.ui.TunedUtilities.DragDropRowTableUI;
+import net.filebot.util.ui.TunedUtilities.DragDropRowTableUI;
 
 
 class ChecksumTable extends JTable {

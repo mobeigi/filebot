@@ -1,6 +1,6 @@
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
-import static net.sourceforge.filebot.MediaTypes.*;
+import static net.filebot.MediaTypes.*;
 
 import java.awt.Color;
 import java.io.File;
@@ -17,12 +17,12 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.media.MetaAttributes;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.SearchResult;
+import net.filebot.media.MetaAttributes;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.web.Episode;
+import net.filebot.web.Movie;
+import net.filebot.web.SearchResult;
 
 class AttributeTool extends Tool<TableModel> {
 

@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.ui.list;
+package net.filebot.ui.list;
 
 
 import static java.awt.Font.*;
 import static java.lang.Math.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -31,14 +31,14 @@ import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher;
-import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.FileBotListExportHandler;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.similarity.SeriesNameMatcher;
+import net.filebot.ui.FileBotList;
+import net.filebot.ui.FileBotListExportHandler;
+import net.filebot.ui.transfer.LoadAction;
+import net.filebot.ui.transfer.SaveAction;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.ui.TunedUtilities;
 
 
 public class ListPanel extends JComponent {

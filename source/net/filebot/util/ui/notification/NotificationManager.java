@@ -2,13 +2,13 @@
  * Created on 19.03.2005
  */
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.TunedUtilities;
 
 
 public class NotificationManager {

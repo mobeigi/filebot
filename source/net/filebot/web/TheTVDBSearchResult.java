@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 public class TheTVDBSearchResult extends SearchResult {
 

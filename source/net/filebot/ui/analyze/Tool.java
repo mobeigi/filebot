@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
 import java.io.File;
@@ -11,11 +11,11 @@ import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
 
-import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.ui.analyze.FileTree.FileNode;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.LoadingOverlayPane;
 
 
 abstract class Tool<M> extends JComponent {

@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import static java.lang.Math.*;
-import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.filebot.similarity.CommonSequenceMatcher.*;
+import static net.filebot.similarity.Normalization.*;
 
 import java.util.Locale;
 

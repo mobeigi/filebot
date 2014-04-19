@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util;
+package net.filebot.util;
 
 
 import java.util.AbstractList;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.util.prefs.Preferences;
 
-import net.sourceforge.filebot.util.PreferencesMap.Adapter;
+import net.filebot.util.PreferencesMap.Adapter;
 
 
 public class PreferencesList<T> extends AbstractList<T> implements RandomAccess {

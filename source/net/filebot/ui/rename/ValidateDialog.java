@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -35,7 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.ResourceManager;
 
 
 class ValidateDialog extends JDialog {

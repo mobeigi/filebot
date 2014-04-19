@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import static java.util.Collections.*;
 
@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.MultiEpisode;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.web.Episode;
+import net.filebot.web.MultiEpisode;
 
 public class EpisodeMatcher extends Matcher<File, Object> {
 

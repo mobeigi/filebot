@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import java.awt.Component;
@@ -11,8 +11,8 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.sfv.ChecksumRow.State;
+import net.filebot.ResourceManager;
+import net.filebot.ui.sfv.ChecksumRow.State;
 
 
 class StateIconCellRenderer extends DefaultTableCellRenderer {

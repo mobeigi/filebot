@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import static java.util.Arrays.*;
-import static net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
+import static net.filebot.similarity.SeasonEpisodeMatcher.SxE.*;
 import static org.junit.Assert.*;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.media.MediaDetection;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 import org.junit.Test;
 

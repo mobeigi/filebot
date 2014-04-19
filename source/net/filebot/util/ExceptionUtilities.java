@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util;
+package net.filebot.util;
 
 
 public final class ExceptionUtilities {

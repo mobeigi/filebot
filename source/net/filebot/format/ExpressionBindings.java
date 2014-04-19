@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.format;
+package net.filebot.format;
 
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 import javax.script.Bindings;
 
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.util.ExceptionUtilities;
 
 public class ExpressionBindings extends AbstractMap<String, Object> implements Bindings {
 

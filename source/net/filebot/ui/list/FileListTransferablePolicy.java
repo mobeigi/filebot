@@ -1,17 +1,17 @@
-package net.sourceforge.filebot.ui.list;
+package net.filebot.ui.list;
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.torrent.Torrent;
-import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.MediaTypes;
+import net.filebot.torrent.Torrent;
+import net.filebot.ui.FileBotList;
+import net.filebot.ui.transfer.FileTransferablePolicy;
+import net.filebot.util.FileUtilities;
 
 class FileListTransferablePolicy extends FileTransferablePolicy {
 

@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
 import java.awt.Component;
@@ -7,9 +7,9 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.TreeNode;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.FancyTreeCellRenderer;
-import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.FancyTreeCellRenderer;
+import net.filebot.util.ui.GradientStyle;
 
 
 public class FileTreeCellRenderer extends FancyTreeCellRenderer {

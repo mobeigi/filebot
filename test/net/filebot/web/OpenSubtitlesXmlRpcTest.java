@@ -1,17 +1,17 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.Settings.*;
+import static net.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import net.sourceforge.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
-import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.Query;
-import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.SubFile;
-import net.sourceforge.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
+import net.filebot.web.OpenSubtitlesSubtitleDescriptor.Property;
+import net.filebot.web.OpenSubtitlesXmlRpc.Query;
+import net.filebot.web.OpenSubtitlesXmlRpc.SubFile;
+import net.filebot.web.OpenSubtitlesXmlRpc.TryUploadResponse;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

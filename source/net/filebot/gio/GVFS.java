@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.gio;
+package net.filebot.gio;
 
 
 import java.io.File;

@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.util.ui.notification.Direction.*;
+import static net.filebot.Settings.*;
+import static net.filebot.util.ui.notification.Direction.*;
 
 import java.awt.GraphicsEnvironment;
 import java.util.logging.ConsoleHandler;
@@ -15,16 +15,16 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.ui.notification.MessageNotification;
-import net.sourceforge.filebot.util.ui.notification.NotificationManager;
-import net.sourceforge.filebot.util.ui.notification.QueueNotificationLayout;
+import net.filebot.ResourceManager;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.ui.notification.MessageNotification;
+import net.filebot.util.ui.notification.NotificationManager;
+import net.filebot.util.ui.notification.QueueNotificationLayout;
 
 
 public class NotificationLogging extends Handler {
 	
-	public static final Logger UILogger = createNotificationLogger("net.sourceforge.filebot.logger.ui");
+	public static final Logger UILogger = createNotificationLogger("net.filebot.logger.ui");
 	
 	
 	private static Logger createNotificationLogger(String name) {

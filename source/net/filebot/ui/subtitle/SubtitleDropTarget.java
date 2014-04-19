@@ -1,11 +1,11 @@
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.transfer.FileTransferable.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -34,12 +34,12 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
-import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.VideoHashSubtitleService;
+import net.filebot.ResourceManager;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities.ParentFilter;
+import net.filebot.web.OpenSubtitlesClient;
+import net.filebot.web.SubtitleProvider;
+import net.filebot.web.VideoHashSubtitleService;
 
 abstract class SubtitleDropTarget extends JButton {
 

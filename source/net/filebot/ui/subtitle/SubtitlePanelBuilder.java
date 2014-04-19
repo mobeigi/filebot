@@ -1,12 +1,12 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.PanelBuilder;
+import net.filebot.ResourceManager;
+import net.filebot.ui.PanelBuilder;
 
 
 public class SubtitlePanelBuilder implements PanelBuilder {

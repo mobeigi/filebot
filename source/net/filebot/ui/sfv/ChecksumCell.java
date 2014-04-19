@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import java.beans.PropertyChangeEvent;
@@ -12,8 +12,8 @@ import java.util.concurrent.CancellationException;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.SwingPropertyChangeSupport;
 
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.hash.HashType;
+import net.filebot.util.ExceptionUtilities;
 
 
 class ChecksumCell {

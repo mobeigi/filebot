@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.Settings.*;
+import static net.filebot.Settings.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.gio.GVFS;
+import net.filebot.gio.GVFS;
 
 
 public class FileTransferable implements Transferable {

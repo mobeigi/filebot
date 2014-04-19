@@ -1,15 +1,15 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
-import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
+import static net.filebot.similarity.EpisodeMetrics.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.filebot.web.SimpleDate;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.SimpleDate;
+import net.filebot.web.Episode;
+import net.filebot.web.TheTVDBSearchResult;
 
 import org.junit.Test;
 

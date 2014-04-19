@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import static org.junit.Assert.*;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
+import net.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 import org.junit.Test;
 

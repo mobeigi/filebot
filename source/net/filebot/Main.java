@@ -1,12 +1,12 @@
-//TODO MOVE package net.sourceforge.filebot to net.filebot
-package net.sourceforge.filebot;
+//TODO MOVE package net.filebot to net.filebot
+package net.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Desktop;
 import java.awt.Dialog.ModalityType;
@@ -50,19 +50,19 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.cli.ArgumentBean;
-import net.sourceforge.filebot.cli.ArgumentProcessor;
-import net.sourceforge.filebot.cli.CmdlineOperations;
-import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.gio.GVFS;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.ui.MainFrame;
-import net.sourceforge.filebot.ui.PanelBuilder;
-import net.sourceforge.filebot.ui.SinglePanelFrame;
-import net.sourceforge.filebot.util.ByteBufferInputStream;
-import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
-import net.sourceforge.filebot.util.TeePrintStream;
-import net.sourceforge.filebot.web.CachedResource;
+import net.filebot.cli.ArgumentBean;
+import net.filebot.cli.ArgumentProcessor;
+import net.filebot.cli.CmdlineOperations;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.gio.GVFS;
+import net.filebot.media.MediaDetection;
+import net.filebot.ui.MainFrame;
+import net.filebot.ui.PanelBuilder;
+import net.filebot.ui.SinglePanelFrame;
+import net.filebot.util.ByteBufferInputStream;
+import net.filebot.util.PreferencesMap.PreferencesEntry;
+import net.filebot.util.TeePrintStream;
+import net.filebot.web.CachedResource;
 
 import org.w3c.dom.NodeList;
 

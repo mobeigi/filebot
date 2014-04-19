@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.subtitle;
+package net.filebot.subtitle;
 
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.filebot.MediaTypes;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 
 public enum SubtitleFormat {

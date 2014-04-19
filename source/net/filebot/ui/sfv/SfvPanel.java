@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import static java.lang.Math.*;
-import static net.sourceforge.filebot.ui.sfv.ChecksumTableModel.*;
-import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
+import static net.filebot.ui.sfv.ChecksumTableModel.*;
+import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -30,14 +30,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.ResourceManager;
+import net.filebot.hash.HashType;
+import net.filebot.ui.SelectDialog;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.ui.transfer.LoadAction;
+import net.filebot.ui.transfer.SaveAction;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.TunedUtilities;
 
 
 public class SfvPanel extends JComponent {

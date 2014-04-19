@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.format;
+package net.filebot.format;
 
 
 import static java.lang.annotation.ElementType.*;

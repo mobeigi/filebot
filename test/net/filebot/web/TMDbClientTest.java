@@ -1,14 +1,14 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
-import static net.sourceforge.filebot.Settings.*;
+import static net.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import net.sourceforge.filebot.web.TMDbClient.Artwork;
-import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
+import net.filebot.web.TMDbClient.Artwork;
+import net.filebot.web.TMDbClient.MovieInfo;
 
 import org.junit.Test;
 

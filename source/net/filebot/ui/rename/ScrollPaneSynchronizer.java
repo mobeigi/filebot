@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.awt.Dimension;

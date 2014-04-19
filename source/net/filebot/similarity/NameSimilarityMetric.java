@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
-import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.filebot.similarity.Normalization.*;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import uk.ac.shef.wit.simmetrics.tokenisers.TokeniserQGram3;

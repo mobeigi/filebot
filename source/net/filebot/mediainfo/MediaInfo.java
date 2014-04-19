@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.mediainfo;
+package net.filebot.mediainfo;
 
 
 import java.io.Closeable;

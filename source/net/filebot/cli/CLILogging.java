@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import static java.lang.System.*;
 
@@ -12,7 +12,7 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 
 class CLILogging extends Handler {
 
-	public static final Logger CLILogger = createCommandlineLogger("net.sourceforge.filebot.logger.cli");
+	public static final Logger CLILogger = createCommandlineLogger("net.filebot.logger.cli");
 
 	private static Logger createCommandlineLogger(String name) {
 		Logger log = Logger.getLogger(name);

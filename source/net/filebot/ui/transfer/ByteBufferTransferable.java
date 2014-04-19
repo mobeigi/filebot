@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sourceforge.filebot.util.TemporaryFolder;
+import net.filebot.util.TemporaryFolder;
 
 
 public class ByteBufferTransferable implements Transferable {

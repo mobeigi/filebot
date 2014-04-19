@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import static org.junit.Assert.*;
@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.sourceforge.filebot.util.TestUtil;
+import net.filebot.util.TestUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

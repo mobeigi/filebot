@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
+import static net.filebot.hash.VerificationUtilities.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 
-import net.sourceforge.filebot.hash.HashType;
+import net.filebot.hash.HashType;
 
 
 class ChecksumRow {

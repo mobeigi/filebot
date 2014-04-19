@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.awt.Color;
@@ -17,7 +17,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.GradientStyle;
 
 
 class CharacterHighlightPainter implements Highlighter.HighlightPainter {

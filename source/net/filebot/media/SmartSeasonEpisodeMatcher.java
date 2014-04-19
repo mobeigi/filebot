@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.media;
+package net.filebot.media;
 
 import java.io.File;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
+import net.filebot.similarity.SeasonEpisodeMatcher;
 
 public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 

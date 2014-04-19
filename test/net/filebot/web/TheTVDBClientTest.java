@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 
 import static org.junit.Assert.*;
@@ -11,9 +11,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.web.TheTVDBClient.BannerDescriptor;
-import net.sourceforge.filebot.web.TheTVDBClient.MirrorType;
-import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
+import net.filebot.web.TheTVDBClient.BannerDescriptor;
+import net.filebot.web.TheTVDBClient.MirrorType;
+import net.filebot.web.TheTVDBClient.SeriesInfo;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

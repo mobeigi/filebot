@@ -1,6 +1,6 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
@@ -9,12 +9,12 @@ import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import net.sourceforge.filebot.cli.ArgumentBean;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.PreferencesList;
-import net.sourceforge.filebot.util.PreferencesMap;
-import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
-import net.sourceforge.filebot.util.PreferencesMap.StringAdapter;
+import net.filebot.cli.ArgumentBean;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.PreferencesList;
+import net.filebot.util.PreferencesMap;
+import net.filebot.util.PreferencesMap.PreferencesEntry;
+import net.filebot.util.PreferencesMap.StringAdapter;
 
 public final class Settings {
 

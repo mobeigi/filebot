@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,9 +29,9 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
-import net.sourceforge.filebot.web.TMDbClient.Person.PersonProperty;
+import net.filebot.ResourceManager;
+import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
+import net.filebot.web.TMDbClient.Person.PersonProperty;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

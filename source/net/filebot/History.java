@@ -1,4 +1,4 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
 import static java.util.Collections.*;
 

@@ -1,6 +1,6 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,11 +35,11 @@ import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
-import net.sourceforge.filebot.util.TeePrintStream;
+import net.filebot.Analytics;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
+import net.filebot.util.TeePrintStream;
 
 import org.fife.ui.rsyntaxtextarea.FileLocation;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;

@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import static java.util.regex.Pattern.*;
 

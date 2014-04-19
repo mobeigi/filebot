@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

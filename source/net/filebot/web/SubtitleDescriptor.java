@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 
 import java.nio.ByteBuffer;
 
-import net.sourceforge.filebot.vfs.FileInfo;
+import net.filebot.vfs.FileInfo;
 
 
 public interface SubtitleDescriptor extends FileInfo {

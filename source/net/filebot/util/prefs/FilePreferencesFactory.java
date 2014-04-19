@@ -1,6 +1,6 @@
 // https://github.com/sonatype/nexus/blob/2f0e154ec565969b4fd8698883ab76a461210f4f/nexus/nexus-test-harness/nexus-it-helper-plugin/src/main/java/org/sonatype/nexus/rt/prefs/FilePreferencesFactory.java
 
-package net.sourceforge.filebot.util.prefs;
+package net.filebot.util.prefs;
 
 
 import java.io.File;
@@ -10,10 +10,10 @@ import java.util.prefs.PreferencesFactory;
 
 /**
  * PreferencesFactory implementation that stores the preferences in a user-defined file. To use it, set the system
- * property <tt>java.util.prefs.PreferencesFactory</tt> to <tt>net.sourceforge.filebot.util.pref.FilePreferencesFactory</tt>
+ * property <tt>java.util.prefs.PreferencesFactory</tt> to <tt>net.filebot.util.pref.FilePreferencesFactory</tt>
  * <p/>
  * The file defaults to [user.home]/.fileprefs, but may be overridden with the system property
- * <tt>net.sourceforge.filebot.util.pref.FilePreferencesFactory.file</tt>. Modified by cstamas, switched to SLF4J logging, and
+ * <tt>net.filebot.util.pref.FilePreferencesFactory.file</tt>. Modified by cstamas, switched to SLF4J logging, and
  * exposed preferences file property.
  * 
  * @author David Croft (<a href="http://www.davidc.net">www.davidc.net</a>)
@@ -23,7 +23,7 @@ public class FilePreferencesFactory implements PreferencesFactory {
 	
 	Preferences rootPreferences;
 	
-	public static final String SYSTEM_PROPERTY_FILE = "net.sourceforge.filebot.util.prefs.file";
+	public static final String SYSTEM_PROPERTY_FILE = "net.filebot.util.prefs.file";
 	
 	
 	public Preferences systemRoot() {

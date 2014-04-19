@@ -1,14 +1,14 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.awt.Cursor.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.similarity.CommonSequenceMatcher.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,18 +43,18 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.util.FileUtilities.ParentFilter;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.MovieIdentificationService;
-import net.sourceforge.filebot.web.MoviePart;
-import net.sourceforge.filebot.web.SortOrder;
+import net.filebot.Analytics;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.similarity.Match;
+import net.filebot.similarity.NameSimilarityMetric;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.ui.SelectDialog;
+import net.filebot.util.FileUtilities.ParentFilter;
+import net.filebot.web.Movie;
+import net.filebot.web.MovieIdentificationService;
+import net.filebot.web.MoviePart;
+import net.filebot.web.SortOrder;
 
 class MovieHashMatcher implements AutoCompleteMatcher {
 

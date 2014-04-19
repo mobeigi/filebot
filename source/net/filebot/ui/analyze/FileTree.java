@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.Desktop;
 import java.awt.Font;
@@ -31,10 +31,10 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.FilterIterator;
-import net.sourceforge.filebot.util.TreeIterator;
+import net.filebot.ResourceManager;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.FilterIterator;
+import net.filebot.util.TreeIterator;
 
 
 public class FileTree extends JTree {

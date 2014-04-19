@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.episodelist;
+package net.filebot.ui.episodelist;
 
 
-import static net.sourceforge.filebot.ui.episodelist.SeasonSpinnerModel.*;
+import static net.filebot.ui.episodelist.SeasonSpinnerModel.*;
 
 import java.awt.Color;
 import java.text.ParseException;

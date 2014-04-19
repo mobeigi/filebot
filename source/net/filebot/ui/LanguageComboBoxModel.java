@@ -1,6 +1,6 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
-import static net.sourceforge.filebot.Language.*;
+import static net.filebot.Language.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-import net.sourceforge.filebot.Language;
+import net.filebot.Language;
 
 public class LanguageComboBoxModel extends AbstractListModel implements ComboBoxModel {
 

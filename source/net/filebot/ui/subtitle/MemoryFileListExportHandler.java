@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import java.awt.datatransfer.Clipboard;
@@ -14,10 +14,10 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-import net.sourceforge.filebot.ui.transfer.ByteBufferTransferable;
-import net.sourceforge.filebot.ui.transfer.ClipboardHandler;
-import net.sourceforge.filebot.ui.transfer.TransferableExportHandler;
-import net.sourceforge.filebot.vfs.MemoryFile;
+import net.filebot.ui.transfer.ByteBufferTransferable;
+import net.filebot.ui.transfer.ClipboardHandler;
+import net.filebot.ui.transfer.TransferableExportHandler;
+import net.filebot.vfs.MemoryFile;
 
 
 class MemoryFileListExportHandler implements TransferableExportHandler, ClipboardHandler {

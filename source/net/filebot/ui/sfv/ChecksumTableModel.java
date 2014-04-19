@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import java.beans.PropertyChangeEvent;
@@ -18,9 +18,9 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.util.FastFile;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.hash.HashType;
+import net.filebot.util.FastFile;
+import net.filebot.util.FileUtilities;
 
 
 class ChecksumTableModel extends AbstractTableModel {

@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 public class MetricAvg implements SimilarityMetric {
 

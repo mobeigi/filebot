@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
-import static net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
+import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -17,11 +17,11 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.ResourceManager;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.ui.transfer.LoadAction;
+import net.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.util.ui.TunedUtilities;
 
 
 class FileTreePanel extends JComponent {

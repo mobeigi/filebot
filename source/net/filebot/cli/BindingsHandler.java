@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 
 import java.util.AbstractMap.SimpleEntry;

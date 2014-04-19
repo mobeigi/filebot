@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 
 import java.net.URI;

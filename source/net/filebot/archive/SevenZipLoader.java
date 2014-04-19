@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.archive;
+package net.filebot.archive;
 
 
 import java.util.logging.Logger;

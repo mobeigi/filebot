@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.util;
+package net.filebot.util;
 
 import java.io.File;
 import java.util.ArrayList;

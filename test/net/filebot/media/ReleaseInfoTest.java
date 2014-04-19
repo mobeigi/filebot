@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.media;
+package net.filebot.media;
 
 
 import static org.junit.Assert.*;

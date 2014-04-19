@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.Component;
 import java.io.File;
@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.web.AudioTrack;
-import net.sourceforge.filebot.web.ID3Lookup;
-import net.sourceforge.filebot.web.MusicIdentificationService;
-import net.sourceforge.filebot.web.SortOrder;
+import net.filebot.similarity.Match;
+import net.filebot.web.AudioTrack;
+import net.filebot.web.ID3Lookup;
+import net.filebot.web.MusicIdentificationService;
+import net.filebot.web.SortOrder;
 
 class AudioFingerprintMatcher implements AutoCompleteMatcher {
 

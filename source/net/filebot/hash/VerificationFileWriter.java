@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.hash;
+package net.filebot.hash;
 
 
 import java.io.Closeable;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 
-import net.sourceforge.filebot.Settings;
+import net.filebot.Settings;
 
 
 public class VerificationFileWriter implements Closeable {

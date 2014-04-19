@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.hash;
+package net.filebot.hash;
 
 
 import java.util.zip.CRC32;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.filebot.MediaTypes;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 
 public enum HashType {

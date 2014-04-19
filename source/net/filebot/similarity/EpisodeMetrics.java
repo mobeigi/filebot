@@ -1,12 +1,12 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,17 +27,17 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.media.ReleaseInfo;
-import net.sourceforge.filebot.media.SmartSeasonEpisodeMatcher;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.filebot.web.SimpleDate;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeFormat;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
+import net.filebot.WebServices;
+import net.filebot.media.ReleaseInfo;
+import net.filebot.media.SmartSeasonEpisodeMatcher;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.vfs.FileInfo;
+import net.filebot.web.SimpleDate;
+import net.filebot.web.Episode;
+import net.filebot.web.EpisodeFormat;
+import net.filebot.web.Movie;
+import net.filebot.web.TheTVDBClient.SeriesInfo;
+import net.filebot.web.TheTVDBSearchResult;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -645,7 +645,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			// deserialize MetaAttributes if enabled and available
 			if (object instanceof File && useExtendedFileAttributes()) {
 				try {
-					return super.getProperties(new net.sourceforge.filebot.media.MetaAttributes((File) object).getObject());
+					return super.getProperties(new net.filebot.media.MetaAttributes((File) object).getObject());
 				} catch (Throwable e) {
 					// ignore
 				}

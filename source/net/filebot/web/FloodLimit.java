@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;

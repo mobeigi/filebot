@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.cli.CLILogging.*;
-import static net.sourceforge.filebot.util.ExceptionUtilities.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.cli.CLILogging.*;
+import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +23,11 @@ import java.util.regex.Pattern;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.StandardRenameAction;
-import net.sourceforge.filebot.cli.ScriptShell.ScriptProvider;
-import net.sourceforge.filebot.web.CachedResource;
+import net.filebot.Analytics;
+import net.filebot.MediaTypes;
+import net.filebot.StandardRenameAction;
+import net.filebot.cli.ScriptShell.ScriptProvider;
+import net.filebot.web.CachedResource;
 
 public class ArgumentProcessor {
 

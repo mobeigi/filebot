@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util.ui;
+package net.filebot.util.ui;
 
 
 import java.lang.reflect.Method;
@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.util.ExceptionUtilities;
 
 
 /**

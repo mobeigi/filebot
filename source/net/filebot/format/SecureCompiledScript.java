@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.format;
+package net.filebot.format;
 
 import java.io.File;
 import java.io.FilePermission;
@@ -19,7 +19,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.util.ExceptionUtilities;
 
 public class SecureCompiledScript extends CompiledScript {
 

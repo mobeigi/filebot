@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.subtitle.SubtitleUtilities.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -57,21 +57,21 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
-import net.sourceforge.filebot.similarity.MetricCascade;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.subtitle.SubtitleNaming;
-import net.sourceforge.filebot.util.ui.AbstractBean;
-import net.sourceforge.filebot.util.ui.DashedSeparator;
-import net.sourceforge.filebot.util.ui.EmptySelectionModel;
-import net.sourceforge.filebot.util.ui.LinkButton;
-import net.sourceforge.filebot.util.ui.RoundBorder;
-import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.VideoHashSubtitleService;
+import net.filebot.Analytics;
+import net.filebot.ResourceManager;
+import net.filebot.similarity.EpisodeMetrics;
+import net.filebot.similarity.MetricCascade;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.subtitle.SubtitleNaming;
+import net.filebot.util.ui.AbstractBean;
+import net.filebot.util.ui.DashedSeparator;
+import net.filebot.util.ui.EmptySelectionModel;
+import net.filebot.util.ui.LinkButton;
+import net.filebot.util.ui.RoundBorder;
+import net.filebot.vfs.MemoryFile;
+import net.filebot.web.SubtitleDescriptor;
+import net.filebot.web.SubtitleProvider;
+import net.filebot.web.VideoHashSubtitleService;
 
 class SubtitleAutoMatchDialog extends JDialog {
 

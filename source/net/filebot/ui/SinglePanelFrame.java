@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.Image;
@@ -11,10 +11,10 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.ResourceManager;
+import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
+import net.filebot.util.ExceptionUtilities;
 
 
 public class SinglePanelFrame extends JFrame {

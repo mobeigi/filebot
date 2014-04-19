@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
 import java.awt.datatransfer.Transferable;
@@ -12,10 +12,10 @@ import javax.swing.TransferHandler;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sourceforge.filebot.ui.analyze.FileTree.FileNode;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.ui.transfer.FileTransferable;
-import net.sourceforge.filebot.ui.transfer.TransferableExportHandler;
+import net.filebot.ui.analyze.FileTree.FileNode;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.transfer.FileTransferable;
+import net.filebot.ui.transfer.TransferableExportHandler;
 
 
 class FileTreeExportHandler implements TransferableExportHandler {

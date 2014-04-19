@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.util.Map;
 
-import net.sourceforge.filebot.similarity.Match;
+import net.filebot.similarity.Match;
 
 
 public interface MatchFormatter {

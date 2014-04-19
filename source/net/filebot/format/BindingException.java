@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.format;
+package net.filebot.format;
 
 public class BindingException extends RuntimeException {
 

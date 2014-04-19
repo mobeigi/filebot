@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.web.EpisodeUtilities.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -16,8 +16,8 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.Cache;
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.Cache;
+import net.filebot.ResourceManager;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.vfs;
+package net.filebot.vfs;
 
 
 import java.io.IOException;
@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.sourceforge.filebot.util.ByteBufferInputStream;
-import net.sourceforge.filebot.util.ByteBufferOutputStream;
+import net.filebot.util.ByteBufferInputStream;
+import net.filebot.util.ByteBufferOutputStream;
 
 
 public class ZipArchive implements Iterable<MemoryFile> {

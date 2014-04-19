@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.BorderLayout;

@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 import static java.awt.event.ItemEvent.*;
-import static net.sourceforge.filebot.Language.*;
+import static net.filebot.Language.*;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -16,8 +16,8 @@ import javax.swing.JComboBox;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.Settings;
+import net.filebot.Language;
+import net.filebot.Settings;
 
 public class LanguageComboBox extends JComboBox {
 

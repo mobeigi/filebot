@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.awt.BorderLayout;
@@ -19,8 +19,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
 
-import net.sourceforge.filebot.util.ui.AbstractFancyListCellRenderer;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.AbstractFancyListCellRenderer;
+import net.filebot.util.ui.TunedUtilities;
 
 
 class HighlightListCellRenderer extends AbstractFancyListCellRenderer {

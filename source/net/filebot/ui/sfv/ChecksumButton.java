@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import static java.awt.Color.*;
@@ -18,7 +18,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JToggleButton;
 
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.ResourceManager;
 
 
 public class ChecksumButton extends JToggleButton {

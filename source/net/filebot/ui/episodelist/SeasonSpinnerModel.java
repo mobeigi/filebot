@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.episodelist;
+package net.filebot.ui.episodelist;
 
 
 import javax.swing.SpinnerNumberModel;

@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.util.Arrays.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.ui.transfer.FileTransferable.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.io.File;
@@ -15,9 +15,9 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.filebot.util.FastFile;
+import net.filebot.media.MediaDetection;
+import net.filebot.ui.transfer.FileTransferablePolicy;
+import net.filebot.util.FastFile;
 
 class FilesListTransferablePolicy extends FileTransferablePolicy {
 

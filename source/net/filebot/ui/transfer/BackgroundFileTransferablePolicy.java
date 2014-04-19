@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
+import static net.filebot.ui.transfer.FileTransferable.*;
 
 import java.awt.datatransfer.Transferable;
 import java.beans.PropertyChangeListener;

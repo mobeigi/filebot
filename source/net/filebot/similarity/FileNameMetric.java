@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 

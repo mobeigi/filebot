@@ -1,13 +1,13 @@
-package net.sourceforge.filebot.media;
+package net.filebot.media;
 
 import static java.lang.Integer.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,12 +31,12 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.util.ByteBufferInputStream;
-import net.sourceforge.filebot.util.FileUtilities.RegexFileFilter;
-import net.sourceforge.filebot.web.AnidbSearchResult;
-import net.sourceforge.filebot.web.CachedResource;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
+import net.filebot.util.ByteBufferInputStream;
+import net.filebot.util.FileUtilities.RegexFileFilter;
+import net.filebot.web.AnidbSearchResult;
+import net.filebot.web.CachedResource;
+import net.filebot.web.Movie;
+import net.filebot.web.TheTVDBSearchResult;
 
 import org.tukaani.xz.XZInputStream;
 

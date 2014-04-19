@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
+import static net.filebot.similarity.Normalization.*;
 
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;

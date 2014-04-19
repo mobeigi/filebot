@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import static java.util.Collections.*;
@@ -18,7 +18,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.subtitle.SubtitleFormat;
+import net.filebot.subtitle.SubtitleFormat;
 
 
 public class SubtitleFileChooser extends JFileChooser {

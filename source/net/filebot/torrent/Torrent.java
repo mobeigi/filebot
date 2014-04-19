@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.torrent;
+package net.filebot.torrent;
 
 
 import java.io.BufferedInputStream;

@@ -1,12 +1,12 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.PanelBuilder;
+import net.filebot.ResourceManager;
+import net.filebot.ui.PanelBuilder;
 
 
 public class RenamePanelBuilder implements PanelBuilder {

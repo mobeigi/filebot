@@ -1,12 +1,12 @@
-package net.sourceforge.filebot.media;
+package net.filebot.media;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
+import static net.filebot.similarity.CommonSequenceMatcher.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -40,31 +40,31 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.archive.Archive;
-import net.sourceforge.filebot.format.MediaBindingBean;
-import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
-import net.sourceforge.filebot.similarity.DateMatcher;
-import net.sourceforge.filebot.similarity.DateMetric;
-import net.sourceforge.filebot.similarity.MetricAvg;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.NumericSimilarityMetric;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodePattern;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
-import net.sourceforge.filebot.similarity.SeriesNameMatcher;
-import net.sourceforge.filebot.similarity.SimilarityComparator;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.similarity.StringEqualsMetric;
-import net.sourceforge.filebot.vfs.FileInfo;
-import net.sourceforge.filebot.web.SimpleDate;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.MovieIdentificationService;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
+import net.filebot.WebServices;
+import net.filebot.archive.Archive;
+import net.filebot.format.MediaBindingBean;
+import net.filebot.similarity.CommonSequenceMatcher;
+import net.filebot.similarity.DateMatcher;
+import net.filebot.similarity.DateMetric;
+import net.filebot.similarity.MetricAvg;
+import net.filebot.similarity.NameSimilarityMetric;
+import net.filebot.similarity.NumericSimilarityMetric;
+import net.filebot.similarity.SeasonEpisodeMatcher;
+import net.filebot.similarity.SeasonEpisodeMatcher.SeasonEpisodePattern;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.similarity.SequenceMatchSimilarity;
+import net.filebot.similarity.SeriesNameMatcher;
+import net.filebot.similarity.SimilarityComparator;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.similarity.StringEqualsMetric;
+import net.filebot.vfs.FileInfo;
+import net.filebot.web.SimpleDate;
+import net.filebot.web.Episode;
+import net.filebot.web.Movie;
+import net.filebot.web.MovieIdentificationService;
+import net.filebot.web.SearchResult;
+import net.filebot.web.TheTVDBClient.SeriesInfo;
+import net.filebot.web.TheTVDBSearchResult;
 
 public class MediaDetection {
 

@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,8 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipException;
 
-import net.sourceforge.filebot.util.ByteBufferOutputStream;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.util.ByteBufferOutputStream;
+import net.filebot.util.FileUtilities;
 
 /**
  * Describes a subtitle on OpenSubtitles.

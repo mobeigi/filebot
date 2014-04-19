@@ -1,6 +1,6 @@
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -10,9 +10,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JFileChooser;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 
 public class LoadAction extends AbstractAction {
 

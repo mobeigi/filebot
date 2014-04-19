@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.format;
+package net.filebot.format;
 
 import static java.util.regex.Pattern.*;
 
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities;
 
 import com.ibm.icu.text.Transliterator;
 

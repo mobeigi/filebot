@@ -1,12 +1,12 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.subtitle.SubtitleUtilities.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.subtitle.SubtitleUtilities.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -40,15 +40,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.subtitle.SubtitleFormat;
-import net.sourceforge.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.ui.ListView;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
-import net.sourceforge.filebot.vfs.MemoryFile;
+import net.filebot.Analytics;
+import net.filebot.ResourceManager;
+import net.filebot.subtitle.SubtitleFormat;
+import net.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.ui.ListView;
+import net.filebot.util.ui.TunedUtilities;
+import net.filebot.vfs.MemoryFile;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;

@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.util;
+package net.filebot.util;
 
 
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

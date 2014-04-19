@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import java.awt.Color;
@@ -11,9 +11,9 @@ import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.AbstractFancyListCellRenderer;
-import net.sourceforge.filebot.util.ui.DashedSeparator;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.AbstractFancyListCellRenderer;
+import net.filebot.util.ui.DashedSeparator;
 
 
 class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {

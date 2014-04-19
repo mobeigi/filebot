@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import static java.util.Collections.*;
 import static java.util.EnumSet.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.cli.CLILogging.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.cli.CLILogging.*;
+import static net.filebot.util.StringUtilities.*;
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
@@ -31,17 +31,17 @@ import java.util.logging.Logger;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import net.sourceforge.filebot.HistorySpooler;
-import net.sourceforge.filebot.RenameAction;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.StandardRenameAction;
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.format.AssociativeScriptObject;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.media.MetaAttributes;
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.web.Movie;
+import net.filebot.HistorySpooler;
+import net.filebot.RenameAction;
+import net.filebot.Settings;
+import net.filebot.StandardRenameAction;
+import net.filebot.WebServices;
+import net.filebot.format.AssociativeScriptObject;
+import net.filebot.media.MediaDetection;
+import net.filebot.media.MetaAttributes;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.util.FileUtilities;
+import net.filebot.web.Movie;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;

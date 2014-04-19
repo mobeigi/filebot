@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
-import static net.sourceforge.filebot.util.XPathUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.util.XPathUtilities.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,11 +26,11 @@ import javax.swing.Icon;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.web.TMDbClient.MovieInfo;
-import net.sourceforge.filebot.web.TMDbClient.MovieInfo.MovieProperty;
-import net.sourceforge.filebot.web.TMDbClient.Person;
-import net.sourceforge.filebot.web.TMDbClient.Trailer;
+import net.filebot.ResourceManager;
+import net.filebot.web.TMDbClient.MovieInfo;
+import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
+import net.filebot.web.TMDbClient.Person;
+import net.filebot.web.TMDbClient.Trailer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

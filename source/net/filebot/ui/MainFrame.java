@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 import static java.awt.event.InputEvent.*;
 import static java.awt.event.KeyEvent.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.ScrollPaneConstants.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
+import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -41,20 +41,20 @@ import javax.swing.event.ListSelectionListener;
 
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.cli.GroovyPad;
-import net.sourceforge.filebot.ui.analyze.AnalyzePanelBuilder;
-import net.sourceforge.filebot.ui.episodelist.EpisodeListPanelBuilder;
-import net.sourceforge.filebot.ui.list.ListPanelBuilder;
-import net.sourceforge.filebot.ui.rename.RenamePanelBuilder;
-import net.sourceforge.filebot.ui.sfv.SfvPanelBuilder;
-import net.sourceforge.filebot.ui.subtitle.SubtitlePanelBuilder;
-import net.sourceforge.filebot.util.PreferencesMap.PreferencesEntry;
-import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.filebot.util.ui.ShadowBorder;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.Analytics;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.cli.GroovyPad;
+import net.filebot.ui.analyze.AnalyzePanelBuilder;
+import net.filebot.ui.episodelist.EpisodeListPanelBuilder;
+import net.filebot.ui.list.ListPanelBuilder;
+import net.filebot.ui.rename.RenamePanelBuilder;
+import net.filebot.ui.sfv.SfvPanelBuilder;
+import net.filebot.ui.subtitle.SubtitlePanelBuilder;
+import net.filebot.util.PreferencesMap.PreferencesEntry;
+import net.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.filebot.util.ui.ShadowBorder;
+import net.filebot.util.ui.TunedUtilities;
 
 public class MainFrame extends JFrame {
 

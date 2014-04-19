@@ -2,10 +2,10 @@
  * Created on 19.03.2005
  */
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
-import static net.sourceforge.filebot.util.ui.notification.Direction.*;
+import static net.filebot.util.ui.notification.Direction.*;
 
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;

@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.ui.transfer.FileTransferable.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;

@@ -1,12 +1,12 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sourceforge.filebot.format.PropertyBindings;
+import net.filebot.format.PropertyBindings;
 
 
 public class CrossPropertyMetric implements SimilarityMetric {

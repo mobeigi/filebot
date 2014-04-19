@@ -1,12 +1,12 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.web.SimpleDate;
+import net.filebot.web.SimpleDate;
 
 
 public class DateMatcher {

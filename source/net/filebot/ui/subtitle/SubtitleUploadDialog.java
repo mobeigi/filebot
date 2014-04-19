@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -50,22 +50,22 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.ui.LanguageComboBox;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.AbstractBean;
-import net.sourceforge.filebot.util.ui.EmptySelectionModel;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.TheTVDBClient.SeriesInfo;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
-import net.sourceforge.filebot.web.VideoHashSubtitleService.CheckResult;
+import net.filebot.Analytics;
+import net.filebot.Language;
+import net.filebot.ResourceManager;
+import net.filebot.WebServices;
+import net.filebot.media.MediaDetection;
+import net.filebot.ui.LanguageComboBox;
+import net.filebot.ui.SelectDialog;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.AbstractBean;
+import net.filebot.util.ui.EmptySelectionModel;
+import net.filebot.web.Movie;
+import net.filebot.web.OpenSubtitlesClient;
+import net.filebot.web.SearchResult;
+import net.filebot.web.TheTVDBClient.SeriesInfo;
+import net.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.VideoHashSubtitleService.CheckResult;
 
 public class SubtitleUploadDialog extends JDialog {
 

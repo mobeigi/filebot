@@ -1,6 +1,6 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
 import java.awt.Window;
@@ -17,14 +17,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.util.ui.ProgressDialog;
-import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
-import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.filebot.ResourceManager;
+import net.filebot.similarity.EpisodeMetrics;
+import net.filebot.similarity.Match;
+import net.filebot.similarity.Matcher;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.util.ui.ProgressDialog;
+import net.filebot.util.ui.ProgressDialog.Cancellable;
+import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 
 class MatchAction extends AbstractAction {
 

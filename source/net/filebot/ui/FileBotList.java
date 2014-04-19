@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.BorderLayout;
@@ -15,11 +15,11 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
-import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.ui.transfer.TextFileExportHandler;
+import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.filebot.util.ui.TunedUtilities;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;

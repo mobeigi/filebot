@@ -2,7 +2,7 @@
  * Created on 19.03.2005
  */
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
 import java.awt.Window;
@@ -16,7 +16,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JWindow;
 import javax.swing.Timer;
 
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.TunedUtilities;
 
 
 public class NotificationWindow extends JWindow {

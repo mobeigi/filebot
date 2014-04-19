@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.vfs;
+package net.filebot.vfs;
 
 import java.io.File;
 

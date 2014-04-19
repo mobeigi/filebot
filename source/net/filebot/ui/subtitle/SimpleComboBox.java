@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import static javax.swing.BorderFactory.*;
@@ -13,7 +13,7 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.ResourceManager;
 
 
 public class SimpleComboBox extends JComboBox {

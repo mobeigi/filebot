@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.subtitle;
+package net.filebot.subtitle;
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 
-import net.sourceforge.filebot.web.SubtitleDescriptor;
+import net.filebot.web.SubtitleDescriptor;
 
 public enum SubtitleNaming {
 

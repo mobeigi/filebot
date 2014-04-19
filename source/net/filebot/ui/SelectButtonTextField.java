@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 import java.awt.Component;
 import java.awt.Rectangle;
@@ -28,9 +28,9 @@ import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.text.JTextComponent;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.SelectButton;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.SelectButton;
+import net.filebot.util.ui.TunedUtilities;
 
 public class SelectButtonTextField<T> extends JComponent {
 

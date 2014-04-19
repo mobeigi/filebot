@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.BorderLayout;
@@ -15,10 +15,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.GradientStyle;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder.Position;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.notification.SeparatorBorder;
+import net.filebot.util.ui.notification.SeparatorBorder.Position;
 
 
 class HeaderPanel extends JComponent {

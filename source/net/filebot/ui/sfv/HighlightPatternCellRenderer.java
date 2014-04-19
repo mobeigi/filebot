@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import java.awt.Component;
@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sourceforge.filebot.ui.sfv.ChecksumRow.State;
+import net.filebot.ui.sfv.ChecksumRow.State;
 
 
 /**

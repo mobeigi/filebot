@@ -1,15 +1,15 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFileWriter;
-import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.hash.HashType;
+import net.filebot.hash.VerificationFileWriter;
+import net.filebot.ui.transfer.TextFileExportHandler;
+import net.filebot.util.FileUtilities;
 
 
 class ChecksumTableExportHandler extends TextFileExportHandler {

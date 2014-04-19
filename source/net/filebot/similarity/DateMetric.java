@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import java.io.File;
 
-import net.sourceforge.filebot.web.SimpleDate;
+import net.filebot.web.SimpleDate;
 
 
 public class DateMetric implements SimilarityMetric {

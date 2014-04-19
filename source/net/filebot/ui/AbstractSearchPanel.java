@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 import static javax.swing.ScrollPaneConstants.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Dimension;
 import java.awt.Window;
@@ -32,12 +32,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.util.ExceptionUtilities;
-import net.sourceforge.filebot.util.ui.LabelProvider;
-import net.sourceforge.filebot.util.ui.SelectButton;
-import net.sourceforge.filebot.web.SearchResult;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.util.ExceptionUtilities;
+import net.filebot.util.ui.LabelProvider;
+import net.filebot.util.ui.SelectButton;
+import net.filebot.web.SearchResult;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.matchers.TextMatcherEditor;
 import ca.odell.glazedlists.swing.AutoCompleteSupport;

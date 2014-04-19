@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.Closeable;
 import java.io.File;
@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.util.DefaultThreadFactory;
-import net.sourceforge.filebot.util.Timer;
+import net.filebot.util.DefaultThreadFactory;
+import net.filebot.util.Timer;
 
 public abstract class FolderWatchService implements Closeable {
 

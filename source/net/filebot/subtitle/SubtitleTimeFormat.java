@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.subtitle;
+package net.filebot.subtitle;
 
 
 import java.text.DateFormat;

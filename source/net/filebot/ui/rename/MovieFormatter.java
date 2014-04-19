@@ -1,14 +1,14 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.util.Formatter;
 import java.util.Map;
 
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.web.MoviePart;
+import net.filebot.similarity.Match;
+import net.filebot.web.MoviePart;
 
 
 class MovieFormatter implements MatchFormatter {

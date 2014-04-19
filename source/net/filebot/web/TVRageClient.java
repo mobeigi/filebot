@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 
-import static net.sourceforge.filebot.util.XPathUtilities.*;
-import static net.sourceforge.filebot.web.EpisodeUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.util.XPathUtilities.*;
+import static net.filebot.web.EpisodeUtilities.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -15,8 +15,8 @@ import java.util.Locale;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.Cache;
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.Cache;
+import net.filebot.ResourceManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 public enum ConflictAction {
 

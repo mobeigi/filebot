@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.filebot.ui.transfer.FileTransferable.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.hash.VerificationUtilities.*;
+import static net.filebot.ui.transfer.FileTransferable.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -14,15 +14,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFileReader;
-import net.sourceforge.filebot.torrent.Torrent;
-import net.sourceforge.filebot.ui.transfer.ArrayTransferable;
-import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.filebot.util.FastFile;
-import net.sourceforge.filebot.vfs.SimpleFileInfo;
-import net.sourceforge.filebot.web.Episode;
+import net.filebot.MediaTypes;
+import net.filebot.hash.HashType;
+import net.filebot.hash.VerificationFileReader;
+import net.filebot.torrent.Torrent;
+import net.filebot.ui.transfer.ArrayTransferable;
+import net.filebot.ui.transfer.FileTransferablePolicy;
+import net.filebot.util.FastFile;
+import net.filebot.vfs.SimpleFileInfo;
+import net.filebot.web.Episode;
 
 class NamesListTransferablePolicy extends FileTransferablePolicy {
 

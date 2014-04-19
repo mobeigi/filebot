@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
 import java.io.File;

@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import java.io.File;
 import java.util.Collection;
 
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 
 public class SeasonEpisodeMetric implements SimilarityMetric {
 

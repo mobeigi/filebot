@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.awt.Component;
@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.web.SortOrder;
+import net.filebot.similarity.Match;
+import net.filebot.web.SortOrder;
 
 
 interface AutoCompleteMatcher {

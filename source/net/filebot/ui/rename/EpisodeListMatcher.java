@@ -1,12 +1,12 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -35,16 +35,16 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.similarity.CommonSequenceMatcher;
-import net.sourceforge.filebot.similarity.EpisodeMatcher;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.web.Episode;
-import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SortOrder;
+import net.filebot.Analytics;
+import net.filebot.Settings;
+import net.filebot.similarity.CommonSequenceMatcher;
+import net.filebot.similarity.EpisodeMatcher;
+import net.filebot.similarity.Match;
+import net.filebot.ui.SelectDialog;
+import net.filebot.web.Episode;
+import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.SearchResult;
+import net.filebot.web.SortOrder;
 
 class EpisodeListMatcher implements AutoCompleteMatcher {
 

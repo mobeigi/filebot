@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.Color;
@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.util.ui.LinkButton;
+import net.filebot.util.ui.LinkButton;
 
 
 public class HistoryPanel extends JPanel {

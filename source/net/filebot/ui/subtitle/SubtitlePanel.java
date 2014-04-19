@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.ui.LanguageComboBoxModel.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.ui.LanguageComboBoxModel.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -33,20 +33,20 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
-import net.sourceforge.filebot.WebServices;
-import net.sourceforge.filebot.ui.AbstractSearchPanel;
-import net.sourceforge.filebot.ui.LanguageComboBox;
-import net.sourceforge.filebot.ui.SelectDialog;
-import net.sourceforge.filebot.util.ui.LabelProvider;
-import net.sourceforge.filebot.util.ui.SimpleLabelProvider;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.VideoHashSubtitleService;
+import net.filebot.Language;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.WebServices;
+import net.filebot.ui.AbstractSearchPanel;
+import net.filebot.ui.LanguageComboBox;
+import net.filebot.ui.SelectDialog;
+import net.filebot.util.ui.LabelProvider;
+import net.filebot.util.ui.SimpleLabelProvider;
+import net.filebot.web.OpenSubtitlesClient;
+import net.filebot.web.SearchResult;
+import net.filebot.web.SubtitleDescriptor;
+import net.filebot.web.SubtitleProvider;
+import net.filebot.web.VideoHashSubtitleService;
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 

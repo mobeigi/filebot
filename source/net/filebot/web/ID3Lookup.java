@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.mediainfo.MediaInfo;
-import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.filebot.ResourceManager;
+import net.filebot.mediainfo.MediaInfo;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
 
 public class ID3Lookup implements MusicIdentificationService {
 

@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -53,16 +53,16 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.format.MediaBindingBean;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.media.MetaAttributes;
-import net.sourceforge.filebot.mediainfo.MediaInfo;
-import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
-import net.sourceforge.filebot.mediainfo.MediaInfoException;
-import net.sourceforge.filebot.util.DefaultThreadFactory;
-import net.sourceforge.filebot.util.ui.LazyDocumentListener;
+import net.filebot.ResourceManager;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.format.MediaBindingBean;
+import net.filebot.media.MediaDetection;
+import net.filebot.media.MetaAttributes;
+import net.filebot.mediainfo.MediaInfo;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
+import net.filebot.mediainfo.MediaInfoException;
+import net.filebot.util.DefaultThreadFactory;
+import net.filebot.util.ui.LazyDocumentListener;
 
 class BindingDialog extends JDialog {
 

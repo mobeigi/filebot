@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.hash;
+package net.filebot.hash;
 
 
 import java.io.File;

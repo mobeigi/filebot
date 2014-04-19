@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.util.ui;
+package net.filebot.util.ui;
 
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;

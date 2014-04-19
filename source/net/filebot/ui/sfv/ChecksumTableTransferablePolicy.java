@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.hash.VerificationUtilities.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.hash.VerificationUtilities.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +16,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.hash.HashType;
-import net.sourceforge.filebot.hash.VerificationFileReader;
-import net.sourceforge.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.sourceforge.filebot.util.ExceptionUtilities;
+import net.filebot.MediaTypes;
+import net.filebot.hash.HashType;
+import net.filebot.hash.VerificationFileReader;
+import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.filebot.util.ExceptionUtilities;
 
 
 class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {

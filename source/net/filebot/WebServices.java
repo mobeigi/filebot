@@ -1,9 +1,9 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
+import static net.filebot.Settings.*;
+import static net.filebot.media.MediaDetection.*;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -18,28 +18,28 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.web.AcoustIDClient;
-import net.sourceforge.filebot.web.AnidbClient;
-import net.sourceforge.filebot.web.AnidbSearchResult;
-import net.sourceforge.filebot.web.AudioTrack;
-import net.sourceforge.filebot.web.EpisodeListProvider;
-import net.sourceforge.filebot.web.FanartTVClient;
-import net.sourceforge.filebot.web.ID3Lookup;
-import net.sourceforge.filebot.web.IMDbClient;
-import net.sourceforge.filebot.web.LocalSearch;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.MovieIdentificationService;
-import net.sourceforge.filebot.web.MusicIdentificationService;
-import net.sourceforge.filebot.web.OpenSubtitlesClient;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SerienjunkiesClient;
-import net.sourceforge.filebot.web.SubtitleProvider;
-import net.sourceforge.filebot.web.TMDbClient;
-import net.sourceforge.filebot.web.TVRageClient;
-import net.sourceforge.filebot.web.TVRageSearchResult;
-import net.sourceforge.filebot.web.TheTVDBClient;
-import net.sourceforge.filebot.web.TheTVDBSearchResult;
-import net.sourceforge.filebot.web.VideoHashSubtitleService;
+import net.filebot.web.AcoustIDClient;
+import net.filebot.web.AnidbClient;
+import net.filebot.web.AnidbSearchResult;
+import net.filebot.web.AudioTrack;
+import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.FanartTVClient;
+import net.filebot.web.ID3Lookup;
+import net.filebot.web.IMDbClient;
+import net.filebot.web.LocalSearch;
+import net.filebot.web.Movie;
+import net.filebot.web.MovieIdentificationService;
+import net.filebot.web.MusicIdentificationService;
+import net.filebot.web.OpenSubtitlesClient;
+import net.filebot.web.SearchResult;
+import net.filebot.web.SerienjunkiesClient;
+import net.filebot.web.SubtitleProvider;
+import net.filebot.web.TMDbClient;
+import net.filebot.web.TVRageClient;
+import net.filebot.web.TVRageSearchResult;
+import net.filebot.web.TheTVDBClient;
+import net.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.VideoHashSubtitleService;
 
 /**
  * Reuse the same web service client so login, cache, etc. can be shared.

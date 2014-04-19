@@ -1,10 +1,10 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.io.PrintWriter;
 
-import net.sourceforge.filebot.ui.transfer.TextFileExportHandler;
+import net.filebot.ui.transfer.TextFileExportHandler;
 
 
 public class FileBotListExportHandler extends TextFileExportHandler {

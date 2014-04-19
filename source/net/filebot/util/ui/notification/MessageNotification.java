@@ -2,7 +2,7 @@
  * Created on 16.03.2005
  */
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
 import java.awt.BorderLayout;

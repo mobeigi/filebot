@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.hash;
+package net.filebot.hash;
 
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,14 +1,14 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
-import net.sourceforge.filebot.format.ExpressionFormatTest;
-import net.sourceforge.filebot.hash.VerificationFormatTest;
-import net.sourceforge.filebot.media.ReleaseInfoTest;
-import net.sourceforge.filebot.similarity.EpisodeMetricsTest;
-import net.sourceforge.filebot.similarity.SimilarityTestSuite;
-import net.sourceforge.filebot.subtitle.SubtitleReaderTestSuite;
-import net.sourceforge.filebot.ui.rename.MatchModelTest;
-import net.sourceforge.filebot.util.UtilTestSuite;
-import net.sourceforge.filebot.web.WebTestSuite;
+import net.filebot.format.ExpressionFormatTest;
+import net.filebot.hash.VerificationFormatTest;
+import net.filebot.media.ReleaseInfoTest;
+import net.filebot.similarity.EpisodeMetricsTest;
+import net.filebot.similarity.SimilarityTestSuite;
+import net.filebot.subtitle.SubtitleReaderTestSuite;
+import net.filebot.ui.rename.MatchModelTest;
+import net.filebot.util.UtilTestSuite;
+import net.filebot.web.WebTestSuite;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

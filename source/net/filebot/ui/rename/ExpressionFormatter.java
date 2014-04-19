@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.io.File;
@@ -8,9 +8,9 @@ import java.util.Map;
 
 import javax.script.ScriptException;
 
-import net.sourceforge.filebot.format.ExpressionFormat;
-import net.sourceforge.filebot.format.MediaBindingBean;
-import net.sourceforge.filebot.similarity.Match;
+import net.filebot.format.ExpressionFormat;
+import net.filebot.format.MediaBindingBean;
+import net.filebot.similarity.Match;
 
 
 class ExpressionFormatter implements MatchFormatter {

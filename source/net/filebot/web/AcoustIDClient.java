@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 
 import javax.swing.Icon;
 
-import net.sourceforge.filebot.Cache;
-import net.sourceforge.filebot.ResourceManager;
+import net.filebot.Cache;
+import net.filebot.ResourceManager;
 
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -157,7 +157,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 	public String getChromaprintCommand() {
 		// use fpcalc executable path as specified by the cmdline or default to "fpcalc" and let the shell figure it out
-		return System.getProperty("net.sourceforge.filebot.AcoustID.fpcalc", "fpcalc");
+		return System.getProperty("net.filebot.AcoustID.fpcalc", "fpcalc");
 	}
 
 	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException, InterruptedException {

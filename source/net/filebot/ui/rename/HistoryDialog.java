@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -64,21 +64,21 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.History;
-import net.sourceforge.filebot.History.Element;
-import net.sourceforge.filebot.History.Sequence;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.transfer.FileExportHandler;
-import net.sourceforge.filebot.ui.transfer.FileTransferablePolicy;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.filebot.ui.transfer.SaveAction;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy.TransferAction;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.FileUtilities.ExtensionFileFilter;
-import net.sourceforge.filebot.util.ui.GradientStyle;
-import net.sourceforge.filebot.util.ui.LazyDocumentListener;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder.Position;
+import net.filebot.History;
+import net.filebot.History.Element;
+import net.filebot.History.Sequence;
+import net.filebot.ResourceManager;
+import net.filebot.ui.transfer.FileExportHandler;
+import net.filebot.ui.transfer.FileTransferablePolicy;
+import net.filebot.ui.transfer.LoadAction;
+import net.filebot.ui.transfer.SaveAction;
+import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.LazyDocumentListener;
+import net.filebot.util.ui.notification.SeparatorBorder;
+import net.filebot.util.ui.notification.SeparatorBorder.Position;
 
 class HistoryDialog extends JDialog {
 

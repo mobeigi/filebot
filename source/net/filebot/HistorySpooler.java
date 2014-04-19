@@ -1,6 +1,6 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
-import static net.sourceforge.filebot.Settings.*;
+import static net.filebot.Settings.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.History.Element;
+import net.filebot.History.Element;
 
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.io.output.CloseShieldOutputStream;

@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.mediainfo;
+package net.filebot.mediainfo;
 
 import java.io.File;
 import java.io.FileFilter;
 
-import net.sourceforge.filebot.mediainfo.MediaInfo.StreamKind;
+import net.filebot.mediainfo.MediaInfo.StreamKind;
 
 public class MediaDurationFilter implements FileFilter {
 

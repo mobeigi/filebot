@@ -1,12 +1,12 @@
-package net.sourceforge.filebot.subtitle;
+package net.filebot.subtitle;
 
 import static java.lang.Math.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
-import static net.sourceforge.filebot.media.MediaDetection.*;
-import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.MediaTypes.*;
+import static net.filebot.media.MediaDetection.*;
+import static net.filebot.similarity.EpisodeMetrics.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,21 +30,21 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sourceforge.filebot.Language;
-import net.sourceforge.filebot.similarity.EpisodeMetrics;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.Matcher;
-import net.sourceforge.filebot.similarity.MetricAvg;
-import net.sourceforge.filebot.similarity.MetricCascade;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.SequenceMatchSimilarity;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.vfs.ArchiveType;
-import net.sourceforge.filebot.vfs.MemoryFile;
-import net.sourceforge.filebot.web.Movie;
-import net.sourceforge.filebot.web.SearchResult;
-import net.sourceforge.filebot.web.SubtitleDescriptor;
-import net.sourceforge.filebot.web.SubtitleProvider;
+import net.filebot.Language;
+import net.filebot.similarity.EpisodeMetrics;
+import net.filebot.similarity.Match;
+import net.filebot.similarity.Matcher;
+import net.filebot.similarity.MetricAvg;
+import net.filebot.similarity.MetricCascade;
+import net.filebot.similarity.NameSimilarityMetric;
+import net.filebot.similarity.SequenceMatchSimilarity;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.vfs.ArchiveType;
+import net.filebot.vfs.MemoryFile;
+import net.filebot.web.Movie;
+import net.filebot.web.SearchResult;
+import net.filebot.web.SubtitleDescriptor;
+import net.filebot.web.SubtitleProvider;
 
 public final class SubtitleUtilities {
 

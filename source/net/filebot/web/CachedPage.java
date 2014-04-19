@@ -1,7 +1,7 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.web.WebRequest.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.io.Reader;

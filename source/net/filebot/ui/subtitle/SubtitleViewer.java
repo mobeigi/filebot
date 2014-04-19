@@ -1,11 +1,11 @@
 
-package net.sourceforge.filebot.ui.subtitle;
+package net.filebot.ui.subtitle;
 
 
 import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -45,12 +45,12 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.subtitle.SubtitleElement;
-import net.sourceforge.filebot.util.ui.GradientStyle;
-import net.sourceforge.filebot.util.ui.LazyDocumentListener;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder.Position;
+import net.filebot.ResourceManager;
+import net.filebot.subtitle.SubtitleElement;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.LazyDocumentListener;
+import net.filebot.util.ui.notification.SeparatorBorder;
+import net.filebot.util.ui.notification.SeparatorBorder.Position;
 
 
 public class SubtitleViewer extends JFrame {

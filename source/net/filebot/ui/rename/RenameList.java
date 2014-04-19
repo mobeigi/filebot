@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import static java.util.Collections.*;
@@ -15,10 +15,10 @@ import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.ui.FileBotList;
-import net.sourceforge.filebot.ui.transfer.LoadAction;
-import net.sourceforge.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.ResourceManager;
+import net.filebot.ui.FileBotList;
+import net.filebot.ui.transfer.LoadAction;
+import net.filebot.ui.transfer.TransferablePolicy;
 import ca.odell.glazedlists.EventList;
 
 

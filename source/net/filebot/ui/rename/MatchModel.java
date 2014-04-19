@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sourceforge.filebot.similarity.Match;
+import net.filebot.similarity.Match;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;

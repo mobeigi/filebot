@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.web;
+package net.filebot.web;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sourceforge.filebot.util.ByteBufferOutputStream;
+import net.filebot.util.ByteBufferOutputStream;
 
 import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;

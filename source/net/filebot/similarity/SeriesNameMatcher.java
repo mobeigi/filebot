@@ -1,10 +1,10 @@
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.similarity.CommonSequenceMatcher.*;
-import static net.sourceforge.filebot.similarity.Normalization.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.similarity.CommonSequenceMatcher.*;
+import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.text.CollationKey;
@@ -24,8 +24,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sourceforge.filebot.similarity.SeasonEpisodeMatcher.SxE;
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
+import net.filebot.util.FileUtilities;
 
 public class SeriesNameMatcher {
 

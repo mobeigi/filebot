@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.util.ui;
+package net.filebot.util.ui;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

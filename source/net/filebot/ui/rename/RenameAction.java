@@ -1,12 +1,12 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
 import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
-import static net.sourceforge.filebot.Settings.*;
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.ExceptionUtilities.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.Settings.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -39,16 +39,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
-import net.sourceforge.filebot.Analytics;
-import net.sourceforge.filebot.HistorySpooler;
-import net.sourceforge.filebot.NativeRenameAction;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.StandardRenameAction;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.util.ui.ProgressDialog;
-import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
-import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.filebot.Analytics;
+import net.filebot.HistorySpooler;
+import net.filebot.NativeRenameAction;
+import net.filebot.ResourceManager;
+import net.filebot.StandardRenameAction;
+import net.filebot.media.MediaDetection;
+import net.filebot.similarity.Match;
+import net.filebot.util.ui.ProgressDialog;
+import net.filebot.util.ui.ProgressDialog.Cancellable;
+import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 
 class RenameAction extends AbstractAction {
 
@@ -277,14 +277,14 @@ class RenameAction extends AbstractAction {
 
 	protected class RenameJob extends SwingWorker<Map<File, File>, Void> implements Cancellable {
 
-		protected final net.sourceforge.filebot.RenameAction action;
+		protected final net.filebot.RenameAction action;
 
 		protected final Map<File, File> renameMap;
 		protected final Map<File, File> renameLog;
 
 		protected final Semaphore postprocess = new Semaphore(0);
 
-		public RenameJob(Map<File, File> renameMap, net.sourceforge.filebot.RenameAction action) {
+		public RenameJob(Map<File, File> renameMap, net.filebot.RenameAction action) {
 			this.action = action;
 			this.renameMap = synchronizedMap(renameMap);
 			this.renameLog = synchronizedMap(new LinkedHashMap<File, File>());

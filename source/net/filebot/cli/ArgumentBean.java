@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.Language;
+import net.filebot.Language;
 
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;

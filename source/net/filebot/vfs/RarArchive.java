@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.vfs;
+package net.filebot.vfs;
 
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.sourceforge.filebot.util.ByteBufferOutputStream;
+import net.filebot.util.ByteBufferOutputStream;
 import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.exception.RarException;
 import de.innosystec.unrar.rarfile.FileHeader;

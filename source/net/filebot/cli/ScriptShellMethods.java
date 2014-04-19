@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.sourceforge.filebot.MediaTypes.*;
+import static net.filebot.MediaTypes.*;
 import groovy.lang.Closure;
 
 import java.io.File;
@@ -22,15 +22,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import net.sourceforge.filebot.MediaTypes;
-import net.sourceforge.filebot.MetaAttributeView;
-import net.sourceforge.filebot.media.MediaDetection;
-import net.sourceforge.filebot.media.MetaAttributes;
-import net.sourceforge.filebot.similarity.NameSimilarityMetric;
-import net.sourceforge.filebot.similarity.Normalization;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.web.WebRequest;
+import net.filebot.MediaTypes;
+import net.filebot.MetaAttributeView;
+import net.filebot.media.MediaDetection;
+import net.filebot.media.MetaAttributes;
+import net.filebot.similarity.NameSimilarityMetric;
+import net.filebot.similarity.Normalization;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.util.FileUtilities;
+import net.filebot.web.WebRequest;
 
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 

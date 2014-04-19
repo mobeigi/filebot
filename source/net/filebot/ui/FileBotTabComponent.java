@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui;
+package net.filebot.ui;
 
 
 import java.awt.Dimension;
@@ -12,9 +12,9 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.util.ui.ProgressIndicator;
-import net.sourceforge.filebot.util.ui.TunedUtilities;
+import net.filebot.ResourceManager;
+import net.filebot.util.ui.ProgressIndicator;
+import net.filebot.util.ui.TunedUtilities;
 
 
 public class FileBotTabComponent extends JComponent {

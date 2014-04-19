@@ -1,9 +1,9 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
 import java.io.File;
 import java.io.IOException;
 
-import net.sourceforge.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities;
 
 public enum StandardRenameAction implements RenameAction {
 

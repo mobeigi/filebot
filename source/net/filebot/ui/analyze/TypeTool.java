@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
 
 import java.io.File;
@@ -17,10 +17,10 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.ui.transfer.DefaultTransferHandler;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.ui.transfer.DefaultTransferHandler;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.LoadingOverlayPane;
 
 
 class TypeTool extends Tool<TreeModel> {

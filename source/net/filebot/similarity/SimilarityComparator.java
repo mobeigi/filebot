@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.similarity;
+package net.filebot.similarity;
 
 
 import java.util.Comparator;

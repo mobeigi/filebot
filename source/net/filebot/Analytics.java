@@ -1,7 +1,7 @@
-package net.sourceforge.filebot;
+package net.filebot;
 
 import static com.dmurph.tracking.JGoogleAnalyticsTracker.GoogleAnalyticsVersion.*;
-import static net.sourceforge.filebot.Settings.*;
+import static net.filebot.Settings.*;
 
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;

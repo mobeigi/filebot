@@ -1,9 +1,9 @@
-package net.sourceforge.filebot.ui.analyze;
+package net.filebot.ui.analyze;
 
-import static net.sourceforge.filebot.ui.NotificationLogging.*;
-import static net.sourceforge.filebot.util.ExceptionUtilities.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Window;
@@ -32,18 +32,18 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.archive.Archive;
-import net.sourceforge.filebot.archive.FileMapper;
-import net.sourceforge.filebot.ui.analyze.FileTree.FolderNode;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.GradientStyle;
-import net.sourceforge.filebot.util.ui.LoadingOverlayPane;
-import net.sourceforge.filebot.util.ui.ProgressDialog;
-import net.sourceforge.filebot.util.ui.ProgressDialog.Cancellable;
-import net.sourceforge.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
-import net.sourceforge.filebot.util.ui.notification.SeparatorBorder;
-import net.sourceforge.filebot.vfs.FileInfo;
+import net.filebot.ResourceManager;
+import net.filebot.archive.Archive;
+import net.filebot.archive.FileMapper;
+import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.util.ui.ProgressDialog;
+import net.filebot.util.ui.ProgressDialog.Cancellable;
+import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
+import net.filebot.util.ui.notification.SeparatorBorder;
+import net.filebot.vfs.FileInfo;
 
 class ExtractTool extends Tool<TableModel> {
 

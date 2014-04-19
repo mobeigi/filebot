@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.ui.sfv;
+package net.filebot.ui.sfv;
 
 
 import static java.lang.Math.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sourceforge.filebot.util.DefaultThreadFactory;
+import net.filebot.util.DefaultThreadFactory;
 
 
 class ChecksumComputationService {

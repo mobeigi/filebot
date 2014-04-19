@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util.ui.notification;
+package net.filebot.util.ui.notification;
 
 
 import javax.swing.SwingConstants;

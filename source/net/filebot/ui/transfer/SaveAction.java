@@ -1,8 +1,8 @@
 
-package net.sourceforge.filebot.ui.transfer;
+package net.filebot.ui.transfer;
 
 
-import static net.sourceforge.filebot.util.FileUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -15,8 +15,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.Settings;
+import net.filebot.ResourceManager;
+import net.filebot.Settings;
 
 
 public class SaveAction extends AbstractAction {

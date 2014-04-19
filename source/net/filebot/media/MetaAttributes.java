@@ -1,4 +1,4 @@
-package net.sourceforge.filebot.media;
+package net.filebot.media;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.FileTime;
 
-import net.sourceforge.filebot.MetaAttributeView;
+import net.filebot.MetaAttributeView;
 
 import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;

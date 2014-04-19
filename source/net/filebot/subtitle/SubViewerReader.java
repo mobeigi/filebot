@@ -1,9 +1,9 @@
 
-package net.sourceforge.filebot.subtitle;
+package net.filebot.subtitle;
 
 
 import static java.util.regex.Pattern.*;
-import static net.sourceforge.filebot.util.StringUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.text.DateFormat;
 import java.text.ParseException;

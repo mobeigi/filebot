@@ -1,11 +1,11 @@
-package net.sourceforge.filebot.cli;
+package net.filebot.cli;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Collection;
 import java.util.List;
 
-import net.sourceforge.filebot.RenameAction;
+import net.filebot.RenameAction;
 
 public interface CmdlineInterface {
 

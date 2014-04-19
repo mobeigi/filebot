@@ -1,5 +1,5 @@
 
-package net.sourceforge.filebot.util.ui;
+package net.filebot.util.ui;
 
 
 import static java.lang.Math.*;

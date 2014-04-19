@@ -1,8 +1,8 @@
-package net.sourceforge.filebot.ui.rename;
+package net.filebot.ui.rename;
 
-import static net.sourceforge.filebot.similarity.EpisodeMetrics.*;
-import static net.sourceforge.filebot.util.FileUtilities.*;
-import static net.sourceforge.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.similarity.EpisodeMetrics.*;
+import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -21,16 +21,16 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.miginfocom.swing.MigLayout;
-import net.sourceforge.filebot.ResourceManager;
-import net.sourceforge.filebot.similarity.Match;
-import net.sourceforge.filebot.similarity.MetricCascade;
-import net.sourceforge.filebot.similarity.MetricMin;
-import net.sourceforge.filebot.similarity.SimilarityMetric;
-import net.sourceforge.filebot.ui.rename.RenameModel.FormattedFuture;
-import net.sourceforge.filebot.util.FileUtilities;
-import net.sourceforge.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.sourceforge.filebot.util.ui.GradientStyle;
-import net.sourceforge.filebot.web.Episode;
+import net.filebot.ResourceManager;
+import net.filebot.similarity.Match;
+import net.filebot.similarity.MetricCascade;
+import net.filebot.similarity.MetricMin;
+import net.filebot.similarity.SimilarityMetric;
+import net.filebot.ui.rename.RenameModel.FormattedFuture;
+import net.filebot.util.FileUtilities;
+import net.filebot.util.ui.DefaultFancyListCellRenderer;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.web.Episode;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 
