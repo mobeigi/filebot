@@ -14,7 +14,7 @@
   <manifest></manifest>
   <icon>..\icons\shortcut.ico</icon>
   <singleInstance>
-    <mutexName>net.sourceforge.filebot</mutexName>
+    <mutexName>net.filebot</mutexName>
     <windowTitle></windowTitle>
   </singleInstance>
   <jre>
