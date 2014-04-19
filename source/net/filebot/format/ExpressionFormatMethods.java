@@ -3,6 +3,10 @@ package net.filebot.format;
 import static java.util.regex.Pattern.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -284,6 +288,15 @@ public class ExpressionFormatMethods {
 			}
 		}
 		return 0;
+	}
+
+	public static long getCreationDate(File self) throws IOException {
+		BasicFileAttributes attr = Files.getFileAttributeView(self.toPath(), BasicFileAttributeView.class).readAttributes();
+		long creationDate = attr.creationTime().toMillis();
+		if (creationDate > 0) {
+			return creationDate;
+		}
+		return attr.lastModifiedTime().toMillis();
 	}
 
 }
