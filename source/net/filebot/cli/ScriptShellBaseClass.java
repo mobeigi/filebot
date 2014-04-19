@@ -230,6 +230,11 @@ public abstract class ScriptShellBaseClass extends Script {
 		return null;
 	}
 
+	public Movie matchMovie(String name) throws Exception {
+		List<Movie> matches = MediaDetection.matchMovieName(singleton(name), true, 0);
+		return matches == null || matches.isEmpty() ? null : matches.get(0);
+	}
+
 	public int execute(Object... args) throws Exception {
 		List<String> cmd = new ArrayList<String>();
 
