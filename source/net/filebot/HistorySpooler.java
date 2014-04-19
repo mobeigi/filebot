@@ -10,6 +10,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,6 +92,10 @@ public final class HistorySpooler {
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to write rename history.", e);
 		}
+	}
+
+	public synchronized void append(Map<File, File> elements) {
+		append(elements.entrySet());
 	}
 
 	public synchronized void append(Iterable<Entry<File, File>> elements) {

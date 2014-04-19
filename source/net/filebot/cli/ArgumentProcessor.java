@@ -107,17 +107,18 @@ public class ArgumentProcessor {
 				shell.runScript(script, bindings);
 			}
 
+			// script finished successfully
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
+		} catch (ScriptDeath e) {
+			CLILogger.log(Level.WARNING, e.getMessage());
 		} catch (Throwable e) {
-			if (e.getClass() == Exception.class) {
-				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)));
-			} else {
-				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
-			}
-			CLILogger.finest("Failure (°_°)");
-			return -1;
+			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
 		}
+
+		// script failed
+		CLILogger.finest("Failure (°_°)");
+		return -1;
 	}
 
 	public static class DefaultScriptProvider implements ScriptProvider {

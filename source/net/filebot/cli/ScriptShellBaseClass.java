@@ -44,7 +44,6 @@ import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;
 
-import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.sun.jna.Platform;
@@ -124,11 +123,11 @@ public abstract class ScriptShellBaseClass extends Script {
 		CLILogger.severe(String.format("%s: %s", t.getClass().getName(), t.getMessage()));
 
 		// DEBUG
-		StackTraceUtils.deepSanitize(t).printStackTrace();
+		// StackTraceUtils.deepSanitize(t).printStackTrace();
 	}
 
 	public void die(String message) throws Throwable {
-		throw new Exception(message);
+		throw new ScriptDeath(message);
 	}
 
 	// define global variable: _args

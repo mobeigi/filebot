@@ -163,7 +163,7 @@ movies = tmdb.findResults{
 movies = treeSort(movies, { it[3, 2].join(' ') })
 
 // sanity check
-if (movies.size() < 40000) { throw new Exception('Movie index sanity failed:' + movies.size()) }
+if (movies.size() < 40000) { die('Movie index sanity failed:' + movies.size()) }
 pack(moviedb_out, movies*.join('\t'))
 
 
@@ -240,7 +240,7 @@ tvdb.values().each{ r ->
 
 def addSeriesAlias = { from, to ->
 	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
-	if (se == null) throw new Exception("Unabled to find series '${from}': '${to}'")
+	if (se == null) die("Unabled to find series '${from}': '${to}'")
 	thetvdb_index << [se[0], to]
 }
 
@@ -272,7 +272,7 @@ thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
 // sanity check
-if (thetvdb_txt.size() < 4000) { throw new Exception('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
+if (thetvdb_txt.size() < 4000) { die('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
 pack(thetvdb_out, thetvdb_txt)
 
 
@@ -294,5 +294,5 @@ def anidb_index = anidb.findResults{
 def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 
 // sanity check
-if (anidb_txt.size() < 8000) { throw new Exception('AniDB index sanity failed:' + anidb_txt.size()) }
+if (anidb_txt.size() < 8000) { die('AniDB index sanity failed:' + anidb_txt.size()) }
 pack(anidb_out, anidb_txt)
