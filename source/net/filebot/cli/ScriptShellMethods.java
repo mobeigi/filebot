@@ -174,6 +174,18 @@ public class ScriptShellMethods {
 		return FileUtilities.sortByUniquePath(mediaFolders);
 	}
 
+	public static List<File> eachMediaFolder(Collection<?> folders, Closure<?> closure) throws IOException {
+		List<File> mediaFolders = new ArrayList<File>();
+		for (File root : FileUtilities.asFileList(folders)) {
+			mediaFolders.addAll(getMediaFolders(root));
+		}
+
+		// remove duplicates
+		mediaFolders = FileUtilities.sortByUniquePath(mediaFolders);
+
+		return DefaultGroovyMethods.each(mediaFolders, closure);
+	}
+
 	public static String getNameWithoutExtension(File self) {
 		return FileUtilities.getNameWithoutExtension(self.getName());
 	}

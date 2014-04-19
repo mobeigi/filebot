@@ -1,7 +1,6 @@
 package net.filebot.cli;
 
 import static java.util.Collections.*;
-import static java.util.EnumSet.*;
 import static net.filebot.Settings.*;
 import static net.filebot.cli.CLILogging.*;
 import static net.filebot.util.StringUtilities.*;
@@ -21,11 +20,13 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.script.Bindings;
@@ -427,7 +428,10 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 
 		ArgumentBean defaultValues = Settings.getApplicationArguments();
-		for (Option missing : complementOf(copyOf(options.keySet()))) {
+		Set<Option> complement = EnumSet.allOf(Option.class);
+		complement.removeAll(options.keySet());
+
+		for (Option missing : complement) {
 			switch (missing) {
 			case forceExtractAll:
 				options.put(missing, false);
