@@ -299,6 +299,10 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		synchronized (cli) {
 			try {
+				if (input.isEmpty() && !getInputFileMap(parameters).isEmpty()) {
+					return cli.rename(getInputFileMap(parameters), action, asString(option.get(Option.conflict)));
+				}
+
 				return cli.rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
 			} catch (Exception e) {
 				printException(e);
@@ -406,18 +410,35 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
-	private List<File> getInputFileList(Map<String, ?> map) {
-		Object file = map.get("file");
+	private List<File> getInputFileList(Map<String, ?> parameters) {
+		Object file = parameters.get("file");
 		if (file != null) {
 			return FileUtilities.asFileList(file);
 		}
 
-		Object folder = map.get("folder");
+		Object folder = parameters.get("folder");
 		if (folder != null) {
 			return FileUtilities.listFiles(FileUtilities.asFileList(folder), 0, false, true, false);
 		}
 
-		throw new IllegalArgumentException("file is not set");
+		return emptyList();
+	}
+
+	private Map<File, File> getInputFileMap(Map<String, ?> parameters) {
+		Map<?, ?> map = (Map<?, ?>) parameters.get("map");
+		Map<File, File> files = new LinkedHashMap<File, File>();
+		if (map != null) {
+			for (Entry<?, ?> it : map.entrySet()) {
+				List<File> key = FileUtilities.asFileList(it.getKey());
+				List<File> value = FileUtilities.asFileList(it.getValue());
+				if (key.size() == 1 && value.size() == 1) {
+					files.put(key.get(0), value.get(0));
+				} else {
+					throw new IllegalArgumentException("Illegal file mapping: " + it);
+				}
+			}
+		}
+		return files;
 	}
 
 	private Map<Option, Object> getDefaultOptions(Map<String, ?> parameters) throws Exception {

@@ -138,6 +138,12 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 
+	@Override
+	public List<File> rename(Map<File, File> renameMap, RenameAction renameAction, String conflict) throws Exception {
+		// generic rename function that can be passed any set of files
+		return renameAll(renameMap, renameAction, ConflictAction.forName(conflict), null);
+	}
+
 	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
@@ -554,7 +560,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
 		if (renameMap.isEmpty()) {
-			throw new Exception("Unable to identify and process any files");
+			throw new Exception("Unable to identify or process any files");
 		}
 
 		// rename files
