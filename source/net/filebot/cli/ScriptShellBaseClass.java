@@ -389,7 +389,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		synchronized (cli) {
 			try {
-				return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.lang)));
+				return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
 			} catch (Exception e) {
 				printException(e);
 				return null;

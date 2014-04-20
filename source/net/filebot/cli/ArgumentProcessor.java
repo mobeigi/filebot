@@ -38,7 +38,8 @@ public class ArgumentProcessor {
 		try {
 			// print episode info
 			if (args.list) {
-				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.order, args.lang)) {
+				CLILogger.setLevel(Level.WARNING); // make sure to disable any logging on standard output
+				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.order, args.filter, args.lang)) {
 					System.out.println(eps);
 				}
 				return 0;

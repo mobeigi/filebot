@@ -1033,25 +1033,30 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String languageName) throws Exception {
+	public List<String> fetchEpisodeList(String query, String expression, String db, String sortOrderName, String filterExpression, String languageName) throws Exception {
 		if (query == null || query.isEmpty())
 			throw new IllegalArgumentException("query is not defined");
 
 		// find series on the web and fetch episode list
 		ExpressionFormat format = (expression != null) ? new ExpressionFormat(expression) : null;
+		ExpressionFilter filter = (filterExpression != null) ? new ExpressionFilter(filterExpression) : null;
 		EpisodeListProvider service = (db == null) ? TheTVDB : getEpisodeListProvider(db);
 		SortOrder sortOrder = SortOrder.forName(sortOrderName);
 		Locale locale = getLanguage(languageName).getLocale();
 
+		// fetch episode data
 		SearchResult hit = selectSearchResult(query, service.search(query, locale), false).get(0);
-		List<String> episodes = new ArrayList<String>();
+		List<Episode> episodes = service.getEpisodeList(hit, sortOrder, locale);
 
-		for (Episode it : service.getEpisodeList(hit, sortOrder, locale)) {
+		// apply filter
+		episodes = applyExpressionFilter(episodes, filter);
+
+		List<String> names = new ArrayList<String>();
+		for (Episode it : episodes) {
 			String name = (format != null) ? format.format(new MediaBindingBean(it, null, null)) : EpisodeFormat.SeasonEpisode.format(it);
-			episodes.add(name);
+			names.add(name);
 		}
-
-		return episodes;
+		return names;
 	}
 
 	@Override

@@ -22,7 +22,7 @@ public interface CmdlineInterface {
 
 	File compute(Collection<File> files, String output, String encoding) throws Exception;
 
-	List<String> fetchEpisodeList(String query, String format, String db, String sortOrder, String lang) throws Exception;
+	List<String> fetchEpisodeList(String query, String format, String db, String sortOrder, String filter, String lang) throws Exception;
 
 	String getMediaInfo(File file, String format) throws Exception;
 
