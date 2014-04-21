@@ -22,6 +22,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -230,7 +231,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		matches.addAll(derivateMatches);
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
@@ -473,7 +474,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
 		for (Match<File, ?> match : matches) {
 			File file = match.getValue();
@@ -501,7 +502,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// map old files to new paths by applying formatting and validating filenames
-		Map<File, File> renameMap = new TreeMap<File, File>(CASE_INSENSITIVE_PATH);
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
 		for (Match<File, ?> it : matches) {
 			File file = it.getValue();
