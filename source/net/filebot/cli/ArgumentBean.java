@@ -81,9 +81,6 @@ public class ArgumentBean {
 	@Option(name = "-script", usage = "Run Groovy script", metaVar = "path/to/script.groovy")
 	public String script = null;
 
-	@Option(name = "-trust-script", usage = "Lift scripting restrictions")
-	public boolean trustScript = false;
-
 	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
 	public String log = "all";
 
