@@ -112,7 +112,7 @@ public class ArgumentProcessor {
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
 		} catch (ScriptDeath e) {
-			CLILogger.log(Level.WARNING, e.getMessage());
+			CLILogger.log(Level.WARNING, e.getMessage(), e.getCause());
 		} catch (Throwable e) {
 			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
 		}

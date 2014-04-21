@@ -126,8 +126,11 @@ public abstract class ScriptShellBaseClass extends Script {
 		// StackTraceUtils.deepSanitize(t).printStackTrace();
 	}
 
-	public void die(String message) throws Throwable {
-		throw new ScriptDeath(message);
+	public void die(Object cause) throws Throwable {
+		if (cause instanceof Throwable) {
+			throw new ScriptDeath((Throwable) cause);
+		}
+		throw new ScriptDeath(cause.toString());
 	}
 
 	// define global variable: _args
@@ -473,7 +476,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		return options;
 	}
 
-	private RenameAction getRenameFunction(final Object obj) {
+	public RenameAction getRenameFunction(final Object obj) {
 		if (obj instanceof RenameAction) {
 			return (RenameAction) obj;
 		}

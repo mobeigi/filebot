@@ -6,8 +6,8 @@ public class ScriptDeath extends Throwable {
 		super(message);
 	}
 
-	public ScriptDeath(String message, Throwable cause) {
-		super(message, cause);
+	public ScriptDeath(Throwable cause) {
+		super(cause);
 	}
 
 }
