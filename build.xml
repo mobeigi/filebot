@@ -219,38 +219,38 @@
 
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpath="${dir.lib}/build/jarbundler.jar" />
-		<copy tofile="${dir.dist}/appbundle/FileBot.jar" file="${path.fatjar}" />
-
-		<!-- build app bundle folder and add native libs -->
-		<jarbundler dir="${dir.dist}" name="${title}" version="${version}" build="${svn.revision}" icon="${dir.installer}/appbundle/icon.icns" bundleid="net.filebot" jar="${dir.dist}/appbundle/FileBot.jar" stubfile="${dir.installer}/appbundle/JavaApplicationStub" workingdirectory="$JAVAROOT" mainclass="net.filebot.Main" jvmversion="1.7+" vmoptions="-XX:+TieredCompilation">
-			<javaproperty name="application.deployment" value="app" />
-			<javaproperty name="unixfs" value="false" />
-			<javaproperty name="useExtendedFileAttributes" value="true" />
-			<javaproperty name="useCreationDate" value="false" />
-			<javaproperty name="net.filebot.AcoustID.fpcalc" value="$JAVAROOT/fpcalc" />
-			<javaproperty name="jna.library.path" value="$JAVAROOT" />
-			<javaproperty name="java.library.path" value="$JAVAROOT" />
-			<javaproperty name="java.net.useSystemProxies" value="true" />
-			<javaproperty name="sun.net.client.defaultConnectTimeout" value="10000" />
-			<javaproperty name="sun.net.client.defaultReadTimeout" value="60000" />
-		</jarbundler>
-
-		<!-- shell scripts -->
-		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/filebot" />
-		<copy todir="${dir.dist}/${title}.app/Contents/MacOS" file="${dir.installer}/appbundle/install.sh" />
-
-		<copy todir="${dir.dist}/${title}.app/Contents/Resources/Java">
-			<fileset dir="${dir.lib}/native/mac-x86_64" includes="*.dylib" />
-		</copy>
-
+		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
+		
+		<bundleapp description="" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot" mainclassname="net.filebot.Main">
+        	<classpath file="${path.fatjar}" />
+			<librarypath dir="${dir.lib}/native/mac-x86_64" />
+			
+			<option value="-Dapplication.deployment=app" />
+			<option value="-Dunixfs=false" />
+			<option value="-DuseExtendedFileAttributes=true" />
+			<option value="-DuseCreationDate=false" />
+			<option value="-Djava.net.useSystemProxies=true" />
+			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
+			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
+			<option value="-Djna.nosys=true" />
+			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
+			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
+			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
+			<option value="-XX:+TieredCompilation" />
+		</bundleapp>
+		
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/*.dylib" />
+			
 			<!-- IMPORTANT application stub must be executable!! -->
-			<tarfileset dir="${dir.dist}" includes="${title}.app/**/MacOS/**" filemode="755" />
-			<tarfileset dir="${dir.lib}/native/mac-x86_64" includes="fpcalc" filemode="755" prefix="${title}.app/Contents/Resources/Java" />
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/JavaAppLauncher" filemode="755" />
+			<tarfileset dir="${dir.dist}" includes="${title}.app/**/fpcalc" filemode="755" />
+			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
+		
+		<delete dir="${dir.dist}/${title}.app" />
 	</target>
 
 
