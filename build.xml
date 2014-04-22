@@ -221,7 +221,7 @@
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 		
-		<bundleapp description="" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot" mainclassname="net.filebot.Main">
+		<bundleapp description="" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns">
         	<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			
