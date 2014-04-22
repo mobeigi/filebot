@@ -68,11 +68,6 @@ import org.w3c.dom.NodeList;
 
 public class Main {
 
-	static {
-		// TODO remove once raw.githubusercontent.com is fixed
-		System.setProperty("jsse.enableSNIExtension", "false");
-	}
-
 	public static void main(String[] argumentArray) {
 		try {
 			// parse arguments
