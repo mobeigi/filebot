@@ -229,13 +229,20 @@
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
+			
 			<option value="-Djava.net.useSystemProxies=true" />
 			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
 			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
+			<option value="-Dfile.encoding=UTF-8" />
+			
 			<option value="-Djna.nosys=true" />
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
+			
+			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
+			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
+			
 			<option value="-XX:+TieredCompilation" />
 		</bundleapp>
 		
