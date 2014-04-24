@@ -240,6 +240,7 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 			
+			<option value="-Xdock:name=${title}" />
 			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
 			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
 			
