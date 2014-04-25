@@ -68,6 +68,8 @@ import net.filebot.History;
 import net.filebot.History.Element;
 import net.filebot.History.Sequence;
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
+import net.filebot.media.MetaAttributes;
 import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.ui.transfer.LoadAction;
@@ -534,8 +536,13 @@ class HistoryDialog extends JDialog {
 
 			for (Entry<File, File> entry : getRenameMap(directory).entrySet()) {
 				try {
-					moveRename(entry.getKey(), entry.getValue());
+					File destination = moveRename(entry.getKey(), entry.getValue());
 					count++;
+
+					// remove xattr that may have been set
+					if (Settings.useExtendedFileAttributes()) {
+						new MetaAttributes(destination).clear();
+					}
 				} catch (Exception e) {
 					Logger.getLogger(HistoryDialog.class.getName()).log(Level.SEVERE, e.getMessage(), e);
 				}

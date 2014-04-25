@@ -181,6 +181,10 @@
 			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
+			
+			<zipfileset src="${dir.lib}/xattrj.jar">
+				<include name="org/securityvision/**" />
+			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
 			<zipfileset src="${dir.lib}/scripting/ivy.jar">

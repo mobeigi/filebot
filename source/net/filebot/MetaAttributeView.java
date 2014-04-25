@@ -10,13 +10,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.securityvision.xattrj.Xattrj;
+
+import com.sun.jna.Platform;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 
-	private final UserDefinedFileAttributeView attributeView;
-	private final Charset encoding;
+	// UserDefinedFileAttributeView (for Windows and Linux) OR 3rd party Xattrj (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
+	private Object xattr;
+	private File file;
+	private Charset encoding;
+
+	private static Xattrj MacXattrSupport;
+
+	private static synchronized Xattrj getMacXattrSupport() throws Throwable {
+		if (MacXattrSupport == null) {
+			MacXattrSupport = new Xattrj();
+		}
+		return MacXattrSupport;
+	}
 
 	public MetaAttributeView(File file) throws IOException {
 		Path path = file.getCanonicalFile().toPath();
@@ -28,49 +45,98 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			path = link;
 		}
 
-		attributeView = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
-		if (attributeView == null) {
-			throw new IOException("UserDefinedFileAttributeView is not supported");
+		xattr = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+
+		// try 3rd party Xattrj library
+		if (xattr == null) {
+			if (Platform.isMac()) {
+				try {
+					xattr = getMacXattrSupport();
+				} catch (Throwable e) {
+					throw new IOException("Unable to load library: xattrj", e);
+				}
+			} else {
+				throw new IOException("UserDefinedFileAttributeView is not supported");
+			}
 		}
-		encoding = Charset.forName("UTF-8");
+
+		this.file = path.toFile();
+		this.encoding = Charset.forName("UTF-8");
 	}
 
 	@Override
 	public String get(Object key) {
 		try {
-			ByteBuffer buffer = ByteBuffer.allocate(attributeView.size(key.toString()));
-			attributeView.read(key.toString(), buffer);
-			buffer.flip();
+			if (xattr instanceof UserDefinedFileAttributeView) {
+				UserDefinedFileAttributeView attributeView = (UserDefinedFileAttributeView) xattr;
+				ByteBuffer buffer = ByteBuffer.allocate(attributeView.size(key.toString()));
+				attributeView.read(key.toString(), buffer);
+				buffer.flip();
 
-			return encoding.decode(buffer).toString();
-		} catch (IOException e) {
-			return null;
+				return encoding.decode(buffer).toString();
+			}
+
+			if (xattr instanceof Xattrj) {
+				Xattrj macXattr = (Xattrj) xattr;
+				return macXattr.readAttribute(file, key.toString());
+			}
+		} catch (Exception e) {
+			// ignore
 		}
+
+		return null;
 	}
 
 	@Override
 	public String put(String key, String value) {
 		try {
-			if (value == null || value.isEmpty()) {
-				attributeView.delete(key);
-			} else {
-				attributeView.write(key, encoding.encode(value));
+			if (xattr instanceof UserDefinedFileAttributeView) {
+				UserDefinedFileAttributeView attributeView = (UserDefinedFileAttributeView) xattr;
+				if (value == null || value.isEmpty()) {
+					attributeView.delete(key);
+				} else {
+					attributeView.write(key, encoding.encode(value));
+				}
 			}
-		} catch (IOException e) {
+
+			if (xattr instanceof Xattrj) {
+				Xattrj macXattr = (Xattrj) xattr;
+				if (value == null || value.isEmpty()) {
+					macXattr.removeAttribute(file, key);
+				} else {
+					macXattr.writeAttribute(file, key, value);
+				}
+			}
+		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
+
 		return null; // since we don't know the old value
+	}
+
+	public List<String> list() throws IOException {
+		if (xattr instanceof UserDefinedFileAttributeView) {
+			UserDefinedFileAttributeView attributeView = (UserDefinedFileAttributeView) xattr;
+			return attributeView.list();
+		}
+
+		if (xattr instanceof Xattrj) {
+			Xattrj macXattr = (Xattrj) xattr;
+			return Arrays.asList(macXattr.listAttributes(file));
+		}
+
+		return null;
 	}
 
 	@Override
 	public Set<Entry<String, String>> entrySet() {
 		try {
 			Set<Entry<String, String>> entries = new LinkedHashSet<Entry<String, String>>();
-			for (String name : attributeView.list()) {
+			for (String name : this.list()) {
 				entries.add(new AttributeEntry(name));
 			}
 			return entries;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
 	}
@@ -78,28 +144,10 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 	@Override
 	public void clear() {
 		try {
-			for (String it : attributeView.list()) {
-				attributeView.delete(it);
+			for (String key : this.list()) {
+				this.put(key, null);
 			}
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	@Override
-	public int size() {
-		try {
-			return attributeView.list().size();
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	@Override
-	public boolean isEmpty() {
-		try {
-			return attributeView.list().isEmpty();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
 	}

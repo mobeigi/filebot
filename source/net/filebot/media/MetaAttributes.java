@@ -61,8 +61,8 @@ public class MetaAttributes {
 	}
 
 	public void clear() {
-		metaAttributeView.remove(FILENAME_KEY);
-		metaAttributeView.remove(METADATA_KEY);
+		metaAttributeView.put(FILENAME_KEY, null);
+		metaAttributeView.put(METADATA_KEY, null);
 	}
 
 }
