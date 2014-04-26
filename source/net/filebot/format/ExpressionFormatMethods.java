@@ -299,4 +299,8 @@ public class ExpressionFormatMethods {
 		return attr.lastModifiedTime().toMillis();
 	}
 
+	public static File toFile(String self) {
+		return new File(self);
+	}
+
 }
