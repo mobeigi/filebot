@@ -1,3 +1,4 @@
+^episodes.(s\d{2}e\d{2}|\dx\d{2})	Episodes
 at.midnight	@midnight
 BSG	Battlestar Galactica
 Craig.Ferguson	The Late Late Show with Craig Ferguson

@@ -194,7 +194,11 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public String detectSeriesName(Object files, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
-		List<String> names = MediaDetection.detectSeriesNames(FileUtilities.asFileList(files), useSeriesIndex, useAnimeIndex, Locale.ENGLISH);
+		List<File> input = FileUtilities.asFileList(files);
+		if (input.isEmpty())
+			return null;
+
+		List<String> names = MediaDetection.detectSeriesNames(input, useSeriesIndex, useAnimeIndex, Locale.ENGLISH);
 		return names == null || names.isEmpty() ? null : names.get(0);
 	}
 

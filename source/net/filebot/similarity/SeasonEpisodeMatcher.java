@@ -133,7 +133,7 @@ public class SeasonEpisodeMatcher {
 		};
 
 		// (last-resort) match patterns like 101, 102 (and greedily just grab the first)
-		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "([1-9]{1})(\\d{2}).+") {
+		Num101_SUBSTRING = new SeasonEpisodePattern(STRICT_SANITY, "([1-9]{1})(\\d{2}).*") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
@@ -340,6 +340,11 @@ public class SeasonEpisodeMatcher {
 			}
 
 			return -1;
+		}
+
+		@Override
+		public String toString() {
+			return pattern.pattern();
 		}
 	}
 
