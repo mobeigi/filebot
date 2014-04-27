@@ -48,7 +48,7 @@ public final class WebServices {
 
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
-	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApplicationName().toLowerCase(), 4);
+	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApplicationName().toLowerCase(), 5);
 	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
 
 	// extended TheTVDB module with local search

@@ -280,7 +280,7 @@ pack(thetvdb_out, thetvdb_txt)
 
 
 // BUILD anidb index
-def anidb = new AnidbClient('filebot', 4).getAnimeTitles()
+def anidb = new AnidbClient('filebot', 5).getAnimeTitles()
 
 def anidb_index = anidb.findResults{
 	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
