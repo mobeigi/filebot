@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -50,18 +52,24 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		// try 3rd party Xattrj library
 		if (xattr == null) {
 			if (Platform.isMac()) {
+				// Xattrj for Mac
 				try {
 					xattr = getMacXattrSupport();
 				} catch (Throwable e) {
 					throw new IOException("Unable to load library: xattrj", e);
 				}
+
+				// MacOS filesystem may require NFD unicode decomposition
+				this.file = new File(Normalizer.normalize(path.toFile().getAbsolutePath(), Form.NFD));
+				this.encoding = Charset.forName("UTF-8");
 			} else {
 				throw new IOException("UserDefinedFileAttributeView is not supported");
 			}
+		} else {
+			// UserDefinedFileAttributeView
+			this.file = path.toFile();
+			this.encoding = Charset.forName("UTF-8");
 		}
-
-		this.file = path.toFile();
-		this.encoding = Charset.forName("UTF-8");
 	}
 
 	@Override
