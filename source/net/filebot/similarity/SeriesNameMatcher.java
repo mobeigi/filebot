@@ -99,7 +99,7 @@ public class SeriesNameMatcher {
 		whitelist.addAll(deepMatchAll(focus, threshold));
 
 		// 1. use pattern matching
-		seriesNames.addAll(flatMatchAll(names, compile(join(whitelist, "|"), CASE_INSENSITIVE | UNICODE_CASE), threshold, false));
+		seriesNames.addAll(flatMatchAll(names, compile(join(whitelist, "|"), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS), threshold, false));
 
 		// 2. use common word sequences
 		seriesNames.addAll(whitelist);

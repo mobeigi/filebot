@@ -653,7 +653,7 @@ class HistoryDialog extends JDialog {
 		private final Pattern filter;
 
 		public HistoryFilter(String filter) {
-			this.filter = compile(quote(filter), CASE_INSENSITIVE | UNICODE_CASE | CANON_EQ);
+			this.filter = compile(quote(filter), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | CANON_EQ);
 		}
 
 		@Override
