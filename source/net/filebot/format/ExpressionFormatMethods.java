@@ -182,9 +182,12 @@ public class ExpressionFormatMethods {
 	}
 
 	/**
-	 * Find MatchResult that matches the given pattern (case-insensitive)
+	 * Find a matcher that matches the given pattern (case-insensitive)
 	 */
 	public static Matcher findMatch(String self, String pattern) {
+		if (pattern == null)
+			return null;
+
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
 		return matcher.find() ? matcher.reset() : null;
 	}
