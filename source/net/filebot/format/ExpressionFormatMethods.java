@@ -56,7 +56,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String match(String self, String pattern, int matchGroup) {
-		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CASE | MULTILINE).matcher(self);
+		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		if (matcher.find()) {
 			return (matcher.groupCount() > 0 && matchGroup < 0 ? matcher.group(1) : matcher.group(matchGroup < 0 ? 0 : matchGroup)).trim();
 		} else {
@@ -73,7 +73,7 @@ public class ExpressionFormatMethods {
 
 	public static List<String> matchAll(String self, String pattern, int matchGroup) {
 		List<String> matches = new ArrayList<String>();
-		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CASE | MULTILINE).matcher(self);
+		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		while (matcher.find()) {
 			matches.add(matcher.group(matchGroup).trim());
 		}
@@ -90,7 +90,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String removeAll(String self, String pattern) {
-		return compile(pattern, CASE_INSENSITIVE | UNICODE_CASE | MULTILINE).matcher(self).replaceAll("").trim();
+		return compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self).replaceAll("").trim();
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class ExpressionFormatMethods {
 	 * Return substring before the given pattern.
 	 */
 	public static String before(String self, String pattern) {
-		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CASE).matcher(self);
+		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
 
 		// pattern was found, return leading substring, else return original value
 		return matcher.find() ? self.substring(0, matcher.start()).trim() : self;
@@ -175,10 +175,18 @@ public class ExpressionFormatMethods {
 	 * Return substring after the given pattern.
 	 */
 	public static String after(String self, String pattern) {
-		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CASE).matcher(self);
+		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
 
 		// pattern was found, return trailing substring, else return original value
 		return matcher.find() ? self.substring(matcher.end(), self.length()).trim() : self;
+	}
+
+	/**
+	 * Find MatchResult that matches the given pattern (case-insensitive)
+	 */
+	public static Matcher findMatch(String self, String pattern) {
+		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
+		return matcher.find() ? matcher.reset() : null;
 	}
 
 	/**
