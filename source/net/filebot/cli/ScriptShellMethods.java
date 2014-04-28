@@ -265,6 +265,14 @@ public class ScriptShellMethods {
 		return Charset.forName("UTF-8").decode(self.duplicate()).toString();
 	}
 
+	public static ByteBuffer get(URL self) throws IOException {
+		return WebRequest.fetch(self, 0, null, null);
+	}
+
+	public static ByteBuffer get(URL self, Map<String, String> requestParameters) throws IOException {
+		return WebRequest.fetch(self, 0, requestParameters, null);
+	}
+
 	public static ByteBuffer post(URL self, Map<String, ?> parameters, Map<String, String> requestParameters) throws IOException {
 		return WebRequest.post(self, parameters, requestParameters);
 	}

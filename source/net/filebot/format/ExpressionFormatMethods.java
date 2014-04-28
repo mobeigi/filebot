@@ -185,11 +185,13 @@ public class ExpressionFormatMethods {
 	 * Find a matcher that matches the given pattern (case-insensitive)
 	 */
 	public static Matcher findMatch(String self, String pattern) {
-		if (pattern == null)
-			return null;
-
-		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
-		return matcher.find() ? matcher.reset() : null;
+		if (pattern != null) {
+			Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
+			if (matcher.find()) {
+				return matcher.reset();
+			}
+		}
+		return null;
 	}
 
 	/**
