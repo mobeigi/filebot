@@ -1,7 +1,6 @@
 package net.filebot.format;
 
 import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.Define.*;
 import static net.filebot.hash.VerificationUtilities.*;
@@ -41,13 +40,13 @@ import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.AudioTrack;
-import net.filebot.web.SimpleDate;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
 import net.filebot.web.SearchResult;
+import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
 import net.filebot.web.TheTVDBSearchResult;
 
@@ -284,8 +283,8 @@ public class MediaBindingBean {
 		int height = Integer.parseInt(getMediaInfo(StreamKind.Video, 0, "Height"));
 
 		int ns = 0;
-		int[] ws = new int[] { 15360, 7680, 3840, 1920, 1280, 720, 720, 360, 240, 120 };
-		int[] hs = new int[] { 8640, 4320, 2160, 1080, 720, 576, 480, 360, 240, 120 };
+		int[] ws = new int[] { 15360, 7680, 3840, 1920, 1280, 1024, 854, 854, 720, 720, 360, 240, 120 };
+		int[] hs = new int[] { 8640, 4320, 2160, 1080, 720, 576, 576, 480, 576, 480, 360, 240, 120 };
 		for (int i = 0; i < ws.length - 1; i++) {
 			if ((width >= ws[i] || height >= hs[i]) || (width > ws[i + 1] && height > hs[i + 1])) {
 				ns = hs[i];
