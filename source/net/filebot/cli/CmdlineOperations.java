@@ -327,7 +327,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
 					if (hashLookup.size() > 0) {
-						CLILogger.finest(format("Looking up up movie by filehash via [%s]", service.getName()));
+						CLILogger.finest(format("Looking up up movie by hash via [%s]", service.getName()));
 						movieByFile.putAll(hashLookup);
 					}
 					Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
@@ -677,7 +677,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			try {
-				CLILogger.fine("Looking up subtitles by filehash via " + service.getName());
+				CLILogger.fine("Looking up subtitles by hash via " + service.getName());
 				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos);
 				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
@@ -829,7 +829,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), false);
 
 			if (bestMatch != null) {
-				CLILogger.finest(format("Matched [%s] to [%s] via filehash", it.getKey().getName(), bestMatch.getName()));
+				CLILogger.finest(format("Matched [%s] to [%s] via hash", it.getKey().getName(), bestMatch.getName()));
 				subtitleByVideo.put(it.getKey(), bestMatch);
 			}
 		}
