@@ -157,6 +157,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return results;
 	}
 
+	// max numbers of queries to submit in a single XML-RPC request
+	private final int batchSize = 1;
+
 	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
@@ -195,7 +198,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			login();
 
 			// dispatch query for all hashes
-			int batchSize = 50;
 			for (int bn = 0; bn < ceil((float) hashQueryList.size() / batchSize); bn++) {
 				List<Query> batch = hashQueryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, hashQueryList.size()));
 
@@ -257,7 +259,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			login();
 
 			// dispatch query for all hashes
-			int batchSize = 50;
 			for (int bn = 0; bn < ceil((float) tagQueryList.size() / batchSize); bn++) {
 				List<Query> batch = tagQueryList.subList(bn * batchSize, min((bn * batchSize) + batchSize, tagQueryList.size()));
 
