@@ -38,6 +38,7 @@
 ^cleaned$
 ^Comedy$
 ^Complete$
+^Complete.Torrents$
 ^Completed$
 ^Completed.Downloads$
 ^Crime$
@@ -95,6 +96,7 @@
 ^media$
 ^mnt$
 ^More$
+^moved$
 ^Movie$
 ^Movies$
 ^Multimedia$
