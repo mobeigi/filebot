@@ -10,6 +10,7 @@ import java.util.Locale;
 import net.filebot.web.TMDbClient.Artwork;
 import net.filebot.web.TMDbClient.MovieInfo;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TMDbClientTest {
@@ -25,6 +26,17 @@ public class TMDbClientTest {
 		assertEquals(2005, movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(16320, movie.getTmdbId());
+	}
+
+	@Test
+	public void searchByNameWithYear() throws Exception {
+		List<Movie> result = tmdb.searchMovie("Up 2009", Locale.ENGLISH);
+		Movie movie = result.get(0);
+
+		assertEquals("Up", movie.getName());
+		assertEquals(2009, movie.getYear());
+		assertEquals(-1, movie.getImdbId());
+		assertEquals(14160, movie.getTmdbId());
 	}
 
 	@Test
@@ -66,6 +78,7 @@ public class TMDbClientTest {
 		assertEquals("http://image.tmdb.org/t/p/original/dXTeZELpoVMDOTTLnNoCpsCngwW.jpg", artwork.get(0).getUrl().toString());
 	}
 
+	@Ignore
 	@Test
 	public void floodLimit() throws Exception {
 		for (Locale it : Locale.getAvailableLocales()) {

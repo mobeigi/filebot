@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
@@ -63,6 +65,19 @@ public class TMDbClient implements MovieIdentificationService {
 
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
+		// query by name with year filter if possible
+		Matcher nameYear = Pattern.compile("(.+)\\b(19\\d{2}|20\\d{2})$").matcher(query);
+		if (nameYear.matches()) {
+			return searchMovie(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale);
+		} else {
+			return searchMovie(query, -1, locale);
+		}
+	}
+
+	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale) throws IOException {
+		// use y:2014 year filter if possible
+		String query = (movieYear > 0) ? String.format("%s y:%d", movieName, movieYear) : movieName.toString();
+
 		JSONObject response = request("search/movie", singletonMap("query", query), locale, SEARCH_LIMIT);
 		List<Movie> result = new ArrayList<Movie>();
 
