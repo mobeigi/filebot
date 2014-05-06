@@ -628,6 +628,7 @@ dddc
 DDR
 DEA
 DeadFish
+DEADPiXEL
 DEAL
 DeBCz
 DECADE

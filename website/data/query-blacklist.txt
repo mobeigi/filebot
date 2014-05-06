@@ -98,6 +98,7 @@
 ^More$
 ^moved$
 ^Movie$
+^movie[0-9]+$
 ^Movies$
 ^Multimedia$
 ^Music$

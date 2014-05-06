@@ -262,6 +262,8 @@ addSeriesAlias('@midnight', 'At Midnight')
 addSeriesAlias('The Late Late Show with Craig Ferguson', 'Craig Ferguson')
 addSeriesAlias('Naruto Shippuden', 'Naruto Shippuuden')
 addSeriesAlias('Resurrection', 'Resurrection (US)')
+addSeriesAlias('Revolution', 'Revolution (2012)')
+
 
 
 
