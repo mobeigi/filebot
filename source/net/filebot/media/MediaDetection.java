@@ -58,11 +58,11 @@ import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.similarity.StringEqualsMetric;
 import net.filebot.vfs.FileInfo;
-import net.filebot.web.SimpleDate;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.SearchResult;
+import net.filebot.web.SimpleDate;
 import net.filebot.web.TheTVDBClient.SeriesInfo;
 import net.filebot.web.TheTVDBSearchResult;
 
@@ -959,6 +959,27 @@ public class MediaDetection {
 
 	public static String stripReleaseInfo(String name) {
 		return stripReleaseInfo(name, true);
+	}
+
+	public static List<Movie> matchMovieByWordSequence(String name, Collection<Movie> options, int maxStartIndex) {
+		List<Movie> movies = new ArrayList<Movie>();
+
+		HighPerformanceMatcher nameMatcher = new HighPerformanceMatcher(maxStartIndex);
+		CollationKey[] nameSeq = HighPerformanceMatcher.prepare(normalizePunctuation(name));
+
+		for (Movie movie : options) {
+			for (String alias : movie.getEffectiveNames()) {
+				CollationKey[] movieSeq = HighPerformanceMatcher.prepare(normalizePunctuation(alias));
+				CollationKey[] commonSeq = nameMatcher.matchFirstCommonSequence(nameSeq, movieSeq);
+
+				if (commonSeq != null && commonSeq.length >= movieSeq.length) {
+					movies.add(movie);
+					break;
+				}
+			}
+		}
+
+		return movies;
 	}
 
 	public static String stripReleaseInfo(String name, boolean strict) {

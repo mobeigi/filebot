@@ -417,11 +417,21 @@ public class CmdlineOperations implements CmdlineInterface {
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
 				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
-				Collection<Movie> results = detectMovie(file, null, service, locale, strict);
-				List<Movie> validResults = applyExpressionFilter(results, filter);
+				Collection<Movie> options = detectMovie(file, null, service, locale, strict);
+
+				// apply filter if defined
+				options = applyExpressionFilter(options, filter);
+
+				// reduce options to perfect matches if possible
+				List<Movie> perfectMatches = matchMovieByWordSequence(getName(file), options, 0);
+				if (perfectMatches.size() > 0) {
+					options = perfectMatches;
+				}
+
 				try {
-					if (validResults.size() > 0) {
-						movie = (Movie) selectSearchResult(query, validResults, strict).get(0);
+					// select first element if matches are reliable
+					if (options.size() > 0) {
+						movie = (Movie) selectSearchResult(null, options, strict).get(0);
 					}
 				} catch (Exception e) {
 					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
@@ -854,15 +864,19 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<SearchResult> findProbableMatches(final String query, Collection<? extends SearchResult> searchResults, boolean strict) {
+		if (query == null) {
+			return new ArrayList<SearchResult>(searchResults);
+		}
+
 		// auto-select most probable search result
 		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
 
 		// use name similarity metric
-		final SimilarityMetric metric = new NameSimilarityMetric();
+		SimilarityMetric metric = new NameSimilarityMetric();
 
 		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
 		for (SearchResult result : searchResults) {
-			float f = (query == null) ? 1 : metric.getSimilarity(query, result.getName());
+			float f = metric.getSimilarity(query, result.getName());
 			if (f >= (strict && searchResults.size() > 1 ? 0.8 : 0.6) || ((f >= 0.5 || !strict) && (result.getName().toLowerCase().startsWith(query.toLowerCase())))) {
 				if (!probableMatches.contains(result)) {
 					probableMatches.add(result);
@@ -871,9 +885,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// sort results by similarity to query
-		if (query != null) {
-			sort(probableMatches, new SimilarityComparator(query));
-		}
+		sort(probableMatches, new SimilarityComparator(query));
+
 		return probableMatches;
 	}
 
@@ -892,7 +905,9 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			// just pick the best 5 matches
-			probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric(), false);
+			if (query != null) {
+				probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric(), false);
+			}
 		}
 
 		// return first and only value
