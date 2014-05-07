@@ -175,7 +175,7 @@ public class ScriptShellMethods {
 		return FileUtilities.sortByUniquePath(mediaFolders);
 	}
 
-	public static List<File> eachMediaFolder(Collection<?> folders, Closure<?> closure) throws IOException {
+	public static Iterable<File> eachMediaFolder(Collection<?> folders, Closure<?> closure) throws IOException {
 		List<File> mediaFolders = new ArrayList<File>();
 		for (File root : FileUtilities.asFileList(folders)) {
 			mediaFolders.addAll(getMediaFolders(root));
