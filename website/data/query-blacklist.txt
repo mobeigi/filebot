@@ -333,8 +333,9 @@ samples
 SBS
 Screenshot
 sd
-Season.?\d{1,2}(?!\d)
+Season\D?\d+
 sed
+Series\D?\d+
 ShareGo
 ShareReactor
 ShareZONE
