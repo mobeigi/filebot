@@ -495,6 +495,9 @@ public class ReleaseInfo {
 		languageMap.put("pb", brazil);
 		languageMap.put("pob", brazil);
 
+		// missing ISO 639-2 (B/T) locales
+		languageMap.put("ger", Locale.GERMAN);
+
 		// remove illegal tokens
 		languageMap.remove("");
 		languageMap.remove("II");
