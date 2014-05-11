@@ -330,6 +330,10 @@ public class ScriptShellMethods {
 		return JsonReader.jsonToJava(self);
 	}
 
+	public static File getStructurePathTail(File self) throws IOException {
+		return MediaDetection.getStructurePathTail(self);
+	}
+
 	public static FolderWatchService watch(File self, final Closure<?> callback) throws IOException {
 		FolderWatchService watchService = new FolderWatchService(true) {
 

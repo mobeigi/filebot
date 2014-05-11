@@ -57,6 +57,7 @@ import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.similarity.StringEqualsMetric;
+import net.filebot.util.StringUtilities;
 import net.filebot.vfs.FileInfo;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
@@ -997,6 +998,20 @@ public class MediaDetection {
 			return true;
 		}
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
+	}
+
+	public static File getStructurePathTail(File file) throws IOException {
+		LinkedList<String> relativePath = new LinkedList<String>();
+
+		// iterate path in reverse
+		for (File it : listPathTail(file, Integer.MAX_VALUE, true)) {
+			if (isStructureRoot(it))
+				break;
+
+			relativePath.addFirst(it.getName());
+		}
+
+		return relativePath.isEmpty() ? null : new File(StringUtilities.join(relativePath, File.separator));
 	}
 
 	public static Map<File, List<File>> mapByMediaFolder(Collection<File> files) {
