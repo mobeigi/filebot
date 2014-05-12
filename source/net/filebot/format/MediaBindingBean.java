@@ -23,6 +23,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -146,12 +147,12 @@ public class MediaBindingBean {
 	}
 
 	@Define("d")
-	public Object getReleaseDate() {
+	public SimpleDate getReleaseDate() {
 		if (infoObject instanceof Episode) {
 			return getEpisode().getAirdate();
 		}
 		if (infoObject instanceof Movie) {
-			return getMetaInfo().getProperty("released");
+			return (SimpleDate) getMetaInfo().getProperty("released");
 		}
 		if (infoObject instanceof AudioTrack) {
 			return getMusic().getAlbumReleaseDate();
@@ -164,6 +165,11 @@ public class MediaBindingBean {
 	@Define("airdate")
 	public SimpleDate airdate() {
 		return getEpisode().getAirdate();
+	}
+
+	@Define("age")
+	public Number getAgeInDays() {
+		return TimeUnit.MILLISECONDS.toDays(getNow() - getReleaseDate().getTimeStamp());
 	}
 
 	@Define("startdate")
