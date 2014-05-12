@@ -177,7 +177,7 @@ def tvdb = [:]
 if (tvdb_txt.exists()) {
 	tvdb_txt.eachLine{
 		def line = it.split('\t').toList()
-		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3], line[4], line[5] as Float, line[6] as Integer])
+		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3], line[4], line[5] as Float, line[6] as Float])
 	}
 }
 
@@ -220,7 +220,7 @@ tvdb.keySet().toList().each{ id ->
 		tvdb.remove(id)
 	}
 }
-tvdb.values().findResults{ it.join('\t') }.join('\n').saveAs(tvdb_txt)
+tvdb.values().findResults{ it.collect{ it.toString().replace('\t', '').trim() }.join('\t') }.join('\n').saveAs(tvdb_txt)
 
 
 def thetvdb_index = []
@@ -263,12 +263,12 @@ addSeriesAlias('The Late Late Show with Craig Ferguson', 'Craig Ferguson')
 addSeriesAlias('Naruto Shippuden', 'Naruto Shippuuden')
 addSeriesAlias('Resurrection', 'Resurrection (US)')
 addSeriesAlias('Revolution', 'Revolution (2012)')
-
+addSeriesAlias('Cosmos: A Spacetime Odyssey', 'Cosmos A Space Time Odyssey')
 
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
-thetvdb_index = thetvdb_index.sort({ a, b -> a[0] <=> b[0] } as Comparator)
+thetvdb_index = thetvdb_index.sort{ a, b -> a[0] <=> b[0] }
 
 // join and sort
 def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
