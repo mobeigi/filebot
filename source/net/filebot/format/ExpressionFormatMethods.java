@@ -313,7 +313,21 @@ public class ExpressionFormatMethods {
 	}
 
 	public static File toFile(String self) {
+		if (self == null || self.isEmpty()) {
+			return null;
+		}
 		return new File(self);
+	}
+
+	public static File toFile(String self, String parent) {
+		if (self == null || self.isEmpty()) {
+			return null;
+		}
+		File file = new File(self);
+		if (file.isAbsolute()) {
+			return file;
+		}
+		return new File(parent, self);
 	}
 
 }

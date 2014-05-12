@@ -48,12 +48,12 @@ public class ScriptShellMethods {
 		return new File(self, name);
 	}
 
-	public static File resolve(File self, Object name) {
-		return new File(self, name.toString());
+	public static File resolve(File self, String name) {
+		return new File(self, name);
 	}
 
-	public static File resolveSibling(File self, Object name) {
-		return new File(self.getParentFile(), name.toString());
+	public static File resolveSibling(File self, String name) {
+		return new File(self.getParentFile(), name);
 	}
 
 	public static List<File> listFiles(File self, Closure<?> closure) {
