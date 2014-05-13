@@ -13,6 +13,7 @@ import static net.filebot.web.EpisodeFormat.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -169,7 +170,7 @@ public class MediaBindingBean {
 
 	@Define("age")
 	public Number getAgeInDays() {
-		return TimeUnit.MILLISECONDS.toDays(getNow() - getReleaseDate().getTimeStamp());
+		return TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - getReleaseDate().getTimeStamp());
 	}
 
 	@Define("startdate")
@@ -699,8 +700,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("now")
-	public long getNow() {
-		return System.currentTimeMillis();
+	public Date getNow() {
+		return new Date();
 	}
 
 	@Define("defines")
