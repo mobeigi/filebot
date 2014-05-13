@@ -78,6 +78,11 @@ public class TMDbClient implements MovieIdentificationService {
 		// use y:2014 year filter if possible
 		String query = (movieYear > 0) ? String.format("%s y:%d", movieName, movieYear) : movieName.toString();
 
+		// ignore queries that are too short to yield good results
+		if (movieName.length() < 3) {
+			return emptyList();
+		}
+
 		JSONObject response = request("search/movie", singletonMap("query", query), locale, SEARCH_LIMIT);
 		List<Movie> result = new ArrayList<Movie>();
 
