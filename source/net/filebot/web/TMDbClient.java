@@ -203,7 +203,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 		List<String> genres = new ArrayList<String>();
 		for (JSONObject it : jsonList(response.get("genres"))) {
-			genres.add((String) it.get("name"));
+			String name = (String) it.get("name");
+			if (name != null && name.length() > 0) {
+				genres.add(name);
+			}
 		}
 
 		List<String> spokenLanguages = new ArrayList<String>();
