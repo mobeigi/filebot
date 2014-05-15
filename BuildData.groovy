@@ -191,7 +191,7 @@ tvdb_updates.each{ update ->
 				def tvdb_name = xml.Series.SeriesName.text()
 				
 				def rating = tryQuietly{ xml.Series.Rating.text().toFloat() }
-				def votes = tryQuietly{ xml.Series.RatingCount.text().toInteger() }
+				def votes = tryQuietly{ xml.Series.RatingCount.text().toFloat() }
 				
 				def imdb_name = tryLogCatch{
 					if (imdbid =~ /tt(\d+)/) {
