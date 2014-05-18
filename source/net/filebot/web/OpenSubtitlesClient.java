@@ -157,7 +157,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return results;
 	}
 
-	// max numbers of queries to submit in a single XML-RPC request
+	// max numbers of queries to submit in a single XML-RPC request, but currently only batchSize == 1 is supported
 	private final int batchSize = 1;
 
 	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
@@ -204,7 +204,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// submit query and map results to given files
 				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
 					// get file for hash
-					File file = hashMap.get((batch.get(subtitle.getQueryNumber())));
+					File file = hashMap.get((batch.get(0)));
 
 					// add subtitle
 					if (file != null) {
@@ -265,7 +265,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 				// submit query and map results to given files
 				for (OpenSubtitlesSubtitleDescriptor subtitle : xmlrpc.searchSubtitles(batch)) {
 					// get file for tag
-					File file = tagMap.get(batch.get(subtitle.getQueryNumber()));
+					File file = tagMap.get(batch.get(0));
 
 					// add subtitle
 					if (file != null) {
