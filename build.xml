@@ -247,8 +247,6 @@
 			<option value="-Xdock:name=${title}" />
 			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
 			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
-			
-			<option value="-XX:+TieredCompilation" />
 		</bundleapp>
 		
 		<!-- application bundle folder as .tar.gz -->
