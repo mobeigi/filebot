@@ -49,7 +49,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.Analytics;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
@@ -66,6 +65,7 @@ import net.filebot.web.SearchResult;
 import net.filebot.web.TheTVDBClient.SeriesInfo;
 import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.VideoHashSubtitleService.CheckResult;
+import net.miginfocom.swing.MigLayout;
 
 public class SubtitleUploadDialog extends JDialog {
 
@@ -658,16 +658,13 @@ public class SubtitleUploadDialog extends JDialog {
 					mapping.setState(SubtitleMapping.Status.Checking);
 
 					checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
-					Analytics.trackEvent(database.getName(), "CheckSubtitle", null, checkResult.exists ? 1 : 0);
 
-					// accept identity hint from search result
-					mapping.setIdentity(checkResult.identity);
-
-					if (checkResult.exists) {
-						mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
-						mapping.setState(SubtitleMapping.Status.AlreadyExists);
-						return checkResult;
-					}
+					// if (checkResult.exists) {
+					// mapping.setIdentity(checkResult.identity);
+					// mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
+					// mapping.setState(SubtitleMapping.Status.AlreadyExists);
+					// return checkResult;
+					// }
 				}
 
 				if (mapping.getLanguage() == null) {
