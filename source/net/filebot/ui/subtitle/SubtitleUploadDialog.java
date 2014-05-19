@@ -578,6 +578,7 @@ public class SubtitleUploadDialog extends JDialog {
 		}
 
 		private Object identity;
+		private Object remoteIdentity;
 		private File subtitle;
 		private File video;
 		private Language language;
@@ -594,6 +595,10 @@ public class SubtitleUploadDialog extends JDialog {
 
 		public Object getIdentity() {
 			return identity;
+		}
+
+		public Object getRemoteIdentity() {
+			return remoteIdentity;
 		}
 
 		public File getSubtitle() {
@@ -620,6 +625,11 @@ public class SubtitleUploadDialog extends JDialog {
 		public void setIdentity(Object identity) {
 			this.identity = identity;
 			firePropertyChange("identity", null, this.identity);
+		}
+
+		public void setRemoteIdentity(Object identity) {
+			this.remoteIdentity = identity;
+			firePropertyChange("remoteIdentity", null, this.remoteIdentity);
 		}
 
 		public void setLanguage(Language language) {
@@ -659,12 +669,13 @@ public class SubtitleUploadDialog extends JDialog {
 
 					checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
 
-					// if (checkResult.exists) {
-					// mapping.setIdentity(checkResult.identity);
-					// mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
-					// mapping.setState(SubtitleMapping.Status.AlreadyExists);
-					// return checkResult;
-					// }
+					if (checkResult.exists) {
+						mapping.setRemoteIdentity(checkResult.identity);
+						mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
+
+						// force upload all subtitles regardless of what TryUploadSubtitles returns (because other programs often submit crap)
+						// mapping.setState(SubtitleMapping.Status.AlreadyExists);
+					}
 				}
 
 				if (mapping.getLanguage() == null) {
