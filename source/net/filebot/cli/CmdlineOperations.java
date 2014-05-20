@@ -757,6 +757,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					cache.put(video.getParentFile(), subtitlesByFolder);
 				}
 
+				boolean accept = true;
 				for (File subtitle : subtitlesByFolder) {
 					// can't tell which subtitle belongs to which file -> if any subtitles exist skip the whole folder
 					if (naming == SubtitleNaming.ORIGINAL) {
@@ -765,11 +766,11 @@ public class CmdlineOperations implements CmdlineInterface {
 						if (naming == SubtitleNaming.MATCH_VIDEO) {
 							return false;
 						} else {
-							return !matchesLanguageCode(subtitle);
+							accept &= !matchesLanguageCode(subtitle);
 						}
 					}
 				}
-				return true;
+				return accept;
 			}
 		});
 
