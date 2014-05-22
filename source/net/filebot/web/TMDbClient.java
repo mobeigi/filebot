@@ -79,7 +79,7 @@ public class TMDbClient implements MovieIdentificationService {
 		String query = (movieYear > 0) ? String.format("%s y:%d", movieName, movieYear) : movieName.toString();
 
 		// ignore queries that are too short to yield good results
-		if (movieName.length() < 3) {
+		if (movieName.length() < 3 && !(movieName.length() > 1 && movieYear > 0)) {
 			return emptyList();
 		}
 
