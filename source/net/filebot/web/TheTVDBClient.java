@@ -194,6 +194,10 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	public TheTVDBSearchResult lookupByIMDbID(int imdbid, Locale locale) throws Exception {
+		if (imdbid <= 0) {
+			throw new IllegalArgumentException("id must not be " + imdbid);
+		}
+
 		TheTVDBSearchResult cachedItem = getCache().getData("lookupByIMDbID", imdbid, locale, TheTVDBSearchResult.class);
 		if (cachedItem != null) {
 			return cachedItem;

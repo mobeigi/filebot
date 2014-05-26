@@ -24,13 +24,13 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person;
 import net.filebot.web.TMDbClient.Trailer;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -118,6 +118,10 @@ public class IMDbClient implements MovieIdentificationService {
 
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+		if (imdbid <= 0) {
+			throw new IllegalArgumentException("id must not be " + imdbid);
+		}
+
 		try {
 			return scrapeMovie(parsePage(new URL("http", host, String.format("/title/tt%07d/", imdbid))), locale);
 		} catch (FileNotFoundException e) {

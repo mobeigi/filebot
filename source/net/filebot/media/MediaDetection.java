@@ -1174,7 +1174,10 @@ public class MediaDetection {
 		Set<Integer> collection = new LinkedHashSet<Integer>();
 
 		while (imdbMatch.find()) {
-			collection.add(Integer.parseInt(imdbMatch.group()));
+			int imdbid = Integer.parseInt(imdbMatch.group());
+			if (imdbid > 0) {
+				collection.add(imdbid);
+			}
 		}
 
 		return collection;

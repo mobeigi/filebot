@@ -397,6 +397,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
+		if (imdbid <= 0) {
+			throw new IllegalArgumentException("id must not be " + imdbid);
+		}
+
 		Movie result = getCache().getData("getMovieDescriptor", imdbid, locale, Movie.class);
 		if (result != null) {
 			return result;

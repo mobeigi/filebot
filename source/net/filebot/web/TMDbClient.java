@@ -150,6 +150,10 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	public Movie getMovieDescriptor(int imdbtmdbid, Locale locale, boolean byIMDB) throws IOException {
+		if (imdbtmdbid <= 0) {
+			throw new IllegalArgumentException("id must not be " + imdbtmdbid);
+		}
+
 		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
 		try {
 			MovieInfo info = getMovieInfo(id, locale, false, false);
