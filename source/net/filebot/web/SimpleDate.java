@@ -47,6 +47,8 @@ public class SimpleDate implements Serializable {
 		if (obj instanceof SimpleDate) {
 			SimpleDate other = (SimpleDate) obj;
 			return year == other.year && month == other.month && day == other.day;
+		} else if (obj instanceof CharSequence) {
+			return this.toString().equals(obj.toString());
 		}
 
 		return super.equals(obj);
