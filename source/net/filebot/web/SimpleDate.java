@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class SimpleDate implements Serializable {
+public class SimpleDate implements Serializable, Comparable<Object> {
 
 	private int year;
 	private int month;
@@ -55,6 +55,24 @@ public class SimpleDate implements Serializable {
 	}
 
 	@Override
+	public int compareTo(Object other) {
+		if (other instanceof SimpleDate) {
+			return compareTo((SimpleDate) other);
+		} else if (other instanceof CharSequence) {
+			SimpleDate otherDate = parse(other.toString());
+			if (otherDate != null) {
+				return compareTo(otherDate);
+			}
+		}
+
+		throw new IllegalArgumentException(String.valueOf(other));
+	}
+
+	public int compareTo(SimpleDate other) {
+		return Long.compare(this.getTimeStamp(), other.getTimeStamp());
+	}
+
+	@Override
 	public int hashCode() {
 		return Arrays.hashCode(new Object[] { year, month, day });
 	}
@@ -75,6 +93,10 @@ public class SimpleDate implements Serializable {
 
 	public String format(String pattern, Locale locale) {
 		return new SimpleDateFormat(pattern, locale).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
+	}
+
+	public static SimpleDate parse(String string) {
+		return parse(string, "yyyy-MM-dd");
 	}
 
 	public static SimpleDate parse(String string, String pattern) {
