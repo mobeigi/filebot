@@ -479,9 +479,9 @@ public final class FileUtilities {
 	}
 
 	/**
-	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r and \n
+	 * Invalid file name characters: \, /, :, *, ?, ", <, >, |, \r, \n and excessive characters
 	 */
-	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]|[ ]+$|(?<=[^.])[.]+$");
+	public static final Pattern ILLEGAL_CHARACTERS = Pattern.compile("[\\\\/:*?\"<>|\\r\\n]|[ ]+$|(?<=[^.])[.]+$|(?<=.{250})(.+)(?=[.]\\p{Alnum}{3}$)");
 
 	/**
 	 * Strip file name of invalid characters
