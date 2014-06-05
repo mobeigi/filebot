@@ -134,9 +134,12 @@ public class MediaBindingBean {
 			return getMusic().getTrackTitle() != null ? getMusic().getTrackTitle() : getMusic().getTitle();
 		}
 
+		// enforce title length limit by default
+		int limit = 150;
+
 		// single episode format
 		if (getEpisodes().size() == 1) {
-			return getEpisode().getTitle();
+			return truncateText(getEpisode().getTitle(), limit);
 		}
 
 		// multi-episode format
@@ -144,7 +147,7 @@ public class MediaBindingBean {
 		for (Episode it : getEpisodes()) {
 			title.add(removeTrailingBrackets(it.getTitle()));
 		}
-		return join(title, " & ");
+		return truncateText(join(title, " & "), limit);
 	}
 
 	@Define("d")
@@ -909,6 +912,24 @@ public class MediaBindingBean {
 		} catch (Throwable e) {
 			return null;
 		}
+	}
+
+	private String truncateText(String title, int limit) {
+		if (title.length() < limit) {
+			return title;
+		}
+
+		String[] words = title.split("\\s+");
+		StringBuilder s = new StringBuilder();
+
+		for (int i = 0; i < words.length && s.length() + words[i].length() < limit; i++) {
+			if (i > 0) {
+				s.append(' ');
+			}
+			s.append(words[i]);
+		}
+
+		return s.toString().trim();
 	}
 
 }
