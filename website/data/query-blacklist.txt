@@ -92,6 +92,7 @@
 ^Kids$
 ^Kids.Movies$
 ^Kids.Shows$
+^Library$
 ^master$
 ^MD0_DATA$
 ^media$
