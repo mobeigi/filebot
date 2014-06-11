@@ -495,8 +495,27 @@ public class ReleaseInfo {
 		languageMap.put("pb", brazil);
 		languageMap.put("pob", brazil);
 
-		// missing ISO 639-2 (B/T) locales
-		languageMap.put("ger", Locale.GERMAN);
+		// missing ISO 639-2 (B/T) locales (see https://github.com/TakahikoKawasaki/nv-i18n/blob/master/src/main/java/com/neovisionaries/i18n/LanguageAlpha3Code.java)
+		languageMap.put("tib", new Locale("bod"));
+		languageMap.put("cze", new Locale("ces"));
+		languageMap.put("wel", new Locale("cym"));
+		languageMap.put("ger", new Locale("deu"));
+		languageMap.put("gre", new Locale("ell"));
+		languageMap.put("baq", new Locale("eus"));
+		languageMap.put("per", new Locale("fas"));
+		languageMap.put("fre", new Locale("fra"));
+		languageMap.put("arm", new Locale("hye"));
+		languageMap.put("ice", new Locale("isl"));
+		languageMap.put("geo", new Locale("kat"));
+		languageMap.put("mac", new Locale("mkd"));
+		languageMap.put("mao", new Locale("mri"));
+		languageMap.put("may", new Locale("msa"));
+		languageMap.put("bur", new Locale("mya"));
+		languageMap.put("dut", new Locale("nld"));
+		languageMap.put("rum", new Locale("ron"));
+		languageMap.put("slo", new Locale("slk"));
+		languageMap.put("alb", new Locale("sqi"));
+		languageMap.put("chi", new Locale("zho"));
 
 		// remove illegal tokens
 		languageMap.remove("");
