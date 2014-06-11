@@ -521,6 +521,7 @@ CLUE
 Cman
 CME
 CMS
+CNHD
 CnK
 cNLDVDR
 CnT
@@ -1252,6 +1253,7 @@ iNSPiRED
 InSubs
 iNT-TD
 IntelliQ
+iNTENTiON
 iNTERNAL
 iNTiMiD
 INtL
@@ -1863,6 +1865,7 @@ PS
 PS3-TEAM
 PSiG
 PsiX
+PsO
 PSV
 PSYCHD
 PTBR
@@ -2092,6 +2095,7 @@ Shadowman
 SHAMNBOYZ
 ShaqSalazar
 ShareReactor
+SharpHD
 Shayo
 Shayo.RS-F
 SHD
