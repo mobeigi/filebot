@@ -104,6 +104,12 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// get anime page as xml
 		Document dom = getDocument(url);
 
+		// AniDB types: Movie, Music Video, Other, OVA, TV Series, TV Special, Web, unknown
+		String animeType = selectString("//type", dom);
+		if (animeType != null && animeType.matches("(?i:music.video|unkown|other)")) {
+			return new ArrayList<Episode>(0);
+		}
+
 		// select main title and anime start date
 		SimpleDate seriesStartDate = SimpleDate.parse(selectString("//startdate", dom), "yyyy-MM-dd");
 		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + language.getLanguage() + "']", dom);
