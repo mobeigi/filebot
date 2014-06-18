@@ -157,7 +157,7 @@
 				<include name="META-INF/services/**" />
 				<include name="META-INF/*.properties" />
 				<!-- filebot already includes it's own extension modules -->
-				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule"/>
+				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/icu4j.jar">
@@ -180,10 +180,6 @@
 
 			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
-			</zipfileset>
-			
-			<zipfileset src="${dir.lib}/xattrj.jar">
-				<include name="org/securityvision/**" />
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
@@ -224,42 +220,42 @@
 
 	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
-		
+
 		<bundleapp outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
-			
+
 			<option value="-Dapplication.deployment=app" />
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
-			
+
 			<option value="-Djava.net.useSystemProxies=true" />
 			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
 			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
-			
+
 			<option value="-Djna.nosys=true" />
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
-			
+
 			<option value="-Xdock:name=${title}" />
 			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
 			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
 		</bundleapp>
-		
+
 		<!-- application bundle folder as .tar.gz -->
 		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/**.dylib" />
-			
+
 			<!-- IMPORTANT application stub must be executable!! -->
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/**Launcher" filemode="755" />
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/fpcalc" filemode="755" />
 			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
-		
+
 		<delete dir="${dir.dist}/${title}.app" />
 	</target>
 

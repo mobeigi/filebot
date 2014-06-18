@@ -1,6 +1,7 @@
 package net.filebot;
 
-import static java.nio.file.Files.*;
+import static java.nio.file.Files.isSymbolicLink;
+import static java.nio.file.Files.readSymbolicLink;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,30 +13,19 @@ import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.AbstractMap;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.securityvision.xattrj.Xattrj;
+import net.filebot.mac.xattr.XattrUtil;
 
 import com.sun.jna.Platform;
 
 public class MetaAttributeView extends AbstractMap<String, String> {
 
-	// UserDefinedFileAttributeView (for Windows and Linux) OR 3rd party Xattrj (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
+	// UserDefinedFileAttributeView (for Windows and Linux) OR our own xattr.h JNA wrapper via MacXattrView (for Mac) because UserDefinedFileAttributeView is not supported (Oracle Java 7/8)
 	private Object xattr;
-	private File file;
 	private Charset encoding;
-
-	private static Xattrj MacXattrSupport;
-
-	private static synchronized Xattrj getMacXattrSupport() throws Throwable {
-		if (MacXattrSupport == null) {
-			MacXattrSupport = new Xattrj();
-		}
-		return MacXattrSupport;
-	}
 
 	public MetaAttributeView(File file) throws IOException {
 		Path path = file.getCanonicalFile().toPath();
@@ -49,25 +39,14 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 
 		xattr = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 
-		// try 3rd party Xattrj library
 		if (xattr == null) {
 			if (Platform.isMac()) {
-				// Xattrj for Mac
-				try {
-					xattr = getMacXattrSupport();
-				} catch (Throwable e) {
-					throw new IOException("Unable to load library: xattrj", e);
-				}
-
-				// MacOS filesystem may require NFD unicode decomposition
-				this.file = new File(Normalizer.normalize(path.toFile().getAbsolutePath(), Form.NFD));
-				this.encoding = Charset.forName("UTF-8");
+				xattr = new MacXattrView(path);
 			} else {
 				throw new IOException("UserDefinedFileAttributeView is not supported");
 			}
 		} else {
 			// UserDefinedFileAttributeView
-			this.file = path.toFile();
 			this.encoding = Charset.forName("UTF-8");
 		}
 	}
@@ -84,9 +63,9 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				return encoding.decode(buffer).toString();
 			}
 
-			if (xattr instanceof Xattrj) {
-				Xattrj macXattr = (Xattrj) xattr;
-				return macXattr.readAttribute(file, key.toString());
+			if (xattr instanceof MacXattrView) {
+				MacXattrView macXattr = (MacXattrView) xattr;
+				return macXattr.read(key.toString());
 			}
 		} catch (Exception e) {
 			// ignore
@@ -107,12 +86,12 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				}
 			}
 
-			if (xattr instanceof Xattrj) {
-				Xattrj macXattr = (Xattrj) xattr;
+			if (xattr instanceof MacXattrView) {
+				MacXattrView macXattr = (MacXattrView) xattr;
 				if (value == null || value.isEmpty()) {
-					macXattr.removeAttribute(file, key);
+					macXattr.delete(key);
 				} else {
-					macXattr.writeAttribute(file, key, value);
+					macXattr.write(key, value);
 				}
 			}
 		} catch (Exception e) {
@@ -128,9 +107,9 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			return attributeView.list();
 		}
 
-		if (xattr instanceof Xattrj) {
-			Xattrj macXattr = (Xattrj) xattr;
-			return Arrays.asList(macXattr.listAttributes(file));
+		if (xattr instanceof MacXattrView) {
+			MacXattrView macXattr = (MacXattrView) xattr;
+			return macXattr.list();
 		}
 
 		return null;
@@ -186,6 +165,32 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		@Override
 		public String toString() {
 			return getKey() + "=" + getValue();
+		}
+	}
+
+	private static class MacXattrView {
+
+		private final String path;
+
+		public MacXattrView(Path path) {
+			// MacOS filesystem may require NFD unicode decomposition
+			this.path = Normalizer.normalize(path.toFile().getAbsolutePath(), Form.NFD);
+		}
+
+		public List<String> list() {
+			return XattrUtil.listXAttr(path);
+		}
+
+		public String read(String key) {
+			return XattrUtil.getXAttr(path, key);
+		}
+
+		public void write(String key, String value) {
+			XattrUtil.setXAttr(path, key, value);
+		}
+
+		public void delete(String key) {
+			XattrUtil.removeXAttr(path, key);
 		}
 	}
 
