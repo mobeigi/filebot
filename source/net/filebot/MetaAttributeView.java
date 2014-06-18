@@ -17,7 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.filebot.mac.xattr.XattrUtil;
+import net.filebot.mac.xattr.XAttrUtil;
 
 import com.sun.jna.Platform;
 
@@ -178,19 +178,19 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 		}
 
 		public List<String> list() {
-			return XattrUtil.listXAttr(path);
+			return XAttrUtil.listXAttr(path);
 		}
 
 		public String read(String key) {
-			return XattrUtil.getXAttr(path, key);
+			return XAttrUtil.getXAttr(path, key);
 		}
 
 		public void write(String key, String value) {
-			XattrUtil.setXAttr(path, key, value);
+			XAttrUtil.setXAttr(path, key, value);
 		}
 
 		public void delete(String key) {
-			XattrUtil.removeXAttr(path, key);
+			XAttrUtil.removeXAttr(path, key);
 		}
 	}
 
