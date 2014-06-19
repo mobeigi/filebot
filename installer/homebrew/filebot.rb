@@ -13,6 +13,10 @@ class Filebot < Formula
     # Create filebot symlink in bin
     bin.install_symlink prefix/'FileBot.app/Contents/MacOS/filebot.sh' => 'filebot'
   end
+  
+  def post_install
+    system "#{bin}/filebot", "-script", "g:MediaDetection.warmupCachedResources()"
+  end
 
   test do
     system "#{bin}/filebot", "-version"
