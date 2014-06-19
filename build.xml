@@ -226,6 +226,7 @@
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 
 			<option value="-Dapplication.deployment=app" />
+			<option value="-Dapplication.update=auto" />
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
