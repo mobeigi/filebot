@@ -15,6 +15,9 @@ class Filebot < Formula
   end
   
   def post_install
+    # Clearing cache and temporary files
+    system "#{bin}/filebot", "-clear-cache"
+    # Initializing Cache
     system "#{bin}/filebot", "-script", "g:MediaDetection.warmupCachedResources()"
   end
 
