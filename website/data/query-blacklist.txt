@@ -1,3 +1,4 @@
+(?-i:WEB)
 (?<=^)\w{1,2}(?=$)
 (pro7|rtl|rtl2|srtl|rtlnitro|vox|kabel1|sat1|viva|orf1|orf2|atv|arte|zdf|zdfneo|ard|ardeinsfestival|stv|tele5|sf1|sf2|hr3|bay3|puls4|mdr|wdr|rbb|sixx|sw3).\b\d{1,3}
 .+movies$
