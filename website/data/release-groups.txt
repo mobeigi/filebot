@@ -154,6 +154,7 @@ AJAX
 Ajna
 AK
 AK-Subs
+AKA
 akf
 aki
 Akiba
@@ -165,6 +166,7 @@ ALANiS
 ALeSiO
 ALLiANCE
 ALLZINE
+AMALGAM
 AMBASSADOR
 Ame
 AMIABLE
@@ -392,6 +394,7 @@ BluHD
 BluWave
 BMB
 BMF
+BNFs
 BnS
 BoB
 BoBo
@@ -737,6 +740,7 @@ DrSn
 DS
 DS9
 DsM4U
+DsunS
 DTFS
 DUKES
 DUMBLE
@@ -761,6 +765,7 @@ E7
 EAF
 EBi
 EbP
+Ecchi-Subs
 ECHiZEN
 ECHOS
 ECI
@@ -1055,6 +1060,7 @@ GWViD
 GxP
 H-Chu
 H-S
+H-S&McS
 H2
 h264iRMU
 H3LL2P4Y
@@ -1159,6 +1165,7 @@ HnK
 HNR
 HNRDVD
 HoH
+Hollow-Subs
 holz
 HonE
 Honto
@@ -1480,6 +1487,7 @@ LX-Sub
 LYCAN
 M-AF
 M-F
+M-L
 M-S
 m.3.3.w
 M.O
@@ -1610,6 +1618,7 @@ n3xT
 NAFSG
 Naisu
 Nakama-Fansubs
+NanaOne
 Nanashi
 nanku
 NANO
@@ -1628,6 +1637,7 @@ NeDiVx
 NEECHAN
 NekoMimi
 NekoS
+NemDiggers
 NEPTUNE
 NERDHD
 NeRoZ
@@ -1666,7 +1676,7 @@ NL.Subs
 NLC
 NLSGDVDr
 NnH
-No
+NO
 No.TK.BKF
 NO1KNOWS
 NODLABS
@@ -1775,6 +1785,7 @@ Pa@Ph
 PADDO
 Pankhabd
 panos
+Pantsu
 PANTY
 PAPAi
 papi
@@ -1879,6 +1890,7 @@ Pudding
 PUKKA
 Purana
 PURE
+Pure-Anime.biz
 Puri
 PusherCrew
 PUZZLE
@@ -1974,6 +1986,7 @@ RHyTM
 RiFF
 RIG
 RightSiZE
+RIKU
 RiP
 RiplleyHD
 Ripp3rX
@@ -2617,6 +2630,7 @@ Ygt
 YHBT
 Yibis
 YIFY
+YingYang-Subs
 YMG
 YnK
 YoHo
@@ -2628,6 +2642,7 @@ YuS-m.3.3.w
 YuS-MaiWaiFu
 YuS-マイワイフ
 Yuurisan-Subs
+YY-S
 Zalis
 zan
 ZBS

@@ -380,7 +380,7 @@ video[s]?
 vo
 Volume.TB
 WS
-www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de)
+www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de|pe)
 xbmc
 xRipp
 XtremeDoN
