@@ -1,8 +1,7 @@
-
 package net.filebot.ui.analyze;
 
-
 import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.List;
@@ -14,58 +13,50 @@ import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;
-import net.filebot.util.FileUtilities;
-
 
 class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {
-	
+
 	private final FileTree tree;
-	
-	
+
 	public FileTreeTransferablePolicy(FileTree tree) {
 		this.tree = tree;
 	}
-	
-	
+
 	@Override
 	protected boolean accept(List<File> files) {
 		return true;
 	}
-	
-	
+
 	@Override
 	protected void clear() {
 		super.clear();
-		
+
 		tree.clear();
 	}
-	
-	
+
 	@Override
 	protected void process(List<AbstractTreeNode> chunks) {
 		FolderNode root = tree.getRoot();
-		
+
 		for (AbstractTreeNode node : chunks) {
 			root.add(node);
 		}
-		
+
 		tree.getModel().reload();
 	}
-	
-	
+
 	@Override
 	protected void process(Exception e) {
 		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
-	
-	
+
 	@Override
 	protected void load(List<File> files) {
 		try {
 			for (File file : files) {
 				// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
 				AbstractTreeNode node = getTreeNode(new FastFile(file.getPath()));
-				
+
 				// publish on EDT
 				publish(node);
 			}
@@ -73,39 +64,37 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 			// supposed to happen if background execution was aborted
 		}
 	}
-	
-	
+
 	private AbstractTreeNode getTreeNode(File file) throws InterruptedException {
 		if (Thread.interrupted())
 			throw new InterruptedException();
-		
-		File[] files = file.listFiles();
-		if (files != null && file.isDirectory()) {
-			FolderNode node = new FolderNode(FileUtilities.getFolderName(file), files.length);
-			
+
+		if (file.isDirectory()) {
+			List<File> files = getChildren(file);
+			FolderNode node = new FolderNode(getFolderName(file), files.size());
+
 			// add folders first
 			for (File f : files) {
 				if (f.isDirectory()) {
 					node.add(getTreeNode(f));
 				}
 			}
-			
+
 			for (File f : files) {
 				if (f.isFile()) {
 					node.add(getTreeNode(f));
 				}
 			}
-			
+
 			return node;
 		}
-		
+
 		return new FileNode(file);
 	}
-	
-	
+
 	@Override
 	public String getFileFilterDescription() {
 		return "files and folders";
 	}
-	
+
 }

@@ -165,7 +165,7 @@ public class ArgumentBean {
 				if (recursive) {
 					files.addAll(listFiles(file));
 				} else {
-					files.addAll(asList(file.listFiles()));
+					files.addAll(getChildren(file));
 				}
 			} else {
 				files.add(file);

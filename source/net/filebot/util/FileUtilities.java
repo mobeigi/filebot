@@ -380,6 +380,17 @@ public final class FileUtilities {
 		return f;
 	}
 
+	public static List<File> getChildren(File file) {
+		File[] files = file.listFiles();
+
+		// children array may be null if folder permissions do not allow listing of files
+		if (files == null) {
+			return asList(new File[0]);
+		}
+
+		return asList(files);
+	}
+
 	public static List<File> listFiles(File... folders) {
 		return listFiles(asList(folders));
 	}
@@ -417,11 +428,7 @@ public final class FileUtilities {
 		if (depth > maxDepth)
 			return;
 
-		File[] children = folder.listFiles();
-		if (children == null)
-			return;
-
-		for (File it : children) {
+		for (File it : getChildren(folder)) {
 			if (!addHidden && it.isHidden()) // ignore hidden files
 				continue;
 

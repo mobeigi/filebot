@@ -48,8 +48,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import net.miginfocom.swing.MigLayout;
-import net.sf.ehcache.CacheManager;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineOperations;
@@ -63,6 +61,8 @@ import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
 import net.filebot.web.CachedResource;
+import net.miginfocom.swing.MigLayout;
+import net.sf.ehcache.CacheManager;
 
 import org.w3c.dom.NodeList;
 
@@ -464,7 +464,7 @@ public class Main {
 						isNewCache = true;
 
 						// delete all files related to previous cache instances
-						for (File it : cache.listFiles()) {
+						for (File it : getChildren(cache)) {
 							if (!it.equals(lockFile)) {
 								delete(cache);
 							}

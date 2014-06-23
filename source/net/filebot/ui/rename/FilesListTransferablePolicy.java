@@ -1,6 +1,5 @@
 package net.filebot.ui.rename;
 
-import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,10 +89,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			} else if (!recursive || f.isFile() || MediaDetection.isDiskFolder(f)) {
 				entries.add(f);
 			} else if (f.isDirectory()) {
-				File[] children = f.listFiles();
-				if (children != null) {
-					queue.addAll(0, new TreeSet<File>(asList(children))); // FORCE NATURAL FILE ORDER
-				}
+				queue.addAll(0, sortByUniquePath(getChildren(f))); // FORCE NATURAL FILE ORDER
 			}
 		}
 

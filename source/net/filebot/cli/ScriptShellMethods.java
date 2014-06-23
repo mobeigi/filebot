@@ -57,11 +57,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> listFiles(File self, Closure<?> closure) {
-		File[] files = self.listFiles();
-		if (files == null)
-			return emptyList();
-
-		return (List<File>) DefaultGroovyMethods.findAll(asList(files), closure);
+		return (List<File>) DefaultGroovyMethods.findAll(FileUtilities.getChildren(self), closure);
 	}
 
 	public static boolean isVideo(File self) {
@@ -101,11 +97,7 @@ public class ScriptShellMethods {
 	}
 
 	public static boolean hasFile(File self, Closure<?> closure) {
-		File[] files = self.listFiles();
-		if (files == null)
-			return false;
-
-		return DefaultGroovyMethods.find(asList(files), closure) != null;
+		return DefaultGroovyMethods.find(FileUtilities.getChildren(self), closure) != null;
 	}
 
 	public static List<File> getFiles(File self) {
@@ -163,7 +155,7 @@ public class ScriptShellMethods {
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				File folder = dir.toFile();
 
-				if (FileUtilities.filter(asList(folder.listFiles()), VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
+				if (FileUtilities.filter(FileUtilities.getChildren(folder), VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
 					mediaFolders.add(folder);
 					return FileVisitResult.SKIP_SUBTREE;
 				}
