@@ -24,8 +24,8 @@ import java.util.Map;
 
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
-import net.filebot.Settings;
 import net.filebot.media.MediaDetection;
+import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -366,17 +366,18 @@ public class ScriptShellMethods {
 
 	public static MetaAttributeView getXattr(File self) {
 		try {
-			if (Settings.useExtendedFileAttributes()) {
-				return new MetaAttributeView(self);
-			}
+			return new MetaAttributeView(self);
 		} catch (Exception e) {
-			// ignore
+			return null;
 		}
-		return null;
 	}
 
 	public static Object getMetadata(File self) {
-		return MediaDetection.readMetaInfo(self);
+		try {
+			return new MetaAttributes(self).getObject();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }
