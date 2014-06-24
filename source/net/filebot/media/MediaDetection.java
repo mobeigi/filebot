@@ -290,19 +290,10 @@ public class MediaDetection {
 		List<String> names = new ArrayList<String>();
 
 		// try xattr metadata if enabled
-		if (useExtendedFileAttributes()) {
-			try {
-				for (File it : files) {
-					MetaAttributes xattr = new MetaAttributes(it);
-					try {
-						Episode episode = (Episode) xattr.getObject();
-						names.add(episode.getSeriesName());
-					} catch (Exception e) {
-						// can't read meta attributes => ignore
-					}
-				}
-			} catch (Throwable e) {
-				// ignore
+		for (File it : files) {
+			Object metaObject = readMetaInfo(it);
+			if (metaObject instanceof Episode) {
+				names.add(((Episode) metaObject).getSeriesName());
 			}
 		}
 
@@ -551,20 +542,9 @@ public class MediaDetection {
 		Set<Movie> options = new LinkedHashSet<Movie>();
 
 		// try xattr metadata if enabled
-		if (useExtendedFileAttributes()) {
-			try {
-				MetaAttributes xattr = new MetaAttributes(movieFile);
-				try {
-					Movie movie = (Movie) xattr.getObject();
-					if (movie != null) {
-						options.add(movie.clone()); // normalize as movie object
-					}
-				} catch (Exception e) {
-					// can't read meta attributes => ignore
-				}
-			} catch (Throwable e) {
-				// ignore
-			}
+		Object metaObject = readMetaInfo(movieFile);
+		if (metaObject instanceof Movie) {
+			options.add((Movie) metaObject);
 		}
 
 		// lookup by file hash
@@ -1391,13 +1371,13 @@ public class MediaDetection {
 		}
 	};
 
-	public static Object loadMetaInfo(File file) {
+	public static Object readMetaInfo(File file) {
 		if (useExtendedFileAttributes()) {
 			try {
 				MetaAttributes xattr = new MetaAttributes(file);
-				Object meta = xattr.getObject();
-				if (meta instanceof Episode || meta instanceof Movie) {
-					return meta;
+				Object metaObject = xattr.getObject();
+				if (metaObject instanceof Episode || metaObject instanceof Movie) {
+					return metaObject;
 				}
 			} catch (Throwable e) {
 				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Unable to read xattr: " + e.getMessage());

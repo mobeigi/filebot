@@ -1,7 +1,6 @@
 package net.filebot.ui.rename;
 
 import static net.filebot.MediaTypes.*;
-import static net.filebot.Settings.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.TunedUtilities.*;
 
@@ -27,7 +26,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.script.ScriptException;
 import javax.swing.AbstractAction;
@@ -52,17 +50,16 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ui.LazyDocumentListener;
+import net.miginfocom.swing.MigLayout;
 
 class BindingDialog extends JDialog {
 
@@ -378,20 +375,9 @@ class BindingDialog extends JDialog {
 				mediaFileTextField.setText(file.getAbsolutePath());
 
 				// set info object from xattr if possible
-				if (useExtendedFileAttributes()) {
-					try {
-						MetaAttributes xattr = new MetaAttributes(file);
-						try {
-							Object object = xattr.getObject();
-							if (infoObjectFormat.format(object) != null) {
-								setInfoObject(object);
-							}
-						} catch (Exception e) {
-							// ignore invalid data
-						}
-					} catch (Throwable e) {
-						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to read xattr: " + e.getMessage());
-					}
+				Object object = MediaDetection.readMetaInfo(file);
+				if (object != null && infoObjectFormat.format(object) != null) {
+					setInfoObject(object);
 				}
 			}
 		}

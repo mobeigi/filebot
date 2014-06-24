@@ -39,7 +39,6 @@ import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.AssociativeScriptObject;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;
@@ -209,10 +208,9 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public Movie detectMovie(File file, boolean strict) {
 		// 1. xattr
-		try {
-			return (Movie) new MetaAttributes(file).getObject();
-		} catch (Exception e) {
-			// ignore and move on
+		Object metaObject = MediaDetection.readMetaInfo(file);
+		if (metaObject instanceof Movie) {
+			return (Movie) metaObject;
 		}
 
 		// 2. perfect filename match

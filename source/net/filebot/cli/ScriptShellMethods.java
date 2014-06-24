@@ -26,7 +26,6 @@ import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
 import net.filebot.Settings;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
@@ -377,14 +376,7 @@ public class ScriptShellMethods {
 	}
 
 	public static Object getMetadata(File self) {
-		try {
-			if (Settings.useExtendedFileAttributes()) {
-				return new MetaAttributes(self);
-			}
-		} catch (Exception e) {
-			// ignore
-		}
-		return null;
+		return MediaDetection.readMetaInfo(self);
 	}
 
 }

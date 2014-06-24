@@ -3,7 +3,6 @@ package net.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
-import static net.filebot.Settings.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -28,14 +27,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.filebot.WebServices;
+import net.filebot.media.MediaDetection;
 import net.filebot.media.ReleaseInfo;
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
-import net.filebot.web.SimpleDate;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
+import net.filebot.web.SimpleDate;
 import net.filebot.web.TheTVDBClient.SeriesInfo;
 import net.filebot.web.TheTVDBSearchResult;
 
@@ -643,11 +643,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 
 			// deserialize MetaAttributes if enabled and available
-			if (object instanceof File && useExtendedFileAttributes()) {
-				try {
-					return super.getProperties(new net.filebot.media.MetaAttributes((File) object).getObject());
-				} catch (Throwable e) {
-					// ignore
+			if (object instanceof File) {
+				Object metaObject = MediaDetection.readMetaInfo((File) object);
+				if (metaObject != null) {
+					return super.getProperties(metaObject);
 				}
 			}
 
