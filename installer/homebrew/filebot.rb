@@ -2,9 +2,9 @@ require "formula"
 
 class Filebot < Formula
   homepage "http://www.filebot.net/"
-  url "http://sourceforge.net/projects/filebot/files/filebot/FileBot_4.1/FileBot_4.1.app.tar.gz"
-  sha1 "1a0363b9a7bfa2bbd7d6c81d22a0c8e154c8ce81"
-  version "4.1"
+  url "https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot_4.1.1/FileBot_4.1.app.tar.gz"
+  sha1 "7a4e80f3d2bdb82afaa00e8350eba0c8888b8fe8"
+  version "4.1.1"
 
   def install
     # Create .app bundle in prefix
@@ -13,12 +13,14 @@ class Filebot < Formula
     # Create filebot symlink in bin
     bin.install_symlink prefix/'FileBot.app/Contents/MacOS/filebot.sh' => 'filebot'
   end
-  
+
+  def caveats
+    "FileBot requires Java 8. Run `java -version` to verify."
+  end
+
   def post_install
     # Clearing cache and temporary files
     system "#{bin}/filebot", "-clear-cache"
-    # Initializing Cache
-    system "#{bin}/filebot", "-script", "g:MediaDetection.warmupCachedResources()"
   end
 
   test do
