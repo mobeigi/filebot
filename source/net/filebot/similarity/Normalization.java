@@ -9,6 +9,9 @@ public class Normalization {
 	private static final Pattern apostrophe = compile("['`´‘’ʻ]+");
 	private static final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
 
+	private static final Pattern space = compile("\\s+");
+	private static final Pattern spaceLikePunctuation = compile("[:?._]");
+
 	private static final Pattern[] brackets = new Pattern[] { compile("\\([^\\(]*\\)"), compile("\\[[^\\[]*\\]"), compile("\\{[^\\{]*\\}") };
 	private static final Pattern trailingParentheses = compile("(?<!^)[(]([^)]*)[)]$");
 
@@ -31,12 +34,16 @@ public class Normalization {
 	}
 
 	public static String normalizeSpace(String name, String replacement) {
-		return name.replaceAll("[:?._]", " ").trim().replaceAll("\\s+", replacement);
+		return replaceSpace(spaceLikePunctuation.matcher(name).replaceAll(" ").trim(), replacement);
 	}
 
-	public static String removeEmbeddedChecksum(String string) {
+	public static String replaceSpace(String name, String replacement) {
+		return space.matcher(name).replaceAll(replacement);
+	}
+
+	public static String removeEmbeddedChecksum(String name) {
 		// match embedded checksum and surrounding brackets
-		return checksum.matcher(string).replaceAll("");
+		return checksum.matcher(name).replaceAll("");
 	}
 
 	public static String removeTrailingBrackets(String name) {

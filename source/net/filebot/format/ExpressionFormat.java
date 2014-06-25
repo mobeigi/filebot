@@ -1,5 +1,6 @@
 package net.filebot.format;
 
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import groovy.lang.GroovyClassLoader;
@@ -198,7 +199,7 @@ public class ExpressionFormat extends Format {
 	protected Object normalizeBindingValue(Object value) {
 		// if the binding value is a String, remove illegal characters
 		if (value instanceof CharSequence) {
-			return replacePathSeparators(value.toString()).trim();
+			return replaceSpace(replacePathSeparators((CharSequence) value), " ").trim();
 		}
 
 		// if the binding value is an Object, just leave it
