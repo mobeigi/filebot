@@ -2,7 +2,7 @@ require "formula"
 
 class Filebot < Formula
   homepage "http://www.filebot.net/"
-  url "https://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot_4.1.1/FileBot_4.1.app.tar.gz"
+  url "https://downloads.sourceforge.net/project/filebot/filebot/HEAD/FileBot_4.1.1/FileBot_4.1.app.tar.gz"
   sha1 "7a4e80f3d2bdb82afaa00e8350eba0c8888b8fe8"
   version "4.1.1"
 
