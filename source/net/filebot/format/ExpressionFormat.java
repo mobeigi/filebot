@@ -1,6 +1,5 @@
 package net.filebot.format;
 
-import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import groovy.lang.GroovyClassLoader;
@@ -23,6 +22,8 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
+
+import net.filebot.similarity.Normalization;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
@@ -163,10 +164,10 @@ public class ExpressionFormat extends Format {
 
 	@Override
 	public StringBuffer format(Object object, StringBuffer sb, FieldPosition pos) {
-		return format(getBindings(object), sb);
+		return sb.append(format(getBindings(object)));
 	}
 
-	public StringBuffer format(Bindings bindings, StringBuffer sb) {
+	public String format(Bindings bindings) {
 		// use privileged bindings so we are not restricted by the script sandbox
 		Bindings priviledgedBindings = PrivilegedInvocation.newProxy(Bindings.class, bindings, AccessController.getContext());
 
@@ -177,11 +178,11 @@ public class ExpressionFormat extends Format {
 		// reset exception state
 		lastException = null;
 
+		StringBuilder sb = new StringBuilder();
 		for (Object snipped : compilation) {
 			if (snipped instanceof CompiledScript) {
 				try {
 					Object value = normalizeExpressionValue(((CompiledScript) snipped).eval(context));
-
 					if (value != null) {
 						sb.append(value);
 					}
@@ -193,13 +194,13 @@ public class ExpressionFormat extends Format {
 			}
 		}
 
-		return sb;
+		return Normalization.replaceSpace(sb.toString(), " ").trim();
 	}
 
 	protected Object normalizeBindingValue(Object value) {
 		// if the binding value is a String, remove illegal characters
 		if (value instanceof CharSequence) {
-			return replaceSpace(replacePathSeparators((CharSequence) value), " ").trim();
+			return replacePathSeparators((CharSequence) value, " ").trim();
 		}
 
 		// if the binding value is an Object, just leave it
