@@ -305,16 +305,20 @@ public class RenamePanel extends JComponent {
 			public void actionPerformed(ActionEvent evt) {
 				try {
 					if (namesList.getModel().isEmpty()) {
-						ArrayList<File> files = new ArrayList<File>(renameModel.files());
-						ArrayList<Object> objects = new ArrayList<Object>(files.size());
+						try {
+							getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-						for (File file : files) {
-							Object metaObject = MediaDetection.readMetaInfo(file);
-							objects.add(metaObject != null ? metaObject : file);
+							ArrayList<File> files = new ArrayList<File>(renameModel.files());
+							ArrayList<Object> objects = new ArrayList<Object>(files.size());
+							for (File file : files) {
+								Object metaObject = MediaDetection.readMetaInfo(file);
+								objects.add(metaObject != null ? metaObject : file);
+							}
+							renameModel.clear();
+							renameModel.addAll(objects, files);
+						} finally {
+							getWindow(evt.getSource()).setCursor(Cursor.getDefaultCursor());
 						}
-
-						renameModel.clear();
-						renameModel.addAll(objects, files);
 					} else {
 						int index = namesList.getListComponent().getSelectedIndex();
 						File file = (File) filesList.getListComponent().getModel().getElementAt(index);
