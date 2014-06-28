@@ -28,7 +28,6 @@ import java.util.regex.Pattern;
 
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
-import net.filebot.media.ReleaseInfo;
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
@@ -309,7 +308,6 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by generic name similarity (absolute)
 	SeriesName(new NameSimilarityMetric() {
 
-		private ReleaseInfo releaseInfo = new ReleaseInfo();
 		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ROOT, false);
 
 		@Override
@@ -351,22 +349,32 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (object instanceof Episode) {
 				names = ((Episode) object).getSeries().getEffectiveNames();
 			} else if (object instanceof File) {
+				File file = (File) object;
+
+				// check direct mappings first
+				try {
+					List<String> directMapping = MediaDetection.matchSeriesByDirectMapping(singleton(file));
+					if (directMapping.size() > 0) {
+						return directMapping;
+					}
+				} catch (Exception e) {
+					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+				}
+
+				// guess potential series names from path
 				names = new ArrayList<String>(3);
-				for (File f : listPathTail((File) object, 3, true)) {
+
+				for (File f : listPathTail(file, 3, true)) {
 					String fn = getName(f);
 					String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
-					if (sn != null) {
-						names.add(sn);
-					} else {
-						names.add(fn);
-					}
+					names.add(sn != null ? sn : fn);
 				}
 			}
 
 			// equally strip away strip potential any clutter
 			if (names != null) {
 				try {
-					return releaseInfo.cleanRelease(names, false);
+					return MediaDetection.releaseInfo.cleanRelease(names, false);
 				} catch (NoSuchElementException e) {
 					// keep default value in case all tokens are stripped away
 				} catch (IOException e) {

@@ -181,6 +181,8 @@
 ^TV.Series$
 ^TV.Show$
 ^TV.Shows$
+^tvp
+^tvs
 ^Uncompleted.Downloads$
 ^unsorted$
 ^user$

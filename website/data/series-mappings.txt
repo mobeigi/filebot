@@ -11,9 +11,12 @@ law.and.order.svu	Law & Order: Special Victims Unit
 M.A.S.H	M*A*S*H
 MASH	M*A*S*H
 NCIS.LA	NCIS: Los Angeles
+poid	Person of Interest
 SuiG7p	Suits
 TBBT	The Big Bang Theory
-tvs.got	Game of Thrones
+tv..got	Game of Thrones
+tv..poi	Person of Interest
+tv..shield	Marvel's Agents of S.H.I.E.L.D.
 TWD	The Walking Dead
 UndG7p	Underemployed
 wsop	World Series of Poker
