@@ -308,12 +308,19 @@ public class RenamePanel extends JComponent {
 						try {
 							getWindow(evt.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-							ArrayList<File> files = new ArrayList<File>(renameModel.files());
-							ArrayList<Object> objects = new ArrayList<Object>(files.size());
+							List<File> files = new ArrayList<File>(renameModel.files());
+							List<Object> objects = new ArrayList<Object>(files.size());
+							List<File> objectsTail = new ArrayList<File>();
 							for (File file : files) {
 								Object metaObject = MediaDetection.readMetaInfo(file);
-								objects.add(metaObject != null ? metaObject : file);
+								if (metaObject != null) {
+									objects.add(metaObject); // upper list is based on xattr metadata
+								} else {
+									objectsTail.add(file); // lower list is just the fallback file object
+								}
 							}
+							objects.addAll(objectsTail);
+
 							renameModel.clear();
 							renameModel.addAll(objects, files);
 						} finally {
