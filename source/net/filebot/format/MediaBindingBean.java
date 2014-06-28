@@ -83,6 +83,8 @@ public class MediaBindingBean {
 			return getMovie().getName();
 		if (infoObject instanceof AudioTrack)
 			return getAlbumArtist() != null ? getAlbumArtist() : getArtist();
+		if (infoObject instanceof File)
+			return FileUtilities.getName((File) infoObject);
 
 		return null;
 	}

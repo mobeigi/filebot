@@ -58,7 +58,6 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.format.BindingException;
@@ -78,6 +77,7 @@ import net.filebot.util.ui.notification.SeparatorBorder.Position;
 import net.filebot.web.AudioTrackFormat;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.MovieFormat;
+import net.miginfocom.swing.MigLayout;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -111,13 +111,18 @@ public class FormatDialog extends JDialog {
 	private static final PreferencesEntry<String> persistentSampleFile = Settings.forPackage(FormatDialog.class).entry("format.sample.file");
 
 	public enum Mode {
-		Episode, Movie, Music;
+		Episode, Movie, Music, File;
 
 		public Mode next() {
-			if (ordinal() < values().length - 1)
-				return values()[ordinal() + 1];
-
-			return values()[0];
+			// cycle through Episode -> Movie -> Music (but ignore generic File mode)
+			switch (this) {
+			case Episode:
+				return Movie;
+			case Movie:
+				return Music;
+			default:
+				return Episode;
+			}
 		}
 
 		public String key() {
@@ -130,8 +135,10 @@ public class FormatDialog extends JDialog {
 				return new EpisodeFormat(true, true);
 			case Movie: // case Movie
 				return new MovieFormat(true, true, false);
-			default:
+			case Music:
 				return new AudioTrackFormat();
+			default:
+				return new FileFormat();
 			}
 		}
 

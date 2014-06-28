@@ -46,7 +46,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.History;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -55,6 +54,7 @@ import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
+import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
@@ -71,6 +71,7 @@ import net.filebot.web.MovieFormat;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.SortOrder;
+import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
@@ -90,6 +91,7 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentEpisodeFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.episode");
 	private static final PreferencesEntry<String> persistentMovieFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.movie");
 	private static final PreferencesEntry<String> persistentMusicFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.music");
+	private static final PreferencesEntry<String> persistentFileFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.file");
 
 	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
@@ -102,24 +104,34 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 
-		// filename formatter
-		renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
-
-		// movie formatter
-		renameModel.useFormatter(Movie.class, new MovieFormatter());
-
 		try {
 			// restore custom episode formatter
 			renameModel.useFormatter(Episode.class, new ExpressionFormatter(persistentEpisodeFormat.getValue(), EpisodeFormat.SeasonEpisode, Episode.class));
 		} catch (Exception e) {
-			// illegal format, ignore
+			// use default formatter
 		}
 
 		try {
 			// restore custom movie formatter
 			renameModel.useFormatter(Movie.class, new ExpressionFormatter(persistentMovieFormat.getValue(), MovieFormat.NameYear, Movie.class));
 		} catch (Exception e) {
-			// illegal format, ignore
+			// use default movie formatter
+			renameModel.useFormatter(Movie.class, new MovieFormatter());
+		}
+
+		try {
+			// restore custom music formatter
+			renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(persistentMusicFormat.getValue(), new AudioTrackFormat(), AudioTrack.class));
+		} catch (Exception e) {
+			// use default formatter
+		}
+
+		try {
+			// restore custom music formatter
+			renameModel.useFormatter(File.class, new ExpressionFormatter(persistentFileFormat.getValue(), new FileFormat(), File.class));
+		} catch (Exception e) {
+			// use default filename formatter
+			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		}
 
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
@@ -292,13 +304,26 @@ public class RenamePanel extends JComponent {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				try {
-					int index = namesList.getListComponent().getSelectedIndex();
-					File file = (File) filesList.getListComponent().getModel().getElementAt(index);
-					String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+					if (namesList.getModel().isEmpty()) {
+						ArrayList<File> files = new ArrayList<File>(renameModel.files());
+						ArrayList<Object> objects = new ArrayList<Object>(files.size());
 
-					String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
-					if (forcedName != null && forcedName.length() > 0) {
-						renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+						for (File file : files) {
+							Object metaObject = MediaDetection.readMetaInfo(file);
+							objects.add(metaObject != null ? metaObject : file);
+						}
+
+						renameModel.clear();
+						renameModel.addAll(objects, files);
+					} else {
+						int index = namesList.getListComponent().getSelectedIndex();
+						File file = (File) filesList.getListComponent().getModel().getElementAt(index);
+						String generatedName = namesList.getListComponent().getModel().getElementAt(index).toString();
+
+						String forcedName = showInputDialog("Enter Name:", generatedName, "Enter Name", RenamePanel.this);
+						if (forcedName != null && forcedName.length() > 0) {
+							renameModel.matches().set(index, new Match<Object, File>(forcedName, file));
+						}
 					}
 				} catch (Exception e) {
 					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
@@ -427,8 +452,10 @@ public class RenamePanel extends JComponent {
 				initMode = Mode.Movie;
 			} else if (lockOnBinding.getInfoObject() instanceof AudioTrack) {
 				initMode = Mode.Music;
+			} else if (lockOnBinding.getInfoObject() instanceof File) {
+				initMode = Mode.File;
 			} else {
-				// illegal info object => ignore
+				// ignore objects that cannot be formatted
 				return;
 			}
 		} else {
@@ -458,7 +485,12 @@ public class RenamePanel extends JComponent {
 				renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
 				persistentMusicFormat.setValue(dialog.getFormat().getExpression());
 				break;
+			case File:
+				renameModel.useFormatter(File.class, new ExpressionFormatter(dialog.getFormat().getExpression(), new FileFormat(), File.class));
+				persistentFileFormat.setValue(dialog.getFormat().getExpression());
+				break;
 			}
+
 			if (lockOnBinding == null) {
 				persistentLastFormatState.setValue(dialog.getMode().name());
 			}
