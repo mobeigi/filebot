@@ -1,5 +1,6 @@
 package net.filebot.format;
 
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import groovy.lang.GroovyClassLoader;
@@ -22,8 +23,6 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
-
-import net.filebot.similarity.Normalization;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
@@ -179,10 +178,10 @@ public class ExpressionFormat extends Format {
 		lastException = null;
 
 		StringBuilder sb = new StringBuilder();
-		for (Object snipped : compilation) {
-			if (snipped instanceof CompiledScript) {
+		for (Object snippet : compilation) {
+			if (snippet instanceof CompiledScript) {
 				try {
-					Object value = normalizeExpressionValue(((CompiledScript) snipped).eval(context));
+					CharSequence value = normalizeExpressionValue(((CompiledScript) snippet).eval(context));
 					if (value != null) {
 						sb.append(value);
 					}
@@ -190,11 +189,11 @@ public class ExpressionFormat extends Format {
 					handleException(e);
 				}
 			} else {
-				sb.append(snipped);
+				sb.append(snippet);
 			}
 		}
 
-		return Normalization.replaceSpace(sb.toString(), " ").trim();
+		return normalizeResult(sb);
 	}
 
 	protected Object normalizeBindingValue(Object value) {
@@ -207,8 +206,12 @@ public class ExpressionFormat extends Format {
 		return value;
 	}
 
-	protected Object normalizeExpressionValue(Object value) {
-		return value;
+	protected CharSequence normalizeExpressionValue(Object value) {
+		return value == null ? null : value.toString();
+	}
+
+	protected String normalizeResult(CharSequence value) {
+		return replaceSpace(value.toString(), " ").trim();
 	}
 
 	protected void handleException(ScriptException exception) {
