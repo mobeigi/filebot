@@ -138,7 +138,7 @@ public class FormatDialog extends JDialog {
 			case Music:
 				return new AudioTrackFormat();
 			default:
-				return new FileFormat();
+				return new FileNameFormat();
 			}
 		}
 
