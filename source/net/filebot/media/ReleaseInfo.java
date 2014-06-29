@@ -42,9 +42,24 @@ import org.tukaani.xz.XZInputStream;
 
 public class ReleaseInfo {
 
-	public String getVideoSource(String... strings) {
+	public String getVideoSource(String... input) {
 		// check parent and itself for group names
-		return matchLast(getVideoSourcePattern(), getBundle(getClass().getName()).getString("pattern.video.source").split("[|]"), strings);
+		return matchLast(getVideoSourcePattern(), getBundle(getClass().getName()).getString("pattern.video.source").split("[|]"), input);
+	}
+
+	public List<String> getVideoTags(String... input) {
+		Pattern videoTagPattern = getVideoTagPattern();
+		List<String> tags = new ArrayList<String>();
+		for (String s : input) {
+			if (s == null)
+				continue;
+
+			Matcher m = videoTagPattern.matcher(s);
+			while (m.find()) {
+				tags.add(m.group());
+			}
+		}
+		return tags;
 	}
 
 	public String getReleaseGroup(String... strings) throws IOException {
@@ -240,8 +255,14 @@ public class ReleaseInfo {
 	}
 
 	public Pattern getVideoSourcePattern() {
-		// pattern matching any video source name
+		// pattern matching any video source name, like BluRay
 		String pattern = getBundle(getClass().getName()).getString("pattern.video.source");
+		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+	}
+
+	public Pattern getVideoTagPattern() {
+		// pattern matching any video tag, like Directors Cut
+		String pattern = getBundle(getClass().getName()).getString("pattern.video.tags");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 

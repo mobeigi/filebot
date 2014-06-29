@@ -3,6 +3,7 @@ package net.filebot.format;
 import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.Define.*;
+import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
@@ -424,6 +425,25 @@ public class MediaBindingBean {
 
 		// look for video source patterns in media file and it's parent folder
 		return releaseInfo.getVideoSource(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
+	}
+
+	@Define("tags")
+	public List<String> getVideoTags() {
+		// use inferred media file
+		File inferredMediaFile = getInferredMediaFile();
+
+		// look for video source patterns in media file and it's parent folder
+		List<String> matches = releaseInfo.getVideoTags(inferredMediaFile.getParent(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile));
+		if (matches.isEmpty()) {
+			return null;
+		}
+
+		Set<String> tags = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		for (String m : matches) {
+			// heavy normalization of whatever pattern was matched with the regex pattern
+			tags.add(lowerTrail(upperInitial(normalizePunctuation(normalizeSpace(m, " ")))));
+		}
+		return new ArrayList<String>(tags);
 	}
 
 	@Define("group")
