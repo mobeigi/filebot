@@ -459,6 +459,13 @@ public class MediaBindingBean {
 		titles.add(getName());
 		titles.add(getYear().toString());
 		titles.addAll(getAliasNames());
+		try {
+			for (Episode it : getEpisodes()) {
+				titles.add(it.getTitle());
+			}
+		} catch (Exception e) {
+			// ignore for non-Episode objects
+		}
 		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(titles);
 
 		for (int i = 0; i < filenames.length; i++) {
