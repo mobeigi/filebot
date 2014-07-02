@@ -82,7 +82,7 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 		fireIntervalRemoved(this, convertFavoriteIndexToModel(from), convertFavoriteIndexToModel(to));
 	}
 
-	private class Favorites extends AbstractList<Language> implements Set<Language> {
+	private class Favorites extends AbstractList<Language> {
 
 		private final List<Language> data;
 
