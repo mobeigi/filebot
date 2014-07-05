@@ -88,11 +88,13 @@ public class ExpressionFormatFunctions {
 		return obj;
 	}
 
-	public Map<String, String> csv(String path) throws IOException {
+	public static Map<String, String> csv(String path) throws IOException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		for (String line : Files.readAllLines(Paths.get(path), Charset.forName("UTF-8"))) {
 			String[] field = line.split(";", 2);
-			map.put(field[0], field[1]);
+			if (field.length >= 2) {
+				map.put(field[0], field[1]);
+			}
 		}
 		return map;
 	}
