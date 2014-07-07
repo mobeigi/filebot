@@ -648,6 +648,7 @@
 		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
 			<include name="**/*.html" />
 			<include name="**/*.php" />
+            <include name="**/*.json" />
 			<replacefilter token="@{version}" value="${version}" />
 		</replace>
 

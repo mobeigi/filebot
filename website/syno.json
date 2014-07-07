@@ -1,0 +1,28 @@
+/**
+ * Just add http://packages.filebot.net/syno.json in Package Sources ;)
+ *
+ * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: http://packages.filebot.net/syno.json -> OK
+ */
+[
+    {
+        "dname": "FileBot",
+        "desc": "FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works.",
+        "maintainer": "rednoah",
+        "distributor": "FileBot",
+        "distributor_url": "http://www.filebot.net/",
+        "beta": false,
+        "qinst": true,
+        "qupgrade": true,
+        "qstart": true,
+        "silent_upgrade": true,
+        "icon": "http://i.imgur.com/bxHSJp9.png",
+        "snapshot": [
+            "http://i.imgur.com/FozbUS0.png"
+        ],
+        "package": "filebot",
+        "version": "@{version}",
+        "link": "https://downloads.sourceforge.net/project/filebot/filebot/HEAD/FileBot_4.1.2/filebot-4.1-noarch.spk",
+        "size": "31457280",
+        "md5": "32e87d89c960214a61531ff478f8ecf4"
+    }
+]
