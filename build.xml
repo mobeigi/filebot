@@ -365,6 +365,30 @@
 	</target>
 
 
+	<target name="spk" depends="fatjar" description="Synology NAS package">
+		<taskdef name="spk" classname="net.filebot.ant.spk.SpkTask" classpath="D:\workspace\ant-spk-task\dist\ant-spk.jar" />
+
+		<spk destdir="dist" name="filebot" version="${version}" arch="noarch">
+			<info name="displayname" value="FileBot" />
+			<info name="description" value="FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works." />
+			<info name="maintainer" value="rednoah" />
+			<info name="distributor" value="FileBot" />
+			<info name="distributor_url" value="http://www.filebot.net/" />
+			<info name="support_url" value="http://www.filebot.net/forums/" />
+			<info name="firmware" value="5.0" />
+			<info name="startable" value="no" />
+			<info name="helpurl" value="http://www.filebot.net/cli.html" />
+
+			<icon size="72" file="${dir.installer}/icons/icon72.png" />
+			<icon size="120" file="${dir.installer}/icons/icon120.png" />
+
+			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
+			<package file="${path.fatjar}" fullpath="FileBot.jar" />
+			<scripts dir="${dir.installer}/spk/scripts" filemode="755" />
+		</spk>
+	</target>
+
+
 	<target name="webstart" depends="jar" description="Build and compress jars used for webstart deployment">
 		<!-- create dirs -->
 		<mkdir dir="${dir.dist}/webstart" />
@@ -538,7 +562,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, webstart, login">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, spk, webstart, login">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
@@ -551,6 +575,7 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}-noarch.spk" />
 
 		<!-- deploy fatjar -->
 		<sleep seconds="5" />
@@ -562,6 +587,12 @@
 		<sleep seconds="5" />
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/release" includes="**/*-portable.zip" />
+		</scp>
+
+		<!-- deploy spk packages -->
+		<sleep seconds="5" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
+			<fileset dir="${dir.dist}/release" includes="**/*.spk" />
 		</scp>
 
 		<!-- deploy windows installers -->

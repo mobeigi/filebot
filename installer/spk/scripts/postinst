@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# allow read/write in application home folder
+chown -R admin.users "$SYNOPKG_PKGDEST"
+
+# create /bin symlink
+ln -s -f "$SYNOPKG_PKGDEST/filebot.sh" /usr/syno/bin/filebot
+
+# end
+exit 0
