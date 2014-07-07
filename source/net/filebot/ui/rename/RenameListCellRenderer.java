@@ -20,7 +20,6 @@ import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.MetricCascade;
@@ -31,6 +30,7 @@ import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.web.Episode;
+import net.miginfocom.swing.MigLayout;
 
 class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 
@@ -172,7 +172,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 		for (int i = 0; i < path.size() - 1; i++) {
 			float f = (path.size() <= 2) ? 1 : (float) i / (path.size() - 2);
 			Color c = interpolateHSB(pathRainbowBeginColor, pathRainbowEndColor, f);
-			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(FileUtilities.getName(path.get(i)))));
+			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(FileUtilities.getFolderName(path.get(i)))));
 		}
 
 		// only colorize extension
