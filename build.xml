@@ -644,12 +644,22 @@
 			</fileset>
 		</copy>
 
+		<!-- get MD5 sum for Synology Package -->
+		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
+		<groovy>
+			def releaseFeed = new URL("http://sourceforge.net/projects/filebot/files/filebot/FileBot_${properties['version']}//list")
+			def spk = new groovy.json.JsonSlurper().parse(releaseFeed).find{ it.key.endsWith('.spk') }.value
+			properties['spk.md5'] = spk.md5
+		</groovy>
+		<fail unless="spk.md5" />
+
 		<!-- replace variables for new release -->
 		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
 			<include name="**/*.html" />
 			<include name="**/*.php" />
-            <include name="**/*.json" />
+			<include name="**/*.json" />
 			<replacefilter token="@{version}" value="${version}" />
+			<replacefilter token="@{spk.md5}" value="${spk.md5}" />
 		</replace>
 
 		<!-- upload -->
