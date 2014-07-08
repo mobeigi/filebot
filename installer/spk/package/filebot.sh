@@ -21,6 +21,14 @@ APP_ROOT=`cd "$PRG_DIR" && pwd`
 cd "$WORKING_DIR"
 
 
+# add APP_ROOT to LD_LIBRARY_PATH
+if [ ! -z "$LD_LIBRARY_PATH" ]
+then
+  export LD_LIBRARY_PATH="$APP_ROOT:$LD_LIBRARY_PATH"
+else
+  export LD_LIBRARY_PATH="$APP_ROOT"
+fi
+
 # force JVM language and encoding settings
 export LANG=en_US.utf8
 

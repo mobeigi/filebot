@@ -14,7 +14,9 @@
 		"qinst": true,
 		"qupgrade": true,
 		"qstart": true,
+		"silent_install": true,
 		"silent_upgrade": true,
+		"depsers": "ssh",
 		"icon": "http://i.imgur.com/bxHSJp9.png",
 		"snapshot": [
 			"http://i.imgur.com/FozbUS0.png"
@@ -22,7 +24,7 @@
 		"package": "filebot",
 		"version": "@{version}",
 		"link": "https://downloads.sourceforge.net/project/filebot/filebot/FileBot_@{version}/filebot-@{version}-noarch.spk",
-		"size": "31457280",
+		"size": "52428800",
 		"md5": "@{spk.md5}"
 	}
 ]
