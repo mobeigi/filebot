@@ -697,7 +697,6 @@
 			<fileset dir="${dir.website}">
 				<include name="data/.htaccess" />
 				<include name="data/*.txt" />
-				<include name="*.json" />
 			</fileset>
 		</scp>
 	</target>
