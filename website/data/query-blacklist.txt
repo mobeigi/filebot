@@ -54,6 +54,7 @@
 ^Download$
 ^Downloading$
 ^Downloads$
+^Drama$
 ^Dropbox$
 ^emule$
 ^Entertainment$

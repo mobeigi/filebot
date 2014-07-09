@@ -307,6 +307,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 
 	protected Movie selectMovie(final File movieFile, final String userQuery, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
+		// just auto-pick singleton results
+		if (options.size() == 1) {
+			return options.iterator().next();
+		}
+
 		// 1. movie by filename
 		final String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile);
 
@@ -317,10 +322,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// auto-ignore invalid files
 		if (userQuery == null && fileQuery.length() < 2 && folderQuery.length() < 2) {
 			return null;
-		}
-
-		if (options.size() == 1) {
-			return options.iterator().next();
 		}
 
 		// auto-select perfect match
