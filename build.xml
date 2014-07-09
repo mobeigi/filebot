@@ -218,7 +218,7 @@
 	</target>
 
 
-	<target name="appbundle" depends="fatjar" description="Build an OSX application bundle">
+	<target name="appbundle" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
 		<bundleapp outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
@@ -261,7 +261,7 @@
 	</target>
 
 
-	<target name="ppa-binary" depends="svn-update, fatjar">
+	<target name="ppa-binary" depends="svn-update">
 		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
 			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="amd64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -275,7 +275,7 @@
 	</target>
 
 
-	<target name="deb" depends="fatjar" description="Build debian package for i386 and amd64">
+	<target name="deb" description="Build debian package for i386 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
 		<antcall target="deb-arch">
 			<param name="arch" value="i386" />
@@ -299,7 +299,7 @@
 	</target>
 
 
-	<target name="ipkg" depends="fatjar" description="Build ipkg package for ARM and ATOM">
+	<target name="ipkg" description="Build ipkg package for ARM and ATOM">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
 
 		<antcall target="ipkg-arch">
@@ -323,7 +323,7 @@
 	</target>
 
 
-	<target name="msi" depends="fatjar" description="Build Windows Installer for x86 and x64">
+	<target name="msi" description="Build Windows Installer for x86 and x64">
 		<antcall target="msi-arch">
 			<param name="arch" value="x86" />
 			<param name="libgcc_name" value="mingwm10.dll" />
@@ -351,7 +351,7 @@
 	</target>
 
 
-	<target name="portable" depends="fatjar" description="Portable application package">
+	<target name="portable" description="Portable application package">
 		<mkdir dir="${dir.dist}/portable" />
 		<copy file="${path.fatjar}" tofile="${dir.dist}/portable/FileBot.jar" />
 		<copy todir="${dir.dist}/portable">
@@ -365,7 +365,7 @@
 	</target>
 
 
-	<target name="spk" depends="fatjar" description="Synology NAS package">
+	<target name="spk" description="Synology NAS package">
 		<taskdef name="spk" classname="net.filebot.ant.spk.SpkTask" classpath="${dir.lib}/build/ant-spk.jar" />
 
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
