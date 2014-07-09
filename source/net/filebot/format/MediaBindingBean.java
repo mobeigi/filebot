@@ -385,16 +385,20 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 
 		// try to get checksum from file name
-		String checksum = getEmbeddedChecksum(inferredMediaFile.getName());
-
-		if (checksum != null)
-			return checksum;
+		for (String filename : new String[] { getOriginalFileName(inferredMediaFile), inferredMediaFile.getName() }) {
+			if (filename != null) {
+				String checksum = getEmbeddedChecksum(filename);
+				if (checksum != null) {
+					return checksum;
+				}
+			}
+		}
 
 		// try to get checksum from sfv file
-		checksum = getHashFromVerificationFile(inferredMediaFile, HashType.SFV, 3);
-
-		if (checksum != null)
+		String checksum = getHashFromVerificationFile(inferredMediaFile, HashType.SFV, 3);
+		if (checksum != null) {
 			return checksum;
+		}
 
 		// calculate checksum from file
 		return crc32(inferredMediaFile);
