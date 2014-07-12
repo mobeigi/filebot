@@ -638,9 +638,10 @@
 				<include name="*.js" />
 				<include name="*.png" />
 				<include name="*.ico" />
-				<include name="images/**" />
-				<include name="screenshots/**" />
 				<include name=".htaccess" />
+				<include name="syno/**" />
+				<!-- <include name="images/**" /> -->
+				<!-- <include name="screenshots/**" /> -->
 			</fileset>
 		</copy>
 

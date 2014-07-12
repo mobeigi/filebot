@@ -1,7 +1,7 @@
 /**
- * Just add http://packages.filebot.net/syno.json in Package Sources ;)
+ * Just add http://packages.filebot.net/syno/ in Package Sources ;)
  *
- * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: http://packages.filebot.net/syno.json -> OK
+ * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: http://packages.filebot.net/syno/ -> OK
  */
 [
 	{
@@ -10,9 +10,9 @@
 		"maintainer": "rednoah",
 		"distributor": "FileBot",
 		"distributor_url": "http://www.filebot.net/",
-		"qstart": false,
-		"silent_install": true,
-		"silent_upgrade": true,
+        "qinst": true,
+        "qupgrade": true,
+		"qstart": true,
 		"depsers": "ssh",
 		"icon": "http://i.imgur.com/bxHSJp9.png",
 		"snapshot": [
