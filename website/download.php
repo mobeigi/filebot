@@ -3,11 +3,11 @@ $version = isset($_GET['version']) ? $_GET['version'] : '@{version}'; // default
 $arch = $_GET['arch'];
 $type = $_GET['type'];
 
-$folder = 'http://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version;
+$folder = 'https://sourceforge.net/projects/filebot/files/filebot/FileBot_'.$version;
 $file = 'undefined';
 
 if ($type == 'nsis') {
-	$folder = 'http://sourceforge.net/projects/filebot/files/filebot/HEAD';
+	$folder = 'https://sourceforge.net/projects/filebot/files/filebot/HEAD';
 	$file = 'FileBot-setup.exe';
 } else if ($type == 'msi')
 	$file = 'FileBot_'.$version.'_'.$arch.'.msi';
