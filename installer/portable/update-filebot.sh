@@ -23,4 +23,4 @@ cd "$WORKING_DIR"
 
 JAR_FILE="$APP_ROOT/FileBot.jar"
 echo "Update $JAR_FILE"
-curl -L -o "$JAR_FILE" -z "$JAR_FILE" "http://sourceforge.net/projects/filebot/files/filebot/HEAD/FileBot.jar"
+curl -L -o "$JAR_FILE" -z "$JAR_FILE" "https://downloads.sourceforge.net/project/filebot/filebot/HEAD/FileBot.jar"
