@@ -134,12 +134,13 @@ public class ReleaseInfo {
 				Pattern languageSuffix = getLanguageSuffixPattern(languages, strict);
 				Pattern languageTag = getLanguageTagPattern(languages);
 				Pattern videoSource = getVideoSourcePattern();
+				Pattern videoTags = getVideoTagPattern();
 				Pattern videoFormat = getVideoFormatPattern(strict);
 				Pattern resolution = getResolutionPattern();
 				Pattern queryBlacklist = getBlacklistPattern();
 
-				stopwords = new Pattern[] { languageTag, videoSource, videoFormat, resolution, languageSuffix };
-				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoFormat, resolution, languageSuffix };
+				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, languageSuffix };
+				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, languageSuffix };
 
 				// cache compiled patterns for common usage
 				this.stopwords.put(strict, stopwords);
