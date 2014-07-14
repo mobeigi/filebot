@@ -303,8 +303,6 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 
-	NameBalancer(new MetricCascade(NameSubstringSequence, Name)),
-
 	// Match by generic name similarity (absolute)
 	SeriesName(new NameSimilarityMetric() {
 
@@ -386,6 +384,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return emptyList();
 		}
 	}),
+
+	NameBalancer(new MetricCascade(NameSubstringSequence, Name, SeriesName)),
 
 	// Match by generic name similarity (absolute)
 	AbsolutePath(new NameSimilarityMetric() {
