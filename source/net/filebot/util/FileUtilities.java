@@ -17,11 +17,17 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -58,9 +64,9 @@ public final class FileUtilities {
 		} else {
 			// on Windows ATOMIC_MOVE allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
 			try {
-				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE);
+				Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE);
 			} catch (AtomicMoveNotSupportedException e) {
-				java.nio.file.Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
 
@@ -76,7 +82,7 @@ public final class FileUtilities {
 			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
 		} else {
 			// copy file
-			java.nio.file.Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 
 		return destination;
@@ -114,7 +120,30 @@ public final class FileUtilities {
 		}
 
 		// create symlink via NIO.2
-		return java.nio.file.Files.createSymbolicLink(link.toPath(), target.toPath()).toFile();
+		return Files.createSymbolicLink(link.toPath(), target.toPath()).toFile();
+	}
+
+	public static File createHardLinkStructure(File link, File target) throws IOException {
+		if (target.isFile()) {
+			return Files.createLink(link.toPath(), target.toPath()).toFile();
+		}
+
+		// if the target is a directory, recreate the structure and hardlink each file item
+		final Path source = target.getCanonicalFile().toPath();
+		final Path destination = link.getCanonicalFile().toPath();
+
+		Files.walkFileTree(source, EnumSet.of(FileVisitOption.FOLLOW_LINKS), FILE_WALK_MAX_DEPTH, new SimpleFileVisitor<Path>() {
+
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				Path linkFile = destination.resolve(source.relativize(file));
+				Files.createDirectories(linkFile.getParent());
+				Files.createLink(linkFile, file);
+				return FileVisitResult.CONTINUE;
+			}
+		});
+
+		return destination.toFile();
 	}
 
 	public static boolean delete(File file) {
@@ -391,16 +420,18 @@ public final class FileUtilities {
 		return asList(files);
 	}
 
+	public static final int FILE_WALK_MAX_DEPTH = 32;
+
 	public static List<File> listFiles(File... folders) {
 		return listFiles(asList(folders));
 	}
 
 	public static List<File> listFiles(Iterable<File> folders) {
-		return listFiles(folders, 32, false, true, false);
+		return listFiles(folders, FILE_WALK_MAX_DEPTH, false, true, false);
 	}
 
 	public static List<File> listFolders(Iterable<File> folders) {
-		return listFiles(folders, 32, false, false, true);
+		return listFiles(folders, FILE_WALK_MAX_DEPTH, false, false, true);
 	}
 
 	public static List<File> listFiles(Iterable<File> folders, int maxDepth, boolean addHidden, boolean addFiles, boolean addFolders) {

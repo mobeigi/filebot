@@ -2,6 +2,7 @@ package net.filebot;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import net.filebot.util.FileUtilities;
 
@@ -31,7 +32,7 @@ public enum StandardRenameAction implements RenameAction {
 
 			// move file and the create a symlink to the new location via NIO.2
 			try {
-				java.nio.file.Files.move(from.toPath(), destionation.toPath());
+				Files.move(from.toPath(), destionation.toPath());
 				FileUtilities.createRelativeSymlink(from, destionation, true);
 			} catch (LinkageError e) {
 				throw new Exception("Unsupported Operation: move, createSymbolicLink");
@@ -64,12 +65,10 @@ public enum StandardRenameAction implements RenameAction {
 
 			// create hardlink via NIO.2
 			try {
-				java.nio.file.Files.createLink(destionation.toPath(), from.toPath());
+				return FileUtilities.createHardLinkStructure(destionation, from);
 			} catch (LinkageError e) {
 				throw new Exception("Unsupported Operation: createLink");
 			}
-
-			return destionation;
 		}
 	},
 
