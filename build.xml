@@ -575,7 +575,7 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}-noarch.spk" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot-${version}-noarch.spk" />
 
 		<!-- deploy fatjar -->
 		<sleep seconds="5" />
