@@ -27,7 +27,7 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TVRage, AniDB, TheTVDB] or [OpenSubtitles, IMDb, TheMovieDB]")
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, AniDB, TVRage] or [TheMovieDB, IMDb]")
 	public String db;
 
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
