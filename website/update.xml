@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.1</name>
-	<revision>2245</revision>
+	<name>FileBot 4.2</name>
+	<revision>2321</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.1</b><br>
+		<b>FileBot 4.2</b><br>
 		This release features:<br>
-		+ Fix Windows/Linux/Samba permission issues<br>
-		+ Fix OpenSubtitles Upload/Download issues<br>
 		+ Improved series / movie detection<br>
 		+ Various scripting enhancements<br>
-		+ Support for Java 8<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1688]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1812]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
