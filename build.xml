@@ -256,8 +256,7 @@
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/fpcalc" filemode="755" />
 			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
-
-		<delete dir="${dir.dist}/${title}.app" />
+		<checksum file="${path.appbundle.tar.gz}" algorithm="SHA-256" fileext=".sha256" />
 	</target>
 
 
