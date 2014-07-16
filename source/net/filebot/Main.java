@@ -53,7 +53,6 @@ import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.gio.GVFS;
-import net.filebot.media.MediaDetection;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
@@ -234,11 +233,6 @@ public class Main {
 				} catch (Exception e) {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
 				}
-			}
-
-			// pre-load certain resources in the background
-			if (Boolean.parseBoolean(System.getProperty("application.warmup"))) {
-				MediaDetection.warmupCachedResources();
 			}
 		} catch (Exception e) {
 			// illegal arguments => just print CLI error message and stop
