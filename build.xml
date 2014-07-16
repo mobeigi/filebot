@@ -562,7 +562,7 @@
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, spk, webstart, login">
+	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, spk, login">
 		<mkdir dir="${dir.dist}/release" />
 
 		<!-- prepare release packages -->
@@ -577,51 +577,9 @@
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot-${version}-noarch.spk" />
 
-		<!-- deploy fatjar -->
-		<sleep seconds="5" />
+		<!-- upload to sf -->
 		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.jar" />
-		</scp>
-
-		<!-- deploy portable application package -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*-portable.zip" />
-		</scp>
-
-		<!-- deploy spk packages -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.spk" />
-		</scp>
-
-		<!-- deploy windows installers -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.msi" />
-		</scp>
-
-		<!-- deploy debian packages -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.deb" />
-		</scp>
-
-		<!-- deploy ipkg packages -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.ipk" />
-		</scp>
-
-		<!-- deploy osx app bundle -->
-		<sleep seconds="5" />
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" includes="**/*.app.tar.gz" />
-		</scp>
-
-		<!-- deploy webstart jars and jnlp descriptors -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}/webstart" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/webstart" />
+			<fileset dir="${dir.dist}/release" />
 		</scp>
 	</target>
 
