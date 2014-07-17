@@ -10,7 +10,6 @@ public class FastFile extends File {
 
 	private Long length;
 	private Long lastModified;
-	private Boolean exists;
 	private Boolean isDirectory;
 	private Boolean isFile;
 	private Boolean isHidden;
@@ -29,11 +28,6 @@ public class FastFile extends File {
 	@Override
 	public long length() {
 		return length != null ? length : (length = super.length());
-	}
-
-	@Override
-	public boolean exists() {
-		return exists != null ? exists : (exists = super.exists());
 	}
 
 	@Override
@@ -83,6 +77,11 @@ public class FastFile extends File {
 		}
 
 		return (listFiles = files);
+	}
+
+	@Override
+	public boolean exists() {
+		return true;
 	}
 
 	@Override
