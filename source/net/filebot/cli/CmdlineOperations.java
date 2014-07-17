@@ -50,6 +50,7 @@ import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
 import net.filebot.hash.VerificationFileWriter;
 import net.filebot.media.MediaDetection;
+import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
 import net.filebot.similarity.Match;
@@ -104,6 +105,10 @@ public class CmdlineOperations implements CmdlineInterface {
 			return renameMusic(files, action, conflictAction, outputDir, format, getMusicIdentificationService(db) == null ? AcoustID : getMusicIdentificationService(db));
 		}
 
+		if (XattrMetaData.getName().equalsIgnoreCase(db)) {
+			return renameByMetaData(files, action, conflictAction, outputDir, format, filter, XattrMetaData);
+		}
+
 		// auto-determine mode
 		List<File> mediaFiles = filter(files, VIDEO_FILES, SUBTITLE_FILES);
 		double max = mediaFiles.size();
@@ -153,7 +158,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 		if (mediaFiles.isEmpty()) {
-			throw new Exception("No media files: " + files);
+			throw new CmdlineException("No media files: " + files);
 		}
 
 		// similarity metrics for matching
@@ -185,7 +190,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				if (strict && seriesNames.size() > 1) {
-					throw new Exception("Processing multiple shows at once requires -non-strict");
+					throw new CmdlineException("Processing multiple shows at once requires -non-strict");
 				}
 
 				if (seriesNames.size() == 0) {
@@ -210,7 +215,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		if (matches.isEmpty()) {
-			throw new Exception("Unable to match files to episode data");
+			throw new CmdlineException("Unable to match files to episode data");
 		}
 
 		// handle derived files
@@ -385,7 +390,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			List<Movie> results = service.searchMovie(query, locale);
 			List<Movie> validResults = applyExpressionFilter(results, filter);
 			if (validResults.isEmpty()) {
-				throw new Exception("Unable to find a valid match: " + results);
+				throw new CmdlineException("Unable to find a valid match: " + results);
 			}
 
 			// force all mappings
@@ -404,7 +409,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// sanity check that we have something to do
 		if (fileset.isEmpty() || movieMatchFiles.isEmpty()) {
-			throw new Exception("No media files: " + files);
+			throw new CmdlineException("No media files: " + files);
 		}
 
 		// map movies to (possibly multiple) files (in natural order)
@@ -536,6 +541,26 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
+	public List<File> renameByMetaData(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, ExpressionFilter filter, XattrMetaInfoProvider service) throws Exception {
+		CLILogger.config(format("Rename files using [%s]", service.getName()));
+
+		// force sort order
+		List<File> selection = sortByUniquePath(files);
+		Map<File, File> renameMap = new LinkedHashMap<File, File>();
+
+		for (Entry<File, Object> it : service.getMetaData(selection).entrySet()) {
+			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey(), null);
+
+			if (filter == null || filter.matches(bindingBean)) {
+				String newName = (format != null) ? format.format(bindingBean) : validateFileName(it.getValue().toString());
+				renameMap.put(it.getKey(), getDestinationFile(it.getKey(), newName, outputDir));
+			}
+		}
+
+		// rename files according to xattr metadata objects
+		return renameAll(renameMap, renameAction, conflictAction, null);
+	}
+
 	private Map<File, Object> getContext(final Collection<Match<File, ?>> matches) {
 		return new AbstractMap<File, Object>() {
 
@@ -571,7 +596,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	public List<File> renameAll(Map<File, File> renameMap, RenameAction renameAction, ConflictAction conflictAction, List<Match<File, ?>> matches) throws Exception {
 		if (renameMap.isEmpty()) {
-			throw new Exception("Unable to identify or process any files");
+			throw new CmdlineException("Unable to identify or process any files");
 		}
 
 		// rename files
@@ -591,7 +616,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 					if (!destination.equals(source) && destination.exists()) {
 						if (conflictAction == ConflictAction.FAIL) {
-							throw new Exception("File already exists: " + destination);
+							throw new CmdlineException("File already exists: " + destination);
 						}
 
 						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VIDEO_SIZE_ORDER.compare(source, destination) > 0)) {
@@ -677,7 +702,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), remainingVideos.size()));
 		if (remainingVideos.isEmpty()) {
-			throw new Exception("No video files: " + files);
+			throw new CmdlineException("No video files: " + files);
 		}
 
 		// lookup subtitles by hash
@@ -902,7 +927,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			if (strict) {
-				throw new Exception("Multiple options: Force auto-select requires non-strict matching: " + searchResults);
+				throw new CmdlineException("Multiple options: Force auto-select requires non-strict matching: " + searchResults);
 			}
 
 			// just pick the best 5 matches
@@ -921,7 +946,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		if (language == null) {
 			// unable to lookup language
-			throw new Exception("Illegal language code: " + lang);
+			throw new CmdlineException("Illegal language code: " + lang);
 		}
 
 		return language;
@@ -955,7 +980,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		File[] common = csm.matchFirstCommonSequence(pathArray);
 
 		if (common == null) {
-			throw new Exception("Paths must be on the same filesystem: " + files);
+			throw new CmdlineException("Paths must be on the same filesystem: " + files);
 		}
 
 		// last element in the common sequence must be the root folder
@@ -976,11 +1001,11 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		if (hashType == null) {
-			throw new Exception("Illegal output type: " + output);
+			throw new CmdlineException("Illegal output type: " + output);
 		}
 
 		if (files.isEmpty()) {
-			throw new Exception("No files: " + files);
+			throw new CmdlineException("No files: " + files);
 		}
 
 		CLILogger.info(format("Compute %s hash for %s files [%s]", hashType, files.size(), outputFile));
@@ -994,7 +1019,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// check if type is supported
 		if (type == null) {
-			throw new Exception("Unsupported format: " + verificationFile);
+			throw new CmdlineException("Unsupported format: " + verificationFile);
 		}
 
 		// add all file names from verification file

@@ -111,6 +111,8 @@ public class ArgumentProcessor {
 			// script finished successfully
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
+		} catch (CmdlineException e) {
+			CLILogger.log(Level.WARNING, e.getMessage());
 		} catch (ScriptDeath e) {
 			CLILogger.log(Level.WARNING, e.getMessage(), e.getCause());
 		} catch (Throwable e) {

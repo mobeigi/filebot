@@ -18,6 +18,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
 import net.filebot.web.AnidbSearchResult;
@@ -64,6 +65,7 @@ public final class WebServices {
 	// misc
 	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApplicationProperty("fanart.tv.apikey"));
 	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApplicationProperty("acoustid.apikey"));
+	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
 		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage, Serienjunkies };
@@ -90,7 +92,6 @@ public final class WebServices {
 			if (it.getName().equalsIgnoreCase(name))
 				return it;
 		}
-
 		return null; // default
 	}
 
@@ -99,7 +100,6 @@ public final class WebServices {
 			if (it.getName().equalsIgnoreCase(name))
 				return it;
 		}
-
 		return null; // default
 	}
 
@@ -108,7 +108,6 @@ public final class WebServices {
 			if (it.getName().equalsIgnoreCase(name))
 				return it;
 		}
-
 		return null; // default
 	}
 
