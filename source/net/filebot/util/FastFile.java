@@ -1,6 +1,7 @@
 package net.filebot.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -8,8 +9,14 @@ import java.util.List;
 public class FastFile extends File {
 
 	private Long length;
+	private Long lastModified;
+	private Boolean exists;
 	private Boolean isDirectory;
 	private Boolean isFile;
+	private Boolean isHidden;
+
+	private String[] list;
+	private File[] listFiles;
 
 	public FastFile(String path) {
 		super(path);
@@ -25,6 +32,11 @@ public class FastFile extends File {
 	}
 
 	@Override
+	public boolean exists() {
+		return exists != null ? exists : (exists = super.exists());
+	}
+
+	@Override
 	public boolean isDirectory() {
 		return isDirectory != null ? isDirectory : (isDirectory = super.isDirectory());
 	}
@@ -35,23 +47,154 @@ public class FastFile extends File {
 	}
 
 	@Override
-	public File[] listFiles() {
-		String[] names = list();
-		if (names == null)
-			return null;
+	public boolean isHidden() {
+		return isHidden != null ? isHidden : (isHidden = super.isHidden());
+	}
 
+	@Override
+	public long lastModified() {
+		return lastModified != null ? lastModified : (lastModified = super.lastModified());
+	}
+
+	@Override
+	public String[] list() {
+		if (list != null) {
+			return list;
+		}
+
+		String[] names = super.list();
+		if (names == null) {
+			names = new String[0];
+		}
+
+		return (list = names);
+	}
+
+	@Override
+	public File[] listFiles() {
+		if (listFiles != null) {
+			return listFiles;
+		}
+
+		String[] names = list();
 		File[] files = new File[names.length];
 		for (int i = 0; i < names.length; i++) {
 			files[i] = new FastFile(this, names[i]);
 		}
-		return files;
+
+		return (listFiles = files);
 	}
 
-	public static FastFile get(File file) {
-		return new FastFile(file.getPath());
+	@Override
+	public boolean canRead() {
+		return true;
 	}
 
-	public static List<FastFile> get(Collection<File> files) {
+	@Override
+	public boolean canWrite() {
+		return false;
+	}
+
+	@Override
+	public boolean canExecute() {
+		return false;
+	}
+
+	@Override
+	public boolean createNewFile() throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean delete() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void deleteOnExit() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean mkdir() {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean mkdirs() {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean renameTo(File dest) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setLastModified(long time) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setReadOnly() {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean setWritable(boolean writable, boolean ownerOnly) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setWritable(boolean writable) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setReadable(boolean readable, boolean ownerOnly) {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean setReadable(boolean readable) {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean setExecutable(boolean executable, boolean ownerOnly) {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public boolean setExecutable(boolean executable) {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public long getTotalSpace() {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public long getFreeSpace() {
+		throw new UnsupportedOperationException();
+
+	}
+
+	@Override
+	public long getUsableSpace() {
+		throw new UnsupportedOperationException();
+	}
+
+	public static List<FastFile> create(Collection<File> files) {
 		List<FastFile> result = new ArrayList<FastFile>(files.size());
 
 		for (File file : files) {

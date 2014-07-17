@@ -12,7 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,11 +31,9 @@ import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
-import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -44,6 +42,7 @@ import net.filebot.util.ui.ProgressDialog.Cancellable;
 import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.vfs.FileInfo;
+import net.miginfocom.swing.MigLayout;
 
 class ExtractTool extends Tool<TableModel> {
 
@@ -73,13 +72,12 @@ class ExtractTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
+	protected TableModel createModelInBackground(File root) throws InterruptedException {
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : Collections.emptyList();
+
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
-
 		try {
-			for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
-				File file = iterator.next();
-
+			for (File file : files) {
 				// ignore non-archives files and trailing multi-volume parts
 				if (Archive.VOLUME_ONE_FILTER.accept(file)) {
 					Archive archive = new Archive(file);

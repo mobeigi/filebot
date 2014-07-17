@@ -77,9 +77,10 @@ public class RenameModel extends MatchModel<Object, File> {
 
 		for (int i = 0; i < names.size(); i++) {
 			if (hasComplement(i)) {
-				File originalFile = files().get(i);
-				FormattedFuture formattedFuture = names.get(i);
+				// make sure we're dealing with regular File objects form here on out
+				File originalFile = new File(files().get(i).getPath());
 
+				FormattedFuture formattedFuture = names.get(i);
 				StringBuilder nameBuilder = new StringBuilder();
 
 				// append formatted name, throw exception if not ready

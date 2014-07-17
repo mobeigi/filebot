@@ -1,99 +1,96 @@
-
 package net.filebot.ui.analyze;
 
+import static java.util.Collections.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
-import net.miginfocom.swing.MigLayout;
+import net.filebot.MediaTypes;
+import net.filebot.media.MediaDetection;
 import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.ui.transfer.DefaultTransferHandler;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
-
+import net.miginfocom.swing.MigLayout;
 
 class TypeTool extends Tool<TreeModel> {
-	
+
 	private FileTree tree = new FileTree();
-	
-	
+
 	public TypeTool() {
 		super("Types");
-		
+
 		setLayout(new MigLayout("insets 0, fill"));
-		
+
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
-		
+
 		add(new LoadingOverlayPane(treeScrollPane, this), "grow");
-		
+
 		tree.setTransferHandler(new DefaultTransferHandler(null, new FileTreeExportHandler()));
 		tree.setDragEnabled(true);
 	}
-	
-	
+
 	@Override
-	protected TreeModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
-		Map<String, List<File>> map = new HashMap<String, List<File>>();
-		
-		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
-			File file = iterator.next();
-			
-			String extension = FileUtilities.getExtension(file);
-			if (extension != null) {
-				extension = extension.toLowerCase();
+	protected TreeModel createModelInBackground(File root) throws InterruptedException {
+		List<File> filesAndFolders = (root != null) ? listFiles(singleton(root), FILE_WALK_MAX_DEPTH, false, true, true) : emptyList();
+		List<TreeNode> groups = new ArrayList<TreeNode>();
+
+		for (Entry<String, FileFilter> it : getMetaTypes().entrySet()) {
+			List<File> selection = filter(filesAndFolders, it.getValue());
+			if (selection.size() > 0) {
+				groups.add(createStatisticsNode(it.getKey(), selection));
 			}
-			
-			List<File> files = map.get(extension);
-			if (files == null) {
-				files = new ArrayList<File>(50);
-				map.put(extension, files);
-			}
-			
-			files.add(file);
 		}
-		
-		List<String> keys = new ArrayList<String>(map.keySet());
-		
-		// sort strings like always, handle null as empty string
-		Collections.sort(keys, new Comparator<String>() {
-			
-			@Override
-			public int compare(String s1, String s2) {
-				return ((s1 != null) ? s1 : "").compareTo((s2 != null) ? s2 : "");
-			}
-		});
-		
+
+		SortedMap<String, TreeNode> extensionGroups = new TreeMap<String, TreeNode>(String.CASE_INSENSITIVE_ORDER);
+		for (Entry<String, List<File>> it : mapByExtension(filter(filesAndFolders, FILES)).entrySet()) {
+			if (it.getKey() == null)
+				continue;
+
+			extensionGroups.put(it.getKey(), createStatisticsNode(it.getKey(), it.getValue()));
+		}
+		groups.addAll(extensionGroups.values());
+
 		// create tree model
-		FolderNode root = new FolderNode();
-		
-		for (String key : keys) {
-			root.add(createStatisticsNode(key, map.get(key)));
-			
-			// unwind thread, if we have been cancelled
-			if (Thread.interrupted()) {
-				throw new InterruptedException();
-			}
-		}
-		
-		return new DefaultTreeModel(root);
+		return new DefaultTreeModel(new FolderNode("Types", groups));
 	}
-	
-	
+
+	public Map<String, FileFilter> getMetaTypes() {
+		Map<String, FileFilter> types = new LinkedHashMap<String, FileFilter>();
+		types.put("Video", MediaTypes.VIDEO_FILES);
+		types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
+		types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
+		types.put("Audio", MediaTypes.AUDIO_FILES);
+		types.put("Archive", MediaTypes.ARCHIVE_FILES);
+		types.put("Verification", MediaTypes.VERIFICATION_FILES);
+		try {
+			types.put("Clutter", MediaDetection.getClutterFileFilter());
+		} catch (IOException e) {
+			Logger.getLogger(TypeTool.class.getName()).log(Level.WARNING, e.getMessage());
+		}
+		return types;
+	}
+
 	@Override
 	protected void setModel(TreeModel model) {
 		tree.setModel(model);
 	}
-	
+
 }

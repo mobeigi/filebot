@@ -5,7 +5,7 @@ import static net.filebot.MediaTypes.*;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,13 +16,13 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.media.MetaAttributes;
-import net.filebot.ui.analyze.FileTree.FolderNode;
+import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
 import net.filebot.web.SearchResult;
+import net.miginfocom.swing.MigLayout;
 
 class AttributeTool extends Tool<TableModel> {
 
@@ -44,12 +44,11 @@ class AttributeTool extends Tool<TableModel> {
 	}
 
 	@Override
-	protected TableModel createModelInBackground(FolderNode sourceModel) throws InterruptedException {
+	protected TableModel createModelInBackground(File root) throws InterruptedException {
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : Collections.emptyList();
+
 		FileAttributesTableModel model = new FileAttributesTableModel();
-
-		for (Iterator<File> iterator = sourceModel.fileIterator(); iterator.hasNext();) {
-			File file = iterator.next();
-
+		for (File file : files) {
 			if (VIDEO_FILES.accept(file)) {
 				try {
 					MetaAttributes attributes = new MetaAttributes(file);

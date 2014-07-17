@@ -93,7 +93,7 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			}
 		}
 
-		model.addAll(FastFile.get(entries));
+		model.addAll(FastFile.create(entries));
 	}
 
 	@Override

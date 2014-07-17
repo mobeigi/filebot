@@ -4,17 +4,21 @@ import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
-import net.filebot.ui.analyze.FileTree.AbstractTreeNode;
+import javax.swing.tree.TreeNode;
+
 import net.filebot.ui.analyze.FileTree.FileNode;
 import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;
 
-class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<AbstractTreeNode> {
+class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNode> {
 
 	private final FileTree tree;
 
@@ -30,18 +34,12 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	@Override
 	protected void clear() {
 		super.clear();
-
 		tree.clear();
 	}
 
 	@Override
-	protected void process(List<AbstractTreeNode> chunks) {
-		FolderNode root = tree.getRoot();
-
-		for (AbstractTreeNode node : chunks) {
-			root.add(node);
-		}
-
+	protected void process(List<TreeNode> root) {
+		tree.getModel().setRoot(root.get(0));
 		tree.getModel().reload();
 	}
 
@@ -53,40 +51,39 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 	@Override
 	protected void load(List<File> files) {
 		try {
-			for (File file : files) {
-				// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
-				AbstractTreeNode node = getTreeNode(new FastFile(file.getPath()));
-
-				// publish on EDT
-				publish(node);
+			if (files.size() > 1 || containsOnly(files, FILES)) {
+				files = Arrays.asList(files.get(0).getParentFile());
 			}
+
+			// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
+			FastFile root = FastFile.create(filter(files, FOLDERS)).get(0);
+
+			// publish on EDT
+			publish(getTreeNode(root));
 		} catch (InterruptedException e) {
 			// supposed to happen if background execution was aborted
 		}
 	}
 
-	private AbstractTreeNode getTreeNode(File file) throws InterruptedException {
-		if (Thread.interrupted())
+	private TreeNode getTreeNode(File file) throws InterruptedException {
+		if (Thread.interrupted()) {
 			throw new InterruptedException();
+		}
 
 		if (file.isDirectory()) {
-			List<File> files = getChildren(file);
-			FolderNode node = new FolderNode(getFolderName(file), files.size());
+			LinkedList<TreeNode> children = new LinkedList<TreeNode>();
+			for (File f : getChildren(file)) {
+				if (f.isHidden())
+					continue;
 
-			// add folders first
-			for (File f : files) {
 				if (f.isDirectory()) {
-					node.add(getTreeNode(f));
+					children.addFirst(getTreeNode(f));
+				} else {
+					children.addLast(getTreeNode(f));
 				}
 			}
 
-			for (File f : files) {
-				if (f.isFile()) {
-					node.add(getTreeNode(f));
-				}
-			}
-
-			return node;
+			return new FolderNode(file, getFolderName(file), new ArrayList<TreeNode>(children));
 		}
 
 		return new FileNode(file);
@@ -94,7 +91,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<Abstra
 
 	@Override
 	public String getFileFilterDescription() {
-		return "files and folders";
+		return "folders";
 	}
 
 }

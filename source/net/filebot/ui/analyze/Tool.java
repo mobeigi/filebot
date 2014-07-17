@@ -1,8 +1,8 @@
-
 package net.filebot.ui.analyze;
 
-
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.logging.Level;
@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.SwingWorker;
+import javax.swing.tree.TreeNode;
 
 import net.filebot.ui.analyze.FileTree.FileNode;
 import net.filebot.ui.analyze.FileTree.FolderNode;
@@ -17,63 +18,63 @@ import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 
+import org.apache.commons.io.FileUtils;
 
 abstract class Tool<M> extends JComponent {
-	
+
 	private UpdateModelTask updateTask = null;
-	
-	
+	private File root = null;
+
 	public Tool(String name) {
 		setName(name);
 	}
-	
-	
-	public void setSourceModel(FolderNode sourceModel) {
+
+	public File getRoot() {
+		return root;
+	}
+
+	public void updateRoot(File root) {
+		this.root = root;
+
 		if (updateTask != null) {
 			updateTask.cancel(true);
 		}
-		
+
 		Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, false, true);
-		updateTask = new UpdateModelTask(sourceModel);
+		updateTask = new UpdateModelTask(root);
 		updateTask.execute();
 	}
-	
-	
-	protected abstract M createModelInBackground(FolderNode sourceModel) throws InterruptedException;
-	
-	
+
+	protected abstract M createModelInBackground(File root) throws InterruptedException;
+
 	protected abstract void setModel(M model);
-	
-	
+
 	private class UpdateModelTask extends SwingWorker<M, Void> {
-		
-		private final FolderNode sourceModel;
-		
-		
-		public UpdateModelTask(FolderNode sourceModel) {
-			this.sourceModel = sourceModel;
+
+		private final File root;
+
+		public UpdateModelTask(File root) {
+			this.root = root;
 		}
-		
-		
+
 		@Override
 		protected M doInBackground() throws Exception {
-			return createModelInBackground(sourceModel);
+			return createModelInBackground(root);
 		}
-		
-		
+
 		@Override
 		protected void done() {
 			if (this == updateTask) {
 				Tool.this.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, true, false);
 			}
-			
+
 			// update task will only be cancelled if a newer update task has been started
 			if (this == updateTask && !isCancelled()) {
 				try {
 					setModel(get());
 				} catch (Exception e) {
 					Throwable cause = ExceptionUtilities.getRootCause(e);
-					
+
 					if (cause instanceof ConcurrentModificationException || cause instanceof InterruptedException) {
 						// if it happens, it is supposed to
 					} else {
@@ -84,25 +85,28 @@ abstract class Tool<M> extends JComponent {
 			}
 		}
 	}
-	
-	
-	protected FolderNode createStatisticsNode(String name, List<File> files) {
-		FolderNode folder = new FolderNode(null, files.size());
-		
-		long totalSize = 0;
-		
-		for (File file : files) {
-			folder.add(new FileNode(file));
-			totalSize += file.length();
+
+	protected List<TreeNode> createFileNodes(Collection<File> files) {
+		List<TreeNode> nodes = new ArrayList<TreeNode>(files.size());
+		for (File f : files) {
+			nodes.add(new FileNode(f));
 		}
-		
-		// format the number of files string (e.g. 1 file, 2 files, ...)
-		String numberOfFiles = String.format("%,d %s", files.size(), files.size() == 1 ? "file" : "files");
-		
-		// set node text (e.g. txt (1 file, 42 Byte))
-		folder.setTitle(String.format("%s (%s, %s)", name, numberOfFiles, FileUtilities.formatSize(totalSize)));
-		
-		return folder;
+		return nodes;
 	}
-	
+
+	protected FolderNode createStatisticsNode(String name, List<File> files) {
+		long totalCount = 0;
+		long totalSize = 0;
+
+		for (File f : files) {
+			totalCount += FileUtilities.listFiles(f).size();
+			totalSize += FileUtils.sizeOf(f);
+		}
+
+		// set node text (e.g. txt (1 file, 42 Byte))
+		String title = String.format("%s (%,d %s, %s)", name, totalCount, totalCount == 1 ? "file" : "files", FileUtilities.formatSize(totalSize));
+
+		return new FolderNode(null, title, createFileNodes(files));
+	}
+
 }

@@ -42,7 +42,7 @@ public class AnalyzePanel extends JComponent {
 			// stopped loading, refresh tools
 			for (int i = 0; i < toolsPanel.getTabCount(); i++) {
 				Tool<?> tool = (Tool<?>) toolsPanel.getComponentAt(i);
-				tool.setSourceModel(fileTreePanel.getFileTree().getRoot());
+				tool.updateRoot(fileTreePanel.getFileTree().getRoot().getFile());
 			}
 		}
 	};
