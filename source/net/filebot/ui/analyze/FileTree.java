@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -250,7 +251,7 @@ public class FileTree extends JTree {
 		 * Creates a root node (no parent, no title, empty list of children)
 		 */
 		public FolderNode() {
-			this(null, "", emptyList());
+			this(null, "", new ArrayList<TreeNode>(0));
 		}
 
 		public FolderNode(String title, List<TreeNode> children) {

@@ -12,7 +12,6 @@ import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +72,7 @@ class ExtractTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : Collections.emptyList();
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>(0);
 
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 		try {

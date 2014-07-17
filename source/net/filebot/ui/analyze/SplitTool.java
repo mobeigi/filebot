@@ -3,7 +3,6 @@ package net.filebot.ui.analyze;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -71,7 +70,7 @@ class SplitTool extends Tool<TreeModel> {
 		int nextPart = 1;
 		long splitSize = getSplitSize();
 
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : Collections.emptyList();
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>(0);
 
 		List<TreeNode> rootGroup = new ArrayList<TreeNode>();
 		List<File> currentPart = new ArrayList<File>();

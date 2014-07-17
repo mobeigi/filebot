@@ -5,7 +5,6 @@ import static net.filebot.MediaTypes.*;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +44,7 @@ class AttributeTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : Collections.emptyList();
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>(0);
 
 		FileAttributesTableModel model = new FileAttributesTableModel();
 		for (File file : files) {
