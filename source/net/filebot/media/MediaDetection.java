@@ -1371,6 +1371,21 @@ public class MediaDetection {
 		}
 	};
 
+	public static List<File> getMediaUnits(File folder) {
+		if (folder.isHidden()) {
+			return emptyList();
+		}
+
+		if (folder.isDirectory() && !isDiskFolder(folder)) {
+			List<File> children = new ArrayList<File>();
+			for (File f : getChildren(folder)) {
+				children.addAll(getMediaUnits(f));
+			}
+		}
+
+		return singletonList(folder);
+	}
+
 	public static Object readMetaInfo(File file) {
 		if (useExtendedFileAttributes()) {
 			try {
