@@ -1441,7 +1441,7 @@ public class MediaDetection {
 					}
 				}
 			} catch (Throwable t) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).warning(t.toString());
+				Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Unable to store xattr: " + t.getMessage());
 			}
 		}
 	}
