@@ -1,7 +1,6 @@
 package net.filebot;
 
-import static java.nio.file.Files.isSymbolicLink;
-import static java.nio.file.Files.readSymbolicLink;
+import static java.nio.file.Files.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,7 +94,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				}
 			}
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw new RuntimeException(e);
 		}
 
 		return null; // since we don't know the old value
@@ -124,7 +123,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			}
 			return entries;
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -135,7 +134,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 				this.put(key, null);
 			}
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw new RuntimeException(e);
 		}
 	}
 

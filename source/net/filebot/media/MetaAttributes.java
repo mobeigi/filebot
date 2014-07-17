@@ -47,16 +47,16 @@ public class MetaAttributes {
 	public void setObject(Object object) {
 		try {
 			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object));
-		} catch (Exception e) {
-			throw new RuntimeException(e); // unlikely to ever happen JSON serialization issues
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	public Object getObject() {
 		try {
 			return JsonReader.jsonToJava(metaAttributeView.get(METADATA_KEY));
-		} catch (Exception e) {
-			return null; // ignore JSON serialization issues
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
