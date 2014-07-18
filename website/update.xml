@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
 	<name>FileBot 4.2</name>
-	<revision>2321</revision>
+	<revision>2326</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
 		<b>FileBot 4.2</b><br>
 		This release features:<br>
 		+ Improved series / movie detection<br>
 		+ Various scripting enhancements<br>
+		+ Fixed various regression issues<br>
 	<html>]]></message>
 	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1812]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
