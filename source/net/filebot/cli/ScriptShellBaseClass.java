@@ -119,7 +119,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public void printException(Throwable t) {
-		CLILogger.severe(String.format("%s: %s", t.getClass().getName(), t.getMessage()));
+		CLILogger.severe(String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
 
 		// DEBUG
 		// StackTraceUtils.deepSanitize(t).printStackTrace();
