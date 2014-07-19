@@ -277,7 +277,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			String input = inputMemory.get(suggestion);
 			if (input == null || suggestion == null || suggestion.isEmpty()) {
 				File movieFolder = guessMovieFolder(movieFile);
-				input = showInputDialog("Enter movie name:", suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
+				input = showInputDialog(getQueryInputMessage(movieFile), suggestion != null && suggestion.length() > 0 ? suggestion : getName(movieFile), movieFolder == null ? movieFile.getName() : String.format("%s/%s", movieFolder.getName(), movieFile.getName()), parent);
 				inputMemory.put(suggestion, input);
 			}
 
@@ -290,6 +290,28 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 
 		return options.isEmpty() ? null : selectMovie(movieFile, null, options, memory, parent);
+	}
+
+	protected String getQueryInputMessage(File file) throws Exception {
+		File path = getStructurePathTail(file);
+		if (path == null) {
+			path = getRelativePathTail(file, 3);
+		}
+
+		StringBuilder html = new StringBuilder(512);
+		html.append("<html>");
+		html.append("Unable to identify the following files:").append("<br>");
+
+		html.append("<nobr>");
+		html.append("• ");
+		new TextColorizer().colorizePath(html, path, file.isFile());
+		html.append("</nobr>");
+		html.append("<br>");
+
+		html.append("<br>");
+		html.append("Please enter movie name:");
+		html.append("</html>");
+		return html.toString();
 	}
 
 	protected String checkedStripReleaseInfo(File file) throws Exception {

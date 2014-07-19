@@ -278,16 +278,16 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, ", ") : parentPathHint;
 
-			List<String> input = emptyList();
+			List<String> input;
 			synchronized (inputMemory) {
 				input = inputMemory.get(suggestion);
 				if (input == null || suggestion == null || suggestion.isEmpty()) {
-					input = showMultiValueInputDialog("Enter series name:", suggestion, parentPathHint, parent);
+					input = showMultiValueInputDialog(getQueryInputMessage(files), suggestion, parentPathHint, parent);
 					inputMemory.put(suggestion, input);
 				}
 			}
 
-			if (input.size() > 0) {
+			if (input != null && input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
 					episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), parent);
@@ -309,14 +309,39 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		return matches;
 	}
 
+	protected String getQueryInputMessage(List<File> files) throws Exception {
+		StringBuilder html = new StringBuilder(512);
+		html.append("<html>");
+		html.append("Unable to identify the following files:").append("<br>");
+
+		for (File file : sortByUniquePath(files)) {
+			html.append("<nobr>");
+			html.append("• ");
+
+			File path = getStructurePathTail(file);
+			if (path == null) {
+				path = getRelativePathTail(file, 3);
+			}
+
+			new TextColorizer().colorizePath(html, path, true);
+			html.append("</nobr>");
+			html.append("<br>");
+		}
+
+		html.append("<br>");
+		html.append("Please enter series name:");
+		html.append("</html>");
+		return html.toString();
+	}
+
 	public List<Match<File, ?>> justFetchEpisodeList(final SortOrder sortOrder, final Locale locale, final Component parent) throws Exception {
 		// require user input
-		String input = showInputDialog("Enter series name:", "", "Fetch Episode List", parent);
+		List<String> input = showMultiValueInputDialog("Enter series name:", "", "Fetch Episode List", parent);
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
-		if (input != null && input.length() > 0) {
+		if (input.size() > 0) {
 			synchronized (providerLock) {
-				Set<Episode> episodes = fetchEpisodeSet(singleton(input), sortOrder, locale, new HashMap<String, SearchResult>(), parent);
+				Set<Episode> episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), parent);
 				for (Episode it : episodes) {
 					matches.add(new Match<File, Episode>(null, it));
 				}

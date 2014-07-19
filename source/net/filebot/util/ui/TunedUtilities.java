@@ -135,8 +135,8 @@ public final class TunedUtilities {
 		return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
 	}
 
-	public static List<String> showMultiValueInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
-		String input = showInputDialog(text, initialValue, title, parent);
+	public static List<String> showMultiValueInputDialog(final Object message, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
+		String input = showInputDialog(message, initialValue, title, parent);
 		if (input == null || input.isEmpty()) {
 			return emptyList();
 		}
@@ -161,14 +161,14 @@ public final class TunedUtilities {
 		return singletonList(input);
 	}
 
-	public static String showInputDialog(final String text, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
+	public static String showInputDialog(final Object message, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
 		final StringBuilder buffer = new StringBuilder();
 
 		Runnable runnable = new Runnable() {
 
 			@Override
 			public void run() {
-				Object value = JOptionPane.showInputDialog(parent, text, title, PLAIN_MESSAGE, null, null, initialValue);
+				Object value = JOptionPane.showInputDialog(parent, message, title, PLAIN_MESSAGE, null, null, initialValue);
 				if (value != null) {
 					buffer.append(value.toString().trim());
 				}

@@ -13,7 +13,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
-import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
@@ -44,8 +43,7 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	private Color warningGradientBeginColor = Color.RED;
 	private Color warningGradientEndColor = new Color(0xDC143C);
 
-	private Color pathRainbowBeginColor = new Color(0xCC3300);
-	private Color pathRainbowEndColor = new Color(0x008080);
+	private TextColorizer textColorizer = new TextColorizer();
 
 	public RenameListCellRenderer(RenameModel renameModel) {
 		super(new Insets(4, 7, 4, 7));
@@ -164,29 +162,11 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 
 	protected String colorizePath(File file, boolean hasExtension) {
-		List<File> path = listPath(file);
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html><nobr>");
-
-		// colorize parent path
-		for (int i = 0; i < path.size() - 1; i++) {
-			float f = (path.size() <= 2) ? 1 : (float) i / (path.size() - 2);
-			Color c = interpolateHSB(pathRainbowBeginColor, pathRainbowEndColor, f);
-			html.append(String.format("<span style='color:rgb(%1$d, %2$d, %3$d)'>%4$s</span><span style='color:rgb(%1$d, %2$d, %3$d)'>/</span>", c.getRed(), c.getGreen(), c.getBlue(), escapeHTML(FileUtilities.getFolderName(path.get(i)))));
-		}
-
-		// only colorize extension
-		if (hasExtension) {
-			html.append(escapeHTML(FileUtilities.getName(file)));
-			String extension = FileUtilities.getExtension(file);
-			if (extension != null) {
-				html.append(String.format("<span style='color:#607080'>.%s</span>", escapeHTML(extension))); // highlight extension
-			}
-		} else {
-			html.append(file.getName());
-		}
-
-		return html.append("</nobr></html>").toString();
+		textColorizer.colorizePath(html, file, hasExtension);
+		html.append("</nobr></html>");
+		return html.toString();
 	}
 
 	protected File resolveAbsolutePath(File targetDir, String path, String extension) {
