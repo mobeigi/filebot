@@ -54,10 +54,14 @@ public class MetaAttributes {
 
 	public Object getObject() {
 		try {
-			return JsonReader.jsonToJava(metaAttributeView.get(METADATA_KEY));
+			String jsonObject = metaAttributeView.get(METADATA_KEY);
+			if (jsonObject != null && jsonObject.length() > 0) {
+				return JsonReader.jsonToJava(jsonObject);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		return null;
 	}
 
 	public void clear() {
