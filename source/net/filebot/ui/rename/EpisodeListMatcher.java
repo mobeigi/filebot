@@ -276,7 +276,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		if (episodes.isEmpty()) {
 			List<String> detectedSeriesNames = detectSeriesNames(files, useSeriesIndex, useAnimeIndex, locale);
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
-			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, ", ") : parentPathHint;
+			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, "; ") : parentPathHint;
 
 			List<String> input;
 			synchronized (inputMemory) {
