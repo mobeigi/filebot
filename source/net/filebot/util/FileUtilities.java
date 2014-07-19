@@ -37,6 +37,8 @@ import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,16 +63,21 @@ public final class FileUtilities {
 		if (source.isDirectory()) {
 			// move folder
 			org.apache.commons.io.FileUtils.moveDirectory(source, destination);
-		} else {
-			// on Windows ATOMIC_MOVE allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
+			return destination;
+		}
+
+		// on Windows, use ATOMIC_MOVE which allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
+		// but ATOMIC_MOVE can only work for files on the same drive, if that is not the case there is no point trying move with ATOMIC_MOVE
+		if (File.separator.equals("\\") && source.equals(destination) && Files.isSameFile(source.toPath().getRoot(), destination.toPath().getRoot())) {
 			try {
-				Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE);
+				return Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE).toFile();
 			} catch (AtomicMoveNotSupportedException e) {
-				Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				Logger.getLogger(FileUtilities.class.getName()).log(Level.WARNING, e.toString());
 			}
 		}
 
-		return destination;
+		// Linux and Mac OS X
+		return Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
 	}
 
 	public static File copyAs(File source, File destination) throws IOException {
@@ -80,12 +87,11 @@ public final class FileUtilities {
 		if (source.isDirectory()) {
 			// copy folder
 			org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-		} else {
-			// copy file
-			Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			return destination;
 		}
 
-		return destination;
+		// copy file
+		return Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
 	}
 
 	public static File resolveDestination(File source, File destination, boolean mkdirs) throws IOException {
