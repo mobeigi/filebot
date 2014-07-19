@@ -310,11 +310,24 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	protected String getQueryInputMessage(List<File> files) throws Exception {
+		int limit = 20;
+		List<File> selection = new ArrayList<File>(files);
+		if (selection.size() > limit) {
+			sort(selection, new Comparator<File>() {
+
+				@Override
+				public int compare(File o1, File o2) {
+					return Long.compare(o2.length(), o1.length());
+				}
+			});
+			selection = selection.subList(0, limit);
+		}
+
 		StringBuilder html = new StringBuilder(512);
 		html.append("<html>");
 		html.append("Unable to identify the following files:").append("<br>");
 
-		for (File file : sortByUniquePath(files)) {
+		for (File file : sortByUniquePath(selection)) {
 			html.append("<nobr>");
 			html.append("• ");
 
@@ -326,6 +339,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			new TextColorizer().colorizePath(html, path, true);
 			html.append("</nobr>");
 			html.append("<br>");
+		}
+
+		if (selection.size() < files.size()) {
+			html.append("• ").append("…").append("<br>");
 		}
 
 		html.append("<br>");
