@@ -68,7 +68,7 @@ public final class FileUtilities {
 
 		// on Windows, use ATOMIC_MOVE which allows us to rename files even if only lower/upper-case changes (without ATOMIC_MOVE the operation would be ignored)
 		// but ATOMIC_MOVE can only work for files on the same drive, if that is not the case there is no point trying move with ATOMIC_MOVE
-		if (File.separator.equals("\\") && source.equals(destination) && Files.isSameFile(source.toPath().getRoot(), destination.toPath().getRoot())) {
+		if (File.separator.equals("\\") && source.equals(destination)) {
 			try {
 				return Files.move(source.toPath(), destination.toPath(), StandardCopyOption.ATOMIC_MOVE).toFile();
 			} catch (AtomicMoveNotSupportedException e) {
