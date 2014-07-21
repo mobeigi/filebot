@@ -204,6 +204,17 @@ public class SeriesNameMatcher {
 		return null;
 	}
 
+	public String matchBySeparator(String name) {
+		Pattern separator = Pattern.compile("[\\s]+[-]+[\\s]+");
+
+		Matcher matcher = separator.matcher(name);
+		if (matcher.find() && matcher.start() > 0) {
+			return normalizePunctuation(name.substring(0, matcher.start()));
+		}
+
+		return null;
+	}
+
 	/**
 	 * Try to match a series name from the first common word sequence.
 	 * 

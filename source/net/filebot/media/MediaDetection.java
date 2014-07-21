@@ -394,6 +394,15 @@ public class MediaDetection {
 						for (File path : listPathTail(f, 2, true)) {
 							String sn = seriesNameMatcher.matchByEpisodeIdentifier(getName(path));
 							if (sn != null && sn.length() > 0) {
+								// try simplification by separator (for name - title naming style)
+								if (!strict) {
+									String snbs = seriesNameMatcher.matchBySeparator(getName(path));
+									if (snbs != null && snbs.length() > 0) {
+										if (snbs.length() < sn.length()) {
+											sn = snbs;
+										}
+									}
+								}
 								matches.add(sn);
 								break;
 							}
