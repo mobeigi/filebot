@@ -147,27 +147,8 @@
 						<strong>FileBot</strong> is the ultimate tool for organizing and renaming your movies, tv shows or anime, and music well as downloading subtitles and artwork. It's smart and just works.
 					</p>
 				</div>
-
-<!--				
-				<div id="webstart" class="section deployment webstart" style="display:none">
-					<script type="text/javascript">
-						$(document).ready(function () {
-							if (navigator.userAgent.indexOf('Ubuntu') < 0 && navigator.userAgent.indexOf('Mac') < 0 && deployJava.isWebStartInstalled('1.7')) {
-								$("#webstart").show();
-							}
-						});
-					</script>
-					<p>
-						FileBot can be launched via Java Web Start. No manual download or installation required.
-					</p>
-					<div class="webstart button">
-						<a onclick="_gaq.push(['_trackPageview', '/webstart/filebot.jnlp']); return deployJava.launchWebStartApplication('webstart/filebot.jnlp') == false ? true : false" href="http://www.filebot.net/webstart/filebot.jnlp">
-							<img alt="Launch" title="Launch via Java Web Start" border="0" src="images/webstart.png" />
-						</a>
-					</div>
-				</div>
--->				
 				
+				<!--
 				<div id="ubuntu" class="section deployment ubuntu" style="display:none">
 					<script type="text/javascript">
 						$(document).ready(function () {
@@ -185,6 +166,7 @@
 						</a>
 					</div>
 				</div>
+				-->
 				
 				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
 				<div class="thumbs up">
@@ -341,7 +323,9 @@
 					<span class="quote">Today is the day</span>
 					<h2>Download</h2>
 					<ul class="list">
+						<!--
 						<li class="ubuntu">Ubuntu App is available in the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li>
+						-->
 						<li>Windows installer: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_setup.exe'])" target="_blank" href="download.php?mode=s&amp;type=nsis">FileBot_@{version}-setup.exe</a></li>
 						<li>Mac OS X app bundle: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.app'])" target="_blank" href="download.php?mode=s&amp;type=app">FileBot_@{version}.app</a></li>
 						<li>Debian packages: <a onclick="_gaq.push(['_trackPageview', '/download/filebot_i386.deb'])" target="_blank" href="download.php?mode=s&amp;type=deb&amp;arch=i386">filebot_@{version}_i386.deb</a> or <a onclick="_gaq.push(['_trackPageview', '/download/filebot_amd64.deb'])" target="_blank" href="download.php?mode=s&amp;type=deb&amp;arch=amd64">filebot_@{version}_amd64.deb</a></li>
