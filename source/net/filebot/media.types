@@ -25,6 +25,10 @@
 		<extension>sha1</extension>
 		<extension>sha</extension>
 	</type>
+	<type name="verification/sha256sum">
+		<extension>sha256</extension>
+		<extension>sha2</extension>
+	</type>
 	<type name="verification/ed2k">
 		<extension>ed2k</extension>
 	</type>
