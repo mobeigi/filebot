@@ -91,7 +91,12 @@ public class FileTransferable implements Transferable {
 	public static List<File> getFilesFromTransferable(Transferable tr) throws IOException, UnsupportedFlavorException {
 		if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor) && !useGVFS()) {
 			// file list flavor
-			return sortByUniquePath((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)); // FORCE NATURAL FILE ORDER
+			Object transferable = tr.getTransferData(DataFlavor.javaFileListFlavor);
+			if (transferable instanceof List) {
+				return sortByUniquePath((List<File>) transferable); // FORCE NATURAL FILE ORDER
+			} else {
+				return new ArrayList<File>(0);
+			}
 		}
 
 		if (tr.isDataFlavorSupported(FileTransferable.uriListFlavor)) {
