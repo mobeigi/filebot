@@ -203,21 +203,6 @@ public class FormatDialog extends JDialog {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				// set size after initial sample evaluations
-				invokeLater(400, new Runnable() {
-
-					@Override
-					public void run() {
-						FormatDialog.this.pack();
-					}
-				});
-			}
-		});
-
-		addPropertyChangeListener("sample", new PropertyChangeListener() {
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
 				checkFormatInBackground();
 			}
 		});
@@ -415,7 +400,7 @@ public class FormatDialog extends JDialog {
 
 			panel.add(formatLink);
 			panel.add(new JLabel("…"));
-			panel.add(formatExample);
+			panel.add(formatExample, "wmin 150px");
 		}
 
 		return panel;
