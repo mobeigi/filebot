@@ -141,7 +141,11 @@ public class SerienjunkiesClient extends AbstractEpisodeListProvider {
 				title = "";
 			}
 
-			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, airdate, searchResult));
+			// additional metadata
+			SortOrder order = SortOrder.Airdate;
+			Locale language = Locale.GERMAN.equals(locale) ? Locale.GERMAN : Locale.ENGLISH;
+
+			episodes.add(new Episode(seriesName, series.getStartDate(), season, episode, title, i + 1, null, order, language, airdate, searchResult));
 		}
 
 		// make sure episodes are in ordered correctly

@@ -3,41 +3,46 @@ package net.filebot.web;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class Episode implements Serializable {
 
-	private String seriesName;
-	private SimpleDate seriesStartDate;
+	protected String seriesName;
+	protected SimpleDate seriesStartDate;
 
-	private Integer season;
-	private Integer episode;
-	private String title;
+	protected Integer season;
+	protected Integer episode;
+	protected String title;
 
 	// absolute episode number
-	private Integer absolute;
+	protected Integer absolute;
 
 	// special number
-	private Integer special;
+	protected Integer special;
+
+	// optional episode number order hint & episode name / title language hint
+	protected String order;
+	protected String language;
 
 	// episode airdate
-	private SimpleDate airdate;
+	protected SimpleDate airdate;
 
 	// original series descriptor
-	private SearchResult series;
+	protected SearchResult series;
 
 	protected Episode() {
 		// used by serializer
 	}
 
 	public Episode(Episode obj) {
-		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.series);
+		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.getOrder(), obj.getLanguage(), obj.airdate, obj.series);
 	}
 
 	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, SearchResult series) {
-		this(seriesName, seriesStartDate, season, episode, title, null, null, null, series);
+		this(seriesName, seriesStartDate, season, episode, title, null, null, null, null, null, series);
 	}
 
-	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, SimpleDate airdate, SearchResult series) {
+	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, SortOrder order, Locale locale, SimpleDate airdate, SearchResult series) {
 		this.seriesName = seriesName;
 		this.seriesStartDate = (seriesStartDate == null ? null : seriesStartDate.clone());
 		this.season = season;
@@ -45,6 +50,8 @@ public class Episode implements Serializable {
 		this.title = title;
 		this.absolute = absolute;
 		this.special = special;
+		this.order = (order == null ? null : order.name());
+		this.language = (locale == null ? null : locale.getLanguage());
 		this.airdate = (airdate == null ? null : airdate.clone());
 		this.series = (series == null ? null : series.clone());
 	}
@@ -75,6 +82,14 @@ public class Episode implements Serializable {
 
 	public Integer getSpecial() {
 		return special;
+	}
+
+	public SortOrder getOrder() {
+		return order == null ? null : SortOrder.forName(order);
+	}
+
+	public Locale getLanguage() {
+		return language == null ? null : new Locale(language);
 	}
 
 	public SimpleDate getAirdate() {

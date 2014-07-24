@@ -50,7 +50,6 @@ import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SimpleDate;
-import net.filebot.web.SortOrder;
 import net.filebot.web.TheTVDBSearchResult;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -556,14 +555,13 @@ public class MediaBindingBean {
 		if (metaInfo == null) {
 			try {
 				if (infoObject instanceof Episode)
-					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(((Episode) infoObject).getSeriesName(), Locale.ENGLISH);
+					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(getEpisode().getSeriesName(), getEpisode().getLanguage());
 				if (infoObject instanceof Movie)
-					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, true);
+					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage(), true);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
 			}
 		}
-
 		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 
@@ -588,7 +586,7 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
-		return ((EpisodeListProvider) getDatabase()).getEpisodeList(getSeriesObject(), SortOrder.Airdate, Locale.ENGLISH);
+		return ((EpisodeListProvider) getDatabase()).getEpisodeList(getSeriesObject(), getEpisode().getOrder(), getEpisode().getLanguage());
 	}
 
 	@Define("database")

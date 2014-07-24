@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class Movie extends SearchResult {
@@ -12,19 +13,27 @@ public class Movie extends SearchResult {
 	protected int imdbId;
 	protected int tmdbId;
 
+	// optional movie name language hint
+	protected String language;
+
 	protected Movie() {
 		// used by serializer
 	}
 
-	public Movie(String name, int year, int imdbId, int tmdbId) {
-		this(name, new String[0], year, imdbId, tmdbId);
+	public Movie(Movie obj) {
+		this(obj.name, obj.aliasNames, obj.year, obj.imdbId, obj.tmdbId, obj.getLanguage());
 	}
 
-	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId) {
+	public Movie(String name, int year, int imdbId, int tmdbId) {
+		this(name, new String[0], year, imdbId, tmdbId, null);
+	}
+
+	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale) {
 		super(name, aliasNames);
 		this.year = year;
 		this.imdbId = imdbId;
 		this.tmdbId = tmdbId;
+		this.language = (locale == null ? null : locale.getLanguage());
 	}
 
 	public int getYear() {
@@ -37,6 +46,10 @@ public class Movie extends SearchResult {
 
 	public int getTmdbId() {
 		return tmdbId;
+	}
+
+	public Locale getLanguage() {
+		return language == null ? null : new Locale(language);
 	}
 
 	public String getNameWithYear() {
@@ -86,7 +99,7 @@ public class Movie extends SearchResult {
 
 	@Override
 	public Movie clone() {
-		return new Movie(name, aliasNames, year, imdbId, tmdbId);
+		return new Movie(this);
 	}
 
 	@Override

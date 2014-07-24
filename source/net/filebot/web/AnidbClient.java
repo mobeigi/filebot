@@ -92,7 +92,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale language) throws Exception {
+	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
 
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
@@ -112,7 +112,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// select main title and anime start date
 		SimpleDate seriesStartDate = SimpleDate.parse(selectString("//startdate", dom), "yyyy-MM-dd");
-		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + language.getLanguage() + "']", dom);
+		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + locale.getLanguage() + "']", dom);
 		if (animeTitle.isEmpty()) {
 			animeTitle = selectString("//titles/title[@type='main']", dom);
 		}
@@ -126,15 +126,15 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 			if (type == 1 || type == 2) {
 				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
-				String title = selectString(".//title[@lang='" + language.getLanguage() + "']", node);
+				String title = selectString(".//title[@lang='" + locale.getLanguage() + "']", node);
 				if (title.isEmpty()) { // English language fall-back
 					title = selectString(".//title[@lang='en']", node);
 				}
 
 				if (type == 1) {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, airdate, searchResult)); // normal episode, no seasons for anime
+					episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, SortOrder.Absolute, locale, airdate, searchResult)); // normal episode, no seasons for anime
 				} else {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, null, title, null, number, airdate, searchResult)); // special episode
+					episodes.add(new Episode(animeTitle, seriesStartDate, null, null, title, null, number, SortOrder.Absolute, locale, airdate, searchResult)); // special episode
 				}
 			}
 		}

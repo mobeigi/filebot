@@ -129,7 +129,7 @@ public class TMDbClient implements MovieIdentificationService {
 				// make sure main title is not in the set of alternative titles
 				alternativeTitles.remove(title);
 
-				result.add(new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id));
+				result.add(new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale));
 			} catch (Exception e) {
 				// only print 'missing release date' warnings for matching movie titles
 				if (query.equalsIgnoreCase(title) || query.equalsIgnoreCase(originalTitle)) {
@@ -157,7 +157,7 @@ public class TMDbClient implements MovieIdentificationService {
 		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
 		try {
 			MovieInfo info = getMovieInfo(id, locale, false, false);
-			return new Movie(info.getName(), info.getReleased().getYear(), info.getImdbId(), info.getId());
+			return new Movie(info.getName(), new String[0], info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
 		} catch (FileNotFoundException e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);
 			return null;

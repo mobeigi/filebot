@@ -187,7 +187,7 @@ public class EpisodeFormat extends Format {
 
 			// did parse input
 			pos.setIndex(source.length());
-			return new Episode(name, null, season, episode, title, season == null ? episode : null, special, airdate, null);
+			return new Episode(name, null, season, episode, title, season == null ? episode : null, special, null, null, airdate, null);
 		}
 
 		// failed to parse input

@@ -139,6 +139,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			// default numbering
 			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
 			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
+			SortOrder order = SortOrder.Airdate;
 
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
@@ -149,24 +150,30 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 				// use given episode number as special number or count specials by ourselves
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, airdate, searchResult));
+				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, order, locale, airdate, searchResult));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
 					if (absoluteNumber != null) {
 						episodeNumber = absoluteNumber;
 						seasonNumber = null;
+						order = SortOrder.Absolute;
 					}
 				} else if (sortOrder == SortOrder.DVD) {
 					try {
-						episodeNumber = new Float(dvdEpisodeNumber).intValue();
-						seasonNumber = new Integer(dvdSeasonNumber);
+						int eno = new Float(dvdEpisodeNumber).intValue();
+						int sno = new Float(dvdSeasonNumber).intValue();
+
+						// require both values to be successfully read
+						episodeNumber = eno;
+						seasonNumber = sno;
+						order = SortOrder.DVD;
 					} catch (Exception e) {
 						// ignore, fallback to default numbering
 					}
 				}
 
-				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, searchResult));
+				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, order, locale, airdate, searchResult));
 			}
 		}
 
