@@ -70,7 +70,7 @@ public final class WebServices {
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
-		return new MovieIdentificationService[] { TheMovieDB, IMDb, OpenSubtitles };
+		return new MovieIdentificationService[] { TheMovieDB, IMDb };
 	}
 
 	public static SubtitleProvider[] getSubtitleProviders() {
