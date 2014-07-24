@@ -378,7 +378,7 @@ public class ReleaseInfo {
 				int year = parseInt(row[2]);
 				String name = row[3];
 				String[] aliasNames = copyOfRange(row, 4, row.length);
-				movies.add(new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1));
+				movies.add(new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1, null));
 			}
 
 			return movies.toArray(new Movie[0]);

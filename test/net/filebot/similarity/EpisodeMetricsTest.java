@@ -7,8 +7,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.filebot.web.SimpleDate;
 import net.filebot.web.Episode;
+import net.filebot.web.SimpleDate;
 import net.filebot.web.TheTVDBSearchResult;
 
 import org.junit.Test;

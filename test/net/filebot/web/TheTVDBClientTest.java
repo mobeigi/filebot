@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
 import net.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.filebot.web.TheTVDBClient.MirrorType;
 import net.filebot.web.TheTVDBClient.SeriesInfo;
+import net.sf.ehcache.CacheManager;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

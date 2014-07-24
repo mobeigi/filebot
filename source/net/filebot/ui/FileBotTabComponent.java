@@ -11,10 +11,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.ProgressIndicator;
 import net.filebot.util.ui.TunedUtilities;
+import net.miginfocom.swing.MigLayout;
 
 
 public class FileBotTabComponent extends JComponent {

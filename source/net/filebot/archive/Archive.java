@@ -16,14 +16,14 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.sf.sevenzipjbinding.ArchiveFormat;
-import net.sf.sevenzipjbinding.ISevenZipInArchive;
-import net.sf.sevenzipjbinding.PropID;
-import net.sf.sevenzipjbinding.SevenZipException;
 import net.filebot.MediaTypes;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.SimpleFileInfo;
+import net.sf.sevenzipjbinding.ArchiveFormat;
+import net.sf.sevenzipjbinding.ISevenZipInArchive;
+import net.sf.sevenzipjbinding.PropID;
+import net.sf.sevenzipjbinding.SevenZipException;
 
 public class Archive implements Closeable {
 

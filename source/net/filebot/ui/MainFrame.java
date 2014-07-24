@@ -39,8 +39,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.miginfocom.swing.MigLayout;
-import net.sf.ehcache.CacheManager;
 import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -55,6 +53,8 @@ import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
 import net.filebot.util.ui.TunedUtilities;
+import net.miginfocom.swing.MigLayout;
+import net.sf.ehcache.CacheManager;
 
 public class MainFrame extends JFrame {
 

@@ -34,8 +34,8 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
+import net.miginfocom.swing.MigLayout;
 
 
 class ValidateDialog extends JDialog {

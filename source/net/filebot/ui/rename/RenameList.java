@@ -14,11 +14,11 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.TransferablePolicy;
+import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.EventList;
 
 

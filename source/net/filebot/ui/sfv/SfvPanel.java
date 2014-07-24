@@ -29,7 +29,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.hash.HashType;
 import net.filebot.ui.SelectDialog;
@@ -38,6 +37,7 @@ import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.TunedUtilities;
+import net.miginfocom.swing.MigLayout;
 
 
 public class SfvPanel extends JComponent {

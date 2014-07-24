@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

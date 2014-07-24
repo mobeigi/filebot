@@ -14,8 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.util.ui.LinkButton;
+import net.miginfocom.swing.MigLayout;
 
 
 public class HistoryPanel extends JPanel {

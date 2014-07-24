@@ -17,8 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.subtitle.SubtitleFormat;
+import net.miginfocom.swing.MigLayout;
 
 
 public class SubtitleFileChooser extends JFileChooser {

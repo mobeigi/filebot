@@ -5,7 +5,6 @@ import static net.filebot.Language.*;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;

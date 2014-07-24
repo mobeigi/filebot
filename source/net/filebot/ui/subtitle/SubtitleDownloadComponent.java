@@ -39,7 +39,6 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.subtitle.SubtitleFormat;
@@ -49,6 +48,7 @@ import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.ui.ListView;
 import net.filebot.util.ui.TunedUtilities;
 import net.filebot.vfs.MemoryFile;
+import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.FilterList;

@@ -27,10 +27,10 @@ import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.text.JTextComponent;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.SelectButton;
 import net.filebot.util.ui.TunedUtilities;
+import net.miginfocom.swing.MigLayout;
 
 public class SelectButtonTextField<T> extends JComponent {
 

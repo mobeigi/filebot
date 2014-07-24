@@ -24,10 +24,10 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.TunedUtilities;
+import net.miginfocom.swing.MigLayout;
 
 
 public class SelectDialog<T> extends JDialog {

@@ -10,10 +10,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.border.CompoundBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.AbstractFancyListCellRenderer;
 import net.filebot.util.ui.DashedSeparator;
+import net.miginfocom.swing.MigLayout;
 
 
 class SubtitlePackageCellRenderer extends AbstractFancyListCellRenderer {

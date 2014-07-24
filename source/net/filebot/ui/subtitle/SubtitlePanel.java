@@ -32,7 +32,6 @@ import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -47,6 +46,7 @@ import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.VideoHashSubtitleService;
+import net.miginfocom.swing.MigLayout;
 
 public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, SubtitlePackage> {
 

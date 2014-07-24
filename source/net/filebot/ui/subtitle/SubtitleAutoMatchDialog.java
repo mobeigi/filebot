@@ -56,7 +56,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.similarity.EpisodeMetrics;
@@ -72,6 +71,7 @@ import net.filebot.vfs.MemoryFile;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.VideoHashSubtitleService;
+import net.miginfocom.swing.MigLayout;
 
 class SubtitleAutoMatchDialog extends JDialog {
 

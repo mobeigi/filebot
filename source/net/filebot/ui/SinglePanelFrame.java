@@ -10,11 +10,11 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.miginfocom.swing.MigLayout;
 import net.filebot.ResourceManager;
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
 import net.filebot.util.ExceptionUtilities;
+import net.miginfocom.swing.MigLayout;
 
 
 public class SinglePanelFrame extends JFrame {
