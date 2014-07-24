@@ -555,9 +555,9 @@ public class MediaBindingBean {
 		if (metaInfo == null) {
 			try {
 				if (infoObject instanceof Episode)
-					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(getEpisode().getSeriesName(), getEpisode().getLanguage());
+					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(getEpisode().getSeriesName(), getEpisode().getLanguage() == null ? Locale.ENGLISH : getEpisode().getLanguage());
 				if (infoObject instanceof Movie)
-					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage(), true);
+					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage() == null ? Locale.ENGLISH : getMovie().getLanguage(), true);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
 			}
