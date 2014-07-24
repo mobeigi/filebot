@@ -364,7 +364,7 @@ public class ReleaseInfo {
 	protected static class MovieResource extends CachedResource<Movie[]> {
 
 		public MovieResource(String resource) {
-			super(resource, Movie[].class, ONE_MONTH); // check for updates every month
+			super(resource, Movie[].class, ONE_WEEK); // check for updates every month
 		}
 
 		@Override
@@ -410,7 +410,7 @@ public class ReleaseInfo {
 	protected static class AnidbIndexResource extends CachedResource<AnidbSearchResult[]> {
 
 		public AnidbIndexResource(String resource) {
-			super(resource, AnidbSearchResult[].class, ONE_MONTH); // check for updates every month
+			super(resource, AnidbSearchResult[].class, ONE_WEEK); // check for updates every month
 		}
 
 		@Override
