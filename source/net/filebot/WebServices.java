@@ -33,7 +33,6 @@ import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
-import net.filebot.web.SerienjunkiesClient;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TVRageClient;
@@ -50,7 +49,6 @@ public final class WebServices {
 	// episode dbs
 	public static final TVRageClient TVRage = new TVRageClient();
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApplicationName().toLowerCase(), 5);
-	public static final SerienjunkiesClient Serienjunkies = new SerienjunkiesClient(getApplicationProperty("serienjunkies.apikey"));
 
 	// extended TheTVDB module with local search
 	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
@@ -68,7 +66,7 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage, Serienjunkies };
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {

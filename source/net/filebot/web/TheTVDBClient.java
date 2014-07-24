@@ -118,7 +118,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getSeriesId() + "/all/" + locale.getLanguage() + ".xml");
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getSeriesId() + "/all/" + getLanguageCode(locale) + ".xml");
 
 		// we could get the series name from the search result, but the language may not match the given parameter
 		String seriesName = selectString("Data/Series/SeriesName", dom);
