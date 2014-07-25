@@ -2,8 +2,12 @@ package net.filebot.web;
 
 public class MoviePart extends Movie {
 
-	protected final int partIndex;
-	protected final int partCount;
+	protected int partIndex;
+	protected int partCount;
+
+	protected MoviePart() {
+		// used by serializer
+	}
 
 	public MoviePart(MoviePart obj) {
 		this(obj, obj.partIndex, obj.partCount);
