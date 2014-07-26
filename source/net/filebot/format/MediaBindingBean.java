@@ -214,7 +214,7 @@ public class MediaBindingBean {
 	@Define("primaryTitle")
 	public String getPrimaryTitle() throws Exception {
 		if (infoObject instanceof Movie) {
-			return WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getName();
+			return WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getOriginalName();
 		}
 
 		if (infoObject instanceof Episode) {
