@@ -236,18 +236,19 @@
 			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
 
-			<option value="-Djna.nosys=true" />
+			<option value="-Djna.nounpack=true" />
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
 			<option value="-Xdock:name=${title}" />
+			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
 			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
 		</bundleapp>
 
 		<!-- application bundle folder as .tar.gz -->
-		<tar destfile="${path.appbundle.tar.gz}" compression="gzip">
+		<tar destfile="${path.appbundle.tar.gz}" compression="gzip" longfile="gnu">
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**" excludes="**/MacOS/**" />
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/**.dylib" />
 
