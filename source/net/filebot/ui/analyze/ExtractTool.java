@@ -72,7 +72,7 @@ class ExtractTool extends Tool<TableModel> {
 
 	@Override
 	protected TableModel createModelInBackground(File root) throws InterruptedException {
-		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>(0);
+		List<File> files = (root != null) ? FileUtilities.listFiles(root) : new ArrayList<File>();
 
 		List<ArchiveEntry> entries = new ArrayList<ArchiveEntry>();
 		try {

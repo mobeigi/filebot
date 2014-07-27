@@ -95,7 +95,7 @@ public class FileTransferable implements Transferable {
 			if (transferable instanceof List) {
 				return sortByUniquePath((List<File>) transferable); // FORCE NATURAL FILE ORDER
 			} else {
-				return new ArrayList<File>(0);
+				return new ArrayList<File>();
 			}
 		}
 

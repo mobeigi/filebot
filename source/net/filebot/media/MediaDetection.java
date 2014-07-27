@@ -441,7 +441,7 @@ public class MediaDetection {
 		return matches;
 	}
 
-	private static final ArrayList<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>(0);
+	private static final ArrayList<IndexEntry<SearchResult>> seriesIndex = new ArrayList<IndexEntry<SearchResult>>();
 
 	public static List<IndexEntry<SearchResult>> getSeriesIndex() throws IOException {
 		synchronized (seriesIndex) {
@@ -463,7 +463,7 @@ public class MediaDetection {
 		}
 	}
 
-	private static final ArrayList<IndexEntry<SearchResult>> animeIndex = new ArrayList<IndexEntry<SearchResult>>(0);
+	private static final ArrayList<IndexEntry<SearchResult>> animeIndex = new ArrayList<IndexEntry<SearchResult>>();
 
 	public static List<IndexEntry<SearchResult>> getAnimeIndex() throws IOException {
 		synchronized (animeIndex) {
@@ -812,7 +812,7 @@ public class MediaDetection {
 		return matches != null && matches.size() > 0 ? matches.get(0) : null;
 	}
 
-	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>(0);
+	private static final ArrayList<IndexEntry<Movie>> movieIndex = new ArrayList<IndexEntry<Movie>>();
 
 	public static List<IndexEntry<Movie>> getMovieIndex() throws IOException {
 		synchronized (movieIndex) {

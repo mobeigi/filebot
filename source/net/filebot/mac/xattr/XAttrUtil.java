@@ -29,7 +29,7 @@ public class XAttrUtil {
 			return null;
 
 		if (bufferLength == 0)
-			return new ArrayList<String>(0);
+			return new ArrayList<String>();
 
 		Memory valueBuffer = new Memory(bufferLength);
 		long valueLength = XAttr.INSTANCE.listxattr(path, valueBuffer, bufferLength, 0);
