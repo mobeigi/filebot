@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static net.filebot.MediaTypes.*;
+import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -14,10 +15,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.filebot.media.MediaDetection;
-import net.filebot.ui.transfer.FileTransferablePolicy;
+import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;
 
-class FilesListTransferablePolicy extends FileTransferablePolicy {
+class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File> {
 
 	private final List<File> model;
 
@@ -93,12 +95,22 @@ class FilesListTransferablePolicy extends FileTransferablePolicy {
 			}
 		}
 
-		model.addAll(FastFile.create(entries));
+		publish(FastFile.create(entries).toArray(new File[0]));
 	}
 
 	@Override
 	public String getFileFilterDescription() {
 		return "files and folders";
+	}
+
+	@Override
+	protected void process(List<File> chunks) {
+		model.addAll(FastFile.create(chunks));
+	}
+
+	@Override
+	protected void process(Exception e) {
+		UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
 	}
 
 }

@@ -58,6 +58,7 @@ import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
+import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -287,7 +288,18 @@ public class RenamePanel extends JComponent {
 		});
 
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
-		add(filesList, "grow, sizegroupx list");
+		add(new LoadingOverlayPane(filesList, filesList, "32px", "30px"), "grow, sizegroupx list");
+
+		BackgroundFileTransferablePolicy<?> transferablePolicy = (BackgroundFileTransferablePolicy<?>) filesList.getTransferablePolicy();
+		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (BackgroundFileTransferablePolicy.LOADING_PROPERTY.equals(evt.getPropertyName())) {
+					filesList.firePropertyChange(LoadingOverlayPane.LOADING_PROPERTY, (boolean) evt.getOldValue(), (boolean) evt.getNewValue());
+				}
+			}
+		});
 
 		// make buttons larger
 		matchButton.setMargin(new Insets(3, 14, 2, 14));

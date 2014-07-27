@@ -179,6 +179,10 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 	}
 
 	protected float getMatchProbablity(Match<Object, File> match) {
+		if (match.getValue() == null || match.getCandidate() == null) {
+			return 1; // assume match is ok
+		}
+
 		if (match.getValue() instanceof Episode) {
 			float f = verificationMetric().getSimilarity(match.getValue(), match.getCandidate());
 			return (f + 1) / 2; // normalize -1..1 to 0..1

@@ -1,6 +1,4 @@
-
 package net.filebot.ui.transfer;
-
 
 import static net.filebot.ui.transfer.FileTransferable.*;
 
@@ -15,42 +13,37 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.SwingPropertyChangeSupport;
 
-
 public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferablePolicy {
-	
+
 	public static final String LOADING_PROPERTY = "loading";
-	
+
 	private final ThreadLocal<BackgroundWorker> threadLocalWorker = new ThreadLocal<BackgroundWorker>();
-	
+
 	private final List<BackgroundWorker> workers = new ArrayList<BackgroundWorker>(2);
-	
 
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 		List<File> files = getFilesFromTransferable(tr);
-		
+
 		if (action != TransferAction.ADD) {
 			clear();
 		}
-		
+
 		prepare(files);
-		
+
 		// create and start worker
 		new BackgroundWorker(files).execute();
 	}
-	
 
 	protected void prepare(List<File> files) {
-		
+
 	}
-	
 
 	@Override
 	protected void clear() {
 		// stop other workers on clear (before starting new worker)
 		reset();
 	}
-	
 
 	public void reset() {
 		synchronized (workers) {
@@ -63,52 +56,45 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			}
 		}
 	}
-	
 
 	public boolean isLoading() {
 		synchronized (workers) {
 			return !workers.isEmpty();
 		}
 	}
-	
 
 	protected abstract void process(List<V> chunks);
-	
 
 	protected abstract void process(Exception exception);
-	
 
 	protected final void publish(V... chunks) {
 		BackgroundWorker worker = threadLocalWorker.get();
-		
+
 		if (worker == null) {
 			// fail if a non-background-worker thread is trying to access the thread-local worker object
 			throw new IllegalThreadStateException("Illegal access thread");
 		}
-		
+
 		worker.offer(chunks);
 	}
-	
 
 	protected final void publish(final Exception exception) {
 		SwingUtilities.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				process(exception);
 			}
 		});
 	}
-	
 
 	protected class BackgroundWorker extends SwingWorker<Object, V> {
-		
+
 		private final List<File> files;
-		
 
 		public BackgroundWorker(List<File> files) {
 			this.files = files;
-			
+
 			// register this worker
 			synchronized (workers) {
 				if (workers.add(this) && workers.size() == 1) {
@@ -116,29 +102,26 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 				}
 			}
 		}
-		
 
 		@Override
 		protected Object doInBackground() throws Exception {
 			// associate this worker with the current (background) thread
 			threadLocalWorker.set(this);
-			
+
 			try {
 				load(files);
 			} finally {
 				threadLocalWorker.remove();
 			}
-			
+
 			return null;
 		}
-		
 
 		public void offer(V... chunks) {
 			if (!isCancelled()) {
 				publish(chunks);
 			}
 		}
-		
 
 		@Override
 		protected void process(List<V> chunks) {
@@ -146,7 +129,6 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 				BackgroundFileTransferablePolicy.this.process(chunks);
 			}
 		}
-		
 
 		@Override
 		protected void done() {
@@ -158,7 +140,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 					BackgroundFileTransferablePolicy.this.process(e);
 				}
 			}
-			
+
 			// unregister worker
 			synchronized (workers) {
 				if (workers.remove(this) && workers.isEmpty()) {
@@ -167,15 +149,12 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			}
 		}
 	}
-	
 
 	protected final PropertyChangeSupport swingPropertyChangeSupport = new SwingPropertyChangeSupport(this, true);
-	
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		swingPropertyChangeSupport.addPropertyChangeListener(listener);
 	}
-	
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		swingPropertyChangeSupport.removePropertyChangeListener(listener);
