@@ -374,8 +374,9 @@ public class Main {
 			return;
 		}
 
-		String message = String.format(Locale.ROOT,
-				"<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", renameCount);
+				.format(Locale.ROOT,
+						"<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>",
+						renameCount);
 		String[] actions = new String[] { "Donate! :)", donationRev > 0 ? "Not this time" : "Later" };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
 		pane.createDialog(null, "Please Donate").setVisible(true);
@@ -423,7 +424,7 @@ public class Main {
 	 */
 	private static void initializeCache() {
 		// prepare cache folder for this application instance
-		File cacheRoot = new File(getApplicationFolder(), "cache");
+		File cacheRoot = getApplicationCache();
 
 		try {
 			for (int i = 0; true; i++) {

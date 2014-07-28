@@ -94,8 +94,24 @@ public final class Settings {
 		if (!applicationFolder.exists()) {
 			applicationFolder.mkdirs();
 		}
-
 		return applicationFolder;
+	}
+
+	public static File getApplicationCache() {
+		String cacheDefaultPath = System.getProperty("application.cache");
+
+		File cacheDir = null;
+		if (cacheDefaultPath != null) {
+			cacheDir = new File(cacheDefaultPath);
+		} else {
+			cacheDir = new File(getApplicationFolder(), "cache");
+		}
+
+		// create folder if necessary
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+		return cacheDir;
 	}
 
 	public static Settings forPackage(Class<?> type) {
