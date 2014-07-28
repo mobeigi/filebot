@@ -95,7 +95,7 @@ public class FileTransferable implements Transferable {
 			if (transferable instanceof List) {
 				return sortByUniquePath((List<File>) transferable); // FORCE NATURAL FILE ORDER
 			} else {
-				return new ArrayList<File>();
+				return null; // on some platforms transferable data will not be available until the drop has been accepted
 			}
 		}
 
@@ -148,5 +148,4 @@ public class FileTransferable implements Transferable {
 		// cannot get files from transferable
 		throw new UnsupportedFlavorException(null);
 	}
-
 }
