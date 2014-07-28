@@ -182,6 +182,11 @@
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/ObjCBridge.jar">
+				<include name="ca/weblite/objc/**" />
+				<include name="com/sun/jna/**" />
+			</zipfileset>
+
 			<!-- Ivy for @Grapes automatic dependency management -->
 			<zipfileset src="${dir.lib}/scripting/ivy.jar">
 				<include name="org/apache/ivy/**" />
@@ -258,6 +263,47 @@
 			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
 		<checksum file="${path.appbundle.tar.gz}" algorithm="SHA-256" fileext=".sha256" />
+	</target>
+
+
+	<target name="appbundle-maspkg">
+		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
+
+		<bundleapp outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
+			<classpath file="${path.fatjar}" />
+			<librarypath dir="${dir.lib}/native/mac-x86_64" />
+
+			<runtime dir="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Home" />
+
+			<!-- WORKING_DIR is sandbox data folder -->
+			<option value="-Dapplication.dir=./Library/Application Support" />
+			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
+			<option value="-Duser.home=./Library/Caches/ehcache.disk.store" />
+
+			<!-- FULL DIRECTORY ACCESS when processing files in the sandbox -->
+			<option value="-Dapple.awt.fileDialogForDirectories=true" />
+
+			<option value="-Dapplication.deployment=mas" />
+			<option value="-Dapplication.update=skip" />
+			<option value="-Dunixfs=false" />
+			<option value="-DuseExtendedFileAttributes=true" />
+			<option value="-DuseCreationDate=false" />
+
+			<option value="-Djava.net.useSystemProxies=true" />
+			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
+			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
+			<option value="-Dfile.encoding=UTF-8" />
+
+			<option value="-Djna.nounpack=true" />
+			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
+			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
+			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
+
+			<option value="-Xdock:name=${title}" />
+			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
+			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
+			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
+		</bundleapp>
 	</target>
 
 
