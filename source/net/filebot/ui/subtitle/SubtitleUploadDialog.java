@@ -1,6 +1,7 @@
 package net.filebot.ui.subtitle;
 
 import static net.filebot.MediaTypes.*;
+import static net.filebot.UserFiles.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.ui.TunedUtilities.*;
 
@@ -50,7 +51,6 @@ import javax.swing.table.TableCellRenderer;
 import net.filebot.Analytics;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
 import net.filebot.ui.LanguageComboBox;
@@ -227,7 +227,7 @@ public class SubtitleUploadDialog extends JDialog {
 				SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 				SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-				File[] files = showLoadDialogSelectFiles(false, false, mapping.getSubtitle().getParentFile(), VIDEO_FILES, "Select Video File", getWindow(SubtitleUploadDialog.this), Settings.isSandboxed());
+				File[] files = showLoadDialogSelectFiles(false, false, mapping.getSubtitle().getParentFile(), VIDEO_FILES, "Select Video File", getWindow(SubtitleUploadDialog.this));
 				if (files.length > 0) {
 					mapping.setVideo(files[0]);
 					mapping.setState(SubtitleMapping.Status.CheckPending);

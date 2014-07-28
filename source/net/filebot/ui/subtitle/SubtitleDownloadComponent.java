@@ -1,6 +1,7 @@
 package net.filebot.ui.subtitle;
 
 import static net.filebot.MediaTypes.*;
+import static net.filebot.UserFiles.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
@@ -278,7 +279,7 @@ class SubtitleDownloadComponent extends JComponent {
 	private void save(Object[] selection) {
 		try {
 			// multiple files
-			File outputFolder = showOpenDialogSelectFolder(null, "Save Subtitles", this, Settings.isSandboxed());
+			File outputFolder = showOpenDialogSelectFolder(null, "Save Subtitles", this);
 			if (outputFolder != null) {
 				for (Object object : selection) {
 					MemoryFile file = (MemoryFile) object;
@@ -304,7 +305,7 @@ class SubtitleDownloadComponent extends JComponent {
 			// just use default values when we can't use a JFC with accessory component
 			if (Settings.isSandboxed()) {
 				// AWT
-				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", this, Settings.isSandboxed());
+				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", this);
 			} else {
 				// Swing
 				SubtitleFileChooser sfc = new SubtitleFileChooser();

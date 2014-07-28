@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static net.filebot.MediaTypes.*;
+import static net.filebot.UserFiles.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.TunedUtilities.*;
 
@@ -48,7 +49,6 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
@@ -355,7 +355,7 @@ class BindingDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
-			File[] file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource(), Settings.isSandboxed());
+			File[] file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource());
 
 			if (file.length > 0) {
 				// update text field

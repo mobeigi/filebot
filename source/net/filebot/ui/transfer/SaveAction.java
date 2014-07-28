@@ -1,7 +1,7 @@
 package net.filebot.ui.transfer;
 
+import static net.filebot.UserFiles.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -63,7 +63,7 @@ public class SaveAction extends AbstractAction {
 		try {
 			if (canExport()) {
 				File defaultFile = new File(getDefaultFolder(), validateFileName(getDefaultFileName()));
-				File file = showSaveDialogSelectFile(false, defaultFile, (String) getValue(Action.NAME), evt.getSource(), Settings.isSandboxed());
+				File file = showSaveDialogSelectFile(false, defaultFile, (String) getValue(Action.NAME), evt.getSource());
 
 				if (file != null) {
 					setDefaultFolder(file.getParentFile());

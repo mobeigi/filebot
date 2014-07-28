@@ -4,8 +4,8 @@ import static java.awt.Font.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.UserFiles.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -515,7 +515,7 @@ class HistoryDialog extends JDialog {
 
 				// change directory option
 				if (selectedOption == Option.ChangeDirectory) {
-					directory = showOpenDialogSelectFolder(directory, selectedOption.toString(), evt.getSource(), Settings.isSandboxed());
+					directory = showOpenDialogSelectFolder(directory, selectedOption.toString(), evt.getSource());
 				}
 			}
 

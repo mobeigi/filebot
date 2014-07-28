@@ -2,6 +2,7 @@ package net.filebot.ui.subtitle;
 
 import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.UserFiles.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
@@ -31,7 +32,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
@@ -128,7 +128,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			// collect media file extensions (video and subtitle files)
-			File[] files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt.getSource(), Settings.isSandboxed());
+			File[] files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt.getSource());
 
 			if (files.length > 0) {
 				if (getDropAction(asList(files)) != DropAction.Cancel) {

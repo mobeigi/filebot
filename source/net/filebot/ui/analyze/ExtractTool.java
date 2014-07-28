@@ -1,5 +1,6 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.UserFiles.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
@@ -29,7 +30,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
 import net.filebot.util.FileUtilities;
@@ -112,7 +112,7 @@ class ExtractTool extends Tool<TableModel> {
 			if (archives.isEmpty())
 				return;
 
-			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt.getSource(), Settings.isSandboxed());
+			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt.getSource());
 			if (selectedFile == null)
 				return;
 

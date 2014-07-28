@@ -1,7 +1,7 @@
 package net.filebot.ui.transfer;
 
+import static net.filebot.UserFiles.*;
 import static net.filebot.ui.NotificationLogging.*;
-import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -55,7 +55,7 @@ public class LoadAction extends AbstractAction {
 				return;
 			}
 
-			File[] files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource(), Settings.isSandboxed());
+			File[] files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
 			if (files == null || files.length == 0) {
 				return;
 			}
