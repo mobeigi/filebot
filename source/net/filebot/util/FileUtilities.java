@@ -415,12 +415,34 @@ public final class FileUtilities {
 		return f;
 	}
 
-	public static List<File> getChildren(File file) {
-		File[] files = file.listFiles();
+	public static List<File> getFileSystemRoots() {
+		File[] roots = File.listRoots();
+
+		// roots array may be null if folder permissions do not allow listing of files
+		if (roots == null) {
+			roots = new File[0];
+		}
+
+		return asList(roots);
+	}
+
+	public static List<File> getChildren(File folder) {
+		File[] files = folder.listFiles();
 
 		// children array may be null if folder permissions do not allow listing of files
 		if (files == null) {
-			return asList(new File[0]);
+			files = new File[0];
+		}
+
+		return asList(files);
+	}
+
+	public static List<File> getChildren(File folder, FileFilter filter) {
+		File[] files = folder.listFiles(filter);
+
+		// children array may be null if folder permissions do not allow listing of files
+		if (files == null) {
+			files = new File[0];
 		}
 
 		return asList(files);

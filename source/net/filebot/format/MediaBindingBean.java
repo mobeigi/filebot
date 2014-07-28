@@ -501,7 +501,7 @@ public class MediaBindingBean {
 		if (hasExtension(mediaFile, "idx")) {
 			return Language.getLanguage(grepLanguageFromSUBIDX(mediaFile));
 		} else if (hasExtension(mediaFile, "sub")) {
-			for (File idx : mediaFile.getParentFile().listFiles(new ExtensionFileFilter("idx"))) {
+			for (File idx : getChildren(mediaFile.getParentFile(), new ExtensionFileFilter("idx"))) {
 				if (isDerived(idx, mediaFile)) {
 					return Language.getLanguage(grepLanguageFromSUBIDX(idx));
 				}
@@ -807,7 +807,7 @@ public class MediaBindingBean {
 
 			// file is a subtitle, or nfo, etc
 			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
-			File[] videos = mediaFile.getParentFile().listFiles(VIDEO_FILES);
+			List<File> videos = getChildren(mediaFile.getParentFile(), VIDEO_FILES);
 
 			// find corresponding movie file
 			for (File movieFile : videos) {
@@ -817,15 +817,15 @@ public class MediaBindingBean {
 			}
 
 			// still no good match found -> just take the most probable video from the same folder
-			if (videos.length > 0) {
-				sort(videos, new SimilarityComparator(FileUtilities.getName(mediaFile)) {
+			if (videos.size() > 0) {
+				videos.sort(new SimilarityComparator(FileUtilities.getName(mediaFile)) {
 
 					@Override
 					public int compare(Object o1, Object o2) {
 						return super.compare(FileUtilities.getName((File) o1), FileUtilities.getName((File) o2));
 					}
 				});
-				return videos[0];
+				return videos.get(0);
 			}
 		}
 

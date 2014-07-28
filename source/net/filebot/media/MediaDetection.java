@@ -1103,7 +1103,7 @@ public class MediaDetection {
 		if (file.isDirectory()) {
 			nfoFiles.addAll(filter(listFiles(file), NFO_FILES));
 		} else if (file.getParentFile().isDirectory()) {
-			addAll(nfoFiles, file.getParentFile().listFiles(NFO_FILES));
+			nfoFiles.addAll(getChildren(file.getParentFile(), NFO_FILES));
 		}
 
 		// parse ids from nfo files
@@ -1135,7 +1135,7 @@ public class MediaDetection {
 			if (!folder.exists())
 				continue;
 
-			for (File nfo : folder.listFiles(NFO_FILES)) {
+			for (File nfo : getChildren(folder, NFO_FILES)) {
 				String text = new String(readFile(nfo), "UTF-8");
 
 				for (int imdbid : grepImdbId(text)) {

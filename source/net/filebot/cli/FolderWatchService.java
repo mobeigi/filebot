@@ -112,11 +112,8 @@ public abstract class FolderWatchService implements Closeable {
 	}
 
 	private void watchFolderTree(File root) throws IOException {
-		File[] folders = root.listFiles(FOLDERS);
-		if (folders != null) {
-			for (File it : folders) {
-				watchFolderTree(it);
-			}
+		for (File it : getChildren(root, FOLDERS)) {
+			watchFolderTree(it);
 		}
 
 		startWatch(root);

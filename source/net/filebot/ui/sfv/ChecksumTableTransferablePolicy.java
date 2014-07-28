@@ -198,7 +198,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 				if (seenLevel == null) {
 					// folder we have never encountered before
-					for (File verificationFile : folder.listFiles(MediaTypes.getDefaultFilter("verification"))) {
+					for (File verificationFile : getChildren(folder, MediaTypes.getDefaultFilter("verification"))) {
 						HashType hashType = getHashType(verificationFile);
 						cache.put(verificationFile, importVerificationFile(verificationFile, hashType, verificationFile.getParentFile()));
 						types.put(verificationFile, hashType);

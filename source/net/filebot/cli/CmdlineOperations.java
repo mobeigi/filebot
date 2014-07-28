@@ -150,7 +150,8 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, ConflictAction.forName(conflict), null);
 	}
 
-	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict)
+			throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
@@ -344,10 +345,10 @@ public class CmdlineOperations implements CmdlineInterface {
 			// collect useful nfo files even if they are not part of the selected fileset
 			Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
 			for (File dir : mapByFolder(movieFiles).keySet()) {
-				addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
+				effectiveNfoFileSet.addAll(getChildren(dir, NFO_FILES));
 			}
 			for (File dir : filter(fileset, FOLDERS)) {
-				addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
+				effectiveNfoFileSet.addAll(getChildren(dir, NFO_FILES));
 			}
 
 			for (File nfo : effectiveNfoFileSet) {
@@ -758,7 +759,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> videoFiles = filter(filter(files, VIDEO_FILES), new FileFilter() {
 
 			// save time on repeating filesystem calls
-			private final Map<File, File[]> cache = new HashMap<File, File[]>();
+			private final Map<File, List<File>> cache = new HashMap<File, List<File>>();
 
 			private final SubtitleNaming naming = getSubtitleNaming(format);
 
@@ -776,9 +777,9 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			@Override
 			public boolean accept(File video) {
-				File[] subtitlesByFolder = cache.get(video.getParentFile());
+				List<File> subtitlesByFolder = cache.get(video.getParentFile());
 				if (subtitlesByFolder == null) {
-					subtitlesByFolder = video.getParentFile().listFiles(SUBTITLE_FILES);
+					subtitlesByFolder = getChildren(video.getParentFile(), SUBTITLE_FILES);
 					cache.put(video.getParentFile(), subtitlesByFolder);
 				}
 

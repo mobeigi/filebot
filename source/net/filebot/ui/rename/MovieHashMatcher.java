@@ -112,10 +112,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// collect useful nfo files even if they are not part of the selected fileset
 		Set<File> effectiveNfoFileSet = new TreeSet<File>(nfoFiles);
 		for (File dir : mapByFolder(movieFiles).keySet()) {
-			addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
+			effectiveNfoFileSet.addAll(getChildren(dir, NFO_FILES));
 		}
 		for (File dir : filter(fileset, FOLDERS)) {
-			addAll(effectiveNfoFileSet, dir.listFiles(NFO_FILES));
+			effectiveNfoFileSet.addAll(getChildren(dir, NFO_FILES));
 		}
 
 		for (File nfo : effectiveNfoFileSet) {

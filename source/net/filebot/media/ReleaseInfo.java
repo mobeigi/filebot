@@ -194,24 +194,18 @@ public class ReleaseInfo {
 			volumes.add(new File(System.getProperty("user.home")));
 
 			// Windows / Linux / Mac system roots
-			addAll(volumes, File.listRoots());
+			volumes.addAll(getFileSystemRoots());
 
 			if (File.separator.equals("/")) {
 				// Linux and Mac system root folders
-				for (File root : File.listRoots()) {
-					File[] f = root.listFiles(FOLDERS);
-					if (f != null) {
-						addAll(volumes, f);
-					}
+				for (File root : getFileSystemRoots()) {
+					volumes.addAll(getChildren(root, FOLDERS));
 				}
 
 				// user-specific media roots
 				for (File root : getMediaRoots()) {
 					if (root.isDirectory()) {
-						File[] f = root.listFiles(FOLDERS);
-						if (f != null) {
-							addAll(volumes, f);
-						}
+						volumes.addAll(getChildren(root, FOLDERS));
 					}
 				}
 			}
