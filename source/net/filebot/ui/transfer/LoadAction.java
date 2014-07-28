@@ -2,6 +2,8 @@ package net.filebot.ui.transfer;
 
 import static net.filebot.ui.NotificationLogging.*;
 
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.logging.Level;
@@ -42,32 +44,64 @@ public class LoadAction extends AbstractAction {
 		return new File(lastLocation);
 	}
 
+	protected void setDefaultFolder(File folder) {
+		Settings.forPackage(LoadAction.class).put("load.location", folder.getPath());
+	}
+
 	public void actionPerformed(ActionEvent evt) {
-		// get transferable policy from action properties
-		TransferablePolicy transferablePolicy = (TransferablePolicy) getValue(TRANSFERABLE_POLICY);
-		if (transferablePolicy == null)
-			return;
-
-		JFileChooser chooser = new JFileChooser(getDefaultFolder());
-		chooser.setFileFilter(new TransferablePolicyFileFilter(transferablePolicy));
-		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		chooser.setMultiSelectionEnabled(true);
-
-		if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-
-		FileTransferable transferable = new FileTransferable(chooser.getSelectedFiles());
 		try {
+			// get transferable policy from action properties
+			TransferablePolicy transferablePolicy = (TransferablePolicy) getValue(TRANSFERABLE_POLICY);
+			if (transferablePolicy == null) {
+				return;
+			}
+
+			File[] files = showSelectFiles(new TransferablePolicyFileFilter(transferablePolicy));
+			if (files == null || files.length == 0) {
+				return;
+			}
+
+			FileTransferable transferable = new FileTransferable(files);
+
 			if (transferablePolicy.accept(transferable)) {
 				transferablePolicy.handleTransferable(transferable, getTransferAction(evt));
 			}
 		} catch (Exception e) {
 			UILogger.log(Level.WARNING, e.getMessage(), e);
 		}
-
-		// remember last location
-		Settings.forPackage(LoadAction.class).put("load.location", chooser.getCurrentDirectory().getPath());
 	}
 
+	public File[] showSelectFiles(TransferablePolicyFileFilter fileFilter) {
+		if (Settings.isSandboxed()) {
+			Frame[] frames = Frame.getFrames();
+			Frame mainFrame = frames.length > 0 ? frames[0] : null;
+			FileDialog fileDialog = new FileDialog(mainFrame, "", FileDialog.LOAD);
+
+			File currentFolder = getDefaultFolder();
+			if (currentFolder != null) {
+				fileDialog.setDirectory(currentFolder.getPath());
+			}
+			fileDialog.setMultipleMode(true);
+			fileDialog.setVisible(true);
+
+			File[] files = fileDialog.getFiles();
+			if (files.length > 0) {
+				setDefaultFolder(new File(fileDialog.getDirectory()));
+			}
+			return files;
+		}
+
+		// use normal Swing JFileChooser by default
+		JFileChooser chooser = new JFileChooser(getDefaultFolder());
+		chooser.setFileFilter(fileFilter);
+		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setMultiSelectionEnabled(true);
+
+		if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+
+		setDefaultFolder(chooser.getCurrentDirectory());
+		return chooser.getSelectedFiles();
+	}
 }

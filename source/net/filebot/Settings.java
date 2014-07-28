@@ -59,13 +59,11 @@ public final class Settings {
 	}
 
 	public static boolean useDonationReminder() {
-		String deployment = getApplicationDeployment();
-		for (String it : new String[] { "ppa", "appstore" }) {
-			if (it.equalsIgnoreCase(deployment)) {
-				return false;
-			}
-		}
-		return true;
+		return !("ppa".equals(getApplicationDeployment()) || "mas".equals(getApplicationDeployment()));
+	}
+
+	public static boolean isSandboxed() {
+		return "mas".equals(System.getProperty("application.deployment"));
 	}
 
 	public static int getPreferredThreadPoolSize() {
@@ -77,14 +75,7 @@ public final class Settings {
 	}
 
 	public static String getApplicationDeployment() {
-		String deployment = System.getProperty("application.deployment");
-		if (deployment != null)
-			return deployment;
-
-		if (System.getProperty("javawebstart.version") != null)
-			return "webstart";
-
-		return null;
+		return System.getProperty("application.deployment");
 	}
 
 	public static File getApplicationFolder() {
