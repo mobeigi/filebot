@@ -36,7 +36,7 @@ public final class HistorySpooler {
 
 	public synchronized History getCompleteHistory() throws IOException {
 		if (!persistentHistoryEnabled || persistentHistoryFile.length() <= 0) {
-			return new History();
+			return new History(sessionHistory.sequences());
 		}
 
 		RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
