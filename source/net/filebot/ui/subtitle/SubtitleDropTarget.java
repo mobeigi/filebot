@@ -1,5 +1,6 @@
 package net.filebot.ui.subtitle;
 
+import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.ui.NotificationLogging.*;
@@ -18,10 +19,7 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +29,9 @@ import java.util.logging.Level;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
@@ -130,21 +127,12 @@ abstract class SubtitleDropTarget extends JButton {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			JFileChooser chooser = new JFileChooser();
-			chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-			chooser.setMultiSelectionEnabled(true);
-
 			// collect media file extensions (video and subtitle files)
-			List<String> extensions = new ArrayList<String>();
-			Collections.addAll(extensions, VIDEO_FILES.extensions());
-			Collections.addAll(extensions, SUBTITLE_FILES.extensions());
-			chooser.setFileFilter(new FileNameExtensionFilter("Media files", extensions.toArray(new String[0])));
+			File[] files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt.getSource(), Settings.isSandboxed());
 
-			if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
-				List<File> files = Arrays.asList(chooser.getSelectedFiles());
-
-				if (getDropAction(files) != DropAction.Cancel) {
-					handleDrop(Arrays.asList(chooser.getSelectedFiles()));
+			if (files.length > 0) {
+				if (getDropAction(asList(files)) != DropAction.Cancel) {
+					handleDrop(asList(files));
 				}
 			}
 		}

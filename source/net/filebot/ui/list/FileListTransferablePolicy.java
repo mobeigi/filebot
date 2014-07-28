@@ -74,7 +74,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public String getFileFilterDescription() {
-		return "files, folders and torrents";
+		return "Files, Folders and Torrents";
 	}
 
 }

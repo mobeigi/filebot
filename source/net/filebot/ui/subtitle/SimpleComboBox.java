@@ -1,6 +1,4 @@
-
 package net.filebot.ui.subtitle;
-
 
 import static javax.swing.BorderFactory.*;
 
@@ -15,17 +13,15 @@ import javax.swing.plaf.basic.ComboPopup;
 
 import net.filebot.ResourceManager;
 
-
 public class SimpleComboBox extends JComboBox {
-	
+
 	public SimpleComboBox() {
 		setUI(new SimpleComboBoxUI());
 		setBorder(createEmptyBorder());
 	}
-	
 
 	private static class SimpleComboBoxUI extends BasicComboBoxUI {
-		
+
 		@Override
 		protected JButton createArrowButton() {
 			JButton button = new JButton(ResourceManager.getIcon("arrow.down"));
@@ -33,38 +29,37 @@ public class SimpleComboBox extends JComboBox {
 			button.setBorderPainted(false);
 			button.setFocusPainted(false);
 			button.setOpaque(false);
-			
+
 			return button;
 		}
-		
 
 		@Override
 		protected ComboPopup createPopup() {
 			return new BasicComboPopup(comboBox) {
-				
+
 				@Override
 				protected Rectangle computePopupBounds(int px, int py, int pw, int ph) {
 					Rectangle bounds = super.computePopupBounds(px, py, pw, ph);
-					
+
 					// allow combobox popup to be wider than the combobox itself
 					bounds.width = Math.max(bounds.width, list.getPreferredSize().width);
-					
+
 					return bounds;
 				}
-				
 
 				@Override
 				protected void configurePopup() {
 					super.configurePopup();
-					
+
 					setOpaque(true);
-					setBackground(list.getBackground());
-					
+					list.setBackground(Color.white);
+					setBackground(Color.white);
+
 					// use gray instead of black border for combobox popup
 					setBorder(createCompoundBorder(createLineBorder(Color.gray, 1), createEmptyBorder(1, 1, 1, 1)));
 				}
 			};
 		}
 	}
-	
+
 }

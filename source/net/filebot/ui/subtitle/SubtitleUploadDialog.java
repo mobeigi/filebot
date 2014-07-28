@@ -35,7 +35,6 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -43,7 +42,6 @@ import javax.swing.JTable;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 import javax.swing.event.CellEditorListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -52,6 +50,7 @@ import javax.swing.table.TableCellRenderer;
 import net.filebot.Analytics;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
 import net.filebot.ui.LanguageComboBox;
@@ -228,16 +227,11 @@ public class SubtitleUploadDialog extends JDialog {
 				SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 				SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-				JFileChooser chooser = new JFileChooser(mapping.getSubtitle().getParentFile());
-				chooser.setFileFilter(new FileNameExtensionFilter("Video files", VIDEO_FILES.extensions()));
-				chooser.setMultiSelectionEnabled(false);
-
-				if (chooser.showOpenDialog(getWindow(SubtitleUploadDialog.this)) == JFileChooser.APPROVE_OPTION) {
-					if (chooser.getSelectedFile() != null) {
-						mapping.setVideo(chooser.getSelectedFile());
-						mapping.setState(SubtitleMapping.Status.CheckPending);
-						startChecking();
-					}
+				File[] files = showLoadDialogSelectFiles(false, false, mapping.getSubtitle().getParentFile(), VIDEO_FILES, "Select Video File", getWindow(SubtitleUploadDialog.this), Settings.isSandboxed());
+				if (files.length > 0) {
+					mapping.setVideo(files[0]);
+					mapping.setState(SubtitleMapping.Status.CheckPending);
+					startChecking();
 				}
 				return null;
 			}

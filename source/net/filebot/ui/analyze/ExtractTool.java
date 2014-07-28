@@ -6,7 +6,6 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
@@ -22,7 +21,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -31,6 +29,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
 import net.filebot.util.FileUtilities;
@@ -110,21 +109,15 @@ class ExtractTool extends Tool<TableModel> {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			final List<File> archives = ((ArchiveEntryModel) table.getModel()).getArchiveList();
-			if (archives.isEmpty()) {
+			if (archives.isEmpty())
 				return;
-			}
 
-			Window window = getWindow(evt.getSource());
-			JFileChooser chooser = new JFileChooser(archives.get(0).getParentFile());
-			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			chooser.setMultiSelectionEnabled(false);
-			if (chooser.showSaveDialog(window) != JFileChooser.APPROVE_OPTION) {
+			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt.getSource(), Settings.isSandboxed());
+			if (selectedFile == null)
 				return;
-			}
 
-			final ExtractJob job = new ExtractJob(archives, chooser.getSelectedFile());
-
-			final ProgressDialog dialog = new ProgressDialog(window, job);
+			final ExtractJob job = new ExtractJob(archives, selectedFile);
+			final ProgressDialog dialog = new ProgressDialog(getWindow(evt.getSource()), job);
 			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 			dialog.setTitle("Extracting files...");
 			dialog.setIcon((Icon) getValue(SMALL_ICON));

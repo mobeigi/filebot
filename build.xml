@@ -248,8 +248,7 @@
 
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
-			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
-			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
+			<option value="-Dapple.laf.useScreenMenuBar=true" />
 		</bundleapp>
 
 		<!-- application bundle folder as .tar.gz -->
@@ -280,11 +279,9 @@
 			<option value="-Dapplication.cache=./Library/Caches/ehcache.disk.store" />
 			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
 
-			<!-- FULL DIRECTORY ACCESS when processing files in the sandbox -->
-			<option value="-Dapple.awt.fileDialogForDirectories=true" />
-
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
+			<option value="-Dapplication.analytics=false" />
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
@@ -301,8 +298,10 @@
 
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
-			<option value="-Dcom.apple.macos.use-file-dialog-packages=true" />
-			<option value="-Dcom.apple.macos.useScreenMenuBar=true" />
+			<option value="-Dapple.laf.useScreenMenuBar=true" />
+
+			<argument value="--log-file" />
+			<argument value="filebot.log" />
 		</bundleapp>
 	</target>
 

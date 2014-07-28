@@ -100,7 +100,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	public String getFileFilterDescription() {
-		return "files and folders";
+		return "Files and Folders";
 	}
 
 	@Override

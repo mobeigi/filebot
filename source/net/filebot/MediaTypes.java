@@ -5,6 +5,7 @@ import static net.filebot.util.XPathUtilities.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,7 +31,7 @@ public class MediaTypes {
 	private static MediaTypes parseDefault() {
 		try {
 			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(MediaTypes.class.getResourceAsStream("media.types"));
-			Map<String, List<String>> types = new HashMap<String, List<String>>();
+			Map<String, List<String>> types = new LinkedHashMap<String, List<String>>();
 
 			for (Node it : getChildren("type", dom.getFirstChild())) {
 				List<String> extensions = new ArrayList<String>(2);
@@ -92,6 +93,14 @@ public class MediaTypes {
 
 	public static ExtensionFileFilter getDefaultFilter(String name) {
 		return getDefault().getFilter(name);
+	}
+
+	public static ExtensionFileFilter combineFilter(ExtensionFileFilter... filters) {
+		List<String> extensions = new ArrayList<String>();
+		for (ExtensionFileFilter it : filters) {
+			addAll(extensions, it.extensions());
+		}
+		return new ExtensionFileFilter(extensions);
 	}
 
 	// some convenience filters

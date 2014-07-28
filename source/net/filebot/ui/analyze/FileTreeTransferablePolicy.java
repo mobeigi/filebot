@@ -91,7 +91,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 	@Override
 	public String getFileFilterDescription() {
-		return "folders";
+		return "Folders";
 	}
 
 }

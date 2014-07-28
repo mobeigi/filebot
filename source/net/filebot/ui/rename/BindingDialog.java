@@ -15,7 +15,6 @@ import java.text.Format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,7 +32,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -44,13 +42,13 @@ import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
@@ -58,6 +56,7 @@ import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.mediainfo.MediaInfoException;
 import net.filebot.util.DefaultThreadFactory;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.util.ui.LazyDocumentListener;
 import net.miginfocom.swing.MigLayout;
 
@@ -351,31 +350,19 @@ class BindingDialog extends JDialog {
 
 	};
 
-	protected final Action selectFileAction = new AbstractAction("Select File", ResourceManager.getIcon("action.load")) {
+	protected final Action selectFileAction = new AbstractAction("Select Media File", ResourceManager.getIcon("action.load")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			JFileChooser chooser = new JFileChooser();
-			chooser.setSelectedFile(getMediaFile());
+			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
+			File[] file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource(), Settings.isSandboxed());
 
-			// collect media file extensions (video, audio and subtitle files)
-			List<String> extensions = new ArrayList<String>();
-			Collections.addAll(extensions, VIDEO_FILES.extensions());
-			Collections.addAll(extensions, AUDIO_FILES.extensions());
-			Collections.addAll(extensions, SUBTITLE_FILES.extensions());
-
-			chooser.setFileFilter(new FileNameExtensionFilter("Media files", extensions.toArray(new String[0])));
-			chooser.setMultiSelectionEnabled(false);
-
-			if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
+			if (file.length > 0) {
 				// update text field
-				File file = chooser.getSelectedFile();
-
-				// set file
-				mediaFileTextField.setText(file.getAbsolutePath());
+				mediaFileTextField.setText(file[0].getAbsolutePath());
 
 				// set info object from xattr if possible
-				Object object = MediaDetection.readMetaInfo(file);
+				Object object = MediaDetection.readMetaInfo(file[0]);
 				if (object != null && infoObjectFormat.format(object) != null) {
 					setInfoObject(object);
 				}

@@ -152,7 +152,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public String getFileFilterDescription() {
-		return "text files, verification files, torrent files";
+		return "Text Files, Verification Files, Torrent Files";
 	}
 
 }

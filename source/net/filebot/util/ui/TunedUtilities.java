@@ -5,7 +5,9 @@ import static javax.swing.JOptionPane.*;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -17,6 +19,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +32,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -40,13 +45,106 @@ import javax.swing.undo.UndoManager;
 
 public final class TunedUtilities {
 
-	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
+	public static File[] showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, final FilenameFilter filter, String title, Object parent, boolean useNative) {
+		if (useNative) {
+			FileDialog fileDialog = createFileDialog(parent, title, FileDialog.LOAD, folderMode);
+
+			if (defaultFile != null) {
+				fileDialog.setFile(defaultFile.getPath());
+			}
+			if (filter != null) {
+				fileDialog.setFilenameFilter(filter);
+			}
+			fileDialog.setMultipleMode(multiSelection);
+			fileDialog.setVisible(true);
+
+			return fileDialog.getFiles();
+		}
+
+		// use normal Swing JFileChooser by default
+		JFileChooser chooser = new JFileChooser();
+		if (filter != null) {
+			chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return filter.toString();
+				}
+
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory() || filter.accept(f.getParentFile(), f.getName());
+				}
+			});
+		}
+
+		chooser.setSelectedFile(defaultFile);
+		chooser.setFileSelectionMode(folderMode && filter == null ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setMultiSelectionEnabled(multiSelection);
+
+		if (chooser.showOpenDialog(getWindow(parent)) == JFileChooser.APPROVE_OPTION) {
+			if (chooser.getSelectedFiles().length > 0)
+				return chooser.getSelectedFiles();
+			if (chooser.getSelectedFile() != null)
+				return new File[] { chooser.getSelectedFile() };
+		}
+		return new File[0];
+	}
+
+	public static File showOpenDialogSelectFolder(File defaultFile, String title, Object parent, boolean useNative) {
+		File[] folder = showLoadDialogSelectFiles(true, false, defaultFile, null, title, parent, useNative);
+		return folder.length > 0 ? folder[0] : null;
+	}
+
+	public static File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent, boolean useNative) {
+		if (useNative) {
+			FileDialog fileDialog = createFileDialog(getWindow(parent), title, FileDialog.SAVE, folderMode);
+
+			if (defaultFile != null) {
+				if (defaultFile.getParentFile() != null) {
+					fileDialog.setDirectory(defaultFile.getParentFile().getPath());
+				}
+				fileDialog.setFile(defaultFile.getName());
+			}
+			fileDialog.setMultipleMode(false);
+			fileDialog.setVisible(true);
+
+			File[] files = fileDialog.getFiles();
+			return files.length > 0 ? files[0] : null;
+		}
+
+		JFileChooser chooser = new JFileChooser();
+		chooser.setSelectedFile(defaultFile);
+		chooser.setFileSelectionMode(folderMode ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
+		chooser.setMultiSelectionEnabled(false);
+
+		if (chooser.showSaveDialog(getWindow(parent)) != JFileChooser.APPROVE_OPTION) {
+			return null;
+		}
+		return chooser.getSelectedFile();
+	}
+
+	public static FileDialog createFileDialog(Object parent, String title, int mode, boolean fileDialogForDirectories) {
+		System.setProperty("apple.awt.fileDialogForDirectories", String.valueOf(fileDialogForDirectories));
+
+		if (parent instanceof Frame) {
+			return new FileDialog((Frame) parent, title, mode);
+		}
+		if (parent instanceof Dialog) {
+			return new FileDialog((Dialog) parent, title, mode);
+		}
+
+		Frame[] frames = Frame.getFrames();
+		return new FileDialog(frames.length > 0 ? frames[0] : null, title, mode);
+	}
 
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("Method must be accessed from the Swing Event Dispatch Thread, but was called on Thread \"" + Thread.currentThread().getName() + "\"");
 		}
 	}
+
+	public static final Color TRANSLUCENT = new Color(255, 255, 255, 0);
 
 	public static Color interpolateHSB(Color c1, Color c2, float f) {
 		float[] hsb1 = Color.RGBtoHSB(c1.getRed(), c1.getGreen(), c1.getBlue(), null);

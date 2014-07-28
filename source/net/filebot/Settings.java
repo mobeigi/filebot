@@ -63,7 +63,7 @@ public final class Settings {
 	}
 
 	public static boolean isSandboxed() {
-		return "mas".equals(System.getProperty("application.deployment"));
+		return "mas".equals(getApplicationDeployment());
 	}
 
 	public static int getPreferredThreadPoolSize() {

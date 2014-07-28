@@ -695,7 +695,7 @@ public final class FileUtilities {
 		}
 	}
 
-	public static class ExtensionFileFilter implements FileFilter {
+	public static class ExtensionFileFilter implements FileFilter, FilenameFilter {
 
 		private final String[] extensions;
 
@@ -705,6 +705,11 @@ public final class FileUtilities {
 
 		public ExtensionFileFilter(Collection<String> extensions) {
 			this.extensions = extensions.toArray(new String[0]);
+		}
+
+		@Override
+		public boolean accept(File dir, String name) {
+			return hasExtension(name, extensions);
 		}
 
 		@Override
@@ -731,6 +736,18 @@ public final class FileUtilities {
 
 		public String[] extensions() {
 			return extensions.clone();
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder s = new StringBuilder();
+			for (String it : extensions) {
+				if (s.length() > 0) {
+					s.append(", ");
+				}
+				s.append("*.").append(it);
+			}
+			return s.toString();
 		}
 	}
 

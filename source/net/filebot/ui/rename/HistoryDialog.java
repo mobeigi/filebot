@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -39,7 +40,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -459,7 +459,7 @@ class HistoryDialog extends JDialog {
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(ActionEvent evt) {
 			List<Element> elements = elements();
 			if (elements.isEmpty())
 				return;
@@ -515,13 +515,7 @@ class HistoryDialog extends JDialog {
 
 				// change directory option
 				if (selectedOption == Option.ChangeDirectory) {
-					JFileChooser chooser = new JFileChooser(directory);
-					chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-					chooser.setMultiSelectionEnabled(false);
-
-					if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-						directory = chooser.getSelectedFile();
-					}
+					directory = showOpenDialogSelectFolder(directory, selectedOption.toString(), evt.getSource(), Settings.isSandboxed());
 				}
 			}
 
@@ -625,7 +619,7 @@ class HistoryDialog extends JDialog {
 
 		@Override
 		public String getFileFilterDescription() {
-			return "history files (.xml)";
+			return "History Files (.xml)";
 		}
 	};
 

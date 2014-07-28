@@ -1,16 +1,15 @@
 package net.filebot.ui.transfer;
 
 import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.ui.TunedUtilities.*;
 
-import java.awt.FileDialog;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Icon;
-import javax.swing.JFileChooser;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -56,52 +55,18 @@ public class LoadAction extends AbstractAction {
 				return;
 			}
 
-			File[] files = showSelectFiles(new TransferablePolicyFileFilter(transferablePolicy));
+			File[] files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource(), Settings.isSandboxed());
 			if (files == null || files.length == 0) {
 				return;
 			}
 
 			FileTransferable transferable = new FileTransferable(files);
-
 			if (transferablePolicy.accept(transferable)) {
 				transferablePolicy.handleTransferable(transferable, getTransferAction(evt));
 			}
 		} catch (Exception e) {
-			UILogger.log(Level.WARNING, e.getMessage(), e);
+			UILogger.log(Level.WARNING, e.toString(), e);
 		}
 	}
 
-	public File[] showSelectFiles(TransferablePolicyFileFilter fileFilter) {
-		if (Settings.isSandboxed()) {
-			Frame[] frames = Frame.getFrames();
-			Frame mainFrame = frames.length > 0 ? frames[0] : null;
-			FileDialog fileDialog = new FileDialog(mainFrame, "", FileDialog.LOAD);
-
-			File currentFolder = getDefaultFolder();
-			if (currentFolder != null) {
-				fileDialog.setDirectory(currentFolder.getPath());
-			}
-			fileDialog.setMultipleMode(true);
-			fileDialog.setVisible(true);
-
-			File[] files = fileDialog.getFiles();
-			if (files.length > 0) {
-				setDefaultFolder(new File(fileDialog.getDirectory()));
-			}
-			return files;
-		}
-
-		// use normal Swing JFileChooser by default
-		JFileChooser chooser = new JFileChooser(getDefaultFolder());
-		chooser.setFileFilter(fileFilter);
-		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		chooser.setMultiSelectionEnabled(true);
-
-		if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) {
-			return null;
-		}
-
-		setDefaultFolder(chooser.getCurrentDirectory());
-		return chooser.getSelectedFiles();
-	}
 }

@@ -32,11 +32,15 @@ public class TransferablePolicyFileFilter extends FileFilter implements Filename
 
 	@Override
 	public String getDescription() {
+		return this.toString();
+	}
+
+	@Override
+	public String toString() {
 		if (transferablePolicy instanceof FileTransferablePolicy) {
 			return ((FileTransferablePolicy) transferablePolicy).getFileFilterDescription();
 		}
-
-		return null;
+		return super.toString();
 	}
 
 }
