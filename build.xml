@@ -310,11 +310,11 @@
 
 	<target name="ppa-binary" depends="svn-update">
 		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
-			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="amd64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
+			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<tarfileset prefix="amd64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
-			<tarfileset prefix="i386/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="i686/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset prefix="amd64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
@@ -322,10 +322,10 @@
 	</target>
 
 
-	<target name="deb" description="Build debian package for i386 and amd64">
+	<target name="deb" description="Build debian package for i686 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
 		<antcall target="deb-arch">
-			<param name="arch" value="i386" />
+			<param name="arch" value="i686" />
 		</antcall>
 		<antcall target="deb-arch">
 			<param name="arch" value="amd64" />
@@ -478,7 +478,7 @@
 			<param name="arch" value="win32-x64" />
 		</antcall>
 		<antcall target="webstart-nativelib">
-			<param name="arch" value="linux-i386" />
+			<param name="arch" value="linux-i686" />
 		</antcall>
 		<antcall target="webstart-nativelib">
 			<param name="arch" value="linux-amd64" />
@@ -615,7 +615,7 @@
 		<!-- prepare release packages -->
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.tar.gz}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i386.deb" />
+		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i686.deb" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_amd64.deb" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_arm.ipk" />
 		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i686.ipk" />

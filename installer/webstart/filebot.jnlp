@@ -71,8 +71,8 @@
 	<resources os="Windows" arch="amd64">
 		<nativelib href="native/win32-x64.jar"   download="lazy" part="native" />
 	</resources>
-	<resources os="Linux" arch="i386">
-		<nativelib href="native/linux-i386.jar"  download="lazy" part="native" />
+	<resources os="Linux" arch="i686">
+		<nativelib href="native/linux-i686.jar"  download="lazy" part="native" />
 	</resources>
 	<resources os="Linux" arch="amd64">
 		<nativelib href="native/linux-amd64.jar" download="lazy" part="native" />
