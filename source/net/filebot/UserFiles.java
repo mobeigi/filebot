@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static java.util.Arrays.*;
-import static java.util.Collections.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -147,48 +146,6 @@ public class UserFiles {
 
 				Frame[] frames = Frame.getFrames();
 				return new FileDialog(frames.length > 0 ? frames[0] : null, title, mode);
-			}
-		},
-
-		JavaFX {
-			@Override
-			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
-				javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-				fileChooser.setTitle(title);
-				// fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter(arg0, arg1))
-
-				if (defaultFile != null) {
-					if (defaultFile.getParentFile() != null) {
-						fileChooser.setInitialDirectory(defaultFile.getParentFile());
-					}
-					fileChooser.setInitialFileName(defaultFile.getName());
-				}
-
-				if (multiSelection) {
-					List<File> files = fileChooser.showOpenMultipleDialog(null);
-					if (files != null)
-						return files;
-				} else {
-					File file = fileChooser.showOpenDialog(null);
-					if (file != null)
-						return singletonList(file);
-				}
-				return emptyList();
-			}
-
-			@Override
-			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
-				javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
-				fileChooser.setTitle(title);
-
-				if (defaultFile != null) {
-					if (defaultFile.getParentFile() != null) {
-						fileChooser.setInitialDirectory(defaultFile.getParentFile());
-					}
-					fileChooser.setInitialFileName(defaultFile.getName());
-				}
-
-				return fileChooser.showSaveDialog(null);
 			}
 		};
 

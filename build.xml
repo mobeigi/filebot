@@ -279,7 +279,7 @@
 			<option value="-Dapplication.cache=./Library/Caches/ehcache.disk.store" />
 			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
 
-			<option value="-Dnet.filebot.UserFiles.useNative=true" />
+			<option value="-Dnet.filebot.UserFiles.fileChooser=AWT" />
 
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />

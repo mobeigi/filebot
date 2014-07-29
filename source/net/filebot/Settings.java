@@ -68,7 +68,8 @@ public final class Settings {
 	}
 
 	public static FileChooser getPreferredFileChooser() {
-		return FileChooser.valueOf(System.getProperty("net.filebot.UserFiles.fileChooser", FileChooser.Swing.name()));
+		String prop = System.getProperty("net.filebot.UserFiles.fileChooser");
+		return prop == null ? FileChooser.Swing : FileChooser.valueOf(prop);
 	}
 
 	public static int getPreferredThreadPoolSize() {
