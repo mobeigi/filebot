@@ -320,10 +320,10 @@
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
 			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" excludes="**/bin/**" />
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" includes="**/bin/**" file="755" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" excludes="**/bin/**" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" includes="**/bin/**" file="755" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" excludes="bin/**" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" includes="bin/**" file="755" />
+			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" excludes="bin/**" />
+			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" includes="bin/**" file="755" />
 		</tar>
 	</target>
 
