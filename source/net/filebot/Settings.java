@@ -60,7 +60,7 @@ public final class Settings {
 	}
 
 	public static boolean useDonationReminder() {
-		return !("ppa".equals(getApplicationDeployment()) || "mas".equals(getApplicationDeployment()));
+		return !("mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment()));
 	}
 
 	public static boolean isSandboxed() {
