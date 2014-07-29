@@ -1,6 +1,7 @@
 package net.filebot.format;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.Define.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
@@ -818,7 +819,7 @@ public class MediaBindingBean {
 
 			// still no good match found -> just take the most probable video from the same folder
 			if (videos.size() > 0) {
-				videos.sort(new SimilarityComparator(FileUtilities.getName(mediaFile)) {
+				sort(videos, new SimilarityComparator(FileUtilities.getName(mediaFile)) {
 
 					@Override
 					public int compare(Object o1, Object o2) {
