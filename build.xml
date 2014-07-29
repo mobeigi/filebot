@@ -312,10 +312,16 @@
 		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
 			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+
 			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+
 			<tarfileset prefix="i686/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+
+			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
+
 			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
