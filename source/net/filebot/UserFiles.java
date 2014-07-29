@@ -26,9 +26,9 @@ public class UserFiles {
 	}
 
 	public static List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
-		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(folderMode, multiSelection, getFileChooserDefaultFile(KEY_OPEN, defaultFile), filter, title, parent);
+		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(folderMode, multiSelection, getFileChooserDefaultFile(folderMode ? KEY_OPEN_FOLDER : KEY_OPEN_FILE, defaultFile), filter, title, parent);
 		if (files.size() > 0) {
-			setFileChooserDefaultFile(KEY_OPEN, files.get(0));
+			setFileChooserDefaultFile(folderMode ? KEY_OPEN_FOLDER : KEY_OPEN_FILE, files.get(0));
 		}
 		return files;
 	}
@@ -46,9 +46,10 @@ public class UserFiles {
 		return folder.size() > 0 ? folder.get(0) : null;
 	}
 
-	private static final String PREF_KEY_PREFIX = "file.dialog.";
-	private static final String KEY_OPEN = "open";
-	private static final String KEY_SAVE = "save";
+	private static final String PREF_KEY_PREFIX = "dialog.";
+	private static final String KEY_OPEN_FILE = "open.file";
+	private static final String KEY_OPEN_FOLDER = "open.folder";
+	private static final String KEY_SAVE = "save.file";
 
 	protected static File getFileChooserDefaultFile(String name, File userValue) {
 		if (userValue != null && userValue.getParentFile() != null)
@@ -160,6 +161,22 @@ public class UserFiles {
 
 					@Override
 					public List<File> call() throws Exception {
+						// show DirectoryChooser
+						if (folderMode) {
+							javafx.stage.DirectoryChooser directoryChooser = new javafx.stage.DirectoryChooser();
+							directoryChooser.setTitle(title);
+							if (defaultFile != null) {
+								directoryChooser.setInitialDirectory(defaultFile);
+							}
+
+							File file = directoryChooser.showDialog(null);
+							if (file != null)
+								return singletonList(file);
+							else
+								return emptyList();
+						}
+
+						// show FileChooser
 						javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
 						fileChooser.setTitle(title);
 						if (filter != null) {
@@ -169,7 +186,6 @@ public class UserFiles {
 							}
 							fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter(filter.toString(), globFilter));
 						}
-
 						if (defaultFile != null) {
 							if (defaultFile.getParentFile() != null) {
 								fileChooser.setInitialDirectory(defaultFile.getParentFile());
@@ -188,7 +204,6 @@ public class UserFiles {
 						}
 						return emptyList();
 					}
-
 				});
 			}
 
@@ -210,7 +225,6 @@ public class UserFiles {
 
 						return fileChooser.showSaveDialog(null);
 					}
-
 				});
 			}
 
