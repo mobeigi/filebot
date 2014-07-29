@@ -309,7 +309,7 @@
 
 
 	<target name="ppa-binary" depends="svn-update">
-		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}" verbose="true">
+		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
 			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
