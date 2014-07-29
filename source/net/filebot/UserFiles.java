@@ -1,6 +1,7 @@
 package net.filebot;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -9,6 +10,8 @@ import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 import javax.swing.JFileChooser;
 
@@ -146,6 +149,83 @@ public class UserFiles {
 
 				Frame[] frames = Frame.getFrames();
 				return new FileDialog(frames.length > 0 ? frames[0] : null, title, mode);
+			}
+		},
+
+		JavaFX {
+
+			@Override
+			public List<File> showLoadDialogSelectFiles(final boolean folderMode, final boolean multiSelection, final File defaultFile, final ExtensionFileFilter filter, final String title, final Object parent) {
+				return runAndWait(new Callable<List<File>>() {
+
+					@Override
+					public List<File> call() throws Exception {
+						javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+						fileChooser.setTitle(title);
+						if (filter != null) {
+							String[] globFilter = filter.extensions();
+							for (int i = 0; i < globFilter.length; i++) {
+								globFilter[i] = "*." + globFilter[i];
+							}
+							fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter(filter.toString(), globFilter));
+						}
+
+						if (defaultFile != null) {
+							if (defaultFile.getParentFile() != null) {
+								fileChooser.setInitialDirectory(defaultFile.getParentFile());
+							}
+							fileChooser.setInitialFileName(defaultFile.getName());
+						}
+
+						if (multiSelection) {
+							List<File> files = fileChooser.showOpenMultipleDialog(null);
+							if (files != null)
+								return files;
+						} else {
+							File file = fileChooser.showOpenDialog(null);
+							if (file != null)
+								return singletonList(file);
+						}
+						return emptyList();
+					}
+
+				});
+			}
+
+			@Override
+			public File showSaveDialogSelectFile(final boolean folderMode, final File defaultFile, final String title, final Object parent) {
+				return runAndWait(new Callable<File>() {
+
+					@Override
+					public File call() throws Exception {
+						javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+						fileChooser.setTitle(title);
+
+						if (defaultFile != null) {
+							if (defaultFile.getParentFile() != null) {
+								fileChooser.setInitialDirectory(defaultFile.getParentFile());
+							}
+							fileChooser.setInitialFileName(defaultFile.getName());
+						}
+
+						return fileChooser.showSaveDialog(null);
+					}
+
+				});
+			}
+
+			public <T> T runAndWait(Callable<T> c) {
+				try {
+					// initialize JavaFX
+					new javafx.embed.swing.JFXPanel();
+
+					// run on FX Thread
+					FutureTask<T> task = new FutureTask<T>(c);
+					javafx.application.Platform.runLater(task);
+					return task.get();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 		};
 
