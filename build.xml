@@ -339,7 +339,7 @@
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" depends="openjdk-7-jre | openjdk-7-jre-headless" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
