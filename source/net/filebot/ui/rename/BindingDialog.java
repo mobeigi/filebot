@@ -355,14 +355,14 @@ class BindingDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
-			File[] file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource());
+			List<File> file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource());
 
-			if (file.length > 0) {
+			if (file.size() > 0) {
 				// update text field
-				mediaFileTextField.setText(file[0].getAbsolutePath());
+				mediaFileTextField.setText(file.get(0).getAbsolutePath());
 
 				// set info object from xattr if possible
-				Object object = MediaDetection.readMetaInfo(file[0]);
+				Object object = MediaDetection.readMetaInfo(file.get(0));
 				if (object != null && infoObjectFormat.format(object) != null) {
 					setInfoObject(object);
 				}

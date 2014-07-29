@@ -5,6 +5,7 @@ import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -55,8 +56,8 @@ public class LoadAction extends AbstractAction {
 				return;
 			}
 
-			File[] files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
-			if (files == null || files.length == 0) {
+			List<File> files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
+			if (files.isEmpty()) {
 				return;
 			}
 

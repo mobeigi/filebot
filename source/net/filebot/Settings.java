@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import net.filebot.UserFiles.FileChooser;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -64,6 +65,10 @@ public final class Settings {
 
 	public static boolean isSandboxed() {
 		return "mas".equals(getApplicationDeployment());
+	}
+
+	public static FileChooser getPreferredFileChooser() {
+		return FileChooser.valueOf(System.getProperty("net.filebot.UserFiles.fileChooser", FileChooser.Swing.name()));
 	}
 
 	public static int getPreferredThreadPoolSize() {
