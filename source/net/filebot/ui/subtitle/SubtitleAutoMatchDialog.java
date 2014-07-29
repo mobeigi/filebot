@@ -4,7 +4,7 @@ import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Component;

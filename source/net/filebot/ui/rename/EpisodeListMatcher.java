@@ -6,7 +6,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Dimension;

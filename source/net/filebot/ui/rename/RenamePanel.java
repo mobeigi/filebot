@@ -7,7 +7,7 @@ import static javax.swing.SwingUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;

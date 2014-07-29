@@ -3,7 +3,7 @@ package net.filebot.ui.subtitle;
 import static net.filebot.Settings.*;
 import static net.filebot.ui.LanguageComboBoxModel.*;
 import static net.filebot.ui.NotificationLogging.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Cursor;

@@ -52,7 +52,7 @@ import net.filebot.ui.subtitle.SubtitlePanelBuilder;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
 
@@ -111,7 +111,7 @@ public class MainFrame extends JFrame {
 		setSize(980, 630);
 
 		// KEYBOARD SHORTCUTS
-		TunedUtilities.installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), new AbstractAction("Clear Cache") {
+		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_DELETE, CTRL_MASK | SHIFT_MASK), new AbstractAction("Clear Cache") {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -120,7 +120,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		TunedUtilities.installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), new AbstractAction("Run") {
+		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_F5, 0), new AbstractAction("Run") {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
@@ -223,7 +223,7 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void dragEnter(final DropTargetDragEvent dtde) {
-				dragEnterTimer = TunedUtilities.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
+				dragEnterTimer = SwingUI.invokeLater(SELECTDELAY_ON_DRAG_OVER, new Runnable() {
 
 					@Override
 					public void run() {

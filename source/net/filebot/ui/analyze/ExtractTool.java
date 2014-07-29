@@ -4,7 +4,7 @@ import static net.filebot.UserFiles.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

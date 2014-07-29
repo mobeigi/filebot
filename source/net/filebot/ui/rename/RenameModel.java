@@ -24,7 +24,7 @@ import javax.swing.SwingWorker.StateValue;
 
 import net.filebot.similarity.Match;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.TransformedList;
 import ca.odell.glazedlists.event.ListEvent;
@@ -223,7 +223,7 @@ public class RenameModel extends MatchModel<Object, File> {
 						// caused by a rapid succession of change events.
 						// The worker may only need a couple of milliseconds to complete,
 						// so the view will be notified of the change soon enough.
-						TunedUtilities.invokeLater(50, new Runnable() {
+						SwingUI.invokeLater(50, new Runnable() {
 
 							@Override
 							public void run() {

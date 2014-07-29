@@ -2,7 +2,7 @@ package net.filebot;
 
 import static java.util.Arrays.*;
 import static net.filebot.Settings.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Dialog;
 import java.awt.FileDialog;

@@ -2,7 +2,7 @@
 package net.filebot.ui;
 
 
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 
@@ -78,7 +78,7 @@ public class SelectDialog<T> extends JDialog {
 		setSize(new Dimension(210, 210));
 		
 		// Shortcut Enter
-		TunedUtilities.installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
+		SwingUI.installAction(list, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), selectAction);
 	}
 	
 	

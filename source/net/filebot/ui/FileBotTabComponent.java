@@ -13,7 +13,7 @@ import javax.swing.SwingConstants;
 
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.ProgressIndicator;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 
@@ -57,7 +57,7 @@ public class FileBotTabComponent extends JComponent {
 
 	public void setIcon(Icon icon) {
 		iconLabel.setIcon(icon);
-		progressIndicator.setPreferredSize(icon != null ? TunedUtilities.getDimension(icon) : progressIndicator.getMinimumSize());
+		progressIndicator.setPreferredSize(icon != null ? SwingUI.getDimension(icon) : progressIndicator.getMinimumSize());
 	}
 	
 
@@ -88,7 +88,7 @@ public class FileBotTabComponent extends JComponent {
 		JButton button = new JButton(icon);
 		button.setRolloverIcon(rolloverIcon);
 		
-		button.setPreferredSize(TunedUtilities.getDimension(rolloverIcon));
+		button.setPreferredSize(SwingUI.getDimension(rolloverIcon));
 		button.setMaximumSize(button.getPreferredSize());
 		
 		button.setContentAreaFilled(false);

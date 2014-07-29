@@ -5,7 +5,7 @@ import static net.filebot.UserFiles.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -47,7 +47,7 @@ import net.filebot.ui.subtitle.SubtitlePackage.Download.Phase;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.ui.ListView;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.filebot.vfs.MemoryFile;
 import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.BasicEventList;
@@ -131,7 +131,7 @@ class SubtitleDownloadComponent extends JComponent {
 		add(scrollPane, "newline, hmin max(80px, 30%)");
 
 		// install fetch action
-		TunedUtilities.installAction(packageList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Fetch") {
+		SwingUI.installAction(packageList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Fetch") {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -140,7 +140,7 @@ class SubtitleDownloadComponent extends JComponent {
 		});
 
 		// install open action
-		TunedUtilities.installAction(fileList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Open") {
+		SwingUI.installAction(fileList, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("Open") {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

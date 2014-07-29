@@ -8,7 +8,7 @@ package net.filebot.util.ui.notification;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 
 
 public class NotificationManager {
@@ -27,7 +27,7 @@ public class NotificationManager {
 	
 
 	public void show(NotificationWindow notification) {
-		TunedUtilities.checkEventDispatchThread();
+		SwingUI.checkEventDispatchThread();
 		
 		notification.addWindowListener(new RemoveListener());
 		layout.add(notification);

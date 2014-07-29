@@ -35,7 +35,7 @@ import net.filebot.ui.FileBotListExportHandler;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.util.ExceptionUtilities;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class ListPanel extends JComponent {
@@ -81,7 +81,7 @@ public class ListPanel extends JComponent {
 
 		list.add(buttonPanel, BorderLayout.SOUTH);
 
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), createAction);
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), createAction);
 	}
 
 	private AbstractAction createAction = new AbstractAction("Create") {

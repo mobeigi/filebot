@@ -2,7 +2,7 @@ package net.filebot.ui.rename;
 
 import static net.filebot.similarity.EpisodeMetrics.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

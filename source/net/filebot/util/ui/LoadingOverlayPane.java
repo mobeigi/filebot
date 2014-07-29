@@ -57,7 +57,7 @@ public class LoadingOverlayPane extends JComponent {
 		overlayEnabled = b;
 		
 		if (overlayEnabled) {
-			TunedUtilities.invokeLater(millisToOverlay, new Runnable() {
+			SwingUI.invokeLater(millisToOverlay, new Runnable() {
 				
 				@Override
 				public void run() {

@@ -77,7 +77,7 @@ public class ListView extends JList {
 	
 
 	protected void paintBlockSelection(Graphics2D g2d, Rectangle selection) {
-		g2d.setPaint(TunedUtilities.derive(getSelectionBackground(), 0.3f));
+		g2d.setPaint(SwingUI.derive(getSelectionBackground(), 0.3f));
 		g2d.fill(selection);
 		
 		g2d.setPaint(getSelectionBackground());
@@ -108,7 +108,7 @@ public class ListView extends JList {
 			
 			if (isSelected && icon != null) {
 				// apply selection color tint
-				icon = new ImageIcon(createImage(new FilteredImageSource(TunedUtilities.getImage(icon).getSource(), new ColorTintImageFilter(list.getSelectionBackground(), 0.5f))));
+				icon = new ImageIcon(createImage(new FilteredImageSource(SwingUI.getImage(icon).getSource(), new ColorTintImageFilter(list.getSelectionBackground(), 0.5f))));
 			}
 			
 			setText(convertValueToText(value));

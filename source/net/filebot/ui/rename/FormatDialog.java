@@ -4,7 +4,7 @@ import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -71,7 +71,7 @@ import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LazyDocumentListener;
 import net.filebot.util.ui.LinkButton;
 import net.filebot.util.ui.ProgressIndicator;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.util.ui.notification.SeparatorBorder.Position;
 import net.filebot.web.AudioTrackFormat;
@@ -477,7 +477,7 @@ public class FormatDialog extends JDialog {
 			final ExpressionFormat format = new ExpressionFormat(editor.getText().trim());
 
 			// activate delayed to avoid flickering when formatting takes only a couple of milliseconds
-			final Timer progressIndicatorTimer = TunedUtilities.invokeLater(400, new Runnable() {
+			final Timer progressIndicatorTimer = SwingUI.invokeLater(400, new Runnable() {
 
 				@Override
 				public void run() {

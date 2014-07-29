@@ -16,7 +16,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JWindow;
 import javax.swing.Timer;
 
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 
 
 public class NotificationWindow extends JWindow {
@@ -50,7 +50,7 @@ public class NotificationWindow extends JWindow {
 	
 
 	public final void close() {
-		TunedUtilities.checkEventDispatchThread();
+		SwingUI.checkEventDispatchThread();
 		
 		// window events are not fired automatically, required for layout updates
 		processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -71,7 +71,7 @@ public class NotificationWindow extends JWindow {
 		@Override
 		public void componentShown(ComponentEvent e) {
 			if (timeout >= 0) {
-				timer = TunedUtilities.invokeLater(timeout, new Runnable() {
+				timer = SwingUI.invokeLater(timeout, new Runnable() {
 					
 					@Override
 					public void run() {

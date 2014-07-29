@@ -38,7 +38,7 @@ import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
-public final class TunedUtilities {
+public final class SwingUI {
 
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
@@ -282,7 +282,7 @@ public final class TunedUtilities {
 	/**
 	 * Dummy constructor to prevent instantiation.
 	 */
-	private TunedUtilities() {
+	private SwingUI() {
 		throw new UnsupportedOperationException();
 	}
 

@@ -17,7 +17,7 @@ import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.TextFileExportHandler;
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.util.ui.DefaultFancyListCellRenderer;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import ca.odell.glazedlists.BasicEventList;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.swing.EventListModel;
@@ -45,8 +45,8 @@ public class FileBotList<E> extends JComponent {
 		// Shortcut DELETE, disabled by default
 		getRemoveAction().setEnabled(false);
 
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeHook);
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.ALT_DOWN_MASK), removeHook);
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeHook);
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.ALT_DOWN_MASK), removeHook);
 	}
 
 	public EventList<E> getModel() {

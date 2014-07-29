@@ -2,7 +2,7 @@ package net.filebot.ui;
 
 import static javax.swing.ScrollPaneConstants.*;
 import static net.filebot.ui.NotificationLogging.*;
-import static net.filebot.util.ui.TunedUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Dimension;
 import java.awt.Window;

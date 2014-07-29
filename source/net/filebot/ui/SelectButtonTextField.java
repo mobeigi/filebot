@@ -29,7 +29,7 @@ import javax.swing.text.JTextComponent;
 
 import net.filebot.ResourceManager;
 import net.filebot.util.ui.SelectButton;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class SelectButtonTextField<T> extends JComponent {
@@ -52,8 +52,8 @@ public class SelectButtonTextField<T> extends JComponent {
 		editor.setUI(new TextFieldComboBoxUI());
 		editor.setMaximumRowCount(10);
 
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_MASK), new SpinClientAction(1));
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_UP, KeyEvent.CTRL_MASK), new SpinClientAction(-1));
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, KeyEvent.CTRL_MASK), new SpinClientAction(1));
 	}
 
 	public String getText() {
@@ -112,7 +112,7 @@ public class SelectButtonTextField<T> extends JComponent {
 				if (isSelected) {
 					matcher.appendReplacement(htmlText, "<span style='font-weight: bold;'>$0</span>");
 				} else {
-					matcher.appendReplacement(htmlText, "<span style='color: " + TunedUtilities.toHex(list.getSelectionBackground()) + "; font-weight: bold;'>$0</span>");
+					matcher.appendReplacement(htmlText, "<span style='color: " + SwingUI.toHex(list.getSelectionBackground()) + "; font-weight: bold;'>$0</span>");
 				}
 			}
 

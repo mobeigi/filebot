@@ -34,7 +34,7 @@ import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.SaveAction;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.ui.TunedUtilities;
+import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
 
 public class SfvPanel extends JComponent {
@@ -87,7 +87,7 @@ public class SfvPanel extends JComponent {
 		putClientProperty("transferablePolicy", transferablePolicy);
 
 		// Shortcut DELETE
-		TunedUtilities.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
+		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), removeAction);
 	}
 
 	protected void restartComputation(HashType hash) {
