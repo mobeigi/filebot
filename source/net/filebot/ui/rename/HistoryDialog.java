@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
@@ -620,6 +621,11 @@ class HistoryDialog extends JDialog {
 		@Override
 		public String getFileFilterDescription() {
 			return "History Files (.xml)";
+		}
+
+		@Override
+		public List<String> getFileFilterExtensions() {
+			return asList("xml");
 		}
 	};
 

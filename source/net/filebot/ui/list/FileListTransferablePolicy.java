@@ -1,5 +1,7 @@
 package net.filebot.ui.list;
 
+import static java.util.Arrays.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
@@ -7,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.filebot.MediaTypes;
 import net.filebot.torrent.Torrent;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.FileTransferablePolicy;
@@ -39,7 +40,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 		// clear selection
 		list.getListComponent().clearSelection();
 
-		if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
+		if (containsOnly(files, TORRENT_FILES)) {
 			loadTorrents(files);
 		} else {
 			// if only one folder was dropped, use its name as title
@@ -75,6 +76,11 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	@Override
 	public String getFileFilterDescription() {
 		return "Files, Folders and Torrents";
+	}
+
+	@Override
+	public List<String> getFileFilterExtensions() {
+		return asList("*");
 	}
 
 }

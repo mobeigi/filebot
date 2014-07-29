@@ -3,6 +3,7 @@ package net.filebot.ui.sfv;
 import static java.lang.Math.*;
 import static net.filebot.ui.sfv.ChecksumTableModel.*;
 import static net.filebot.ui.transfer.BackgroundFileTransferablePolicy.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -228,14 +229,9 @@ public class SfvPanel extends JComponent {
 		}
 
 		@Override
-		protected String getDefaultFileName() {
-			return getExportHandler().getDefaultFileName(selectedColumn);
-		}
-
-		@Override
-		protected File getDefaultFolder() {
+		protected File getDefaultFile() {
 			// use the column root as default folder in the file dialog
-			return selectedColumn;
+			return new File(selectedColumn, validateFileName(getExportHandler().getDefaultFileName(selectedColumn)));
 		}
 
 		@Override

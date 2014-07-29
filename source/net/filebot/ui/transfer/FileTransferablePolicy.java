@@ -46,8 +46,8 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 
 	protected abstract void clear();
 
-	public String getFileFilterDescription() {
-		return null;
-	}
+	public abstract String getFileFilterDescription();
+
+	public abstract List<String> getFileFilterExtensions();
 
 }

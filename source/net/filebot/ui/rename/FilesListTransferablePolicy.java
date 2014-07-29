@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
@@ -101,6 +102,11 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 	@Override
 	public String getFileFilterDescription() {
 		return "Files and Folders";
+	}
+
+	@Override
+	public List<String> getFileFilterExtensions() {
+		return asList("*");
 	}
 
 	@Override

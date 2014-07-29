@@ -1,6 +1,8 @@
 package net.filebot.ui.rename;
 
 import static java.awt.datatransfer.DataFlavor.*;
+import static java.util.Arrays.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
@@ -14,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-import net.filebot.MediaTypes;
 import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
 import net.filebot.torrent.Torrent;
@@ -85,13 +86,13 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	protected void load(List<File> files) throws IOException {
 		List<Object> values = new ArrayList<Object>();
 
-		if (containsOnly(files, MediaTypes.getDefaultFilter("application/list"))) {
+		if (containsOnly(files, LIST_FILES)) {
 			// list files
 			loadListFiles(files, values);
-		} else if (containsOnly(files, MediaTypes.getDefaultFilter("verification"))) {
+		} else if (containsOnly(files, VERIFICATION_FILES)) {
 			// verification files
 			loadVerificationFiles(files, values);
-		} else if (containsOnly(files, MediaTypes.getDefaultFilter("application/torrent"))) {
+		} else if (containsOnly(files, TORRENT_FILES)) {
 			// torrent files
 			loadTorrentFiles(files, values);
 		} else {
@@ -153,6 +154,11 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	@Override
 	public String getFileFilterDescription() {
 		return "Text Files, Verification Files, Torrent Files";
+	}
+
+	@Override
+	public List<String> getFileFilterExtensions() {
+		return asList(combineFilter(LIST_FILES, TORRENT_FILES, VERIFICATION_FILES).extensions());
 	}
 
 }

@@ -14,7 +14,6 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 
 public class SaveAction extends AbstractAction {
 
@@ -42,31 +41,16 @@ public class SaveAction extends AbstractAction {
 		getExportHandler().export(file);
 	}
 
-	protected String getDefaultFileName() {
-		return getExportHandler().getDefaultFileName();
-	}
-
-	protected File getDefaultFolder() {
-		String lastLocation = Settings.forPackage(SaveAction.class).get("save.location");
-
-		if (lastLocation == null || lastLocation.isEmpty())
-			return null;
-
-		return new File(lastLocation);
-	}
-
-	protected void setDefaultFolder(File folder) {
-		Settings.forPackage(LoadAction.class).put("save.location", folder.getPath());
+	protected File getDefaultFile() {
+		return new File(validateFileName(getExportHandler().getDefaultFileName()));
 	}
 
 	public void actionPerformed(ActionEvent evt) {
 		try {
 			if (canExport()) {
-				File defaultFile = new File(getDefaultFolder(), validateFileName(getDefaultFileName()));
-				File file = showSaveDialogSelectFile(false, defaultFile, (String) getValue(Action.NAME), evt.getSource());
+				File file = showSaveDialogSelectFile(false, getDefaultFile(), (String) getValue(Action.NAME), evt.getSource());
 
 				if (file != null) {
-					setDefaultFolder(file.getParentFile());
 					export(file);
 				}
 			}
@@ -74,5 +58,4 @@ public class SaveAction extends AbstractAction {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.toString(), e);
 		}
 	}
-
 }

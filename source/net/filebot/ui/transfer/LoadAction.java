@@ -13,8 +13,8 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import net.filebot.ResourceManager;
-import net.filebot.Settings;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class LoadAction extends AbstractAction {
 
@@ -35,17 +35,8 @@ public class LoadAction extends AbstractAction {
 		return ((evt.getModifiers() & ActionEvent.CTRL_MASK) != 0) ? TransferAction.ADD : TransferAction.PUT;
 	}
 
-	protected File getDefaultFolder() {
-		String lastLocation = Settings.forPackage(LoadAction.class).get("load.location");
-
-		if (lastLocation == null || lastLocation.isEmpty())
-			return null;
-
-		return new File(lastLocation);
-	}
-
-	protected void setDefaultFolder(File folder) {
-		Settings.forPackage(LoadAction.class).put("load.location", folder.getPath());
+	protected File getDefaultFile() {
+		return null;
 	}
 
 	public void actionPerformed(ActionEvent evt) {
@@ -56,7 +47,7 @@ public class LoadAction extends AbstractAction {
 				return;
 			}
 
-			List<File> files = showLoadDialogSelectFiles(true, true, getDefaultFolder(), new TransferablePolicyFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
+			List<File> files = showLoadDialogSelectFiles(true, true, getDefaultFile(), getFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
 			if (files.isEmpty()) {
 				return;
 			}
@@ -70,4 +61,18 @@ public class LoadAction extends AbstractAction {
 		}
 	}
 
+	protected ExtensionFileFilter getFileFilter(TransferablePolicy transferablePolicy) {
+		if (transferablePolicy instanceof FileTransferablePolicy) {
+			final FileTransferablePolicy ftp = ((FileTransferablePolicy) transferablePolicy);
+			if (ftp.getFileFilterDescription() != null) {
+				return new ExtensionFileFilter(ftp.getFileFilterExtensions()) {
+					@Override
+					public String toString() {
+						return ftp.getFileFilterDescription();
+					};
+				};
+			}
+		}
+		return null;
+	}
 }

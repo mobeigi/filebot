@@ -1,6 +1,8 @@
 package net.filebot.ui.sfv;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
@@ -169,6 +171,11 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	@Override
 	public String getFileFilterDescription() {
 		return "Files, Folders and SFV Files";
+	}
+
+	@Override
+	public List<String> getFileFilterExtensions() {
+		return asList(VERIFICATION_FILES.extensions());
 	}
 
 	private static class VerificationTracker {

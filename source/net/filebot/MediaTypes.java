@@ -111,4 +111,6 @@ public class MediaTypes {
 	public static final ExtensionFileFilter VERIFICATION_FILES = getDefaultFilter("verification");
 	public static final ExtensionFileFilter NFO_FILES = getDefaultFilter("application/nfo");
 	public static final ExtensionFileFilter LIST_FILES = getDefaultFilter("application/list");
+	public static final ExtensionFileFilter TORRENT_FILES = getDefaultFilter("application/torrent");
+
 }
