@@ -1,6 +1,5 @@
 package net.filebot.ui.analyze;
 
-import static java.util.Arrays.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -97,7 +96,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 	@Override
 	public List<String> getFileFilterExtensions() {
-		return asList("*");
+		return null;
 	}
 
 }

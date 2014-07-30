@@ -170,7 +170,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	public String getFileFilterDescription() {
-		return "Files, Folders and SFV Files";
+		return "Folders and SFV Files";
 	}
 
 	@Override

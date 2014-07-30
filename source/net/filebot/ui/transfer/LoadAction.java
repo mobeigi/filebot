@@ -64,7 +64,7 @@ public class LoadAction extends AbstractAction {
 	protected ExtensionFileFilter getFileFilter(TransferablePolicy transferablePolicy) {
 		if (transferablePolicy instanceof FileTransferablePolicy) {
 			final FileTransferablePolicy ftp = ((FileTransferablePolicy) transferablePolicy);
-			if (ftp.getFileFilterDescription() != null) {
+			if (ftp.getFileFilterDescription() != null && ftp.getFileFilterExtensions() != null) {
 				return new ExtensionFileFilter(ftp.getFileFilterExtensions()) {
 					@Override
 					public String toString() {
