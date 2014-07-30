@@ -251,7 +251,7 @@ public class RenamePanel extends JComponent {
 						JList list = (JList) evt.getSource();
 						if (list.getSelectedIndex() >= 0) {
 							File item = (File) list.getSelectedValue();
-							Desktop.getDesktop().browse(item.getParentFile().toURI());
+							Desktop.getDesktop().open(item.getParentFile());
 						}
 					} catch (Exception e) {
 						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
