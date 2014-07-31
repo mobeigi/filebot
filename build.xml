@@ -305,6 +305,25 @@
 			<argument value="--log-file" />
 			<argument value="filebot.log" />
 		</bundleapp>
+
+
+		<!-- fix permissions -->
+		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
+
+		<!-- sign cmdline tool first -->
+		<exec dir="${dir.dist}" executable="codesign">
+			<arg line="--verbose=4 --sign '-' --entitlements '${dir.installer}/appbundle/fpcalc.entitlements' --prefix net.filebot.tools -i org.acoustid.fpcalc FileBot.app/Contents/MacOS/fpcalc" />
+		</exec>
+
+		<!-- sign app with entitlements -->
+		<exec dir="${dir.dist}" executable="codesign">
+			<arg line="--verbose=4 --deep --sign '-' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
+		</exec>
+
+		<!-- verify signature -->
+		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
+			<arg line=" --verbose=4 --verify --deep FileBot.app" />
+		</exec>
 	</target>
 
 
