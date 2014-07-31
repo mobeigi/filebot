@@ -166,9 +166,9 @@ public class FormatDialog extends JDialog {
 		header.setBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.BOTTOM));
 
 		header.add(progressIndicator, "pos 1al 0al, hidemode 3");
-		header.add(title, "wrap unrel:push");
-		header.add(preview, "hmin 16px, gap indent, hidemode 3, wmax 90%");
-		header.add(status, "hmin 16px, gap indent, hidemode 3, wmax 90%, newline");
+		header.add(title, "wmin 150px, wrap unrel:push");
+		header.add(preview, "wmin 150px, hmin 16px, gap indent, hidemode 3, wmax 90%");
+		header.add(status, "wmin 150px, hmin 16px, gap indent, hidemode 3, wmax 90%, newline");
 
 		JPanel content = new JPanel(new MigLayout("insets dialog, nogrid, fill"));
 
