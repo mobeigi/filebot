@@ -43,6 +43,7 @@ import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
+import net.filebot.mac.MacAppHelper;
 import net.filebot.ui.analyze.AnalyzePanelBuilder;
 import net.filebot.ui.episodelist.EpisodeListPanelBuilder;
 import net.filebot.ui.list.ListPanelBuilder;
@@ -230,7 +231,11 @@ public class MainFrame extends JFrame {
 						selectEnabled = true;
 
 						// bring window to front when on dnd
-						SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
+						if (Settings.isMacSandbox()) {
+							MacAppHelper.requestForeground();
+						} else {
+							SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
+						}
 					}
 				});
 			}

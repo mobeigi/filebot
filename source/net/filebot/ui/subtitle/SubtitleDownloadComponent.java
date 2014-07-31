@@ -303,7 +303,7 @@ class SubtitleDownloadComponent extends JComponent {
 			Charset selectedEncoding = Charset.forName("UTF-8");
 
 			// just use default values when we can't use a JFC with accessory component
-			if (Settings.isSandboxed()) {
+			if (Settings.isMacSandbox()) {
 				// AWT
 				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", this);
 			} else {

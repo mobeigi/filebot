@@ -63,7 +63,7 @@ public final class Settings {
 		return !("mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment()));
 	}
 
-	public static boolean isSandboxed() {
+	public static boolean isMacSandbox() {
 		return "mas".equals(getApplicationDeployment());
 	}
 
