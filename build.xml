@@ -265,12 +265,13 @@
 	</target>
 
 
-	<target name="appbundle-maspkg">
+	<target name="appbundle-maspkg" depends="svn-update">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
-		<bundleapp outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
+		<bundleapp version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
+			<arch name="x86_64" />
 
 			<runtime dir="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Home" />
 
