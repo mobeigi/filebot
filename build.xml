@@ -318,12 +318,12 @@
 
 		<!-- sign cmdline tool first -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --sign '-' --entitlements '${dir.installer}/appbundle/fpcalc.entitlements' --prefix net.filebot.tools -i org.acoustid.fpcalc FileBot.app/Contents/MacOS/fpcalc" />
+			<arg line="--verbose=4 --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/fpcalc.entitlements' --prefix net.filebot.tools -i org.acoustid.fpcalc FileBot.app/Contents/MacOS/fpcalc" />
 		</exec>
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --deep --sign '-' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
+			<arg line="--verbose=4 --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
 		</exec>
 
 		<!-- verify signature & build pkg -->
@@ -331,8 +331,7 @@
 			<arg line=" --verbose=4 --verify --deep FileBot.app" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<!-- -s '3rd Party Mac Developer Installer: Alice Duke' -->
-			<arg line="--component FileBot.app /Applications FileBot_${version}.pkg" />
+			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Reinhard Pointner' FileBot_${version}.pkg" />
 		</exec>
 
 		<!-- store this build in releases -->
