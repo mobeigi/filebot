@@ -316,32 +316,55 @@
 			<argument value="filebot.log" />
 		</bundleapp>
 
+		<!-- uses depricated Quicktime API -->
+		<copy file="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Info.plist" verbose="true" />
+		<delete file="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Home/jre/lib/libjfxmedia.dylib" verbose="true" />
+		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" perm="+w" verbose="true" />
 
 		<!-- fix permissions -->
 		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
 
-		<!-- uses depricated Quicktime API -->
-		<delete file="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Home/jre/lib/libjfxmedia.dylib" verbose="true" />
+		<!-- JRE sign all jars, dylibs and executables -->
+		<apply executable="codesign">
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+			<srcfile />
+			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
+				<include name="**/jspawnhelper" />
+				<include name="**/*.dylib" />
+				<include name="**/*.jar" />
+			</fileset>
+		</apply>
 
 		<!-- sign cmdline tool first -->
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/fpcalc.entitlements' --prefix net.filebot.tools -i org.acoustid.fpcalc FileBot.app/Contents/MacOS/fpcalc" />
+		<exec dir="${dir.dist}/FileBot.app" executable="codesign">
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/inherit.entitlements' Contents/MacOS/fpcalc" />
 		</exec>
+
+		<!-- APP sign all jars, dylibs and executables -->
+		<apply executable="codesign">
+			<arg line="--verbose=4 --force --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+			<srcfile />
+			<fileset dir="${dir.dist}/FileBot.app/Contents">
+				<include name="MacOS/*" />
+				<include name="Java/*.jar" />
+				<exclude name="MacOS/fpcalc" />
+			</fileset>
+		</apply>
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
 		</exec>
 
 		<!-- verify signature & build pkg -->
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line=" --verbose=4 --verify --deep FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
+			<arg line="--verify FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line=" --verbose=4 --verify --deep FileBot.app" />
+			<arg line="--verify FileBot.app" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
 			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Reinhard Pointner' FileBot_${version}.pkg" />
