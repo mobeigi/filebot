@@ -27,9 +27,10 @@
 	<property name="path.ubuntu-binary.tar.gz" location="${dir.dist}/filebot-${version}-ubuntu.tar.gz" />
 	<property name="path.source.zip" location="${dir.dist}/filebot-${version}-src.zip" />
 
-	<property name="deploy.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
-	<property name="deploy.website" value="web.sourceforge.net:htdocs" />
-	<property name="deploy.data.frs" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/data" />
+	<property name="basedir.release" location="${basedir}/release" />
+	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
+	<property name="frs.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
+	<property name="frs.website" value="web.sourceforge.net:htdocs" />
 
 
 	<target name="jar" depends="build">
@@ -389,8 +390,12 @@
 		</antcall>
 	</target>
 
+
 	<target name="ipkg-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerem.sh">
+		<!-- stage created .deb files in a temporary folder -->
+		<property name="ipkg.staging" location="${dir.dist}/deb-ipkg" />
+		<mkdir dir="${ipkg.staging}" />
+		<deb debfilenameproperty="staging.file.deb" todir="${ipkg.staging}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="opt/share/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -398,7 +403,8 @@
 			<tarfileset prefix="opt/share/filebot" file="${dir.lib}/native/linux-${arch}/fpcalc" filemode="755" />
 			<tarfileset prefix="opt/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
 		</deb>
-		<move tofile="${dir.dist}/filebot_${version}_${arch}.ipk" file="${dir.dist}/filebot_${version}_${arch}.deb" overwrite="true" />
+		<move tofile="${dir.dist}/filebot_${version}_${arch}.ipk" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
+		<delete dir="${ipkg.staging}" />
 	</target>
 
 
@@ -633,32 +639,38 @@
 
 	<target name="svn-update">
 		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
-		<groovy>
-			properties['svn.revision'] = "svn update".execute().text.split(/\n/).last().replaceAll(/\D/, '')
+		<groovy outputproperty="svn.revision" fork="yes" failonerror="yes">
+			print 'svn update'.execute().text.split(/\D+/).last().toInteger()
 		</groovy>
-		<fail unless="svn.revision" />
 		<echo>Revision: ${svn.revision}</echo>
 	</target>
 
 
-	<target name="deploy-release" depends="svn-update, fatjar, appbundle, deb, ipkg, msi, portable, spk, login">
-		<mkdir dir="${dir.dist}/release" />
+	<target name="stage-release" depends="svn-update, fatjar, portable, spk, ipkg, deb, msi, appbundle">
+		<delete dir="${dir.release}" />
+		<mkdir dir="${dir.release}" />
 
 		<!-- prepare release packages -->
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.fatjar}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${path.appbundle.tar.gz}" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i686.deb" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_amd64.deb" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_arm.ipk" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot_${version}_i686.ipk" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x86.msi" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}_x64.msi" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/FileBot_${version}-portable.zip" />
-		<copy todir="${dir.dist}/release/${title}_${version}" file="${dir.dist}/filebot-${version}-noarch.spk" />
+		<copy todir="${dir.release}" preservelastmodified="yes" verbose="yes">
+			<path path="${path.fatjar}" />
+			<fileset dir="${dir.dist}">
+				<include name="*.tar.gz" />
+				<include name="*.deb" />
+				<include name="*.ipk" />
+				<include name="*.msi" />
+				<include name="*.spk" />
+				<include name="*-portable.zip" />
+			</fileset>
+		</copy>
+	</target>
 
-		<!-- upload to sf -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.release}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/release" />
+
+	<target name="deploy-release" depends="stage-release, login" description="Upload to SourceForge.net FRS">
+		<scp todir="${sf.user}:${sf.password}@${frs.release}" trust="yes" verbose="true" sftp="true">
+			<!-- upload starting with parent folders so scp will create the release folder for us -->
+			<fileset dir="${basedir.release}">
+				<date datetime="${today}" pattern="yyyy-MM-dd" when="after" />
+			</fileset>
 		</scp>
 	</target>
 
@@ -701,7 +713,7 @@
 		</replace>
 
 		<!-- upload -->
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
+		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/website" />
 		</scp>
 	</target>
@@ -730,8 +742,8 @@
 	</target>
 
 
-	<target name="upload-data" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.website}" trust="yes" verbose="true" sftp="true">
+	<target name="upload-data-web" depends="login">
+		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}">
 				<include name="data/.htaccess" />
 				<include name="data/*.txt" />
@@ -741,20 +753,27 @@
 
 
 	<target name="upload-data-frs" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.website}/data">
-				<include name="*.xz" />
-				<include name="*.gz" />
+		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}/.." trust="yes" verbose="true" sftp="true">
+			<fileset dir="${dir.website}">
+				<include name="data/*.xz" />
 			</fileset>
 		</scp>
 	</target>
 
 
-	<target name="deploy-test-package" depends="svn-update, fatjar, login">
+	<target name="deploy-beta-jar" depends="svn-update, fatjar, login" description="Build and deploy fatjar for the latest revision">
 		<!-- deploy fatjar -->
 		<input message="Mark:" addproperty="mark" />
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" sftp="true" />
-		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${deploy.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${frs.release}/HEAD/filebot-${version}-r${svn.revision}-${mark}.jar" trust="yes" verbose="true" sftp="true" />
+		<scp file="${path.fatjar}" remoteTofile="${sf.user}:${sf.password}@${frs.release}/HEAD/FileBot.jar" trust="yes" verbose="true" sftp="true" />
+	</target>
+
+
+	<target name="deploy-beta-release">
+		<input message="Mark:" addproperty="mark" />
+		<antcall target="deploy-release">
+			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
+		</antcall>
 	</target>
 
 
