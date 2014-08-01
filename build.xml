@@ -242,7 +242,7 @@
 			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
 
-			<option value="-Djna.nounpack=true" />
+			<option value="-Djna.nosys=true" />
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
@@ -299,9 +299,13 @@
 			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
 			<option value="-Dfile.encoding=UTF-8" />
 
+			<option value="-Djna.nosys=true" />
 			<option value="-Djna.nounpack=true" />
+			<option value="-Djna.boot.library.name=jnidispatch" />
+			<option value="-Djna.boot.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
+
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
 			<option value="-Xdock:name=${title}" />
@@ -316,6 +320,9 @@
 		<!-- fix permissions -->
 		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
 
+		<!-- uses depricated Quicktime API -->
+		<delete file="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Home/jre/lib/libjfxmedia.dylib" verbose="true" />
+
 		<!-- sign cmdline tool first -->
 		<exec dir="${dir.dist}" executable="codesign">
 			<arg line="--verbose=4 --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/fpcalc.entitlements' --prefix net.filebot.tools -i org.acoustid.fpcalc FileBot.app/Contents/MacOS/fpcalc" />
@@ -323,10 +330,16 @@
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
+			<arg line="--verbose=4 --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
+		</exec>
+		<exec dir="${dir.dist}" executable="codesign">
 			<arg line="--verbose=4 --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
 		</exec>
 
 		<!-- verify signature & build pkg -->
+		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
+			<arg line=" --verbose=4 --verify --deep FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
+		</exec>
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
 			<arg line=" --verbose=4 --verify --deep FileBot.app" />
 		</exec>
