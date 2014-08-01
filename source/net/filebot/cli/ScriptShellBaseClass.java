@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.script.Bindings;
@@ -43,6 +44,7 @@ import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;
 
+import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.runtime.typehandling.DefaultTypeTransformation;
 
 import com.sun.jna.Platform;
@@ -78,12 +80,17 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			executeScript(input, null);
 		} catch (Exception e) {
-			printException(e);
+			printException(e, true);
 		}
 	}
 
-	public Object executeScript(String input) throws Throwable {
-		return executeScript(input, null);
+	public Object runScript(String input) throws Throwable {
+		try {
+			return executeScript(input, null);
+		} catch (Exception e) {
+			printException(e, true);
+		}
+		return null;
 	}
 
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
@@ -113,16 +120,17 @@ public abstract class ScriptShellBaseClass extends Script {
 		try {
 			return c.call();
 		} catch (Exception e) {
-			printException(e);
+			printException(e, false);
 			return null;
 		}
 	}
 
-	public void printException(Throwable t) {
-		CLILogger.severe(String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
-
-		// DEBUG
-		// StackTraceUtils.deepSanitize(t).printStackTrace();
+	public void printException(Throwable t, boolean severe) {
+		if (severe) {
+			CLILogger.log(Level.SEVERE, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()), StackTraceUtils.deepSanitize(t));
+		} else {
+			CLILogger.log(Level.WARNING, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
+		}
 	}
 
 	public void die(Object cause) throws Throwable {
@@ -310,7 +318,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 				return cli.rename(input, action, asString(option.get(Option.conflict)), asString(option.get(Option.output)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)), strict);
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -325,7 +333,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.getSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -340,7 +348,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.getMissingSubtitles(input, asString(option.get(Option.db)), asString(option.get(Option.query)), asString(option.get(Option.lang)), asString(option.get(Option.output)), asString(option.get(Option.encoding)), asString(option.get(Option.format)), strict);
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -353,7 +361,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.check(input);
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return false;
 			}
 		}
@@ -367,7 +375,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.compute(input, asString(option.get(Option.output)), asString(option.get(Option.encoding)));
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -383,7 +391,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.extract(input, asString(option.get(Option.output)), asString(option.get(Option.conflict)), filter, forceExtractAll);
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -396,7 +404,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.fetchEpisodeList(asString(option.get(Option.query)), asString(option.get(Option.format)), asString(option.get(Option.db)), asString(option.get(Option.order)), asString(option.get(Option.filter)), asString(option.get(Option.lang)));
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}
@@ -409,7 +417,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			try {
 				return cli.getMediaInfo(input.get(0), asString(option.get(Option.format)));
 			} catch (Exception e) {
-				printException(e);
+				printException(e, false);
 				return null;
 			}
 		}

@@ -156,6 +156,9 @@ public class GroovyPad extends JFrame {
 		File pad = new File(Settings.getApplicationFolder(), name);
 		if (!pad.exists()) {
 			pad.createNewFile();
+
+			// use this default value so people can easily submit bug reports with fn:sysinfo logs
+			ScriptShellMethods.saveAs("runScript 'fn:sysinfo'", pad);
 		}
 		return FileLocation.create(pad);
 	}
