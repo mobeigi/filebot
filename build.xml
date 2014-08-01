@@ -262,11 +262,15 @@
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/fpcalc" filemode="755" />
 			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
+
+		<!-- print SHA256 since we manually need to update brew cask filebot -->
 		<checksum file="${path.appbundle.tar.gz}" algorithm="SHA-256" fileext=".sha256" />
+		<checksum file="${path.appbundle.tar.gz}" algorithm="SHA-256" property="appbundle.sha256" />
+		<echo taskname="SHA256" message="${appbundle.sha256}" />
 	</target>
 
 
-	<target name="appbundle-maspkg" depends="svn-update">
+	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
 		<bundleapp version="${svn.revision}" minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
@@ -322,15 +326,23 @@
 			<arg line="--verbose=4 --deep --sign '-' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
 		</exec>
 
-		<!-- verify signature -->
+		<!-- verify signature & build pkg -->
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
 			<arg line=" --verbose=4 --verify --deep FileBot.app" />
 		</exec>
+		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
+			<!-- -s '3rd Party Mac Developer Installer: Alice Duke' -->
+			<arg line="--component FileBot.app /Applications FileBot_${version}.pkg" />
+		</exec>
+
+		<!-- store this build in releases -->
+		<mkdir dir="${dir.release}" />
+		<copy todir="${dir.release}" file="${dir.dist}/FileBot_${version}.pkg" verbose="yes" />
 	</target>
 
 
-	<target name="ppa-binary" depends="svn-update">
-		<tar longfile="gnu" compression="gzip" destfile="${path.ubuntu-binary.tar.gz}">
+	<target name="ppa-binary" depends="svn-update, fatjar">
+		<tar destfile="${path.ubuntu-binary.tar.gz}" compression="gzip" longfile="gnu">
 			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 
@@ -352,6 +364,10 @@
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" excludes="bin/**" />
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" includes="bin/java" filemode="755" />
 		</tar>
+
+		<!-- store this build in releases -->
+		<mkdir dir="${dir.release}" />
+		<copy todir="${dir.release}" file="${path.ubuntu-binary.tar.gz}" verbose="yes" />
 	</target>
 
 
@@ -695,13 +711,7 @@
 		</copy>
 
 		<!-- get MD5 sum for Synology Package -->
-		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
-		<groovy>
-			def releaseFeed = new URL("http://sourceforge.net/projects/filebot/files/filebot/FileBot_${properties['version']}//list")
-			def spk = new groovy.json.JsonSlurper().parse(releaseFeed).find{ it.key.endsWith('.spk') }.value
-			properties['spk.md5'] = spk.md5
-		</groovy>
-		<fail unless="spk.md5" />
+		<checksum file="${dir.release}/filebot-${version}-noarch.spk" algorithm="MD5" property="spk.md5" />
 
 		<!-- replace variables for new release -->
 		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
