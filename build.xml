@@ -317,7 +317,7 @@
 		</bundleapp>
 
 		<!-- uses depricated Quicktime API -->
-		<copy file="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Info.plist" verbose="true" />
+		<copy file="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Info.plist" verbose="true" overwrite="yes" />
 		<delete file="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Home/jre/lib/libjfxmedia.dylib" verbose="true" />
 		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" perm="+w" verbose="true" />
 
@@ -326,7 +326,7 @@
 
 		<!-- JRE sign all jars, dylibs and executables -->
 		<apply executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
 				<include name="**/jspawnhelper" />
@@ -342,12 +342,12 @@
 
 		<!-- APP sign all jars, dylibs and executables -->
 		<apply executable="codesign">
-			<arg line="--verbose=4 --force --deep --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents">
-				<include name="MacOS/*" />
+				<include name="MacOS/JavaAppLauncher" />
+				<include name="MacOS/*.dylib" />
 				<include name="Java/*.jar" />
-				<exclude name="MacOS/fpcalc" />
 			</fileset>
 		</apply>
 
