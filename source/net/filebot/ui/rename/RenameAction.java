@@ -186,7 +186,7 @@ class RenameAction extends AbstractAction {
 		}
 
 		if (issues.size() > 0) {
-			String text = "We found some issues. Do you to continue?";
+			String text = "These files will be ignored. Do you want to continue?";
 			JList issuesComponent = new JList(issues.toArray()) {
 
 				@Override
