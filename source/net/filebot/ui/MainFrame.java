@@ -131,13 +131,11 @@ public class MainFrame extends JFrame {
 
 					pad.addWindowListener(new WindowAdapter() {
 						public void windowOpened(WindowEvent e) {
-							MainFrame.this.setState(ICONIFIED);
 							MainFrame.this.setVisible(false);
 						};
 
 						public void windowClosing(WindowEvent e) {
 							MainFrame.this.setVisible(true);
-							MainFrame.this.setState(NORMAL);
 						};
 					});
 
