@@ -463,21 +463,22 @@ public class MediaBindingBean {
 		titles.add(getName());
 		titles.add(getYear().toString());
 		titles.addAll(getAliasNames());
-		try {
+		if (infoObject instanceof Episode) {
 			for (Episode it : getEpisodes()) {
 				titles.add(it.getTitle());
 			}
-		} catch (Exception e) {
-			// ignore for non-Episode objects
 		}
-		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(titles);
+		for (int i = 0; i < titles.size(); i++) {
+			titles.set(i, normalizePunctuation(normalizeSpace(titles.get(i), " ")));
+		}
 
+		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(titles);
 		for (int i = 0; i < filenames.length; i++) {
 			if (filenames[i] == null)
 				continue;
 
 			// normalize space characters
-			filenames[i] = nonGroupPattern.matcher(normalizeSpace(filenames[i], " ")).replaceAll("");
+			filenames[i] = nonGroupPattern.matcher(normalizePunctuation(normalizeSpace(filenames[i], " "))).replaceAll("");
 		}
 
 		// look for release group names in media file and it's parent folder
