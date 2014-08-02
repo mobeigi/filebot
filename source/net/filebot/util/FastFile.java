@@ -16,6 +16,7 @@ public class FastFile extends File {
 
 	private String[] list;
 	private File[] listFiles;
+	private String canonicalPath;
 
 	public FastFile(String path) {
 		super(path);
@@ -48,6 +49,11 @@ public class FastFile extends File {
 	@Override
 	public long lastModified() {
 		return lastModified != null ? lastModified : (lastModified = super.lastModified());
+	}
+
+	@Override
+	public String getCanonicalPath() throws IOException {
+		return canonicalPath != null ? canonicalPath : (canonicalPath = super.getCanonicalPath());
 	}
 
 	@Override

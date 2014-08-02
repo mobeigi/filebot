@@ -29,6 +29,7 @@ import net.filebot.media.MetaAttributes;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.Normalization;
 import net.filebot.similarity.SimilarityMetric;
+import net.filebot.util.FastFile;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.WebRequest;
 
@@ -216,6 +217,10 @@ public class ScriptShellMethods {
 
 	public static File validateFilePath(File self) {
 		return FileUtilities.validateFilePath(self);
+	}
+
+	public static FastFile memoize(File self) {
+		return new FastFile(self.getPath());
 	}
 
 	public static File moveTo(File self, File destination) throws IOException {
