@@ -140,7 +140,11 @@ public class MainFrame extends JFrame {
 					});
 
 					pad.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-					pad.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+					pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+
+					if (Settings.isMacSandbox()) {
+						MacAppHelper.setWindowCanFullScreen(pad);
+					}
 					pad.setLocationByPlatform(true);
 					pad.setVisible(true);
 				} catch (IOException e) {
