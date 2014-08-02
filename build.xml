@@ -273,7 +273,7 @@
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
-		<bundleapp version="${svn.revision}" minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
+		<bundleapp executablename="FileBotAppLauncher" version="${svn.revision}" minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -345,7 +345,7 @@
 			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents">
-				<include name="MacOS/JavaAppLauncher" />
+				<include name="MacOS/FileBotAppLauncher" />
 				<include name="MacOS/*.dylib" />
 				<include name="Java/*.jar" />
 			</fileset>
