@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
@@ -174,7 +176,11 @@ public final class WebRequest {
 	}
 
 	public static ByteBuffer post(URL url, Map<String, ?> parameters, Map<String, String> requestParameters) throws IOException {
-		return post(url, encodeParameters(parameters, true).getBytes("UTF-8"), "application/x-www-form-urlencoded", requestParameters);
+		byte[] postData = encodeParameters(parameters, true).getBytes("UTF-8");
+		if (requestParameters != null && "gzip".equals(requestParameters.get("Content-Encoding"))) {
+			postData = gzip(postData);
+		}
+		return post(url, postData, "application/x-www-form-urlencoded", requestParameters);
 	}
 
 	public static ByteBuffer post(URL url, byte[] postData, String contentType, Map<String, String> requestParameters) throws IOException {
@@ -277,6 +283,14 @@ public final class WebRequest {
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private static byte[] gzip(byte[] data) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream(data.length);
+		GZIPOutputStream gzip = new GZIPOutputStream(out);
+		gzip.write(data);
+		gzip.close();
+		return out.toByteArray();
 	}
 
 	public static SSLSocketFactory createIgnoreCertificateSocketFactory() {
