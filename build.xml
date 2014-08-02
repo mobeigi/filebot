@@ -345,7 +345,6 @@
 			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents">
-				<include name="MacOS/FileBotAppLauncher" />
 				<include name="MacOS/*.dylib" />
 				<include name="Java/*.jar" />
 			</fileset>
