@@ -5,10 +5,9 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import net.filebot.Main;
 import ca.weblite.objc.Client;
 
-public class MacAppHelper {
+public class MacAppUtilities {
 
 	private static Client _objc;
 
@@ -37,7 +36,7 @@ public class MacAppHelper {
 			Method setWindowCanFullScreen = fullScreenUtilities.getMethod("setWindowCanFullScreen", new Class<?>[] { Window.class, boolean.class });
 			setWindowCanFullScreen.invoke(null, window, true);
 		} catch (Throwable t) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, "setWindowCanFullScreen not supported: " + t);
+			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setWindowCanFullScreen not supported: " + t);
 		}
 	}
 
@@ -48,7 +47,7 @@ public class MacAppHelper {
 			Method requestForeground = application.getMethod("requestForeground", new Class<?>[] { boolean.class });
 			requestForeground.invoke(instance, true);
 		} catch (Throwable t) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
+			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
 		}
 	}
 }

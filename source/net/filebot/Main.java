@@ -53,7 +53,7 @@ import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.gio.GVFS;
-import net.filebot.mac.MacAppHelper;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
@@ -284,7 +284,7 @@ public class Main {
 
 		// window settings
 		if (Settings.isMacSandbox()) {
-			MacAppHelper.setWindowCanFullScreen(frame);
+			MacAppUtilities.setWindowCanFullScreen(frame);
 		}
 		frame.setLocationByPlatform(true);
 

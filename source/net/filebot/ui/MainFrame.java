@@ -43,7 +43,7 @@ import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
-import net.filebot.mac.MacAppHelper;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.analyze.AnalyzePanelBuilder;
 import net.filebot.ui.episodelist.EpisodeListPanelBuilder;
 import net.filebot.ui.list.ListPanelBuilder;
@@ -143,7 +143,7 @@ public class MainFrame extends JFrame {
 					pad.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
 
 					if (Settings.isMacSandbox()) {
-						MacAppHelper.setWindowCanFullScreen(pad);
+						MacAppUtilities.setWindowCanFullScreen(pad);
 					}
 					pad.setLocationByPlatform(true);
 					pad.setVisible(true);
@@ -234,7 +234,7 @@ public class MainFrame extends JFrame {
 
 						// bring window to front when on dnd
 						if (Settings.isMacSandbox()) {
-							MacAppHelper.requestForeground();
+							MacAppUtilities.requestForeground();
 						} else {
 							SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
 						}
