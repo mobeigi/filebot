@@ -33,6 +33,7 @@
 ^Best$
 ^Big$
 ^British.TV$
+^BTN$
 ^Cartoon$
 ^Cinema$
 ^clean$
@@ -147,6 +148,7 @@
 ^Seeds$
 ^Serier$
 ^Series$
+^SERIJE$
 ^Sex$
 ^share$
 ^shared$
@@ -196,6 +198,7 @@
 ^Volume.[0-9]$
 ^Volumes$
 ^watch$
+^WD$
 ^www$
 ^XXX+$
 A.PROCESAR

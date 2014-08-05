@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -112,18 +113,22 @@ public class OMDbClient implements MovieIdentificationService {
 		if (node instanceof Map) {
 			for (Entry<?, ?> it : ((Map<?, ?>) node).entrySet()) {
 				if (it.getKey() != null && it.getValue() != null) {
-					info.put(it.getKey().toString(), it.getValue().toString());
+					info.put(it.getKey().toString().trim(), it.getValue().toString().trim());
 				}
 			}
 		}
 		return info;
 	}
 
-	public Movie getMovie(Map<?, ?> info) {
+	public Movie getMovie(Map<String, String> info) {
 		try {
-			String name = info.get("Title").toString();
-			int year = Integer.parseInt(info.get("Year").toString());
-			int imdbid = Integer.parseInt(info.get("imdbID").toString().replace("tt", ""));
+			String name = info.get("Title");
+			int year = new Scanner(info.get("Year")).useDelimiter("\\D+").nextInt();
+			int imdbid = Integer.parseInt(info.get("imdbID").replace("tt", ""));
+
+			if (name.length() <= 0 || year <= 1900 || imdbid <= 0)
+				throw new IllegalArgumentException();
+
 			return new Movie(name, year, imdbid, -1);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Illegal fields: " + info);

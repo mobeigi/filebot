@@ -195,8 +195,7 @@ tvdb_updates.each{ update ->
 				
 				def imdb_name = tryLogCatch{
 					if (imdbid =~ /tt(\d+)/) {
-						def dom = IMDb.parsePage(IMDb.getMoviePageLink(imdbid.match(/tt(\d+)/) as int).toURL())
-						return XPathUtilities.selectString("//META[@property='og:title']/@content", dom)
+						return OMDb.getMovieDescriptor(imdbid.match(/tt(\d+)/) as int, Locale.ENGLISH).getName()
 					}
 				}
 				def data = [update.time, update.id, imdbid, tvdb_name ?: '', imdb_name ?: '', rating ?: 0, votes ?: 0]
@@ -227,7 +226,7 @@ def thetvdb_index = []
 tvdb.values().each{ r ->
 	def tvdb_id = r[1]
 	def tvdb_name = r[3]
-	def imdb_name = r[4].replaceAll(/\([^\)]*\)$/, '').trim()
+	def imdb_name = r[4]
 	def rating = r[5]
 	def votes = r[6]
 	
@@ -264,6 +263,7 @@ addSeriesAlias('Naruto Shippuden', 'Naruto Shippuuden')
 addSeriesAlias('Resurrection', 'Resurrection (US)')
 addSeriesAlias('Revolution', 'Revolution (2012)')
 addSeriesAlias('Cosmos: A Spacetime Odyssey', 'Cosmos A Space Time Odyssey')
+addSeriesAlias('The Bridge (2013)', 'The Bridge (US)')
 
 
 
