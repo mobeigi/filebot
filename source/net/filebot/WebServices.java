@@ -26,11 +26,11 @@ import net.filebot.web.AudioTrack;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
-import net.filebot.web.IMDbClient;
 import net.filebot.web.LocalSearch;
 import net.filebot.web.Movie;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
+import net.filebot.web.OMDbClient;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleProvider;
@@ -54,7 +54,7 @@ public final class WebServices {
 	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
 
 	// movie dbs
-	public static final IMDbClient IMDb = new IMDbClient();
+	public static final OMDbClient OMDb = new OMDbClient();
 	public static final TMDbClient TheMovieDB = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
 
 	// subtitle dbs
@@ -70,7 +70,7 @@ public final class WebServices {
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
-		return new MovieIdentificationService[] { TheMovieDB, IMDb };
+		return new MovieIdentificationService[] { TheMovieDB, OMDb };
 	}
 
 	public static SubtitleProvider[] getSubtitleProviders() {

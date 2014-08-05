@@ -3,19 +3,18 @@ package net.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.List;
-import java.util.Locale;
 
 import net.filebot.web.TMDbClient.MovieInfo;
 
 import org.junit.Test;
 
-public class IMDbClientTest {
+public class OMDbClientTest {
 
-	private final IMDbClient imdb = new IMDbClient();
+	private final OMDbClient client = new OMDbClient();
 
 	@Test
 	public void searchMovie1() throws Exception {
-		List<Movie> results = imdb.searchMovie("Avatar", null);
+		List<Movie> results = client.searchMovie("Avatar", null);
 		Movie movie = results.get(0);
 
 		assertEquals("Avatar", movie.getName());
@@ -25,7 +24,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void searchMovie2() throws Exception {
-		List<Movie> results = imdb.searchMovie("The Illusionist", null);
+		List<Movie> results = client.searchMovie("The Illusionist", null);
 		Movie movie = results.get(0);
 
 		assertEquals("The Illusionist", movie.getName());
@@ -35,7 +34,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void searchMovie3() throws Exception {
-		List<Movie> results = imdb.searchMovie("Amélie", null);
+		List<Movie> results = client.searchMovie("Amélie", null);
 		Movie movie = results.get(0);
 
 		assertEquals("Amélie", movie.getName());
@@ -45,7 +44,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void searchMovie4() throws Exception {
-		List<Movie> results = imdb.searchMovie("Heat", null);
+		List<Movie> results = client.searchMovie("Heat", null);
 		Movie movie = results.get(0);
 
 		assertEquals("Heat", movie.getName());
@@ -54,18 +53,8 @@ public class IMDbClientTest {
 	}
 
 	@Test
-	public void searchMovie5() throws Exception {
-		List<Movie> results = imdb.searchMovie("Det sjunde inseglet", null);
-		Movie movie = results.get(0);
-
-		assertEquals("The Seventh Seal", movie.getName());
-		assertEquals(1957, movie.getYear());
-		assertEquals(50976, movie.getImdbId(), 0);
-	}
-
-	@Test
 	public void searchMovie6() throws Exception {
-		List<Movie> results = imdb.searchMovie("Drive 2011", null);
+		List<Movie> results = client.searchMovie("Drive 2011", null);
 		Movie movie = results.get(0);
 
 		assertEquals("Drive", movie.getName());
@@ -74,19 +63,8 @@ public class IMDbClientTest {
 	}
 
 	@Test
-	public void searchMovieRedirect() throws Exception {
-		List<Movie> results = imdb.searchMovie("(500) Days of Summer (2009)", null);
-
-		Movie movie = results.get(0);
-
-		assertEquals("(500) Days of Summer", movie.getName());
-		assertEquals(2009, movie.getYear());
-		assertEquals(1022603, movie.getImdbId(), 0);
-	}
-
-	@Test
 	public void getMovieDescriptor1() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(499549, null);
+		Movie movie = client.getMovieDescriptor(499549, null);
 
 		assertEquals("Avatar", movie.getName());
 		assertEquals(2009, movie.getYear());
@@ -95,7 +73,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor2() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(211915, null);
+		Movie movie = client.getMovieDescriptor(211915, null);
 
 		assertEquals("Amélie", movie.getName());
 		assertEquals(2001, movie.getYear());
@@ -104,7 +82,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor3() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(75610, null);
+		Movie movie = client.getMovieDescriptor(75610, null);
 
 		assertEquals("21 Up", movie.getName());
 		assertEquals(1977, movie.getYear());
@@ -113,7 +91,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor4() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(369702, null);
+		Movie movie = client.getMovieDescriptor(369702, null);
 
 		assertEquals("The Sea Inside", movie.getName());
 		assertEquals(2004, movie.getYear());
@@ -122,7 +100,7 @@ public class IMDbClientTest {
 
 	@Test
 	public void getMovieDescriptor5() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(1020960, null);
+		Movie movie = client.getMovieDescriptor(1020960, null);
 
 		assertEquals("God, the Universe and Everything Else", movie.getName());
 		assertEquals(1988, movie.getYear());
@@ -130,26 +108,8 @@ public class IMDbClientTest {
 	}
 
 	@Test
-	public void getAkaMovieDescriptor() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(106559, Locale.ENGLISH);
-
-		assertEquals("Ching Se", movie.getName());
-		assertEquals(1993, movie.getYear());
-		assertEquals(106559, movie.getImdbId(), 0);
-	}
-
-	@Test
-	public void getAkaMovieDescriptorExtra() throws Exception {
-		Movie movie = imdb.getMovieDescriptor(470761, Locale.ENGLISH);
-
-		assertEquals("First Born", movie.getName());
-		assertEquals(2007, movie.getYear());
-		assertEquals(470761, movie.getImdbId(), 0);
-	}
-
-	@Test
 	public void getImdbApiMovieInfoReleasedNA() throws Exception {
-		MovieInfo movie = imdb.getImdbApiMovieInfo(new Movie(null, -1, 1287357, -1));
+		MovieInfo movie = client.getMovieInfo(new Movie(null, -1, 1287357, -1));
 		assertEquals("Sommersonntag", movie.getName());
 		assertEquals(2008, movie.getReleased().getYear());
 		assertEquals("2008-06-07", movie.getReleased().toString());

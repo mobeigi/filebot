@@ -573,11 +573,11 @@ public class MediaBindingBean {
 
 		try {
 			if (infoObject instanceof Episode) {
-				data = WebServices.IMDb.getImdbApiMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
+				data = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
 			}
 			if (infoObject instanceof Movie) {
 				Movie m = getMovie();
-				data = WebServices.IMDb.getImdbApiMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId(), -1));
+				data = WebServices.OMDb.getMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId(), -1));
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);

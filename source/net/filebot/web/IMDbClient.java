@@ -10,12 +10,8 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,17 +21,12 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 
 import net.filebot.ResourceManager;
-import net.filebot.web.TMDbClient.MovieInfo;
-import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
-import net.filebot.web.TMDbClient.Person;
-import net.filebot.web.TMDbClient.Trailer;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+@Deprecated
 public class IMDbClient implements MovieIdentificationService {
 
 	private String host = "www.imdb.com";
@@ -166,78 +157,4 @@ public class IMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<String, String> getImdbApiData(Integer i, String t, String y, boolean tomatoes) throws IOException {
-		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
-		String url = String.format("http://www.omdbapi.com/?i=%s&t=%s&y=%s&r=xml&tomatoes=%s", String.format(i == null ? "" : "tt%07d", i), t, y, tomatoes);
-		CachedResource<HashMap> data = new CachedResource<HashMap>(url, HashMap.class) {
-
-			@Override
-			public HashMap process(ByteBuffer data) throws Exception {
-				Document xml = getDocument(Charset.forName("UTF-8").decode(data).toString());
-				HashMap attr = new HashMap();
-				for (Node it : selectNodes("//@*", xml)) {
-					attr.put(it.getNodeName(), it.getTextContent());
-				}
-				return attr;
-			}
-
-			@Override
-			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-datasource-lv2");
-			}
-		};
-
-		return data.get();
-	}
-
-	public MovieInfo getImdbApiMovieInfo(Movie movie) throws IOException {
-		Map<String, String> data = movie.getImdbId() > 0 ? getImdbApiData(movie.getImdbId(), "", "", false) : getImdbApiData(null, movie.getName(), String.valueOf(movie.getYear()), false);
-
-		// sanity check
-		if (!Boolean.parseBoolean(data.get("response"))) {
-			throw new IllegalArgumentException("Movie not found: " + data);
-		}
-
-		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
-		fields.put(MovieProperty.title, data.get("title"));
-		fields.put(MovieProperty.certification, data.get("rated"));
-		fields.put(MovieProperty.runtime, data.get("runtime"));
-		fields.put(MovieProperty.tagline, data.get("plot"));
-		fields.put(MovieProperty.vote_average, data.get("imdbRating"));
-		fields.put(MovieProperty.vote_count, data.get("imdbVotes").replaceAll("\\D", ""));
-		fields.put(MovieProperty.imdb_id, data.get("imdbID"));
-		fields.put(MovieProperty.poster_path, data.get("poster"));
-
-		// convert release date to yyyy-MM-dd
-		SimpleDate released = SimpleDate.parse(data.get("released"), "dd MMM yyyy");
-		if (released != null) {
-			fields.put(MovieProperty.release_date, released.format("yyyy-MM-dd"));
-		} else {
-			SimpleDate year = SimpleDate.parse(data.get("year"), "yyyy");
-			if (year != null) {
-				fields.put(MovieProperty.release_date, year.format("yyyy-MM-dd"));
-			}
-		}
-
-		List<String> genres = new ArrayList<String>();
-		for (String it : data.get("genre").split(",")) {
-			genres.add(it.trim());
-		}
-
-		List<Person> actors = new ArrayList<Person>();
-		for (String it : data.get("actors").split(",")) {
-			actors.add(new Person(it.trim(), null, null));
-		}
-
-		for (String director : data.get("director").split(",")) {
-			actors.add(new Person(director, null, "Director"));
-		}
-
-		for (String writer : data.get("writer").split(",")) {
-			actors.add(new Person(writer, null, "Writer"));
-		}
-
-		return new MovieInfo(fields, new ArrayList<String>(0), genres, new ArrayList<String>(0), actors, new ArrayList<Trailer>(0));
-	}
 }
