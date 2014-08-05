@@ -1,6 +1,8 @@
 package net.filebot.ui.analyze;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
@@ -37,7 +39,6 @@ class TypeTool extends Tool<TreeModel> {
 		super("Types");
 
 		setLayout(new MigLayout("insets 0, fill"));
-
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -49,7 +50,7 @@ class TypeTool extends Tool<TreeModel> {
 
 	@Override
 	protected TreeModel createModelInBackground(File root) throws InterruptedException {
-		List<File> filesAndFolders = (root != null) ? listFiles(singleton(root), FILE_WALK_MAX_DEPTH, false, true, true) : new ArrayList<File>();
+		List<File> filesAndFolders = (root != null) ? listFiles(singleton(root), FILE_WALK_MAX_DEPTH, true, true, true) : new ArrayList<File>();
 		List<TreeNode> groups = new ArrayList<TreeNode>();
 
 		for (Entry<String, FileFilter> it : getMetaTypes().entrySet()) {
@@ -74,18 +75,44 @@ class TypeTool extends Tool<TreeModel> {
 
 	public Map<String, FileFilter> getMetaTypes() {
 		Map<String, FileFilter> types = new LinkedHashMap<String, FileFilter>();
-		types.put("Video", MediaTypes.VIDEO_FILES);
-		types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
-		types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
-		types.put("Audio", MediaTypes.AUDIO_FILES);
-		types.put("Archive", MediaTypes.ARCHIVE_FILES);
-		types.put("Verification", MediaTypes.VERIFICATION_FILES);
 		try {
+			types.put("Episode", new EpisodeFilter());
+			types.put("Movie", new MovieFilter());
+			types.put("Video", MediaTypes.VIDEO_FILES);
+			types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
+			types.put("Audio", MediaTypes.AUDIO_FILES);
+			types.put("Archive", MediaTypes.ARCHIVE_FILES);
+			types.put("Verification", MediaTypes.VERIFICATION_FILES);
 			types.put("Clutter", MediaDetection.getClutterFileFilter());
+			types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
 		} catch (IOException e) {
 			Logger.getLogger(TypeTool.class.getName()).log(Level.WARNING, e.getMessage());
 		}
 		return types;
+	}
+
+	private static class EpisodeFilter implements FileFilter {
+
+		private final static long MAX_SIZE = 50 * MEGA;
+
+		@Override
+		public boolean accept(File file) {
+			return file.length() > MAX_SIZE && VIDEO_FILES.accept(file) && MediaDetection.isEpisode(file.getPath(), true);
+		}
+	}
+
+	private static class MovieFilter implements FileFilter {
+
+		private final static long MAX_SIZE = 500 * MEGA;
+
+		@Override
+		public boolean accept(File file) {
+			try {
+				return file.length() > MAX_SIZE && VIDEO_FILES.accept(file) && !MediaDetection.isEpisode(file.getPath(), true) && MediaDetection.matchMovieName(asList(file.getName(), file.getParent()), true, 0).size() > 0;
+			} catch (Exception e) {
+				return false;
+			}
+		}
 	}
 
 	@Override

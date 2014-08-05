@@ -30,7 +30,7 @@ class SplitTool extends Tool<TreeModel> {
 	private SpinnerNumberModel spinnerModel = new SpinnerNumberModel(4480, 0, Integer.MAX_VALUE, 100);
 
 	public SplitTool() {
-		super("Disks");
+		super("Parts");
 
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		treeScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));

@@ -18,13 +18,12 @@ public class AnalyzePanel extends JComponent {
 		toolsPanel.setBorder(BorderFactory.createTitledBorder("Tools"));
 
 		setLayout(new MigLayout("insets dialog, gapx 50, fill"));
-
 		add(fileTreePanel, "grow, sizegroupx column");
 		add(toolsPanel, "grow, sizegroupx column");
 
 		addTool(new ExtractTool());
-		addTool(new SplitTool());
 		addTool(new TypeTool());
+		addTool(new SplitTool());
 		addTool(new AttributeTool());
 
 		putClientProperty("transferablePolicy", fileTreePanel.getTransferablePolicy());

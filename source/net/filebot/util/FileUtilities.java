@@ -647,7 +647,9 @@ public final class FileUtilities {
 	public static final long GIGA = 1024 * MEGA;
 
 	public static String formatSize(long size) {
-		if (size >= MEGA)
+		if (size >= GIGA)
+			return String.format("%,d GB", size / GIGA);
+		else if (size >= MEGA)
 			return String.format("%,d MB", size / MEGA);
 		else if (size >= KILO)
 			return String.format("%,d KB", size / KILO);
