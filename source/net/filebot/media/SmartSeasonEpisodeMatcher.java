@@ -9,7 +9,7 @@ import net.filebot.similarity.SeasonEpisodeMatcher;
 public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 
 	// make sure certain patterns like x264 or 720p will never be interpreted as SxE numbers
-	private Pattern ignorePattern = new ReleaseInfo().getVideoFormatPattern(false);
+	private final Pattern ignorePattern = new ReleaseInfo().getVideoFormatPattern(false);
 
 	public SmartSeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		super(sanity, strict);

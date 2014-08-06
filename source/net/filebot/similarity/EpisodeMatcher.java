@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.web.Episode;
 import net.filebot.web.MultiEpisode;
@@ -48,8 +49,14 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		boolean modified = false;
 		for (Match<File, Object> it : possibleMatches) {
 			File file = it.getValue();
-			Set<SxE> uniqueFiles = parseEpisodeIdentifer(file);
-			Set<SxE> uniqueEpisodes = episodeIdentifierSets.get(file);
+
+			Set<Integer> uniqueFiles = normalizeIdentifierSet(parseEpisodeIdentifer(file));
+			if (uniqueFiles.size() < 2)
+				continue;
+
+			Set<Integer> uniqueEpisodes = normalizeIdentifierSet(episodeIdentifierSets.get(file));
+			if (uniqueEpisodes.size() < 2)
+				continue;
 
 			if (uniqueFiles.equals(uniqueEpisodes)) {
 				Episode[] episodes = episodeSets.get(file).toArray(new Episode[0]);
@@ -70,7 +77,7 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 
 	}
 
-	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false);
+	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false);
 	private final Map<File, Set<SxE>> transformCache = synchronizedMap(new HashMap<File, Set<SxE>>(64, 4));
 
 	private Set<SxE> parseEpisodeIdentifer(File file) {
@@ -88,6 +95,20 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 
 		transformCache.put(file, result);
 		return result;
+	}
+
+	private Set<Integer> normalizeIdentifierSet(Set<SxE> numbers) {
+		// SxE 1x01 => 101
+		// Absolute 101 => 101
+		Set<Integer> identifier = new HashSet<Integer>(numbers.size());
+		for (SxE it : numbers) {
+			if (it.season > 0 && it.episode > 0 && it.episode < 100) {
+				identifier.add(it.season * 100 + it.episode);
+			} else if (it.season < 0 && it.episode > 0) {
+				identifier.add(it.episode);
+			}
+		}
+		return identifier;
 	}
 
 	private boolean isMultiEpisode(Episode[] episodes) {
