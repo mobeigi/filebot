@@ -14,9 +14,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,29 +26,16 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.filebot.util.ByteBufferOutputStream;
 
-import org.cyberneko.html.parsers.DOMParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public final class WebRequest {
-
-	public static Document getHtmlDocument(URL url) throws IOException, SAXException {
-		return getHtmlDocument(url.openConnection());
-	}
-
-	public static Document getHtmlDocument(URLConnection connection) throws IOException, SAXException {
-		return getHtmlDocument(getReader(connection));
-	}
 
 	public static Reader getReader(URLConnection connection) throws IOException {
 		try {
@@ -73,18 +57,6 @@ public final class WebRequest {
 		}
 
 		return new InputStreamReader(inputStream, charset);
-	}
-
-	public static Document getHtmlDocument(Reader reader) throws SAXException, IOException {
-		DOMParser parser = new DOMParser();
-		parser.setFeature("http://xml.org/sax/features/namespaces", false);
-		parser.parse(new InputSource(reader));
-
-		return parser.getDocument();
-	}
-
-	public static Document getHtmlDocument(String html) throws SAXException, IOException {
-		return getHtmlDocument(new StringReader(html));
 	}
 
 	public static Document getDocument(URL url) throws IOException, SAXException {
@@ -236,6 +208,40 @@ public final class WebRequest {
 		return c.getResponseCode();
 	}
 
+	public static String encodeParameters(Map<String, ?> parameters, boolean unicode) {
+		StringBuilder sb = new StringBuilder();
+
+		for (Entry<String, ?> entry : parameters.entrySet()) {
+			if (sb.length() > 0) {
+				sb.append("&");
+			}
+
+			sb.append(entry.getKey());
+			if (entry.getValue() != null) {
+				sb.append("=");
+				sb.append(encode(entry.getValue().toString(), unicode));
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private static byte[] gzip(byte[] data) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream(data.length);
+		GZIPOutputStream gzip = new GZIPOutputStream(out);
+		gzip.write(data);
+		gzip.close();
+		return out.toByteArray();
+	}
+
+	public static String encode(String string, boolean unicode) {
+		try {
+			return URLEncoder.encode(string, unicode ? "UTF-8" : "ISO-8859-1");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static Charset getCharset(String contentType) {
 		if (contentType != null) {
 			// e.g. Content-Type: text/html; charset=iso-8859-1
@@ -257,67 +263,6 @@ public final class WebRequest {
 
 		// use UTF-8 if we don't know any better
 		return Charset.forName("UTF-8");
-	}
-
-	public static String encodeParameters(Map<String, ?> parameters, boolean unicode) {
-		StringBuilder sb = new StringBuilder();
-
-		for (Entry<String, ?> entry : parameters.entrySet()) {
-			if (sb.length() > 0) {
-				sb.append("&");
-			}
-
-			sb.append(entry.getKey());
-			if (entry.getValue() != null) {
-				sb.append("=");
-				sb.append(encode(entry.getValue().toString(), unicode));
-			}
-		}
-
-		return sb.toString();
-	}
-
-	public static String encode(String string, boolean unicode) {
-		try {
-			return URLEncoder.encode(string, unicode ? "UTF-8" : "ISO-8859-1");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static byte[] gzip(byte[] data) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream(data.length);
-		GZIPOutputStream gzip = new GZIPOutputStream(out);
-		gzip.write(data);
-		gzip.close();
-		return out.toByteArray();
-	}
-
-	public static SSLSocketFactory createIgnoreCertificateSocketFactory() {
-		// create a trust manager that does not validate certificate chains
-		TrustManager trustAnyCertificate = new X509TrustManager() {
-
-			@Override
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-
-			@Override
-			public void checkClientTrusted(X509Certificate[] certs, String authType) {
-			}
-
-			@Override
-			public void checkServerTrusted(X509Certificate[] certs, String authType) {
-			}
-		};
-
-		try {
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, new TrustManager[] { trustAnyCertificate }, new SecureRandom());
-			return sc.getSocketFactory();
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**

@@ -26,8 +26,6 @@ import javax.swing.Icon;
 import net.filebot.Cache;
 import net.filebot.ResourceManager;
 
-import org.json.simple.parser.ParseException;
-
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
 
@@ -117,7 +115,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 		return value == null ? null : new Integer(value.toString());
 	}
 
-	public AudioTrack parseResult(String json, final int targetDuration) throws IOException, InterruptedException, ParseException {
+	public AudioTrack parseResult(String json, final int targetDuration) throws IOException {
 		Map<?, ?> data = (Map<?, ?>) JsonReader.jsonToMaps(json);
 
 		if (!data.get("status").equals("ok")) {

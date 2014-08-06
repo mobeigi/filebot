@@ -69,29 +69,12 @@
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
 			<!-- include libs -->
-			<zipfileset src="${dir.lib}/xercesMinimal.jar">
-				<include name="org/apache/**" />
-				<include name="org/w3c/dom/html/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/nekohtml.jar">
-				<include name="org/cyberneko/html/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jsoup.jar">
-				<include name="org/jsoup/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/json-simple.jar">
 				<include name="org/json/simple/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/json-io.jar">
 				<include name="com/cedarsoftware/util/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/simmetrics.jar">
-				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/glazedlists.jar">
@@ -108,6 +91,10 @@
 
 			<zipfileset src="${dir.lib}/rsyntaxtextarea.jar">
 				<include name="org/fife/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/simmetrics.jar">
+				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/xmlrpc.jar">
@@ -142,13 +129,14 @@
 				<include name="org/apache/commons/io/**" />
 			</zipfileset>
 
-			<!-- include classes and native libraries -->
-			<zipfileset src="${dir.lib}/jna.jar">
-				<include name="com/sun/jna/**" />
+			<zipfileset src="${dir.lib}/icu4j.jar">
+				<include name="com/ibm/icu/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jna-platform.jar">
-				<include name="com/sun/jna/platform/win32/**" />
+			<zipfileset src="${dir.lib}/jacksum.jar">
+				<include name="jonelo/jacksum/adapt/**" />
+				<include name="jonelo/jacksum/algorithm/**" />
+				<include name="jonelo/sugar/util/**" />
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/groovy.jar">
@@ -161,24 +149,6 @@
 				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/icu4j.jar">
-				<include name="com/ibm/icu/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jacksum.jar">
-				<include name="jonelo/jacksum/adapt/**" />
-				<include name="jonelo/jacksum/algorithm/**" />
-				<include name="jonelo/sugar/util/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/junrar-custom.jar">
-				<include name="de/innosystec/unrar/**" />
-			</zipfileset>
-
-			<zipfileset src="${dir.lib}/jgat-custom.jar">
-				<include name="com/dmurph/tracking/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
@@ -186,6 +156,23 @@
 			<zipfileset src="${dir.lib}/ObjCBridge.jar">
 				<include name="ca/weblite/objc/**" />
 				<include name="com/sun/jna/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/jgat-custom.jar">
+				<include name="com/dmurph/tracking/**" />
+			</zipfileset>
+
+			<!-- include classes and native libraries -->
+			<zipfileset src="${dir.lib}/jna.jar">
+				<include name="com/sun/jna/**" />
+			</zipfileset>
+			<zipfileset src="${dir.lib}/jna-platform.jar">
+				<include name="com/sun/jna/platform/win32/**" />
+			</zipfileset>
+
+			<!-- libraries used in external scripts -->
+			<zipfileset src="${dir.lib}/jsoup.jar">
+				<include name="org/jsoup/**" />
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
