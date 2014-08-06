@@ -797,7 +797,7 @@
 
 
 	<target name="upload-data-frs" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${deploy.data.frs}/.." trust="yes" verbose="true" sftp="true">
+		<scp todir="${sf.user}:${sf.password}@${frs.release}/.." trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}">
 				<include name="data/*.xz" />
 			</fileset>
