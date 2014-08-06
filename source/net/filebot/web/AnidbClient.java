@@ -73,13 +73,13 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public List<SearchResult> search(String query, final Locale locale) throws Exception {
+	public List<SearchResult> search(String query, Locale locale) throws Exception {
 		// bypass automatic caching since search is based on locally cached data anyway
 		return fetchSearchResult(query, locale);
 	}
 
 	@Override
-	public List<SearchResult> fetchSearchResult(String query, final Locale locale) throws Exception {
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		LocalSearch<SearchResult> index = new LocalSearch<SearchResult>(getAnimeTitles()) {
 
 			@Override

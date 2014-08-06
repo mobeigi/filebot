@@ -118,11 +118,16 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 
 		// check episode sequence integrity
 		Integer seqIndex = null;
-		for (Episode ep : episodes) {
-			if (seqIndex != null && !ep.getEpisode().equals(seqIndex + 1))
+		for (Episode it : episodes) {
+			// any illegal episode object breaks the chain
+			if (it == null || it.getEpisode() == null || it.getSpecial() != null)
 				return false;
 
-			seqIndex = ep.getEpisode();
+			// non-sequential episode index breaks the chain
+			if (seqIndex != null && !it.getEpisode().equals(seqIndex + 1))
+				return false;
+
+			seqIndex = it.getEpisode();
 		}
 
 		// check drill-down integrity
