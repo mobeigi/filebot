@@ -6,6 +6,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -53,6 +54,14 @@ class RenameListCellRenderer extends DefaultFancyListCellRenderer {
 
 		setLayout(new MigLayout("insets 0, fill", "align left", "align center"));
 		this.add(typeRenderer, "gap rel:push, hidemode 3");
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+		// force equals cell height for both lists
+		Dimension dim = super.getPreferredSize();
+		dim.height = 28;
+		return dim;
 	}
 
 	@Override
