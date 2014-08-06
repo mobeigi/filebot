@@ -59,10 +59,10 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 				continue;
 
 			if (uniqueFiles.equals(uniqueEpisodes)) {
-				Episode[] episodes = episodeSets.get(file).toArray(new Episode[0]);
+				List<Episode> episodes = episodeSets.get(file);
 
 				if (isMultiEpisode(episodes)) {
-					MultiEpisode episode = new MultiEpisode(episodes);
+					MultiEpisode episode = new MultiEpisode(episodes.toArray(new Episode[0]));
 					disjointMatchCollection.add(new Match<File, Object>(file, episode));
 					modified = true;
 				}
@@ -111,9 +111,9 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		return identifier;
 	}
 
-	private boolean isMultiEpisode(Episode[] episodes) {
+	private boolean isMultiEpisode(List<Episode> episodes) {
 		// sanity check that there is valid episode data for at least two episodes
-		if (episodes.length < 2)
+		if (episodes.size() < 2)
 			return false;
 
 		// check episode sequence integrity
