@@ -1,5 +1,0 @@
-options +indexes
-
-redirect 301 /data/moviedb.txt.xz http://downloads.sourceforge.net/project/filebot/data/moviedb.txt.xz
-redirect 301 /data/thetvdb.txt.xz http://downloads.sourceforge.net/project/filebot/data/thetvdb.txt.xz
-redirect 301 /data/anidb.txt.xz http://downloads.sourceforge.net/project/filebot/data/anidb.txt.xz
