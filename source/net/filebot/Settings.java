@@ -5,6 +5,7 @@ import static net.filebot.util.StringUtilities.*;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -39,6 +40,18 @@ public final class Settings {
 		return ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT).getString(key);
 	}
 
+	public static String getApiKey(String name) {
+		ResourceBundle bundle = ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT);
+		if (isAppStore()) {
+			try {
+				return bundle.getString("apikey.private." + name);
+			} catch (MissingResourceException e) {
+				// ignore
+			}
+		}
+		return bundle.getString("apikey." + name);
+	}
+
 	public static boolean isUnixFS() {
 		return Boolean.parseBoolean(System.getProperty("unixfs"));
 	}
@@ -59,8 +72,8 @@ public final class Settings {
 		return Boolean.parseBoolean(System.getProperty("useCreationDate"));
 	}
 
-	public static boolean useDonationReminder() {
-		return !("mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment()));
+	public static boolean isAppStore() {
+		return "mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment());
 	}
 
 	public static boolean isMacSandbox() {

@@ -274,7 +274,7 @@ public class Main {
 				e.getWindow().setVisible(false);
 				HistorySpooler.getInstance().commit();
 
-				if (useDonationReminder()) {
+				if (!isAppStore()) {
 					showDonationReminder();
 				}
 

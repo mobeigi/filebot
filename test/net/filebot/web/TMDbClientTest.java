@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static net.filebot.Settings.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -15,7 +14,7 @@ import org.junit.Test;
 
 public class TMDbClientTest {
 
-	private final TMDbClient tmdb = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	private final TMDbClient tmdb = new TMDbClient("66308fb6e3fd850dde4c7d21df2e8306");
 
 	@Test
 	public void searchByName() throws Exception {

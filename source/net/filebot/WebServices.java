@@ -47,22 +47,22 @@ import net.filebot.web.VideoHashSubtitleService;
 public final class WebServices {
 
 	// episode dbs
-	public static final TVRageClient TVRage = new TVRageClient();
+	public static final TVRageClient TVRage = new TVRageClient(getApiKey("tvrage"));
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApplicationName().toLowerCase(), 5);
 
 	// extended TheTVDB module with local search
-	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApplicationProperty("thetvdb.apikey"));
+	public static final TheTVDBClientWithLocalSearch TheTVDB = new TheTVDBClientWithLocalSearch(getApiKey("thetvdb"));
 
 	// movie dbs
 	public static final OMDbClient OMDb = new OMDbClient();
-	public static final TMDbClient TheMovieDB = new TMDbClient(getApplicationProperty("themoviedb.apikey"));
+	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"));
 
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
 
 	// misc
-	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApplicationProperty("fanart.tv.apikey"));
-	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApplicationProperty("acoustid.apikey"));
+	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
+	public static final AcoustIDClient AcoustID = new AcoustIDClient(Settings.getApiKey("acoustid"));
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {

@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.util.Collections.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
@@ -8,8 +9,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.Icon;
 
@@ -22,7 +25,13 @@ import org.xml.sax.SAXException;
 
 public class TVRageClient extends AbstractEpisodeListProvider {
 
-	private final String host = "services.tvrage.com";
+	private String host = "services.tvrage.com";
+
+	private String apikey;
+
+	public TVRageClient(String apikey) {
+		this.apikey = apikey;
+	}
 
 	@Override
 	public String getName() {
@@ -41,8 +50,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException, SAXException {
-		URL searchUrl = new URL("http", host, "/feeds/full_search.php?show=" + encode(query, true));
-		Document dom = getDocument(searchUrl);
+		Document dom = request("/feeds/full_search.php", singletonMap("show", query));
 
 		List<Node> nodes = selectNodes("Results/show", dom);
 		List<SearchResult> searchResults = new ArrayList<SearchResult>(nodes.size());
@@ -61,9 +69,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws IOException, SAXException {
 		TVRageSearchResult series = (TVRageSearchResult) searchResult;
-
-		URL episodeListUrl = new URL("http", host, "/feeds/full_show_info.php?sid=" + series.getSeriesId());
-		Document dom = getDocument(episodeListUrl);
+		Document dom = request("/feeds/full_show_info.php", singletonMap("sid", series.getSeriesId()));
 
 		String seriesName = selectString("Show/name", dom);
 		SimpleDate seriesStartDate = SimpleDate.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
@@ -104,6 +110,15 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		episodes.addAll(specials);
 
 		return episodes;
+	}
+
+	public Document request(String resource, Map<String, Object> parameters) throws IOException, SAXException {
+		Map<String, Object> param = new LinkedHashMap<String, Object>(parameters);
+		if (apikey != null) {
+			param.put("key", apikey);
+		}
+		URL url = new URL("http", host, resource + "?" + encodeParameters(param, true));
+		return getDocument(url);
 	}
 
 	@Override
