@@ -118,12 +118,9 @@ public class TMDbClient implements MovieIdentificationService {
 				}
 
 				try {
-					String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
 					JSONObject titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
 					for (JSONObject node : jsonList(titles.get("titles"))) {
-						if (countryCode.equals(node.get("iso_3166_1"))) {
-							alternativeTitles.add((String) node.get("title"));
-						}
+						alternativeTitles.add((String) node.get("title"));
 					}
 				} catch (Exception e) {
 					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Unable to retrieve alternative titles [%s]: %s", title, e.getMessage()));
@@ -222,14 +219,12 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		List<String> alternativeTitles = new ArrayList<String>();
-		String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
 		JSONObject titles = (JSONObject) response.get("alternative_titles");
 		for (JSONObject it : jsonList(titles.get("titles"))) {
-			if (countryCode.equals(it.get("iso_3166_1"))) {
-				alternativeTitles.add((String) it.get("title"));
-			}
+			alternativeTitles.add((String) it.get("title"));
 		}
 
+		String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
 		JSONObject releases = (JSONObject) response.get("releases");
 		for (JSONObject it : jsonList(releases.get("countries"))) {
 			if (countryCode.equals(it.get("iso_3166_1"))) {
