@@ -35,7 +35,7 @@ import org.w3c.dom.Node;
 
 public class AnidbClient extends AbstractEpisodeListProvider {
 
-	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(5, 12, TimeUnit.SECONDS); // no more than 5 requests within a 10 second window (+2 seconds for good measure)
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(5, 10, TimeUnit.SECONDS); // no more than 5 requests within a 10 second window
 
 	private final String host = "anidb.net";
 

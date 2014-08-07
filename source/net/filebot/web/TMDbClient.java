@@ -44,8 +44,8 @@ public class TMDbClient implements MovieIdentificationService {
 	private static final String host = "api.themoviedb.org";
 	private static final String version = "3";
 
-	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 12, TimeUnit.SECONDS);
-	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 12, TimeUnit.SECONDS);
+	private static final FloodLimit SEARCH_LIMIT = new FloodLimit(10, 10, TimeUnit.SECONDS);
+	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
 
 	private final String apikey;
 
