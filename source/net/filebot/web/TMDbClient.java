@@ -75,15 +75,18 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale) throws IOException {
-		// use y:2014 year filter if possible
-		String query = (movieYear > 0) ? String.format("%s y:%d", movieName, movieYear) : movieName.toString();
-
 		// ignore queries that are too short to yield good results
 		if (movieName.length() < 3 && !(movieName.length() > 1 && movieYear > 0)) {
 			return emptyList();
 		}
 
-		JSONObject response = request("search/movie", singletonMap("query", query), locale, SEARCH_LIMIT);
+		Map<String, Object> param = new LinkedHashMap<String, Object>(2);
+		param.put("query", movieName);
+		if (movieYear > 0) {
+			param.put("year", movieYear);
+		}
+
+		JSONObject response = request("search/movie", param, locale, SEARCH_LIMIT);
 		List<Movie> result = new ArrayList<Movie>();
 
 		for (JSONObject it : jsonList(response.get("results"))) {
@@ -132,7 +135,7 @@ public class TMDbClient implements MovieIdentificationService {
 				result.add(new Movie(title, alternativeTitles.toArray(new String[0]), year, -1, id, locale));
 			} catch (Exception e) {
 				// only print 'missing release date' warnings for matching movie titles
-				if (query.equalsIgnoreCase(title) || query.equalsIgnoreCase(originalTitle)) {
+				if (movieName.equalsIgnoreCase(title) || movieName.equalsIgnoreCase(originalTitle)) {
 					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
 				}
 			}
@@ -156,7 +159,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
 		try {
-			MovieInfo info = getMovieInfo(id, locale, false, false);
+			MovieInfo info = getMovieInfo(id, locale, false);
 			return new Movie(info.getName(), new String[0], info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
 		} catch (FileNotFoundException e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);
@@ -174,21 +177,21 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws IOException {
 		if (movie.getTmdbId() >= 0) {
-			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo, extendedInfo);
+			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo);
 		} else if (movie.getImdbId() >= 0) {
-			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo, extendedInfo);
+			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo);
 		} else {
 			for (Movie result : searchMovie(movie.getName(), locale)) {
 				if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
-					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo, extendedInfo);
+					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo);
 				}
 			}
 		}
 		return null;
 	}
 
-	public MovieInfo getMovieInfo(String id, Locale locale, boolean includeAlternativeTitles, boolean includeExtendedInfo) throws IOException {
-		JSONObject response = request("movie/" + id, null, locale, REQUEST_LIMIT);
+	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws IOException {
+		JSONObject response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
 
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
 		for (MovieProperty key : MovieProperty.values()) {
@@ -219,58 +222,49 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 
 		List<String> alternativeTitles = new ArrayList<String>();
-		if (includeAlternativeTitles) {
-			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
-			JSONObject titles = request("movie/" + fields.get(MovieProperty.id) + "/alternative_titles", null, null, REQUEST_LIMIT);
-			for (JSONObject it : jsonList(titles.get("titles"))) {
-				if (countryCode.equals(it.get("iso_3166_1"))) {
-					alternativeTitles.add((String) it.get("title"));
-				}
+		String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
+		JSONObject titles = (JSONObject) response.get("alternative_titles");
+		for (JSONObject it : jsonList(titles.get("titles"))) {
+			if (countryCode.equals(it.get("iso_3166_1"))) {
+				alternativeTitles.add((String) it.get("title"));
 			}
 		}
 
-		if (includeExtendedInfo) {
-			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
-			JSONObject releases = request("movie/" + fields.get(MovieProperty.id) + "/releases", null, null, REQUEST_LIMIT);
-			for (JSONObject it : jsonList(releases.get("countries"))) {
-				if (countryCode.equals(it.get("iso_3166_1"))) {
-					fields.put(MovieProperty.certification, (String) it.get("certification"));
-				}
+		JSONObject releases = (JSONObject) response.get("releases");
+		for (JSONObject it : jsonList(releases.get("countries"))) {
+			if (countryCode.equals(it.get("iso_3166_1"))) {
+				fields.put(MovieProperty.certification, (String) it.get("certification"));
 			}
 		}
 
 		List<Person> cast = new ArrayList<Person>();
-		if (includeExtendedInfo) {
-			JSONObject castResponse = request("movie/" + fields.get(MovieProperty.id) + "/casts", null, null, REQUEST_LIMIT);
-			for (String section : new String[] { "cast", "crew" }) {
-				for (JSONObject it : jsonList(castResponse.get(section))) {
-					Map<PersonProperty, String> person = new EnumMap<PersonProperty, String>(PersonProperty.class);
-					for (PersonProperty key : PersonProperty.values()) {
-						Object value = it.get(key.name());
-						if (value != null) {
-							person.put(key, value.toString());
-						}
+		JSONObject castResponse = (JSONObject) response.get("casts");
+		for (String section : new String[] { "cast", "crew" }) {
+			for (JSONObject it : jsonList(castResponse.get(section))) {
+				Map<PersonProperty, String> person = new EnumMap<PersonProperty, String>(PersonProperty.class);
+				for (PersonProperty key : PersonProperty.values()) {
+					Object value = it.get(key.name());
+					if (value != null) {
+						person.put(key, value.toString());
 					}
-					cast.add(new Person(person));
 				}
+				cast.add(new Person(person));
 			}
 		}
 
 		List<Trailer> trailers = new ArrayList<Trailer>();
-		if (includeExtendedInfo) {
-			JSONObject trailerResponse = request("movie/" + fields.get(MovieProperty.id) + "/trailers", null, null, REQUEST_LIMIT);
-			for (String section : new String[] { "quicktime", "youtube" }) {
-				for (JSONObject it : jsonList(trailerResponse.get(section))) {
-					LinkedHashMap<String, String> sources = new LinkedHashMap<String, String>();
-					if (it.containsKey("sources")) {
-						for (JSONObject s : jsonList(it.get("sources"))) {
-							sources.put(s.get("size").toString(), s.get("source").toString());
-						}
-					} else {
-						sources.put(it.get("size").toString(), it.get("source").toString());
+		JSONObject trailerResponse = (JSONObject) response.get("trailers");
+		for (String section : new String[] { "quicktime", "youtube" }) {
+			for (JSONObject it : jsonList(trailerResponse.get(section))) {
+				Map<String, String> sources = new LinkedHashMap<String, String>();
+				if (it.containsKey("sources")) {
+					for (JSONObject s : jsonList(it.get("sources"))) {
+						sources.put(s.get("size").toString(), s.get("source").toString());
 					}
-					trailers.add(new Trailer(section, it.get("name").toString(), sources));
+				} else {
+					sources.put(it.get("size").toString(), it.get("source").toString());
 				}
+				trailers.add(new Trailer(section, it.get("name").toString(), sources));
 			}
 		}
 
@@ -302,9 +296,9 @@ public class TMDbClient implements MovieIdentificationService {
 		return artwork;
 	}
 
-	public JSONObject request(String resource, Map<String, String> parameters, Locale locale, final FloodLimit limit) throws IOException {
+	public JSONObject request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws IOException {
 		// default parameters
-		LinkedHashMap<String, String> data = new LinkedHashMap<String, String>();
+		LinkedHashMap<String, Object> data = new LinkedHashMap<String, Object>();
 		if (parameters != null) {
 			data.putAll(parameters);
 		}
