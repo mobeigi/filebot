@@ -773,19 +773,11 @@
 	</target>
 
 
-	<target name="upload-data-web" depends="login">
+	<target name="upload-data" depends="login">
 		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}">
 				<include name="data/.htaccess" />
 				<include name="data/*.txt" />
-			</fileset>
-		</scp>
-	</target>
-
-
-	<target name="upload-data-frs" depends="login">
-		<scp todir="${sf.user}:${sf.password}@${frs.release}/.." trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.website}">
 				<include name="data/*.xz" />
 			</fileset>
 		</scp>
