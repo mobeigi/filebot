@@ -72,9 +72,11 @@ public class UserFiles {
 	public enum FileChooser {
 
 		Swing {
+
 			@Override
 			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setDialogTitle(title);
 				chooser.setMultiSelectionEnabled(multiSelection);
 				chooser.setFileSelectionMode(folderMode && filter == null ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setSelectedFile(defaultFile);
@@ -94,6 +96,7 @@ public class UserFiles {
 			@Override
 			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setDialogTitle(title);
 				chooser.setMultiSelectionEnabled(false);
 				chooser.setFileSelectionMode(folderMode ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setSelectedFile(defaultFile);
@@ -106,15 +109,24 @@ public class UserFiles {
 		},
 
 		AWT {
+
 			@Override
 			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
 				FileDialog fileDialog = createFileDialog(parent, title, FileDialog.LOAD, folderMode);
+				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(multiSelection);
 				if (filter != null) {
 					fileDialog.setFilenameFilter(filter);
 				}
 				if (defaultFile != null) {
-					fileDialog.setFile(defaultFile.getPath());
+					if (folderMode && defaultFile.isDirectory()) {
+						fileDialog.setDirectory(defaultFile.getPath());
+					} else {
+						if (defaultFile.getParentFile() != null) {
+							fileDialog.setDirectory(defaultFile.getParentFile().getPath());
+						}
+						fileDialog.setFile(defaultFile.getName());
+					}
 				}
 
 				fileDialog.setVisible(true);
@@ -124,6 +136,7 @@ public class UserFiles {
 			@Override
 			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
 				FileDialog fileDialog = createFileDialog(getWindow(parent), title, FileDialog.SAVE, folderMode);
+				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(false);
 				if (defaultFile != null) {
 					if (defaultFile.getParentFile() != null) {
