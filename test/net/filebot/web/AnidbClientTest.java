@@ -35,7 +35,7 @@ public class AnidbClientTest {
 		princessTutuSearchResult = new AnidbSearchResult(516, "Princess Tutu", null);
 	}
 
-	private AnidbClient anidb = new AnidbClient("filebot", 4);
+	private AnidbClient anidb = new AnidbClient("filebot", 6);
 
 	@Test
 	public void getAnimeTitles() throws Exception {

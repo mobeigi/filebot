@@ -207,6 +207,7 @@ public class ReleaseInfo {
 					if (root.isDirectory()) {
 						volumes.addAll(getChildren(root, FOLDERS));
 					}
+					volumes.add(root);
 				}
 			}
 

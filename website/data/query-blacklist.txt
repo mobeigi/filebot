@@ -27,6 +27,7 @@
 ^Animation$
 ^Anime$
 ^Animes$
+^Applications$
 ^AUDIO_TS$
 ^bad$
 ^BDMV$
@@ -51,6 +52,7 @@
 ^disk[0-9]$
 ^Documentaries$
 ^Documentary$
+^Documents$
 ^Done$
 ^Download$
 ^Downloading$
@@ -119,6 +121,7 @@
 ^old$
 ^other$
 ^Part$
+^Pictures$
 ^Piece$
 ^Plexserv$
 ^private$
