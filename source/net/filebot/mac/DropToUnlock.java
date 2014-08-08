@@ -38,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 import net.filebot.ResourceManager;
+import net.filebot.media.MediaDetection;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.FileTransferable;
@@ -46,13 +47,34 @@ import net.miginfocom.swing.MigLayout;
 
 public class DropToUnlock extends JList<File> {
 
-	public static boolean showUnlockDialog(Window owner, Collection<File> folders) {
-		final List<File> model = folders.stream().map(f -> new File(f.getAbsolutePath())).filter(f -> f.isDirectory()).sorted().distinct().collect(Collectors.toList());
+	public static List<File> getParentFolders(Collection<File> files) {
+		return files.stream().map(f -> f.isDirectory() ? f : f.getParentFile()).sorted().distinct().filter(f -> !f.exists() || isLockedFolder(f)).map(f -> {
+			try {
+				File file = f.getCanonicalFile();
+				File root = MediaDetection.getStructureRoot(file);
+
+				// if structure root doesn't work just grab first existing parent folder
+				if (root == null || root.getParentFile() == null || root.getName().isEmpty()) {
+					for (File it : listPathTail(file, Integer.MAX_VALUE, true)) {
+						if (it.isDirectory()) {
+							return it;
+						}
+					}
+				}
+				return root;
+			} catch (Exception e) {
+				return null;
+			}
+		}).filter(f -> f != null && isLockedFolder(f)).sorted().distinct().collect(Collectors.toList());
+	}
+
+	public static boolean showUnlockDialog(Window owner, Collection<File> files) {
+		final List<File> model = getParentFolders(files);
 
 		// TODO store secure bookmarks and auto-unlock folders if possible
 
 		// check if we even need to unlock anything
-		if (model.stream().allMatch(f -> !isFolderLocked(f)))
+		if (model.isEmpty() || model.stream().allMatch(f -> !isLockedFolder(f)))
 			return true;
 
 		final JDialog dialog = new JDialog(owner);
@@ -65,13 +87,13 @@ public class DropToUnlock extends JList<File> {
 
 				// UI feedback for unlocked folders
 				for (File it : folders) {
-					if (!isFolderLocked(it)) {
+					if (!isLockedFolder(it)) {
 						UILogger.log(Level.INFO, "Folder " + it.getName() + " has been unlocked");
 					}
 				}
 
 				// if all folders have been unlocked auto-close dialog
-				if (model.stream().allMatch(f -> !isFolderLocked(f))) {
+				if (model.stream().allMatch(f -> !isLockedFolder(f))) {
 					dialogCancelled.set(false);
 					dialog.setVisible(false);
 				}
@@ -193,7 +215,7 @@ public class DropToUnlock extends JList<File> {
 			File folder = (File) value;
 			JLabel c = (JLabel) super.getListCellRendererComponent(list, folder.getName(), index, false, false);
 
-			c.setIcon(ResourceManager.getIcon(isFolderLocked(folder) ? "folder.locked" : "folder.open"));
+			c.setIcon(ResourceManager.getIcon(isLockedFolder(folder) ? "folder.locked" : "folder.open"));
 			c.setHorizontalTextPosition(JLabel.CENTER);
 			c.setVerticalTextPosition(JLabel.BOTTOM);
 
@@ -209,7 +231,7 @@ public class DropToUnlock extends JList<File> {
 				int index = list.locationToIndex(evt.getPoint());
 				if (index >= 0 && list.getCellBounds(index, index).contains(evt.getPoint())) {
 					File folder = list.getModel().getElementAt(index);
-					if (isFolderLocked(folder)) {
+					if (isLockedFolder(folder)) {
 						if (null != showOpenDialogSelectFolder(folder, "Grant Permission", getWindow(list))) {
 							list.updateLockStatus(folder);
 						}

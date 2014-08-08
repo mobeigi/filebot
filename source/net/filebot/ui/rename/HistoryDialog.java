@@ -5,6 +5,7 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -34,6 +35,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -69,6 +72,7 @@ import net.filebot.History.Element;
 import net.filebot.History.Sequence;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
+import net.filebot.mac.DropToUnlock;
 import net.filebot.media.MetaAttributes;
 import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.ui.transfer.FileTransferablePolicy;
@@ -527,9 +531,15 @@ class HistoryDialog extends JDialog {
 		}
 
 		private void rename(File directory, List<Element> elements) {
-			int count = 0;
+			Map<File, File> renamePlan = getRenameMap(directory);
+			if (isMacSandbox()) {
+				if (!DropToUnlock.showUnlockDialog(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
+					return;
+				}
+			}
 
-			for (Entry<File, File> entry : getRenameMap(directory).entrySet()) {
+			int count = 0;
+			for (Entry<File, File> entry : renamePlan.entrySet()) {
 				try {
 					File destination = moveRename(entry.getKey(), entry.getValue());
 					count++;
@@ -544,7 +554,6 @@ class HistoryDialog extends JDialog {
 			}
 
 			JLabel status = parent().getInfoLabel();
-
 			if (count == elements.size()) {
 				status.setText(String.format("%d file(s) have been renamed.", count));
 				status.setIcon(ResourceManager.getIcon("status.ok"));

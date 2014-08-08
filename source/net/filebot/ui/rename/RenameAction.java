@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -33,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
@@ -154,15 +155,7 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
 		// ask for user permissions to output paths
 		if (isMacSandbox()) {
-			Set<File> folders = new TreeSet<File>();
-			for (Entry<File, File> it : renamePlan) {
-				File structureRoot = MediaDetection.getStructureRoot(it.getValue());
-				if (structureRoot != null) {
-					folders.add(structureRoot);
-				}
-			}
-
-			if (!DropToUnlock.showUnlockDialog(parent, folders)) {
+			if (!DropToUnlock.showUnlockDialog(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getValue(), e.getKey())).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
 				return emptyMap();
 			}
 		}
