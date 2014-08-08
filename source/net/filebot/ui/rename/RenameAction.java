@@ -14,6 +14,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -44,6 +46,7 @@ import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
 import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
+import net.filebot.mac.DropToUnlock;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.util.ui.ProgressDialog;
@@ -148,7 +151,22 @@ class RenameAction extends AbstractAction {
 		}
 	}
 
-	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) {
+	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
+		// ask for user permissions to output paths
+		if (isMacSandbox()) {
+			Set<File> folders = new TreeSet<File>();
+			for (Entry<File, File> it : renamePlan) {
+				File structureRoot = MediaDetection.getStructureRoot(it.getValue());
+				if (structureRoot != null) {
+					folders.add(structureRoot);
+				}
+			}
+
+			if (!DropToUnlock.showUnlockDialog(parent, folders)) {
+				return emptyMap();
+			}
+		}
+
 		// build rename map and perform some sanity checks
 		Map<File, File> renameMap = new HashMap<File, File>();
 		Set<File> destinationSet = new HashSet<File>();

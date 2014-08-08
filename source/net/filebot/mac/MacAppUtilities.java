@@ -1,6 +1,7 @@
 package net.filebot.mac;
 
 import java.awt.Window;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,5 +50,9 @@ public class MacAppUtilities {
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
 		}
+	}
+
+	public static boolean isFolderLocked(File folder) {
+		return folder.isDirectory() && !folder.canRead() && !folder.canWrite();
 	}
 }

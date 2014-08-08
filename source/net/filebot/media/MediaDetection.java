@@ -989,6 +989,19 @@ public class MediaDetection {
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
+	public static File getStructureRoot(File file) throws IOException {
+		boolean structureRoot = false;
+		for (File it : listPathTail(file, Integer.MAX_VALUE, true)) {
+			if (structureRoot || isStructureRoot(it)) {
+				if (it.isDirectory()) {
+					return it;
+				}
+				structureRoot = true; // find first existing folder at or after the structure root folder (which may not exist yet)
+			}
+		}
+		return null;
+	}
+
 	public static File getStructurePathTail(File file) throws IOException {
 		LinkedList<String> relativePath = new LinkedList<String>();
 

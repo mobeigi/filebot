@@ -17,7 +17,7 @@ import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.util.ui.notification.SeparatorBorder.Position;
 
-class HeaderPanel extends JComponent {
+public class HeaderPanel extends JComponent {
 
 	private JLabel titleLabel = new JLabel();
 
