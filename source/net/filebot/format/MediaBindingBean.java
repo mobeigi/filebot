@@ -777,17 +777,16 @@ public class MediaBindingBean {
 		return di == 0 ? null : di;
 	}
 
+	@Define("self")
+	public AssociativeScriptObject getSelf() {
+		return createBindingObject(mediaFile, infoObject, context);
+	}
+
 	@Define("model")
-	public List<AssociativeScriptObject> getContext() {
+	public List<AssociativeScriptObject> getModel() {
 		List<AssociativeScriptObject> result = new ArrayList<AssociativeScriptObject>();
 		for (Entry<File, Object> it : context.entrySet()) {
-			MediaBindingBean mediaBindingBean = new MediaBindingBean(it.getValue(), it.getKey(), context) {
-				@Define(undefined)
-				public <T> T undefined(String name) {
-					return null; // never throw exceptions for empty or null values
-				}
-			};
-			result.add(new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean)));
+			result.add(createBindingObject(it.getKey(), it.getValue(), context));
 		}
 		return result;
 	}
@@ -888,6 +887,16 @@ public class MediaBindingBean {
 		}
 
 		return null;
+	}
+
+	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, Object> context) {
+		MediaBindingBean mediaBindingBean = new MediaBindingBean(info, file, context) {
+			@Define(undefined)
+			public <T> T undefined(String name) {
+				return null; // never throw exceptions for empty or null values
+			}
+		};
+		return new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean));
 	}
 
 	private AssociativeScriptObject createMapBindings(Map<?, ?> map) {
