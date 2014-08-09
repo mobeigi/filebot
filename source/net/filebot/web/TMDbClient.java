@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -118,10 +119,15 @@ public class TMDbClient implements MovieIdentificationService {
 				}
 
 				try {
+					Set<String> internationalTitles = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 					JSONObject titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
 					for (JSONObject node : jsonList(titles.get("titles"))) {
-						alternativeTitles.add((String) node.get("title"));
+						String t = (String) node.get("title");
+						if (t != null && t.length() >= 3) {
+							internationalTitles.add(t);
+						}
 					}
+					alternativeTitles.addAll(internationalTitles);
 				} catch (Exception e) {
 					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Unable to retrieve alternative titles [%s]: %s", title, e.getMessage()));
 				}
