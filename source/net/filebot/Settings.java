@@ -46,7 +46,7 @@ public final class Settings {
 			try {
 				return bundle.getString("apikey.private." + name);
 			} catch (MissingResourceException e) {
-				// ignore
+				// ignore, fall back to default
 			}
 		}
 		return bundle.getString("apikey." + name);

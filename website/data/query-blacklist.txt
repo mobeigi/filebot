@@ -48,6 +48,7 @@
 ^data$
 ^deluge$
 ^Desktop$
+^dev$
 ^Disco[0-9]$
 ^disk[0-9]$
 ^Documentaries$
