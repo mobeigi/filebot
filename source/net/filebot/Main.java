@@ -284,6 +284,7 @@ public class Main {
 
 		// window settings
 		if (Settings.isMacSandbox()) {
+			MacAppUtilities.setUIDefaults();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 		}
 		frame.setLocationByPlatform(true);

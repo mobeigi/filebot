@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.UIManager;
+
 import ca.weblite.objc.Client;
 
 public class MacAppUtilities {
@@ -23,7 +25,7 @@ public class MacAppUtilities {
 		return objc().sendProxy("NSData", "data").send("initWithBase64Encoding:", text);
 	}
 
-	public static Object NSURL_bookmarkDataWithOptions(String path) {
+	public static String NSURL_bookmarkDataWithOptions(String path) {
 		return objc().sendProxy("NSURL", "fileURLWithPath:", path).sendProxy("bookmarkDataWithOptions:includingResourceValuesForKeys:relativeToURL:error:", 2048, null, null, null).sendString("base64Encoding");
 	}
 
@@ -50,6 +52,10 @@ public class MacAppUtilities {
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
 		}
+	}
+
+	public static void setUIDefaults() {
+		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
 	}
 
 	public static boolean isLockedFolder(File folder) {
