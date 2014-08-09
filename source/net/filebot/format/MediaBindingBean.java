@@ -71,9 +71,9 @@ public class MediaBindingBean {
 	}
 
 	@Define(undefined)
-	public <T> T undefined() {
+	public <T> T undefined(String name) {
 		// omit expressions that depend on undefined values
-		throw new RuntimeException("undefined");
+		throw new BindingException(name, "undefined");
 	}
 
 	@Define("n")
@@ -762,13 +762,13 @@ public class MediaBindingBean {
 
 	@Define("i")
 	public Integer getModelIndex() {
-		return identityIndexOf(getContext().values(), getInfoObject());
+		return identityIndexOf(context.values(), getInfoObject());
 	}
 
 	@Define("di")
 	public Integer getDuplicateIndex() {
 		List<Object> duplicates = new ArrayList<Object>();
-		for (Object it : getContext().values()) {
+		for (Object it : context.values()) {
 			if (getInfoObject().equals(it)) {
 				duplicates.add(it);
 			}
@@ -778,8 +778,18 @@ public class MediaBindingBean {
 	}
 
 	@Define("model")
-	public Map<File, Object> getContext() {
-		return context;
+	public List<AssociativeScriptObject> getContext() {
+		List<AssociativeScriptObject> result = new ArrayList<AssociativeScriptObject>();
+		for (Entry<File, Object> it : context.entrySet()) {
+			MediaBindingBean mediaBindingBean = new MediaBindingBean(it.getValue(), it.getKey(), context) {
+				@Define(undefined)
+				public <T> T undefined(String name) {
+					return null; // never throw exceptions for empty or null values
+				}
+			};
+			result.add(new AssociativeScriptObject(new ExpressionBindings(mediaBindingBean)));
+		}
+		return result;
 	}
 
 	@Define("json")
@@ -799,8 +809,8 @@ public class MediaBindingBean {
 			}
 		} else if (SUBTITLE_FILES.accept(mediaFile) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(mediaFile))) {
 			// prefer equal match from current context if possible
-			if (getContext() != null) {
-				for (Entry<File, Object> it : getContext().entrySet()) {
+			if (context != null) {
+				for (Entry<File, Object> it : context.entrySet()) {
 					if (infoObject.equals(it.getValue()) && VIDEO_FILES.accept(it.getKey())) {
 						return it.getKey();
 					}
@@ -888,7 +898,7 @@ public class MediaBindingBean {
 				Object value = super.getProperty(name);
 
 				if (value == null) {
-					throw new BindingException(name, "undefined");
+					undefined(name);
 				}
 
 				// auto-clean value of path separators
@@ -965,4 +975,8 @@ public class MediaBindingBean {
 		return s.toString().trim();
 	}
 
+	@Override
+	public String toString() {
+		return String.format("%s ⇔ %s", infoObject, mediaFile == null ? null : mediaFile.getName());
+	}
 }

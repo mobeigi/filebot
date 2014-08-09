@@ -1,5 +1,7 @@
 package net.filebot.format;
 
+import static net.filebot.util.ExceptionUtilities.*;
+
 import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.HashSet;
@@ -8,8 +10,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.script.Bindings;
-
-import net.filebot.util.ExceptionUtilities;
 
 public class ExpressionBindings extends AbstractMap<String, Object> implements Bindings {
 
@@ -51,29 +51,27 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 		return bindingBean;
 	}
 
-	protected Object evaluate(final Method method) throws Exception {
-		Object value = method.invoke(bindingBean);
-
-		if (!isUndefined(value)) {
-			return value;
-		}
-
-		// invoke fallback method
-		return undefined.invoke(bindingBean);
-	}
-
 	@Override
 	public Object get(Object key) {
 		Method method = bindings.get(key);
 
 		if (method != null) {
 			try {
-				return evaluate(method);
+				Object value = method.invoke(bindingBean);
+				if (!isUndefined(value)) {
+					return value;
+				}
+				if (undefined != null) {
+					return undefined.invoke(bindingBean, key); // invoke fallback method
+				}
 			} catch (Exception e) {
-				throw new BindingException(key.toString(), ExceptionUtilities.getRootCauseMessage(e), e);
+				// check InvocationTargetException cause
+				if (e.getCause() instanceof BindingException) {
+					throw (BindingException) e.getCause();
+				}
+				throw new BindingException(key.toString(), getRootCauseMessage(e), e);
 			}
 		}
-
 		return null;
 	}
 
