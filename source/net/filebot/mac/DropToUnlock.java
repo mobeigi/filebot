@@ -4,7 +4,6 @@ import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.mac.MacAppUtilities.*;
-import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -130,17 +129,12 @@ public class DropToUnlock extends JList<File> {
 			public void updateLockStatus(File... folders) {
 				super.updateLockStatus(folders);
 
-				// UI feedback for unlocked folders
-				for (File it : folders) {
-					if (!isLockedFolder(it)) {
-						UILogger.log(Level.INFO, "Folder " + it.getName() + " has been unlocked");
-					}
-				}
-
 				// if all folders have been unlocked auto-close dialog
 				if (model.stream().allMatch(f -> !isLockedFolder(f))) {
 					dialogCancelled.set(false);
-					dialog.setVisible(false);
+					invokeLater(750, () -> {
+						dialog.setVisible(false);
+					});
 				}
 			};
 		};
@@ -163,19 +157,15 @@ public class DropToUnlock extends JList<File> {
 		dialog.setLocationByPlatform(true);
 		dialog.setAlwaysOnTop(true);
 
-		// open required folders for easy drag and drop
-		invokeLater(750, new Runnable() {
-
-			@Override
-			public void run() {
-				model.stream().map(f -> f.getParentFile()).distinct().forEach(f -> {
-					try {
-						Desktop.getDesktop().open(f);
-					} catch (Exception e) {
-						Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, e.toString());
-					}
-				});
-			}
+		// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
+		invokeLater(750, () -> {
+			model.stream().map(f -> f.getParentFile()).sorted().distinct().forEach(f -> {
+				try {
+					Desktop.getDesktop().open(f);
+				} catch (Exception e) {
+					Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, e.toString());
+				}
+			});
 		});
 
 		// show and wait for user input
