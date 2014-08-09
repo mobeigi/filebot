@@ -40,6 +40,7 @@ import net.filebot.ui.AbstractSearchPanel;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.SelectDialog;
 import net.filebot.util.ui.LabelProvider;
+import net.filebot.util.ui.LinkButton;
 import net.filebot.util.ui.SimpleLabelProvider;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
@@ -261,7 +262,18 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 			osdbGroup.add(new JLabel("Password:"), "gap rel");
 			final JPasswordField osdbPass = new JPasswordField(12);
-			osdbGroup.add(osdbPass, "growx, wrap rel");
+			osdbGroup.add(osdbPass, "growx, wrap unrel");
+
+			// restore values
+			String[] osdbAuth = WebServices.getLogin("osdb.user");
+			osdbUser.setText(osdbAuth[0]);
+			osdbPass.setText(osdbAuth[1]);
+
+			if (osdbUser.getText().isEmpty()) {
+				osdbGroup.add(new LinkButton("Register", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag help");
+			} else {
+				osdbGroup.add(new LinkButton("Upgrade", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/support")), "spanx 2, tag help");
+			}
 
 			JRootPane container = authPanel.getRootPane();
 			container.setLayout(new MigLayout("fill, insets dialog"));
@@ -303,11 +315,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			};
 			container.add(new JButton(cancel), "tag cancel, split 2");
 			container.add(new JButton(ok), "tag ok");
-
-			// restore values
-			String[] osdbAuth = WebServices.getLogin("osdb.user");
-			osdbUser.setText(osdbAuth[0]);
-			osdbPass.setText(osdbAuth[1]);
 
 			authPanel.pack();
 			authPanel.setVisible(true);

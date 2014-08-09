@@ -234,16 +234,24 @@ public final class WebServices {
 	}
 
 	public static String[] getLogin(String key) {
-		return Settings.forPackage(WebServices.class).get(key, ":").split(":", 2);
+		try {
+			String[] values = Settings.forPackage(WebServices.class).get(key, ":").split(":", 2); // empty username/password by default
+			if (values != null && values.length == 2 && values[0] != null && values[1] != null) {
+				return values;
+			}
+		} catch (Exception e) {
+			Logger.getLogger(WebServices.class.getName()).log(Level.WARNING, e.getMessage(), e);
+		}
+		return new String[] { "", "" };
 	}
 
 	public static void setLogin(String id, String user, String password) {
-		Settings settings = Settings.forPackage(WebServices.class);
-		String value = user.length() > 0 && password.length() > 0 ? user + ":" + password : null;
-		if (value == null) {
-			user = "";
-			password = "";
+		if (user == null || password == null || user.contains(":") || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
+			throw new IllegalArgumentException("Illegal login: " + user);
 		}
+
+		Settings settings = Settings.forPackage(WebServices.class);
+		String value = user.isEmpty() && password.isEmpty() ? null : user + ":" + password;
 
 		if (id.equals("osdb.user")) {
 			settings.put(id, value);

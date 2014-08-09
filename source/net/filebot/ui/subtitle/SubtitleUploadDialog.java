@@ -423,7 +423,7 @@ public class SubtitleUploadDialog extends JDialog {
 				icon = ResourceManager.getIcon("database.ok");
 				break;
 			case Identifying:
-				text = "Auto-detecting missing information";
+				text = "Auto-detect missing information";
 				icon = ResourceManager.getIcon("action.export");
 				break;
 			case IdentificationRequired:
