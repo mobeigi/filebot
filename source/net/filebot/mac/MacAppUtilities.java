@@ -61,4 +61,5 @@ public class MacAppUtilities {
 	public static boolean isLockedFolder(File folder) {
 		return folder.isDirectory() && !folder.canRead() && !folder.canWrite();
 	}
+
 }

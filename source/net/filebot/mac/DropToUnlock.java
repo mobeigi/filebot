@@ -1,5 +1,6 @@
 package net.filebot.mac;
 
+import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.mac.MacAppUtilities.*;
@@ -26,6 +27,9 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.media.MediaDetection;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.ui.transfer.DefaultTransferHandler;
@@ -46,6 +51,41 @@ import net.filebot.ui.transfer.TransferablePolicy;
 import net.miginfocom.swing.MigLayout;
 
 public class DropToUnlock extends JList<File> {
+
+	public static final Map<String, String> persistentSecurityScopedBookmarks = Settings.forPackage(DropToUnlock.class).node("SecurityScopedBookmarks").asMap();
+
+	public static void unlockBySecurityScopedBookmarks(List<File> folders) {
+		synchronized (persistentSecurityScopedBookmarks) {
+			Set<String> bookmarks = persistentSecurityScopedBookmarks.keySet();
+			for (File folder : folders) {
+				Optional<File> bookmarkForFolder = listPath(folder).stream().filter(f -> bookmarks.contains(f.getPath())).findFirst();
+				if (bookmarkForFolder.isPresent() && isLockedFolder(folder)) {
+					try {
+						NSURL_URLByResolvingBookmarkData_startAccessingSecurityScopedResource(persistentSecurityScopedBookmarks.get(bookmarkForFolder.get().getPath()));
+					} catch (Throwable e) {
+						Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.URLByResolvingBookmarkData.startAccessingSecurityScopedResource: " + e.toString());
+					}
+				}
+			}
+		}
+	}
+
+	public static void storeSecurityScopedBookmarks(List<File> folders) {
+		synchronized (persistentSecurityScopedBookmarks) {
+			Set<String> bookmarks = persistentSecurityScopedBookmarks.keySet();
+			for (File folder : folders) {
+				// check if folder (or one of it's parent folders) is already bookmarked
+				if (disjoint(bookmarks, listPath(folder)) && !isLockedFolder(folder)) {
+					try {
+						String bookmarkData = NSURL_bookmarkDataWithOptions(folder.getPath());
+						persistentSecurityScopedBookmarks.put(folder.getPath(), bookmarkData);
+					} catch (Throwable e) {
+						Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.bookmarkDataWithOptions: " + e.toString());
+					}
+				}
+			}
+		}
+	}
 
 	public static List<File> getParentFolders(Collection<File> files) {
 		return files.stream().map(f -> f.isDirectory() ? f : f.getParentFile()).sorted().distinct().filter(f -> !f.exists() || isLockedFolder(f)).map(f -> {
@@ -71,10 +111,15 @@ public class DropToUnlock extends JList<File> {
 	public static boolean showUnlockDialog(Window owner, Collection<File> files) {
 		final List<File> model = getParentFolders(files);
 
-		// TODO store secure bookmarks and auto-unlock folders if possible
+		// immediately return if there is nothing that needs to be unlocked
+		if (model.isEmpty())
+			return true;
 
-		// check if we even need to unlock anything
-		if (model.isEmpty() || model.stream().allMatch(f -> !isLockedFolder(f)))
+		// try to restore permissions from previously stored security-scoped bookmarks as best as possible
+		unlockBySecurityScopedBookmarks(model);
+
+		// check if we even need to unlock anything at this point
+		if (model.stream().allMatch(f -> !isLockedFolder(f)))
 			return true;
 
 		final JDialog dialog = new JDialog(owner);
@@ -133,10 +178,16 @@ public class DropToUnlock extends JList<File> {
 			}
 		});
 
-		// show and wait
+		// show and wait for user input
 		dialog.setVisible(true);
 
-		return !dialogCancelled.get();
+		// abort if user has closed the window before all folders have been unlocked
+		if (dialogCancelled.get())
+			return false;
+
+		// store security-scoped bookmarks
+		storeSecurityScopedBookmarks(model);
+		return true;
 	}
 
 	public DropToUnlock(Collection<File> model) {
