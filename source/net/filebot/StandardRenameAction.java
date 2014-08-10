@@ -72,10 +72,22 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 
+	HARDLINK_OR_COPY {
+
+		@Override
+		public File rename(File from, File to) throws Exception {
+			try {
+				return HARDLINK.rename(from, to);
+			} catch (Exception e) {
+				return COPY.rename(from, to);
+			}
+		}
+	},
+
 	RENAME {
 
 		@Override
-		public File rename(File from, File to) throws IOException {
+		public File rename(File from, File to) throws Exception {
 			// rename only the filename
 			File dest = new File(from.getParentFile(), to.getName());
 
