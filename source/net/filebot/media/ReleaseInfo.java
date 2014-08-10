@@ -202,6 +202,14 @@ public class ReleaseInfo {
 					volumes.addAll(getChildren(root, FOLDERS));
 				}
 
+				// add additional user roots if user.home is not set properly
+				String username = System.getProperty("user.name");
+				if (username != null && username.length() > 0) {
+					volumes.add(new File("/Users/" + username));
+					volumes.add(new File("/home/" + username));
+					volumes.add(new File("/media/" + username));
+				}
+
 				// user-specific media roots
 				for (File root : getMediaRoots()) {
 					if (root.isDirectory()) {
