@@ -54,6 +54,16 @@ public class MacAppUtilities {
 		}
 	}
 
+	public static void revealInFinder(File file) {
+		try {
+			Class<?> fileManager = Class.forName("com.apple.eio.FileManager");
+			Method revealInFinder = fileManager.getMethod("revealInFinder", new Class<?>[] { File.class });
+			revealInFinder.invoke(null, file);
+		} catch (Throwable t) {
+			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "revealInFinder not supported: " + t);
+		}
+	}
+
 	public static void setUIDefaults() {
 		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
 	}

@@ -229,7 +229,7 @@ public class MainFrame extends JFrame {
 						selectEnabled = true;
 
 						// bring window to front when on dnd
-						if (Settings.isMacSandbox()) {
+						if (Settings.isMacApp()) {
 							MacAppUtilities.requestForeground();
 						} else {
 							SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();

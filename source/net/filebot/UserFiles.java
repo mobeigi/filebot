@@ -5,6 +5,7 @@ import static java.util.Collections.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.ui.SwingUI.*;
 
+import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -12,12 +13,27 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class UserFiles {
+
+	public static void revealFile(File file) {
+		try {
+			if (isMacApp()) {
+				MacAppUtilities.revealInFinder(file);
+			} else {
+				Desktop.getDesktop().open(file.getParentFile());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+		}
+	}
 
 	private static FileChooser defaultFileChooser = getPreferredFileChooser();
 

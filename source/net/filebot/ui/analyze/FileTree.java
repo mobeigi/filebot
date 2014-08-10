@@ -3,7 +3,6 @@ package net.filebot.ui.analyze;
 import static java.util.Collections.*;
 import static net.filebot.ui.NotificationLogging.*;
 
-import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -29,6 +28,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.filebot.ResourceManager;
+import net.filebot.UserFiles;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FilterIterator;
 import net.filebot.util.TreeIterator;
@@ -120,7 +120,7 @@ public class FileTree extends JTree {
 			public void actionPerformed(ActionEvent event) {
 				try {
 					for (Object file : (Collection<?>) getValue("files")) {
-						Desktop.getDesktop().open((File) file);
+						UserFiles.revealFile((File) file);
 					}
 				} catch (Exception e) {
 					UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);

@@ -11,7 +11,6 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,6 +51,7 @@ import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
+import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.media.MediaDetection;
@@ -248,7 +248,7 @@ public class RenamePanel extends JComponent {
 						JList list = (JList) evt.getSource();
 						if (list.getSelectedIndex() >= 0) {
 							File item = (File) list.getSelectedValue();
-							Desktop.getDesktop().open(item.getParentFile());
+							UserFiles.revealFile(item);
 						}
 					} catch (Exception e) {
 						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());

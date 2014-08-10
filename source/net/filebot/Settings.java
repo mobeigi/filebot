@@ -72,6 +72,10 @@ public final class Settings {
 		return Boolean.parseBoolean(System.getProperty("useCreationDate"));
 	}
 
+	public static boolean isMacApp() {
+		return "mas".equals(getApplicationDeployment()) || "app".equals(getApplicationDeployment());
+	}
+
 	public static boolean isAppStore() {
 		return "mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment());
 	}

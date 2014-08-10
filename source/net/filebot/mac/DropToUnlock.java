@@ -11,7 +11,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -158,14 +157,14 @@ public class DropToUnlock extends JList<File> {
 		dialog.setAlwaysOnTop(true);
 
 		// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
-		invokeLater(750, () -> {
-			model.stream().map(f -> f.getParentFile()).sorted().distinct().forEach(f -> {
-				try {
-					Desktop.getDesktop().open(f);
-				} catch (Exception e) {
-					Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, e.toString());
+		invokeLater(500, () -> {
+			try {
+				for (File it : model) {
+					revealFile(it);
 				}
-			});
+			} catch (Exception e) {
+				Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, e.toString());
+			}
 		});
 
 		// show and wait for user input
