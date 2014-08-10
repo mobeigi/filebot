@@ -1,7 +1,6 @@
 package net.filebot.ui.analyze;
 
 import static java.util.Collections.*;
-import static net.filebot.ui.NotificationLogging.*;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -15,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -29,7 +27,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.filebot.ResourceManager;
 import net.filebot.UserFiles;
-import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FilterIterator;
 import net.filebot.util.TreeIterator;
 
@@ -118,13 +115,7 @@ public class FileTree extends JTree {
 			}
 
 			public void actionPerformed(ActionEvent event) {
-				try {
-					for (Object file : (Collection<?>) getValue("files")) {
-						UserFiles.revealFile((File) file);
-					}
-				} catch (Exception e) {
-					UILogger.log(Level.WARNING, ExceptionUtilities.getRootCauseMessage(e), e);
-				}
+				UserFiles.revealFiles((Collection<File>) getValue("files"));
 			}
 		}
 

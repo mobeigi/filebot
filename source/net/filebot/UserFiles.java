@@ -10,6 +10,7 @@ import java.awt.Dialog;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -23,15 +24,20 @@ import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class UserFiles {
 
-	public static void revealFile(File file) {
-		try {
-			if (isMacApp()) {
-				MacAppUtilities.revealInFinder(file);
-			} else {
-				Desktop.getDesktop().open(file.getParentFile());
+	public static void revealFiles(Collection<File> files) {
+		if (isMacApp()) {
+			for (File it : files) {
+				MacAppUtilities.revealInFinder(it);
 			}
-		} catch (Exception e) {
-			Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+		} else {
+			// if we can't reveal the file in folder, just reveal the parent folder
+			files.stream().map(it -> it.getParentFile()).distinct().forEach(it -> {
+				try {
+					Desktop.getDesktop().open(it);
+				} catch (Exception e) {
+					Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+				}
+			});
 		}
 	}
 

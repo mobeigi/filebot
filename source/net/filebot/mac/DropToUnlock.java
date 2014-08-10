@@ -158,13 +158,7 @@ public class DropToUnlock extends JList<File> {
 
 		// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
 		invokeLater(500, () -> {
-			try {
-				for (File it : model) {
-					revealFile(it);
-				}
-			} catch (Exception e) {
-				Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, e.toString());
-			}
+			revealFiles(model);
 		});
 
 		// show and wait for user input
