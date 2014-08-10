@@ -202,25 +202,22 @@ public class ReleaseInfo {
 					volumes.addAll(getChildren(root, FOLDERS));
 				}
 
-				// add additional user roots if user.home is not set properly
-				String username = System.getProperty("user.name");
-				if (username != null && username.length() > 0) {
-					volumes.add(new File("/Users/" + username));
-					volumes.add(new File("/home/" + username));
-					volumes.add(new File("/media/" + username));
-				}
-
 				// user-specific media roots
-				for (File root : getMediaRoots()) {
-					if (root.isDirectory()) {
-						volumes.addAll(getChildren(root, FOLDERS));
+				for (File mediaRoot : getMediaRoots()) {
+					volumes.addAll(getChildren(mediaRoot, FOLDERS));
+					volumes.add(mediaRoot);
+
+					// add additional user roots if user.home is not set properly or listFiles doesn't work
+					String username = System.getProperty("user.name");
+					if (username != null && username.length() > 0) {
+						volumes.add(new File(mediaRoot, username));
 					}
-					volumes.add(root);
 				}
 			}
 
 			volumeRoots = unmodifiableSet(volumes);
 		}
+		System.out.println(volumeRoots);
 		return volumeRoots;
 	}
 
