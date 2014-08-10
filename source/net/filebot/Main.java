@@ -283,7 +283,7 @@ public class Main {
 		});
 
 		// window settings
-		if (Settings.isMacSandbox()) {
+		if (Settings.isMacApp()) {
 			MacAppUtilities.setUIDefaults();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 		}
