@@ -42,9 +42,10 @@ public class UserFiles {
 	}
 
 	public static List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
-		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(folderMode, multiSelection, getFileChooserDefaultFile(folderMode ? KEY_OPEN_FOLDER : KEY_OPEN_FILE, defaultFile), filter, title, parent);
+		String defaultFileKey = (folderMode && filter == null) ? KEY_OPEN_FOLDER : KEY_OPEN_FILE;
+		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(folderMode, multiSelection, getFileChooserDefaultFile(defaultFileKey, defaultFile), filter, title, parent);
 		if (files.size() > 0) {
-			setFileChooserDefaultFile(folderMode ? KEY_OPEN_FOLDER : KEY_OPEN_FILE, files.get(0));
+			setFileChooserDefaultFile(defaultFileKey, files.get(0));
 		}
 		return files;
 	}
