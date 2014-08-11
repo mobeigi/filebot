@@ -44,7 +44,7 @@ public final class Settings {
 		ResourceBundle bundle = ResourceBundle.getBundle(Settings.class.getName(), Locale.ROOT);
 		if (isAppStore()) {
 			try {
-				return bundle.getString("apikey.private." + name);
+				return bundle.getString("apikey.appstore." + name);
 			} catch (MissingResourceException e) {
 				// ignore, fall back to default
 			}
