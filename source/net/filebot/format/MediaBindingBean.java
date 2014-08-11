@@ -316,9 +316,6 @@ public class MediaBindingBean {
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
 		String scanType = getMediaInfo(StreamKind.Video, 0, "ScanType");
 
-		if (height == null || scanType == null)
-			return null;
-
 		// e.g. 720p
 		return height + Character.toLowerCase(scanType.charAt(0));
 	}
@@ -326,9 +323,6 @@ public class MediaBindingBean {
 	@Define("af")
 	public String getAudioChannels() {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
-
-		if (channels == null)
-			return null;
 
 		// e.g. 6ch
 		return channels + "ch";
@@ -366,7 +360,7 @@ public class MediaBindingBean {
 		String width = getMediaInfo(StreamKind.Video, 0, "Width");
 		String height = getMediaInfo(StreamKind.Video, 0, "Height");
 
-		return asList(width != null ? Integer.parseInt(width) : null, height != null ? Integer.parseInt(height) : null);
+		return asList(Integer.parseInt(width), Integer.parseInt(height));
 	}
 
 	@Define("original")
@@ -881,12 +875,11 @@ public class MediaBindingBean {
 	private String getMediaInfo(StreamKind streamKind, int streamNumber, String... keys) {
 		for (String key : keys) {
 			String value = getMediaInfo().get(streamKind, streamNumber, key);
-
-			if (value.length() > 0)
+			if (value.length() > 0) {
 				return value;
+			}
 		}
-
-		return null;
+		return undefined(String.format("%s[%d][%s]", streamKind, streamNumber, join(keys, ", ")));
 	}
 
 	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, Object> context) {
