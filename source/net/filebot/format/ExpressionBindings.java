@@ -66,6 +66,9 @@ public class ExpressionBindings extends AbstractMap<String, Object> implements B
 				}
 			} catch (Exception e) {
 				// check InvocationTargetException cause
+				if (e.getCause() instanceof NullPointerException) {
+					return null;
+				}
 				if (e.getCause() instanceof BindingException) {
 					throw (BindingException) e.getCause();
 				}
