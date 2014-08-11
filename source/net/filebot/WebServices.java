@@ -58,7 +58,7 @@ public final class WebServices {
 	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"));
 
 	// subtitle dbs
-	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
+	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClient(String.format("%s v%s", getApiKey("opensubtitles"), getApplicationVersion()));
 
 	// misc
 	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
