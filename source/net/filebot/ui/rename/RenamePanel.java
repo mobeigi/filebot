@@ -4,6 +4,7 @@ import static java.awt.event.KeyEvent.*;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
+import static net.filebot.Settings.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.LoadingOverlayPane.*;
@@ -54,6 +55,7 @@ import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
+import net.filebot.mac.DropToUnlock;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
@@ -628,12 +630,18 @@ public class RenamePanel extends JComponent {
 			// clear names list
 			renameModel.values().clear();
 
-			SwingWorker<List<Match<File, ?>>, Void> worker = new SwingWorker<List<Match<File, ?>>, Void>() {
+			final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
+			final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
+			final Locale locale = new Locale(persistentPreferredLanguage.getValue());
+			final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
 
-				private final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
-				private final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
-				private final Locale locale = new Locale(persistentPreferredLanguage.getValue());
-				private final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
+			if (isMacSandbox()) {
+				if (!DropToUnlock.showUnlockFoldersDialog(getWindow(RenamePanel.this), remainingFiles)) {
+					return;
+				}
+			}
+
+			SwingWorker<List<Match<File, ?>>, Void> worker = new SwingWorker<List<Match<File, ?>>, Void>() {
 
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {

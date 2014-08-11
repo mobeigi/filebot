@@ -533,7 +533,7 @@ class HistoryDialog extends JDialog {
 		private void rename(File directory, List<Element> elements) {
 			Map<File, File> renamePlan = getRenameMap(directory);
 			if (isMacSandbox()) {
-				if (!DropToUnlock.showUnlockDialog(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
+				if (!DropToUnlock.showUnlockFoldersDialog(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
 					return;
 				}
 			}

@@ -208,7 +208,7 @@ public class FormatDialog extends JDialog {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (isMacSandbox()) {
 					if (sample != null && sample.getMediaFile() != null && sample.getMediaFile().exists()) {
-						DropToUnlock.showUnlockDialog(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
+						DropToUnlock.showUnlockFoldersDialog(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
 					}
 				}
 				checkFormatInBackground();

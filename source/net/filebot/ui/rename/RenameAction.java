@@ -155,7 +155,7 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
 		// ask for user permissions to output paths
 		if (isMacSandbox()) {
-			if (!DropToUnlock.showUnlockDialog(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getValue(), e.getKey())).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
+			if (!DropToUnlock.showUnlockFoldersDialog(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getValue(), e.getKey())).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
 				return emptyMap();
 			}
 		}

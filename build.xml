@@ -301,6 +301,8 @@
 
 			<argument value="--log-file" />
 			<argument value="filebot.log" />
+			<argument value="--log-lock" />
+			<argument value="no" />
 		</bundleapp>
 
 		<!-- uses depricated Quicktime API -->
