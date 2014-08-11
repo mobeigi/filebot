@@ -1,7 +1,9 @@
 package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
+import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
+import static net.filebot.Settings.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -63,6 +65,7 @@ import net.filebot.Settings;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
+import net.filebot.mac.DropToUnlock;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -203,6 +206,11 @@ public class FormatDialog extends JDialog {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
+				if (isMacSandbox()) {
+					if (sample != null && sample.getMediaFile() != null && sample.getMediaFile().exists()) {
+						DropToUnlock.showUnlockDialog(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
+					}
+				}
 				checkFormatInBackground();
 			}
 		});
