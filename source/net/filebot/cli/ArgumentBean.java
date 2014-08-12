@@ -27,7 +27,7 @@ public class ArgumentBean {
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, AniDB, TVRage] or [TheMovieDB, IMDb] or [xattr]")
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, TVRage, AniDB] or [TheMovieDB, OMDb] or [xattr]")
 	public String db;
 
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
@@ -39,10 +39,10 @@ public class ArgumentBean {
 	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[override, skip, fail]")
 	public String conflict = "skip";
 
-	@Option(name = "--filter", usage = "Episode filter", metaVar = "expression")
+	@Option(name = "--filter", usage = "Filter expression", metaVar = "expression")
 	public String filter = null;
 
-	@Option(name = "--format", usage = "Episode/Movie naming scheme", metaVar = "expression")
+	@Option(name = "--format", usage = "Format expression", metaVar = "expression")
 	public String format;
 
 	@Option(name = "-non-strict", usage = "Enable advanced matching and more aggressive guess work")
@@ -60,13 +60,13 @@ public class ArgumentBean {
 	@Option(name = "--lang", usage = "Language", metaVar = "2-letter language code")
 	public String lang = "en";
 
-	@Option(name = "-check", usage = "Create/Check verification file", metaVar = "fileset")
+	@Option(name = "-check", usage = "Create/Check verification files", metaVar = "fileset")
 	public boolean check;
 
 	@Option(name = "--output", usage = "Output path", metaVar = "folder")
 	public String output;
 
-	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, windows-1252, GB18030, etc]")
+	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, Windows-1252, GB18030]")
 	public String encoding;
 
 	@Option(name = "-list", usage = "Fetch episode list")
@@ -81,7 +81,7 @@ public class ArgumentBean {
 	@Option(name = "-script", usage = "Run Groovy script", metaVar = "path/to/script.groovy")
 	public String script = null;
 
-	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning]")
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning, off]")
 	public String log = "all";
 
 	@Option(name = "--log-file", usage = "Log file", metaVar = "path/to/log.txt")
@@ -92,9 +92,6 @@ public class ArgumentBean {
 
 	@Option(name = "-r", usage = "Resolve folders recursively")
 	public boolean recursive = false;
-
-	@Option(name = "--mode", usage = "Open GUI with the specified mode only", metaVar = "[rename, sfv, etc]")
-	public String mode = null;
 
 	@Option(name = "-clear-cache", usage = "Clear cached and temporary data")
 	public boolean clearCache = false;
@@ -116,6 +113,9 @@ public class ArgumentBean {
 
 	@Option(name = "-help", usage = "Print this help message")
 	public boolean help = false;
+
+	@Option(name = "--mode", usage = "Open GUI with the specified mode only", metaVar = "[rename, sfv, etc]")
+	public String mode = null;
 
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
 	public Map<String, String> defines = new LinkedHashMap<String, String>();
