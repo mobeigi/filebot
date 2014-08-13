@@ -217,7 +217,6 @@ public class ReleaseInfo {
 
 			volumeRoots = unmodifiableSet(volumes);
 		}
-		System.out.println(volumeRoots);
 		return volumeRoots;
 	}
 
