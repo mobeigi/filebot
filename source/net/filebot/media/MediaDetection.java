@@ -620,7 +620,7 @@ public class MediaDetection {
 			return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
 		}
 
-		// if matching name+year failed, try matching only by name
+		// if matching name+year failed, try matching only by name (in non-strict mode we would have checked these cases already by now)
 		if (movieNameMatches.isEmpty() && strict) {
 			movieNameMatches = matchMovieName(terms, false, 0);
 			if (movieNameMatches.isEmpty()) {
@@ -734,6 +734,19 @@ public class MediaDetection {
 		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
 
 		return result;
+	}
+
+	public static List<Integer> parseMovieYear(String name) {
+		List<Integer> years = new ArrayList<Integer>();
+		for (String it : name.split("\\D+")) {
+			if (it.length() == 4) {
+				int year = Integer.parseInt(it);
+				if (1920 < year && year < 2050) {
+					years.add(year);
+				}
+			}
+		}
+		return years;
 	}
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {

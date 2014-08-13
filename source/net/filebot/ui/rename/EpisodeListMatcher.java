@@ -48,7 +48,7 @@ import net.filebot.web.SortOrder;
 
 class EpisodeListMatcher implements AutoCompleteMatcher {
 
-	private final EpisodeListProvider provider;
+	private EpisodeListProvider provider;
 
 	private boolean useAnimeIndex;
 	private boolean useSeriesIndex;
@@ -170,7 +170,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	}
 
 	@Override
-	public List<Match<File, ?>> match(List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(List<File> files, final boolean strict, final SortOrder sortOrder, final Locale locale, final boolean autodetection, final Component parent) throws Exception {
 		if (files.isEmpty()) {
 			return justFetchEpisodeList(sortOrder, locale, parent);
 		}
@@ -182,33 +182,49 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		final List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);
 
 		// assume that many shows will be matched, do it folder by folder
-		List<Callable<List<Match<File, ?>>>> taskPerFolder = new ArrayList<Callable<List<Match<File, ?>>>>();
+		List<Callable<List<Match<File, ?>>>> tasks = new ArrayList<Callable<List<Match<File, ?>>>>();
 
 		// remember user decisions and only bother user once
 		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
 		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
 
 		// detect series names and create episode list fetch tasks
-		for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, useSeriesIndex, useAnimeIndex).entrySet()) {
-			final List<List<File>> batchSets = new ArrayList<List<File>>();
-			final Collection<String> queries = sameSeriesGroup.getValue();
+		if (strict) {
+			// in strict mode simply process file-by-file (ignoring all files that don't contain clear SxE patterns)
+			for (final File file : mediaFiles) {
+				if (parseEpisodeNumber(file, true) != null || parseDate(file) != null) {
+					tasks.add(new Callable<List<Match<File, ?>>>() {
 
-			if (queries != null && queries.size() > 0) {
-				// handle series name batch set all at once -> only 1 batch set
-				batchSets.add(new ArrayList<File>(sameSeriesGroup.getKey()));
-			} else {
-				// these files don't seem to belong to any series -> handle folder per folder -> multiple batch sets
-				batchSets.addAll(mapByFolder(sameSeriesGroup.getKey()).values());
+						@Override
+						public List<Match<File, ?>> call() throws Exception {
+							return matchEpisodeSet(singletonList(file), detectSeriesNames(singleton(file), useSeriesIndex, useAnimeIndex, locale), sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
+						}
+					});
+				}
 			}
+		} else {
+			// in non-strict mode use the complicated (more powerful but also more error prone) match-batch-by-batch logic
+			for (Entry<Set<File>, Set<String>> sameSeriesGroup : mapSeriesNamesByFiles(mediaFiles, locale, useSeriesIndex, useAnimeIndex).entrySet()) {
+				final List<List<File>> batchSets = new ArrayList<List<File>>();
+				final Collection<String> queries = sameSeriesGroup.getValue();
 
-			for (final List<File> batchSet : batchSets) {
-				taskPerFolder.add(new Callable<List<Match<File, ?>>>() {
+				if (queries != null && queries.size() > 0) {
+					// handle series name batch set all at once -> only 1 batch set
+					batchSets.add(new ArrayList<File>(sameSeriesGroup.getKey()));
+				} else {
+					// these files don't seem to belong to any series -> handle folder per folder -> multiple batch sets
+					batchSets.addAll(mapByFolder(sameSeriesGroup.getKey()).values());
+				}
 
-					@Override
-					public List<Match<File, ?>> call() throws Exception {
-						return matchEpisodeSet(batchSet, queries, sortOrder, locale, autodetection, selectionMemory, inputMemory, parent);
-					}
-				});
+				for (final List<File> batchSet : batchSets) {
+					tasks.add(new Callable<List<Match<File, ?>>>() {
+
+						@Override
+						public List<Match<File, ?>> call() throws Exception {
+							return matchEpisodeSet(batchSet, queries, sortOrder, strict, locale, autodetection, selectionMemory, inputMemory, parent);
+						}
+					});
+				}
 			}
 		}
 
@@ -218,7 +234,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		try {
 			// merge all episodes
 			List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
-			for (Future<List<Match<File, ?>>> future : executor.invokeAll(taskPerFolder)) {
+			for (Future<List<Match<File, ?>>> future : executor.invokeAll(tasks)) {
 				// make sure each episode has unique object data
 				for (Match<File, ?> it : future.get()) {
 					matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
@@ -259,7 +275,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 	}
 
-	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Map<String, List<String>> inputMemory, Component parent) throws Exception {
+	public List<Match<File, ?>> matchEpisodeSet(final List<File> files, Collection<String> queries, SortOrder sortOrder, boolean strict, Locale locale, boolean autodetection, Map<String, SearchResult> selectionMemory, Map<String, List<String>> inputMemory, Component parent) throws Exception {
 		Set<Episode> episodes = emptySet();
 
 		// detect series name and fetch episode list
@@ -273,7 +289,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 
 		// require user input if auto-detection has failed or has been disabled
-		if (episodes.isEmpty()) {
+		if (episodes.isEmpty() && !strict) {
 			List<String> detectedSeriesNames = detectSeriesNames(files, useSeriesIndex, useAnimeIndex, locale);
 			String parentPathHint = normalizePathSeparators(getRelativePathTail(files.get(0).getParentFile(), 2).getPath());
 			String suggestion = detectedSeriesNames.size() > 0 ? join(detectedSeriesNames, "; ") : parentPathHint;
@@ -299,10 +315,12 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 
 		// group by subtitles first and then by files in general
-		for (List<File> filesPerType : mapByMediaExtension(files).values()) {
-			EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, false);
-			for (Match<File, Object> it : matcher.match()) {
-				matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+		if (episodes.size() > 0) {
+			for (List<File> filesPerType : mapByMediaExtension(files).values()) {
+				EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, strict);
+				for (Match<File, Object> it : matcher.match()) {
+					matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+				}
 			}
 		}
 

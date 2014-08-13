@@ -97,6 +97,7 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentFileFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.file");
 
 	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state");
+	private static final PreferencesEntry<String> persistentPreferredMatchMode = Settings.forPackage(RenamePanel.class).entry("rename.match.mode").defaultValue("Opportunistic");
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 
@@ -392,6 +393,9 @@ public class RenamePanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
+				String[] modes = new String[] { "Opportunistic", "Strict" };
+				JComboBox modeCombo = new JComboBox(modes);
+
 				List<Language> languages = new ArrayList<Language>();
 				languages.addAll(Language.preferredLanguages()); // add preferred languages first
 				languages.addAll(Language.availableLanguages()); // then others
@@ -411,31 +415,41 @@ public class RenamePanel extends JComponent {
 					}
 				});
 
-				// pre-select current preferences
+				// restore current preference values
 				try {
-					orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
-				} catch (IllegalArgumentException e) {
-					// ignore
-				}
-				for (Language language : languages) {
-					if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
-						languageList.setSelectedValue(language, true);
-						break;
+					modeCombo.setSelectedItem(persistentPreferredMatchMode.getValue());
+					for (Language language : languages) {
+						if (language.getCode().equals(persistentPreferredLanguage.getValue())) {
+							languageList.setSelectedValue(language, true);
+							break;
+						}
 					}
+					orderCombo.setSelectedItem(SortOrder.forName(persistentPreferredEpisodeOrder.getValue()));
+				} catch (Exception e) {
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
 				}
 
+				JScrollPane spModeCombo = new JScrollPane(modeCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				spModeCombo.setBorder(new CompoundBorder(new TitledBorder("Match Mode"), spModeCombo.getBorder()));
 				JScrollPane spLanguageList = new JScrollPane(languageList);
-				spLanguageList.setBorder(new CompoundBorder(new TitledBorder("Preferred Language"), spLanguageList.getBorder()));
+				spLanguageList.setBorder(new CompoundBorder(new TitledBorder("Language"), spLanguageList.getBorder()));
 				JScrollPane spOrderCombo = new JScrollPane(orderCombo, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-				spOrderCombo.setBorder(new CompoundBorder(new TitledBorder("Preferred Episode Order"), spOrderCombo.getBorder()));
+				spOrderCombo.setBorder(new CompoundBorder(new TitledBorder("Episode Order"), spOrderCombo.getBorder()));
+
+				// fix background issues on OSX
+				spModeCombo.setOpaque(false);
+				spLanguageList.setOpaque(false);
+				spOrderCombo.setOpaque(false);
 
 				JPanel message = new JPanel(new MigLayout("fill, flowy, insets 0"));
-				message.add(spLanguageList, "grow");
+				message.add(spModeCombo, "grow, hmin 24px");
+				message.add(spLanguageList, "grow, hmin 50px");
 				message.add(spOrderCombo, "grow, hmin 24px");
 				JOptionPane pane = new JOptionPane(message, PLAIN_MESSAGE, OK_CANCEL_OPTION);
 				pane.createDialog(getWindowAncestor(RenamePanel.this), "Preferences").setVisible(true);
 
 				if (pane.getValue() != null && pane.getValue().equals(OK_OPTION)) {
+					persistentPreferredMatchMode.setValue((String) modeCombo.getSelectedItem());
 					persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
 					persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
 				}
@@ -631,6 +645,7 @@ public class RenamePanel extends JComponent {
 			renameModel.values().clear();
 
 			final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
+			final boolean strict = "strict".equalsIgnoreCase(persistentPreferredMatchMode.getValue());
 			final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
 			final Locale locale = new Locale(persistentPreferredLanguage.getValue());
 			final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
@@ -645,7 +660,7 @@ public class RenamePanel extends JComponent {
 
 				@Override
 				protected List<Match<File, ?>> doInBackground() throws Exception {
-					List<Match<File, ?>> matches = matcher.match(remainingFiles, order, locale, autodetection, getWindow(RenamePanel.this));
+					List<Match<File, ?>> matches = matcher.match(remainingFiles, strict, order, locale, autodetection, getWindow(RenamePanel.this));
 
 					// remove matched files
 					for (Match<File, ?> match : matches) {

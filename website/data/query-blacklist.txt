@@ -37,6 +37,7 @@
 ^BTN$
 ^Cartoon$
 ^Cinema$
+^Classic$
 ^clean$
 ^cleaned$
 ^Comedy$

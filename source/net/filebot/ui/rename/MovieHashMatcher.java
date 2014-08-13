@@ -65,7 +65,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 	}
 
 	@Override
-	public List<Match<File, ?>> match(final List<File> files, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
+	public List<Match<File, ?>> match(final List<File> files, final boolean strict, final SortOrder sortOrder, final Locale locale, final boolean autodetect, final Component parent) throws Exception {
 		if (files.isEmpty()) {
 			return justFetchMovieInfo(locale, parent);
 		}
@@ -183,7 +183,23 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				public Map<File, Collection<Movie>> call() throws Exception {
 					Map<File, Collection<Movie>> detection = new LinkedHashMap<File, Collection<Movie>>();
 					for (File f : folder) {
-						detection.put(f, detectMovie(f, null, service, locale, false));
+						if (strict) {
+							// in strict mode, only process movies that follow the name (year) pattern
+							List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
+							if (year.size() > 0) {
+								// allow only movie matches where the the movie year matches the year pattern in the filename
+								List<Movie> matches = new ArrayList<Movie>();
+								for (Movie movie : detectMovie(f, null, service, locale, strict)) {
+									if (year.contains(movie.getYear())) {
+										matches.add(movie);
+									}
+								}
+								detection.put(f, matches);
+							}
+						} else {
+							// in non-strict mode just allow all options
+							detection.put(f, detectMovie(f, null, service, locale, strict));
+						}
 					}
 					return detection;
 				}
@@ -200,7 +216,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				// auto-select movie or ask user
 				for (Entry<File, Collection<Movie>> it : detection.get().entrySet()) {
 					File movieFile = it.getKey();
-					Movie movie = grabMovieName(movieFile, it.getValue(), locale, autodetect, memory, parent);
+					Movie movie = grabMovieName(movieFile, it.getValue(), strict, locale, autodetect, memory, parent);
 					if (movie != null) {
 						movieByFile.put(movieFile, movie);
 					}
@@ -262,13 +278,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		return matches;
 	}
 
-	protected Movie grabMovieName(File movieFile, Collection<Movie> options, Locale locale, boolean autodetect, Map<String, Object> memory, Component parent) throws Exception {
+	protected Movie grabMovieName(File movieFile, Collection<Movie> options, boolean strict, Locale locale, boolean autodetect, Map<String, Object> memory, Component parent) throws Exception {
 		// allow manual user input
-		if (!autodetect || options.isEmpty()) {
-			if (autodetect && memory.containsKey("repeat")) {
-				return null;
-			}
-
+		if (!strict && (!autodetect || options.isEmpty()) && !(autodetect && memory.containsKey("repeat"))) {
 			String suggestion = options.isEmpty() ? stripReleaseInfo(getName(movieFile)) : options.iterator().next().getName();
 
 			@SuppressWarnings("unchecked")
@@ -284,12 +296,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			if (input != null) {
 				options = service.searchMovie(input, locale);
 				if (options.size() > 0) {
-					return selectMovie(movieFile, input, options, memory, parent);
+					return selectMovie(movieFile, strict, input, options, memory, parent);
 				}
 			}
 		}
 
-		return options.isEmpty() ? null : selectMovie(movieFile, null, options, memory, parent);
+		return options.isEmpty() ? null : selectMovie(movieFile, strict, null, options, memory, parent);
 	}
 
 	protected String getQueryInputMessage(File file) throws Exception {
@@ -314,12 +326,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		return html.toString();
 	}
 
-	protected String checkedStripReleaseInfo(File file) throws Exception {
+	protected String checkedStripReleaseInfo(File file, boolean strict) throws Exception {
 		String name = stripReleaseInfo(getName(file));
 
 		// try to redeem possible false negative matches
 		if (name.length() < 2) {
-			Movie match = checkMovie(file, false);
+			Movie match = checkMovie(file, strict);
 			if (match != null) {
 				return match.getName();
 			}
@@ -328,18 +340,18 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		return name;
 	}
 
-	protected Movie selectMovie(final File movieFile, final String userQuery, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
+	protected Movie selectMovie(final File movieFile, final boolean strict, final String userQuery, final Collection<Movie> options, final Map<String, Object> memory, final Component parent) throws Exception {
 		// just auto-pick singleton results
 		if (options.size() == 1) {
 			return options.iterator().next();
 		}
 
 		// 1. movie by filename
-		final String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile);
+		final String fileQuery = (userQuery != null) ? userQuery : checkedStripReleaseInfo(movieFile, strict);
 
 		// 2. movie by directory
 		final File movieFolder = guessMovieFolder(movieFile);
-		final String folderQuery = (userQuery != null || movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder);
+		final String folderQuery = (userQuery != null || movieFolder == null) ? "" : checkedStripReleaseInfo(movieFolder, strict);
 
 		// auto-ignore invalid files
 		if (userQuery == null && fileQuery.length() < 2 && folderQuery.length() < 2) {
@@ -364,7 +376,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		for (Movie result : options) {
 			float maxSimilarity = 0;
 			for (String query : new String[] { fileQuery, folderQuery }) {
-				for (String name : result.getEffectiveNamesWithoutYear()) {
+				for (String name : strict ? result.getEffectiveNames() : result.getEffectiveNamesWithoutYear()) {
 					if (maxSimilarity >= threshold)
 						continue;
 
@@ -379,6 +391,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// auto-select first and only probable search result
 		if (probableMatches.size() == 1) {
 			return probableMatches.get(0);
+		}
+
+		// if we haven't confirmed a match at this point then the file is probably badly named and should be ignored
+		if (strict) {
+			return null;
 		}
 
 		// show selection dialog on EDT
