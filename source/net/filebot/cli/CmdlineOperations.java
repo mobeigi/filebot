@@ -53,6 +53,7 @@ import net.filebot.media.MediaDetection;
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
+import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SeriesNameMatcher;
@@ -150,8 +151,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		return renameAll(renameMap, renameAction, ConflictAction.forName(conflict), null);
 	}
 
-	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict)
-			throws Exception {
+	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
 		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
@@ -261,7 +261,19 @@ public class CmdlineOperations implements CmdlineInterface {
 			CLILogger.warning("No matching episode: " + failedMatch.getName());
 		}
 
-		return matches;
+		// in non-strict mode just pass back results as we got it from the matcher
+		if (!strict) {
+			return matches;
+		}
+
+		// in strict mode sanity check the result and only pass back good matches
+		List<Match<File, Object>> validMatches = new ArrayList<Match<File, Object>>();
+		for (Match<File, Object> it : matches) {
+			if (EpisodeMetrics.EpisodeIdentifier.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+				validMatches.add(it);
+			}
+		}
+		return validMatches;
 	}
 
 	private Set<Episode> fetchEpisodeSet(final EpisodeListProvider db, final Collection<String> names, final SortOrder sortOrder, final Locale locale, final boolean strict) throws Exception {

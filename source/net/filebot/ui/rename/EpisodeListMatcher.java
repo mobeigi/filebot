@@ -39,6 +39,7 @@ import net.filebot.Analytics;
 import net.filebot.Settings;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
+import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
 import net.filebot.ui.SelectDialog;
 import net.filebot.web.Episode;
@@ -319,7 +320,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			for (List<File> filesPerType : mapByMediaExtension(files).values()) {
 				EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, strict);
 				for (Match<File, Object> it : matcher.match()) {
-					matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+					// in strict mode sanity check the result and only pass back good matches
+					if (!strict || EpisodeMetrics.EpisodeIdentifier.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+						matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
+					}
 				}
 			}
 		}
