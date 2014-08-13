@@ -39,7 +39,6 @@ import net.filebot.Analytics;
 import net.filebot.Settings;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
-import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
 import net.filebot.ui.SelectDialog;
 import net.filebot.web.Episode;
@@ -193,7 +192,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		if (strict) {
 			// in strict mode simply process file-by-file (ignoring all files that don't contain clear SxE patterns)
 			for (final File file : mediaFiles) {
-				if (parseEpisodeNumber(file, true) != null || parseDate(file) != null) {
+				if (parseEpisodeNumber(file, false) != null || parseDate(file) != null) {
 					tasks.add(new Callable<List<Match<File, ?>>>() {
 
 						@Override
@@ -321,7 +320,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				EpisodeMatcher matcher = new EpisodeMatcher(filesPerType, episodes, strict);
 				for (Match<File, Object> it : matcher.match()) {
 					// in strict mode sanity check the result and only pass back good matches
-					if (!strict || EpisodeMetrics.EpisodeIdentifier.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+					if (!strict || isEpisodeNumberMatch(it.getValue(), (Episode) it.getCandidate())) {
 						matches.add(new Match<File, Episode>(it.getValue(), ((Episode) it.getCandidate()).clone()));
 					}
 				}

@@ -46,6 +46,7 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.DateMatcher;
 import net.filebot.similarity.DateMetric;
+import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.NumericSimilarityMetric;
@@ -734,6 +735,20 @@ public class MediaDetection {
 		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
 
 		return result;
+	}
+
+	public static boolean isEpisodeNumberMatch(File f, Episode e) {
+		float similarity = EpisodeMetrics.EpisodeIdentifier.getSimilarity(f, e);
+		if (similarity >= 1) {
+			return true;
+		} else if (similarity >= 0.5 && e.getSeason() == null && e.getEpisode() != null && e.getSpecial() == null) {
+			for (SxE it : parseEpisodeNumber(f, false)) {
+				if (it.season < 0 && it.episode == e.getEpisode()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static List<Integer> parseMovieYear(String name) {

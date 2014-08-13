@@ -53,7 +53,6 @@ import net.filebot.media.MediaDetection;
 import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
-import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SeriesNameMatcher;
@@ -269,7 +268,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// in strict mode sanity check the result and only pass back good matches
 		List<Match<File, Object>> validMatches = new ArrayList<Match<File, Object>>();
 		for (Match<File, Object> it : matches) {
-			if (EpisodeMetrics.EpisodeIdentifier.getSimilarity(it.getValue(), it.getCandidate()) >= 1) {
+			if (isEpisodeNumberMatch(it.getValue(), (Episode) it.getCandidate())) {
 				validMatches.add(it);
 			}
 		}
