@@ -175,13 +175,21 @@ def tvdb_txt = new File('tvdb.txt')
 def tvdb = [:]
 
 if (tvdb_txt.exists()) {
-	tvdb_txt.eachLine{
+	tvdb_txt.eachLine('UTF-8'){
 		def line = it.split('\t').toList()
 		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3], line[4], line[5] as Float, line[6] as Float])
 	}
 }
 
-def tvdb_updates = new XmlSlurper().parse('updates_all.xml' as File).Series.findResults{ s -> tryQuietly{ [id:s.id.text() as Integer, time:s.time.text() as Integer] } }
+def tvdb_updates = []
+new File('updates_all.xml').eachLine('UTF-8'){
+	def m = (it =~ '<Series><id>(\\d+)</id><time>(\\d+)</time></Series>')
+	while(m.find()) {		
+		tvdb_updates << [id: m.group(1) as Integer, time: m.group(2) as Integer]
+	}
+}
+
+
 tvdb_updates.each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
