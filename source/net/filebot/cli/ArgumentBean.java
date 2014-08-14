@@ -24,10 +24,13 @@ import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 public class ArgumentBean {
 
+	@Option(name = "--mode", usage = "Open GUI in single panel mode", metaVar = "[rename, subtitles, sfv]")
+	public String mode = null;
+
 	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
 	public boolean rename = false;
 
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, TVRage, AniDB] or [TheMovieDB, OMDb] or [xattr]")
+	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, AniDB, TVRage] or [TheMovieDB, OMDb] or [xattr]")
 	public String db;
 
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
@@ -36,7 +39,7 @@ public class ArgumentBean {
 	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, keeplink, symlink, hardlink, test]")
 	public String action = "move";
 
-	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[override, skip, fail]")
+	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[skip, override, auto, fail]")
 	public String conflict = "skip";
 
 	@Option(name = "--filter", usage = "Filter expression", metaVar = "expression")
@@ -81,7 +84,7 @@ public class ArgumentBean {
 	@Option(name = "-script", usage = "Run Groovy script", metaVar = "path/to/script.groovy")
 	public String script = null;
 
-	@Option(name = "--log", usage = "Log level", metaVar = "[all, config, info, warning, off]")
+	@Option(name = "--log", usage = "Log level", metaVar = "[all, fine, info, warning, off]")
 	public String log = "all";
 
 	@Option(name = "--log-file", usage = "Log file", metaVar = "path/to/log.txt")
@@ -113,9 +116,6 @@ public class ArgumentBean {
 
 	@Option(name = "-help", usage = "Print this help message")
 	public boolean help = false;
-
-	@Option(name = "--mode", usage = "Open GUI with the specified mode only", metaVar = "[rename, sfv, etc]")
-	public String mode = null;
 
 	@Option(name = "--def", usage = "Define script variables", handler = BindingsHandler.class)
 	public Map<String, String> defines = new LinkedHashMap<String, String>();

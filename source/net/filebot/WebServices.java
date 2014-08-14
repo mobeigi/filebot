@@ -66,7 +66,7 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, TVRage, AniDB };
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
