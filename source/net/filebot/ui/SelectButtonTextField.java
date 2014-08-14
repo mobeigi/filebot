@@ -97,9 +97,7 @@ public class SelectButtonTextField<T> extends JComponent {
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
 			setBorder(new EmptyBorder(1, 4, 1, 4));
-
 			String highlightText = SelectButtonTextField.this.getText().substring(0, ((TextFieldComboBoxUI) editor.getUI()).getEditor().getSelectionStart());
 
 			// highlight the matching sequence
@@ -107,7 +105,6 @@ public class SelectButtonTextField<T> extends JComponent {
 
 			// use no-break, because we really don't want line-wrapping in our table cells
 			StringBuffer htmlText = new StringBuffer("<html><nobr>");
-
 			if (matcher.find()) {
 				if (isSelected) {
 					matcher.appendReplacement(htmlText, "<span style='font-weight: bold;'>$0</span>");
@@ -115,13 +112,10 @@ public class SelectButtonTextField<T> extends JComponent {
 					matcher.appendReplacement(htmlText, "<span style='color: " + SwingUI.toHex(list.getSelectionBackground()) + "; font-weight: bold;'>$0</span>");
 				}
 			}
-
 			matcher.appendTail(htmlText);
-
 			htmlText.append("</nobr></html>");
 
 			setText(htmlText.toString());
-
 			return this;
 		}
 	}

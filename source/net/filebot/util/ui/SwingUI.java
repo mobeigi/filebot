@@ -73,7 +73,7 @@ public final class SwingUI {
 	}
 
 	public static String toHex(Color c) {
-		return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
+		return c == null ? "inherit" : String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 	}
 
 	public static boolean isShiftOrAltDown(ActionEvent evt) {
