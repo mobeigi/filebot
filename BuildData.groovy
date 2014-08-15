@@ -177,7 +177,7 @@ def tvdb = [:]
 if (tvdb_txt.exists()) {
 	tvdb_txt.eachLine('UTF-8'){
 		def line = it.split('\t').toList()
-		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3], line[4], line[5] as Float, line[6] as Float])
+		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3] as Float, line[4] as Float] + line[5..-1])
 	}
 }
 
@@ -193,26 +193,38 @@ new File('updates_all.xml').eachLine('UTF-8'){
 tvdb_updates.each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
-			retry(2, 500) {
+			retry(2, 5000) {
+				def seriesNames = []
 				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
 				def imdbid = xml.Series.IMDB_ID.text()
-				def tvdb_name = xml.Series.SeriesName.text()
+				seriesNames += xml.Series.SeriesName.text()
 				
 				def rating = tryQuietly{ xml.Series.Rating.text().toFloat() }
 				def votes = tryQuietly{ xml.Series.RatingCount.text().toFloat() }
 				
-				def imdb_name = tryLogCatch{
-					if (imdbid =~ /tt(\d+)/) {
-						return OMDb.getMovieDescriptor(imdbid.match(/tt(\d+)/) as int, Locale.ENGLISH).getName()
+				// only retrieve additional data for reasonably popular shows
+				if (votes >= 5 && rating >= 4) {
+					tryLogCatch{
+						if (imdbid =~ /tt(\d+)/) {
+							seriesNames += OMDb.getMovieDescriptor(imdbid.match(/tt(\d+)/) as int, Locale.ENGLISH).getName()
+						}
 					}
+
+					// scrape extra alias titles from webpage (not supported yet by API)
+					seriesNames += org.jsoup.Jsoup.connect("http://thetvdb.com/?tab=series&id=${update.id}").get()
+											.select('#akaseries table tr table tr')
+											.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
+   											.findResults{ it.select('td').first().text() }
 				}
-				def data = [update.time, update.id, imdbid, tvdb_name ?: '', imdb_name ?: '', rating ?: 0, votes ?: 0]
+
+				def data = [update.time, update.id, imdbid, rating ?: 0, votes ?: 0] + seriesNames.findAll{ it != null && it.length() > 0 }
 				tvdb.put(update.id, data)
 				println "Update $update => $data"
+				sleep(1000)
 			}
 		}
 		catch(Throwable e) {
-			def data = [update.time, update.id, '', '', '', 0, 0]
+			def data = [update.time, update.id, '', 0, 0]
 			tvdb.put(update.id, data)
 			println "Update $update => $data"
 		}
@@ -233,13 +245,12 @@ tvdb.values().findResults{ it.collect{ it.toString().replace('\t', '').trim() }.
 def thetvdb_index = []
 tvdb.values().each{ r ->
 	def tvdb_id = r[1]
-	def tvdb_name = r[3]
-	def imdb_name = r[4]
-	def rating = r[5]
-	def votes = r[6]
-	
+	def rating = r[3]
+	def votes = r[4]
+	def names = r[5..-1]
+
 	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 7) || (votes >= 1 && rating >= 10)) {
-		getNamePermutations([tvdb_name, imdb_name]).each{ n ->
+		getNamePermutations(names).each{ n ->
 			thetvdb_index << [tvdb_id, n]
 		}
 	}
