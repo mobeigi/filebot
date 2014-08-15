@@ -102,9 +102,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			int sid = getIntegerContent("seriesid", node);
 			String seriesName = getTextContent("SeriesName", node);
 
-			List<String> aliasNames = new ArrayList<String>(2);
+			List<String> aliasNames = new ArrayList<String>();
 			for (Node aliasNode : selectNodes("AliasNames", node)) {
-				aliasNames.add(getTextContent(aliasNode));
+				for (String aliasName : getTextContent(aliasNode).split("\\|")) {
+					if (aliasName.trim().length() > 0) {
+						aliasNames.add(aliasName.trim());
+					}
+				}
 			}
 
 			if (!resultSet.containsKey(sid)) {
