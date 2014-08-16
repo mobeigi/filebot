@@ -177,7 +177,8 @@ def tvdb = [:]
 if (tvdb_txt.exists()) {
 	tvdb_txt.eachLine('UTF-8'){
 		def line = it.split('\t').toList()
-		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3] as Float, line[4] as Float] + line[5..-1])
+		def names = line.subList(5, line.size())
+		tvdb.put(line[1] as Integer, [line[0] as Long, line[1] as Integer, line[2], line[3] as Float, line[4] as Float] + names)
 	}
 }
 
@@ -248,8 +249,8 @@ tvdb.values().each{ r ->
 	def tvdb_id = r[1]
 	def rating = r[3]
 	def votes = r[4]
-	def names = r[5..-1]
-
+	def names = r.subList(5, r.size())
+	
 	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 7) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations(names).each{ n ->
 			thetvdb_index << [tvdb_id, n]
