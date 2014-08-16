@@ -181,19 +181,21 @@ if (tvdb_txt.exists()) {
 	}
 }
 
-def tvdb_updates = []
+def tvdb_updates = [:] as TreeSet
 new File('updates_all.xml').eachLine('UTF-8'){
 	def m = (it =~ '<Series><id>(\\d+)</id><time>(\\d+)</time></Series>')
-	while(m.find()) {		
-		tvdb_updates << [id: m.group(1) as Integer, time: m.group(2) as Integer]
+	while(m.find()) {
+		def id = m.group(1) as Integer
+		def time = m.group(2) as Integer
+		tvdb_updates[id] = [id: id, time: time]
 	}
 }
 
 
-tvdb_updates.each{ update ->
+tvdb_updates.values().each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
-			retry(2, 5000) {
+			retry(2, 500) {
 				def seriesNames = []
 				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
 				def imdbid = xml.Series.IMDB_ID.text()
@@ -220,10 +222,10 @@ tvdb_updates.each{ update ->
 				def data = [update.time, update.id, imdbid, rating ?: 0, votes ?: 0] + seriesNames.findAll{ it != null && it.length() > 0 }
 				tvdb.put(update.id, data)
 				println "Update $update => $data"
-				sleep(1000)
 			}
 		}
 		catch(Throwable e) {
+			printException(e, false)
 			def data = [update.time, update.id, '', 0, 0]
 			tvdb.put(update.id, data)
 			println "Update $update => $data"
@@ -232,9 +234,8 @@ tvdb_updates.each{ update ->
 }
 
 // remove entries that have become invalid
-def tvdb_ids = tvdb_updates.findResults{ it.id } as HashSet
 tvdb.keySet().toList().each{ id ->
-	if (!tvdb_ids.contains(id)) {
+	if (tvdb_updates[id] == null) {
 		println "Invalid ID found: ${tvdb[id]}"
 		tvdb.remove(id)
 	}

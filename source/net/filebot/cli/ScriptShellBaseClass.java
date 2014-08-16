@@ -125,6 +125,10 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
+	public void printException(Throwable t) {
+		printException(t, false);
+	}
+
 	public void printException(Throwable t, boolean severe) {
 		if (severe) {
 			CLILogger.log(Level.SEVERE, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()), StackTraceUtils.deepSanitize(t));
