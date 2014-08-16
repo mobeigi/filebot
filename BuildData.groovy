@@ -181,7 +181,7 @@ if (tvdb_txt.exists()) {
 	}
 }
 
-def tvdb_updates = [:] as TreeSet
+def tvdb_updates = [:] as TreeMap
 new File('updates_all.xml').eachLine('UTF-8'){
 	def m = (it =~ '<Series><id>(\\d+)</id><time>(\\d+)</time></Series>')
 	while(m.find()) {
