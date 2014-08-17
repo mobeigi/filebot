@@ -33,9 +33,14 @@ class MatchAction extends AbstractAction {
 	public MatchAction(RenameModel model) {
 		this.model = model;
 
+		// initialize with default values
+		setMatchMode(false);
+	}
+
+	public void setMatchMode(boolean strict) {
 		putValue(NAME, "Match");
-		putValue(SMALL_ICON, ResourceManager.getIcon("action.match"));
 		putValue(SHORT_DESCRIPTION, "Match files and names");
+		putValue(SMALL_ICON, ResourceManager.getIcon(strict ? "action.match.strict" : "action.match"));
 	}
 
 	public void actionPerformed(ActionEvent evt) {

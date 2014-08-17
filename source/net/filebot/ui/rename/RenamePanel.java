@@ -108,6 +108,9 @@ public class RenamePanel extends JComponent {
 		filesList.setTitle("Original Files");
 		filesList.setTransferablePolicy(new FilesListTransferablePolicy(renameModel.files()));
 
+		// restore icon indicating current match mode
+		matchAction.setMatchMode(isMatchModeStrict());
+
 		try {
 			// restore custom episode formatter
 			renameModel.useFormatter(Episode.class, new ExpressionFormatter(persistentEpisodeFormat.getValue(), EpisodeFormat.SeasonEpisode, Episode.class));
@@ -354,6 +357,10 @@ public class RenamePanel extends JComponent {
 		});
 	}
 
+	private boolean isMatchModeStrict() {
+		return "strict".equalsIgnoreCase(persistentPreferredMatchMode.getValue());
+	}
+
 	protected ActionPopup createFetchPopup() {
 		final ActionPopup actionPopup = new ActionPopup("Series / Movie Data", ResourceManager.getIcon("action.fetch"));
 
@@ -452,6 +459,9 @@ public class RenamePanel extends JComponent {
 					persistentPreferredMatchMode.setValue((String) modeCombo.getSelectedItem());
 					persistentPreferredLanguage.setValue(((Language) languageList.getSelectedValue()).getCode());
 					persistentPreferredEpisodeOrder.setValue(((SortOrder) orderCombo.getSelectedItem()).name());
+
+					// update UI
+					matchAction.setMatchMode(isMatchModeStrict());
 				}
 			}
 		});
@@ -645,7 +655,7 @@ public class RenamePanel extends JComponent {
 			renameModel.values().clear();
 
 			final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
-			final boolean strict = "strict".equalsIgnoreCase(persistentPreferredMatchMode.getValue());
+			final boolean strict = isMatchModeStrict();
 			final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
 			final Locale locale = new Locale(persistentPreferredLanguage.getValue());
 			final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
