@@ -81,6 +81,9 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 
 public class RenamePanel extends JComponent {
 
+	private static final String MATCH_MODE_OPPORTUNISTIC = "Opportunistic";
+	private static final String MATCH_MODE_STRICT = "Strict";
+
 	protected final RenameModel renameModel = new RenameModel();
 
 	protected final RenameList<FormattedFuture> namesList = new RenameList<FormattedFuture>(renameModel.names());
@@ -97,7 +100,7 @@ public class RenamePanel extends JComponent {
 	private static final PreferencesEntry<String> persistentFileFormat = Settings.forPackage(RenamePanel.class).entry("rename.format.file");
 
 	private static final PreferencesEntry<String> persistentLastFormatState = Settings.forPackage(RenamePanel.class).entry("rename.last.format.state");
-	private static final PreferencesEntry<String> persistentPreferredMatchMode = Settings.forPackage(RenamePanel.class).entry("rename.match.mode").defaultValue("Opportunistic");
+	private static final PreferencesEntry<String> persistentPreferredMatchMode = Settings.forPackage(RenamePanel.class).entry("rename.match.mode").defaultValue(MATCH_MODE_OPPORTUNISTIC);
 	private static final PreferencesEntry<String> persistentPreferredLanguage = Settings.forPackage(RenamePanel.class).entry("rename.language").defaultValue("en");
 	private static final PreferencesEntry<String> persistentPreferredEpisodeOrder = Settings.forPackage(RenamePanel.class).entry("rename.episode.order").defaultValue("Airdate");
 
@@ -358,7 +361,7 @@ public class RenamePanel extends JComponent {
 	}
 
 	private boolean isMatchModeStrict() {
-		return "strict".equalsIgnoreCase(persistentPreferredMatchMode.getValue());
+		return MATCH_MODE_STRICT.equalsIgnoreCase(persistentPreferredMatchMode.getValue());
 	}
 
 	protected ActionPopup createFetchPopup() {
@@ -400,7 +403,7 @@ public class RenamePanel extends JComponent {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				String[] modes = new String[] { "Opportunistic", "Strict" };
+				String[] modes = new String[] { MATCH_MODE_OPPORTUNISTIC, MATCH_MODE_STRICT };
 				JComboBox modeCombo = new JComboBox(modes);
 
 				List<Language> languages = new ArrayList<Language>();
