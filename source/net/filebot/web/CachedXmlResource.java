@@ -35,8 +35,8 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 	public Document getDocument() throws IOException {
 		try {
 			return WebRequest.getDocument(get());
-		} catch (SAXException e) {
-			throw new RuntimeException(e);
+		} catch (Exception e) {
+			throw new IOException("Error while loading XML resource: " + e.getMessage(), e);
 		}
 	}
 
