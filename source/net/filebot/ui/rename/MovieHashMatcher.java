@@ -186,7 +186,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 						if (strict) {
 							// in strict mode, only process movies that follow the name (year) pattern
 							List<Integer> year = parseMovieYear(getRelativePathTail(f, 3).getPath());
-							if (year.size() > 0) {
+							if (year.size() > 0 && parseEpisodeNumber(f, true) == null) {
 								// allow only movie matches where the the movie year matches the year pattern in the filename
 								List<Movie> matches = new ArrayList<Movie>();
 								for (Movie movie : detectMovie(f, null, service, locale, strict)) {
