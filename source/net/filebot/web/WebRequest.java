@@ -1,5 +1,7 @@
 package net.filebot.web;
 
+import static net.filebot.util.FileUtilities.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -185,7 +187,7 @@ public final class WebRequest {
 			in = new InflaterInputStream(in, new Inflater(true));
 		}
 
-		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : 32 * 1024);
+		ByteBufferOutputStream buffer = new ByteBufferOutputStream(contentLength >= 0 ? contentLength : BUFFER_SIZE);
 		try {
 			// read all
 			buffer.transferFully(in);

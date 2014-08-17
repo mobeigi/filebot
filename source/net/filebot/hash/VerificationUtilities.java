@@ -86,7 +86,7 @@ public final class VerificationUtilities {
 		InputStream in = new FileInputStream(file);
 
 		try {
-			byte[] buffer = new byte[32 * 1024];
+			byte[] buffer = new byte[BUFFER_SIZE];
 			int len = 0;
 
 			while ((len = in.read(buffer)) >= 0) {

@@ -642,6 +642,8 @@ public final class FileUtilities {
 		return buffer.toString();
 	}
 
+	public static final int BUFFER_SIZE = 64 * 1024;
+
 	public static final long KILO = 1024;
 	public static final long MEGA = 1024 * KILO;
 	public static final long GIGA = 1024 * MEGA;
