@@ -31,6 +31,7 @@ import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.text.JTextComponent;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.util.ui.SelectButton;
 import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
@@ -137,9 +138,14 @@ public class SelectButtonTextField<T> extends JComponent {
 			arrowButton.setBackground(Color.white);
 			arrowButton.setOpaque(true);
 			arrowButton.setBorder(createEmptyBorder());
-			arrowButton.setContentAreaFilled(true);
+			arrowButton.setContentAreaFilled(false);
 			arrowButton.setFocusPainted(false);
 			arrowButton.setFocusable(false);
+
+			// fix Aqua UI
+			if (Settings.isMacApp()) {
+				arrowButton.setContentAreaFilled(true);
+			}
 		}
 
 		@Override
