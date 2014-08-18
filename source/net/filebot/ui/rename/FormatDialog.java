@@ -27,6 +27,7 @@ import java.text.Format;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
@@ -118,14 +119,7 @@ public class FormatDialog extends JDialog {
 
 		public Mode next() {
 			// cycle through Episode -> Movie -> Music (but ignore generic File mode)
-			switch (this) {
-			case Episode:
-				return Movie;
-			case Movie:
-				return Music;
-			default:
-				return Episode;
-			}
+			return values()[(this.ordinal() + 1) % File.ordinal()];
 		}
 
 		public String key() {
@@ -151,6 +145,23 @@ public class FormatDialog extends JDialog {
 
 		public PreferencesList<String> persistentFormatHistory() {
 			return Settings.forPackage(FormatDialog.class).node("format.recent." + key()).asList();
+		}
+
+		public String getDefaultFormatExpression() {
+			return getSampleExpressions().iterator().next();
+		}
+
+		public Iterable<String> getSampleExpressions() {
+			ResourceBundle bundle = ResourceBundle.getBundle(FormatDialog.class.getName());
+			Map<String, String> examples = new TreeMap<String, String>();
+
+			// extract all example entries and sort by key
+			String prefix = key() + ".example";
+			for (String key : bundle.keySet()) {
+				if (key.startsWith(prefix))
+					examples.put(key, bundle.getString(key));
+			}
+			return examples.values();
 		}
 	}
 
@@ -192,7 +203,9 @@ public class FormatDialog extends JDialog {
 
 		content.add(help, "growx, wrap 25px:push");
 
-		content.add(new JButton(switchEditModeAction), "tag left");
+		if (lockOnBinding == null) {
+			content.add(new JButton(switchEditModeAction), "tag left");
+		}
 		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
 
@@ -271,7 +284,7 @@ public class FormatDialog extends JDialog {
 		sample = bindings;
 
 		// restore editor state
-		setFormatCode(mode.persistentFormatHistory().isEmpty() ? "" : mode.persistentFormatHistory().get(0));
+		setFormatCode(mode.persistentFormatHistory().isEmpty() ? mode.getDefaultFormatExpression() : mode.persistentFormatHistory().get(0));
 
 		// update examples
 		fireSampleChanged();
@@ -359,16 +372,7 @@ public class FormatDialog extends JDialog {
 		panel.setBorder(createLineBorder(new Color(0xACA899)));
 		panel.setBackground(new Color(0xFFFFE1));
 
-		ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName());
-		TreeMap<String, String> examples = new TreeMap<String, String>();
-
-		// extract all example entries and sort by key
-		for (String key : bundle.keySet()) {
-			if (key.startsWith(mode.key() + ".example"))
-				examples.put(key, bundle.getString(key));
-		}
-
-		for (final String format : examples.values()) {
+		for (final String format : mode.getSampleExpressions()) {
 			LinkButton formatLink = new LinkButton(new AbstractAction(format) {
 
 				@Override
