@@ -1,5 +1,8 @@
 package net.filebot.ui;
 
+import static javax.swing.BorderFactory.*;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -131,7 +134,11 @@ public class SelectButtonTextField<T> extends JComponent {
 		public void configureArrowButton() {
 			super.configureArrowButton();
 
-			arrowButton.setContentAreaFilled(false);
+			arrowButton.setBackground(Color.white);
+			arrowButton.setOpaque(true);
+			arrowButton.setBorder(createEmptyBorder());
+			arrowButton.setContentAreaFilled(true);
+			arrowButton.setFocusPainted(false);
 			arrowButton.setFocusable(false);
 		}
 
