@@ -100,7 +100,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		content.add(hashMatcherServicePanel, "gap after rel");
 		content.add(nameMatcherServicePanel, "gap after indent*2");
 
-		JLabel namingLabel = new JLabel("Preferred Naming:");
+		JLabel namingLabel = new JLabel("Subtitle Naming:");
 		namingLabel.setHorizontalAlignment(JLabel.RIGHT);
 		content.add(namingLabel, "gap after rel, grow");
 		content.add(preferredSubtitleNaming, "gap after indent*2");
