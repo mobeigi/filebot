@@ -230,7 +230,7 @@ class HistoryDialog extends JDialog {
 
 				// use filter on both tables
 				for (JTable table : Arrays.asList(sequenceTable, elementTable)) {
-					TableRowSorter<?> sorter = (TableRowSorter<?>) table.getRowSorter();
+					TableRowSorter sorter = (TableRowSorter) table.getRowSorter();
 					sorter.setRowFilter(RowFilter.andFilter(filterList));
 				}
 
