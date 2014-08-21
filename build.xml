@@ -365,6 +365,9 @@
 
 
 	<target name="ppa-binary" depends="svn-update, fatjar">
+		<property name="jre.dir" value="${basedir}/jre" />
+		<property name="jre.version" value="jdk-8u20" />
+
 		<tar destfile="${path.ubuntu-binary.tar.gz}" compression="gzip" longfile="gnu">
 			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -382,10 +385,10 @@
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
 			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" excludes="bin/**" />
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-i586/jdk1.8.0_11/jre" includes="bin/java" filemode="755" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" excludes="bin/**" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${basedir}/jre/jdk-8u11-linux-x64/jdk1.8.0_11/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
+			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
 		</tar>
 
 		<!-- store this build in releases -->
