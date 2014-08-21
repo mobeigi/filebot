@@ -260,12 +260,15 @@
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
+		<property name="jre.version" value="jdk1.8.0_20.jdk" />
+		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
+
 		<bundleapp executablename="FileBotAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
 
-			<runtime dir="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Home" />
+			<runtime dir="${jre.path}" />
 
 			<!-- WORKING_DIR is sandbox data folder -->
 			<option value="-Dapplication.dir=./Library/Application Support/User Data" />
@@ -298,17 +301,12 @@
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
-
-			<argument value="--log-file" />
-			<argument value="filebot.log" />
-			<argument value="--log-lock" />
-			<argument value="no" />
 		</bundleapp>
 
-		<!-- uses depricated Quicktime API -->
-		<copy file="/Library/Java/JavaVirtualMachines/jdk1.8.0_11.jdk/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Info.plist" verbose="true" overwrite="yes" />
-		<delete file="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk/Contents/Home/jre/lib/libjfxmedia.dylib" verbose="true" />
-		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" perm="+w" verbose="true" />
+		<!-- fix code signing and submission issues -->
+		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
+		<delete dir="${dir.dist}/FileBot.app/Contents/PlugIns" include="**/libjfxmedia.dylib" verbose="true" />
+		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" verbose="true" />
 
 		<!-- fix permissions -->
 		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
@@ -349,7 +347,7 @@
 
 		<!-- verify signature & build pkg -->
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify FileBot.app/Contents/PlugIns/jdk1.8.0_11.jdk" />
+			<arg line="--verify FileBot.app/Contents/PlugIns/${jre.version}" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
 			<arg line="--verify FileBot.app" />
