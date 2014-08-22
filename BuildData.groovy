@@ -136,7 +136,7 @@ def tmdb = omdb.findResults{ m ->
 	
 	def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 	try {
-		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true, false)
+		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true)
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		if (info.released != null) {
 			row = [sync, m[0].pad(7), info.id.pad(7), info.released.year] + names
