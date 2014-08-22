@@ -561,7 +561,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		Map<File, File> renameMap = new LinkedHashMap<File, File>();
 
 		for (Entry<File, Object> it : service.getMetaData(selection).entrySet()) {
-			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey(), null);
+			MediaBindingBean bindingBean = new MediaBindingBean(it.getValue(), it.getKey());
 
 			if (filter == null || filter.matches(bindingBean)) {
 				String newName = (format != null) ? format.format(bindingBean) : validateFileName(it.getValue().toString());

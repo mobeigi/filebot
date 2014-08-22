@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.Format;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -447,7 +446,7 @@ public class FormatDialog extends JDialog {
 			media = new File(path);
 		}
 
-		return new MediaBindingBean(info, media, Collections.singletonMap(media, info));
+		return new MediaBindingBean(info, media);
 	}
 
 	private ExecutorService createExecutor() {
@@ -642,7 +641,7 @@ public class FormatDialog extends JDialog {
 				File file = dialog.getMediaFile();
 
 				// change sample
-				sample = new MediaBindingBean(info, file, Collections.singletonMap(file, info));
+				sample = new MediaBindingBean(info, file);
 
 				// remember sample
 				try {

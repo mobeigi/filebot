@@ -64,6 +64,10 @@ public class MediaBindingBean {
 	private MediaInfo mediaInfo;
 	private Object metaInfo;
 
+	public MediaBindingBean(Object infoObject, File mediaFile) {
+		this(infoObject, mediaFile, singletonMap(mediaFile, infoObject));
+	}
+
 	public MediaBindingBean(Object infoObject, File mediaFile, Map<File, Object> context) {
 		this.infoObject = infoObject;
 		this.mediaFile = mediaFile;
@@ -756,7 +760,7 @@ public class MediaBindingBean {
 
 	@Define("i")
 	public Integer getModelIndex() {
-		return identityIndexOf(context.values(), getInfoObject());
+		return 1 + identityIndexOf(context.values(), getInfoObject());
 	}
 
 	@Define("di")
