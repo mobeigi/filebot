@@ -14,7 +14,7 @@ public class HyperLink extends SearchResult {
 	}
 
 	public HyperLink(String name, URL url) {
-		super(name);
+		super(name, new String[0]);
 		this.url = url;
 	}
 

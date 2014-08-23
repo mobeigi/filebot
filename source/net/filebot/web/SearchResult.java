@@ -14,9 +14,9 @@ public abstract class SearchResult implements Serializable {
 		// used by serializer
 	}
 
-	public SearchResult(String name, String... aliasNames) {
+	public SearchResult(String name, String[] aliasNames) {
 		this.name = name;
-		this.aliasNames = aliasNames;
+		this.aliasNames = aliasNames.clone();
 	}
 
 	public String getName() {

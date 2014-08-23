@@ -10,7 +10,7 @@ public class TVRageSearchResult extends SearchResult {
 	}
 
 	public TVRageSearchResult(String name, int showId, String link) {
-		super(name);
+		super(name, new String[0]);
 		this.showId = showId;
 		this.link = link;
 	}

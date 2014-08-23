@@ -8,11 +8,15 @@ import java.util.List;
 
 public class MultiEpisode extends Episode {
 
-	private Episode[] episodes;
+	protected Episode[] episodes;
+
+	protected MultiEpisode() {
+		// used by serializer
+	}
 
 	public MultiEpisode(Episode... episodes) {
 		super(episodes[0]);
-		this.episodes = episodes;
+		this.episodes = episodes.clone();
 	}
 
 	public List<Episode> getEpisodes() {
@@ -35,7 +39,7 @@ public class MultiEpisode extends Episode {
 
 	@Override
 	public MultiEpisode clone() {
-		return new MultiEpisode(episodes.clone());
+		return new MultiEpisode(episodes);
 	}
 
 	@Override
