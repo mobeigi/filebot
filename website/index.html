@@ -145,8 +145,7 @@
 						<strong>FileBot</strong> is the ultimate tool for organizing and renaming your movies, tv shows or anime, and music well as downloading subtitles and artwork. It's smart and just works.
 					</p>
 				</div>
-				
-				<!--
+<!--
 				<div id="ubuntu" class="section deployment ubuntu" style="display:none">
 					<script type="text/javascript">
 						$(document).ready(function () {
@@ -155,16 +154,26 @@
 							}
 						});
 					</script>
-					<p>
-						FileBot is available in the Ubuntu Software Center. Just fire it up to install the latest FileBot.
-					</p>
-					<div class="ubuntu-install button">
-						<a href="apt://filebot">
-							<img class="fancy-install" width="200" height="60" alt="Install" src="https://apps.ubuntu.com/assets/images/scbutton-non-free-200px.png" title="Buy FileBot from the Ubuntu Software Centre!" />
+					<div class="install button">
+						<a href="https://apps.ubuntu.com/cat/applications/filebot/" target="_blank">
+							<img width="200" height="60" src="https://apps.ubuntu.com/assets/images/scbutton-non-free-200px.png" />
 						</a>
 					</div>
 				</div>
-				-->
+-->
+				
+                <div id="macosx" class="section deployment macosx" style="display:none">
+					<script type="text/javascript">
+						$(document).ready(function () {
+							if (navigator.userAgent.indexOf('Macintosh') >= 0) {
+								$("#macosx").show();
+							}
+						});
+					</script>
+					<div class="install button">
+                        <a href="https://itunes.apple.com/us/app/filebot/id905384638?mt=12&uo=4" target="itunes_store" style="display:inline-block;overflow:hidden;background:url(https://linkmaker.itunes.apple.com/htmlResources/assets/en_us//images/web/linkmaker/badge_macappstore-lrg.png) no-repeat;width:165px;height:40px;@media only screen{background-image:url(https://linkmaker.itunes.apple.com/htmlResources/assets/en_us//images/web/linkmaker/badge_macappstore-lrg.svg);}"></a>
+					</div>
+				</div>
 				
 				<a id="review" class="review message box" style="display:none" href="reviews.php" target="_blank">
 				<div class="thumbs up">
@@ -321,9 +330,10 @@
 					<span class="quote">Today is the day</span>
 					<h2>Download</h2>
 					<ul class="list">
-						<!--
-						<li class="ubuntu">Ubuntu App is available in the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li>
-						-->
+						<li class="macosx">Available in the <a target="_blank" href="https://itunes.apple.com/us/app/filebot/id905384638">Mac App Store</a></li>
+<!--
+						<li class="ubuntu">Available in the <a target="_blank" href="https://apps.ubuntu.com/cat/applications/filebot/">Ubuntu Software Center</a></li>
+-->
 						<li>Windows installer: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot_setup.exe'])" target="_blank" href="download.php?mode=s&amp;type=nsis">FileBot_@{version}-setup.exe</a></li>
 						<li>Mac OS X app bundle: <a onclick="_gaq.push(['_trackPageview', '/download/FileBot.app'])" target="_blank" href="download.php?mode=s&amp;type=app">FileBot_@{version}.app</a></li>
 						<li>Debian packages: <a onclick="_gaq.push(['_trackPageview', '/download/filebot_i686.deb'])" target="_blank" href="download.php?mode=s&amp;type=deb&amp;arch=i686">filebot_@{version}_i686.deb</a> or <a onclick="_gaq.push(['_trackPageview', '/download/filebot_amd64.deb'])" target="_blank" href="download.php?mode=s&amp;type=deb&amp;arch=amd64">filebot_@{version}_amd64.deb</a></li>

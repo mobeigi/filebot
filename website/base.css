@@ -235,9 +235,8 @@ div.screencast:hover .play {
 	margin-left: 2px;
 }
 
-.ubuntu-install.button {
-	margin: 0px;
-	min-height: 25px;
+.install.button {
+	margin: 15px 350px 15px 0px;
 	text-align: center;
 }
 
@@ -488,12 +487,24 @@ div.screencast:hover .play {
 	top: 8px;
 }
 
+#download li.macosx {
+	list-style: none;
+	background: url('http://www.apple.com/favicon.ico') no-repeat 0.25em center;
+    background-size: 24px 24px;
+	margin: 0em 0em 0.5em 0.5em;
+	padding: 0.5em 0.6em 0.5em 2.0em;
+	border: thin silver dashed;
+	border-radius: 4px 4px 4px 4px;
+	display: inline-block;
+}
+
 #download li.ubuntu {
 	list-style: none; 
-	background: url('http://www.ubuntu.com/static/u/img/favicon.ico') no-repeat 0.3em center;
-	margin: 0em 0em 0em -1.2em;
-	padding: 0.5em 0.6em 0.5em 1.6em;
-	border: thin #C03F11 dashed;
+	background: url('http://www.ubuntu.com/static/u/img/favicon.ico') no-repeat 0.5em center;
+    background-size: 16px 16px;
+	margin: 0em 0em 0.5em 0.5em;
+	padding: 0.5em 0.6em 0.5em 2.0em;
+	border: thin orange dashed;
 	border-radius: 4px 4px 4px 4px;
 	display: inline-block;
 }
