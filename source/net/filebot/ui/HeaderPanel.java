@@ -1,5 +1,7 @@
 package net.filebot.ui;
 
+import static javax.swing.BorderFactory.*;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -11,7 +13,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.notification.SeparatorBorder;
@@ -37,7 +38,7 @@ public class HeaderPanel extends JComponent {
 		titleLabel.setForeground(new Color(0x101010));
 		titleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
 
-		centerPanel.setBorder(new EmptyBorder(0, 78, 0, 0));
+		centerPanel.setBorder(createEmptyBorder());
 		centerPanel.add(titleLabel, BorderLayout.CENTER);
 
 		add(centerPanel, BorderLayout.CENTER);
