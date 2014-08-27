@@ -253,7 +253,7 @@ public class Main {
 			// single panel frame
 			for (PanelBuilder it : MainFrame.createPanelBuilders()) {
 				if (args.mode.equalsIgnoreCase(it.getName())) {
-					frame = new SinglePanelFrame(it).publish(new FileTransferable(args.getFiles(true)));
+					frame = new SinglePanelFrame(it).publish(new FileTransferable(args.getFiles(false)));
 				}
 			}
 			if (frame == null) {
