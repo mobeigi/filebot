@@ -1,7 +1,9 @@
 package net.filebot.ui.analyze;
 
+import static net.filebot.Settings.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.logging.Level;
 
 import javax.swing.tree.TreeNode;
 
+import net.filebot.mac.DropToUnlock;
 import net.filebot.ui.analyze.FileTree.FileNode;
 import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
@@ -53,6 +56,11 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 		try {
 			if (files.size() > 1 || containsOnly(files, FILES)) {
 				files = Arrays.asList(files.get(0).getParentFile());
+
+				// make sure we have access to the parent folder structure, not just the dropped file
+				if (isMacSandbox()) {
+					DropToUnlock.showUnlockFoldersDialog(getWindow(tree), files);
+				}
 			}
 
 			// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
