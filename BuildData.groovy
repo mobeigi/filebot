@@ -128,27 +128,27 @@ omdb = omdb.findAll{ (it[0] as int) <= 9999999 && isValidMovieName(it[1]) }
 def tmdb_txt = new File('tmdb.txt')
 def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 
-def tmdb = omdb.findResults{ m ->
+def tmdb = []
+omdb.each{ m ->
 	def sync = System.currentTimeMillis()
-	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < (360 * 24 * 60 * 60 * 1000L) ) {
-		return tmdb_index[m[0]]
+	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < (180 * 24 * 60 * 60 * 1000L) ) {
+		tmdb << tmdb_index[m[0]]
+		return
 	}
 	
-	def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 	try {
 		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true)
 		def names = [info.name, info.originalName] + info.alternativeTitles
-		if (info.released != null) {
-			row = [sync, m[0].pad(7), info.id.pad(7), info.released.year] + names
-		} else {
-			println "Illegal movie: ${info.name} | ${m}"
+		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
+			def row = [sync, m[0].pad(7), info.id.pad(7), y.pad(4)] + names
+			println row
+			tmdb << row
 		}
 	} catch(FileNotFoundException e) {
+		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
+		println row
+		tmdb << row
 	}
-	
-	println row
-	tmdb_txt << row.join('\t') << '\n'
-	return row
 }
 tmdb*.join('\t').join('\n').saveAs(tmdb_txt)
 
