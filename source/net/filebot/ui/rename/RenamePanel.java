@@ -305,6 +305,7 @@ public class RenamePanel extends JComponent {
 				}
 			}
 		});
+		this.putClientProperty("transferablePolicy", transferablePolicy);
 
 		// make buttons larger
 		matchButton.setMargin(new Insets(3, 14, 2, 14));

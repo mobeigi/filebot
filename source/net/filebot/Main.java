@@ -57,6 +57,7 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
+import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
@@ -252,7 +253,7 @@ public class Main {
 			// single panel frame
 			for (PanelBuilder it : MainFrame.createPanelBuilders()) {
 				if (args.mode.equalsIgnoreCase(it.getName())) {
-					frame = new SinglePanelFrame(it);
+					frame = new SinglePanelFrame(it).publish(new FileTransferable(args.getFiles(true)));
 				}
 			}
 			if (frame == null) {
