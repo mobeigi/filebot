@@ -24,6 +24,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.util.FileUtilities;
 
@@ -41,7 +42,7 @@ public class SeriesNameMatcher {
 	}
 
 	public SeriesNameMatcher(Locale locale, boolean strict) {
-		seasonEpisodeMatcher = new SeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict);
+		seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict);
 		dateMatcher = new DateMatcher();
 		nameSimilarityMetric = new NameSimilarityMetric();
 
@@ -86,9 +87,9 @@ public class SeriesNameMatcher {
 		// focus chars before the SxE / Date pattern when matching by common word sequence
 		String[] focus = Arrays.copyOf(names, names.length);
 		for (int i = 0; i < focus.length; i++) {
-			int sxePos = seasonEpisodeMatcher.find(focus[i], 0);
-			if (sxePos >= 0) {
-				focus[i] = focus[i].substring(0, sxePos);
+			String beforeSxE = seasonEpisodeMatcher.head(focus[i]);
+			if (beforeSxE != null && beforeSxE.length() > 0) {
+				focus[i] = beforeSxE;
 			} else {
 				int datePos = dateMatcher.find(focus[i], 0);
 				if (datePos >= 0) {
@@ -189,10 +190,10 @@ public class SeriesNameMatcher {
 	 * @return a substring of the given name that ends before the first occurrence of a season episode pattern, or null if there is no such pattern
 	 */
 	public String matchByEpisodeIdentifier(String name) {
-		int seasonEpisodePosition = seasonEpisodeMatcher.find(name, 0);
-		if (seasonEpisodePosition > 0) {
-			// series name ends at the first season episode pattern
-			return normalizePunctuation(name.substring(0, seasonEpisodePosition));
+		// series name ends at the first season episode pattern
+		String seriesName = seasonEpisodeMatcher.head(name);
+		if (seriesName != null && seriesName.length() > 0) {
+			return normalizePunctuation(seriesName);
 		}
 
 		int datePosition = dateMatcher.find(name, 0);

@@ -217,6 +217,14 @@ public class SeasonEpisodeMatcher {
 		return -1;
 	}
 
+	public String head(String name) {
+		int seasonEpisodePosition = find(name, 0);
+		if (seasonEpisodePosition > 0) {
+			return name.substring(0, seasonEpisodePosition).trim();
+		}
+		return null;
+	}
+
 	public static class SxE {
 
 		public static final int UNDEFINED = -1;

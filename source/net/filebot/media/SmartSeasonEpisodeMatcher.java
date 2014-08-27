@@ -29,6 +29,15 @@ public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 	}
 
 	@Override
+	public List<SxE> match(File file) {
+		return super.match(new File(clean(file.getPath())));
+	}
+
+	public String head(String name) {
+		return super.head(clean(name));
+	}
+
+	@Override
 	protected List<String> tokenizeTail(File file) {
 		List<String> tail = super.tokenizeTail(file);
 		for (int i = 0; i < tail.size(); i++) {
