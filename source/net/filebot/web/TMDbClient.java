@@ -255,18 +255,22 @@ public class TMDbClient implements MovieIdentificationService {
 
 		List<Trailer> trailers = new ArrayList<Trailer>();
 		JSONObject trailerResponse = (JSONObject) response.get("trailers");
-		for (String section : new String[] { "quicktime", "youtube" }) {
-			for (JSONObject it : jsonList(trailerResponse.get(section))) {
-				Map<String, String> sources = new LinkedHashMap<String, String>();
-				if (it.containsKey("sources")) {
-					for (JSONObject s : jsonList(it.get("sources"))) {
-						sources.put(s.get("size").toString(), s.get("source").toString());
+		try {
+			for (String section : new String[] { "quicktime", "youtube" }) {
+				for (JSONObject it : jsonList(trailerResponse.get(section))) {
+					Map<String, String> sources = new LinkedHashMap<String, String>();
+					if (it.containsKey("sources")) {
+						for (JSONObject s : jsonList(it.get("sources"))) {
+							sources.put(s.get("size").toString(), s.get("source").toString());
+						}
+					} else {
+						sources.put(it.get("size").toString(), it.get("source").toString());
 					}
-				} else {
-					sources.put(it.get("size").toString(), it.get("source").toString());
+					trailers.add(new Trailer(section, it.get("name").toString(), sources));
 				}
-				trailers.add(new Trailer(section, it.get("name").toString(), sources));
 			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailer data: " + trailerResponse);
 		}
 
 		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, cast, trailers);
