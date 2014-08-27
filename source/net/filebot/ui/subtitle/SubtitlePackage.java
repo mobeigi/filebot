@@ -9,11 +9,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.swing.SwingWorker;
 import javax.swing.event.SwingPropertyChangeSupport;
@@ -30,6 +26,7 @@ public class SubtitlePackage {
 	private final SubtitleProvider provider;
 	private final SubtitleDescriptor subtitle;
 	private final Language language;
+
 	private Download download;
 
 	public SubtitlePackage(SubtitleProvider provider, SubtitleDescriptor subtitle) {
@@ -37,7 +34,7 @@ public class SubtitlePackage {
 		this.subtitle = subtitle;
 
 		// resolve language name
-		this.language = new Language(languageCodeByName.get(subtitle.getLanguageName()), Language.getISO3LanguageCodeByName(subtitle.getLanguageName()), subtitle.getLanguageName());
+		this.language = Language.findLanguage(subtitle.getLanguageName());
 
 		// initialize download worker
 		download = new Download(subtitle);
@@ -203,23 +200,6 @@ public class SubtitlePackage {
 		public Phase getPhase() {
 			return current;
 		}
-	}
-
-	/**
-	 * Map english language name to language code.
-	 */
-	private static final Map<String, String> languageCodeByName = mapLanguageCodeByName();
-
-	private static Map<String, String> mapLanguageCodeByName() {
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName(), Locale.ENGLISH);
-
-		Map<String, String> map = new HashMap<String, String>();
-
-		for (String code : bundle.keySet()) {
-			map.put(bundle.getString(code), code);
-		}
-
-		return map;
 	}
 
 }

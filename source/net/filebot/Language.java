@@ -13,13 +13,22 @@ import java.util.Set;
 
 public class Language implements Serializable {
 
+	// ISO 639-1 code
 	private final String iso2;
+
+	// ISO 639-2/T code
 	private final String iso3;
+
+	// ISO 639-2/B code
+	private final String iso3b;
+
+	// Language name
 	private final String name;
 
-	public Language(String iso2, String iso3, String name) {
+	public Language(String iso2, String iso3, String iso3b, String name) {
 		this.iso2 = iso2;
 		this.iso3 = iso3;
+		this.iso3b = iso3b;
 		this.name = name;
 	}
 
@@ -48,9 +57,13 @@ public class Language implements Serializable {
 		return new Locale(getCode());
 	}
 
+	public boolean matches(String code) {
+		return iso2.equalsIgnoreCase(code) || iso3.equalsIgnoreCase(code) || iso3b.equalsIgnoreCase(code) || name.equalsIgnoreCase(code);
+	}
+
 	@Override
 	public Language clone() {
-		return new Language(iso2, iso3, name);
+		return new Language(iso2, iso3, iso3b, name);
 	}
 
 	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
@@ -65,8 +78,8 @@ public class Language implements Serializable {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 
 		try {
-			String[] values = bundle.getString(code).split("\\t", 2);
-			return new Language(code, values[0], values[1]);
+			String[] values = bundle.getString(code).split("\\t", 3);
+			return new Language(code, values[0], values[1], values[2]);
 		} catch (Exception e) {
 			return null;
 		}
@@ -86,7 +99,7 @@ public class Language implements Serializable {
 		if (locale != null) {
 			String code = locale.getLanguage();
 			for (Language it : availableLanguages()) {
-				if (it.getISO2().equals(code) || it.getISO3().equals(code)) {
+				if (it.matches(code)) {
 					return it;
 				}
 			}
@@ -96,7 +109,7 @@ public class Language implements Serializable {
 
 	public static Language findLanguage(String lang) {
 		for (Language it : availableLanguages()) {
-			if (lang.equalsIgnoreCase(it.getISO2()) || lang.equalsIgnoreCase(it.getISO3()) || lang.equalsIgnoreCase(it.getName())) {
+			if (it.matches(lang)) {
 				return it;
 			}
 		}
@@ -113,7 +126,7 @@ public class Language implements Serializable {
 
 	public static List<Language> availableLanguages() {
 		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
-		return getLanguages(bundle.getString("languages.all").split(","));
+		return getLanguages(bundle.getString("languages.ui").split(","));
 	}
 
 	public static List<Language> commonLanguages() {
