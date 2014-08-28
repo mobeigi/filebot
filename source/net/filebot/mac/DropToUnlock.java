@@ -23,12 +23,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -182,17 +184,21 @@ public class DropToUnlock extends JList<File> {
 
 		// show dialog on EDT and wait for user input
 		try {
-			SwingUtilities.invokeAndWait(showPermissionDialog);
+			if (SwingUtilities.isEventDispatchThread()) {
+				showPermissionDialog.run();
+			} else {
+				SwingUtilities.invokeAndWait(showPermissionDialog);
+			}
 
 			// store security-scoped bookmark if dialog was accepted
 			if (showPermissionDialog.get()) {
 				storeSecurityScopedBookmarks(model);
 				return true;
 			}
-		} catch (Exception e) {
-			Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.bookmarkDataWithOptions: " + e.toString());
+			return false;
+		} catch (InterruptedException | InvocationTargetException | ExecutionException e) {
+			throw new RuntimeException("Failed to request permissions: " + e.getMessage(), e);
 		}
-		return false;
 	}
 
 	public DropToUnlock(Collection<File> model) {
