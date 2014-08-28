@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +41,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -106,71 +110,89 @@ public class DropToUnlock extends JList<File> {
 		}).filter(f -> f != null && isLockedFolder(f)).sorted().distinct().collect(Collectors.toList());
 	}
 
-	public static boolean showUnlockFoldersDialog(Window owner, Collection<File> files) {
+	public static boolean showUnlockFoldersDialog(final Window owner, final Collection<File> files) {
 		final List<File> model = getParentFolders(files);
 
 		// immediately return if there is nothing that needs to be unlocked
-		if (model.isEmpty())
+		if (model.isEmpty()) {
 			return true;
+		}
 
 		// try to restore permissions from previously stored security-scoped bookmarks as best as possible
 		unlockBySecurityScopedBookmarks(model);
 
 		// check if we even need to unlock anything at this point
-		if (model.stream().allMatch(f -> !isLockedFolder(f)))
+		if (model.stream().allMatch(f -> !isLockedFolder(f))) {
 			return true;
+		}
 
-		final JDialog dialog = new JDialog(owner);
-		final AtomicBoolean dialogCancelled = new AtomicBoolean(true);
-		DropToUnlock d = new DropToUnlock(model) {
+		// show selection dialog on EDT
+		RunnableFuture<Boolean> showPermissionDialog = new FutureTask<Boolean>(new Callable<Boolean>() {
 
 			@Override
-			public void updateLockStatus(File... folders) {
-				super.updateLockStatus(folders);
+			public Boolean call() throws Exception {
+				final JDialog dialog = new JDialog(owner);
+				final AtomicBoolean dialogCancelled = new AtomicBoolean(true);
+				DropToUnlock d = new DropToUnlock(model) {
 
-				// if all folders have been unlocked auto-close dialog
-				if (model.stream().allMatch(f -> !isLockedFolder(f))) {
-					dialogCancelled.set(false);
-					invokeLater(750, () -> {
-						dialog.setVisible(false);
-					});
-				}
-			};
-		};
-		d.setBorder(createEmptyBorder(5, 15, 120, 15));
+					@Override
+					public void updateLockStatus(File... folders) {
+						super.updateLockStatus(folders);
 
-		JComponent c = (JComponent) dialog.getContentPane();
-		c.setLayout(new MigLayout("insets 0, fill"));
+						// if all folders have been unlocked auto-close dialog
+						if (model.stream().allMatch(f -> !isLockedFolder(f))) {
+							dialogCancelled.set(false);
+							invokeLater(750, () -> {
+								dialog.setVisible(false);
+							});
+						}
+					};
+				};
+				d.setBorder(createEmptyBorder(5, 15, 120, 15));
 
-		HeaderPanel h = new HeaderPanel();
-		h.getTitleLabel().setText("Folder Permissions Required");
-		h.getTitleLabel().setIcon(ResourceManager.getIcon("file.lock"));
-		h.getTitleLabel().setBorder(createEmptyBorder(0, 0, 0, 64));
-		c.add(h, "wmin 150px, hmin 75px, growx, dock north");
-		c.add(d, "wmin 150px, hmin 150px, grow");
+				JComponent c = (JComponent) dialog.getContentPane();
+				c.setLayout(new MigLayout("insets 0, fill"));
 
-		dialog.setModal(true);
-		dialog.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-		dialog.setSize(new Dimension(540, 420));
-		dialog.setResizable(false);
-		dialog.setLocationByPlatform(true);
-		dialog.setAlwaysOnTop(true);
+				HeaderPanel h = new HeaderPanel();
+				h.getTitleLabel().setText("Folder Permissions Required");
+				h.getTitleLabel().setIcon(ResourceManager.getIcon("file.lock"));
+				h.getTitleLabel().setBorder(createEmptyBorder(0, 0, 0, 64));
+				c.add(h, "wmin 150px, hmin 75px, growx, dock north");
+				c.add(d, "wmin 150px, hmin 150px, grow");
 
-		// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
-		invokeLater(500, () -> {
-			revealFiles(model);
+				dialog.setModal(true);
+				dialog.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+				dialog.setSize(new Dimension(540, 420));
+				dialog.setResizable(false);
+				dialog.setLocationByPlatform(true);
+				dialog.setAlwaysOnTop(true);
+
+				// open required folders for easy drag and drop (a few milliseconds after the dialog has become visible)
+				invokeLater(500, () -> {
+					revealFiles(model);
+				});
+
+				// show and wait for user input
+				dialog.setVisible(true);
+
+				// abort if user has closed the window before all folders have been unlocked
+				return !dialogCancelled.get();
+			}
 		});
 
-		// show and wait for user input
-		dialog.setVisible(true);
+		// show dialog on EDT and wait for user input
+		try {
+			SwingUtilities.invokeAndWait(showPermissionDialog);
 
-		// abort if user has closed the window before all folders have been unlocked
-		if (dialogCancelled.get())
-			return false;
-
-		// store security-scoped bookmarks
-		storeSecurityScopedBookmarks(model);
-		return true;
+			// store security-scoped bookmark if dialog was accepted
+			if (showPermissionDialog.get()) {
+				storeSecurityScopedBookmarks(model);
+				return true;
+			}
+		} catch (Exception e) {
+			Logger.getLogger(DropToUnlock.class.getName()).log(Level.WARNING, "NSURL.bookmarkDataWithOptions: " + e.toString());
+		}
+		return false;
 	}
 
 	public DropToUnlock(Collection<File> model) {
