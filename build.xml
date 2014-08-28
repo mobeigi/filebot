@@ -301,6 +301,11 @@
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
+
+			<argument value="--log-file" />
+			<argument value="filebot.log" />
+			<argument value="--log-lock" />
+			<argument value="false" />
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
