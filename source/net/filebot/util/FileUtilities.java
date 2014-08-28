@@ -94,6 +94,16 @@ public final class FileUtilities {
 		return Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING).toFile();
 	}
 
+	public static File resolveDestination(File source, File destination) {
+		// resolve destination
+		if (!destination.isAbsolute()) {
+			// same folder, different name
+			destination = new File(source.getParentFile(), destination.getPath());
+		}
+
+		return destination;
+	}
+
 	public static File resolveDestination(File source, File destination, boolean mkdirs) throws IOException {
 		// resolve destination
 		if (!destination.isAbsolute()) {
