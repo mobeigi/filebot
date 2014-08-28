@@ -208,69 +208,97 @@ public class TMDbClient implements MovieIdentificationService {
 			JSONObject collection = (JSONObject) response.get("belongs_to_collection");
 			fields.put(MovieProperty.collection, (String) collection.get("name"));
 		} catch (Exception e) {
-			// ignore
+			// movie doesn't belong to any collection
 		}
 
 		List<String> genres = new ArrayList<String>();
-		for (JSONObject it : jsonList(response.get("genres"))) {
-			String name = (String) it.get("name");
-			if (name != null && name.length() > 0) {
-				genres.add(name);
-			}
-		}
-
-		List<String> spokenLanguages = new ArrayList<String>();
-		for (JSONObject it : jsonList(response.get("spoken_languages"))) {
-			spokenLanguages.add((String) it.get("iso_639_1"));
-		}
-
-		List<String> alternativeTitles = new ArrayList<String>();
-		JSONObject titles = (JSONObject) response.get("alternative_titles");
-		for (JSONObject it : jsonList(titles.get("titles"))) {
-			alternativeTitles.add((String) it.get("title"));
-		}
-
-		String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
-		JSONObject releases = (JSONObject) response.get("releases");
-		for (JSONObject it : jsonList(releases.get("countries"))) {
-			if (countryCode.equals(it.get("iso_3166_1"))) {
-				fields.put(MovieProperty.certification, (String) it.get("certification"));
-			}
-		}
-
-		List<Person> cast = new ArrayList<Person>();
-		JSONObject castResponse = (JSONObject) response.get("casts");
-		for (String section : new String[] { "cast", "crew" }) {
-			for (JSONObject it : jsonList(castResponse.get(section))) {
-				Map<PersonProperty, String> person = new EnumMap<PersonProperty, String>(PersonProperty.class);
-				for (PersonProperty key : PersonProperty.values()) {
-					Object value = it.get(key.name());
-					if (value != null) {
-						person.put(key, value.toString());
-					}
-				}
-				cast.add(new Person(person));
-			}
-		}
-
-		List<Trailer> trailers = new ArrayList<Trailer>();
-		JSONObject trailerResponse = (JSONObject) response.get("trailers");
 		try {
-			for (String section : new String[] { "quicktime", "youtube" }) {
-				for (JSONObject it : jsonList(trailerResponse.get(section))) {
-					Map<String, String> sources = new LinkedHashMap<String, String>();
-					if (it.containsKey("sources")) {
-						for (JSONObject s : jsonList(it.get("sources"))) {
-							sources.put(s.get("size").toString(), s.get("source").toString());
-						}
-					} else {
-						sources.put(it.get("size").toString(), it.get("source").toString());
-					}
-					trailers.add(new Trailer(section, it.get("name").toString(), sources));
+			for (JSONObject it : jsonList(response.get("genres"))) {
+				String name = (String) it.get("name");
+				if (name != null && name.length() > 0) {
+					genres.add(name);
 				}
 			}
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailer data: " + trailerResponse);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal genres data: " + response);
+		}
+
+		List<String> spokenLanguages = new ArrayList<String>();
+		try {
+			for (JSONObject it : jsonList(response.get("spoken_languages"))) {
+				spokenLanguages.add((String) it.get("iso_639_1"));
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal spoken_languages data: " + response);
+		}
+
+		List<String> alternativeTitles = new ArrayList<String>();
+		try {
+			JSONObject titles = (JSONObject) response.get("alternative_titles");
+			if (titles != null) {
+				for (JSONObject it : jsonList(titles.get("titles"))) {
+					alternativeTitles.add((String) it.get("title"));
+				}
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal alternative_titles data: " + response);
+		}
+
+		try {
+			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
+			JSONObject releases = (JSONObject) response.get("releases");
+			if (releases != null) {
+				for (JSONObject it : jsonList(releases.get("countries"))) {
+					if (countryCode.equals(it.get("iso_3166_1"))) {
+						fields.put(MovieProperty.certification, (String) it.get("certification"));
+					}
+				}
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal releases data: " + response);
+		}
+
+		List<Person> cast = new ArrayList<Person>();
+		try {
+			JSONObject castResponse = (JSONObject) response.get("casts");
+			if (castResponse != null) {
+				for (String section : new String[] { "cast", "crew" }) {
+					for (JSONObject it : jsonList(castResponse.get(section))) {
+						Map<PersonProperty, String> person = new EnumMap<PersonProperty, String>(PersonProperty.class);
+						for (PersonProperty key : PersonProperty.values()) {
+							Object value = it.get(key.name());
+							if (value != null) {
+								person.put(key, value.toString());
+							}
+						}
+						cast.add(new Person(person));
+					}
+				}
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal casts data: " + response);
+		}
+
+		List<Trailer> trailers = new ArrayList<Trailer>();
+		try {
+			JSONObject trailerResponse = (JSONObject) response.get("trailers");
+			if (trailerResponse != null) {
+				for (String section : new String[] { "quicktime", "youtube" }) {
+					for (JSONObject it : jsonList(trailerResponse.get(section))) {
+						Map<String, String> sources = new LinkedHashMap<String, String>();
+						if (it.containsKey("sources")) {
+							for (JSONObject s : jsonList(it.get("sources"))) {
+								sources.put(s.get("size").toString(), s.get("source").toString());
+							}
+						} else {
+							sources.put(it.get("size").toString(), it.get("source").toString());
+						}
+						trailers.add(new Trailer(section, it.get("name").toString(), sources));
+					}
+				}
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailers data: " + response);
 		}
 
 		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, cast, trailers);

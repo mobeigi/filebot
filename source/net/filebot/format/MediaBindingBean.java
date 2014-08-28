@@ -253,7 +253,7 @@ public class MediaBindingBean {
 
 	@Define("imdbid")
 	public String getImdbId() throws Exception {
-		int imdbid = getMovie().getImdbId();
+		Integer imdbid = getMovie().getImdbId();
 
 		if (imdbid <= 0) {
 			if (getMovie().getTmdbId() <= 0) {
@@ -264,7 +264,7 @@ public class MediaBindingBean {
 			imdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId();
 		}
 
-		return String.format("tt%07d", imdbid);
+		return imdbid != null ? String.format("tt%07d", imdbid) : null;
 	}
 
 	@Define("vc")
