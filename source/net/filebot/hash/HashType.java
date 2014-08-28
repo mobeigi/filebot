@@ -67,7 +67,7 @@ public enum HashType {
 
 		@Override
 		public String toString() {
-			return "SHA-1";
+			return "SHA1";
 		}
 
 	},
@@ -92,7 +92,7 @@ public enum HashType {
 
 		@Override
 		public String toString() {
-			return "SHA-2";
+			return "SHA2";
 		}
 
 	},
