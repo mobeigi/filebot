@@ -72,7 +72,7 @@ public enum StandardRenameAction implements RenameAction {
 		}
 	},
 
-	HARDLINK_OR_COPY {
+	DUPLICATE {
 
 		@Override
 		public File rename(File from, File to) throws Exception {
