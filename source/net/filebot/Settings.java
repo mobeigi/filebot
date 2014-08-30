@@ -85,8 +85,7 @@ public final class Settings {
 	}
 
 	public static FileChooser getPreferredFileChooser() {
-		String prop = System.getProperty("net.filebot.UserFiles.fileChooser");
-		return prop == null ? FileChooser.Swing : FileChooser.valueOf(prop);
+		return FileChooser.valueOf(System.getProperty("net.filebot.UserFiles.fileChooser", "Swing"));
 	}
 
 	public static int getPreferredThreadPoolSize() {
@@ -102,12 +101,12 @@ public final class Settings {
 	}
 
 	public static File getApplicationFolder() {
-		String applicationDirPath = System.getProperty("application.dir");
+		String applicationFolderPath = System.getProperty("application.dir");
 		File applicationFolder = null;
 
-		if (applicationDirPath != null && applicationDirPath.length() > 0) {
+		if (applicationFolderPath != null && !applicationFolderPath.isEmpty()) {
 			// use given path
-			applicationFolder = new File(applicationDirPath);
+			applicationFolder = new File(applicationFolderPath);
 		} else {
 			// create folder in user home (can't use working directory for web start applications)
 			applicationFolder = new File(System.getProperty("user.home"), ".filebot");
@@ -121,20 +120,20 @@ public final class Settings {
 	}
 
 	public static File getApplicationCache() {
-		String cacheDefaultPath = System.getProperty("application.cache");
+		String cacheFolderPath = System.getProperty("application.cache");
+		File cacheFolder = null;
 
-		File cacheDir = null;
-		if (cacheDefaultPath != null) {
-			cacheDir = new File(cacheDefaultPath);
+		if (cacheFolderPath != null && !cacheFolderPath.isEmpty()) {
+			cacheFolder = new File(cacheFolderPath);
 		} else {
-			cacheDir = new File(getApplicationFolder(), "cache");
+			cacheFolder = new File(getApplicationFolder(), "cache");
 		}
 
 		// create folder if necessary
-		if (!cacheDir.exists()) {
-			cacheDir.mkdirs();
+		if (!cacheFolder.exists()) {
+			cacheFolder.mkdirs();
 		}
-		return cacheDir;
+		return cacheFolder;
 	}
 
 	public static Settings forPackage(Class<?> type) {
