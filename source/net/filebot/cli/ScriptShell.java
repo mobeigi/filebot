@@ -20,6 +20,7 @@ public class ScriptShell {
 
 	public static final String ARGV_BINDING_NAME = "args";
 	public static final String SHELL_BINDING_NAME = "__shell";
+	public static final String SHELL_ARGV_BINDING_NAME = "__args";
 
 	private final ScriptEngine engine;
 	private final ScriptProvider scriptProvider;

@@ -85,6 +85,7 @@ public class ArgumentProcessor {
 			} else {
 				// execute user script
 				Bindings bindings = new SimpleBindings();
+				bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, args.getArray());
 				bindings.put(ScriptShell.ARGV_BINDING_NAME, args.getFiles(false));
 
 				DefaultScriptProvider scriptProvider = new DefaultScriptProvider();

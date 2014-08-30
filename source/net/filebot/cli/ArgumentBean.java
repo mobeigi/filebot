@@ -1,6 +1,5 @@
 package net.filebot.cli;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -193,8 +192,8 @@ public class ArgumentBean {
 		this.array = array;
 	}
 
-	public List<String> getArray() {
-		return unmodifiableList(asList(array));
+	public String[] getArray() {
+		return array.clone();
 	}
 
 	public static ArgumentBean parse(String[] args) throws CmdLineException {

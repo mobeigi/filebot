@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.script.Bindings;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 import javax.swing.AbstractAction;
@@ -233,15 +234,19 @@ public class GroovyPad extends JFrame {
 				@Override
 				public void run() {
 					try {
-						result = shell.evaluate(script, new SimpleBindings());
+						Bindings bindings = new SimpleBindings();
+						bindings.put(ScriptShell.SHELL_ARGV_BINDING_NAME, Settings.getApplicationArguments().getArray());
+						bindings.put(ScriptShell.ARGV_BINDING_NAME, Settings.getApplicationArguments().getFiles(false));
+
+						result = shell.evaluate(script, bindings);
 
 						// print result and make sure to flush Groovy output
-						SimpleBindings binding = new SimpleBindings();
-						binding.put("result", result);
+						SimpleBindings resultBindings = new SimpleBindings();
+						resultBindings.put("result", result);
 						if (result != null) {
-							shell.evaluate("print('Result: '); println(result);", binding);
+							shell.evaluate("print('Result: '); println(result);", resultBindings);
 						} else {
-							shell.evaluate("println();", binding);
+							shell.evaluate("println();", resultBindings);
 						}
 					} catch (ScriptException e) {
 						while (e.getCause() instanceof ScriptException) {

@@ -1,7 +1,6 @@
 package net.filebot.cli;
 
 import static java.util.Collections.*;
-import static net.filebot.Settings.*;
 import static net.filebot.cli.CLILogging.*;
 import static net.filebot.util.StringUtilities.*;
 import groovy.lang.Closure;
@@ -35,7 +34,6 @@ import javax.script.SimpleBindings;
 
 import net.filebot.HistorySpooler;
 import net.filebot.RenameAction;
-import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.AssociativeScriptObject;
@@ -78,15 +76,16 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public void include(String input) throws Throwable {
 		try {
-			executeScript(input, null);
+			executeScript(input, new String[0], null, null);
 		} catch (Exception e) {
 			printException(e, true);
 		}
 	}
 
-	public Object runScript(String input) throws Throwable {
+	public Object runScript(String input, String... argv) throws Throwable {
 		try {
-			return executeScript(input, null);
+			ArgumentBean args = argv == null || argv.length == 0 ? getArgumentBean() : ArgumentBean.parse(argv);
+			return executeScript(input, args.getArray(), args.defines, args.getFiles(false));
 		} catch (Exception e) {
 			printException(e, true);
 		}
@@ -94,6 +93,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
+		return executeScript(input, getArgumentBean().getArray(), bindings, FileUtilities.asFileList(args));
+	}
+
+	public Object executeScript(String input, String[] argv, Map<String, ?> bindings, List<File> args) throws Throwable {
 		// apply parent script defines
 		Bindings parameters = new SimpleBindings();
 
@@ -101,7 +104,9 @@ public abstract class ScriptShellBaseClass extends Script {
 		if (bindings != null) {
 			parameters.putAll(bindings);
 		}
-		parameters.put(ScriptShell.ARGV_BINDING_NAME, FileUtilities.asFileList(args));
+
+		parameters.put(ScriptShell.SHELL_ARGV_BINDING_NAME, argv);
+		parameters.put(ScriptShell.ARGV_BINDING_NAME, args);
 
 		// run given script
 		ScriptShell shell = (ScriptShell) getBinding().getVariable(ScriptShell.SHELL_BINDING_NAME);
@@ -146,12 +151,12 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: _args
 	public ArgumentBean get_args() {
-		return getApplicationArguments();
+		return getArgumentBean();
 	}
 
 	// define global variable: _def
 	public Map<String, String> get_def() {
-		return unmodifiableMap(getApplicationArguments().defines);
+		return getArgumentBean().defines;
 	}
 
 	// define global variable: _system
@@ -458,6 +463,14 @@ public abstract class ScriptShellBaseClass extends Script {
 		return files;
 	}
 
+	private ArgumentBean getArgumentBean() {
+		try {
+			return ArgumentBean.parse((String[]) getBinding().getVariable(ScriptShell.SHELL_ARGV_BINDING_NAME));
+		} catch (Exception e) {
+			throw new IllegalStateException(e.getMessage());
+		}
+	}
+
 	private Map<Option, Object> getDefaultOptions(Map<String, ?> parameters) throws Exception {
 		Map<Option, Object> options = new EnumMap<Option, Object>(Option.class);
 
@@ -469,7 +482,7 @@ public abstract class ScriptShellBaseClass extends Script {
 			}
 		}
 
-		ArgumentBean defaultValues = Settings.getApplicationArguments();
+		ArgumentBean args = getArgumentBean();
 		Set<Option> complement = EnumSet.allOf(Option.class);
 		complement.removeAll(options.keySet());
 
@@ -479,10 +492,10 @@ public abstract class ScriptShellBaseClass extends Script {
 				options.put(missing, false);
 				break;
 			case strict:
-				options.put(missing, !defaultValues.nonStrict);
+				options.put(missing, !args.nonStrict);
 				break;
 			default:
-				options.put(missing, defaultValues.getClass().getField(missing.name()).get(defaultValues));
+				options.put(missing, args.getClass().getField(missing.name()).get(args));
 				break;
 			}
 		}
