@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="source"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="lib" path="lib/args4j.jar"/>
+	<classpathentry kind="lib" path="lib/build/junit.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io.jar"/>
+	<classpathentry kind="lib" path="lib/ehcache.jar"/>
+	<classpathentry kind="lib" path="lib/glazedlists.jar"/>
+	<classpathentry kind="lib" path="lib/groovy.jar"/>
+	<classpathentry kind="lib" path="lib/icu4j.jar"/>
+	<classpathentry kind="lib" path="lib/jacksum.jar"/>
+	<classpathentry kind="lib" path="lib/jgat-custom.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform.jar"/>
+	<classpathentry kind="lib" path="lib/jna.jar"/>
+	<classpathentry kind="lib" path="lib/json-io.jar"/>
+	<classpathentry kind="lib" path="lib/json-simple.jar"/>
+	<classpathentry kind="lib" path="lib/jsoup.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-core.jar"/>
+	<classpathentry kind="lib" path="lib/miglayout-swing.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/commons-net.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ivy.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/jsch.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/mail.jar"/>
+	<classpathentry kind="lib" path="lib/sevenzipjbinding.jar"/>
+	<classpathentry kind="lib" path="lib/simmetrics.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-jdk14.jar"/>
+	<classpathentry kind="lib" path="lib/xmlrpc.jar"/>
+	<classpathentry kind="lib" path="lib/xz.jar"/>
+	<classpathentry kind="lib" path="lib/ObjCBridge.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
