@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.cli.CLILogging.*;
 import static net.filebot.util.StringUtilities.*;
@@ -76,7 +77,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public void include(String input) throws Throwable {
 		try {
-			executeScript(input, new String[0], null, null);
+			executeScript(input, null, null, null);
 		} catch (Exception e) {
 			printException(e, true);
 		}
@@ -85,7 +86,7 @@ public abstract class ScriptShellBaseClass extends Script {
 	public Object runScript(String input, String... argv) throws Throwable {
 		try {
 			ArgumentBean args = argv == null || argv.length == 0 ? getArgumentBean() : ArgumentBean.parse(argv);
-			return executeScript(input, args.getArray(), args.defines, args.getFiles(false));
+			return executeScript(input, asList(getArgumentBean().getArray()), args.defines, args.getFiles(false));
 		} catch (Exception e) {
 			printException(e, true);
 		}
@@ -93,10 +94,10 @@ public abstract class ScriptShellBaseClass extends Script {
 	}
 
 	public Object executeScript(String input, Map<String, ?> bindings, Object... args) throws Throwable {
-		return executeScript(input, getArgumentBean().getArray(), bindings, FileUtilities.asFileList(args));
+		return executeScript(input, asList(getArgumentBean().getArray()), bindings, FileUtilities.asFileList(args));
 	}
 
-	public Object executeScript(String input, String[] argv, Map<String, ?> bindings, List<File> args) throws Throwable {
+	public Object executeScript(String input, List<String> argv, Map<String, ?> bindings, List<File> args) throws Throwable {
 		// apply parent script defines
 		Bindings parameters = new SimpleBindings();
 
@@ -105,8 +106,8 @@ public abstract class ScriptShellBaseClass extends Script {
 			parameters.putAll(bindings);
 		}
 
-		parameters.put(ScriptShell.SHELL_ARGV_BINDING_NAME, argv);
-		parameters.put(ScriptShell.ARGV_BINDING_NAME, args);
+		parameters.put(ScriptShell.SHELL_ARGV_BINDING_NAME, argv != null ? argv.toArray(new String[0]) : new String[0]);
+		parameters.put(ScriptShell.ARGV_BINDING_NAME, args != null ? new ArrayList<File>(args) : new ArrayList<File>());
 
 		// run given script
 		ScriptShell shell = (ScriptShell) getBinding().getVariable(ScriptShell.SHELL_BINDING_NAME);

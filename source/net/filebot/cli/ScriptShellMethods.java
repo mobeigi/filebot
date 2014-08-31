@@ -330,8 +330,12 @@ public class ScriptShellMethods {
 		return MediaDetection.getStructurePathTail(self);
 	}
 
-	public static FolderWatchService watch(File self, final Closure<?> callback) throws IOException {
-		FolderWatchService watchService = new FolderWatchService(true) {
+	public static FolderWatchService watchFolder(File self, Closure<?> callback) throws IOException {
+		return watch(self, false, false, 1000, callback);
+	}
+
+	public static FolderWatchService watch(File self, boolean watchTree, boolean commitPerFolder, long commitDelay, final Closure<?> callback) throws IOException {
+		FolderWatchService watchService = new FolderWatchService(watchTree) {
 
 			@Override
 			public void processCommitSet(File[] files, File dir) {
@@ -340,8 +344,8 @@ public class ScriptShellMethods {
 		};
 
 		// collect updates for 500 ms and then batch process
-		watchService.setCommitDelay(500);
-		watchService.setCommitPerFolder(true);
+		watchService.setCommitDelay(commitDelay);
+		watchService.setCommitPerFolder(commitPerFolder);
 
 		// start watching the given folder
 		watchService.watchFolder(self);
