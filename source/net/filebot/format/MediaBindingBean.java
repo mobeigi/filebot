@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
@@ -213,7 +214,7 @@ public class MediaBindingBean {
 			return asList(getSeriesObject().getAliasNames());
 		}
 
-		return null;
+		return emptyList();
 	}
 
 	@Define("primaryTitle")
@@ -457,20 +458,7 @@ public class MediaBindingBean {
 		String[] filenames = new String[] { inferredMediaFile.getParentFile().getName(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile) };
 
 		// reduce false positives by removing the know titles from the name
-		List<String> titles = new ArrayList<String>();
-		titles.add(getName());
-		titles.add(getYear().toString());
-		titles.addAll(getAliasNames());
-		if (infoObject instanceof Episode) {
-			for (Episode it : getEpisodes()) {
-				titles.add(it.getTitle());
-			}
-		}
-		for (int i = 0; i < titles.size(); i++) {
-			titles.set(i, normalizePunctuation(normalizeSpace(titles.get(i), " ")));
-		}
-
-		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(titles);
+		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(getKeywords());
 		for (int i = 0; i < filenames.length; i++) {
 			if (filenames[i] == null)
 				continue;
@@ -979,6 +967,27 @@ public class MediaBindingBean {
 		}
 
 		return s.toString().trim();
+	}
+
+	private List<String> getKeywords() {
+		List<Object> keys = new ArrayList<Object>();
+		keys.add(getName());
+		keys.add(getYear());
+		keys.addAll(getAliasNames());
+		if (infoObject instanceof Episode) {
+			for (Episode it : getEpisodes()) {
+				keys.add(it.getTitle());
+			}
+		}
+
+		List<String> words = new ArrayList<String>();
+		for (Object it : keys) {
+			String w = normalizePunctuation(normalizeSpace(Objects.toString(it, ""), " "));
+			if (w != null && w.length() > 0) {
+				words.add(w);
+			}
+		}
+		return words;
 	}
 
 	@Override
