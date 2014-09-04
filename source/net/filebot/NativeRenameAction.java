@@ -4,7 +4,6 @@ import static java.util.Collections.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
@@ -20,21 +19,21 @@ public enum NativeRenameAction implements RenameAction {
 	MOVE, COPY;
 
 	@Override
-	public File rename(File src, File dst) throws IOException {
-		dst = resolveDestination(src, dst, false).getCanonicalFile();
+	public File rename(File src, File dst) {
+		dst = resolveDestination(src, dst);
 		rename(singletonMap(src, dst));
 		return dst;
 	}
 
-	public void rename(Map<File, File> map) throws IOException {
+	public void rename(Map<File, File> map) {
 		String[] src = new String[map.size()];
 		String[] dst = new String[map.size()];
 
 		// resolve paths
 		int i = 0;
 		for (Entry<File, File> it : map.entrySet()) {
-			src[i] = it.getKey().getCanonicalPath();
-			dst[i] = resolveDestination(it.getKey(), it.getValue(), false).getCanonicalPath();
+			src[i] = it.getKey().getAbsolutePath();
+			dst[i] = resolveDestination(it.getKey(), it.getValue()).getAbsolutePath();
 			i++;
 		}
 
