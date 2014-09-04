@@ -366,7 +366,7 @@ public class RenamePanel extends JComponent {
 	}
 
 	protected ActionPopup createFetchPopup() {
-		final ActionPopup actionPopup = new ActionPopup("Series / Movie Data", ResourceManager.getIcon("action.fetch"));
+		final ActionPopup actionPopup = new ActionPopup("Fetch & Match Data", ResourceManager.getIcon("action.fetch"));
 
 		actionPopup.addDescription(new JLabel("Episode Mode:"));
 
