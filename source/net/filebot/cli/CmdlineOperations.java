@@ -775,7 +775,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			private final SubtitleNaming naming = getSubtitleNaming(format);
 
 			// get language code suffix for given language (.eng)
-			private final String languageCode = Language.getISO3LanguageCodeByName(getLanguage(languageName).getName());
+			private final String languageCode = Language.getStandardLanguageCode(getLanguage(languageName).getName());
 
 			public boolean matchesLanguageCode(File f) {
 				Locale languageSuffix = MediaDetection.releaseInfo.getLanguageSuffix(FileUtilities.getName(f));

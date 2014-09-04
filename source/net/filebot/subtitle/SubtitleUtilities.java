@@ -314,7 +314,7 @@ public final class SubtitleUtilities {
 		StringBuilder sb = new StringBuilder(name);
 
 		if (languageName != null) {
-			String lang = Language.getISO3LanguageCodeByName(languageName);
+			String lang = Language.getStandardLanguageCode(languageName);
 
 			if (lang == null) {
 				// we probably won't get here, but just in case

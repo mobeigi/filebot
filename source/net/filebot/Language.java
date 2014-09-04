@@ -14,34 +14,38 @@ import java.util.Set;
 public class Language implements Serializable {
 
 	// ISO 639-1 code
-	private final String iso2;
+	private final String iso_639_1;
 
-	// ISO 639-2/T code
-	private final String iso3;
+	// ISO 639-3 code (mostly identical to ISO 639-2/T)
+	private final String iso_639_3;
 
 	// ISO 639-2/B code
-	private final String iso3b;
+	private final String iso_639_2B;
 
 	// Language name
 	private final String name;
 
-	public Language(String iso2, String iso3, String iso3b, String name) {
-		this.iso2 = iso2;
-		this.iso3 = iso3;
-		this.iso3b = iso3b;
+	public Language(String iso_639_1, String iso_639_3, String iso_639_2B, String name) {
+		this.iso_639_1 = iso_639_1;
+		this.iso_639_3 = iso_639_3;
+		this.iso_639_2B = iso_639_2B;
 		this.name = name;
 	}
 
 	public String getCode() {
-		return iso2;
+		return iso_639_1;
 	}
 
 	public String getISO2() {
-		return iso2;
+		return iso_639_1; // 2-letter code
 	}
 
 	public String getISO3() {
-		return iso3;
+		return iso_639_3; // 3-letter code
+	}
+
+	public String getISO3B() {
+		return iso_639_2B; // alternative 3-letter code
 	}
 
 	public String getName() {
@@ -50,7 +54,7 @@ public class Language implements Serializable {
 
 	@Override
 	public String toString() {
-		return iso3;
+		return iso_639_3;
 	}
 
 	public Locale getLocale() {
@@ -58,12 +62,12 @@ public class Language implements Serializable {
 	}
 
 	public boolean matches(String code) {
-		return iso2.equalsIgnoreCase(code) || iso3.equalsIgnoreCase(code) || iso3b.equalsIgnoreCase(code) || name.equalsIgnoreCase(code);
+		return iso_639_1.equalsIgnoreCase(code) || iso_639_3.equalsIgnoreCase(code) || iso_639_2B.equalsIgnoreCase(code) || name.equalsIgnoreCase(code);
 	}
 
 	@Override
 	public Language clone() {
-		return new Language(iso2, iso3, iso3b, name);
+		return new Language(iso_639_1, iso_639_3, iso_639_2B, name);
 	}
 
 	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
@@ -116,9 +120,9 @@ public class Language implements Serializable {
 		return null;
 	}
 
-	public static String getISO3LanguageCodeByName(String languageName) {
+	public static String getStandardLanguageCode(String lang) {
 		try {
-			return Language.findLanguage(languageName).getISO3();
+			return Language.findLanguage(lang).getISO3();
 		} catch (Exception e) {
 			return null;
 		}
