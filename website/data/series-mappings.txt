@@ -17,6 +17,7 @@ TBBT	The Big Bang Theory
 tv..got	Game of Thrones
 tv..poi	Person of Interest
 tv..shield	Marvel's Agents of S.H.I.E.L.D.
+tv..soa	Sons of Anarchy
 TWD	The Walking Dead
 UndG7p	Underemployed
 wsop	World Series of Poker
