@@ -151,7 +151,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
 			float sxe = EpisodeIdentifier.getSimilarity(o1, o2);
-			float title = Title.getSimilarity(o1, o2);
+			float title = sxe < 1 ? Title.getSimilarity(o1, o2) : 1; // if SxE matches then boost score as if it was a title match as well
 
 			// account for misleading SxE patterns in the episode title
 			if (sxe < 0 && title == 1 && EpisodeIdentifier.getSimilarity(getTitle(o1), getTitle(o2)) == 1) {
