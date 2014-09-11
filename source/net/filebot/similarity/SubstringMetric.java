@@ -34,11 +34,11 @@ public class SubstringMetric implements SimilarityMetric {
 		if (index < 0)
 			return false;
 
-		// check before and after and make sure we're only matching between word boundries
-		if (index - 1 >= 0 && !Character.isLetterOrDigit(s1.charAt(index - 1)))
+		// check before and after and make sure we're only matching between word boundaries
+		if (index - 1 >= 0 && Character.isLetterOrDigit(s1.charAt(index - 1)))
 			return false;
 
-		if (index + s2.length() < s1.length() && !Character.isLetterOrDigit(index + s2.length()))
+		if (index + s2.length() < s1.length() && Character.isLetterOrDigit(s1.charAt(index + s2.length())))
 			return false;
 
 		return true;
