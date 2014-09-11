@@ -68,19 +68,16 @@ def getNamePermutations(names) {
 	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
 	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
-	def out = new LinkedHashSet(names*.trim()).toList()
-	def res = out
-	[fn1, fn2, fn3].each{ fn ->
-		res = res.findResults{ fn(it).trim() }
-	}
-	out += res
-	
+	def out = names*.trim().unique().collectMany{ original ->
+        def simplified = original
+        [fn1, fn2, fn3].each{ fn -> simplified = fn(simplified).trim() }
+        return [original, simplified]
+	}.unique().toList()
+    
 	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
-	
-	out = out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
-	out = out.size() <= 4 ? out : out.subList(0, 4)
-	return out
+    
+	return out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
 }
 
 def treeSort(list, keyFunction) {
@@ -292,7 +289,7 @@ thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/
 thetvdb_index = thetvdb_index.sort{ a, b -> a[0] <=> b[0] }
 
 // join and sort
-def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
+def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).take(4).join('\t') }
 
 // sanity check
 if (thetvdb_txt.size() < 4000) { die('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }
@@ -310,7 +307,7 @@ def anidb_index = anidb.findResults{
 	names = getNamePermutations(names)
 	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
 
-	return names.empty ? null : [it.getAnimeId().pad(5)] + names
+	return names.empty ? null : [it.getAnimeId().pad(5)] + names.take(4)
 }
 
 // join and sort
