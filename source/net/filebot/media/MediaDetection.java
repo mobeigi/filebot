@@ -393,14 +393,19 @@ public class MediaDetection {
 				if (matches.isEmpty()) {
 					for (File f : files) {
 						for (File path : listPathTail(f, 2, true)) {
-							String sn = seriesNameMatcher.matchByEpisodeIdentifier(getName(path));
+							String fn = getName(path);
+							// ignore non-strict series name parsing if there are movie year patterns
+							if (!strict && parseMovieYear(fn).size() > 0) {
+								break;
+							}
+							String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
 							if (sn != null && sn.length() > 0) {
 								// try simplification by separator (for name - title naming style)
 								if (!strict) {
-									String snbs = seriesNameMatcher.matchBySeparator(getName(path));
-									if (snbs != null && snbs.length() > 0) {
-										if (snbs.length() < sn.length()) {
-											sn = snbs;
+									String sn2 = seriesNameMatcher.matchBySeparator(fn);
+									if (sn2 != null && sn2.length() > 0) {
+										if (sn2.length() < sn.length()) {
+											sn = sn2;
 										}
 									}
 								}
@@ -756,7 +761,7 @@ public class MediaDetection {
 		for (String it : name.split("\\D+")) {
 			if (it.length() == 4) {
 				int year = Integer.parseInt(it);
-				if (1920 < year && year < 2050) {
+				if (1950 < year && year < 2050) {
 					years.add(year);
 				}
 			}
