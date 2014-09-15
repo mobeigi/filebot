@@ -208,7 +208,7 @@ tvdb_updates.values().each{ update ->
 				if (votes >= 5 && rating >= 4) {
 					tryLogCatch{
 						if (imdbid =~ /tt(\d+)/) {
-							seriesNames += OMDb.getMovieDescriptor(imdbid.match(/tt(\d+)/) as int, Locale.ENGLISH).getName()
+							seriesNames += OMDb.getMovieDescriptor(new Movie(null, 0, imdbid.match(/tt(\d+)/) as int, -1), Locale.ENGLISH).getName()
 						}
 					}
 
