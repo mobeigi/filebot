@@ -104,7 +104,7 @@ public class Movie extends SearchResult {
 
 	@Override
 	public int hashCode() {
-		return year;
+		return tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : year;
 	}
 
 	@Override
