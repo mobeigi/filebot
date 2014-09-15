@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
@@ -554,7 +555,7 @@ public class MediaDetection {
 	}
 
 	public static List<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
-		Set<Movie> options = new LinkedHashSet<Movie>();
+		List<Movie> options = new ArrayList<Movie>();
 
 		// try xattr metadata if enabled
 		Object metaObject = readMetaInfo(movieFile);
@@ -643,12 +644,9 @@ public class MediaDetection {
 			}
 		}
 
-		// add local index matches before online search (and retain additional alias titles available in the local index)
-		options.addAll(movieNameMatches);
-
 		// query by file / folder name
 		if (queryLookupService != null) {
-			Collection<Movie> results = queryMovieByFileName(terms, queryLookupService, locale);
+			List<Movie> results = queryMovieByFileName(terms, queryLookupService, locale);
 
 			// try query without year as it sometimes messes up results if years don't match properly (movie release years vs dvd release year, etc)
 			if (results.isEmpty() && !strict) {
@@ -668,8 +666,12 @@ public class MediaDetection {
 				}
 			}
 
+			// online results have better ranking so add them first
 			options.addAll(results);
 		}
+
+		// consider potential local index matches second
+		options.addAll(movieNameMatches);
 
 		// sort by relevance
 		return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
@@ -732,9 +734,8 @@ public class MediaDetection {
 			}
 		};
 
-		// sort output array
-		List<T> result = new ArrayList<T>(options);
-		sort(result, comparator);
+		// sort by ranking and remvove duplicate entries
+		List<T> result = options.stream().sorted(comparator).distinct().collect(Collectors.toList());
 
 		// DEBUG
 		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
@@ -937,7 +938,7 @@ public class MediaDetection {
 		return new ArrayList<Movie>(movies);
 	}
 
-	private static Collection<Movie> queryMovieByFileName(Collection<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
+	private static List<Movie> queryMovieByFileName(Collection<String> files, MovieIdentificationService queryLookupService, Locale locale) throws Exception {
 		// remove blacklisted terms
 		List<String> querySet = new ArrayList<String>();
 		querySet.addAll(stripReleaseInfo(files, true));
