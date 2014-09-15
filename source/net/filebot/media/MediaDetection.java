@@ -1148,7 +1148,7 @@ public class MediaDetection {
 		List<File> nfoFiles = new ArrayList<File>();
 		if (file.isDirectory()) {
 			nfoFiles.addAll(filter(listFiles(file), NFO_FILES));
-		} else if (file.getParentFile().isDirectory()) {
+		} else if (file.getParentFile() != null && file.getParentFile().isDirectory()) {
 			nfoFiles.addAll(getChildren(file.getParentFile(), NFO_FILES));
 		}
 

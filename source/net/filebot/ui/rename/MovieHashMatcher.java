@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -474,14 +473,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input != null && input.length() > 0) {
-			Collection<Movie> results = new LinkedHashSet<Movie>();
-
-			// data from local index has precedence same as in standard movie detection
-			results.addAll(matchMovieName(singleton(input), false, 0));
-			results.addAll(service.searchMovie(input, locale));
-
-			// improve ranking
-			results = sortBySimilarity(results, singleton(input), getMovieMatchMetric(), false);
+			List<Movie> results = detectMovie(new File(input), null, service, locale, false);
 
 			for (Movie it : results) {
 				matches.add(new Match<File, Movie>(null, it));
