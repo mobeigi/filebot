@@ -475,8 +475,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input != null && input.length() > 0) {
 			Collection<Movie> results = new LinkedHashSet<Movie>();
+
+			// data from local index has precedence same as in standard movie detection
+			results.addAll(matchMovieName(singleton(input), false, 0));
 			results.addAll(service.searchMovie(input, locale));
-			results.addAll(matchMovieName(singleton(input), false, 2));
 
 			// improve ranking
 			results = sortBySimilarity(results, singleton(input), getMovieMatchMetric(), false);

@@ -69,13 +69,13 @@ public class TMDbClient implements MovieIdentificationService {
 		// query by name with year filter if possible
 		Matcher nameYear = Pattern.compile("(.+)\\b(19\\d{2}|20\\d{2})$").matcher(query);
 		if (nameYear.matches()) {
-			return searchMovie(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale);
+			return searchMovie(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale, false);
 		} else {
-			return searchMovie(query, -1, locale);
+			return searchMovie(query, -1, locale, false);
 		}
 	}
 
-	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale) throws IOException {
+	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws IOException {
 		// ignore queries that are too short to yield good results
 		if (movieName.length() < 3 && !(movieName.length() > 1 && movieYear > 0)) {
 			return emptyList();
@@ -118,18 +118,20 @@ public class TMDbClient implements MovieIdentificationService {
 					alternativeTitles.add(originalTitle);
 				}
 
-				try {
-					Set<String> internationalTitles = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-					JSONObject titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
-					for (JSONObject node : jsonList(titles.get("titles"))) {
-						String t = (String) node.get("title");
-						if (t != null && t.length() >= 3) {
-							internationalTitles.add(t);
+				if (extendedInfo) {
+					try {
+						Set<String> internationalTitles = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+						JSONObject titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
+						for (JSONObject node : jsonList(titles.get("titles"))) {
+							String t = (String) node.get("title");
+							if (t != null && t.length() >= 3) {
+								internationalTitles.add(t);
+							}
 						}
+						alternativeTitles.addAll(internationalTitles);
+					} catch (Exception e) {
+						Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Unable to retrieve alternative titles [%s]: %s", title, e.getMessage()));
 					}
-					alternativeTitles.addAll(internationalTitles);
-				} catch (Exception e) {
-					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Unable to retrieve alternative titles [%s]: %s", title, e.getMessage()));
 				}
 
 				// make sure main title is not in the set of alternative titles
@@ -152,17 +154,17 @@ public class TMDbClient implements MovieIdentificationService {
 
 	@Override
 	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
-		return getMovieDescriptor(imdbid, locale, true);
+		return getMovieDescriptor(imdbid, true, locale, true);
 	}
 
-	public Movie getMovieDescriptor(int imdbtmdbid, Locale locale, boolean byIMDB) throws IOException {
+	public Movie getMovieDescriptor(int imdbtmdbid, boolean byIMDB, Locale locale, boolean extendedInfo) throws IOException {
 		if (imdbtmdbid <= 0) {
 			throw new IllegalArgumentException("id must not be " + imdbtmdbid);
 		}
 
 		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
 		try {
-			MovieInfo info = getMovieInfo(id, locale, false);
+			MovieInfo info = getMovieInfo(id, locale, extendedInfo);
 			return new Movie(info.getName(), new String[0], info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
 		} catch (FileNotFoundException e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);

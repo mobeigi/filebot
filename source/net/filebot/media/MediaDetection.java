@@ -643,6 +643,9 @@ public class MediaDetection {
 			}
 		}
 
+		// add local index matches before online search (and retain additional alias titles available in the local index)
+		options.addAll(movieNameMatches);
+
 		// query by file / folder name
 		if (queryLookupService != null) {
 			Collection<Movie> results = queryMovieByFileName(terms, queryLookupService, locale);
@@ -667,9 +670,6 @@ public class MediaDetection {
 
 			options.addAll(results);
 		}
-
-		// add local matching after online search
-		options.addAll(movieNameMatches);
 
 		// sort by relevance
 		return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
