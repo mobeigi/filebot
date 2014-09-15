@@ -64,20 +64,22 @@ def isValidMovieName(s) {
 }
 
 def getNamePermutations(names) {
-	def fn1 = { s -> s.replaceAll(/^(?i)(The|A)\s/, '') }
+	def normalize = { s -> s.toLowerCase().normalizePunctuation() }.memoize()
+	def fn1 = { s -> s.replaceAll(/(?i)(^(The|A)\s)|([,]\s(The|A)$)/, '') }
 	def fn2 = { s -> s.replaceAll(/\s&\s/, ' and ') }
 	def fn3 = { s -> s.replaceAll(/\([^\)]*\)$/, '') }
 
 	def out = names*.trim().unique().collectMany{ original ->
-        def simplified = original
-        [fn1, fn2, fn3].each{ fn -> simplified = fn(simplified).trim() }
-        return [original, simplified]
-	}.unique().toList()
-    
+		def simplified = original
+		[fn1, fn2, fn3].each{ fn -> simplified = fn(simplified).trim() }
+		return [original, simplified]
+	}.unique{ normalize(it) }.findAll{ it.length() > 0 }
+
 	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
-    
-	return out.unique{ it.toLowerCase().normalizePunctuation() }.findAll{ it.length() > 0 }
+	out = out.findAll{ a -> names.take(1).contains(a) || out.findAll{ b -> normalize(a).startsWith(normalize(b) + ' ') }.size() == 0 } // TRY TO EXCLUDE REDUNDANT SUBSTRING DUPLICATES
+
+	return out
 }
 
 def treeSort(list, keyFunction) {
