@@ -153,24 +153,20 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	@Override
-	public Movie getMovieDescriptor(int imdbid, Locale locale) throws IOException {
-		return getMovieDescriptor(imdbid, true, locale, true);
-	}
-
-	public Movie getMovieDescriptor(int imdbtmdbid, boolean byIMDB, Locale locale, boolean extendedInfo) throws IOException {
-		if (imdbtmdbid <= 0) {
-			throw new IllegalArgumentException("id must not be " + imdbtmdbid);
+	public Movie getMovieDescriptor(Movie id, Locale locale) throws IOException {
+		if (id.getImdbId() <= 0 && id.getTmdbId() <= 0) {
+			throw new IllegalArgumentException("id");
 		}
 
-		String id = byIMDB ? String.format("tt%07d", imdbtmdbid) : String.valueOf(imdbtmdbid);
+		String identifier = id.getTmdbId() > 0 ? String.valueOf(id.getTmdbId()) : String.format("tt%07d", id.getImdbId());
 		try {
-			MovieInfo info = getMovieInfo(id, locale, extendedInfo);
+			MovieInfo info = getMovieInfo(identifier, locale, false);
 			return new Movie(info.getName(), new String[0], info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
 		} catch (FileNotFoundException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + id);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + identifier);
 			return null;
 		} catch (NullPointerException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie data missing: " + id);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie data missing: " + identifier);
 			return null;
 		}
 	}

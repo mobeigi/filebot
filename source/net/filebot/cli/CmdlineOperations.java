@@ -448,7 +448,8 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					// select first element if matches are reliable
 					if (options.size() > 0) {
-						movie = (Movie) selectSearchResult(null, options, strict).get(0);
+						// make sure to get the language-specific movie object for the selected option
+						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, strict).get(0), locale);
 					}
 				} catch (Exception e) {
 					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));

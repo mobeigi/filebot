@@ -50,7 +50,7 @@ public class TMDbClientTest {
 
 	@Test
 	public void searchByIMDB() throws Exception {
-		Movie movie = tmdb.getMovieDescriptor(418279, Locale.ENGLISH);
+		Movie movie = tmdb.getMovieDescriptor(new Movie(null, 0, 418279, -1), Locale.ENGLISH);
 
 		assertEquals("Transformers", movie.getName());
 		assertEquals(2007, movie.getYear(), 0);

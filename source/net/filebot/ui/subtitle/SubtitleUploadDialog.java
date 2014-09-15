@@ -693,7 +693,7 @@ public class SubtitleUploadDialog extends JDialog {
 									SeriesInfo seriesInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) entry, Locale.ENGLISH);
 									Integer imdbid = seriesInfo.getImdbId();
 									if (imdbid != null && imdbid > 0) {
-										mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(imdbid, Locale.ENGLISH));
+										mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(null, 0, imdbid, -1), Locale.ENGLISH));
 										break;
 									}
 								}
@@ -702,7 +702,7 @@ public class SubtitleUploadDialog extends JDialog {
 							Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
 							for (Movie it : identity) {
 								if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
-									it = WebServices.TheMovieDB.getMovieDescriptor(it.getTmdbId(), false, Locale.ENGLISH, false);
+									it = WebServices.TheMovieDB.getMovieDescriptor(it, Locale.ENGLISH);
 								}
 								if (it != null && it.getImdbId() > 0) {
 									mapping.setIdentity(it);

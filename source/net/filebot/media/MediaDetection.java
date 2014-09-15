@@ -578,7 +578,7 @@ public class MediaDetection {
 		// lookup by id from nfo file
 		if (queryLookupService != null) {
 			for (int imdbid : grepImdbId(movieFile.getPath())) {
-				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
+				Movie movie = queryLookupService.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -586,7 +586,7 @@ public class MediaDetection {
 
 			// try to grep imdb id from nfo files
 			for (int imdbid : grepImdbIdFor(movieFile)) {
-				Movie movie = queryLookupService.getMovieDescriptor(imdbid, locale);
+				Movie movie = queryLookupService.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -1239,7 +1239,9 @@ public class MediaDetection {
 	}
 
 	public static Movie grepMovie(File nfo, MovieIdentificationService resolver, Locale locale) throws Exception {
-		return resolver.getMovieDescriptor(grepImdbId(new String(readFile(nfo), "UTF-8")).iterator().next(), locale);
+		String contents = new String(readFile(nfo), "UTF-8");
+		int imdbid = grepImdbId(contents).iterator().next();
+		return resolver.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {

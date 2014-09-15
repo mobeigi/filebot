@@ -217,7 +217,8 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 					File movieFile = it.getKey();
 					Movie movie = grabMovieName(movieFile, it.getValue(), strict, locale, autodetect, memory, parent);
 					if (movie != null) {
-						movieByFile.put(movieFile, movie);
+						// make sure to use language-specific movie object
+						movieByFile.put(movieFile, service.getMovieDescriptor(movie, locale));
 					}
 				}
 			}
@@ -474,9 +475,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input != null && input.length() > 0) {
 			List<Movie> results = detectMovie(new File(input), null, service, locale, false);
-
 			for (Movie it : results) {
-				matches.add(new Match<File, Movie>(null, it));
+				// make sure to retrieve language-specific movie descriptor
+				matches.add(new Match<File, Movie>(null, service.getMovieDescriptor(it, locale)));
 			}
 		}
 		return matches;

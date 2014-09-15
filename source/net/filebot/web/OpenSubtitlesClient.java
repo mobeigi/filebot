@@ -396,12 +396,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		if (imdbid <= 0) {
-			throw new IllegalArgumentException("id must not be " + imdbid);
+	public Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
+		if (id.getImdbId() <= 0) {
+			throw new IllegalArgumentException("id must not be " + id.getImdbId());
 		}
 
-		Movie result = getCache().getData("getMovieDescriptor", imdbid, locale, Movie.class);
+		Movie result = getCache().getData("getMovieDescriptor", id.getImdbId(), locale, Movie.class);
 		if (result != null) {
 			return result;
 		}
@@ -409,9 +409,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// require login
 		login();
 
-		Movie movie = xmlrpc.getIMDBMovieDetails(imdbid);
+		Movie movie = xmlrpc.getIMDBMovieDetails(id.getImdbId());
 
-		getCache().putData("getMovieDescriptor", imdbid, locale, movie);
+		getCache().putData("getMovieDescriptor", id.getImdbId(), locale, movie);
 		return movie;
 	}
 

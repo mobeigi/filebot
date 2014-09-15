@@ -99,13 +99,13 @@ public class OMDbClient implements MovieIdentificationService {
 	}
 
 	@Override
-	public Movie getMovieDescriptor(int imdbid, Locale locale) throws Exception {
-		if (imdbid <= 0) {
-			throw new IllegalArgumentException("Illegal ID: " + imdbid);
+	public Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
+		if (id.getImdbId() <= 0) {
+			throw new IllegalArgumentException("Illegal ID: " + id.getImdbId());
 		}
 
 		// request full movie info for given id
-		return getMovie(getMovieInfo(imdbid, null, null, false));
+		return getMovie(getMovieInfo(id.getImdbId(), null, null, false));
 	}
 
 	public Map<String, String> getInfoMap(Object node) {
