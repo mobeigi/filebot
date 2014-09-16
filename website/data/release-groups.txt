@@ -204,6 +204,7 @@ Animebreaker
 AniMecha
 AnimeClipse
 AnimeKai
+animeNOW
 AnimesPLUS
 AnimeYuki
 Anipl0x
