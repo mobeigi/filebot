@@ -154,21 +154,11 @@ public class TMDbClient implements MovieIdentificationService {
 
 	@Override
 	public Movie getMovieDescriptor(Movie id, Locale locale) throws IOException {
-		if (id.getImdbId() <= 0 && id.getTmdbId() <= 0) {
-			throw new IllegalArgumentException("id");
+		if (id.getTmdbId() > 0 || id.getImdbId() > 0) {
+			MovieInfo info = getMovieInfo(id, locale, false);
+			return new Movie(info.getName(), info.getOriginalName() == null || info.getOriginalName().isEmpty() ? new String[0] : new String[] { info.getOriginalName() }, info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
 		}
-
-		String identifier = id.getTmdbId() > 0 ? String.valueOf(id.getTmdbId()) : String.format("tt%07d", id.getImdbId());
-		try {
-			MovieInfo info = getMovieInfo(identifier, locale, false);
-			return new Movie(info.getName(), new String[0], info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
-		} catch (FileNotFoundException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie not found: " + identifier);
-			return null;
-		} catch (NullPointerException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Movie data missing: " + identifier);
-			return null;
-		}
+		return null;
 	}
 
 	@Override
@@ -177,16 +167,20 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws IOException {
-		if (movie.getTmdbId() >= 0) {
-			return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo);
-		} else if (movie.getImdbId() >= 0) {
-			return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo);
-		} else {
-			for (Movie result : searchMovie(movie.getName(), locale)) {
-				if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
-					return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo);
+		try {
+			if (movie.getTmdbId() > 0) {
+				return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo);
+			} else if (movie.getImdbId() > 0) {
+				return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo);
+			} else {
+				for (Movie result : searchMovie(movie.getName(), locale)) {
+					if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
+						return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo);
+					}
 				}
 			}
+		} catch (FileNotFoundException | NullPointerException e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Movie data missing: %s [%d / %d]", movie, movie.getTmdbId(), movie.getImdbId()), e);
 		}
 		return null;
 	}
