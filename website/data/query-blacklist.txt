@@ -278,6 +278,7 @@ H.SBS
 Hard.Subbed
 HAVE.TO.BE.CUT
 HBO
+HBO.Documentaries
 HD
 HDRip
 HebSubs
