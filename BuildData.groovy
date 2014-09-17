@@ -130,7 +130,7 @@ def tmdb_index = csv(tmdb_txt, '\t', 1, [0..-1])
 def tmdb = []
 omdb.each{ m ->
 	def sync = System.currentTimeMillis()
-	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < (180 * 24 * 60 * 60 * 1000L) ) {
+	if (tmdb_index.containsKey(m[0]) && (sync - tmdb_index[m[0]][0].toLong()) < ((m[2].toInteger() < 2000 ? 360 : 120) * 24 * 60 * 60 * 1000L) ) {
 		tmdb << tmdb_index[m[0]]
 		return
 	}
@@ -216,7 +216,7 @@ tvdb_updates.values().each{ update ->
 					seriesNames += org.jsoup.Jsoup.connect("http://thetvdb.com/?tab=series&id=${update.id}").get()
 											.select('#akaseries table tr table tr')
 											.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
-   											.findResults{ it.select('td').first().text() }
+											.findResults{ it.select('td').first().text() }
 				}
 
 				def data = [update.time, update.id, imdbid, rating ?: 0, votes ?: 0] + seriesNames.findAll{ it != null && it.length() > 0 }
