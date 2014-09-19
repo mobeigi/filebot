@@ -176,7 +176,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 
 		// ignore sample files
-		final List<File> fileset = filter(files, not(getClutterFileFilter()));
+		final List<File> fileset = autodetection ? filter(files, not(getClutterFileFilter())) : files;
 
 		// focus on movie and subtitle files
 		final List<File> mediaFiles = filter(fileset, VIDEO_FILES, SUBTITLE_FILES);

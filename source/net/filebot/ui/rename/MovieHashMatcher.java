@@ -70,7 +70,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		}
 
 		// ignore sample files
-		List<File> fileset = filter(files, not(getClutterFileFilter()));
+		List<File> fileset = autodetect ? filter(files, not(getClutterFileFilter())) : files;
 
 		// handle movie files
 		Set<File> movieFiles = new TreeSet<File>(filter(fileset, VIDEO_FILES));
