@@ -155,6 +155,10 @@ public class ScriptShellMethods {
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				File folder = dir.toFile();
 
+				if (folder.isHidden()) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+
 				if (FileUtilities.filter(FileUtilities.getChildren(folder), VIDEO_FILES).size() > 0 || MediaDetection.isDiskFolder(folder)) {
 					mediaFolders.add(folder);
 					return FileVisitResult.SKIP_SUBTREE;
