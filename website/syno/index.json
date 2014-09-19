@@ -14,9 +14,9 @@
 		"qupgrade": true,
 		"qstart": true,
 		"depsers": "ssh",
-		"icon": "http://i.imgur.com/bxHSJp9.png",
+		"icon": "http://packages.filebot.net/syno/spk.icon.png",
 		"snapshot": [
-			"http://i.imgur.com/FozbUS0.png"
+			"http://packages.filebot.net/syno/spk.snapshot.png"
 		],
 		"package": "filebot",
 		"version": "@{version}",
