@@ -331,10 +331,10 @@ public class ScriptShellMethods {
 	}
 
 	public static FolderWatchService watchFolder(File self, Closure<?> callback) throws IOException {
-		return watch(self, false, false, 1000, callback);
+		return watchFolder(self, false, false, 1000, callback);
 	}
 
-	public static FolderWatchService watch(File self, boolean watchTree, boolean commitPerFolder, long commitDelay, final Closure<?> callback) throws IOException {
+	public static FolderWatchService watchFolder(File self, boolean watchTree, boolean commitPerFolder, long commitDelay, final Closure<?> callback) throws IOException {
 		FolderWatchService watchService = new FolderWatchService(watchTree) {
 
 			@Override
