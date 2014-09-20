@@ -156,7 +156,12 @@ public class TMDbClient implements MovieIdentificationService {
 	public Movie getMovieDescriptor(Movie id, Locale locale) throws IOException {
 		if (id.getTmdbId() > 0 || id.getImdbId() > 0) {
 			MovieInfo info = getMovieInfo(id, locale, false);
-			return new Movie(info.getName(), info.getOriginalName() == null || info.getOriginalName().isEmpty() ? new String[0] : new String[] { info.getOriginalName() }, info.getReleased().getYear(), info.getImdbId(), info.getId(), locale);
+			String name = info.getName();
+			String[] aliasNames = info.getOriginalName() == null || info.getOriginalName().isEmpty() ? new String[0] : new String[] { info.getOriginalName() };
+			int year = info.getReleased().getYear();
+			int tmdbid = info.getId();
+			int imdbid = info.getImdbId() != null ? info.getImdbId() : -1;
+			return new Movie(name, aliasNames, year, imdbid, tmdbid, locale);
 		}
 		return null;
 	}
@@ -222,6 +227,15 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal spoken_languages data: " + response);
+		}
+
+		List<String> productionCountries = new ArrayList<String>();
+		try {
+			for (JSONObject it : jsonList(response.get("production_countries"))) {
+				productionCountries.add((String) it.get("name"));
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal production_countries data: " + response);
 		}
 
 		List<String> alternativeTitles = new ArrayList<String>();
@@ -293,7 +307,7 @@ public class TMDbClient implements MovieIdentificationService {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailers data: " + response);
 		}
 
-		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, cast, trailers);
+		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, productionCountries, cast, trailers);
 	}
 
 	public List<Artwork> getArtwork(String id) throws IOException {
@@ -389,6 +403,7 @@ public class TMDbClient implements MovieIdentificationService {
 		protected String[] alternativeTitles;
 		protected String[] genres;
 		protected String[] spokenLanguages;
+		protected String[] productionCountries;
 
 		protected Person[] people;
 		protected Trailer[] trailers;
@@ -397,11 +412,12 @@ public class TMDbClient implements MovieIdentificationService {
 			// used by serializer
 		}
 
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<Person> people, List<Trailer> trailers) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<String> productionCountries, List<Person> people, List<Trailer> trailers) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
 			this.alternativeTitles = alternativeTitles.toArray(new String[0]);
 			this.genres = genres.toArray(new String[0]);
 			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
+			this.productionCountries = productionCountries.toArray(new String[0]);
 			this.people = people.toArray(new Person[0]);
 			this.trailers = trailers.toArray(new Trailer[0]);
 		}
@@ -428,6 +444,10 @@ public class TMDbClient implements MovieIdentificationService {
 			} catch (Exception e) {
 				return null;
 			}
+		}
+
+		public List<String> getProductionCountries() {
+			return unmodifiableList(asList(productionCountries));
 		}
 
 		public String getOriginalName() {
