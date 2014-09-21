@@ -259,7 +259,7 @@ class RenameAction extends AbstractAction {
 		final ProgressDialog dialog = new ProgressDialog(parent, job);
 
 		// configure dialog
-		dialog.setTitle("Moving files...");
+		dialog.setTitle("Processing files...");
 		dialog.setIcon((Icon) getValue(SMALL_ICON));
 
 		// close progress dialog when worker is finished
@@ -271,8 +271,14 @@ class RenameAction extends AbstractAction {
 					int i = job.renameLog.size();
 					int n = job.renameMap.size();
 					dialog.setNote(String.format("%d of %d", i + 1, n));
+
+					// OSX LaF progress bar may not display progress bar text in indeterminate mode
+					if (isMacApp()) {
+						dialog.setTitle("Processing files... " + String.format("%d of %d", i + 1, n));
+					}
+
 					if (newValue instanceof File) {
-						dialog.setWindowTitle("Moving " + ((File) oldValue).getName());
+						dialog.setWindowTitle("Processing " + ((File) oldValue).getName());
 					}
 				}
 			}
