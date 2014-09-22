@@ -36,7 +36,7 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 		try {
 			return WebRequest.getDocument(get());
 		} catch (Exception e) {
-			throw new IOException("Error while loading XML resource: " + e.getMessage(), e);
+			throw new IOException("Error while loading XML resource: " + getResourceLocation(resource));
 		}
 	}
 
@@ -52,7 +52,7 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 		try {
 			reader.parse(new InputSource(new StringReader(data)));
 		} catch (SAXException e) {
-			throw new IOException("Malformed XML: " + getResourceLocation(resource), e);
+			throw new IOException("Malformed XML: " + getResourceLocation(resource));
 		}
 
 		return data;

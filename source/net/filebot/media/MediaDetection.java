@@ -310,14 +310,14 @@ public class MediaDetection {
 				names.add(it.getName());
 			}
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e.getMessage(), e);
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e);
 		}
 
 		// try to detect series name via known patterns
 		try {
 			names.addAll(matchSeriesByDirectMapping(files));
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e.getMessage(), e);
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e);
 		}
 
 		// strict series name matcher for recognizing 1x01 patterns
@@ -377,7 +377,7 @@ public class MediaDetection {
 				names.addAll(matches);
 			}
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e.getMessage(), e);
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match folder structure: " + e);
 		}
 
 		// match common word sequence and clean detected word sequence from unwanted elements
@@ -425,7 +425,7 @@ public class MediaDetection {
 			priorityMatchSet.addAll(stripReleaseInfo(matches, false));
 			matches = stripBlacklistedTerms(priorityMatchSet);
 		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e.getMessage(), e);
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to clean matches: " + e);
 		}
 		names.addAll(matches);
 
@@ -460,7 +460,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e.getMessage(), e);
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load series index: " + e);
 
 					// rely on online search
 					return emptyList();
@@ -482,7 +482,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load anime index: " + e.getMessage(), e);
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load anime index: " + e);
 
 					// rely on online search
 					return emptyList();
@@ -858,7 +858,7 @@ public class MediaDetection {
 					}
 				} catch (Exception e) {
 					// can't load movie index, just try again next time
-					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e.getMessage(), e);
+					Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Failed to load movie index: " + e);
 
 					// if we can't use internal index we can only rely on online search
 					return emptyList();
