@@ -298,7 +298,7 @@ public class Main {
 	 * Show update notifications if updates are available
 	 */
 	private static void checkUpdate() throws Exception {
-		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, CachedResource.ONE_DAY, 0, 0) {
+		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, CachedResource.ONE_WEEK, 0, 0) {
 
 			@Override
 			public Properties process(ByteBuffer data) {
