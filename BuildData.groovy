@@ -108,7 +108,7 @@ def csv(f, delim, keyIndex, valueIndex) {
 def omdb = []
 new File('omdb.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
-	if (line.length > 11 && line[0] ==~ /\d+/) {
+	if (line.length > 11 && line[0] ==~ /\d+/ && line[3] ==~ /\d{4}/) {
 		def imdbid = line[1].substring(2).toInteger()
 		def name = line[2].replaceAll(/\s+/, ' ').trim()
 		def year = line[3].toInteger()
