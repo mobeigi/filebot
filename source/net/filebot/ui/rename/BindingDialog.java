@@ -270,7 +270,7 @@ class BindingDialog extends JDialog {
 		}
 	};
 
-	protected final Action mediaInfoAction = new AbstractAction("Info", ResourceManager.getIcon("action.properties")) {
+	protected final Action mediaInfoAction = new AbstractAction("Open MediaInfo", ResourceManager.getIcon("action.properties")) {
 
 		private Map<StreamKind, List<Map<String, String>>> getMediaInfo(File file) {
 			try {

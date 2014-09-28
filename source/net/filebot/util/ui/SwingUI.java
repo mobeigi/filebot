@@ -87,6 +87,7 @@ public final class SwingUI {
 	public static JButton createImageButton(Action action) {
 		JButton button = new JButton(action);
 		button.setHideActionText(true);
+		button.setToolTipText(String.valueOf(action.getValue(Action.NAME)));
 		button.setOpaque(false);
 
 		return button;

@@ -160,7 +160,7 @@ public class RenamePanel extends JComponent {
 		new ScrollPaneSynchronizer(namesList, filesList);
 
 		// delete items from both lists
-		Action removeAction = new AbstractAction("Remove", ResourceManager.getIcon("dialog.cancel")) {
+		Action removeAction = new AbstractAction("Exclude Selected Items", ResourceManager.getIcon("dialog.cancel")) {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -546,7 +546,7 @@ public class RenamePanel extends JComponent {
 		}
 	}
 
-	protected final Action clearFilesAction = new AbstractAction("Clear", ResourceManager.getIcon("action.clear")) {
+	protected final Action clearFilesAction = new AbstractAction("Clear All", ResourceManager.getIcon("action.clear")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

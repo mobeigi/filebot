@@ -246,7 +246,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	}
 
-	protected final Action setUserAction = new AbstractAction("Set User", ResourceManager.getIcon("action.user")) {
+	protected final Action setUserAction = new AbstractAction("Login", ResourceManager.getIcon("action.user")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

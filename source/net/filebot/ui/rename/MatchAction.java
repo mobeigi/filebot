@@ -39,7 +39,6 @@ class MatchAction extends AbstractAction {
 
 	public void setMatchMode(boolean strict) {
 		putValue(NAME, "Match");
-		putValue(SHORT_DESCRIPTION, "Match files and names");
 		putValue(SMALL_ICON, ResourceManager.getIcon(strict ? "action.match.strict" : "action.match"));
 	}
 
