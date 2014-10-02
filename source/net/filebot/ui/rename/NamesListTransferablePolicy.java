@@ -75,7 +75,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine().trim();
 			if (line.length() > 0) {
-				values.add(line);
+				values.add(normalizePathSeparators(line));
 			}
 		}
 
