@@ -155,7 +155,7 @@ public class ScriptShellMethods {
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				File folder = dir.toFile();
 
-				if (folder.isHidden()) {
+				if (folder.isHidden() || !folder.canRead()) {
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 
