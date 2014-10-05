@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.2</name>
-	<revision>2326</revision>
+	<name>FileBot 4.5</name>
+	<revision>2592</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.2</b><br>
+		<b>FileBot 4.5</b><br>
 		This release features:<br>
-		+ Improved series / movie detection<br>
-		+ Various scripting enhancements<br>
-		+ Fixed various regression issues<br>
+		+ Opportunistic / Strict mode matching<br>
+		+ Improved episode / movie / music auto-detection<br>
+		+ Improved support for non-English language preferences<br>
+		+ Lots of optimizations<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=1812]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=2034]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
