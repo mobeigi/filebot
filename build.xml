@@ -734,6 +734,7 @@
 				<include name="*.js" />
 				<include name="*.png" />
 				<include name="*.ico" />
+				<include name="*.txt" />
 				<include name=".htaccess" />
 				<include name="syno/**" />
 				<!-- <include name="images/**" /> -->

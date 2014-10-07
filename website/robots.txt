@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /forums/ucp.php
+Disallow: /forums/mcp.php
+Disallow: /forums/member
+Disallow: /forums/memberlist.php
+Disallow: /forums/faq.php
+
+User-agent: TurnitinBot
+Disallow: /
