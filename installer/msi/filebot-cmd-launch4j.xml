@@ -4,12 +4,12 @@
   <headerType>console</headerType>
   <jar>FileBot.jar</jar>
   <outfile>filebot.exe</outfile>
-  <errTitle></errTitle>
+  <errTitle>Launch4j</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
-  <downloadUrl>http://www.oracle.com/technetwork/java/javase/overview/index.html</downloadUrl>
-  <supportUrl>http://www.filebot.net/forums/</supportUrl>
+  <downloadUrl>http://www.oracle.com/technetwork/java/javase/downloads/index.html</downloadUrl>
+  <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>..\icons\shortcut.ico</icon>
