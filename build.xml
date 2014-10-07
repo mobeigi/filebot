@@ -374,24 +374,24 @@
 		<property name="jre.version" value="jdk-8u20" />
 
 		<tar destfile="${path.ubuntu-binary.tar.gz}" compression="gzip" longfile="gnu">
-			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 
-			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
+			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
 			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
-			<tarfileset prefix="i386/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="i686/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 
-			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="fpcalc" filemode="755" />
 
 			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
 			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i386/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
-			<tarfileset prefix="i386/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
+			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
 		</tar>
@@ -402,18 +402,21 @@
 	</target>
 
 
-	<target name="deb" description="Build debian package for i386 and amd64">
+	<target name="deb" description="Build debian package for i686 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
 		<antcall target="deb-arch">
-			<param name="arch" value="i386" /><!-- arch i686 not allowed by deb -->
+			<param name="arch" value="i686" />
+			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
+			<param name="deb.arch" value="i386" />
 		</antcall>
 		<antcall target="deb-arch">
 			<param name="arch" value="amd64" />
+			<param name="deb.arch" value="amd64" />
 		</antcall>
 	</target>
 
 	<target name="deb-arch">
-		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
+		<deb todir="${dir.dist}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -431,9 +434,12 @@
 
 		<antcall target="ipkg-arch">
 			<param name="arch" value="arm" />
+			<param name="deb.arch" value="arm" />
 		</antcall>
 		<antcall target="ipkg-arch">
-			<param name="arch" value="i386" />
+			<param name="arch" value="i686" />
+			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
+			<param name="deb.arch" value="i386" />
 		</antcall>
 	</target>
 
