@@ -374,24 +374,24 @@
 		<property name="jre.version" value="jdk-8u20" />
 
 		<tar destfile="${path.ubuntu-binary.tar.gz}" compression="gzip" longfile="gnu">
-			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="i386/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
 
-			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
+			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="*.so" />
 			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
-			<tarfileset prefix="i686/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="i386/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 
-			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="i386/opt/filebot" dir="${dir.lib}/native/linux-i386" includes="fpcalc" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="fpcalc" filemode="755" />
 
 			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
 			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
 			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="i386/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
+			<tarfileset prefix="i386/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
 			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
 		</tar>
@@ -402,10 +402,10 @@
 	</target>
 
 
-	<target name="deb" description="Build debian package for i686 and amd64">
+	<target name="deb" description="Build debian package for i386 and amd64">
 		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
 		<antcall target="deb-arch">
-			<param name="arch" value="i686" />
+			<param name="arch" value="i386" /><!-- arch i686 not allowed by deb -->
 		</antcall>
 		<antcall target="deb-arch">
 			<param name="arch" value="amd64" />
@@ -433,7 +433,7 @@
 			<param name="arch" value="arm" />
 		</antcall>
 		<antcall target="ipkg-arch">
-			<param name="arch" value="i686" />
+			<param name="arch" value="i386" />
 		</antcall>
 	</target>
 
@@ -563,7 +563,7 @@
 			<param name="arch" value="win32-x64" />
 		</antcall>
 		<antcall target="webstart-nativelib">
-			<param name="arch" value="linux-i686" />
+			<param name="arch" value="linux-i386" />
 		</antcall>
 		<antcall target="webstart-nativelib">
 			<param name="arch" value="linux-amd64" />
