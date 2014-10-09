@@ -1,4 +1,3 @@
-//TODO MOVE package net.filebot to net.filebot
 package net.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
@@ -284,8 +283,8 @@ public class Main {
 		});
 
 		// window settings
-		if (Settings.isMacApp()) {
-			MacAppUtilities.setUIDefaults();
+		if (isMacApp()) {
+			MacAppUtilities.initializeApplication();
 			MacAppUtilities.setWindowCanFullScreen(frame);
 		}
 		frame.setLocationByPlatform(true);

@@ -642,8 +642,7 @@
 		<!-- compile -->
 		<javac srcdir="${dir.source}:${dir.test}" destdir="${dir.build}" target="1.8" source="1.8" encoding="utf-8" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
 			<classpath>
-				<fileset dir="${dir.lib}" includes="*.jar" />
-				<pathelement location="${dir.lib}/build/junit.jar" />
+				<fileset dir="${dir.lib}" includes="**/*.jar" />
 			</classpath>
 		</javac>
 

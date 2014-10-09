@@ -30,6 +30,7 @@
 	<classpathentry kind="lib" path="lib/xmlrpc.jar"/>
 	<classpathentry kind="lib" path="lib/xz.jar"/>
 	<classpathentry kind="lib" path="lib/ObjCBridge.jar"/>
+	<classpathentry kind="lib" path="lib/build/AppleJavaExtensions.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
