@@ -170,15 +170,6 @@ public class Main {
 
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
-				// commit session history on shutdown
-				Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						HistorySpooler.getInstance().commit();
-					}
-				}));
-
 				// default cross-platform laf used in scripting to nimbus instead of metal (if possible)
 				if (args.script != null && !isHeadless()) {
 					try {
@@ -272,6 +263,8 @@ public class Main {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				e.getWindow().setVisible(false);
+
+				// make sure any long running operations are done now and not later on the shutdownhook thread
 				HistorySpooler.getInstance().commit();
 
 				if (!isAppStore()) {

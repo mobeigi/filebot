@@ -28,6 +28,17 @@ public final class HistorySpooler {
 		return instance;
 	}
 
+	// commit session history on shutdown
+	static {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				HistorySpooler.getInstance().commit();
+			}
+		});
+	}
+
 	private File persistentHistoryFile = new File(getApplicationFolder(), "history.xml");
 	private int persistentHistoryTotalSize = -1;
 	private boolean persistentHistoryEnabled = true;

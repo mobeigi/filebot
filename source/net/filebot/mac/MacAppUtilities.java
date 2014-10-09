@@ -1,19 +1,14 @@
 package net.filebot.mac;
 
-import java.awt.EventQueue;
 import java.awt.Window;
-import java.awt.event.WindowEvent;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
 import ca.weblite.objc.Client;
-
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
 
 public class MacAppUtilities {
 
@@ -40,7 +35,9 @@ public class MacAppUtilities {
 
 	public static void setWindowCanFullScreen(Window window) {
 		try {
-			com.apple.eawt.FullScreenUtilities.setWindowCanFullScreen(window, true);
+			Class<?> fullScreenUtilities = Class.forName("com.apple.eawt.FullScreenUtilities");
+			Method setWindowCanFullScreen = fullScreenUtilities.getMethod("setWindowCanFullScreen", new Class<?>[] { Window.class, boolean.class });
+			setWindowCanFullScreen.invoke(null, window, true);
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setWindowCanFullScreen not supported: " + t);
 		}
@@ -48,7 +45,10 @@ public class MacAppUtilities {
 
 	public static void requestForeground() {
 		try {
-			com.apple.eawt.Application.getApplication().requestForeground(true);
+			Class<?> application = Class.forName("com.apple.eawt.Application");
+			Object instance = application.getMethod("getApplication").invoke(null);
+			Method requestForeground = application.getMethod("requestForeground", new Class<?>[] { boolean.class });
+			requestForeground.invoke(instance, true);
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "requestForeground not supported: " + t);
 		}
@@ -56,7 +56,9 @@ public class MacAppUtilities {
 
 	public static void revealInFinder(File file) {
 		try {
-			com.apple.eio.FileManager.revealInFinder(file);
+			Class<?> fileManager = Class.forName("com.apple.eio.FileManager");
+			Method revealInFinder = fileManager.getMethod("revealInFinder", new Class<?>[] { File.class });
+			revealInFinder.invoke(null, file);
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "revealInFinder not supported: " + t);
 		}
@@ -67,21 +69,16 @@ public class MacAppUtilities {
 		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
 
 		// make sure Application Quit Events get forwarded to normal Window Listeners
-		Application.getApplication().addApplicationListener(new ApplicationAdapter() {
-
-			@Override
-			public void handleQuit(ApplicationEvent evt) {
-				for (Window window : Window.getOwnerlessWindows()) {
-					// close all windows
-					window.setVisible(false);
-
-					// call window listeners
-					EventQueue.invokeLater(() -> {
-						window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
-					});
-				}
-			}
-		});
+		try {
+			Class<?> application = Class.forName("com.apple.eawt.Application");
+			Object instance = application.getMethod("getApplication").invoke(null);
+			Class<?> quitStrategy = Class.forName("com.apple.eawt.QuitStrategy");
+			Method setQuitStrategy = application.getMethod("setQuitStrategy", quitStrategy);
+			Object closeAllWindows = quitStrategy.getField("CLOSE_ALL_WINDOWS").get(null);
+			setQuitStrategy.invoke(instance, closeAllWindows);
+		} catch (Throwable t) {
+			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setQuitStrategy not supported: " + t);
+		}
 	}
 
 	public static boolean isLockedFolder(File folder) {
