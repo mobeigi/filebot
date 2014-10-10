@@ -306,12 +306,12 @@
 		<!-- fix code signing and submission issues -->
 		<delete verbose="true" followsymlinks="false" removenotfollowedsymlinks="true">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns" includes="**/libjfxmedia.dylib" />
-			<fileset file="${dir.dist}/FileBot.app/Contents/Info.plist" />
-			<fileset file="${dir.dist}/FileBot.app/Contents/MacOS/libjli.dylib" followsymlinks="false" />
 		</delete>
-		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" verbose="true" />
+		<delete verbose="true" file="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" followsymlinks="false" removenotfollowedsymlinks="true" />
+
 		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
 		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" verbose="true" overwrite="yes" />
+		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" verbose="true" />
 
 		<!-- fix permissions -->
 		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
