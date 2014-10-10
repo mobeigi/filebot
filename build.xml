@@ -306,8 +306,8 @@
 		<!-- fix code signing and submission issues -->
 		<delete verbose="true">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns" includes="**/libjfxmedia.dylib" />
-			<fileset dir="${dir.dist}/FileBot.app/Contents" includes="Info.plist" />
-			<fileset dir="${dir.dist}/FileBot.app/Contents/MacOS" includes="libjli.dylib" />
+			<fileset file="${dir.dist}/FileBot.app/Contents/Info.plist" />
+			<fileset file="${dir.dist}/FileBot.app/Contents/MacOS/libjli.dylib" followsymlinks="false" />
 		</delete>
 		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" verbose="true" />
 		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
