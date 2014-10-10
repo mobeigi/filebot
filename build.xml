@@ -305,6 +305,7 @@
 
 		<!-- fix code signing and submission issues -->
 		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
+		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" verbose="true" overwrite="yes" />
 		<delete verbose="true">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns" includes="**/libjfxmedia.dylib" />
 		</delete>
