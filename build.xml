@@ -443,8 +443,7 @@
 		</antcall>
 		<antcall target="ipkg-arch">
 			<param name="arch" value="i686" />
-			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
-			<param name="deb.arch" value="i386" />
+			<param name="deb.arch" value="i686" />
 		</antcall>
 	</target>
 
