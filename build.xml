@@ -304,7 +304,7 @@
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
-		<delete verbose="true">
+		<delete verbose="true" followsymlinks="false" removenotfollowedsymlinks="true">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns" includes="**/libjfxmedia.dylib" />
 			<fileset file="${dir.dist}/FileBot.app/Contents/Info.plist" />
 			<fileset file="${dir.dist}/FileBot.app/Contents/MacOS/libjli.dylib" followsymlinks="false" />
