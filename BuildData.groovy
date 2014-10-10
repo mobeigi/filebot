@@ -77,7 +77,7 @@ def getNamePermutations(names) {
 
 	out = out.findAll{ it.length() >= 2 && !(it ==~ /[1][0-9][1-9]/) && !(it =~ /^[a-z]/) && it =~ /^[@.\p{L}\p{Digit}]/ } // MUST START WITH UNICODE LETTER
 	out = out.findAll{ !MediaDetection.releaseInfo.structureRootPattern.matcher(it).matches() } // IGNORE NAMES THAT OVERLAP WITH MEDIA FOLDER NAMES
-	out = out.findAll{ a -> names.take(1).contains(a) || out.findAll{ b -> normalize(a).startsWith(normalize(b) + ' ') }.size() == 0 } // TRY TO EXCLUDE REDUNDANT SUBSTRING DUPLICATES
+	// out = out.findAll{ a -> names.take(1).contains(a) || out.findAll{ b -> normalize(a).startsWith(normalize(b) + ' ') }.size() == 0 } // TRY TO EXCLUDE REDUNDANT SUBSTRING DUPLICATES
 
 	return out
 }
