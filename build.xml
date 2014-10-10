@@ -304,12 +304,14 @@
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
-		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
-		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" verbose="true" overwrite="yes" />
 		<delete verbose="true">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns" includes="**/libjfxmedia.dylib" />
+			<fileset dir="${dir.dist}/FileBot.app/Contents" includes="Info.plist" />
+			<fileset dir="${dir.dist}/FileBot.app/Contents/MacOS" includes="libjli.dylib" />
 		</delete>
 		<chmod dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" verbose="true" />
+		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" verbose="true" overwrite="yes" />
+		<copy file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" verbose="true" overwrite="yes" />
 
 		<!-- fix permissions -->
 		<chmod verbose="true" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
