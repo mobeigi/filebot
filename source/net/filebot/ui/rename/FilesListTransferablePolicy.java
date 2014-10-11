@@ -3,7 +3,6 @@ package net.filebot.ui.rename;
 import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.ui.NotificationLogging.*;
-import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.awt.datatransfer.Transferable;
@@ -40,19 +39,16 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
-		if (action == TransferAction.LINK) {
-			// special handling for do-not-resolve-folders-drop
+		if (action == TransferAction.LINK || action == TransferAction.PUT) {
 			clear();
-			load(getFilesFromTransferable(tr), false);
-		} else {
-			// load files recursively by default
-			super.handleTransferable(tr, action);
 		}
+
+		super.handleTransferable(tr, action);
 	}
 
 	@Override
-	protected void load(List<File> files) {
-		load(files, true);
+	protected void load(List<File> files, TransferAction action) {
+		load(files, action != TransferAction.LINK);
 	}
 
 	protected void load(List<File> files, boolean recursive) {
@@ -111,7 +107,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	protected void process(List<File> chunks) {
-		model.addAll(FastFile.create(chunks));
+		model.addAll(chunks);
 	}
 
 	@Override

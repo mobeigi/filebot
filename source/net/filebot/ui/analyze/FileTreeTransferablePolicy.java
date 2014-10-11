@@ -52,7 +52,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 	}
 
 	@Override
-	protected void load(List<File> files) {
+	protected void load(List<File> files, TransferAction action) {
 		try {
 			if (files.size() > 1 || containsOnly(files, FILES)) {
 				files = Arrays.asList(files.get(0).getParentFile());

@@ -61,7 +61,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			model.addAll(Arrays.asList((Episode[]) tr.getTransferData((episodeArrayFlavor))));
 		} else if (hasFileListFlavor(tr)) {
 			// file transferable
-			load(getFilesFromTransferable(tr));
+			load(getFilesFromTransferable(tr), action);
 		} else if (tr.isDataFlavorSupported(stringFlavor)) {
 			// string transferable
 			load((String) tr.getTransferData(stringFlavor));
@@ -83,7 +83,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 	}
 
 	@Override
-	protected void load(List<File> files) throws IOException {
+	protected void load(List<File> files, TransferAction action) throws IOException {
 		List<Object> values = new ArrayList<Object>();
 
 		if (containsOnly(files, LIST_FILES)) {

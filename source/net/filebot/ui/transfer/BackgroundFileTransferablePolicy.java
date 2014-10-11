@@ -29,14 +29,11 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			clear();
 		}
 
-		prepare(files);
-
-		// create and start worker
-		new BackgroundWorker(files).execute();
+		handleInBackground(files, action);
 	}
 
-	protected void prepare(List<File> files) {
-
+	protected void handleInBackground(List<File> files, TransferAction action) {
+		new BackgroundWorker(files, action).execute();
 	}
 
 	@Override
@@ -91,9 +88,11 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 	protected class BackgroundWorker extends SwingWorker<Object, V> {
 
 		private final List<File> files;
+		private final TransferAction action;
 
-		public BackgroundWorker(List<File> files) {
+		public BackgroundWorker(List<File> files, TransferAction action) {
 			this.files = files;
+			this.action = action;
 
 			// register this worker
 			synchronized (workers) {
@@ -109,7 +108,7 @@ public abstract class BackgroundFileTransferablePolicy<V> extends FileTransferab
 			threadLocalWorker.set(this);
 
 			try {
-				load(files);
+				load(files, action);
 			} finally {
 				threadLocalWorker.remove();
 			}

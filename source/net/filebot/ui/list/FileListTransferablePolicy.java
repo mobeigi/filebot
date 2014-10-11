@@ -33,7 +33,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 	}
 
 	@Override
-	protected void load(List<File> files) throws IOException {
+	protected void load(List<File> files, TransferAction action) throws IOException {
 		// set title based on parent folder of first file
 		list.setTitle(FileUtilities.getFolderName(files.get(0).getParentFile()));
 

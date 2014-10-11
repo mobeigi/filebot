@@ -37,12 +37,12 @@ public abstract class FileTransferablePolicy extends TransferablePolicy {
 			clear();
 		}
 
-		load(files);
+		load(files, action);
 	}
 
 	protected abstract boolean accept(List<File> files);
 
-	protected abstract void load(List<File> files) throws IOException;
+	protected abstract void load(List<File> files, TransferAction action) throws IOException;
 
 	protected abstract void clear();
 

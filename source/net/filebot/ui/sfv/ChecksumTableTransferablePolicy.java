@@ -46,10 +46,11 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	}
 
 	@Override
-	protected void prepare(List<File> files) {
+	protected void handleInBackground(List<File> files, TransferAction action) {
 		if (files.size() == 1 && getHashType(files.get(0)) != null) {
 			model.setHashType(getHashType(files.get(0)));
 		}
+		super.handleInBackground(files, action);
 	}
 
 	@Override
@@ -66,7 +67,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	private final ThreadLocal<VerificationTracker> verificationTracker = new ThreadLocal<VerificationTracker>();
 
 	@Override
-	protected void load(List<File> files) throws IOException {
+	protected void load(List<File> files, TransferAction action) throws IOException {
 		// initialize drop parameters
 		executor.set(computationService.newExecutor());
 		verificationTracker.set(new VerificationTracker(3));

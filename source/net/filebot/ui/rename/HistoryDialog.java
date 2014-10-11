@@ -614,7 +614,7 @@ class HistoryDialog extends JDialog {
 		}
 
 		@Override
-		protected void load(List<File> files) throws IOException {
+		protected void load(List<File> files, TransferAction action) throws IOException {
 			History history = getModel();
 
 			try {
