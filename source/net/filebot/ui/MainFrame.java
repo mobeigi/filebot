@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
@@ -20,8 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,7 +37,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.filebot.Analytics;
-import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
 import net.filebot.mac.MacAppUtilities;
@@ -67,13 +63,6 @@ public class MainFrame extends JFrame {
 
 	public MainFrame() {
 		super(Settings.getApplicationName());
-
-		// set taskbar / taskswitch icons
-		List<Image> images = new ArrayList<Image>(3);
-		for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
-			images.add(ResourceManager.getImage(i));
-		}
-		setIconImages(images);
 
 		try {
 			// restore selected panel
