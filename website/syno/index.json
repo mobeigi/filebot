@@ -1,7 +1,7 @@
 /**
- * Just add http://packages.filebot.net/syno/ in Package Sources ;)
+ * Just add https://packages.filebot.net/syno/ in Package Sources ;)
  *
- * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: http://packages.filebot.net/syno/ -> OK
+ * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: https://packages.filebot.net/syno/ -> OK
  */
 [
 	{
