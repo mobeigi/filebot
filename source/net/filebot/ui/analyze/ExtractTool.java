@@ -10,11 +10,13 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 
@@ -32,6 +34,7 @@ import javax.swing.table.TableModel;
 import net.filebot.ResourceManager;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
+import net.filebot.cli.ConflictAction;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.GradientStyle;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -40,6 +43,7 @@ import net.filebot.util.ui.ProgressDialog.Cancellable;
 import net.filebot.util.ui.SwingWorkerPropertyChangeAdapter;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.vfs.FileInfo;
+import net.filebot.vfs.SimpleFileInfo;
 import net.miginfocom.swing.MigLayout;
 
 class ExtractTool extends Tool<TableModel> {
@@ -116,7 +120,7 @@ class ExtractTool extends Tool<TableModel> {
 			if (selectedFile == null)
 				return;
 
-			final ExtractJob job = new ExtractJob(archives, selectedFile);
+			final ExtractJob job = new ExtractJob(archives, selectedFile, null, true, ConflictAction.AUTO);
 			final ProgressDialog dialog = new ProgressDialog(getWindow(evt.getSource()), job);
 			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 			dialog.setTitle("Extracting files...");
@@ -222,30 +226,78 @@ class ExtractTool extends Tool<TableModel> {
 	protected static class ExtractJob extends SwingWorker<Void, Void> implements Cancellable {
 
 		private final File[] archives;
-		private final File outputRoot;
+		private final File outputFolder;
 
-		public ExtractJob(Collection<File> archives, File outputRoot) {
+		private final FileFilter filter;
+		private final boolean forceExtractAll;
+		private final ConflictAction conflictAction;
+
+		public ExtractJob(Collection<File> archives, File outputFolder, FileFilter filter, boolean forceExtractAll, ConflictAction conflictAction) {
 			this.archives = archives.toArray(new File[archives.size()]);
-			this.outputRoot = outputRoot;
+			this.outputFolder = outputFolder;
+			this.filter = filter;
+			this.forceExtractAll = forceExtractAll;
+			this.conflictAction = conflictAction;
 		}
 
 		@Override
 		protected Void doInBackground() throws Exception {
-			for (File it : archives) {
+			for (File file : archives) {
 				try {
 					// update progress dialog
-					firePropertyChange("currentFile", null, it);
+					firePropertyChange("currentFile", null, file);
 
-					Archive archive = new Archive(it);
+					Archive archive = new Archive(file);
 					try {
-						File outputFolder = (outputRoot != null) ? outputRoot : new File(it.getParentFile(), getNameWithoutExtension(it.getName()));
-						FileMapper outputMapper = new FileMapper(outputFolder, false);
-						archive.extract(outputMapper);
+						final FileMapper outputMapper = new FileMapper(outputFolder, false);
+
+						final List<FileInfo> outputMapping = new ArrayList<FileInfo>();
+						for (FileInfo it : archive.listFiles()) {
+							File outputPath = outputMapper.getOutputFile(it.toFile());
+							outputMapping.add(new SimpleFileInfo(outputPath.getPath(), it.getLength()));
+						}
+
+						final Set<FileInfo> selection = new TreeSet<FileInfo>();
+						for (FileInfo future : outputMapping) {
+							if (filter == null || filter.accept(future.toFile())) {
+								selection.add(future);
+							}
+						}
+
+						// check if there is anything to extract at all
+						if (selection.isEmpty()) {
+							continue;
+						}
+
+						boolean skip = true;
+						for (FileInfo future : filter == null || forceExtractAll ? outputMapping : selection) {
+							if (conflictAction == ConflictAction.AUTO) {
+								skip &= (future.toFile().exists() && future.getLength() == future.toFile().length());
+							} else {
+								skip &= (future.toFile().exists());
+							}
+						}
+
+						if (!skip || conflictAction == ConflictAction.OVERRIDE) {
+							if (filter == null || forceExtractAll) {
+								// extract all files
+								archive.extract(outputMapper);
+							} else {
+								// extract files selected by the given filter
+								archive.extract(outputMapper, new FileFilter() {
+
+									@Override
+									public boolean accept(File entry) {
+										return selection.contains(outputMapper.getOutputFile(entry));
+									}
+								});
+							}
+						}
 					} finally {
 						archive.close();
 					}
 				} catch (Exception e) {
-					UILogger.log(Level.WARNING, "Failed to extract archive: " + it.getName(), e);
+					UILogger.log(Level.WARNING, "Failed to extract archive: " + file.getName(), e);
 				}
 
 				if (isCancelled()) {
