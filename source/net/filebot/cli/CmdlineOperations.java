@@ -1117,7 +1117,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	@Override
 	public String getMediaInfo(File file, String expression) throws Exception {
 		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
-		return format.format(new MediaBindingBean(file, file, null));
+		return format.format(new MediaBindingBean(readMetaInfo(file), file, null));
 	}
 
 	@Override
