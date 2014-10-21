@@ -439,8 +439,8 @@ public class ReleaseInfo {
 		@Override
 		public boolean accept(File dir) {
 			if (dir.isDirectory()) {
-				for (String entry : dir.list()) {
-					if (entryPattern.matcher(entry).matches()) {
+				for (File f : getChildren(dir)) {
+					if (entryPattern.matcher(f.getName()).matches()) {
 						return true;
 					}
 				}
