@@ -430,7 +430,7 @@
 			<tarfileset prefix="usr/share/filebot/bin" file="${dir.installer}/deb/filebot.sh" filemode="755" />
 			<tarfileset prefix="usr/share/applications" file="${dir.installer}/deb/FileBot.desktop" />
 		</deb>
-		<move tofile="${dir.dist}/filebot_${version}_${arch}.deb" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
+		<move tofile="${dir.dist}/filebot_${version}_${deb.arch}.deb" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
 		<delete dir="${deb.staging}" />
 	</target>
 
@@ -461,7 +461,7 @@
 			<tarfileset prefix="opt/share/filebot" file="${dir.lib}/native/linux-${arch}/fpcalc" filemode="755" />
 			<tarfileset prefix="opt/share/filebot/bin" file="${dir.installer}/ipkg/filebot.sh" filemode="755" />
 		</deb>
-		<move tofile="${dir.dist}/filebot_${version}_${arch}.ipk" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
+		<move tofile="${dir.dist}/filebot_${version}_${deb.arch}.ipk" file="${staging.file.deb}" overwrite="no" failonerror="yes" />
 		<delete dir="${ipkg.staging}" />
 	</target>
 
