@@ -37,15 +37,15 @@ class RenameList<E> extends FileBotList<E> {
 		list.setFixedCellHeight(28);
 		list.getModel().addListDataListener(new ListDataListener() {
 
-			private int longestItem = -1;
+			private int longestItemLength = -1;
 
 			@Override
 			public void intervalRemoved(ListDataEvent evt) {
 				// reset prototype value
 				ListModel<?> m = (ListModel<?>) evt.getSource();
 				if (m.getSize() == 0) {
+					longestItemLength = -1;
 					list.setPrototypeCellValue(null);
-					longestItem = -1;
 				}
 			}
 
@@ -60,9 +60,14 @@ class RenameList<E> extends FileBotList<E> {
 				for (int i = evt.getIndex0(); i <= evt.getIndex1() && i < m.getSize(); i++) {
 					Object item = m.getElementAt(i);
 					int itemLength = item.toString().length();
-					if (itemLength > longestItem) {
+					if (itemLength > longestItemLength) {
+						// cell values will not be updated if the prototype object remains the same (even if the object has changed) so we need to reset it
+						if (item == list.getPrototypeCellValue()) {
+							list.setPrototypeCellValue("");
+						}
+
+						longestItemLength = itemLength;
 						list.setPrototypeCellValue(item);
-						longestItem = itemLength;
 					}
 				}
 			}
