@@ -154,7 +154,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected boolean handleDrop(List<File> input) {
 			if (getQueryLanguage() == null) {
-				UILogger.info("Please select a specific subtitle language.");
+				UILogger.info("Please select your preferred subtitle language.");
 				return false;
 			}
 

@@ -2,6 +2,7 @@ package net.filebot.ui.subtitle;
 
 import static javax.swing.BorderFactory.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Settings.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -59,6 +60,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.Analytics;
 import net.filebot.ResourceManager;
+import net.filebot.mac.DropToUnlock;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.SimilarityMetric;
@@ -265,6 +267,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 			}
 
 			final SubtitleMappingTableModel mappingModel = (SubtitleMappingTableModel) subtitleMappingTable.getModel();
+
+			// make sure we have access to the parent folder structure, not just the dropped file
+			if (isMacSandbox()) {
+				DropToUnlock.showUnlockFoldersDialog(getWindow(evt.getSource()), mappingModel.getVideoFiles());
+			}
 
 			// collect the subtitles that will be fetched
 			List<DownloadTask> downloadQueue = new ArrayList<DownloadTask>();
