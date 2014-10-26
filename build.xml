@@ -261,7 +261,7 @@
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
-		<property name="jre.version" value="jdk1.8.0_20.jdk" />
+		<property name="jre.version" value="jdk1.8.0_25.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
 		<bundleapp minimumsystemversion="10.8" executablename="FileBotAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2014 Reinhard Pointner" applicationcategory="public.app-category.productivity">
