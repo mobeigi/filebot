@@ -722,7 +722,7 @@ public class MediaBindingBean {
 
 	@Define("home")
 	public File getUserHome() throws IOException {
-		return new File(System.getProperty("user.home"));
+		return Settings.getRealUserHome();
 	}
 
 	@Define("now")

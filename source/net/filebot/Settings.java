@@ -136,6 +136,19 @@ public final class Settings {
 		return cacheFolder;
 	}
 
+	public static File getRealUserHome() {
+		if (isMacSandbox()) {
+			// when running sandboxed applications user.home may point to the application-specific container
+			String username = System.getProperty("user.name");
+			if (username != null && username.length() > 0) {
+				return new File("/Users", username);
+			}
+		}
+
+		// default home
+		return new File(System.getProperty("user.home"));
+	}
+
 	public static Settings forPackage(Class<?> type) {
 		return new Settings(Preferences.userNodeForPackage(type));
 	}
