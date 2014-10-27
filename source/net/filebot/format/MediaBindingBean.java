@@ -730,6 +730,11 @@ public class MediaBindingBean {
 		return new Date();
 	}
 
+	@Define("output")
+	public File getUserDefinedOutputFolder() throws IOException {
+		return new File(Settings.getApplicationArguments().output).getCanonicalFile();
+	}
+
 	@Define("defines")
 	public Map<String, String> getUserDefinedArguments() throws IOException {
 		return Settings.getApplicationArguments().defines;
