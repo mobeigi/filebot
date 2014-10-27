@@ -415,27 +415,6 @@ div.screencast:hover .play {
 	top: -57px;
 }
 
-.adsense {
-	box-shadow: 0 2px 3px #A2A2A2;
-}
-
-.adsense.sidead.first {
-	position: absolute;
-	right: 7px;
-	top: 42px;
-}
-
-.adsense.sidead.second {
-	position: absolute;
-	left: 7px;
-	top: 2400px;
-}
-
-.adsense.adbox {
-	width: 300px;
-	margin: 25px auto;
-}
-
 .message.box {
 	background-color: #F5F5F5;
 	border-radius: 4px;
