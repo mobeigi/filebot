@@ -74,6 +74,7 @@ import net.filebot.web.MovieFormat;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MusicIdentificationService;
+import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SortOrder;
 import net.filebot.web.SubtitleDescriptor;
@@ -720,7 +721,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		// lookup subtitles by hash
 		for (VideoHashSubtitleService service : getVideoHashSubtitleServices()) {
-			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches()) || !requireLogin(service)) {
 				continue;
 			}
 
@@ -736,7 +737,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		for (SubtitleProvider service : getSubtitleProviders()) {
-			if (strict || remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches())) {
+			if (strict || remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches()) || !requireLogin(service)) {
 				continue;
 			}
 
@@ -764,6 +765,16 @@ public class CmdlineOperations implements CmdlineInterface {
 			Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
 		}
 		return subtitleFiles;
+	}
+
+	private static boolean requireLogin(Object service) {
+		if (service instanceof OpenSubtitlesClient) {
+			OpenSubtitlesClient osdb = (OpenSubtitlesClient) service;
+			if (osdb.isAnonymous()) {
+				throw new CmdlineException(String.format("%s: Please enter your login details by calling `filebot -script fn:osdb.login`", osdb.getName()));
+			}
+		}
+		return true; // no login => logged in by default
 	}
 
 	@Override
