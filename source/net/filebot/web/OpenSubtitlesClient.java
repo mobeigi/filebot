@@ -91,25 +91,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public List<SearchResult> search(String query) throws Exception {
-		List<SearchResult> result = getCache().getSearchResult("search", query, null);
-		if (result != null) {
-			return result;
-		}
-
-		// require login
-		login();
-
-		try {
-			// search for movies / series
-			List<Movie> resultSet = xmlrpc.searchMoviesOnIMDB(query);
-			result = asList(resultSet.toArray(new SearchResult[0]));
-		} catch (ClassCastException e) {
-			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
-			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
-		}
-
-		getCache().putSearchResult("search", query, null, result);
-		return result;
+		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not supported due to abuse");
 	}
 
 	@Override
@@ -378,41 +360,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
-		List<SearchResult> result = getCache().getSearchResult("searchMovie", query, locale);
-		if (result != null) {
-			return (List) result;
-		}
-
-		// require login
-		login();
-
-		List<Movie> movies = xmlrpc.searchMoviesOnIMDB(query);
-
-		getCache().putSearchResult("searchMovie", query, locale, movies);
-		return movies;
+		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not supported due to abuse");
 	}
 
 	@Override
 	public Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
-		if (id.getImdbId() <= 0) {
-			throw new IllegalArgumentException("id must not be " + id.getImdbId());
-		}
-
-		Movie result = getCache().getData("getMovieDescriptor", id.getImdbId(), locale, Movie.class);
-		if (result != null) {
-			return result;
-		}
-
-		// require login
-		login();
-
-		Movie movie = xmlrpc.getIMDBMovieDetails(id.getImdbId());
-
-		getCache().putData("getMovieDescriptor", id.getImdbId(), locale, movie);
-		return movie;
+		throw new UnsupportedOperationException("GetIMDBMovieDetails is not supported due to abuse");
 	}
 
 	public Movie getMovieDescriptor(File movieFile, Locale locale) throws Exception {

@@ -166,7 +166,10 @@ public abstract class AbstractSearchPanel<S, E> extends JComponent {
 				return;
 			}
 
-			search(createRequestProcessor());
+			RequestProcessor<?, E> request = createRequestProcessor();
+			if (request != null) {
+				search(request);
+			}
 		}
 	};
 

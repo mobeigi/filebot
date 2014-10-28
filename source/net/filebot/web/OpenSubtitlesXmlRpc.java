@@ -146,6 +146,26 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated
+	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
+		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
+
+		try {
+			Map<String, String> data = (Map<String, String>) response.get("data");
+
+			String name = data.get("title");
+			int year = Integer.parseInt(data.get("year"));
+
+			return new Movie(name, year, imdbid, -1);
+		} catch (RuntimeException e) {
+			// ignore, invalid response
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
+		}
+
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
 	public TryUploadResponse tryUploadSubtitles(SubFile... subtitles) throws XmlRpcFault {
 		Map<String, SubFile> struct = new HashMap<String, SubFile>();
 
@@ -263,26 +283,6 @@ public class OpenSubtitlesXmlRpc {
 
 	public Map<String, String> getSubLanguages() throws XmlRpcFault {
 		return getSubLanguages("en");
-	}
-
-	@SuppressWarnings("unchecked")
-	@Deprecated
-	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
-		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
-
-		try {
-			Map<String, String> data = (Map<String, String>) response.get("data");
-
-			String name = data.get("title");
-			int year = Integer.parseInt(data.get("year"));
-
-			return new Movie(name, year, imdbid, -1);
-		} catch (RuntimeException e) {
-			// ignore, invalid response
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Failed to lookup movie by imdbid %s: %s", imdbid, e.getMessage()));
-		}
-
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")

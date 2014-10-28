@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 
 import net.filebot.ResourceManager;
+import net.filebot.Settings;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
@@ -68,6 +69,8 @@ abstract class SubtitleDropTarget extends JButton {
 	protected void setDropAction(DropAction dropAction) {
 		setIcon(getIcon(dropAction));
 	}
+
+	protected abstract OpenSubtitlesClient getSubtitleService();
 
 	protected abstract boolean handleDrop(List<File> files);
 
@@ -158,6 +161,11 @@ abstract class SubtitleDropTarget extends JButton {
 				return false;
 			}
 
+			if (getSubtitleService().isAnonymous() && !Settings.isAppStore()) {
+				UILogger.info(String.format("%s: Please enter your login details first.", getSubtitleService().getName()));
+				return false;
+			}
+
 			// perform a drop action depending on the given files
 			final Collection<File> videoFiles = new TreeSet<File>();
 
@@ -221,8 +229,6 @@ abstract class SubtitleDropTarget extends JButton {
 
 	public static abstract class Upload extends SubtitleDropTarget {
 
-		public abstract OpenSubtitlesClient getSubtitleService();
-
 		@Override
 		protected DropAction getDropAction(List<File> input) {
 			// accept video files and folders
@@ -232,7 +238,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected boolean handleDrop(List<File> input) {
 			if (getSubtitleService().isAnonymous()) {
-				UILogger.info("Please login. Anonymous user is not allowed to upload subtitles.");
+				UILogger.info(String.format("%s: Please enter your login details first.", getSubtitleService().getName()));
 				return false;
 			}
 

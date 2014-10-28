@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import net.filebot.Language;
@@ -109,6 +110,10 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			return WebServices.getSubtitleProviders();
 		}
 
+		public OpenSubtitlesClient getSubtitleService() {
+			return WebServices.OpenSubtitles;
+		};
+
 		@Override
 		public String getQueryLanguage() {
 			// use currently selected language for drop target
@@ -164,6 +169,15 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
 		String text = searchTextField.getText().trim();
 		Language language = languageComboBox.getModel().getSelectedItem();
+
+		if (provider instanceof OpenSubtitlesClient && ((OpenSubtitlesClient) provider).isAnonymous() && !Settings.isAppStore()) {
+			UILogger.info(String.format("%s: Please enter your login details first.", ((OpenSubtitlesClient) provider).getName()));
+
+			// automatically open login dialog
+			SwingUtilities.invokeLater(() -> setUserAction.actionPerformed(new ActionEvent(searchTextField, 0, "login")));
+
+			return null;
+		}
 
 		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
 	}
