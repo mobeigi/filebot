@@ -290,7 +290,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 					try {
 						if (osdbUser.getText().length() > 0 && osdbPass.getPassword().length > 0) {
-							OpenSubtitlesClient osdb = new OpenSubtitlesClient(String.format("%s %s", getApplicationName(), getApplicationVersion()));
+							OpenSubtitlesClient osdb = new OpenSubtitlesClient(String.format("%s v%s", getApplicationName(), getApplicationVersion()));
 							osdb.setUser(osdbUser.getText(), new String(osdbPass.getPassword()));
 							osdb.login();
 						}

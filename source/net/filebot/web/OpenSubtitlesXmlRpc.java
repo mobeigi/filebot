@@ -112,6 +112,7 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated
 	public List<Movie> searchMoviesOnIMDB(String query) throws XmlRpcFault {
 		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 
@@ -265,6 +266,7 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Deprecated
 	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
 		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
 

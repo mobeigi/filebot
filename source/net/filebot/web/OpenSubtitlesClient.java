@@ -55,7 +55,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	private String password = "";
 
 	public OpenSubtitlesClient(String useragent) {
-		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetry(useragent, 2, 3000);
+		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetryAndFloodLimit(useragent, 2, 3000);
 	}
 
 	public synchronized void setUser(String username, String password) {
@@ -674,15 +674,16 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 			return null;
 		}
-
 	}
 
-	protected static class OpenSubtitlesXmlRpcWithRetry extends OpenSubtitlesXmlRpc {
+	protected static class OpenSubtitlesXmlRpcWithRetryAndFloodLimit extends OpenSubtitlesXmlRpc {
+
+		private final Object lock = new Object();
 
 		private int retryCountLimit;
 		private long retryWaitTime;
 
-		public OpenSubtitlesXmlRpcWithRetry(String useragent, int retryCountLimit, long retryWaitTime) {
+		public OpenSubtitlesXmlRpcWithRetryAndFloodLimit(String useragent, int retryCountLimit, long retryWaitTime) {
 			super(useragent);
 			this.retryCountLimit = retryCountLimit;
 			this.retryWaitTime = retryWaitTime;
@@ -695,7 +696,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 					if (i > 0) {
 						Thread.sleep(retryWaitTime);
 					}
-					return super.invoke(method, arguments);
+
+					// only allow 1 single concurrent connection at any time (to reduce abuse)
+					synchronized (lock) {
+						return super.invoke(method, arguments);
+					}
 				} catch (XmlRpcException e) {
 					IOException ioException = ExceptionUtilities.findCause(e, IOException.class);
 					if (ioException == null || i >= 0 && i >= retryCountLimit) {
