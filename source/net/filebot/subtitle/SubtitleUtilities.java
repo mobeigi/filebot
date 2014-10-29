@@ -181,7 +181,7 @@ public final class SubtitleUtilities {
 		// search for and automatically select movie / show entry
 		Set<SearchResult> resultSet = new HashSet<SearchResult>();
 		for (String query : querySet) {
-			resultSet.addAll(findProbableSearchResults(query, service.search(query)));
+			resultSet.addAll(findProbableSearchResults(query, service.search(query), querySet.size() == 1 ? 4 : 2));
 		}
 
 		// fetch subtitles for all search results
@@ -192,7 +192,7 @@ public final class SubtitleUtilities {
 		return subtitles;
 	}
 
-	protected static Collection<SearchResult> findProbableSearchResults(String query, Iterable<? extends SearchResult> searchResults) {
+	protected static Collection<SearchResult> findProbableSearchResults(String query, Iterable<? extends SearchResult> searchResults, int limit) {
 		// auto-select most probable search result
 		Set<SearchResult> probableMatches = new LinkedHashSet<SearchResult>();
 
@@ -201,8 +201,10 @@ public final class SubtitleUtilities {
 
 		// find probable matches using name similarity > threshold
 		for (SearchResult result : searchResults) {
-			if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f || result.getName().toLowerCase().startsWith(query.toLowerCase())) {
-				probableMatches.add(result);
+			if (probableMatches.size() <= limit) {
+				if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f || result.getName().toLowerCase().startsWith(query.toLowerCase())) {
+					probableMatches.add(result);
+				}
 			}
 		}
 

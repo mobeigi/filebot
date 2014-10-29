@@ -164,7 +164,7 @@ public class SubtitleUploadDialog extends JDialog {
 					File video = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
 					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(FileUtilities.getName(video)), String.format("%s/%s", video.getParentFile().getName(), video.getName()), SubtitleUploadDialog.this);
 					if (input != null && input.length() > 0) {
-						List<Movie> options = database.searchMovie(input, Locale.ENGLISH);
+						List<Movie> options = database.searchIMDB(input);
 						if (options.size() > 0) {
 							SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
 							dialog.setLocation(getOffsetLocation(dialog.getOwner()));

@@ -54,8 +54,8 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	private String username = "";
 	private String password = "";
 
-	public OpenSubtitlesClient(String useragent) {
-		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetryAndFloodLimit(useragent, 2, 3000);
+	public OpenSubtitlesClient(String name, String version) {
+		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetryAndFloodLimit(String.format("%s v%s", name, version), 2, 3000);
 	}
 
 	public synchronized void setUser(String username, String password) {
@@ -90,12 +90,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public List<SearchResult> search(String query) throws Exception {
-		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not supported due to abuse");
+	public synchronized List<SearchResult> search(String query) throws Exception {
+		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not allowed due to abuse");
 	}
 
 	@Override
-	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
+	public synchronized List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
 		List<SubtitleDescriptor> subtitles = getCache().getSubtitleDescriptorList(searchResult, languageName);
 		if (subtitles != null) {
 			return subtitles;
@@ -142,7 +142,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	// max numbers of queries to submit in a single XML-RPC request, but currently only batchSize == 1 is supported
 	private final int batchSize = 1;
 
-	public Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
+	public synchronized Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 
@@ -205,7 +205,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return resultMap;
 	}
 
-	public Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, String languageName) throws Exception {
+	public synchronized Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
 		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
 
@@ -362,12 +362,50 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
-		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not supported due to abuse");
+		throw new UnsupportedOperationException();
+	}
+
+	public synchronized List<Movie> searchIMDB(String query) throws Exception {
+		// search for movies and series
+		List<SearchResult> result = getCache().getSearchResult("search", query, null);
+		if (result != null) {
+			return (List) result;
+		}
+
+		// require login
+		login();
+
+		try {
+			// search for movies / series
+			List<Movie> resultSet = xmlrpc.searchMoviesOnIMDB(query);
+			result = asList(resultSet.toArray(new SearchResult[0]));
+		} catch (ClassCastException e) {
+			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
+			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
+		}
+
+		getCache().putSearchResult("search", query, null, result);
+		return (List) result;
 	}
 
 	@Override
-	public Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
-		throw new UnsupportedOperationException("GetIMDBMovieDetails is not supported due to abuse");
+	public synchronized Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
+		if (id.getImdbId() <= 0) {
+			throw new IllegalArgumentException("id must not be " + id.getImdbId());
+		}
+
+		Movie result = getCache().getData("getMovieDescriptor", id.getImdbId(), locale, Movie.class);
+		if (result != null) {
+			return result;
+		}
+
+		// require login
+		login();
+
+		Movie movie = xmlrpc.getIMDBMovieDetails(id.getImdbId());
+
+		getCache().putData("getMovieDescriptor", id.getImdbId(), locale, movie);
+		return movie;
 	}
 
 	public Movie getMovieDescriptor(File movieFile, Locale locale) throws Exception {
@@ -375,7 +413,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
+	public synchronized Map<File, Movie> getMovieDescriptors(Collection<File> movieFiles, Locale locale) throws Exception {
 		// create result array
 		Map<File, Movie> result = new HashMap<File, Movie>();
 
