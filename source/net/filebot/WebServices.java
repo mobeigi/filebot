@@ -258,16 +258,24 @@ public final class WebServices {
 
 		@Override
 		public synchronized List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
-			return super.getSubtitleList(getIMDbID(searchResult), languageName);
+			Movie id = getIMDbID(searchResult);
+			if (id != null) {
+				return super.getSubtitleList(getIMDbID(searchResult), languageName);
+			}
+			return emptyList();
 		}
 
 		@Override
 		public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
 			try {
-				return super.getSubtitleListLink(getIMDbID(searchResult), languageName);
+				Movie id = getIMDbID(searchResult);
+				if (id != null) {
+					return super.getSubtitleListLink(id, languageName);
+				}
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				Logger.getLogger(WebServices.class.getName()).log(Level.WARNING, e.getMessage());
 			}
+			return null;
 		}
 
 		public Movie getIMDbID(SearchResult result) throws Exception {
@@ -280,9 +288,15 @@ public final class WebServices {
 			}
 			if (result instanceof Movie) {
 				Movie m = (Movie) result;
-				return m.getImdbId() > 0 ? m : movieIndex.getMovieDescriptor(m, Locale.ENGLISH);
+				if (m.getImdbId() > 0)
+					return m;
+
+				// fetch extended movie info
+				m = movieIndex.getMovieDescriptor(m, Locale.ENGLISH);
+				if (m.getImdbId() > 0)
+					return m;
 			}
-			throw new IllegalArgumentException(String.format("'%s' not found", result));
+			return null;
 		}
 	}
 
