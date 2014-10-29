@@ -100,6 +100,10 @@ public class ScriptShellMethods {
 		return DefaultGroovyMethods.find(FileUtilities.getChildren(self), closure) != null;
 	}
 
+	public static List<File> listTree(File self, int maxDepth) {
+		return FileUtilities.listFiles(singleton(self), maxDepth, false, true, true);
+	}
+
 	public static List<File> getFiles(File self) {
 		return getFiles(self, null);
 	}
