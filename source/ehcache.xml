@@ -23,7 +23,7 @@
 	-->
 	<cache name="web-datasource"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="20000"
+		maxElementsOnDisk="80000"
 		eternal="false"
 		timeToIdleSeconds="172800"
 		timeToLiveSeconds="172800"
@@ -37,7 +37,7 @@
 	-->
 	<cache name="web-datasource-lv2"
 		maxElementsInMemory="200"
-		maxElementsOnDisk="20000"
+		maxElementsOnDisk="80000"
 		eternal="false"
 		timeToIdleSeconds="1209600"
 		timeToLiveSeconds="1209600"
@@ -64,8 +64,8 @@
 	Very long-lived cache (4 months) anime/series lists, movie index, etc
 	-->
 	<cache name="web-persistent-datasource"
-		maxElementsInMemory="50"
-		maxElementsOnDisk="20000"
+		maxElementsInMemory="100"
+		maxElementsOnDisk="80000"
 		eternal="false"
 		timeToIdleSeconds="10512000"
 		timeToLiveSeconds="10512000"
@@ -78,7 +78,7 @@
 	Simple memory cache for calculated checksums. Time to live is 2 hours.
 	-->
 	<cache name="checksum"
-		maxElementsInMemory="5000"
+		maxElementsInMemory="50000"
 		eternal="false"
 		timeToIdleSeconds="7200"
 		timeToLiveSeconds="7200"
