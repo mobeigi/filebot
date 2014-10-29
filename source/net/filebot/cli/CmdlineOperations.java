@@ -771,7 +771,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (service instanceof OpenSubtitlesClient) {
 			OpenSubtitlesClient osdb = (OpenSubtitlesClient) service;
 			if (osdb.isAnonymous()) {
-				throw new CmdlineException(String.format("%s: Please enter your login details by calling `filebot -script fn:osdb.login`", osdb.getName()));
+				throw new CmdlineException(String.format("%s: Please enter your login details by calling `filebot -script fn:configure`", osdb.getName()));
 			}
 		}
 		return true; // no login => logged in by default

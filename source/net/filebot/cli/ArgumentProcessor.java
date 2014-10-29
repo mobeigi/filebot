@@ -55,6 +55,11 @@ public class ArgumentProcessor {
 
 			// execute CLI operations
 			if (args.script == null) {
+				// sanity checks
+				if (args.recursive && (args.getSubtitles || args.getMissingSubtitles)) {
+					throw new CmdlineException("-get-subtitles -r has been disabled due to abuse");
+				}
+
 				// file operations
 				Collection<File> files = new LinkedHashSet<File>(args.getFiles(true));
 
