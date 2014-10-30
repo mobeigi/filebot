@@ -372,29 +372,32 @@
 
 	<target name="ppa-binary" depends="svn-update, fatjar">
 		<property name="jre.dir" value="${basedir}/jre" />
-		<property name="jre.version" value="jdk-8u20" />
+		<property name="jre.version" value="jdk-8u25" />
 
 		<tar destfile="${path.ubuntu-binary.tar.gz}" compression="gzip" longfile="gnu">
-			<tarfileset fullpath="i686/opt/filebot/FileBot.jar" file="${path.fatjar}" />
-			<tarfileset fullpath="x86_64/opt/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="i386/filebot/FileBot.jar" file="${path.fatjar}" />
+			<tarfileset fullpath="amd64/filebot/FileBot.jar" file="${path.fatjar}" />
 
-			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
-			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
+			<tarfileset prefix="i386/filebot" dir="${dir.lib}/native/linux-i686" includes="*.so" />
+			<tarfileset prefix="amd64/filebot" dir="${dir.lib}/native/linux-amd64" includes="*.so" />
 
-			<tarfileset prefix="i686/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
-			<tarfileset prefix="x86_64/opt/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="i386/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
+			<tarfileset prefix="amd64/filebot/bin" file="${dir.installer}/ubuntu/filebot.sh" filemode="755" />
 
-			<tarfileset prefix="i686/opt/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
-			<tarfileset prefix="x86_64/opt/filebot" dir="${dir.lib}/native/linux-amd64" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="i386/filebot" dir="${dir.lib}/native/linux-i686" includes="fpcalc" filemode="755" />
+			<tarfileset prefix="amd64/filebot" dir="${dir.lib}/native/linux-amd64" includes="fpcalc" filemode="755" />
 
-			<tarfileset fullpath="filebot.desktop" file="${dir.installer}/ubuntu/FileBot.desktop" />
-			<tarfileset fullpath="filebot.svg" file="${dir.installer}/icons/icon.svg" />
+			<tarfileset fullpath="i386/filebot/filebot.desktop" file="${dir.installer}/ubuntu/filebot.desktop" />
+			<tarfileset fullpath="amd64/filebot/filebot.desktop" file="${dir.installer}/ubuntu/filebot.desktop" />
+
+			<tarfileset fullpath="i386/filebot/filebot.svg" file="${dir.installer}/icons/icon.svg" />
+			<tarfileset fullpath="amd64/filebot/filebot.svg" file="${dir.installer}/icons/icon.svg" />
 
 			<!-- Include Java 8 JRE -->
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
-			<tarfileset prefix="i686/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
-			<tarfileset prefix="x86_64/opt/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="i386/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" excludes="bin/**" />
+			<tarfileset prefix="i386/filebot/jre" dir="${jre.dir}/${jre.version}-linux-i586/jre" includes="bin/java" filemode="755" />
+			<tarfileset prefix="amd64/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" excludes="bin/**" />
+			<tarfileset prefix="amd64/filebot/jre" dir="${jre.dir}/${jre.version}-linux-x64/jre" includes="bin/java" filemode="755" />
 		</tar>
 
 		<!-- store this build in releases -->
