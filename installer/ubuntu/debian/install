@@ -1,0 +1,3 @@
+filebot/* opt/filebot
+filebot.desktop usr/share/applications
+filebot.svg usr/share/icons
