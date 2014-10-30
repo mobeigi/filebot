@@ -1,6 +1,6 @@
 Source: filebot
 Section: utils
-Priority: optional
+Priority: extra
 Maintainer: Reinhard Pointner <rednoah@users.sourceforge.net>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
