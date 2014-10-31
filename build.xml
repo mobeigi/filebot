@@ -423,7 +423,7 @@
 		<!-- stage created .deb files in a temporary folder -->
 		<property name="deb.staging" location="${dir.dist}/deb" />
 		<mkdir dir="${deb.staging}" />
-		<deb debfilenameproperty="staging.file.deb" todir="${deb.staging}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerem.sh">
+		<deb debfilenameproperty="staging.file.deb" todir="${deb.staging}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/deb/postinst.sh" prerm="${dir.installer}/deb/prerm.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="usr/share/filebot/FileBot.jar" file="${path.fatjar}" />
@@ -456,7 +456,7 @@
 		<!-- stage created .deb files in a temporary folder -->
 		<property name="ipkg.staging" location="${dir.dist}/deb-ipkg" />
 		<mkdir dir="${ipkg.staging}" />
-		<deb debfilenameproperty="staging.file.deb" todir="${ipkg.staging}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerem.sh">
+		<deb debfilenameproperty="staging.file.deb" todir="${ipkg.staging}" package="filebot" version="${version}" architecture="${deb.arch}" section="misc" homepage="http://www.filebot.net" priority="optional" postinst="${dir.installer}/ipkg/postinst.sh" prerm="${dir.installer}/ipkg/prerm.sh">
 			<maintainer name="Reinhard Pointner" email="rednoah@users.sourceforge.net" />
 			<description synopsis="The ultimate TV and Movie Renamer">FileBot is the ultimate tool for renaming your movies, tv shows or anime and even downloading subtitles. It's smart, streamlined for simplicity and just works. Putting the super-efficient UI aside, it's also got a full-featured command-line interface and scripting engine for all sorts of automation. Anything is possible.</description>
 			<tarfileset fullpath="opt/share/filebot/FileBot.jar" file="${path.fatjar}" />
