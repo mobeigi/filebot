@@ -117,7 +117,7 @@ new File('omdb.txt').eachLine('Windows-1252'){
 		def rating = tryQuietly{ line[12].toFloat() } ?: 0
 		def votes = tryQuietly{ line[13].replaceAll(/\D/, '').toInteger() } ?: 0
 		
-		if (!(genres =~ /Short/) && ((year >= 1970 && (runtime =~ /(\d.h)|(\d{3}.min)/ || votes >= 500) && rating >= 1 && votes >= 50) || (year >= 1950 && votes >= 5000))) {
+		if (!(genres =~ /Short/ || votes <= 100 || rating <= 2) && ((year >= 1970 && (runtime =~ /(\d.h)|(\d{3}.min)/ || votes >= 5000)) || (year >= 1950 && votes >= 20000))) {
 			omdb << [imdbid.pad(7), name, year]
 		}
 	}
@@ -135,9 +135,12 @@ omdb.each{ m ->
 		tmdb << tmdb_index[m[0]]
 		return
 	}
-	
 	try {
 		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true)
+
+		if (info.votes <= 1 || info.rating <= 2)
+			throw new FileNotFoundException('Insufficient movie data')
+
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
 			def row = [sync, m[0].pad(7), info.id.pad(7), y.pad(4)] + names
