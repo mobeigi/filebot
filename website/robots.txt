@@ -7,3 +7,6 @@ Disallow: /forums/faq.php
 
 User-agent: TurnitinBot
 Disallow: /
+
+User-agent: Yandex
+Disallow: /

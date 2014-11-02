@@ -5,15 +5,14 @@ redirect 301 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&b
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on
 
-RewriteCond %{HTTP_HOST} =filebot.sourceforge.net [NC]
-RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]
-
-RewriteCond %{HTTP_USER_AGENT} !filebot [NC]
 RewriteCond %{HTTP_HOST} =filebot.net [NC]
 RewriteRule ^scripts\/(.*)$ https://github.com/filebot/scripts/blob/devel/$1 [R=301,L]
 
 RewriteCond %{HTTP_HOST} =filebot.net [NC]
-RewriteRule ^(.*)$ http://www.filebot.net/$1 [R=301,L]
+RewriteRule ^(.*)$ https://www.filebot.net/$1 [R=301,L]
+
+RewriteCond %{HTTP_HOST} =filebot.sourceforge.net [NC]
+RewriteRule ^(.*)$ https://www.filebot.net/$1 [R=301,L]
 
 
 # compress text, html, javascript, css, xml
