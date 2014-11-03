@@ -6,6 +6,7 @@ import static javax.swing.BorderFactory.*;
 import static net.filebot.Settings.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -62,6 +63,7 @@ import javax.swing.text.BadLocationException;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
+import net.filebot.UserFiles;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -198,7 +200,8 @@ public class FormatDialog extends JDialog {
 
 		content.add(editorScrollPane, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
 		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
-		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-27 n");
+		content.add(createImageButton(selectFolderAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-(27*1) n");
+		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-(27*2) n");
 
 		content.add(help, "growx, wrap 25px:push");
 
@@ -657,7 +660,37 @@ public class FormatDialog extends JDialog {
 		}
 	};
 
-	protected final Action showRecentAction = new AbstractAction("Recent", ResourceManager.getIcon("action.expand")) {
+	protected final Action selectFolderAction = new AbstractAction("Change Folder", ResourceManager.getIcon("action.folder")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			String relativeFormat = editor.getText().trim();
+			File absoluteFolder = null;
+
+			if (relativeFormat.length() > 0) {
+				File templatePath = new File(relativeFormat);
+				if (templatePath.isAbsolute()) {
+					File existingPath = null;
+					for (File next : listPath(templatePath)) {
+						if (existingPath != null && !next.exists()) {
+							absoluteFolder = existingPath;
+							relativeFormat = relativeFormat.substring(existingPath.getPath().length() + 1); // account for file separator
+							break;
+						}
+						existingPath = next;
+					}
+				}
+			}
+
+			File selectedFolder = UserFiles.showOpenDialogSelectFolder(absoluteFolder, "Select Folder", evt.getSource());
+			if (selectedFolder != null) {
+				editor.setText(normalizePathSeparators(selectedFolder.getAbsolutePath()) + "/" + relativeFormat);
+			}
+		}
+
+	};
+
+	protected final Action showRecentAction = new AbstractAction("Change Format", ResourceManager.getIcon("action.expand")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
