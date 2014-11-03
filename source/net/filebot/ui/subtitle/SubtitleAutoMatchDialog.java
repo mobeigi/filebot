@@ -60,7 +60,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.Analytics;
 import net.filebot.ResourceManager;
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.SimilarityMetric;
@@ -270,7 +270,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 			// make sure we have access to the parent folder structure, not just the dropped file
 			if (isMacSandbox()) {
-				DropToUnlock.showUnlockFoldersDialog(getWindow(evt.getSource()), mappingModel.getVideoFiles());
+				MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), mappingModel.getVideoFiles());
 			}
 
 			// collect the subtitles that will be fetched

@@ -3,6 +3,7 @@ package net.filebot.mac;
 import java.awt.Window;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,6 +84,10 @@ public class MacAppUtilities {
 
 	public static boolean isLockedFolder(File folder) {
 		return folder.isDirectory() && !folder.canRead() && !folder.canWrite();
+	}
+
+	public static boolean askUnlockFolders(final Window owner, final Collection<File> files) {
+		return DropToUnlock.showUnlockFoldersDialog(owner, files);
 	}
 
 }

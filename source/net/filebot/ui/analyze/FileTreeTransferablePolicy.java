@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 import javax.swing.tree.TreeNode;
 
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.analyze.FileTree.FileNode;
 import net.filebot.ui.analyze.FileTree.FolderNode;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
@@ -59,7 +59,7 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 				// make sure we have access to the parent folder structure, not just the dropped file
 				if (isMacSandbox()) {
-					DropToUnlock.showUnlockFoldersDialog(getWindow(tree), files);
+					MacAppUtilities.askUnlockFolders(getWindow(tree), files);
 				}
 			}
 

@@ -72,7 +72,7 @@ import net.filebot.History.Element;
 import net.filebot.History.Sequence;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MetaAttributes;
 import net.filebot.ui.transfer.FileExportHandler;
 import net.filebot.ui.transfer.FileTransferablePolicy;
@@ -533,7 +533,7 @@ class HistoryDialog extends JDialog {
 		private void rename(File directory, List<Element> elements) {
 			Map<File, File> renamePlan = getRenameMap(directory);
 			if (isMacSandbox()) {
-				if (!DropToUnlock.showUnlockFoldersDialog(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
+				if (!MacAppUtilities.askUnlockFolders(parent(), Stream.of(renamePlan.keySet(), renamePlan.values()).flatMap(c -> c.stream()).collect(Collectors.toList()))) {
 					return;
 				}
 			}

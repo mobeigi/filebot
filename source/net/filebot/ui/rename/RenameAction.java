@@ -47,7 +47,7 @@ import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
 import net.filebot.ResourceManager;
 import net.filebot.StandardRenameAction;
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.util.ui.ProgressDialog;
@@ -155,7 +155,7 @@ class RenameAction extends AbstractAction {
 	private Map<File, File> checkRenamePlan(List<Entry<File, File>> renamePlan, Window parent) throws IOException {
 		// ask for user permissions to output paths
 		if (isMacSandbox()) {
-			if (!DropToUnlock.showUnlockFoldersDialog(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolveDestination(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
+			if (!MacAppUtilities.askUnlockFolders(parent, renamePlan.stream().flatMap(e -> Stream.of(e.getKey(), resolveDestination(e.getKey(), e.getValue()))).map(f -> new File(f.getAbsolutePath())).collect(Collectors.toList()))) {
 				return emptyMap();
 			}
 		}

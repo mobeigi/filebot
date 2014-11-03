@@ -55,7 +55,7 @@ import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.MediaBindingBean;
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
@@ -665,7 +665,7 @@ public class RenamePanel extends JComponent {
 			final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
 
 			if (isMacSandbox()) {
-				if (!DropToUnlock.showUnlockFoldersDialog(getWindow(RenamePanel.this), remainingFiles)) {
+				if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), remainingFiles)) {
 					return;
 				}
 			}

@@ -65,7 +65,7 @@ import net.filebot.Settings;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
-import net.filebot.mac.DropToUnlock;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.util.DefaultThreadFactory;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -220,7 +220,7 @@ public class FormatDialog extends JDialog {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (isMacSandbox()) {
 					if (sample != null && sample.getMediaFile() != null && sample.getMediaFile().exists()) {
-						DropToUnlock.showUnlockFoldersDialog(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
+						MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
 					}
 				}
 				checkFormatInBackground();
