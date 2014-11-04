@@ -642,6 +642,7 @@ DeBTViD
 DECADE
 DECENT
 decibeL
+DeeJayAhmed
 DEFACED
 DEFiNiTE
 DEFiNiTiON
@@ -907,6 +908,7 @@ fLAMEhd
 FLATLiNE
 FLAWL3SS
 FLHD
+FLiCKSiCK
 FliK
 Flomp-Rumbel
 FLOSER
@@ -1149,6 +1151,7 @@ HiDeF
 HiDt
 Hien
 HiFi
+HighCode
 HiGHTiMES
 Higure_Rumbel
 Himatsubushi
@@ -2381,6 +2384,7 @@ TnH
 ToF
 TOKUS
 TOMA
+tomcat12
 TOPAZ
 TOPHD
 Tormaid
