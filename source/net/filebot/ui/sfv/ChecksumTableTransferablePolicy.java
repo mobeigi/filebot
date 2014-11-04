@@ -70,7 +70,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	protected void load(List<File> files, TransferAction action) throws IOException {
 		// initialize drop parameters
 		executor.set(computationService.newExecutor());
-		verificationTracker.set(new VerificationTracker(3));
+		verificationTracker.set(new VerificationTracker(5));
 
 		try {
 			// handle single verification file drop
@@ -79,7 +79,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 			}
 			// handle single folder drop
 			else if (files.size() == 1 && files.get(0).isDirectory()) {
-				for (File file : getChildren(files.get(0))) {
+				for (File file : getChildren(files.get(0), NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
 					load(file, null, files.get(0));
 				}
 			}
@@ -141,7 +141,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 		if (absoluteFile.isDirectory()) {
 			// load all files in the file tree
-			for (File child : getChildren(absoluteFile)) {
+			for (File child : getChildren(absoluteFile, NOT_HIDDEN, CASE_INSENSITIVE_PATH)) {
 				load(child, relativeFile, root);
 			}
 		} else {

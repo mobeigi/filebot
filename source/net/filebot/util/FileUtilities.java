@@ -437,22 +437,21 @@ public final class FileUtilities {
 	}
 
 	public static List<File> getChildren(File folder) {
-		File[] files = folder.listFiles();
-
-		// children array may be null if folder permissions do not allow listing of files
-		if (files == null) {
-			files = new File[0];
-		}
-
-		return asList(files);
+		return getChildren(folder, null, null);
 	}
 
 	public static List<File> getChildren(File folder, FileFilter filter) {
-		File[] files = folder.listFiles(filter);
+		return getChildren(folder, filter, null);
+	}
+
+	public static List<File> getChildren(File folder, FileFilter filter, Comparator<File> sorter) {
+		File[] files = filter == null ? folder.listFiles() : folder.listFiles(filter);
 
 		// children array may be null if folder permissions do not allow listing of files
 		if (files == null) {
 			files = new File[0];
+		} else if (sorter != null) {
+			sort(files, sorter);
 		}
 
 		return asList(files);
@@ -692,6 +691,14 @@ public final class FileUtilities {
 		@Override
 		public boolean accept(File file) {
 			return file.getAbsolutePath().startsWith(tmpdir);
+		}
+	};
+
+	public static final FileFilter NOT_HIDDEN = new FileFilter() {
+
+		@Override
+		public boolean accept(File file) {
+			return !file.isHidden();
 		}
 	};
 
