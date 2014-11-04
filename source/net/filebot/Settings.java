@@ -7,6 +7,8 @@ import java.io.File;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -90,10 +92,15 @@ public final class Settings {
 
 	public static int getPreferredThreadPoolSize() {
 		try {
-			return Integer.parseInt(System.getProperty("threadPool"));
+			String threadPool = System.getProperty("threadPool");
+			if (threadPool != null) {
+				return Integer.parseInt(threadPool);
+			}
 		} catch (Exception e) {
-			return Runtime.getRuntime().availableProcessors();
+			Logger.getLogger(Settings.class.getName()).log(Level.WARNING, e.toString());
 		}
+
+		return Runtime.getRuntime().availableProcessors();
 	}
 
 	public static String getApplicationDeployment() {

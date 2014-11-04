@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.filebot.Settings;
 import net.filebot.util.DefaultThreadFactory;
 
 class ChecksumComputationService {
@@ -23,6 +24,8 @@ class ChecksumComputationService {
 
 	private final AtomicInteger completedTaskCount = new AtomicInteger(0);
 	private final AtomicInteger totalTaskCount = new AtomicInteger(0);
+
+	private final int threadPoolSize = Settings.getPreferredThreadPoolSize();
 
 	public ExecutorService newExecutor() {
 		return new ChecksumComputationExecutor();
@@ -83,7 +86,7 @@ class ChecksumComputationService {
 	private class ChecksumComputationExecutor extends ThreadPoolExecutor {
 
 		public ChecksumComputationExecutor() {
-			super(1, 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
+			super(1, threadPoolSize, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
 
 			synchronized (executors) {
 				if (executors.add(this) && executors.size() == 1) {
@@ -100,7 +103,7 @@ class ChecksumComputationService {
 			// for a few files, use one thread
 			// for lots of files, use multiple threads
 			// e.g 50 files ~ 1 thread, 200 files ~ 2 threads, 1000 files ~ 3 threads, 40000 files ~ 5 threads
-			return max(1, (int) ((Runtime.getRuntime().availableProcessors() / 2) + log10(getQueue().size()) - 1));
+			return max(1, (int) ((threadPoolSize / 2) + log10(getQueue().size()) - 1));
 		}
 
 		@Override
