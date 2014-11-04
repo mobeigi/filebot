@@ -83,7 +83,7 @@ class ChecksumComputationService {
 	private class ChecksumComputationExecutor extends ThreadPoolExecutor {
 
 		public ChecksumComputationExecutor() {
-			super(1, Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
+			super(1, 2 * Runtime.getRuntime().availableProcessors(), 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new DefaultThreadFactory("ChecksumComputationPool", Thread.MIN_PRIORITY));
 
 			synchronized (executors) {
 				if (executors.add(this) && executors.size() == 1) {
@@ -100,7 +100,7 @@ class ChecksumComputationService {
 			// for a few files, use one thread
 			// for lots of files, use multiple threads
 			// e.g 50 files ~ 1 thread, 200 files ~ 2 threads, 1000 files ~ 3 threads, 40000 files ~ 5 threads
-			return max((int) log10(getQueue().size()), 1);
+			return max(1, (int) ((Runtime.getRuntime().availableProcessors() / 2) + log10(getQueue().size()) - 1));
 		}
 
 		@Override
