@@ -1,9 +1,19 @@
 package net.filebot.util;
 
+import static java.util.Arrays.*;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public final class ExceptionUtilities {
+
+	public static <T extends Throwable> T shiftStackTrace(T t, int offset) {
+		StackTraceElement[] stackTrace = t.getStackTrace();
+		if (offset < stackTrace.length) {
+			t.setStackTrace(copyOfRange(stackTrace, offset, stackTrace.length));
+		}
+		return t;
+	}
 
 	public static Throwable getRootCause(Throwable t) {
 		while (t.getCause() != null) {

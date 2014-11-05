@@ -147,7 +147,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		if (cause instanceof Throwable) {
 			throw new ScriptDeath((Throwable) cause);
 		}
-		throw new ScriptDeath(cause.toString());
+		throw new ScriptDeath(String.valueOf(cause));
 	}
 
 	// define global variable: _args

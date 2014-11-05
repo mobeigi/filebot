@@ -117,12 +117,14 @@ public class ArgumentProcessor {
 			// script finished successfully
 			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
 			return 0;
-		} catch (CmdlineException e) {
-			CLILogger.log(Level.WARNING, e.getMessage());
-		} catch (ScriptDeath e) {
-			CLILogger.log(Level.WARNING, e.getMessage(), e.getCause());
 		} catch (Throwable e) {
-			CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
+			if (findCause(e, CmdlineException.class) != null) {
+				CLILogger.log(Level.WARNING, findCause(e, CmdlineException.class).getMessage());
+			} else if (findCause(e, ScriptDeath.class) != null) {
+				CLILogger.log(Level.WARNING, findCause(e, ScriptDeath.class).getMessage());
+			} else {
+				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
+			}
 		}
 
 		// script failed
