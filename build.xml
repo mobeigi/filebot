@@ -284,6 +284,7 @@
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />
+			<option value="-DthreadPool=16" />
 
 			<option value="-Djava.net.useSystemProxies=true" />
 			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
