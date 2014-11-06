@@ -103,7 +103,7 @@ class ChecksumComputationService {
 			// for a few files, use one thread
 			// for lots of files, use multiple threads
 			// e.g 50 files ~ 1 thread, 200 files ~ 2 threads, 1000 files ~ 3 threads, 40000 files ~ 5 threads
-			return max(1, (int) ((threadPoolSize / 2) + log10(getQueue().size()) - 1));
+			return (int) max(1, round(sqrt(threadPoolSize) + log10(getQueue().size()) - 1));
 		}
 
 		@Override
