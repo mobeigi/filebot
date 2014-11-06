@@ -25,6 +25,8 @@ import com.ibm.icu.text.Transliterator;
 
 public class LocalSearch<T> {
 
+	private static final ExecutorService localThreadPool = Executors.newWorkStealingPool();
+
 	private final AbstractStringMetric metric = new QGramsDistance();
 	private float resultMinimumSimilarity = 0.5f;
 	private int resultSetSize = 20;
@@ -66,21 +68,16 @@ public class LocalSearch<T> {
 			});
 		}
 
-		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		final List<Entry<T, Float>> resultSet = new ArrayList<Entry<T, Float>>(objects.size());
 
-		try {
-			for (Future<Entry<T, Float>> entry : executor.invokeAll(tasks)) {
-				if (entry.get() != null) {
-					resultSet.add(entry.get());
-				}
-
-				if (Thread.interrupted()) {
-					throw new InterruptedException();
-				}
+		for (Future<Entry<T, Float>> entry : localThreadPool.invokeAll(tasks)) {
+			if (entry.get() != null) {
+				resultSet.add(entry.get());
 			}
-		} finally {
-			executor.shutdownNow();
+
+			if (Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 
 		// sort by similarity descending (best matches first)
