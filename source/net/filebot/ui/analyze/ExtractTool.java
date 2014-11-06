@@ -64,7 +64,7 @@ class ExtractTool extends Tool<TableModel> {
 		tableScrollPane.setBorder(new SeparatorBorder(2, new Color(0, 0, 0, 90), GradientStyle.TOP_TO_BOTTOM, SeparatorBorder.Position.BOTTOM));
 
 		setLayout(new MigLayout("insets 0, nogrid, fill", "align center", "[fill][pref!]"));
-		add(new LoadingOverlayPane(tableScrollPane, this, "20px", "30px"), "grow, wrap");
+		add(new LoadingOverlayPane(tableScrollPane, this, "25px", "30px"), "grow, wrap");
 		add(new JButton(extractAction), "gap top rel, gap bottom unrel");
 	}
 

@@ -293,7 +293,7 @@ public class RenamePanel extends JComponent {
 		});
 
 		setLayout(new MigLayout("fill, insets dialog, gapx 10px", "[fill][align center, pref!][fill]", "align 33%"));
-		add(new LoadingOverlayPane(filesList, filesList, "32px", "30px"), "grow, sizegroupx list");
+		add(new LoadingOverlayPane(filesList, filesList, "37px", "30px"), "grow, sizegroupx list");
 
 		BackgroundFileTransferablePolicy<?> transferablePolicy = (BackgroundFileTransferablePolicy<?>) filesList.getTransferablePolicy();
 		transferablePolicy.addPropertyChangeListener(new PropertyChangeListener() {
@@ -314,7 +314,7 @@ public class RenamePanel extends JComponent {
 		add(matchButton, "split 2, flowy, sizegroupx button");
 		add(renameButton, "gapy 30px, sizegroupx button");
 
-		add(new LoadingOverlayPane(namesList, namesList, "32px", "30px"), "grow, sizegroupx list");
+		add(new LoadingOverlayPane(namesList, namesList, "37px", "30px"), "grow, sizegroupx list");
 
 		// manual force name via F2
 		installAction(namesList.getListComponent(), getKeyStroke(VK_F2, 0), new AbstractAction("Force Name") {
