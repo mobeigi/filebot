@@ -72,7 +72,7 @@ public class SubtitleUploadDialog extends JDialog {
 
 	private final OpenSubtitlesClient database;
 
-	private ExecutorService checkExecutorService = Executors.newFixedThreadPool(2);
+	private ExecutorService checkExecutorService = Executors.newSingleThreadExecutor();
 	private ExecutorService uploadExecutorService;
 
 	public SubtitleUploadDialog(OpenSubtitlesClient database, Window owner) {
@@ -282,7 +282,7 @@ public class SubtitleUploadDialog extends JDialog {
 				return;
 			}
 
-			uploadExecutorService = Executors.newFixedThreadPool(1);
+			uploadExecutorService = Executors.newSingleThreadExecutor();
 
 			SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
 			for (final SubtitleMapping it : data) {

@@ -128,6 +128,8 @@ public final class WebServices {
 		return null;
 	}
 
+	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
+
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
 
 		public TheTVDBClientWithLocalSearch(String apikey) {
@@ -166,48 +168,23 @@ public final class WebServices {
 			return null;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
-			Callable<List<SearchResult>> apiSearch = new Callable<List<SearchResult>>() {
+			Callable<List<SearchResult>> apiSearch = () -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
+			Callable<List<SearchResult>> localSearch = () -> getLocalIndex().search(query);
 
-				@Override
-				public List<SearchResult> call() throws Exception {
-					return TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
-				}
-			};
-			Callable<List<SearchResult>> localSearch = new Callable<List<SearchResult>>() {
-
-				@Override
-				public List<SearchResult> call() throws Exception {
-					try {
-						return getLocalIndex().search(query);
-					} catch (Exception e) {
-						Logger.getLogger(TheTVDBClientWithLocalSearch.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-					}
-
-					// let local search fail gracefully without affecting API search
-					return emptyList();
-				}
-			};
-
-			ExecutorService executor = Executors.newFixedThreadPool(2);
-			try {
-				Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-				for (Future<List<SearchResult>> resultSet : executor.invokeAll(asList(localSearch, apiSearch))) {
-					try {
-						results.addAll(resultSet.get());
-					} catch (ExecutionException e) {
-						if (e.getCause() instanceof Exception) {
-							throw (Exception) e.getCause(); // unwrap cause
-						}
+			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
+			for (Future<List<SearchResult>> resultSet : requestThreadPool.invokeAll(asList(localSearch, apiSearch))) {
+				try {
+					results.addAll(resultSet.get());
+				} catch (ExecutionException e) {
+					if (e.getCause() instanceof Exception) {
+						throw (Exception) e.getCause(); // unwrap cause
 					}
 				}
-				return sortBySimilarity(results, singleton(query), getSeriesMatchMetric(), false);
-			} finally {
-				executor.shutdownNow();
 			}
-		};
+			return sortBySimilarity(results, singleton(query), getSeriesMatchMetric(), false);
+		}
 	}
 
 	public static class AnidbClientWithLocalSearch extends AnidbClient {
@@ -238,22 +215,17 @@ public final class WebServices {
 			Callable<List<? extends SearchResult>> seriesSearch = () -> seriesIndex.search(query, Locale.ENGLISH);
 			Callable<List<? extends SearchResult>> movieSearch = () -> movieIndex.searchMovie(query, Locale.ENGLISH);
 
-			ExecutorService executor = Executors.newFixedThreadPool(2);
-			try {
-				Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-				for (Future<List<? extends SearchResult>> resultSet : executor.invokeAll(asList(seriesSearch, movieSearch))) {
-					try {
-						results.addAll(resultSet.get());
-					} catch (ExecutionException e) {
-						if (e.getCause() instanceof Exception) {
-							throw (Exception) e.getCause(); // unwrap cause
-						}
+			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
+			for (Future<List<? extends SearchResult>> resultSet : requestThreadPool.invokeAll(asList(seriesSearch, movieSearch))) {
+				try {
+					results.addAll(resultSet.get());
+				} catch (ExecutionException e) {
+					if (e.getCause() instanceof Exception) {
+						throw (Exception) e.getCause(); // unwrap cause
 					}
 				}
-				return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);
-			} finally {
-				executor.shutdownNow();
 			}
+			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);
 		}
 
 		@Override

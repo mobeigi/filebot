@@ -3,6 +3,7 @@ package net.filebot.ui.rename;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
+import static net.filebot.WebServices.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -150,23 +151,15 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			});
 		}
 
-		// fetch episode lists concurrently
-		ExecutorService executor = Executors.newCachedThreadPool();
+		// fetch episode lists concurrently and merge all episodes
+		Set<Episode> episodes = new LinkedHashSet<Episode>();
 
-		try {
-			// merge all episodes
-			Set<Episode> episodes = new LinkedHashSet<Episode>();
-
-			for (Future<List<Episode>> future : executor.invokeAll(tasks)) {
-				episodes.addAll(future.get());
-			}
-
-			// all background workers have finished
-			return episodes;
-		} finally {
-			// destroy background threads
-			executor.shutdownNow();
+		for (Future<List<Episode>> future : requestThreadPool.invokeAll(tasks)) {
+			episodes.addAll(future.get());
 		}
+
+		// all background workers have finished
+		return episodes;
 	}
 
 	@Override
