@@ -112,8 +112,7 @@ Section MAIN
 	Pop $MSI_STATUS # grab return value
 	
 	${if} $MSI_STATUS == "0"
-		DetailPrint "Clearing cache and temporary files..."
-		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -clear-cache`
+		DetailPrint "Done."
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
 		DetailPrint "Install failed. Please download the .msi package manually."
