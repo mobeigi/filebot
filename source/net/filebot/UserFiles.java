@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.mac.NativeFileDialog;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class UserFiles {
@@ -187,6 +188,39 @@ public class UserFiles {
 				Frame[] frames = Frame.getFrames();
 				return new FileDialog(frames.length > 0 ? frames[0] : null, title, mode);
 			}
+		},
+
+		COCOA {
+
+			@Override
+			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
+				// directly use NSOpenPanel for via Objective-C bridge for FILES_AND_DIRECTORIES mode
+				if (folderMode && filter != null) {
+					try {
+						NativeFileDialog nsOpenPanel = new NativeFileDialog(title, FileDialog.LOAD);
+						nsOpenPanel.setMultipleMode(true);
+						nsOpenPanel.setCanChooseDirectories(true);
+						nsOpenPanel.setCanChooseFiles(true);
+						if (!filter.acceptAny()) {
+							nsOpenPanel.setAllowedFileTypes(asList(filter.extensions()));
+						}
+						nsOpenPanel.setVisible(true);
+						return asList(nsOpenPanel.getFiles());
+					} catch (Throwable e) {
+						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+					}
+				}
+
+				// default to AWT implementation
+				return AWT.showLoadDialogSelectFiles(folderMode, multiSelection, defaultFile, filter, title, parent);
+			}
+
+			@Override
+			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
+				// default to AWT implementation
+				return AWT.showSaveDialogSelectFile(folderMode, defaultFile, title, parent);
+			}
+
 		},
 
 		JavaFX {

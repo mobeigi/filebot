@@ -1,6 +1,5 @@
 package net.filebot.ui.rename;
 
-import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
@@ -18,6 +17,7 @@ import net.filebot.media.MediaDetection;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.FastFile;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File> {
 
@@ -102,7 +102,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 	@Override
 	public List<String> getFileFilterExtensions() {
-		return asList("*");
+		return ExtensionFileFilter.WILDCARD;
 	}
 
 	@Override

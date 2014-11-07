@@ -1,6 +1,5 @@
 package net.filebot.ui.list;
 
-import static java.util.Arrays.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -13,6 +12,7 @@ import net.filebot.torrent.Torrent;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.FileTransferablePolicy;
 import net.filebot.util.FileUtilities;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 class FileListTransferablePolicy extends FileTransferablePolicy {
 
@@ -80,7 +80,7 @@ class FileListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public List<String> getFileFilterExtensions() {
-		return asList("*");
+		return ExtensionFileFilter.WILDCARD;
 	}
 
 }

@@ -1,6 +1,7 @@
 package net.filebot.util;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -718,6 +719,8 @@ public final class FileUtilities {
 
 	public static class ExtensionFileFilter implements FileFilter, FilenameFilter {
 
+		public static final List<String> WILDCARD = singletonList("*");
+
 		private final String[] extensions;
 
 		public ExtensionFileFilter(String... extensions) {
@@ -742,10 +745,19 @@ public final class FileUtilities {
 			return hasExtension(name, extensions);
 		}
 
+		public boolean acceptAny() {
+			return extensions.length == 1 && WILDCARD.get(0).equals(extensions[0]);
+		}
+
 		public boolean acceptExtension(String extension) {
+			if (acceptAny()) {
+				return true;
+			}
+
 			for (String other : extensions) {
-				if (other.equalsIgnoreCase(extension))
+				if (other.equalsIgnoreCase(extension)) {
 					return true;
+				}
 			}
 
 			return false;
