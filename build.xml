@@ -816,7 +816,7 @@
 	</target>
 
 
-	<target name="deploy-beta-release" depends="stage-release, login">
+	<target name="deploy-beta-release">
 		<input message="Mark:" addproperty="mark" />
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
