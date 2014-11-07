@@ -4,10 +4,10 @@ import static net.filebot.Settings.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,17 +50,12 @@ public final class HistorySpooler {
 			return new History(sessionHistory.sequences());
 		}
 
-		RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
-		FileChannel channel = f.getChannel();
-		FileLock lock = channel.lock();
-		try {
-			History history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
-			history.addAll(sessionHistory.sequences());
-			return history;
-		} finally {
-			lock.release();
-			channel.close();
-			f.close();
+		try (FileChannel channel = FileChannel.open(persistentHistoryFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
+			try (FileLock lock = channel.lock()) {
+				History history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
+				history.addAll(sessionHistory.sequences());
+				return history;
+			}
 		}
 	}
 
@@ -70,35 +65,29 @@ public final class HistorySpooler {
 		}
 
 		try {
-			if (persistentHistoryFile.length() <= 0) {
-				persistentHistoryFile.createNewFile();
-			}
-			RandomAccessFile f = new RandomAccessFile(persistentHistoryFile, "rw");
-			FileChannel channel = f.getChannel();
-			FileLock lock = channel.lock();
-			try {
-				History history = new History();
-				if (persistentHistoryFile.length() > 0) {
-					try {
-						channel.position(0); // rewind
-						history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
-					} catch (Exception e) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load rename history.", e);
+			try (FileChannel channel = FileChannel.open(persistentHistoryFile.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
+				try (FileLock lock = channel.lock()) {
+					History history = new History();
+
+					// load existing history from previous sessions
+					if (channel.size() > 0) {
+						try {
+							channel.position(0);
+							history = History.importHistory(new CloseShieldInputStream(Channels.newInputStream(channel))); // keep JAXB from closing the stream
+						} catch (Exception e) {
+							Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to load rename history.", e);
+						}
 					}
+
+					// write new combined history
+					history.addAll(sessionHistory.sequences());
+
+					channel.position(0);
+					History.exportHistory(history, new CloseShieldOutputStream(Channels.newOutputStream(channel))); // keep JAXB from closing the stream
+
+					sessionHistory.clear();
+					persistentHistoryTotalSize = history.totalSize();
 				}
-				history.addAll(sessionHistory.sequences());
-
-				channel.position(0);
-				History.exportHistory(history, new CloseShieldOutputStream(Channels.newOutputStream(channel))); // keep JAXB from closing the stream
-
-				sessionHistory.clear();
-				persistentHistoryTotalSize = history.totalSize();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				lock.release();
-				channel.close();
-				f.close();
 			}
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to write rename history.", e);

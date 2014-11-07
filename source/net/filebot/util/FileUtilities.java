@@ -6,7 +6,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -204,7 +204,7 @@ public final class FileUtilities {
 	}
 
 	public static File writeFile(ByteBuffer data, File destination) throws IOException {
-		try (FileOutputStream stream = new FileOutputStream(destination); FileChannel channel = stream.getChannel()) {
+		try (FileChannel channel = FileChannel.open(destination.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
 			channel.write(data);
 		}
 		return destination;

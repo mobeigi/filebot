@@ -14,10 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -25,6 +23,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
+import java.nio.file.StandardOpenOption;
 import java.security.CodeSource;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -123,7 +122,7 @@ public class Main {
 				}
 
 				// open file channel and lock
-				FileChannel logChannel = new FileOutputStream(logFile, true).getChannel();
+				FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 				if (args.logLock) {
 					System.out.println("Locking " + logFile);
 					logChannel.lock();
@@ -446,8 +445,7 @@ public class Main {
 				final File lockFile = new File(cache, ".lock");
 				boolean isNewCache = !lockFile.exists();
 
-				final RandomAccessFile handle = new RandomAccessFile(lockFile, "rw");
-				final FileChannel channel = handle.getChannel();
+				final FileChannel channel = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
 				final FileLock lock = channel.tryLock();
 
 				if (lock != null) {
@@ -499,7 +497,7 @@ public class Main {
 								// ignore, shutting down anyway
 							}
 							try {
-								handle.close();
+								channel.close();
 							} catch (Exception e) {
 								// ignore, shutting down anyway
 							}
@@ -511,7 +509,7 @@ public class Main {
 				}
 
 				// try next lock file
-				handle.close();
+				channel.close();
 			}
 		} catch (Exception e) {
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
