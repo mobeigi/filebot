@@ -787,11 +787,11 @@
 		</replace>
 
 		<!-- chocolatey pack -->
-		<exec executable="C:\Chocolatey\bin\chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg line="pack" />
 		</exec>
 
-		<exec executable="C:\Chocolatey\bin\chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
+		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg line="push ${dir.dist}\chocolatey\filebot.${version}.nupkg" />
 		</exec>
 	</target>
@@ -816,7 +816,7 @@
 	</target>
 
 
-	<target name="deploy-beta-release">
+	<target name="deploy-beta-release" depends="stage-release, login">
 		<input message="Mark:" addproperty="mark" />
 		<antcall target="deploy-release">
 			<param name="dir.release" location="${basedir.release}/HEAD/${title}_${version}_${mark}" />
