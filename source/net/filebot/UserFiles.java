@@ -112,7 +112,7 @@ public class UserFiles {
 					}
 				}
 
-				if (filter != null) {
+				if (filter != null && !filter.acceptAny()) {
 					chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(filter.toString(), filter.extensions()));
 				}
 
@@ -259,7 +259,7 @@ public class UserFiles {
 						// show FileChooser
 						javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
 						fileChooser.setTitle(title);
-						if (filter != null) {
+						if (filter != null && !filter.acceptAny()) {
 							String[] globFilter = filter.extensions();
 							for (int i = 0; i < globFilter.length; i++) {
 								globFilter[i] = "*." + globFilter[i];

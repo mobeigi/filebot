@@ -98,7 +98,9 @@ public class MediaTypes {
 	public static ExtensionFileFilter combineFilter(ExtensionFileFilter... filters) {
 		List<String> extensions = new ArrayList<String>();
 		for (ExtensionFileFilter it : filters) {
-			addAll(extensions, it.extensions());
+			if (!it.acceptAny()) {
+				addAll(extensions, it.extensions());
+			}
 		}
 		return new ExtensionFileFilter(extensions);
 	}
