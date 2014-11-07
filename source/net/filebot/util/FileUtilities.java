@@ -724,7 +724,7 @@ public final class FileUtilities {
 		private final String[] extensions;
 
 		public ExtensionFileFilter(String... extensions) {
-			this.extensions = extensions;
+			this.extensions = extensions.clone();
 		}
 
 		public ExtensionFileFilter(Collection<String> extensions) {
@@ -733,16 +733,16 @@ public final class FileUtilities {
 
 		@Override
 		public boolean accept(File dir, String name) {
-			return hasExtension(name, extensions);
+			return accept(name);
 		}
 
 		@Override
 		public boolean accept(File file) {
-			return hasExtension(file, extensions);
+			return accept(file.getName());
 		}
 
 		public boolean accept(String name) {
-			return hasExtension(name, extensions);
+			return acceptAny() || hasExtension(name, extensions);
 		}
 
 		public boolean acceptAny() {

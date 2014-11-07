@@ -75,11 +75,11 @@ public class UserFiles {
 	private static final String KEY_OPEN_FOLDER = "open.folder";
 	private static final String KEY_SAVE = "save.file";
 
-	protected static File getFileChooserDefaultFile(String name, File userValue) {
+	protected static File getFileChooserDefaultFile(String key, File userValue) {
 		if (userValue != null && userValue.getParentFile() != null)
 			return userValue;
 
-		String path = Settings.forPackage(UserFiles.class).get(PREF_KEY_PREFIX + name);
+		String path = Settings.forPackage(UserFiles.class).get(PREF_KEY_PREFIX + key);
 		if (path == null || path.isEmpty())
 			return userValue;
 
@@ -103,7 +103,15 @@ public class UserFiles {
 				chooser.setDialogTitle(title);
 				chooser.setMultiSelectionEnabled(multiSelection);
 				chooser.setFileSelectionMode(folderMode && filter == null ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
-				chooser.setSelectedFile(defaultFile);
+
+				if (defaultFile != null) {
+					if (defaultFile.exists()) {
+						chooser.setSelectedFile(defaultFile);
+					} else if (defaultFile.getParentFile().exists()) {
+						chooser.setCurrentDirectory(defaultFile.getParentFile());
+					}
+				}
+
 				if (filter != null) {
 					chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(filter.toString(), filter.extensions()));
 				}
@@ -139,9 +147,7 @@ public class UserFiles {
 				FileDialog fileDialog = createFileDialog(parent, title, FileDialog.LOAD, folderMode);
 				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(multiSelection);
-				if (filter != null) {
-					fileDialog.setFilenameFilter(filter);
-				}
+
 				if (defaultFile != null) {
 					if (folderMode && defaultFile.isDirectory()) {
 						fileDialog.setDirectory(defaultFile.getPath());
@@ -151,6 +157,10 @@ public class UserFiles {
 						}
 						fileDialog.setFile(defaultFile.getName());
 					}
+				}
+
+				if (filter != null) {
+					fileDialog.setFilenameFilter(filter);
 				}
 
 				fileDialog.setVisible(true);
