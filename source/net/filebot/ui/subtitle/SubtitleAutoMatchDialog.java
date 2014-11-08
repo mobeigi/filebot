@@ -170,7 +170,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 	}
 
 	protected void addSubtitleService(final SubtitleServiceBean service, final JPanel servicePanel) {
-		final LinkButton component = new LinkButton(service.getName(), ResourceManager.getIcon("database"), service.getLink());
+		final LinkButton component = new LinkButton(service.getName(), null, ResourceManager.getIcon("database"), service.getLink());
 		component.setBorder(BorderFactory.createEmptyBorder());
 		component.setVisible(false);
 

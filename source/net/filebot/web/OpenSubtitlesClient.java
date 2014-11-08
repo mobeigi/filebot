@@ -505,7 +505,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		logoutTimer.set(10, TimeUnit.MINUTES, true);
 	}
 
-	protected synchronized void logout() {
+	public synchronized void logout() {
 		if (xmlrpc.isLoggedOn()) {
 			try {
 				xmlrpc.logout();

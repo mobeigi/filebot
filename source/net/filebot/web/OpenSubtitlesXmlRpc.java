@@ -324,6 +324,8 @@ public class OpenSubtitlesXmlRpc {
 
 			// rethrow exception
 			throw e;
+		} catch (ClassCastException e) {
+			throw new XmlRpcFault(500, "The remote server returned an unexpected response");
 		}
 	}
 

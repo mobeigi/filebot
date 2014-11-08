@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -284,9 +286,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			osdbPass.setText(osdbAuth[1]);
 
 			if (osdbUser.getText().isEmpty()) {
-				osdbGroup.add(new LinkButton("Register", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag help");
+				osdbGroup.add(new LinkButton("Register", "Register to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag left");
 			} else {
-				osdbGroup.add(new LinkButton("Upgrade", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/support")), "spanx 2, tag help");
+				osdbGroup.add(new LinkButton("Upgrade", "Upgrade to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/support")), "spanx 2, tag left");
 			}
 
 			JRootPane container = authPanel.getRootPane();
@@ -304,9 +306,23 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 					try {
 						if (osdbUser.getText().length() > 0 && osdbPass.getPassword().length > 0) {
-							OpenSubtitlesClient osdb = new OpenSubtitlesClient(getApplicationName(), getApplicationVersion());
+							final OpenSubtitlesClient osdb = new OpenSubtitlesClient(getApplicationName(), getApplicationVersion());
 							osdb.setUser(osdbUser.getText(), new String(osdbPass.getPassword()));
 							osdb.login();
+
+							// do some status checks in background (since OpenSubtitles can be really really slow)
+							WebServices.requestThreadPool.submit(() -> {
+								try {
+									// check download quota for the current user
+									Map<?, ?> limits = (Map<?, ?>) osdb.getServerInfo().get("download_limits");
+									UILogger.log(Level.INFO, String.format("Your daily download quota is at %s of %s.", limits.get("client_24h_download_count"), limits.get("client_24h_download_limit")));
+
+									// logout from test session
+									osdb.logout();
+								} catch (Exception e) {
+									Logger.getLogger(SubtitlePanel.class.getName()).log(Level.WARNING, e.toString());
+								}
+							});
 						}
 					} catch (Exception e) {
 						UILogger.log(Level.WARNING, "OpenSubtitles: " + e.getMessage());
