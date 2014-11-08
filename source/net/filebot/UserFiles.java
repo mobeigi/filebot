@@ -215,7 +215,12 @@ public class UserFiles {
 							nsOpenPanel.setAllowedFileTypes(asList(filter.extensions()));
 						}
 						nsOpenPanel.setVisible(true);
-						return asList(nsOpenPanel.getFiles());
+
+						if (!nsOpenPanel.isCancelled()) {
+							return asList(nsOpenPanel.getFiles());
+						} else {
+							return emptyList();
+						}
 					} catch (Throwable e) {
 						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
 					}

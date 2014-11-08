@@ -7,6 +7,7 @@ import java.awt.FileDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.weblite.objc.NSObject;
 import ca.weblite.objc.Proxy;
@@ -423,7 +424,6 @@ public class NativeFileDialog extends NSObject {
 	 * @return
 	 */
 	public String getFile() {
-
 		final String[] out = new String[1];
 		dispatch_sync(new Runnable() {
 
@@ -439,7 +439,6 @@ public class NativeFileDialog extends NSObject {
 
 		});
 		return out[0];
-
 	}
 
 	/**
@@ -467,9 +466,7 @@ public class NativeFileDialog extends NSObject {
 			}
 
 		});
-
 		return out.toArray(new File[0]);
-
 	}
 
 	/**
@@ -560,25 +557,24 @@ public class NativeFileDialog extends NSObject {
 
 			@Override
 			public void run() {
-				peer.send("runModal");
+				int result = peer.sendInt("runModal");
+				nsFileHandlingButton.set(result);
 			}
 
 		});
 	}
 
-	public static void main(String[] args) {
-		NativeFileDialog dlg = new NativeFileDialog("Foo", FileDialog.LOAD);
-		// dlg.peer.send("runModal");
-		// System.out.println("Get title: "+dlg.getTitle());
-		// dlg.setCanCreateDirectories(true);
-		// dlg.setAllowedFileTypes(Arrays.asList("zip"));
-
-		dlg.setCanChooseDirectories(true);
-		dlg.setCanChooseFiles(true);
-
-		dlg.setVisible(true);
-		System.out.println(dlg.getFile());
-		System.out.println("done");
+	public int getResult() {
+		return nsFileHandlingButton.get();
 	}
+
+	public boolean isCancelled() {
+		return nsFileHandlingButton.get() == NSFileHandlingPanelCancelButton;
+	}
+
+	private final AtomicInteger nsFileHandlingButton = new AtomicInteger(NSFileHandlingPanelCancelButton);
+
+	public static final int NSFileHandlingPanelOKButton = 1;
+	public static final int NSFileHandlingPanelCancelButton = 0;
 
 }
