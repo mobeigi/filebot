@@ -270,7 +270,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	public CheckResult checkSubtitle(File videoFile, File subtitleFile) throws Exception {
 		// subhash (md5 of subtitles), subfilename, moviehash, moviebytesize, moviefilename
 		SubFile sub = new SubFile();
-		sub.setSubHash(md5(subtitleFile));
+		sub.setSubHash(md5(readFile(subtitleFile)));
 		sub.setSubFileName(subtitleFile.getName());
 		sub.setMovieHash(computeHash(videoFile));
 		sub.setMovieByteSize(videoFile.length());
@@ -318,7 +318,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// subhash (md5 of subtitles), subfilename, moviehash, moviebytesize, moviefilename
 		SubFile sub = new SubFile();
-		sub.setSubHash(md5(subtitleFile));
+		sub.setSubHash(md5(readFile(subtitleFile)));
 		sub.setSubFileName(subtitleFile.getName());
 		sub.setMovieHash(computeHash(videoFile));
 		sub.setMovieByteSize(videoFile.length());
@@ -350,10 +350,10 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	/**
 	 * Calculate MD5 hash.
 	 */
-	private String md5(File file) throws IOException {
+	private String md5(byte[] data) throws IOException {
 		try {
 			MessageDigest hash = MessageDigest.getInstance("MD5");
-			hash.update(readFile(file));
+			hash.update(data);
 			return String.format("%032x", new BigInteger(1, hash.digest())); // as hex string
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e); // won't happen
@@ -482,9 +482,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return URI.create(String.format("http://www.opensubtitles.org/en/search/imdbid-%d/sublanguageid-%s", movie.getImdbId(), sublanguageid));
 	}
 
-	public Locale detectLanguage(byte[] data) throws Exception {
+	public synchronized Locale detectLanguage(byte[] data) throws Exception {
 		if (data.length < 256) {
 			throw new IllegalArgumentException("data is not enough");
+		}
+		
+		String language = getCache().getData("detectLanguage", md5(data), Locale.ROOT, String.class);
+		if (language != null) {
+			return language.isEmpty() ? null : new Locale(language);
 		}
 
 		// require login
@@ -492,9 +497,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// detect language
 		List<String> languages = xmlrpc.detectLanguage(data);
-
+		
 		// return first language
-		return languages.size() > 0 ? new Locale(languages.get(0)) : null;
+		language =  languages.size() > 0 ? languages.get(0) : "";
+		getCache().putData("detectLanguage", md5(data), Locale.ROOT, language);
+		return new Locale(language);
 	}
 
 	public synchronized void login() throws Exception {
