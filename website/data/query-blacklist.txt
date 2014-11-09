@@ -208,6 +208,7 @@
 ^XXX+$
 A.PROCESAR
 A.Release.Lounge
+AAC\d*
 ABC
 AC3D
 Addic7ed.com
@@ -259,6 +260,7 @@ DVSKY
 ECE
 ENG
 English
+Ext
 EXTENDED
 Extended.Collectors.Cut
 Extended.Collectors.Edition
@@ -331,7 +333,9 @@ PELICULAS
 plex
 Pre.?DVD
 PROPER
+PS3
 PSP
+QEBS\d*
 READNFO
 REAL.PROPER
 RecordedTV

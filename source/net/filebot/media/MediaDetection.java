@@ -734,7 +734,7 @@ public class MediaDetection {
 			}
 		};
 
-		// sort by ranking and remvove duplicate entries
+		// sort by ranking and remove duplicate entries
 		List<T> result = options.stream().sorted(comparator).distinct().collect(Collectors.toList());
 
 		// DEBUG
