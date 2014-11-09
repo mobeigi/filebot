@@ -44,7 +44,7 @@ public class ReleaseInfo {
 
 	public String getVideoSource(String... input) {
 		// check parent and itself for group names
-		return matchLast(getVideoSourcePattern(), getBundle(getClass().getName()).getString("pattern.video.source").split("[|]"), input);
+		return matchLast(getVideoSourcePattern(), getProperty("pattern.video.source").split("[|]"), input);
 	}
 
 	public List<String> getVideoTags(String... input) {
@@ -250,19 +250,19 @@ public class ReleaseInfo {
 
 	public Pattern getVideoFormatPattern(boolean strict) {
 		// pattern matching any video source name
-		String pattern = getBundle(getClass().getName()).getString("pattern.video.format");
+		String pattern = getProperty("pattern.video.format");
 		return strict ? compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE) : compile(pattern, CASE_INSENSITIVE);
 	}
 
 	public Pattern getVideoSourcePattern() {
 		// pattern matching any video source name, like BluRay
-		String pattern = getBundle(getClass().getName()).getString("pattern.video.source");
+		String pattern = getProperty("pattern.video.source");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 
 	public Pattern getVideoTagPattern() {
 		// pattern matching any video tag, like Directors Cut
-		String pattern = getBundle(getClass().getName()).getString("pattern.video.tags");
+		String pattern = getProperty("pattern.video.tags");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 
@@ -320,33 +320,38 @@ public class ReleaseInfo {
 	}
 
 	public FileFilter getDiskFolderFilter() {
-		return new FolderEntryFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
+		return new FolderEntryFilter(compile(getProperty("pattern.diskfolder.entry")));
 	}
 
 	public FileFilter getDiskFolderEntryFilter() {
-		return new RegexFileFilter(compile(getBundle(getClass().getName()).getString("pattern.diskfolder.entry")));
+		return new RegexFileFilter(compile(getProperty("pattern.diskfolder.entry")));
 	}
 
 	public FileFilter getClutterFileFilter() throws IOException {
-		return new ClutterFileFilter(getExcludePattern(), Long.parseLong(getBundle(getClass().getName()).getString("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
+		return new ClutterFileFilter(getExcludePattern(), Long.parseLong(getProperty("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
 	}
 
 	public List<File> getMediaRoots() {
 		List<File> roots = new ArrayList<File>();
-		for (String it : getBundle(getClass().getName()).getString("folder.media.roots").split(":")) {
+		for (String it : getProperty("folder.media.roots").split(":")) {
 			roots.add(new File(it));
 		}
 		return roots;
 	}
 
 	// fetch release group names online and try to update the data every other day
-	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getBundle(getClass().getName()).getString("url.release-groups"));
-	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.query-blacklist"));
-	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getBundle(getClass().getName()).getString("url.exclude-blacklist"));
-	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getBundle(getClass().getName()).getString("url.movie-list"));
-	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getBundle(getClass().getName()).getString("url.series-mappings"));
-	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getBundle(getClass().getName()).getString("url.thetvdb-index"));
-	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getBundle(getClass().getName()).getString("url.anidb-index"));
+	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getProperty("url.release-groups"));
+	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getProperty("url.query-blacklist"));
+	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getProperty("url.exclude-blacklist"));
+	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getProperty("url.movie-list"));
+	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getProperty("url.series-mappings"));
+	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getProperty("url.thetvdb-index"));
+	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getProperty("url.anidb-index"));
+
+	protected String getProperty(String propertyName) {
+		// allow override via Java System properties
+		return System.getProperty(propertyName, getBundle(ReleaseInfo.class.getName()).getString(propertyName));
+	}
 
 	protected static class PatternResource extends CachedResource<String[]> {
 
@@ -547,4 +552,5 @@ public class ReleaseInfo {
 		Map<String, Locale> result = unmodifiableMap(languageMap);
 		return result;
 	}
+
 }
