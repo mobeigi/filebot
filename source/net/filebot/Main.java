@@ -142,11 +142,10 @@ public class Main {
 			initializeSecurityManager();
 
 			// update system properties
+			System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
+			System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
 
-			if (System.getProperty("http.agent") == null) {
-				System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
-			}
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");
 			}
@@ -168,35 +167,20 @@ public class Main {
 
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
-				// default cross-platform laf used in scripting to nimbus instead of metal (if possible)
-				if (args.script != null && !isHeadless()) {
-					try {
-						Class<?> nimbusLook = Class.forName("javax.swing.plaf.nimbus.NimbusLookAndFeel", false, Thread.currentThread().getContextClassLoader());
-						System.setProperty("swing.crossplatformlaf", nimbusLook.getName());
-					} catch (Throwable e) {
-						// ignore all errors and stick with default cross-platform laf
-					}
-				}
-
 				int status = new ArgumentProcessor().process(args, new CmdlineOperations());
 				System.exit(status);
 			}
 
 			// GUI mode => start user interface
 			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							// use native laf an all platforms
-							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						} catch (Exception e) {
-							Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-						}
-
-						startUserInterface(args);
+				SwingUtilities.invokeAndWait(() -> {
+					try {
+						// use native laf an all platforms
+						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					} catch (Exception e) {
+						Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
 					}
+					startUserInterface(args);
 				});
 			} catch (InvocationTargetException e) {
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getCause().getMessage(), e.getCause());
