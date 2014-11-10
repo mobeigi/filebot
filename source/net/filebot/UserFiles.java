@@ -151,10 +151,8 @@ public class UserFiles {
 				if (defaultFile != null) {
 					if (folderMode && defaultFile.isDirectory()) {
 						fileDialog.setDirectory(defaultFile.getPath());
-					} else {
-						if (defaultFile.getParentFile() != null) {
-							fileDialog.setDirectory(defaultFile.getParentFile().getPath());
-						}
+					} else if (defaultFile.getParentFile() != null && defaultFile.getParentFile().isDirectory()) {
+						fileDialog.setDirectory(defaultFile.getParentFile().getPath());
 						fileDialog.setFile(defaultFile.getName());
 					}
 				}
@@ -271,11 +269,12 @@ public class UserFiles {
 							}
 							fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter(filter.toString(), globFilter));
 						}
+
 						if (defaultFile != null) {
-							if (defaultFile.getParentFile() != null) {
+							if (defaultFile.getParentFile() != null && defaultFile.getParentFile().isDirectory()) {
 								fileChooser.setInitialDirectory(defaultFile.getParentFile());
+								fileChooser.setInitialFileName(defaultFile.getName());
 							}
-							fileChooser.setInitialFileName(defaultFile.getName());
 						}
 
 						if (multiSelection) {
