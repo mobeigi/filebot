@@ -36,7 +36,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.filebot.Analytics;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
 import net.filebot.mac.MacAppUtilities;
@@ -175,7 +174,6 @@ public class MainFrame extends JFrame {
 		if (!panel.isVisible()) {
 			headerPanel.setTitle(selectedBuilder.getName());
 			panel.setVisible(true);
-			Analytics.trackView(panel.getClass(), selectedBuilder.getName());
 		}
 	}
 

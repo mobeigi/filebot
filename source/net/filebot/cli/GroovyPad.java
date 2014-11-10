@@ -33,7 +33,6 @@ import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
-import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.cli.ArgumentProcessor.DefaultScriptProvider;
@@ -320,26 +319,6 @@ public class GroovyPad extends JFrame {
 				});
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					GroovyPad pad = new GroovyPad();
-
-					// ignore analytics in developer mode
-					Analytics.setEnabled(false);
-
-					pad.setDefaultCloseOperation(EXIT_ON_CLOSE);
-					pad.setVisible(true);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 
 }

@@ -39,7 +39,6 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 
-import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.subtitle.SubtitleFormat;
@@ -230,9 +229,7 @@ class SubtitleDownloadComponent extends JComponent {
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (evt.getNewValue() == Phase.DONE) {
 					try {
-						List<MemoryFile> subtitles = subtitle.getDownload().get();
-						Analytics.trackEvent(subtitle.getProvider().getName(), "DownloadSubtitle", subtitle.getLanguage().getName(), subtitles.size());
-						files.addAll(subtitles);
+						files.addAll(subtitle.getDownload().get());
 					} catch (CancellationException e) {
 						// ignore cancellation
 					} catch (Exception e) {

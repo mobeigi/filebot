@@ -48,7 +48,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import net.filebot.Analytics;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.WebServices;
@@ -745,8 +744,6 @@ public class SubtitleUploadDialog extends JDialog {
 
 				database.uploadSubtitle(mapping.getIdentity(), mapping.getLanguage().getLocale(), mapping.getVideo(), mapping.getSubtitle());
 				mapping.setState(SubtitleMapping.Status.UploadComplete);
-
-				Analytics.trackEvent(database.getName(), "UploadSubtitle", mapping.getLanguage().getName(), 1);
 			} catch (Exception e) {
 				Logger.getLogger(UploadTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
 				mapping.setState(SubtitleMapping.Status.UploadFailed);

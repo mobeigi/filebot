@@ -150,24 +150,20 @@ public class Main {
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");
 			}
-			if (args.disableAnalytics) {
-				System.setProperty("application.analytics", "false");
-			}
 			if (args.disableExtendedAttributes) {
 				System.setProperty("useExtendedFileAttributes", "false");
 				System.setProperty("useCreationDate", "false");
 			}
 			if (args.action.equalsIgnoreCase("test")) {
 				System.setProperty("useExtendedFileAttributes", "false");
-				System.setProperty("application.analytics", "false");
+				System.setProperty("useCreationDate", "false");
 				System.setProperty("application.rename.history", "false"); // don't keep history of --action test rename operations
 			}
 
 			// make sure we can access application arguments at any time
 			Settings.setApplicationArgumentArray(argumentArray);
 
-			// initialize analytics
-			Analytics.setEnabled(System.getProperty("application.analytics") == null ? true : Boolean.parseBoolean(System.getProperty("application.analytics")));
+			// initialize history spooler
 			HistorySpooler.getInstance().setPersistentHistoryEnabled(System.getProperty("application.rename.history") == null ? true : Boolean.parseBoolean(System.getProperty("application.rename.history")));
 
 			// CLI mode => run command-line interface and then exit
@@ -401,7 +397,6 @@ public class Main {
 				donation.setValue(String.valueOf(currentRev));
 			}
 		}
-		Analytics.trackEvent("GUI", "Donate", "r" + currentRev, pane.getValue() == actions[0] ? 1 : 0);
 	}
 
 	private static void restoreWindowBounds(final JFrame window, final Settings settings) {

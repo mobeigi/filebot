@@ -58,7 +58,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.similarity.EpisodeMetrics;
@@ -690,16 +689,10 @@ class SubtitleAutoMatchDialog extends JDialog {
 			setState(StateValue.STARTED);
 
 			try {
-				MemoryFile data = fetchSubtitle(descriptor);
-				Analytics.trackEvent(service.getName(), "DownloadSubtitle", descriptor.getLanguageName(), 1);
-
-				return data;
+				return fetchSubtitle(descriptor);
 			} catch (Exception e) {
-				// remember exception
-				error = e;
-
-				// rethrow exception
-				throw e;
+				// remember and rethrow exception
+				throw (error = e);
 			} finally {
 				setState(StateValue.DONE);
 			}

@@ -36,7 +36,6 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import net.filebot.Analytics;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
@@ -248,7 +247,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// rename episodes
-		Analytics.trackEvent("CLI", "Rename", "Episode", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction, matches);
 	}
 
@@ -294,7 +292,6 @@ public class CmdlineOperations implements CmdlineInterface {
 							try {
 								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
 								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
-								Analytics.trackEvent(db.getName(), "FetchEpisodeList", it.getName());
 							} catch (IOException e) {
 								CLILogger.log(Level.SEVERE, e.getMessage());
 							}
@@ -348,7 +345,6 @@ public class CmdlineOperations implements CmdlineInterface {
 						CLILogger.finest(format("Looking up up movie by hash via [%s]", service.getName()));
 						movieByFile.putAll(hashLookup);
 					}
-					Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
 				} catch (UnsupportedOperationException e) {
 					// ignore logging => hash lookup only supported by OpenSubtitles
 				}
@@ -455,10 +451,6 @@ public class CmdlineOperations implements CmdlineInterface {
 				} catch (Exception e) {
 					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
 				}
-
-				if (movie != null) {
-					Analytics.trackEvent(service.getName(), "SearchMovie", movie.toString(), 1);
-				}
 			}
 
 			// check if we managed to lookup the movie descriptor
@@ -514,7 +506,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// rename movies
-		Analytics.trackEvent("CLI", "Rename", "Movie", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction, matches);
 	}
 
@@ -551,7 +542,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// rename movies
-		Analytics.trackEvent("CLI", "Rename", "AudioTrack", renameMap.size());
 		return renameAll(renameMap, renameAction, conflictAction, null);
 	}
 
@@ -761,9 +751,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File it : remainingVideos) {
 			CLILogger.warning("No matching subtitles found: " + it);
 		}
-		if (subtitleFiles.size() > 0) {
-			Analytics.trackEvent("CLI", "Download", "Subtitle", subtitleFiles.size());
-		}
 		return subtitleFiles;
 	}
 
@@ -847,7 +834,6 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (Entry<File, SubtitleDescriptor> it : subtitles.entrySet()) {
 			try {
 				downloads.put(it.getKey(), downloadSubtitle(it.getValue(), it.getKey(), outputFormat, outputEncoding, naming));
-				Analytics.trackEvent(service, "DownloadSubtitle", it.getValue().getLanguageName(), 1);
 			} catch (Exception e) {
 				CLILogger.warning(format("Failed to download %s: %s", it.getValue().getPath(), e.getMessage()));
 			}

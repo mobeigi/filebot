@@ -158,10 +158,6 @@
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jgat-custom.jar">
-				<include name="com/dmurph/tracking/**" />
-			</zipfileset>
-
 			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/jna.jar">
 				<include name="com/sun/jna/**" />
@@ -280,7 +276,6 @@
 
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
-			<option value="-Dapplication.analytics=false" />
 			<option value="-Dunixfs=false" />
 			<option value="-DuseExtendedFileAttributes=true" />
 			<option value="-DuseCreationDate=false" />

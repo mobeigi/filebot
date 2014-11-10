@@ -36,7 +36,6 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
-import net.filebot.Analytics;
 import net.filebot.Settings;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
@@ -139,10 +138,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 						SearchResult selectedSearchResult = selectSearchResult(query, results, selectionMemory, parent);
 
 						if (selectedSearchResult != null) {
-							List<Episode> episodes = provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
-							Analytics.trackEvent(provider.getName(), "FetchEpisodeList", selectedSearchResult.getName());
-
-							return episodes;
+							return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
 						}
 					}
 

@@ -10,7 +10,6 @@
 	<classpathentry kind="lib" path="lib/groovy.jar"/>
 	<classpathentry kind="lib" path="lib/icu4j.jar"/>
 	<classpathentry kind="lib" path="lib/jacksum.jar"/>
-	<classpathentry kind="lib" path="lib/jgat-custom.jar"/>
 	<classpathentry kind="lib" path="lib/jna-platform.jar"/>
 	<classpathentry kind="lib" path="lib/jna.jar"/>
 	<classpathentry kind="lib" path="lib/json-io.jar"/>

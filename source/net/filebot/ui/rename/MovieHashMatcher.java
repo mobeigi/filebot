@@ -42,7 +42,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import net.filebot.Analytics;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.similarity.Match;
@@ -102,7 +101,6 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			try {
 				Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
 				movieByFile.putAll(hashLookup);
-				Analytics.trackEvent(service.getName(), "HashLookup", "Movie", hashLookup.size()); // number of positive hash lookups
 			} catch (UnsupportedOperationException e) {
 				// ignore
 			}

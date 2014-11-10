@@ -26,7 +26,6 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.KeyStroke;
 
-import net.filebot.Analytics;
 import net.filebot.Language;
 import net.filebot.Settings;
 import net.filebot.WebServices;
@@ -223,7 +222,6 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 				episodes = episodeForSeason;
 			}
 
-			Analytics.trackEvent(request.provider.getName(), "ViewEpisodeList", getSearchResult().getName());
 			return episodes;
 		}
 

@@ -42,7 +42,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 
-import net.filebot.Analytics;
 import net.filebot.HistorySpooler;
 import net.filebot.NativeRenameAction;
 import net.filebot.ResourceManager;
@@ -364,11 +363,6 @@ class RenameAction extends AbstractAction {
 			if (renameLog.size() > 0) {
 				UILogger.info(String.format("%d files renamed.", renameLog.size()));
 				HistorySpooler.getInstance().append(renameLog.entrySet());
-
-				// count global statistics
-				for (Class<?> it : new HashSet<Class<?>>(types)) {
-					Analytics.trackEvent("GUI", "Rename", it.getSimpleName(), frequency(types, it));
-				}
 			}
 		}
 

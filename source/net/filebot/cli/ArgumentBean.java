@@ -107,9 +107,6 @@ public class ArgumentBean {
 	@Option(name = "-no-xattr", usage = "Disable extended attributes")
 	public boolean disableExtendedAttributes = false;
 
-	@Option(name = "-no-analytics", usage = "Disable analytics")
-	public boolean disableAnalytics = false;
-
 	@Option(name = "-version", usage = "Print version identifier")
 	public boolean version = false;
 

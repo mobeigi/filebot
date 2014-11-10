@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
-import net.filebot.Analytics;
 import net.filebot.MediaTypes;
 import net.filebot.StandardRenameAction;
 import net.filebot.cli.ScriptShell.ScriptProvider;
@@ -32,7 +31,6 @@ import net.filebot.web.CachedResource;
 public class ArgumentProcessor {
 
 	public int process(ArgumentBean args, CmdlineInterface cli) {
-		Analytics.trackView(ArgumentProcessor.class, "FileBot CLI");
 		CLILogger.setLevel(args.getLogLevel());
 
 		try {
