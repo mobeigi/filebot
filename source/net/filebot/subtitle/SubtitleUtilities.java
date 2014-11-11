@@ -70,7 +70,7 @@ public final class SubtitleUtilities {
 
 				// try to guess what type of search might be required (minimize false negatives)
 				boolean searchBySeries = files.stream().anyMatch(f -> isEpisode(getName(f), false));
-				boolean searchByMovie = files.stream().allMatch(f -> !isEpisode(getName(f), true));
+				boolean searchByMovie = files.stream().anyMatch(f -> !isEpisode(getName(f), true));
 
 				if (forceQuery != null && forceQuery.length() > 0) {
 					querySet.add(forceQuery);
