@@ -500,8 +500,7 @@ public class MediaBindingBean {
 			}
 		}
 
-		// try statistical language detection
-		return Language.getLanguage(WebServices.OpenSubtitles.detectLanguage(readFile(mediaFile)));
+		return null;
 	}
 
 	@Define("actors")
