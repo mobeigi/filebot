@@ -65,19 +65,22 @@ public final class SubtitleUtilities {
 					throw new InterruptedException();
 
 				// auto-detect query and search for subtitles
-				boolean searchByMovie = false, searchBySeries = false;
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 				List<File> files = bySeries.getValue();
 
+				// try to guess what type of search might be required (minimize false negatives)
+				boolean searchBySeries = files.stream().anyMatch(f -> isEpisode(getName(f), false));
+				boolean searchByMovie = files.stream().allMatch(f -> !isEpisode(getName(f), true));
+
 				if (forceQuery != null && forceQuery.length() > 0) {
 					querySet.add(forceQuery);
-					searchByMovie = true;
-					searchBySeries = true;
-				} else if (bySeries.getKey().length() > 0) {
+					searchByMovie = true; // manual query could be a movie
+					searchBySeries = true; // manual query could be a tv series
+				} else if (searchBySeries && bySeries.getKey().length() > 0) {
 					// use auto-detected series name as query
 					querySet.add(bySeries.getKey());
-					searchBySeries = true;
-				} else {
+				} else if (searchBySeries || searchByMovie) {
+					// remainder is most likely a movie, or a badly named tv series
 					for (File f : files) {
 						List<String> queries = new ArrayList<String>();
 
@@ -88,13 +91,14 @@ public final class SubtitleUtilities {
 							}
 						}
 
-						if (queries.isEmpty()) {
-							queries.add(stripReleaseInfo(getName(f)));
-						}
-
 						if (queries.size() > 0) {
 							querySet.addAll(queries);
-							searchByMovie = true;
+						} else {
+							// just use heavily stripped file names
+							String keywords = stripReleaseInfo(getName(f), false);
+							if (keywords != null && keywords.length() > 0) {
+								querySet.add(keywords);
+							}
 						}
 					}
 				}
