@@ -1113,6 +1113,19 @@ public class MediaDetection {
 		return result;
 	}
 
+	public static Movie matchMovie(File file, int depth) {
+		try {
+			List<String> names = new ArrayList<String>(depth);
+			for (File it : listPathTail(file, depth, true)) {
+				names.add(it.getName());
+			}
+			List<Movie> matches = matchMovieName(names, true, 0);
+			return matches.size() > 0 ? matches.get(0) : null;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static File guessMediaFolder(File file) {
 		List<File> tail = listPathTail(file, 3, true);
 

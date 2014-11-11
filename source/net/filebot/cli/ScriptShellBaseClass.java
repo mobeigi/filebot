@@ -233,18 +233,17 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		// 2. perfect filename match
 		try {
-			List<String> names = new ArrayList<String>();
-			for (File it : FileUtilities.listPathTail(file, 4, true)) {
-				names.add(it.getName());
+			Movie match = MediaDetection.matchMovie(file, 4);
+			if (match != null) {
+				return match;
 			}
-			return MediaDetection.matchMovieName(names, true, 0).get(0);
 		} catch (Exception e) {
 			// ignore and move on
 		}
 
 		// 3. run full-fledged movie detection
 		try {
-			return MediaDetection.detectMovie(file, WebServices.OpenSubtitles, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
+			return MediaDetection.detectMovie(file, WebServices.OpenSubtitles.isAnonymous() ? null : WebServices.OpenSubtitles, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
 		} catch (Exception e) {
 			// ignore and fail
 		}

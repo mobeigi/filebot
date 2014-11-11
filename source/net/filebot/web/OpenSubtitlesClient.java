@@ -67,7 +67,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	public boolean isAnonymous() {
-		return username.isEmpty();
+		return username == null || username.isEmpty();
 	}
 
 	@Override
