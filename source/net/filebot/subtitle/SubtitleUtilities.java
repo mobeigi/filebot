@@ -65,14 +65,18 @@ public final class SubtitleUtilities {
 					throw new InterruptedException();
 
 				// auto-detect query and search for subtitles
+				boolean searchByMovie = false, searchBySeries = false;
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 				List<File> files = bySeries.getValue();
 
 				if (forceQuery != null && forceQuery.length() > 0) {
 					querySet.add(forceQuery);
+					searchByMovie = true;
+					searchBySeries = true;
 				} else if (bySeries.getKey().length() > 0) {
 					// use auto-detected series name as query
 					querySet.add(bySeries.getKey());
+					searchBySeries = true;
 				} else {
 					for (File f : files) {
 						List<String> queries = new ArrayList<String>();
@@ -88,11 +92,18 @@ public final class SubtitleUtilities {
 							queries.add(stripReleaseInfo(getName(f)));
 						}
 
-						querySet.addAll(queries);
+						if (queries.size() > 0) {
+							querySet.addAll(queries);
+							searchByMovie = true;
+						}
 					}
 				}
 
-				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, languageName);
+				if (!searchByMovie && !searchBySeries)
+					continue;
+
+				// search for subtitles online using the auto-detected or forced query information
+				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, searchByMovie, searchBySeries, languageName);
 
 				// allow early abort
 				if (Thread.interrupted())
@@ -175,13 +186,13 @@ public final class SubtitleUtilities {
 		return subtitleByVideo;
 	}
 
-	public static Set<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<String> querySet, String languageName) throws Exception {
+	public static Set<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
 		Set<SubtitleDescriptor> subtitles = new LinkedHashSet<SubtitleDescriptor>();
 
 		// search for and automatically select movie / show entry
 		Set<SearchResult> resultSet = new HashSet<SearchResult>();
 		for (String query : querySet) {
-			resultSet.addAll(findProbableSearchResults(query, service.search(query), querySet.size() == 1 ? 4 : 2));
+			resultSet.addAll(findProbableSearchResults(query, service.search(query, searchByMovie, searchBySeries), querySet.size() == 1 ? 4 : 2));
 		}
 
 		// fetch subtitles for all search results

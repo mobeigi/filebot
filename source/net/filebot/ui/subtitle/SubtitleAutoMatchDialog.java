@@ -51,6 +51,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.border.Border;
@@ -169,7 +170,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 	}
 
 	protected void addSubtitleService(final SubtitleServiceBean service, final JPanel servicePanel) {
-		final LinkButton component = new LinkButton(service.getName(), null, ResourceManager.getIcon("database"), service.getLink());
+		final LinkButton component = new LinkButton(service.getDescription(), null, ResourceManager.getIcon("database"), service.getLink());
 		component.setBorder(BorderFactory.createEmptyBorder());
 		component.setVisible(false);
 
@@ -184,7 +185,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 				}
 
 				component.setVisible(true);
-				component.setToolTipText(service.getError() == null ? null : service.getError().getMessage());
+				component.setToolTipText(String.format("%s: %s", service.getName(), service.getError() == null ? service.getState().toString().toLowerCase() : service.getError().getMessage()));
 				servicePanel.setVisible(true);
 				servicePanel.getParent().revalidate();
 			}
@@ -215,6 +216,11 @@ class SubtitleAutoMatchDialog extends JDialog {
 						mappingModel.setOptionColumnVisible(true);
 					}
 				}
+			}
+
+			@Override
+			protected void done() {
+				SwingUtilities.invokeLater(() -> mappingModel.fireTableStructureChanged()); // make sure UI is refershed after completion
 			}
 		};
 
@@ -842,7 +848,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		private final URI link;
 
 		private StateValue state = StateValue.PENDING;
-		private Throwable error = null;
+		private Exception error = null;
 
 		public SubtitleServiceBean(String name, Icon icon, URI link) {
 			this.name = name;
@@ -862,6 +868,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 			return link;
 		}
 
+		public abstract String getDescription();
+
 		public abstract float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor);
 
 		protected abstract Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception;
@@ -872,11 +880,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 			try {
 				return getSubtitleList(files, languageName, parent);
 			} catch (Exception e) {
-				// remember error
-				error = e;
-
-				// rethrow error
-				throw e;
+				throw (error = e);
 			} finally {
 				setState(StateValue.DONE);
 			}
@@ -906,8 +910,8 @@ class SubtitleAutoMatchDialog extends JDialog {
 		}
 
 		@Override
-		public String getName() {
-			return String.format("%s [via hash]", service.getName());
+		public String getDescription() {
+			return "Exact Search";
 		}
 
 		@Override
@@ -923,18 +927,16 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 	protected static class SubtitleProviderBean extends SubtitleServiceBean {
 
-		private SubtitleAutoMatchDialog inputProvider;
 		private SubtitleProvider service;
 
 		public SubtitleProviderBean(SubtitleProvider service, SubtitleAutoMatchDialog inputProvider) {
 			super(service.getName(), service.getIcon(), service.getLink());
 			this.service = service;
-			this.inputProvider = inputProvider;
 		}
 
 		@Override
-		public String getName() {
-			return String.format("%s [via name]", service.getName());
+		public String getDescription() {
+			return "Fuzzy Search";
 		}
 
 		@Override

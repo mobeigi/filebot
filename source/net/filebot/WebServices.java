@@ -7,6 +7,7 @@ import static net.filebot.media.MediaDetection.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -211,12 +212,17 @@ public final class WebServices {
 		}
 
 		@Override
-		public synchronized List<SearchResult> search(final String query) throws Exception {
-			Callable<List<? extends SearchResult>> seriesSearch = () -> seriesIndex.search(query, Locale.ENGLISH);
-			Callable<List<? extends SearchResult>> movieSearch = () -> movieIndex.searchMovie(query, Locale.ENGLISH);
+		public synchronized List<SearchResult> search(final String query, final boolean byMovie, final boolean bySeries) throws Exception {
+			List<Callable<List<? extends SearchResult>>> queries = new ArrayList<>(2);
+			if (byMovie) {
+				queries.add(() -> movieIndex.searchMovie(query, Locale.ENGLISH));
+			}
+			if (bySeries) {
+				queries.add(() -> seriesIndex.search(query, Locale.ENGLISH));
+			}
 
 			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-			for (Future<List<? extends SearchResult>> resultSet : requestThreadPool.invokeAll(asList(seriesSearch, movieSearch))) {
+			for (Future<List<? extends SearchResult>> resultSet : requestThreadPool.invokeAll(queries)) {
 				try {
 					results.addAll(resultSet.get());
 				} catch (ExecutionException e) {

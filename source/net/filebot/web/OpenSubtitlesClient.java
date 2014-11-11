@@ -90,8 +90,8 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public synchronized List<SearchResult> search(String query) throws Exception {
-		throw new UnsupportedOperationException("SearchMoviesOnIMDB is not allowed due to abuse");
+	public synchronized List<SearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception {
+		throw new UnsupportedOperationException(); // XMLRPC::SearchMoviesOnIMDB is not allowed due to abuse
 	}
 
 	@Override
@@ -486,7 +486,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		if (data.length < 256) {
 			throw new IllegalArgumentException("data is not enough");
 		}
-		
+
 		String language = getCache().getData("detectLanguage", md5(data), Locale.ROOT, String.class);
 		if (language != null) {
 			return language.isEmpty() ? null : new Locale(language);
@@ -497,9 +497,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// detect language
 		List<String> languages = xmlrpc.detectLanguage(data);
-		
+
 		// return first language
-		language =  languages.size() > 0 ? languages.get(0) : "";
+		language = languages.size() > 0 ? languages.get(0) : "";
 		getCache().putData("detectLanguage", md5(data), Locale.ROOT, language);
 		return new Locale(language);
 	}

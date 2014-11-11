@@ -214,7 +214,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 		@Override
 		public Collection<SearchResult> search() throws Exception {
-			return request.getProvider().search(request.getSearchText());
+			return request.getProvider().search(request.getSearchText(), true, true);
 		}
 
 		@Override
