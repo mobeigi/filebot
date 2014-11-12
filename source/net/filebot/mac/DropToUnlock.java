@@ -280,6 +280,7 @@ public class DropToUnlock extends JList<File> {
 			c.setIcon(ResourceManager.getIcon(isLockedFolder(folder) ? "folder.locked" : "folder.open"));
 			c.setHorizontalTextPosition(JLabel.CENTER);
 			c.setVerticalTextPosition(JLabel.BOTTOM);
+			c.setToolTipText(folder.getAbsolutePath());
 
 			return c;
 		}
