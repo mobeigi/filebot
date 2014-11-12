@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import net.filebot.Cache;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
+import net.filebot.MetaAttributeView;
 import net.filebot.Settings;
 import net.filebot.WebServices;
 import net.filebot.hash.HashType;
@@ -399,6 +400,13 @@ public class MediaBindingBean {
 
 		// try to get checksum from sfv file
 		String checksum = getHashFromVerificationFile(inferredMediaFile, HashType.SFV, 3);
+		if (checksum != null) {
+			return checksum;
+		}
+
+		// try CRC32 xattr (as stored by verify script)
+		MetaAttributeView xattr = new MetaAttributeView(inferredMediaFile);
+		checksum = xattr.get("CRC32");
 		if (checksum != null) {
 			return checksum;
 		}
