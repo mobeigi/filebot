@@ -405,10 +405,14 @@ public class MediaBindingBean {
 		}
 
 		// try CRC32 xattr (as stored by verify script)
-		MetaAttributeView xattr = new MetaAttributeView(inferredMediaFile);
-		checksum = xattr.get("CRC32");
-		if (checksum != null) {
-			return checksum;
+		try {
+			MetaAttributeView xattr = new MetaAttributeView(inferredMediaFile);
+			checksum = xattr.get("CRC32");
+			if (checksum != null) {
+				return checksum;
+			}
+		} catch (Exception e) {
+			// ignore if xattr metadata is not supported for the given file
 		}
 
 		// calculate checksum from file
@@ -962,7 +966,7 @@ public class MediaBindingBean {
 	private String getOriginalFileName(File file) {
 		try {
 			return new MetaAttributes(file).getOriginalName();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			return null;
 		}
 	}
