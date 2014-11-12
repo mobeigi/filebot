@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -30,6 +31,12 @@ import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import net.filebot.util.ByteBufferOutputStream;
 
@@ -265,6 +272,17 @@ public final class WebRequest {
 
 		// use UTF-8 if we don't know any better
 		return Charset.forName("UTF-8");
+	}
+
+	public static String getXmlString(Document dom, boolean indent) throws TransformerException {
+		Transformer tr = TransformerFactory.newInstance().newTransformer();
+		tr.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+		tr.setOutputProperty(OutputKeys.INDENT, indent ? "yes" : "no");
+
+		// create string from dom
+		StringWriter buffer = new StringWriter();
+		tr.transform(new DOMSource(dom), new StreamResult(buffer));
+		return buffer.toString();
 	}
 
 	/**

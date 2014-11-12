@@ -145,7 +145,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// sanity check
 		if (episodes.isEmpty()) {
 			// anime page xml doesn't work sometimes
-			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse any episode data from xml: %s (%d)", anime, anime.getAnimeId()));
+			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse episode data: %s (%d) => %s", anime, anime.getAnimeId(), getXmlString(dom, false)));
 		}
 
 		return episodes;
