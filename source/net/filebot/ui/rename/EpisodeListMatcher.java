@@ -27,6 +27,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -100,6 +101,10 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 				// remember dialog size
 				prefs.put("dialog.select.w", Integer.toString(selectDialog.getWidth()));
 				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
+
+				if (selectDialog.getSelectedAction() == null) {
+					throw new CancellationException("Cancelled by user");
+				}
 
 				// selected value or null if the dialog was canceled by the user
 				return selectDialog.getSelectedValue();

@@ -29,6 +29,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -433,8 +434,12 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
 
 				// remember if we should auto-repeat the chosen action in the future
-				if (checkBox.isSelected()) {
+				if (checkBox.isSelected() || selectDialog.getSelectedAction() == null) {
 					memory.put("repeat", selectDialog.getSelectedValue() != null ? "select" : "ignore");
+				}
+
+				if (selectDialog.getSelectedAction() == null) {
+					throw new CancellationException("Cancelled by user");
 				}
 
 				// selected value or null if the dialog was canceled by the user

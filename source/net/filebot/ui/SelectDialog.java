@@ -29,11 +29,11 @@ import net.miginfocom.swing.MigLayout;
 
 public class SelectDialog<T> extends JDialog {
 
-	private final JLabel headerLabel = new JLabel();
+	private JLabel headerLabel = new JLabel();
 
-	private final JList list;
+	private JList list;
 
-	private boolean valueSelected = false;
+	private Action selectedAction = null;
 
 	public SelectDialog(Component parent, Collection<? extends T> options) {
 		super(getWindow(parent), "Select", ModalityType.DOCUMENT_MODAL);
@@ -86,9 +86,13 @@ public class SelectDialog<T> extends JDialog {
 		return headerLabel;
 	}
 
+	public Action getSelectedAction() {
+		return selectedAction;
+	}
+
 	@SuppressWarnings("unchecked")
 	public T getSelectedValue() {
-		if (!valueSelected)
+		if (selectedAction != selectAction)
 			return null;
 
 		return (T) list.getSelectedValue();
@@ -111,7 +115,7 @@ public class SelectDialog<T> extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			valueSelected = true;
+			selectedAction = this;
 			close();
 		}
 	};
@@ -120,7 +124,7 @@ public class SelectDialog<T> extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			valueSelected = false;
+			selectedAction = this;
 			close();
 		}
 	};

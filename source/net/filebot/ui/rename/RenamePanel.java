@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -699,7 +700,11 @@ public class RenamePanel extends JComponent {
 						// add remaining file entries
 						renameModel.files().addAll(remainingFiles);
 					} catch (Exception e) {
-						UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+						if (findCause(e, CancellationException.class) != null) {
+							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, getRootCause(e).toString());
+						} else {
+							UILogger.log(Level.WARNING, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), e);
+						}
 					} finally {
 						// auto-match finished
 						namesList.firePropertyChange(LOADING_PROPERTY, true, false);
