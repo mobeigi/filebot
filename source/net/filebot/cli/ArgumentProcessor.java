@@ -125,9 +125,9 @@ public class ArgumentProcessor {
 			}
 		}
 
-		// script failed
+		// script failed with exception -> exit with non-zero exit code (and use positive code to avoid issues with launch4j launcher)
 		CLILogger.finest("Failure (°_°)");
-		return -1;
+		return 1;
 	}
 
 	public static class DefaultScriptProvider implements ScriptProvider {
