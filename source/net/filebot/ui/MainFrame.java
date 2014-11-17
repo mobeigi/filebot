@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
 	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
 
 	public MainFrame() {
-		super(Settings.getApplicationName());
+		super(Settings.isInstalled() ? Settings.getApplicationName() : Settings.getApplicationIdentifier());
 
 		try {
 			// restore selected panel

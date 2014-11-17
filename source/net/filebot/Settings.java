@@ -74,16 +74,33 @@ public final class Settings {
 		return Boolean.parseBoolean(System.getProperty("useCreationDate"));
 	}
 
-	public static boolean isMacApp() {
-		return "mas".equals(getApplicationDeployment()) || "app".equals(getApplicationDeployment());
+	public static String getApplicationDeployment() {
+		return System.getProperty("application.deployment");
 	}
 
 	public static boolean isAppStore() {
-		return "mas".equals(getApplicationDeployment()) || "usc".equals(getApplicationDeployment());
+		return isApplicationDeployment("mas", "usc");
+	}
+
+	public static boolean isMacApp() {
+		return isApplicationDeployment("mas", "app");
 	}
 
 	public static boolean isMacSandbox() {
-		return "mas".equals(getApplicationDeployment());
+		return isApplicationDeployment("mas");
+	}
+
+	public static boolean isInstalled() {
+		return isApplicationDeployment("mas", "usc", "msi", "spk", "aur");
+	}
+
+	private static boolean isApplicationDeployment(String... ids) {
+		String current = getApplicationDeployment();
+		for (String id : ids) {
+			if (current != null && current.equals(id))
+				return true;
+		}
+		return false;
 	}
 
 	public static FileChooser getPreferredFileChooser() {
@@ -101,10 +118,6 @@ public final class Settings {
 		}
 
 		return Runtime.getRuntime().availableProcessors();
-	}
-
-	public static String getApplicationDeployment() {
-		return System.getProperty("application.deployment");
 	}
 
 	public static File getApplicationFolder() {
