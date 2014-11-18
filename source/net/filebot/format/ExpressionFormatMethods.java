@@ -51,27 +51,27 @@ public class ExpressionFormatMethods {
 	/**
 	 * Return a substring matching the given pattern or break.
 	 */
-	public static String match(String self, String pattern) {
+	public static String match(String self, String pattern) throws Exception {
 		return match(self, pattern, -1);
 	}
 
-	public static String match(String self, String pattern, int matchGroup) {
+	public static String match(String self, String pattern, int matchGroup) throws Exception {
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		if (matcher.find()) {
 			return (matcher.groupCount() > 0 && matchGroup < 0 ? matcher.group(1) : matcher.group(matchGroup < 0 ? 0 : matchGroup)).trim();
 		} else {
-			throw new IllegalArgumentException("Pattern not found");
+			throw new Exception("Pattern not found");
 		}
 	}
 
 	/**
 	 * Return a list of all matching patterns or break.
 	 */
-	public static List<String> matchAll(String self, String pattern) {
+	public static List<String> matchAll(String self, String pattern) throws Exception {
 		return matchAll(self, pattern, 0);
 	}
 
-	public static List<String> matchAll(String self, String pattern, int matchGroup) {
+	public static List<String> matchAll(String self, String pattern, int matchGroup) throws Exception {
 		List<String> matches = new ArrayList<String>();
 		Matcher matcher = compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self);
 		while (matcher.find()) {
@@ -81,7 +81,7 @@ public class ExpressionFormatMethods {
 		if (matches.size() > 0) {
 			return matches;
 		} else {
-			throw new IllegalArgumentException("Pattern not found");
+			throw new Exception("Pattern not found");
 		}
 	}
 

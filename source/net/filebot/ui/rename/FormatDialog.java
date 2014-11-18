@@ -530,8 +530,8 @@ public class FormatDialog extends JDialog {
 					} catch (CancellationException e) {
 						// ignore, cancelled tasks are obsolete anyway
 					} catch (Exception e) {
-						Exception cause = findCause(e, BindingException.class);
-						status.setText(getMessage(cause != null ? cause : e));
+						BindingException bindingException = findCause(e, BindingException.class);
+						status.setText(bindingException != null ? getMessage(bindingException) : String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
 						status.setIcon(ResourceManager.getIcon("status.warning"));
 						status.setVisible(true);
 					} finally {
