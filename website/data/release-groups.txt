@@ -1189,6 +1189,7 @@ HP
 HP4F
 HqDTS
 HQE
+HQM
 HR
 HS
 HuBBaTiX
@@ -1627,6 +1628,7 @@ N0L
 N0TSC3N3
 n3xT
 NAFSG
+NAHOM
 Naisu
 Nakama-Fansubs
 NanaOne
@@ -1885,6 +1887,7 @@ PROXY
 PRXHD
 PS
 PS3-TEAM
+PSA
 PSiG
 PsiX
 PsO
