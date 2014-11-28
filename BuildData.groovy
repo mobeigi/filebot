@@ -222,7 +222,7 @@ tvdb_updates.values().each{ update ->
 												.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
 												.findResults{ it.select('td').first().text() }
 												.findAll{ it?.length() > 0 }
-					def intlseries jsoup.select('#seriesform input')
+					def intlseries = jsoup.select('#seriesform input')
 												.findAll{ it.attr('name') =~ /SeriesName/ }
 												.sort{ it.attr('name').match(/\d+/) as int }
 												.collect{ it.attr('value') }
