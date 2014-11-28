@@ -217,10 +217,20 @@ tvdb_updates.values().each{ update ->
 					}
 
 					// scrape extra alias titles from webpage (not supported yet by API)
-					seriesNames += org.jsoup.Jsoup.connect("http://thetvdb.com/?tab=series&id=${update.id}").get()
-											.select('#akaseries table tr table tr')
-											.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
-											.findResults{ it.select('td').first().text() }
+					def jsoup = org.jsoup.Jsoup.connect("http://thetvdb.com/?tab=series&id=${update.id}").get()
+					def akaseries = jsoup.select('#akaseries table tr table tr')
+												.findAll{ it.select('td').any{ it.text() ==~ /en/ } }
+												.findResults{ it.select('td').first().text() }
+												.findAll{ it?.length() > 0 }
+					def intlseries jsoup.select('#seriesform input')
+												.findAll{ it.attr('name') =~ /SeriesName/ }
+												.sort{ it.attr('name').match(/\d+/) as int }
+												.collect{ it.attr('value') }
+												.findAll{ it?.length() > 0 }
+					
+					println "Scraped data $akaseries and $intlseries for series $seriesNames"
+					seriesNames += akaseries
+					seriesNames += intlseries
 				}
 
 				def data = [update.time, update.id, imdbid, rating ?: 0, votes ?: 0] + seriesNames.findAll{ it != null && it.length() > 0 }
