@@ -305,7 +305,7 @@ thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/
 thetvdb_index = thetvdb_index.sort{ a, b -> a[0] <=> b[0] }
 
 // join and sort
-def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).take(4).join('\t') }
+def thetvdb_txt = thetvdb_index.groupBy{ it[0] }.findResults{ k, v -> ([k.pad(6)] + v*.getAt(1).unique{ it.toLowerCase() }).join('\t') }
 
 // sanity check
 if (thetvdb_txt.size() < 4000) { die('TheTVDB index sanity failed: ' + thetvdb_txt.size()) }

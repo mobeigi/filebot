@@ -209,17 +209,18 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				LinkedHashSet<String> set = new LinkedHashSet<String>(4);
-				set.add(removeTrailingBrackets(episode.getSeriesName()));
-				set.add(removeTrailingBrackets(episode.getTitle()));
+				LinkedHashSet<String> keywords = new LinkedHashSet<String>(4);
+				keywords.add(removeTrailingBrackets(episode.getSeriesName()));
+				keywords.add(removeTrailingBrackets(episode.getTitle()));
 				for (String it : episode.getSeries().getEffectiveNames()) {
-					set.add(removeTrailingBrackets(it));
+					keywords.add(removeTrailingBrackets(it));
 				}
 
-				Iterator<String> itr = set.iterator();
+				// create array with size 4
 				Object[] f = new Object[4];
+				Iterator<String> keywordItr = keywords.iterator();
 				for (int i = 0; i < f.length; i++) {
-					f[i] = itr.hasNext() ? itr.next() : null;
+					f[i] = keywordItr.hasNext() ? keywordItr.next() : null;
 				}
 				return f;
 			}
