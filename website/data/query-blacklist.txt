@@ -212,6 +212,7 @@ AAC\d*
 ABC
 AC3D
 Addic7ed.com
+aGGr0
 AMC-BL
 AMC-TEST
 Anaglyph
@@ -290,6 +291,7 @@ History.Channel
 HQ
 HR
 HSBS
+iFH
 info
 iNT
 iNTERNAL
@@ -312,6 +314,7 @@ Los.Sustitutos
 M.HD
 MegaPack
 mkvonly
+MoTv
 Movie.Pack
 mpg$
 MultiSub
@@ -330,12 +333,14 @@ P2P
 PAL
 PBS
 PELICULAS
+PHoQUE
 plex
 Pre.?DVD
 PROPER
 PS3
 PSP
 QEBS\d*
+REACTOR
 READNFO
 REAL.PROPER
 RecordedTV
@@ -363,6 +368,7 @@ SPA
 Spanish
 Special.Edition
 Stephen.Kings
+STRATOS
 Sub
 SUBBED
 Subs
@@ -374,11 +380,14 @@ SYNC
 SYNCED
 SYNCFIX
 t\d{2,4}
+TAXES
 TC
 theatrical.cut
+THEORY
 to.be.sorted
 ToSort
 TPB
+TRUEDEF
 TRUEFRENCH
 TS
 TSXVID
@@ -398,6 +407,7 @@ Volume.TB
 WS
 www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de|pe)
 xbmc
+XORBiTANT
 xRipp
 XtremeDoN
 YIFY
