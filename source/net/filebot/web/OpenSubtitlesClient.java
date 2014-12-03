@@ -33,6 +33,7 @@ import javax.swing.Icon;
 import net.filebot.Cache;
 import net.filebot.Cache.Key;
 import net.filebot.ResourceManager;
+import net.filebot.media.MediaDetection;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.util.ExceptionUtilities;
@@ -550,21 +551,39 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		Cache cache = Cache.getCache("web-datasource-lv2");
 		String cacheKey = getClass().getName() + ".subLanguageMap";
 
+		// try to get language map from cache
 		Map<String, String> subLanguageMap = cache.get(cacheKey, Map.class);
 
 		if (subLanguageMap == null) {
 			subLanguageMap = new HashMap<String, String>();
 
+			// add additional language aliases for improved compatibility
+			Map<String, Locale> additionalLanguageMappings = MediaDetection.releaseInfo.getLanguageMap(Locale.ENGLISH);
+
 			// fetch language data
 			for (Entry<String, String> entry : xmlrpc.getSubLanguages().entrySet()) {
 				// map id by name
-				subLanguageMap.put(entry.getValue().toLowerCase(), entry.getKey().toLowerCase());
-				subLanguageMap.put(entry.getKey().toLowerCase(), entry.getKey().toLowerCase()); // add reverse mapping as well for improved compatibility
+				String subLanguageID = entry.getKey().toLowerCase();
+				String subLanguageName = entry.getValue().toLowerCase();
+
+				subLanguageMap.put(subLanguageName, subLanguageID);
+				subLanguageMap.put(subLanguageID, subLanguageID); // add reverse mapping as well for improved compatibility
+
+				// add additional language aliases for improved compatibility
+				for (String key : asList(subLanguageID, subLanguageName)) {
+					Locale locale = additionalLanguageMappings.get(key);
+					if (locale != null) {
+						for (String identifier : asList(locale.getLanguage(), locale.getISO3Language(), locale.getDisplayLanguage(Locale.ENGLISH))) {
+							if (identifier != null && identifier.length() > 0 && !subLanguageMap.containsKey(identifier.toLowerCase())) {
+								subLanguageMap.put(identifier.toLowerCase(), subLanguageID);
+							}
+						}
+					}
+				}
 			}
 
 			// some additional special handling
 			subLanguageMap.put("brazilian", "pob");
-			subLanguageMap.put("pob", "pob");
 
 			// cache data
 			cache.put(cacheKey, subLanguageMap);
@@ -574,14 +593,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	protected String getSubLanguageID(String languageName) throws Exception {
-		Map<String, String> subLanguageMap = getSubLanguageMap();
-		String key = languageName.toLowerCase();
-
-		if (!subLanguageMap.containsKey(key)) {
-			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", key));
+		String subLanguageID = getSubLanguageMap().get(languageName.toLowerCase());
+		if (subLanguageID == null) {
+			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
 		}
-
-		return subLanguageMap.get(key);
+		return subLanguageID;
 	}
 
 	protected String getLanguageName(String subLanguageID) throws Exception {

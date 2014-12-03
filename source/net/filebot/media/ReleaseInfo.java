@@ -493,7 +493,7 @@ public class ReleaseInfo {
 		return patterns;
 	}
 
-	private Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
+	public Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
 		// use maximum strength collator by default
 		Collator collator = Collator.getInstance(Locale.ROOT);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
@@ -520,6 +520,7 @@ public class ReleaseInfo {
 
 		// unofficial language for pb/pob for Portuguese (Brazil)
 		Locale brazil = new Locale("pob");
+		languageMap.put("brazilian", brazil);
 		languageMap.put("pb", brazil);
 		languageMap.put("pob", brazil);
 
