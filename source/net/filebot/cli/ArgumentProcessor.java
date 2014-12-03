@@ -160,7 +160,7 @@ public class ArgumentProcessor {
 					return new URI("g", input.substring(2), null);
 				}
 
-				// fn:sortivo / svn:sortivo
+				// fn:amc / dev:amc
 				if (Pattern.matches("\\w+:.+", input)) {
 					String scheme = input.substring(0, input.indexOf(':'));
 					if (getResourceTemplate(scheme) != null) {
@@ -196,7 +196,7 @@ public class ArgumentProcessor {
 			String url = (resolver != null) ? String.format(resolver, uri.getSchemeSpecificPart()) : uri.toString();
 
 			// fetch remote script only if modified
-			CachedResource<String> script = new CachedResource<String>(url, String.class, CachedResource.ONE_DAY) {
+			CachedResource<String> script = new CachedResource<String>(url, String.class, url.contains("/devel/") ? CachedResource.ONE_DAY : CachedResource.ONE_MONTH) {
 
 				@Override
 				public String process(ByteBuffer data) {
