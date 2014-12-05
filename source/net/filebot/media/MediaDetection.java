@@ -1490,7 +1490,9 @@ public class MediaDetection {
 							Movie movie = (Movie) model;
 							if (movie.getYear() > 0 && movie.getTmdbId() > 0) {
 								SimpleDate releaseDate = WebServices.TheMovieDB.getMovieInfo(movie, Locale.ENGLISH, false).getReleased();
-								xattr.setCreationDate(releaseDate.getTimeStamp());
+								if (releaseDate != null) {
+									xattr.setCreationDate(releaseDate.getTimeStamp());
+								}
 							}
 						}
 					} catch (Exception e) {

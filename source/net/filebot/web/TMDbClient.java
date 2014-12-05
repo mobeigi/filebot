@@ -158,7 +158,7 @@ public class TMDbClient implements MovieIdentificationService {
 			MovieInfo info = getMovieInfo(id, locale, false);
 			String name = info.getName();
 			String[] aliasNames = info.getOriginalName() == null || info.getOriginalName().isEmpty() || info.getOriginalName().equals(name) ? new String[0] : new String[] { info.getOriginalName() };
-			int year = info.getReleased().getYear();
+			int year = info.getReleased() != null ? info.getReleased().getYear() : id.getYear();
 			int tmdbid = info.getId();
 			int imdbid = info.getImdbId() != null ? info.getImdbId() : -1;
 			return new Movie(name, aliasNames, year, imdbid, tmdbid, locale);
