@@ -196,7 +196,8 @@ new File('updates_all.xml').eachLine('UTF-8'){
 }
 
 // blacklist crap entries
-tvdb_updates.removeAll( [219901, 256135] )
+tvdb_updates.remove(219901)
+tvdb_updates.remove(256135)
 
 
 tvdb_updates.values().each{ update ->
