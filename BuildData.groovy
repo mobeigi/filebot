@@ -195,6 +195,9 @@ new File('updates_all.xml').eachLine('UTF-8'){
 	}
 }
 
+// blacklist crap entries
+tvdb_updates.removeAll( [219901, 256135] )
+
 
 tvdb_updates.values().each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
@@ -277,6 +280,7 @@ def addSeriesAlias = { from, to ->
 	thetvdb_index << [se[0], to]
 }
 
+
 // additional custom mappings
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
 addSeriesAlias('Law & Order: Special Victims Unit', 'Law & Order SVU')
@@ -298,7 +302,6 @@ addSeriesAlias('Resurrection', 'Resurrection (US)')
 addSeriesAlias('Revolution', 'Revolution (2012)')
 addSeriesAlias('Cosmos: A Spacetime Odyssey', 'Cosmos A Space Time Odyssey')
 addSeriesAlias('The Bridge (2013)', 'The Bridge (US)')
-
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
