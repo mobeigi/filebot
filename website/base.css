@@ -481,7 +481,7 @@ div.screencast:hover .play {
 	list-style: none; 
 	background: url('http://www.ubuntu.com/static/u/img/favicon.ico') no-repeat 0.5em center;
     background-size: 16px 16px;
-	margin: 0em 0em 0.5em 0.5em;
+	margin: 0em 0em 0.5em 4.5em;
 	padding: 0.5em 0.6em 0.5em 2.0em;
 	border: thin orange dashed;
 	border-radius: 4px 4px 4px 4px;
