@@ -1,4 +1,16 @@
-filebot (4.5.2) trusty; urgency=low
+filebot (4.5.3-0ubuntu1) trusty; urgency=low
+
+  * Change Output Folder button in Format Dialog
+  * Extract All will now only extract not-already-extracted files from the selected archives
+  * Improved support for non-English names
+  * Improved support for subtitle tags and language detection
+  * New binding {output}
+  * Lots of optimizations and usability improvements
+  * Lots of bugfixes
+
+ -- Reinhard Pointner <rednoah@users.sourceforge.net>  Fri, 08 Dec 2014 00:00:00 +0800
+
+filebot (4.5.2-0ubuntu1) trusty; urgency=low
 
   * Opportunistic / Strict mode matching
   * Improved episode / movie / music auto-detection
