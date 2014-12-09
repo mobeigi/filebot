@@ -177,15 +177,9 @@ public class TMDbClient implements MovieIdentificationService {
 				return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo);
 			} else if (movie.getImdbId() > 0) {
 				return getMovieInfo(String.format("tt%07d", movie.getImdbId()), locale, extendedInfo);
-			} else {
-				for (Movie result : searchMovie(movie.getName(), locale)) {
-					if (movie.getName().equalsIgnoreCase(result.getName()) && movie.getYear() == result.getYear()) {
-						return getMovieInfo(String.valueOf(result.getTmdbId()), locale, extendedInfo);
-					}
-				}
 			}
 		} catch (FileNotFoundException | NullPointerException e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Movie data missing: %s [%d / %d]", movie, movie.getTmdbId(), movie.getImdbId()), e);
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Movie data not found: %s [%d / %d]", movie, movie.getTmdbId(), movie.getImdbId()), e);
 		}
 		return null;
 	}

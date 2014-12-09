@@ -557,34 +557,50 @@ public class MediaBindingBean {
 	public synchronized AssociativeScriptObject getMetaInfo() {
 		if (metaInfo == null) {
 			try {
-				if (infoObject instanceof Episode)
-					metaInfo = WebServices.TheTVDB.getSeriesInfoByName(getEpisode().getSeriesName(), getEpisode().getLanguage() == null ? Locale.ENGLISH : getEpisode().getLanguage());
-				if (infoObject instanceof Movie)
-					metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage() == null ? Locale.ENGLISH : getMovie().getLanguage(), true);
+				if (infoObject instanceof Episode) {
+					Episode episode = (Episode) infoObject;
+					if (episode.getSeries() instanceof TheTVDBSearchResult) {
+						metaInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) episode.getSeries(), episode.getLanguage() == null ? Locale.ENGLISH : episode.getLanguage());
+					}
+				} else if (infoObject instanceof Movie) {
+					if (getMovie().getTmdbId() > 0) {
+						metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage() == null ? Locale.ENGLISH : getMovie().getLanguage(), true);
+					} else if (getMovie().getImdbId() > 0) {
+						metaInfo = WebServices.OMDb.getMovieInfo(getMovie());
+					}
+				}
 			} catch (Exception e) {
-				throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
+				throw new RuntimeException("Failed to retrieve extended metadata: " + infoObject, e);
 			}
 		}
+
+		if (mediaInfo == null) {
+			throw new UnsupportedOperationException("Extended metadata not available");
+		}
+
 		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 
 	@Define("imdb")
 	public synchronized AssociativeScriptObject getImdbApiInfo() {
-		Object data = null;
+		Object metaInfo = null;
 
 		try {
 			if (infoObject instanceof Episode) {
-				data = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
+				metaInfo = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
 			}
 			if (infoObject instanceof Movie) {
-				Movie m = getMovie();
-				data = WebServices.OMDb.getMovieInfo(m.getImdbId() > 0 ? m : new Movie(null, -1, WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId(), -1));
+				metaInfo = WebServices.OMDb.getMovieInfo(getMovie());
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to retrieve metadata: " + infoObject, e);
+			throw new RuntimeException("Failed to retrieve extended metadata: " + infoObject, e);
 		}
 
-		return createMapBindings(new PropertyBindings(data, null));
+		if (mediaInfo == null) {
+			throw new UnsupportedOperationException("Extended metadata not available");
+		}
+
+		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 
 	@Define("episodelist")
