@@ -9,8 +9,6 @@ HIMYM	How I Met Your Mother
 Hml8p	Homeland
 hoc	House of Cards
 law.and.order.svu	Law & Order: Special Victims Unit
-M.A.S.H	M*A*S*H
-MASH	M*A*S*H
 NCIS.LA	NCIS: Los Angeles
 poid	Person of Interest
 SuiG7p	Suits
