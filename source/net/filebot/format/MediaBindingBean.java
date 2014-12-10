@@ -13,6 +13,7 @@ import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.EpisodeFormat.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +54,8 @@ import net.filebot.web.MultiEpisode;
 import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
 import net.filebot.web.SortOrder;
+import net.filebot.web.TMDbClient.MovieInfo;
+import net.filebot.web.TheTVDBSeriesInfo;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -248,7 +251,11 @@ public class MediaBindingBean {
 			}
 
 			// lookup IMDbID for TMDbID
-			tmdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getId();
+			try {
+				tmdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getId();
+			} catch (FileNotFoundException e) {
+				return null;
+			}
 		}
 
 		return String.valueOf(tmdbid);
@@ -264,7 +271,11 @@ public class MediaBindingBean {
 			}
 
 			// lookup IMDbID for TMDbID
-			imdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId();
+			try {
+				imdbid = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false).getImdbId();
+			} catch (FileNotFoundException e) {
+				return null;
+			}
 		}
 
 		return imdbid != null ? String.format("tt%07d", imdbid) : null;
@@ -581,16 +592,28 @@ public class MediaBindingBean {
 
 		try {
 			if (infoObject instanceof Episode) {
-				metaInfo = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesInfo().getStartDate().getYear(), -1, -1));
+				if (WebServices.TheTVDB.getName().equals(getSeriesInfo().getDatabase())) {
+					TheTVDBSeriesInfo extendedSeriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH);
+					if (extendedSeriesInfo.getImdbId() != null) {
+						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(null, -1, grepImdbId(extendedSeriesInfo.getImdbId()).iterator().next(), -1));
+					}
+				}
 			}
 			if (infoObject instanceof Movie) {
-				metaInfo = WebServices.OMDb.getMovieInfo(getMovie());
+				if (getMovie().getTmdbId() > 0) {
+					MovieInfo movieInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), Locale.ENGLISH, false);
+					if (movieInfo.getImdbId() != null) {
+						metaInfo = WebServices.OMDb.getMovieInfo(new Movie(null, -1, movieInfo.getImdbId(), -1));
+					}
+				} else if (getMovie().getImdbId() > 0) {
+					metaInfo = WebServices.OMDb.getMovieInfo(getMovie());
+				}
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve extended metadata: " + infoObject, e);
 		}
 
-		if (mediaInfo == null) {
+		if (metaInfo == null) {
 			throw new UnsupportedOperationException("Extended metadata not available");
 		}
 
