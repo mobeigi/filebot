@@ -1,6 +1,8 @@
 package net.filebot.web;
 
-import java.util.Arrays;
+import static java.util.Arrays.*;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -11,69 +13,86 @@ import net.filebot.Cache.Key;
 
 public abstract class AbstractEpisodeListProvider implements EpisodeListProvider {
 
-	@Override
-	public boolean hasSingleSeasonSupport() {
-		return true;
-	}
-
-	@Override
-	public boolean hasLocaleSupport() {
-		return false;
-	}
-
 	protected abstract List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception;
 
-	protected abstract List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception;
+	protected abstract SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception;
 
-	public List<SearchResult> search(String query) throws Exception {
-		return search(query, getDefaultLocale());
-	}
+	protected abstract SearchResult createSearchResult(int id);
+
+	protected abstract ResultCache getCache();
+
+	protected abstract SortOrder vetoRequestParameter(SortOrder order);
+
+	protected abstract Locale vetoRequestParameter(Locale language);
 
 	@Override
-	public List<SearchResult> search(String query, Locale locale) throws Exception {
-		ResultCache cache = getCache();
-		List<SearchResult> results = (cache != null) ? cache.getSearchResult(query, locale) : null;
+	public List<SearchResult> search(String query, Locale language) throws Exception {
+		List<SearchResult> results = getCache().getSearchResult(query, language);
 		if (results != null) {
 			return results;
 		}
 
 		// perform actual search
-		results = fetchSearchResult(query, locale);
+		results = fetchSearchResult(query, language);
 
 		// cache results and return
-		return (cache != null) ? cache.putSearchResult(query, locale, results) : results;
-	}
-
-	// helper for scripting
-	public List<Episode> getEpisodeList(SearchResult searchResult, String sortOrder, String locale) throws Exception {
-		return getEpisodeList(searchResult, sortOrder == null ? SortOrder.Airdate : SortOrder.forName(sortOrder), new Locale(locale));
-	}
-
-	public List<Episode> getEpisodeList(SearchResult searchResult) throws Exception {
-		return getEpisodeList(searchResult, SortOrder.Airdate, getDefaultLocale());
+		return getCache().putSearchResult(query, language, results);
 	}
 
 	@Override
-	public List<Episode> getEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
-		ResultCache cache = getCache();
-		List<Episode> episodes = (cache != null) ? cache.getEpisodeList(searchResult, sortOrder, locale) : null;
-		if (episodes != null) {
-			return episodes;
+	public List<Episode> getEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale language) throws Exception {
+		return getSeriesData(searchResult, sortOrder, language).getEpisodeList();
+	}
+
+	@Override
+	public List<Episode> getEpisodeList(int id, SortOrder order, Locale language) throws Exception {
+		return getEpisodeList(createSearchResult(id), order, language);
+	}
+
+	@Override
+	public SeriesInfo getSeriesInfo(SearchResult searchResult, Locale language) throws Exception {
+		return getSeriesData(searchResult, null, language).getSeriesInfo();
+	}
+
+	public SeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
+		return getSeriesInfo(createSearchResult(id), language);
+	}
+
+	protected SeriesData getSeriesData(SearchResult searchResult, SortOrder order, Locale language) throws Exception {
+		// override preferences if requested parameters are not supported
+		order = vetoRequestParameter(order);
+		language = vetoRequestParameter(language);
+
+		SeriesData data = getCache().getSeriesData(searchResult, order, language);
+		if (data != null) {
+			return data;
 		}
 
-		// perform actual search
-		episodes = fetchEpisodeList(searchResult, sortOrder, locale);
+		// perform actual lookup
+		data = fetchSeriesData(searchResult, order, language);
 
 		// cache results and return
-		return (cache != null) ? cache.putEpisodeList(searchResult, sortOrder, locale, episodes) : episodes;
+		return getCache().putSeriesData(searchResult, order, language, data);
 	}
 
-	public Locale getDefaultLocale() {
-		return Locale.ENGLISH;
-	}
+	protected static class SeriesData implements Serializable {
 
-	public ResultCache getCache() {
-		return null;
+		public SeriesInfo seriesInfo;
+		public Episode[] episodeList;
+
+		public SeriesData(SeriesInfo seriesInfo, List<Episode> episodeList) {
+			this.seriesInfo = seriesInfo;
+			this.episodeList = episodeList.toArray(new Episode[episodeList.size()]);
+		}
+
+		public SeriesInfo getSeriesInfo() {
+			return seriesInfo.clone();
+		}
+
+		public List<Episode> getEpisodeList() {
+			return asList(episodeList.clone());
+		}
+
 	}
 
 	protected static class ResultCache {
@@ -91,69 +110,39 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		}
 
 		public <T extends SearchResult> List<T> putSearchResult(String query, Locale locale, List<T> value) {
-			try {
-				cache.put(new Key(id, normalize(query), locale), value.toArray(new SearchResult[0]));
-			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
-			}
-
+			putData("SearchResult", normalize(query), locale, value.toArray(new SearchResult[value.size()]));
 			return value;
 		}
 
 		public List<SearchResult> getSearchResult(String query, Locale locale) {
-			try {
-				SearchResult[] results = cache.get(new Key(id, normalize(query), locale), SearchResult[].class);
-				if (results != null) {
-					return Arrays.asList(results);
-				}
-			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
-			}
-
-			return null;
+			SearchResult[] data = getData("SearchResult", normalize(query), locale, SearchResult[].class);
+			return data == null ? null : asList(data);
 		}
 
-		public List<Episode> putEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale, List<Episode> episodes) {
-			try {
-				cache.put(new Key(id, key, sortOrder, locale), episodes.toArray(new Episode[0]));
-			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
-			}
-
-			return episodes;
+		public SeriesData putSeriesData(SearchResult key, SortOrder sortOrder, Locale locale, SeriesData seriesData) {
+			putData("SeriesData." + sortOrder.name(), key, locale, seriesData);
+			return seriesData;
 		}
 
-		public List<Episode> getEpisodeList(SearchResult key, SortOrder sortOrder, Locale locale) {
-			try {
-				Episode[] episodes = cache.get(new Key(id, key, sortOrder, locale), Episode[].class);
-				if (episodes != null) {
-					return Arrays.asList(episodes);
-				}
-			} catch (Exception e) {
-				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
-			}
-
-			return null;
+		public SeriesData getSeriesData(SearchResult key, SortOrder sortOrder, Locale locale) {
+			return getData("SeriesData." + sortOrder.name(), key, locale, SeriesData.class);
 		}
 
-		public void putData(Object category, Object key, Locale locale, Object object) {
+		public <T> T putData(Object category, Object key, Locale locale, T object) {
 			try {
 				cache.put(new Key(id, category, locale, key), object);
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage());
 			}
+			return object;
 		}
 
 		public <T> T getData(Object category, Object key, Locale locale, Class<T> type) {
 			try {
-				T value = cache.get(new Key(id, category, locale, key), type);
-				if (value != null) {
-					return value;
-				}
+				return cache.get(new Key(id, category, locale, key), type);
 			} catch (Exception e) {
 				Logger.getLogger(AbstractEpisodeListProvider.class.getName()).log(Level.WARNING, e.getMessage(), e);
 			}
-
 			return null;
 		}
 

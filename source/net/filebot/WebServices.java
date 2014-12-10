@@ -25,7 +25,6 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
 import net.filebot.web.AnidbSearchResult;
-import net.filebot.web.AudioTrack;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
@@ -40,10 +39,9 @@ import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TVRageClient;
-import net.filebot.web.TVRageSearchResult;
 import net.filebot.web.TheTVDBClient;
-import net.filebot.web.TheTVDBClient.SeriesInfo;
 import net.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.TheTVDBSeriesInfo;
 import net.filebot.web.VideoHashSubtitleService;
 
 /**
@@ -114,21 +112,6 @@ public final class WebServices {
 		return null; // default
 	}
 
-	public static Object getServiceBySearchResult(Object r) {
-		if (r instanceof TheTVDBSearchResult)
-			return WebServices.TheTVDB;
-		if (r instanceof AnidbSearchResult)
-			return WebServices.AniDB;
-		if (r instanceof TVRageSearchResult)
-			return WebServices.TVRage;
-		if (r instanceof Movie)
-			return WebServices.TheMovieDB;
-		if (r instanceof AudioTrack)
-			return WebServices.AcoustID;
-
-		return null;
-	}
-
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {
@@ -159,14 +142,6 @@ public final class WebServices {
 			}
 
 			return localIndex;
-		}
-
-		public SeriesInfo getSeriesInfoByLocalIndex(String name, Locale locale) throws Exception {
-			List<SearchResult> results = getLocalIndex().search(name);
-			if (results.size() > 0) {
-				return getSeriesInfo((TheTVDBSearchResult) results.get(0), locale);
-			}
-			return null;
 		}
 
 		@Override
@@ -258,10 +233,11 @@ public final class WebServices {
 
 		public Movie getIMDbID(SearchResult result) throws Exception {
 			if (result instanceof TheTVDBSearchResult) {
-				TheTVDBSearchResult s = (TheTVDBSearchResult) result;
-				SeriesInfo seriesInfo = ((TheTVDBClient) seriesIndex).getSeriesInfo(s, Locale.ENGLISH);
+				TheTVDBSearchResult searchResult = (TheTVDBSearchResult) result;
+				TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) ((TheTVDBClient) seriesIndex).getSeriesInfo(searchResult, Locale.ENGLISH);
 				if (seriesInfo.getImdbId() != null) {
-					return new Movie(seriesInfo.getName(), seriesInfo.getFirstAired().getYear(), seriesInfo.getImdbId(), -1);
+					int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
+					return new Movie(seriesInfo.getName(), seriesInfo.getStartDate().getYear(), imdbId, -1);
 				}
 			}
 			if (result instanceof Movie) {

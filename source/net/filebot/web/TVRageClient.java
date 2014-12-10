@@ -44,8 +44,23 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
+	public boolean hasSeasonSupport() {
+		return true;
+	}
+
+	@Override
+	protected SortOrder vetoRequestParameter(SortOrder order) {
+		return SortOrder.Airdate;
+	}
+
+	@Override
+	protected Locale vetoRequestParameter(Locale language) {
+		return Locale.ENGLISH;
+	}
+
+	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, Cache.getCache("web-datasource"));
+		return new ResultCache(getName(), Cache.getCache("web-datasource"));
 	}
 
 	@Override
@@ -67,14 +82,24 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws IOException, SAXException {
+	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TVRageSearchResult series = (TVRageSearchResult) searchResult;
-		Document dom = request("/feeds/full_show_info.php", singletonMap("sid", series.getSeriesId()));
+		Document dom = request("/feeds/full_show_info.php", singletonMap("sid", series.getId()));
 
-		String seriesName = selectString("Show/name", dom);
-		SimpleDate seriesStartDate = SimpleDate.parse(selectString("Show/started", dom), "MMM/dd/yyyy");
-		Locale language = Locale.ENGLISH;
+		// parse series data
+		Node seriesNode = selectNode("Show", dom);
+		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, series.getId());
+		seriesInfo.setAliasNames(searchResult.getEffectiveNames());
 
+		seriesInfo.setName(getTextContent("name", seriesNode));
+		seriesInfo.setNetwork(getTextContent("network", seriesNode));
+		seriesInfo.setRuntime(getIntegerContent("runtime", seriesNode));
+		seriesInfo.setStatus(getTextContent("status", seriesNode));
+
+		seriesInfo.setGenres(getListContent("genre", null, getChild("genres", seriesNode)));
+		seriesInfo.setStartDate(SimpleDate.parse(selectString("started", seriesNode), "MMM/dd/yyyy"));
+
+		// parse episode data
 		List<Episode> episodes = new ArrayList<Episode>(25);
 		List<Episode> specials = new ArrayList<Episode>(5);
 
@@ -86,30 +111,26 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 			Integer seasonNumber = seasonIdentifier == null ? null : new Integer(seasonIdentifier);
 			SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
 
-			SortOrder order = SortOrder.Airdate; // default order
-
 			// check if we have season and episode number, if not it must be a special episode
 			if (episodeNumber == null || seasonNumber == null) {
 				// handle as special episode
 				seasonNumber = getIntegerContent("season", node);
 				int specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, title, null, specialNumber, order, language, airdate, searchResult));
+				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, title, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
 					episodeNumber = getIntegerContent("epnum", node);
 					seasonNumber = null;
-					order = SortOrder.Absolute;
 				}
-
-				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, title, null, null, order, language, airdate, searchResult));
+				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, title, null, null, airdate, new SeriesInfo(seriesInfo)));
 			}
 		}
 
 		// add specials at the end
 		episodes.addAll(specials);
 
-		return episodes;
+		return new SeriesData(seriesInfo, episodes);
 	}
 
 	public Document request(String resource, Map<String, Object> parameters) throws IOException, SAXException {
@@ -119,6 +140,11 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		}
 		URL url = new URL("http", host, resource + "?" + encodeParameters(param, true));
 		return getDocument(url);
+	}
+
+	@Override
+	protected SearchResult createSearchResult(int id) {
+		return new TVRageSearchResult(null, id, null);
 	}
 
 	@Override

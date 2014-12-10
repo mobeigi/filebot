@@ -29,7 +29,6 @@ import net.filebot.Cache;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
-import net.filebot.web.TheTVDBClient.SeriesInfo.SeriesProperty;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -60,13 +59,23 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
+	public boolean hasSeasonSupport() {
 		return true;
 	}
 
 	@Override
-	public boolean hasLocaleSupport() {
-		return true;
+	protected SortOrder vetoRequestParameter(SortOrder order) {
+		return order != null ? order : SortOrder.Airdate;
+	}
+
+	@Override
+	protected Locale vetoRequestParameter(Locale language) {
+		return language != null ? language : Locale.ENGLISH;
+	}
+
+	@Override
+	public ResultCache getCache() {
+		return new ResultCache(getName(), Cache.getCache("web-datasource"));
 	}
 
 	public String getLanguageCode(Locale locale) {
@@ -83,11 +92,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return "ru";
 
 		return code;
-	}
-
-	@Override
-	public ResultCache getCache() {
-		return new ResultCache(host, Cache.getCache("web-datasource"));
 	}
 
 	@Override
@@ -120,14 +124,36 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
+	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
 		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getSeriesId() + "/all/" + getLanguageCode(locale) + ".xml");
 
-		// we could get the series name from the search result, but the language may not match the given parameter
-		String seriesName = selectString("Data/Series/SeriesName", dom);
-		SimpleDate seriesStartDate = SimpleDate.parse(selectString("Data/Series/FirstAired", dom), "yyyy-MM-dd");
+		// parse series info
+		Node seriesNode = selectNode("Data/Series", dom);
+		TheTVDBSeriesInfo seriesInfo = new TheTVDBSeriesInfo(getName(), sortOrder, locale, series.getId());
+		seriesInfo.setAliasNames(searchResult.getEffectiveNames());
 
+		seriesInfo.setName(getTextContent("SeriesName", seriesNode));
+		seriesInfo.setAirsDayOfWeek(getTextContent("Airs_DayOfWeek", seriesNode));
+		seriesInfo.setAirTime(getTextContent("Airs_Time", seriesNode));
+		seriesInfo.setCertification(getTextContent("ContentRating", seriesNode));
+		seriesInfo.setImdbId(getTextContent("IMDB_ID", seriesNode));
+		seriesInfo.setNetwork(getTextContent("Network", seriesNode));
+		seriesInfo.setOverview(getTextContent("Overview", seriesNode));
+		seriesInfo.setStatus(getTextContent("Status", seriesNode));
+
+		seriesInfo.setRating(getDecimalContent("Rating", seriesNode));
+		seriesInfo.setRatingCount(getIntegerContent("RatingCount", seriesNode));
+		seriesInfo.setRuntime(getIntegerContent("Runtime", seriesNode));
+		seriesInfo.setActors(getListContent("Actors", "\\|", seriesNode));
+		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
+		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode), "yyyy-MM-dd"));
+
+		seriesInfo.setBannerUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("banner", seriesNode)));
+		seriesInfo.setFanartUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("fanart", seriesNode)));
+		seriesInfo.setPosterUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("poster", seriesNode)));
+
+		// parse episode data
 		List<Node> nodes = selectNodes("Data/Episode", dom);
 
 		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
@@ -143,7 +169,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			// default numbering
 			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
 			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
-			SortOrder order = SortOrder.Airdate;
 
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
@@ -154,14 +179,13 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 				// use given episode number as special number or count specials by ourselves
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
-				specials.add(new Episode(seriesName, seriesStartDate, seasonNumber, null, episodeName, null, specialNumber, order, locale, airdate, searchResult));
+				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
 					if (absoluteNumber != null) {
 						episodeNumber = absoluteNumber;
 						seasonNumber = null;
-						order = SortOrder.Absolute;
 					}
 				} else if (sortOrder == SortOrder.DVD) {
 					try {
@@ -171,13 +195,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 						// require both values to be successfully read
 						episodeNumber = eno;
 						seasonNumber = sno;
-						order = SortOrder.DVD;
 					} catch (Exception e) {
 						// ignore, fallback to default numbering
 					}
 				}
 
-				episodes.add(new Episode(seriesName, seriesStartDate, seasonNumber, episodeNumber, episodeName, absoluteNumber, null, order, locale, airdate, searchResult));
+				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(seriesInfo)));
 			}
 		}
 
@@ -187,7 +210,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		// add specials at the end
 		episodes.addAll(specials);
 
-		return episodes;
+		return new SeriesData(seriesInfo, episodes);
 	}
 
 	public TheTVDBSearchResult lookupByID(int id, Locale locale) throws Exception {
@@ -225,11 +248,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		TheTVDBSearchResult series = new TheTVDBSearchResult(name, Integer.parseInt(id));
 		getCache().putData("lookupByIMDbID", imdbid, locale, series);
 		return series;
-	}
-
-	@Override
-	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://" + host + "/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
 	}
 
 	protected String getMirror(MirrorType mirrorType) throws IOException {
@@ -340,229 +358,18 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	}
 
-	public SeriesInfo getSeriesInfoByID(int thetvdbid, Locale locale) throws Exception {
-		return getSeriesInfo(new TheTVDBSearchResult(null, thetvdbid), locale);
-	}
-
 	public SeriesInfo getSeriesInfoByIMDbID(int imdbid, Locale locale) throws Exception {
 		return getSeriesInfo(lookupByIMDbID(imdbid, locale), locale);
 	}
 
-	public SeriesInfo getSeriesInfoByName(String name, Locale locale) throws Exception {
-		for (SearchResult it : search(name, locale)) {
-			if (name.equalsIgnoreCase(it.getName())) {
-				return getSeriesInfo((TheTVDBSearchResult) it, locale);
-			}
-		}
-
-		return null;
+	@Override
+	protected SearchResult createSearchResult(int id) {
+		return new TheTVDBSearchResult(null, id);
 	}
 
-	public SeriesInfo getSeriesInfo(TheTVDBSearchResult searchResult, Locale locale) throws Exception {
-		// check cache first
-		SeriesInfo cachedItem = getCache().getData("seriesInfo", searchResult.seriesId, locale, SeriesInfo.class);
-		if (cachedItem != null) {
-			return cachedItem;
-		}
-
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + searchResult.seriesId + "/" + getLanguageCode(locale) + ".xml");
-
-		Node node = selectNode("//Series", dom);
-		Map<SeriesProperty, String> fields = new EnumMap<SeriesProperty, String>(SeriesProperty.class);
-
-		// remember banner mirror
-		fields.put(SeriesProperty.BannerMirror, getResourceURL(MirrorType.BANNER, "/banners/").toString());
-
-		// copy values from xml
-		for (SeriesProperty key : SeriesProperty.values()) {
-			String value = getTextContent(key.name(), node);
-			if (value != null && value.length() > 0) {
-				fields.put(key, value);
-			}
-		}
-
-		SeriesInfo seriesInfo = new SeriesInfo(fields);
-		getCache().putData("seriesInfo", searchResult.seriesId, locale, seriesInfo);
-		return seriesInfo;
-	}
-
-	public static class SeriesInfo implements Serializable {
-
-		public static enum SeriesProperty {
-			id, Actors, Airs_DayOfWeek, Airs_Time, ContentRating, FirstAired, Genre, IMDB_ID, Language, Network, Overview, Rating, RatingCount, Runtime, SeriesName, Status, BannerMirror, banner, fanart, poster
-		}
-
-		protected Map<SeriesProperty, String> fields;
-
-		protected SeriesInfo() {
-			// used by serializer
-		}
-
-		protected SeriesInfo(Map<SeriesProperty, String> fields) {
-			this.fields = new EnumMap<SeriesProperty, String>(fields);
-		}
-
-		public String get(Object key) {
-			return fields.get(SeriesProperty.valueOf(key.toString()));
-		}
-
-		public String get(SeriesProperty key) {
-			return fields.get(key);
-		}
-
-		public Integer getId() {
-			// e.g. 80348
-			try {
-				return Integer.parseInt(get(SeriesProperty.id));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public List<String> getActors() {
-			// e.g. |Zachary Levi|Adam Baldwin|Yvonne Strzechowski|
-			return split(get(SeriesProperty.Actors));
-		}
-
-		public List<String> getGenres() {
-			// e.g. |Comedy|
-			return split(get(SeriesProperty.Genre));
-		}
-
-		protected List<String> split(String values) {
-			List<String> items = new ArrayList<String>();
-			if (values != null && values.length() > 0) {
-				for (String it : values.split("[|]")) {
-					it = it.trim();
-					if (it.length() > 0) {
-						items.add(it);
-					}
-				}
-			}
-			return items;
-		}
-
-		public String getAirDayOfWeek() {
-			// e.g. Monday
-			return get(SeriesProperty.Airs_DayOfWeek);
-		}
-
-		public String getAirTime() {
-			// e.g. 8:00 PM
-			return get(SeriesProperty.Airs_Time);
-		}
-
-		public SimpleDate getFirstAired() {
-			// e.g. 2007-09-24
-			return SimpleDate.parse(get(SeriesProperty.FirstAired), "yyyy-MM-dd");
-		}
-
-		public String getContentRating() {
-			// e.g. TV-PG
-			return get(SeriesProperty.ContentRating);
-		}
-
-		public String getCertification() {
-			return getContentRating(); // another getter for compability reasons
-		}
-
-		public Integer getImdbId() {
-			// e.g. tt0934814
-			try {
-				return Integer.parseInt(get(SeriesProperty.IMDB_ID).substring(2));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Locale getLanguage() {
-			// e.g. en
-			try {
-				return new Locale(get(SeriesProperty.Language));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getOverview() {
-			// e.g. Zachary Levi (Less Than Perfect) plays Chuck...
-			return get(SeriesProperty.Overview);
-		}
-
-		public Double getRating() {
-			// e.g. 9.0
-			try {
-				return Double.parseDouble(get(SeriesProperty.Rating));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public Integer getRatingCount() {
-			// e.g. 696
-			try {
-				return Integer.parseInt(get(SeriesProperty.RatingCount));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getRuntime() {
-			// e.g. 30
-			return get(SeriesProperty.Runtime);
-		}
-
-		public String getName() {
-			// e.g. Chuck
-			return get(SeriesProperty.SeriesName);
-		}
-
-		public String getNetwork() {
-			// e.g. CBS
-			return get(SeriesProperty.Network);
-		}
-
-		public String getStatus() {
-			// e.g. Continuing
-			return get(SeriesProperty.Status);
-		}
-
-		public URL getBannerMirrorUrl() {
-			try {
-				return new URL(get(BannerProperty.BannerMirror));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public URL getBannerUrl() throws MalformedURLException {
-			try {
-				return new URL(getBannerMirrorUrl(), get(SeriesProperty.banner));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public URL getFanartUrl() {
-			try {
-				return new URL(getBannerMirrorUrl(), get(SeriesProperty.fanart));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public URL getPosterUrl() {
-			try {
-				return new URL(getBannerMirrorUrl(), get(SeriesProperty.poster));
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		@Override
-		public String toString() {
-			return fields.toString();
-		}
+	@Override
+	public URI getEpisodeListLink(SearchResult searchResult) {
+		return URI.create("http://" + host + "/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
 	}
 
 	/**

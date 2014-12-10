@@ -1,8 +1,9 @@
 package net.filebot.web;
 
+import static java.util.Collections.*;
+
 import java.io.Serializable;
 import java.util.AbstractList;
-import java.util.Collections;
 import java.util.List;
 
 public abstract class SearchResult implements Serializable {
@@ -28,10 +29,12 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	public List<String> getEffectiveNames() {
-		if (aliasNames == null || aliasNames.length == 0) {
-			return Collections.singletonList(name);
+		if (name == null || name.length() == 0) {
+			return emptyList();
 		}
-
+		if (aliasNames == null || aliasNames.length == 0) {
+			return singletonList(name);
+		}
 		return new AbstractList<String>() {
 
 			@Override

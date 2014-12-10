@@ -3,6 +3,7 @@ package net.filebot.web;
 import static org.junit.Assert.*;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.Test;
 
@@ -15,7 +16,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void search() throws Exception {
-		List<SearchResult> results = tvrage.search("Buffy");
+		List<SearchResult> results = tvrage.search("Buffy", Locale.ENGLISH);
 
 		TVRageSearchResult result = (TVRageSearchResult) results.get(0);
 
@@ -28,14 +29,14 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = EpisodeUtilities.filterBySeason(tvrage.getEpisodeList(buffySearchResult), 7);
+		List<Episode> list = EpisodeUtilities.filterBySeason(tvrage.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH), 7);
 
 		assertEquals(22, list.size());
 
 		Episode chosen = list.get(21);
 
 		assertEquals("Buffy the Vampire Slayer", chosen.getSeriesName());
-		assertEquals("1997-03-10", chosen.getSeriesStartDate().toString());
+		assertEquals("1997-03-10", chosen.getSeriesInfo().getStartDate().toString());
 		assertEquals("Chosen", chosen.getTitle());
 		assertEquals("22", chosen.getEpisode().toString());
 		assertEquals("7", chosen.getSeason().toString());
@@ -45,7 +46,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = tvrage.getEpisodeList(buffySearchResult);
+		List<Episode> list = tvrage.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH);
 
 		assertEquals(143, list.size());
 

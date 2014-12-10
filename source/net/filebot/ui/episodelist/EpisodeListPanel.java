@@ -124,7 +124,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 			EpisodeListProvider provider = searchTextField.getSelectButton().getSelectedValue();
 
 			// lock season spinner on "All Seasons" if provider doesn't support fetching of single seasons
-			if (!provider.hasSingleSeasonSupport()) {
+			if (!provider.hasSeasonSupport()) {
 				seasonSpinnerModel.lock(ALL_SEASONS);
 			} else {
 				seasonSpinnerModel.unlock();

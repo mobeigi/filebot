@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.util.Collections.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
@@ -58,18 +59,23 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public boolean hasSingleSeasonSupport() {
+	public boolean hasSeasonSupport() {
 		return false;
 	}
 
 	@Override
-	public boolean hasLocaleSupport() {
-		return true;
+	protected SortOrder vetoRequestParameter(SortOrder order) {
+		return SortOrder.Absolute;
+	}
+
+	@Override
+	protected Locale vetoRequestParameter(Locale language) {
+		return language != null ? language : Locale.ENGLISH;
 	}
 
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(host, Cache.getCache("web-datasource-lv2"));
+		return new ResultCache(getName(), Cache.getCache("web-datasource-lv2"));
 	}
 
 	@Override
@@ -87,12 +93,11 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				return set(it.getEffectiveNames());
 			}
 		};
-
 		return new ArrayList<SearchResult>(index.search(query));
 	}
 
 	@Override
-	public List<Episode> fetchEpisodeList(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
+	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		AnidbSearchResult anime = (AnidbSearchResult) searchResult;
 
 		// e.g. http://api.anidb.net:9001/httpapi?request=anime&client=filebot&clientver=1&protover=1&aid=4521
@@ -104,22 +109,30 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// get anime page as xml
 		Document dom = getDocument(url);
 
+		// parse series info
+		SeriesInfo seriesInfo = new SeriesInfo(getName(), sortOrder, locale, anime.getId());
+		seriesInfo.setAliasNames(searchResult.getEffectiveNames());
+
 		// AniDB types: Movie, Music Video, Other, OVA, TV Series, TV Special, Web, unknown
 		String animeType = selectString("//type", dom);
 		if (animeType != null && animeType.matches("(?i:music.video|unkown|other)")) {
-			return new ArrayList<Episode>();
+			return new SeriesData(seriesInfo, emptyList());
 		}
 
-		// select main title and anime start date
-		SimpleDate seriesStartDate = SimpleDate.parse(selectString("//startdate", dom), "yyyy-MM-dd");
-		String animeTitle = selectString("//titles/title[@type='official' and @lang='" + locale.getLanguage() + "']", dom);
-		if (animeTitle.isEmpty()) {
-			animeTitle = selectString("//titles/title[@type='main']", dom);
+		seriesInfo.setName(selectString("anime/titles/title[@type='main']", dom));
+		seriesInfo.setRating(new Double(selectString("anime/ratings/permanent", dom)));
+		seriesInfo.setRatingCount(new Integer(selectString("anime/ratings/permanent/@count", dom)));
+		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom), "yyyy-MM-dd"));
+
+		// parse episode data
+		String animeTitle = selectString("anime/titles/title[@type='official' and @lang='" + locale.getLanguage() + "']", dom);
+		if (animeTitle == null || animeTitle.length() == 0) {
+			animeTitle = seriesInfo.getName();
 		}
 
 		List<Episode> episodes = new ArrayList<Episode>(25);
 
-		for (Node node : selectNodes("//episode", dom)) {
+		for (Node node : selectNodes("anime/episodes/episode", dom)) {
 			Node epno = getChild("epno", node);
 			int number = Integer.parseInt(getTextContent(epno).replaceAll("\\D", ""));
 			int type = Integer.parseInt(getAttribute("type", epno));
@@ -132,9 +145,9 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 				}
 
 				if (type == 1) {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, number, title, number, null, SortOrder.Absolute, locale, airdate, searchResult)); // normal episode, no seasons for anime
+					episodes.add(new Episode(animeTitle, null, number, title, number, null, airdate, new SeriesInfo(seriesInfo))); // normal episode, no seasons for anime
 				} else {
-					episodes.add(new Episode(animeTitle, seriesStartDate, null, null, title, null, number, SortOrder.Absolute, locale, airdate, searchResult)); // special episode
+					episodes.add(new Episode(animeTitle, null, null, title, null, number, airdate, new SeriesInfo(seriesInfo))); // special episode
 				}
 			}
 		}
@@ -148,7 +161,12 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse episode data: %s (%d) => %s", anime, anime.getAnimeId(), getXmlString(dom, false)));
 		}
 
-		return episodes;
+		return new SeriesData(seriesInfo, episodes);
+	}
+
+	@Override
+	protected SearchResult createSearchResult(int id) {
+		return new AnidbSearchResult(id, null, new String[0]);
 	}
 
 	@Override

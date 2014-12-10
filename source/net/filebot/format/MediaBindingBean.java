@@ -44,16 +44,15 @@ import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
-import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.Movie;
 import net.filebot.web.MoviePart;
 import net.filebot.web.MultiEpisode;
-import net.filebot.web.SearchResult;
+import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-import net.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.SortOrder;
 
 import com.cedarsoftware.util.io.JsonWriter;
 
@@ -99,7 +98,7 @@ public class MediaBindingBean {
 	@Define("y")
 	public Integer getYear() {
 		if (infoObject instanceof Episode)
-			return getEpisode().getSeriesStartDate().getYear();
+			return getEpisode().getSeriesInfo().getStartDate().getYear();
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		if (infoObject instanceof AudioTrack)
@@ -191,7 +190,7 @@ public class MediaBindingBean {
 
 	@Define("startdate")
 	public SimpleDate startdate() {
-		return getEpisode().getSeriesStartDate();
+		return getEpisode().getSeriesInfo().getStartDate();
 	}
 
 	@Define("absolute")
@@ -205,8 +204,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("series")
-	public SearchResult getSeriesObject() {
-		return getEpisode().getSeries();
+	public SeriesInfo getSeriesInfo() {
+		return getEpisode().getSeriesInfo();
 	}
 
 	@Define("alias")
@@ -214,11 +213,9 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie) {
 			return asList(getMovie().getAliasNames());
 		}
-
 		if (infoObject instanceof Episode) {
-			return asList(getSeriesObject().getAliasNames());
+			return getSeriesInfo().getAliasNames();
 		}
-
 		return emptyList();
 	}
 
@@ -229,13 +226,13 @@ public class MediaBindingBean {
 		}
 
 		if (infoObject instanceof Episode) {
-			if (getSeriesObject() instanceof TheTVDBSearchResult) {
-				return WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) getSeriesObject(), Locale.ENGLISH).getName();
+			// force English series name for TheTVDB data
+			if (WebServices.TheTVDB.getName().equals(getSeriesInfo().getDatabase())) {
+				return WebServices.TheTVDB.getSeriesInfo(getSeriesInfo().getId(), Locale.ENGLISH).getName();
 			}
-			if (getSeriesObject() instanceof AnidbSearchResult) {
-				return ((AnidbSearchResult) getSeriesObject()).getPrimaryTitle();
-			}
-			return getSeriesObject().getName(); // default to original search result
+
+			// default to series info name (for anime this would be the primary title)
+			return getSeriesInfo().getName();
 		}
 
 		return null;
@@ -558,10 +555,7 @@ public class MediaBindingBean {
 		if (metaInfo == null) {
 			try {
 				if (infoObject instanceof Episode) {
-					Episode episode = (Episode) infoObject;
-					if (episode.getSeries() instanceof TheTVDBSearchResult) {
-						metaInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) episode.getSeries(), episode.getLanguage() == null ? Locale.ENGLISH : episode.getLanguage());
-					}
+					metaInfo = getSeriesInfo();
 				} else if (infoObject instanceof Movie) {
 					if (getMovie().getTmdbId() > 0) {
 						metaInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), getMovie().getLanguage() == null ? Locale.ENGLISH : getMovie().getLanguage(), true);
@@ -574,20 +568,20 @@ public class MediaBindingBean {
 			}
 		}
 
-		if (mediaInfo == null) {
+		if (metaInfo == null) {
 			throw new UnsupportedOperationException("Extended metadata not available");
 		}
 
 		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 
-	@Define("imdb")
-	public synchronized AssociativeScriptObject getImdbApiInfo() {
+	@Define("omdb")
+	public synchronized AssociativeScriptObject getOmdbApiInfo() {
 		Object metaInfo = null;
 
 		try {
 			if (infoObject instanceof Episode) {
-				metaInfo = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesStartDate().getYear(), -1, -1));
+				metaInfo = WebServices.OMDb.getMovieInfo(new Movie(getEpisode().getSeriesName(), getEpisode().getSeriesInfo().getStartDate().getYear(), -1, -1));
 			}
 			if (infoObject instanceof Movie) {
 				metaInfo = WebServices.OMDb.getMovieInfo(getMovie());
@@ -605,19 +599,10 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
-		return ((EpisodeListProvider) getDatabase()).getEpisodeList(getSeriesObject(), getEpisode().getOrder(), getEpisode().getLanguage());
-	}
-
-	@Define("database")
-	public Object getDatabase() {
-		if (infoObject instanceof Episode) {
-			return WebServices.getServiceBySearchResult(getSeriesObject());
-		}
-		if (infoObject instanceof Movie) {
-			return WebServices.getServiceBySearchResult(getMovie());
-		}
-		if (infoObject instanceof AudioTrack) {
-			return WebServices.getServiceBySearchResult(getMusic());
+		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
+			if (getSeriesInfo().getDatabase().equals(service.getName())) {
+				return service.getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), new Locale(getSeriesInfo().getLanguage()));
+			}
 		}
 		return null;
 	}

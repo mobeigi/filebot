@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
@@ -34,9 +33,8 @@ import net.filebot.vfs.FileInfo;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeFormat;
 import net.filebot.web.Movie;
+import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-import net.filebot.web.TheTVDBClient.SeriesInfo;
-import net.filebot.web.TheTVDBSearchResult;
 
 import com.ibm.icu.text.Transliterator;
 
@@ -212,7 +210,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				LinkedHashSet<String> keywords = new LinkedHashSet<String>(4);
 				keywords.add(removeTrailingBrackets(episode.getSeriesName()));
 				keywords.add(removeTrailingBrackets(episode.getTitle()));
-				for (String it : episode.getSeries().getEffectiveNames()) {
+				for (String it : episode.getSeriesInfo().getAliasNames()) {
 					keywords.add(removeTrailingBrackets(it));
 				}
 
@@ -277,7 +275,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		protected List<?> getEffectiveIdentifiers(Object object) {
 			if (object instanceof Episode) {
-				return ((Episode) object).getSeries().getEffectiveNames();
+				return ((Episode) object).getSeriesInfo().getAliasNames();
 			} else if (object instanceof Movie) {
 				return ((Movie) object).getEffectiveNames();
 			} else if (object instanceof File) {
@@ -346,7 +344,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			List<String> names = null;
 
 			if (object instanceof Episode) {
-				names = ((Episode) object).getSeries().getEffectiveNames();
+				names = ((Episode) object).getSeriesInfo().getAliasNames();
 			} else if (object instanceof File) {
 				File file = (File) object;
 
@@ -558,39 +556,20 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return max(r1, r2);
 		}
 
-		private final Map<String, SeriesInfo> seriesInfoCache = new HashMap<String, SeriesInfo>();
-
-		public float getRating(Object o) {
-			if (o instanceof Episode) {
-				try {
-					synchronized (seriesInfoCache) {
-						String n = ((Episode) o).getSeriesName();
-
-						SeriesInfo seriesInfo = seriesInfoCache.get(n);
-						if (seriesInfo == null && !seriesInfoCache.containsKey(n)) {
-							try {
-								seriesInfo = WebServices.TheTVDB.getSeriesInfo((TheTVDBSearchResult) ((Episode) o).getSeries(), Locale.ENGLISH);
-							} catch (Exception e) {
-								seriesInfo = WebServices.TheTVDB.getSeriesInfoByLocalIndex(((Episode) o).getSeriesName(), Locale.ENGLISH);
-							}
-							seriesInfoCache.put(n, seriesInfo);
-						}
-
-						if (seriesInfo != null) {
-							if (seriesInfo.getRatingCount() >= 100) {
-								return (float) floor(seriesInfo.getRating() / 3) + 1; // BOOST POPULAR SHOWS
-							}
-							if (seriesInfo.getRatingCount() >= 10) {
-								return (float) floor(seriesInfo.getRating() / 3); // PUT INTO 3 GROUPS
-							}
-							if (seriesInfo.getRatingCount() >= 1) {
-								return 0; // PENALIZE SHOWS WITH FEW RATINGS
-							}
-							return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
-						}
+		public float getRating(Object object) {
+			if (object instanceof Episode) {
+				SeriesInfo seriesInfo = ((Episode) object).getSeriesInfo();
+				if (seriesInfo != null && seriesInfo.getRating() != null && seriesInfo.getRatingCount() != null) {
+					if (seriesInfo.getRatingCount() >= 100) {
+						return (float) floor(seriesInfo.getRating() / 3) + 1; // BOOST POPULAR SHOWS
 					}
-				} catch (Exception e) {
-					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
+					if (seriesInfo.getRatingCount() >= 10) {
+						return (float) floor(seriesInfo.getRating() / 3); // PUT INTO 3 GROUPS
+					}
+					if (seriesInfo.getRatingCount() >= 1) {
+						return 0; // PENALIZE SHOWS WITH FEW RATINGS
+					}
+					return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
 				}
 			}
 			return 0;

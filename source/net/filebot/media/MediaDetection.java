@@ -65,8 +65,8 @@ import net.filebot.web.Episode;
 import net.filebot.web.Movie;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.SearchResult;
+import net.filebot.web.SeriesInfo;
 import net.filebot.web.SimpleDate;
-import net.filebot.web.TheTVDBClient.SeriesInfo;
 import net.filebot.web.TheTVDBSearchResult;
 
 public class MediaDetection {
@@ -1259,7 +1259,9 @@ public class MediaDetection {
 	}
 
 	public static SeriesInfo grepSeries(File nfo, Locale locale) throws Exception {
-		return WebServices.TheTVDB.getSeriesInfoByID(grepTheTvdbId(new String(readFile(nfo), "UTF-8")).iterator().next(), locale);
+		String contents = new String(readFile(nfo), "UTF-8");
+		int thetvdbid = grepTheTvdbId(contents).iterator().next();
+		return WebServices.TheTVDB.getSeriesInfo(thetvdbid, locale);
 	}
 
 	public static List<SearchResult> getProbableMatches(String query, Collection<SearchResult> options) {

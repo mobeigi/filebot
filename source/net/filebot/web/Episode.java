@@ -3,13 +3,10 @@ package net.filebot.web;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class Episode implements Serializable {
 
 	protected String seriesName;
-	protected SimpleDate seriesStartDate;
-
 	protected Integer season;
 	protected Integer episode;
 	protected String title;
@@ -20,48 +17,37 @@ public class Episode implements Serializable {
 	// special number
 	protected Integer special;
 
-	// optional episode number order hint & episode name / title language hint
-	protected String order;
-	protected String language;
-
 	// episode airdate
 	protected SimpleDate airdate;
 
-	// original series descriptor
-	protected SearchResult series;
+	// extended series metadata
+	protected SeriesInfo seriesInfo;
 
 	protected Episode() {
-		// used by serializer
+
 	}
 
 	public Episode(Episode obj) {
-		this(obj.seriesName, obj.seriesStartDate, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.getOrder(), obj.getLanguage(), obj.airdate, obj.series);
+		this(obj.seriesName, obj.season, obj.episode, obj.title, obj.absolute, obj.special, obj.airdate, obj.seriesInfo);
 	}
 
-	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, SearchResult series) {
-		this(seriesName, seriesStartDate, season, episode, title, null, null, null, null, null, series);
+	public Episode(String seriesName, Integer season, Integer episode, String title) {
+		this(seriesName, season, episode, title, null, null, null, null);
 	}
 
-	public Episode(String seriesName, SimpleDate seriesStartDate, Integer season, Integer episode, String title, Integer absolute, Integer special, SortOrder order, Locale locale, SimpleDate airdate, SearchResult series) {
+	public Episode(String seriesName, Integer season, Integer episode, String title, Integer absolute, Integer special, SimpleDate airdate, SeriesInfo seriesInfo) {
 		this.seriesName = seriesName;
-		this.seriesStartDate = (seriesStartDate == null ? null : seriesStartDate.clone());
 		this.season = season;
 		this.episode = episode;
 		this.title = title;
 		this.absolute = absolute;
 		this.special = special;
-		this.order = (order == null ? null : order.name());
-		this.language = (locale == null ? null : locale.getLanguage());
 		this.airdate = (airdate == null ? null : airdate.clone());
-		this.series = (series == null ? null : series.clone());
+		this.seriesInfo = (seriesInfo == null ? null : seriesInfo.clone());
 	}
 
 	public String getSeriesName() {
 		return seriesName;
-	}
-
-	public SimpleDate getSeriesStartDate() {
-		return seriesStartDate;
 	}
 
 	public Integer getEpisode() {
@@ -84,20 +70,12 @@ public class Episode implements Serializable {
 		return special;
 	}
 
-	public SortOrder getOrder() {
-		return order == null ? null : SortOrder.forName(order);
-	}
-
-	public Locale getLanguage() {
-		return language == null ? null : new Locale(language);
-	}
-
 	public SimpleDate getAirdate() {
 		return airdate;
 	}
 
-	public SearchResult getSeries() {
-		return series;
+	public SeriesInfo getSeriesInfo() {
+		return seriesInfo;
 	}
 
 	public List<Integer> getNumbers() {

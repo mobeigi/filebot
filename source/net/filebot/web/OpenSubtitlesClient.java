@@ -87,7 +87,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	public ResultCache getCache() {
-		return new ResultCache("opensubtitles.org", Cache.getCache("web-datasource"));
+		return new ResultCache(getName(), Cache.getCache("web-datasource"));
 	}
 
 	@Override

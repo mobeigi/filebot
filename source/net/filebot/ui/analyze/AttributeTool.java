@@ -20,7 +20,7 @@ import net.filebot.util.FileUtilities;
 import net.filebot.util.ui.LoadingOverlayPane;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
-import net.filebot.web.SearchResult;
+import net.filebot.web.SeriesInfo;
 import net.miginfocom.swing.MigLayout;
 
 class AttributeTool extends Tool<TableModel> {
@@ -59,20 +59,17 @@ class AttributeTool extends Tool<TableModel> {
 						originalName = attributes.getOriginalName();
 						metaObject = attributes.getObject();
 
-						String format = "%s::%d";
 						if (metaObject instanceof Episode) {
-							Object seriesObject = ((Episode) metaObject).getSeries();
-							if (seriesObject != null) {
-								String type = seriesObject.getClass().getSimpleName().replace(SearchResult.class.getSimpleName(), "");
-								Integer code = (Integer) seriesObject.getClass().getMethod("getId").invoke(seriesObject);
-								metaId = String.format(format, type, code);
+							SeriesInfo seriesInfo = ((Episode) metaObject).getSeriesInfo();
+							if (seriesInfo != null) {
+								metaId = String.format("%s::%d", seriesInfo.getDatabase(), seriesInfo.getId());
 							}
 						} else if (metaObject instanceof Movie) {
 							Movie movie = (Movie) metaObject;
 							if (movie.getTmdbId() > 0) {
-								metaId = String.format(format, "TheMovieDB", movie.getTmdbId());
+								metaId = String.format("%s::%d", "TheMovieDB", movie.getTmdbId());
 							} else if (movie.getImdbId() > 0) {
-								metaId = String.format(format, "IMDB", movie.getImdbId());
+								metaId = String.format("%s::%d", "OMDb", movie.getImdbId());
 							}
 						}
 					} catch (Exception e) {
