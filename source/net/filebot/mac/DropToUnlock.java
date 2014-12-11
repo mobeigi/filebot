@@ -154,6 +154,12 @@ public class DropToUnlock extends JList<File> {
 							invokeLater(750, () -> {
 								dialog.setVisible(false);
 							});
+						} else {
+							model.stream().filter(f -> isLockedFolder(f)).findFirst().ifPresent(f -> {
+								invokeLater(250, () -> {
+									revealFiles(singleton(f));
+								});
+							});
 						}
 					};
 				};
