@@ -4,6 +4,7 @@ import static java.util.Collections.*;
 import static javax.swing.BorderFactory.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.mac.MacAppUtilities.*;
+import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -24,6 +25,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
@@ -52,6 +56,9 @@ import net.filebot.ui.HeaderPanel;
 import net.filebot.ui.transfer.DefaultTransferHandler;
 import net.filebot.ui.transfer.FileTransferable;
 import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.util.ui.GradientStyle;
+import net.filebot.util.ui.notification.SeparatorBorder;
+import net.filebot.util.ui.notification.SeparatorBorder.Position;
 import net.miginfocom.swing.MigLayout;
 
 public class DropToUnlock extends JList<File> {
@@ -159,12 +166,17 @@ public class DropToUnlock extends JList<File> {
 				h.getTitleLabel().setText("Folder Permissions Required");
 				h.getTitleLabel().setIcon(ResourceManager.getIcon("file.lock"));
 				h.getTitleLabel().setBorder(createEmptyBorder(0, 0, 0, 64));
+
+				JLabel help = new JLabel("<html>FileBot does not have permission to access the folder above. To allow FileBot access, drag and drop the folder from Finder onto the drop area above</b>. The permissions for this folder (and all the folders it contains) will be remembered and FileBot will not need to ask for it again.</html>");
+				help.setBorder(createCompoundBorder(new SeparatorBorder(1, new Color(0xB4B4B4), new Color(0xACACAC), GradientStyle.LEFT_TO_RIGHT, Position.TOP), createTitledBorder("About App Sandboxing")));
+
 				c.add(h, "wmin 150px, hmin 75px, growx, dock north");
 				c.add(d, "wmin 150px, hmin 150px, grow");
+				c.add(help, "wmin 150px, hmin 75px, growx, dock south");
 
 				dialog.setModal(true);
 				dialog.setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
-				dialog.setSize(new Dimension(540, 420));
+				dialog.setSize(new Dimension(540, 500));
 				dialog.setResizable(false);
 				dialog.setLocationByPlatform(true);
 				dialog.setAlwaysOnTop(true);
@@ -216,7 +228,19 @@ public class DropToUnlock extends JList<File> {
 	}
 
 	public void updateLockStatus(File... folder) {
+		// update folder locked/unlocked icon
 		repaint();
+
+		// show warning if permission have not been granted
+		Stream.of(folder).filter(f -> isLockedFolder(f)).forEach(f -> {
+			try {
+				String owner = Files.getOwner(f.toPath()).getName();
+				String permissions = PosixFilePermissions.toString(Files.getPosixFilePermissions(f.toPath()));
+				UILogger.severe(String.format("Permission denied: %s (%s %s)", f, permissions, owner));
+			} catch (Exception e) {
+				UILogger.severe(String.format("Permission denied: %s", f));
+			}
+		});
 	}
 
 	private final RoundRectangle2D dropArea = new RoundRectangle2D.Double(0, 0, 0, 0, 20, 20);

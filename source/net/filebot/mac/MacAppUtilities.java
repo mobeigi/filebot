@@ -83,7 +83,8 @@ public class MacAppUtilities {
 	}
 
 	public static boolean isLockedFolder(File folder) {
-		return folder.isDirectory() && !folder.canRead() && !folder.canWrite();
+		// write permissions my not be available even after sandbox has granted permission (e.g. when accessing files of another user)
+		return folder.isDirectory() && !folder.canRead();
 	}
 
 	public static boolean askUnlockFolders(final Window owner, final Collection<File> files) {
