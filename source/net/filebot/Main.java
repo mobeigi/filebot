@@ -410,7 +410,7 @@ public class Main {
 	/**
 	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
 	 */
-	private static void initializeCache() {
+	private static void initializeCache() throws Exception {
 		// prepare cache folder for this application instance
 		File cacheRoot = getApplicationCache();
 
@@ -491,11 +491,8 @@ public class Main {
 				channel.close();
 			}
 		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
+			throw new Exception("Failed to initialize cache: " + e.toString(), e);
 		}
-
-		// use cache root itself as fail-safe fallback
-		System.setProperty("ehcache.disk.store.dir", new File(cacheRoot, "default").getAbsolutePath());
 	}
 
 	/**
