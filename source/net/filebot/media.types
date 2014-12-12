@@ -138,8 +138,12 @@
 		<extension>3DSBS</extension>
 		<extension>3DTAB</extension>
 	</type>
-	<type name="video/stream">
+	<type name="video/stream-descriptor">
 		<extension>strm</extension>
+	</type>
+	<type name="video/audio-stream">
+		<extension>ac3</extension>
+		<extension>dts</extension>
 	</type>
 	<type name="video/iso">
 		<extension>iso</extension>
