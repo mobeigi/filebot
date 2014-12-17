@@ -154,7 +154,7 @@ public class ArgumentBean {
 			try {
 				file = file.getCanonicalFile();
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage());
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Illegal Argument: %s (%s)", e, argument));
 			}
 
 			if (resolveFolders && file.isDirectory()) {
