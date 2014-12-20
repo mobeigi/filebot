@@ -90,6 +90,14 @@ public final class XPathUtilities {
 		return null;
 	}
 
+	public static Integer getIntegerAttribute(String attribute, Node node) {
+		try {
+			return new Scanner(getAttribute(attribute, node)).useDelimiter("\\D+").nextInt();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	/**
 	 * Get text content of the first child node matching the given node name. Use this method instead of {@link #selectString(String, Object)} whenever xpath support is not required, because it is much faster, especially for large documents.
 	 * 

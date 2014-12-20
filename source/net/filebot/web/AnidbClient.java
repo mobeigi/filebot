@@ -8,6 +8,7 @@ import static net.filebot.web.WebRequest.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import javax.swing.Icon;
@@ -123,6 +125,20 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		seriesInfo.setRating(new Double(selectString("anime/ratings/permanent", dom)));
 		seriesInfo.setRatingCount(new Integer(selectString("anime/ratings/permanent/@count", dom)));
 		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom), "yyyy-MM-dd"));
+
+		// add categories ordered by weight as genres
+		// * only use categories with weight >= 400
+		// * sort by weight (descending)
+		// * limit to 5 genres
+		seriesInfo.setGenres(selectNodes("anime/categories/category", dom).stream().map(categoryNode -> {
+			String name = getTextContent("name", categoryNode);
+			Integer weight = getIntegerAttribute("weight", categoryNode);
+			return new SimpleImmutableEntry<String, Integer>(name, weight);
+		}).filter(nw -> {
+			return nw.getKey() != null && nw.getValue() != null && nw.getKey().length() > 0 && nw.getValue() >= 400;
+		}).sorted((a, b) -> {
+			return b.getValue().compareTo(a.getValue());
+		}).map(it -> it.getKey()).limit(5).collect(Collectors.toList()));
 
 		// parse episode data
 		String animeTitle = selectString("anime/titles/title[@type='official' and @lang='" + locale.getLanguage() + "']", dom);
