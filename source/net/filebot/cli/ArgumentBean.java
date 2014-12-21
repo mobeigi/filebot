@@ -26,10 +26,10 @@ public class ArgumentBean {
 	@Option(name = "--mode", usage = "Open GUI in single panel mode", metaVar = "[rename, subtitles, sfv]")
 	public String mode = null;
 
-	@Option(name = "-rename", usage = "Rename episode/movie files", metaVar = "fileset")
+	@Option(name = "-rename", usage = "Rename media files", metaVar = "fileset")
 	public boolean rename = false;
 
-	@Option(name = "--db", usage = "Episode/Movie database", metaVar = "[TheTVDB, AniDB, TVRage] or [TheMovieDB, OMDb] or [xattr]")
+	@Option(name = "--db", usage = "Media database", metaVar = "[TheTVDB, AniDB, TVRage] or [TheMovieDB, OMDb] or [AcoustID, ID3 Tags] or [xattr]")
 	public String db;
 
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")

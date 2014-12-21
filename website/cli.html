@@ -103,11 +103,11 @@
 					Rename given episodes according to the given format. Enable comprehensive Episode/File matching.
 					</p>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"1x01.avi"</span> <span class="option">--q</span> <span class="argument">"Dexter"</span> <span class="option">--db</span> <span class="argument">thetvdb</span> <span class="option">--lang</span> <span class="argument">de</span></code>
+					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"1x01.avi"</span> <span class="option">--q</span> <span class="argument">"Dexter"</span> <span class="option">--db</span> <span class="argument">TheTVDB</span> <span class="option">--lang</span> <span class="argument">de</span></code>
 					Rename a single episode forcing the series name. Use German language episode info.
 					</p>
 					<p>
-					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">--q</span> <span class="argument">"Avatar"</span> <span class="option">--db</span> <span class="argument">OpenSubtitles</span></code>
+					<code><span class="cmd">filebot</span> <span class="option">-rename</span> <span class="argument">"movie.avi"</span> <span class="option">--q</span> <span class="argument">"Avatar"</span> <span class="option">--db</span> <span class="argument">TheMovieDB</span></code>
 					Rename a single movie looking up movie info via file hash or using the given movie title.
 					</p>
 					<p class="suggestion">
@@ -166,19 +166,22 @@
 						</tr>
 						<tr>
 							<td>-rename</td>
-							<td>rename episode/movie files</td>
-							<td>media folder or episode/movie file</td>
-						</tr>					
+							<td>rename media files</td>
+							<td>media folder or media file</td>
+						</tr>
 						<tr>
 							<td>--db</td>
-							<td>episode/movie datasource</td>
+							<td>media database</td>
 							<td>
 							<table>
 								<tr>
-									<td>TV Series mode: TVRage, AniDB, TheTVDB</td>
+									<td>TV Series mode: TheTVDB, TVRage, AniDB</td>
 								</tr>
 								<tr>
-									<td>Movie mode: OpenSubtitles, IMDb, TheMovieDB</td>
+									<td>Movie mode: TheMovieDB, OMDb</td>
+								</tr>
+								<tr>
+									<td>Music mode: AcoustID, ID3 Tags</td>
 								</tr>
 							</table>
 							</td>
@@ -211,12 +214,12 @@
 						<tr>
 							<td>-get-subtitles</td>
 							<td>fetch subtitles</td>
-							<td>media folder or episode/movie file</td>
+							<td>media folder or media file</td>
 						</tr>
 						<tr>
 							<td>-get-missing-subtitles</td>
 							<td>fetch missing subtitles</td>
-							<td>media folder or episode/movie file</td>
+							<td>media folder or media file</td>
 						</tr>
 						<tr>
 							<td>--q</td>
@@ -259,7 +262,7 @@
 						</tr>
 						<tr>
 							<td>--output</td>
-							<td>output format and/or path</td>
+							<td>output format or path</td>
 							<td>
 							<table>
 								<tr>
@@ -349,7 +352,7 @@
 							<input type="image" src="images/donate.png" name="submit" alt="PayPal - The safer, easier way to pay online." />
 						</form>
 					</div>
-					Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © 2014
+					Hosted on <a href="http://sourceforge.net/projects/filebot/">sourceforge.net</a> | Creative Commons License: Attribution-NonCommercial-ShareAlike © 2015
 				</div>
 			</div>
 		</div>
