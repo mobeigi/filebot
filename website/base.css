@@ -126,10 +126,7 @@ table.reference.cli > * > * > td:first-child {
 	background-repeat: no-repeat;
 	border: 1px solid #a2a2a2;
 	border-radius: 7px;
-	-moz-border-radius: 7px;
-	-webkit-border-radius: 7px;
 	box-shadow: 0px 2px 5px #a2a2a2;
-	-moz-box-shadow: 0px 2px 5px #a2a2a2;
 	overflow: visible;
 }
 
@@ -199,7 +196,17 @@ h1 .description {
 	background-color: #E6E6E6;
 	border: 1px solid lightgray;
 	box-shadow: 0px 2px 5px #a2a2a2;
-	-moz-box-shadow: 0px 2px 5px #a2a2a2;
+}
+
+.main-section-screenshot {
+	float: right;
+	margin-top: 30px;
+	margin-left: 20px;
+	margin-right: 5px;
+}
+
+.main-section-screenshot img {
+	box-shadow: 0px 2px 5px #a2a2a2;
 }
 
 .screenshot a {
@@ -238,22 +245,6 @@ div.screencast:hover .play {
 .install.button {
 	margin: 15px 350px 15px 0px;
 	text-align: center;
-}
-
-.webstart.button {
-	margin: 15px;
-	min-height: 25px;
-	text-align: center;
-}
-
-.webstart.button a img {
-	box-shadow: 0px 0px 5px lightgray;
-	-moz-box-shadow: 0px 0px 5px lightgray;
-}
-
-.webstart.button a:hover img {
-	box-shadow: 0px 1px 8px darkorange;
-	-moz-box-shadow: 0px 1px 8px darkorange;
 }
 
 .section.tutorial ol, .section.tutorial ul {
