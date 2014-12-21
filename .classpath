@@ -29,6 +29,11 @@
 	<classpathentry kind="lib" path="lib/xmlrpc.jar"/>
 	<classpathentry kind="lib" path="lib/xz.jar"/>
 	<classpathentry kind="lib" path="lib/ObjCBridge.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ant-commons-net.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ant-javamail.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ant-jsch.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ant-launcher.jar"/>
+	<classpathentry kind="lib" path="lib/scripting/ant.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
