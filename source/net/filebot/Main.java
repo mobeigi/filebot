@@ -228,8 +228,8 @@ public class Main {
 			// restore previous size and location
 			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
 		} catch (Exception e) {
-			// just use platform default location
-			frame.setLocationByPlatform(true);
+			// make sure the main window is not displayed out of screen bounds
+			frame.setLocation(120, 80);
 		}
 
 		frame.addWindowListener(new WindowAdapter() {
