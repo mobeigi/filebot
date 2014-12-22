@@ -53,7 +53,6 @@ import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
-import net.filebot.gio.GVFS;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
@@ -192,14 +191,6 @@ public class Main {
 			// pre-load media.types and JNA/GIO (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
 
-			if (useGVFS()) {
-				try {
-					GVFS.getDefaultVFS();
-				} catch (Throwable e) {
-					Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getMessage(), e);
-				}
-			}
-
 			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
 			if (!"skip".equals(System.getProperty("application.update"))) {
 				try {
@@ -237,7 +228,8 @@ public class Main {
 			// restore previous size and location
 			restoreWindowBounds(frame, Settings.forPackage(MainFrame.class));
 		} catch (Exception e) {
-			// don't care, doesn't make a difference
+			// just use platform default location
+			frame.setLocationByPlatform(true);
 		}
 
 		frame.addWindowListener(new WindowAdapter() {
@@ -270,7 +262,6 @@ public class Main {
 			}
 			frame.setIconImages(images);
 		}
-		frame.setLocationByPlatform(true);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		// start application
