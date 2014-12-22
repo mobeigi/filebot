@@ -745,8 +745,8 @@
 				<include name="*.txt" />
 				<include name=".htaccess" />
 				<include name="syno/**" />
-				<!-- <include name="images/**" /> -->
-				<!-- <include name="screenshots/**" /> -->
+				<include name="images/**" />
+				<include name="screenshots/**" />
 			</fileset>
 		</copy>
 
