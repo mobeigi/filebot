@@ -93,7 +93,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 
 		seriesInfo.setName(getTextContent("name", seriesNode));
 		seriesInfo.setNetwork(getTextContent("network", seriesNode));
-		seriesInfo.setRuntime(getIntegerContent("runtime", seriesNode));
+		seriesInfo.setRuntime(getInteger(getTextContent("runtime", seriesNode)));
 		seriesInfo.setStatus(getTextContent("status", seriesNode));
 
 		seriesInfo.setGenres(getListContent("genre", null, getChild("genres", seriesNode)));
@@ -106,7 +106,7 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 		// episodes and specials
 		for (Node node : selectNodes("//episode", dom)) {
 			String title = getTextContent("title", node);
-			Integer episodeNumber = getIntegerContent("seasonnum", node);
+			Integer episodeNumber = getInteger(getTextContent("seasonnum", node));
 			String seasonIdentifier = getAttribute("no", node.getParentNode());
 			Integer seasonNumber = seasonIdentifier == null ? null : new Integer(seasonIdentifier);
 			SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
@@ -114,13 +114,13 @@ public class TVRageClient extends AbstractEpisodeListProvider {
 			// check if we have season and episode number, if not it must be a special episode
 			if (episodeNumber == null || seasonNumber == null) {
 				// handle as special episode
-				seasonNumber = getIntegerContent("season", node);
+				seasonNumber = getInteger(getTextContent("season", node));
 				int specialNumber = filterBySeason(specials, seasonNumber).size() + 1;
 				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, title, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
 			} else {
 				// handle as normal episode
 				if (sortOrder == SortOrder.Absolute) {
-					episodeNumber = getIntegerContent("epnum", node);
+					episodeNumber = getInteger(getTextContent("epnum", node));
 					seasonNumber = null;
 				}
 				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, title, null, null, airdate, new SeriesInfo(seriesInfo)));

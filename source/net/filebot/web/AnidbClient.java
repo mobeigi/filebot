@@ -122,8 +122,8 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		seriesInfo.setName(selectString("anime/titles/title[@type='main']", dom));
-		seriesInfo.setRating(new Double(selectString("anime/ratings/permanent", dom)));
-		seriesInfo.setRatingCount(new Integer(selectString("anime/ratings/permanent/@count", dom)));
+		seriesInfo.setRating(getDecimal(selectString("anime/ratings/permanent", dom)));
+		seriesInfo.setRatingCount(getInteger(getTextContent("anime/ratings/permanent/@count", dom)));
 		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom), "yyyy-MM-dd"));
 
 		// add categories ordered by weight as genres
@@ -132,7 +132,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// * limit to 5 genres
 		seriesInfo.setGenres(selectNodes("anime/categories/category", dom).stream().map(categoryNode -> {
 			String name = getTextContent("name", categoryNode);
-			Integer weight = getIntegerAttribute("weight", categoryNode);
+			Integer weight = getInteger(getAttribute("weight", categoryNode));
 			return new SimpleImmutableEntry<String, Integer>(name, weight);
 		}).filter(nw -> {
 			return nw.getKey() != null && nw.getValue() != null && nw.getKey().length() > 0 && nw.getValue() >= 400;
@@ -174,7 +174,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// sanity check
 		if (episodes.isEmpty()) {
 			// anime page xml doesn't work sometimes
-			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse episode data: %s (%d) => %s", anime, anime.getAnimeId(), getXmlString(dom, false)));
+			Logger.getLogger(AnidbClient.class.getName()).log(Level.WARNING, String.format("Unable to parse episode data: %s (%d): %s", anime, anime.getAnimeId(), getXmlString(dom, false).split("\n", 2)[0].trim()));
 		}
 
 		return new SeriesData(seriesInfo, episodes);

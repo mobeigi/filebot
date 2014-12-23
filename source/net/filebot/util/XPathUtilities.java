@@ -3,10 +3,11 @@ package net.filebot.util;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -16,40 +17,24 @@ import org.w3c.dom.NodeList;
 public final class XPathUtilities {
 
 	public static Node selectNode(String xpath, Object node) {
-		try {
-			return (Node) getXPath(xpath).evaluate(node, XPathConstants.NODE);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return (Node) evaluateXPath(xpath, node, XPathConstants.NODE);
 	}
 
 	public static List<Node> selectNodes(String xpath, Object node) {
-		try {
-			return new NodeListDecorator((NodeList) getXPath(xpath).evaluate(node, XPathConstants.NODESET));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return new NodeListDecorator((NodeList) evaluateXPath(xpath, node, XPathConstants.NODESET));
 	}
 
 	public static String selectString(String xpath, Object node) {
-		try {
-			return ((String) getXPath(xpath).evaluate(node, XPathConstants.STRING)).trim();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return ((String) evaluateXPath(xpath, node, XPathConstants.STRING)).trim();
 	}
 
 	public static List<String> selectStrings(String xpath, Object node) {
 		List<String> values = new ArrayList<String>();
-		try {
-			for (Node it : selectNodes(xpath, node)) {
-				String textContent = getTextContent(it);
-				if (textContent.length() > 0) {
-					values.add(textContent);
-				}
+		for (Node it : selectNodes(xpath, node)) {
+			String textContent = getTextContent(it);
+			if (textContent.length() > 0) {
+				values.add(textContent);
 			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 		return values;
 	}
@@ -90,14 +75,6 @@ public final class XPathUtilities {
 		return null;
 	}
 
-	public static Integer getIntegerAttribute(String attribute, Node node) {
-		try {
-			return new Scanner(getAttribute(attribute, node)).useDelimiter("\\D+").nextInt();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	/**
 	 * Get text content of the first child node matching the given node name. Use this method instead of {@link #selectString(String, Object)} whenever xpath support is not required, because it is much faster, especially for large documents.
 	 * 
@@ -127,22 +104,6 @@ public final class XPathUtilities {
 		return sb.toString().trim();
 	}
 
-	public static Integer getIntegerContent(String childName, Node parentNode) {
-		try {
-			return new Scanner(getTextContent(childName, parentNode)).useDelimiter("\\D+").nextInt();
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static Double getDecimalContent(String childName, Node parentNode) {
-		try {
-			return new Double(getTextContent(childName, parentNode));
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
 	public static List<String> getListContent(String childName, String delimiter, Node parentNode) {
 		List<String> list = new ArrayList<String>();
 		for (Node node : getChildren(childName, parentNode)) {
@@ -163,8 +124,28 @@ public final class XPathUtilities {
 		return list;
 	}
 
-	private static XPathExpression getXPath(String xpath) throws XPathExpressionException {
-		return XPathFactory.newInstance().newXPath().compile(xpath);
+	public static Integer getInteger(String textContent) {
+		try {
+			return new Scanner(textContent).useDelimiter("\\D+").nextInt();
+		} catch (NumberFormatException | NoSuchElementException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	public static Double getDecimal(String textContent) {
+		try {
+			return new Double(textContent);
+		} catch (NumberFormatException | NullPointerException e) {
+			return null;
+		}
+	}
+
+	public static Object evaluateXPath(String xpath, Object item, QName returnType) {
+		try {
+			return XPathFactory.newInstance().newXPath().compile(xpath).evaluate(item, returnType);
+		} catch (XPathExpressionException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	/**

@@ -103,7 +103,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
 
 		for (Node node : nodes) {
-			int sid = getIntegerContent("seriesid", node);
+			int sid = getInteger(getTextContent("seriesid", node));
 			String seriesName = getTextContent("SeriesName", node);
 
 			List<String> aliasNames = new ArrayList<String>();
@@ -142,9 +142,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		seriesInfo.setOverview(getTextContent("Overview", seriesNode));
 		seriesInfo.setStatus(getTextContent("Status", seriesNode));
 
-		seriesInfo.setRating(getDecimalContent("Rating", seriesNode));
-		seriesInfo.setRatingCount(getIntegerContent("RatingCount", seriesNode));
-		seriesInfo.setRuntime(getIntegerContent("Runtime", seriesNode));
+		seriesInfo.setRating(getDecimal(getTextContent("Rating", seriesNode)));
+		seriesInfo.setRatingCount(getInteger(getTextContent("RatingCount", seriesNode)));
+		seriesInfo.setRuntime(getInteger(getTextContent("Runtime", seriesNode)));
 		seriesInfo.setActors(getListContent("Actors", "\\|", seriesNode));
 		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
 		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode), "yyyy-MM-dd"));
@@ -163,16 +163,16 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			String episodeName = getTextContent("EpisodeName", node);
 			String dvdSeasonNumber = getTextContent("DVD_season", node);
 			String dvdEpisodeNumber = getTextContent("DVD_episodenumber", node);
-			Integer absoluteNumber = getIntegerContent("absolute_number", node);
+			Integer absoluteNumber = getInteger(getTextContent("absolute_number", node));
 			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 
 			// default numbering
-			Integer episodeNumber = getIntegerContent("EpisodeNumber", node);
-			Integer seasonNumber = getIntegerContent("SeasonNumber", node);
+			Integer episodeNumber = getInteger(getTextContent("EpisodeNumber", node));
+			Integer seasonNumber = getInteger(getTextContent("SeasonNumber", node));
 
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
-				Integer airsBefore = getIntegerContent("airsbefore_season", node);
+				Integer airsBefore = getInteger(getTextContent("airsbefore_season", node));
 				if (airsBefore != null) {
 					seasonNumber = airsBefore;
 				}
