@@ -537,8 +537,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("genre")
-	public Object getPrimaryGenre() {
-		return ((Iterable<?>) getGenres()).iterator().next();
+	public String getPrimaryGenre() {
+		return ((Iterable<?>) getGenres()).iterator().next().toString();
 	}
 
 	@Define("director")
