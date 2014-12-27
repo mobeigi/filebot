@@ -58,9 +58,11 @@ public final class XPathUtilities {
 	public static List<Node> getChildren(String nodeName, Node parentNode) {
 		List<Node> children = new ArrayList<Node>();
 
-		for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
-			if (nodeName.equals(child.getNodeName()))
-				children.add(child);
+		if (parentNode != null) {
+			for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
+				if (nodeName.equals(child.getNodeName()))
+					children.add(child);
+			}
 		}
 
 		return children;
