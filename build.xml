@@ -406,9 +406,8 @@
 		<untar src="${path.tarbin}" dest="${dir.debsrc}" compression="gzip" />
 
 		<!-- debuild -S -->
-		<exec dir="${dir.debsrc}" executable="debuild">
-			<arg line="-S" />
-		</exec>
+		<exec dir="${dir.debsrc}" executable="debuild" />
+		
 		<!-- tar cvzf filebot-4.5.2-debsrc.tar.gz *.dsc *.changes *.tar.gz -->
 		<tar destfile="${path.debsrc}" compression="gzip">
 			<tarfileset dir="${dir.debsrc}/.." includes="*.dsc, *.changes, *.tar.gz" />
