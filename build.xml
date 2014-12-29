@@ -405,6 +405,13 @@
 		</copy>
 		<untar src="${path.tarbin}" dest="${dir.debsrc}" compression="gzip" />
 
+		<!-- restore permissions -->
+		<chmod perm="755" type="file">
+			<fileset dir="${dir.debsrc}">
+				<include name="**/bin/**" />
+			</fileset>
+		</chmod>
+
 		<!-- debuild -S -->
 		<exec dir="${dir.debsrc}" executable="debuild" />
 		
