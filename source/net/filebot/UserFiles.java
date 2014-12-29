@@ -105,9 +105,9 @@ public class UserFiles {
 				chooser.setFileSelectionMode(folderMode && filter == null ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
 
 				if (defaultFile != null) {
-					if (defaultFile.exists()) {
+					if (defaultFile.isFile()) {
 						chooser.setSelectedFile(defaultFile);
-					} else if (defaultFile.getParentFile().exists()) {
+					} else if (defaultFile.getParentFile() != null && defaultFile.getParentFile().isDirectory()) {
 						chooser.setCurrentDirectory(defaultFile.getParentFile());
 					}
 				}
@@ -171,7 +171,7 @@ public class UserFiles {
 				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(false);
 				if (defaultFile != null) {
-					if (defaultFile.getParentFile() != null) {
+					if (defaultFile.getParentFile() != null && defaultFile.getParentFile().isDirectory()) {
 						fileDialog.setDirectory(defaultFile.getParentFile().getPath());
 					}
 					fileDialog.setFile(defaultFile.getName());
@@ -248,7 +248,7 @@ public class UserFiles {
 						if (folderMode) {
 							javafx.stage.DirectoryChooser directoryChooser = new javafx.stage.DirectoryChooser();
 							directoryChooser.setTitle(title);
-							if (defaultFile != null) {
+							if (defaultFile != null && defaultFile.isDirectory()) {
 								directoryChooser.setInitialDirectory(defaultFile);
 							}
 
@@ -301,7 +301,7 @@ public class UserFiles {
 						fileChooser.setTitle(title);
 
 						if (defaultFile != null) {
-							if (defaultFile.getParentFile() != null) {
+							if (defaultFile.getParentFile() != null && defaultFile.getParentFile().isDirectory()) {
 								fileChooser.setInitialDirectory(defaultFile.getParentFile());
 							}
 							fileChooser.setInitialFileName(defaultFile.getName());
