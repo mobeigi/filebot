@@ -188,10 +188,10 @@ public class Main {
 				throw new RuntimeException(e); // won't happen
 			}
 
-			// pre-load media.types and JNA/GIO (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
+			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
 
-			// check for application updates (only when installed, i.e. not running via fatjar or webstart)
+			// check for application updates
 			if (!"skip".equals(System.getProperty("application.update"))) {
 				try {
 					checkUpdate();
