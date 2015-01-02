@@ -16,6 +16,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 
@@ -200,27 +202,42 @@ public class UserFiles {
 
 		COCOA {
 
+			private final String KEY_NSOPENPANEL_BROKEN = "NSOPENPANEL_BROKEN";
+
 			@Override
 			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
 				// directly use NSOpenPanel for via Objective-C bridge for FILES_AND_DIRECTORIES mode
 				if (folderMode && filter != null) {
-					try {
-						NativeFileDialog nsOpenPanel = new NativeFileDialog(title, FileDialog.LOAD);
-						nsOpenPanel.setMultipleMode(true);
-						nsOpenPanel.setCanChooseDirectories(true);
-						nsOpenPanel.setCanChooseFiles(true);
-						if (!filter.acceptAny()) {
-							nsOpenPanel.setAllowedFileTypes(asList(filter.extensions()));
+					// NSOpenPanel causes deadlocks on some machines
+					Preferences persistence = Preferences.userNodeForPackage(UserFiles.class);
+					if (!persistence.getBoolean(KEY_NSOPENPANEL_BROKEN, false)) {
+						// assume that NSOpenPanel may freeze the application until it is killed, and make sure to not use NSOpenPanel on subsequent runs
+						try {
+							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, true);
+							persistence.flush();
+						} catch (BackingStoreException e) {
+							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString(), e);
 						}
-						nsOpenPanel.setVisible(true);
 
-						if (!nsOpenPanel.isCancelled()) {
-							return asList(nsOpenPanel.getFiles());
-						} else {
-							return emptyList();
+						try {
+							NativeFileDialog nsOpenPanel = new NativeFileDialog(title, FileDialog.LOAD);
+							nsOpenPanel.setMultipleMode(true);
+							nsOpenPanel.setCanChooseDirectories(true);
+							nsOpenPanel.setCanChooseFiles(true);
+							if (!filter.acceptAny()) {
+								nsOpenPanel.setAllowedFileTypes(asList(filter.extensions()));
+							}
+							nsOpenPanel.setVisible(true);
+							if (!nsOpenPanel.isCancelled()) {
+								return asList(nsOpenPanel.getFiles());
+							} else {
+								return emptyList();
+							}
+						} catch (Throwable e) {
+							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+						} finally {
+							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, false); // NSOpenPanel did not freeze application
 						}
-					} catch (Throwable e) {
-						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
 					}
 				}
 
