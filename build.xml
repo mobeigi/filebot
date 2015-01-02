@@ -292,6 +292,11 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
+			<option value="--log-file" />
+			<option value="filebot.log" />
+			<option value="--log-lock" />
+			<option value="false" />
+
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
@@ -414,7 +419,7 @@
 
 		<!-- debuild -S -->
 		<exec dir="${dir.debsrc}" executable="debuild" />
-		
+
 		<!-- tar cvzf filebot-4.5.2-debsrc.tar.gz *.dsc *.changes *.tar.gz -->
 		<tar destfile="${path.debsrc}" compression="gzip">
 			<tarfileset dir="${dir.debsrc}/.." includes="*.dsc, *.changes, *.tar.gz" />

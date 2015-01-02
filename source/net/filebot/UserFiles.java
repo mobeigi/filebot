@@ -238,6 +238,8 @@ public class UserFiles {
 						} finally {
 							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, false); // NSOpenPanel did not freeze application
 						}
+					} else {
+						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, "NSOpenPanel broken. Using AWT implementation instead.");
 					}
 				}
 
