@@ -292,14 +292,15 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
-			<option value="--log-file" />
-			<option value="filebot.log" />
-			<option value="--log-lock" />
-			<option value="false" />
-
 			<option value="-Xdock:name=${title}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
+
+			<!-- enable logging by default -->
+			<argument value="--log-file" />
+			<argument value="filebot.log" />
+			<argument value="--log-lock" />
+			<argument value="false" />
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
