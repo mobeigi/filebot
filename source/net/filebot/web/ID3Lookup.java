@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -27,7 +28,7 @@ public class ID3Lookup implements MusicIdentificationService {
 	}
 
 	@Override
-	public Map<File, AudioTrack> lookup(Iterable<File> files) throws Exception {
+	public Map<File, AudioTrack> lookup(Collection<File> files) throws Exception {
 		Map<File, AudioTrack> info = new LinkedHashMap<File, AudioTrack>();
 
 		MediaInfo mediaInfo = new MediaInfo();

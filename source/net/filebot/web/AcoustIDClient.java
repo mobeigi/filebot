@@ -10,6 +10,7 @@ import java.lang.ProcessBuilder.Redirect;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,21 +55,24 @@ public class AcoustIDClient implements MusicIdentificationService {
 	}
 
 	@Override
-	public Map<File, AudioTrack> lookup(Iterable<File> files) throws Exception {
+	public Map<File, AudioTrack> lookup(Collection<File> files) throws Exception {
 		Map<File, AudioTrack> results = new LinkedHashMap<File, AudioTrack>();
 
-		for (Map<String, String> fp : fpcalc(files)) {
-			File file = new File(fp.get("FILE"));
-			int duration = Integer.parseInt(fp.get("DURATION"));
-			String fingerprint = fp.get("FINGERPRINT");
+		if (files.size() > 0) {
+			for (Map<String, String> fp : fpcalc(files)) {
+				File file = new File(fp.get("FILE"));
+				int duration = Integer.parseInt(fp.get("DURATION"));
+				String fingerprint = fp.get("FINGERPRINT");
 
-			if (duration > 10 && fingerprint != null) {
-				String response = lookup(duration, fingerprint);
-				if (response != null && response.length() > 0) {
-					results.put(file, parseResult(lookup(duration, fingerprint), duration));
+				if (duration > 10 && fingerprint != null) {
+					String response = lookup(duration, fingerprint);
+					if (response != null && response.length() > 0) {
+						results.put(file, parseResult(lookup(duration, fingerprint), duration));
+					}
 				}
 			}
 		}
+
 		return results;
 	}
 
@@ -210,7 +214,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 		return System.getProperty("net.filebot.AcoustID.fpcalc", "fpcalc");
 	}
 
-	public List<Map<String, String>> fpcalc(Iterable<File> files) throws IOException, InterruptedException {
+	public List<Map<String, String>> fpcalc(Collection<File> files) throws IOException, InterruptedException {
 		List<String> command = new ArrayList<String>();
 		command.add(getChromaprintCommand());
 		for (File f : files) {
