@@ -1521,24 +1521,20 @@ public class MediaDetection {
 		}
 	}
 
-	public static void warmupCachedResources() {
-		try {
-			// pre-load filter data
-			MediaDetection.getClutterFileFilter();
-			MediaDetection.getDiskFolderFilter();
+	public static void warmupCachedResources() throws Exception {
+		// pre-load filter data
+		MediaDetection.getClutterFileFilter();
+		MediaDetection.getDiskFolderFilter();
 
-			Collection<File> empty = Collections.emptyList();
-			MediaDetection.matchSeriesByDirectMapping(empty);
+		Collection<File> empty = Collections.emptyList();
+		MediaDetection.matchSeriesByDirectMapping(empty);
 
-			// pre-load movie/series index
-			List<String> dummy = Collections.singletonList("");
-			MediaDetection.stripReleaseInfo(dummy, true);
-			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
-			MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
-			MediaDetection.matchMovieName(dummy, true, -1);
-		} catch (Exception e) {
-			Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, e.getMessage(), e);
-		}
+		// pre-load movie/series index
+		List<String> dummy = Collections.singletonList("");
+		MediaDetection.stripReleaseInfo(dummy, true);
+		MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
+		MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
+		MediaDetection.matchMovieName(dummy, true, -1);
 	}
 
 }
