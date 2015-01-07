@@ -1436,6 +1436,7 @@ ksya
 KTR
 KubuSubs
 Kurai-Subs
+KURAMA
 Kuro-Hana
 Kuth
 KyF
