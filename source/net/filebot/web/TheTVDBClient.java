@@ -172,9 +172,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
-				Integer airsBefore = getInteger(getTextContent("airsbefore_season", node));
-				if (airsBefore != null) {
-					seasonNumber = airsBefore;
+				for (String specialSeasonTag : new String[] { "airsafter_season", "airsbefore_season" }) {
+					Integer specialSeason = getInteger(getTextContent(specialSeasonTag, node));
+					if (specialSeason != null && specialSeason != 0) {
+						seasonNumber = specialSeason;
+						break;
+					}
 				}
 
 				// use given episode number as special number or count specials by ourselves
