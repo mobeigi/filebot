@@ -698,7 +698,7 @@ public class SubtitleUploadDialog extends JDialog {
 								}
 							}
 						} else {
-							Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, database, Locale.ENGLISH, true);
+							Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, Locale.ENGLISH, true);
 							for (Movie it : identity) {
 								if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
 									it = WebServices.TheMovieDB.getMovieDescriptor(it, Locale.ENGLISH);

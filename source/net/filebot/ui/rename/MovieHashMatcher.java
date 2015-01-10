@@ -187,7 +187,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 							if (year.size() > 0 && parseEpisodeNumber(f, true) == null) {
 								// allow only movie matches where the the movie year matches the year pattern in the filename
 								List<Movie> matches = new ArrayList<Movie>();
-								for (Movie movie : detectMovie(f, null, service, locale, strict)) {
+								for (Movie movie : detectMovie(f, service, locale, strict)) {
 									if (year.contains(movie.getYear())) {
 										matches.add(movie);
 									}
@@ -196,7 +196,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 							}
 						} else {
 							// in non-strict mode just allow all options
-							detection.put(f, detectMovie(f, null, service, locale, strict));
+							detection.put(f, detectMovie(f, service, locale, strict));
 						}
 					}
 					return detection;
@@ -477,7 +477,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input != null && input.length() > 0) {
-			List<Movie> results = detectMovie(new File(input), null, service, locale, false);
+			List<Movie> results = detectMovie(new File(input), service, locale, false);
 			for (Movie it : results) {
 				// make sure to retrieve language-specific movie descriptor
 				matches.add(new Match<File, Movie>(null, service.getMovieDescriptor(it, locale)));

@@ -554,7 +554,7 @@ public class MediaDetection {
 		return seriesList;
 	}
 
-	public static List<Movie> detectMovie(File movieFile, MovieIdentificationService hashLookupService, MovieIdentificationService queryLookupService, Locale locale, boolean strict) throws Exception {
+	public static List<Movie> detectMovie(File movieFile, MovieIdentificationService service, Locale locale, boolean strict) throws Exception {
 		List<Movie> options = new ArrayList<Movie>();
 
 		// try xattr metadata if enabled
@@ -564,22 +564,22 @@ public class MediaDetection {
 		}
 
 		// lookup by file hash
-		if (hashLookupService != null && movieFile.isFile()) {
+		if (service != null && movieFile.isFile()) {
 			try {
-				for (Movie movie : hashLookupService.getMovieDescriptors(singleton(movieFile), locale).values()) {
+				for (Movie movie : service.getMovieDescriptors(singleton(movieFile), locale).values()) {
 					if (movie != null) {
 						options.add(movie);
 					}
 				}
-			} catch (Exception e) {
-				Logger.getLogger(MediaDetection.class.getName()).log(Level.WARNING, hashLookupService.getName() + ": " + e.getMessage());
+			} catch (UnsupportedOperationException e) {
+				// ignore logging => hash lookup only supported by OpenSubtitles
 			}
 		}
 
 		// lookup by id from nfo file
-		if (queryLookupService != null) {
+		if (service != null) {
 			for (int imdbid : grepImdbId(movieFile.getPath())) {
-				Movie movie = queryLookupService.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
+				Movie movie = service.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -587,7 +587,7 @@ public class MediaDetection {
 
 			// try to grep imdb id from nfo files
 			for (int imdbid : grepImdbIdFor(movieFile)) {
-				Movie movie = queryLookupService.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
+				Movie movie = service.getMovieDescriptor(new Movie(null, 0, imdbid, -1), locale);
 				if (movie != null) {
 					options.add(movie);
 				}
@@ -645,8 +645,8 @@ public class MediaDetection {
 		}
 
 		// query by file / folder name
-		if (queryLookupService != null) {
-			List<Movie> results = queryMovieByFileName(terms, queryLookupService, locale);
+		if (service != null) {
+			List<Movie> results = queryMovieByFileName(terms, service, locale);
 
 			// try query without year as it sometimes messes up results if years don't match properly (movie release years vs dvd release year, etc)
 			if (results.isEmpty() && !strict) {
@@ -662,7 +662,7 @@ public class MediaDetection {
 					}
 				}
 				if (lastResortQueryList.size() > 0) {
-					results = queryMovieByFileName(lastResortQueryList, queryLookupService, locale);
+					results = queryMovieByFileName(lastResortQueryList, service, locale);
 				}
 			}
 

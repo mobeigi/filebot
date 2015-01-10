@@ -86,7 +86,7 @@ public final class SubtitleUtilities {
 
 						// might be a movie, auto-detect movie names
 						if (!isEpisode(f.getPath(), true)) {
-							for (Movie it : detectMovie(f, null, null, Locale.ENGLISH, strict)) {
+							for (Movie it : detectMovie(f, null, Locale.ENGLISH, strict)) {
 								queries.add(it.getName());
 							}
 						}

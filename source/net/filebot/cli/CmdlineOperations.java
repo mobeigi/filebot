@@ -431,7 +431,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
 				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
-				Collection<Movie> options = detectMovie(file, null, service, locale, strict);
+				Collection<Movie> options = detectMovie(file, service, locale, strict);
 
 				// apply filter if defined
 				options = applyExpressionFilter(options, filter);
