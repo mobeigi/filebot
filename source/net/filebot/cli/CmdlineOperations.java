@@ -40,6 +40,7 @@ import net.filebot.HistorySpooler;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.RenameAction;
+import net.filebot.StandardRenameAction;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
 import net.filebot.format.ExpressionFilter;
@@ -618,7 +619,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						destination = new File(source.getParentFile(), destination.getPath());
 					}
 
-					if (!destination.equals(source) && destination.exists()) {
+					if (!destination.equals(source) && destination.exists() && renameAction != StandardRenameAction.TEST) {
 						if (conflictAction == ConflictAction.FAIL) {
 							throw new CmdlineException("File already exists: " + destination);
 						}
@@ -656,7 +657,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// write metadata into xattr if xattr is enabled
-		if (matches != null && (useExtendedFileAttributes() || useCreationDate())) {
+		if (matches != null && (useExtendedFileAttributes() || useCreationDate()) && renameAction != StandardRenameAction.TEST) {
 			try {
 				for (Match<File, ?> match : matches) {
 					File file = match.getValue();
