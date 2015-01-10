@@ -243,7 +243,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 		// 3. run full-fledged movie detection
 		try {
-			return MediaDetection.detectMovie(file, WebServices.OpenSubtitles.isAnonymous() ? null : WebServices.OpenSubtitles, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
+			return MediaDetection.detectMovie(file, null, WebServices.TheMovieDB, Locale.ENGLISH, strict).get(0);
 		} catch (Exception e) {
 			// ignore and fail
 		}
