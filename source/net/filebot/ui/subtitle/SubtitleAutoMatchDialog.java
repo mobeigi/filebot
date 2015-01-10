@@ -442,14 +442,14 @@ class SubtitleAutoMatchDialog extends JDialog {
 				setIcon(ResourceManager.getIcon("dialog.cancel"));
 				setToolTipText(null);
 			} else {
-				setText(subtitleBean.getText());
-
 				if (subtitleBean.getError() == null) {
+					setText(subtitleBean.getText());
 					setIcon(subtitleBean.getIcon());
 					setToolTipText(null);
 				} else {
+					setText(String.format("%s (%s)", subtitleBean.getText(), subtitleBean.getError().getMessage()));
 					setIcon(ResourceManager.getIcon("status.warning"));
-					setToolTipText(subtitleBean.getError().getMessage());
+					setToolTipText(subtitleBean.getError().toString());
 				}
 
 				if (!isSelected) {
