@@ -161,8 +161,6 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			String dvdSeasonNumber = getTextContent("DVD_season", node);
-			String dvdEpisodeNumber = getTextContent("DVD_episodenumber", node);
 			Integer absoluteNumber = getInteger(getTextContent("absolute_number", node));
 			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 
@@ -170,6 +168,19 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			Integer episodeNumber = getInteger(getTextContent("EpisodeNumber", node));
 			Integer seasonNumber = getInteger(getTextContent("SeasonNumber", node));
 
+			// adjust for DVD numbering if possible
+			if (sortOrder == SortOrder.DVD) {
+				Integer dvdSeasonNumber = getInteger(getTextContent("DVD_season", node));
+				Integer dvdEpisodeNumber = getInteger(getTextContent("DVD_episodenumber", node));
+
+				// require both values to be valid integer numbers
+				if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
+					seasonNumber = dvdSeasonNumber;
+					episodeNumber = dvdEpisodeNumber;
+				}
+			}
+
+			// adjust for special numbering if necessary
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
 				for (String specialSeasonTag : new String[] { "airsafter_season", "airsbefore_season" }) {
@@ -184,25 +195,15 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				Integer specialNumber = (episodeNumber != null) ? episodeNumber : filterBySeason(specials, seasonNumber).size() + 1;
 				specials.add(new Episode(seriesInfo.getName(), seasonNumber, null, episodeName, null, specialNumber, airdate, new SeriesInfo(seriesInfo)));
 			} else {
-				// handle as normal episode
+				// adjust for absolute numbering if possible
 				if (sortOrder == SortOrder.Absolute) {
-					if (absoluteNumber != null) {
+					if (absoluteNumber != null && absoluteNumber > 0) {
 						episodeNumber = absoluteNumber;
 						seasonNumber = null;
 					}
-				} else if (sortOrder == SortOrder.DVD) {
-					try {
-						int eno = new Float(dvdEpisodeNumber).intValue();
-						int sno = new Float(dvdSeasonNumber).intValue();
-
-						// require both values to be successfully read
-						episodeNumber = eno;
-						seasonNumber = sno;
-					} catch (Exception e) {
-						// ignore, fallback to default numbering
-					}
 				}
 
+				// handle as normal episode
 				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeName, absoluteNumber, null, airdate, new SeriesInfo(seriesInfo)));
 			}
 		}

@@ -75,6 +75,10 @@ public abstract class AbstractCachedResource<R, T extends Serializable> {
 		try {
 			long lastModified = element != null ? lastUpdateTime : 0;
 			URL url = getResourceLocation(resource);
+
+			// DEBUG
+			// System.out.println(String.format("CachedResource.resourceLocation => %s (If-Modified-Since: %s)", url, java.time.Instant.ofEpochMilli(lastModified)));
+
 			data = fetch(url, lastModified, element != null ? 0 : retryCountLimit);
 		} catch (IOException e) {
 			networkException = e;
