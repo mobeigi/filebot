@@ -105,7 +105,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		if (infoObject instanceof AudioTrack)
-			return getReleaseDate() != null ? ((SimpleDate) getReleaseDate()).getYear() : new Scanner(getMediaInfo(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
+			return ((SimpleDate) getReleaseDate()).getYear();
 
 		return null;
 	}
@@ -530,9 +530,6 @@ public class MediaBindingBean {
 
 	@Define("genres")
 	public Object getGenres() {
-		if (infoObject instanceof AudioTrack)
-			return asList(getMediaInfo(StreamKind.General, 0, "Genre").split(";"));
-
 		return getMetaInfo().getProperty("genres");
 	}
 
@@ -723,7 +720,7 @@ public class MediaBindingBean {
 	@Define("pi")
 	public Integer getPart() {
 		if (infoObject instanceof AudioTrack)
-			return getMusic().getTrack() != null ? getMusic().getTrack() : Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position"));
+			return getMusic().getTrack();
 		if (infoObject instanceof MoviePart)
 			return ((MoviePart) infoObject).getPartIndex();
 
@@ -733,7 +730,7 @@ public class MediaBindingBean {
 	@Define("pn")
 	public Integer getPartCount() {
 		if (infoObject instanceof AudioTrack)
-			return getMusic().getTrackCount() != null ? getMusic().getTrackCount() : Integer.parseInt(getMediaInfo(StreamKind.General, 0, "Track/Position_Total"));
+			return getMusic().getTrackCount();
 		if (infoObject instanceof MoviePart)
 			return ((MoviePart) infoObject).getPartCount();
 
