@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Arrays.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -11,7 +10,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -21,6 +19,7 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -107,16 +106,23 @@ public class AcoustIDClient implements MusicIdentificationService {
 	}
 
 	private static Object[] array(Object node, String key) {
-		return ((JsonObject<?, ?>) ((Map<?, ?>) node).get(key)).getArray();
+		Object value = ((Map<?, ?>) node).get(key);
+		return value == null ? null : ((JsonObject<?, ?>) value).getArray();
 	}
 
 	private static Map<?, ?> firstMap(Object node, String key) {
-		return (Map<?, ?>) array(node, key)[0];
+		Object[] values = array(node, key);
+		return values == null || values.length == 0 ? null : (Map<?, ?>) values[0];
 	}
 
 	private static Integer integer(Object node, String key) {
 		Object value = ((Map<?, ?>) node).get(key);
 		return value == null ? null : new Integer(value.toString());
+	}
+
+	private static String string(Object node, String key) {
+		Object value = ((Map<?, ?>) node).get(key);
+		return value == null ? null : value.toString();
 	}
 
 	public AudioTrack parseResult(String json, final int targetDuration) throws IOException {
@@ -125,80 +131,81 @@ public class AcoustIDClient implements MusicIdentificationService {
 		if (!data.get("status").equals("ok")) {
 			throw new IOException("acoustid responded with error: " + data.get("status"));
 		}
+
 		try {
 			for (Object result : array(data, "results")) {
 				try {
 					// pick most likely matching recording
-					Object[] recordings = array(result, "recordings");
-					sort(recordings, new Comparator<Object>() {
+					return Stream.of(array(result, "recordings")).sorted((Object o1, Object o2) -> {
+						Integer i1 = integer(o1, "duration");
+						Integer i2 = integer(o2, "duration");
+						return Double.compare(i1 == null ? Double.NaN : Math.abs(i1 - targetDuration), i2 == null ? Double.NaN : Math.abs(i2 - targetDuration));
+					}).map((Object o) -> {
+						Map<?, ?> recording = (Map<?, ?>) o;
+						try {
+							Map<?, ?> releaseGroup = firstMap(recording, "releasegroups");
+							if (releaseGroup == null) {
+								return null;
+							}
 
-						@Override
-						public int compare(Object o1, Object o2) {
-							Integer i1 = integer(o1, "duration");
-							Integer i2 = integer(o2, "duration");
-							return Double.compare(i1 == null ? Double.NaN : Math.abs(i1 - targetDuration), i2 == null ? Double.NaN : Math.abs(i2 - targetDuration));
-						}
-					});
+							String artist = (String) firstMap(recording, "artists").get("name");
+							String title = (String) recording.get("title");
 
-					Map<?, ?> recording = (Map<?, ?>) recordings[0];
-					String artist = (String) firstMap(recording, "artists").get("name");
-					String title = (String) recording.get("title");
+							AudioTrack audioTrack = new AudioTrack(artist, title, null);
+							audioTrack.mbid = string(result, "id");
 
-					AudioTrack audioTrack = new AudioTrack(artist, title, null);
-					try {
-						Map<?, ?> releaseGroup = firstMap(recording, "releasegroups");
-						Object[] releases = array(releaseGroup, "releases");
-						if (releases != null) {
+							String type = string(releaseGroup, "type");
+							Object[] secondaryTypes = array(releaseGroup, "secondarytypes");
+							Object[] releases = array(releaseGroup, "releases");
+
+							if (releases == null || secondaryTypes != null || (secondaryTypes != null && secondaryTypes.length > 0) || (type == null || !type.equals("Album"))) {
+								return null; // ignore music that doesn't belong to a proper album
+							}
+
 							for (Object it : releases) {
+								AudioTrack thisRelease = audioTrack.clone();
+								Map<?, ?> release = (Map<?, ?>) it;
+								Map<?, ?> date = (Map<?, ?>) release.get("date");
 								try {
-									AudioTrack thisRelease = new AudioTrack(artist, title, null);
-									Map<?, ?> release = (Map<?, ?>) it;
-									Map<?, ?> date = (Map<?, ?>) release.get("date");
-									try {
-										thisRelease.albumReleaseDate = new SimpleDate(integer(date, "year"), integer(date, "month"), integer(date, "day"));
-									} catch (Exception e) {
-										// ignore
-									}
-
-									if (thisRelease.albumReleaseDate == null || thisRelease.albumReleaseDate.getTimeStamp() >= (audioTrack.albumReleaseDate == null ? Long.MAX_VALUE : audioTrack.albumReleaseDate.getTimeStamp())) {
-										continue;
-									}
-
-									Map<?, ?> medium = firstMap(release, "mediums");
-									thisRelease.mediumIndex = integer(medium, "position");
-									thisRelease.mediumCount = integer(release, "medium_count");
-
-									Map<?, ?> track = firstMap(medium, "tracks");
-									thisRelease.trackIndex = integer(track, "position");
-									thisRelease.trackCount = integer(medium, "track_count");
-
-									try {
-										thisRelease.album = release.get("title").toString();
-									} catch (Exception e) {
-										thisRelease.album = (String) releaseGroup.get("title");
-									}
-									try {
-										thisRelease.albumArtist = (String) firstMap(releaseGroup, "artists").get("name");
-									} catch (Exception e) {
-										thisRelease.albumArtist = null;
-									}
-									thisRelease.trackTitle = (String) track.get("title");
-
-									if (!"Various Artists".equalsIgnoreCase(thisRelease.albumArtist) && (thisRelease.album == null || !thisRelease.album.contains("Greatest Hits"))) {
-										// full info audio track
-										return thisRelease;
-									}
+									thisRelease.albumReleaseDate = new SimpleDate(integer(date, "year"), integer(date, "month"), integer(date, "day"));
 								} catch (Exception e) {
-									Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
+									thisRelease.albumReleaseDate = null;
+								}
+
+								if (thisRelease.albumReleaseDate == null || thisRelease.albumReleaseDate.getTimeStamp() >= (audioTrack.albumReleaseDate == null ? Long.MAX_VALUE : audioTrack.albumReleaseDate.getTimeStamp())) {
+									continue;
+								}
+
+								Map<?, ?> medium = firstMap(release, "mediums");
+								thisRelease.mediumIndex = integer(medium, "position");
+								thisRelease.mediumCount = integer(release, "medium_count");
+
+								Map<?, ?> track = firstMap(medium, "tracks");
+								thisRelease.trackIndex = integer(track, "position");
+								thisRelease.trackCount = integer(medium, "track_count");
+
+								try {
+									thisRelease.album = release.get("title").toString();
+								} catch (Exception e) {
+									thisRelease.album = (String) releaseGroup.get("title");
+								}
+								try {
+									thisRelease.albumArtist = (String) firstMap(releaseGroup, "artists").get("name");
+								} catch (Exception e) {
+									thisRelease.albumArtist = null;
+								}
+								thisRelease.trackTitle = (String) track.get("title");
+
+								if (!"Various Artists".equalsIgnoreCase(thisRelease.albumArtist) && (thisRelease.album == null || !thisRelease.album.contains("Greatest Hits"))) {
+									// full info audio track
+									return thisRelease;
 								}
 							}
+						} catch (Exception e) {
+							Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
 						}
-					} catch (Exception e) {
-						Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
-					}
-
-					// basic info audio track
-					return audioTrack;
+						return null;
+					}).filter(o -> o != null).findFirst().get();
 				} catch (Exception e) {
 					// ignore
 				}

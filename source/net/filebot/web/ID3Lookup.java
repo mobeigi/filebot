@@ -73,7 +73,7 @@ public class ID3Lookup implements MusicIdentificationService {
 				}
 
 				if (artist.length() > 0 && title.length() > 0 && album.length() > 0) {
-					info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount));
+					info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, null));
 				}
 			} catch (Throwable e) {
 				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.getMessage(), e);
