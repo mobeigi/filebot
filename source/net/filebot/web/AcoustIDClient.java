@@ -6,10 +6,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -101,6 +103,9 @@ public class AcoustIDClient implements MusicIdentificationService {
 		// submit
 		response = Charset.forName("UTF-8").decode(post(url, postParam, requestParam)).toString();
 
+		// DEBUG
+		// System.out.println(response);
+
 		cache.put(cacheKey, response);
 		return response;
 	}
@@ -158,8 +163,8 @@ public class AcoustIDClient implements MusicIdentificationService {
 							Object[] secondaryTypes = array(releaseGroup, "secondarytypes");
 							Object[] releases = array(releaseGroup, "releases");
 
-							if (releases == null || secondaryTypes != null || (secondaryTypes != null && secondaryTypes.length > 0) || (type == null || !type.equals("Album"))) {
-								return null; // ignore music that doesn't belong to a proper album
+							if (releases == null || secondaryTypes != null || (!"Album".equals(type))) {
+								return audioTrack; // default to simple music info if album data is undesirable
 							}
 
 							for (Object it : releases) {
@@ -201,11 +206,14 @@ public class AcoustIDClient implements MusicIdentificationService {
 									return thisRelease;
 								}
 							}
+
+							// default to simple music info if extended info is not available
+							return audioTrack;
 						} catch (Exception e) {
 							Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
+							return null;
 						}
-						return null;
-					}).filter(o -> o != null).findFirst().get();
+					}).filter(o -> o != null).sorted(new MostFieldsNotNull()).findFirst().get();
 				} catch (Exception e) {
 					// ignore
 				}
@@ -230,13 +238,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 		Process process = null;
 		try {
-			ProcessBuilder processBuilder = new ProcessBuilder(command);
-			try {
-				processBuilder.redirectError(Redirect.INHERIT);
-			} catch (Throwable e) {
-				Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, "Unable to inherit IO: " + e.getMessage());
-			}
-			process = processBuilder.start();
+			process = new ProcessBuilder(command).redirectError(Redirect.INHERIT).start();
 		} catch (Exception e) {
 			throw new IOException("Failed to exec fpcalc: " + e.getMessage());
 		}
@@ -247,6 +249,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 		try {
 			while (scanner.hasNextLine()) {
 				String[] value = scanner.nextLine().split("=", 2);
+
 				if (value.length != 2)
 					continue;
 
@@ -265,4 +268,27 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 		return results;
 	}
+
+	private static class MostFieldsNotNull implements Comparator<Object> {
+
+		@Override
+		public int compare(Object o1, Object o2) {
+			return Integer.compare(count(o2), count(o1));
+		}
+
+		public int count(Object o) {
+			int n = 0;
+			try {
+				for (Field field : o.getClass().getDeclaredFields()) {
+					if (field.get(o) != null) {
+						n++;
+					}
+				}
+			} catch (Exception e) {
+				Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
+			}
+			return n;
+		}
+	}
+
 }
