@@ -196,7 +196,7 @@ public class ArgumentProcessor {
 			String url = (resolver != null) ? String.format(resolver, uri.getSchemeSpecificPart()) : uri.toString();
 
 			// fetch remote script only if modified
-			CachedResource<String> script = new CachedResource<String>(url, String.class, url.contains("/devel/") ? CachedResource.ONE_DAY : CachedResource.ONE_MONTH) {
+			CachedResource<String> script = new CachedResource<String>(url, String.class, url.contains("/devel/") ? CachedResource.ONE_DAY : CachedResource.ONE_WEEK) {
 
 				@Override
 				public String process(ByteBuffer data) {
