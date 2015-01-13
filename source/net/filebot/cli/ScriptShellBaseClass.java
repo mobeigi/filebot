@@ -50,10 +50,10 @@ import com.sun.jna.Platform;
 
 public abstract class ScriptShellBaseClass extends Script {
 
-	private Map<String, Object> defaultValues;
+	private final Map<String, Object> defaultValues = synchronizedMap(new LinkedHashMap<String, Object>());
 
 	public void setDefaultValues(Map<String, ?> values) {
-		this.defaultValues = new LinkedHashMap<String, Object>(values);
+		defaultValues.putAll(values);
 	}
 
 	public Map<String, Object> getDefaultValues() {
