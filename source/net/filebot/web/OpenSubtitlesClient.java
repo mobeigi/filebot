@@ -584,7 +584,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 			// some additional special handling
 			subLanguageMap.put("brazilian", "pob");
-			subLanguageMap.put("chinese", "zho");
+			subLanguageMap.put("chinese", "chi,zht,zhe"); // Chinese (Simplified) / Chinese (Traditional) / Chinese (bilingual)
 
 			// cache data
 			cache.put(cacheKey, subLanguageMap);
