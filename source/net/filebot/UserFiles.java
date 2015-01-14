@@ -16,13 +16,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.mac.NativeFileDialog;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
 
 public class UserFiles {
@@ -211,28 +209,13 @@ public class UserFiles {
 					// NSOpenPanel causes deadlocks on some machines
 					Preferences persistence = Preferences.userNodeForPackage(UserFiles.class);
 					if (!persistence.getBoolean(KEY_NSOPENPANEL_BROKEN, false)) {
-						// assume that NSOpenPanel may freeze the application until it is killed, and make sure to not use NSOpenPanel on subsequent runs
 						try {
+							// assume that NSOpenPanel may freeze the application until it is killed, and make sure to not use NSOpenPanel on subsequent runs
 							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, true);
 							persistence.flush();
-						} catch (BackingStoreException e) {
-							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString(), e);
-						}
 
-						try {
-							NativeFileDialog nsOpenPanel = new NativeFileDialog(title, FileDialog.LOAD);
-							nsOpenPanel.setMultipleMode(true);
-							nsOpenPanel.setCanChooseDirectories(true);
-							nsOpenPanel.setCanChooseFiles(true);
-							if (!filter.acceptAny()) {
-								nsOpenPanel.setAllowedFileTypes(asList(filter.extensions()));
-							}
-							nsOpenPanel.setVisible(true);
-							if (!nsOpenPanel.isCancelled()) {
-								return asList(nsOpenPanel.getFiles());
-							} else {
-								return emptyList();
-							}
+							// call native NSOpenPanel openPanel via Objective-C bridge
+							return MacAppUtilities.NSOpenPanel_openPanel_runModal(title, true, true, true, filter.acceptAny() ? filter.extensions() : null);
 						} catch (Throwable e) {
 							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
 						} finally {

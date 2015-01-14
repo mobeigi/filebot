@@ -1,15 +1,20 @@
 package net.filebot.mac;
 
+import static ca.weblite.objc.util.CocoaUtils.*;
+
 import java.awt.Window;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
 import ca.weblite.objc.Client;
+import ca.weblite.objc.Proxy;
 
 public class MacAppUtilities {
 
@@ -32,6 +37,40 @@ public class MacAppUtilities {
 
 	public static Object NSURL_URLByResolvingBookmarkData_startAccessingSecurityScopedResource(String text) {
 		return objc().sendProxy("NSURL", "URLByResolvingBookmarkData:options:relativeToURL:bookmarkDataIsStale:error:", NSData_initWithBase64Encoding(text), 1024, null, false, null).send("startAccessingSecurityScopedResource");
+	}
+
+	public static List<File> NSOpenPanel_openPanel_runModal(String title, boolean multipleMode, boolean canChooseDirectories, boolean canChooseFiles, String[] allowedFileTypes) {
+		List<File> result = new ArrayList<File>();
+		dispatch_sync(new Runnable() {
+
+			@Override
+			public void run() {
+				Proxy peer = objc().sendProxy("NSOpenPanel", "openPanel");
+				peer.send("setTitle:", title);
+				peer.send("setAllowsMultipleSelection:", multipleMode ? 1 : 0);
+				peer.send("setCanChooseDirectories:", canChooseDirectories ? 1 : 0);
+				peer.send("setCanChooseFiles:", canChooseFiles ? 1 : 0);
+
+				if (allowedFileTypes != null) {
+					Proxy mutableArray = objc().sendProxy("NSMutableArray", "arrayWithCapacity:", allowedFileTypes.length);
+					for (String type : allowedFileTypes) {
+						mutableArray.send("addObject:", type);
+					}
+					peer.send("setAllowedFileTypes:", mutableArray);
+				}
+
+				if (peer.sendInt("runModal") != 0) {
+					Proxy nsArray = peer.getProxy("URLs");
+					int size = nsArray.sendInt("count");
+					for (int i = 0; i < size; i++) {
+						Proxy url = nsArray.sendProxy("objectAtIndex:", i);
+						String path = url.sendString("path");
+						result.add(new File(path));
+					}
+				}
+			}
+		});
+		return result;
 	}
 
 	public static void setWindowCanFullScreen(Window window) {
