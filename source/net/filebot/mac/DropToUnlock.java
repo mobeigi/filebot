@@ -151,9 +151,8 @@ public class DropToUnlock extends JList<File> {
 						// if all folders have been unlocked auto-close dialog
 						if (model.stream().allMatch(f -> !isLockedFolder(f))) {
 							dialogCancelled.set(false);
-							invokeLater(750, () -> {
-								dialog.setVisible(false);
-							});
+							invokeLater(750, () -> dialog.setVisible(false)); // auto-close unlock dialog once all folders have been unlocked
+							invokeLater(1000, () -> requestForeground()); // bring application to foreground now that folders have been unlocked
 						} else {
 							model.stream().filter(f -> isLockedFolder(f)).findFirst().ifPresent(f -> {
 								invokeLater(250, () -> {
