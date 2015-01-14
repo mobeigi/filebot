@@ -215,7 +215,7 @@ public class UserFiles {
 							persistence.flush();
 
 							// call native NSOpenPanel openPanel via Objective-C bridge
-							return MacAppUtilities.NSOpenPanel_openPanel_runModal(title, true, true, true, filter.acceptAny() ? filter.extensions() : null);
+							return MacAppUtilities.NSOpenPanel_openPanel_runModal(title, true, true, true, filter.acceptAny() ? null : filter.extensions());
 						} catch (Throwable e) {
 							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
 						} finally {
