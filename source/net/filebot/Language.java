@@ -62,7 +62,7 @@ public class Language implements Serializable {
 	}
 
 	public boolean matches(String code) {
-		return iso_639_1.equalsIgnoreCase(code) || iso_639_3.equalsIgnoreCase(code) || iso_639_2B.equalsIgnoreCase(code) || name.equalsIgnoreCase(code);
+		return iso_639_1.equalsIgnoreCase(code) || iso_639_3.equalsIgnoreCase(code) || iso_639_2B.equalsIgnoreCase(code) || name.equalsIgnoreCase(code) || code.toLowerCase().contains(name.toLowerCase());
 	}
 
 	@Override
