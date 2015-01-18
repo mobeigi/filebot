@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1011,17 +1012,21 @@ public class MediaBindingBean {
 	}
 
 	private List<String> getKeywords() {
-		List<Object> keys = new ArrayList<Object>();
+		// collect key information
+		Set<Object> keys = new HashSet<Object>();
 		keys.add(getName());
 		keys.add(getYear());
 		keys.addAll(getAliasNames());
+
 		if (infoObject instanceof Episode) {
 			for (Episode it : getEpisodes()) {
+				keys.addAll(it.getSeriesNames());
 				keys.add(it.getTitle());
 			}
 		}
 
-		List<String> words = new ArrayList<String>();
+		// word list for exclude pattern
+		List<String> words = new ArrayList<String>(keys.size());
 		for (Object it : keys) {
 			String w = normalizePunctuation(normalizeSpace(Objects.toString(it, ""), " "));
 			if (w != null && w.length() > 0) {

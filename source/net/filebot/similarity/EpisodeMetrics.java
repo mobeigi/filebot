@@ -207,10 +207,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		protected Object[] fields(Object object) {
 			if (object instanceof Episode) {
 				Episode episode = (Episode) object;
-				LinkedHashSet<String> keywords = new LinkedHashSet<String>(4);
+				Set<String> keywords = new LinkedHashSet<String>();
 				keywords.add(removeTrailingBrackets(episode.getSeriesName()));
 				keywords.add(removeTrailingBrackets(episode.getTitle()));
-				for (String it : episode.getSeriesInfo().getAliasNames()) {
+				for (String it : episode.getSeriesNames()) {
 					keywords.add(removeTrailingBrackets(it));
 				}
 
@@ -275,7 +275,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		protected List<?> getEffectiveIdentifiers(Object object) {
 			if (object instanceof Episode) {
-				return ((Episode) object).getSeriesInfo().getAliasNames();
+				return ((Episode) object).getSeriesNames();
 			} else if (object instanceof Movie) {
 				return ((Movie) object).getEffectiveNames();
 			} else if (object instanceof File) {
@@ -344,7 +344,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			List<String> names = null;
 
 			if (object instanceof Episode) {
-				names = ((Episode) object).getSeriesInfo().getAliasNames();
+				names = ((Episode) object).getSeriesNames();
 			} else if (object instanceof File) {
 				File file = (File) object;
 
@@ -594,9 +594,11 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		public Set<String> getHint(Object o) {
 			if (o instanceof Episode) {
-				Matcher m = hint.matcher(((Episode) o).getSeriesName());
-				if (m.find()) {
-					return singleton(m.group(1).trim().toLowerCase());
+				for (String sn : ((Episode) o).getSeriesNames()) {
+					Matcher m = hint.matcher(sn);
+					if (m.find()) {
+						return singleton(m.group(1).trim().toLowerCase());
+					}
 				}
 			} else if (o instanceof File) {
 				Set<String> h = new HashSet<String>();
@@ -605,7 +607,6 @@ public enum EpisodeMetrics implements SimilarityMetric {
 					String n = f.getName();
 					String sn = seriesNameMatcher.matchByEpisodeIdentifier(n);
 
-					// tokenize
 					String[] tokens = punctuation.split(sn != null ? sn : n);
 					for (String s : tokens) {
 						if (s.length() > 0) {

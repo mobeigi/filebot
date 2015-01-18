@@ -1,8 +1,11 @@
 package net.filebot.web;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Episode implements Serializable {
 
@@ -80,6 +83,24 @@ public class Episode implements Serializable {
 
 	public List<Integer> getNumbers() {
 		return Arrays.asList(season, episode, special);
+	}
+
+	public List<String> getSeriesNames() {
+		Set<String> names = new LinkedHashSet<String>();
+		if (seriesName != null) {
+			names.add(seriesName);
+		}
+		if (seriesInfo != null) {
+			if (seriesInfo.name != null) {
+				names.add(seriesInfo.name);
+			}
+			if (seriesInfo.aliasNames != null) {
+				for (String it : seriesInfo.aliasNames) {
+					names.add(it);
+				}
+			}
+		}
+		return new ArrayList<String>(names);
 	}
 
 	@Override

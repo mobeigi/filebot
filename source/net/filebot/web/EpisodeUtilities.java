@@ -1,7 +1,6 @@
 package net.filebot.web;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,10 +30,6 @@ public final class EpisodeUtilities {
 		}
 
 		return lastSeason;
-	}
-
-	public static void sortEpisodes(List<Episode> episodes) {
-		Collections.sort(episodes, episodeComparator());
 	}
 
 	public static Comparator<Episode> episodeComparator() {

@@ -169,7 +169,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		}
 
 		// make sure episodes are in ordered correctly
-		sortEpisodes(episodes);
+		sort(episodes, episodeComparator());
 
 		// sanity check
 		if (episodes.isEmpty()) {
