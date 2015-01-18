@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.filebot.Cache;
@@ -45,7 +44,6 @@ import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeListProvider;
@@ -510,17 +508,6 @@ public class MediaBindingBean {
 			return null;
 		}
 
-		// exclude VobSub from any normal text-based subtitle processing
-		if (hasExtension(mediaFile, "idx")) {
-			return Language.getLanguage(grepLanguageFromSUBIDX(mediaFile));
-		} else if (hasExtension(mediaFile, "sub")) {
-			for (File idx : getChildren(mediaFile.getParentFile(), new ExtensionFileFilter("idx"))) {
-				if (isDerived(idx, mediaFile)) {
-					return Language.getLanguage(grepLanguageFromSUBIDX(idx));
-				}
-			}
-		}
-
 		return null;
 	}
 
@@ -968,21 +955,6 @@ public class MediaBindingBean {
 		hash = computeHash(file, HashType.SFV);
 		cache.put(file, hash);
 		return hash;
-	}
-
-	private Locale grepLanguageFromSUBIDX(File idx) throws IOException {
-		String text = new String(readFile(idx), "UTF-8");
-
-		// # English
-		// id: en, index: 0
-		Pattern pattern = Pattern.compile("^id: (\\w+), index: (\\d+)", Pattern.MULTILINE);
-		Matcher matcher = pattern.matcher(text);
-
-		if (matcher.find()) {
-			return new Locale(matcher.group(1));
-		} else {
-			return null;
-		}
 	}
 
 	private String getOriginalFileName(File file) {
