@@ -242,7 +242,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 			for (File file : derivateFiles) {
 				for (Match<File, ?> match : matches) {
-					if (file.getParentFile().equals(match.getValue().getParentFile()) && isDerived(file, match.getValue()) && match.getCandidate() instanceof Episode) {
+					if (file.getPath().startsWith(match.getValue().getParentFile().getPath()) && isDerived(file, match.getValue()) && match.getCandidate() instanceof Episode) {
 						derivateMatches.add(new Match<File, Object>(file, ((Episode) match.getCandidate()).clone()));
 						break;
 					}
