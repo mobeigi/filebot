@@ -337,7 +337,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 
 		// use default server
-		return new URL("http", host, path);
+		return new URL("http", "thetvdb.com", path);
 	}
 
 	protected static enum MirrorType {
