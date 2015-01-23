@@ -415,6 +415,7 @@
 		<chmod perm="755" type="file">
 			<fileset dir="${dir.debsrc}">
 				<include name="**/bin/**" />
+				<include name="**/fpcalc" />
 			</fileset>
 		</chmod>
 
