@@ -106,6 +106,7 @@
 
 		<Icon Id="icon.ico" SourceFile="../icons/shortcut.ico" />
 		<Property Id="ARPPRODUCTICON" Value="icon.ico" />
+		<Property Id="REBOOT" Value="ReallySuppress" />
 		<Property Id="LicenseAccepted" Value="1" />
 	</Product>
 </Wix>
