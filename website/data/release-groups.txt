@@ -127,6 +127,7 @@ AE
 AE-Kaen
 AEGiS
 AEN
+AERiAL
 AERO
 AEROHOLiCS
 aF
@@ -139,6 +140,7 @@ AFO
 AFP
 AFS
 AFz
+aGGr0
 AH
 AHD
 aheintz
@@ -210,6 +212,7 @@ animeNOW
 AnimesPLUS
 AnimeYuki
 Anipl0x
+ANiPUNK
 AniTen
 ANiVCD
 AniYoshi
@@ -253,6 +256,7 @@ AS
 AS-S
 asaadas
 ASAP
+ASCENDANCE
 Asenshi
 AsiSter
 ASO
@@ -373,8 +377,10 @@ BiDA
 BiEN
 BiERBUiKEN
 BiFOS
+BiGBruv
 BIGTOPS
 Billman424
+BiPOLAR
 BiQ
 BiRDHOUSE
 BiTo
@@ -453,6 +459,7 @@ C4N4B1S
 C4TV
 CA
 CACHE
+CAELUM
 CAF
 CAKE
 CAMELOT
@@ -468,6 +475,8 @@ CBB
 CBGB
 cbm
 CCAT
+CCCAM
+CCCUNT
 CCS-Speed
 CDC
 CDD
@@ -528,6 +537,7 @@ Clitori
 cloudyvision
 cLT
 CLUE
+CM8
 Cman
 CME
 CMS
@@ -543,8 +553,8 @@ COALiTiON
 COC
 COCAIN
 Cocksure
-COMMIE
-COMMIE-UNDERWATER
+Commie
+Commie-UNDERWATER
 COMPLIANT
 COMPULSION
 CONDITION
@@ -566,6 +576,7 @@ CPtScene
 CPY
 CR
 CREEDANCE
+CREEPSHOW
 CREMOSA
 CREST
 CRF
@@ -593,6 +604,7 @@ CULT
 CultHD
 CuMBuCKeTS
 CureCom
+CureCom-Doremi
 Cutting.EDGE
 Cyber12.com
 CYBERMEN
@@ -647,6 +659,7 @@ DEA
 DeadFish
 DEADPiXEL
 DEAL
+DEATHTV
 DeBCz
 DeBTViD
 DECADE
@@ -674,6 +687,7 @@ desnsurrender
 DESS
 DETAiLS
 DeTvaVe
+DEUTERIUM
 DEViSE
 DEWSTRR
 DFA
@@ -713,6 +727,7 @@ DiTa
 DiVAS
 DiVER
 DiVERGE
+DiVERSiFY
 DiVERSiTY
 DiViN3
 DiViSiON
@@ -738,6 +753,7 @@ DONATELLO
 DoNE
 DoR2
 DOREMI
+Doremi-Asenshi
 DOT
 DOUBT
 Dowcker
@@ -828,6 +844,7 @@ ERyX
 ESiR
 ESPiSE
 ESPN
+ESSENTiAL
 ETACH
 ETHOS
 ETM
@@ -854,6 +871,7 @@ Exiled-Destiny
 EXIST3NC3
 EXPS
 EXQUiSiTE
+eXtaCY
 ExtraTorrentRG
 EXTREME
 EXViD
@@ -874,6 +892,7 @@ FAN
 FANDANGO
 FaNSuB
 FANTA
+FAPCAVE
 FASM
 FASTHD
 FATAL1TY
@@ -892,6 +911,7 @@ FFF
 FFFpeeps
 FFNDVD
 FFS
+FGT
 FHD
 FHM
 FHs
@@ -980,6 +1000,7 @@ FUNNER
 Funnuraba
 FURZI
 FUSSOIR
+FUtV
 FXG
 FxM
 FyHD
@@ -1045,11 +1066,13 @@ GME2000
 GMoRK
 GNARLY
 Goblin10
+GoDSMaCK
 Gogeta
 GokU61
 GoLDSToNE
 GOOGLE
 GooN
+GoPanda
 Gopo
 GORE
 GOREHOUNDS
@@ -1081,6 +1104,7 @@ GW
 GWP
 GWViD
 GxP
+GZP
 h-b
 H-Chu
 H-S
@@ -1192,6 +1216,7 @@ HnK
 HNR
 HNRDVD
 HoH
+HOLDEM
 Hollow-Subs
 holz
 HonE
@@ -1239,6 +1264,7 @@ iD
 Idi0T
 iDiB
 idTV
+iFH
 iFN
 iFPD
 iGNHD
@@ -1279,6 +1305,7 @@ iNfInItE_424
 iNFOTv
 iNGOT
 iNjECT
+iNjECTiON
 iNK
 Inko
 INNOCENCE
@@ -1378,6 +1405,7 @@ KEKKAI
 keltz
 Kemo-Subs
 KFC
+KG
 kgl
 KH
 Khmer-Hentai
@@ -1503,6 +1531,7 @@ LOUNGE
 lOVE
 LP
 LPD
+LQTV
 lrc
 LRH
 Ls-S
@@ -1579,6 +1608,7 @@ MeTH
 METiS
 MF
 MFS
+MG
 MGMatriX
 MGS
 MHQ
@@ -1619,6 +1649,7 @@ MoreHD
 MORiCH
 MOTION
 MOTU
+MoTv
 MOViERUSH
 MOViESTARS
 MPTDVD
@@ -1722,6 +1753,7 @@ NO1KNOWS
 NODLABS
 NoGood
 NOGRP
+NoHaTe
 NOHD
 NOiR
 NoneStop
@@ -1787,6 +1819,7 @@ Okashii-RyRo
 old-tejo
 OldsMan
 OMA
+OMER
 OMERTA
 OMiCRON
 Omifast
@@ -1815,6 +1848,7 @@ OSiRiS
 OSiTV
 Osuald
 OTT
+OTV
 OUTDATED
 OUZO
 OYHD
@@ -1836,11 +1870,13 @@ PAPAi
 papi
 PAROVOZ
 PARTICLE
+PartyBoy
 PATE
 PaTHe
 PAYiSO
 PaYxXx
 PC
+PCH
 PCS
 pcsyndicate
 PDSG-Sentosha
@@ -1855,6 +1891,7 @@ phase
 Philanthropy_Sekai
 PHOBOS
 PhoenixRG
+PHoQUE
 PhPh
 Phr0stY
 Pianex
@@ -1993,9 +2030,12 @@ RC
 RCDiVX
 RCP
 RDK123
+RDVAS
+REACTOR
 Reaperza
 REAVERS
 REBELS
+RedBlade
 RedFox109e
 ReDone
 RedRay
@@ -2024,6 +2064,7 @@ RETRO
 Rets
 rev
 REVEiLLE
+REViSiON
 REVO
 REVOLTE
 RevQuest.Katana
@@ -2077,6 +2118,7 @@ RuDE
 RUDOS
 RUELL
 RUELL-Raws
+RUFGT
 RULLSTOL
 RUMBEL
 Rumbel_sMi
@@ -2180,6 +2222,7 @@ Shinsen-Subs
 SHINSEN.SUBS
 shinythings
 shiro
+SHiTHEADS
 SHiTONLYGERMAN
 SHiTSoNy
 Shitsu-Subs
@@ -2209,6 +2252,7 @@ SiTV
 SKA
 SKALiWAGZ
 Skazhutin
+SKGTV
 SkipTowne
 SKiTFiSKE
 SKYLIGHT
@@ -2255,12 +2299,14 @@ SPABLAUW
 SpaceHD
 SPAREL
 SPARKS
+SPAROOD
 SPEED
 SpeedStar
 sPHD
 SPiRO
 SPiROTV
 SPK
+SPLiTSViLLE
 SPOOKY
 SPORK
 SPORTSBAR
@@ -2291,6 +2337,7 @@ STOCK
 stoffinho17
 STORM
 Stranded
+STRATOS
 Strawhat
 streetwars
 STRONG
@@ -2356,6 +2403,8 @@ Tass
 TASTE
 TASTETV
 TastyMelon
+Taurine
+TAXES
 TayTO
 TB
 TBF
@@ -2391,6 +2440,7 @@ tff
 TFG
 TFiN
 TFS
+TG7
 TGP
 The3DTeam
 TheBatman
@@ -2459,6 +2509,7 @@ TRSH
 tRuAVC
 TruCK
 tRuE
+TRUEDEF
 TRUEFRENCH
 tRuEHD
 trulle
@@ -2483,11 +2534,13 @@ TVA
 TVBYEN
 TvD
 TVFi
+TViLLAGE
 TvNORGE
 TVP
 TvR
 TVS
 TVSmash
+TvSTUE
 TvTiME
 TVTUPA
 TW
@@ -2505,6 +2558,7 @@ UBR
 uffowich
 UFW
 UKDHD
+UKTV
 UKVcd
 ULF
 ULSHD
@@ -2540,6 +2594,7 @@ Uyirvani
 V-A
 VaAr3
 VAiN
+VALHALLA
 VALiOMEDiA
 VALKYRiA
 VALUE
@@ -2600,6 +2655,7 @@ w.0.0.f
 w0rm
 W23
 W4F
+WaCkOs
 WAF
 Wakku
 WaLMaRT
@@ -2633,6 +2689,7 @@ WinD
 WinD-DE
 WingmanNZ
 Wings13
+Winters
 WiRA
 WiRE
 WLF
@@ -2659,6 +2716,7 @@ x4subs
 XanaX
 xander
 XC
+xD2V
 Xell
 XF
 XiA
@@ -2666,6 +2724,7 @@ XII
 XM4F
 XMC
 XOR
+XORBiTANT
 XOXO
 XPERT
 XPERT.HD
