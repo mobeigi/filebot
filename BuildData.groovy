@@ -203,7 +203,7 @@ tvdb_updates.remove(256135)
 tvdb_updates.values().each{ update ->
 	if (tvdb[update.id] == null || update.time > tvdb[update.id][0]) {
 		try {
-			retry(2, 500) {
+			retry(2, 60000) {
 				def seriesNames = []
 				def xml = new XmlSlurper().parse("http://thetvdb.com/api/BA864DEE427E384A/series/${update.id}/en.xml")
 				def imdbid = xml.Series.IMDB_ID.text()
