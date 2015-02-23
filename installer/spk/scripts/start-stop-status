@@ -30,7 +30,7 @@ case "$1" in
 	
 	log)
 		LOGFILE="$SYNOPKG_PKGDEST/sysinfo.log"
-		"$SYNOPKG_PKGDEST/filebot.sh" -script fn:sysinfo 2>&1 > "$LOGFILE"
+		"$SYNOPKG_PKGDEST/filebot.sh" -script fn:sysinfo > "$LOGFILE" 2>&1
 		echo $LOGFILE
 		exit 0
 	;;
