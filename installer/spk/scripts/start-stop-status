@@ -27,16 +27,8 @@ case "$1" in
 			exit 1
 		fi
 	;;
-	
-	log)
-		LOGFILE="$SYNOPKG_PKGDEST/sysinfo.log"
-		"$SYNOPKG_PKGDEST/filebot.sh" -script fn:sysinfo > "$LOGFILE" 2>&1
-		echo $LOGFILE
-		exit 0
-	;;
-
-	*)
-		echo "start-stop-status called with unknown argument \`$1'" >&2
-		exit 1
-	;;
 esac
+
+
+# return successfully
+exit 0
