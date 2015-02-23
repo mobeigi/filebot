@@ -1,2 +1,42 @@
 #!/bin/sh
-exit 0
+
+# symlink to /bin on START and unlink on STOP
+FILEBOT_BINARY="/usr/syno/bin/filebot"
+
+
+case "$1" in
+	start)
+		# When the user clicks the button "Run" to run the package, after the package is installed, or when the DiskStation is turned on.
+		ln -s "$SYNOPKG_PKGDEST/filebot.sh" "$FILEBOT_BINARY"
+		exit 0
+	;;
+
+	stop)
+		# When the user clicks the button "Stop" to stop the running package, before the package is uninstalled, or when the DiskStation is turned off.
+		rm -f "$FILEBOT_BINARY"
+		exit 0
+	;;
+	
+	status)
+		# When Package Center is opened to check package status, the Center will send a request to ask the status of the package with this parameter.
+		if [ -e "$FILEBOT_BINARY" ]; then
+			# 0: package is running
+			exit 0
+		else
+			# 3: package is not running
+			exit 1
+		fi
+	;;
+	
+	log)
+		LOGFILE="$SYNOPKG_PKGDEST/sysinfo.log"
+		"$SYNOPKG_PKGDEST/filebot.sh" -script fn:sysinfo 2>&1 > "$LOGFILE"
+		echo $LOGFILE
+		exit 0
+	;;
+
+	*)
+		echo "start-stop-status called with unknown argument \`$1'" >&2
+		exit 1
+	;;
+esac

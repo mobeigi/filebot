@@ -1,6 +1,2 @@
 #!/bin/sh
-
-# remove /bin symlink
-rm -f /usr/local/bin/filebot
-
 exit 0

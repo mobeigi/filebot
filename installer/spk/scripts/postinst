@@ -4,8 +4,6 @@
 mkdir -m 777 "$SYNOPKG_PKGDEST/data"
 chown -R admin.users "$SYNOPKG_PKGDEST/data"
 
-# create /bin symlink
-ln -s -f "$SYNOPKG_PKGDEST/filebot.sh" /usr/local/bin/filebot
 
-# end
+# return successfully
 exit 0
