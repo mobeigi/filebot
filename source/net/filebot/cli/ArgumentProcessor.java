@@ -25,6 +25,7 @@ import javax.script.SimpleBindings;
 
 import net.filebot.MediaTypes;
 import net.filebot.StandardRenameAction;
+import net.filebot.WebServices;
 import net.filebot.cli.ScriptShell.ScriptProvider;
 import net.filebot.web.CachedResource;
 
@@ -66,9 +67,9 @@ public class ArgumentProcessor {
 				}
 
 				if (args.getSubtitles) {
-					files.addAll(cli.getSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
+					files.addAll(cli.getSubtitles(files, WebServices.OpenSubtitles.getName(), args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
 				} else if (args.getMissingSubtitles) {
-					files.addAll(cli.getMissingSubtitles(files, args.db, args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
+					files.addAll(cli.getMissingSubtitles(files, WebServices.OpenSubtitles.getName(), args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
 				}
 
 				if (args.rename) {
