@@ -305,6 +305,7 @@ addSeriesAlias('Revolution', 'Revolution (2012)')
 addSeriesAlias('Cosmos: A Spacetime Odyssey', 'Cosmos A Space Time Odyssey')
 addSeriesAlias('The Bridge (2013)', 'The Bridge (US)')
 addSeriesAlias('Forever (2014)', 'Forever (US)')
+addSeriesAlias('The Code (2014)', 'The Code (AU)')
 
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
