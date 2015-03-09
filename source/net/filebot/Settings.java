@@ -4,6 +4,7 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.net.URI;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -80,6 +81,10 @@ public final class Settings {
 
 	public static boolean isAppStore() {
 		return isApplicationDeployment("mas", "usc");
+	}
+
+	public static boolean isUbuntuApp() {
+		return isApplicationDeployment("usc");
 	}
 
 	public static boolean isMacApp() {
@@ -167,6 +172,24 @@ public final class Settings {
 
 		// default home
 		return new File(System.getProperty("user.home"));
+	}
+
+	public static String getAppStoreName() {
+		if (isMacApp())
+			return "Mac App Store";
+		if (isUbuntuApp())
+			return "Ubuntu Software Center";
+
+		return null;
+	}
+
+	public static URI getAppStoreURI() {
+		if (isMacApp())
+			return URI.create("macappstore://itunes.apple.com/app/id905384638");
+		if (isUbuntuApp())
+			return URI.create("apt://filebot");
+
+		return null;
 	}
 
 	public static Settings forPackage(Class<?> type) {

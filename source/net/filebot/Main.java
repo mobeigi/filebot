@@ -246,10 +246,10 @@ public class Main {
 				int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 
 				if (renameCount > 2000 && Math.random() < chance) {
-					if (!isAppStore()) {
+					if (isAppStore()) {
+						showAppStoreReviewReminder();
+					} else {
 						showDonationReminder();
-					} else if (isMacApp() && isAppStore()) {
-						showMacAppStoreReviewReminder();
 					}
 				}
 
@@ -379,7 +379,7 @@ public class Main {
 		}
 	}
 
-	private static void showMacAppStoreReviewReminder() {
+	private static void showAppStoreReviewReminder() {
 		PreferencesEntry<String> donation = Settings.forPackage(Main.class).entry("review").defaultValue("0");
 		int donationRev = Integer.parseInt(donation.getValue());
 		if (donationRev > 0) {
@@ -390,13 +390,13 @@ public class Main {
 		int currentRev = getApplicationRevisionNumber();
 		donation.setValue(String.valueOf(currentRev));
 
-		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice little review on the Mac App Store.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", HistorySpooler.getInstance().getPersistentHistoryTotalSize());
+		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice little review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), HistorySpooler.getInstance().getPersistentHistoryTotalSize());
 		String[] actions = new String[] { "Review! I like FileBot. :)", "Never! Don't bother me again." };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("window.icon.large"), actions, actions[0]);
 		pane.createDialog(null, "Please rate FileBot").setVisible(true);
 		if (pane.getValue() == actions[0]) {
 			try {
-				Desktop.getDesktop().browse(URI.create("macappstore://itunes.apple.com/app/id905384638")); // this will naturally only work on Mac ;)
+				Desktop.getDesktop().browse(getAppStoreURI()); // this will naturally only work on Mac or Ubuntu ;)
 			} catch (Exception e) {
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to browse URI", e);
 			}
