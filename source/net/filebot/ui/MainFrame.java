@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -71,7 +72,7 @@ public class MainFrame extends JFrame {
 		}
 
 		JScrollPane selectionListScrollPane = new JScrollPane(selectionList, VERTICAL_SCROLLBAR_NEVER, HORIZONTAL_SCROLLBAR_NEVER);
-		selectionListScrollPane.setBorder(new CompoundBorder(new ShadowBorder(), selectionListScrollPane.getBorder()));
+		selectionListScrollPane.setBorder(new CompoundBorder(new ShadowBorder(), new LineBorder(new Color(0x809DB8), 1, false)));
 		selectionListScrollPane.setOpaque(false);
 
 		headerPanel.getTitleLabel().setBorder(new EmptyBorder(8, 90, 10, 0));
