@@ -788,8 +788,7 @@ public class MediaBindingBean {
 				duplicates.add(it);
 			}
 		}
-		int di = identityIndexOf(duplicates, getInfoObject());
-		return di == 0 ? null : di;
+		return 1 + identityIndexOf(duplicates, getInfoObject());
 	}
 
 	@Define("self")
