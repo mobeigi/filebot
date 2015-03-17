@@ -10,6 +10,7 @@ Hml8p	Homeland
 hoc	House of Cards
 law.and.order.svu	Law & Order: Special Victims Unit
 NCIS.LA	NCIS: Los Angeles
+NCIS.NO	NCIS: New Orleans
 poid	Person of Interest
 SuiG7p	Suits
 TBBT	The Big Bang Theory
