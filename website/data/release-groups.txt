@@ -427,6 +427,7 @@ BrG
 BRiGAND
 BRiGHT
 BRMP
+BRN
 BRUTUS
 BRZONE
 BS
@@ -2277,6 +2278,7 @@ Smurfenlars
 snavE
 SNCo
 Sneak
+SNEAkY
 SnF
 SNOW
 SNS
