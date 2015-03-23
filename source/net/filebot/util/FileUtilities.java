@@ -102,12 +102,10 @@ public final class FileUtilities {
 			destination = new File(source.getParentFile(), destination.getPath());
 		}
 
-		// make sure we that we can create the destination folder structure
-		File destinationFolder = destination.getParentFile();
-
 		// create parent folder if necessary
-		if (mkdirs && !destinationFolder.isDirectory() && !destinationFolder.mkdirs()) {
-			throw new IOException("Failed to create folder: " + destinationFolder);
+		if (mkdirs) {
+			// make sure that the folder structure is created, and throw exception if the folder structure can't be created
+			Files.createDirectories(destination.getParentFile().toPath());
 		}
 
 		return destination;
