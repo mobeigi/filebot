@@ -116,7 +116,7 @@ class ExtractTool extends Tool<TableModel> {
 			if (archives.isEmpty())
 				return;
 
-			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt.getSource());
+			File selectedFile = showOpenDialogSelectFolder(archives.get(0).getParentFile(), "Extract to ...", evt);
 			if (selectedFile == null)
 				return;
 

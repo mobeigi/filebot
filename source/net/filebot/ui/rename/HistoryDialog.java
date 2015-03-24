@@ -520,7 +520,7 @@ class HistoryDialog extends JDialog {
 
 				// change directory option
 				if (selectedOption == Option.ChangeDirectory) {
-					directory = showOpenDialogSelectFolder(directory, selectedOption.toString(), evt.getSource());
+					directory = showOpenDialogSelectFolder(directory, selectedOption.toString(), evt);
 				}
 			}
 

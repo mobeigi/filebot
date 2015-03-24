@@ -355,7 +355,7 @@ class BindingDialog extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			ExtensionFileFilter mediaFiles = combineFilter(VIDEO_FILES, AUDIO_FILES, SUBTITLE_FILES);
-			List<File> file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt.getSource());
+			List<File> file = showLoadDialogSelectFiles(false, false, getMediaFile(), mediaFiles, (String) getValue(NAME), evt);
 
 			if (file.size() > 0) {
 				// update text field

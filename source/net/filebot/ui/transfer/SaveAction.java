@@ -48,7 +48,7 @@ public class SaveAction extends AbstractAction {
 	public void actionPerformed(ActionEvent evt) {
 		try {
 			if (canExport()) {
-				File file = showSaveDialogSelectFile(false, getDefaultFile(), (String) getValue(Action.NAME), evt.getSource());
+				File file = showSaveDialogSelectFile(false, getDefaultFile(), (String) getValue(Action.NAME), evt);
 
 				if (file != null) {
 					export(file);

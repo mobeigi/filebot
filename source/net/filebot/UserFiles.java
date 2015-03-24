@@ -9,6 +9,7 @@ import java.awt.Desktop;
 import java.awt.Dialog;
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -48,25 +49,25 @@ public class UserFiles {
 		defaultFileChooser = fileChooser;
 	}
 
-	public static List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
-		String defaultFileKey = (folderMode && filter == null) ? KEY_OPEN_FOLDER : KEY_OPEN_FILE;
-		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(folderMode, multiSelection, getFileChooserDefaultFile(defaultFileKey, defaultFile), filter, title, parent);
+	public static List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt) {
+		String defaultFileKey = ((folderMode && filter == null) || !(folderMode && filter != null && isShiftOrAltDown(evt))) ? KEY_OPEN_FOLDER : KEY_OPEN_FILE;
+		List<File> files = defaultFileChooser.showLoadDialogSelectFiles(defaultFileKey == KEY_OPEN_FOLDER, multiSelection, getFileChooserDefaultFile(defaultFileKey, defaultFile), filter, title, evt);
 		if (files.size() > 0) {
 			setFileChooserDefaultFile(defaultFileKey, files.get(0));
 		}
 		return files;
 	}
 
-	public static File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
-		File file = defaultFileChooser.showSaveDialogSelectFile(folderMode, getFileChooserDefaultFile(KEY_SAVE, defaultFile), title, parent);
+	public static File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, ActionEvent evt) {
+		File file = defaultFileChooser.showSaveDialogSelectFile(folderMode, getFileChooserDefaultFile(KEY_SAVE, defaultFile), title, evt);
 		if (file != null) {
 			setFileChooserDefaultFile(KEY_SAVE, file);
 		}
 		return file;
 	}
 
-	public static File showOpenDialogSelectFolder(File defaultFile, String title, Object parent) {
-		List<File> folder = defaultFileChooser.showLoadDialogSelectFiles(true, false, defaultFile, null, title, parent);
+	public static File showOpenDialogSelectFolder(File defaultFile, String title, ActionEvent evt) {
+		List<File> folder = defaultFileChooser.showLoadDialogSelectFiles(true, false, defaultFile, null, title, evt);
 		return folder.size() > 0 ? folder.get(0) : null;
 	}
 
@@ -98,7 +99,7 @@ public class UserFiles {
 		Swing {
 
 			@Override
-			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
+			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt) {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setDialogTitle(title);
 				chooser.setMultiSelectionEnabled(multiSelection);
@@ -116,7 +117,7 @@ public class UserFiles {
 					chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(filter.toString(), filter.extensions()));
 				}
 
-				if (chooser.showOpenDialog(getWindow(parent)) == JFileChooser.APPROVE_OPTION) {
+				if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
 					if (chooser.getSelectedFiles().length > 0)
 						return asList(chooser.getSelectedFiles());
 					if (chooser.getSelectedFile() != null)
@@ -126,14 +127,14 @@ public class UserFiles {
 			}
 
 			@Override
-			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
+			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, ActionEvent evt) {
 				JFileChooser chooser = new JFileChooser();
 				chooser.setDialogTitle(title);
 				chooser.setMultiSelectionEnabled(false);
 				chooser.setFileSelectionMode(folderMode ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_AND_DIRECTORIES);
 				chooser.setSelectedFile(defaultFile);
 
-				if (chooser.showSaveDialog(getWindow(parent)) != JFileChooser.APPROVE_OPTION) {
+				if (chooser.showSaveDialog(getWindow(evt.getSource())) != JFileChooser.APPROVE_OPTION) {
 					return null;
 				}
 				return chooser.getSelectedFile();
@@ -143,8 +144,8 @@ public class UserFiles {
 		AWT {
 
 			@Override
-			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
-				FileDialog fileDialog = createFileDialog(parent, title, FileDialog.LOAD, folderMode);
+			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt) {
+				FileDialog fileDialog = createFileDialog(evt, title, FileDialog.LOAD, folderMode);
 				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(multiSelection);
 
@@ -166,8 +167,8 @@ public class UserFiles {
 			}
 
 			@Override
-			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
-				FileDialog fileDialog = createFileDialog(getWindow(parent), title, FileDialog.SAVE, folderMode);
+			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, ActionEvent evt) {
+				FileDialog fileDialog = createFileDialog(evt, title, FileDialog.SAVE, folderMode);
 				fileDialog.setTitle(title);
 				fileDialog.setMultipleMode(false);
 				if (defaultFile != null) {
@@ -182,15 +183,15 @@ public class UserFiles {
 				return files.length > 0 ? files[0] : null;
 			}
 
-			public FileDialog createFileDialog(Object parent, String title, int mode, boolean fileDialogForDirectories) {
+			public FileDialog createFileDialog(ActionEvent evt, String title, int mode, boolean fileDialogForDirectories) {
 				// By default, the AWT File Dialog lets you choose a file. Under certain circumstances, however, it may be proper for you to choose a directory instead. If that is the case, set this property to allow for directory selection in a file dialog.
 				System.setProperty("apple.awt.fileDialogForDirectories", String.valueOf(fileDialogForDirectories));
 
-				if (parent instanceof Frame) {
-					return new FileDialog((Frame) parent, title, mode);
+				if (evt.getSource() instanceof Frame) {
+					return new FileDialog((Frame) evt.getSource(), title, mode);
 				}
-				if (parent instanceof Dialog) {
-					return new FileDialog((Dialog) parent, title, mode);
+				if (evt.getSource() instanceof Dialog) {
+					return new FileDialog((Dialog) evt.getSource(), title, mode);
 				}
 
 				Frame[] frames = Frame.getFrames();
@@ -203,7 +204,7 @@ public class UserFiles {
 			private final String KEY_NSOPENPANEL_BROKEN = "NSOPENPANEL_BROKEN";
 
 			@Override
-			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent) {
+			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt) {
 				// directly use NSOpenPanel for via Objective-C bridge for FILES_AND_DIRECTORIES mode
 				if (folderMode && filter != null) {
 					// NSOpenPanel causes deadlocks on some machines
@@ -227,21 +228,20 @@ public class UserFiles {
 				}
 
 				// default to AWT implementation
-				return AWT.showLoadDialogSelectFiles(folderMode, multiSelection, defaultFile, filter, title, parent);
+				return AWT.showLoadDialogSelectFiles(folderMode, multiSelection, defaultFile, filter, title, evt);
 			}
 
 			@Override
-			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent) {
+			public File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, ActionEvent evt) {
 				// default to AWT implementation
-				return AWT.showSaveDialogSelectFile(folderMode, defaultFile, title, parent);
+				return AWT.showSaveDialogSelectFile(folderMode, defaultFile, title, evt);
 			}
-
 		},
 
 		JavaFX {
 
 			@Override
-			public List<File> showLoadDialogSelectFiles(final boolean folderMode, final boolean multiSelection, final File defaultFile, final ExtensionFileFilter filter, final String title, final Object parent) {
+			public List<File> showLoadDialogSelectFiles(final boolean folderMode, final boolean multiSelection, final File defaultFile, final ExtensionFileFilter filter, final String title, final ActionEvent evt) {
 				return runAndWait(new Callable<List<File>>() {
 
 					@Override
@@ -294,7 +294,7 @@ public class UserFiles {
 			}
 
 			@Override
-			public File showSaveDialogSelectFile(final boolean folderMode, final File defaultFile, final String title, final Object parent) {
+			public File showSaveDialogSelectFile(final boolean folderMode, final File defaultFile, final String title, final ActionEvent evt) {
 				return runAndWait(new Callable<File>() {
 
 					@Override
@@ -329,9 +329,9 @@ public class UserFiles {
 			}
 		};
 
-		public abstract List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, Object parent);
+		public abstract List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt);
 
-		public abstract File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, Object parent);
+		public abstract File showSaveDialogSelectFile(boolean folderMode, File defaultFile, String title, ActionEvent evt);
 
 	}
 

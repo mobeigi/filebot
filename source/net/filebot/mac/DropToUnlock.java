@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Window;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
@@ -324,7 +325,7 @@ public class DropToUnlock extends JList<File> {
 				if (index >= 0 && list.getCellBounds(index, index).contains(evt.getPoint())) {
 					File folder = list.getModel().getElementAt(index);
 					if (isLockedFolder(folder)) {
-						if (null != showOpenDialogSelectFolder(folder, "Grant Permission", getWindow(list))) {
+						if (null != showOpenDialogSelectFolder(folder, "Grant Permission", new ActionEvent(list, ActionEvent.ACTION_PERFORMED, "Grant"))) {
 							list.updateLockStatus(folder);
 						}
 					}

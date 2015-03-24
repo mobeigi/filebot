@@ -19,6 +19,7 @@ import net.filebot.ResourceManager;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.transfer.LoadAction;
 import net.filebot.ui.transfer.TransferablePolicy;
+import net.filebot.util.ui.ActionPopup;
 import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.EventList;
 
@@ -79,10 +80,9 @@ class RenameList<E> extends FileBotList<E> {
 		getRemoveAction().setEnabled(true);
 
 		buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
-
 		buttonPanel.add(new JButton(downAction), "gap 10px");
 		buttonPanel.add(new JButton(upAction), "gap 0");
-		buttonPanel.add(new JButton(loadAction), "gap 10px");
+		buttonPanel.add(createLoadButton(), "gap 10px");
 
 		add(buttonPanel, BorderLayout.SOUTH);
 
@@ -97,6 +97,28 @@ class RenameList<E> extends FileBotList<E> {
 	public void setTransferablePolicy(TransferablePolicy transferablePolicy) {
 		super.setTransferablePolicy(transferablePolicy);
 		loadAction.putValue(LoadAction.TRANSFERABLE_POLICY, transferablePolicy);
+	}
+
+	private JButton createLoadButton() {
+		ActionPopup actionPopup = new ActionPopup("Load Files", ResourceManager.getIcon("action.load"));
+		actionPopup.add(new AbstractAction("Select Folders", ResourceManager.getIcon("tree.closed")) {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), 0));
+			}
+		});
+		actionPopup.add(new AbstractAction("Select Files", ResourceManager.getIcon("file.unknown")) {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), ActionEvent.SHIFT_MASK));
+			}
+		});
+
+		JButton b = new JButton(loadAction);
+		b.setComponentPopupMenu(actionPopup);
+		return b;
 	}
 
 	private final LoadAction loadAction = new LoadAction(null);

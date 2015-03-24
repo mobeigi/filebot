@@ -682,7 +682,7 @@ public class FormatDialog extends JDialog {
 				}
 			}
 
-			File selectedFolder = UserFiles.showOpenDialogSelectFolder(absoluteFolder, "Select Folder", evt.getSource());
+			File selectedFolder = UserFiles.showOpenDialogSelectFolder(absoluteFolder, "Select Folder", evt);
 			if (selectedFolder != null) {
 				editor.setText(normalizePathSeparators(selectedFolder.getAbsolutePath()) + "/" + relativeFormat);
 			}

@@ -158,7 +158,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 
 	@Override
 	public List<String> getFileFilterExtensions() {
-		return asList(combineFilter(LIST_FILES, TORRENT_FILES, VERIFICATION_FILES).extensions());
+		return asList(combineFilter(VIDEO_FILES, SUBTITLE_FILES, AUDIO_FILES, LIST_FILES, TORRENT_FILES, VERIFICATION_FILES).extensions());
 	}
 
 }

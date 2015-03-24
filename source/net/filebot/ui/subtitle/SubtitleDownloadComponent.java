@@ -276,7 +276,7 @@ class SubtitleDownloadComponent extends JComponent {
 	private void save(Object[] selection) {
 		try {
 			// multiple files
-			File outputFolder = showOpenDialogSelectFolder(null, "Save Subtitles", this);
+			File outputFolder = showOpenDialogSelectFolder(null, "Save Subtitles", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Save"));
 			if (outputFolder != null) {
 				for (Object object : selection) {
 					MemoryFile file = (MemoryFile) object;
@@ -290,7 +290,6 @@ class SubtitleDownloadComponent extends JComponent {
 	}
 
 	private void export(Object[] selection) {
-
 		try {
 			File selectedOutputFolder = null;
 
@@ -302,7 +301,7 @@ class SubtitleDownloadComponent extends JComponent {
 			// just use default values when we can't use a JFC with accessory component
 			if (Settings.isMacSandbox()) {
 				// AWT
-				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", this);
+				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Export"));
 			} else {
 				// Swing
 				SubtitleFileChooser sfc = new SubtitleFileChooser();

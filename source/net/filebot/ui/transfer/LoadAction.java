@@ -47,7 +47,7 @@ public class LoadAction extends AbstractAction {
 				return;
 			}
 
-			List<File> files = showLoadDialogSelectFiles(true, true, getDefaultFile(), getFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt.getSource());
+			List<File> files = showLoadDialogSelectFiles(true, true, getDefaultFile(), getFileFilter(transferablePolicy), (String) getValue(Action.NAME), evt);
 			if (files.isEmpty()) {
 				return;
 			}

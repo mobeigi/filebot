@@ -130,7 +130,7 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			// collect media file extensions (video and subtitle files)
-			List<File> files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt.getSource());
+			List<File> files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt);
 
 			if (files.size() > 0) {
 				if (getDropAction(files) != DropAction.Cancel) {

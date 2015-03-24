@@ -226,7 +226,7 @@ public class SubtitleUploadDialog extends JDialog {
 				SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 				SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-				List<File> files = showLoadDialogSelectFiles(false, false, mapping.getSubtitle().getParentFile(), VIDEO_FILES, "Select Video File", getWindow(SubtitleUploadDialog.this));
+				List<File> files = showLoadDialogSelectFiles(false, false, mapping.getSubtitle().getParentFile(), VIDEO_FILES, "Select Video File", new ActionEvent(table, ActionEvent.ACTION_PERFORMED, "Select"));
 				if (files.size() > 0) {
 					mapping.setVideo(files.get(0));
 					mapping.setState(SubtitleMapping.Status.CheckPending);
