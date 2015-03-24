@@ -280,7 +280,7 @@ tvdb.values().each{ r ->
 new File('website/data/add-series-alias.txt').splitEachLine(/\t+/, 'UTF-8') { row ->
 	def se = thetvdb_index.find{ row[0] == it[1] && !it.contains(row[1]) }
 	if (se == null) die("Unabled to find series '${row[0]}': '${row[1]}'")
-	thetvdb_index << [se[0], to]
+	thetvdb_index << [se[0], row[1]]
 }
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
