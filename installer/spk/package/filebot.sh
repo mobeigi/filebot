@@ -21,13 +21,15 @@ APP_DATA="$APP_ROOT/data"
 # restore original working dir
 cd "$WORKING_DIR"
 
+# add 3rd party packages to the library path by default
+SYNO_LIBRARY_PATH="/var/packages/mediainfo/target/lib"
 
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]
 then
-  export LD_LIBRARY_PATH="$APP_ROOT:$LD_LIBRARY_PATH"
+  export LD_LIBRARY_PATH="$APP_ROOT:$SYNO_LIBRARY_PATH:$LD_LIBRARY_PATH"
 else
-  export LD_LIBRARY_PATH="$APP_ROOT"
+  export LD_LIBRARY_PATH="$APP_ROOT:$SYNO_LIBRARY_PATH"
 fi
 
 # force JVM language and encoding settings
