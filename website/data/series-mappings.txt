@@ -9,9 +9,11 @@ HIMYM	How I Met Your Mother
 Hml8p	Homeland
 hoc	House of Cards
 law.and.order.svu	Law & Order: Special Victims Unit
+MBFAGW	My Big Fat American Gypsy Wedding
 NCIS.LA	NCIS: Los Angeles
 NCIS.NO	NCIS: New Orleans
 poid	Person of Interest
+SOS	Shahs of Sunset
 SuiG7p	Suits
 TBBT	The Big Bang Theory
 tv..got	Game of Thrones
