@@ -19,6 +19,7 @@ sortRegexList("website/data/release-groups.txt")
 sortRegexList("website/data/query-blacklist.txt")
 sortRegexList("website/data/exclude-blacklist.txt")
 sortRegexList("website/data/series-mappings.txt")
+sortRegexList("website/data/add-series-alias.txt")
 
 
 /* ------------------------------------------------------------------------- */
@@ -275,38 +276,12 @@ tvdb.values().each{ r ->
 	}
 }
 
-def addSeriesAlias = { from, to ->
-	def se = thetvdb_index.find{ from == it[1] && !it.contains(to) }
-	if (se == null) die("Unabled to find series '${from}': '${to}'")
+// additional custom mappings
+new File('website/data/add-series-alias.txt').splitEachLine(/\t+/, 'UTF-8') { row ->
+	def se = thetvdb_index.find{ row[0] == it[1] && !it.contains(row[1]) }
+	if (se == null) die("Unabled to find series '${row[0]}': '${row[1]}'")
 	thetvdb_index << [se[0], to]
 }
-
-
-// additional custom mappings
-addSeriesAlias('Law & Order: Special Victims Unit', 'Law and Order SVU')
-addSeriesAlias('Law & Order: Special Victims Unit', 'Law & Order SVU')
-addSeriesAlias('CSI: Crime Scene Investigation', 'CSI')
-addSeriesAlias('M*A*S*H', 'MASH')
-addSeriesAlias('M*A*S*H', 'M.A.S.H.')
-addSeriesAlias('NCIS: Los Angeles', 'NCIS LA')
-addSeriesAlias('NCIS: Los Angeles', 'NCIS LosAngeles')
-addSeriesAlias('NCIS: New Orleans', 'NCIS NO')
-addSeriesAlias('How I Met Your Mother', 'HIMYM')
-addSeriesAlias('Battlestar Galactica (2003)', 'BSG')
-addSeriesAlias('World Series of Poker', 'WSOP')
-addSeriesAlias('House of Cards', 'HOC')
-addSeriesAlias('The Big Bang Theory', 'TBBT')
-addSeriesAlias('The Walking Dead', 'TWD')
-addSeriesAlias('@midnight', 'At Midnight')
-addSeriesAlias('The Late Late Show with Craig Ferguson', 'Craig Ferguson')
-addSeriesAlias('Naruto Shippuden', 'Naruto Shippuuden')
-addSeriesAlias('Resurrection', 'Resurrection (US)')
-addSeriesAlias('Revolution', 'Revolution (2012)')
-addSeriesAlias('Cosmos: A Spacetime Odyssey', 'Cosmos A Space Time Odyssey')
-addSeriesAlias('The Bridge (2013)', 'The Bridge (US)')
-addSeriesAlias('Forever (2014)', 'Forever (US)')
-addSeriesAlias('The Code (2014)', 'The Code (AU)')
-
 
 thetvdb_index = thetvdb_index.findResults{ [it[0] as Integer, it[1].replaceAll(/\s+/, ' ').trim()] }.findAll{ !(it[1] =~ /(?i:duplicate)/ || it[1] =~ /\d{6,}/ || it[1].startsWith('*') || it[1].endsWith('*') || it[1].length() < 2) }
 thetvdb_index = thetvdb_index.sort{ a, b -> a[0] <=> b[0] }

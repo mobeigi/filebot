@@ -1,0 +1,25 @@
+@midnight	At Midnight
+Battlestar Galactica (2003)	BSG
+Cosmos: A Spacetime Odyssey	Cosmos A Space Time Odyssey
+CSI: Crime Scene Investigation	CSI
+Forever (2014)	Forever (US)
+House of Cards	HOC
+How I Met Your Mother	HIMYM
+Law & Order: Special Victims Unit	Law & Order SVU
+Law & Order: Special Victims Unit	Law and Order SVU
+M*A*S*H	M.A.S.H.
+M*A*S*H	MASH
+My Big Fat American Gypsy Wedding	MBFAGW
+Naruto Shippuden	Naruto Shippuuden
+NCIS: Los Angeles	NCIS LA
+NCIS: Los Angeles	NCIS LosAngeles
+NCIS: New Orleans	NCIS NO
+Resurrection	Resurrection (US)
+Revolution	Revolution (2012)
+Shahs of Sunset	SOS
+The Big Bang Theory	TBBT
+The Bridge (2013)	The Bridge (US)
+The Code (2014)	The Code (AU)
+The Late Late Show with Craig Ferguson	Craig Ferguson
+The Walking Dead	TWD
+World Series of Poker	WSOP
