@@ -156,6 +156,17 @@ public final class FileUtilities {
 		return org.apache.commons.io.FileUtils.deleteQuietly(file);
 	}
 
+	public static File createFileIfNotExists(File file) throws IOException {
+		if (file.isFile()) {
+			return file;
+		}
+
+		// create parent folder structure if necessary
+		Files.createDirectories(file.getParentFile().toPath());
+		// create file
+		return Files.createFile(file.toPath()).toFile();
+	}
+
 	public static byte[] readFile(File source) throws IOException {
 		InputStream in = new FileInputStream(source);
 
