@@ -21,7 +21,7 @@ public class SimpleFileInfo implements FileInfo, Comparable<FileInfo> {
 	}
 
 	public String getName() {
-		return getNameWithoutExtension(path);
+		return getNameWithoutExtension(new File(path).getName());
 	}
 
 	@Override
