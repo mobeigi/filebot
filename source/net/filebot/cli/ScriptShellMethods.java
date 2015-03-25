@@ -243,6 +243,10 @@ public class ScriptShellMethods {
 		return FileUtilities.copyAs(self, new File(destination, self.getName()));
 	}
 
+	public static void createFileIfNotExists(File self) throws IOException {
+		FileUtilities.createFileIfNotExists(self);
+	}
+
 	public static File relativize(File self, File other) throws IOException {
 		return self.getCanonicalFile().toPath().relativize(other.getCanonicalFile().toPath()).toFile();
 	}
