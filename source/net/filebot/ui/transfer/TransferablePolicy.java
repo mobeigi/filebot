@@ -33,7 +33,7 @@ public abstract class TransferablePolicy {
 			// just assume that the transferable will be accepted, accept will be called in importData again anyway
 			return true;
 		} catch (Exception e) {
-			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString());
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
 			return false;
 		}
 	}

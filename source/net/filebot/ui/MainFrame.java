@@ -84,7 +84,7 @@ public class MainFrame extends JFrame {
 		headerPanel.getTitleLabel().setBorder(new EmptyBorder(8, 90, 10, 0));
 
 		JComponent c = (JComponent) getContentPane();
-		c.setLayout(new MigLayout("insets 0, fill, hidemode 3", "95px[fill]", "fill"));
+		c.setLayout(new MigLayout("insets 0, fill, hidemode 3", String.format("%dx[fill]", isUbuntuApp() ? 115 : 95), "fill"));
 
 		c.add(selectionListScrollPane, "pos 6px 10px n 100%-12px");
 		c.add(headerPanel, "growx, dock north");
