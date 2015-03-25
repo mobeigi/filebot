@@ -27,9 +27,9 @@ SYNO_LIBRARY_PATH="/var/packages/mediainfo/target/lib"
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]
 then
-  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$APP_ROOT:$SYNO_LIBRARY_PATH"
+  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$APP_ROOT"
 else
-  export LD_LIBRARY_PATH="$APP_ROOT:$SYNO_LIBRARY_PATH"
+  export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$APP_ROOT"
 fi
 
 # force JVM language and encoding settings
