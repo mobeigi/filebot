@@ -1127,7 +1127,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<File> extractedFiles = new ArrayList<File>();
 
 		for (File file : archiveFiles) {
-			Archive archive = new Archive(file);
+			Archive archive = Archive.open(file);
 			try {
 				File outputFolder = new File(output != null ? output : getName(file));
 				if (!outputFolder.isAbsolute()) {
@@ -1169,7 +1169,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						CLILogger.finest("Extracting files " + outputMapping);
 
 						// extract all files
-						archive.extract(outputMapper);
+						archive.extract(outputMapper.getOutputDir());
 
 						for (FileInfo it : outputMapping) {
 							extractedFiles.add(it.toFile());
@@ -1178,7 +1178,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						CLILogger.finest("Extracting files " + selection);
 
 						// extract files selected by the given filter
-						archive.extract(outputMapper, new FileFilter() {
+						archive.extract(outputMapper.getOutputDir(), new FileFilter() {
 
 							@Override
 							public boolean accept(File entry) {

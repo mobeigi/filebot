@@ -100,7 +100,7 @@ public class MediaDetection {
 
 	public static boolean isVideoDiskFile(File file) throws Exception {
 		FileFilter diskFolderEntryFilter = releaseInfo.getDiskFolderEntryFilter();
-		Archive iso = new Archive(file);
+		Archive iso = Archive.open(file);
 		try {
 			for (FileInfo it : iso.listFiles()) {
 				for (File entry : listPath(it.toFile())) {

@@ -82,7 +82,7 @@ class ExtractTool extends Tool<TableModel> {
 			for (File file : files) {
 				// ignore non-archives files and trailing multi-volume parts
 				if (Archive.VOLUME_ONE_FILTER.accept(file)) {
-					Archive archive = new Archive(file);
+					Archive archive = Archive.open(file);
 					try {
 						for (FileInfo it : archive.listFiles()) {
 							entries.add(new ArchiveEntry(file, it));
@@ -247,7 +247,7 @@ class ExtractTool extends Tool<TableModel> {
 					// update progress dialog
 					firePropertyChange("currentFile", null, file);
 
-					Archive archive = new Archive(file);
+					Archive archive = Archive.open(file);
 					try {
 						final FileMapper outputMapper = new FileMapper(outputFolder, false);
 
@@ -281,10 +281,10 @@ class ExtractTool extends Tool<TableModel> {
 						if (!skip || conflictAction == ConflictAction.OVERRIDE) {
 							if (filter == null || forceExtractAll) {
 								// extract all files
-								archive.extract(outputMapper);
+								archive.extract(outputMapper.getOutputDir());
 							} else {
 								// extract files selected by the given filter
-								archive.extract(outputMapper, new FileFilter() {
+								archive.extract(outputMapper.getOutputDir(), new FileFilter() {
 
 									@Override
 									public boolean accept(File entry) {

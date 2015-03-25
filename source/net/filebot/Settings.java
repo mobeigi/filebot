@@ -14,6 +14,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import net.filebot.UserFiles.FileChooser;
+import net.filebot.archive.Archive.Extractor;
 import net.filebot.cli.ArgumentBean;
 import net.filebot.util.ExceptionUtilities;
 import net.filebot.util.PreferencesList;
@@ -110,6 +111,10 @@ public final class Settings {
 
 	public static FileChooser getPreferredFileChooser() {
 		return FileChooser.valueOf(System.getProperty("net.filebot.UserFiles.fileChooser", "Swing"));
+	}
+
+	public static Extractor getPreferredArchiveExtractor() {
+		return Extractor.valueOf(System.getProperty("net.filebot.Archive.extractor", "SevenZipNativeBindings"));
 	}
 
 	public static int getPreferredThreadPoolSize() {
