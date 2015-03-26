@@ -249,7 +249,7 @@ class ExtractTool extends Tool<TableModel> {
 
 					Archive archive = Archive.open(file);
 					try {
-						final FileMapper outputMapper = new FileMapper(outputFolder, false);
+						final FileMapper outputMapper = new FileMapper(outputFolder);
 
 						final List<FileInfo> outputMapping = new ArrayList<FileInfo>();
 						for (FileInfo it : archive.listFiles()) {

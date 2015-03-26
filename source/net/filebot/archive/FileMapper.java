@@ -10,6 +10,10 @@ public class FileMapper implements ExtractOutProvider {
 	private File outputDir;
 	private boolean flatten;
 
+	public FileMapper(File outputDir) {
+		this(outputDir, false);
+	};
+
 	public FileMapper(File outputDir, boolean flatten) {
 		this.outputDir = outputDir;
 		this.flatten = flatten;

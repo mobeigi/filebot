@@ -79,12 +79,12 @@ public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 
 	@Override
 	public void extract(File outputDir) throws Exception {
-		extract(new FileMapper(outputDir, false));
+		extract(new FileMapper(outputDir));
 	}
 
 	@Override
 	public void extract(File outputDir, FileFilter filter) throws Exception {
-		extract(new FileMapper(outputDir, false), filter);
+		extract(new FileMapper(outputDir), filter);
 	}
 
 	public void extract(ExtractOutProvider outputMapper) throws SevenZipException {
