@@ -84,7 +84,6 @@ public class SevenZipExecutable implements ArchiveExtractor {
 	public void extract(File outputDir) throws IOException {
 		// e.g. 7z x -y -aos archive.7z
 		execute(get7zCommand(), "x", "-y", "-aos", archive.getPath(), "-o" + outputDir.getCanonicalPath());
-
 	}
 
 	public void extract(File outputDir, FileFilter filter) throws IOException {
