@@ -1,25 +1,25 @@
 #!/bin/sh
 
 # symlink to /bin on START and unlink on STOP
-FILEBOT_BINARY="/usr/syno/bin/filebot"
-
+APP_LINK="/usr/syno/bin/filebot"
+APP_ROOT="$SYNOPKG_PKGDEST"
 
 case "$1" in
 	start)
 		# When the user clicks the button "Run" to run the package, after the package is installed, or when the DiskStation is turned on.
-		ln -s "$SYNOPKG_PKGDEST/filebot.sh" "$FILEBOT_BINARY"
+		ln -s "$APP_ROOT/filebot.sh" "$APP_LINK"
 		exit 0
 	;;
 
 	stop)
 		# When the user clicks the button "Stop" to stop the running package, before the package is uninstalled, or when the DiskStation is turned off.
-		rm -f "$FILEBOT_BINARY"
+		rm -f "$APP_LINK"
 		exit 0
 	;;
 	
 	status)
 		# When Package Center is opened to check package status, the Center will send a request to ask the status of the package with this parameter.
-		if [ -e "$FILEBOT_BINARY" ]; then
+		if [ -e "$APP_LINK" ]; then
 			# 0: package is running
 			exit 0
 		else
@@ -27,8 +27,13 @@ case "$1" in
 			exit 1
 		fi
 	;;
+
+	log)
+		find "$APP_ROOT/data" -name "*.log" -type f -print0 | xargs -0 ls -Alt1 | head -n 5 | awk '{print $7}'
+		exit 0
+	;;
+
+	*)
+		exit 1
+	;;
 esac
-
-
-# return successfully
-exit 0
