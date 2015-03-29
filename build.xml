@@ -549,7 +549,7 @@
 			<info name="distributor_url" value="http://www.filebot.net/" />
 			<info name="support_url" value="http://www.filebot.net/forums/" />
 			<info name="firmware" value="5.0" />
-			<info name="startable" value="no" />
+			<info name="startable" value="yes" />
 			<info name="helpurl" value="http://www.filebot.net/cli.html" />
 
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
