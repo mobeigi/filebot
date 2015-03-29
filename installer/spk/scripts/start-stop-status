@@ -29,7 +29,7 @@ case "$1" in
 	;;
 
 	log)
-		// select most recently modified log file (Caveats: the path of the log file must not contain spaces)
+		# Select most recently modified log file (Caveats: the path of the log file must not contain spaces)
 		find "$APP_ROOT/data" -name "*.log" -type f -print0 | xargs -0 ls -Alt1 | head -n 1 | awk '{print $7}'
 		exit 0
 	;;
