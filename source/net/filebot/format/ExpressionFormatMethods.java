@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import net.filebot.util.FileUtilities;
@@ -328,6 +329,10 @@ public class ExpressionFormatMethods {
 			return file;
 		}
 		return new File(parent, self);
+	}
+
+	public static Locale toLocale(String self) {
+		return Locale.forLanguageTag(self);
 	}
 
 }
