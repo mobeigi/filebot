@@ -283,7 +283,7 @@ public final class WebServices {
 
 	public static void setLogin(String id, String user, String password) {
 		if (user == null || password == null || user.contains(":") || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
-			throw new IllegalArgumentException("Illegal login: " + user);
+			throw new IllegalArgumentException(String.format("Illegal login: %s:%s", user, password));
 		}
 
 		Settings settings = Settings.forPackage(WebServices.class);
