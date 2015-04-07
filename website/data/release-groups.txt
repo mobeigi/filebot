@@ -473,6 +473,7 @@ CATCH
 CATCHPHRASE
 catflap
 CBB
+CBFM
 CBGB
 cbm
 CCAT
@@ -736,6 +737,7 @@ DivXNL
 DivXNL-Team
 DjRobo38
 DK
+DKiDS
 dmd
 DMT
 DNA
@@ -1135,6 +1137,7 @@ HANNIBAL
 HANrel
 HARMY
 HarrHD
+HatchetGear
 Haterman
 Hatsuyuki
 Hatsuyuki-Kaitou
@@ -1401,6 +1404,7 @@ KaTe
 KAZAN
 KBEC
 kE
+KEBABSAX
 KEG
 KEKKAI
 keltz
@@ -1444,6 +1448,7 @@ KnKF-Doremi
 KNOC
 KnU-FS
 KOC
+KoD
 KOENiG
 Koffe
 Koharubi
@@ -1558,6 +1563,7 @@ M-S
 m.3.3.w
 M.O
 M2
+M33P
 m4u
 M794
 MACHD
@@ -1788,6 +1794,7 @@ NuMy
 NUTBLADDER
 NUXX
 NVA
+NWA
 NWO
 NwS
 NWTC
@@ -2107,6 +2114,7 @@ ROUGH
 ROVERS
 Royskatt
 Rpyleoh
+RRH
 RS
 RS-F
 RsF
@@ -2130,6 +2138,7 @@ Ruri-Saizen
 RUSTLE
 RWD
 Rx
+Ryotox
 RyS
 Ryugan
 Ryuumaru
@@ -2318,6 +2327,7 @@ SpS
 SQsR
 SQUiZZiEs
 SRN
+SRS
 sRu
 SS
 SS-Eclipse
