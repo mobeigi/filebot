@@ -44,6 +44,10 @@ public class FileSet extends AbstractSet<Path> {
 		return add(getPath(e));
 	}
 
+	public void feed(Stream<? extends Object> stream) {
+		stream.forEach(path -> add(path.toString()));
+	}
+
 	private boolean contains(Path e, int depth) {
 		// add new leaf element
 		if (e.getNameCount() - depth == 1) {
