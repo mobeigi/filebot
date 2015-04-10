@@ -77,8 +77,12 @@ public class FileSet extends AbstractSet<Path> {
 
 	@Override
 	public boolean contains(Object e) {
-		return e == null ? false : contains(getPath(e.toString()));
+		return contains(e.toString());
 	};
+
+	protected Path getPath(String path) {
+		return Paths.get(path);
+	}
 
 	@Override
 	public int size() {
@@ -98,10 +102,6 @@ public class FileSet extends AbstractSet<Path> {
 		return Stream.concat(descendants, children);
 	}
 
-	protected Path getPath(String path) {
-		return Paths.get(path);
-	}
-
 	@Override
 	public Spliterator<Path> spliterator() {
 		return stream().spliterator();
@@ -114,6 +114,11 @@ public class FileSet extends AbstractSet<Path> {
 
 	@Override
 	public boolean remove(Object o) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void clear() {
 		throw new UnsupportedOperationException();
 	}
 
