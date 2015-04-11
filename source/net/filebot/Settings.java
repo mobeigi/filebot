@@ -1,5 +1,6 @@
 package net.filebot;
 
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
@@ -143,9 +144,12 @@ public final class Settings {
 		}
 
 		// create folder if necessary
-		if (!applicationFolder.exists()) {
-			applicationFolder.mkdirs();
+		try {
+			createFolders(applicationFolder);
+		} catch (Exception e) {
+			throw new IllegalStateException("application.dir", e);
 		}
+
 		return applicationFolder;
 	}
 
@@ -160,9 +164,12 @@ public final class Settings {
 		}
 
 		// create folder if necessary
-		if (!cacheFolder.exists()) {
-			cacheFolder.mkdirs();
+		try {
+			createFolders(cacheFolder);
+		} catch (Exception e) {
+			throw new IllegalStateException("application.cache", e);
 		}
+
 		return cacheFolder;
 	}
 

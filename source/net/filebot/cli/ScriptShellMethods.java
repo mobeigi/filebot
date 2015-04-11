@@ -310,7 +310,7 @@ public class ScriptShellMethods {
 		file = file.getAbsoluteFile();
 
 		// make sure parent folders exist
-		file.getParentFile().mkdirs();
+		FileUtilities.createFolders(file.getParentFile());
 
 		return FileUtilities.writeFile(self, file);
 	}
@@ -324,7 +324,7 @@ public class ScriptShellMethods {
 		file = file.getAbsoluteFile();
 
 		// make sure parent folders exist
-		file.getParentFile().mkdirs();
+		FileUtilities.createFolders(file.getParentFile());
 
 		org.apache.commons.io.FileUtils.copyURLToFile(self, file);
 		return file;

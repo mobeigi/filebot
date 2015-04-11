@@ -73,7 +73,6 @@ public final class TemporaryFolder {
 	 *             if an I/O error occurred
 	 */
 	public File createFile(String name) throws IOException {
-
 		// if the directory does not exist it will be created
 		File file = new File(getFolder(), name);
 		file.createNewFile();
@@ -97,7 +96,7 @@ public final class TemporaryFolder {
 		return File.createTempFile(prefix, suffix, getFolder());
 	}
 
-	public boolean deleteFile(String name) {
+	public boolean deleteFile(String name) throws IOException {
 		return new File(getFolder(), name).delete();
 	}
 
@@ -106,15 +105,12 @@ public final class TemporaryFolder {
 	 * 
 	 * @return the {@link File} object for this {@link TemporaryFolder}
 	 */
-	public File getFolder() {
-		if (!root.exists()) {
-			root.mkdirs();
-		}
-
+	public File getFolder() throws IOException {
+		FileUtilities.createFolders(root);
 		return root;
 	}
 
-	public TemporaryFolder subFolder(String name) {
+	public TemporaryFolder subFolder(String name) throws IOException {
 		return new TemporaryFolder(new File(getFolder(), name));
 	}
 

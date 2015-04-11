@@ -156,11 +156,17 @@ public final class FileUtilities {
 		return org.apache.commons.io.FileUtils.deleteQuietly(file);
 	}
 
+	public static void createFolders(File folder) throws IOException {
+		if (!folder.isDirectory()) {
+			Files.createDirectories(folder.toPath());
+		}
+	}
+
 	public static void createFileIfNotExists(File file) throws IOException {
 		if (!file.isFile()) {
 			// create parent folder structure if necessary & create file
 			Files.createDirectories(file.getParentFile().toPath());
-			Files.createFile(file.toPath()).toFile();
+			Files.createFile(file.toPath());
 		}
 	}
 

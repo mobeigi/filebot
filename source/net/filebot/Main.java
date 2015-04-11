@@ -134,7 +134,7 @@ public class Main {
 
 			// make sure java.io.tmpdir exists
 			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-			tmpdir.mkdirs();
+			createFolders(tmpdir);
 
 			// initialize this stuff before anything else
 			initializeCache();
@@ -437,9 +437,9 @@ public class Main {
 		try {
 			for (int i = 0; true; i++) {
 				File cache = new File(cacheRoot, String.format("%d", i));
-				if (!cache.isDirectory() && !cache.mkdirs()) {
-					throw new IOException("Failed to create cache dir: " + cache);
-				}
+
+				// make sure cache is accessible
+				createFolders(cache);
 
 				final File lockFile = new File(cache, ".lock");
 				boolean isNewCache = !lockFile.exists();
