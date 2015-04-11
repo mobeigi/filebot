@@ -153,8 +153,6 @@ public class Main {
 				System.setProperty("useCreationDate", "false");
 			}
 			if (args.action.equalsIgnoreCase("test")) {
-				System.setProperty("useExtendedFileAttributes", "false");
-				System.setProperty("useCreationDate", "false");
 				System.setProperty("application.rename.history", "false"); // don't keep history of --action test rename operations
 			}
 
