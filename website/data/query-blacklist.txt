@@ -153,6 +153,7 @@
 ^scratch.area$
 ^Season$
 ^Secret$
+^seed$
 ^Seeding$
 ^Seeds$
 ^Serier$
