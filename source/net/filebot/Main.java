@@ -239,8 +239,8 @@ public class Main {
 				// make sure any long running operations are done now and not later on the shutdownhook thread
 				HistorySpooler.getInstance().commit();
 
-				// show donation / review reminders to power users (more than 2000 renames) but at most 10% of the time as to not overly annoy user that simply don't want to donate
-				float chance = 0.1f;
+				// show donation / review reminders to power users (more than 2000 renames) but at most 20% of the time as to not overly annoy user that simply don't want to donate
+				float chance = 0.2f;
 				int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 
 				if (renameCount > 2000 && Math.random() < chance) {
