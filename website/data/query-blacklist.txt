@@ -207,6 +207,7 @@
 ^Videos$
 ^Volume.[0-9]$
 ^Volumes$
+^War$
 ^watch$
 ^WD$
 ^www$
