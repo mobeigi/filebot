@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
@@ -190,7 +189,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: console
 	public Object getConsole() {
-		return System.console() != null ? System.console() : new PseudoConsole(System.in, System.out, StandardCharsets.UTF_8);
+		return System.console() != null ? System.console() : PseudoConsole.getSystemConsole();
 	}
 
 	public Date getNow() {

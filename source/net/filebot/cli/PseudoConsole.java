@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A {@link Console} like class for when {@link System#console()} is not available in the current JVM
@@ -17,6 +18,15 @@ import java.nio.charset.Charset;
  * @see Console
  */
 public class PseudoConsole {
+
+	private static PseudoConsole STDIO;
+
+	public static synchronized PseudoConsole getSystemConsole() {
+		if (STDIO == null) {
+			STDIO = new PseudoConsole(System.in, System.out, StandardCharsets.UTF_8);
+		}
+		return STDIO;
+	}
 
 	private final BufferedReader reader;
 	private final PrintWriter writer;
