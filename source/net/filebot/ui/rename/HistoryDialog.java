@@ -294,6 +294,10 @@ class HistoryDialog extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(component);
 		scrollPane.setBorder(new CompoundBorder(new TitledBorder(title), scrollPane.getBorder()));
 
+		if (isMacApp()) {
+			scrollPane.setOpaque(false);
+		}
+
 		return scrollPane;
 	}
 
