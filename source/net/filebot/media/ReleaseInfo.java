@@ -276,7 +276,7 @@ public class ReleaseInfo {
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getBlacklistPattern() throws IOException {
