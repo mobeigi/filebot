@@ -486,8 +486,7 @@ public class MediaBindingBean {
 			if (filenames[i] == null)
 				continue;
 
-			// normalize space characters
-			filenames[i] = nonGroupPattern.matcher(normalizePunctuation(normalizeSpace(filenames[i], " "))).replaceAll("");
+			filenames[i] = releaseInfo.clean(normalizePunctuation(normalizeSpace(filenames[i], " ")), nonGroupPattern, releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern());
 		}
 
 		// look for release group names in media file and it's parent folder
