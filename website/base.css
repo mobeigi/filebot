@@ -164,7 +164,7 @@ h1 .description {
 .social {
 	float: right;
 	position: relative;
-	right: -30px;
+	right: -10px;
 	top: -15px;
 }
 
@@ -175,7 +175,7 @@ h1 .description {
 .social .twitter {
 	position: relative;
 	top: 3px;
-	width: 110px;
+	width: 90px;
 }
 
 .social .facebook {
