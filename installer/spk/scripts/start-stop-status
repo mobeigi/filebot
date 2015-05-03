@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # symlink to /bin on START and unlink on STOP
-APP_LINK="/usr/bin/filebot"
+APP_LINK="/usr/bin/$SYNOPKG_PKGNAME"
 APP_ROOT="$SYNOPKG_PKGDEST"
 
 case "$1" in

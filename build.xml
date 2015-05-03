@@ -534,10 +534,10 @@
 			<info name="helpurl" value="http://www.filebot.net/cli.html" />
 
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
-			<icon size="120" file="${dir.installer}/icons/icon120.png" />
-
-			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
+			<icon size="256" file="${dir.installer}/icons/icon256.png" />
+			
 			<package file="${path.fatjar}" fullpath="FileBot.jar" />
+			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<scripts dir="${dir.installer}/spk/scripts" filemode="755" />
 		</spk>
 	</target>
