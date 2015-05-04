@@ -364,9 +364,9 @@
 
 
 	<target name="ubuntu-debsrc" depends="svn-update, fatjar">
+		<property name="jre.version" value="jdk-8u45" />
 		<property name="jre.dir" value="${basedir}/jre" />
-		<property name="jre.version" value="jdk-8u31" />
-
+		
 		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-tarbin.tar.gz" />
 		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-debsrc.tar.gz" />
 		<property name="dir.debsrc" location="${dir.dist}/debian-source-package/filebot/filebot-${version}" />
