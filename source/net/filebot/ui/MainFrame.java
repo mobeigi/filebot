@@ -63,7 +63,7 @@ public class MainFrame extends JFrame {
 	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
 
 	public MainFrame() {
-		super(Settings.isInstalled() ? Settings.getApplicationName() : Settings.getApplicationIdentifier());
+		super(isInstalled() ? getApplicationName() : String.format("%s %s", getApplicationName(), getApplicationVersion()));
 
 		try {
 			// restore selected panel
@@ -223,7 +223,7 @@ public class MainFrame extends JFrame {
 						selectEnabled = true;
 
 						// bring window to front when on dnd
-						if (Settings.isMacApp()) {
+						if (isMacApp()) {
 							MacAppUtilities.requestForeground();
 						} else {
 							SwingUtilities.getWindowAncestor(((DropTarget) dtde.getSource()).getComponent()).toFront();
