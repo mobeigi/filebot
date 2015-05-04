@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.util.Collections.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -28,7 +29,6 @@ import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person;
-import net.filebot.web.TMDbClient.Trailer;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
@@ -237,6 +237,6 @@ public class OMDbClient implements MovieIdentificationService {
 			actors.add(new Person(writer, null, "Writer"));
 		}
 
-		return new MovieInfo(fields, new ArrayList<String>(), genres, new ArrayList<String>(), new ArrayList<String>(), actors, new ArrayList<Trailer>());
+		return new MovieInfo(fields, emptyList(), genres, emptyList(), emptyList(), emptyList(), actors, emptyList());
 	}
 }

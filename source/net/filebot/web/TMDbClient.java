@@ -234,6 +234,15 @@ public class TMDbClient implements MovieIdentificationService {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal production_countries data: " + response);
 		}
 
+		List<String> productionCompanies = new ArrayList<String>();
+		try {
+			for (JSONObject it : jsonList(response.get("production_companies"))) {
+				productionCompanies.add((String) it.get("name"));
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal production_companies data: " + response);
+		}
+
 		List<String> alternativeTitles = new ArrayList<String>();
 		try {
 			JSONObject titles = (JSONObject) response.get("alternative_titles");
@@ -303,7 +312,7 @@ public class TMDbClient implements MovieIdentificationService {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailers data: " + response);
 		}
 
-		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, productionCountries, cast, trailers);
+		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, productionCountries, productionCompanies, cast, trailers);
 	}
 
 	public List<Artwork> getArtwork(String id) throws IOException {
@@ -400,6 +409,7 @@ public class TMDbClient implements MovieIdentificationService {
 		protected String[] genres;
 		protected String[] spokenLanguages;
 		protected String[] productionCountries;
+		protected String[] productionCompanies;
 
 		protected Person[] people;
 		protected Trailer[] trailers;
@@ -408,12 +418,13 @@ public class TMDbClient implements MovieIdentificationService {
 			// used by serializer
 		}
 
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<String> productionCountries, List<Person> people, List<Trailer> trailers) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<String> productionCountries, List<String> productionCompanies, List<Person> people, List<Trailer> trailers) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
 			this.alternativeTitles = alternativeTitles.toArray(new String[0]);
 			this.genres = genres.toArray(new String[0]);
 			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
 			this.productionCountries = productionCountries.toArray(new String[0]);
+			this.productionCompanies = productionCompanies.toArray(new String[0]);
 			this.people = people.toArray(new Person[0]);
 			this.trailers = trailers.toArray(new Trailer[0]);
 		}
@@ -444,6 +455,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 		public List<String> getProductionCountries() {
 			return unmodifiableList(asList(productionCountries));
+		}
+
+		public List<String> getProductionCompanies() {
+			return unmodifiableList(asList(productionCompanies));
 		}
 
 		public String getOriginalName() {
