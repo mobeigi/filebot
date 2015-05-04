@@ -123,7 +123,9 @@ public class Main {
 				// open file channel and lock
 				FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 				if (args.logLock) {
-					System.out.println("Locking " + logFile);
+					if (args.getLogLevel() == Level.ALL) {
+						System.out.println("Locking " + logFile);
+					}
 					logChannel.lock();
 				}
 
