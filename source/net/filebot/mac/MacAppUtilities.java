@@ -42,8 +42,8 @@ public class MacAppUtilities {
 	public static List<File> NSOpenPanel_openPanel_runModal(String title, boolean multipleMode, boolean canChooseDirectories, boolean canChooseFiles, String[] allowedFileTypes) {
 		List<File> result = new ArrayList<File>();
 
-		System.out.println("before dispatch_sync");
-		dispatch_sync(new Runnable() {
+		System.out.println("before dispatch_async");
+		dispatch_async(new Runnable() {
 
 			@Override
 			public void run() {
@@ -79,7 +79,7 @@ public class MacAppUtilities {
 			}
 		});
 
-		System.out.println("after dispatch_sync");
+		System.out.println("after dispatch_async");
 		return result;
 	}
 
