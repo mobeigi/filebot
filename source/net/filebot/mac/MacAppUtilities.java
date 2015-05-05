@@ -41,16 +41,21 @@ public class MacAppUtilities {
 
 	public static List<File> NSOpenPanel_openPanel_runModal(String title, boolean multipleMode, boolean canChooseDirectories, boolean canChooseFiles, String[] allowedFileTypes) {
 		List<File> result = new ArrayList<File>();
+
+		System.out.println("before dispatch_sync");
 		dispatch_sync(new Runnable() {
 
 			@Override
 			public void run() {
+				System.out.println("before NSOpenPanel");
 				Proxy peer = objc().sendProxy("NSOpenPanel", "openPanel");
 				peer.send("setTitle:", title);
 				peer.send("setAllowsMultipleSelection:", multipleMode ? 1 : 0);
+				System.out.println("before setCanChooseDirectories");
 				peer.send("setCanChooseDirectories:", canChooseDirectories ? 1 : 0);
 				peer.send("setCanChooseFiles:", canChooseFiles ? 1 : 0);
 
+				System.out.println("before NSMutableArray");
 				if (allowedFileTypes != null) {
 					Proxy mutableArray = objc().sendProxy("NSMutableArray", "arrayWithCapacity:", allowedFileTypes.length);
 					for (String type : allowedFileTypes) {
@@ -59,9 +64,12 @@ public class MacAppUtilities {
 					peer.send("setAllowedFileTypes:", mutableArray);
 				}
 
+				System.out.println("before runModal");
 				if (peer.sendInt("runModal") != 0) {
+					System.out.println("before dispatch_sync");
 					Proxy nsArray = peer.getProxy("URLs");
 					int size = nsArray.sendInt("count");
+					System.out.println("before dispatch_sync");
 					for (int i = 0; i < size; i++) {
 						Proxy url = nsArray.sendProxy("objectAtIndex:", i);
 						String path = url.sendString("path");
@@ -70,6 +78,8 @@ public class MacAppUtilities {
 				}
 			}
 		});
+
+		System.out.println("after dispatch_sync");
 		return result;
 	}
 
