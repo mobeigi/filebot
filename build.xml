@@ -297,7 +297,7 @@
 			
 			<!-- enable logging by default -->
 			<argument value="--log-file" />
-			<argument value="../../../filebot.log" />
+			<argument value="../../filebot.log" />
 			<argument value="--log-lock" />
 			<argument value="false" />
 		</bundleapp>
