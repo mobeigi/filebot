@@ -209,7 +209,7 @@
 	<target name="appbundle" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
 
-		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity">
+		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -259,7 +259,7 @@
 		<property name="jre.version" value="jdk1.8.0_45.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.8" executablename="FileBotAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" supportsautomaticgraphicsswitching="false">
+		<bundleapp minimumsystemversion="10.8" executablename="FileBotAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -366,7 +366,7 @@
 	<target name="ubuntu-debsrc" depends="svn-update, fatjar">
 		<property name="jre.version" value="jdk-8u45" />
 		<property name="jre.dir" value="${basedir}/jre" />
-		
+
 		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-tarbin.tar.gz" />
 		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-debsrc.tar.gz" />
 		<property name="dir.debsrc" location="${dir.dist}/debian-source-package/filebot/filebot-${version}" />
@@ -534,7 +534,7 @@
 
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
 			<icon size="256" file="${dir.installer}/icons/icon256.png" />
-			
+
 			<package file="${path.fatjar}" fullpath="FileBot.jar" />
 			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<scripts dir="${dir.installer}/spk/scripts" filemode="755" />

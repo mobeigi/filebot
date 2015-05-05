@@ -17,7 +17,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 
@@ -201,30 +200,30 @@ public class UserFiles {
 
 		COCOA {
 
-			private final String KEY_NSOPENPANEL_BROKEN = "NSOPENPANEL_BROKEN";
+			// private final String KEY_NSOPENPANEL_BROKEN = "NSOPENPANEL_BROKEN";
 
 			@Override
 			public List<File> showLoadDialogSelectFiles(boolean folderMode, boolean multiSelection, File defaultFile, ExtensionFileFilter filter, String title, ActionEvent evt) {
 				// directly use NSOpenPanel for via Objective-C bridge for FILES_AND_DIRECTORIES mode
 				if (folderMode && filter != null) {
 					// NSOpenPanel causes deadlocks on some machines
-					Preferences persistence = Preferences.userNodeForPackage(UserFiles.class);
-					if (!persistence.getBoolean(KEY_NSOPENPANEL_BROKEN, false)) {
-						try {
-							// assume that NSOpenPanel may freeze the application until it is killed, and make sure to not use NSOpenPanel on subsequent runs
-							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, true);
-							persistence.flush();
+					// Preferences persistence = Preferences.userNodeForPackage(UserFiles.class);
+					// if (!persistence.getBoolean(KEY_NSOPENPANEL_BROKEN, false)) {
+					try {
+						// assume that NSOpenPanel may freeze the application until it is killed, and make sure to not use NSOpenPanel on subsequent runs
+						// persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, true);
+						// persistence.flush();
 
-							// call native NSOpenPanel openPanel via Objective-C bridge
-							return MacAppUtilities.NSOpenPanel_openPanel_runModal(title, true, true, true, filter.acceptAny() ? null : filter.extensions());
-						} catch (Throwable e) {
-							Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
-						} finally {
-							persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, false); // NSOpenPanel did not freeze application
-						}
-					} else {
-						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, "NSOpenPanel broken. Using AWT implementation instead.");
+						// call native NSOpenPanel openPanel via Objective-C bridge
+						return MacAppUtilities.NSOpenPanel_openPanel_runModal(title, true, true, true, filter.acceptAny() ? null : filter.extensions());
+					} catch (Throwable e) {
+						Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, e.toString());
+					} finally {
+						// persistence.putBoolean(KEY_NSOPENPANEL_BROKEN, false); // NSOpenPanel did not freeze application
 					}
+					// } else {
+					// Logger.getLogger(UserFiles.class.getName()).log(Level.WARNING, "NSOpenPanel broken. Using AWT implementation instead.");
+					// }
 				}
 
 				// default to AWT implementation
