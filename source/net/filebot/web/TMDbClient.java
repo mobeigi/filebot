@@ -228,7 +228,7 @@ public class TMDbClient implements MovieIdentificationService {
 		List<String> productionCountries = new ArrayList<String>();
 		try {
 			for (JSONObject it : jsonList(response.get("production_countries"))) {
-				productionCountries.add((String) it.get("name"));
+				productionCountries.add((String) it.get("iso_3166_1"));
 			}
 		} catch (Exception e) {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal production_countries data: " + response);
