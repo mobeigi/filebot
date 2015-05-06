@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person.PersonProperty;
@@ -346,8 +347,18 @@ public class TMDbClient implements MovieIdentificationService {
 		if (parameters != null) {
 			data.putAll(parameters);
 		}
-		if (locale != null && !locale.getLanguage().isEmpty()) {
-			data.put("language", locale.getLanguage());
+
+		if (locale != null && locale.getLanguage().length() > 0) {
+			String code = locale.getLanguage();
+
+			// require 2-letter language code
+			if (code.length() != 2) {
+				Language lang = Language.getLanguage(locale);
+				if (lang != null) {
+					code = lang.getISO2();
+				}
+			}
+			data.put("language", code);
 		}
 		data.put("api_key", apikey);
 
