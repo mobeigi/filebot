@@ -2,6 +2,9 @@ package net.filebot.mac;
 
 import static ca.weblite.objc.util.CocoaUtils.*;
 
+import java.awt.EventQueue;
+import java.awt.SecondaryLoop;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.io.File;
 import java.lang.reflect.Method;
@@ -40,7 +43,10 @@ public class MacAppUtilities {
 	}
 
 	public static List<File> NSOpenPanel_openPanel_runModal(String title, boolean multipleMode, boolean canChooseDirectories, boolean canChooseFiles, String[] allowedFileTypes) {
-		List<File> result = new ArrayList<File>();
+		final List<File> result = new ArrayList<File>();
+
+		final EventQueue eventQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		final SecondaryLoop secondaryLoop = eventQueue.createSecondaryLoop();
 
 		System.out.println("before dispatch_async");
 		dispatch_async(new Runnable() {
@@ -66,20 +72,27 @@ public class MacAppUtilities {
 
 				System.out.println("before runModal");
 				if (peer.sendInt("runModal") != 0) {
-					System.out.println("before dispatch_sync");
 					Proxy nsArray = peer.getProxy("URLs");
 					int size = nsArray.sendInt("count");
-					System.out.println("before dispatch_sync");
 					for (int i = 0; i < size; i++) {
 						Proxy url = nsArray.sendProxy("objectAtIndex:", i);
 						String path = url.sendString("path");
 						result.add(new File(path));
 					}
 				}
+
+				System.out.println("before secondaryLoop.exit");
+				secondaryLoop.exit();
 			}
 		});
 
-		System.out.println("after dispatch_async");
+		// Enter the loop to block the current event handler, but leave UI responsive
+		System.out.println("before secondaryLoop.enter");
+		if (!secondaryLoop.enter()) {
+			throw new RuntimeException("SecondaryLoop.enter()");
+		}
+		System.out.println("after secondaryLoop.enter");
+
 		return result;
 	}
 
