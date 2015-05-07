@@ -213,7 +213,8 @@
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
-
+			
+			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />	
 			<option value="-Dapplication.deployment=app" />
 			<option value="-Dapplication.update=auto" />
 			<option value="-Dunixfs=false" />
