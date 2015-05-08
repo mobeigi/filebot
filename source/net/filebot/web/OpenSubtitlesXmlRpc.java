@@ -331,9 +331,8 @@ public class OpenSubtitlesXmlRpc {
 
 	protected URL getXmlRpcUrl() {
 		try {
-			return new URL("http://api.opensubtitles.org/xml-rpc");
+			return new URL("https://api.opensubtitles.org/xml-rpc");
 		} catch (MalformedURLException e) {
-			// will never happen
 			throw new RuntimeException(e);
 		}
 	}
