@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -24,6 +25,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -625,6 +628,20 @@ public final class FileUtilities {
 
 	public static String replacePathSeparators(CharSequence path, String replacement) {
 		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
+	}
+
+	public static String md5(byte[] data) {
+		return md5(ByteBuffer.wrap(data));
+	}
+
+	public static String md5(ByteBuffer data) {
+		try {
+			MessageDigest hash = MessageDigest.getInstance("MD5");
+			hash.update(data);
+			return String.format("%032x", new BigInteger(1, hash.digest())); // as hex string
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static List<File> asFileList(Object... paths) {

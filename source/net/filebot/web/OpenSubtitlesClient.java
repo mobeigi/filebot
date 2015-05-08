@@ -8,10 +8,8 @@ import static net.filebot.web.OpenSubtitlesHasher.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,7 +62,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		this.logout();
 
 		this.username = username;
-		this.password = password;
+		this.password = md5(StandardCharsets.UTF_8.encode(password));
 	}
 
 	public boolean isAnonymous() {
@@ -346,19 +344,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		login();
 
 		xmlrpc.uploadSubtitles(info, sub);
-	}
-
-	/**
-	 * Calculate MD5 hash.
-	 */
-	private String md5(byte[] data) throws IOException {
-		try {
-			MessageDigest hash = MessageDigest.getInstance("MD5");
-			hash.update(data);
-			return String.format("%032x", new BigInteger(1, hash.digest())); // as hex string
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e); // won't happen
-		}
 	}
 
 	@Override
