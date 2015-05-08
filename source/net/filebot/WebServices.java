@@ -4,9 +4,11 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -261,17 +263,20 @@ public final class WebServices {
 		throw new UnsupportedOperationException();
 	}
 
+	public static final String LOGIN_SEPARATOR = ":";
+	public static final String LOGIN_OPENSUBTITLES = "osdb.user";
+
 	/**
 	 * Initialize client settings from system properties
 	 */
 	static {
-		String[] osdbLogin = getLogin("osdb.user");
+		String[] osdbLogin = getLogin(LOGIN_OPENSUBTITLES);
 		OpenSubtitles.setUser(osdbLogin[0], osdbLogin[1]);
 	}
 
 	public static String[] getLogin(String key) {
 		try {
-			String[] values = Settings.forPackage(WebServices.class).get(key, ":").split(":", 2); // empty username/password by default
+			String[] values = Settings.forPackage(WebServices.class).get(key, LOGIN_SEPARATOR).split(LOGIN_SEPARATOR, 2); // empty username/password by default
 			if (values != null && values.length == 2 && values[0] != null && values[1] != null) {
 				return values;
 			}
@@ -282,16 +287,14 @@ public final class WebServices {
 	}
 
 	public static void setLogin(String id, String user, String password) {
-		if (user == null || password == null || user.contains(":") || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
+		if (user == null || password == null || user.contains(LOGIN_SEPARATOR) || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
 			throw new IllegalArgumentException(String.format("Illegal login: %s:%s", user, password));
 		}
 
-		Settings settings = Settings.forPackage(WebServices.class);
-		String value = user.isEmpty() && password.isEmpty() ? null : user + ":" + password;
-
-		if (id.equals("osdb.user")) {
-			settings.put(id, value);
-			OpenSubtitles.setUser(user, password);
+		if (LOGIN_OPENSUBTITLES.equals(id)) {
+			String password_md5 = md5(StandardCharsets.UTF_8.encode(password));
+			OpenSubtitles.setUser(user, password_md5);
+			Settings.forPackage(WebServices.class).put(id, String.join(LOGIN_SEPARATOR, user, password_md5));
 		} else {
 			throw new IllegalArgumentException();
 		}

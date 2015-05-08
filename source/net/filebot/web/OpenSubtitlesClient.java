@@ -9,7 +9,6 @@ import static net.filebot.web.OpenSubtitlesHasher.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,12 +56,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		this.xmlrpc = new OpenSubtitlesXmlRpcWithRetryAndFloodLimit(String.format("%s v%s", name, version), 2, 3000);
 	}
 
-	public synchronized void setUser(String username, String password) {
+	public synchronized void setUser(String username, String password_md5) {
 		// cancel previous session
 		this.logout();
 
 		this.username = username;
-		this.password = md5(StandardCharsets.UTF_8.encode(password));
+		this.password = password_md5;
 	}
 
 	public boolean isAnonymous() {
