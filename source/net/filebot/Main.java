@@ -54,6 +54,7 @@ import net.filebot.cli.ArgumentProcessor;
 import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
@@ -263,6 +264,7 @@ public class Main {
 			// Mac OS X specific configuration
 			MacAppUtilities.initializeApplication();
 			MacAppUtilities.setWindowCanFullScreen(frame);
+			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 		} else {
 			// Windows / Linux specific configuration
 			List<Image> images = new ArrayList<Image>(3);
@@ -271,9 +273,9 @@ public class Main {
 			}
 			frame.setIconImages(images);
 		}
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		// start application
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setVisible(true);
 	}
 

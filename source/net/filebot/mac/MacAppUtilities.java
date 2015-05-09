@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.JMenuBar;
 import javax.swing.UIManager;
 
 import ca.weblite.objc.Client;
@@ -120,21 +121,36 @@ public class MacAppUtilities {
 		}
 	}
 
-	public static void initializeApplication() {
-		// improved UI defaults
-		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
+	public static void setDefaultMenuBar(JMenuBar menu) {
+		try {
+			Class<?> application = Class.forName("com.apple.eawt.Application");
+			Object instance = application.getMethod("getApplication").invoke(null);
+			Method setDefaultMenuBar = application.getMethod("setDefaultMenuBar", new Class<?>[] { JMenuBar.class });
+			setDefaultMenuBar.invoke(instance, menu);
+		} catch (Throwable t) {
+			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setDefaultMenuBar not supported: " + t);
+		}
+	}
 
-		// make sure Application Quit Events get forwarded to normal Window Listeners
+	public static void setQuitStrategy(String field) {
 		try {
 			Class<?> application = Class.forName("com.apple.eawt.Application");
 			Object instance = application.getMethod("getApplication").invoke(null);
 			Class<?> quitStrategy = Class.forName("com.apple.eawt.QuitStrategy");
 			Method setQuitStrategy = application.getMethod("setQuitStrategy", quitStrategy);
-			Object closeAllWindows = quitStrategy.getField("CLOSE_ALL_WINDOWS").get(null);
+			Object closeAllWindows = quitStrategy.getField(field).get(null);
 			setQuitStrategy.invoke(instance, closeAllWindows);
 		} catch (Throwable t) {
 			Logger.getLogger(MacAppUtilities.class.getName()).log(Level.WARNING, "setQuitStrategy not supported: " + t);
 		}
+	}
+
+	public static void initializeApplication() {
+		// improved UI defaults
+		UIManager.put("TitledBorder.border", UIManager.getBorder("InsetBorder.aquaVariant"));
+
+		// make sure Application Quit Events get forwarded to normal Window Listeners
+		setQuitStrategy("CLOSE_ALL_WINDOWS");
 	}
 
 	public static boolean isLockedFolder(File folder) {

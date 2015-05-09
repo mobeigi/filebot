@@ -6,7 +6,9 @@ import static net.filebot.util.StringUtilities.*;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -202,6 +204,16 @@ public final class Settings {
 			return URI.create("apt://filebot");
 
 		return null;
+	}
+
+	public static Map<String, URI> getHelpURIs() {
+		Map<String, URI> links = new LinkedHashMap<String, URI>();
+		links.put("Getting Started", URI.create("https://www.filebot.net/getting-started/"));
+		links.put("FAQ", URI.create("https://www.filebot.net/forums/viewtopic.php?f=3&t=7"));
+		links.put("Forums", URI.create("https://www.filebot.net/forums/"));
+		links.put("Twitter", URI.create("https://twitter.com/filebot_renamer"));
+		links.put("Request Support", URI.create(isMacApp() ? "https://www.filebot.net/forums/viewforum.php?f=12" : "https://www.filebot.net/forums/viewforum.php?f=8"));
+		return links;
 	}
 
 	public static Settings forPackage(Class<?> type) {
