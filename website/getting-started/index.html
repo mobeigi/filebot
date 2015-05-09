@@ -14,15 +14,19 @@
     </head>
     <body>
         <div class="galleria">
-            <a href="https://www.youtube.com/watch?v=RRq2_Pjyko8"><img src="images/rename.png"></a>
-            <img src="images/permissions.png">
-            <a href="https://www.youtube.com/watch?v=btNSv7AnMMw"><img src="images/episodes.png"></a>
-            <a href="https://www.youtube.com/watch?v=q-oZ_hovsTY"><img src="images/subtitle-hash-lookup.png"></a>
-            <a href="https://www.youtube.com/watch?v=R80tKtHf4zw"><img src="images/subtitle-search.png"></a>
-            <a href="https://www.youtube.com/watch?v=4KWkSPr3fQY"><img src="images/sfv.png"></a>
+
         </div>
         <script>
+            var data = [
+                { video: 'http://www.youtube.com/watch?v=btNSv7AnMMw', image: 'images/rename.png', thumb: 'images/rename.thumb.png' },
+                { video: 'http://www.youtube.com/watch?v=GCZrz8siv4Q', image: 'images/episodes.png', thumb: 'images/episodes.thumb.png' },
+                { video: 'http://www.youtube.com/watch?v=oZ_hovsTY', image: 'images/subtitle-hash-lookup.png', thumb: 'images/subtitle-hash-lookup.thumb.png' },
+                { video: 'http://www.youtube.com/watch?v=R80tKtHf4zw', image: 'images/subtitle-search.png', thumb: 'images/subtitle-search.thumb.png' },
+                { video: 'http://www.youtube.com/watch?v=4KWkSPr3fQY', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' },
+                { image: 'images/permissions.png', thumb: 'images/permissions.thumb.png' }
+            ];
             Galleria.run('.galleria', {
+                dataSource: data,
                 maxScaleRatio: 1,
                 youtube: {
                     VQ: 'HD1080'
