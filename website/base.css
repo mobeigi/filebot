@@ -457,6 +457,20 @@ div.screencast:hover .play {
 	top: 8px;
 }
 
+.video {
+	margin: 20px 0px;
+}
+
+.video iframe {
+	display: block;
+	margin: 0 auto;
+	width: 750px;
+	height: 480px;
+	border: 4px black solid;
+	box-shadow: 2px 2px 5px #a2a2a2;
+	border-radius: 4px;
+}
+
 #download li.macosx {
 	list-style: none;
 	background: url('http://www.apple.com/favicon.ico') no-repeat 0.25em center;
