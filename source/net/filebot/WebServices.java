@@ -8,7 +8,6 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -287,16 +286,27 @@ public final class WebServices {
 	}
 
 	public static void setLogin(String id, String user, String password) {
-		if (user == null || password == null || user.contains(LOGIN_SEPARATOR) || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
-			throw new IllegalArgumentException(String.format("Illegal login: %s:%s", user, password));
-		}
-
-		if (LOGIN_OPENSUBTITLES.equals(id)) {
-			String password_md5 = md5(StandardCharsets.UTF_8.encode(password));
-			OpenSubtitles.setUser(user, password_md5);
-			Settings.forPackage(WebServices.class).put(id, String.join(LOGIN_SEPARATOR, user, password_md5));
+		// delete login
+		if ((user == null || user.isEmpty()) && (password == null || password.isEmpty())) {
+			if (LOGIN_OPENSUBTITLES.equals(id)) {
+				OpenSubtitles.setUser("", "");
+				Settings.forPackage(WebServices.class).remove(id);
+			} else {
+				throw new IllegalArgumentException();
+			}
 		} else {
-			throw new IllegalArgumentException();
+			// enter login
+			if (user == null || password == null || user.contains(LOGIN_SEPARATOR) || (user.isEmpty() && !password.isEmpty()) || (!user.isEmpty() && password.isEmpty())) {
+				throw new IllegalArgumentException(String.format("Illegal login: %s:%s", user, password));
+			}
+
+			if (LOGIN_OPENSUBTITLES.equals(id)) {
+				String password_md5 = md5(password);
+				OpenSubtitles.setUser(user, password_md5);
+				Settings.forPackage(WebServices.class).put(id, String.join(LOGIN_SEPARATOR, user, password_md5));
+			} else {
+				throw new IllegalArgumentException();
+			}
 		}
 	}
 

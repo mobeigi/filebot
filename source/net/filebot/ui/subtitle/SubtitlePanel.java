@@ -3,6 +3,7 @@ package net.filebot.ui.subtitle;
 import static net.filebot.Settings.*;
 import static net.filebot.ui.LanguageComboBoxModel.*;
 import static net.filebot.ui.NotificationLogging.*;
+import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
@@ -291,9 +292,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			osdbGroup.add(osdbPass, "growx, wrap unrel");
 
 			// restore values
-			String[] osdbAuth = WebServices.getLogin("osdb.user");
+			String[] osdbAuth = WebServices.getLogin(WebServices.LOGIN_OPENSUBTITLES);
 			osdbUser.setText(osdbAuth[0]);
-			osdbPass.setText(osdbAuth[1]);
+			// osdbPass.setText(osdbAuth[1]); // password is stored as MD5 hash so we can't restore it
 
 			if (osdbUser.getText().isEmpty()) {
 				osdbGroup.add(new LinkButton("Register", "Register to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag left");
@@ -317,7 +318,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 					try {
 						if (osdbUser.getText().length() > 0 && osdbPass.getPassword().length > 0) {
 							final OpenSubtitlesClient osdb = new OpenSubtitlesClient(getApplicationName(), getApplicationVersion());
-							osdb.setUser(osdbUser.getText(), new String(osdbPass.getPassword()));
+							osdb.setUser(osdbUser.getText(), md5(new String(osdbPass.getPassword())));
 							osdb.login();
 
 							// do some status checks in background (since OpenSubtitles can be really really slow)
@@ -333,6 +334,8 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 									Logger.getLogger(SubtitlePanel.class.getName()).log(Level.WARNING, e.toString());
 								}
 							});
+						} else if (osdbUser.getText().isEmpty()) {
+							WebServices.setLogin(WebServices.LOGIN_OPENSUBTITLES, null, null); // delete login details
 						}
 					} catch (Exception e) {
 						UILogger.log(Level.WARNING, "OpenSubtitles: " + e.getMessage());
@@ -341,7 +344,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 					authPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					if (approved) {
-						WebServices.setLogin("osdb.user", osdbUser.getText(), new String(osdbPass.getPassword()));
+						WebServices.setLogin(WebServices.LOGIN_OPENSUBTITLES, osdbUser.getText(), new String(osdbPass.getPassword()));
 						authPanel.setVisible(false);
 					}
 				}

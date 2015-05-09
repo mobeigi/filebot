@@ -16,6 +16,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -628,6 +629,10 @@ public final class FileUtilities {
 
 	public static String replacePathSeparators(CharSequence path, String replacement) {
 		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
+	}
+
+	public static String md5(String string) {
+		return md5(StandardCharsets.UTF_8.encode(string));
 	}
 
 	public static String md5(byte[] data) {
