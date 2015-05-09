@@ -208,7 +208,7 @@ public final class Settings {
 
 	public static Map<String, URI> getHelpURIs() {
 		Map<String, URI> links = new LinkedHashMap<String, URI>();
-		links.put("Getting Started", URI.create("https://www.filebot.net/getting-started/"));
+		links.put("Getting Started", URI.create("http://www.filebot.net/getting-started/"));
 		links.put("FAQ", URI.create("https://www.filebot.net/forums/viewtopic.php?f=3&t=7"));
 		links.put("Forums", URI.create("https://www.filebot.net/forums/"));
 		links.put("Twitter", URI.create("https://twitter.com/filebot_renamer"));
