@@ -212,7 +212,7 @@ public final class Settings {
 		links.put("FAQ", URI.create("https://www.filebot.net/forums/viewtopic.php?f=3&t=7"));
 		links.put("Forums", URI.create("https://www.filebot.net/forums/"));
 		links.put("Twitter", URI.create("https://twitter.com/filebot_renamer"));
-		links.put("Request Support", URI.create(isMacApp() ? "https://www.filebot.net/forums/viewforum.php?f=12" : "https://www.filebot.net/forums/viewforum.php?f=8"));
+		links.put("Request Help", URI.create(isMacApp() ? "https://www.filebot.net/forums/viewforum.php?f=12" : "https://www.filebot.net/forums/viewforum.php?f=8"));
 		return links;
 	}
 

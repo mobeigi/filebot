@@ -766,6 +766,7 @@
 				<include name="syno/**" />
 				<include name="images/**" />
 				<include name="screenshots/**" />
+				<include name="getting-started/**" />
 			</fileset>
 		</copy>
 
