@@ -9,7 +9,6 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Desktop;
 import java.awt.Dialog.ModalityType;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,8 +29,6 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
@@ -277,11 +274,7 @@ public class Main {
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 		} else {
 			// Windows / Linux specific configuration
-			List<Image> images = new ArrayList<Image>(3);
-			for (String i : new String[] { "window.icon.large", "window.icon.medium", "window.icon.small" }) {
-				images.add(ResourceManager.getImage(i));
-			}
-			frame.setIconImages(images);
+			frame.setIconImages(ResourceManager.getApplicationIcons());
 		}
 
 		// start application

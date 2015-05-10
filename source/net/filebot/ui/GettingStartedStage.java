@@ -1,5 +1,7 @@
 package net.filebot.ui;
 
+import static net.filebot.Settings.*;
+
 import java.awt.Desktop;
 import java.net.URI;
 import java.util.logging.Level;
@@ -12,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import net.filebot.Main;
 import net.filebot.Settings;
 
@@ -25,6 +28,14 @@ public class GettingStartedStage {
 		Platform.runLater(() -> {
 			Stage stage = new Stage();
 			stage.setResizable(false);
+
+			if (isMacApp()) {
+				// Mac OS X specific configuration
+				stage.initStyle(StageStyle.DECORATED);
+			} else {
+				// Windows / Linux specific configuration
+				stage.initStyle(StageStyle.UTILITY);
+			}
 
 			GettingStartedStage view = new GettingStartedStage(stage);
 			view.show();
