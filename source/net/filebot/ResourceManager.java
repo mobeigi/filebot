@@ -34,6 +34,14 @@ public final class ResourceManager {
 		return asList(images);
 	}
 
+	public static List<URL> getApplicationIconURLs() {
+		URL[] images = new URL[3];
+		images[0] = ResourceManager.getImageResource("window.icon.small");
+		images[1] = ResourceManager.getImageResource("window.icon.medium");
+		images[2] = ResourceManager.getImageResource("window.icon.large");
+		return asList(images);
+	}
+
 	public static Icon getFlagIcon(String languageCode) {
 		return getIcon(String.format("flags/%s", languageCode));
 	}

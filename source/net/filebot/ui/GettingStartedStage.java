@@ -6,16 +6,20 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.concurrent.Worker.State;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import net.filebot.Main;
+import net.filebot.ResourceManager;
 import net.filebot.Settings;
 
 public class GettingStartedStage {
@@ -27,15 +31,19 @@ public class GettingStartedStage {
 
 		Platform.runLater(() -> {
 			Stage stage = new Stage();
-			stage.setResizable(false);
 
 			if (isMacApp()) {
 				// Mac OS X specific configuration
 				stage.initStyle(StageStyle.DECORATED);
+				stage.initModality(Modality.NONE);
 			} else {
 				// Windows / Linux specific configuration
 				stage.initStyle(StageStyle.UTILITY);
+				stage.initModality(Modality.NONE);
 			}
+
+			stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
+			stage.setResizable(false);
 
 			GettingStartedStage view = new GettingStartedStage(stage);
 			view.show();
