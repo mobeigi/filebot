@@ -237,6 +237,6 @@ public class OMDbClient implements MovieIdentificationService {
 			actors.add(new Person(writer, null, "Writer"));
 		}
 
-		return new MovieInfo(fields, emptyList(), genres, emptyList(), emptyList(), emptyList(), actors, emptyList());
+		return new MovieInfo(fields, emptyList(), genres, emptyMap(), emptyList(), emptyList(), emptyList(), actors, emptyList());
 	}
 }

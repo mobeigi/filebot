@@ -16,6 +16,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -256,13 +257,21 @@ public class TMDbClient implements MovieIdentificationService {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal alternative_titles data: " + response);
 		}
 
+		Map<String, String> certifications = new HashMap<String, String>();
 		try {
 			String countryCode = locale.getCountry().isEmpty() ? "US" : locale.getCountry();
 			JSONObject releases = (JSONObject) response.get("releases");
 			if (releases != null) {
 				for (JSONObject it : jsonList(releases.get("countries"))) {
-					if (countryCode.equals(it.get("iso_3166_1"))) {
-						fields.put(MovieProperty.certification, (String) it.get("certification"));
+					String certificationCountry = (String) it.get("iso_3166_1");
+					String certification = (String) it.get("certification");
+					if (certification != null && certificationCountry != null && certification.length() > 0 && certificationCountry.length() > 0) {
+						// add country specific certification code
+						if (countryCode.equals(certificationCountry)) {
+							fields.put(MovieProperty.certification, certification);
+						}
+						// collect all certification codes just in case
+						certifications.put(certificationCountry, certification);
 					}
 				}
 			}
@@ -313,7 +322,7 @@ public class TMDbClient implements MovieIdentificationService {
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal trailers data: " + response);
 		}
 
-		return new MovieInfo(fields, alternativeTitles, genres, spokenLanguages, productionCountries, productionCompanies, cast, trailers);
+		return new MovieInfo(fields, alternativeTitles, genres, certifications, spokenLanguages, productionCountries, productionCompanies, cast, trailers);
 	}
 
 	public List<Artwork> getArtwork(String id) throws IOException {
@@ -421,6 +430,7 @@ public class TMDbClient implements MovieIdentificationService {
 		protected String[] spokenLanguages;
 		protected String[] productionCountries;
 		protected String[] productionCompanies;
+		protected Map<String, String> certifications;
 
 		protected Person[] people;
 		protected Trailer[] trailers;
@@ -429,10 +439,11 @@ public class TMDbClient implements MovieIdentificationService {
 			// used by serializer
 		}
 
-		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, List<String> spokenLanguages, List<String> productionCountries, List<String> productionCompanies, List<Person> people, List<Trailer> trailers) {
+		protected MovieInfo(Map<MovieProperty, String> fields, List<String> alternativeTitles, List<String> genres, Map<String, String> certifications, List<String> spokenLanguages, List<String> productionCountries, List<String> productionCompanies, List<Person> people, List<Trailer> trailers) {
 			this.fields = new EnumMap<MovieProperty, String>(fields);
 			this.alternativeTitles = alternativeTitles.toArray(new String[0]);
 			this.genres = genres.toArray(new String[0]);
+			this.certifications = new HashMap<String, String>(certifications);
 			this.spokenLanguages = spokenLanguages.toArray(new String[0]);
 			this.productionCountries = productionCountries.toArray(new String[0]);
 			this.productionCompanies = productionCompanies.toArray(new String[0]);
@@ -532,6 +543,11 @@ public class TMDbClient implements MovieIdentificationService {
 		public String getCertification() {
 			// e.g. PG-13
 			return get(MovieProperty.certification);
+		}
+
+		public Map<String, String> getCertifications() {
+			// e.g. ['US': PG-13]
+			return unmodifiableMap(certifications);
 		}
 
 		public String getCollection() {
