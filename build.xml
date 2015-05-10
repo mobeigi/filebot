@@ -213,8 +213,8 @@
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
-			
-			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />	
+
+			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
 			<option value="-Dapplication.deployment=app" />
 			<option value="-Dapplication.update=auto" />
 			<option value="-Dunixfs=false" />
@@ -750,13 +750,22 @@
 
 
 	<target name="deploy-website" depends="login">
-		<!-- prepare website resources -->
+		<!-- prepare ant variables required for dynamically generated website content -->
+		<property name="dir.download" value="${dir.build}/package-source" />
+		<property name="spk.download" value="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk" />
+		<mkdir dir="${dir.download}" />
+		<get src="${spk.download}" dest="${dir.download}" usetimestamp="true" />
+
+		<checksum file="${dir.download}/filebot-${version}-noarch.spk" algorithm="MD5" property="spk.md5" />
+		<length file="${dir.download}/filebot-${version}-noarch.spk" property="spk.size" />
+
+		<!-- copy static website resources -->
 		<copy todir="${dir.dist}/website">
 			<fileset dir="${dir.website}">
+				<include name="*.html" />
+				<include name="*.php" />
 				<include name="*.json" />
 				<include name="*.xml" />
-				<include name="*.php" />
-				<include name="*.html" />
 				<include name="*.css" />
 				<include name="*.js" />
 				<include name="*.png" />
@@ -769,18 +778,21 @@
 				<include name="getting-started/**" />
 			</fileset>
 		</copy>
-
-		<!-- get MD5 sum for Synology Package -->
-		<checksum file="${dir.release}/filebot-${version}-noarch.spk" algorithm="MD5" property="spk.md5" />
-
-		<!-- replace variables for new release -->
-		<replace dir="${dir.dist}/website" encoding="utf-8" summary="yes">
-			<include name="**/*.html" />
-			<include name="**/*.php" />
-			<include name="**/*.json" />
-			<replacefilter token="@{version}" value="${version}" />
-			<replacefilter token="@{spk.md5}" value="${spk.md5}" />
-		</replace>
+		
+		<!-- copy files and resolve ant variables -->
+		<echo message="Replace Ant variables" />
+		<copy todir="${dir.dist}/website" overwrite="yes" encoding="UTF-8" verbose="true">
+			<fileset dir="${dir.website}">
+				<include name="*.html" />
+				<include name="*.php" />
+				<include name="syno/*.json" />
+			</fileset>
+			<filterset begintoken="@{" endtoken="}">
+				<propertyset>
+					<propertyref builtin="all" />
+				</propertyset>
+			</filterset>
+		</copy>
 
 		<!-- upload -->
 		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
