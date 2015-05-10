@@ -55,6 +55,7 @@ import net.filebot.cli.CmdlineOperations;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
+import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
@@ -199,6 +200,15 @@ public class Main {
 					checkUpdate();
 				} catch (Exception e) {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to check for updates", e);
+				}
+			}
+
+			// check if application help should be shown
+			if (!"skip".equals(System.getProperty("application.help"))) {
+				try {
+					checkGettingStarted();
+				} catch (Exception e) {
+					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to show Getting Started help", e);
 				}
 			}
 		} catch (Exception e) {
@@ -352,6 +362,19 @@ public class Main {
 					dialog.setVisible(true);
 				}
 			});
+		}
+	}
+
+	/**
+	 * Show Getting Started to new users
+	 */
+	private static void checkGettingStarted() throws Exception {
+		PreferencesEntry<String> started = Settings.forPackage(Main.class).entry("getting.started").defaultValue("0");
+		if ("0".equals(started.getValue())) {
+			SwingUtilities.invokeLater(() -> {
+				GettingStartedStage.start();
+			});
+			started.setValue("1");
 		}
 	}
 

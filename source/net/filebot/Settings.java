@@ -206,6 +206,10 @@ public final class Settings {
 		return null;
 	}
 
+	public static URI getEmbeddedHelpURI() {
+		return URI.create("http://www.filebot.net/getting-started/embed.html#" + getApplicationDeployment());
+	}
+
 	public static Map<String, URI> getHelpURIs() {
 		Map<String, URI> links = new LinkedHashMap<String, URI>();
 		links.put("Getting Started", URI.create("http://www.filebot.net/getting-started/"));

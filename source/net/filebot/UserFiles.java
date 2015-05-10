@@ -299,6 +299,7 @@ public class UserFiles {
 				try {
 					// initialize JavaFX
 					new javafx.embed.swing.JFXPanel();
+					javafx.application.Platform.setImplicitExit(false);
 
 					// run on FX Thread
 					FutureTask<T> task = new FutureTask<T>(c);
