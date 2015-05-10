@@ -31,6 +31,7 @@ public class GettingStartedStage {
 
 		Platform.runLater(() -> {
 			Stage stage = new Stage();
+			stage.setResizable(false);
 
 			if (isMacApp()) {
 				// Mac OS X specific configuration
@@ -40,10 +41,8 @@ public class GettingStartedStage {
 				// Windows / Linux specific configuration
 				stage.initStyle(StageStyle.UTILITY);
 				stage.initModality(Modality.NONE);
+				stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
 			}
-
-			stage.getIcons().addAll(ResourceManager.getApplicationIconURLs().stream().map((url) -> new Image(url.toString())).collect(Collectors.toList()));
-			stage.setResizable(false);
 
 			GettingStartedStage view = new GettingStartedStage(stage);
 			view.show();
