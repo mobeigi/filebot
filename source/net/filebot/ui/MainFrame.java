@@ -145,6 +145,15 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
+
+		SwingUI.installAction(this.getRootPane(), getKeyStroke(VK_F1, 0), new AbstractAction("Help") {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				GettingStartedStage.start();
+			}
+		});
+
 	}
 
 	public static PanelBuilder[] createPanelBuilders() {
