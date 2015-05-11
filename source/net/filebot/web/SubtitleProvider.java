@@ -7,11 +7,11 @@ import javax.swing.Icon;
 
 public interface SubtitleProvider {
 
-	public List<SearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception;
+	public List<SubtitleSearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception;
 
-	public List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception;
+	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, String languageName) throws Exception;
 
-	public URI getSubtitleListLink(SearchResult searchResult, String languageName);
+	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName);
 
 	public String getName();
 

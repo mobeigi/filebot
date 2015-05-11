@@ -36,7 +36,7 @@ import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.CachedResource;
 import net.filebot.web.Movie;
-import net.filebot.web.OpenSubtitlesSearchResult;
+import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
 
 import org.tukaani.xz.XZInputStream;
@@ -306,7 +306,7 @@ public class ReleaseInfo {
 		return anidbIndexResource.get();
 	}
 
-	public OpenSubtitlesSearchResult[] getOpenSubtitlesIndex() throws IOException {
+	public SubtitleSearchResult[] getOpenSubtitlesIndex() throws IOException {
 		return osdbIndexResource.get();
 	}
 
@@ -354,7 +354,7 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getProperty("url.series-mappings"));
 	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getProperty("url.thetvdb-index"));
 	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getProperty("url.anidb-index"));
-	protected final CachedResource<OpenSubtitlesSearchResult[]> osdbIndexResource = new OpenSubtitlesIndexResource(getProperty("url.osdb-index"));
+	protected final CachedResource<SubtitleSearchResult[]> osdbIndexResource = new OpenSubtitlesIndexResource(getProperty("url.osdb-index"));
 
 	protected String getProperty(String propertyName) {
 		// allow override via Java System properties
@@ -441,16 +441,16 @@ public class ReleaseInfo {
 		}
 	}
 
-	protected static class OpenSubtitlesIndexResource extends CachedResource<OpenSubtitlesSearchResult[]> {
+	protected static class OpenSubtitlesIndexResource extends CachedResource<SubtitleSearchResult[]> {
 
 		public OpenSubtitlesIndexResource(String resource) {
-			super(resource, OpenSubtitlesSearchResult[].class, ONE_MONTH); // check for updates every month
+			super(resource, SubtitleSearchResult[].class, ONE_MONTH); // check for updates every month
 		}
 
 		@Override
-		public OpenSubtitlesSearchResult[] process(ByteBuffer data) throws IOException {
+		public SubtitleSearchResult[] process(ByteBuffer data) throws IOException {
 			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
-			List<OpenSubtitlesSearchResult> result = new ArrayList<OpenSubtitlesSearchResult>(rows.size());
+			List<SubtitleSearchResult> result = new ArrayList<SubtitleSearchResult>(rows.size());
 
 			for (String[] row : rows) {
 				int imdbid = parseInt(row[0]);
@@ -458,10 +458,10 @@ public class ReleaseInfo {
 				int year = parseInt(row[2]);
 				char kind = row[3].charAt(0);
 				int score = parseInt(row[4]);
-				result.add(new OpenSubtitlesSearchResult(imdbid, name, year, kind, score));
+				result.add(new SubtitleSearchResult(imdbid, name, year, kind, score));
 			}
 
-			return result.toArray(new OpenSubtitlesSearchResult[0]);
+			return result.toArray(new SubtitleSearchResult[0]);
 		}
 	}
 

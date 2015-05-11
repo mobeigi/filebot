@@ -50,6 +50,7 @@ import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
+import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
 import net.miginfocom.swing.MigLayout;
 
@@ -218,8 +219,13 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		}
 
 		@Override
-		public Collection<SearchResult> search() throws Exception {
+		public Collection<SubtitleSearchResult> search() throws Exception {
 			return request.getProvider().search(request.getSearchText(), true, true);
+		}
+
+		@Override
+		public SubtitleSearchResult getSearchResult() {
+			return (SubtitleSearchResult) super.getSearchResult();
 		}
 
 		@Override

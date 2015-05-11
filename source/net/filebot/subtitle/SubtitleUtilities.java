@@ -42,9 +42,9 @@ import net.filebot.similarity.SimilarityMetric;
 import net.filebot.vfs.ArchiveType;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.web.Movie;
-import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
+import net.filebot.web.SubtitleSearchResult;
 
 public final class SubtitleUtilities {
 
@@ -194,28 +194,28 @@ public final class SubtitleUtilities {
 		Set<SubtitleDescriptor> subtitles = new LinkedHashSet<SubtitleDescriptor>();
 
 		// search for and automatically select movie / show entry
-		Set<SearchResult> resultSet = new HashSet<SearchResult>();
+		Set<SubtitleSearchResult> resultSet = new HashSet<SubtitleSearchResult>();
 		for (String query : querySet) {
 			resultSet.addAll(findProbableSearchResults(query, service.search(query, searchByMovie, searchBySeries), querySet.size() == 1 ? 4 : 2));
 		}
 
 		// fetch subtitles for all search results
-		for (SearchResult it : resultSet) {
+		for (SubtitleSearchResult it : resultSet) {
 			subtitles.addAll(service.getSubtitleList(it, languageName));
 		}
 
 		return subtitles;
 	}
 
-	protected static Collection<SearchResult> findProbableSearchResults(String query, Iterable<? extends SearchResult> searchResults, int limit) {
+	protected static Collection<SubtitleSearchResult> findProbableSearchResults(String query, Iterable<SubtitleSearchResult> searchResults, int limit) {
 		// auto-select most probable search result
-		Set<SearchResult> probableMatches = new LinkedHashSet<SearchResult>();
+		Set<SubtitleSearchResult> probableMatches = new LinkedHashSet<SubtitleSearchResult>();
 
 		// use name similarity metric
 		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric());
 
 		// find probable matches using name similarity > threshold
-		for (SearchResult result : searchResults) {
+		for (SubtitleSearchResult result : searchResults) {
 			if (probableMatches.size() <= limit) {
 				if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f || result.getName().toLowerCase().startsWith(query.toLowerCase())) {
 					probableMatches.add(result);

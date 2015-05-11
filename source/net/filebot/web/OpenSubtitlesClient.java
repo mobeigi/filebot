@@ -88,12 +88,12 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public synchronized List<SearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception {
+	public synchronized List<SubtitleSearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception {
 		throw new UnsupportedOperationException(); // XMLRPC::SearchMoviesOnIMDB is not allowed due to abuse
 	}
 
 	@Override
-	public synchronized List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
+	public synchronized List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, String languageName) throws Exception {
 		List<SubtitleDescriptor> subtitles = getCache().getSubtitleDescriptorList(searchResult, languageName);
 		if (subtitles != null) {
 			return subtitles;
@@ -452,7 +452,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
+	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName) {
 		Movie movie = (Movie) searchResult;
 		String sublanguageid = "all";
 

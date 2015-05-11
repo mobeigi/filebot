@@ -32,9 +32,9 @@ import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.OMDbClient;
 import net.filebot.web.OpenSubtitlesClient;
-import net.filebot.web.OpenSubtitlesSearchResult;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleProvider;
+import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TVRageClient;
 import net.filebot.web.TheTVDBClient;
@@ -179,18 +179,18 @@ public final class WebServices {
 		}
 
 		// index of local OpenSubtitles data dump
-		private static LocalSearch<SearchResult> localIndex;
+		private static LocalSearch<SubtitleSearchResult> localIndex;
 
-		public synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
+		public synchronized LocalSearch<SubtitleSearchResult> getLocalIndex() throws IOException {
 			if (localIndex == null) {
 				// fetch data dump
-				OpenSubtitlesSearchResult[] data = releaseInfo.getOpenSubtitlesIndex();
+				SubtitleSearchResult[] data = releaseInfo.getOpenSubtitlesIndex();
 
 				// index data dump
-				localIndex = new LocalSearch<SearchResult>(asList(data)) {
+				localIndex = new LocalSearch<SubtitleSearchResult>(asList(data)) {
 
 					@Override
-					protected Set<String> getFields(SearchResult object) {
+					protected Set<String> getFields(SubtitleSearchResult object) {
 						return set(object.getEffectiveNames());
 					}
 				};
@@ -200,8 +200,8 @@ public final class WebServices {
 		}
 
 		@Override
-		public synchronized List<SearchResult> search(final String query, final boolean byMovie, final boolean bySeries) throws Exception {
-			List<SearchResult> results = getLocalIndex().search(query);
+		public synchronized List<SubtitleSearchResult> search(final String query, final boolean byMovie, final boolean bySeries) throws Exception {
+			List<SubtitleSearchResult> results = getLocalIndex().search(query);
 
 			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);
 		}
