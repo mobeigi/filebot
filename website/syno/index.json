@@ -1,7 +1,7 @@
 /**
- * Just add https://packages.filebot.net/syno/ in Package Sources ;)
+ * Just add https://app.filebot.net/syno/ in Package Sources ;)
  *
- * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: https://packages.filebot.net/syno/ -> OK
+ * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: https://app.filebot.net/syno/ -> OK
  */
 [
 	{
@@ -11,8 +11,8 @@
 		"distributor_url":"http://www.filebot.net/",
 		"maintainer":"rednoah",
 		"maintainer_url":"http://www.filebot.net/",
-		"icon": "http://packages.filebot.net/syno/spk.icon.png",
-		"snapshot": [ "http://packages.filebot.net/syno/spk.snapshot.png" ],
+		"icon": "http://app.filebot.net/syno/spk.icon.png",
+		"snapshot": [ "http://app.filebot.net/syno/spk.snapshot.png" ],
 		"package": "filebot",
 		"version": "@{version}",
 		"size": @{spk.size},
