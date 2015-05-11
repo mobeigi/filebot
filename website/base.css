@@ -466,6 +466,7 @@ div.screencast:hover .play {
 	margin: 0 auto;
 	width: 750px;
 	height: 480px;
+	background-color: black;
 	border: 4px black solid;
 	box-shadow: 2px 2px 5px #a2a2a2;
 	border-radius: 4px;
