@@ -95,8 +95,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	@Override
 	public List<SubtitleSearchResult> guess(String tag) throws Exception {
 		List<SubtitleSearchResult> subtitles = getCache().getSearchResult("guess", tag);
-		System.out.println(tag);
-		System.out.println(subtitles);
 		if (subtitles != null) {
 			return subtitles;
 		}

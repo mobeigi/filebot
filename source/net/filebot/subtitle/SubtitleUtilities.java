@@ -104,8 +104,16 @@ public final class SubtitleUtilities {
 					}
 				}
 
-				if (!searchByMovie && !searchBySeries && guessSet.isEmpty())
+				// try OpenSubtitles guess function if we can't make sense of the files
+				if (!searchByMovie && !searchBySeries) {
+					for (File f : files) {
+						guessSet.addAll(service.guess(getName(f)));
+					}
+				}
+
+				if (!searchByMovie && !searchBySeries && guessSet.isEmpty()) {
 					continue;
+				}
 
 				// search for subtitles online using the auto-detected or forced query information
 				Set<SubtitleDescriptor> subtitles = findSubtitles(service, guessSet, querySet, searchByMovie, searchBySeries, languageName);
