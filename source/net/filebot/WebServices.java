@@ -7,8 +7,6 @@ import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -30,19 +28,17 @@ import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
 import net.filebot.web.LocalSearch;
-import net.filebot.web.Movie;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.OMDbClient;
 import net.filebot.web.OpenSubtitlesClient;
+import net.filebot.web.OpenSubtitlesSearchResult;
 import net.filebot.web.SearchResult;
-import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.TMDbClient;
 import net.filebot.web.TVRageClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBSearchResult;
-import net.filebot.web.TheTVDBSeriesInfo;
 import net.filebot.web.VideoHashSubtitleService;
 
 /**
@@ -62,7 +58,7 @@ public final class WebServices {
 	public static final TMDbClient TheMovieDB = new TMDbClient(getApiKey("themoviedb"));
 
 	// subtitle dbs
-	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion(), TheTVDB, TheMovieDB);
+	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion());
 
 	// misc
 	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
@@ -178,81 +174,38 @@ public final class WebServices {
 
 	public static class OpenSubtitlesClientWithLocalSearch extends OpenSubtitlesClient {
 
-		private final EpisodeListProvider seriesIndex;
-		private final MovieIdentificationService movieIndex;
-
-		public OpenSubtitlesClientWithLocalSearch(String name, String version, EpisodeListProvider seriesIndex, MovieIdentificationService movieIndex) {
+		public OpenSubtitlesClientWithLocalSearch(String name, String version) {
 			super(name, version);
-			this.seriesIndex = seriesIndex;
-			this.movieIndex = movieIndex;
+		}
+
+		// index of local OpenSubtitles data dump
+		private static LocalSearch<SearchResult> localIndex;
+
+		public synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
+			if (localIndex == null) {
+				// fetch data dump
+				OpenSubtitlesSearchResult[] data = releaseInfo.getOpenSubtitlesIndex();
+
+				// index data dump
+				localIndex = new LocalSearch<SearchResult>(asList(data)) {
+
+					@Override
+					protected Set<String> getFields(SearchResult object) {
+						return set(object.getEffectiveNames());
+					}
+				};
+			}
+
+			return localIndex;
 		}
 
 		@Override
 		public synchronized List<SearchResult> search(final String query, final boolean byMovie, final boolean bySeries) throws Exception {
-			List<Callable<List<? extends SearchResult>>> queries = new ArrayList<>(2);
-			if (byMovie) {
-				queries.add(() -> movieIndex.searchMovie(query, Locale.ENGLISH));
-			}
-			if (bySeries) {
-				queries.add(() -> seriesIndex.search(query, Locale.ENGLISH));
-			}
+			List<SearchResult> results = getLocalIndex().search(query);
 
-			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-			for (Future<List<? extends SearchResult>> resultSet : requestThreadPool.invokeAll(queries)) {
-				try {
-					results.addAll(resultSet.get());
-				} catch (ExecutionException e) {
-					if (e.getCause() instanceof Exception) {
-						throw (Exception) e.getCause(); // unwrap cause
-					}
-				}
-			}
 			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);
 		}
 
-		@Override
-		public synchronized List<SubtitleDescriptor> getSubtitleList(SearchResult searchResult, String languageName) throws Exception {
-			Movie id = getIMDbID(searchResult);
-			if (id != null) {
-				return super.getSubtitleList(getIMDbID(searchResult), languageName);
-			}
-			return emptyList();
-		}
-
-		@Override
-		public URI getSubtitleListLink(SearchResult searchResult, String languageName) {
-			try {
-				Movie id = getIMDbID(searchResult);
-				if (id != null) {
-					return super.getSubtitleListLink(id, languageName);
-				}
-			} catch (Exception e) {
-				Logger.getLogger(WebServices.class.getName()).log(Level.WARNING, e.getMessage());
-			}
-			return null;
-		}
-
-		public Movie getIMDbID(SearchResult result) throws Exception {
-			if (result instanceof TheTVDBSearchResult) {
-				TheTVDBSearchResult searchResult = (TheTVDBSearchResult) result;
-				TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) ((TheTVDBClient) seriesIndex).getSeriesInfo(searchResult, Locale.ENGLISH);
-				if (seriesInfo.getImdbId() != null) {
-					int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
-					return new Movie(seriesInfo.getName(), seriesInfo.getStartDate().getYear(), imdbId, -1);
-				}
-			}
-			if (result instanceof Movie) {
-				Movie m = (Movie) result;
-				if (m.getImdbId() > 0)
-					return m;
-
-				// fetch extended movie info
-				m = movieIndex.getMovieDescriptor(m, Locale.ENGLISH);
-				if (m.getImdbId() > 0)
-					return m;
-			}
-			return null;
-		}
 	}
 
 	/**

@@ -17,7 +17,7 @@ public abstract class SearchResult implements Serializable {
 
 	public SearchResult(String name, String[] aliasNames) {
 		this.name = name;
-		this.aliasNames = aliasNames.clone();
+		this.aliasNames = (aliasNames == null || aliasNames.length == 0) ? EMPTY_STRING_ARRAY : aliasNames.clone();
 	}
 
 	public String getName() {
@@ -56,5 +56,7 @@ public abstract class SearchResult implements Serializable {
 	public String toString() {
 		return name;
 	}
+
+	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
 }

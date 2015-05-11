@@ -36,6 +36,7 @@ import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.web.AnidbSearchResult;
 import net.filebot.web.CachedResource;
 import net.filebot.web.Movie;
+import net.filebot.web.OpenSubtitlesSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
 
 import org.tukaani.xz.XZInputStream;
@@ -305,6 +306,10 @@ public class ReleaseInfo {
 		return anidbIndexResource.get();
 	}
 
+	public OpenSubtitlesSearchResult[] getOpenSubtitlesIndex() throws IOException {
+		return osdbIndexResource.get();
+	}
+
 	private Map<Pattern, String> seriesDirectMappings;
 
 	public Map<Pattern, String> getSeriesDirectMappings() throws IOException {
@@ -349,6 +354,7 @@ public class ReleaseInfo {
 	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getProperty("url.series-mappings"));
 	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getProperty("url.thetvdb-index"));
 	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getProperty("url.anidb-index"));
+	protected final CachedResource<OpenSubtitlesSearchResult[]> osdbIndexResource = new OpenSubtitlesIndexResource(getProperty("url.osdb-index"));
 
 	protected String getProperty(String propertyName) {
 		// allow override via Java System properties
@@ -416,7 +422,7 @@ public class ReleaseInfo {
 	protected static class AnidbIndexResource extends CachedResource<AnidbSearchResult[]> {
 
 		public AnidbIndexResource(String resource) {
-			super(resource, AnidbSearchResult[].class, ONE_WEEK); // check for updates every month
+			super(resource, AnidbSearchResult[].class, ONE_WEEK); // check for updates every week
 		}
 
 		@Override
@@ -432,6 +438,30 @@ public class ReleaseInfo {
 			}
 
 			return anime.toArray(new AnidbSearchResult[0]);
+		}
+	}
+
+	protected static class OpenSubtitlesIndexResource extends CachedResource<OpenSubtitlesSearchResult[]> {
+
+		public OpenSubtitlesIndexResource(String resource) {
+			super(resource, OpenSubtitlesSearchResult[].class, ONE_MONTH); // check for updates every month
+		}
+
+		@Override
+		public OpenSubtitlesSearchResult[] process(ByteBuffer data) throws IOException {
+			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
+			List<OpenSubtitlesSearchResult> result = new ArrayList<OpenSubtitlesSearchResult>(rows.size());
+
+			for (String[] row : rows) {
+				int imdbid = parseInt(row[0]);
+				String name = row[1];
+				int year = parseInt(row[2]);
+				char kind = row[3].charAt(0);
+				int score = parseInt(row[4]);
+				result.add(new OpenSubtitlesSearchResult(imdbid, name, year, kind, score));
+			}
+
+			return result.toArray(new OpenSubtitlesSearchResult[0]);
 		}
 	}
 

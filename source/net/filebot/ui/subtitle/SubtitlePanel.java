@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +46,6 @@ import net.filebot.ui.SelectDialog;
 import net.filebot.util.ui.LabelProvider;
 import net.filebot.util.ui.LinkButton;
 import net.filebot.util.ui.SimpleLabelProvider;
-import net.filebot.web.Movie;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
 import net.filebot.web.SubtitleDescriptor;
@@ -152,12 +149,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	};
 
 	protected Collection<String> getHistory(SubtitleProvider engine) throws Exception {
-		final Set<String> names = new TreeSet<String>();
-		for (Movie it : MediaDetection.releaseInfo.getMovieList()) {
-			names.add(it.getName());
-		}
-		for (SearchResult it : MediaDetection.releaseInfo.getTheTVDBIndex()) {
-			names.add(it.getName());
+		List<String> names = new ArrayList<String>();
+		for (SearchResult it : MediaDetection.releaseInfo.getOpenSubtitlesIndex()) {
+			names.addAll(it.getEffectiveNames());
 		}
 		return names;
 	};
