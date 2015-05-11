@@ -22,9 +22,13 @@
                 { link: 'https://www.youtube.com/watch?v=btNSv7AnMMw&index=2&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/episodes.png', thumb: 'images/episodes.thumb.png' },
                 { link: 'https://www.youtube.com/watch?v=q-oZ_hovsTY&index=3&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/subtitle-hash-lookup.png', thumb: 'images/subtitle-hash-lookup.thumb.png' },
                 { link: 'https://www.youtube.com/watch?v=R80tKtHf4zw&index=4&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/subtitle-search.png', thumb: 'images/subtitle-search.thumb.png' },
-                { link: 'https://www.youtube.com/watch?v=4KWkSPr3fQY&index=5&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' },
-                { image: 'images/permissions.png', thumb: 'images/permissions.thumb.png' }
+                { link: 'https://www.youtube.com/watch?v=4KWkSPr3fQY&index=5&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' }
             ];
+
+            if (location.hash == '#mas') {
+                data.splice(1, 0, { image: 'images/permissions.png', thumb: 'images/permissions.thumb.png' })
+            }
+
             Galleria.run('.galleria', {
                 dataSource: data,
                 maxScaleRatio: 1,
