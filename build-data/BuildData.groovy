@@ -1,7 +1,11 @@
+#!/usr/bin/env filebot -script
+
 import org.tukaani.xz.*
 
 /* ------------------------------------------------------------------------- */
 
+def dir_website = "../website"
+def dir_data    = "${dir_website}/data"
 
 def sortRegexList(path) {
 	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
@@ -13,13 +17,12 @@ def sortRegexList(path) {
 	println "${out}\n${out.text}\n"
 }
 
-
 // sort and check shared regex collections
-sortRegexList("website/data/release-groups.txt")
-sortRegexList("website/data/query-blacklist.txt")
-sortRegexList("website/data/exclude-blacklist.txt")
-sortRegexList("website/data/series-mappings.txt")
-sortRegexList("website/data/add-series-alias.txt")
+sortRegexList("${dir_data}/release-groups.txt")
+sortRegexList("${dir_data}/query-blacklist.txt")
+sortRegexList("${dir_data}/exclude-blacklist.txt")
+sortRegexList("${dir_data}/series-mappings.txt")
+sortRegexList("${dir_data}/add-series-alias.txt")
 
 
 /* ------------------------------------------------------------------------- */
@@ -34,17 +37,17 @@ reviews = reviews.sort{ it.date }
 
 def json = new groovy.json.JsonBuilder()
 json.call(reviews as List)
-json.toPrettyString().saveAs('website/reviews.json')
+json.toPrettyString().saveAs("${dir_website}/reviews.json")
 println "Reviews: " + reviews.size()
 
 
 /* ------------------------------------------------------------------------- */
 
 
-def moviedb_out = new File("website/data/moviedb.txt")
-def thetvdb_out = new File("website/data/thetvdb.txt")
-def anidb_out   = new File("website/data/anidb.txt")
-def osdb_out   = new File("website/data/osdb.txt")
+def moviedb_out = new File("${dir_data}/moviedb.txt")
+def thetvdb_out = new File("${dir_data}/thetvdb.txt")
+def anidb_out   = new File("${dir_data}/anidb.txt")
+def osdb_out    = new File("${dir_data}/osdb.txt")
 
 
 def pack(file, lines) {
@@ -304,7 +307,7 @@ tvdb.values().each{ r ->
 }
 
 // additional custom mappings
-new File('website/data/add-series-alias.txt').splitEachLine(/\t+/, 'UTF-8') { row ->
+new File("${dir_data}/add-series-alias.txt").splitEachLine(/\t+/, 'UTF-8') { row ->
 	def se = thetvdb_index.find{ row[0] == it[1] && !it.contains(row[1]) }
 	if (se == null) die("Unabled to find series '${row[0]}': '${row[1]}'")
 	thetvdb_index << [se[0], row[1]]
