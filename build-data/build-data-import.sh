@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# initialize dump files if necessary
 for DUMP in "omdb.zip" "tvdb.zip" "anidb.gz" "osdb.gz"
 do
 	if [ ! -f "$DUMP" ]; then
@@ -8,7 +9,7 @@ do
 done
 
 echo 'Fetch OMDB dump'
-if test "`find omdb.zip -mtime +20`"; then
+if test "`find omdb.zip -mtime +30`"; then
     curl -L -o omdb.zip -z omdb.zip "http://beforethecode.com/projects/omdb/download.aspx?e=reinhard.pointner%40gmail.com&tsv=movies"
     unzip -o omdb.zip
 fi
@@ -22,10 +23,11 @@ fi
 echo 'Fetch AniDB dump'
 if test "`find anidb.gz -mtime +5`"; then
     curl -L -o anidb.gz -z anidb.gz "http://anidb.net/api/anime-titles.dat.gz"
+    gunzip -c anidb.gz > anidb.txt
 fi
 
 echo 'Fetch OSDB dump'
-if test "`find osdb.gz -mtime +20`"; then
+if test "`find osdb.gz -mtime +30`"; then
     curl -L -o osdb.gz -z osdb.gz "http://www.opensubtitles.org/addons/export_movie.php" -sH 'Accept-encoding: gzip'
     gunzip -c osdb.gz > osdb.txt
 fi
