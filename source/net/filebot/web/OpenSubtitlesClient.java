@@ -88,7 +88,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public synchronized List<SubtitleSearchResult> search(String query, boolean byMovie, boolean bySeries) throws Exception {
+	public synchronized List<SubtitleSearchResult> search(String query) throws Exception {
 		throw new UnsupportedOperationException(); // XMLRPC::SearchMoviesOnIMDB is not allowed due to abuse
 	}
 

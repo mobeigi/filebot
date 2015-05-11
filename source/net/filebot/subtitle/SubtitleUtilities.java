@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import net.filebot.Language;
 import net.filebot.similarity.EpisodeMetrics;
@@ -196,7 +197,12 @@ public final class SubtitleUtilities {
 		// search for and automatically select movie / show entry
 		Set<SubtitleSearchResult> resultSet = new HashSet<SubtitleSearchResult>();
 		for (String query : querySet) {
-			resultSet.addAll(findProbableSearchResults(query, service.search(query, searchByMovie, searchBySeries), querySet.size() == 1 ? 4 : 2));
+			// search and filter by movie/series as required
+			Stream<SubtitleSearchResult> searchResults = service.search(query).stream().filter((it) -> {
+				return (searchByMovie && it.isMovie()) || (searchBySeries && it.isSeries());
+			});
+
+			resultSet.addAll(findProbableSearchResults(query, searchResults::iterator, querySet.size() == 1 ? 4 : 2));
 		}
 
 		// fetch subtitles for all search results

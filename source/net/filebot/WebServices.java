@@ -200,7 +200,7 @@ public final class WebServices {
 		}
 
 		@Override
-		public synchronized List<SubtitleSearchResult> search(final String query, final boolean byMovie, final boolean bySeries) throws Exception {
+		public synchronized List<SubtitleSearchResult> search(final String query) throws Exception {
 			List<SubtitleSearchResult> results = getLocalIndex().search(query);
 
 			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);

@@ -25,4 +25,12 @@ public class SubtitleSearchResult extends Movie {
 		return score;
 	}
 
+	public boolean isMovie() {
+		return kind == KIND_MOVIE;
+	}
+
+	public boolean isSeries() {
+		return kind == KIND_SERIES;
+	}
+
 }
