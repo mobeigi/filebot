@@ -4,7 +4,7 @@
 for DUMP in "omdb.zip" "tvdb.zip" "anidb.gz" "osdb.gz"
 do
 	if [ ! -f "$DUMP" ]; then
-		touch -a -m -t 197001010000.00 "$DUMP"
+		touch -a -m -d '1970-01-01 0:00:00' "$DUMP"
 	fi
 done
 
