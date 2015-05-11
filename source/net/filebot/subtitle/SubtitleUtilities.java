@@ -65,7 +65,7 @@ public final class SubtitleUtilities {
 					throw new InterruptedException();
 
 				// auto-detect query and search for subtitles
-				Collection<SubtitleSearchResult> guessSet = new LinkedHashSet<SubtitleSearchResult>();
+				Collection<SubtitleSearchResult> selection = new LinkedHashSet<SubtitleSearchResult>();
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 				List<File> files = bySeries.getValue();
 
@@ -104,19 +104,28 @@ public final class SubtitleUtilities {
 					}
 				}
 
-				// try OpenSubtitles guess function if we can't make sense of the files
-				if (!searchByMovie && !searchBySeries) {
+				if (searchByMovie || searchBySeries) {
+					selection.addAll(findProbableSearchResults(service, querySet, searchByMovie, searchBySeries));
+				}
+
+				// try OpenSubtitles guess function if we can't make sense of the files using local search
+				if (selection.isEmpty()) {
 					for (File f : files) {
-						guessSet.addAll(service.guess(getName(f)));
+						selection.addAll(service.guess(getName(f)));
 					}
 				}
 
-				if (!searchByMovie && !searchBySeries && guessSet.isEmpty()) {
+				if (selection.isEmpty()) {
 					continue;
 				}
 
 				// search for subtitles online using the auto-detected or forced query information
-				Set<SubtitleDescriptor> subtitles = findSubtitles(service, guessSet, querySet, searchByMovie, searchBySeries, languageName);
+				Set<SubtitleDescriptor> subtitles = new LinkedHashSet<SubtitleDescriptor>();
+
+				// fetch subtitles for all search results
+				for (SubtitleSearchResult it : selection) {
+					subtitles.addAll(service.getSubtitleList(it, languageName));
+				}
 
 				// allow early abort
 				if (Thread.interrupted())
@@ -199,35 +208,7 @@ public final class SubtitleUtilities {
 		return subtitleByVideo;
 	}
 
-	public static Set<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<SubtitleSearchResult> guessSet, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
-		Set<SubtitleDescriptor> subtitles = new LinkedHashSet<SubtitleDescriptor>();
-
-		// search for and automatically select movie / show entry
-		Set<SubtitleSearchResult> resultSet = new LinkedHashSet<SubtitleSearchResult>();
-
-		// add known results first
-		resultSet.addAll(guessSet);
-
-		resultSet.addAll(findProbableSearchResults(service, querySet, searchByMovie, searchBySeries, languageName));
-
-		for (String query : querySet) {
-			// search and filter by movie/series as required
-			Stream<SubtitleSearchResult> searchResults = service.search(query).stream().filter((it) -> {
-				return (searchByMovie && it.isMovie()) || (searchBySeries && it.isSeries());
-			});
-
-			resultSet.addAll(filterProbableSearchResults(query, searchResults::iterator, querySet.size() == 1 ? 4 : 2));
-		}
-
-		// fetch subtitles for all search results
-		for (SubtitleSearchResult it : resultSet) {
-			subtitles.addAll(service.getSubtitleList(it, languageName));
-		}
-
-		return subtitles;
-	}
-
-	protected static List<SubtitleSearchResult> findProbableSearchResults(SubtitleProvider service, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
+	protected static List<SubtitleSearchResult> findProbableSearchResults(SubtitleProvider service, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries) throws Exception {
 		// search for and automatically select movie / show entry
 		List<SubtitleSearchResult> resultSet = new ArrayList<SubtitleSearchResult>();
 
