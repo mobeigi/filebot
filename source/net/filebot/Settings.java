@@ -199,25 +199,30 @@ public final class Settings {
 
 	public static URI getAppStoreURI() {
 		if (isMacApp())
-			return URI.create("macappstore://itunes.apple.com/app/id905384638");
+			return getApplicationLink("link.mas");
 		if (isUbuntuApp())
-			return URI.create("apt://filebot");
+			return getApplicationLink("link.usc");
 
 		return null;
 	}
 
-	public static URI getEmbeddedHelpURI() {
-		return URI.create("http://www.filebot.net/getting-started/embed.html#" + getApplicationDeployment());
+	public static String getEmbeddedHelpURI() {
+		// add #hash so we can dynamically adjust the slides for the various platforms via JavaScript
+		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();
 	}
 
 	public static Map<String, URI> getHelpURIs() {
 		Map<String, URI> links = new LinkedHashMap<String, URI>();
-		links.put("Getting Started", URI.create("http://www.filebot.net/getting-started/"));
-		links.put("FAQ", URI.create("https://www.filebot.net/forums/viewtopic.php?f=3&t=7"));
-		links.put("Forums", URI.create("https://www.filebot.net/forums/"));
-		links.put("Twitter", URI.create("https://twitter.com/filebot_renamer"));
-		links.put("Request Help", URI.create(isMacApp() ? "https://www.filebot.net/forums/viewforum.php?f=12" : "https://www.filebot.net/forums/viewforum.php?f=8"));
+		links.put("Getting Started", getApplicationLink("link.intro"));
+		links.put("FAQ", getApplicationLink("link.faq"));
+		links.put("Forums", getApplicationLink("link.forums"));
+		links.put("Twitter", getApplicationLink("link.twitter"));
+		links.put("Request Help", getApplicationLink(isMacApp() && isAppStore() ? "link.help.mas" : "link.help"));
 		return links;
+	}
+
+	public static URI getApplicationLink(String key) {
+		return URI.create(getApplicationProperty(key));
 	}
 
 	public static Settings forPackage(Class<?> type) {
