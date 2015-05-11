@@ -33,3 +33,5 @@ if [ ! -f "$DUMP" ] || test "`find $DUMP -mtime +30`"; then
     curl -L -o "$DUMP" -z "$DUMP" "$LINK"
     unzip -o "$DUMP"
 fi
+
+echo 'DONE'
