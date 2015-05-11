@@ -28,8 +28,19 @@ public class OpenSubtitlesXmlRpcTest {
 	}
 
 	@Test
+	public void guessMovie() throws Exception {
+		Map<String, List<SubtitleSearchResult>> results = xmlrpc.guessMovie(singleton("himym.s13.e12"));
+		SubtitleSearchResult result = results.get("himym.s13.e12").get(0);
+
+		assertEquals(460649, result.getImdbId());
+		assertEquals("How I Met Your Mother", result.getName());
+		assertEquals(2005, result.getYear());
+		assertEquals("Series", result.getKind().toString());
+	}
+
+	@Test
 	public void search() throws Exception {
-		List<Movie> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
+		List<SubtitleSearchResult> list = xmlrpc.searchMoviesOnIMDB("babylon 5");
 		Movie sample = list.get(0);
 
 		// check sample entry
@@ -40,7 +51,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void searchOST() throws Exception {
-		List<Movie> list = xmlrpc.searchMoviesOnIMDB("Linkin.Park.New.Divide.1280-720p.Transformers.Revenge.of.the.Fallen.ost");
+		List<SubtitleSearchResult> list = xmlrpc.searchMoviesOnIMDB("Linkin.Park.New.Divide.1280-720p.Transformers.Revenge.of.the.Fallen.ost");
 
 		// seek to OST entry, expect to fail
 		for (int i = 0; !list.get(i).getName().contains("Linkin.Park"); i++)

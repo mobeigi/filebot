@@ -60,6 +60,7 @@ import net.filebot.util.ui.EmptySelectionModel;
 import net.filebot.web.Movie;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
+import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.TheTVDBSeriesInfo;
 import net.filebot.web.VideoHashSubtitleService.CheckResult;
@@ -163,7 +164,7 @@ public class SubtitleUploadDialog extends JDialog {
 					File video = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
 					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(FileUtilities.getName(video)), String.format("%s/%s", video.getParentFile().getName(), video.getName()), SubtitleUploadDialog.this);
 					if (input != null && input.length() > 0) {
-						List<Movie> options = database.searchIMDB(input);
+						List<SubtitleSearchResult> options = database.searchIMDB(input);
 						if (options.size() > 0) {
 							SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
 							dialog.setLocation(getOffsetLocation(dialog.getOwner()));

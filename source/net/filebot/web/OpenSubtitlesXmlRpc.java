@@ -112,11 +112,11 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Movie> searchMoviesOnIMDB(String query) throws XmlRpcFault {
+	public List<SubtitleSearchResult> searchMoviesOnIMDB(String query) throws XmlRpcFault {
 		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 
 		List<Map<String, String>> movieData = (List<Map<String, String>>) response.get("data");
-		List<Movie> movies = new ArrayList<Movie>();
+		List<SubtitleSearchResult> movies = new ArrayList<SubtitleSearchResult>();
 
 		// title pattern
 		Pattern pattern = Pattern.compile("(.+)[(](\\d{4})([/]I+)?[)]");
@@ -135,7 +135,7 @@ public class OpenSubtitlesXmlRpc {
 				String name = matcher.group(1).replaceAll("\"", "").trim();
 				int year = Integer.parseInt(matcher.group(2));
 
-				movies.add(new Movie(name, year, Integer.parseInt(imdbid), -1));
+				movies.add(new SubtitleSearchResult(Integer.parseInt(imdbid), name, year, null, -1));
 			} catch (Exception e) {
 				Logger.getLogger(OpenSubtitlesXmlRpc.class.getName()).log(Level.FINE, String.format("Ignore movie [%s]: %s", movie, e.getMessage()));
 			}
@@ -231,6 +231,37 @@ public class OpenSubtitlesXmlRpc {
 		}
 
 		return subHashMap;
+	}
+
+	public Map<String, List<SubtitleSearchResult>> guessMovie(Collection<String> tags) throws XmlRpcFault {
+		Map<String, List<SubtitleSearchResult>> results = new HashMap<String, List<SubtitleSearchResult>>();
+
+		Map<?, ?> response = invoke("GuessMovie", token, tags);
+		Object payload = response.get("data");
+
+		if (payload instanceof Map) {
+			Map<String, List<Map<String, ?>>> guessMovieData = (Map<String, List<Map<String, ?>>>) payload;
+
+			for (String tag : tags) {
+				List<SubtitleSearchResult> value = new ArrayList<>();
+
+				List<Map<String, ?>> matches = guessMovieData.get(tag);
+				if (matches != null) {
+					for (Map<String, ?> match : matches) {
+						String name = String.valueOf(match.get("MovieName"));
+						String kind = String.valueOf(match.get("MovieKind"));
+						int imdbid = Integer.parseInt(String.valueOf(match.get("IDMovieIMDB")));
+						int year = Integer.parseInt(String.valueOf(match.get("MovieYear")));
+						int score = Integer.parseInt(String.valueOf(match.get("score")));
+						value.add(new SubtitleSearchResult(imdbid, name, year, kind, score));
+					}
+				}
+
+				results.put(tag, value);
+			}
+		}
+
+		return results;
 	}
 
 	@SuppressWarnings("unchecked")

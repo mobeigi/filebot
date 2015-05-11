@@ -9,6 +9,8 @@ public interface SubtitleProvider {
 
 	public List<SubtitleSearchResult> search(String query) throws Exception;
 
+	public List<SubtitleSearchResult> guess(String tag) throws Exception;
+
 	public List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, String languageName) throws Exception;
 
 	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName);

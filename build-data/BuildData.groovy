@@ -4,7 +4,8 @@ import org.tukaani.xz.*
 
 /* ------------------------------------------------------------------------- */
 
-def dir_website = "../website"
+def dir_root    = ".."
+def dir_website = "${dir_root}/website"
 def dir_data    = "${dir_website}/data"
 
 def sortRegexList(path) {
@@ -29,7 +30,7 @@ sortRegexList("${dir_data}/add-series-alias.txt")
 
 
 def reviews = []
-new File('reviews.csv').eachLine('UTF-8'){
+new File("${dir_root}/reviews.csv").eachLine('UTF-8'){
 	def s = it.split(';', 3)
 	reviews << [user: s[0], date: s[1], text: s[2].replaceAll(/^\"|\"$/, '').replaceAll(/["]{2}/, '"') ]
 }
@@ -58,7 +59,7 @@ def pack(file, lines) {
 	}
 	def rows = lines.size()
 	def columns = lines.collect{ it.split(/\t/).length }.max()
-	println "$file ($rows rows, $columns columns)"
+	println "${file.canonicalFile} ($rows rows, $columns columns)"
 }
 
 
@@ -119,7 +120,7 @@ new File('osdb.txt').eachLine('UTF-8'){
 	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
 	if (fields.size() == 6 && fields[1] ==~ /\d+/ && fields[3] ==~ /\d{4}/) {
 		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 100) {
-			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /movie/ ? 's' : '?', fields[5] as int]	
+			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', fields[5] as int]	
 		}
 	}
 }
@@ -137,7 +138,7 @@ pack(osdb_out, osdb*.join('\t'))
 
 // BUILD moviedb index
 def omdb = []
-new File('omdb.txt').eachLine('Windows-1252'){
+new File('omdbMovies.txt').eachLine('Windows-1252'){
 	def line = it.split(/\t/)
 	if (line.length > 11 && line[0] ==~ /\d+/ && line[3] ==~ /\d{4}/) {
 		def imdbid = line[1].substring(2).toInteger()

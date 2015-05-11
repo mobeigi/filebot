@@ -456,7 +456,7 @@ public class ReleaseInfo {
 				int imdbid = parseInt(row[0]);
 				String name = row[1];
 				int year = parseInt(row[2]);
-				char kind = row[3].charAt(0);
+				String kind = row[3];
 				int score = parseInt(row[4]);
 				result.add(new SubtitleSearchResult(imdbid, name, year, kind, score));
 			}

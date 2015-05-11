@@ -4,20 +4,36 @@ import java.util.Locale;
 
 public class SubtitleSearchResult extends Movie {
 
-	public static final char KIND_MOVIE = 'm';
-	public static final char KIND_SERIES = 's';
+	enum Kind {
+		Movie, Series, Other, Unkown;
 
-	private char kind;
+		public static Kind forName(String s) {
+			if (s == null || s.isEmpty())
+				return Unkown;
+			else if (s.equalsIgnoreCase("m") || s.equalsIgnoreCase("movie"))
+				return Movie;
+			if (s.equalsIgnoreCase("s") || s.equalsIgnoreCase("tv series"))
+				return Series;
+			else
+				return Other;
+		}
+	}
+
+	private Kind kind;
 	private int score;
 
-	public SubtitleSearchResult(int imdbId, String name, int year, char kind, int score) {
-		super(name, null, year, imdbId, -1, Locale.ENGLISH);
+	public SubtitleSearchResult(int imdbId, String name, int year, String kind, int score) {
+		this(name, null, year, imdbId, -1, Locale.ENGLISH, Kind.forName(kind), score);
+	}
+
+	public SubtitleSearchResult(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale, Kind kind, int score) {
+		super(name, aliasNames, year, imdbId, tmdbId, locale);
 
 		this.kind = kind;
 		this.score = score;
 	}
 
-	public char getKind() {
+	public Kind getKind() {
 		return kind;
 	}
 
@@ -26,11 +42,11 @@ public class SubtitleSearchResult extends Movie {
 	}
 
 	public boolean isMovie() {
-		return kind == KIND_MOVIE;
+		return kind == Kind.Movie;
 	}
 
 	public boolean isSeries() {
-		return kind == KIND_SERIES;
+		return kind == Kind.Series;
 	}
 
 }

@@ -93,6 +93,25 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
+	public List<SubtitleSearchResult> guess(String tag) throws Exception {
+		List<SubtitleSearchResult> subtitles = getCache().getSearchResult("guess", tag);
+		System.out.println(tag);
+		System.out.println(subtitles);
+		if (subtitles != null) {
+			return subtitles;
+		}
+
+		// require login
+		login();
+
+		subtitles = xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList());
+		System.out.println(subtitles);
+
+		getCache().putSearchResult("guess", tag, subtitles);
+		return subtitles;
+	}
+
+	@Override
 	public synchronized List<SubtitleDescriptor> getSubtitleList(SubtitleSearchResult searchResult, String languageName) throws Exception {
 		List<SubtitleDescriptor> subtitles = getCache().getSubtitleDescriptorList(searchResult, languageName);
 		if (subtitles != null) {
@@ -350,11 +369,11 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		throw new UnsupportedOperationException();
 	}
 
-	public synchronized List<Movie> searchIMDB(String query) throws Exception {
+	public synchronized List<SubtitleSearchResult> searchIMDB(String query) throws Exception {
 		// search for movies and series
-		List<SearchResult> result = getCache().getSearchResult("search", query, null);
+		List<SubtitleSearchResult> result = getCache().getSearchResult("search", query);
 		if (result != null) {
-			return (List) result;
+			return (List<SubtitleSearchResult>) result;
 		}
 
 		// require login
@@ -362,15 +381,14 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		try {
 			// search for movies / series
-			List<Movie> resultSet = xmlrpc.searchMoviesOnIMDB(query);
-			result = asList(resultSet.toArray(new SearchResult[0]));
+			result = xmlrpc.searchMoviesOnIMDB(query);
 		} catch (ClassCastException e) {
 			// unexpected xmlrpc responses (e.g. error messages instead of results) will trigger this
 			throw new XmlRpcException("Illegal XMLRPC response on searchMoviesOnIMDB");
 		}
 
-		getCache().putSearchResult("search", query, null, result);
-		return (List) result;
+		getCache().putSearchResult("search", query, result);
+		return result;
 	}
 
 	@Override
@@ -608,9 +626,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			return query == null ? null : query.trim().toLowerCase();
 		}
 
-		public <T extends SearchResult> List<T> putSearchResult(String method, String query, Locale locale, List<T> value) {
+		public <T extends SubtitleSearchResult> List<T> putSearchResult(String method, String query, List<T> value) {
 			try {
-				cache.put(new Key(id, normalize(query)), value.toArray(new SearchResult[0]));
+				cache.put(new Key(id, method, normalize(query)), value.toArray(new SubtitleSearchResult[0]));
 			} catch (Exception e) {
 				Logger.getLogger(OpenSubtitlesClient.class.getName()).log(Level.WARNING, e.getMessage());
 			}
@@ -619,9 +637,9 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 
 		@SuppressWarnings("unchecked")
-		public List<SearchResult> getSearchResult(String method, String query, Locale locale) {
+		public List<SubtitleSearchResult> getSearchResult(String method, String query) {
 			try {
-				SearchResult[] array = cache.get(new Key(id, normalize(query)), SearchResult[].class);
+				SubtitleSearchResult[] array = cache.get(new Key(id, method, normalize(query)), SubtitleSearchResult[].class);
 				if (array != null) {
 					return Arrays.asList(array);
 				}

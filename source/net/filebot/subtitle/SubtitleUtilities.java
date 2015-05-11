@@ -17,7 +17,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -66,6 +65,7 @@ public final class SubtitleUtilities {
 					throw new InterruptedException();
 
 				// auto-detect query and search for subtitles
+				Collection<SubtitleSearchResult> guessSet = new LinkedHashSet<SubtitleSearchResult>();
 				Collection<String> querySet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 				List<File> files = bySeries.getValue();
 
@@ -104,11 +104,11 @@ public final class SubtitleUtilities {
 					}
 				}
 
-				if (!searchByMovie && !searchBySeries)
+				if (!searchByMovie && !searchBySeries && guessSet.isEmpty())
 					continue;
 
 				// search for subtitles online using the auto-detected or forced query information
-				Set<SubtitleDescriptor> subtitles = findSubtitles(service, querySet, searchByMovie, searchBySeries, languageName);
+				Set<SubtitleDescriptor> subtitles = findSubtitles(service, guessSet, querySet, searchByMovie, searchBySeries, languageName);
 
 				// allow early abort
 				if (Thread.interrupted())
@@ -191,18 +191,24 @@ public final class SubtitleUtilities {
 		return subtitleByVideo;
 	}
 
-	public static Set<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
+	public static Set<SubtitleDescriptor> findSubtitles(SubtitleProvider service, Collection<SubtitleSearchResult> guessSet, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
 		Set<SubtitleDescriptor> subtitles = new LinkedHashSet<SubtitleDescriptor>();
 
 		// search for and automatically select movie / show entry
-		Set<SubtitleSearchResult> resultSet = new HashSet<SubtitleSearchResult>();
+		Set<SubtitleSearchResult> resultSet = new LinkedHashSet<SubtitleSearchResult>();
+
+		// add known results first
+		resultSet.addAll(guessSet);
+
+		resultSet.addAll(findProbableSearchResults(service, querySet, searchByMovie, searchBySeries, languageName));
+
 		for (String query : querySet) {
 			// search and filter by movie/series as required
 			Stream<SubtitleSearchResult> searchResults = service.search(query).stream().filter((it) -> {
 				return (searchByMovie && it.isMovie()) || (searchBySeries && it.isSeries());
 			});
 
-			resultSet.addAll(findProbableSearchResults(query, searchResults::iterator, querySet.size() == 1 ? 4 : 2));
+			resultSet.addAll(filterProbableSearchResults(query, searchResults::iterator, querySet.size() == 1 ? 4 : 2));
 		}
 
 		// fetch subtitles for all search results
@@ -213,9 +219,24 @@ public final class SubtitleUtilities {
 		return subtitles;
 	}
 
-	protected static Collection<SubtitleSearchResult> findProbableSearchResults(String query, Iterable<SubtitleSearchResult> searchResults, int limit) {
+	protected static List<SubtitleSearchResult> findProbableSearchResults(SubtitleProvider service, Collection<String> querySet, boolean searchByMovie, boolean searchBySeries, String languageName) throws Exception {
+		// search for and automatically select movie / show entry
+		List<SubtitleSearchResult> resultSet = new ArrayList<SubtitleSearchResult>();
+
+		for (String query : querySet) {
+			// search and filter by movie/series as required
+			Stream<SubtitleSearchResult> searchResults = service.search(query).stream().filter((it) -> {
+				return (searchByMovie && it.isMovie()) || (searchBySeries && it.isSeries());
+			});
+
+			resultSet.addAll(filterProbableSearchResults(query, searchResults::iterator, querySet.size() == 1 ? 4 : 2));
+		}
+		return resultSet;
+	}
+
+	protected static List<SubtitleSearchResult> filterProbableSearchResults(String query, Iterable<SubtitleSearchResult> searchResults, int limit) {
 		// auto-select most probable search result
-		Set<SubtitleSearchResult> probableMatches = new LinkedHashSet<SubtitleSearchResult>();
+		List<SubtitleSearchResult> probableMatches = new ArrayList<SubtitleSearchResult>();
 
 		// use name similarity metric
 		SimilarityMetric metric = new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric());
