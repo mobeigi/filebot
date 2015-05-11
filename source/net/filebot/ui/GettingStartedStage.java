@@ -3,13 +3,13 @@ package net.filebot.ui;
 import static net.filebot.Settings.*;
 
 import java.awt.Desktop;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
-import javafx.concurrent.Worker.State;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -18,7 +18,6 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.filebot.Main;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 
@@ -55,35 +54,33 @@ public class GettingStartedStage {
 		this.stage = stage;
 
 		WebView webview = new WebView();
-		webview.getEngine().load(Settings.getEmbeddedHelpURI().toString());
+		webview.getEngine().load(Settings.getEmbeddedHelpURI());
 		webview.setPrefSize(750, 480);
 
 		// intercept target _blank click events and open links in a new browser window
 		webview.getEngine().setCreatePopupHandler((config) -> onPopup(webview));
 
-		webview.getEngine().getLoadWorker().stateProperty().addListener((value, oldState, newState) -> {
-			if (newState == State.SUCCEEDED) {
-				Platform.runLater(() -> {
-					stage.setOpacity(1);
-					stage.show();
-					stage.toFront();
-					stage.requestFocus();
-				});
-			} else {
-				Platform.runLater(() -> {
-					stage.hide();
-				});
-			}
-		});
-
 		stage.setTitle("Getting Started");
 		stage.setScene(new Scene(webview, webview.getPrefWidth(), webview.getPrefHeight(), Color.BLACK));
+
+		// force black background while page is loading
+		setBackground(webview.getEngine(), 0xFF000000);
 	}
 
 	public void show() {
-		stage.setOpacity(0);
 		stage.show();
-		stage.toBack();
+	}
+
+	protected void setBackground(WebEngine engine, int color) {
+		try {
+			// use reflection to retrieve the WebEngine's private 'page' field
+			Field f = engine.getClass().getDeclaredField("page");
+			f.setAccessible(true);
+			com.sun.webkit.WebPage page = (com.sun.webkit.WebPage) f.get(engine);
+			page.setBackgroundColor(color);
+		} catch (Exception e) {
+			Logger.getLogger(GettingStartedStage.class.getName()).log(Level.WARNING, "Failed to set background", e);
+		}
 	}
 
 	protected WebEngine onPopup(WebView webview) {
@@ -93,7 +90,7 @@ public class GettingStartedStage {
 		try {
 			Desktop.getDesktop().browse(new URI(link.toString()));
 		} catch (Exception e) {
-			Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to browse URI", e);
+			Logger.getLogger(GettingStartedStage.class.getName()).log(Level.WARNING, "Failed to browse URI", e);
 		}
 
 		// prevent current web view from opening the link
