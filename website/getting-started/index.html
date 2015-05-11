@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
         <script src="galleria/galleria-1.4.2.min.js"></script>
         <script src="galleria/themes/classic/galleria.classic.min.js"></script>
         <link rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
         <style>
-            body{ margin: 0; padding: 0; }
+            body{ margin: 0; padding: 0; background: #000; }
             div.galleria{ width: 100%; height: 100%; background: #000; position: absolute; top: 0; bottom: 0; }
             div.galleria-thumbnails { margin: auto;}
         </style>
@@ -24,6 +24,7 @@
                 { video: 'http://www.youtube.com/watch?v=R80tKtHf4zw', image: 'images/subtitle-search.png', thumb: 'images/subtitle-search.thumb.png' },
                 { video: 'http://www.youtube.com/watch?v=4KWkSPr3fQY', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' }
             ];
+
             Galleria.run('.galleria', {
                 dataSource: data,
                 maxScaleRatio: 1,
