@@ -120,13 +120,17 @@ new File('osdb.txt').eachLine('UTF-8'){
 	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
 	if (fields.size() == 6 && fields[1] ==~ /\d+/ && fields[3] ==~ /\d{4}/) {
 		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 100) {
-			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', 0]	
+			// 0 imdbid, 1 name, 2 year, 3 kind, 4 priority
+			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', fields[5] as int]
 		}
 	}
 }
 
-// 0 imdbid, 1 name, 2 year, 3 kind, 4 priority
-osdb = osdb.sort{ it[4] }
+// sort reverse by score
+osdb.sort{ a, b -> b[4] <=> a[4] }
+
+// reset score/priority because it's currently not used
+osdb*.set(4, 0)
 
 // sanity check
 if (osdb.size() < 30000) { die('OSDB index sanity failed:' + osdb.size()) }
