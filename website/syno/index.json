@@ -3,24 +3,29 @@
  *
  * Package Center -> Settings -> Package Sources -> Add -> Name: FileBot and Location: https://app.filebot.net/syno/ -> OK
  */
-[
-	{
-		"dname": "FileBot",
-		"desc": "FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works.",
-		"distributor":"FileBot",
-		"distributor_url":"http://www.filebot.net/",
-		"maintainer":"rednoah",
-		"maintainer_url":"http://www.filebot.net/",
-		"icon": "http://app.filebot.net/syno/spk.icon.png",
-		"snapshot": [ "http://app.filebot.net/syno/spk.snapshot.png" ],
-		"package": "filebot",
-		"version": "@{version}",
-		"size": @{spk.size},
-		"md5": "@{spk.md5}",
-		"link": "@{spk.download}",
-		"depsers": "ssh",
-		"qinst":true,
-		"qstart":true,
-		"qupgrade":true
-	}
-]
+{
+	"keyrings":[
+		"-----BEGIN PGP PUBLIC KEY BLOCK-----\nVersion: GnuPG v2\n\nmQENBFVW0dsBCADJ+7zhCQDKJMxF5ULYZt5dh6P6GEgrdKbIexWClqjlXGOGjjvR\nnV3IfjQyATz4QAyp6FNe2fCfU9F5M/oQl7MhoECaSawDPrq5KdcCg9w0eSgt0kMj\nOTCNYQb3HuGw5QWLnWd2RyS+4t3ZcTQ/JVdkbBAmJFusEthEMwNUtp8zmMw62bJm\ngOP71b0KEqtd7Zf/u75KOhs5u3PEBxKoraY5D++E6oP2IqOvlAwiQPENoTHZn+fu\nyAB1OsTiwpWCKTU8f6Qmh/cxwoSY3gliez7C/fMPSEdynAQT5O3E565XlJsVyY/T\nIIosgVH+TRhi0jRuWCOECPBz59LZbz7Sb5fjABEBAAG0KEZpbGVCb3QgKFNvZnR3\nYXJlKSA8Y29udGFjdEBmaWxlYm90Lm5ldD6JATkEEwEIACMFAlVW0dsCGwMHCwkI\nBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRAGraHYF41oZ8XCCACmQm97ZG2f9EZP\nTESKgcOSec+zPnKl5X+sGiWtNlGmctuCyjxMC2eW2Sv82ar7Vd+DpgcKK5uWh/Xv\nIWCVXtZeDOCdsgtADjxVd+vGdpCa4AYSCpaxCgRMXgkRsCqniQ9WOQW94MVYZpp9\nQ8fJUSCziDZtGtzunWOieEPFI7B+lLc1WJ7Mayuzmuub88PO3Noi/SQSfotquHRo\nr6z5JKj8VwktquDIv4vkcwYHwiZEPVW6i/mkR+geOWqTAMYI//gFwaTzLMor6/Dv\nTh4/lY9P0jGbM7jdFBE7GoACu0grdFCAAeorSJKOXMfGgIO/ZBqzyQTI7l31XYzV\ng/XDmyzkuQENBFVW0dsBCAC9/tU2A6G4nhIDbunA/FTjY5ezHgR4qhhyJJ+JmMeY\n0lv3m2W6SWFZuT04zGT+JxacIs8z1a0jcj3QY84B+6rmve/h4xOjAJM9XnNmIp3g\nFIpHq9h/bGvuhFvzSrxdPvtQZKdxvue+3IfQqzbGfLSjPAOF/M25uc86EzpTVmKE\n2b26ENcPCt6SDKlfwfjT6brvqUOCu4O0RR2ZsR+AH1WgwUQWHApWN16UTAa6D2vF\nUfZFrNYH8x3n9mDrkyWd9FdXScblsDnaWdWEganhHSKUzT28eghTsNxlkb2LEfrw\nhtW4maz73ibWwKBxYdpmbID3W8pAF5WTn9Wp8nBOpbHxABEBAAGJAR8EGAEIAAkF\nAlVW0dsCGwwACgkQBq2h2BeNaGdFfAf/bhPNEJU3VRoaPnmnkuHsKACf7IPhF92B\nKZ12YmW4bmH6aeitWFwlu05V4/ugOtL40qU8oMqrMJfRdFqDIKS/GehDCsGt/5ZR\nI0O5NDh7WT0u4xGuzTh3Gpj9R1FJYnXrfNVhMjyMFQLz3KfHl9B4MIp/KqS0i8u0\nYd/Aw4lsfBjiv0wxcCUe7tvalgtM3BYpXPbtm22Ycmhly1965CoZX6viAzdSBJ5h\nsPNTeFZejRGCFn65fWfjH9JgdN4c5jMmjDCXkLRoSQNqcgkXGGOdriOHyI423z5+\n/iOwWcJX1bHY4rwXz1nNc45h5eXaR3f8zXGXpqpzU+NUlEa1fsdMWg==\n=r2wH\n-----END PGP PUBLIC KEY BLOCK-----\n"
+	],
+	"packages": [
+		{
+			"dname": "FileBot",
+			"desc": "FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works.",
+			"distributor":"FileBot",
+			"distributor_url":"http://www.filebot.net/",
+			"maintainer":"rednoah",
+			"maintainer_url":"http://www.filebot.net/",
+			"icon": "http://app.filebot.net/syno/spk.icon.png",
+			"snapshot": [ "http://app.filebot.net/syno/spk.snapshot.png" ],
+			"package": "filebot",
+			"version": "@{version}",
+			"size": @{spk.size},
+			"md5": "@{spk.md5}",
+			"link": "@{spk.download}",
+			"depsers": "ssh",
+			"qinst":true,
+			"qstart":true,
+			"qupgrade":true
+		}
+	]
+}
