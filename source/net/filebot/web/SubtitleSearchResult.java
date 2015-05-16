@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import java.util.List;
 import java.util.Locale;
 
 public class SubtitleSearchResult extends Movie {
@@ -47,6 +48,26 @@ public class SubtitleSearchResult extends Movie {
 
 	public boolean isSeries() {
 		return kind == Kind.Series;
+	}
+
+	@Override
+	public List<String> getEffectiveNames() {
+		switch (kind) {
+		case Series:
+			return super.getEffectiveNamesWithoutYear();
+		default:
+			return super.getEffectiveNames(); // with year
+		}
+	}
+
+	@Override
+	public String toString() {
+		switch (kind) {
+		case Series:
+			return super.getName(); // without year
+		default:
+			return super.toString(); // with year
+		}
 	}
 
 }

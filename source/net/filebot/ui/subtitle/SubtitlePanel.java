@@ -152,11 +152,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	protected Collection<String> getHistory(SubtitleProvider engine) throws Exception {
 		List<String> names = new ArrayList<String>();
 		for (SubtitleSearchResult it : MediaDetection.releaseInfo.getOpenSubtitlesIndex()) {
-			if (it.isMovie()) {
-				names.add(it.getNameWithYear());
-			} else if (it.isSeries()) {
-				names.add(it.getName());
-			}
+			names.addAll(it.getEffectiveNames());
 		}
 		return names;
 	};
