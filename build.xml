@@ -526,7 +526,10 @@
 
 
 	<target name="spk" description="Synology NAS package">
-		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpath="${dir.lib}/build/ant-spk.jar" />
+		<path id="build.classpath">
+			<fileset dir="${dir.lib}/build" includes="*.jar" />
+		</path>
+		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpathref="build.classpath" />
 
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
 			<info name="displayname" value="FileBot" />
