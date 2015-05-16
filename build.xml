@@ -526,7 +526,7 @@
 
 
 	<target name="spk" description="Synology NAS package">
-		<taskdef name="spk" classname="net.filebot.ant.spk.SpkTask" classpath="${dir.lib}/build/ant-spk.jar" />
+		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpath="${dir.lib}/build/ant-spk.jar" />
 
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
 			<info name="displayname" value="FileBot" />
@@ -547,9 +547,11 @@
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
 			<icon size="256" file="${dir.installer}/icons/icon256.png" />
 
-			<package file="${path.fatjar}" fullpath="FileBot.jar" />
-			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<scripts dir="${dir.installer}/spk/scripts" filemode="755" />
+			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
+			<package file="${path.fatjar}" fullpath="FileBot.jar" />
+
+			<codesign keyid="${gpg.key}" pubring="${gpg.pub}" secring="${gpg.sec}" password="${gpg.pwd}" />
 		</spk>
 	</target>
 
