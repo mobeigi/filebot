@@ -535,9 +535,14 @@
 			<info name="distributor" value="FileBot" />
 			<info name="distributor_url" value="http://www.filebot.net/" />
 			<info name="support_url" value="http://www.filebot.net/forums/" />
-			<info name="firmware" value="5.0" />
-			<info name="startable" value="no" />
 			<info name="helpurl" value="http://www.filebot.net/cli.html" />
+			<info name="firmware" value="5.0-4360" />
+			<info name="startable" value="no" />
+			<info name="silent_install" value="yes" />
+			<info name="silent_uninstall" value="yes" />
+			<info name="silent_upgrade" value="yes" />
+			<info name="thirdparty" value="yes" />
+			<info name="start_dep_services" value="ssh" />
 
 			<icon size="72" file="${dir.installer}/icons/icon72.png" />
 			<icon size="256" file="${dir.installer}/icons/icon256.png" />
@@ -778,7 +783,7 @@
 				<include name="getting-started/**" />
 			</fileset>
 		</copy>
-		
+
 		<!-- copy files and resolve ant variables -->
 		<echo message="Replace Ant variables" />
 		<copy todir="${dir.dist}/website" overwrite="yes" encoding="UTF-8" verbose="true">
