@@ -320,8 +320,12 @@
 
 
 		<!-- JRE sign all jars, dylibs and executables -->
+		<property name="codesign.opts" value="--verbose=4 --force --sign '3rd Party Mac Developer Application: Point Planck Limited'" />
+		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
+
 		<apply executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
 				<include name="**/jspawnhelper" />
@@ -332,12 +336,12 @@
 
 		<!-- sign cmdline tool first -->
 		<exec dir="${dir.dist}/FileBot.app" executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/inherit.entitlements' Contents/MacOS/fpcalc" />
+			<arg line="${codesign.opts} ${codesign.entitlements.inherit} Contents/MacOS/fpcalc" />
 		</exec>
 
 		<!-- APP sign all jars, dylibs and executables -->
 		<apply executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
+			<arg line="${codesign.opts} ${codesign.entitlements}" />
 			<srcfile />
 			<fileset dir="${dir.dist}/FileBot.app/Contents">
 				<include name="MacOS/*.dylib" />
@@ -347,10 +351,10 @@
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app/Contents/PlugIns/${jre.version}" />
+			<arg line="${codesign.opts} ${codesign.entitlements} FileBot.app/Contents/PlugIns/${jre.version}" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="--verbose=4 --force --sign '3rd Party Mac Developer Application: Reinhard Pointner' --entitlements '${dir.installer}/appbundle/FileBot.entitlements' FileBot.app" />
+			<arg line="${codesign.opts} ${codesign.entitlements} FileBot.app" />
 		</exec>
 
 		<!-- verify signature & build pkg -->
@@ -361,7 +365,7 @@
 			<arg line="--verify FileBot.app" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Reinhard Pointner' FileBot_${version}.pkg" />
+			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' FileBot_${version}.pkg" />
 		</exec>
 
 		<!-- store this build in releases -->
