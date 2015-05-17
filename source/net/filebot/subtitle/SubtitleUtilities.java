@@ -10,7 +10,7 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -39,6 +39,8 @@ import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SequenceMatchSimilarity;
 import net.filebot.similarity.SimilarityMetric;
+import net.filebot.util.ByteBufferInputStream;
+import net.filebot.util.UnicodeReader;
 import net.filebot.vfs.ArchiveType;
 import net.filebot.vfs.MemoryFile;
 import net.filebot.web.Movie;
@@ -270,13 +272,13 @@ public final class SubtitleUtilities {
 				likelyFormats.addLast(format);
 		}
 
-		// decode bytes
-		String textfile = getText(file.getData());
+		// decode bytes and beware of byte-order marks
+		Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()));
 
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {
 			// reset reader to position 0
-			SubtitleReader parser = format.newReader(new StringReader(textfile));
+			SubtitleReader parser = format.newReader(reader);
 
 			if (parser.hasNext()) {
 				// correct format found
