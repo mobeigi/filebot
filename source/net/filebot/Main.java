@@ -274,8 +274,8 @@ public class Main {
 			MacAppUtilities.setDefaultMenuBar(FileBotMenuBar.createHelp());
 		} else if (isUbuntuApp()) {
 			// Ubuntu specific configuration
-			frame.setJMenuBar(FileBotMenuBar.createHelp()); // menu should be rendered via JAyatana on Ubuntu 15.04 and higher
 			frame.setIconImages(ResourceManager.getApplicationIcons());
+			frame.setJMenuBar(FileBotMenuBar.createHelp()); // menu should be rendered via JAyatana on Ubuntu 15.04 and higher
 		} else {
 			// Windows / Linux specific configuration
 			frame.setIconImages(ResourceManager.getApplicationIcons());
