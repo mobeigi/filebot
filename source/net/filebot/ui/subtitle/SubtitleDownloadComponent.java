@@ -275,13 +275,11 @@ class SubtitleDownloadComponent extends JComponent {
 
 	private void save(Object[] selection) {
 		try {
-			// multiple files
-			File outputFolder = showOpenDialogSelectFolder(null, "Save Subtitles", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Save"));
-			if (outputFolder != null) {
-				for (Object object : selection) {
-					MemoryFile file = (MemoryFile) object;
-					File destination = new File(outputFolder, validateFileName(file.getName()));
-					writeFile(file.getData(), destination);
+			for (Object object : selection) {
+				MemoryFile data = (MemoryFile) object;
+				File destination = showSaveDialogSelectFile(false, new File(validateFileName(data.getName())), "Save Subtitles as ...", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Save"));
+				if (destination != null) {
+					writeFile(data.getData(), destination);
 				}
 			}
 		} catch (Exception e) {
@@ -298,10 +296,10 @@ class SubtitleDownloadComponent extends JComponent {
 			long selectedTimingOffset = 0;
 			Charset selectedEncoding = Charset.forName("UTF-8");
 
-			// just use default values when we can't use a JFC with accessory component
-			if (Settings.isMacSandbox()) {
-				// AWT
-				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Export"));
+			// just use default values when we can't use a JFC with accessory component (also Swing OSX LaF doesn't seem to support JFileChooser::setAccessory)
+			if (Settings.isMacApp()) {
+				// COCOA || AWT
+				selectedOutputFolder = showOpenDialogSelectFolder(null, "Export Subtitles to folder", new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "Export"));
 			} else {
 				// Swing
 				SubtitleFileChooser sfc = new SubtitleFileChooser();
