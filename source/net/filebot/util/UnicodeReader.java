@@ -5,11 +5,14 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
+
 public class UnicodeReader extends Reader {
 
 	private static final int BOM_SIZE = 4;
 
-	private InputStreamReader reader = null;
+	private final Reader reader;
 
 	public UnicodeReader(InputStream stream) throws IOException {
 		if (!stream.markSupported())
@@ -19,31 +22,38 @@ public class UnicodeReader extends Reader {
 		byte bom[] = new byte[BOM_SIZE];
 		stream.read(bom, 0, bom.length);
 
-		Charset charset = StandardCharsets.UTF_8;
+		Charset bomEncoding = null;
 		int skip = 0;
 
 		if ((bom[0] == (byte) 0xEF) && (bom[1] == (byte) 0xBB) && (bom[2] == (byte) 0xBF)) {
-			charset = StandardCharsets.UTF_8;
+			bomEncoding = StandardCharsets.UTF_8;
 			skip = 3;
 		} else if ((bom[0] == (byte) 0xFE) && (bom[1] == (byte) 0xFF)) {
-			charset = StandardCharsets.UTF_16BE;
+			bomEncoding = StandardCharsets.UTF_16BE;
 			skip = 2;
 		} else if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE)) {
-			charset = StandardCharsets.UTF_16LE;
+			bomEncoding = StandardCharsets.UTF_16LE;
 			skip = 2;
 		} else if ((bom[0] == (byte) 0x00) && (bom[1] == (byte) 0x00) && (bom[2] == (byte) 0xFE) && (bom[3] == (byte) 0xFF)) {
-			charset = Charset.forName("UTF-32BE");
+			bomEncoding = Charset.forName("UTF-32BE");
 			skip = 4;
 		} else if ((bom[0] == (byte) 0xFF) && (bom[1] == (byte) 0xFE) && (bom[2] == (byte) 0x00) && (bom[3] == (byte) 0x00)) {
-			charset = Charset.forName("UTF-32LE");
+			bomEncoding = Charset.forName("UTF-32LE");
 			skip = 4;
 		}
 
+		// rewind and skip BOM
 		stream.reset();
 		stream.skip(skip);
 
-		// initialize reader
-		reader = new InputStreamReader(stream, charset);
+		// guess character encoding if necessary
+		if (bomEncoding == null) {
+			// auto-detect encoding
+			reader = new CharsetDetector().getReader(stream, "UTF-8");
+		} else {
+			// initialize reader via BOM
+			reader = new InputStreamReader(stream, bomEncoding);
+		}
 	}
 
 	public int hashCode() {
@@ -60,10 +70,6 @@ public class UnicodeReader extends Reader {
 
 	public int read(char[] cbuf) throws IOException {
 		return reader.read(cbuf);
-	}
-
-	public String getEncoding() {
-		return reader.getEncoding();
 	}
 
 	public int read() throws IOException {
