@@ -6,7 +6,6 @@
 		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.3" />
 		<dependency org="net.java.dev.jna" name="jna" rev="4.1.0" />
 		<dependency org="net.java.dev.jna" name="platform" rev="3.5.2" />
-		<dependency org="ca.weblite" name="java-objc-bridge" rev="1.0.0" />
 		<dependency org="args4j" name="args4j" rev="2.32" />
 		<dependency org="net.sf.ehcache" name="ehcache" rev="2.10.0" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />

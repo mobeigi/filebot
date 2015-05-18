@@ -12,7 +12,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/glazedlists_java15.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/icu4j.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/java-objc-bridge.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jna.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/junit.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/miglayout-core.jar"/>
@@ -27,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/groovy-all.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/hamcrest-core.jar"/>
+	<classpathentry kind="lib" path="lib/jars/ObjCBridge.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

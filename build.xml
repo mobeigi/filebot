@@ -163,7 +163,7 @@
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ivy/jar/java-objc-bridge.jar">
+			<zipfileset src="${dir.lib}/jars/ObjCBridge.jar">
 				<include name="ca/weblite/**" />
 				<include name="com/sun/jna/**" />
 			</zipfileset>
