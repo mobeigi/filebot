@@ -39,7 +39,7 @@
 
 
 	<path id="jars.classpath">
-		<fileset dir="${dir.lib}" includes="**/*.jar" />
+		<fileset dir="${dir.lib}" includes="**/*.jar" excludes="**/*-jdk14.jar" />
 	</path>
 
 
