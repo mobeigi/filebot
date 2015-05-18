@@ -164,7 +164,7 @@
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/ivy/jar/java-objc-bridge.jar">
-				<include name="ca/weblite/objc/**" />
+				<include name="ca/weblite/**" />
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
