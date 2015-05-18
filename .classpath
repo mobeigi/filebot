@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/jsoup.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/groovy-all.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-jdk14.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/hamcrest-core.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

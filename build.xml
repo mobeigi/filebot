@@ -38,7 +38,7 @@
 	</target>
 
 
-	<path id="build.classpath">
+	<path id="jars.classpath">
 		<fileset dir="${dir.lib}" includes="**/*.jar" />
 	</path>
 
@@ -73,53 +73,53 @@
 	</target>
 
 
-	<target name="fatjar" depends="jar" description="Merge all class files into a single executable jar file">
+	<target name="fatjar" depends="resolve, jar" description="Merge all class files into a single executable jar file">
 		<jar destfile="${path.fatjar}" filesetmanifest="merge" duplicate="fail" index="yes">
 			<!-- include main jar -->
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
 			<!-- include libs -->
-			<zipfileset src="${dir.lib}/json-simple.jar">
+			<zipfileset src="${dir.lib}/ivy/bundle/json-simple.jar">
 				<include name="org/json/simple/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/json-io.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/json-io.jar">
 				<include name="com/cedarsoftware/util/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/glazedlists.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/glazedlists_java15.jar">
 				<include name="ca/odell/glazedlists/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/miglayout-core.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/miglayout-core.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/miglayout-swing.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/miglayout-swing.jar">
 				<include name="net/miginfocom/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/rsyntaxtextarea.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/rsyntaxtextarea.jar">
 				<include name="org/fife/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/simmetrics.jar">
+			<zipfileset src="${dir.lib}/jars/simmetrics.jar">
 				<include name="uk/ac/shef/wit/simmetrics/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/xmlrpc.jar">
+			<zipfileset src="${dir.lib}/jars/xmlrpc.jar">
 				<include name="redstone/xmlrpc/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/args4j.jar">
+			<zipfileset src="${dir.lib}/ivy/bundle/args4j.jar">
 				<include name="org/kohsuke/args4j/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/xz.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/xz.jar">
 				<include name="org/tukaani/xz/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ehcache.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ehcache.jar">
 				<include name="META-INF/services/**" />
 				<include name="net/sf/ehcache/**" />
 				<include name="org/terracotta/**" />
@@ -127,29 +127,29 @@
 				<include name="build-info.properties" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/slf4j-api.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/slf4j-api.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/slf4j-jdk14.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/slf4j-jdk14.jar">
 				<include name="org/slf4j/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/commons-io.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/commons-io.jar">
 				<include name="org/apache/commons/io/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/icu4j.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/icu4j.jar">
 				<include name="com/ibm/icu/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jacksum.jar">
+			<zipfileset src="${dir.lib}/jars/jacksum.jar">
 				<include name="jonelo/jacksum/adapt/**" />
 				<include name="jonelo/jacksum/algorithm/**" />
 				<include name="jonelo/sugar/util/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/groovy.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/groovy-all.jar">
 				<include name="groovy*/**" />
 				<include name="org/codehaus/groovy/**" />
 				<include name="META-INF/dgminfo" />
@@ -159,56 +159,56 @@
 				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/sevenzipjbinding.jar">
+			<zipfileset src="${dir.lib}/jars/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ObjCBridge.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/java-objc-bridge.jar">
 				<include name="ca/weblite/objc/**" />
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
 			<!-- include classes and native libraries -->
-			<zipfileset src="${dir.lib}/jna.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/jna-platform.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/platform.jar">
 				<include name="com/sun/jna/platform/win32/**" />
 			</zipfileset>
 
 			<!-- libraries used in external scripts -->
-			<zipfileset src="${dir.lib}/jsoup.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/jsoup.jar">
 				<include name="org/jsoup/**" />
 			</zipfileset>
 
 			<!-- Ivy for @Grapes automatic dependency management -->
-			<zipfileset src="${dir.lib}/scripting/ivy.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ivy.jar">
 				<include name="org/apache/ivy/**" />
 			</zipfileset>
 
 			<!-- AntBuilder including dependencies for ant-javamail, ant-commons-net and ant-jsch -->
-			<zipfileset src="${dir.lib}/scripting/ant.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ant.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/ant-launcher.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ant-launcher.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/ant-commons-net.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ant-commons-net.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/ant-jsch.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ant-jsch.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/ant-javamail.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/ant-javamail.jar">
 				<include name="org/apache/tools/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/commons-net.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/commons-net.jar">
 				<include name="org/apache/commons/net/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/jsch.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/jsch.jar">
 				<include name="com/jcraft/jsch/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/scripting/mail.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/mail.jar">
 				<include name="javax/mail/**" />
 				<include name="com/sun/mail/**" />
 				<include name="META-INF/*mail*" />
@@ -218,7 +218,7 @@
 
 
 	<target name="appbundle" description="Build an OSX application bundle">
-		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
+		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
 		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="false" supportsautomaticgraphicsswitching="false">
 			<classpath file="${path.fatjar}" />
@@ -266,7 +266,7 @@
 
 
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
-		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${dir.lib}/build/appbundler.jar" />
+		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
 		<property name="jre.version" value="jdk1.8.0_45.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
@@ -449,7 +449,7 @@
 
 
 	<target name="deb" description="Build debian package for i686 and amd64">
-		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
+		<taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="jars.classpath" />
 		<antcall target="deb-arch">
 			<param name="arch" value="i686" />
 			<!-- arch i686 not allowed by deb specification, must be i386 for 32-bit x86 systems -->
@@ -481,7 +481,7 @@
 
 
 	<target name="ipkg" description="Build ipkg package">
-		<taskdef resource="ant_deb_task.properties" classpath="${dir.lib}/build/ant-deb.jar" />
+		<taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="jars.classpath" />
 
 		<!-- stage created .deb files in a temporary folder -->
 		<property name="ipkg.staging" location="${dir.dist}/deb-ipkg" />
@@ -541,10 +541,7 @@
 
 
 	<target name="spk" description="Synology NAS package">
-		<path id="build.classpath">
-			<fileset dir="${dir.lib}/build" includes="*.jar" />
-		</path>
-		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpathref="build.classpath" />
+		<taskdef name="spk" classname="net.filebot.ant.spk.PackageTask" classpathref="jars.classpath" />
 
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
 			<info name="displayname" value="FileBot" />
@@ -714,8 +711,7 @@
 		<junit printsummary="yes" fork="true">
 			<classpath>
 				<fileset dir="${dir.dist}" includes="*.jar" />
-				<fileset dir="${dir.lib}" includes="*.jar" />
-				<pathelement location="${dir.lib}/build/junit.jar" />
+				<fileset dir="${dir.lib}" includes="**/*.jar" />
 			</classpath>
 			<formatter type="plain" />
 			<test name="net.filebot.AllTests" outfile="test-report" />
@@ -724,11 +720,13 @@
 
 
 	<target name="test-fatjar" depends="fatjar">
-		<junit printsummary="yes" fork="true">
+		<junit printsummary="yes" fork="true" includeantruntime="true" newenvironment="true">
 			<classpath>
 				<pathelement location="${path.fatjar}" />
 				<pathelement location="${dir.dist}/filebot-test.jar" />
-				<pathelement location="${dir.lib}/build/junit.jar" />
+				<pathelement location="${dir.lib}/ivy/jar/ant-junit.jar" />
+				<pathelement location="${dir.lib}/ivy/jar/junit.jar" />
+				<pathelement location="${dir.lib}/ivy/jar/hamcrest-core.jar" />
 			</classpath>
 			<formatter type="plain" />
 			<test name="net.filebot.AllTests" outfile="test-report" />
@@ -737,7 +735,7 @@
 
 
 	<target name="svn-update">
-		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpath="${dir.lib}/groovy.jar" />
+		<taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="jars.classpath" />
 		<groovy outputproperty="svn.revision" fork="yes" failonerror="yes">
 			print 'svn update'.execute().text.split(/\D+/).last().toInteger()
 		</groovy>
