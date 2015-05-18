@@ -47,7 +47,7 @@ public class MetaAttributes {
 	public void setObject(Object object) {
 		try {
 			metaAttributeView.put(METADATA_KEY, JsonWriter.objectToJson(object));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -58,7 +58,7 @@ public class MetaAttributes {
 			if (jsonObject != null && jsonObject.length() > 0) {
 				return JsonReader.jsonToJava(jsonObject);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		return null;

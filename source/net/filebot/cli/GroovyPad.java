@@ -121,7 +121,7 @@ public class GroovyPad extends JFrame {
 	}
 
 	protected JComponent createOutputLog() throws IOException {
-		output = new TextEditorPane(TextEditorPane.OVERWRITE_MODE, false);
+		output = new TextEditorPane(TextEditorPane.INSERT_MODE, false);
 		output.setEditable(false);
 		output.setReadOnly(true);
 		output.setAutoscrolls(true);

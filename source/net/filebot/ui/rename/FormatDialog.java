@@ -650,7 +650,7 @@ public class FormatDialog extends JDialog {
 				try {
 					mode.persistentSample().setValue(info == null ? "" : JsonWriter.objectToJson(info));
 					persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
-				} catch (IOException e) {
+				} catch (Exception e) {
 					Logger.getLogger(FormatDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
 				}
 

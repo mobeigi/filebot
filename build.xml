@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<project name="filebot" default="fatjar">
+<project name="filebot" default="fatjar" xmlns:ivy="antlib:org.apache.ivy.ant">
 	<!-- include default inputs (optional) -->
 	<property file="profile.properties" />
 
@@ -30,6 +30,17 @@
 	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
 	<property name="frs.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
 	<property name="frs.website" value="web.sourceforge.net:htdocs" />
+
+
+	<target name="resolve" description="Retrieve dependencies with Apache Ivy">
+		<delete dir="${dir.lib}/ivy" />
+		<ivy:retrieve pattern="${dir.lib}/ivy/[type]/[artifact].[ext]" />
+	</target>
+
+
+	<path id="build.classpath">
+		<fileset dir="${dir.lib}" includes="**/*.jar" />
+	</path>
 
 
 	<target name="jar" depends="build">
@@ -870,5 +881,6 @@
 		<input message="Please enter sourceforge username:" addproperty="sf.user" />
 		<input message="Please enter sourceforge password:" addproperty="sf.password" />
 	</target>
+
 
 </project>
