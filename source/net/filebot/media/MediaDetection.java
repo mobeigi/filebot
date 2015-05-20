@@ -947,7 +947,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
+		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();

@@ -27,10 +27,9 @@ public final class StringUtilities {
 	public static String join(Iterable<?> values, CharSequence delimiter, CharSequence start, CharSequence end) {
 		StringBuilder sb = new StringBuilder().append(start);
 
-		for (Iterator<?> iterator = values.iterator(); iterator.hasNext();) {
-			Object value = iterator.next();
+		for (Object value : values) {
 			if (!isEmpty(value)) {
-				if (sb.length() > 0) {
+				if (sb.length() > start.length()) {
 					sb.append(delimiter);
 				}
 				sb.append(value);
