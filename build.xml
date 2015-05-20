@@ -550,7 +550,7 @@
 			<info name="maintainer_url" value="http://www.filebot.net/" />
 			<info name="distributor" value="FileBot" />
 			<info name="distributor_url" value="http://www.filebot.net/" />
-			<info name="support_url" value="http://www.filebot.net/forums/" />
+			<info name="support_url" value="https://www.filebot.net/forums/viewforum.php?f=13" />
 			<info name="helpurl" value="http://www.filebot.net/cli.html" />
 			<info name="firmware" value="5.0-4360" />
 			<info name="startable" value="no" />
