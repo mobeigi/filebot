@@ -157,7 +157,7 @@ public class MediaBindingBean {
 		for (Episode it : getEpisodes()) {
 			title.add(removeTrailingBrackets(it.getTitle()));
 		}
-		return truncateText(join(title, " & "), limit);
+		return truncateText(String.join(" & ", title), limit);
 	}
 
 	@Define("d")
@@ -353,7 +353,7 @@ public class MediaBindingBean {
 			return null;
 
 		// e.g. 1280x720
-		return join(dim, "x");
+		return String.join("x", dim.get(0).toString(), dim.get(1).toString());
 	}
 
 	@Define("ws")

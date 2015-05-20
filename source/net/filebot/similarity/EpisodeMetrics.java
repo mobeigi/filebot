@@ -5,7 +5,6 @@ import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
-import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -431,12 +430,12 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 
 			// simplify file name if possible and extract numbers
-			List<Integer> numbers = new ArrayList<Integer>(4);
+			List<String> numbers = new ArrayList<String>(4);
 			Scanner scanner = new Scanner(normalizeObject(object)).useDelimiter("\\D+");
 			while (scanner.hasNextInt()) {
-				numbers.add(scanner.nextInt());
+				numbers.add(String.valueOf(scanner.nextInt()));
 			}
-			return join(numbers, " ");
+			return String.join(" ", numbers);
 		}
 	}),
 

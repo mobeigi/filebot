@@ -1,7 +1,5 @@
 package net.filebot.web;
 
-import static net.filebot.util.StringUtilities.*;
-
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
@@ -111,7 +109,7 @@ public class EpisodeFormat extends Format {
 			title.add(it.getTitle().replaceAll("[(]([^)]*)[)]$", "").trim());
 		}
 
-		return String.format("%s - %s - %s", join(name, " & "), join(sxe, " & "), join(title, " & "));
+		return String.format("%s - %s - %s", String.join(" & ", name), String.join(" & ", sxe), String.join(" & ", title));
 	}
 
 	public String formatMultiSxE(Iterable<Episode> episodes) {

@@ -59,7 +59,6 @@ import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.similarity.StringEqualsMetric;
-import net.filebot.util.StringUtilities;
 import net.filebot.vfs.FileInfo;
 import net.filebot.web.Episode;
 import net.filebot.web.Movie;
@@ -948,7 +947,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
+		System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();
@@ -1047,7 +1046,7 @@ public class MediaDetection {
 			relativePath.addFirst(it.getName());
 		}
 
-		return relativePath.isEmpty() ? null : new File(StringUtilities.join(relativePath, File.separator));
+		return relativePath.isEmpty() ? null : new File(String.join(File.separator, relativePath));
 	}
 
 	public static Map<File, List<File>> mapByMediaFolder(Collection<File> files) {
