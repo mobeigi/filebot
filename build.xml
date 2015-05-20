@@ -815,12 +815,12 @@
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
 			<spk file="${dir.build}/package-source/filebot-${version}-noarch.spk" get="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
-				<thumbnail url="http://app.filebot.net/syno/spk.icon.png" />
-				<snapshot url="http://app.filebot.net/syno/spk.snapshot.png" />
+				<thumbnail url="http://app.filebot.net/syno/filebot-thumbnail.png" />
+				<snapshot url="http://app.filebot.net/syno/filebot-snapshot.png" />
 			</spk>
 			<spk file="${dir.build}/package-source/filebot-node-${filebot-node.version}-noarch.spk" get="http://downloads.sourceforge.net/project/filebot/filebot/HEAD/filebot-node/filebot-node-${filebot-node.version}-noarch.spk">
-				<thumbnail url="http://i.imgur.com/bxHSJp9.png" />
-				<snapshot url="http://i.imgur.com/sCgINCR.png" />
+				<thumbnail url="http://app.filebot.net/syno/filebot-node-thumbnail.png" />
+				<snapshot url="http://app.filebot.net/syno/filebot-node-snapshot.png" />
 			</spk>
 		</package-source>
 
