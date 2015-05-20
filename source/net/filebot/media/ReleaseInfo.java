@@ -229,21 +229,19 @@ public class ReleaseInfo {
 					folders.add(it);
 				}
 			}
-			structureRootFolderPattern = compile(join(folders, "|"), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+			structureRootFolderPattern = compile(or(folders.toArray()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 		}
 		return structureRootFolderPattern;
 	}
 
 	public Pattern getLanguageTagPattern(Collection<String> languages) {
 		// [en]
-		return compile("(?<=[-\\[{(])(" + join(quoteAll(languages), "|") + ")(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[-\\[{(])" + or(quoteAll(languages)) + "(?=\\p{Punct})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getLanguageSuffixPattern(Collection<String> languages, boolean strict) {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		String language = join(quoteAll(languages), "|");
-		String tag = getProperty("pattern.subtitle.tags");
-		return compile("(?<=[.-])(" + language + ")(?=([.-](" + tag + "))?$)", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[.-])" + or(quoteAll(languages)) + "(?=([.-](" + getProperty("pattern.subtitle.tags") + "))?$)", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getResolutionPattern() {
@@ -277,21 +275,21 @@ public class ReleaseInfo {
 
 	public Pattern getReleaseGroupPattern(boolean strict) throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(releaseGroupResource.get(), "|") + ")(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(releaseGroupResource.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getBlacklistPattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})(" + join(queryBlacklistResource.get(), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(queryBlacklistResource.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getExcludePattern() throws IOException {
 		// pattern matching any release group name enclosed in separators
-		return compile(join(excludeBlacklistResource.get(), "|"), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile(or(excludeBlacklistResource.get()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
-		return compile("(?<!\\p{Alnum})(" + join(quoteAll(terms), "|") + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Movie[] getMovieList() throws IOException {
@@ -515,12 +513,12 @@ public class ReleaseInfo {
 		}
 	}
 
-	private Collection<String> quoteAll(Collection<String> strings) {
-		List<String> patterns = new ArrayList<String>(strings.size());
-		for (String it : strings) {
-			patterns.add(Pattern.quote(it));
-		}
-		return patterns;
+	private String or(Object[] terms) {
+		return joinSorted(terms, "|", reverseOrder(), "(", ")"); // non-capturing group that matches the longest occurrence
+	}
+
+	private String[] quoteAll(Collection<String> values) {
+		return values.stream().map((s) -> Pattern.quote(s)).toArray(String[]::new);
 	}
 
 	public Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {

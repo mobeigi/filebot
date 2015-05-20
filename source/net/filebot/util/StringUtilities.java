@@ -2,6 +2,8 @@ package net.filebot.util;
 
 import static java.util.Arrays.*;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 
 public final class StringUtilities {
@@ -10,33 +12,32 @@ public final class StringUtilities {
 		return object == null ? null : object.toString();
 	}
 
-	public static boolean isEmptyValue(Object object) {
+	public static boolean isEmpty(Object object) {
 		return object == null || object.toString().length() == 0;
 	}
 
-	public static String joinBy(CharSequence delimiter, Object... values) {
-		return join(asList(values), delimiter);
-	}
-
 	public static String join(Object[] values, CharSequence delimiter) {
-		return join(asList(values), delimiter);
+		return join(asList(values), delimiter, "", "");
 	}
 
-	public static String join(Iterable<?> values, CharSequence delimiter) {
-		StringBuilder sb = new StringBuilder();
+	public static String joinSorted(Object[] values, CharSequence delimiter, Comparator<Object> sort, CharSequence start, CharSequence end) {
+		return join(Arrays.stream(values).sorted(sort)::iterator, delimiter, start, end);
+	}
+
+	public static String join(Iterable<?> values, CharSequence delimiter, CharSequence start, CharSequence end) {
+		StringBuilder sb = new StringBuilder().append(start);
 
 		for (Iterator<?> iterator = values.iterator(); iterator.hasNext();) {
 			Object value = iterator.next();
-			if (!isEmptyValue(value)) {
+			if (!isEmpty(value)) {
 				if (sb.length() > 0) {
 					sb.append(delimiter);
 				}
-
 				sb.append(value);
 			}
 		}
 
-		return sb.toString();
+		return sb.append(end).toString();
 	}
 
 	/**
