@@ -814,11 +814,11 @@
 		<property prefix="filebot-node" url="https://raw.githubusercontent.com/filebot/filebot-node/master/package.properties" />
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
-			<spk file="${dir.build}/package-source/filebot-${version}-noarch.spk" get="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
+			<spk file="${dir.build}/package-source/filebot-${version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
 				<thumbnail url="http://app.filebot.net/syno/filebot-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-snapshot.png" />
 			</spk>
-			<spk file="${dir.build}/package-source/filebot-node-${filebot-node.version}-noarch.spk" get="http://downloads.sourceforge.net/project/filebot/filebot/HEAD/filebot-node/filebot-node-${filebot-node.version}-noarch.spk">
+			<spk file="${dir.build}/package-source/filebot-node-${filebot-node.version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot/HEAD/filebot-node/filebot-node-${filebot-node.version}-noarch.spk">
 				<thumbnail url="http://app.filebot.net/syno/filebot-node-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-node-snapshot.png" />
 			</spk>
