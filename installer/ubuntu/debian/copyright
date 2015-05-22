@@ -3,11 +3,11 @@ Upstream-Name: filebot
 Source: <svn://svn.code.sf.net/p/filebot/code/trunk>
 
 Files: *
-Copyright: 2008-2015 Reinhard Pointner <rednoah@users.sourceforge.net>
+Copyright: 2008-2015 Reinhard Pointner <maintainer@filebot.net>
 License: GPL-2.0+
 
 Files: debian/*
-Copyright: 2014-2015 Reinhard Pointner <rednoah@users.sourceforge.net>
+Copyright: 2014-2015 Reinhard Pointner <maintainer@filebot.net>
 License: GPL-2.0+
 
 License: GPL-2.0+

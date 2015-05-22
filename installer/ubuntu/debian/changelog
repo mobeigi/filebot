@@ -3,7 +3,7 @@ filebot (4.5.7) trusty; urgency=low
   * Use HTTPS for OpenSubtitles requests and store only MD5 hash locally
   * Lots of improvements and bugfixes
 
- -- Reinhard Pointner <rednoah@users.sourceforge.net>  Sat, 10 May 2015 00:00:00 +0800
+ -- Reinhard Pointner <maintainer@filebot.net>  Sat, 10 May 2015 00:00:00 +0800
 
 filebot (4.5.6) trusty; urgency=low
 
@@ -12,7 +12,7 @@ filebot (4.5.6) trusty; urgency=low
   * Fixed various issues related to fetching Chinese subtitles
   * Do not treat folders with "movie.nfo" as single units like disk folders anymore
 
- -- Reinhard Pointner <rednoah@users.sourceforge.net>  Sat, 24 Jan 2015 00:00:00 +0800
+ -- Reinhard Pointner <maintainer@filebot.net>  Sat, 24 Jan 2015 00:00:00 +0800
 
 filebot (4.5.3) trusty; urgency=low
 
@@ -24,7 +24,7 @@ filebot (4.5.3) trusty; urgency=low
   * Lots of optimizations and usability improvements
   * Lots of bugfixes
 
- -- Reinhard Pointner <rednoah@users.sourceforge.net>  Fri, 08 Dec 2014 00:00:00 +0800
+ -- Reinhard Pointner <maintainer@filebot.net>  Fri, 08 Dec 2014 00:00:00 +0800
 
 filebot (4.5.2) trusty; urgency=low
 
@@ -33,4 +33,4 @@ filebot (4.5.2) trusty; urgency=low
   * Improved support for non-English language preferences
   * Lots of optimizations
 
- -- Reinhard Pointner <rednoah@users.sourceforge.net>  Fri, 24 Oct 2014 00:00:00 +0800
+ -- Reinhard Pointner <maintainer@filebot.net>  Fri, 24 Oct 2014 00:00:00 +0800
