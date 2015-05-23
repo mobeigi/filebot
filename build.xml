@@ -315,7 +315,7 @@
 		<!-- fix code signing and submission issues -->
 		<delete verbose="yes">
 			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
-				<include name="**/libjfxmedia.dylib" />
+				<include name="**/libjfxmedia_qtkit.dylib" />
 				<include name="**/Contents/Info.plist" />
 				<include name="**/Contents/MacOS/libjli.dylib" />
 			</fileset>
