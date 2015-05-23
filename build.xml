@@ -220,7 +220,7 @@
 	<target name="appbundle" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
-		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="false" supportsautomaticgraphicsswitching="false">
+		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
