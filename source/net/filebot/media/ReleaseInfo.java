@@ -38,6 +38,7 @@ import net.filebot.web.CachedResource;
 import net.filebot.web.Movie;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
+import net.filebot.web.SubtitleSearchResult.Kind;
 
 import org.tukaani.xz.XZInputStream;
 
@@ -451,12 +452,13 @@ public class ReleaseInfo {
 			List<SubtitleSearchResult> result = new ArrayList<SubtitleSearchResult>(rows.size());
 
 			for (String[] row : rows) {
-				int imdbid = parseInt(row[0]);
-				String name = row[1];
-				int year = parseInt(row[2]);
-				String kind = row[3];
-				int score = parseInt(row[4]);
-				result.add(new SubtitleSearchResult(imdbid, name, year, kind, score));
+				String kind = row[0];
+				int score = parseInt(row[1]);
+				int imdbId = parseInt(row[2]);
+				int year = parseInt(row[3]);
+				String name = row[4];
+				String[] aliasNames = copyOfRange(row, 5, row.length);
+				result.add(new SubtitleSearchResult(name, aliasNames, year, imdbId, -1, Locale.ENGLISH, SubtitleSearchResult.Kind.forName(kind), score));
 			}
 
 			return result.toArray(new SubtitleSearchResult[0]);

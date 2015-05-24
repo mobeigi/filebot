@@ -111,35 +111,6 @@ def csv(f, delim, keyIndex, valueIndex) {
 /* ------------------------------------------------------------------------- */
 
 
-// BUILD osdb index
-def osdb = []
-
-new File('osdb.txt').eachLine('UTF-8'){
-	def fields = it.split(/\t/)*.trim()
-	
-	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
-	if (fields.size() == 6 && fields[1] ==~ /\d+/ && fields[3] ==~ /\d{4}/) {
-		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 100) {
-			// 0 imdbid, 1 name, 2 year, 3 kind, 4 priority
-			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', fields[5] as int]
-		}
-	}
-}
-
-// sort reverse by score
-osdb.sort{ a, b -> b[4] <=> a[4] }
-
-// reset score/priority because it's currently not used
-osdb*.set(4, 0)
-
-// sanity check
-if (osdb.size() < 30000) { die('OSDB index sanity failed:' + osdb.size()) }
-pack(osdb_out, osdb*.join('\t'))
-
-
-/* ------------------------------------------------------------------------- */
-
-
 // BUILD moviedb index
 def omdb = []
 new File('omdbMovies.txt').eachLine('Windows-1252'){
@@ -349,3 +320,44 @@ def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 // sanity check
 if (anidb_txt.size() < 8000) { die('AniDB index sanity failed:' + anidb_txt.size()) }
 pack(anidb_out, anidb_txt)
+
+
+/* ------------------------------------------------------------------------- */
+
+
+// BUILD osdb index
+def osdb = []
+
+new File('osdb.txt').eachLine('UTF-8'){
+	def fields = it.split(/\t/)*.trim()
+
+	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
+	if (fields.size() == 6 && fields[1] ==~ /\d+/ && fields[3] ==~ /\d{4}/) {
+		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 100) {
+			// 0 imdbid, 1 name, 2 year, 3 kind, 4 priority
+			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', fields[5] as int]
+		}
+	}
+}
+
+// sort reverse by score
+osdb.sort{ a, b -> b[4] <=> a[4] }
+
+// reset score/priority because it's currently not used
+osdb*.set(4, 0)
+
+// collect final output data
+osdb = osdb.findResults{
+	def names = [it[1]]
+	if (it[3] == 'm') {
+		def tmdb_entry = tmdb_index[it[0].pad(7)]
+		if (tmdb_entry != null) {
+			names += tmdb_entry[4..-1]
+		}
+	}
+	return [it[3], it[4], it[0], it[2]] + names.unique()
+}
+
+// sanity check
+if (osdb.size() < 30000) { die('OSDB index sanity failed:' + osdb.size()) }
+pack(osdb_out, osdb*.join('\t'))
