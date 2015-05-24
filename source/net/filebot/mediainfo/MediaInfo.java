@@ -3,6 +3,7 @@ package net.filebot.mediainfo;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
@@ -42,15 +44,48 @@ public class MediaInfo implements Closeable {
 	}
 
 	public synchronized boolean open(File file) {
-		if (!file.isFile())
+		if (!file.isFile()) {
 			return false;
-
-		// MacOS filesystem may require NFD unicode decomposition (forcing NFD seems to work for System.out() but passing to libmediainfo is still not working)
-		String path = file.getAbsolutePath();
-		if (Platform.isMac()) {
-			path = Normalizer.normalize(path, Form.NFD);
 		}
+
+		String path = file.getAbsolutePath();
+
+		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
+		if (Platform.isMac() && path.length() != Normalizer.normalize(path, Form.NFD).length()) {
+			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+				return openViaBuffer(raf);
+			} catch (IOException e) {
+				return false;
+			}
+		}
+
 		return MediaInfoLibrary.INSTANCE.Open(handle, new WString(path)) > 0;
+	}
+
+	private boolean openViaBuffer(RandomAccessFile f) throws IOException {
+		byte[] buffer = new byte[64 * 1024];
+		int read = -1;
+
+		if (MediaInfoLibrary.INSTANCE.Open_Buffer_Init(handle, f.length(), 0) <= 0) {
+			return false;
+		}
+
+		do {
+			read = f.read(buffer);
+			int result = MediaInfoLibrary.INSTANCE.Open_Buffer_Continue(handle, buffer, read);
+			if ((result & 8) == 8) {
+				break;
+			}
+
+			if (MediaInfoLibrary.INSTANCE.Open_Buffer_Continue_GoTo_Get(handle) != -1) {
+				long gotoPos = MediaInfoLibrary.INSTANCE.Open_Buffer_Continue_GoTo_Get(handle);
+				f.seek(gotoPos);
+				MediaInfoLibrary.INSTANCE.Open_Buffer_Init(handle, f.length(), gotoPos);
+			}
+		} while (read > 0);
+
+		MediaInfoLibrary.INSTANCE.Open_Buffer_Finalize(handle);
+		return true;
 	}
 
 	public synchronized String inform() {
