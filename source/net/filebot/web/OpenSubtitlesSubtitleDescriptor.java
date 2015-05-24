@@ -96,6 +96,22 @@ public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Seri
 		return Integer.parseInt(getProperty(Property.QueryNumber));
 	}
 
+	public float getMovieFPS() {
+		return Float.parseFloat(getProperty(Property.MovieFPS));
+	}
+
+	public long getMovieTimeMS() {
+		return Long.parseLong(getProperty(Property.MovieTimeMS));
+	}
+
+	public int getSubActualCD() {
+		return Integer.parseInt(getProperty(Property.SubActualCD));
+	}
+
+	public int getSubSumCD() {
+		return Integer.parseInt(getProperty(Property.SubSumCD));
+	}
+
 	@Override
 	public ByteBuffer fetch() throws Exception {
 		URL resource = new URL(getProperty(Property.SubDownloadLink));

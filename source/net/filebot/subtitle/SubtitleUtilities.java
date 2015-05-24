@@ -4,7 +4,6 @@ import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.MediaDetection.*;
-import static net.filebot.similarity.EpisodeMetrics.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -35,7 +34,6 @@ import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.Matcher;
 import net.filebot.similarity.MetricAvg;
-import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SequenceMatchSimilarity;
 import net.filebot.similarity.SimilarityMetric;
@@ -139,11 +137,11 @@ public final class SubtitleUtilities {
 				}
 
 				// add other possible matches to the options
-				SimilarityMetric sanity = EpisodeMetrics.verificationMetric();
+				SimilarityMetric sanity = SubtitleMetrics.verificationMetric();
 				float minMatchSimilarity = strict ? 0.9f : 0.6f;
 
 				// first match everything as best as possible, then filter possibly bad matches
-				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles, false).entrySet()) {
+				for (Entry<File, SubtitleDescriptor> it : matchSubtitles(files, subtitles).entrySet()) {
 					if (sanity.getSimilarity(it.getKey(), it.getValue()) >= minMatchSimilarity) {
 						subtitlesByFile.get(it.getKey()).add(it.getValue());
 					}
@@ -178,31 +176,20 @@ public final class SubtitleUtilities {
 		return subtitlesByFile;
 	}
 
-	public static Map<File, SubtitleDescriptor> matchSubtitles(Collection<File> files, Collection<SubtitleDescriptor> subtitles, boolean strict) throws InterruptedException {
+	public static Map<File, SubtitleDescriptor> matchSubtitles(Collection<File> files, Collection<SubtitleDescriptor> subtitles) throws InterruptedException {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new LinkedHashMap<File, SubtitleDescriptor>();
 
 		// optimize for generic media <-> subtitle matching
-		SimilarityMetric[] metrics = new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, NameSubstringSequence, new MetricCascade(NameSubstringSequence, Name), Numeric, new NameSimilarityMetric() };
-
-		// subtitle verification metric specifically excluding SxE mismatches
-		SimilarityMetric absoluteSeasonEpisode = new SimilarityMetric() {
-
-			@Override
-			public float getSimilarity(Object o1, Object o2) {
-				float f = SeasonEpisode.getSimilarity(o1, o2);
-				if (f == 0 && (getEpisodeIdentifier(o1.toString(), true) == null) == (getEpisodeIdentifier(o2.toString(), true) == null)) {
-					return 0;
-				}
-				return f < 1 ? -1 : 1;
-			}
-		};
-		SimilarityMetric sanity = new MetricCascade(absoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name), getMovieMatchMetric());
+		SimilarityMetric[] metrics = SubtitleMetrics.defaultSequence();
 
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);
 
+		SimilarityMetric sanity = SubtitleMetrics.sanityMetric();
+		float minSanitySimilarity = 0.1f;
+
 		for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= (strict ? 0.9f : 0.6f)) {
+			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= minSanitySimilarity) {
 				subtitleByVideo.put(it.getValue(), it.getCandidate());
 			}
 		}
@@ -250,7 +237,7 @@ public final class SubtitleUtilities {
 		}
 
 		try {
-			return matchSubtitles(singleton(file), subtitles, strict).entrySet().iterator().next().getValue();
+			return matchSubtitles(singleton(file), subtitles).entrySet().iterator().next().getValue();
 		} catch (NoSuchElementException e) {
 			return null;
 		} catch (InterruptedException e) {
