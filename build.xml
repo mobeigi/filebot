@@ -751,7 +751,7 @@
 		<copy todir="${dir.release}" preservelastmodified="yes" verbose="yes">
 			<path path="${path.fatjar}" />
 			<fileset dir="${dir.dist}">
-				<include name="*.tar.*" />
+				<include name="*.tar.bz2" />
 				<include name="*.deb" />
 				<include name="*.ipk" />
 				<include name="*.msi" />
