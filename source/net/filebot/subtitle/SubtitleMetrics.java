@@ -8,6 +8,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -82,9 +84,8 @@ public enum SubtitleMetrics implements SimilarityMetric {
 		};
 
 		private Map<String, Object> getSubtitleProperties(OpenSubtitlesSubtitleDescriptor subtitle) {
-			Map<String, Object> props = new HashMap<String, Object>();
-
 			try {
+				Map<String, Object> props = new HashMap<String, Object>();
 				float fps = Math.round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
 				if (fps > 0) {
 					props.put(FPS, fps);
@@ -93,11 +94,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 				if (seconds > 0) {
 					props.put(SECONDS, seconds);
 				}
+				return props;
 			} catch (Exception e) {
-				e.printStackTrace();
+				Logger.getLogger(SubtitleMetrics.class.getName()).log(Level.WARNING, e.toString());
 			}
-
-			return props;
+			return emptyMap();
 		}
 
 		private final Map<File, Map<String, Object>> mediaInfoCache = new WeakHashMap<File, Map<String, Object>>(64);
@@ -107,7 +108,6 @@ public enum SubtitleMetrics implements SimilarityMetric {
 				return mediaInfoCache.computeIfAbsent(file, (f) -> {
 					try {
 						Map<String, Object> props = new HashMap<String, Object>();
-
 						MediaInfo mediaInfo = new MediaInfo();
 						if (mediaInfo.open(file)) {
 							float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
@@ -118,12 +118,12 @@ public enum SubtitleMetrics implements SimilarityMetric {
 							if (seconds > 0) {
 								props.put(SECONDS, seconds);
 							}
+							return props;
 						}
-
-						return props;
 					} catch (Exception e) {
-						return emptyMap();
+						Logger.getLogger(SubtitleMetrics.class.getName()).log(Level.WARNING, e.toString());
 					}
+					return emptyMap();
 				});
 			}
 		}

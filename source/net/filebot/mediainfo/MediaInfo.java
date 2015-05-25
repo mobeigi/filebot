@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sun.jna.NativeLibrary;
@@ -55,6 +56,7 @@ public class MediaInfo implements Closeable {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 				return openViaBuffer(raf);
 			} catch (IOException e) {
+				Logger.getLogger(MediaInfo.class.getName()).log(Level.WARNING, e.toString());
 				return false;
 			}
 		}
