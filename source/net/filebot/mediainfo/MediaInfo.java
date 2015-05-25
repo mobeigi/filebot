@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.ArrayList;
@@ -45,14 +46,14 @@ public class MediaInfo implements Closeable {
 	}
 
 	public synchronized boolean open(File file) {
-		if (!file.isFile()) {
+		if (!file.isFile() || file.length() < 64 * 1024) {
 			return false;
 		}
 
 		String path = file.getAbsolutePath();
 
 		// on Mac files that contain accents cannot be opened via JNA WString file paths due to encoding differences so we use the buffer interface instead for these files
-		if (Platform.isMac() && path.length() != Normalizer.normalize(path, Form.NFD).length()) {
+		if (Platform.isMac() && !StandardCharsets.US_ASCII.newEncoder().canEncode(path)) {
 			try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
 				return openViaBuffer(raf);
 			} catch (IOException e) {
