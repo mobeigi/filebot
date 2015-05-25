@@ -329,6 +329,7 @@
 
 
 		<!-- JRE sign all jars, dylibs and executables -->
+		<property name="path.pkg" value="FileBot_${version}_r${svn.revision}.pkg" />
 		<property name="codesign.opts" value="--verbose=4 --force --sign '3rd Party Mac Developer Application: Point Planck Limited'" />
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
@@ -374,12 +375,12 @@
 			<arg line="--verify FileBot.app" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' FileBot_${version}.pkg" />
+			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' ${path.pkg}" />
 		</exec>
 
 		<!-- store this build in releases -->
 		<mkdir dir="${dir.release}" />
-		<copy todir="${dir.release}" file="${dir.dist}/FileBot_${version}.pkg" verbose="yes" />
+		<copy todir="${dir.release}" file="${dir.dist}/${path.pkg}" verbose="yes" />
 	</target>
 
 
@@ -387,8 +388,8 @@
 		<property name="jre.version" value="jdk-8u45" />
 		<property name="jre.dir" value="${basedir}/jre" />
 
-		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-tarbin.tar.gz" />
-		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-debsrc.tar.gz" />
+		<property name="path.tarbin" location="${dir.dist}/filebot-${version}-r${svn.revision}-tarbin.tar.gz" />
+		<property name="path.debsrc" location="${dir.dist}/filebot-${version}-r${svn.revision}-debsrc.tar.gz" />
 		<property name="dir.debsrc" location="${dir.dist}/debian-source-package/filebot/filebot-${version}" />
 
 		<!-- collect binary content -->
