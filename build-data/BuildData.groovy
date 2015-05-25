@@ -333,7 +333,7 @@ new File('osdb.txt').eachLine('UTF-8'){
 
 	// 0 IDMovie, 1 IDMovieImdb, 2 MovieName, 3 MovieYear, 4 MovieKind, 5 MoviePriority
 	if (fields.size() == 6 && fields[1] ==~ /\d+/ && fields[3] ==~ /\d{4}/) {
-		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 750) {
+		if (fields[4] ==~ /movie|tv.series/ && isValidMovieName(fields[2]) && (fields[3] as int) >= 1970 && (fields[5] as int) >= 500) {
 			// 0 imdbid, 1 name, 2 year, 3 kind, 4 priority
 			osdb << [fields[1] as int, fields[2], fields[3] as int, fields[4] == /movie/ ? 'm' : fields[4] == /tv series/ ? 's' : '?', fields[5] as int]
 		}
@@ -346,15 +346,24 @@ osdb.sort{ a, b -> b[4] <=> a[4] }
 // reset score/priority because it's currently not used
 osdb*.set(4, 0)
 
+// map by imdbid
+def tvdb_index = tvdb.values().findAll{ it[2] =~ /tt(\d+)/ }.collectEntries{ [it[2].substring(2).pad(7), it] }
+
 // collect final output data
 osdb = osdb.findResults{
 	def names = [it[1]]
 	if (it[3] == 'm') {
 		def tmdb_entry = tmdb_index[it[0].pad(7)]
-		if (tmdb_entry != null) {
+		if (tmdb_entry != null && tmdb_entry.size() > 4) {
 			names += tmdb_entry[4..-1]
 		}
+	} else if (it[3] == 's') {
+		def tvdb_entry = tvdb_index[it[0].pad(7)]
+		if (tvdb_entry != null && tvdb_entry.size() > 5) {
+			names += tvdb_entry[5..-1]
+		}
 	}
+	// 0 kind, 1 score, 2 imdbid, 3 year, 4-n names
 	return [it[3], it[4], it[0], it[2]] + names.unique()
 }
 
