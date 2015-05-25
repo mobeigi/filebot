@@ -1,8 +1,10 @@
 package net.filebot.subtitle;
 
+import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.EpisodeMetrics.*;
+import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.CrossPropertyMetric;
@@ -21,6 +24,7 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.NumericSimilarityMetric;
+import net.filebot.similarity.SequenceMatchSimilarity;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.web.OpenSubtitlesSubtitleDescriptor;
 import net.filebot.web.SubtitleDescriptor;
@@ -65,6 +69,36 @@ public enum SubtitleMetrics implements SimilarityMetric {
 		}
 	}),
 
+	OriginalFileName(new SequenceMatchSimilarity() {
+
+		@Override
+		protected float similarity(String match, String s1, String s2) {
+			return (float) match.length() / max(s1.length(), s2.length()) > 0.8 ? 1 : 0;
+		}
+
+		private final Map<File, String> xattrCache = new WeakHashMap<File, String>(64);
+
+		@Override
+		public String normalize(Object obj) {
+			if (obj instanceof File) {
+				synchronized (xattrCache) {
+					return xattrCache.computeIfAbsent((File) obj, (f) -> {
+						try {
+							String originalName = new MetaAttributes(f).getOriginalName();
+							return super.normalize(getNameWithoutExtension(originalName));
+						} catch (Exception e) {
+							return super.normalize(getNameWithoutExtension(f.getName()));
+						}
+					});
+				}
+			} else if (obj instanceof OpenSubtitlesSubtitleDescriptor) {
+				String name = ((OpenSubtitlesSubtitleDescriptor) obj).getName();
+				return super.normalize(name);
+			}
+			return super.normalize(obj);
+		}
+	}),
+
 	VideoProperties(new CrossPropertyMetric() {
 
 		private final String FPS = "FPS";
@@ -86,11 +120,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 		private Map<String, Object> getSubtitleProperties(OpenSubtitlesSubtitleDescriptor subtitle) {
 			try {
 				Map<String, Object> props = new HashMap<String, Object>();
-				float fps = Math.round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
+				float fps = round(subtitle.getMovieFPS()); // round because most FPS values in the database are bad anyway
 				if (fps > 0) {
 					props.put(FPS, fps);
 				}
-				long seconds = (long) Math.floor(subtitle.getMovieTimeMS() / (double) 1000);
+				long seconds = (long) floor(subtitle.getMovieTimeMS() / (double) 1000);
 				if (seconds > 0) {
 					props.put(SECONDS, seconds);
 				}
@@ -110,11 +144,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 						Map<String, Object> props = new HashMap<String, Object>();
 						MediaInfo mediaInfo = new MediaInfo();
 						if (mediaInfo.open(file)) {
-							float fps = Math.round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
+							float fps = round(Float.parseFloat(mediaInfo.get(StreamKind.Video, 0, "FrameRate")));
 							if (fps > 0) {
 								props.put(FPS, fps);
 							}
-							long seconds = (long) Math.floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
+							long seconds = (long) floor(Long.parseLong(mediaInfo.get(StreamKind.Video, 0, "Duration")) / (double) 1000);
 							if (seconds > 0) {
 								props.put(SECONDS, seconds);
 							}
@@ -142,7 +176,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 	}
 
 	public static SimilarityMetric[] defaultSequence() {
-		return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, NameSubstringSequence, new MetricCascade(NameSubstringSequence, Name), Numeric, FileName, DiskNumber, VideoProperties, new NameSimilarityMetric() };
+		return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, OriginalFileName, NameSubstringSequence, new MetricCascade(NameSubstringSequence, Name), Numeric, FileName, DiskNumber, VideoProperties, new NameSimilarityMetric() };
 	}
 
 	public static SimilarityMetric verificationMetric() {
@@ -150,7 +184,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 	}
 
 	public static SimilarityMetric sanityMetric() {
-		return new MetricCascade(AbsoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name), getMovieMatchMetric());
+		return new MetricCascade(AbsoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name), getMovieMatchMetric(), OriginalFileName);
 	}
 
 }

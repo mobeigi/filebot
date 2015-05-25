@@ -64,6 +64,7 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.SimilarityMetric;
+import net.filebot.subtitle.SubtitleMetrics;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.ui.AbstractBean;
 import net.filebot.util.ui.DashedSeparator;
@@ -946,7 +947,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
-			SimilarityMetric metric = new MetricCascade(EpisodeMetrics.SeasonEpisode, EpisodeMetrics.AirDate, EpisodeMetrics.Name);
+			SimilarityMetric metric = SubtitleMetrics.sanityMetric();
 			return 0.9f * metric.getSimilarity(videoFile, descriptor);
 		}
 	}
