@@ -82,7 +82,7 @@ public class SubtitleViewer extends JFrame {
 
 		content.add(new JLabel("Filter:"), "gap indent:push");
 		content.add(filterEditor, "wmin 120px, gap rel");
-		content.add(new JButton(clearFilterAction), "w 24px!, h 24px!, wrap");
+		content.add(createImageButton(clearFilterAction), "w pref!, h pref!, wrap");
 		content.add(new JScrollPane(subtitleTable), "grow");
 
 		JComponent pane = (JComponent) getContentPane();
@@ -234,7 +234,7 @@ public class SubtitleViewer extends JFrame {
 		return infoLabel;
 	}
 
-	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
+	private final Action clearFilterAction = new AbstractAction("Clear Filter", ResourceManager.getIcon("edit.clear")) {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {

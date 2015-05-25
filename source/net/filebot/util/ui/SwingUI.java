@@ -31,12 +31,15 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
 import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
+
+import net.filebot.Settings;
 
 public final class SwingUI {
 
@@ -89,7 +92,8 @@ public final class SwingUI {
 		button.setHideActionText(true);
 		button.setToolTipText(String.valueOf(action.getValue(Action.NAME)));
 		button.setOpaque(false);
-
+		button.setVerticalTextPosition(SwingConstants.BOTTOM);
+		button.setPreferredSize(new Dimension(28, 28));
 		return button;
 	}
 

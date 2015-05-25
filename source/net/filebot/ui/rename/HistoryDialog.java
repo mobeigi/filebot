@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.util.ui.SwingUI.*;
 import static java.awt.Font.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
@@ -120,7 +121,7 @@ class HistoryDialog extends JDialog {
 
 		content.add(new JLabel("Filter:"), "gap indent:push");
 		content.add(filterEditor, "wmin 120px, gap rel");
-		content.add(new JButton(clearFilterAction), "w 24px!, h 24px!, gap right indent, wrap");
+		content.add(createImageButton(clearFilterAction), "w pref!, h pref!, gap right indent, wrap");
 
 		content.add(createScrollPaneGroup("Sequences", sequenceTable), "growx, wrap paragraph");
 		content.add(createScrollPaneGroup("Elements", elementTable), "growx, wrap paragraph");
@@ -327,7 +328,7 @@ class HistoryDialog extends JDialog {
 		}
 	};
 
-	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
+	private final Action clearFilterAction = new AbstractAction("Clear Filter", ResourceManager.getIcon("edit.clear")) {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -418,6 +419,7 @@ class HistoryDialog extends JDialog {
 
 		public RevertSelectionAction(Collection<Element> elements) {
 			super("Revert...", HistoryDialog.this);
+			putValue(SMALL_ICON, ResourceManager.getIcon("action.revert"));
 			putValue(ELEMENTS, elements.toArray(new Element[0]));
 		}
 
@@ -433,7 +435,6 @@ class HistoryDialog extends JDialog {
 
 		public RevertAction(String name, HistoryDialog parent) {
 			putValue(NAME, name);
-			putValue(SMALL_ICON, ResourceManager.getIcon("action.revert"));
 			putValue(PARENT, parent);
 		}
 

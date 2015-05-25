@@ -115,14 +115,14 @@ class SubtitleDownloadComponent extends JComponent {
 		fileList.setDragEnabled(true);
 		fileList.addMouseListener(fileListMouseHandler);
 
-		JButton clearButton = new JButton(clearFilterAction);
+		JButton clearButton = createImageButton(clearFilterAction);
 		clearButton.setOpaque(false);
 
 		setLayout(new MigLayout("nogrid, fill", "[fill]", "[pref!][fill]"));
 
 		add(new JLabel("Filter:"), "gap indent:push");
 		add(filterEditor, "wmin 120px, gap rel");
-		add(clearButton, "w 24px!, h 24px!");
+		add(clearButton, "w pref!, h pref!");
 		add(new JScrollPane(packageList), "newline, hmin 80px");
 
 		JScrollPane scrollPane = new JScrollPane(fileList);
@@ -329,7 +329,7 @@ class SubtitleDownloadComponent extends JComponent {
 		}
 	}
 
-	private final Action clearFilterAction = new AbstractAction(null, ResourceManager.getIcon("edit.clear")) {
+	private final Action clearFilterAction = new AbstractAction("Clear Filter", ResourceManager.getIcon("edit.clear")) {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
