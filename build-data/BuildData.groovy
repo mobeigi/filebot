@@ -303,28 +303,6 @@ pack(thetvdb_out, thetvdb_txt)
 /* ------------------------------------------------------------------------- */
 
 
-// BUILD anidb index
-def anidb = new AnidbClient('filebot', 5).getAnimeTitles()
-
-def anidb_index = anidb.findResults{
-	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
-	names = getNamePermutations(names)
-	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
-
-	return names.empty ? null : [it.getAnimeId().pad(5)] + names.take(4)
-}
-
-// join and sort
-def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
-
-// sanity check
-if (anidb_txt.size() < 8000) { die('AniDB index sanity failed:' + anidb_txt.size()) }
-pack(anidb_out, anidb_txt)
-
-
-/* ------------------------------------------------------------------------- */
-
-
 // BUILD osdb index
 def osdb = []
 
@@ -370,3 +348,25 @@ osdb = osdb.findResults{
 // sanity check
 if (osdb.size() < 20000) { die('OSDB index sanity failed:' + osdb.size()) }
 pack(osdb_out, osdb*.join('\t'))
+
+
+/* ------------------------------------------------------------------------- */
+
+
+// BUILD anidb index
+def anidb = new AnidbClient('filebot', 5).getAnimeTitles()
+
+def anidb_index = anidb.findResults{
+	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
+	names = getNamePermutations(names)
+	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
+
+	return names.empty ? null : [it.getAnimeId().pad(5)] + names.take(4)
+}
+
+// join and sort
+def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
+
+// sanity check
+if (anidb_txt.size() < 8000) { die('AniDB index sanity failed:' + anidb_txt.size()) }
+pack(anidb_out, anidb_txt)
