@@ -91,9 +91,15 @@ public final class SwingUI {
 		JButton button = new JButton(action);
 		button.setHideActionText(true);
 		button.setToolTipText(String.valueOf(action.getValue(Action.NAME)));
-		button.setOpaque(false);
 		button.setVerticalTextPosition(SwingConstants.BOTTOM);
-		button.setPreferredSize(new Dimension(28, 28));
+		button.setOpaque(false);
+
+		if (Settings.isMacApp()) {
+			button.setPreferredSize(new Dimension(28, 27));
+		} else {
+			button.setPreferredSize(new Dimension(26, 26));
+		}
+
 		return button;
 	}
 

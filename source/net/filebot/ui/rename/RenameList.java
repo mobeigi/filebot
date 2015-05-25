@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static net.filebot.util.ui.SwingUI.*;
 import static java.util.Collections.*;
 
 import java.awt.BorderLayout;
@@ -80,8 +81,8 @@ class RenameList<E> extends FileBotList<E> {
 		getRemoveAction().setEnabled(true);
 
 		buttonPanel = new JPanel(new MigLayout("insets 1.2mm, nogrid, fill", "align center"));
-		buttonPanel.add(new JButton(downAction), "gap 10px");
-		buttonPanel.add(new JButton(upAction), "gap 0");
+		buttonPanel.add(createImageButton(downAction), "gap 10px");
+		buttonPanel.add(createImageButton(upAction), "gap 0");
 		buttonPanel.add(createLoadButton(), "gap 10px");
 
 		add(buttonPanel, BorderLayout.SOUTH);
@@ -123,7 +124,7 @@ class RenameList<E> extends FileBotList<E> {
 
 	private final LoadAction loadAction = new LoadAction(null);
 
-	private final AbstractAction upAction = new AbstractAction(null, ResourceManager.getIcon("action.up")) {
+	private final AbstractAction upAction = new AbstractAction("Align Up", ResourceManager.getIcon("action.up")) {
 
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
@@ -135,7 +136,7 @@ class RenameList<E> extends FileBotList<E> {
 		}
 	};
 
-	private final AbstractAction downAction = new AbstractAction(null, ResourceManager.getIcon("action.down")) {
+	private final AbstractAction downAction = new AbstractAction("Align Down", ResourceManager.getIcon("action.down")) {
 
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();

@@ -205,7 +205,7 @@ public class FormatDialog extends JDialog {
 		content.add(help, "growx, wrap 25px:push");
 
 		if (lockOnBinding == null) {
-			content.add(new JButton(switchEditModeAction), "tag left");
+			content.add(createImageButton(switchEditModeAction), "tag left");
 		}
 		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
@@ -707,7 +707,7 @@ public class FormatDialog extends JDialog {
 		}
 	};
 
-	protected final Action switchEditModeAction = new AbstractAction(null, ResourceManager.getIcon("dialog.switch")) {
+	protected final Action switchEditModeAction = new AbstractAction("Switch Mode", ResourceManager.getIcon("dialog.switch")) {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
