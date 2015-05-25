@@ -61,8 +61,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.ResourceManager;
 import net.filebot.mac.MacAppUtilities;
-import net.filebot.similarity.EpisodeMetrics;
-import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.subtitle.SubtitleMetrics;
 import net.filebot.subtitle.SubtitleNaming;

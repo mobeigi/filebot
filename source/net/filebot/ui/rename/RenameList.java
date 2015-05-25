@@ -1,7 +1,7 @@
 package net.filebot.ui.rename;
 
-import static net.filebot.util.ui.SwingUI.*;
 import static java.util.Collections.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;

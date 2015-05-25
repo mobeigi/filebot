@@ -4,7 +4,6 @@ import static java.util.Arrays.*;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 
 public final class StringUtilities {
 
@@ -14,6 +13,14 @@ public final class StringUtilities {
 
 	public static boolean isEmpty(Object object) {
 		return object == null || object.toString().length() == 0;
+	}
+
+	public static String join(Iterable<?> values, CharSequence delimiter) {
+		return join(values, delimiter, "", "");
+	}
+
+	public static String join(CharSequence delimiter, Object... values) {
+		return join(asList(values), delimiter, "", "");
 	}
 
 	public static String join(Object[] values, CharSequence delimiter) {

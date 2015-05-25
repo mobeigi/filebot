@@ -38,7 +38,6 @@ import net.filebot.web.CachedResource;
 import net.filebot.web.Movie;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
-import net.filebot.web.SubtitleSearchResult.Kind;
 
 import org.tukaani.xz.XZInputStream;
 

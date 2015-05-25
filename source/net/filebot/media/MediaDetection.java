@@ -7,6 +7,7 @@ import static net.filebot.Settings.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -1046,7 +1047,7 @@ public class MediaDetection {
 			relativePath.addFirst(it.getName());
 		}
 
-		return relativePath.isEmpty() ? null : new File(String.join(File.separator, relativePath));
+		return relativePath.isEmpty() ? null : new File(join(relativePath, File.separator));
 	}
 
 	public static Map<File, List<File>> mapByMediaFolder(Collection<File> files) {

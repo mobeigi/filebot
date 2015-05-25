@@ -4,6 +4,7 @@ import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
 import static net.filebot.similarity.Normalization.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.text.CollationKey;
@@ -99,7 +100,7 @@ public class SeriesNameMatcher {
 		whitelist.addAll(deepMatchAll(focus, threshold));
 
 		// 1. use pattern matching
-		seriesNames.addAll(flatMatchAll(names, compile(String.join("|", whitelist), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS), threshold, false));
+		seriesNames.addAll(flatMatchAll(names, compile(join(whitelist, "|"), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS), threshold, false));
 
 		// 2. use common word sequences
 		seriesNames.addAll(whitelist);

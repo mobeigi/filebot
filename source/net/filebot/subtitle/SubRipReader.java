@@ -1,5 +1,7 @@
 package net.filebot.subtitle;
 
+import static net.filebot.util.StringUtilities.*;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class SubRipReader extends SubtitleReader {
 			lines.add(line);
 		}
 
-		return new SubtitleElement(t1, t2, resolve(String.join("\n", lines)));
+		return new SubtitleElement(t1, t2, resolve(join(lines, "\n")));
 	}
 
 	protected String resolve(String text) {
