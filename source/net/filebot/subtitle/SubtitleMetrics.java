@@ -180,10 +180,6 @@ public enum SubtitleMetrics implements SimilarityMetric {
 	}
 
 	public static SimilarityMetric verificationMetric() {
-		return EpisodeMetrics.verificationMetric();
-	}
-
-	public static SimilarityMetric sanityMetric() {
 		return new MetricCascade(AbsoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name), getMovieMatchMetric(), OriginalFileName);
 	}
 

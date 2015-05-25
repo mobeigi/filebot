@@ -945,8 +945,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		public float getMatchProbabilty(File videoFile, SubtitleDescriptor descriptor) {
-			SimilarityMetric metric = SubtitleMetrics.sanityMetric();
-			return 0.9f * metric.getSimilarity(videoFile, descriptor);
+			return SubtitleMetrics.verificationMetric().getSimilarity(videoFile, descriptor);
 		}
 	}
 

@@ -185,13 +185,8 @@ public final class SubtitleUtilities {
 		// first match everything as best as possible, then filter possibly bad matches
 		Matcher<File, SubtitleDescriptor> matcher = new Matcher<File, SubtitleDescriptor>(files, subtitles, false, metrics);
 
-		SimilarityMetric sanity = SubtitleMetrics.sanityMetric();
-		float minSanitySimilarity = 0.1f;
-
 		for (Match<File, SubtitleDescriptor> it : matcher.match()) {
-			if (sanity.getSimilarity(it.getValue(), it.getCandidate()) >= minSanitySimilarity) {
-				subtitleByVideo.put(it.getValue(), it.getCandidate());
-			}
+			subtitleByVideo.put(it.getValue(), it.getCandidate());
 		}
 
 		return subtitleByVideo;
@@ -237,8 +232,16 @@ public final class SubtitleUtilities {
 		}
 
 		try {
-			return matchSubtitles(singleton(file), subtitles).entrySet().iterator().next().getValue();
-		} catch (NoSuchElementException e) {
+			// add other possible matches to the options
+			SimilarityMetric sanity = SubtitleMetrics.verificationMetric();
+			float minMatchSimilarity = strict ? 0.8f : 0.2f;
+
+			// first match everything as best as possible, then filter possibly bad matches
+			for (Entry<File, SubtitleDescriptor> it : matchSubtitles(singleton(file), subtitles).entrySet()) {
+				if (sanity.getSimilarity(it.getKey(), it.getValue()) >= minMatchSimilarity) {
+					return it.getValue();
+				}
+			}
 			return null;
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
