@@ -19,7 +19,6 @@ import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.CrossPropertyMetric;
-import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.NameSimilarityMetric;
