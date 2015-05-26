@@ -60,6 +60,7 @@ import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
+import net.filebot.util.EntryList;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.vfs.FileInfo;
@@ -890,9 +891,10 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		CLILogger.fine(String.format("Apply Filter: {%s}", filter.getExpression()));
+		Map<File, Object> context = new EntryList<File, Object>(null, input);
 		List<T> output = new ArrayList<T>(input.size());
 		for (T it : input) {
-			if (filter.matches(new MediaBindingBean(it, null, null))) {
+			if (filter.matches(new MediaBindingBean(it, null, context))) {
 				CLILogger.finest(String.format("Include [%s]", it));
 				output.add(it);
 			}
