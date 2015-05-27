@@ -30,9 +30,9 @@ sortRegexList("${dir_data}/add-series-alias.txt")
 
 
 def reviews = []
-new File("${dir_root}/reviews.csv").eachLine('UTF-8'){
-	def s = it.split(';', 3)
-	reviews << [user: s[0], date: s[1], text: s[2].replaceAll(/^\"|\"$/, '').replaceAll(/["]{2}/, '"') ]
+new File("${dir_root}/reviews.tsv").eachLine('UTF-8'){
+	def s = it.split(/\t/, 3)*.trim()
+	reviews << [user: s[0], date: s[1], text: s[2]]
 }
 reviews = reviews.sort{ it.date }
 
