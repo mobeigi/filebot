@@ -143,6 +143,8 @@ table.reference.cli > * > * > td:first-child {
 
 img.logo {
 	float: left;
+	margin-top: -6px;
+	margin-left: -8px;
 }
 
 h1 {
