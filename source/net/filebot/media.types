@@ -13,7 +13,7 @@
 		<extension>nfo</extension>
 		<extension>url</extension>
 	</type>
-	
+
 	<!-- Verification -->
 	<type name="verification/sfv">
 		<extension>sfv</extension>
@@ -32,7 +32,7 @@
 	<type name="verification/ed2k">
 		<extension>ed2k</extension>
 	</type>
-	
+
 	<!-- Archives -->
 	<type name="archive/zip">
 		<extension>zip</extension>
@@ -78,7 +78,7 @@
 		<extension>aiff</extension>
 		<extension>alac</extension>
 	</type>
-	
+
 	<!-- Video -->
 	<type name="video/avi">
 		<extension>avi</extension>
@@ -113,6 +113,8 @@
 	</type>
 	<type name="video/wmv">
 		<extension>wmv</extension>
+		<extension>asf</extension>
+		<extension>wtv</extension>
 	</type>
 	<type name="video/WebM">
 		<extension>webm</extension>
@@ -127,9 +129,6 @@
 	</type>
 	<type name="video/tivo">
 		<extension>tivo</extension>
-	</type>
-	<type name="video/WindowsRecordedTV">
-		<extension>wtv</extension>
 	</type>
 	<type name="video/NuppelVideo">
 		<extension>nuv</extension>
