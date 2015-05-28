@@ -185,7 +185,10 @@ public class MediaBindingBean {
 	public Number getAgeInDays() {
 		SimpleDate releaseDate = getReleaseDate();
 		if (releaseDate != null) {
-			return TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - releaseDate.getTimeStamp());
+			long days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - releaseDate.getTimeStamp());
+			if (days >= 0) {
+				return days;
+			}
 		}
 		return null;
 	}
