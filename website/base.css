@@ -387,25 +387,34 @@ div.screencast:hover .play {
 	text-align: center;
 }
 
-.footer {
-	font-size: 60%;
+.footer p {
+	font-size: xx-small;
 	text-align: center;
+	margin: 0em;
+	padding 0em;
+	position: relative;
+	top: 0.6em;
+	left: 2em;
 }
 
 #bitcoinate {
 	float: right;
 	height: 0px;
 	position: relative;
-	right: -6px;
-	top: -6px;
+	right: 0.2em;
+	bottom: 0.8em;
+}
+
+#bitcoinate a img {
+	width: 16px;
+	height: 16px;
 }
 
 #donate {
-	position: relative;
+	position: absolute;
 	text-align: left;
 	height: 0px;
-	left: 20px;
-	top: -12px;
+	bottom: 38px;
 }
 
 .message.box {
