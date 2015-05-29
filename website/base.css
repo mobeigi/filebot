@@ -29,7 +29,7 @@ h3 {
 
 hr {
 	border-style: dashed; 
-	border-width: 1px 0 0 0; 
+	border-width: thin 0 0 0; 
 	border-color: lightgray;
 }
 
@@ -124,7 +124,7 @@ table.reference.cli > * > * > td:first-child {
 	padding: 20px;
 	background: white;
 	background-repeat: no-repeat;
-	border: 1px solid #a2a2a2;
+	border: thin solid #a2a2a2;
 	border-radius: 7px;
 	box-shadow: 0px 2px 5px #a2a2a2;
 	overflow: visible;
@@ -196,7 +196,7 @@ h1 .description {
 .screenshot {
 	float: right;
 	background-color: #E6E6E6;
-	border: 1px solid lightgray;
+	border: thin solid lightgray;
 	box-shadow: 0px 2px 5px #a2a2a2;
 }
 
@@ -233,7 +233,7 @@ div.screencast:hover .play {
 }
 
 .content>.screenshot {
-	margin-top: 25px;
+	margin-top: 37px;
 	margin-left: 20px;
 }
 
@@ -358,7 +358,7 @@ div.screencast:hover .play {
 .section.features>ul.next {
 	clear: both;
 	padding-top: 5px;
-	border-top: 1px dashed lightgray;
+	border-top: thin dashed lightgray;
 }
 
 .section.features .screenshot {
@@ -405,7 +405,7 @@ div.screencast:hover .play {
 	text-align: left;
 	height: 0px;
 	left: 20px;
-	top: -57px;
+	top: -12px;
 }
 
 .message.box {
@@ -448,7 +448,7 @@ div.screencast:hover .play {
 	border-radius: 4px 4px 4px 4px;
 	background-image: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0));
 	background-color: #0088BB;
-	border: 1px solid #006699;
+	border: thin solid #006699;
 	text-align: center;
 	height: 42px;
 	width: 42px;
@@ -476,24 +476,26 @@ div.screencast:hover .play {
 
 #download li.macosx {
 	list-style: none;
-	background: url('http://www.apple.com/favicon.ico') no-repeat 0.25em center;
+	background: url('images/apple.logo.svg') no-repeat 0.3em 0.3em;
     background-size: 24px 24px;
-	margin: 0em 0em 0.5em 0.5em;
+	margin: 0.5em 1em 1em 1em;
 	padding: 0.5em 0.6em 0.5em 2.0em;
-	border: thin silver dashed;
 	border-radius: 4px 4px 4px 4px;
 	display: inline-block;
+	background-color: ghostwhite;
+	box-shadow: 0px 0px 5px royalblue;
 }
 
 #download li.ubuntu {
 	list-style: none; 
-	background: url('http://www.ubuntu.com/static/u/img/favicon.ico') no-repeat 0.5em center;
-    background-size: 16px 16px;
-	margin: 0em 0em 0.5em 5em;
+	background: url('images/ubuntu.logo.svg') no-repeat 0.4em center;
+    background-size: 22px 22px;
+	margin: 0.5em 1em 1em 4em;
 	padding: 0.5em 0.6em 0.5em 2.0em;
-	border: thin rgb(221, 72, 20) dashed;
 	border-radius: 4px 4px 4px 4px;
 	display: inline-block;
+	background-color: linen;
+	box-shadow: 0px 0px 5px orangered;
 }
 
 #download li.ubuntu a {
