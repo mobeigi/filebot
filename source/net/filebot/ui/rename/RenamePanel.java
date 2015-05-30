@@ -65,6 +65,7 @@ import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
+import net.filebot.vfs.FileInfo;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.AudioTrackFormat;
 import net.filebot.web.Episode;
@@ -141,8 +142,10 @@ public class RenamePanel extends JComponent {
 			// restore custom music formatter
 			renameModel.useFormatter(File.class, new ExpressionFormatter(persistentFileFormat.getValue(), new FileNameFormat(), File.class));
 		} catch (Exception e) {
+			// use default FileInfo formatter as fallback
+		} finally {
 			// use default filename formatter
-			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
+			renameModel.useFormatter(FileInfo.class, new FileNameFormatter(renameModel.preserveExtension()));
 		}
 
 		RenameListCellRenderer cellrenderer = new RenameListCellRenderer(renameModel);
@@ -606,7 +609,7 @@ public class RenamePanel extends JComponent {
 			renameModel.setPreserveExtension(!activate);
 
 			// use different file name formatter
-			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
+			renameModel.useFormatter(FileInfo.class, new FileNameFormatter(renameModel.preserveExtension()));
 
 			// display changed state
 			filesList.repaint();

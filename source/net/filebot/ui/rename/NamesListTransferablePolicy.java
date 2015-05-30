@@ -146,7 +146,7 @@ class NamesListTransferablePolicy extends FileTransferablePolicy {
 			Torrent torrent = new Torrent(file);
 
 			for (Torrent.Entry entry : torrent.getFiles()) {
-				values.add(new SimpleFileInfo(entry.getName(), entry.getLength()));
+				values.add(new SimpleFileInfo(entry.getPath(), entry.getLength()));
 			}
 		}
 	}
