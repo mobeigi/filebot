@@ -411,10 +411,11 @@ div.screencast:hover .play {
 }
 
 #donate {
-	position: absolute;
-	text-align: left;
+	float: left;
 	height: 0px;
-	bottom: 38px;
+	position: relative;
+	top: -20px;
+	left: 10px;
 }
 
 .message.box {
