@@ -142,7 +142,8 @@ public class RenamePanel extends JComponent {
 			// restore custom music formatter
 			renameModel.useFormatter(File.class, new ExpressionFormatter(persistentFileFormat.getValue(), new FileNameFormat(), File.class));
 		} catch (Exception e) {
-			// use default FileInfo formatter as fallback
+			// make sure to put File formatter at position 3
+			renameModel.useFormatter(File.class, new FileNameFormatter(renameModel.preserveExtension()));
 		} finally {
 			// use default filename formatter
 			renameModel.useFormatter(FileInfo.class, new FileNameFormatter(renameModel.preserveExtension()));
