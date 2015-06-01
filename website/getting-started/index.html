@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.js"></script>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="galleria/galleria-1.4.2.min.js"></script>
         <script src="galleria/themes/classic/galleria.classic.min.js"></script>
         <link rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
@@ -10,13 +10,13 @@
             div.galleria{ width: 100%; height: 100%; background: #000; position: absolute; top: 0; bottom: 0; }
             div.galleria-thumbnails { margin: auto; }
             div.galleria-thumbnails-list div.galleria-image { max-height: 20px; }
+            img.fullscreen { position: absolute; top: 5px; right: 5px; z-index: 10; cursor: pointer; opacity: 0.3 }
         </style>
         <title>Getting Started</title>
     </head>
     <body>
-        <div class="galleria">
-
-        </div>
+        <img class="fullscreen" src="fullscreen.png" width="16" height="16" onclick="$('.galleria').data('galleria').toggleFullscreen()" />
+        <div class="galleria"></div>
         <script>
             var data = [
                 { video: 'http://www.youtube.com/watch?v=RRq2_Pjyko8', image: 'images/rename.png', thumb: 'images/rename.thumb.png' },
@@ -49,6 +49,10 @@
                         loaded = false
                         this.lazyLoadChunks( data.length )
                     }
+                });
+                this.attachKeyboard({
+                    left: this.prev,
+                    right: this.next
                 });
             });
         </script>
