@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -59,6 +60,12 @@ public class GettingStartedStage {
 
 		// intercept target _blank click events and open links in a new browser window
 		webview.getEngine().setCreatePopupHandler((config) -> onPopup(webview));
+
+		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
+			if (n == Worker.State.SUCCEEDED) {
+				webview.requestFocus();
+			}
+		});
 
 		stage.setTitle("Getting Started");
 		stage.setScene(new Scene(webview, webview.getPrefWidth(), webview.getPrefHeight(), Color.BLACK));
