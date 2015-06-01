@@ -4,6 +4,7 @@
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="galleria/galleria-1.4.2.min.js"></script>
         <script src="galleria/themes/classic/galleria.classic.min.js"></script>
+        <script src="fullscreen.js"></script>
         <link rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
         <style>
             body{ margin: 0; padding: 0; background: #000; }
@@ -15,7 +16,7 @@
         <title>Getting Started</title>
     </head>
     <body>
-        <img class="fullscreen" src="fullscreen.png" width="16" height="16" onclick="$('.galleria').data('galleria').toggleFullscreen()" />
+        <img class="fullscreen" src="fullscreen.png" width="16" height="16" onclick="toggleFullScreen()" />
         <div class="galleria"></div>
         <script>
             var data = [
