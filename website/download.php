@@ -25,8 +25,6 @@ else if ($type == 'ipkg')
 	$file = 'filebot_'.$version.'_noarch.ipk';
 
 
-$downloadPage = $folder.'/'.$file.'/download';
-
 header('HTTP/1.1 302 Found');
-header('Location: '.$downloadPage);
+header('Location: '.$folder.'/'.$file);
 ?>
