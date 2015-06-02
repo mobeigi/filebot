@@ -670,11 +670,6 @@
 	</target>
 
 
-	<target name="genkey">
-		<genkey alias="filebot" keystore="filebot.keystore" storepass="secret" validity="3650" dname="CN=${user.name}" />
-	</target>
-
-
 	<target name="build">
 		<!-- create build dir -->
 		<mkdir dir="${dir.build}" />
@@ -840,16 +835,21 @@
 		<replace dir="${dir.dist}/chocolatey" encoding="utf-8" summary="yes">
 			<include name="**/*.ps1" />
 			<include name="**/*.nuspec" />
-			<replacefilter token="@{version}" value="${version}" />
+			<filterset begintoken="@{" endtoken="}">
+				<propertyset>
+					<propertyref builtin="all" />
+				</propertyset>
+			</filterset>
 		</replace>
 
 		<!-- chocolatey pack -->
 		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
-			<arg line="pack" />
+			<arg value="pack" />
 		</exec>
 
 		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
-			<arg line="push ${dir.dist}\chocolatey\filebot.${version}.nupkg" />
+			<arg value="push" />
+			<arg value="${dir.dist}\chocolatey\filebot.${version}.nupkg" />
 		</exec>
 	</target>
 
