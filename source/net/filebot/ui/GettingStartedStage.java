@@ -64,6 +64,8 @@ public class GettingStartedStage {
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
 				stage.setOpacity(1.0);
+				stage.show();
+				stage.toFront();
 				webview.requestFocus();
 			} else if (n == Worker.State.FAILED) {
 				stage.close();
@@ -80,6 +82,7 @@ public class GettingStartedStage {
 	public void show() {
 		stage.setOpacity(0.0);
 		stage.show();
+		stage.toBack();
 	}
 
 	protected void setBackground(WebEngine engine, int color) {
