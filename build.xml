@@ -827,29 +827,27 @@
 
 
 	<target name="chocolatey-push" description="chocolatey package">
-		<copy todir="${dir.dist}/chocolatey">
-			<fileset dir="${dir.installer}/chocolatey" />
-		</copy>
-
-		<checksum file="${dir.release}/FileBot_${version}_x86.msi" property="x86.msi.sha1" algorithm="SHA-1" />
-		<checksum file="${dir.release}/FileBot_${version}_x64.msi" property="x64.msi.sha1" algorithm="SHA-1" />
+		<!-- prepare sha1 checksums -->
+		<checksum property="x86.msi.sha1" file="${dir.release}/FileBot_${version}_x86.msi" algorithm="SHA-1" />
+		<checksum property="x64.msi.sha1" file="${dir.release}/FileBot_${version}_x64.msi" algorithm="SHA-1" />
 
 		<!-- replace variables for new release -->
-		<replace dir="${dir.dist}/chocolatey" encoding="utf-8" summary="yes">
-			<include name="**/*.ps1" />
-			<include name="**/*.nuspec" />
+		<copy todir="${dir.dist}/chocolatey" overwrite="yes" encoding="UTF-8" verbose="true">
+			<fileset dir="${dir.installer}/chocolatey">
+				<include name="**/*.ps1" />
+				<include name="**/*.nuspec" />
+			</fileset>
 			<filterset begintoken="@{" endtoken="}">
 				<propertyset>
 					<propertyref builtin="all" />
 				</propertyset>
 			</filterset>
-		</replace>
+		</copy>
 
-		<!-- chocolatey pack -->
+		<!-- chocolatey pack and push -->
 		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg value="pack" />
 		</exec>
-
 		<exec executable="chocolatey.exe" dir="${dir.dist}\chocolatey" failonerror="true">
 			<arg value="push" />
 			<arg value="${dir.dist}\chocolatey\filebot.${version}.nupkg" />
