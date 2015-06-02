@@ -1,4 +1,4 @@
-$app = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name = 'FileBot'"
+﻿$app = Get-WmiObject -Query "SELECT * FROM Win32_Product WHERE Name = 'FileBot'"
 echo $app
 
 if ($app -eq $null) {

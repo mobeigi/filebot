@@ -689,7 +689,7 @@
 		</copy>
 
 		<!-- update application properties -->
-		<replace dir="${dir.build}" encoding="utf-8" summary="yes">
+		<replace dir="${dir.build}" encoding="UTF-8" summary="yes">
 			<include name="**/*.properties" />
 			<replacefilter token="@{svn.revision}" value="${svn.revision}" />
 			<replacefilter token="@{version}" value="${version}" />
@@ -830,6 +830,9 @@
 		<copy todir="${dir.dist}/chocolatey">
 			<fileset dir="${dir.installer}/chocolatey" />
 		</copy>
+
+		<checksum file="${dir.release}/FileBot_${version}_x86.msi" property="x86.msi.sha1" algorithm="SHA-1" />
+		<checksum file="${dir.release}/FileBot_${version}_x64.msi" property="x64.msi.sha1" algorithm="SHA-1" />
 
 		<!-- replace variables for new release -->
 		<replace dir="${dir.dist}/chocolatey" encoding="utf-8" summary="yes">
