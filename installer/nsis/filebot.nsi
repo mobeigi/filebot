@@ -102,9 +102,9 @@ Section MAIN
 	
 	DetailPrint "Downloading latest version..."
 	${if} ${RunningX64}
-		inetc::get /USERAGENT "nsis" /caption "Downloading FileBot (64-bit)" "https://www.filebot.net/download.php?mode=nsis&type=msi&arch=x64" "$PLUGINSDIR\FileBot.msi" /end
+		inetc::get /USERAGENT "nsis" /caption "Downloading FileBot (64-bit)" "https://app.filebot.net/download.php?type=msi&arch=x64" "$PLUGINSDIR\FileBot.msi" /end
 	${else}
-		inetc::get /USERAGENT "nsis" /caption "Downloading FileBot (32-bit)" "https://www.filebot.net/download.php?mode=nsis&type=msi&arch=x86" "$PLUGINSDIR\FileBot.msi" /end
+		inetc::get /USERAGENT "nsis" /caption "Downloading FileBot (32-bit)" "https://app.filebot.net/download.php?type=msi&arch=x86" "$PLUGINSDIR\FileBot.msi" /end
 	${endif}
 	
 	DetailPrint "Installing latest version..."
