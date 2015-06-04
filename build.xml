@@ -168,15 +168,15 @@
 				<include name="com/sun/jna/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jars/commons-vfs2.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/commons-vfs2.jar">
 				<include name="org/apache/commons/vfs2/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jars/commons-logging.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/commons-logging.jar">
 				<include name="org/apache/commons/logging/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jars/junrar.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/junrar.jar">
 				<include name="com/github/junrar/**" />
 			</zipfileset>
 
