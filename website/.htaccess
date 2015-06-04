@@ -1,6 +1,5 @@
-# redirect donate.html to paypal
-redirect 301 /donate.html https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=Z8JHALZ4TXGWL&lc=US&item_name=FileBot%20Media%20Renamer&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted
-
+# redirect donate.html
+redirect 302 /donate.html https://app.filebot.net/donate.php
 
 # redirect filebot.sourceforge.net to www.filebot.net
 RewriteEngine on

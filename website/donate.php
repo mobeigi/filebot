@@ -1,11 +1,9 @@
 <?php
 $type = isset($_GET['src']) ? $_GET['src'] : '';
-$name = 'FileBot';
+$name = 'FileBot Media Renamer';
 
 // packages: msi, app, deb, jar, portable
-if ($type == 'web')
-	$name = 'FileBot Media Renamer';
-else if ($type == 'msi')
+if ($type == 'msi')
 	$name = 'FileBot for Windows';
 else if ($type == 'app')
 	$name = 'FileBot for Mac';
