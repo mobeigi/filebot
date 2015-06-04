@@ -80,7 +80,7 @@ public final class Settings {
 	}
 
 	public static String getApplicationDeployment() {
-		return System.getProperty("application.deployment");
+		return System.getProperty("application.deployment", "jar");
 	}
 
 	public static boolean isAppStore() {
@@ -206,7 +206,11 @@ public final class Settings {
 		return null;
 	}
 
-	public static String getEmbeddedHelpURI() {
+	public static String getDonateURL() {
+		return getApplicationProperty("donate.url") + "?package=" + getApplicationDeployment();
+	}
+
+	public static String getEmbeddedHelpURL() {
 		// add #hash so we can dynamically adjust the slides for the various platforms via JavaScript
 		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();
 	}

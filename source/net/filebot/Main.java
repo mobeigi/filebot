@@ -393,7 +393,7 @@ public class Main {
 		pane.createDialog(null, "Please Donate").setVisible(true);
 		if (pane.getValue() == actions[0]) {
 			try {
-				Desktop.getDesktop().browse(getApplicationLink("donate.url"));
+				Desktop.getDesktop().browse(new URI(getDonateURL()));
 			} catch (Exception e) {
 				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to browse URI", e);
 			} finally {

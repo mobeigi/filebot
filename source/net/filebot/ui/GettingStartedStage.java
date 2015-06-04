@@ -55,7 +55,7 @@ public class GettingStartedStage {
 		this.stage = stage;
 
 		WebView webview = new WebView();
-		webview.getEngine().load(Settings.getEmbeddedHelpURI());
+		webview.getEngine().load(Settings.getEmbeddedHelpURL());
 		webview.setPrefSize(750, 490);
 
 		// intercept target _blank click events and open links in a new browser window
