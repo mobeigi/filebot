@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
+import net.filebot.similarity.Normalization;
 import net.filebot.util.FileUtilities;
 
 import com.ibm.icu.text.Transliterator;
@@ -252,6 +253,10 @@ public class ExpressionFormatMethods {
 
 	public static String ascii(String self, String fallback) {
 		return Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove").transform(self).replaceAll("[^\\p{ASCII}]+", fallback).trim();
+	}
+
+	public static String asciiQuotes(String self) {
+		return Normalization.normalizeQuotationMarks(self);
 	}
 
 	/**

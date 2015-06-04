@@ -17,6 +17,18 @@ public class Normalization {
 
 	private static final Pattern checksum = compile("[\\(\\[]\\p{XDigit}{8}[\\]\\)]");
 
+	private static final char[] doubleQuotes = new char[] { '\"', '\u0060', '\u00b4', '\u2018', '\u2019', '\u02bb' };
+	private static final char[] singleQuotes = new char[] { '\'', '\u201c', '\u201d' };
+
+	public static String normalizeQuotationMarks(String name) {
+		for (char[] cs : new char[][] { doubleQuotes, singleQuotes }) {
+			for (char c : cs) {
+				name = name.replace(c, cs[0]);
+			}
+		}
+		return name;
+	}
+
 	public static String normalizePunctuation(String name) {
 		// remove/normalize special characters
 		name = apostrophe.matcher(name).replaceAll("");
