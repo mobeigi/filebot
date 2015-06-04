@@ -19,7 +19,7 @@ import net.filebot.vfs.FileInfo;
 public class Archive implements Closeable {
 
 	public static enum Extractor {
-		SevenZipNativeBindings, SevenZipExecutable;
+		SevenZipNativeBindings, SevenZipExecutable, ApacheVFS;
 
 		public ArchiveExtractor newInstance(File archive) throws Exception {
 			switch (this) {
@@ -27,6 +27,8 @@ public class Archive implements Closeable {
 				return new SevenZipNativeBindings(archive);
 			case SevenZipExecutable:
 				return new SevenZipExecutable(archive);
+			case ApacheVFS:
+				return new ApacheVFS(archive);
 			}
 			return null;
 		}

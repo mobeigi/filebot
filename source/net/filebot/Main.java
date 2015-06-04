@@ -145,6 +145,7 @@ public class Main {
 			System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
 			System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
+			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
 			if (args.unixfs) {
 				System.setProperty("unixfs", "true");

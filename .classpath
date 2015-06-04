@@ -27,5 +27,8 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="lib/jars/ObjCBridge.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/junrar.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/commons-vfs2.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/commons-logging.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
