@@ -207,7 +207,7 @@ public final class Settings {
 	}
 
 	public static String getDonateURL() {
-		return getApplicationProperty("donate.url") + "?package=" + getApplicationDeployment();
+		return getApplicationProperty("donate.url") + "?src=" + getApplicationDeployment();
 	}
 
 	public static String getEmbeddedHelpURL() {
