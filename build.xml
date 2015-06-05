@@ -20,6 +20,7 @@
 	<property name="dir.lib" location="${basedir}/lib" />
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
+	<property name="dir.cache" location="${basedir}/cache" />
 
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
@@ -821,11 +822,11 @@
 		<property prefix="node" url="https://raw.githubusercontent.com/filebot/filebot-node/master/package.properties" />
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
-			<spk file="${dir.build}/package-source/filebot-${version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
+			<spk file="${dir.cache}/package-source/filebot-${version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
 				<thumbnail url="http://app.filebot.net/syno/filebot-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-snapshot.png" />
 			</spk>
-			<spk file="${dir.build}/package-source/filebot-node-${node.version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot-node/filebot-node-${node.version}/filebot-node-${node.version}-noarch.spk">
+			<spk file="${dir.cache}/package-source/filebot-node-${node.version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot-node/filebot-node-${node.version}/filebot-node-${node.version}-noarch.spk">
 				<thumbnail url="http://app.filebot.net/syno/filebot-node-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-node-snapshot.png" />
 			</spk>
@@ -834,6 +835,9 @@
 		<!-- upload -->
 		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.dist}/website" />
+			<modified>
+				<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
+			</modified>
 		</scp>
 	</target>
 
