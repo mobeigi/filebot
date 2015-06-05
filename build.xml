@@ -785,7 +785,7 @@
 		<taskdef name="package-source" classname="net.filebot.ant.spk.RepositoryTask" classpathref="jars.classpath" />
 
 		<!-- copy static website resources -->
-		<copy todir="${dir.dist}/website">
+		<copy todir="${dir.dist}/website" preservelastmodified="yes" verbose="yes">
 			<fileset dir="${dir.website}">
 				<include name="*.html" />
 				<include name="*.php" />
