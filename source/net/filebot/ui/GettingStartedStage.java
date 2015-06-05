@@ -63,16 +63,14 @@ public class GettingStartedStage {
 
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
-				stage.setOpacity(1.0);
-				stage.show();
-				stage.toFront();
+				stage.setTitle(webview.getEngine().getTitle());
 				webview.requestFocus();
 			} else if (n == Worker.State.FAILED) {
 				stage.close();
 			}
 		});
 
-		stage.setTitle("Getting Started");
+		stage.setTitle(isMacApp() ? "🚀 Loading …" : "Loading ...");
 		stage.setScene(new Scene(webview, webview.getPrefWidth(), webview.getPrefHeight(), Color.BLACK));
 
 		// force black background while page is loading
@@ -80,9 +78,7 @@ public class GettingStartedStage {
 	}
 
 	public void show() {
-		stage.setOpacity(0.0);
 		stage.show();
-		stage.toBack();
 	}
 
 	protected void setBackground(WebEngine engine, int color) {
