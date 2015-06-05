@@ -205,7 +205,7 @@ public class FormatDialog extends JDialog {
 		content.add(help, "growx, wrap 25px:push");
 
 		if (lockOnBinding == null) {
-			content.add(createImageButton(switchEditModeAction), "tag left");
+			content.add(new JButton(switchEditModeAction), "tag left");
 		}
 		content.add(new JButton(approveFormatAction), "tag apply");
 		content.add(new JButton(cancelAction), "tag cancel");
