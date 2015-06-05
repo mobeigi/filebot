@@ -834,10 +834,11 @@
 
 		<!-- upload -->
 		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
-			<fileset dir="${dir.dist}/website" />
-			<modified>
-				<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
-			</modified>
+			<fileset dir="${dir.dist}/website">
+				<modified>
+					<param name="cache.cachefile" value="${dir.cache}/scp.properties" />
+				</modified>
+			</fileset>
 		</scp>
 	</target>
 
