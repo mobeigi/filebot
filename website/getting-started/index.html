@@ -1,61 +1,15 @@
-<!doctype html>
 <html>
     <head>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="galleria/galleria-1.4.2.min.js"></script>
         <script src="galleria/themes/classic/galleria.classic.min.js"></script>
-        <script src="fullscreen.js"></script>
+        <script src="index.js"></script>
         <link rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
-        <style>
-            body{ margin: 0; padding: 0; background: #000; }
-            div.galleria{ width: 100%; height: 100%; background: #000; position: absolute; top: 0; bottom: 0; }
-            div.galleria-thumbnails { margin: auto; }
-            div.galleria-thumbnails-list div.galleria-image { max-height: 20px; }
-            img.fullscreen { position: absolute; top: 5px; right: 5px; z-index: 10; cursor: pointer; opacity: 0.3 }
-        </style>
+        <link rel="stylesheet" href="index.css">
         <title>Getting Started</title>
     </head>
-    <body>
+    <body onload="runGalleria()">
         <img class="fullscreen" src="fullscreen.png" width="16" height="16" onclick="toggleFullScreen()" />
         <div class="galleria"></div>
-        <script>
-            var data = [
-                { iframe: 'videos/rename.mp4', image: 'images/rename.png', thumb: 'images/rename.thumb.png' },
-                { iframe: 'videos/episodes.mp4', image: 'images/episodes.png', thumb: 'images/episodes.thumb.png' },
-                { iframe: 'videos/subtitle-lookup.mp4', image: 'images/subtitle-hash-lookup.png', thumb: 'images/subtitle-hash-lookup.thumb.png' },
-                { iframe: 'videos/subtitle-search.mp4', image: 'images/subtitle-search.png', thumb: 'images/subtitle-search.thumb.png' },
-                { iframe: 'videos/sfv.mp4', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' },
-                { image: 'images/rename.screenshot.png', thumb: 'images/rename.screenshot.thumb.png' },
-                { image: 'images/format.screenshot.png', thumb: 'images/format.screenshot.thumb.png' },
-                { image: 'images/subtitle-hash-lookup.screenshot.png', thumb: 'images/subtitle-hash-lookup.screenshot.thumb.png' },
-                { image: 'images/subtitle-search.screenshot.png', thumb: 'images/subtitle-search.screenshot.thumb.png' },
-                { image: 'images/sfv.screenshot.png', thumb: 'images/sfv.screenshot.thumb.png' },
-                { image: 'images/cli.screenshot.png', thumb: 'images/cli.screenshot.thumb.png' },
-                { image: 'images/node.screenshot.png', thumb: 'images/node.screenshot.thumb.png' }
-            ];
-
-            Galleria.run('.galleria', {
-                dataSource: data,
-                maxScaleRatio: 1,
-                youtube: {
-                    VQ: 'HD1080'
-                },
-                thumbnails: 'lazy'
-            });
-
-            var loaded = true
-            Galleria.ready(function() {
-                this.bind("image", function(e) {
-                    if (loaded) {
-                        loaded = false
-                        this.lazyLoadChunks( data.length )
-                    }
-                });
-                this.attachKeyboard({
-                    left: this.prev,
-                    right: this.next
-                });
-            });
-        </script>
     </body>
 </html>

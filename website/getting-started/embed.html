@@ -1,58 +1,13 @@
-<!doctype html>
 <html>
     <head>
         <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
         <script src="galleria/galleria-1.4.2.min.js"></script>
         <script src="galleria/themes/classic/galleria.classic.min.js"></script>
+        <script src="index.js"></script>
         <link rel="stylesheet" href="galleria/themes/classic/galleria.classic.css">
-        <style>
-            body{ margin: 0; padding: 0; background: #000; }
-            div.galleria{ width: 100%; height: 100%; background: #000; position: absolute; top: 0; bottom: 0; }
-            div.galleria-thumbnails { margin: auto; }
-            div.galleria-thumbnails-list div.galleria-image { max-height: 20px; }
-        </style>
-        <title>Getting Started</title>
+        <link rel="stylesheet" href="index.css">
     </head>
-    <body>
+    <body onload="runGalleria()">
         <div class="galleria"></div>
-        <script>
-            var data = [
-                { link: 'https://www.youtube.com/watch?v=RRq2_Pjyko8&index=1&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/rename.png', thumb: 'images/rename.thumb.png' },
-                { link: 'https://www.youtube.com/watch?v=btNSv7AnMMw&index=2&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/episodes.png', thumb: 'images/episodes.thumb.png' },
-                { link: 'https://www.youtube.com/watch?v=q-oZ_hovsTY&index=3&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/subtitle-hash-lookup.png', thumb: 'images/subtitle-hash-lookup.thumb.png' },
-                { link: 'https://www.youtube.com/watch?v=R80tKtHf4zw&index=4&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/subtitle-search.png', thumb: 'images/subtitle-search.thumb.png' },
-                { link: 'https://www.youtube.com/watch?v=4KWkSPr3fQY&index=5&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd', image: 'images/sfv.png', thumb: 'images/sfv.thumb.png' }
-            ];
-
-            if (location.hash == '#mas') {
-                data.splice(1, 0, { image: 'images/permissions.png', thumb: 'images/permissions.thumb.png' }) // sandbox permissions
-            } else if (location.hash == '#usc') {
-                data[0].link = 'https://www.youtube.com/watch?v=sEFP3CsntNs&index=6&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd' // ubuntu video
-            }
-
-            Galleria.run('.galleria', {
-                popupLinks: true,
-                dataSource: data,
-                maxScaleRatio: 1,
-                youtube: {
-                    VQ: 'HD1080'
-                },
-                thumbnails: 'lazy'
-            });
-
-            var loaded = true
-            Galleria.ready(function() {
-                this.bind("image", function(e) {
-                    if (loaded) {
-                        loaded = false
-                        this.lazyLoadChunks( data.length )
-                    }
-                });
-                this.attachKeyboard({
-                    left: this.prev,
-                    right: this.next
-                });
-            });
-        </script>
     </body>
 </html>
