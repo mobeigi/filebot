@@ -20,6 +20,12 @@ APP_ROOT=`cd "$PRG_DIR" && pwd`
 # restore original working dir
 cd "$WORKING_DIR"
 
+# make sure required environment variables are set
+if [ -z "$USER" ]
+then
+	export USER=`whoami`
+fi
+
 # user per user app data location to avoid permission conflicts between root and admin users
 APP_DATA="$APP_ROOT/data/$USER"
 
