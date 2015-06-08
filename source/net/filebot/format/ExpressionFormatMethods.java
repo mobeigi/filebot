@@ -163,6 +163,28 @@ public class ExpressionFormatMethods {
 		return buffer.toString();
 	}
 
+	public static String truncate(String self, int limit) {
+		if (limit >= self.length())
+			return self;
+
+		return self.substring(0, limit);
+	}
+
+	public static String truncate(String self, int hardLimit, String nonWordPattern) {
+		if (hardLimit >= self.length())
+			return self;
+
+		int softLimit = 0;
+		Matcher matcher = compile(nonWordPattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS).matcher(self);
+		while (matcher.find()) {
+			if (matcher.start() > hardLimit)
+				break;
+
+			softLimit = matcher.start();
+		}
+		return truncate(self, softLimit);
+	}
+
 	/**
 	 * Return substring before the given pattern.
 	 */
