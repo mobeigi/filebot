@@ -5,6 +5,7 @@ import static net.filebot.Settings.*;
 import java.awt.Desktop;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -75,6 +76,9 @@ public class GettingStartedStage {
 
 		// force black background while page is loading
 		setBackground(webview.getEngine(), 0xFF000000);
+
+		// make sure that we can read the user locale in JS
+		webview.getEngine().executeScript(String.format("navigator.locale = '%s'", Locale.getDefault()));
 	}
 
 	public void show() {

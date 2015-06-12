@@ -49,7 +49,7 @@ function getData() {
 	}]
 
 	var links = location.hash.length > 0
-	var youtube = !(/zh(.CN)?/i).test(navigator.language) // YouTube is blocked in China (mainland)
+	var youtube = !(/zh(.CN)?/i).test(navigator.locale ? navigator.locale : navigator.language) // YouTube is blocked in China (mainland)
 
 	if (links) {
 		data = data.slice(0, 5) // use only tutorial images
