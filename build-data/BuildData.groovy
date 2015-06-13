@@ -346,7 +346,7 @@ osdb = osdb.findResults{
 }
 
 // sanity check
-if (osdb.size() < 20000) { die('OSDB index sanity failed:' + osdb.size()) }
+if (osdb.size() < 15000) { die('OSDB index sanity failed:' + osdb.size()) }
 pack(osdb_out, osdb*.join('\t'))
 
 
