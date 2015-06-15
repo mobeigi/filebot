@@ -768,6 +768,13 @@
 				<include name="*-portable.zip" />
 			</fileset>
 		</copy>
+
+		<checksum algorithm="SHA-256" fileext=".sha256" format="MD5SUM" todir="${dir.cache}/sha/${version}">
+			<fileset dir="${dir.release}" />
+		</checksum>
+		<concat destfile="${dir.release}/DIGEST.sha256sum">
+			<fileset dir="${dir.cache}/sha/${version}" />
+		</concat>
 	</target>
 
 
