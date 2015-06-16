@@ -20,7 +20,6 @@
 	<property name="dir.lib" location="${basedir}/lib" />
 	<property name="dir.website" location="${basedir}/website" />
 	<property name="dir.installer" location="${basedir}/installer" />
-	<property name="dir.cache" location="${basedir}/cache" />
 
 	<!-- define output paths -->
 	<property name="path.fatjar" location="${dir.dist}/${title}_${version}.jar" />
@@ -29,6 +28,7 @@
 
 	<property name="basedir.release" location="${basedir}/release" />
 	<property name="dir.release" location="${basedir.release}/${title}_${version}" />
+	<property name="dir.cache" location="${basedir}/cache/${title}_${version}" />
 	<property name="frs.release" value="web.sourceforge.net:/home/frs/project/f/fi/filebot/filebot" />
 	<property name="frs.website" value="web.sourceforge.net:htdocs" />
 
@@ -270,9 +270,6 @@
 			<tarfileset dir="${dir.dist}" includes="${title}.app/**/fpcalc" filemode="755" />
 			<tarfileset prefix="${title}.app/Contents/MacOS" dir="${dir.installer}/appbundle" includes="*.sh" filemode="755" />
 		</tar>
-
-		<!-- print SHA256 since we manually need to update brew cask filebot -->
-		<checksum file="${path.appbundle.tar}" algorithm="SHA-256" fileext=".sha256" />
 	</target>
 
 
@@ -769,11 +766,11 @@
 			</fileset>
 		</copy>
 
-		<checksum algorithm="SHA-256" fileext=".sha256" format="MD5SUM" todir="${dir.cache}/sha/${version}">
+		<checksum algorithm="SHA-256" pattern="{0}  {1}" todir="${dir.cache}/sha">
 			<fileset dir="${dir.release}" />
 		</checksum>
 		<concat destfile="${dir.release}/DIGEST.sha256sum">
-			<fileset dir="${dir.cache}/sha/${version}" />
+			<fileset dir="${dir.cache}/sha" />
 		</concat>
 	</target>
 
