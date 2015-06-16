@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-	<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>filebot</id>
 		<title>FileBot</title>
@@ -15,7 +15,7 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<iconUrl>http://app.filebot.net/icon.png</iconUrl>
 		<dependencies>
-			<dependency id="jre8" version="" />
+			<dependency id="jre8" />
 		</dependencies>
 		<releaseNotes></releaseNotes>
 	</metadata>
