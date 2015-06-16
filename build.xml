@@ -766,7 +766,7 @@
 			</fileset>
 		</copy>
 
-		<checksum algorithm="SHA-256" pattern="{0}  {1}" todir="${dir.cache}/sha">
+		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/sha">
 			<fileset dir="${dir.release}" />
 		</checksum>
 		<concat destfile="${dir.release}/DIGEST.sha256sum">
