@@ -31,7 +31,7 @@ APP_DATA="$APP_ROOT/data/$USER"
 
 # add 3rd party packages to the library path by default
 SYNO_FPCALC="/usr/local/chromaprint/bin/fpcalc"
-SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib"
+SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
 
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]
