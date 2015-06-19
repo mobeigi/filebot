@@ -4,16 +4,14 @@ import com.sun.jna.Platform;
 
 public class MediaInfoException extends RuntimeException {
 
-	public MediaInfoException() {
-		super(String.format("Unable to load %d-bit native library 'mediainfo'", Platform.is64Bit() ? 64 : 32));
-	}
-
 	public MediaInfoException(LinkageError e) {
-		super(String.format("Unable to load %d-bit native library 'mediainfo'", Platform.is64Bit() ? 64 : 32), e);
+		super(getLinkageErrorMessage(e));
 	}
 
-	public MediaInfoException(String msg, Throwable e) {
-		super(msg, e);
+	private static String getLinkageErrorMessage(LinkageError e) {
+		String name = Platform.isWindows() ? "MediaInfo.dll" : Platform.isMac() ? "libmediainfo.dylib" : "libmediainfo.so";
+		String arch = System.getProperty("os.arch").toLowerCase().trim();
+		return String.format("Unable to load %s native library %s", arch, name);
 	}
 
 }
