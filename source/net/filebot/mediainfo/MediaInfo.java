@@ -29,7 +29,7 @@ public class MediaInfo implements Closeable {
 				NativeLibrary.getInstance("zen");
 			}
 		} catch (Throwable e) {
-			// Logger.getLogger(MediaInfo.class.getName()).warning("Failed to preload libzen");
+			// Logger.getLogger(MediaInfo.class.getName()).log(Level.WARNING, "Failed to load libzen");
 		}
 	}
 
@@ -39,7 +39,7 @@ public class MediaInfo implements Closeable {
 		try {
 			handle = MediaInfoLibrary.INSTANCE.New();
 		} catch (LinkageError e) {
-			throw new MediaInfoException(e);
+			throw new MediaInfoException();
 		}
 	}
 
