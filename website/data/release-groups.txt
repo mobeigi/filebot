@@ -529,6 +529,7 @@ CinePlexx
 CiNEVCD
 CiRCLE
 CIS
+CJ
 CLASS
 CLASSiC
 CLASSiCAL
@@ -586,6 +587,7 @@ CRiMSON
 CRiSC
 CRiSP
 CriTiCAL
+CRNTV
 CROOKS
 CROSSBOW
 CROSSFADE
@@ -600,6 +602,7 @@ CSS
 CT.FS
 CTD
 CtrlHD
+CtrlSD
 CTU
 CTUSports
 CULT
@@ -882,6 +885,7 @@ EXViDiNT
 eztv
 F-B
 F0rArCHivE
+F1
 F1nd
 F2F
 F2L
@@ -928,6 +932,7 @@ FilmHD
 Filmikz
 Final8
 FiNaLe
+FINALLY
 FiTTY
 FiXi0N
 FIXIT
@@ -1354,6 +1359,7 @@ Jan55
 JaneDoe
 JAPHSON
 Jarzka
+Jason28
 Jav-Fans
 JAVLiU
 JBS
@@ -1369,6 +1375,7 @@ JKR
 JMT
 JN
 Joggie
+JohnGalt
 Jolly
 JoLLyRoGeR
 joseole99
@@ -2702,6 +2709,7 @@ WiKi
 WILDER
 WinD
 WinD-DE
+WiNG
 WingmanNZ
 Wings13
 Winters
