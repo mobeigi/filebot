@@ -223,6 +223,7 @@ AMC-BL
 AMC-TEST
 Anaglyph
 Arte
+Axx
 Best.of.\d{4}
 Best.Quality
 bt.downloads
@@ -281,6 +282,7 @@ FIXED
 Fra
 FRE
 French
+funxd
 GER
 German
 H.SBS
@@ -418,5 +420,6 @@ xbmc
 XORBiTANT
 xRipp
 XtremeDoN
+xxx+[0-9]*
 YIFY
 Zune
