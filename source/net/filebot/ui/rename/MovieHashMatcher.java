@@ -85,8 +85,9 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			derivatesByMovieFile.put(movieFile, new ArrayList<File>());
 		}
 		for (File file : orphanedFiles) {
+			List<File> orphanParent = listPath(file);
 			for (File movieFile : movieFiles) {
-				if (isDerived(file, movieFile)) {
+				if (orphanParent.contains(movieFile.getParentFile()) && isDerived(file, movieFile)) {
 					derivatesByMovieFile.get(movieFile).add(file);
 					break;
 				}
