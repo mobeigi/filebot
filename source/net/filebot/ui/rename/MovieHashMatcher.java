@@ -451,9 +451,10 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		// allow only one select dialog at a time
 		@SuppressWarnings("unchecked")
 		Map<String, Movie> selectionMemory = (Map<String, Movie>) memory.get("selection");
+		String selectionKey = fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery;
 
-		if (selectionMemory.containsKey(fileQuery)) {
-			return selectionMemory.get(fileQuery);
+		if (selectionMemory.containsKey(selectionKey)) {
+			return selectionMemory.get(selectionKey);
 		}
 
 		// check auto-selection settings
@@ -468,7 +469,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 		SwingUtilities.invokeAndWait(showSelectDialog);
 
 		// cache selected value
-		selectionMemory.put(fileQuery, showSelectDialog.get());
+		selectionMemory.put(selectionKey, showSelectDialog.get());
 		return showSelectDialog.get();
 	}
 
