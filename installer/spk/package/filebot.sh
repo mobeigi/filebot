@@ -3,13 +3,13 @@ PRG="$0"
 
 # resolve relative symlinks
 while [ -h "$PRG" ] ; do
-  ls=`ls -ld "$PRG"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '/.*' > /dev/null; then
-    PRG="$link"
-  else
-    PRG="`dirname "$PRG"`/$link"
-  fi
+	ls=`ls -ld "$PRG"`
+	link=`expr "$ls" : '.*-> \(.*\)$'`
+	if expr "$link" : '/.*' > /dev/null; then
+		PRG="$link"
+	else
+		PRG="`dirname "$PRG"`/$link"
+	fi
 done
 
 # make it fully qualified
@@ -36,9 +36,9 @@ SYNO_LIBRARY_PATH="/usr/local/mediainfo/lib:/usr/local/chromaprint/lib"
 # add APP_ROOT to LD_LIBRARY_PATH
 if [ ! -z "$LD_LIBRARY_PATH" ]
 then
-  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SYNO_LIBRARY_PATH:$APP_ROOT"
 else
-  export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$APP_ROOT"
+	export LD_LIBRARY_PATH="$SYNO_LIBRARY_PATH:$APP_ROOT"
 fi
 
 # force JVM language and encoding settings
