@@ -481,7 +481,7 @@ public class MediaBindingBean {
 		File inferredMediaFile = getInferredMediaFile();
 
 		// consider foldername, filename and original filename
-		String[] filenames = new String[] { inferredMediaFile.getParentFile().getName(), inferredMediaFile.getName(), getOriginalFileName(inferredMediaFile) };
+		String[] filenames = new String[] { inferredMediaFile.getParentFile().getName(), getNameWithoutExtension(inferredMediaFile.getName()), getOriginalFileName(inferredMediaFile) };
 
 		// reduce false positives by removing the know titles from the name
 		Pattern nonGroupPattern = releaseInfo.getCustomRemovePattern(getKeywords());
@@ -960,8 +960,8 @@ public class MediaBindingBean {
 
 	private String getOriginalFileName(File file) {
 		try {
-			return new MetaAttributes(file).getOriginalName();
-		} catch (Exception e) {
+			return getNameWithoutExtension(new MetaAttributes(file).getOriginalName());
+		} catch (Throwable e) {
 			return null;
 		}
 	}
