@@ -489,7 +489,7 @@ public class MediaBindingBean {
 			if (filenames[i] == null)
 				continue;
 
-			filenames[i] = releaseInfo.clean(normalizePunctuation(normalizeSpace(filenames[i], " ")), nonGroupPattern, releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern());
+			filenames[i] = releaseInfo.clean(filenames[i], nonGroupPattern, releaseInfo.getVideoSourcePattern(), releaseInfo.getVideoFormatPattern(true), releaseInfo.getResolutionPattern());
 		}
 
 		// look for release group names in media file and it's parent folder
