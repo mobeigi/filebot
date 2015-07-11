@@ -62,6 +62,7 @@ import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
+import net.filebot.util.FileUtilities;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -240,6 +241,11 @@ public class RenamePanel extends JComponent {
 		filesList.getButtonPanel().add(createImageButton(clearFilesAction), "gap 0");
 		filesList.getButtonPanel().add(createImageButton(openHistoryAction), "gap indent");
 
+		// create macros popup
+		final Action macrosAction = new ShowPresetsPopupAction("Presets", ResourceManager.getIcon("action.script"));
+		JButton macrosButton = createImageButton(macrosAction);
+		filesList.getButtonPanel().add(macrosButton, "gap 0");
+
 		matchButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -368,6 +374,41 @@ public class RenamePanel extends JComponent {
 
 	private boolean isMatchModeStrict() {
 		return MATCH_MODE_STRICT.equalsIgnoreCase(persistentPreferredMatchMode.getValue());
+	}
+
+	protected ActionPopup createPresetsPopup() {
+		List<Preset> presets = new ArrayList<Preset>();
+
+		// TODO load presets via prefs
+
+		final ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
+
+		if (presets.size() > 0) {
+			actionPopup.addDescription(new JLabel("Apply:"));
+			for (Preset it : presets) {
+				actionPopup.add(new ApplyPresetAction(it));
+			}
+		}
+
+		actionPopup.addDescription(new JLabel("Options:"));
+		actionPopup.add(new AbstractAction("New Preset", ResourceManager.getIcon("script.add")) {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		actionPopup.add(new AbstractAction("Delete Preset", ResourceManager.getIcon("script.remove")) {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		return actionPopup;
 	}
 
 	protected ActionPopup createFetchPopup() {
@@ -596,6 +637,84 @@ public class RenamePanel extends JComponent {
 		}
 	};
 
+	protected class ShowPresetsPopupAction extends AbstractAction {
+
+		public ShowPresetsPopupAction(String name, Icon icon) {
+			super(name, icon);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// display popup below component
+			JComponent source = (JComponent) e.getSource();
+			createPresetsPopup().show(source, -3, source.getHeight() + 4);
+		}
+	};
+
+	protected class ApplyPresetAction extends AutoCompleteAction {
+
+		private Preset preset;
+
+		public ApplyPresetAction(Preset preset) {
+			super(preset.getName(), ResourceManager.getIcon("script.go"), preset.getAutoCompleteMatcher());
+			this.preset = preset;
+		}
+
+		public List<File> getFiles(ActionEvent evt) {
+			List<File> input = new ArrayList<File>();
+			if (preset.getInputFolder() != null) {
+				for (File f : FileUtilities.listFiles(preset.getInputFolder())) {
+					if (preset.getIncludePattern() == null || preset.getIncludePattern().matcher(f.getPath()).find()) {
+						input.add(f);
+					}
+				}
+				renameModel.clear();
+				renameModel.files().addAll(input);
+			} else {
+				input.addAll(super.getFiles(evt));
+			}
+			return input;
+		}
+
+		public boolean isStrict(ActionEvent evt) {
+			return preset.getMatchMode() != null ? MATCH_MODE_STRICT.equals(preset.getMatchMode()) : super.isStrict(evt);
+		}
+
+		public SortOrder getSortOrder(ActionEvent evt) {
+			return preset.getSortOrder() != null ? preset.getSortOrder() : super.getSortOrder(evt);
+		}
+
+		public Locale getLocale(ActionEvent evt) {
+			return preset.getLanguage() != null ? preset.getLanguage() : super.getLocale(evt);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if (preset.getFormat() != null) {
+				switch (preset.getMode()) {
+				case Episode:
+					renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+					break;
+				case Movie:
+					renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+					break;
+				case Music:
+					renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+					break;
+				case File:
+					renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
+					break;
+				}
+			}
+
+			if (preset.getRenameAction() != null) {
+				new SetRenameAction(preset.getRenameAction(), preset.getRenameAction().getDisplayName(), ResourceManager.getIcon("rename.action." + preset.getRenameAction().toString().toLowerCase())).actionPerformed(evt);
+			}
+
+			super.actionPerformed(evt);
+		}
+	}
+
 	protected class SetRenameMode extends AbstractAction {
 
 		private final boolean activate;
@@ -640,7 +759,7 @@ public class RenamePanel extends JComponent {
 
 	protected class AutoCompleteAction extends AbstractAction {
 
-		private final AutoCompleteMatcher matcher;
+		protected final AutoCompleteMatcher matcher;
 
 		public AutoCompleteAction(String name, Icon icon, AutoCompleteMatcher matcher) {
 			super(name, icon);
@@ -658,16 +777,36 @@ public class RenamePanel extends JComponent {
 			});
 		}
 
+		public List<File> getFiles(ActionEvent evt) {
+			return renameModel.files();
+		}
+
+		public boolean isStrict(ActionEvent evt) {
+			return isMatchModeStrict();
+		}
+
+		public SortOrder getSortOrder(ActionEvent evt) {
+			return SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
+		}
+
+		private Locale getLocale(ActionEvent evt) {
+			return new Locale(persistentPreferredLanguage.getValue());
+		}
+
+		private boolean isAutoDetectionEnabled(ActionEvent evt) {
+			return !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
+		}
+
 		@Override
 		public void actionPerformed(final ActionEvent evt) {
 			// clear names list
 			renameModel.values().clear();
 
-			final List<File> remainingFiles = new LinkedList<File>(renameModel.files());
-			final boolean strict = isMatchModeStrict();
-			final SortOrder order = SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
-			final Locale locale = new Locale(persistentPreferredLanguage.getValue());
-			final boolean autodetection = !isShiftOrAltDown(evt); // skip name auto-detection if SHIFT is pressed
+			final List<File> remainingFiles = new LinkedList<File>(getFiles(evt));
+			final boolean strict = isStrict(evt);
+			final SortOrder order = getSortOrder(evt);
+			final Locale locale = getLocale(evt);
+			final boolean autodetection = isAutoDetectionEnabled(evt);
 
 			if (isMacSandbox()) {
 				if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), remainingFiles)) {
@@ -721,6 +860,7 @@ public class RenamePanel extends JComponent {
 
 			worker.execute();
 		}
+
 	}
 
 }
