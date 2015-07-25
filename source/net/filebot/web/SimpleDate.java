@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
@@ -24,6 +25,14 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		this.year = year;
 		this.month = month;
 		this.day = day;
+	}
+
+	public SimpleDate(long t) {
+		GregorianCalendar c = new GregorianCalendar();
+		c.setTime(new Date(t));
+		year = c.get(Calendar.YEAR);
+		month = c.get(Calendar.MONTH) + 1;
+		day = c.get(Calendar.DAY_OF_MONTH);
 	}
 
 	public int getYear() {

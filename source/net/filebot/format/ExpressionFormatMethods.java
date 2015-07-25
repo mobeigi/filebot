@@ -331,13 +331,17 @@ public class ExpressionFormatMethods {
 		return 0;
 	}
 
-	public static long getCreationDate(File self) throws IOException {
-		BasicFileAttributes attr = Files.getFileAttributeView(self.toPath(), BasicFileAttributeView.class).readAttributes();
-		long creationDate = attr.creationTime().toMillis();
-		if (creationDate > 0) {
-			return creationDate;
+	public static long getCreationDate(File self) {
+		try {
+			BasicFileAttributes attr = Files.getFileAttributeView(self.toPath(), BasicFileAttributeView.class).readAttributes();
+			long creationDate = attr.creationTime().toMillis();
+			if (creationDate > 0) {
+				return creationDate;
+			}
+			return attr.lastModifiedTime().toMillis();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		return attr.lastModifiedTime().toMillis();
 	}
 
 	public static File toFile(String self) {

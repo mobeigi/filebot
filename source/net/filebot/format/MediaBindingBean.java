@@ -171,6 +171,9 @@ public class MediaBindingBean {
 		if (infoObject instanceof AudioTrack) {
 			return getMusic().getAlbumReleaseDate();
 		}
+		if (infoObject instanceof File) {
+			return new SimpleDate(getCreationDate(((File) infoObject)));
+		}
 
 		// no date info for the model
 		return null;
