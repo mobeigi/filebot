@@ -4,13 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 
-import javax.swing.Icon;
-
 public interface EpisodeListProvider extends Datasource {
-
-	public String getName();
-
-	public Icon getIcon();
 
 	public boolean hasSeasonSupport();
 

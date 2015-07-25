@@ -104,7 +104,7 @@ public class MediaBindingBean {
 		if (infoObject instanceof Movie)
 			return getMovie().getYear();
 		if (infoObject instanceof AudioTrack)
-			return ((SimpleDate) getReleaseDate()).getYear();
+			return getReleaseDate().getYear();
 
 		return null;
 	}

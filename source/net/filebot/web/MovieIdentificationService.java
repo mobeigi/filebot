@@ -6,13 +6,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.swing.Icon;
-
 public interface MovieIdentificationService extends Datasource {
-
-	public String getName();
-
-	public Icon getIcon();
 
 	public List<Movie> searchMovie(String query, Locale locale) throws Exception;
 
