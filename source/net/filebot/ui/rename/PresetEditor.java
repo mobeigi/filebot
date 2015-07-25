@@ -124,7 +124,7 @@ public class PresetEditor extends JDialog {
 		c.add(inputGroup, "growx, wrap");
 		c.add(formatGroup, "growx, wrap");
 		c.add(searchGroup, "growx, wrap push");
-		c.add(new JButton(set), "tag apply");
+		c.add(new JButton(ok), "tag apply");
 		c.add(new JButton(delete), "tag cancel");
 		setSize(650, 570);
 
@@ -325,7 +325,7 @@ public class PresetEditor extends JDialog {
 		return result;
 	}
 
-	private final Action set = new AbstractAction("Set", ResourceManager.getIcon("dialog.continue")) {
+	private final Action ok = new AbstractAction("Preset", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

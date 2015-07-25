@@ -388,7 +388,6 @@ public class RenamePanel extends JComponent {
 		ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
 
 		if (persistentPresets.size() > 0) {
-			actionPopup.addDescription(new JLabel("Apply:"));
 			for (String it : persistentPresets.values()) {
 				try {
 					Preset p = (Preset) JsonReader.jsonToJava(it);
@@ -397,9 +396,9 @@ public class RenamePanel extends JComponent {
 					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
 				}
 			}
+			actionPopup.addSeparator();
 		}
 
-		actionPopup.addDescription(new JLabel("Options:"));
 		actionPopup.add(new AbstractAction("Edit Presets", ResourceManager.getIcon("script.add")) {
 
 			@Override
@@ -409,13 +408,7 @@ public class RenamePanel extends JComponent {
 					List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
 					presetNames.add(newPresetOption);
 
-					SelectDialog<String> selectDialog = new SelectDialog<String>(getWindow(evt.getSource()), presetNames);
-					selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
-					selectDialog.setMinimumSize(new Dimension(250, 150));
-					selectDialog.setTitle("Edit Preset");
-					selectDialog.getHeaderLabel().setText("Edit or create a preset:");
-					selectDialog.setVisible(true);
-					String selection = selectDialog.getSelectedValue();
+					String selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", JOptionPane.PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
 					if (selection == null)
 						return;
 
@@ -439,7 +432,9 @@ public class RenamePanel extends JComponent {
 						persistentPresets.remove(selection);
 						break;
 					case SET:
-						persistentPresets.put(selection, JsonWriter.objectToJson(presetEditor.getPreset()));
+						preset = presetEditor.getPreset();
+						persistentPresets.put(selection, JsonWriter.objectToJson(preset));
+						new ApplyPresetAction(preset).actionPerformed(evt);
 						break;
 					case CANCEL:
 						break;
