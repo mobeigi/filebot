@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -55,6 +56,7 @@ import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
+import net.filebot.format.ExpressionFilter;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
@@ -84,8 +86,8 @@ import ca.odell.glazedlists.swing.EventSelectionModel;
 
 public class RenamePanel extends JComponent {
 
-	private static final String MATCH_MODE_OPPORTUNISTIC = "Opportunistic";
-	private static final String MATCH_MODE_STRICT = "Strict";
+	public static final String MATCH_MODE_OPPORTUNISTIC = "Opportunistic";
+	public static final String MATCH_MODE_STRICT = "Strict";
 
 	protected final RenameModel renameModel = new RenameModel();
 
@@ -391,15 +393,7 @@ public class RenamePanel extends JComponent {
 		}
 
 		actionPopup.addDescription(new JLabel("Options:"));
-		actionPopup.add(new AbstractAction("New Preset", ResourceManager.getIcon("script.add")) {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-		});
-		actionPopup.add(new AbstractAction("Delete Preset", ResourceManager.getIcon("script.remove")) {
+		actionPopup.add(new AbstractAction("Edit Presets", ResourceManager.getIcon("script.add")) {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -663,11 +657,20 @@ public class RenamePanel extends JComponent {
 		public List<File> getFiles(ActionEvent evt) {
 			List<File> input = new ArrayList<File>();
 			if (preset.getInputFolder() != null) {
-				for (File f : FileUtilities.listFiles(preset.getInputFolder())) {
-					if (preset.getIncludePattern() == null || preset.getIncludePattern().matcher(f.getPath()).find()) {
-						input.add(f);
-					}
+				List<File> selection = FileUtilities.listFiles(preset.getInputFolder());
+				ExpressionFilter filter = preset.getIncludeFilter();
+				if (filter != null) {
+					selection = FileUtilities.filter(selection, (File f) -> {
+						try {
+							return filter.matches(new MediaBindingBean(null, f));
+						} catch (Exception e) {
+							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
+							return false;
+						}
+					});
 				}
+				input.addAll(selection);
+
 				renameModel.clear();
 				renameModel.files().addAll(input);
 			} else {

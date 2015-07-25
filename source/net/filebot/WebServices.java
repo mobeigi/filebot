@@ -25,6 +25,7 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
 import net.filebot.web.AnidbSearchResult;
+import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
@@ -108,6 +109,22 @@ public final class WebServices {
 				return it;
 		}
 		return null; // default
+	}
+
+	public static Datasource getDatasourceByName(String name) {
+		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(name);
+		if (sdb != null) {
+			return sdb;
+		}
+		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(name);
+		if (mdb != null) {
+			return mdb;
+		}
+		MusicIdentificationService adb = WebServices.getMusicIdentificationService(name);
+		if (adb != null) {
+			return adb;
+		}
+		return null;
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();

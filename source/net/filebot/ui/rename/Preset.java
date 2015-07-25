@@ -2,12 +2,14 @@ package net.filebot.ui.rename;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
+import net.filebot.Language;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
+import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.ui.rename.FormatDialog.Mode;
+import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.MusicIdentificationService;
@@ -25,16 +27,16 @@ public class Preset {
 	public String language;
 	public String action;
 
-	public Preset(String name, String path, String includes, String format, String database, String sortOrder, String matchMode, String language, String action) {
+	public Preset(String name, File path, ExpressionFilter includes, ExpressionFormat format, Datasource database, SortOrder sortOrder, String matchMode, Language language, StandardRenameAction action) {
 		this.name = name;
-		this.path = path;
-		this.includes = includes;
-		this.format = format;
-		this.database = database;
-		this.sortOrder = sortOrder;
-		this.matchMode = matchMode;
-		this.language = language;
-		this.action = action;
+		this.path = path == null ? null : path.getPath();
+		this.includes = includes == null ? null : includes.getExpression();
+		this.format = format == null ? null : format.getExpression();
+		this.database = database == null ? null : database.getName();
+		this.sortOrder = sortOrder == null ? null : sortOrder.name();
+		this.matchMode = matchMode == null ? null : matchMode;
+		this.language = language == null ? null : language.getCode();
+		this.action = action == null ? null : action.name();
 	}
 
 	public String getName() {
@@ -45,16 +47,24 @@ public class Preset {
 		return new File(path);
 	}
 
-	public Pattern getIncludePattern() {
-		return includes == null || includes.isEmpty() ? null : Pattern.compile(includes, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+	public ExpressionFilter getIncludeFilter() {
+		try {
+			return includes == null || includes.isEmpty() ? null : new ExpressionFilter(includes);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public ExpressionFormat getFormat() {
 		try {
-			return new ExpressionFormat(format);
+			return format == null || format.isEmpty() ? null : new ExpressionFormat(format);
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public Datasource getDatabase() {
+		return WebServices.getDatasourceByName(database);
 	}
 
 	public AutoCompleteMatcher getAutoCompleteMatcher() {
