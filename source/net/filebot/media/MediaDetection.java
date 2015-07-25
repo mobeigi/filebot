@@ -88,7 +88,7 @@ public class MediaDetection {
 			try {
 				clutterFile = releaseInfo.getClutterFileFilter();
 			} catch (IOException e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Unable to access clutter file filter: " + e.getMessage(), e);
+				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
 				return ((File f) -> false);
 			}
 		}
