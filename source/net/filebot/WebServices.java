@@ -111,22 +111,6 @@ public final class WebServices {
 		return null; // default
 	}
 
-	public static Datasource getDatasourceByName(String name) {
-		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(name);
-		if (sdb != null) {
-			return sdb;
-		}
-		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(name);
-		if (mdb != null) {
-			return mdb;
-		}
-		MusicIdentificationService adb = WebServices.getMusicIdentificationService(name);
-		if (adb != null) {
-			return adb;
-		}
-		return null;
-	}
-
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
 
 	public static class TheTVDBClientWithLocalSearch extends TheTVDBClient {

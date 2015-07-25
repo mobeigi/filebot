@@ -11,6 +11,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -37,9 +38,10 @@ import net.filebot.UserFiles;
 import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
+import net.filebot.format.MediaBindingBean;
 import net.filebot.ui.HeaderPanel;
+import net.filebot.util.FileUtilities.ExtensionFileFilter;
 import net.filebot.web.Datasource;
-import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
 
@@ -76,7 +78,7 @@ public class PresetEditor extends JDialog {
 		presetNameHeader = new HeaderPanel();
 
 		inheritRadio = new JRadioButton("<html>Use <b>Original Files</b> selection</html>");
-		selectRadio = new JRadioButton("<html>Do <b>Select</b></html>");
+		selectRadio = new JRadioButton("<html>Do <b>Select</b> files</html>");
 		pathInput = new JTextField(40);
 
 		filterEditor = createEditor();
@@ -133,9 +135,6 @@ public class PresetEditor extends JDialog {
 		inputPanel.setVisible(false);
 		selectRadio.addItemListener((evt) -> {
 			inputPanel.setVisible(selectRadio.isSelected());
-		});
-		providerCombo.addItemListener((evt) -> {
-			sortOrderCombo.setEnabled(evt.getItem() instanceof EpisodeListProvider);
 		});
 
 		setSize(650, 570);
@@ -218,6 +217,7 @@ public class PresetEditor extends JDialog {
 				providers.addElement(it);
 			}
 		}
+		providers.addElement(PlainFileMatcher.INSTANCE);
 
 		JComboBox<Datasource> combo = new JComboBox<Datasource>(providers);
 		combo.setRenderer(new ListCellRenderer<Object>() {
@@ -328,7 +328,16 @@ public class PresetEditor extends JDialog {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
-			FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, null);
+			MediaBindingBean lockOnBinding = null;
+			if (mode == FormatDialog.Mode.File) {
+				List<File> files = UserFiles.showLoadDialogSelectFiles(false, false, null, new ExtensionFileFilter(ExtensionFileFilter.WILDCARD), "Select Sample File", evt);
+				if (files.isEmpty()) {
+					return;
+				}
+				lockOnBinding = new MediaBindingBean(files.get(0), files.get(0));
+			}
+
+			FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, lockOnBinding);
 			dialog.setFormatCode(formatEditor.getText());
 			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
 			dialog.setVisible(true);

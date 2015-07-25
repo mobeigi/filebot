@@ -452,7 +452,7 @@ public class FormatDialog extends JDialog {
 				String sample = bundle.getString(mode.key() + ".sample");
 				info = JsonReader.jsonToJava(sample);
 			} catch (Exception illegalSample) {
-				throw new RuntimeException(illegalSample); // won't happen
+				Logger.getLogger(RenamePanel.class.getName()).log(Level.SEVERE, "Illegal Sample", e);
 			}
 		}
 

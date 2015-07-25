@@ -1,6 +1,7 @@
 package net.filebot.ui.rename;
 
 import static java.awt.event.KeyEvent.*;
+import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
@@ -421,6 +422,7 @@ public class RenamePanel extends JComponent {
 					}
 
 					PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
+					presetEditor.setLocation(getOffsetLocation(presetEditor.getOwner()));
 					presetEditor.setPreset(preset);
 					presetEditor.setVisible(true);
 
@@ -698,6 +700,11 @@ public class RenamePanel extends JComponent {
 		public List<File> getFiles(ActionEvent evt) {
 			List<File> input = new ArrayList<File>();
 			if (preset.getInputFolder() != null) {
+				if (isMacSandbox()) {
+					if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), singleton(preset.getInputFolder()))) {
+						throw new IllegalStateException("Unable to access folder: " + preset.getInputFolder());
+					}
+				}
 				input.addAll(FileUtilities.listFiles(preset.getInputFolder()));
 				ExpressionFilter filter = preset.getIncludeFilter();
 				if (filter != null) {
@@ -714,6 +721,10 @@ public class RenamePanel extends JComponent {
 				renameModel.files().addAll(input);
 			} else {
 				input.addAll(super.getFiles(evt));
+			}
+
+			if (input.isEmpty()) {
+				throw new IllegalStateException("No files selected.");
 			}
 			return input;
 		}
@@ -755,7 +766,11 @@ public class RenamePanel extends JComponent {
 				new SetRenameAction(preset.getRenameAction(), preset.getRenameAction().getDisplayName(), ResourceManager.getIcon("rename.action." + preset.getRenameAction().toString().toLowerCase())).actionPerformed(evt);
 			}
 
-			super.actionPerformed(evt);
+			try {
+				super.actionPerformed(evt);
+			} catch (Exception e) {
+				UILogger.info(e.getMessage());
+			}
 		}
 	}
 

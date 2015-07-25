@@ -8,7 +8,6 @@ import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
-import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
@@ -63,26 +62,44 @@ public class Preset {
 		}
 	}
 
-	public Datasource getDatasource() {
-		return WebServices.getDatasourceByName(database);
-	}
-
 	public AutoCompleteMatcher getAutoCompleteMatcher() {
 		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
 		if (sdb != null) {
 			return new EpisodeListMatcher(sdb, sdb != WebServices.AniDB, sdb == WebServices.AniDB);
 		}
-
 		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
 		if (mdb != null) {
 			return new MovieHashMatcher(mdb);
 		}
-
 		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
 		if (adb != null) {
 			return new AudioFingerprintMatcher(adb);
 		}
+		if (PlainFileMatcher.INSTANCE.getName().equals(database)) {
+			return PlainFileMatcher.INSTANCE;
+		}
+		throw new IllegalStateException(database);
+	}
 
+	public Datasource getDatasource() {
+		if (database == null || database.isEmpty()) {
+			return null;
+		}
+		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
+		if (sdb != null) {
+			return sdb;
+		}
+		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
+		if (mdb != null) {
+			return mdb;
+		}
+		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
+		if (adb != null) {
+			return adb;
+		}
+		if (PlainFileMatcher.INSTANCE.getName().equals(database)) {
+			return PlainFileMatcher.INSTANCE;
+		}
 		throw new IllegalStateException(database);
 	}
 
