@@ -83,9 +83,14 @@ public class MediaDetection {
 		return diskFolder;
 	}
 
-	public static FileFilter getClutterFileFilter() throws IOException {
+	public static FileFilter getClutterFileFilter() {
 		if (clutterFile == null) {
-			clutterFile = releaseInfo.getClutterFileFilter();
+			try {
+				clutterFile = releaseInfo.getClutterFileFilter();
+			} catch (IOException e) {
+				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Unable to access clutter file filter: " + e.getMessage(), e);
+				return ((File f) -> false);
+			}
 		}
 		return clutterFile;
 	}
