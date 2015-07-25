@@ -75,19 +75,15 @@ class TypeTool extends Tool<TreeModel> {
 
 	public Map<String, FileFilter> getMetaTypes() {
 		Map<String, FileFilter> types = new LinkedHashMap<String, FileFilter>();
-		try {
-			types.put("Episode", new EpisodeFilter());
-			types.put("Movie", new MovieFilter());
-			types.put("Video", MediaTypes.VIDEO_FILES);
-			types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
-			types.put("Audio", MediaTypes.AUDIO_FILES);
-			types.put("Archive", MediaTypes.ARCHIVE_FILES);
-			types.put("Verification", MediaTypes.VERIFICATION_FILES);
-			types.put("Clutter", MediaDetection.getClutterFileFilter());
-			types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
-		} catch (IOException e) {
-			Logger.getLogger(TypeTool.class.getName()).log(Level.WARNING, e.getMessage());
-		}
+		types.put("Episode", new EpisodeFilter());
+		types.put("Movie", new MovieFilter());
+		types.put("Video", MediaTypes.VIDEO_FILES);
+		types.put("Subtitle", MediaTypes.SUBTITLE_FILES);
+		types.put("Audio", MediaTypes.AUDIO_FILES);
+		types.put("Archive", MediaTypes.ARCHIVE_FILES);
+		types.put("Verification", MediaTypes.VERIFICATION_FILES);
+		types.put("Clutter", MediaDetection.getClutterFileFilter());
+		types.put("Disk Folder", MediaDetection.getDiskFolderFilter());
 		return types;
 	}
 
