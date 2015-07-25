@@ -51,9 +51,17 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class PresetEditor extends JDialog {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		SwingUtilities.invokeLater(() -> {
-			new PresetEditor(null).setVisible(true);
+			PresetEditor presetEditor = new PresetEditor(null);
+			presetEditor.setVisible(true);
+			try {
+				System.out.println(presetEditor.getResult());
+				System.out.println(presetEditor.getPreset());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 	}
 
@@ -82,7 +90,7 @@ public class PresetEditor extends JDialog {
 
 		presetNameHeader = new HeaderPanel();
 
-		inheritRadio = new JRadioButton("<html>Use <b>Original Files</b></html>");
+		inheritRadio = new JRadioButton("<html>Use <b>Original Files</b> selection</html>");
 		selectRadio = new JRadioButton("<html>Do <b>Select</b></html>");
 		pathInput = new JTextField(40);
 
@@ -151,13 +159,13 @@ public class PresetEditor extends JDialog {
 
 	public void setPreset(Preset p) {
 		presetNameHeader.getTitleLabel().setText(p.getName());
-		pathInput.setText(p.getInputFolder().getPath());
-		filterEditor.setText(p.getIncludeFilter().getExpression());
-		formatEditor.setText(p.getFormat().getExpression());
-		providerCombo.setSelectedItem(p.getDatabase());
-		sortOrderCombo.setSelectedItem(p.getSortOrder());
-		matchModeCombo.setSelectedItem(p.getMatchMode());
-		actionCombo.setSelectedItem(p.getRenameAction());
+		pathInput.setText(p.getInputFolder() == null ? "" : p.getInputFolder().getPath());
+		filterEditor.setText(p.getIncludeFilter() == null ? "" : p.getIncludeFilter().getExpression());
+		formatEditor.setText(p.getFormat() == null ? "" : p.getFormat().getExpression());
+		providerCombo.setSelectedItem(p.getDatabase() == null ? WebServices.TheTVDB : p.getDatabase());
+		sortOrderCombo.setSelectedItem(p.getSortOrder() == null ? SortOrder.Airdate : p.getSortOrder());
+		matchModeCombo.setSelectedItem(p.getMatchMode() == null ? RenamePanel.MATCH_MODE_OPPORTUNISTIC : p.getMatchMode());
+		actionCombo.setSelectedItem(p.getRenameAction() == null ? StandardRenameAction.MOVE : p.getRenameAction());
 	}
 
 	public Preset getPreset() throws Exception {

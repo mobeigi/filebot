@@ -44,7 +44,7 @@ public class Preset {
 	}
 
 	public File getInputFolder() {
-		return new File(path);
+		return path == null || path.isEmpty() ? null : new File(path);
 	}
 
 	public ExpressionFilter getIncludeFilter() {
@@ -127,6 +127,11 @@ public class Preset {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 
 }

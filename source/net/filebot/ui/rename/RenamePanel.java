@@ -48,6 +48,9 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+
 import net.filebot.History;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -65,6 +68,7 @@ import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.FileUtilities;
+import net.filebot.util.PreferencesMap;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -379,16 +383,18 @@ public class RenamePanel extends JComponent {
 	}
 
 	protected ActionPopup createPresetsPopup() {
-		List<Preset> presets = new ArrayList<Preset>();
+		PreferencesMap<String> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asMap();
+		ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
 
-		// TODO load presets via prefs
-
-		final ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
-
-		if (presets.size() > 0) {
+		if (persistentPresets.size() > 0) {
 			actionPopup.addDescription(new JLabel("Apply:"));
-			for (Preset it : presets) {
-				actionPopup.add(new ApplyPresetAction(it));
+			for (String it : persistentPresets.values()) {
+				try {
+					Preset p = (Preset) JsonReader.jsonToJava(it);
+					actionPopup.add(new ApplyPresetAction(p));
+				} catch (Exception e) {
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				}
 			}
 		}
 
@@ -396,9 +402,44 @@ public class RenamePanel extends JComponent {
 		actionPopup.add(new AbstractAction("Edit Presets", ResourceManager.getIcon("script.add")) {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
+			public void actionPerformed(ActionEvent evt) {
+				try {
+					String newPresetOption = "New Preset …";
+					List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
+					presetNames.add(newPresetOption);
 
+					String selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", JOptionPane.PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
+					if (selection == null)
+						return;
+
+					Preset preset = null;
+					if (selection == newPresetOption) {
+						selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, JOptionPane.PLAIN_MESSAGE, null, null, "My Preset");
+						if (selection == null)
+							return;
+
+						preset = new Preset(selection, null, null, null, null, null, null, null, null);
+					} else {
+						preset = (Preset) JsonReader.jsonToJava(persistentPresets.get(selection.toString()));
+					}
+
+					PresetEditor presetEditor = new PresetEditor(getWindow(evt.getSource()));
+					presetEditor.setPreset(preset);
+					presetEditor.setVisible(true);
+
+					switch (presetEditor.getResult()) {
+					case DELETE:
+						persistentPresets.remove(selection);
+						break;
+					case SET:
+						persistentPresets.put(selection, JsonWriter.objectToJson(presetEditor.getPreset()));
+						break;
+					case CANCEL:
+						break;
+					}
+				} catch (Exception e) {
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				}
 			}
 		});
 
