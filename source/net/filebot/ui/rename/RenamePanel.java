@@ -12,7 +12,6 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -61,12 +60,10 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
-import net.filebot.ui.SelectDialog;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.FileUtilities;
-import net.filebot.util.PreferencesMap;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -384,7 +381,7 @@ public class RenamePanel extends JComponent {
 	}
 
 	protected ActionPopup createPresetsPopup() {
-		PreferencesMap<String> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asMap();
+		Map<String, String> persistentPresets = Settings.forPackage(RenamePanel.class).node("presets").asMap();
 		ActionPopup actionPopup = new ActionPopup("Presets", ResourceManager.getIcon("action.script"));
 
 		if (persistentPresets.size() > 0) {
@@ -428,13 +425,13 @@ public class RenamePanel extends JComponent {
 					presetEditor.setVisible(true);
 
 					switch (presetEditor.getResult()) {
-					case DELETE:
-						persistentPresets.remove(selection);
-						break;
 					case SET:
 						preset = presetEditor.getPreset();
 						persistentPresets.put(selection, JsonWriter.objectToJson(preset));
 						new ApplyPresetAction(preset).actionPerformed(evt);
+						break;
+					case DELETE:
+						persistentPresets.remove(selection);
 						break;
 					case CANCEL:
 						break;

@@ -2,6 +2,7 @@ package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
+import static javax.swing.SwingUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -38,8 +39,11 @@ import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.ui.HeaderPanel;
+import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.MovieIdentificationService;
+import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
 
@@ -88,15 +92,13 @@ public class PresetEditor extends JDialog {
 		matchModeCombo = createMatchModeCombo();
 		languageCombo = createLanguageCombo();
 
-		JButton pathButton = createImageButton(selectInputFolder);
-
 		JPanel inputPanel = new JPanel(new MigLayout("insets 0, fill"));
 		inputPanel.setOpaque(false);
 		inputPanel.add(new JLabel("Input Folder:"), "gap indent");
 		inputPanel.add(pathInput, "growx, gap rel");
-		inputPanel.add(pathButton, "gap rel, wrap");
+		inputPanel.add(createImageButton(selectInputFolder), "gap 0px, wrap");
 		inputPanel.add(new JLabel("Includes:"), "gap indent, skip 1, split 2");
-		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel, gap after indent");
+		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel, gap after 40px");
 
 		JPanel inputGroup = createGroupPanel("Files");
 		inputGroup.add(selectRadio);
@@ -106,6 +108,7 @@ public class PresetEditor extends JDialog {
 		JPanel formatGroup = createGroupPanel("Format");
 		formatGroup.add(new JLabel("Expression:"));
 		formatGroup.add(wrapEditor(formatEditor), "growx, gap rel");
+		formatGroup.add(createImageButton(editFormatExpression), "gap 10px");
 
 		JPanel searchGroup = createGroupPanel("Options");
 		searchGroup.add(new JLabel("Datasource:"), "sg label");
@@ -126,21 +129,20 @@ public class PresetEditor extends JDialog {
 		c.add(searchGroup, "growx, wrap push");
 		c.add(new JButton(ok), "tag apply");
 		c.add(new JButton(delete), "tag cancel");
-		setSize(650, 570);
 
 		ButtonGroup inputButtonGroup = new ButtonGroup();
 		inputButtonGroup.add(inheritRadio);
 		inputButtonGroup.add(selectRadio);
+		inheritRadio.setSelected(true);
+		inputPanel.setVisible(false);
 		selectRadio.addItemListener((evt) -> {
 			inputPanel.setVisible(selectRadio.isSelected());
 		});
 		providerCombo.addItemListener((evt) -> {
 			sortOrderCombo.setEnabled(evt.getItem() instanceof EpisodeListProvider);
 		});
-		inheritRadio.setSelected(true);
-		inputPanel.setVisible(false);
 
-		presetNameHeader.getTitleLabel().setText("Preset");
+		setSize(650, 570);
 	}
 
 	public void setPreset(Preset p) {
@@ -169,17 +171,6 @@ public class PresetEditor extends JDialog {
 
 		return new Preset(name, path, includes, format, database, sortOrder, matchMode, language, action);
 	}
-
-	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.load")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			File f = UserFiles.showOpenDialogSelectFolder(null, "Select Input Folder", evt);
-			if (f != null) {
-				pathInput.setText(f.getAbsolutePath());
-			}
-		}
-	};
 
 	private JPanel createGroupPanel(String title) {
 		JPanel inputGroup = new JPanel(new MigLayout("insets dialog, hidemode 3, nogrid, fill"));
@@ -324,6 +315,41 @@ public class PresetEditor extends JDialog {
 	public Result getResult() {
 		return result;
 	}
+
+	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.load")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			File f = UserFiles.showOpenDialogSelectFolder(null, "Select Input Folder", evt);
+			if (f != null) {
+				pathInput.setText(f.getAbsolutePath());
+			}
+		}
+	};
+
+	private final Action editFormatExpression = new AbstractAction("Open Format Editor", ResourceManager.getIcon("action.format")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			FormatDialog.Mode mode = FormatDialog.Mode.File;
+			if (providerCombo.getSelectedItem() instanceof EpisodeListProvider) {
+				mode = FormatDialog.Mode.Episode;
+			} else if (providerCombo.getSelectedItem() instanceof MovieIdentificationService) {
+				mode = FormatDialog.Mode.Movie;
+			} else if (providerCombo.getSelectedItem() instanceof MusicIdentificationService) {
+				mode = FormatDialog.Mode.Music;
+			}
+
+			FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, null);
+			dialog.setFormatCode(formatEditor.getText());
+			dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+			dialog.setVisible(true);
+
+			if (dialog.submit()) {
+				formatEditor.setText(dialog.getFormat().getExpression());
+			}
+		}
+	};
 
 	private final Action ok = new AbstractAction("Preset", ResourceManager.getIcon("dialog.continue")) {
 
