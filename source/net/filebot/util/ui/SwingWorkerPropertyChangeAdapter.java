@@ -9,7 +9,8 @@ import javax.swing.SwingWorker.StateValue;
 
 
 public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChangeListener {
-	
+
+	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals("progress")) {
 			progress(evt);
@@ -19,33 +20,33 @@ public abstract class SwingWorkerPropertyChangeAdapter implements PropertyChange
 			event(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 		}
 	}
-	
+
 
 	protected void state(PropertyChangeEvent evt) {
 		switch ((StateValue) evt.getNewValue()) {
-			case STARTED:
-				started(evt);
-				break;
-			case DONE:
-				done(evt);
-				break;
+		case STARTED:
+			started(evt);
+			break;
+		case DONE:
+			done(evt);
+			break;
 		}
 	}
-	
+
 
 	protected void progress(PropertyChangeEvent evt) {
 	}
-	
+
 
 	protected void started(PropertyChangeEvent evt) {
 	}
-	
+
 
 	protected void done(PropertyChangeEvent evt) {
 	}
-	
+
 
 	protected void event(String name, Object oldValue, Object newValue) {
 	}
-	
+
 }

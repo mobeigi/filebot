@@ -51,7 +51,7 @@ public class OpenSubtitlesXmlRpc {
 
 	/**
 	 * This will login user. This method should be called always when starting talking with server.
-	 * 
+	 *
 	 * @param username
 	 *            username (blank for anonymous user)
 	 * @param password
@@ -334,6 +334,7 @@ public class OpenSubtitlesXmlRpc {
 	protected Map<?, ?> invoke(String method, Object... arguments) throws XmlRpcFault {
 		try {
 			XmlRpcClient rpc = new XmlRpcClient(getXmlRpcUrl(), false) {
+				@Override
 				public void parse(InputStream input) throws XmlRpcException {
 					try {
 						super.parse(new GZIPInputStream(input));
@@ -386,7 +387,7 @@ public class OpenSubtitlesXmlRpc {
 
 	/**
 	 * Check whether status is OK or not
-	 * 
+	 *
 	 * @param status
 	 *            status code and message (e.g. 200 OK, 401 Unauthorized, ...)
 	 * @throws XmlRpcFault

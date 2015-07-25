@@ -37,6 +37,7 @@ public class AnalyzePanel extends JComponent {
 
 	private final PropertyChangeListener filetreeListener = new PropertyChangeListener() {
 
+		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			// stopped loading, refresh tools
 			for (int i = 0; i < toolsPanel.getTabCount(); i++) {

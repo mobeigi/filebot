@@ -12,18 +12,18 @@ import java.util.logging.Logger;
 
 
 public abstract class SubtitleReader implements Iterator<SubtitleElement>, Closeable {
-	
+
 	protected final Scanner scanner;
 	protected SubtitleElement current;
-	
+
 
 	public SubtitleReader(Readable source) {
 		this.scanner = new Scanner(source);
 	}
-	
+
 
 	protected abstract SubtitleElement readNext() throws Exception;
-	
+
 
 	@Override
 	public boolean hasNext() {
@@ -36,34 +36,34 @@ public abstract class SubtitleReader implements Iterator<SubtitleElement>, Close
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, "Illegal input: " + e.getMessage());
 			}
 		}
-		
+
 		return current != null;
 	}
-	
+
 
 	@Override
 	public SubtitleElement next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
-		
+
 		try {
 			return current;
 		} finally {
 			current = null;
 		}
 	}
-	
+
 
 	@Override
 	public void close() throws IOException {
 		scanner.close();
 	}
-	
+
 
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

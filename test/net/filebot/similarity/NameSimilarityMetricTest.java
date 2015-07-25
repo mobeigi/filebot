@@ -8,9 +8,9 @@ import org.junit.Test;
 
 
 public class NameSimilarityMetricTest {
-	
+
 	private static NameSimilarityMetric metric = new NameSimilarityMetric();
-	
+
 
 	@Test
 	public void getSimilarity() {
@@ -20,5 +20,5 @@ public class NameSimilarityMetricTest {
 		assertEquals(1, metric.getSimilarity("test s01e03 third", "__test__S01E03__Third__"), 0);
 		assertEquals(1, metric.getSimilarity("test s01e04 four", "test   s01e04     four"), 0);
 	}
-	
+
 }

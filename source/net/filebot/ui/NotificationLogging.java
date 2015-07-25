@@ -23,52 +23,52 @@ import net.filebot.util.ui.notification.QueueNotificationLayout;
 
 
 public class NotificationLogging extends Handler {
-	
+
 	public static final Logger UILogger = createNotificationLogger("net.filebot.logger.ui");
-	
-	
+
+
 	private static Logger createNotificationLogger(String name) {
 		Logger log = Logger.getLogger(name);
-		
+
 		// don't use parent handlers
 		log.setUseParentHandlers(false);
-		
+
 		// ui handler
 		log.addHandler(new NotificationLogging());
-		
+
 		// console handler (for warnings and errors only)
 		ConsoleHandler console = new ConsoleHandler();
 		console.setLevel(Level.WARNING);
 		log.addHandler(console);
-		
+
 		return log;
 	}
-	
+
 	public final NotificationManager notificationManager;
 	public final int timeout = 2500;
-	
-	
+
+
 	public NotificationLogging() {
 		this(new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
-	
-	
+
+
 	public NotificationLogging(NotificationManager notificationManager) {
 		this.notificationManager = notificationManager;
 	}
-	
-	
+
+
 	@Override
 	public void publish(LogRecord record) {
 		// fail gracefully on an headless machine
 		if (GraphicsEnvironment.isHeadless())
 			return;
-		
+
 		final Level level = record.getLevel();
 		final String message = getMessage(record);
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				if (level == Level.INFO) {
@@ -81,34 +81,34 @@ public class NotificationLogging extends Handler {
 			}
 		});
 	}
-	
-	
+
+
 	protected String getMessage(LogRecord record) {
 		String message = record.getMessage();
-		
+
 		if ((message == null || message.isEmpty()) && record.getThrown() != null) {
 			// if message is empty, display exception string
 			return ExceptionUtilities.getMessage(record.getThrown());
 		}
-		
+
 		return message;
 	}
-	
-	
+
+
 	protected void show(String message, Icon icon, int timeout) {
 		notificationManager.show(new MessageNotification(getApplicationName(), message, icon, timeout));
 	}
-	
-	
+
+
 	@Override
 	public void close() throws SecurityException {
-		
+
 	}
-	
-	
+
+
 	@Override
 	public void flush() {
-		
+
 	}
-	
+
 }

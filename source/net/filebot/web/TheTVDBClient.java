@@ -314,6 +314,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	protected Document getXmlResource(final MirrorType mirrorType, final String path) throws IOException {
 		CachedXmlResource resource = new CachedXmlResource(path) {
 
+			@Override
 			protected URL getResourceLocation(String path) throws IOException {
 				return getResourceURL(mirrorType, path);
 			};
@@ -379,7 +380,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	/**
 	 * Search for a series banner matching the given parameters
-	 * 
+	 *
 	 * @see http://thetvdb.com/wiki/index.php/API:banners.xml
 	 */
 	public BannerDescriptor getBanner(TheTVDBSearchResult series, Map<?, ?> filterDescriptor) throws Exception {

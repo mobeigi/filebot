@@ -110,7 +110,7 @@ public class SeriesNameMatcher {
 
 	/**
 	 * Try to match and verify all series names using known season episode patterns.
-	 * 
+	 *
 	 * @param names
 	 *            episode names
 	 * @return series names that have been matched one or multiple times depending on the threshold
@@ -154,7 +154,7 @@ public class SeriesNameMatcher {
 
 	/**
 	 * Try to match all common word sequences in the given list.
-	 * 
+	 *
 	 * @param names
 	 *            list of episode names
 	 * @return all common word sequences that have been found
@@ -184,7 +184,7 @@ public class SeriesNameMatcher {
 
 	/**
 	 * Try to match a series name from the given episode name using known season episode patterns.
-	 * 
+	 *
 	 * @param name
 	 *            episode name
 	 * @return a substring of the given name that ends before the first occurrence of a season episode pattern, or null if there is no such pattern
@@ -218,7 +218,7 @@ public class SeriesNameMatcher {
 
 	/**
 	 * Try to match a series name from the first common word sequence.
-	 * 
+	 *
 	 * @param names
 	 *            various episode names (at least two)
 	 * @return a word sequence all episode names have in common, or null

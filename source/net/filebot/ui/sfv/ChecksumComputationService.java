@@ -53,7 +53,7 @@ class ChecksumComputationService {
 
 	/**
 	 * Get the number of active executors that are associated with this {@link ChecksumComputationService}.
-	 * 
+	 *
 	 * @return number of active executors
 	 * @see {@link #newExecutor()}
 	 */

@@ -17,7 +17,7 @@ import net.filebot.util.FileUtilities;
 
 /**
  * Describes a subtitle on OpenSubtitles.
- * 
+ *
  * @see OpenSubtitlesXmlRpc
  */
 public class OpenSubtitlesSubtitleDescriptor implements SubtitleDescriptor, Serializable {

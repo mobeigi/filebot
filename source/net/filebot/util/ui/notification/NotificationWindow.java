@@ -20,59 +20,59 @@ import net.filebot.util.ui.SwingUI;
 
 
 public class NotificationWindow extends JWindow {
-	
+
 	private final int timeout;
-	
-	
+
+
 	public NotificationWindow(Window owner, int timeout) {
 		this(owner, timeout, true);
 	}
-	
+
 
 	public NotificationWindow(Window owner, int timeout, boolean closeOnClick) {
 		super(owner);
 		this.timeout = timeout;
-		
+
 		setAlwaysOnTop(true);
-		
+
 		if (closeOnClick) {
 			getGlassPane().addMouseListener(clickListener);
 			getGlassPane().setVisible(true);
 		}
-		
+
 		addComponentListener(closeOnTimeout);
 	}
-	
+
 
 	public NotificationWindow(Window owner) {
 		this(owner, -1);
 	}
-	
+
 
 	public final void close() {
 		SwingUI.checkEventDispatchThread();
-		
+
 		// window events are not fired automatically, required for layout updates
 		processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		
+
 		setVisible(false);
-		
+
 		// component events are not fired automatically, used to cancel timeout timer
 		processComponentEvent(new ComponentEvent(this, ComponentEvent.COMPONENT_HIDDEN));
-		
+
 		dispose();
 	}
-	
+
 	private final ComponentListener closeOnTimeout = new ComponentAdapter() {
-		
+
 		private Timer timer = null;
-		
-		
+
+
 		@Override
 		public void componentShown(ComponentEvent e) {
 			if (timeout >= 0) {
 				timer = SwingUI.invokeLater(timeout, new Runnable() {
-					
+
 					@Override
 					public void run() {
 						close();
@@ -80,7 +80,7 @@ public class NotificationWindow extends JWindow {
 				});
 			}
 		}
-		
+
 
 		@Override
 		public void componentHidden(ComponentEvent e) {
@@ -88,15 +88,15 @@ public class NotificationWindow extends JWindow {
 				timer.stop();
 			}
 		}
-		
+
 	};
-	
+
 	private final MouseAdapter clickListener = new MouseAdapter() {
-		
+
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			close();
 		}
 	};
-	
+
 }

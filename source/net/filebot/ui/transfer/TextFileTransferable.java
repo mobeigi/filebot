@@ -12,33 +12,33 @@ import java.util.Set;
 
 
 public class TextFileTransferable extends ByteBufferTransferable {
-	
+
 	private final String text;
-	
+
 
 	public TextFileTransferable(String name, String text) {
 		this(name, text, Charset.forName("UTF-8"));
 	}
-	
+
 
 	public TextFileTransferable(final String name, final String text, final Charset charset) {
 		// lazy data map for file transfer
 		super(new AbstractMap<String, ByteBuffer>() {
-			
+
 			@Override
 			public Set<Entry<String, ByteBuffer>> entrySet() {
 				// encode text
 				Entry<String, ByteBuffer> entry = new SimpleEntry<String, ByteBuffer>(name, charset.encode(text));
-				
+
 				// return memory file entry
 				return Collections.singleton(entry);
 			}
 		});
-		
+
 		// text transfer
 		this.text = text;
 	}
-	
+
 
 	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
@@ -46,15 +46,15 @@ public class TextFileTransferable extends ByteBufferTransferable {
 		if (super.isDataFlavorSupported(flavor)) {
 			return super.getTransferData(flavor);
 		}
-		
+
 		// check text flavor
 		if (flavor.isFlavorTextType()) {
 			return text;
 		}
-		
+
 		throw new UnsupportedFlavorException(flavor);
 	}
-	
+
 
 	@Override
 	public DataFlavor[] getTransferDataFlavors() {
@@ -62,12 +62,12 @@ public class TextFileTransferable extends ByteBufferTransferable {
 				DataFlavor.javaFileListFlavor, FileTransferable.uriListFlavor, DataFlavor.stringFlavor
 		};
 	}
-	
+
 
 	@Override
 	public boolean isDataFlavorSupported(DataFlavor flavor) {
 		// file flavor or text flavor
 		return super.isDataFlavorSupported(flavor) || flavor.isFlavorTextType();
 	}
-	
+
 }

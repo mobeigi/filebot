@@ -60,6 +60,7 @@ public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 		return item;
 	}
 
+	@Override
 	public List<FileInfo> listFiles() throws SevenZipException {
 		List<FileInfo> paths = new ArrayList<FileInfo>();
 

@@ -73,6 +73,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 	private final SubtitleDropTarget uploadDropTarget = new SubtitleDropTarget.Upload() {
 
+		@Override
 		public OpenSubtitlesClient getSubtitleService() {
 			return WebServices.OpenSubtitles;
 		};
@@ -114,6 +115,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			return WebServices.getSubtitleProviders();
 		}
 
+		@Override
 		public OpenSubtitlesClient getSubtitleService() {
 			return WebServices.OpenSubtitles;
 		};
@@ -149,6 +151,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		}
 	};
 
+	@Override
 	protected Collection<String> getHistory(SubtitleProvider engine) throws Exception {
 		List<String> names = new ArrayList<String>();
 		for (SubtitleSearchResult it : MediaDetection.releaseInfo.getOpenSubtitlesIndex()) {

@@ -24,14 +24,14 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Create a new handle.
-	 * 
+	 *
 	 * @return handle
 	 */
 	Pointer New();
 
 	/**
 	 * Open a file and collect information about it (technical information and tags).
-	 * 
+	 *
 	 * @param handle
 	 * @param file
 	 *            full name of the file to open
@@ -41,7 +41,7 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Configure or get information about MediaInfo.
-	 * 
+	 *
 	 * @param handle
 	 * @param option
 	 *            The name of option
@@ -53,7 +53,7 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Get all details about a file.
-	 * 
+	 *
 	 * @param handle
 	 * @return All details about a file in one string
 	 */
@@ -61,7 +61,7 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Get a piece of information about a file (parameter is a string).
-	 * 
+	 *
 	 * @param handle
 	 * @param streamKind
 	 *            Kind of stream (general, video, audio...)
@@ -79,7 +79,7 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Get a piece of information about a file (parameter is an integer).
-	 * 
+	 *
 	 * @param handle
 	 * @param streamKind
 	 *            Kind of stream (general, video, audio...)
@@ -95,7 +95,7 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Count of streams of a stream kind (StreamNumber not filled), or count of piece of information in this stream.
-	 * 
+	 *
 	 * @param handle
 	 * @param streamKind
 	 *            Kind of stream (general, video, audio...)
@@ -107,14 +107,14 @@ interface MediaInfoLibrary extends Library {
 
 	/**
 	 * Close a file opened before with Open().
-	 * 
+	 *
 	 * @param handle
 	 */
 	void Close(Pointer handle);
 
 	/**
 	 * Dispose of a handle created with New().
-	 * 
+	 *
 	 * @param handle
 	 */
 	void Delete(Pointer handle);

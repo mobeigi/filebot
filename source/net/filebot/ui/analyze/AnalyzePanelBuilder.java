@@ -10,22 +10,22 @@ import net.filebot.ui.PanelBuilder;
 
 
 public class AnalyzePanelBuilder implements PanelBuilder {
-	
+
 	@Override
 	public String getName() {
 		return "Analyze";
 	}
-	
+
 
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("panel.analyze");
 	}
-	
+
 
 	@Override
 	public JComponent create() {
 		return new AnalyzePanel();
 	}
-	
+
 }

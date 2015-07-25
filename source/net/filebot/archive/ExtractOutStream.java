@@ -11,15 +11,15 @@ import net.sf.sevenzipjbinding.SevenZipException;
 
 
 class ExtractOutStream implements ISequentialOutStream, Closeable {
-	
+
 	private OutputStream out;
-	
-	
+
+
 	public ExtractOutStream(OutputStream out) {
 		this.out = out;
 	}
-	
-	
+
+
 	@Override
 	public int write(byte[] data) throws SevenZipException {
 		try {
@@ -29,11 +29,11 @@ class ExtractOutStream implements ISequentialOutStream, Closeable {
 		}
 		return data.length; // return amount of proceed data
 	}
-	
-	
+
+
 	@Override
 	public void close() throws IOException {
 		out.close();
 	}
-	
+
 }

@@ -79,7 +79,7 @@ public final class XPathUtilities {
 
 	/**
 	 * Get text content of the first child node matching the given node name. Use this method instead of {@link #selectString(String, Object)} whenever xpath support is not required, because it is much faster, especially for large documents.
-	 * 
+	 *
 	 * @param childName
 	 *            search for nodes with this name
 	 * @param parentNode

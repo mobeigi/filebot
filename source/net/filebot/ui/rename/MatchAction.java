@@ -42,6 +42,7 @@ class MatchAction extends AbstractAction {
 		putValue(SMALL_ICON, ResourceManager.getIcon(strict ? "action.match.strict" : "action.match"));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent evt) {
 		if (model.names().isEmpty() || model.files().isEmpty()) {
 			return;

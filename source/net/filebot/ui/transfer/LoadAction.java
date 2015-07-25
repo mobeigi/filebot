@@ -39,6 +39,7 @@ public class LoadAction extends AbstractAction {
 		return null;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent evt) {
 		try {
 			// get transferable policy from action properties

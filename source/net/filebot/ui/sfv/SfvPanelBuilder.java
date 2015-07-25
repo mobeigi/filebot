@@ -10,22 +10,22 @@ import net.filebot.ui.PanelBuilder;
 
 
 public class SfvPanelBuilder implements PanelBuilder {
-	
+
 	@Override
 	public String getName() {
 		return "SFV";
 	}
-	
+
 
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("panel.sfv");
 	}
-	
+
 
 	@Override
 	public JComponent create() {
 		return new SfvPanel();
 	}
-	
+
 }

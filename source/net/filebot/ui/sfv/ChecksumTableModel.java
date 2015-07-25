@@ -242,6 +242,7 @@ class ChecksumTableModel extends AbstractTableModel {
 
 	private final PropertyChangeListener progressListener = new PropertyChangeListener() {
 
+		@Override
 		public void propertyChange(PropertyChangeEvent evt) {
 			ChecksumCell cell = (ChecksumCell) evt.getSource();
 

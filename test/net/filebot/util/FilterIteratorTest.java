@@ -13,10 +13,10 @@ import org.junit.Test;
 
 
 public class FilterIteratorTest {
-	
+
 	private List<String> list = new ArrayList<String>();
-	
-	
+
+
 	@Before
 	public void setUp() {
 		list.add("first one");
@@ -26,35 +26,35 @@ public class FilterIteratorTest {
 		list.add("5");
 		list.add("last order");
 	}
-	
+
 
 	@Test
 	public void iterateAndRemove() {
 		Iterator<Integer> integers = new FilterIterator<String, Integer>(list) {
-			
+
 			@Override
 			protected Integer filter(String sourceValue) {
 				if (sourceValue.matches("\\d+"))
 					return Integer.valueOf(sourceValue);
-				
+
 				return null;
 			}
 		};
-		
+
 		assertEquals(Integer.valueOf(2), integers.next());
 		integers.remove();
 		assertEquals(Integer.valueOf(5), integers.next());
 		integers.remove();
-		
+
 		assertFalse(integers.hasNext());
-		
+
 		// check if remove() worked
 		Iterator<String> strings = list.iterator();
 		assertEquals("first one", strings.next());
 		assertEquals("third space", strings.next());
 		assertEquals("four square", strings.next());
 		assertEquals("last order", strings.next());
-		
+
 		assertFalse(strings.hasNext());
 	}
 }

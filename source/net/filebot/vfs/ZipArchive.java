@@ -15,14 +15,14 @@ import net.filebot.util.ByteBufferOutputStream;
 
 
 public class ZipArchive implements Iterable<MemoryFile> {
-	
+
 	private final ByteBuffer data;
-	
+
 
 	public ZipArchive(ByteBuffer data) {
 		this.data = data.duplicate();
 	}
-	
+
 
 	@Override
 	public Iterator<MemoryFile> iterator() {
@@ -32,34 +32,34 @@ public class ZipArchive implements Iterable<MemoryFile> {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 
 	public List<MemoryFile> extract() throws IOException {
 		List<MemoryFile> vfs = new ArrayList<MemoryFile>();
-		
+
 		// read first zip entry
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteBufferInputStream(data.duplicate()));
 		ZipEntry zipEntry;
-		
+
 		try {
 			while ((zipEntry = zipInputStream.getNextEntry()) != null) {
 				// ignore directory entries
 				if (zipEntry.isDirectory()) {
 					continue;
 				}
-				
+
 				ByteBufferOutputStream buffer = new ByteBufferOutputStream((int) zipEntry.getSize());
-				
+
 				// write contents to buffer
 				buffer.transferFully(zipInputStream);
-				
+
 				// add memory file
 				vfs.add(new MemoryFile(zipEntry.getName(), buffer.getByteBuffer()));
 			}
 		} finally {
 			zipInputStream.close();
 		}
-		
+
 		return vfs;
 	}
 }

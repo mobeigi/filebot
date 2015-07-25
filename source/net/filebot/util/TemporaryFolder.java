@@ -16,7 +16,7 @@ public final class TemporaryFolder {
 
 	/**
 	 * Get a {@link TemporaryFolder} instance for a given name. The actual directory will be created lazily (e.g. when a file is created). The name of the directory will start with the given name (lower-case) and contain a unique id, so multiple application instances may run at the same time without the risk of interference.
-	 * 
+	 *
 	 * @param name
 	 *            case-insensitive name of a temporary folder (e.g. application name)
 	 * @return temporary folder for this name
@@ -65,7 +65,7 @@ public final class TemporaryFolder {
 
 	/**
 	 * Create an empty file in this temporary folder.
-	 * 
+	 *
 	 * @param name
 	 *            name of the file
 	 * @return newly created file
@@ -82,7 +82,7 @@ public final class TemporaryFolder {
 
 	/**
 	 * Creates an empty file in this temporary folder, using the given prefix and suffix to generate its name.
-	 * 
+	 *
 	 * @param prefix
 	 *            The prefix string to be used in generating the file's name; must be at least three characters long
 	 * @param suffix
@@ -102,7 +102,7 @@ public final class TemporaryFolder {
 
 	/**
 	 * Retrieve the {@link File} object for this {@link TemporaryFolder}. The actual directory for the {@link TemporaryFolder} instance will be created by this method.
-	 * 
+	 *
 	 * @return the {@link File} object for this {@link TemporaryFolder}
 	 */
 	public File getFolder() throws IOException {
@@ -142,7 +142,7 @@ public final class TemporaryFolder {
 
 	/**
 	 * Delete files/folders recursively
-	 * 
+	 *
 	 * @param file
 	 *            file/folder that will be deleted
 	 */

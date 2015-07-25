@@ -45,6 +45,7 @@ public class SaveAction extends AbstractAction {
 		return new File(validateFileName(getExportHandler().getDefaultFileName()));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent evt) {
 		try {
 			if (canExport()) {

@@ -154,7 +154,7 @@ public class SeasonEpisodeMatcher {
 
 	/**
 	 * Try to get season and episode numbers for the given string.
-	 * 
+	 *
 	 * @param name
 	 *            match this string against the a set of know patterns
 	 * @return the matches returned by the first pattern that returns any matches for this string, or null if no pattern returned any matches

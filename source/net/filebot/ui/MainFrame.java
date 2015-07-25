@@ -125,10 +125,12 @@ public class MainFrame extends JFrame {
 					GroovyPad pad = new GroovyPad();
 
 					pad.addWindowListener(new WindowAdapter() {
+						@Override
 						public void windowOpened(WindowEvent e) {
 							MainFrame.this.setVisible(false);
 						};
 
+						@Override
 						public void windowClosing(WindowEvent e) {
 							MainFrame.this.setVisible(true);
 						};

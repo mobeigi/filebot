@@ -15,21 +15,21 @@ import java.util.logging.Logger;
 
 
 public class VerificationFileReader implements Iterator<Entry<File, String>>, Closeable {
-	
+
 	private final Scanner scanner;
-	
+
 	private final VerificationFormat format;
-	
+
 	private Entry<File, String> buffer;
-	
+
 	private int lineNumber = 0;
-	
+
 
 	public VerificationFileReader(Readable source, VerificationFormat format) {
 		this.scanner = new Scanner(source);
 		this.format = format;
 	}
-	
+
 
 	@Override
 	public boolean hasNext() {
@@ -37,10 +37,10 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 			// cache next entry
 			buffer = nextEntry();
 		}
-		
+
 		return buffer != null;
 	}
-	
+
 
 	@Override
 	public Entry<File, String> next() {
@@ -48,7 +48,7 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
-		
+
 		try {
 			return buffer;
 		} finally {
@@ -56,15 +56,15 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 			buffer = null;
 		}
 	}
-	
+
 
 	protected Entry<File, String> nextEntry() {
 		Entry<File, String> entry = null;
-		
+
 		// get next valid entry
 		while (entry == null && scanner.hasNextLine()) {
 			String line = scanner.nextLine().trim();
-			
+
 			// ignore comments
 			if (!isComment(line)) {
 				try {
@@ -74,33 +74,33 @@ public class VerificationFileReader implements Iterator<Entry<File, String>>, Cl
 					Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Illegal format on line %d: %s", lineNumber, line));
 				}
 			}
-			
+
 			lineNumber++;
 		}
-		
+
 		return entry;
 	}
-	
+
 
 	public int getLineNumber() {
 		return lineNumber;
 	}
-	
+
 
 	protected boolean isComment(String line) {
 		return line.isEmpty() || line.startsWith(";");
 	}
-	
+
 
 	@Override
 	public void close() throws IOException {
 		scanner.close();
 	}
-	
+
 
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

@@ -88,6 +88,7 @@ public enum SubtitleMetrics implements SimilarityMetric {
 			return 0;
 		}
 
+		@Override
 		protected float similarity(String match, String s1, String s2) {
 			return match.length() > 0 ? 1 : 0;
 		}
@@ -153,10 +154,12 @@ public enum SubtitleMetrics implements SimilarityMetric {
 		private final String FPS = "FPS";
 		private final String SECONDS = "SECS";
 
+		@Override
 		public float getSimilarity(Object o1, Object o2) {
 			return o1 instanceof SubtitleDescriptor ? super.getSimilarity(o1, o2) : super.getSimilarity(o2, o1); // make sure that SubtitleDescriptor is o1
 		};
 
+		@Override
 		protected Map<String, Object> getProperties(Object object) {
 			if (object instanceof OpenSubtitlesSubtitleDescriptor) {
 				return getSubtitleProperties((OpenSubtitlesSubtitleDescriptor) object);

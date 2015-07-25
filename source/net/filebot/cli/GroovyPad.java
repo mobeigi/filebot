@@ -292,6 +292,7 @@ public class GroovyPad extends JFrame {
 
 		private class ConsoleOutputStream extends ByteArrayOutputStream {
 
+			@Override
 			public void flush() {
 				try {
 					String message = this.toString("UTF-8");

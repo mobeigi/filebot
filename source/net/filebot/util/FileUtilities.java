@@ -262,7 +262,7 @@ public final class FileUtilities {
 
 	/**
 	 * Pattern used for matching file extensions.
-	 * 
+	 *
 	 * e.g. "file.txt" -> match "txt", ".hidden" -> no match
 	 */
 	public static final Pattern EXTENSION = Pattern.compile("(?<=.[.])\\p{Alnum}+$");
@@ -567,7 +567,7 @@ public final class FileUtilities {
 
 	/**
 	 * Strip file name of invalid characters
-	 * 
+	 *
 	 * @param filename
 	 *            original filename
 	 * @return valid file name stripped of invalid characters

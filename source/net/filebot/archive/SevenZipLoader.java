@@ -14,15 +14,15 @@ import com.sun.jna.Platform;
 
 
 public class SevenZipLoader {
-	
+
 	private static boolean nativeLibrariesLoaded = false;
-	
-	
+
+
 	private static synchronized void requireNativeLibraries() throws SevenZipNativeInitializationException {
 		if (nativeLibrariesLoaded) {
 			return;
 		}
-		
+
 		// initialize 7z-JBinding native libs
 		try {
 			try {
@@ -32,7 +32,7 @@ public class SevenZipLoader {
 			} catch (Throwable e) {
 				Logger.getLogger(SevenZipLoader.class.getName()).warning("Failed to preload library: " + e);
 			}
-			
+
 			System.loadLibrary("7-Zip-JBinding");
 			SevenZip.initLoadedLibraries(); // NATIVE LIBS MUST BE LOADED WITH SYSTEM CLASSLOADER
 			nativeLibrariesLoaded = true;
@@ -40,17 +40,17 @@ public class SevenZipLoader {
 			throw new SevenZipNativeInitializationException("Failed to load 7z-JBinding: " + e.getMessage(), e);
 		}
 	}
-	
-	
+
+
 	public static ISevenZipInArchive open(IInStream stream, IArchiveOpenCallback callback) throws Exception {
 		// initialize 7-Zip-JBinding
 		requireNativeLibraries();
-		
+
 		if (callback == null) {
 			return SevenZip.openInArchive(null, stream);
 		} else {
 			return SevenZip.openInArchive(null, stream, callback);
 		}
 	}
-	
+
 }

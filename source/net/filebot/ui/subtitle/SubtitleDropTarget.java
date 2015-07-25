@@ -216,6 +216,7 @@ abstract class SubtitleDropTarget extends JButton {
 			return true;
 		}
 
+		@Override
 		protected Icon getIcon(DropAction dropAction) {
 			switch (dropAction) {
 			case Accept:
@@ -307,6 +308,7 @@ abstract class SubtitleDropTarget extends JButton {
 			return null;
 		}
 
+		@Override
 		protected Icon getIcon(DropAction dropAction) {
 			if (dropAction == DropAction.Accept)
 				return ResourceManager.getIcon("subtitle.exact.upload");

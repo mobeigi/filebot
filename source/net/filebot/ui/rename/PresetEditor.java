@@ -237,6 +237,7 @@ public class PresetEditor extends JDialog {
 
 			private final ListCellRenderer<Object> parent = (ListCellRenderer<Object>) combo.getRenderer();
 
+			@Override
 			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 				JLabel label = (JLabel) parent.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
@@ -278,7 +279,7 @@ public class PresetEditor extends JDialog {
 				JLabel label = (JLabel) parent.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
 				if (value instanceof Language) {
-					Language it = (Language) value;
+					Language it = value;
 					label.setText(it.getName());
 					label.setIcon(ResourceManager.getFlagIcon(it.getCode()));
 				}

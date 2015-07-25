@@ -371,7 +371,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// search for movies and series
 		List<SubtitleSearchResult> result = getCache().getSearchResult("search", query);
 		if (result != null) {
-			return (List<SubtitleSearchResult>) result;
+			return result;
 		}
 
 		// require login
@@ -469,7 +469,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public URI getSubtitleListLink(SubtitleSearchResult searchResult, String languageName) {
-		Movie movie = (Movie) searchResult;
+		Movie movie = searchResult;
 		String sublanguageid = "all";
 
 		if (languageName != null) {

@@ -126,6 +126,7 @@ class RenameList<E> extends FileBotList<E> {
 
 	private final AbstractAction upAction = new AbstractAction("Align Up", ResourceManager.getIcon("action.up")) {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
 
@@ -138,6 +139,7 @@ class RenameList<E> extends FileBotList<E> {
 
 	private final AbstractAction downAction = new AbstractAction("Align Down", ResourceManager.getIcon("action.down")) {
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = getListComponent().getSelectedIndex();
 

@@ -54,6 +54,7 @@ public abstract class AbstractEpisodeListProvider implements EpisodeListProvider
 		return getSeriesData(searchResult, null, language).getSeriesInfo();
 	}
 
+	@Override
 	public SeriesInfo getSeriesInfo(int id, Locale language) throws Exception {
 		return getSeriesInfo(createSearchResult(id), language);
 	}

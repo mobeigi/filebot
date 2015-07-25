@@ -226,6 +226,7 @@ public class SelectButton<T> extends JButton {
 			this.icon = icon;
 		}
 
+		@Override
 		public void paintIcon(Component c, Graphics g, int x, int y) {
 			Graphics2D g2d = (Graphics2D) g;
 
@@ -237,10 +238,12 @@ public class SelectButton<T> extends JButton {
 			g2d.fill(arrow);
 		}
 
+		@Override
 		public int getIconWidth() {
 			return 30;
 		}
 
+		@Override
 		public int getIconHeight() {
 			return 20;
 		}

@@ -8,13 +8,13 @@ import java.text.ParsePosition;
 
 
 public class AudioTrackFormat extends Format {
-	
+
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
 		return sb.append(obj.toString());
 	}
-	
-	
+
+
 	@Override
 	public AudioTrack parseObject(String source, ParsePosition pos) {
 		String[] s = source.split(" - ", 2);
@@ -26,5 +26,5 @@ public class AudioTrackFormat extends Format {
 			return null;
 		}
 	}
-	
+
 }

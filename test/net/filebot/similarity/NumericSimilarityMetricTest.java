@@ -18,15 +18,15 @@ import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class NumericSimilarityMetricTest {
-	
+
 	private static NumericSimilarityMetric metric = new NumericSimilarityMetric();
-	
+
 	private static Map<String, String> matches = createMatches();
-	
-	
+
+
 	public static Map<String, String> createMatches() {
 		Map<String, String> matches = new LinkedHashMap<String, String>();
-		
+
 		// lots of naming variations
 		matches.put("Test - 1x01", "test.S01E01.Pilot.HDTV.XviD-FQM");
 		matches.put("Test - 1x02", "test.S01E02.HDTV.XviD-DIMENSION");
@@ -46,49 +46,49 @@ public class NumericSimilarityMetricTest {
 		matches.put("Test - 1x16", "test.1x16.0tv.VO");
 		matches.put("Test - 1x17", "Test.S01E17.42.is.the.answer.DSR.XviD-0TV");
 		matches.put("Test - 1x18", "Test.S01E18.DSR.XviD-0TV");
-		
+
 		// lots of numbers
 		matches.put("The 4400 - 1x01", "the.4400.s1e01.pilot.720p");
 		matches.put("The 4400 - 4x04", "the.4400.s4e04.eden.720p");
-		
+
 		return matches;
 	}
-	
+
 
 	@Parameters
 	public static Collection<Object[]> createParameters() {
 		return TestUtil.asParameters(matches.keySet());
 	}
-	
+
 	private final String normalizedName;
-	
-	
+
+
 	public NumericSimilarityMetricTest(String normalizedName) {
 		this.normalizedName = normalizedName;
 	}
-	
+
 
 	@Test
 	public void getBestMatch() {
 		String match = getBestMatch(normalizedName, matches.values());
-		
+
 		assertEquals(matches.get(normalizedName), match);
 	}
-	
+
 
 	public String getBestMatch(String value, Collection<String> testdata) {
 		double maxSimilarity = -1;
 		String mostSimilar = null;
-		
+
 		for (String current : testdata) {
 			double similarity = metric.getSimilarity(value, current);
-			
+
 			if (similarity > maxSimilarity) {
 				maxSimilarity = similarity;
 				mostSimilar = current;
 			}
 		}
-		
+
 		return mostSimilar;
 	}
 }

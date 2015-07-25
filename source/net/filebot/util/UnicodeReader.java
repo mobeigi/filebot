@@ -58,50 +58,62 @@ public class UnicodeReader extends Reader {
 		}
 	}
 
+	@Override
 	public int hashCode() {
 		return reader.hashCode();
 	}
 
+	@Override
 	public int read(CharBuffer target) throws IOException {
 		return reader.read(target);
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		return reader.equals(obj);
 	}
 
+	@Override
 	public int read(char[] cbuf) throws IOException {
 		return reader.read(cbuf);
 	}
 
+	@Override
 	public int read() throws IOException {
 		return reader.read();
 	}
 
+	@Override
 	public int read(char[] cbuf, int offset, int length) throws IOException {
 		return reader.read(cbuf, offset, length);
 	}
 
+	@Override
 	public long skip(long n) throws IOException {
 		return reader.skip(n);
 	}
 
+	@Override
 	public boolean ready() throws IOException {
 		return reader.ready();
 	}
 
+	@Override
 	public void close() throws IOException {
 		reader.close();
 	}
 
+	@Override
 	public boolean markSupported() {
 		return reader.markSupported();
 	}
 
+	@Override
 	public void mark(int readAheadLimit) throws IOException {
 		reader.mark(readAheadLimit);
 	}
 
+	@Override
 	public void reset() throws IOException {
 		reader.reset();
 	}

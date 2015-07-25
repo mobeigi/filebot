@@ -33,6 +33,7 @@ public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 		return super.match(new File(clean(file.getPath())));
 	}
 
+	@Override
 	public String head(String name) {
 		return super.head(clean(name));
 	}

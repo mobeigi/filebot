@@ -20,6 +20,7 @@ public class SimpleFileInfo implements FileInfo, Comparable<FileInfo> {
 		return path;
 	}
 
+	@Override
 	public String getName() {
 		return getNameWithoutExtension(new File(path).getName());
 	}
@@ -29,6 +30,7 @@ public class SimpleFileInfo implements FileInfo, Comparable<FileInfo> {
 		return getExtension(path);
 	}
 
+	@Override
 	public long getLength() {
 		return length;
 	}

@@ -97,11 +97,13 @@ public class LanguageComboBoxModel extends AbstractListModel implements ComboBox
 			return data.get(index);
 		}
 
+		@Override
 		public boolean add(Language element) {
 			// add first
 			return addIfAbsent(0, element);
 		}
 
+		@Override
 		public void add(int index, Language element) {
 			addIfAbsent(index, element);
 		}

@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 
 public interface ExtractOutProvider {
-	
+
 	OutputStream getStream(File archivePath) throws IOException;
-	
+
 }

@@ -10,22 +10,22 @@ import net.filebot.ui.PanelBuilder;
 
 
 public class EpisodeListPanelBuilder implements PanelBuilder {
-	
+
 	@Override
 	public String getName() {
 		return "Episodes";
 	}
-	
+
 
 	@Override
 	public Icon getIcon() {
 		return ResourceManager.getIcon("panel.episodelist");
 	}
-	
+
 
 	@Override
 	public JComponent create() {
 		return new EpisodeListPanel();
 	}
-	
+
 }

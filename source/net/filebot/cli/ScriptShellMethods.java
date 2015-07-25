@@ -57,7 +57,7 @@ public class ScriptShellMethods {
 	}
 
 	public static List<File> listFiles(File self, Closure<?> closure) {
-		return (List<File>) DefaultGroovyMethods.findAll(FileUtilities.getChildren(self), closure);
+		return DefaultGroovyMethods.findAll(FileUtilities.getChildren(self), closure);
 	}
 
 	public static boolean isVideo(File self) {
@@ -121,7 +121,7 @@ public class ScriptShellMethods {
 
 		List<File> files = FileUtilities.listFiles(roots);
 		if (closure != null) {
-			files = (List<File>) DefaultGroovyMethods.findAll(files, closure);
+			files = DefaultGroovyMethods.findAll(files, closure);
 		}
 
 		return FileUtilities.sortByUniquePath(files);
@@ -144,7 +144,7 @@ public class ScriptShellMethods {
 
 		List<File> folders = FileUtilities.listFolders(roots);
 		if (closure != null) {
-			folders = (List<File>) DefaultGroovyMethods.findAll(folders, closure);
+			folders = DefaultGroovyMethods.findAll(folders, closure);
 		}
 
 		return FileUtilities.sortByUniquePath(folders);

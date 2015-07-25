@@ -32,7 +32,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Pad strings or numbers with given characters ('0' by default).
-	 * 
+	 *
 	 * e.g. "1" -> "01"
 	 */
 	public static String pad(String self, int length, String padding) {
@@ -97,7 +97,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Replace space characters with a given characters.
-	 * 
+	 *
 	 * e.g. "Doctor Who" -> "Doctor_Who"
 	 */
 	public static String space(String self, String replacement) {
@@ -106,7 +106,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Upper-case all initials.
-	 * 
+	 *
 	 * e.g. "The Day a new Demon was born" -> "The Day A New Demon Was Born"
 	 */
 	public static String upperInitial(String self) {
@@ -131,7 +131,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Get acronym, i.e. first letter of each word.
-	 * 
+	 *
 	 * e.g. "Deep Space 9" -> "DS9"
 	 */
 	public static String acronym(String self) {
@@ -148,7 +148,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Lower-case all letters that are not initials.
-	 * 
+	 *
 	 * e.g. "Gundam SEED" -> "Gundam Seed"
 	 */
 	public static String lowerTrail(String self) {
@@ -220,7 +220,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Replace trailing parenthesis including any leading whitespace.
-	 * 
+	 *
 	 * e.g. "The IT Crowd (UK)" -> "The IT Crowd"
 	 */
 	public static String replaceTrailingBrackets(String self) {
@@ -233,7 +233,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Replace 'part identifier'.
-	 * 
+	 *
 	 * e.g. "Today Is the Day: Part 1" -> "Today Is the Day, Part 1" or "Today Is the Day (1)" -> "Today Is the Day, Part 1"
 	 */
 	public static String replacePart(String self) {
@@ -257,7 +257,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Apply ICU transliteration
-	 * 
+	 *
 	 * @see http://userguide.icu-project.org/transforms/general
 	 */
 	public static String transliterate(String self, String transformIdentifier) {
@@ -266,7 +266,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Convert Unicode to ASCII as best as possible. Works with most alphabets/scripts used in the world.
-	 * 
+	 *
 	 * e.g. "Österreich" -> "Osterreich" "カタカナ" -> "katakana"
 	 */
 	public static String ascii(String self) {
@@ -283,7 +283,7 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Replace multiple replacement pairs
-	 * 
+	 *
 	 * e.g. replace('ä', 'ae', 'ö', 'oe', 'ü', 'ue')
 	 */
 	public static String replace(String self, String tr0, String tr1, String... tr) {

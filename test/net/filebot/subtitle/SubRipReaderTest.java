@@ -15,16 +15,16 @@ import org.junit.Test;
 
 
 public class SubRipReaderTest {
-	
+
 	@Test
 	public void parse() throws Exception {
 		List<SubtitleElement> list = new ArrayList<SubtitleElement>();
-		
+
 		URL resource = new URL("http://www.opensubtitles.org/en/download/file/1951733951.gz");
 		InputStream source = new GZIPInputStream(resource.openStream());
-		
+
 		SubRipReader reader = new SubRipReader(new InputStreamReader(source, "UTF-8"));
-		
+
 		try {
 			while (reader.hasNext()) {
 				list.add(reader.next());
@@ -32,7 +32,7 @@ public class SubRipReaderTest {
 		} finally {
 			reader.close();
 		}
-		
+
 		assertEquals(501, list.size(), 0);
 	}
 }

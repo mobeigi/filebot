@@ -284,6 +284,7 @@ public class DropToUnlock extends JList<File> {
 			return true;
 		}
 
+		@Override
 		public void handleTransferable(Transferable tr, TransferAction action) throws Exception {
 			List<File> files = FileTransferable.getFilesFromTransferable(tr);
 			if (files != null) {
@@ -318,6 +319,7 @@ public class DropToUnlock extends JList<File> {
 
 	protected static class FileChooserAction extends MouseAdapter {
 
+		@Override
 		public void mouseClicked(MouseEvent evt) {
 			DropToUnlock list = (DropToUnlock) evt.getSource();
 			if (evt.getClickCount() > 0) {

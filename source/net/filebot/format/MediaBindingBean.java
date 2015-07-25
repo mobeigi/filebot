@@ -91,10 +91,10 @@ public class MediaBindingBean {
 			return getMovie().getName();
 		if (infoObject instanceof AudioTrack)
 			return getAlbumArtist() != null ? getAlbumArtist() : getArtist();
-		if (infoObject instanceof File)
-			return FileUtilities.getName((File) infoObject);
+			if (infoObject instanceof File)
+				return FileUtilities.getName((File) infoObject);
 
-		return null;
+			return null;
 	}
 
 	@Define("y")
@@ -909,6 +909,7 @@ public class MediaBindingBean {
 
 	private AssociativeScriptObject createBindingObject(File file, Object info, Map<File, Object> context) {
 		MediaBindingBean mediaBindingBean = new MediaBindingBean(info, file, context) {
+			@Override
 			@Define(undefined)
 			public <T> T undefined(String name) {
 				return null; // never throw exceptions for empty or null values

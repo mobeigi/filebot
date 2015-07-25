@@ -10,5 +10,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses( { SubRipReaderTest.class, MicroDVDReaderTest.class })
 public class SubtitleReaderTestSuite {
-	
+
 }

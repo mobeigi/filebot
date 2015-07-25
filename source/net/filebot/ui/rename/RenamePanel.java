@@ -274,7 +274,7 @@ public class RenamePanel extends JComponent {
 					try {
 						JList list = (JList) evt.getSource();
 						if (list.getSelectedIndex() >= 0) {
-							UserFiles.revealFiles((List<File>) list.getSelectedValuesList());
+							UserFiles.revealFiles(list.getSelectedValuesList());
 						}
 					} catch (Exception e) {
 						Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage());
@@ -702,6 +702,7 @@ public class RenamePanel extends JComponent {
 			this.preset = preset;
 		}
 
+		@Override
 		public List<File> getFiles(ActionEvent evt) {
 			List<File> input = new ArrayList<File>();
 			if (preset.getInputFolder() != null) {
@@ -725,10 +726,12 @@ public class RenamePanel extends JComponent {
 			return input;
 		}
 
+		@Override
 		public boolean isStrict(ActionEvent evt) {
 			return preset.getMatchMode() != null ? MATCH_MODE_STRICT.equals(preset.getMatchMode()) : super.isStrict(evt);
 		}
 
+		@Override
 		public SortOrder getSortOrder(ActionEvent evt) {
 			return preset.getSortOrder() != null ? preset.getSortOrder() : super.getSortOrder(evt);
 		}
