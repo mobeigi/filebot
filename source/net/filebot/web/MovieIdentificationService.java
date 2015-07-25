@@ -8,7 +8,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-public interface MovieIdentificationService {
+public interface MovieIdentificationService extends Datasource {
 
 	public String getName();
 

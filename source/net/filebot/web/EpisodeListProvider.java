@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import javax.swing.Icon;
 
-public interface EpisodeListProvider {
+public interface EpisodeListProvider extends Datasource {
 
 	public String getName();
 

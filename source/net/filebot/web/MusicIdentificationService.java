@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-public interface MusicIdentificationService {
+public interface MusicIdentificationService extends Datasource {
 
 	String getName();
 
