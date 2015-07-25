@@ -12,6 +12,7 @@ import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +21,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -48,9 +48,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-
 import net.filebot.History;
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -64,6 +61,7 @@ import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
 import net.filebot.similarity.Match;
+import net.filebot.ui.SelectDialog;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
@@ -87,6 +85,9 @@ import net.miginfocom.swing.MigLayout;
 import ca.odell.glazedlists.EventList;
 import ca.odell.glazedlists.ListSelection;
 import ca.odell.glazedlists.swing.EventSelectionModel;
+
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 
 public class RenamePanel extends JComponent {
 
@@ -393,7 +394,7 @@ public class RenamePanel extends JComponent {
 					Preset p = (Preset) JsonReader.jsonToJava(it);
 					actionPopup.add(new ApplyPresetAction(p));
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
 				}
 			}
 		}
@@ -408,7 +409,13 @@ public class RenamePanel extends JComponent {
 					List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
 					presetNames.add(newPresetOption);
 
-					String selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", JOptionPane.PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
+					SelectDialog<String> selectDialog = new SelectDialog<String>(getWindow(evt.getSource()), presetNames);
+					selectDialog.setLocation(getOffsetLocation(selectDialog.getOwner()));
+					selectDialog.setMinimumSize(new Dimension(250, 150));
+					selectDialog.setTitle("Edit Preset");
+					selectDialog.getHeaderLabel().setText("Edit or create a preset:");
+					selectDialog.setVisible(true);
+					String selection = selectDialog.getSelectedValue();
 					if (selection == null)
 						return;
 
@@ -438,7 +445,7 @@ public class RenamePanel extends JComponent {
 						break;
 					}
 				} catch (Exception e) {
-					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.getMessage(), e);
+					Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
 				}
 			}
 		});
@@ -698,20 +705,18 @@ public class RenamePanel extends JComponent {
 		public List<File> getFiles(ActionEvent evt) {
 			List<File> input = new ArrayList<File>();
 			if (preset.getInputFolder() != null) {
-				List<File> selection = FileUtilities.listFiles(preset.getInputFolder());
+				input.addAll(FileUtilities.listFiles(preset.getInputFolder()));
 				ExpressionFilter filter = preset.getIncludeFilter();
 				if (filter != null) {
-					selection = FileUtilities.filter(selection, (File f) -> {
+					input = FileUtilities.filter(input, (File f) -> {
 						try {
-							return filter.matches(new MediaBindingBean(null, f));
+							return filter.matches(new MediaBindingBean(f, f));
 						} catch (Exception e) {
 							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
 							return false;
 						}
 					});
 				}
-				input.addAll(selection);
-
 				renameModel.clear();
 				renameModel.files().addAll(input);
 			} else {

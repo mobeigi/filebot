@@ -1,8 +1,8 @@
 package net.filebot.ui.rename;
 
-import static net.filebot.ui.NotificationLogging.*;
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
+import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -26,7 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 
@@ -50,20 +49,6 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class PresetEditor extends JDialog {
-
-	public static void main(String[] args) throws Exception {
-		SwingUtilities.invokeLater(() -> {
-			PresetEditor presetEditor = new PresetEditor(null);
-			presetEditor.setVisible(true);
-			try {
-				System.out.println(presetEditor.getResult());
-				System.out.println(presetEditor.getPreset());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-	}
 
 	enum Result {
 		SET, DELETE, CANCEL;
@@ -106,6 +91,7 @@ public class PresetEditor extends JDialog {
 		JButton pathButton = createImageButton(selectInputFolder);
 
 		JPanel inputPanel = new JPanel(new MigLayout("insets 0, fill"));
+		inputPanel.setOpaque(false);
 		inputPanel.add(new JLabel("Input Folder:"), "gap indent");
 		inputPanel.add(pathInput, "growx, gap rel");
 		inputPanel.add(pathButton, "gap rel, wrap");
@@ -140,7 +126,7 @@ public class PresetEditor extends JDialog {
 		c.add(searchGroup, "growx, wrap push");
 		c.add(new JButton(set), "tag apply");
 		c.add(new JButton(delete), "tag cancel");
-		setSize(650, 550);
+		setSize(650, 570);
 
 		ButtonGroup inputButtonGroup = new ButtonGroup();
 		inputButtonGroup.add(inheritRadio);
@@ -166,6 +152,8 @@ public class PresetEditor extends JDialog {
 		sortOrderCombo.setSelectedItem(p.getSortOrder() == null ? SortOrder.Airdate : p.getSortOrder());
 		matchModeCombo.setSelectedItem(p.getMatchMode() == null ? RenamePanel.MATCH_MODE_OPPORTUNISTIC : p.getMatchMode());
 		actionCombo.setSelectedItem(p.getRenameAction() == null ? StandardRenameAction.MOVE : p.getRenameAction());
+
+		selectRadio.setSelected(p.getInputFolder() != null);
 	}
 
 	public Preset getPreset() throws Exception {
