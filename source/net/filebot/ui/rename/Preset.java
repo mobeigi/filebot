@@ -63,7 +63,7 @@ public class Preset {
 		}
 	}
 
-	public Datasource getDatabase() {
+	public Datasource getDatasource() {
 		return WebServices.getDatasourceByName(database);
 	}
 
@@ -84,25 +84,6 @@ public class Preset {
 		}
 
 		throw new IllegalStateException(database);
-	}
-
-	public Mode getMode() {
-		EpisodeListProvider sdb = WebServices.getEpisodeListProvider(database);
-		if (sdb != null) {
-			return Mode.Episode;
-		}
-
-		MovieIdentificationService mdb = WebServices.getMovieIdentificationService(database);
-		if (mdb != null) {
-			return Mode.Movie;
-		}
-
-		MusicIdentificationService adb = WebServices.getMusicIdentificationService(database);
-		if (adb != null) {
-			return Mode.Music;
-		}
-
-		return Mode.File;
 	}
 
 	public String getMatchMode() {

@@ -2,7 +2,6 @@ package net.filebot.ui.rename;
 
 import static java.awt.Font.*;
 import static javax.swing.BorderFactory.*;
-import static javax.swing.SwingUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.ui.SwingUI.*;
 
@@ -39,11 +38,8 @@ import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.ui.HeaderPanel;
-import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
-import net.filebot.web.MovieIdentificationService;
-import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
 
@@ -150,7 +146,7 @@ public class PresetEditor extends JDialog {
 		pathInput.setText(p.getInputFolder() == null ? "" : p.getInputFolder().getPath());
 		filterEditor.setText(p.getIncludeFilter() == null ? "" : p.getIncludeFilter().getExpression());
 		formatEditor.setText(p.getFormat() == null ? "" : p.getFormat().getExpression());
-		providerCombo.setSelectedItem(p.getDatabase() == null ? WebServices.TheTVDB : p.getDatabase());
+		providerCombo.setSelectedItem(p.getDatasource() == null ? WebServices.TheTVDB : p.getDatasource());
 		sortOrderCombo.setSelectedItem(p.getSortOrder() == null ? SortOrder.Airdate : p.getSortOrder());
 		matchModeCombo.setSelectedItem(p.getMatchMode() == null ? RenamePanel.MATCH_MODE_OPPORTUNISTIC : p.getMatchMode());
 		actionCombo.setSelectedItem(p.getRenameAction() == null ? StandardRenameAction.MOVE : p.getRenameAction());
@@ -331,15 +327,7 @@ public class PresetEditor extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			FormatDialog.Mode mode = FormatDialog.Mode.File;
-			if (providerCombo.getSelectedItem() instanceof EpisodeListProvider) {
-				mode = FormatDialog.Mode.Episode;
-			} else if (providerCombo.getSelectedItem() instanceof MovieIdentificationService) {
-				mode = FormatDialog.Mode.Movie;
-			} else if (providerCombo.getSelectedItem() instanceof MusicIdentificationService) {
-				mode = FormatDialog.Mode.Music;
-			}
-
+			FormatDialog.Mode mode = FormatDialog.Mode.getMode((Datasource) providerCombo.getSelectedItem());
 			FormatDialog dialog = new FormatDialog(getWindow(evt.getSource()), mode, null);
 			dialog.setFormatCode(formatEditor.getText());
 			dialog.setLocation(getOffsetLocation(dialog.getOwner()));

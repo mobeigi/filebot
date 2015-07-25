@@ -735,7 +735,7 @@ public class RenamePanel extends JComponent {
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			if (preset.getFormat() != null) {
-				switch (preset.getMode()) {
+				switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
 				case Episode:
 					renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
 					break;

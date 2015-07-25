@@ -63,6 +63,7 @@ import javax.swing.text.BadLocationException;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.UserFiles;
+import net.filebot.WebServices;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -79,8 +80,12 @@ import net.filebot.util.ui.SwingUI;
 import net.filebot.util.ui.notification.SeparatorBorder;
 import net.filebot.util.ui.notification.SeparatorBorder.Position;
 import net.filebot.web.AudioTrackFormat;
+import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeFormat;
+import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieFormat;
+import net.filebot.web.MovieIdentificationService;
+import net.filebot.web.MusicIdentificationService;
 import net.miginfocom.swing.MigLayout;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
@@ -162,6 +167,16 @@ public class FormatDialog extends JDialog {
 					examples.put(key, bundle.getString(key));
 			}
 			return examples.values();
+		}
+
+		public static Mode getMode(Datasource datasource) {
+			if (datasource instanceof EpisodeListProvider)
+				return Mode.Episode;
+			if (datasource instanceof MovieIdentificationService)
+				return Mode.Movie;
+			if (datasource instanceof MusicIdentificationService)
+				return Mode.Music;
+			return Mode.File;
 		}
 	}
 
