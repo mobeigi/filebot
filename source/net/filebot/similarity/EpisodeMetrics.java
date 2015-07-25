@@ -660,7 +660,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	private static final Map<Object, String> transformCache = synchronizedMap(new HashMap<Object, String>(64, 4));
 	private static final Transliterator transliterator = Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove");
 
-	protected static String normalizeObject(Object object) {
+	public static String normalizeObject(Object object) {
 		if (object == null) {
 			return "";
 		}

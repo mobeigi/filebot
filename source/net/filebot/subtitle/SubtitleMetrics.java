@@ -8,6 +8,7 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import net.filebot.media.MetaAttributes;
 import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.CrossPropertyMetric;
+import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.MetricCascade;
 import net.filebot.similarity.NameSimilarityMetric;
@@ -65,6 +67,54 @@ public enum SubtitleMetrics implements SimilarityMetric {
 				cd = Integer.parseInt(matcher.group(1));
 			}
 			return cd;
+		}
+	}),
+
+	NameSubstringSequenceExists(new SequenceMatchSimilarity() {
+
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			String[] f1 = getNormalizedEffectiveIdentifiers(o1);
+			String[] f2 = getNormalizedEffectiveIdentifiers(o2);
+
+			for (String s1 : f1) {
+				for (String s2 : f2) {
+					if (super.getSimilarity(s1, s2) >= 1) {
+						return 1;
+					}
+				}
+			}
+
+			return 0;
+		}
+
+		protected float similarity(String match, String s1, String s2) {
+			return match.length() > 0 ? 1 : 0;
+		}
+
+		@Override
+		protected String normalize(Object object) {
+			return object.toString();
+		}
+
+		protected String[] getNormalizedEffectiveIdentifiers(Object object) {
+			List<?> identifiers = getEffectiveIdentifiers(object);
+			String[] names = new String[identifiers.size()];
+
+			for (int i = 0; i < names.length; i++) {
+				names[i] = EpisodeMetrics.normalizeObject(identifiers.get(i));
+			}
+
+			return names;
+		}
+
+		protected List<?> getEffectiveIdentifiers(Object object) {
+			if (object instanceof OpenSubtitlesSubtitleDescriptor) {
+				return singletonList(((OpenSubtitlesSubtitleDescriptor) object).getName());
+			} else if (object instanceof File) {
+				return listPathTail((File) object, 2, true);
+			}
+			return emptyList();
 		}
 	}),
 
@@ -175,11 +225,11 @@ public enum SubtitleMetrics implements SimilarityMetric {
 	}
 
 	public static SimilarityMetric[] defaultSequence() {
-		return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, OriginalFileName, NameSubstringSequence, new MetricCascade(NameSubstringSequence, Name), Numeric, FileName, DiskNumber, VideoProperties, new NameSimilarityMetric() };
+		return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, OriginalFileName, NameSubstringSequenceExists, new MetricAvg(NameSubstringSequenceExists, Name), Numeric, FileName, DiskNumber, VideoProperties, new NameSimilarityMetric() };
 	}
 
 	public static SimilarityMetric verificationMetric() {
-		return new MetricCascade(AbsoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequence, Name), getMovieMatchMetric(), OriginalFileName);
+		return new MetricCascade(AbsoluteSeasonEpisode, AirDate, new MetricAvg(NameSubstringSequenceExists, Name), getMovieMatchMetric(), OriginalFileName);
 	}
 
 }
