@@ -708,14 +708,7 @@ public class RenamePanel extends JComponent {
 				input.addAll(FileUtilities.listFiles(preset.getInputFolder()));
 				ExpressionFilter filter = preset.getIncludeFilter();
 				if (filter != null) {
-					input = FileUtilities.filter(input, (File f) -> {
-						try {
-							return filter.matches(new MediaBindingBean(f, f));
-						} catch (Exception e) {
-							Logger.getLogger(RenamePanel.class.getName()).log(Level.WARNING, e.toString());
-							return false;
-						}
-					});
+					input = FileUtilities.filter(input, new ExpressionFileFilter(filter, false));
 				}
 				renameModel.clear();
 				renameModel.files().addAll(input);
