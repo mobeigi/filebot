@@ -364,7 +364,7 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
-	private final Action delete = new AbstractAction("Delete", ResourceManager.getIcon("dialog.cancel")) {
+	private final Action delete = new AbstractAction("Discard", ResourceManager.getIcon("dialog.cancel")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
