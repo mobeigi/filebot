@@ -401,4 +401,8 @@ public class ScriptShellMethods {
 		}
 	}
 
+	public static boolean isEpisode(File self) {
+		return MediaDetection.isEpisode(String.join("/", self.getParent(), self.getName()), true);
+	}
+
 }
