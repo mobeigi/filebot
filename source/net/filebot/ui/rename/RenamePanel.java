@@ -406,17 +406,17 @@ public class RenamePanel extends JComponent {
 					List<String> presetNames = new ArrayList<String>(persistentPresets.keySet());
 					presetNames.add(newPresetOption);
 
-					String selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", JOptionPane.PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
+					String selection = (String) showInputDialog(getWindow(evt.getSource()), "Edit or create a preset:", "Edit Preset", PLAIN_MESSAGE, null, presetNames.toArray(), newPresetOption);
 					if (selection == null)
 						return;
 
 					Preset preset = null;
 					if (selection == newPresetOption) {
-						selection = (String) JOptionPane.showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, JOptionPane.PLAIN_MESSAGE, null, null, "My Preset");
-						if (selection == null)
+						selection = (String) showInputDialog(getWindow(evt.getSource()), "Preset Name:", newPresetOption, PLAIN_MESSAGE, null, null, "My Preset");
+						if (selection == null || selection.trim().isEmpty())
 							return;
 
-						preset = new Preset(selection, null, null, null, null, null, null, null, null);
+						preset = new Preset(selection.trim(), null, null, null, null, null, null, null, null);
 					} else {
 						preset = (Preset) JsonReader.jsonToJava(persistentPresets.get(selection.toString()));
 					}
