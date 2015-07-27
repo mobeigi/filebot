@@ -1685,7 +1685,7 @@ MURDER
 MUSiX
 MuSt
 mV4U
-mvgroup
+MVGroup
 MVM
 mVmHD
 MVN
