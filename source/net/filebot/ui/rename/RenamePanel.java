@@ -430,7 +430,6 @@ public class RenamePanel extends JComponent {
 					case SET:
 						preset = presetEditor.getPreset();
 						persistentPresets.put(selection, JsonWriter.objectToJson(preset));
-						new ApplyPresetAction(preset).actionPerformed(evt);
 						break;
 					case DELETE:
 						persistentPresets.remove(selection);
@@ -698,22 +697,13 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public List<File> getFiles(ActionEvent evt) {
-			List<File> input = new ArrayList<File>();
-			if (preset.getInputFolder() != null) {
-				if (isMacSandbox()) {
-					if (!MacAppUtilities.askUnlockFolders(getWindow(RenamePanel.this), singleton(preset.getInputFolder()))) {
-						throw new IllegalStateException("Unable to access folder: " + preset.getInputFolder());
-					}
-				}
-				input.addAll(FileUtilities.listFiles(preset.getInputFolder()));
-				ExpressionFilter filter = preset.getIncludeFilter();
-				if (filter != null) {
-					input = FileUtilities.filter(input, new ExpressionFileFilter(filter, false));
-				}
+			List<File> input = preset.selectInputFiles(evt);
+
+			if (input != null) {
 				renameModel.clear();
 				renameModel.files().addAll(input);
 			} else {
-				input.addAll(super.getFiles(evt));
+				input = new ArrayList<File>(super.getFiles(evt));
 			}
 
 			if (input.isEmpty()) {

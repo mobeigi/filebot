@@ -18,6 +18,10 @@ public class ExpressionFileFilter implements FileFilter {
 		this.errorResult = errorResult;
 	}
 
+	public ExpressionFilter getExpressionFilter() {
+		return filter;
+	}
+
 	@Override
 	public boolean accept(File f) {
 		try {

@@ -1,13 +1,21 @@
 package net.filebot.ui.rename;
 
+import static java.util.Collections.*;
+import static net.filebot.util.ui.SwingUI.*;
+
+import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 
 import net.filebot.Language;
+import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
+import net.filebot.mac.MacAppUtilities;
+import net.filebot.util.FileUtilities;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
@@ -46,9 +54,9 @@ public class Preset {
 		return path == null || path.isEmpty() ? null : new File(path);
 	}
 
-	public ExpressionFilter getIncludeFilter() {
+	public ExpressionFileFilter getIncludeFilter() {
 		try {
-			return includes == null || includes.isEmpty() ? null : new ExpressionFilter(includes);
+			return path == null || path.isEmpty() || includes == null || includes.isEmpty() ? null : new ExpressionFileFilter(new ExpressionFilter(includes), false);
 		} catch (Exception e) {
 			return null;
 		}
@@ -60,6 +68,27 @@ public class Preset {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public List<File> selectInputFiles(ActionEvent evt) {
+		File folder = getInputFolder();
+		ExpressionFileFilter filter = getIncludeFilter();
+
+		if (folder == null) {
+			return null;
+		}
+
+		if (Settings.isMacSandbox()) {
+			if (!MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(getInputFolder()))) {
+				throw new IllegalStateException("Unable to access folder: " + folder);
+			}
+		}
+
+		List<File> files = FileUtilities.listFiles(getInputFolder());
+		if (filter != null) {
+			files = FileUtilities.filter(files, filter);
+		}
+		return files;
 	}
 
 	public AutoCompleteMatcher getAutoCompleteMatcher() {

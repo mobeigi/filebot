@@ -155,7 +155,7 @@ public class PresetEditor extends JDialog {
 	public void setPreset(Preset p) {
 		presetNameHeader.getTitleLabel().setText(p.getName());
 		pathInput.setText(p.getInputFolder() == null ? "" : p.getInputFolder().getPath());
-		filterEditor.setText(p.getIncludeFilter() == null ? "" : p.getIncludeFilter().getExpression());
+		filterEditor.setText(p.getIncludeFilter() == null ? "" : p.getIncludeFilter().getExpressionFilter().getExpression());
 		formatEditor.setText(p.getFormat() == null ? "" : p.getFormat().getExpression());
 		providerCombo.setSelectedItem(p.getDatasource() == null ? WebServices.TheTVDB : p.getDatasource());
 		sortOrderCombo.setSelectedItem(p.getSortOrder() == null ? SortOrder.Airdate : p.getSortOrder());
