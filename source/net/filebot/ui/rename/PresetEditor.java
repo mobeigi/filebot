@@ -41,7 +41,10 @@ import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
+import net.filebot.web.AnidbClient;
 import net.filebot.web.Datasource;
+import net.filebot.web.EpisodeListProvider;
+import net.filebot.web.MovieIdentificationService;
 import net.filebot.web.SortOrder;
 import net.miginfocom.swing.MigLayout;
 
@@ -70,6 +73,7 @@ public class PresetEditor extends JDialog {
 
 	private JRadioButton selectRadio;
 	private JRadioButton inheritRadio;
+	private JPanel inputPanel;
 
 	public PresetEditor(Window owner) {
 		super(owner, "Preset Editor", ModalityType.APPLICATION_MODAL);
@@ -90,7 +94,7 @@ public class PresetEditor extends JDialog {
 		matchModeCombo = createMatchModeCombo();
 		languageCombo = createLanguageCombo();
 
-		JPanel inputPanel = new JPanel(new MigLayout("insets 0, fill"));
+		inputPanel = new JPanel(new MigLayout("insets 0, fill"));
 		inputPanel.setOpaque(false);
 		inputPanel.add(new JLabel("Input Folder:"), "gap indent");
 		inputPanel.add(pathInput, "growx, gap rel");
@@ -132,12 +136,21 @@ public class PresetEditor extends JDialog {
 		inputButtonGroup.add(inheritRadio);
 		inputButtonGroup.add(selectRadio);
 		inheritRadio.setSelected(true);
-		inputPanel.setVisible(false);
-		selectRadio.addItemListener((evt) -> {
-			inputPanel.setVisible(selectRadio.isSelected());
-		});
+		selectRadio.addItemListener((evt) -> updateComponentStates());
+		providerCombo.addItemListener((evt) -> updateComponentStates());
+		updateComponentStates();
 
 		setSize(650, 570);
+	}
+
+	public void updateComponentStates() {
+		Datasource ds = (Datasource) providerCombo.getSelectedItem();
+		boolean input = selectRadio.isSelected();
+
+		inputPanel.setVisible(input);
+		sortOrderCombo.setEnabled(ds instanceof EpisodeListProvider && ((EpisodeListProvider) ds).hasSeasonSupport());
+		languageCombo.setEnabled(ds instanceof EpisodeListProvider || ds instanceof MovieIdentificationService);
+		matchModeCombo.setEnabled(ds instanceof EpisodeListProvider || ds instanceof MovieIdentificationService);
 	}
 
 	public void setPreset(Preset p) {
@@ -159,10 +172,10 @@ public class PresetEditor extends JDialog {
 		ExpressionFilter includes = inheritRadio.isSelected() ? null : new ExpressionFilter(filterEditor.getText());
 		ExpressionFormat format = formatEditor.getText().trim().isEmpty() ? null : new ExpressionFormat(formatEditor.getText());
 		Datasource database = ((Datasource) providerCombo.getSelectedItem());
-		SortOrder sortOrder = ((SortOrder) sortOrderCombo.getSelectedItem());
-		String matchMode = (String) matchModeCombo.getSelectedItem();
-		Language language = ((Language) languageCombo.getSelectedItem());
-		StandardRenameAction action = (StandardRenameAction) actionCombo.getSelectedItem();
+		SortOrder sortOrder = sortOrderCombo.isEnabled() ? ((SortOrder) sortOrderCombo.getSelectedItem()) : null;
+		String matchMode = matchModeCombo.isEnabled() ? (String) matchModeCombo.getSelectedItem() : null;
+		Language language = languageCombo.isEnabled() ? ((Language) languageCombo.getSelectedItem()) : null;
+		StandardRenameAction action = actionCombo.isEnabled() ? (StandardRenameAction) actionCombo.getSelectedItem() : null;
 
 		return new Preset(name, path, includes, format, database, sortOrder, matchMode, language, action);
 	}
