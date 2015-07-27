@@ -41,7 +41,6 @@ import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.ui.HeaderPanel;
 import net.filebot.util.FileUtilities.ExtensionFileFilter;
-import net.filebot.web.AnidbClient;
 import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.MovieIdentificationService;
@@ -164,6 +163,7 @@ public class PresetEditor extends JDialog {
 		actionCombo.setSelectedItem(p.getRenameAction() == null ? StandardRenameAction.MOVE : p.getRenameAction());
 
 		selectRadio.setSelected(p.getInputFolder() != null);
+		updateComponentStates();
 	}
 
 	public Preset getPreset() throws Exception {
