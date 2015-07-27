@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -23,7 +24,9 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
@@ -98,8 +101,9 @@ public class PresetEditor extends JDialog {
 		inputPanel.add(new JLabel("Input Folder:"), "gap indent");
 		inputPanel.add(pathInput, "growx, gap rel");
 		inputPanel.add(createImageButton(selectInputFolder), "gap 0px, wrap");
-		inputPanel.add(new JLabel("Includes:"), "gap indent, skip 1, split 2");
-		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel, gap after 40px");
+		inputPanel.add(new JLabel("Includes:"), "gap indent, skip 1, split 3");
+		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel");
+		inputPanel.add(createImageButton(listFiles), "gap rel");
 
 		JPanel inputGroup = createGroupPanel("Files");
 		inputGroup.add(selectRadio);
@@ -361,6 +365,42 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
+	private final Action listFiles = new AbstractAction("List Files", ResourceManager.getIcon("action.list")) {
+
+		private JMenuItem createListItem(ActionEvent evt, File f) {
+			JMenuItem m = new JMenuItem(f.getPath());
+			m.addActionListener((e) -> {
+				BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), "File Bindings", FormatDialog.Mode.File.getFormat(), false);
+				dialog.setLocation(getOffsetLocation(getWindow(evt.getSource())));
+				dialog.setInfoObject(f);
+				dialog.setMediaFile(f);
+				dialog.setVisible(true);
+			});
+			return m;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			try {
+				List<File> selectInputFiles = getPreset().selectInputFiles(evt);
+
+				JPopupMenu popup = new JPopupMenu();
+				if (selectInputFiles == null || selectInputFiles.isEmpty()) {
+					popup.add("No files selected").setEnabled(false);
+				} else {
+					for (File file : selectInputFiles) {
+						popup.add(createListItem(evt, file));
+					}
+				}
+
+				JComponent source = (JComponent) evt.getSource();
+				popup.show(source, -3, source.getHeight() + 4);
+			} catch (Exception e) {
+				UILogger.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
+			}
+		}
+	};
+
 	private final Action ok = new AbstractAction("Preset", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
@@ -372,7 +412,7 @@ public class PresetEditor extends JDialog {
 					setVisible(false);
 				}
 			} catch (Exception e) {
-				UILogger.severe("Invalid preset settings: " + e.getMessage());
+				UILogger.log(Level.WARNING, "Invalid preset settings: " + e.getMessage(), e);
 			}
 		}
 	};

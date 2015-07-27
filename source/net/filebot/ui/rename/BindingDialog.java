@@ -98,8 +98,12 @@ class BindingDialog extends JDialog {
 		root.add(new JLabel("Preview:"), "gap 5px, wrap 2px");
 		root.add(new JScrollPane(createBindingTable(bindingModel)), "growx, wrap paragraph:push");
 
-		root.add(new JButton(approveAction), "tag apply");
-		root.add(new JButton(cancelAction), "tag cancel");
+		if (editable) {
+			root.add(new JButton(approveAction), "tag apply");
+			root.add(new JButton(cancelAction), "tag cancel");
+		} else {
+			root.add(new JButton(okAction), "tag apply");
+		}
 
 		// update preview on change
 		DocumentListener changeListener = new LazyDocumentListener(1000) {
@@ -244,6 +248,14 @@ class BindingDialog extends JDialog {
 		return file.isAbsolute() ? file : null;
 	}
 
+	protected final Action hideAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			finish(true);
+		}
+	};
+
 	protected final Action approveAction = new AbstractAction("Use Bindings", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
@@ -262,11 +274,19 @@ class BindingDialog extends JDialog {
 		}
 	};
 
-	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+	protected final Action okAction = new AbstractAction("OK") {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			finish(true);
+		}
+	};
+
+	protected final Action cancelAction = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
+
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			finish(false);
 		}
 	};
 
