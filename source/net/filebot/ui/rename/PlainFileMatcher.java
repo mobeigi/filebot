@@ -19,7 +19,7 @@ public class PlainFileMatcher implements Datasource, AutoCompleteMatcher {
 
 	@Override
 	public String getName() {
-		return "File";
+		return "Generic File";
 	}
 
 	@Override
