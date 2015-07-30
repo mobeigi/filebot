@@ -12,6 +12,7 @@ import net.filebot.Language;
 import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
+import net.filebot.format.ExpressionFileFilter;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.mac.MacAppUtilities;

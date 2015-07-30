@@ -46,8 +46,8 @@ public class ArgumentProcessor {
 
 			// print media info
 			if (args.mediaInfo) {
-				for (File file : args.getFiles(true)) {
-					System.out.println(cli.getMediaInfo(file, args.format));
+				for (String line : cli.getMediaInfo(args.getFiles(true), args.format, args.filter)) {
+					System.out.println(line);
 				}
 				return 0;
 			}

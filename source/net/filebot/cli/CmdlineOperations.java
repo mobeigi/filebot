@@ -43,6 +43,7 @@ import net.filebot.RenameAction;
 import net.filebot.StandardRenameAction;
 import net.filebot.archive.Archive;
 import net.filebot.archive.FileMapper;
+import net.filebot.format.ExpressionFileFilter;
 import net.filebot.format.ExpressionFilter;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -1115,9 +1116,23 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	@Override
-	public String getMediaInfo(File file, String expression) throws Exception {
-		ExpressionFormat format = new ExpressionFormat(expression != null ? expression : "{fn} [{resolution} {af} {vc} {ac}]");
-		return format.format(new MediaBindingBean(readMetaInfo(file), file, null));
+	public List<String> getMediaInfo(Collection<File> files, String format, String filter) throws Exception {
+		if (filter != null && filter.length() > 0) {
+			ExpressionFileFilter includes = new ExpressionFileFilter(new ExpressionFilter(filter), false);
+			files = filter(files, includes);
+
+			if (files.isEmpty()) {
+				throw new CmdlineException("No files: " + files);
+			}
+		}
+
+		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {af} {vc} {ac}]");
+		List<String> output = new ArrayList<String>();
+		for (File file : files) {
+			String line = formatter.format(new MediaBindingBean(readMetaInfo(file), file, null));
+			output.add(line);
+		}
+		return output;
 	}
 
 	@Override

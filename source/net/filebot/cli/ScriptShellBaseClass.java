@@ -420,10 +420,15 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public String getMediaInfo(Map<String, ?> parameters) throws Exception {
 		List<File> input = getInputFileList(parameters);
+		if (input == null || input.isEmpty()) {
+			return null;
+		}
+
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		synchronized (cli) {
 			try {
-				return cli.getMediaInfo(input.get(0), asString(option.get(Option.format)));
+				List<String> lines = cli.getMediaInfo(singleton(input.get(0)), asString(option.get(Option.format)), asString(option.get(Option.filter)));
+				return lines.get(0);
 			} catch (Exception e) {
 				printException(e, false);
 				return null;

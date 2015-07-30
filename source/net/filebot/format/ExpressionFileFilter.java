@@ -1,12 +1,9 @@
-package net.filebot.ui.rename;
+package net.filebot.format;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import net.filebot.format.ExpressionFilter;
-import net.filebot.format.MediaBindingBean;
 
 public class ExpressionFileFilter implements FileFilter {
 
