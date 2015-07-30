@@ -879,7 +879,6 @@
 	<target name="upload-data" depends="login">
 		<scp todir="${sf.user}:${sf.password}@${frs.website}" trust="yes" verbose="true" sftp="true">
 			<fileset dir="${dir.website}">
-				<include name="data/.htaccess" />
 				<include name="data/*.txt" />
 				<include name="data/*.xz" />
 			</fileset>
