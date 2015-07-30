@@ -182,6 +182,7 @@
 ^test$
 ^testdata$
 ^The.Best$
+^The.TV.Series$
 ^Thriller$
 ^tmp$
 ^to$
