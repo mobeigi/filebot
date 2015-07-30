@@ -99,6 +99,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 			// e.g.
 			// {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
+			int id = -1, year = -1;
 			String title = (String) it.get("title");
 			String originalTitle = (String) it.get("original_title");
 			if (title == null || title.isEmpty()) {
@@ -106,8 +107,7 @@ public class TMDbClient implements MovieIdentificationService {
 			}
 
 			try {
-				int id = Float.valueOf(it.get("id").toString()).intValue();
-				int year = -1;
+				id = Float.valueOf(it.get("id").toString()).intValue();
 				try {
 					String release = (String) it.get("release_date");
 					year = new Scanner(release).useDelimiter("\\D+").nextInt();
@@ -143,7 +143,7 @@ public class TMDbClient implements MovieIdentificationService {
 			} catch (Exception e) {
 				// only print 'missing release date' warnings for matching movie titles
 				if (movieName.equalsIgnoreCase(title) || movieName.equalsIgnoreCase(originalTitle)) {
-					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie [%s]: %s", title, e.getMessage()));
+					Logger.getLogger(TMDbClient.class.getName()).log(Level.WARNING, String.format("Ignore movie metadata: %s [%d]: %s", title, id, e.getMessage()));
 				}
 			}
 		}
