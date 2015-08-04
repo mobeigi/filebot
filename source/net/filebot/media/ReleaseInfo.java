@@ -241,7 +241,7 @@ public class ReleaseInfo {
 
 	public Pattern getLanguageSuffixPattern(Collection<String> languages, boolean strict) {
 		// e.g. ".en.srt" or ".en.forced.srt"
-		return compile("(?<=[.-])" + or(quoteAll(languages)) + "(?=([.-](" + getProperty("pattern.subtitle.tags") + "))?$)", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<=[._-])" + or(quoteAll(languages)) + "(?=([._-](" + getProperty("pattern.subtitle.tags") + "))?$)", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getResolutionPattern() {
