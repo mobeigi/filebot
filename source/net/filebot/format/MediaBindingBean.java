@@ -865,7 +865,7 @@ public class MediaBindingBean {
 	private void checkMediaFile() throws RuntimeException {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null) {
-			throw new RuntimeException("Path to media file has not been set");
+			throw new RuntimeException("Path to media file not set. Click (x)= and select a sample file.");
 		}
 	}
 
