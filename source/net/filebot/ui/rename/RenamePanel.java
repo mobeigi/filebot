@@ -1,7 +1,6 @@
 package net.filebot.ui.rename;
 
 import static java.awt.event.KeyEvent.*;
-import static java.util.Collections.*;
 import static javax.swing.JOptionPane.*;
 import static javax.swing.KeyStroke.*;
 import static javax.swing.SwingUtilities.*;
@@ -14,6 +13,7 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -56,7 +56,6 @@ import net.filebot.Settings;
 import net.filebot.StandardRenameAction;
 import net.filebot.UserFiles;
 import net.filebot.WebServices;
-import net.filebot.format.ExpressionFilter;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.media.MediaDetection;
@@ -64,7 +63,6 @@ import net.filebot.similarity.Match;
 import net.filebot.ui.rename.FormatDialog.Mode;
 import net.filebot.ui.rename.RenameModel.FormattedFuture;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
-import net.filebot.util.FileUtilities;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.ui.ActionPopup;
 import net.filebot.util.ui.LoadingOverlayPane;
@@ -728,31 +726,36 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
-			if (preset.getFormat() != null) {
-				switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
-				case Episode:
-					renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
-					break;
-				case Movie:
-					renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
-					break;
-				case Music:
-					renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
-					break;
-				case File:
-					renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
-					break;
-				}
-			}
-
-			if (preset.getRenameAction() != null) {
-				new SetRenameAction(preset.getRenameAction(), preset.getRenameAction().getDisplayName(), ResourceManager.getIcon("rename.action." + preset.getRenameAction().toString().toLowerCase())).actionPerformed(evt);
-			}
-
+			Window window = getWindow(RenamePanel.this);
 			try {
+				window.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+				if (preset.getFormat() != null) {
+					switch (FormatDialog.Mode.getMode(preset.getDatasource())) {
+					case Episode:
+						renameModel.useFormatter(Episode.class, new ExpressionFormatter(preset.getFormat().getExpression(), EpisodeFormat.SeasonEpisode, Episode.class));
+						break;
+					case Movie:
+						renameModel.useFormatter(Movie.class, new ExpressionFormatter(preset.getFormat().getExpression(), MovieFormat.NameYear, Movie.class));
+						break;
+					case Music:
+						renameModel.useFormatter(AudioTrack.class, new ExpressionFormatter(preset.getFormat().getExpression(), new AudioTrackFormat(), AudioTrack.class));
+						break;
+					case File:
+						renameModel.useFormatter(File.class, new ExpressionFormatter(preset.getFormat().getExpression(), new FileNameFormat(), File.class));
+						break;
+					}
+				}
+
+				if (preset.getRenameAction() != null) {
+					new SetRenameAction(preset.getRenameAction(), preset.getRenameAction().getDisplayName(), ResourceManager.getIcon("rename.action." + preset.getRenameAction().toString().toLowerCase())).actionPerformed(evt);
+				}
+
 				super.actionPerformed(evt);
 			} catch (Exception e) {
 				UILogger.info(e.getMessage());
+			} finally {
+				window.setCursor(Cursor.getDefaultCursor());
 			}
 		}
 	}
