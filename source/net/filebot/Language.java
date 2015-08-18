@@ -23,13 +23,13 @@ public class Language implements Serializable {
 	private final String iso_639_2B;
 
 	// Language name
-	private final String name;
+	private final String[] names;
 
-	public Language(String iso_639_1, String iso_639_3, String iso_639_2B, String name) {
+	public Language(String iso_639_1, String iso_639_3, String iso_639_2B, String[] names) {
 		this.iso_639_1 = iso_639_1;
 		this.iso_639_3 = iso_639_3;
 		this.iso_639_2B = iso_639_2B;
-		this.name = name;
+		this.names = names.clone();
 	}
 
 	public String getCode() {
@@ -49,7 +49,11 @@ public class Language implements Serializable {
 	}
 
 	public String getName() {
-		return name;
+		return names[0];
+	}
+
+	public List<String> getNames() {
+		return unmodifiableList(asList(names));
 	}
 
 	@Override
@@ -62,19 +66,27 @@ public class Language implements Serializable {
 	}
 
 	public boolean matches(String code) {
-		return iso_639_1.equalsIgnoreCase(code) || iso_639_3.equalsIgnoreCase(code) || iso_639_2B.equalsIgnoreCase(code) || name.equalsIgnoreCase(code) || code.toLowerCase().contains(name.toLowerCase());
+		if (iso_639_1.equalsIgnoreCase(code) || iso_639_3.equalsIgnoreCase(code) || iso_639_2B.equalsIgnoreCase(code)) {
+			return true;
+		}
+		for (String it : names) {
+			if (it.equalsIgnoreCase(code) || code.toLowerCase().contains(it.toLowerCase())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public Language clone() {
-		return new Language(iso_639_1, iso_639_3, iso_639_2B, name);
+		return new Language(iso_639_1, iso_639_3, iso_639_2B, names);
 	}
 
 	public static final Comparator<Language> ALPHABETIC_ORDER = new Comparator<Language>() {
 
 		@Override
 		public int compare(Language o1, Language o2) {
-			return o1.name.compareToIgnoreCase(o2.name);
+			return o1.getName().compareToIgnoreCase(o2.getName());
 		}
 	};
 
@@ -83,7 +95,7 @@ public class Language implements Serializable {
 
 		try {
 			String[] values = bundle.getString(code).split("\\t", 3);
-			return new Language(code, values[0], values[1], values[2]);
+			return new Language(code, values[0], values[1], values[2].split("\\t"));
 		} catch (Exception e) {
 			return null;
 		}
