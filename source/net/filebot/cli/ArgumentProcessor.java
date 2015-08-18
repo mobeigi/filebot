@@ -56,7 +56,7 @@ public class ArgumentProcessor {
 			if (args.script == null) {
 				// sanity checks
 				if (args.getSubtitles) {
-					throw new CmdlineException("`filebot -get-subtitles` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
+					throw new CmdlineException("`filebot -get-subtitles` has been disabled due to abuse. Please use `filebot -get-missing-subtitles` instead.");
 				}
 				if (args.getMissingSubtitles && args.recursive) {
 					throw new CmdlineException("`filebot -get-missing-subtitles -r` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
