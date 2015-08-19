@@ -121,12 +121,21 @@ public class EpisodeFormat extends Format {
 				if (sb.length() > 0) {
 					sb.append(' ');
 				}
-				sb.append(it.getSeason()).append('x').append(String.format("%02d", it.getEpisode()));
+				sb.append(it.getSeason()).append('x');
+				if (it.getSpecial() == null) {
+					sb.append(String.format("%02d", it.getEpisode()));
+				} else {
+					sb.append("Special ").append(it.getSpecial());
+				}
 			} else {
 				if (sb.length() > 0) {
 					sb.append('-');
 				}
-				sb.append(String.format("%02d", it.getEpisode()));
+				if (it.getSpecial() == null) {
+					sb.append(String.format("%02d", it.getEpisode()));
+				} else {
+					sb.append(it.getSpecial());
+				}
 			}
 			ps = it.getSeason();
 		}
@@ -141,12 +150,16 @@ public class EpisodeFormat extends Format {
 			if (sb.length() > 0) {
 				sb.append("-");
 			}
-			if (it.getSeason() != null && !it.getSeason().equals(ps)) {
-				sb.append(String.format("S%02d", it.getSeason())).append(String.format("E%02d", it.getEpisode()));
+
+			Integer s = it.getSpecial() == null ? it.getSeason() : 0;
+			Integer e = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
+
+			if (s != null && !s.equals(ps)) {
+				sb.append(String.format("S%02d", s)).append(String.format("E%02d", e));
 			} else {
-				sb.append(String.format("E%02d", it.getEpisode()));
+				sb.append(String.format("E%02d", e));
 			}
-			ps = it.getSeason();
+			ps = s;
 		}
 
 		return sb.toString();

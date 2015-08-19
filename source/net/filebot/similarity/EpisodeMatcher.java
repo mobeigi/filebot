@@ -41,7 +41,11 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		for (Entry<File, List<Episode>> it : episodeSets.entrySet()) {
 			Set<SxE> sxe = new HashSet<SxE>(it.getValue().size());
 			for (Episode ep : it.getValue()) {
-				sxe.add(new SxE(ep.getSeason(), ep.getEpisode()));
+				if (ep.getSpecial() == null) {
+					sxe.add(new SxE(ep.getSeason(), ep.getEpisode()));
+				} else {
+					sxe.add(new SxE(0, ep.getSpecial()));
+				}
 			}
 			episodeIdentifierSets.put(it.getKey(), sxe);
 		}
@@ -104,7 +108,7 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		for (SxE it : numbers) {
 			if (it.season > 0 && it.episode > 0 && it.episode < 100) {
 				identifier.add(it.season * 100 + it.episode);
-			} else if (it.season < 0 && it.episode > 0) {
+			} else if (it.season <= 0 && it.episode > 0) {
 				identifier.add(it.episode);
 			}
 		}
@@ -120,12 +124,18 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		Integer seqIndex = null;
 		for (Episode it : episodes) {
 			// any illegal episode object breaks the chain
-			if (it == null || it.getEpisode() == null || it.getSpecial() != null)
+			if (it == null)
+				return false;
+			if (it.getEpisode() == null && it.getSpecial() == null)
 				return false;
 
 			// non-sequential episode index breaks the chain
-			if (seqIndex != null && !it.getEpisode().equals(seqIndex + 1))
-				return false;
+			if (seqIndex != null) {
+				Integer num = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
+				if (!num.equals(seqIndex + 1)) {
+					return false;
+				}
+			}
 
 			seqIndex = it.getEpisode();
 		}
@@ -141,5 +151,4 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 
 		return true;
 	}
-
 }
