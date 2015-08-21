@@ -533,6 +533,9 @@
 		<exec executable="light.exe" dir="${dir.installer}/msi" failonerror="true">
 			<arg line="${dir.dist}/msi.wixobj -sval -ext WixUIExtension -out ${installer}" />
 		</exec>
+		<exec executable="signtool.exe" dir="${dir.installer}/msi" failonerror="true">
+			<arg line="sign /t http://timestamp.verisign.com/scripts/timstamp.dll /v /a ${installer}" />
+		</exec>
 	</target>
 
 
