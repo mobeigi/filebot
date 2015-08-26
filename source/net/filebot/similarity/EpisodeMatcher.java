@@ -81,7 +81,7 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 
 	}
 
-	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false);
+	private final SeasonEpisodeMatcher seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.LENIENT_SANITY, false);
 	private final Map<File, Set<SxE>> transformCache = synchronizedMap(new HashMap<File, Set<SxE>>(64, 4));
 
 	private Set<SxE> parseEpisodeIdentifer(File file) {

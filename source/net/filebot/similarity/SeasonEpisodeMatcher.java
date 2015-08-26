@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class SeasonEpisodeMatcher {
 
+	public static final SeasonEpisodeFilter LENIENT_SANITY = new SeasonEpisodeFilter(99, 999, 9999, 1970, 2100);
 	public static final SeasonEpisodeFilter DEFAULT_SANITY = new SeasonEpisodeFilter(50, 50, 1000, 1970, 2100);
 	public static final SeasonEpisodeFilter STRICT_SANITY = new SeasonEpisodeFilter(10, 30, -1, -1, -1);
 
