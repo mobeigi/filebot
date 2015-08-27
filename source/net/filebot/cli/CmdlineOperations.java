@@ -713,7 +713,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// lookup subtitles by hash
-		for (VideoHashSubtitleService service : getVideoHashSubtitleServices()) {
+		for (VideoHashSubtitleService service : getVideoHashSubtitleServices(language.getLocale())) {
 			if (remainingVideos.isEmpty() || (databaseFilter != null && !databaseFilter.matcher(service.getName()).matches()) || !requireLogin(service)) {
 				continue;
 			}

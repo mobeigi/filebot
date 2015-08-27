@@ -35,6 +35,7 @@ import net.filebot.web.MusicIdentificationService;
 import net.filebot.web.OMDbClient;
 import net.filebot.web.OpenSubtitlesClient;
 import net.filebot.web.SearchResult;
+import net.filebot.web.ShooterSubtitles;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
@@ -61,6 +62,7 @@ public final class WebServices {
 
 	// subtitle dbs
 	public static final OpenSubtitlesClient OpenSubtitles = new OpenSubtitlesClientWithLocalSearch(getApiKey("opensubtitles"), getApplicationVersion());
+	public static final ShooterSubtitles Shooter = new ShooterSubtitles();
 
 	// misc
 	public static final FanartTVClient FanartTV = new FanartTVClient(Settings.getApiKey("fanart.tv"));
@@ -79,8 +81,11 @@ public final class WebServices {
 		return new SubtitleProvider[] { OpenSubtitles };
 	}
 
-	public static VideoHashSubtitleService[] getVideoHashSubtitleServices() {
-		return new VideoHashSubtitleService[] { OpenSubtitles };
+	public static VideoHashSubtitleService[] getVideoHashSubtitleServices(Locale locale) {
+		if (locale.equals(Locale.CHINESE))
+			return new VideoHashSubtitleService[] { OpenSubtitles, Shooter };
+		else
+			return new VideoHashSubtitleService[] { OpenSubtitles };
 	}
 
 	public static MusicIdentificationService[] getMusicIdentificationServices() {

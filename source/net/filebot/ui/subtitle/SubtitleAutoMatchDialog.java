@@ -60,6 +60,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.filebot.ResourceManager;
+import net.filebot.WebServices;
 import net.filebot.mac.MacAppUtilities;
 import net.filebot.subtitle.SubtitleMetrics;
 import net.filebot.subtitle.SubtitleNaming;
@@ -909,7 +910,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		public String getDescription() {
-			return "Exact Search";
+			return service == WebServices.OpenSubtitles ? "Exact Search" : service.getName();
 		}
 
 		@Override
