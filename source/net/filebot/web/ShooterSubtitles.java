@@ -92,7 +92,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		List<SubtitleDescriptor> results = new ArrayList<SubtitleDescriptor>();
 		String name = getNameWithoutExtension(file.getName());
 
-		for (JSONObject result : jsonList(response)) {
+		JSON: for (JSONObject result : jsonList(response)) {
 			if (result == null)
 				continue;
 
@@ -102,6 +102,9 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 					String type = (String) fd.get("Ext");
 					String link = (String) fd.get("Link");
 					results.add(new ShooterSubtitleDescriptor(name, type, link, languageName));
+
+					// use the first best option and ignore the rest
+					break JSON;
 				}
 			}
 		}
