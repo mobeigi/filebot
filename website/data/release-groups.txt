@@ -1009,6 +1009,7 @@ FuN
 FUNNER
 Funnuraba
 FURZI
+FUSiON
 FUSSOIR
 FUtV
 FXG
@@ -1275,7 +1276,7 @@ iCEHD
 iD
 Idi0T
 iDiB
-idTV
+idtv
 iFH
 iFN
 iFPD
@@ -1474,6 +1475,7 @@ KOTOMI_GMB_F-B
 KPR
 KRaLiMaRKo
 Krispy
+Kristallprinz
 KS
 KSH
 KSHOWNOW
@@ -1526,6 +1528,7 @@ LIME
 LiMiTED
 LIMO
 LiNE
+LiON
 LionsDen
 LiPAN
 LiTE
@@ -1959,6 +1962,7 @@ PP
 PPQ
 pradanada
 PRECiOUS
+PRETAiL
 PRETENTIOUS
 prevail
 Prime
