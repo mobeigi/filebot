@@ -137,7 +137,7 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 				}
 			}
 
-			seqIndex = it.getEpisode();
+			seqIndex = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
 		}
 
 		// check drill-down integrity
