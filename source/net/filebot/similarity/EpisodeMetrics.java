@@ -560,11 +560,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (object instanceof Episode) {
 				SeriesInfo seriesInfo = ((Episode) object).getSeriesInfo();
 				if (seriesInfo != null && seriesInfo.getRating() != null && seriesInfo.getRatingCount() != null) {
-					if (seriesInfo.getRatingCount() >= 100) {
-						return (float) floor(seriesInfo.getRating() / 3) + 1; // BOOST POPULAR SHOWS
-					}
-					if (seriesInfo.getRatingCount() >= 10) {
-						return (float) floor(seriesInfo.getRating() / 3); // PUT INTO 3 GROUPS
+					if (seriesInfo.getRatingCount() >= 20) {
+						return (float) floor(seriesInfo.getRating() / 3); // BOOST POPULAR SHOWS and PUT INTO 3 GROUPS
 					}
 					if (seriesInfo.getRatingCount() >= 1) {
 						return 0; // PENALIZE SHOWS WITH FEW RATINGS
