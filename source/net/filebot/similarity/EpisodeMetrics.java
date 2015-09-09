@@ -371,7 +371,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			// equally strip away strip potential any clutter
 			if (names != null) {
 				try {
-					return MediaDetection.releaseInfo.cleanRelease(names, false);
+					return MediaDetection.releaseInfo.cleanRelease(names, true);
 				} catch (NoSuchElementException e) {
 					// keep default value in case all tokens are stripped away
 				} catch (IOException e) {
