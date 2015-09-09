@@ -333,6 +333,22 @@ public class SeasonEpisodeMatcher {
 				}
 			}
 
+			return expandSequence(matches);
+		}
+
+		protected List<SxE> expandSequence(List<SxE> matches) {
+			// allow for continuous SxE sequences, e.g. S02E05-E08
+			if (matches.size() == 2) {
+				SxE start = matches.get(0);
+				SxE end = matches.get(1);
+				if (start.season == end.season && start.episode < end.episode) {
+					List<SxE> seq = new ArrayList<SxE>();
+					for (int i = start.episode; i <= end.episode; i++) {
+						seq.add(new SxE(start.season, i));
+					}
+					return seq;
+				}
+			}
 			return matches;
 		}
 
