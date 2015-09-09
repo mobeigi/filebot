@@ -27,10 +27,26 @@ public class SeasonEpisodeMatcher {
 
 	public SeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		// define variables
-		SeasonEpisodePattern Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
+		SeasonEpisodePattern Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, EP0, Num101_TOKEN, E1of2, Num101_SUBSTRING;
 
 		// match patterns like Season 01 Episode 02, ...
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
+
+		// match patterns like S01E01-E05
+		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-](\\d{2,3})(?!\\p{Digit})") {
+
+			@Override
+			protected Collection<SxE> process(MatchResult match) {
+				List<SxE> seq = new ArrayList<SxE>();
+				int s = Integer.parseInt(match.group(1));
+				int e1 = Integer.parseInt(match.group(2));
+				int e2 = Integer.parseInt(match.group(3));
+				for (int i = e1; i <= e2; i++) {
+					seq.add(new SxE(s, i));
+				}
+				return seq;
+			}
+		};
 
 		// match patterns like S01E01, s01e02, ... [s01]_[e02], s01.e02, s01e02a, s2010e01 ... s01e01-02-03-04, [s01]_[e01-02-03-04] ...
 		S00E00 = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[^\\p{Alnum}]{0,3}(?i:ep|e|p)(((?<=[^._ ])[Ee]?[Pp]?\\d{1,3}(\\D|$))+)") {
@@ -144,9 +160,9 @@ public class SeasonEpisodeMatcher {
 
 		// only use S00E00 and SxE pattern in strict mode
 		if (strict) {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101 };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101 };
 		} else {
-			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00, SxE1_SxE2, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
+			patterns = new SeasonEpisodeParser[] { Season_00_Episode_00, S00E00SEQ, S00E00, SxE1_SxE2, SxE, Dot101, new SeasonEpisodeUnion(EP0, Num101_TOKEN, E1of2), Num101_SUBSTRING };
 		}
 
 		// season folder pattern for complementing partial sxe info from filename
@@ -333,22 +349,6 @@ public class SeasonEpisodeMatcher {
 				}
 			}
 
-			return expandSequence(matches);
-		}
-
-		protected List<SxE> expandSequence(List<SxE> matches) {
-			// allow for continuous SxE sequences, e.g. S02E05-E08
-			if (matches.size() == 2) {
-				SxE start = matches.get(0);
-				SxE end = matches.get(1);
-				if (start.season == end.season && start.episode < end.episode) {
-					List<SxE> seq = new ArrayList<SxE>();
-					for (int i = start.episode; i <= end.episode; i++) {
-						seq.add(new SxE(start.season, i));
-					}
-					return seq;
-				}
-			}
 			return matches;
 		}
 
