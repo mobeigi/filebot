@@ -1,6 +1,4 @@
-
 package net.filebot.util;
-
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,27 +15,25 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
 
 public class PreferencesMap<T> implements Map<String, T> {
 
 	private final Preferences prefs;
 	private final Adapter<T> adapter;
 
-
 	public PreferencesMap(Preferences prefs, Adapter<T> adapter) {
 		this.prefs = prefs;
 		this.adapter = adapter;
 	}
 
-
 	@Override
 	public T get(Object key) {
 		return adapter.get(prefs, key.toString());
 	}
-
 
 	@Override
 	public T put(String key, T value) {
@@ -47,7 +43,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return null;
 	}
 
-
 	@Override
 	public T remove(Object key) {
 		adapter.remove(prefs, key.toString());
@@ -55,7 +50,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 		// don't know removed entry
 		return null;
 	}
-
 
 	public String[] keys() {
 		try {
@@ -65,14 +59,12 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 
-
 	@Override
 	public void clear() {
 		for (String key : keys()) {
 			adapter.remove(prefs, key);
 		}
 	}
-
 
 	@Override
 	public boolean containsKey(Object key) {
@@ -83,7 +75,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return false;
 	}
 
-
 	@Override
 	public boolean containsValue(Object value) {
 		for (String key : keys()) {
@@ -93,7 +84,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 		return false;
 	}
-
 
 	@Override
 	public Set<Entry<String, T>> entrySet() {
@@ -106,18 +96,15 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return entries;
 	}
 
-
 	@Override
 	public boolean isEmpty() {
 		return size() == 0;
 	}
 
-
 	@Override
 	public Set<String> keySet() {
 		return new LinkedHashSet<String>(Arrays.asList(keys()));
 	}
-
 
 	@Override
 	public void putAll(Map<? extends String, ? extends T> map) {
@@ -126,12 +113,10 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 
-
 	@Override
 	public int size() {
 		return keys().length;
 	}
-
 
 	@Override
 	public Collection<T> values() {
@@ -144,47 +129,37 @@ public class PreferencesMap<T> implements Map<String, T> {
 		return values;
 	}
 
-
 	public static PreferencesMap<String> map(Preferences prefs) {
 		return map(prefs, new StringAdapter());
 	}
-
 
 	public static <T> PreferencesMap<T> map(Preferences prefs, Adapter<T> adapter) {
 		return new PreferencesMap<T>(prefs, adapter);
 	}
 
-
 	public static interface Adapter<T> {
 
 		public String[] keys(Preferences prefs) throws BackingStoreException;
 
-
 		public T get(Preferences prefs, String key);
-
 
 		public void put(Preferences prefs, String key, T value);
 
-
 		public void remove(Preferences prefs, String key);
 	}
-
 
 	public static abstract class AbstractAdapter<T> implements Adapter<T> {
 
 		@Override
 		public abstract T get(Preferences prefs, String key);
 
-
 		@Override
 		public abstract void put(Preferences prefs, String key, T value);
-
 
 		@Override
 		public String[] keys(Preferences prefs) throws BackingStoreException {
 			return prefs.keys();
 		}
-
 
 		@Override
 		public void remove(Preferences prefs, String key) {
@@ -193,14 +168,12 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	}
 
-
 	public static class StringAdapter extends AbstractAdapter<String> {
 
 		@Override
 		public String get(Preferences prefs, String key) {
 			return prefs.get(key, null);
 		}
-
 
 		@Override
 		public void put(Preferences prefs, String key, String value) {
@@ -209,11 +182,9 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 	}
 
-
 	public static class SimpleAdapter<T> extends AbstractAdapter<T> {
 
 		private final Constructor<T> constructor;
-
 
 		public SimpleAdapter(Class<T> type) {
 			try {
@@ -222,7 +193,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 				throw new IllegalArgumentException(e);
 			}
 		}
-
 
 		@Override
 		public T get(Preferences prefs, String key) {
@@ -242,19 +212,16 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return null;
 		}
 
-
 		@Override
 		public void put(Preferences prefs, String key, T value) {
 			prefs.put(key, value.toString());
 		}
-
 
 		public static <T> SimpleAdapter<T> forClass(Class<T> type) {
 			return new SimpleAdapter<T>(type);
 		}
 
 	}
-
 
 	public static class SerializableAdapter<T extends Serializable> extends AbstractAdapter<T> {
 
@@ -277,7 +244,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 			}
 		}
 
-
 		@Override
 		public void put(Preferences prefs, String key, T value) {
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -294,7 +260,6 @@ public class PreferencesMap<T> implements Map<String, T> {
 		}
 	}
 
-
 	public static class PreferencesEntry<T> implements Entry<String, T> {
 
 		private final String key;
@@ -305,19 +270,16 @@ public class PreferencesMap<T> implements Map<String, T> {
 
 		private T defaultValue = null;
 
-
 		public PreferencesEntry(Preferences prefs, String key, Adapter<T> adapter) {
 			this.key = key;
 			this.prefs = prefs;
 			this.adapter = adapter;
 		}
 
-
 		@Override
 		public String getKey() {
 			return key;
 		}
-
 
 		@Override
 		public T getValue() {
@@ -325,23 +287,29 @@ public class PreferencesMap<T> implements Map<String, T> {
 			return value != null ? value : defaultValue;
 		}
 
-
 		@Override
 		public T setValue(T value) {
 			adapter.put(prefs, key, value);
 			return null;
 		}
 
-
 		public PreferencesEntry<T> defaultValue(T defaultValue) {
 			this.defaultValue = defaultValue;
 			return this;
 		}
 
-
 		public void remove() {
 			adapter.remove(prefs, key);
 		}
+
+		public void flush() {
+			try {
+				prefs.flush();
+			} catch (Exception e) {
+				Logger.getLogger(PreferencesMap.class.getName()).log(Level.WARNING, e.toString());
+			}
+		}
+
 	}
 
 }

@@ -372,10 +372,12 @@ public class Main {
 	private static void checkGettingStarted() throws Exception {
 		PreferencesEntry<String> started = Settings.forPackage(Main.class).entry("getting.started").defaultValue("0");
 		if ("0".equals(started.getValue())) {
+			started.setValue("1");
+			started.flush();
+
 			SwingUtilities.invokeLater(() -> {
 				GettingStartedStage.start();
 			});
-			started.setValue("1");
 		}
 	}
 
