@@ -401,7 +401,7 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
-	private final Action ok = new AbstractAction("Preset", ResourceManager.getIcon("dialog.continue")) {
+	private final Action ok = new AbstractAction("Save Preset", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
@@ -417,7 +417,7 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
-	private final Action delete = new AbstractAction("Discard", ResourceManager.getIcon("dialog.cancel")) {
+	private final Action delete = new AbstractAction("Delete Preset", ResourceManager.getIcon("dialog.cancel")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

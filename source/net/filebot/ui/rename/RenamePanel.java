@@ -720,6 +720,7 @@ public class RenamePanel extends JComponent {
 			return preset.getSortOrder() != null ? preset.getSortOrder() : super.getSortOrder(evt);
 		}
 
+		@Override
 		public Locale getLocale(ActionEvent evt) {
 			return preset.getLanguage() != null ? preset.getLanguage() : super.getLocale(evt);
 		}
@@ -834,7 +835,7 @@ public class RenamePanel extends JComponent {
 			return SortOrder.forName(persistentPreferredEpisodeOrder.getValue());
 		}
 
-		private Locale getLocale(ActionEvent evt) {
+		public Locale getLocale(ActionEvent evt) {
 			return new Locale(persistentPreferredLanguage.getValue());
 		}
 
