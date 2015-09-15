@@ -63,4 +63,22 @@ public class Normalization {
 		return trailingParentheses.matcher(name).replaceAll("").trim();
 	}
 
+	public static String truncateText(String title, int limit) {
+		if (title.length() < limit) {
+			return title;
+		}
+
+		String[] words = space.split(title);
+		StringBuilder s = new StringBuilder();
+
+		for (int i = 0; i < words.length && s.length() + words[i].length() < limit; i++) {
+			if (i > 0) {
+				s.append(' ');
+			}
+			s.append(words[i]);
+		}
+
+		return s.toString().trim();
+	}
+
 }

@@ -970,24 +970,6 @@ public class MediaBindingBean {
 		}
 	}
 
-	private String truncateText(String title, int limit) {
-		if (title.length() < limit) {
-			return title;
-		}
-
-		String[] words = title.split("\\s+");
-		StringBuilder s = new StringBuilder();
-
-		for (int i = 0; i < words.length && s.length() + words[i].length() < limit; i++) {
-			if (i > 0) {
-				s.append(' ');
-			}
-			s.append(words[i]);
-		}
-
-		return s.toString().trim();
-	}
-
 	private List<String> getKeywords() {
 		// collect key information
 		Set<Object> keys = new HashSet<Object>();

@@ -3,6 +3,7 @@ package net.filebot;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Settings.*;
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Desktop;
@@ -113,7 +114,7 @@ public class UserFiles {
 				}
 
 				if (filter != null && !filter.acceptAny()) {
-					chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(filter.toString(), filter.extensions()));
+					chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(truncateText(filter.toString(), 80), filter.extensions()));
 				}
 
 				if (chooser.showOpenDialog(getWindow(evt.getSource())) == JFileChooser.APPROVE_OPTION) {
