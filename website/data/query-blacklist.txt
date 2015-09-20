@@ -239,6 +239,7 @@ Channel.5
 CLASSIC
 CN
 CODIFICAR
+CODY
 ConvertedTV
 Custom.DKsubs
 CVCD
@@ -298,6 +299,7 @@ HebSubs
 Hi10P
 Hindi
 History.Channel
+HORiZON-ArtSubs
 HQ
 HR
 HSBS
@@ -323,6 +325,7 @@ lol
 Los.Sustitutos
 M.HD
 MegaPack
+MkvCage
 mkvonly
 MoTv
 Movie.Pack
@@ -330,6 +333,7 @@ mpg$
 MultiSub
 MVGroup.org
 National.Geographic
+NeZu
 NFO
 NG
 NHK
@@ -361,6 +365,7 @@ ReRip
 RESYNC
 RETAIL
 RiffTrax
+RiPSalot
 sample
 samples
 SBS
@@ -418,6 +423,7 @@ vo
 Volume.TB
 WS
 www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de|pe)
+x0r
 xbmc
 XORBiTANT
 xRipp
