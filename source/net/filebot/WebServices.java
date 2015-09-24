@@ -25,7 +25,6 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
 import net.filebot.web.AnidbSearchResult;
-import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
@@ -39,7 +38,6 @@ import net.filebot.web.ShooterSubtitles;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
-import net.filebot.web.TVRageClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
@@ -50,7 +48,6 @@ import net.filebot.web.VideoHashSubtitleService;
 public final class WebServices {
 
 	// episode dbs
-	public static final TVRageClient TVRage = new TVRageClient(getApiKey("tvrage"));
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApiKey("anidb"), 6);
 
 	// extended TheTVDB module with local search
@@ -70,7 +67,7 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, AniDB, TVRage };
+		return new EpisodeListProvider[] { TheTVDB, AniDB };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {
