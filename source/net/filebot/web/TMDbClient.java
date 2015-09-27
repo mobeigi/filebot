@@ -69,7 +69,7 @@ public class TMDbClient implements MovieIdentificationService {
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
 		// query by name with year filter if possible
-		Matcher nameYear = Pattern.compile("(.+)\\b(19\\d{2}|20\\d{2})$").matcher(query);
+		Matcher nameYear = Pattern.compile("(.+)\\b\\(?(19\\d{2}|20\\d{2})\\)?$").matcher(query.trim());
 		if (nameYear.matches()) {
 			return searchMovie(nameYear.group(1).trim(), Integer.parseInt(nameYear.group(2)), locale, false);
 		} else {
@@ -79,7 +79,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws IOException {
 		// ignore queries that are too short to yield good results
-		if (movieName.length() < 3 && !(movieName.length() > 1 && movieYear > 0)) {
+		if (movieName.length() < 3 && !(movieName.length() >= 1 && movieYear > 0)) {
 			return emptyList();
 		}
 

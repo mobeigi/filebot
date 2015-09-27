@@ -28,7 +28,7 @@ public class TMDbClientTest {
 	}
 
 	@Test
-	public void searchByNameWithYear() throws Exception {
+	public void searchByNameWithYearShortName() throws Exception {
 		List<Movie> result = tmdb.searchMovie("Up 2009", Locale.ENGLISH);
 		Movie movie = result.get(0);
 
@@ -36,6 +36,17 @@ public class TMDbClientTest {
 		assertEquals(2009, movie.getYear());
 		assertEquals(-1, movie.getImdbId());
 		assertEquals(14160, movie.getTmdbId());
+	}
+
+	@Test
+	public void searchByNameWithYearNumberName() throws Exception {
+		List<Movie> result = tmdb.searchMovie("9 (2009)", Locale.ENGLISH);
+		Movie movie = result.get(0);
+
+		assertEquals("9", movie.getName());
+		assertEquals(2009, movie.getYear());
+		assertEquals(-1, movie.getImdbId());
+		assertEquals(12244, movie.getTmdbId());
 	}
 
 	@Test
