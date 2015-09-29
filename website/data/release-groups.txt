@@ -124,7 +124,6 @@ ADC-Germany
 ADHD
 ADTRW
 ADX
-AE
 AE-Kaen
 AEGiS
 AEN
@@ -987,7 +986,6 @@ Frostii-Saizen
 Frostii_Live-eviL
 Froth-Bite
 FroZen
-FS
 FSiHD
 Ft4U
 FTC
@@ -1331,8 +1329,6 @@ InSubs
 iNT-TD
 IntelliQ
 iNTENTiON
-iNTERNAL
-Internal-CiA
 iNTiMiD
 INtL
 iNVADERS
@@ -1524,7 +1520,6 @@ LGLuX
 Lightmaker
 lilwoodenboy
 LIME
-LiMiTED
 LIMO
 LiNE
 LiON
@@ -1811,7 +1806,6 @@ NuMy
 NUTBLADDER
 NUXX
 NVA
-NWA
 NWO
 NwS
 NWTC
@@ -1825,7 +1819,6 @@ Nyu
 O-L
 O-S
 O.K-Subs
-O2
 O4L
 OAS
 OBjECT
@@ -1838,7 +1831,6 @@ OEM1080
 OFS
 OhShit
 ohys
-OK
 Okashii
 Okashii-RyRo
 old-tejo
@@ -2371,7 +2363,6 @@ STRATOS
 Strawhat
 streetwars
 STRONG
-STV
 StyleZz
 StyLishSaLH
 SU
