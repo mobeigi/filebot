@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -61,6 +62,14 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		return result;
 	}
 
+	protected URL getSubApiUrl() {
+		try {
+			return new URL(System.getProperty("net.filebot.web.ShooterSubtitles.url", "https://www.shooter.cn/api/subapi.php"));
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * @see https://docs.google.com/document/d/1ufdzy6jbornkXxsD-OGl3kgWa4P9WO5NZb6_QYZiGI0/preview
 	 */
@@ -72,7 +81,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 			return emptyList();
 		}
 
-		URL endpoint = new URL("https://www.shooter.cn/api/subapi.php");
+		URL endpoint = getSubApiUrl();
 		Map<String, String> param = new LinkedHashMap<String, String>();
 		param.put("filehash", computeFileHash(file));
 		param.put("pathinfo", file.getPath());
@@ -225,6 +234,10 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 			return new File(getPath());
 		}
 
+		@Override
+		public String toString() {
+			return String.format("%s [%s]", getName(), getLanguageName());
+		}
 	}
 
 }
