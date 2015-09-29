@@ -514,7 +514,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
 		CLILogger.config(format("Rename music using [%s]", service.getName()));
-		List<File> audioFiles = sortByUniquePath(filter(files, AUDIO_FILES));
+		List<File> audioFiles = sortByUniquePath(filter(files, AUDIO_FILES, VIDEO_FILES));
 
 		// check audio files against acoustid
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
