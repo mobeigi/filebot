@@ -52,6 +52,8 @@ import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
+import net.filebot.similarity.SeasonEpisodeMatcher;
+import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.SelectDialog;
 import net.filebot.util.FileUtilities;
@@ -159,9 +161,17 @@ public class SubtitleUploadDialog extends JDialog {
 					SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 					SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-					Object originalIdentity = mapping.getIdentity();
 					File video = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
-					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(FileUtilities.getName(video)), String.format("%s/%s", video.getParentFile().getName(), video.getName()), SubtitleUploadDialog.this);
+					String query = FileUtilities.getName(video);
+
+					// check if query contain an episode identifier
+					SeriesNameMatcher snm = new SeriesNameMatcher();
+					String sn = snm.matchByEpisodeIdentifier(query);
+					if (sn != null) {
+						query = sn;
+					}
+
+					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(query), getStructurePathTail(video).getPath(), SubtitleUploadDialog.this);
 					if (input != null && input.length() > 0) {
 						List<SubtitleSearchResult> options = database.searchIMDB(input);
 						if (options.size() > 0) {
@@ -686,14 +696,14 @@ public class SubtitleUploadDialog extends JDialog {
 					try {
 						if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
 							List<String> seriesNames = MediaDetection.detectSeriesNames(Collections.singleton(mapping.getVideo()), true, false, Locale.ENGLISH);
-							for (String name : seriesNames) {
+							NAMES: for (String name : seriesNames) {
 								List<SearchResult> options = WebServices.TheTVDB.search(name, Locale.ENGLISH);
 								for (SearchResult entry : options) {
 									TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(entry, Locale.ENGLISH);
 									if (seriesInfo.getImdbId() != null) {
 										int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
 										mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(null, 0, imdbId, -1), Locale.ENGLISH));
-										break;
+										break NAMES;
 									}
 								}
 							}
