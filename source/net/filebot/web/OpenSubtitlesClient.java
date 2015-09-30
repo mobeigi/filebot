@@ -118,7 +118,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		// singleton array with or empty array
 		int imdbid = ((Movie) searchResult).getImdbId();
-		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName, true) } : new String[0];
 
 		// require login
 		login();
@@ -159,7 +159,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	public synchronized Map<File, List<SubtitleDescriptor>> getSubtitleListByHash(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
-		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName, true) } : new String[0];
 
 		// remember hash for each file
 		Map<Query, File> hashMap = new HashMap<Query, File>(files.length);
@@ -222,7 +222,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	public synchronized Map<File, List<SubtitleDescriptor>> getSubtitleListByTag(File[] files, String languageName) throws Exception {
 		// singleton array with or empty array
-		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName) } : new String[0];
+		String[] languageFilter = languageName != null ? new String[] { getSubLanguageID(languageName, true) } : new String[0];
 
 		// remember tag for each file
 		Map<Query, File> tagMap = new HashMap<Query, File>(files.length);
@@ -329,7 +329,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		}
 
 		int imdbid = ((Movie) identity).getImdbId();
-		String languageName = getSubLanguageID(language.getDisplayName(Locale.ENGLISH));
+		String languageName = getSubLanguageID(language.getDisplayName(Locale.ENGLISH), false);
 
 		// subhash (md5 of subtitles), subfilename, moviehash, moviebytesize, moviefilename
 		SubFile sub = new SubFile();
@@ -474,7 +474,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 		if (languageName != null) {
 			try {
-				sublanguageid = getSubLanguageID(languageName);
+				sublanguageid = getSubLanguageID(languageName, true);
 			} catch (Exception e) {
 				Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 			}
@@ -593,10 +593,13 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		return subLanguageMap;
 	}
 
-	protected String getSubLanguageID(String languageName) throws Exception {
+	protected String getSubLanguageID(String languageName, boolean allowMultiLanguageID) throws Exception {
 		String subLanguageID = getSubLanguageMap().get(languageName.toLowerCase());
 		if (subLanguageID == null) {
 			throw new IllegalArgumentException(String.format("SubLanguageID for '%s' not found", languageName));
+		}
+		if (!allowMultiLanguageID && subLanguageID.contains(",")) {
+			subLanguageID = subLanguageID.substring(0, subLanguageID.indexOf(","));
 		}
 		return subLanguageID;
 	}
