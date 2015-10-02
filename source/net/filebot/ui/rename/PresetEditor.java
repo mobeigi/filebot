@@ -102,7 +102,7 @@ public class PresetEditor extends JDialog {
 		inputPanel.add(pathInput, "growx, gap rel");
 		inputPanel.add(createImageButton(selectInputFolder), "gap 0px, wrap");
 		JLabel includesLabel = new JLabel("Includes:");
-		includesLabel.setToolTipText("Groovy File Filter (e.g. fn =~ /alias/)");
+		includesLabel.setToolTipText("<html>Groovy File Filter<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• file.isEpisode()<br>• …<br></html>");
 		inputPanel.add(includesLabel, "gap indent, skip 1, split 3");
 		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel");
 		inputPanel.add(createImageButton(listFiles), "gap rel");
