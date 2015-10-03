@@ -1,0 +1,13 @@
+Dear Certum Team,
+
+This document, hosted on my filebot.net domain, unmistakebly verifies and confirms that I, Reinhard Pointner (AKA rednoah), is the owner of this domain, as well as the open-source project FileBot hosted here on filebot.net and sourceforge.net/projects/filebot/ which is used for file release and SVN services.
+
+Project Name: FileBot
+Project Website: http://www.filebot.net/
+SourceForge Project Site: https://sourceforge.net/projects/filebot/
+SourceForge SVN Code Repository: https://sourceforge.net/p/filebot/code/HEAD/tree/trunk/
+E-Mail 1: me@filebot.com
+E-Mail 2: rednoah@users.sourceforge.net
+
+Regards,
+Reinhard Pointner
