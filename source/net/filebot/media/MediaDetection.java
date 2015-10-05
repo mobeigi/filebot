@@ -401,7 +401,7 @@ public class MediaDetection {
 						for (File path : listPathTail(f, 2, true)) {
 							String fn = getName(path);
 							// ignore non-strict series name parsing if there are movie year patterns
-							if (!strict && parseMovieYear(fn).size() > 0) {
+							if (!strict && parseMovieYear(fn).equals(parseNumbers(fn))) {
 								break;
 							}
 							String sn = seriesNameMatcher.matchByEpisodeIdentifier(fn);
@@ -773,6 +773,17 @@ public class MediaDetection {
 			}
 		}
 		return years;
+	}
+
+	public static List<Integer> parseNumbers(String name) {
+		List<Integer> numbers = new ArrayList<Integer>();
+		for (String it : name.split("\\D+")) {
+			if (it.length() > 0) {
+				int n = Integer.parseInt(it);
+				numbers.add(n);
+			}
+		}
+		return numbers;
 	}
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {
