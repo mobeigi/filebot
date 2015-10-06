@@ -825,8 +825,9 @@
 			</filterset>
 		</copy>
 
-		<!-- build synology package index -->
+		<!-- merge all filebot related packages into a single package source file -->
 		<property prefix="node" url="https://raw.githubusercontent.com/filebot/filebot-node/master/package.properties" />
+		<property prefix="java" url="https://raw.githubusercontent.com/rednoah/java-installer/master/package.properties" />
 		<package-source file="${dir.dist}/website/syno/index.json">
 			<keyring file="${dir.installer}/gpg/FileBot.pub" />
 			<spk file="${dir.cache}/package-source/filebot-${version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot/FileBot_${version}/filebot-${version}-noarch.spk">
@@ -836,6 +837,10 @@
 			<spk file="${dir.cache}/package-source/filebot-node-${node.version}-noarch.spk" url="http://downloads.sourceforge.net/project/filebot/filebot-node/filebot-node-${node.version}/filebot-node-${node.version}-noarch.spk">
 				<thumbnail url="http://app.filebot.net/syno/filebot-node-thumbnail.png" />
 				<snapshot url="http://app.filebot.net/syno/filebot-node-snapshot.png" />
+			</spk>
+			<spk file="${dir.cache}/package-source/java-installer-${java.version}-noarch.spk" url="https://github.com/rednoah/java-installer/releases/download/${java.version}/${java.package}-${java.version}-noarch.spk">
+				<thumbnail url="http://i.imgur.com/o8VXIZe.png" />
+				<snapshot url="http://i.imgur.com/keYTy0E.png" />
 			</spk>
 		</package-source>
 
