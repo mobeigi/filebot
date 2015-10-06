@@ -839,8 +839,7 @@
 				<snapshot url="http://app.filebot.net/syno/filebot-node-snapshot.png" />
 			</spk>
 			<spk file="${dir.cache}/package-source/java-installer-${java.version}-noarch.spk" url="https://github.com/rednoah/java-installer/releases/download/${java.version}/${java.package}-${java.version}-noarch.spk">
-				<thumbnail url="http://i.imgur.com/o8VXIZe.png" />
-				<snapshot url="http://i.imgur.com/keYTy0E.png" />
+				<thumbnail url="http://global.download.synology.com/download/pkg_img/JavaManager/7.0.51-0030/thumb_256.png" />
 			</spk>
 		</package-source>
 
