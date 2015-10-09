@@ -4,6 +4,7 @@ import groovy.lang.Closure;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class ExpressionFormatFunctions {
 
 	public static Map<String, String> csv(String path) throws IOException {
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		for (String line : Files.readAllLines(Paths.get(path), Charset.forName("UTF-8"))) {
+		for (String line : Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8)) {
 			for (String delim : new String[] { "\t", ";" }) {
 				String[] field = line.split(delim, 2);
 				if (field.length >= 2) {
@@ -100,6 +101,10 @@ public class ExpressionFormatFunctions {
 			}
 		}
 		return map;
+	}
+
+	public static List<String> readLines(String path) throws IOException {
+		return Files.readAllLines(Paths.get(path), StandardCharsets.UTF_8);
 	}
 
 }
