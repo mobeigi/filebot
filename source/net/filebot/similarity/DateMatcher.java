@@ -126,7 +126,7 @@ public class DateMatcher {
 
 	private static class DateFormatPattern implements DatePattern {
 
-		protected final Pattern space = Pattern.compile("[\\p{Punct}\\p{Space}]+");
+		protected final Pattern space = Pattern.compile("[^\\p{Alnum}]+");
 
 		protected final Pattern pattern;
 		protected final String dateFormat;
