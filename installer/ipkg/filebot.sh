@@ -1,5 +1,12 @@
 #!/bin/sh
 
+
+# make sure required environment variables are set
+if [ -z "$USER" ]
+then
+    export USER=`whoami`
+fi
+
 APP_ROOT="/opt/share/filebot"
 APP_DATA="$APP_ROOT/data/$USER"
 
