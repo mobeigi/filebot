@@ -64,6 +64,7 @@ import net.filebot.web.CachedResource;
 import net.miginfocom.swing.MigLayout;
 import net.sf.ehcache.CacheManager;
 
+import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.NodeList;
 
 public class Main {
@@ -209,9 +210,13 @@ public class Main {
 					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to show Getting Started help", e);
 				}
 			}
-		} catch (Exception e) {
-			// illegal arguments => just print CLI error message and stop
+		} catch (CmdLineException e) {
+			// illegal arguments => print CLI error message
 			System.err.println(e.getMessage());
+			System.exit(-1);
+		} catch (Throwable e) {
+			// unexpected error => dump stack
+			e.printStackTrace();
 			System.exit(-1);
 		}
 	}
