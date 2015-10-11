@@ -1,5 +1,13 @@
 #!/bin/sh
 
+
+# sanity checks
+if [ -z "$HOME" ]; then
+	echo "The environment variable 'HOME' must be set"
+	exit 1
+fi
+
+# prepare filebot java call
 APP_ROOT="/opt/filebot"
 APP_DATA="$HOME/.config/FileBot"
 APP_CACHE="$HOME/.cache/FileBot"
