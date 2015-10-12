@@ -257,10 +257,9 @@ public class Main {
 				HistorySpooler.getInstance().commit();
 
 				// show donation / review reminders to power users (more than 2000 renames)
-				float chance = 0.4f;
 				int renameCount = HistorySpooler.getInstance().getPersistentHistoryTotalSize();
 
-				if (renameCount > 2000 && Math.random() < chance) {
+				if (renameCount > 2000 && Math.random() <= 0.777) {
 					if (isAppStore()) {
 						showAppStoreReviewReminder();
 					} else {
