@@ -16,7 +16,7 @@ public class DateMatcher {
 	private final DatePattern[] patterns;
 
 	public DateMatcher() {
-		patterns = new DatePattern[4];
+		patterns = new DatePattern[6];
 
 		// match yyyy-mm-dd patterns like 2010-10-24, 2009/6/1, etc
 		patterns[0] = new NumericDatePattern("(?<!\\p{Alnum})(\\d{4})[^\\p{Alnum}](\\d{1,2})[^\\p{Alnum}](\\d{1,2})(?!\\p{Alnum})", new int[] { 1, 2, 3 });
@@ -24,11 +24,17 @@ public class DateMatcher {
 		// match dd-mm-yyyy patterns like 1.1.2010, 01/06/2010, etc
 		patterns[1] = new NumericDatePattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](\\d{1,2})[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", new int[] { 3, 2, 1 });
 
-		// match yyyy.MMMMM.dd patterns like 2015.October.05 etc
+		// match yyyy.MMMMM.dd patterns like 2015.October.05
 		patterns[2] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{4})[^\\p{Alnum}](?i:January|February|March|April|May|June|July|August|September|October|November|December)[^\\p{Alnum}](\\d{1,2})(?!\\p{Alnum})", "yyyy MMMMM dd");
 
-		// match yyyy.MMM.dd patterns like 2015.Oct.06 etc
+		// match yyyy.MMM.dd patterns like 2015.Oct.06
 		patterns[3] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{4})[^\\p{Alnum}](?i:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^\\p{Alnum}](\\d{1,2})(?!\\p{Alnum})", "yyyy MMM dd");
+
+		// match dd.MMMMM.yyyy patterns like 25 July 2014
+		patterns[4] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](?i:January|February|March|April|May|June|July|August|September|October|November|December)[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", "dd MMMMM yyyy");
+
+		// match dd.MMM.yyyy patterns like 8 Sep 2015
+		patterns[5] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](?i:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", "dd MMM yyyy");
 	}
 
 	public DateMatcher(DatePattern... patterns) {
