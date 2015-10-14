@@ -289,7 +289,7 @@ public class MediaBindingBean {
 	@Define("vc")
 	public String getVideoCodec() {
 		// e.g. XviD, x264, DivX 5, MPEG-4 Visual, AVC, etc.
-		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library/Name", "CodecID/Hint", "Format");
+		String codec = getMediaInfo(StreamKind.Video, 0, "Encoded_Library_Name", "Encoded_Library/Name", "CodecID/Hint", "Format");
 
 		// get first token (e.g. DivX 5 => DivX)
 		return new Scanner(codec).next();
