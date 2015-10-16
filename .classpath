@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="lib/ivy/bundle/args4j.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/bundle/json-simple.jar"/>
 	<classpathentry kind="lib" path="lib/jars/jacksum.jar"/>
-	<classpathentry kind="lib" path="lib/jars/sevenzipjbinding.jar"/>
 	<classpathentry kind="lib" path="lib/jars/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/jars/xmlrpc.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar"/>
@@ -30,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/junrar.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/commons-vfs2.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/commons-logging.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/sevenzipjbinding.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

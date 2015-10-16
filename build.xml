@@ -160,7 +160,7 @@
 				<exclude name="META-INF/services/org.codehaus.groovy.runtime.ExtensionModule" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/jars/sevenzipjbinding.jar">
+			<zipfileset src="${dir.lib}/ivy/jar/sevenzipjbinding.jar">
 				<include name="net/sf/sevenzipjbinding/**" />
 			</zipfileset>
 

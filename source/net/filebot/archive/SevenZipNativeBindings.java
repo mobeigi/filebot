@@ -14,13 +14,13 @@ import java.util.Map;
 import net.filebot.vfs.FileInfo;
 import net.filebot.vfs.SimpleFileInfo;
 import net.sf.sevenzipjbinding.ArchiveFormat;
-import net.sf.sevenzipjbinding.ISevenZipInArchive;
+import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
 
 public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 
-	private ISevenZipInArchive inArchive;
+	private IInArchive inArchive;
 	private ArchiveOpenVolumeCallback openVolume;
 
 	public SevenZipNativeBindings(File file) throws Exception {
@@ -36,7 +36,7 @@ public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 				inArchive = SevenZipLoader.open(openVolume.getStream(file.getAbsolutePath()), openVolume);
 			} else {
 				// raw multi-volume archives
-				inArchive = SevenZipLoader.open(new VolumedArchiveInStream(file.getAbsolutePath(), openVolume), null);
+				inArchive = SevenZipLoader.open(new net.sf.sevenzipjbinding.impl.VolumedArchiveInStream(file.getAbsolutePath(), openVolume), null);
 			}
 		} catch (InvocationTargetException e) {
 			throw (Exception) e.getTargetException();

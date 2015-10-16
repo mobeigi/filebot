@@ -10,20 +10,20 @@ import net.sf.sevenzipjbinding.ExtractAskMode;
 import net.sf.sevenzipjbinding.ExtractOperationResult;
 import net.sf.sevenzipjbinding.IArchiveExtractCallback;
 import net.sf.sevenzipjbinding.ISequentialOutStream;
-import net.sf.sevenzipjbinding.ISevenZipInArchive;
+import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.PropID;
 import net.sf.sevenzipjbinding.SevenZipException;
 
 
 class ExtractCallback implements IArchiveExtractCallback {
 
-	private ISevenZipInArchive inArchive;
+	private IInArchive inArchive;
 	private ExtractOutProvider extractOut;
 
 	private ExtractOutStream output = null;
 
 
-	public ExtractCallback(ISevenZipInArchive inArchive, ExtractOutProvider extractOut) {
+	public ExtractCallback(IInArchive inArchive, ExtractOutProvider extractOut) {
 		this.inArchive = inArchive;
 		this.extractOut = extractOut;
 	}

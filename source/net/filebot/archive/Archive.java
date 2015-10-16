@@ -75,7 +75,7 @@ public class Archive implements Closeable {
 		return extensions;
 	}
 
-	private static final Pattern multiPartIndex = Pattern.compile("[.][0-9]{3}+$");
+	private static final Pattern multiPartIndex = Pattern.compile("[.][0-9]{3}$");
 
 	public static boolean hasMultiPartIndex(File file) {
 		return multiPartIndex.matcher(file.getName()).find();
