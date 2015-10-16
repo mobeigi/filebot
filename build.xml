@@ -69,7 +69,6 @@
 		<!-- source as zip -->
 		<zip destfile="${path.source.zip}">
 			<fileset dir="source" />
-			<fileset dir="test" />
 		</zip>
 	</target>
 
