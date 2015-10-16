@@ -29,7 +29,7 @@ public class SevenZipLoader {
 				Logger.getLogger(SevenZipLoader.class.getName()).warning("Failed to preload library: " + e);
 			}
 
-			System.loadLibrary("lib7-Zip-JBinding");
+			System.loadLibrary("7-Zip-JBinding");
 			SevenZip.initLoadedLibraries(); // NATIVE LIBS MUST BE LOADED WITH SYSTEM CLASSLOADER
 			nativeLibrariesLoaded = true;
 		} catch (Throwable e) {
