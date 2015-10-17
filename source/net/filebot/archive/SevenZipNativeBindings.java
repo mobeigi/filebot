@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -29,17 +28,14 @@ public class SevenZipNativeBindings implements ArchiveExtractor, Closeable {
 			throw new FileNotFoundException(file.getAbsolutePath());
 		}
 
-		try {
-			openVolume = new ArchiveOpenVolumeCallback();
-			if (!Archive.hasMultiPartIndex(file)) {
-				// single volume archives and multi-volume rar archives
-				inArchive = SevenZipLoader.open(openVolume.getStream(file.getAbsolutePath()), openVolume);
-			} else {
-				// raw multi-volume archives
-				inArchive = SevenZipLoader.open(new net.sf.sevenzipjbinding.impl.VolumedArchiveInStream(file.getAbsolutePath(), openVolume), null);
-			}
-		} catch (InvocationTargetException e) {
-			throw (Exception) e.getTargetException();
+		openVolume = new ArchiveOpenVolumeCallback();
+
+		if (!Archive.hasMultiPartIndex(file)) {
+			// single volume archives and multi-volume rar archives
+			inArchive = SevenZipLoader.open(openVolume.getStream(file.getAbsolutePath()), openVolume);
+		} else {
+			// raw multi-volume archives
+			inArchive = SevenZipLoader.open(new net.sf.sevenzipjbinding.impl.VolumedArchiveInStream(file.getAbsolutePath(), openVolume), null);
 		}
 	}
 

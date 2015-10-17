@@ -6,6 +6,7 @@ import net.sf.sevenzipjbinding.IArchiveOpenCallback;
 import net.sf.sevenzipjbinding.IInArchive;
 import net.sf.sevenzipjbinding.IInStream;
 import net.sf.sevenzipjbinding.SevenZip;
+import net.sf.sevenzipjbinding.SevenZipException;
 import net.sf.sevenzipjbinding.SevenZipNativeInitializationException;
 
 import com.sun.jna.Platform;
@@ -37,15 +38,16 @@ public class SevenZipLoader {
 		}
 	}
 
-	public static IInArchive open(IInStream stream, IArchiveOpenCallback callback) throws Exception {
-		// initialize 7-Zip-JBinding
+	public static String getNativeVersion() throws SevenZipNativeInitializationException {
 		requireNativeLibraries();
 
-		if (callback == null) {
-			return SevenZip.openInArchive(null, stream);
-		} else {
-			return SevenZip.openInArchive(null, stream, callback);
-		}
+		return SevenZip.getSevenZipVersion().version;
+	}
+
+	public static IInArchive open(IInStream stream, IArchiveOpenCallback callback) throws SevenZipException, SevenZipNativeInitializationException {
+		requireNativeLibraries();
+
+		return (callback == null) ? SevenZip.openInArchive(null, stream) : SevenZip.openInArchive(null, stream, callback);
 	}
 
 }
