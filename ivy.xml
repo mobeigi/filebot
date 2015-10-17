@@ -22,6 +22,7 @@
 		<dependency org="com.github.junrar" name="junrar" rev="0.7" />
 		<dependency org="com.fifesoft" name="rsyntaxtextarea" rev="2.5.8" />
 		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding" rev="9.20-2.00beta" />
+		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" rev="9.20-2.00beta" />
 
 		<!-- FileBot Scripting -->
 		<dependency org="org.apache.ant" name="ant" rev="1.9.4" />
