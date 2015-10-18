@@ -632,12 +632,12 @@ public class MediaBindingBean {
 
 	@Define("seconds")
 	public Integer getSeconds() {
-		return Math.round(getDuration() / 1000f);
+		return (int) (getDuration() / 1000);
 	}
 
 	@Define("minutes")
 	public Integer getDurationInMinutes() {
-		return Math.round(getDuration() / 60000f);
+		return (int) (getDuration() / 60000);
 	}
 
 	@Define("media")
