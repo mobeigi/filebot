@@ -3,7 +3,7 @@
 	<info organisation="net.filebot" module="filebot" />
 	<dependencies>
 		<!-- FileBot -->
-		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.3" />
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.5" />
 		<dependency org="net.java.dev.jna" name="jna" rev="4.1.0" />
 		<dependency org="net.java.dev.jna" name="platform" rev="3.5.2" />
 		<dependency org="args4j" name="args4j" rev="2.32" />
