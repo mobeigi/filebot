@@ -112,6 +112,8 @@ Section MAIN
 	Pop $MSI_STATUS # grab return value
 	
 	${if} $MSI_STATUS == "0"
+		DetailPrint "Optimizing..."
+		nsExec::Exec `"C:\Program Files\FileBot\filebot.exe" -script "g:java.util.prefs.Preferences.userRoot(); net.sf.ehcache.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();"`
 		DetailPrint "Done."
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"
