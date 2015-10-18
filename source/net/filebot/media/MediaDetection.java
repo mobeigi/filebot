@@ -1514,6 +1514,9 @@ public class MediaDetection {
 							}
 						}
 					} catch (Exception e) {
+						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
+							e = (IOException) e.getCause();
+						}
 						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set creation date: " + e.getMessage());
 					}
 				}
@@ -1528,6 +1531,9 @@ public class MediaDetection {
 							xattr.setOriginalName(original);
 						}
 					} catch (Exception e) {
+						if (e instanceof RuntimeException && e.getCause() instanceof IOException) {
+							e = (IOException) e.getCause();
+						}
 						Logger.getLogger(MediaDetection.class.getClass().getName()).warning("Failed to set xattr: " + e.getMessage());
 					}
 				}
