@@ -101,9 +101,7 @@ public class PresetEditor extends JDialog {
 		inputPanel.add(new JLabel("Input Folder:"), "gap indent");
 		inputPanel.add(pathInput, "growx, gap rel");
 		inputPanel.add(createImageButton(selectInputFolder), "gap 0px, wrap");
-		JLabel includesLabel = new JLabel("Includes:");
-		includesLabel.setToolTipText("<html>Groovy File Filter<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• file.isEpisode()<br>• …<br></html>");
-		inputPanel.add(includesLabel, "gap indent, skip 1, split 3");
+		inputPanel.add(new JLabel("Includes:"), "gap indent, skip 1, split 3");
 		inputPanel.add(wrapEditor(filterEditor), "growx, gap rel");
 		inputPanel.add(createImageButton(listFiles), "gap rel");
 
@@ -146,6 +144,9 @@ public class PresetEditor extends JDialog {
 		updateComponentStates();
 
 		setSize(650, 570);
+
+		// add helpful tooltips
+		filterEditor.setToolTipText(FILE_FILTER_TOOLTIP);
 	}
 
 	public void updateComponentStates() {
@@ -427,5 +428,7 @@ public class PresetEditor extends JDialog {
 			setVisible(false);
 		}
 	};
+
+	private static final String FILE_FILTER_TOOLTIP = "<html>Groovy File Filter<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• file.isEpisode()<br>• …<br></html>";
 
 }
