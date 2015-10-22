@@ -1,3 +1,2 @@
-SHA-256 checksums
------------------
+# SHA-256 checksums
 ```
