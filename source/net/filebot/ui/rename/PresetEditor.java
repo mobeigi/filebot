@@ -429,6 +429,6 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
-	private static final String FILE_FILTER_TOOLTIP = "<html>Groovy File Filter<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• file.isEpisode()<br>• …<br></html>";
+	private static final String FILE_FILTER_TOOLTIP = "<html>File Selector Expression<br><hr noshade>e.g.<br>• fn =~ /alias/<br>• ext =~ /mp4/<br>• minutes &gt; 100<br>• age &lt; 7<br>• file.isEpisode()<br>• …<br></html>";
 
 }
