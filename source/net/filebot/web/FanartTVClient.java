@@ -1,11 +1,6 @@
 package net.filebot.web;
 
-import static net.filebot.util.XPathUtilities.*;
-import static net.filebot.web.WebRequest.*;
-
-import java.io.File;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -20,8 +15,8 @@ import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import com.cedarsoftware.util.io.JsonObject;
+import com.cedarsoftware.util.io.JsonReader;
 
 public class FanartTVClient {
 
@@ -32,44 +27,48 @@ public class FanartTVClient {
 	}
 
 	public List<FanartDescriptor> getSeriesArtwork(int tvdbid) throws Exception {
-		return getSeriesArtwork(String.valueOf(tvdbid), "all", 1, 2);
-	}
-
-	public List<FanartDescriptor> getSeriesArtwork(String id, String type, int sort, int limit) throws Exception {
-		return getArtwork("series", id, type, sort, limit);
+		return getArtwork("tv", String.valueOf(tvdbid));
 	}
 
 	public List<FanartDescriptor> getMovieArtwork(int tmdbid) throws Exception {
-		return getMovieArtwork(String.valueOf(tmdbid), "all", 1, 2);
+		return getArtwork("movies", String.valueOf(tmdbid));
 	}
 
-	public List<FanartDescriptor> getMovieArtwork(String id, String type, int sort, int limit) throws Exception {
-		return getArtwork("movie", id, type, sort, limit);
-	}
-
-	public List<FanartDescriptor> getArtwork(String category, String id, String type, int sort, int limit) throws Exception {
-		String resource = getResource(category, id, "xml", type, sort, limit);
+	public List<FanartDescriptor> getArtwork(String category, String id) throws Exception {
+		String resource = getResource(category, id);
 
 		// cache results
 		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class) {
 
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
-				Document dom = getDocument(Charset.forName("UTF-8").decode(data).toString());
+				String json = Charset.forName("UTF-8").decode(data).toString();
+				Map<?, ?> maps = JsonReader.jsonToMaps(json);
 
 				List<FanartDescriptor> fanart = new ArrayList<FanartDescriptor>();
-				for (Node node : selectNodes("//*[@url]", dom)) {
-					// e.g. <seasonthumb id="3481" url="http://fanart.tv/fanart/tv/70327/seasonthumb/3481/Buffy (6).jpg" lang="en" likes="0" season="6"/>
-					Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
-					fields.put(FanartProperty.type, node.getNodeName());
-					for (FanartProperty prop : FanartProperty.values()) {
-						String value = getAttribute(prop.name(), node);
-						if (value != null) {
-							fields.put(prop, value);
+				maps.forEach((k, v) -> {
+					if (v instanceof JsonObject) {
+						JsonObject<?, ?> mapping = (JsonObject<?, ?>) v;
+						if (mapping.isArray()) {
+							for (Object i : mapping.getArray()) {
+								if (i instanceof Map) {
+									Map<?, ?> item = (Map<?, ?>) i;
+									Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
+									fields.put(FanartProperty.type, k.toString());
+									for (FanartProperty prop : FanartProperty.values()) {
+										Object value = item.get(prop.name());
+										if (value != null) {
+											fields.put(prop, value.toString());
+										}
+									}
+									if (fields.size() > 1) {
+										fanart.add(new FanartDescriptor(fields));
+									}
+								}
+							}
 						}
 					}
-					fanart.add(new FanartDescriptor(fields));
-				}
+				});
 
 				return fanart.toArray(new FanartDescriptor[0]);
 			}
@@ -83,15 +82,15 @@ public class FanartTVClient {
 		return Arrays.asList(data.get());
 	}
 
-	public String getResource(String category, String id, String format, String type, int sort, int limit) throws MalformedURLException {
-		// e.g. http://fanart.tv/webservice/series/780b986b22c35e6f7a134a2f392c2deb/70327/xml/all/1/2
-		return String.format("http://api.fanart.tv/webservice/%s/%s/%s/%s/%s/%s/%s", category, apikey, id, format, type, sort, limit);
+	public String getResource(String category, String id) {
+		// e.g. http://webservice.fanart.tv/v3/movies/17645?api_key=6fa42b0ef3b5f3aab6a7edaa78675ac2
+		return "http://webservice.fanart.tv/v3/" + category + "/" + id + "?api_key=" + apikey;
 	}
 
 	public static class FanartDescriptor implements Serializable {
 
 		public static enum FanartProperty {
-			type, id, url, lang, likes, season, disc_type
+			type, id, url, lang, likes, season, disc, disc_type
 		}
 
 		protected Map<FanartProperty, String> fields;
@@ -124,13 +123,9 @@ public class FanartTVClient {
 			}
 		}
 
-		public String getName() {
-			return new File(getUrl().getFile()).getName();
-		}
-
 		public URL getUrl() {
 			try {
-				return new URL(fields.get(FanartProperty.url).replaceAll(" ", "%20")); // work around server-side url encoding issues
+				return new URL(fields.get(FanartProperty.url));
 			} catch (Exception e) {
 				return null;
 			}
@@ -155,6 +150,14 @@ public class FanartTVClient {
 		public Integer getSeason() {
 			try {
 				return new Integer(fields.get(FanartProperty.season));
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		public Integer getDiskNumber() {
+			try {
+				return new Integer(fields.get(FanartProperty.disc));
 			} catch (Exception e) {
 				return null;
 			}
