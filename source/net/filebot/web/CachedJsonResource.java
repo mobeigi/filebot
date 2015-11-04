@@ -17,10 +17,6 @@ public class CachedJsonResource extends AbstractCachedResource<String, String> {
 		super(resource, String.class, ONE_DAY, 2, 1000);
 	}
 
-	public CachedJsonResource(String resource, long expirationTime, int retryCountLimit, long retryWaitTime) {
-		super(resource, String.class, expirationTime, retryCountLimit, retryWaitTime);
-	}
-
 	@Override
 	protected Cache getCache() {
 		return CacheManager.getInstance().getCache("web-datasource-lv3");

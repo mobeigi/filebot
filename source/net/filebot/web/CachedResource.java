@@ -10,10 +10,6 @@ import net.sf.ehcache.CacheManager;
 
 public abstract class CachedResource<T extends Serializable> extends AbstractCachedResource<ByteBuffer, T> {
 
-	public CachedResource(String resource, Class<T> type) {
-		this(resource, type, Long.MAX_VALUE);
-	}
-
 	public CachedResource(String resource, Class<T> type, long expirationTime) {
 		this(resource, type, expirationTime, 2, 1000); // 3 retries in 1s intervals by default
 	}

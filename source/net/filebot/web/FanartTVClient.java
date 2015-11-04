@@ -38,7 +38,7 @@ public class FanartTVClient {
 		String resource = getResource(category, id);
 
 		// cache results
-		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class) {
+		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class, CachedResource.ONE_WEEK) {
 
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {

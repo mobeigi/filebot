@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.SAXParserFactory;
 
@@ -21,10 +21,6 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 	public CachedXmlResource(String resource) {
 		super(resource, String.class, ONE_DAY, 2, 1000);
-	}
-
-	public CachedXmlResource(String resource, long expirationTime, int retryCountLimit, long retryWaitTime) {
-		super(resource, String.class, expirationTime, retryCountLimit, retryWaitTime);
 	}
 
 	@Override
@@ -65,7 +61,7 @@ public class CachedXmlResource extends AbstractCachedResource<String, String> {
 		if (data == null)
 			return null; // not modified
 
-		return Charset.forName("UTF-8").decode(data).toString();
+		return StandardCharsets.UTF_8.decode(data).toString();
 	}
 
 }
