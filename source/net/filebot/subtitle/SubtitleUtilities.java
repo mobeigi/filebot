@@ -222,8 +222,11 @@ public final class SubtitleUtilities {
 		// find probable matches using name similarity > threshold
 		for (SubtitleSearchResult result : searchResults) {
 			if (probableMatches.size() <= limit) {
-				if (metric.getSimilarity(query, removeTrailingBrackets(result.getName())) > 0.8f || result.getName().toLowerCase().startsWith(query.toLowerCase())) {
-					probableMatches.add(result);
+				for (String name : result.getEffectiveNames()) {
+					if (metric.getSimilarity(query, removeTrailingBrackets(name)) > 0.8f || name.toLowerCase().startsWith(query.toLowerCase())) {
+						probableMatches.add(result);
+						break;
+					}
 				}
 			}
 		}
