@@ -84,8 +84,8 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		JsonObject<?, ?> response = request("shows/" + show.getId());
 
 		String status = (String) response.get("status");
-		String runtime = response.get("runtime").toString();
 		String premiered = (String) response.get("premiered");
+		String runtime = response.get("runtime").toString();
 		JsonObject<?, ?> genres = (JsonObject<?, ?>) response.get("genres");
 		JsonObject<?, ?> rating = (JsonObject<?, ?>) response.get("rating");
 
@@ -99,8 +99,8 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		if (genres != null && genres.isArray()) {
 			seriesInfo.setGenres(Arrays.stream(genres.getArray()).map(Objects::toString).collect(Collectors.toList()));
 		}
-		if (rating != null && rating.isMap() && !rating.isEmpty()) {
-			seriesInfo.setRating(new Double((String) rating.get("average")));
+		if (rating != null && !rating.isEmpty()) {
+			seriesInfo.setRating(new Double(rating.get("average").toString()));
 		}
 
 		return seriesInfo;
