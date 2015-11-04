@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import net.filebot.Language;
@@ -110,7 +112,11 @@ public final class SubtitleUtilities {
 				// try OpenSubtitles guess function if we can't make sense of the files using local search
 				if (selection.isEmpty()) {
 					for (File f : files) {
-						selection.addAll(service.guess(getName(f)));
+						try {
+							selection.addAll(service.guess(getName(f))); // !!! XML-RPC METHOD CURRENTLY BROKEN !!!
+						} catch (Exception e) {
+							Logger.getLogger(SubtitleUtilities.class.getName()).log(Level.WARNING, String.format("Failed to identify file [%s]: %s", f.getName(), e.getMessage()));
+						}
 					}
 				}
 

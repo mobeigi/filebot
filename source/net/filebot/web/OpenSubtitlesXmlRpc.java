@@ -233,6 +233,7 @@ public class OpenSubtitlesXmlRpc {
 		return subHashMap;
 	}
 
+	@Deprecated
 	public Map<String, List<SubtitleSearchResult>> guessMovie(Collection<String> tags) throws XmlRpcFault {
 		Map<String, List<SubtitleSearchResult>> results = new HashMap<String, List<SubtitleSearchResult>>();
 

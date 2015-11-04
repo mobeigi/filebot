@@ -102,8 +102,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		// require login
 		login();
 
-		subtitles = xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList());
-		System.out.println(subtitles);
+		subtitles = xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList()); // XML-RPC METHOD BROKEN
 
 		getCache().putSearchResult("guess", tag, subtitles);
 		return subtitles;
