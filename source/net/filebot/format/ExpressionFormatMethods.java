@@ -122,7 +122,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String sortName(String self) {
-		return sortName(self, "$2, $1");
+		return sortName(self, "$2");
 	}
 
 	public static String sortName(String self, String replacement) {
