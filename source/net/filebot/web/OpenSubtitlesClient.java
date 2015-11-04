@@ -94,18 +94,21 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 
 	@Override
 	public List<SubtitleSearchResult> guess(String tag) throws Exception {
-		List<SubtitleSearchResult> subtitles = getCache().getSearchResult("guess", tag);
-		if (subtitles != null) {
-			return subtitles;
-		}
+		// !!! XML-RPC CURRENTLY METHOD BROKEN !!!
+		return emptyList();
 
-		// require login
-		login();
-
-		subtitles = xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList()); // XML-RPC METHOD BROKEN
-
-		getCache().putSearchResult("guess", tag, subtitles);
-		return subtitles;
+		// List<SubtitleSearchResult> subtitles = getCache().getSearchResult("guess", tag);
+		// if (subtitles != null) {
+		// return subtitles;
+		// }
+		//
+		// // require login
+		// login();
+		//
+		// subtitles = xmlrpc.guessMovie(singleton(tag)).getOrDefault(tag, emptyList());
+		//
+		// getCache().putSearchResult("guess", tag, subtitles);
+		// return subtitles;
 	}
 
 	@Override

@@ -113,7 +113,7 @@ public final class SubtitleUtilities {
 				if (selection.isEmpty()) {
 					for (File f : files) {
 						try {
-							selection.addAll(service.guess(getName(f))); // !!! XML-RPC METHOD CURRENTLY BROKEN !!!
+							selection.addAll(service.guess(getName(f)));
 						} catch (Exception e) {
 							Logger.getLogger(SubtitleUtilities.class.getName()).log(Level.WARNING, String.format("Failed to identify file [%s]: %s", f.getName(), e.getMessage()));
 						}
