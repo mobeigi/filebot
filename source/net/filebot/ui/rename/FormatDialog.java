@@ -63,7 +63,6 @@ import javax.swing.text.BadLocationException;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.UserFiles;
-import net.filebot.WebServices;
 import net.filebot.format.BindingException;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.format.MediaBindingBean;
@@ -544,9 +543,14 @@ public class FormatDialog extends JDialog {
 					} catch (CancellationException e) {
 						// ignore, cancelled tasks are obsolete anyway
 					} catch (Exception e) {
-						BindingException bindingException = findCause(e, BindingException.class);
-						status.setText(bindingException != null ? getMessage(bindingException) : String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
-						status.setIcon(ResourceManager.getIcon("status.warning"));
+						BindingException issue = findCause(e, BindingException.class);
+						if (issue != null) {
+							status.setText(getMessage(issue));
+							status.setIcon(ResourceManager.getIcon("status.info"));
+						} else {
+							status.setText(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
+							status.setIcon(ResourceManager.getIcon("status.warning"));
+						}
 						status.setVisible(true);
 					} finally {
 						preview.setVisible(preview.getText().trim().length() > 0);

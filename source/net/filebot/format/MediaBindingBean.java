@@ -862,10 +862,10 @@ public class MediaBindingBean {
 		return mediaFile;
 	}
 
-	private void checkMediaFile() throws RuntimeException {
+	private void checkMediaFile() {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null) {
-			throw new RuntimeException("Path to media file not set. Click (x)= and select a sample file.");
+			throw new IllegalStateException("Path to media file not set. Click (x)= and select a sample file.");
 		}
 	}
 
