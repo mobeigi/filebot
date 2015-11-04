@@ -83,7 +83,7 @@
 				<include name="org/json/simple/**" />
 			</zipfileset>
 
-			<zipfileset src="${dir.lib}/ivy/jar/json-io.jar">
+			<zipfileset src="${dir.lib}/ivy/bundle/json-io.jar">
 				<include name="com/cedarsoftware/util/**" />
 			</zipfileset>
 

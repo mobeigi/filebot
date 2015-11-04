@@ -38,6 +38,7 @@ import net.filebot.web.ShooterSubtitles;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TMDbClient;
+import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
@@ -48,6 +49,7 @@ import net.filebot.web.VideoHashSubtitleService;
 public final class WebServices {
 
 	// episode dbs
+	public static final TVMazeClient TVmaze = new TVMazeClient();
 	public static final AnidbClient AniDB = new AnidbClientWithLocalSearch(getApiKey("anidb"), 6);
 
 	// extended TheTVDB module with local search
@@ -67,7 +69,7 @@ public final class WebServices {
 	public static final XattrMetaInfoProvider XattrMetaData = new XattrMetaInfoProvider();
 
 	public static EpisodeListProvider[] getEpisodeListProviders() {
-		return new EpisodeListProvider[] { TheTVDB, AniDB };
+		return new EpisodeListProvider[] { TheTVDB, AniDB, TVmaze };
 	}
 
 	public static MovieIdentificationService[] getMovieIdentificationServices() {

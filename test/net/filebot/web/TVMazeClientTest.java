@@ -7,29 +7,28 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-public class TVRageClientTest {
+public class TVMazeClientTest {
 
 	/**
 	 * 145 episodes / 7 seasons
 	 */
-	private static TVRageSearchResult buffySearchResult = new TVRageSearchResult("Buffy the Vampire Slayer", 2930, "http://www.tvrage.com/Buffy_The_Vampire_Slayer");
+	private static TVMazeSearchResult buffySearchResult = new TVMazeSearchResult(427, "Buffy the Vampire Slayer");
 
 	@Test
 	public void search() throws Exception {
-		List<SearchResult> results = tvrage.search("Buffy", Locale.ENGLISH);
+		List<SearchResult> results = client.search("Buffy", Locale.ENGLISH);
 
-		TVRageSearchResult result = (TVRageSearchResult) results.get(0);
+		TVMazeSearchResult result = (TVMazeSearchResult) results.get(0);
 
 		assertEquals(buffySearchResult.getName(), result.getName());
-		assertEquals(buffySearchResult.getSeriesId(), result.getSeriesId());
-		assertEquals(buffySearchResult.getLink(), result.getLink());
+		assertEquals(buffySearchResult.getId(), result.getId());
 	}
 
-	private TVRageClient tvrage = new TVRageClient("5AhRvLfKAP10unE9Vnfr");
+	private TVMazeClient client = new TVMazeClient();
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = EpisodeUtilities.filterBySeason(tvrage.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH), 7);
+		List<Episode> list = EpisodeUtilities.filterBySeason(client.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH), 7);
 
 		assertEquals(22, list.size());
 
@@ -46,7 +45,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListAll() throws Exception {
-		List<Episode> list = tvrage.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH);
+		List<Episode> list = client.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH);
 
 		assertEquals(143, list.size());
 
@@ -62,7 +61,7 @@ public class TVRageClientTest {
 
 	@Test
 	public void getEpisodeListLinkAll() throws Exception {
-		assertEquals(tvrage.getEpisodeListLink(buffySearchResult).toString(), "http://www.tvrage.com/Buffy_The_Vampire_Slayer/episode_list/all");
+		assertEquals("http://www.tvmaze.com/shows/427", client.getEpisodeListLink(buffySearchResult).toString());
 	}
 
 }

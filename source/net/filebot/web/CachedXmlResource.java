@@ -20,7 +20,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class CachedXmlResource extends AbstractCachedResource<String, String> {
 
 	public CachedXmlResource(String resource) {
-		super(resource, String.class, ONE_WEEK, 2, 1000);
+		super(resource, String.class, ONE_DAY, 2, 1000);
 	}
 
 	public CachedXmlResource(String resource, long expirationTime, int retryCountLimit, long retryWaitTime) {
