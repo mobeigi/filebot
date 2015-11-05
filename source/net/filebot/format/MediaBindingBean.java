@@ -109,6 +109,13 @@ public class MediaBindingBean {
 		return null;
 	}
 
+	@Define("ny")
+	public String getNameWithYear() {
+		String n = getName().toString();
+		String y = " (" + getYear().toString() + ")";
+		return n.endsWith(y) ? n : n + y; // account for TV Shows that contain the year in the series name, e.g. Doctor Who (2005)
+	}
+
 	@Define("s")
 	public Integer getSeasonNumber() {
 		return getEpisode().getSeason();
