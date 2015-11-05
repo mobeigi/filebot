@@ -774,7 +774,7 @@
 		<checksum algorithm="SHA-256" pattern="{0}	{1}" todir="${dir.cache}/sha">
 			<fileset dir="${dir.release}" />
 		</checksum>
-		<concat destfile="${dir.release}/README.md" overwrite="true" eol="unix" outputencoding="UTF-8">
+		<concat destfile="${dir.release}/readme.md" overwrite="true" eol="unix" outputencoding="UTF-8">
 			<fileset file="${dir.installer}/ant/digest.header.md" />
 			<fileset dir="${dir.cache}/sha" />
 			<fileset file="${dir.installer}/ant/digest.footer.md" />
