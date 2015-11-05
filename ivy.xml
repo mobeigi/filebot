@@ -4,12 +4,12 @@
 	<dependencies>
 		<!-- FileBot -->
 		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.5" />
-		<dependency org="net.java.dev.jna" name="jna" rev="4.1.0" />
-		<dependency org="net.java.dev.jna" name="platform" rev="3.5.2" />
+		<dependency org="net.java.dev.jna" name="jna" rev="4.2.1" />
+		<dependency org="net.java.dev.jna" name="jna-platform" rev="4.2.1" />
 		<dependency org="args4j" name="args4j" rev="2.32" />
-		<dependency org="net.sf.ehcache" name="ehcache" rev="2.10.0" />
-		<dependency org="com.ibm.icu" name="icu4j" rev="55.1" />
-		<dependency org="org.jsoup" name="jsoup" rev="1.8.2" />
+		<dependency org="net.sf.ehcache" name="ehcache" rev="2.10.1" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="56.1" />
+		<dependency org="org.jsoup" name="jsoup" rev="1.8.3" />
 		<dependency org="org.tukaani" name="xz" rev="1.5" />
 		<dependency org="com.cedarsoftware" name="json-io" rev="4.1.9" />
 		<dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1.1" />
@@ -25,19 +25,19 @@
 		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" rev="9.20-2.00beta" />
 
 		<!-- FileBot Scripting -->
-		<dependency org="org.apache.ant" name="ant" rev="1.9.4" />
-		<dependency org="org.apache.ant" name="ant-launcher" rev="1.9.4" />
-		<dependency org="org.apache.ant" name="ant-commons-net" rev="1.9.4" />
-		<dependency org="org.apache.ant" name="ant-javamail" rev="1.9.4" />
-		<dependency org="org.apache.ant" name="ant-jsch" rev="1.9.4" />
+		<dependency org="org.apache.ant" name="ant" rev="1.9.6" />
+		<dependency org="org.apache.ant" name="ant-launcher" rev="1.9.6" />
+		<dependency org="org.apache.ant" name="ant-commons-net" rev="1.9.6" />
+		<dependency org="org.apache.ant" name="ant-javamail" rev="1.9.6" />
+		<dependency org="org.apache.ant" name="ant-jsch" rev="1.9.6" />
 		<dependency org="org.apache.ivy" name="ivy" rev="2.4.0" />
 
 		<!-- FileBot Ant Build -->
-		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.4" />
+		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.6" />
 		<dependency org="org.apache.commons" name="commons-openpgp" rev="1.0-SNAPSHOT" />
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.1" />
-		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.4.1" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.4.1" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.4" />
+		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.5.1" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" />
 		<dependency org="org.glassfish" name="javax.json" rev="1.0.4" />
 	</dependencies>
 </ivy-module>

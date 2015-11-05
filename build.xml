@@ -184,8 +184,8 @@
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />
 			</zipfileset>
-			<zipfileset src="${dir.lib}/ivy/jar/platform.jar">
-				<include name="com/sun/jna/platform/win32/**" />
+			<zipfileset src="${dir.lib}/ivy/jar/jna-platform.jar">
+				<include name="com/sun/jna/platform/**" />
 			</zipfileset>
 
 			<!-- libraries used in external scripts -->

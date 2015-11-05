@@ -15,7 +15,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/junit.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/miglayout-core.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/miglayout-swing.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/platform.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/rsyntaxtextarea.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/xz.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/slf4j-api.jar"/>
@@ -30,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/commons-logging.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/sevenzipjbinding.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/bundle/json-io.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/jna-platform.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
