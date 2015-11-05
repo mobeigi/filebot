@@ -785,7 +785,7 @@
 	<target name="deploy-release" depends="stage-release, login" description="Upload to SourceForge.net FRS">
 		<scp todir="${sf.user}:${sf.password}@${frs.release}" trust="yes" verbose="true" sftp="true">
 			<!-- upload starting with parent folders so scp will create the release folder for us -->
-			<fileset dir="${basedir.release}">
+			<fileset dir="${basedir.release}" casesensitive="false">
 				<date datetime="${today}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
