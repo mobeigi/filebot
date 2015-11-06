@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -27,9 +28,10 @@ public class GettingStartedStage {
 
 	public static void start() {
 		// initialize JavaFX
-		new javafx.embed.swing.JFXPanel();
-		javafx.application.Platform.setImplicitExit(false);
+		new JFXPanel();
 
+		// initialize and show webview
+		Platform.setImplicitExit(false);
 		Platform.runLater(() -> {
 			Stage stage = new Stage();
 			stage.setResizable(false);
