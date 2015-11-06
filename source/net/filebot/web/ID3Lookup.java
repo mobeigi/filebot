@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,45 +37,31 @@ public class ID3Lookup implements MusicIdentificationService {
 			}
 
 			try {
-				String artist = mediaInfo.get(StreamKind.General, 0, "Performer");
-				String title = mediaInfo.get(StreamKind.General, 0, "Title");
-				String album = mediaInfo.get(StreamKind.General, 0, "Album");
+				// artist and song title information is required
+				String artist = getString(mediaInfo, "Performer");
+				String title = getString(mediaInfo, "Title");
 
-				// extra info if available
-				String albumArtist = null, trackTitle = null;
-				SimpleDate albumReleaseDate = null;
-				Integer mediumIndex = null, mediumCount = null, trackIndex = null, trackCount = null;
+				if (artist != null && title != null) {
+					// all other properties are optional
+					String album = getString(mediaInfo, "Album");
+					String albumArtist = getString(mediaInfo, "Album/Performer");
+					String trackTitle = null;
+					SimpleDate albumReleaseDate = null;
+					Integer mediumIndex = null;
+					Integer mediumCount = null;
+					Integer trackIndex = getInteger(mediaInfo, "Track/Position");
+					Integer trackCount = getInteger(mediaInfo, "Track/Position_Total");
+					String mbid = null;
 
-				try {
-					albumArtist = mediaInfo.get(StreamKind.General, 0, "Album/Performer");
-				} catch (Exception e) {
-					// ignore
-				}
+					Integer year = getInteger(mediaInfo, "Recorded_Date");
+					if (year != null) {
+						albumReleaseDate = new SimpleDate(year, 1, 1);
+					}
 
-				try {
-					int year = new Scanner(mediaInfo.get(StreamKind.General, 0, "Recorded_Date")).useDelimiter("\\D+").nextInt();
-					albumReleaseDate = new SimpleDate(year, 1, 1);
-				} catch (Exception e) {
-					// ignore
-				}
-
-				try {
-					trackIndex = Integer.parseInt(mediaInfo.get(StreamKind.General, 0, "Track/Position"));
-				} catch (Exception e) {
-					// ignore
-				}
-
-				try {
-					trackCount = Integer.parseInt(mediaInfo.get(StreamKind.General, 0, "Track/Position_Total"));
-				} catch (Exception e) {
-					// ignore
-				}
-
-				if (artist.length() > 0 && title.length() > 0 && album.length() > 0) {
-					info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, null));
+					info.put(f, new AudioTrack(artist, title, album, albumArtist, trackTitle, albumReleaseDate, mediumIndex, mediumCount, trackIndex, trackCount, mbid));
 				}
 			} catch (Throwable e) {
-				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.toString());
 			} finally {
 				mediaInfo.close();
 			}
@@ -84,4 +69,25 @@ public class ID3Lookup implements MusicIdentificationService {
 
 		return info;
 	}
+
+	private String getString(MediaInfo mediaInfo, String field) {
+		String value = mediaInfo.get(StreamKind.General, 0, field).trim();
+		if (value.length() > 0) {
+			return value;
+		}
+		return null;
+	}
+
+	private Integer getInteger(MediaInfo mediaInfo, String field) {
+		String value = getString(mediaInfo, field);
+		if (value != null) {
+			try {
+				return new Integer(value);
+			} catch (Exception e) {
+				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.toString());
+			}
+		}
+		return null;
+	}
+
 }
