@@ -233,31 +233,27 @@ public class OpenSubtitlesXmlRpc {
 		return subHashMap;
 	}
 
-	@Deprecated
 	public Map<String, List<SubtitleSearchResult>> guessMovie(Collection<String> tags) throws XmlRpcFault {
 		Map<String, List<SubtitleSearchResult>> results = new HashMap<String, List<SubtitleSearchResult>>();
 
-		Map<?, ?> response = invoke("GuessMovie", token, tags);
+		Map<?, ?> response = invoke("GuessMovieFromString", token, tags);
 		Object payload = response.get("data");
 
 		if (payload instanceof Map) {
-			Map<String, List<Map<String, ?>>> guessMovieData = (Map<String, List<Map<String, ?>>>) payload;
-
+			Map<String, Map<String, Map<String, ?>>> dataByTag = (Map<String, Map<String, Map<String, ?>>>) payload;
 			for (String tag : tags) {
-				List<SubtitleSearchResult> value = new ArrayList<>();
-
-				List<Map<String, ?>> matches = guessMovieData.get(tag);
-				if (matches != null) {
-					for (Map<String, ?> match : matches) {
+				List<SubtitleSearchResult> value = new ArrayList<SubtitleSearchResult>();
+				Map<String, Map<String, ?>> data = dataByTag.get(tag);
+				if (data != null) {
+					Map<String, ?> match = data.get("BestGuess");
+					if (match != null) {
 						String name = String.valueOf(match.get("MovieName"));
 						String kind = String.valueOf(match.get("MovieKind"));
 						int imdbid = Integer.parseInt(String.valueOf(match.get("IDMovieIMDB")));
 						int year = Integer.parseInt(String.valueOf(match.get("MovieYear")));
-						int score = Integer.parseInt(String.valueOf(match.get("score")));
-						value.add(new SubtitleSearchResult(imdbid, name, year, kind, score));
+						value.add(new SubtitleSearchResult(imdbid, name, year, kind, -1));
 					}
 				}
-
 				results.put(tag, value);
 			}
 		}
