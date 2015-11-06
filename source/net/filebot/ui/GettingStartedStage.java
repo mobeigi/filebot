@@ -10,6 +10,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
@@ -21,6 +25,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 
@@ -67,7 +72,6 @@ public class GettingStartedStage {
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
 				stage.setTitle(webview.getEngine().getTitle());
-				webview.requestFocus();
 			} else if (n == Worker.State.FAILED) {
 				stage.close();
 			}
@@ -84,7 +88,15 @@ public class GettingStartedStage {
 	}
 
 	public void show() {
+		stage.setOpacity(0.0);
 		stage.show();
+
+		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), new KeyValue(stage.opacityProperty(), 1.0, Interpolator.EASE_IN)));
+		timeline.setOnFinished((evt) -> {
+			stage.setOpacity(1.0);
+			stage.requestFocus();
+		});
+		timeline.play();
 	}
 
 	protected void setBackground(WebEngine engine, int color) {
