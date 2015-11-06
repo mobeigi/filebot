@@ -568,6 +568,30 @@ public class TMDbClient implements MovieIdentificationService {
 			return get(MovieProperty.runtime);
 		}
 
+		public Long getBudget() {
+			try {
+				return new Long(get(MovieProperty.budget));
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		public Long getRevenue() {
+			try {
+				return new Long(get(MovieProperty.revenue));
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
+		public Double getPopularity() {
+			try {
+				return new Double(get(MovieProperty.popularity));
+			} catch (Exception e) {
+				return null;
+			}
+		}
+
 		public List<String> getGenres() {
 			return unmodifiableList(asList(genres));
 		}
