@@ -34,7 +34,8 @@
 
 		<!-- FileBot Ant Build -->
 		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.6" />
-		<dependency org="org.apache.commons" name="commons-openpgp" rev="1.0-SNAPSHOT" />
+		<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.53" />
+		<dependency org="org.bouncycastle" name="bcpg-jdk15on" rev="1.53" />
 		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.4" />
 		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.5.1" />
 		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" />
