@@ -38,7 +38,7 @@ public class ID3Lookup implements MusicIdentificationService {
 
 			try {
 				// artist and song title information is required
-				String artist = getString(mediaInfo, "Performer");
+				String artist = getString(mediaInfo, "Performer", "Composer");
 				String title = getString(mediaInfo, "Title");
 
 				if (artist != null && title != null) {
@@ -70,10 +70,12 @@ public class ID3Lookup implements MusicIdentificationService {
 		return info;
 	}
 
-	private String getString(MediaInfo mediaInfo, String field) {
-		String value = mediaInfo.get(StreamKind.General, 0, field).trim();
-		if (value.length() > 0) {
-			return value;
+	private String getString(MediaInfo mediaInfo, String... keys) {
+		for (String key : keys) {
+			String value = mediaInfo.get(StreamKind.General, 0, key);
+			if (value.length() > 0) {
+				return value;
+			}
 		}
 		return null;
 	}
