@@ -582,7 +582,7 @@
 			<package dir="${dir.installer}/spk/package" includes="*.sh" filemode="755" />
 			<package file="${path.fatjar}" fullpath="FileBot.jar" />
 
-			<codesign keyid="${gpg.key}" password="${gpg.pwd}" pubring="${dir.installer}/gpg/pubring.gpg" secring="${dir.installer}/gpg/secring.gpg" />
+			<codesign secring="${dir.installer}/gpg/secring.gpg" keyid="${gpg.key}" password="${gpg.pwd}" />
 		</spk>
 	</target>
 
