@@ -13,25 +13,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
 public class MediaInfo implements Closeable {
-
-	static {
-		try {
-			// libmediainfo for linux depends on libzen
-			if (Platform.isLinux()) {
-				// We need to load dependencies first, because we know where our native libs are (e.g. Java Web Start Cache).
-				// If we do not, the system will look for dependencies, but only in the library path.
-				NativeLibrary.getInstance("zen");
-			}
-		} catch (Throwable e) {
-			// Logger.getLogger(MediaInfo.class.getName()).log(Level.WARNING, "Failed to load libzen");
-		}
-	}
 
 	private Pointer handle;
 
