@@ -1,6 +1,6 @@
 filebot (4.6.1) trusty; urgency=low
 
-  * Final release for discontinued Ubuntu Software Center
+  * Final release for the discontinued Ubuntu Software Center
 
  -- Reinhard Pointner <maintainer@filebot.net>  Mon, 16 Nov 2015 00:00:00 +0800
 
