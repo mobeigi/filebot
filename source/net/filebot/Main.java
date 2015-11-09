@@ -173,22 +173,15 @@ public class Main {
 			}
 
 			// GUI mode => start user interface
-			try {
-				SwingUtilities.invokeAndWait(() -> {
-					try {
-						// use native laf an all platforms
-						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					} catch (Exception e) {
-						Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
-					}
-					startUserInterface(args);
-				});
-			} catch (InvocationTargetException e) {
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, e.getCause().getMessage(), e.getCause());
-				System.exit(-1); // starting up UI failed
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e); // won't happen
-			}
+			SwingUtilities.invokeAndWait(() -> {
+				try {
+					// use native laf an all platforms
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (Exception e) {
+					Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.getMessage(), e);
+				}
+				startUserInterface(args);
+			});
 
 			// preload media.types (when loaded during DnD it will freeze the UI for a few hundred milliseconds)
 			MediaTypes.getDefault();
@@ -216,7 +209,7 @@ public class Main {
 			System.exit(-1);
 		} catch (Throwable e) {
 			// unexpected error => dump stack
-			e.printStackTrace();
+			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Unexpected error during startup", e);
 			System.exit(-1);
 		}
 	}
