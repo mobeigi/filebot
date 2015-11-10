@@ -145,8 +145,8 @@ public class Preset {
 		}
 	}
 
-	public Locale getLanguage() {
-		return language == null || language.isEmpty() ? null : new Locale(language);
+	public Language getLanguage() {
+		return language == null || language.isEmpty() ? null : Language.getLanguage(language);
 	}
 
 	public StandardRenameAction getRenameAction() {

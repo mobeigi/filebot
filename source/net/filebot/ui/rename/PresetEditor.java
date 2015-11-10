@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;
@@ -168,6 +169,16 @@ public class PresetEditor extends JDialog {
 		sortOrderCombo.setSelectedItem(p.getSortOrder() == null ? SortOrder.Airdate : p.getSortOrder());
 		matchModeCombo.setSelectedItem(p.getMatchMode() == null ? RenamePanel.MATCH_MODE_OPPORTUNISTIC : p.getMatchMode());
 		actionCombo.setSelectedItem(p.getRenameAction() == null ? StandardRenameAction.MOVE : p.getRenameAction());
+
+		// ugly hack, since Language objects only do object equality
+		if (p.getLanguage() != null && !p.getLanguage().getCode().equals(((Language) languageCombo.getSelectedItem()).getCode())) {
+			for (int i = 0; i < languageCombo.getModel().getSize(); i++) {
+				if (p.getLanguage().getCode().equals(languageCombo.getModel().getElementAt(i).getCode())) {
+					languageCombo.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
 
 		selectRadio.setSelected(p.getInputFolder() != null);
 		updateComponentStates();

@@ -722,7 +722,7 @@ public class RenamePanel extends JComponent {
 
 		@Override
 		public Locale getLocale(ActionEvent evt) {
-			return preset.getLanguage() != null ? preset.getLanguage() : super.getLocale(evt);
+			return preset.getLanguage() != null ? preset.getLanguage().getLocale() : super.getLocale(evt);
 		}
 
 		@Override
