@@ -155,6 +155,7 @@ omdb.each{ m ->
 			tmdb << row
 		}
 	} catch(FileNotFoundException e) {
+		printException(e, false)
 		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 		println row
 		tmdb << row
