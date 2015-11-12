@@ -146,7 +146,7 @@ omdb.each{ m ->
 		def info = WebServices.TheMovieDB.getMovieInfo("tt${m[0]}", Locale.ENGLISH, true)
 
 		if (info.votes <= 1 || info.rating <= 2)
-			throw new FileNotFoundException('Insufficient movie data')
+			throw new IllegalArgumentException('Insufficient movie data: ' + info)
 
 		def names = [info.name, info.originalName] + info.alternativeTitles
 		[info?.released?.year, m[2]].findResults{ it?.toInteger() }.unique().each{ y ->
@@ -154,7 +154,7 @@ omdb.each{ m ->
 			println row
 			tmdb << row
 		}
-	} catch(FileNotFoundException e) {
+	} catch(IllegalArgumentException | FileNotFoundException e) {
 		printException(e, false)
 		def row = [sync, m[0].pad(7), 0, m[2], m[1]]
 		println row
