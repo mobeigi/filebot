@@ -3,6 +3,7 @@ package net.filebot.format;
 import java.io.File;
 import java.io.FilePermission;
 import java.lang.management.ManagementPermission;
+import java.lang.reflect.ReflectPermission;
 import java.net.SocketPermission;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
@@ -26,6 +27,7 @@ public class SecureCompiledScript extends CompiledScript {
 	public static PermissionCollection getDefaultSandboxPermissions() {
 		Permissions permissions = new Permissions();
 
+		// give up on real security, just try to keep files read-only (because of classloading and native lib loading issues)
 		permissions.add(new RuntimePermission("createClassLoader"));
 		permissions.add(new RuntimePermission("getClassLoader"));
 		permissions.add(new RuntimePermission("modifyThread"));
@@ -39,7 +41,10 @@ public class SecureCompiledScript extends CompiledScript {
 		permissions.add(new FilePermission("<<ALL FILES>>", "read"));
 		permissions.add(new SocketPermission("*", "connect"));
 		permissions.add(new PropertyPermission("*", "read"));
+		permissions.add(new PropertyPermission("*", "write"));
 		permissions.add(new ManagementPermission("monitor"));
+		permissions.add(new ReflectPermission("suppressAccessChecks"));
+		permissions.add(new ReflectPermission("newProxyInPackage.*"));
 
 		// write permissions for temp and cache folders
 		try {
