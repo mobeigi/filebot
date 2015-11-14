@@ -1,5 +1,6 @@
 package net.filebot.ui.rename;
 
+import static java.util.Collections.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.beans.PropertyChangeEvent;
@@ -134,7 +135,13 @@ public class RenameModel extends MatchModel<Object, File> {
 		return defaultFormatter;
 	}
 
-	public Map<File, Object> getMatchContext() {
+	public Map<File, Object> getMatchContext(Match<Object, File> match) {
+		// incomplete matches have no context
+		if (match.getValue() == null || match.getCandidate() == null) {
+			return emptyMap();
+		}
+
+		// provide matches context on demand
 		return new AbstractMap<File, Object>() {
 
 			@Override
@@ -207,7 +214,7 @@ public class RenameModel extends MatchModel<Object, File> {
 					Match<Object, File> match = getMatch(index);
 
 					// create new future
-					final FormattedFuture future = new FormattedFuture(match, getFormatter(match), getMatchContext());
+					final FormattedFuture future = new FormattedFuture(match, getFormatter(match), getMatchContext(match));
 
 					// update data
 					if (type == ListEvent.INSERT) {
@@ -254,7 +261,8 @@ public class RenameModel extends MatchModel<Object, File> {
 
 			for (int i = 0; i < size(); i++) {
 				FormattedFuture obsolete = futures.get(i);
-				FormattedFuture future = new FormattedFuture(obsolete.getMatch(), getFormatter(obsolete.getMatch()), getMatchContext());
+				Match<Object, File> match = obsolete.getMatch();
+				FormattedFuture future = new FormattedFuture(match, getFormatter(match), getMatchContext(match));
 
 				// replace and cancel old future
 				cancel(futures.set(i, future));
