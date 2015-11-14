@@ -628,8 +628,8 @@ public class MediaBindingBean {
 	}
 
 	@Define("bitrate")
-	public Float getBitRate() {
-		return new Float(getMediaInfo(StreamKind.General, 0, "OverallBitRate"));
+	public Long getBitRate() {
+		return new Double(getMediaInfo(StreamKind.General, 0, "OverallBitRate")).longValue();
 	}
 
 	@Define("duration")
@@ -956,7 +956,7 @@ public class MediaBindingBean {
 
 	private String crc32(File file) throws IOException, InterruptedException {
 		// try to get checksum from cache
-		Cache cache = Cache.getCache("checksum");
+		Cache cache = Cache.getCache(Cache.EPHEMERAL);
 
 		String hash = cache.get(file, String.class);
 		if (hash != null) {

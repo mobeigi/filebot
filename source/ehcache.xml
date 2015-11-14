@@ -75,9 +75,9 @@
 	/>
 	
 	<!--
-	Simple memory cache for calculated checksums. Time to live is 2 hours.
+	Simple memory cache. Time to live is 2 hours.
 	-->
-	<cache name="checksum"
+	<cache name="ephemeral"
 		maxElementsInMemory="50000"
 		eternal="false"
 		timeToIdleSeconds="7200"
