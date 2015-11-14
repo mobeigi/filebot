@@ -29,6 +29,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -64,6 +65,7 @@ public class MediaBindingBean {
 	private final File mediaFile;
 	private final Map<File, Object> context;
 
+	private String mediaInfoKey;
 	private MediaInfo mediaInfo;
 	private Object metaInfo;
 
@@ -876,19 +878,36 @@ public class MediaBindingBean {
 		}
 	}
 
+	private static final Map<String, MediaInfo> sharedMediaInfoObjects = new WeakHashMap<String, MediaInfo>(64);
+
 	private synchronized MediaInfo getMediaInfo() {
+		// make sure media file is defined
+		checkMediaFile();
+
+		// lazy initialize
 		if (mediaInfo == null) {
-			// make sure media file is defined
-			checkMediaFile();
-
-			MediaInfo newMediaInfo = new MediaInfo();
-
-			// use inferred media file (e.g. actual movie file instead of subtitle file)
-			if (!newMediaInfo.open(getInferredMediaFile())) {
-				throw new RuntimeException("Cannot open media file: " + mediaFile);
+			// lazy initialize
+			if (mediaInfoKey == null) {
+				// use inferred media file (e.g. actual movie file instead of subtitle file)
+				try {
+					// make sure to create a new String object which can be garbage collected as soon the binding object not used anymore
+					mediaInfoKey = new String(getInferredMediaFile().getCanonicalPath());
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
+				}
 			}
 
-			mediaInfo = newMediaInfo;
+			synchronized (sharedMediaInfoObjects) {
+				mediaInfo = sharedMediaInfoObjects.get(mediaInfoKey);
+				if (mediaInfo == null) {
+					MediaInfo mi = new MediaInfo();
+					if (!mi.open(new File(mediaInfoKey))) {
+						throw new RuntimeException("Cannot open media file: " + mediaInfoKey);
+					}
+					sharedMediaInfoObjects.put(mediaInfoKey, mi);
+					mediaInfo = mi;
+				}
+			}
 		}
 
 		return mediaInfo;
