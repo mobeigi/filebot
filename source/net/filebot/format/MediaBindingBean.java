@@ -901,7 +901,7 @@ public class MediaBindingBean {
 				mediaInfo = sharedMediaInfoObjects.get(mediaInfoKey);
 				if (mediaInfo == null) {
 					MediaInfo mi = new MediaInfo();
-					if (!mi.open(new File(mediaInfoKey))) {
+					if (!mi.open(new File(new String(mediaInfoKey)))) {
 						throw new RuntimeException("Cannot open media file: " + mediaInfoKey);
 					}
 					sharedMediaInfoObjects.put(mediaInfoKey, mi);
