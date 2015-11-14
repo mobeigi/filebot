@@ -29,7 +29,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -45,6 +44,7 @@ import net.filebot.mediainfo.MediaInfo;
 import net.filebot.mediainfo.MediaInfo.StreamKind;
 import net.filebot.similarity.SimilarityComparator;
 import net.filebot.util.FileUtilities;
+import net.filebot.util.WeakValueHashMap;
 import net.filebot.web.AudioTrack;
 import net.filebot.web.Episode;
 import net.filebot.web.EpisodeListProvider;
@@ -65,7 +65,6 @@ public class MediaBindingBean {
 	private final File mediaFile;
 	private final Map<File, Object> context;
 
-	private String mediaInfoKey;
 	private MediaInfo mediaInfo;
 	private Object metaInfo;
 
@@ -878,7 +877,7 @@ public class MediaBindingBean {
 		}
 	}
 
-	private static final Map<String, MediaInfo> sharedMediaInfoObjects = new WeakHashMap<String, MediaInfo>(64);
+	private static final Map<File, MediaInfo> sharedMediaInfoObjects = new WeakValueHashMap<File, MediaInfo>(64);
 
 	private synchronized MediaInfo getMediaInfo() {
 		// make sure media file is defined
@@ -886,25 +885,17 @@ public class MediaBindingBean {
 
 		// lazy initialize
 		if (mediaInfo == null) {
-			// lazy initialize
-			if (mediaInfoKey == null) {
-				// use inferred media file (e.g. actual movie file instead of subtitle file)
-				try {
-					// make sure to create a new String object which can be garbage collected as soon the binding object not used anymore
-					mediaInfoKey = new String(getInferredMediaFile().getCanonicalPath());
-				} catch (IOException e) {
-					throw new IllegalStateException(e);
-				}
-			}
+			// use inferred media file (e.g. actual movie file instead of subtitle file)
+			File inferredMediaFile = getInferredMediaFile();
 
 			synchronized (sharedMediaInfoObjects) {
-				mediaInfo = sharedMediaInfoObjects.get(mediaInfoKey);
+				mediaInfo = sharedMediaInfoObjects.get(inferredMediaFile);
 				if (mediaInfo == null) {
 					MediaInfo mi = new MediaInfo();
-					if (!mi.open(new File(new String(mediaInfoKey)))) {
-						throw new RuntimeException("Cannot open media file: " + mediaInfoKey);
+					if (!mi.open(inferredMediaFile)) {
+						throw new RuntimeException("Cannot open media file: " + inferredMediaFile);
 					}
-					sharedMediaInfoObjects.put(mediaInfoKey, mi);
+					sharedMediaInfoObjects.put(inferredMediaFile, mi);
 					mediaInfo = mi;
 				}
 			}
