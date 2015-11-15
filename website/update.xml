@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <update>
-	<name>FileBot 4.6</name>
-	<revision>3052</revision>
+	<name>FileBot 4.6.1</name>
+	<revision>3312</revision>
 	<title>New updates available</title>
 	<message><![CDATA[<html>
-		<b>FileBot 4.6</b><br>
+		<b>FileBot 4.6.1</b><br>
 		This release features:<br>
-		+ Improved search & auto-detection logic<br>
-		+ Improved subtitle auto-selection<br>
-		+ Improved format engine & additional bindings<br>
+		+ Added support user-defined Presets for repetitive tasks<br>
+		+ Added support for TVmaze<br>
+		+ Improved support for OpenSubtitles and subtitle matching<br>
+		+ Improved movie/episode auto-detection<br>
+		+ Improved ID3 Tags music mode<br>
 		+ Lots of bugfixes and optimizations<br>
 	<html>]]></message>
-	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=2727]]></discussion>
+	<discussion><![CDATA[http://www.filebot.net/forums/viewtopic.php?f=7&t=2727&p=17659#p17659]]></discussion>
 	<download><![CDATA[http://www.filebot.net/#download]]></download>
 </update>
