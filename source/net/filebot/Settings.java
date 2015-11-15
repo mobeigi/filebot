@@ -221,6 +221,7 @@ public final class Settings {
 		links.put("FAQ", getApplicationLink("link.faq"));
 		links.put("Forums", getApplicationLink("link.forums"));
 		links.put("Twitter", getApplicationLink("link.twitter"));
+		links.put("Report Bugs", getApplicationLink(isMacSandbox() ? "link.help.mas" : "link.bugs"));
 		links.put("Request Help", getApplicationLink(isMacSandbox() ? "link.help.mas" : "link.help"));
 		return links;
 	}
