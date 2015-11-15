@@ -72,6 +72,8 @@ public class GettingStartedStage {
 		webview.getEngine().getLoadWorker().stateProperty().addListener((v, o, n) -> {
 			if (n == Worker.State.SUCCEEDED) {
 				stage.setTitle(webview.getEngine().getTitle());
+				stage.toFront();
+				webview.requestFocus();
 			} else if (n == Worker.State.FAILED) {
 				stage.close();
 			}
