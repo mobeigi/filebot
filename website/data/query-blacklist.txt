@@ -297,6 +297,7 @@ HD
 HDRip
 HebSubs
 Hi10P
+HiDef
 Hindi
 History.Channel
 HORiZON-ArtSubs
@@ -323,6 +324,7 @@ LIMITED
 LMAO
 lol
 Los.Sustitutos
+LowDef
 M.HD
 MegaPack
 MkvCage
