@@ -52,40 +52,36 @@ public class MacAppUtilities {
 		final SecondaryLoop secondaryLoop = eventQueue.createSecondaryLoop();
 
 		// WARNING: dispatch_sync seems to work on most Mac always causes a deadlock and freezes the application on others (in particular MBP with 2 graphics chips)
-		dispatch_async(new Runnable() {
+		dispatch_async(() -> {
+			Pointer pool = createAutoreleasePool();
+			Proxy peer = objc().sendProxy("NSOpenPanel", "openPanel");
+			peer.send("retain");
 
-			@Override
-			public void run() {
-				Pointer pool = createAutoreleasePool();
-				Proxy peer = objc().sendProxy("NSOpenPanel", "openPanel");
-				peer.send("retain");
+			peer.send("setTitle:", title);
+			peer.send("setAllowsMultipleSelection:", multipleMode ? 1 : 0);
+			peer.send("setCanChooseDirectories:", canChooseDirectories ? 1 : 0);
+			peer.send("setCanChooseFiles:", canChooseFiles ? 1 : 0);
 
-				peer.send("setTitle:", title);
-				peer.send("setAllowsMultipleSelection:", multipleMode ? 1 : 0);
-				peer.send("setCanChooseDirectories:", canChooseDirectories ? 1 : 0);
-				peer.send("setCanChooseFiles:", canChooseFiles ? 1 : 0);
-
-				if (allowedFileTypes != null) {
-					Proxy mutableArray = objc().sendProxy("NSMutableArray", "arrayWithCapacity:", allowedFileTypes.length);
-					for (String type : allowedFileTypes) {
-						mutableArray.send("addObject:", type);
-					}
-					peer.send("setAllowedFileTypes:", mutableArray);
+			if (allowedFileTypes != null) {
+				Proxy mutableArray = objc().sendProxy("NSMutableArray", "arrayWithCapacity:", allowedFileTypes.length);
+				for (String type : allowedFileTypes) {
+					mutableArray.send("addObject:", type);
 				}
-
-				if (peer.sendInt("runModal") != 0) {
-					Proxy nsArray = peer.getProxy("URLs");
-					int size = nsArray.sendInt("count");
-					for (int i = 0; i < size; i++) {
-						Proxy url = nsArray.sendProxy("objectAtIndex:", i);
-						String path = url.sendString("path");
-						result.add(new File(path));
-					}
-				}
-
-				drainAutoreleasePool(pool);
-				secondaryLoop.exit();
+				peer.send("setAllowedFileTypes:", mutableArray);
 			}
+
+			if (peer.sendInt("runModal") != 0) {
+				Proxy nsArray = peer.getProxy("URLs");
+				int size = nsArray.sendInt("count");
+				for (int i = 0; i < size; i++) {
+					Proxy url = nsArray.sendProxy("objectAtIndex:", i);
+					String path = url.sendString("path");
+					result.add(new File(path));
+				}
+			}
+
+			drainAutoreleasePool(pool);
+			secondaryLoop.exit();
 		});
 
 		// Enter the loop to block the current event handler, but leave UI responsive
