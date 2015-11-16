@@ -89,6 +89,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 		return entries;
 	}
 
+	@Override
 	public Collection<V> values() {
 		processQueue();
 

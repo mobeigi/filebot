@@ -108,6 +108,7 @@ public class DateMatcher {
 			return new SimpleDate(Integer.parseInt(match.group(order[0])), Integer.parseInt(match.group(order[1])), Integer.parseInt(match.group(order[2])));
 		}
 
+		@Override
 		public SimpleDate match(CharSequence seq) {
 			Matcher matcher = pattern.matcher(seq);
 
@@ -118,6 +119,7 @@ public class DateMatcher {
 			return null;
 		}
 
+		@Override
 		public int find(CharSequence seq, int fromIndex) {
 			Matcher matcher = pattern.matcher(seq).region(fromIndex, seq.length());
 
@@ -146,6 +148,7 @@ public class DateMatcher {
 			return SimpleDate.parse(space.matcher(match.group()).replaceAll(" "), dateFormat);
 		}
 
+		@Override
 		public SimpleDate match(CharSequence seq) {
 			Matcher matcher = pattern.matcher(seq);
 
@@ -156,6 +159,7 @@ public class DateMatcher {
 			return null;
 		}
 
+		@Override
 		public int find(CharSequence seq, int fromIndex) {
 			Matcher matcher = pattern.matcher(seq).region(fromIndex, seq.length());
 

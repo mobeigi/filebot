@@ -52,7 +52,6 @@ import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.WebServices;
 import net.filebot.media.MediaDetection;
-import net.filebot.similarity.SeasonEpisodeMatcher;
 import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.ui.LanguageComboBox;
 import net.filebot.ui.SelectDialog;

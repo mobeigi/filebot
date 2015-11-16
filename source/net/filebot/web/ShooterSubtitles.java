@@ -148,7 +148,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see https://docs.google.com/document/d/1w5MCBO61rKQ6hI5m9laJLWse__yTYdRugpVyz4RzrmM/preview
 	 */
 	protected static String computeFileHash(File file) throws IOException {

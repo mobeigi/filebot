@@ -15,7 +15,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;

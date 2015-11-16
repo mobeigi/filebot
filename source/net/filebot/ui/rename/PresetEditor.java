@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 
 import javax.swing.AbstractAction;

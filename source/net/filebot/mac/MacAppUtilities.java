@@ -54,6 +54,7 @@ public class MacAppUtilities {
 		// WARNING: dispatch_sync seems to work on most Mac always causes a deadlock and freezes the application on others (in particular MBP with 2 graphics chips)
 		dispatch_async(new Runnable() {
 
+			@Override
 			public void run() {
 				Pointer pool = createAutoreleasePool();
 				Proxy peer = objc().sendProxy("NSOpenPanel", "openPanel");

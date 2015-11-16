@@ -6,7 +6,6 @@ import static net.filebot.util.ui.SwingUI.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.List;
-import java.util.Locale;
 
 import net.filebot.Language;
 import net.filebot.Settings;
