@@ -162,6 +162,7 @@
 ^Sex$
 ^share$
 ^shared$
+^Shorts$
 ^show$
 ^Soaps$
 ^sort$
