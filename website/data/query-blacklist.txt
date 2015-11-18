@@ -126,6 +126,7 @@
 ^Organize$
 ^other$
 ^Part$
+^Películas$
 ^Pictures$
 ^Piece$
 ^Plexserv$
