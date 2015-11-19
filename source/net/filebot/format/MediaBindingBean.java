@@ -777,7 +777,7 @@ public class MediaBindingBean {
 	public String getUserDefinedLabel() throws IOException {
 		for (Entry<String, String> it : getUserDefinedArguments().entrySet()) {
 			if (it.getKey().endsWith("label")) {
-				if (it.getValue().length() > 0) {
+				if (it.getValue() != null && it.getValue().length() > 0) {
 					return it.getValue();
 				}
 			}
