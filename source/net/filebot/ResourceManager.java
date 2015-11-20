@@ -37,12 +37,8 @@ public final class ResourceManager {
 			return null;
 		}
 
-		if (Settings.isMacApp()) {
-			// load sun.awt.image.ToolkitImage or sun.awt.image.MultiResolutionToolkitImage (via @2x convention)
-			icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(resource));
-		} else {
-			icon = new ImageIcon(resource);
-		}
+		Image image = getImage(resource);
+		icon = new ImageIcon(image);
 
 		// update cache
 		synchronized (cache) {
@@ -53,9 +49,7 @@ public final class ResourceManager {
 	}
 
 	public static List<Image> getApplicationIcons() {
-		return getApplicationIconURLs().stream().map(it -> {
-			return Toolkit.getDefaultToolkit().getImage(it);
-		}).collect(Collectors.toList());
+		return getApplicationIconURLs().stream().map(ResourceManager::getImage).collect(Collectors.toList());
 	}
 
 	public static List<URL> getApplicationIconURLs() {
@@ -67,7 +61,12 @@ public final class ResourceManager {
 	}
 
 	public static Icon getFlagIcon(String languageCode) {
-		return getIcon(String.format("flags/%s", languageCode));
+		return getIcon("flags/" + languageCode);
+	}
+
+	private static Image getImage(URL resource) {
+		// load sun.awt.image.ToolkitImage or sun.awt.image.MultiResolutionToolkitImage (via @2x convention)
+		return Toolkit.getDefaultToolkit().getImage(resource);
 	}
 
 	/**
