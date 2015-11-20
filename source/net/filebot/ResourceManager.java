@@ -3,6 +3,7 @@ package net.filebot;
 import static java.util.Arrays.*;
 
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -20,10 +21,17 @@ public final class ResourceManager {
 	public static Icon getIcon(String name, String def) {
 		URL resource = getImageResource(name, def);
 
-		if (resource == null)
+		if (resource == null) {
 			return null;
+		}
 
-		return new ImageIcon(resource);
+		if (Settings.isMacApp()) {
+			// load sun.awt.image.ToolkitImage or sun.awt.image.MultiResolutionToolkitImage (via @2x convention)
+			Image image = Toolkit.getDefaultToolkit().getImage(resource);
+			return new ImageIcon(image);
+		} else {
+			return new ImageIcon(resource);
+		}
 	}
 
 	public static List<Image> getApplicationIcons() {
