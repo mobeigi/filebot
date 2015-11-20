@@ -558,7 +558,7 @@
 		<spk destdir="${dir.dist}" name="filebot" version="${version}" arch="noarch">
 			<info name="displayname" value="FileBot" />
 			<info name="description" value="FileBot is the ultimate tool for organizing and renaming your movies, TV shows or anime, as well as downloading subtitles and artwork. It's smart and just works." />
-			<info name="maintainer" value="rednoah" />
+			<info name="maintainer" value="FileBot" />
 			<info name="maintainer_url" value="http://www.filebot.net/" />
 			<info name="distributor" value="FileBot" />
 			<info name="distributor_url" value="http://www.filebot.net/" />
