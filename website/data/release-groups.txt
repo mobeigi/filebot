@@ -774,6 +774,7 @@ DREAMLiGHT
 DRG
 DRHD
 DROiDS
+DRONES
 DrSn
 DS
 DS9
@@ -802,6 +803,7 @@ E-Portal
 E7
 EA
 EAF
+EAGLE
 EBi
 EbP
 Ecchi-Subs
@@ -1280,6 +1282,7 @@ idtv
 iFH
 iFN
 iFPD
+iFT
 iGNHD
 iGNiTE
 iGNiTiON
@@ -1588,6 +1591,7 @@ MAGiCViBE
 MAHOU
 MAiN
 MainEvent
+MAJESTiC
 Makai
 Male
 Mamiko-Chihiro
@@ -1624,6 +1628,7 @@ MEGAMACY
 MeiohSubs
 MELiTE
 MEMORiES
+MenaceIISociety
 Mental.RG
 MeTH
 METiS
@@ -1932,6 +1937,7 @@ PL
 PLANET3
 PLASTKASSE
 PLAYNOW
+playSD
 playXD
 PLEADERS
 PLT
@@ -2035,6 +2041,7 @@ rabomil
 RaDiuS
 RAGEDVD
 RAiNCOAT
+RAiNDEER
 Raizel
 RAKUDA
 RANDi
@@ -2512,6 +2519,7 @@ TOKUS
 TOMA
 tomcat12
 TOPAZ
+TOPCAT
 TOPHD
 Tormaid
 TorrenTGui
