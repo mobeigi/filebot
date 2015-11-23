@@ -65,7 +65,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 		// add after text field
 		add(languageComboBox, "gap indent, sgy button", 1);
-		add(createImageButton(setUserAction), "w pref!, h pref!, gap rel, sgy button", 2);
+		add(createImageButton(setUserAction), "w pref!, h 2+pref!, gap rel, sgy button", 2);
 
 		// add at the top right corner
 		add(uploadDropTarget, "width 1.45cm!, height 1.2cm!, pos n 0% 100%-1.8cm n", 0);
@@ -302,9 +302,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			// osdbPass.setText(osdbAuth[1]); // password is stored as MD5 hash so we can't restore it
 
 			if (osdbUser.getText().isEmpty()) {
-				osdbGroup.add(new LinkButton("Register", "Register to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag left");
+				osdbGroup.add(new LinkButton("Register Account", "Register to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/newuser")), "spanx 2, tag left");
 			} else {
-				osdbGroup.add(new LinkButton("Upgrade", "Upgrade to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/support")), "spanx 2, tag left");
+				osdbGroup.add(new LinkButton("Upgrade Account", "Upgrade to increase your download quota", WebServices.OpenSubtitles.getIcon(), URI.create("http://www.opensubtitles.org/en/support")), "spanx 2, tag left");
 			}
 
 			JRootPane container = authPanel.getRootPane();
@@ -313,7 +313,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 
 			container.add(osdbGroup, "growx, wrap");
 
-			Action ok = new AbstractAction("OK") {
+			Action ok = new AbstractAction("OK", ResourceManager.getIcon("dialog.continue")) {
 
 				@Override
 				public void actionPerformed(ActionEvent evt) {
@@ -354,7 +354,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 					}
 				}
 			};
-			Action cancel = new AbstractAction("Cancel") {
+			Action cancel = new AbstractAction("Cancel", ResourceManager.getIcon("dialog.cancel")) {
 
 				@Override
 				public void actionPerformed(ActionEvent evt) {
