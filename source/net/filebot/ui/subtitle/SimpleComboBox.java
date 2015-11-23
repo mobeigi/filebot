@@ -5,26 +5,31 @@ import static javax.swing.BorderFactory.*;
 import java.awt.Color;
 import java.awt.Rectangle;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.plaf.basic.ComboPopup;
 
-import net.filebot.ResourceManager;
-
 public class SimpleComboBox extends JComboBox {
 
-	public SimpleComboBox() {
-		setUI(new SimpleComboBoxUI());
+	public SimpleComboBox(Icon dropDownArrowIcon) {
+		setUI(new SimpleComboBoxUI(dropDownArrowIcon));
 		setBorder(createEmptyBorder());
 	}
 
 	private static class SimpleComboBoxUI extends BasicComboBoxUI {
 
+		private final Icon dropDownArrowIcon;
+
+		public SimpleComboBoxUI(Icon dropDownArrowIcon) {
+			this.dropDownArrowIcon = dropDownArrowIcon;
+		}
+
 		@Override
 		protected JButton createArrowButton() {
-			JButton button = new JButton(ResourceManager.getIcon("arrow.down"));
+			JButton button = new JButton(dropDownArrowIcon);
 			button.setContentAreaFilled(false);
 			button.setBorderPainted(false);
 			button.setFocusPainted(false);

@@ -130,7 +130,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 		table.setAutoCreateRowSorter(true);
 		table.setFillsViewportHeight(true);
 
-		JComboBox editor = new SimpleComboBox();
+		JComboBox editor = new SimpleComboBox(ResourceManager.getIcon("action.select"));
 		editor.setRenderer(new SubtitleOptionRenderer(true));
 
 		// disable selection
@@ -361,7 +361,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 	private static class SubtitleMappingOptionRenderer extends DefaultTableCellRenderer {
 
-		private final JComboBox optionComboBox = new SimpleComboBox();
+		private final JComboBox optionComboBox = new SimpleComboBox(ResourceManager.getIcon("action.select"));
 
 		public SubtitleMappingOptionRenderer() {
 			optionComboBox.setBackground(Color.white);
