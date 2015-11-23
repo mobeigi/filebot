@@ -24,7 +24,7 @@ public class PlainFileMatcher implements Datasource, AutoCompleteMatcher {
 
 	@Override
 	public Icon getIcon() {
-		return ResourceManager.getIcon("file.text");
+		return ResourceManager.getIcon("search.generic");
 	}
 
 	@Override
