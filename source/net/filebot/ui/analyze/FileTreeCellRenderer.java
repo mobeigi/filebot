@@ -1,6 +1,4 @@
-
 package net.filebot.ui.analyze;
-
 
 import java.awt.Component;
 
@@ -11,7 +9,6 @@ import net.filebot.ResourceManager;
 import net.filebot.util.ui.FancyTreeCellRenderer;
 import net.filebot.util.ui.GradientStyle;
 
-
 public class FileTreeCellRenderer extends FancyTreeCellRenderer {
 
 	public FileTreeCellRenderer() {
@@ -19,9 +16,8 @@ public class FileTreeCellRenderer extends FancyTreeCellRenderer {
 
 		openIcon = ResourceManager.getIcon("tree.open");
 		closedIcon = ResourceManager.getIcon("tree.closed");
-		leafIcon = ResourceManager.getIcon("tree.leaf");
+		leafIcon = ResourceManager.getIcon("file.generic");
 	}
-
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -35,7 +31,6 @@ public class FileTreeCellRenderer extends FancyTreeCellRenderer {
 
 		return this;
 	}
-
 
 	private boolean isFolder(Object value) {
 		if (((TreeNode) value).getAllowsChildren())

@@ -109,7 +109,7 @@ class RenameList<E> extends FileBotList<E> {
 				loadAction.actionPerformed(new ActionEvent(evt.getSource(), evt.getID(), evt.getActionCommand(), 0));
 			}
 		});
-		actionPopup.add(new AbstractAction("Select Files", ResourceManager.getIcon("file.unknown")) {
+		actionPopup.add(new AbstractAction("Select Files", ResourceManager.getIcon("file.generic")) {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {

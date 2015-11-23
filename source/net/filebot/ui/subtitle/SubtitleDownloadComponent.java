@@ -99,7 +99,7 @@ class SubtitleDownloadComponent extends JComponent {
 				if (SUBTITLE_FILES.accept(value.toString()))
 					return ResourceManager.getIcon("file.subtitle");
 
-				return ResourceManager.getIcon("file.unknown");
+				return ResourceManager.getIcon("file.generic");
 			}
 		};
 
