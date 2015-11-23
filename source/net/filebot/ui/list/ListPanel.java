@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
+import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
 import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.ui.FileBotList;
@@ -84,7 +85,7 @@ public class ListPanel extends JComponent {
 		SwingUI.installAction(this, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), createAction);
 	}
 
-	private AbstractAction createAction = new AbstractAction("Create") {
+	private AbstractAction createAction = new AbstractAction("Create", ResourceManager.getIcon("action.export")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
