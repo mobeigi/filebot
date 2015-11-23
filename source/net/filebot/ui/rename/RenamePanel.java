@@ -563,7 +563,7 @@ public class RenamePanel extends JComponent {
 
 		actionPopup.addDescription(new JLabel("Action:"));
 		for (StandardRenameAction action : EnumSet.of(StandardRenameAction.MOVE, StandardRenameAction.COPY, StandardRenameAction.KEEPLINK, StandardRenameAction.SYMLINK, StandardRenameAction.HARDLINK)) {
-			actionPopup.add(new SetRenameAction(action, action.getDisplayName(), ResourceManager.getIcon("rename.action." + action.toString().toLowerCase())));
+			actionPopup.add(new SetRenameAction(action));
 		}
 
 		return actionPopup;
@@ -749,7 +749,7 @@ public class RenamePanel extends JComponent {
 				}
 
 				if (preset.getRenameAction() != null) {
-					new SetRenameAction(preset.getRenameAction(), preset.getRenameAction().getDisplayName(), ResourceManager.getIcon("rename.action." + preset.getRenameAction().toString().toLowerCase())).actionPerformed(evt);
+					new SetRenameAction(preset.getRenameAction()).actionPerformed(evt);
 				}
 
 				super.actionPerformed(evt);
@@ -786,8 +786,8 @@ public class RenamePanel extends JComponent {
 
 		private final StandardRenameAction action;
 
-		public SetRenameAction(StandardRenameAction action, String name, Icon icon) {
-			super(name, icon);
+		public SetRenameAction(StandardRenameAction action) {
+			super(action.getDisplayName(), ResourceManager.getIcon("rename.action." + action.name().toLowerCase()));
 			this.action = action;
 		}
 
@@ -798,7 +798,7 @@ public class RenamePanel extends JComponent {
 			} else {
 				renameAction.putValue(RenameAction.RENAME_ACTION, action);
 				renameAction.putValue(NAME, this.getValue(NAME));
-				renameAction.putValue(SMALL_ICON, this.getValue(SMALL_ICON));
+				renameAction.putValue(SMALL_ICON, ResourceManager.getIcon("action." + action.name().toLowerCase()));
 			}
 		}
 	}
