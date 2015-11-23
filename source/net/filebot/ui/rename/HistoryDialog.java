@@ -319,7 +319,7 @@ class HistoryDialog extends JDialog {
 		return table;
 	}
 
-	private final Action closeAction = new AbstractAction("Close") {
+	private final Action closeAction = new AbstractAction("Close", ResourceManager.getIcon("dialog.continue")) {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
