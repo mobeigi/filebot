@@ -708,7 +708,7 @@ public class FormatDialog extends JDialog {
 
 	};
 
-	protected final Action showRecentAction = new AbstractAction("Change Format", ResourceManager.getIcon("action.expand")) {
+	protected final Action showRecentAction = new AbstractAction("Change Format", ResourceManager.getIcon("action.menu")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

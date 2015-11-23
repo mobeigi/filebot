@@ -127,7 +127,7 @@ class HistoryDialog extends JDialog {
 		content.add(createScrollPaneGroup("Elements", elementTable), "growx, wrap paragraph");
 
 		// use ADD by default
-		Action importAction = new LoadAction("Import", null, importHandler) {
+		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), importHandler) {
 
 			@Override
 			public TransferAction getTransferAction(ActionEvent evt) {
@@ -137,7 +137,7 @@ class HistoryDialog extends JDialog {
 		};
 
 		content.add(new JButton(importAction), "wmin button, hmin 25px, gap indent, sg button");
-		content.add(new JButton(new SaveAction("Export", null, exportHandler)), "gap rel, sg button");
+		content.add(new JButton(new SaveAction("Export", ResourceManager.getIcon("action.save"), exportHandler)), "gap rel, sg button");
 		content.add(new JButton(new RevertCurrentSelectionAction()), "gap left unrel:push, sgy button");
 		content.add(new JButton(closeAction), "gap left unrel, gap right indent, sg button");
 
@@ -419,7 +419,6 @@ class HistoryDialog extends JDialog {
 
 		public RevertSelectionAction(Collection<Element> elements) {
 			super("Revert...", HistoryDialog.this);
-			putValue(SMALL_ICON, ResourceManager.getIcon("action.revert"));
 			putValue(ELEMENTS, elements.toArray(new Element[0]));
 		}
 
@@ -435,6 +434,7 @@ class HistoryDialog extends JDialog {
 
 		public RevertAction(String name, HistoryDialog parent) {
 			putValue(NAME, name);
+			putValue(SMALL_ICON, ResourceManager.getIcon("action.revert"));
 			putValue(PARENT, parent);
 		}
 
