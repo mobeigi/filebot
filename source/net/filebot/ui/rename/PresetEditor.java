@@ -342,7 +342,7 @@ public class PresetEditor extends JDialog {
 		return result;
 	}
 
-	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.load")) {
+	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.folder")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
@@ -378,7 +378,7 @@ public class PresetEditor extends JDialog {
 		}
 	};
 
-	private final Action listFiles = new AbstractAction("List Files", ResourceManager.getIcon("action.list")) {
+	private final Action listFiles = new AbstractAction("List Files", ResourceManager.getIcon("action.search")) {
 
 		private JMenuItem createListItem(ActionEvent evt, File f) {
 			JMenuItem m = new JMenuItem(f.getPath());
