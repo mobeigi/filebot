@@ -127,7 +127,7 @@ class HistoryDialog extends JDialog {
 		content.add(createScrollPaneGroup("Elements", elementTable), "growx, wrap paragraph");
 
 		// use ADD by default
-		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.folder"), importHandler) {
+		Action importAction = new LoadAction("Import", ResourceManager.getIcon("action.load"), importHandler) {
 
 			@Override
 			public TransferAction getTransferAction(ActionEvent evt) {

@@ -678,7 +678,7 @@ public class FormatDialog extends JDialog {
 		}
 	};
 
-	protected final Action selectFolderAction = new AbstractAction("Change Folder", ResourceManager.getIcon("action.folder")) {
+	protected final Action selectFolderAction = new AbstractAction("Change Folder", ResourceManager.getIcon("action.load")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

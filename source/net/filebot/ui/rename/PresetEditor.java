@@ -342,7 +342,7 @@ public class PresetEditor extends JDialog {
 		return result;
 	}
 
-	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.folder")) {
+	private final Action selectInputFolder = new AbstractAction("Select Input Folder", ResourceManager.getIcon("action.load")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {

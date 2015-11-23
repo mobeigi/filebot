@@ -369,7 +369,7 @@ class BindingDialog extends JDialog {
 
 	};
 
-	protected final Action selectFileAction = new AbstractAction("Select Media File", ResourceManager.getIcon("action.folder")) {
+	protected final Action selectFileAction = new AbstractAction("Select Media File", ResourceManager.getIcon("action.load")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
