@@ -89,9 +89,8 @@ class BindingDialog extends JDialog {
 
 		inputPanel.add(new JLabel("Media File:"), "wrap 2px");
 		inputPanel.add(mediaFileTextField, "hmin 20px, growx");
-		inputPanel.add(createImageButton(mediaInfoAction), "gap rel, w 26px!, h 24px!");
-		inputPanel.add(createImageButton(selectFileAction), "gap rel, w 26px!, h 24px!, wrap paragraph");
-
+		inputPanel.add(createImageButton(mediaInfoAction), "gap rel, w 28px!, h 28px!");
+		inputPanel.add(createImageButton(selectFileAction), "gap rel, w 28px!, h 28px!, wrap paragraph");
 		inputContainer.add("Bindings", inputPanel);
 		root.add(inputContainer, "growx, wrap paragraph");
 
