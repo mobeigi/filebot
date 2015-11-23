@@ -212,9 +212,9 @@ public class FormatDialog extends JDialog {
 		editorScrollPane.setOpaque(true);
 
 		content.add(editorScrollPane, "w 120px:min(pref, 420px), h 40px!, growx, wrap 4px, id editor");
-		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2 n");
-		content.add(createImageButton(selectFolderAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-(27*1) n");
-		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+1 editor.x2-(27*2) n");
+		content.add(createImageButton(changeSampleAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2 n");
+		content.add(createImageButton(selectFolderAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*1) n");
+		content.add(createImageButton(showRecentAction), "sg action, w 25!, h 19!, pos n editor.y2+2 editor.x2-(27*2) n");
 
 		content.add(help, "growx, wrap 25px:push");
 
@@ -644,7 +644,7 @@ public class FormatDialog extends JDialog {
 		return popup;
 	}
 
-	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variable")) {
+	protected final Action changeSampleAction = new AbstractAction("Change Sample", ResourceManager.getIcon("action.variables")) {
 
 		@Override
 		public void actionPerformed(ActionEvent evt) {
