@@ -866,8 +866,8 @@
 
 	<target name="chocolatey-push" description="chocolatey package">
 		<!-- prepare sha1 checksums -->
-		<checksum property="x86.msi.sha1" file="${dir.release}/FileBot_${version}_x86.msi" algorithm="SHA-1" />
-		<checksum property="x64.msi.sha1" file="${dir.release}/FileBot_${version}_x64.msi" algorithm="SHA-1" />
+		<checksum property="x86.msi.sha256" file="${dir.release}/FileBot_${version}_x86.msi" algorithm="SHA-256" />
+		<checksum property="x64.msi.sha256" file="${dir.release}/FileBot_${version}_x64.msi" algorithm="SHA-256" />
 
 		<!-- replace variables for new release -->
 		<copy todir="${dir.dist}/chocolatey" overwrite="yes" encoding="UTF-8" verbose="true">
