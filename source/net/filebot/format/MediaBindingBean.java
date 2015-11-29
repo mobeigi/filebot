@@ -78,6 +78,14 @@ public class MediaBindingBean {
 		this.context = context;
 	}
 
+	public Object getInfoObject() {
+		return infoObject;
+	}
+
+	public File getFileObject() {
+		return mediaFile;
+	}
+
 	@Define(undefined)
 	public <T> T undefined(String name) {
 		// omit expressions that depend on undefined values
@@ -396,12 +404,12 @@ public class MediaBindingBean {
 
 	@Define("original")
 	public String getOriginalFileName() throws Exception {
-		return getOriginalFileName(mediaFile);
+		return getOriginalFileName(getMediaFile());
 	}
 
 	@Define("xattr")
 	public Object getMetaAttributesObject() throws Exception {
-		return new MetaAttributes(mediaFile).getObject();
+		return new MetaAttributes(getMediaFile()).getObject();
 	}
 
 	@Define("crc32")
@@ -442,20 +450,14 @@ public class MediaBindingBean {
 
 	@Define("fn")
 	public String getFileName() {
-		// make sure media file is defined
-		checkMediaFile();
-
-		// file extension
-		return FileUtilities.getName(mediaFile);
+		// name without file extension
+		return FileUtilities.getName(getMediaFile());
 	}
 
 	@Define("ext")
 	public String getExtension() {
-		// make sure media file is defined
-		checkMediaFile();
-
 		// file extension
-		return FileUtilities.getExtension(mediaFile);
+		return FileUtilities.getExtension(getMediaFile());
 	}
 
 	@Define("source")
@@ -509,15 +511,12 @@ public class MediaBindingBean {
 
 	@Define("lang")
 	public Language detectSubtitleLanguage() throws Exception {
-		// make sure media file is defined
-		checkMediaFile();
-
-		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(mediaFile));
+		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(getMediaFile()));
 		if (languageSuffix != null)
 			return Language.getLanguage(languageSuffix);
 
 		// require subtitle file
-		if (!SUBTITLE_FILES.accept(mediaFile)) {
+		if (!SUBTITLE_FILES.accept(getMediaFile())) {
 			return null;
 		}
 
@@ -745,6 +744,11 @@ public class MediaBindingBean {
 
 	@Define("file")
 	public File getMediaFile() {
+		// make sure file is not null, and that it is an existing file
+		if (mediaFile == null) {
+			throw new IllegalStateException("Path to media file not set. Click \"Change Sample\" and select a sample file.");
+		}
+
 		return mediaFile;
 	}
 
@@ -785,11 +789,6 @@ public class MediaBindingBean {
 		return null;
 	}
 
-	@Define("object")
-	public Object getInfoObject() {
-		return infoObject;
-	}
-
 	@Define("i")
 	public Integer getModelIndex() {
 		return 1 + identityIndexOf(context.values(), getInfoObject());
@@ -826,16 +825,13 @@ public class MediaBindingBean {
 	}
 
 	public File getInferredMediaFile() {
-		// make sure media file is defined
-		checkMediaFile();
-
-		if (mediaFile.isDirectory()) {
+		if (getMediaFile().isDirectory()) {
 			// just select the first video file in the folder as media sample
-			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(mediaFile), VIDEO_FILES));
+			SortedSet<File> videos = new TreeSet<File>(filter(listFiles(getMediaFile()), VIDEO_FILES));
 			if (videos.size() > 0) {
 				return videos.iterator().next();
 			}
-		} else if (SUBTITLE_FILES.accept(mediaFile) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(mediaFile))) {
+		} else if (SUBTITLE_FILES.accept(getMediaFile()) || ((infoObject instanceof Episode || infoObject instanceof Movie) && !VIDEO_FILES.accept(getMediaFile()))) {
 			// prefer equal match from current context if possible
 			if (context != null) {
 				for (Entry<File, Object> it : context.entrySet()) {
@@ -846,8 +842,8 @@ public class MediaBindingBean {
 			}
 
 			// file is a subtitle, or nfo, etc
-			String baseName = stripReleaseInfo(FileUtilities.getName(mediaFile)).toLowerCase();
-			List<File> videos = getChildren(mediaFile.getParentFile(), VIDEO_FILES);
+			String baseName = stripReleaseInfo(FileUtilities.getName(getMediaFile())).toLowerCase();
+			List<File> videos = getChildren(getMediaFile().getParentFile(), VIDEO_FILES);
 
 			// find corresponding movie file
 			for (File movieFile : videos) {
@@ -858,7 +854,7 @@ public class MediaBindingBean {
 
 			// still no good match found -> just take the most probable video from the same folder
 			if (videos.size() > 0) {
-				sort(videos, new SimilarityComparator(FileUtilities.getName(mediaFile)) {
+				sort(videos, new SimilarityComparator(FileUtilities.getName(getMediaFile())) {
 
 					@Override
 					public int compare(Object o1, Object o2) {
@@ -869,22 +865,12 @@ public class MediaBindingBean {
 			}
 		}
 
-		return mediaFile;
-	}
-
-	private void checkMediaFile() {
-		// make sure file is not null, and that it is an existing file
-		if (mediaFile == null) {
-			throw new IllegalStateException("Path to media file not set. Click (x)= and select a sample file.");
-		}
+		return getMediaFile();
 	}
 
 	private static final Map<File, MediaInfo> sharedMediaInfoObjects = new WeakValueHashMap<File, MediaInfo>(64);
 
 	private synchronized MediaInfo getMediaInfo() {
-		// make sure media file is defined
-		checkMediaFile();
-
 		// lazy initialize
 		if (mediaInfo == null) {
 			// use inferred media file (e.g. actual movie file instead of subtitle file)

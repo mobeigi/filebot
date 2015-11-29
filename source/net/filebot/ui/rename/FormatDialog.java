@@ -235,8 +235,8 @@ public class FormatDialog extends JDialog {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (isMacSandbox()) {
-					if (sample != null && sample.getMediaFile() != null && sample.getMediaFile().exists()) {
-						MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(sample.getMediaFile()));
+					if (sample != null && sample.getFileObject() != null && sample.getFileObject().exists()) {
+						MacAppUtilities.askUnlockFolders(getWindow(evt.getSource()), singleton(sample.getFileObject()));
 					}
 				}
 				checkFormatInBackground();
@@ -283,7 +283,7 @@ public class FormatDialog extends JDialog {
 
 		if (locked) {
 			this.setTitle(String.format("%s Format", mode));
-			title.setText(String.format("%s ⇔ %s", mode, bindings.getInfoObject(), bindings.getMediaFile() == null ? null : bindings.getMediaFile().getName()));
+			title.setText(String.format("%s ⇔ %s", mode, bindings.getInfoObject(), bindings.getFileObject() == null ? null : bindings.getFileObject().getName()));
 		} else {
 			this.setTitle(String.format("%s Format", mode));
 			title.setText(String.format("%s Format", mode));
@@ -651,7 +651,7 @@ public class FormatDialog extends JDialog {
 			BindingDialog dialog = new BindingDialog(getWindow(evt.getSource()), String.format("%s Bindings", mode), mode.getFormat(), !locked);
 
 			dialog.setInfoObject(sample.getInfoObject());
-			dialog.setMediaFile(sample.getMediaFile());
+			dialog.setMediaFile(sample.getFileObject());
 
 			// open dialog
 			dialog.setLocationRelativeTo((Component) evt.getSource());
@@ -667,7 +667,7 @@ public class FormatDialog extends JDialog {
 				// remember sample
 				try {
 					mode.persistentSample().setValue(info == null ? "" : JsonWriter.objectToJson(info));
-					persistentSampleFile.setValue(file == null ? "" : sample.getMediaFile().getAbsolutePath());
+					persistentSampleFile.setValue(file == null ? "" : sample.getFileObject().getAbsolutePath());
 				} catch (Exception e) {
 					Logger.getLogger(FormatDialog.class.getName()).log(Level.WARNING, e.getMessage(), e);
 				}
