@@ -271,7 +271,7 @@ public class FormatDialog extends JDialog {
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setMinimumSize(new Dimension(650, 470));
+		setMinimumSize(new Dimension(715, 470));
 
 		// initialize data
 		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
@@ -545,8 +545,9 @@ public class FormatDialog extends JDialog {
 					} catch (Exception e) {
 						BindingException issue = findCause(e, BindingException.class);
 						if (issue != null) {
-							status.setText(getMessage(issue));
-							status.setIcon(ResourceManager.getIcon("status.info"));
+							String msg = getMessage(issue);
+							status.setText(msg);
+							status.setIcon(ResourceManager.getIcon(msg.contains("Change Sample") ? "action.variables" : "status.info"));
 						} else {
 							status.setText(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
 							status.setIcon(ResourceManager.getIcon("status.warning"));

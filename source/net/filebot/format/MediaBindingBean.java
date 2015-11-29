@@ -746,7 +746,7 @@ public class MediaBindingBean {
 	public File getMediaFile() {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null) {
-			throw new IllegalStateException("Path to media file not set. Click \"Change Sample\" and select a sample file.");
+			throw new IllegalStateException("Sample file has not been set. Click \"Change Sample\" to select a sample file.");
 		}
 
 		return mediaFile;
