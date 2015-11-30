@@ -89,7 +89,7 @@ public class MediaBindingBean {
 	@Define(undefined)
 	public <T> T undefined(String name) {
 		// omit expressions that depend on undefined values
-		throw new BindingException(name, "undefined");
+		throw new BindingException(name, EXCEPTION_UNDEFINED);
 	}
 
 	@Define("n")
@@ -746,7 +746,7 @@ public class MediaBindingBean {
 	public File getMediaFile() {
 		// make sure file is not null, and that it is an existing file
 		if (mediaFile == null) {
-			throw new IllegalStateException("Sample file has not been set. Click \"Change Sample\" to select a sample file.");
+			throw new IllegalStateException(EXCEPTION_SAMPLE_FILE_NOT_SET);
 		}
 
 		return mediaFile;
@@ -1004,4 +1004,8 @@ public class MediaBindingBean {
 	public String toString() {
 		return String.format("%s ⇔ %s", infoObject, mediaFile == null ? null : mediaFile.getName());
 	}
+
+	public static final String EXCEPTION_UNDEFINED = "undefined";
+	public static final String EXCEPTION_SAMPLE_FILE_NOT_SET = "Sample file has not been set. Click \"Change Sample\" to select a sample file.";
+
 }

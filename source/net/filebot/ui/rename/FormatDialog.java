@@ -271,7 +271,7 @@ public class FormatDialog extends JDialog {
 
 		// initialize window properties
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		setMinimumSize(new Dimension(715, 470));
+		setMinimumSize(new Dimension(650, 470));
 
 		// initialize data
 		setState(initMode, lockOnBinding != null ? lockOnBinding : restoreSample(initMode), lockOnBinding != null);
@@ -544,10 +544,12 @@ public class FormatDialog extends JDialog {
 						// ignore, cancelled tasks are obsolete anyway
 					} catch (Exception e) {
 						BindingException issue = findCause(e, BindingException.class);
-						if (issue != null) {
-							String msg = getMessage(issue);
-							status.setText(msg);
-							status.setIcon(ResourceManager.getIcon(msg.contains("Change Sample") ? "action.variables" : "status.info"));
+						if (issue != null && getMessage(issue).contains(MediaBindingBean.EXCEPTION_SAMPLE_FILE_NOT_SET)) {
+							status.setText(getMessage(issue));
+							status.setIcon(ResourceManager.getIcon("action.variables"));
+						} else if (issue != null) {
+							status.setText(getMessage(issue));
+							status.setIcon(ResourceManager.getIcon("status.info"));
 						} else {
 							status.setText(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
 							status.setIcon(ResourceManager.getIcon("status.warning"));
