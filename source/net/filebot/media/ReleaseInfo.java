@@ -49,18 +49,29 @@ public class ReleaseInfo {
 	}
 
 	public List<String> getVideoTags(String... input) {
-		Pattern videoTagPattern = getVideoTagPattern();
+		Pattern pattern = getVideoTagPattern();
 		List<String> tags = new ArrayList<String>();
 		for (String s : input) {
 			if (s == null)
 				continue;
 
-			Matcher m = videoTagPattern.matcher(s);
+			Matcher m = pattern.matcher(s);
 			while (m.find()) {
 				tags.add(m.group());
 			}
 		}
 		return tags;
+	}
+
+	public String getStereoscopic3D(String... input) {
+		Pattern pattern = getStereoscopic3DPattern();
+		for (String s : input) {
+			Matcher m = pattern.matcher(s);
+			if (m.find()) {
+				return m.group();
+			}
+		}
+		return null;
 	}
 
 	public String getReleaseGroup(String... strings) throws IOException {
@@ -264,6 +275,12 @@ public class ReleaseInfo {
 	public Pattern getVideoTagPattern() {
 		// pattern matching any video tag, like Directors Cut
 		String pattern = getProperty("pattern.video.tags");
+		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
+	}
+
+	public Pattern getStereoscopic3DPattern() {
+		// pattern matching any 3D flags like 3D.HSBS
+		String pattern = getProperty("pattern.video.s3d");
 		return compile("(?<!\\p{Alnum})(" + pattern + ")(?!\\p{Alnum})", CASE_INSENSITIVE);
 	}
 

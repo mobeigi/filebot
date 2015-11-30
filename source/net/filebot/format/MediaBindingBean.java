@@ -486,6 +486,12 @@ public class MediaBindingBean {
 			tags.add(lowerTrail(upperInitial(normalizePunctuation(normalizeSpace(m, " ")))));
 		}
 		return new ArrayList<String>(tags);
+
+	}
+
+	@Define("s3d")
+	public String getStereoscopic3D() {
+		return releaseInfo.getStereoscopic3D(getFileName());
 	}
 
 	@Define("group")
