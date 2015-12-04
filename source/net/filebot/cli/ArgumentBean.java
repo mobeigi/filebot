@@ -19,6 +19,7 @@ import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
+import org.kohsuke.args4j.ParserProperties;
 import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 public class ArgumentBean {
@@ -201,7 +202,7 @@ public class ArgumentBean {
 	}
 
 	public static void printHelp(ArgumentBean argumentBean, OutputStream out) {
-		new CmdLineParser(argumentBean).printUsage(out);
+		new CmdLineParser(argumentBean, ParserProperties.defaults().withShowDefaults(false).withOptionSorter(null)).printUsage(out);
 	}
 
 }
