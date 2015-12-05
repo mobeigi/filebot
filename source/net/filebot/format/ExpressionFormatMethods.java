@@ -274,7 +274,7 @@ public class ExpressionFormatMethods {
 	}
 
 	public static String ascii(String self, String fallback) {
-		return Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove").transform(self).replaceAll("[^\\p{ASCII}]+", fallback).trim();
+		return Transliterator.getInstance("Any-Latin;Latin-ASCII;[:Diacritic:]remove").transform(asciiQuotes(self)).replaceAll("[^\\p{ASCII}]+", fallback).trim();
 	}
 
 	public static String asciiQuotes(String self) {
