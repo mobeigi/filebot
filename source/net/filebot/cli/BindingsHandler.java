@@ -46,7 +46,7 @@ public class BindingsHandler extends MapOptionHandler {
 				return pos;
 			}
 
-			String n = getIdentifier(nv[0].trim());
+			String n = getName(nv[0].trim());
 			String v = getValue(nv[1].trim());
 
 			addToMap(map, n, v);
@@ -56,7 +56,7 @@ public class BindingsHandler extends MapOptionHandler {
 		return pos;
 	}
 
-	public String getIdentifier(String n) throws CmdLineException {
+	public String getName(String n) throws CmdLineException {
 		if (!isIdentifier(n)) {
 			throw new CmdLineException(owner, "\"" + n + "\" is not a valid identifier", null);
 		}
@@ -69,7 +69,7 @@ public class BindingsHandler extends MapOptionHandler {
 			try {
 				return readTextFile(f).trim();
 			} catch (IOException e) {
-				throw new CmdLineException(owner, "\"" + f + "\" is not a text file", e);
+				throw new CmdLineException(owner, e.getMessage(), e);
 			}
 		}
 		return v;
