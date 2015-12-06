@@ -16,9 +16,10 @@ public class UnicodeReader extends Reader {
 
 	private final Reader reader;
 
-	public UnicodeReader(InputStream stream) throws IOException {
-		if (!stream.markSupported())
+	public UnicodeReader(InputStream stream, boolean guessCharset, Charset defaultCharset) throws IOException {
+		if (!stream.markSupported()) {
 			throw new IllegalArgumentException("stream must support mark");
+		}
 
 		stream.mark(BOM_SIZE);
 		byte bom[] = new byte[BOM_SIZE];
@@ -49,12 +50,15 @@ public class UnicodeReader extends Reader {
 		stream.skip(skip);
 
 		// guess character encoding if necessary
-		if (bomEncoding == null) {
-			// auto-detect encoding
-			reader = new CharsetDetector().getReader(stream, "UTF-8");
-		} else {
+		if (bomEncoding != null) {
 			// initialize reader via BOM
 			reader = new InputStreamReader(stream, bomEncoding);
+		} else if (bomEncoding == null && guessCharset) {
+			// auto-detect encoding
+			reader = new CharsetDetector().getReader(stream, defaultCharset.name());
+		} else {
+			// use default
+			reader = new InputStreamReader(stream, defaultCharset);
 		}
 	}
 

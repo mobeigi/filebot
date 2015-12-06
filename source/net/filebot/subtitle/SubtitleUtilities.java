@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -271,7 +272,7 @@ public final class SubtitleUtilities {
 		}
 
 		// decode bytes and beware of byte-order marks
-		Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()));
+		Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()), true, StandardCharsets.UTF_8);
 
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {

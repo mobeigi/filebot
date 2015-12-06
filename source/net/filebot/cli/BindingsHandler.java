@@ -1,5 +1,9 @@
 package net.filebot.cli;
 
+import static net.filebot.util.FileUtilities.*;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -33,29 +37,48 @@ public class BindingsHandler extends MapOptionHandler {
 
 		int pos = 0;
 		while (pos < params.size()) {
-			String[] nv = params.getParameter(pos).split("=", 2);
-
-			if (nv.length < 2 || nv[0].startsWith("-")) {
+			if (params.getParameter(pos).startsWith("-")) {
 				return pos;
 			}
 
-			String n = nv[0].trim();
-			String v = nv[1].trim();
-
-			if (!isIdentifier(n)) {
-				throw new CmdLineException(owner, String.format("\"%s\" is not a valid identifier", n));
+			String[] nv = params.getParameter(pos).split("=", 2);
+			if (nv.length < 2) {
+				return pos;
 			}
 
-			map.put(n, v);
+			String n = getIdentifier(nv[0].trim());
+			String v = getValue(nv[1].trim());
+
+			addToMap(map, n, v);
 			pos++;
 		}
 
 		return pos;
 	}
 
+	public String getIdentifier(String n) throws CmdLineException {
+		if (!isIdentifier(n)) {
+			throw new CmdLineException(owner, "\"" + n + "\" is not a valid identifier", null);
+		}
+		return n;
+	}
+
+	public String getValue(String v) throws CmdLineException {
+		if (v.startsWith("@")) {
+			File f = new File(v.substring(1));
+			try {
+				return readTextFile(f).trim();
+			} catch (IOException e) {
+				throw new CmdLineException(owner, "\"" + f + "\" is not a text file", e);
+			}
+		}
+		return v;
+	}
+
 	public boolean isIdentifier(String n) {
-		if (n.isEmpty())
+		if (n == null || n.isEmpty()) {
 			return false;
+		}
 
 		for (int i = 0; i < n.length();) {
 			int c = n.codePointAt(i);
@@ -76,7 +99,7 @@ public class BindingsHandler extends MapOptionHandler {
 
 	@Override
 	protected Map createNewCollection(Class<? extends Map> type) {
-		return new LinkedHashMap();
+		return new LinkedHashMap(); // make sure to preserve order of arguments
 	}
 
 }

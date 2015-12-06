@@ -6,10 +6,8 @@ import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -188,7 +186,7 @@ public class ArgumentProcessor {
 		@Override
 		public String fetchScript(URI uri) throws IOException {
 			if (uri.getScheme().equals("file")) {
-				return readAll(new InputStreamReader(new FileInputStream(new File(uri)), "UTF-8"));
+				return readTextFile(new File(uri));
 			}
 
 			if (uri.getScheme().equals("g")) {

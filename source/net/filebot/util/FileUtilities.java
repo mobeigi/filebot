@@ -198,16 +198,18 @@ public final class FileUtilities {
 		}
 	}
 
-	public static String readAll(Reader source) throws IOException {
-		StringBuilder text = new StringBuilder();
-		char[] buffer = new char[2048];
+	public static String readTextFile(File file) throws IOException {
+		try (Reader reader = new UnicodeReader(new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE), false, StandardCharsets.UTF_8)) {
+			StringBuilder text = new StringBuilder();
+			char[] buffer = new char[BUFFER_SIZE];
 
-		int read = 0;
-		while ((read = source.read(buffer)) >= 0) {
-			text.append(buffer, 0, read);
+			int read = 0;
+			while ((read = reader.read(buffer)) >= 0) {
+				text.append(buffer, 0, read);
+			}
+
+			return text.toString();
 		}
-
-		return text.toString();
 	}
 
 	public static File writeFile(ByteBuffer data, File destination) throws IOException {
@@ -239,7 +241,7 @@ public final class FileUtilities {
 			return charset.getReader();
 
 		// assume UTF-8 by default
-		return new InputStreamReader(new FileInputStream(file), "UTF-8");
+		return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 	}
 
 	public static String getText(ByteBuffer data) throws IOException {
