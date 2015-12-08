@@ -33,7 +33,7 @@ public class SeasonEpisodeMatcher {
 		Season_00_Episode_00 = new SeasonEpisodePattern(null, "(?<!\\p{Alnum})(?i:season|series)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?i:episode)[^\\p{Alnum}]{0,3}(\\d{1,4})[^\\p{Alnum}]{0,3}(?!\\p{Digit})");
 
 		// match patterns like S01E01-E05
-		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Digit})[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Digit})") {
+		S00E00SEQ = new SeasonEpisodePattern(null, "(?<!\\p{Alnum}|[-])[Ss](\\d{1,2}|\\d{4})[Ee](\\d{2,3})[-][Ee](\\d{2,3})(?!\\p{Alnum}|[-])") {
 
 			@Override
 			protected Collection<SxE> process(MatchResult match) {
