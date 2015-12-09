@@ -845,6 +845,7 @@
 			</spk>
 			<source url="https://raw.githubusercontent.com/filebot/filebot-node/master/spksrc.json" />
 			<source url="https://raw.githubusercontent.com/rednoah/java-installer/master/spksrc.json" />
+			<source url="https://raw.githubusercontent.com/rednoah/ant-installer/master/spksrc.json" />
 		</package-source>
 
 		<!-- upload -->
