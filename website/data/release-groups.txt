@@ -601,6 +601,7 @@ CSi
 CSS
 CT.FS
 CTD
+Ctrl-Znf
 CtrlHD
 CtrlSD
 CTU
@@ -648,6 +649,7 @@ DASH
 DATS
 DAW
 DB
+DBSuper
 DC
 DC-AG
 DCA
@@ -1080,6 +1082,7 @@ GME
 GME2000
 GMoRK
 GNARLY
+GNF
 Goblin10
 GoDSMaCK
 Gogeta
@@ -1768,6 +1771,7 @@ niku
 Nile
 Nimu
 NinjaPanda
+nItRo
 NiviSubs
 NiX
 NiXX
@@ -2006,6 +2010,7 @@ PURE
 Pure-Anime.biz
 Puri
 PusherCrew
+PuyaSubs
 PUZZLE
 PVR
 PWE
@@ -2808,6 +2813,7 @@ YOUFORGOTTOREPACKTHIS
 Your-Mom
 YS
 YT
+YUMA
 YuS-m.3.3.w
 YuS-MaiWaiFu
 YuS-マイワイフ
