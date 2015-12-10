@@ -39,7 +39,7 @@ public class ID3Lookup implements MusicIdentificationService {
 			try {
 				// artist and song title information is required
 				String artist = getString(mediaInfo, "Performer", "Composer");
-				String title = getString(mediaInfo, "Title");
+				String title = getString(mediaInfo, "Title", "Track");
 
 				if (artist != null && title != null) {
 					// all other properties are optional
