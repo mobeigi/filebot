@@ -45,7 +45,7 @@ public class ID3Lookup implements MusicIdentificationService {
 					// all other properties are optional
 					String album = getString(mediaInfo, "Album");
 					String albumArtist = getString(mediaInfo, "Album/Performer");
-					String trackTitle = null;
+					String trackTitle = getString(mediaInfo, "Track");
 					SimpleDate albumReleaseDate = null;
 					Integer mediumIndex = null;
 					Integer mediumCount = null;
