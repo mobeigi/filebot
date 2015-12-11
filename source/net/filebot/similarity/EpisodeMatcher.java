@@ -102,12 +102,20 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 	}
 
 	private Set<Integer> normalizeIdentifierSet(Set<SxE> numbers) {
+		// check if any episode exceeds the episodes per season limit
+		int limit = 100;
+		for (SxE it : numbers) {
+			while (it.season > 0 && it.episode >= limit) {
+				limit *= 10;
+			}
+		}
+
 		// SxE 1x01 => 101
 		// Absolute 101 => 101
 		Set<Integer> identifier = new HashSet<Integer>(numbers.size());
 		for (SxE it : numbers) {
-			if (it.season > 0 && it.episode > 0 && it.episode < 100) {
-				identifier.add(it.season * 100 + it.episode);
+			if (it.season > 0 && it.episode > 0 && it.episode < limit) {
+				identifier.add(it.season * limit + it.episode);
 			} else if (it.season <= 0 && it.episode > 0) {
 				identifier.add(it.episode);
 			}
