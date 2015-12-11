@@ -56,6 +56,10 @@ public class ScriptShellMethods {
 		return new File(self.getParentFile(), name);
 	}
 
+	public static File resolveAsChild(File self, File folder) {
+		return self.isAbsolute() ? self : new File(folder, self.getPath());
+	}
+
 	public static List<File> listFiles(File self, Closure<?> closure) {
 		return DefaultGroovyMethods.findAll(FileUtilities.getChildren(self), closure);
 	}
