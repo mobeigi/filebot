@@ -24,19 +24,19 @@ import org.kohsuke.args4j.spi.ExplicitBooleanOptionHandler;
 
 public class ArgumentBean {
 
-	@Option(name = "--mode", usage = "Open GUI in single panel mode", metaVar = "[rename, subtitles, sfv]")
+	@Option(name = "--mode", usage = "Open GUI in single panel mode", metaVar = "[Rename, Subtitles, SFV]")
 	public String mode = null;
 
 	@Option(name = "-rename", usage = "Rename media files", metaVar = "fileset")
 	public boolean rename = false;
 
-	@Option(name = "--db", usage = "Database", metaVar = "[TheTVDB, AniDB] or [TheMovieDB, OMDb] or [AcoustID, ID3 Tags] or [xattr]")
+	@Option(name = "--db", usage = "Database", metaVar = "[TheTVDB, AniDB] or [TheMovieDB] or [AcoustID, ID3 Tags] or [xattr]")
 	public String db;
 
 	@Option(name = "--order", usage = "Episode order", metaVar = "[Airdate, Absolute, DVD]")
 	public String order = "Airdate";
 
-	@Option(name = "--action", usage = "Rename action", metaVar = "[move, copy, keeplink, symlink, hardlink, test]")
+	@Option(name = "--action", usage = "Rename action", metaVar = "[Move, Copy, Keeplink, Symlink, Hardlink, Test]")
 	public String action = "move";
 
 	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[skip, override, auto, fail]")
@@ -69,7 +69,7 @@ public class ArgumentBean {
 	@Option(name = "--output", usage = "Output path", metaVar = "folder")
 	public String output;
 
-	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, Windows-1252, GB18030]")
+	@Option(name = "--encoding", usage = "Output character encoding", metaVar = "[UTF-8, Windows-1252]")
 	public String encoding;
 
 	@Option(name = "-list", usage = "Fetch episode list")
