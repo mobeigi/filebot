@@ -1,9 +1,11 @@
 package net.filebot.ui;
 
+import java.awt.Dimension;
 import java.awt.datatransfer.Transferable;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.border.EmptyBorder;
 
 import net.filebot.ui.transfer.TransferablePolicy;
 import net.filebot.ui.transfer.TransferablePolicy.TransferAction;
@@ -22,7 +24,15 @@ public class SinglePanelFrame extends JFrame {
 		c.setLayout(new MigLayout("insets 0, nogrid, fill", "fill", "fill"));
 		c.add(panel);
 
-		setSize(760, 480);
+		HeaderPanel headerPanel = new HeaderPanel();
+		headerPanel.getTitleLabel().setBorder(new EmptyBorder(8, 8, 8, 8));
+		headerPanel.getTitleLabel().setIcon(builder.getIcon());
+		headerPanel.getTitleLabel().setText(builder.getName());
+		headerPanel.getTitleLabel().setIconTextGap(15);
+		c.add(headerPanel, "growx, dock north");
+
+		setSize(850, 600);
+		setMinimumSize(new Dimension(800, 400));
 	}
 
 	public SinglePanelFrame publish(Transferable transferable) {

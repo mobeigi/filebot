@@ -59,7 +59,7 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 	private JComboBox sortOrderComboBox = new JComboBox(SortOrder.values());
 
 	public EpisodeListPanel() {
-		historyPanel.setColumnHeader(0, "Show");
+		historyPanel.setColumnHeader(0, "TV Series");
 		historyPanel.setColumnHeader(1, "Number of Episodes");
 
 		JSpinner seasonSpinner = new JSpinner(seasonSpinnerModel);

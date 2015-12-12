@@ -60,7 +60,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	private LanguageComboBox languageComboBox = new LanguageComboBox(ALL_LANGUAGES, getSettings());
 
 	public SubtitlePanel() {
-		historyPanel.setColumnHeader(0, "Show / Movie");
+		historyPanel.setColumnHeader(0, "Search");
 		historyPanel.setColumnHeader(1, "Number of Subtitles");
 
 		// add after text field
