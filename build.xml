@@ -471,7 +471,7 @@
 		<apply executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<srcfile />
-			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
+			<fileset dir="${dir.dist}/Smart Subtitles.app/Contents/PlugIns">
 				<include name="**/jspawnhelper" />
 				<include name="**/*.dylib" />
 				<include name="**/*.jar" />
@@ -487,7 +487,7 @@
 		<apply executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements}" />
 			<srcfile />
-			<fileset dir="${dir.dist}/FileBot.app/Contents">
+			<fileset dir="${dir.dist}/Smart Subtitles.app/Contents">
 				<include name="MacOS/*.dylib" />
 				<include name="Java/*.jar" />
 			</fileset>
