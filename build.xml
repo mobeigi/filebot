@@ -495,7 +495,7 @@
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} 'Smart Subtitles.app.app/Contents/PlugIns/${jre.version}'" />
+			<arg line="${codesign.opts} ${codesign.entitlements} 'Smart Subtitles.app/Contents/PlugIns/${jre.version}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements} 'Smart Subtitles.app'" />
