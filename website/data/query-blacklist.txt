@@ -255,6 +255,8 @@ DDLValley
 DDLValley.(eu|net)
 ded
 Demonoid
+Descargado
+Descargando
 Descargas
 Director's.Cut
 Directors.Cut
@@ -351,6 +353,7 @@ P2P
 PAL
 PBS
 PELICULAS
+Películas
 PHoQUE
 plex
 Pre.?DVD
@@ -377,6 +380,7 @@ Screenshot
 sd
 Season\D?\d+
 sed
+Series
 Series\D?\d+
 ShareGo
 ShareReactor
