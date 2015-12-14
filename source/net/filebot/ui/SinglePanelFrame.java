@@ -33,6 +33,11 @@ public class SinglePanelFrame extends JFrame {
 
 		setSize(850, 600);
 		setMinimumSize(new Dimension(800, 400));
+
+		String title = System.getProperty("application.name");
+		if (title != null) {
+			this.setTitle(title);
+		}
 	}
 
 	public SinglePanelFrame publish(Transferable transferable) {
