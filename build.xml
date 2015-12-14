@@ -293,7 +293,7 @@
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
-		<property name="path.app" value="${application.executable}.app" />
+		<property name="path.app" value="${application.name}.app" />
 		<property name="path.pkg" value="${application.executable}_${version}_r${svn.revision}.pkg" />
 
 		<property name="jre.version" value="jdk1.8.0_51.jdk" />
@@ -332,8 +332,6 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
-			<option value="-Xdock:name=${application.name}" />
-			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
 			<!-- enable logging by default -->
