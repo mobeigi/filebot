@@ -277,6 +277,7 @@
 			<param name="application.name" value="FileBot" />
 			<param name="application.executable" value="FileBot" />
 			<param name="application.identifier" value="net.filebot.FileBot" />
+			<param name="application.mode" value="Rename|Episodes|SFV|Analyze|List" />
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
 		</antcall>
 	</target>
@@ -286,6 +287,7 @@
 			<param name="application.name" value="Smart Subtitles" />
 			<param name="application.executable" value="SmartSubtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
+			<param name="application.mode" value="Subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
 		</antcall>
 	</target>
@@ -303,8 +305,10 @@
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
-
 			<runtime dir="${jre.path}" />
+
+			<argument value="--mode" />
+			<argument value="${application.mode}" />
 
 			<!-- WORKING_DIR is sandbox data folder -->
 			<option value="-Dapplication.dir=./Library/Application Support/User Data" />

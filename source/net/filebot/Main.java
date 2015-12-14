@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -218,15 +219,15 @@ public class Main {
 
 		if (args.mode == null) {
 			// default frame
-			frame = new MainFrame();
+			frame = new MainFrame(MainFrame.createPanelBuilders());
 		} else {
 			// single panel frame
-			for (PanelBuilder it : MainFrame.createPanelBuilders()) {
-				if (args.mode.equalsIgnoreCase(it.getName())) {
-					frame = new SinglePanelFrame(it).publish(new FileTransferable(args.getFiles(false)));
-				}
-			}
-			if (frame == null) {
+			PanelBuilder[] selection = Stream.of(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
+			if (selection.length == 1) {
+				frame = new MainFrame(selection);
+			} else if (selection.length > 1) {
+				frame = new SinglePanelFrame(selection[0]).publish(new FileTransferable(args.getFiles(false)));
+			} else {
 				throw new IllegalArgumentException("Illegal mode: " + args.mode);
 			}
 		}

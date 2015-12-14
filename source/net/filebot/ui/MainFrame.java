@@ -56,14 +56,16 @@ import net.sf.ehcache.CacheManager;
 
 public class MainFrame extends JFrame {
 
-	private JList selectionList = new PanelSelectionList(createPanelBuilders());
-
-	private HeaderPanel headerPanel = new HeaderPanel();
+	private JList selectionList;
+	private HeaderPanel headerPanel;
 
 	private static final PreferencesEntry<String> persistentSelectedPanel = Settings.forPackage(MainFrame.class).entry("panel.selected").defaultValue("0");
 
-	public MainFrame() {
+	public MainFrame(PanelBuilder[] panels) {
 		super(isInstalled() ? getApplicationName() : String.format("%s %s", getApplicationName(), getApplicationVersion()));
+
+		selectionList = new PanelSelectionList(panels);
+		headerPanel = new HeaderPanel();
 
 		try {
 			// restore selected panel
