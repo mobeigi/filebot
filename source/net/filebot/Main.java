@@ -224,9 +224,9 @@ public class Main {
 			// single panel frame
 			PanelBuilder[] selection = Stream.of(MainFrame.createPanelBuilders()).filter(p -> p.getName().matches(args.mode)).toArray(PanelBuilder[]::new);
 			if (selection.length == 1) {
-				frame = new MainFrame(selection);
-			} else if (selection.length > 1) {
 				frame = new SinglePanelFrame(selection[0]).publish(new FileTransferable(args.getFiles(false)));
+			} else if (selection.length > 1) {
+				frame = new MainFrame(selection);
 			} else {
 				throw new IllegalArgumentException("Illegal mode: " + args.mode);
 			}
