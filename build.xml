@@ -272,13 +272,34 @@
 	</target>
 
 
+	<target name="appbundle-maspkg-core">
+		<antcall target="appbundle-maspkg">
+			<param name="application.name" value="FileBot" />
+			<param name="application.executable" value="FileBot" />
+			<param name="application.identifier" value="net.filebot.FileBot" />
+			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
+		</antcall>
+	</target>
+
+	<target name="appbundle-maspkg-subtitles">
+		<antcall target="appbundle-maspkg">
+			<param name="application.name" value="Smart Subtitles" />
+			<param name="application.executable" value="SmartSubtitles" />
+			<param name="application.identifier" value="net.filebot.subtitles" />
+			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
+		</antcall>
+	</target>
+
 	<target name="appbundle-maspkg" depends="svn-update, fatjar">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
+
+		<property name="path.app" value="${application.executable}.app" />
+		<property name="path.pkg" value="${application.executable}_${version}_r${svn.revision}.pkg" />
 
 		<property name="jre.version" value="jdk1.8.0_51.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.8" executablename="FileBotAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.filebot.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="2015 Point Planck Limited" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -291,6 +312,7 @@
 			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
 
 			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
+			<option value="-Dapplication.name=${application.name}" />
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
 			<option value="-Dunixfs=false" />
@@ -310,35 +332,34 @@
 			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
 			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
 
-			<option value="-Xdock:name=${title}" />
+			<option value="-Xdock:name=${application.name}" />
 			<option value="-Xdock:icon=Contents/Resources/filebot.icns" />
 			<option value="-Dapple.laf.useScreenMenuBar=true" />
 
 			<!-- enable logging by default -->
 			<argument value="--log-file" />
-			<argument value="filebot.log" />
+			<argument value="${application.executable}.log" />
 			<argument value="--log-lock" />
 			<argument value="false" />
 		</bundleapp>
 
 		<!-- fix code signing and submission issues -->
 		<delete verbose="yes">
-			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
+			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
 				<include name="**/libjfxmedia_qtkit.dylib" />
 				<include name="**/Contents/Info.plist" />
 				<include name="**/Contents/MacOS/libjli.dylib" />
 			</fileset>
 		</delete>
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/FileBot.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
+		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
+		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/${path.app}/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
 
 		<!-- fix permissions -->
 		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
-		<chmod verbose="yes" dir="${dir.dist}/FileBot.app/Contents/PlugIns" perm="+rw" />
+		<chmod verbose="yes" dir="${dir.dist}/${path.app}/Contents/PlugIns" perm="+rw" />
 
 
 		<!-- JRE sign all jars, dylibs and executables -->
-		<property name="path.pkg" value="FileBot_${version}_r${svn.revision}.pkg" />
 		<property name="codesign.opts" value="--verbose=4 --force --sign '3rd Party Mac Developer Application: Point Planck Limited'" />
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
@@ -346,7 +367,7 @@
 		<apply executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
 			<srcfile />
-			<fileset dir="${dir.dist}/FileBot.app/Contents/PlugIns">
+			<fileset dir="${dir.dist}/${path.app}/Contents/PlugIns">
 				<include name="**/jspawnhelper" />
 				<include name="**/*.dylib" />
 				<include name="**/*.jar" />
@@ -354,7 +375,7 @@
 		</apply>
 
 		<!-- sign cmdline tool first -->
-		<exec dir="${dir.dist}/FileBot.app" executable="codesign">
+		<exec dir="${dir.dist}/${path.app}" executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements.inherit} Contents/MacOS/fpcalc" />
 		</exec>
 
@@ -362,7 +383,7 @@
 		<apply executable="codesign">
 			<arg line="${codesign.opts} ${codesign.entitlements}" />
 			<srcfile />
-			<fileset dir="${dir.dist}/FileBot.app/Contents">
+			<fileset dir="${dir.dist}/${path.app}/Contents">
 				<include name="MacOS/*.dylib" />
 				<include name="Java/*.jar" />
 			</fileset>
@@ -370,146 +391,21 @@
 
 		<!-- sign app with entitlements -->
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} FileBot.app/Contents/PlugIns/${jre.version}" />
+			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}/Contents/PlugIns/${jre.version}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} FileBot.app" />
+			<arg line="${codesign.opts} ${codesign.entitlements} '${path.app}'" />
 		</exec>
 
 		<!-- verify signature & build pkg -->
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify FileBot.app/Contents/PlugIns/${jre.version}" />
+			<arg line="--verify '${path.app}/Contents/PlugIns/${jre.version}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify FileBot.app" />
+			<arg line="--verify '${path.app}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component FileBot.app /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' ${path.pkg}" />
-		</exec>
-
-		<!-- store this build in releases -->
-		<mkdir dir="${dir.release}" />
-		<copy todir="${dir.release}" file="${dir.dist}/${path.pkg}" verbose="yes" />
-	</target>
-
-
-	<target name="appbundle-maspkg-subtitles" depends="svn-update, fatjar">
-		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
-
-		<property name="jre.version" value="jdk1.8.0_51.jdk" />
-		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
-
-		<bundleapp minimumsystemversion="10.8" executablename="SmartSubtitlesAppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="Smart Subtitles" displayname="Smart Subtitles" shortversion="${version}" identifier="net.filebot.subtitles" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/subtitles.icns" copyright="2015 Point Planck Limited" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
-			<classpath file="${path.fatjar}" />
-			<librarypath dir="${dir.lib}/native/mac-x86_64" />
-			<arch name="x86_64" />
-
-			<runtime dir="${jre.path}" />
-			<argument value="--mode" />
-			<argument value="Subtitles" />
-
-			<!-- WORKING_DIR is sandbox data folder -->
-			<option value="-Dapplication.dir=./Library/Application Support/User Data" />
-			<option value="-Dapplication.cache=./Library/Caches/ehcache.disk.store" />
-			<option value="-Djava.io.tmpdir=./Library/Caches/java.io.tmpdir" />
-
-			<option value="-Dapplication.help=skip" />
-
-			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
-			<option value="-Dapplication.deployment=mas" />
-			<option value="-Dapplication.update=skip" />
-			<option value="-Dunixfs=false" />
-			<option value="-DuseExtendedFileAttributes=true" />
-			<option value="-DuseCreationDate=false" />
-
-			<option value="-Djava.net.useSystemProxies=true" />
-			<option value="-Dsun.net.client.defaultConnectTimeout=10000" />
-			<option value="-Dsun.net.client.defaultReadTimeout=60000" />
-			<option value="-Dfile.encoding=UTF-8" />
-
-			<option value="-Djna.nosys=true" />
-			<option value="-Djna.nounpack=true" />
-			<option value="-Djna.boot.library.name=jnidispatch" />
-			<option value="-Djna.boot.library.path=$APP_ROOT/Contents/MacOS" />
-			<option value="-Djna.library.path=$APP_ROOT/Contents/MacOS" />
-			<option value="-Djava.library.path=$APP_ROOT/Contents/MacOS" />
-			<option value="-Dnet.filebot.AcoustID.fpcalc=$APP_ROOT/Contents/MacOS/fpcalc" />
-
-			<option value="-Xdock:name=Smart Subtitles" />
-			<option value="-Xdock:icon=Contents/Resources/subtitles.icns" />
-			<option value="-Dapple.laf.useScreenMenuBar=true" />
-
-			<!-- enable logging by default -->
-			<argument value="--log-file" />
-			<argument value="subtitles.log" />
-			<argument value="--log-lock" />
-			<argument value="false" />
-		</bundleapp>
-
-		<!-- fix code signing and submission issues -->
-		<delete verbose="yes">
-			<fileset dir="${dir.dist}/Smart Subtitles.app/Contents/PlugIns">
-				<include name="**/libjfxmedia_qtkit.dylib" />
-				<include name="**/Contents/Info.plist" />
-				<include name="**/Contents/MacOS/libjli.dylib" />
-			</fileset>
-		</delete>
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Info.plist" tofile="${dir.dist}/Smart Subtitles.app/Contents/PlugIns/${jre.version}/Contents/Info.plist" />
-		<copy verbose="yes" failonerror="yes" overwrite="yes" file="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/MacOS/libjli.dylib" tofile="${dir.dist}/Smart Subtitles.app/Contents/PlugIns/${jre.version}/Contents/MacOS/libjli.dylib" />
-
-		<!-- fix permissions -->
-		<chmod verbose="yes" dir="${dir.dist}" includes="**/fpcalc" perm="755" />
-		<chmod verbose="yes" dir="${dir.dist}/Smart Subtitles.app/Contents/PlugIns" perm="+rw" />
-
-
-		<!-- JRE sign all jars, dylibs and executables -->
-		<property name="path.pkg" value="Smart_Subtitles_${version}_r${svn.revision}.pkg" />
-		<property name="codesign.opts" value="--verbose=4 --force --sign '3rd Party Mac Developer Application: Point Planck Limited'" />
-		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
-		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
-
-		<apply executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/Smart Subtitles.app/Contents/PlugIns">
-				<include name="**/jspawnhelper" />
-				<include name="**/*.dylib" />
-				<include name="**/*.jar" />
-			</fileset>
-		</apply>
-
-		<!-- sign cmdline tool first -->
-		<exec dir="${dir.dist}/Smart Subtitles.app" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements.inherit} Contents/MacOS/fpcalc" />
-		</exec>
-
-		<!-- APP sign all jars, dylibs and executables -->
-		<apply executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements}" />
-			<srcfile />
-			<fileset dir="${dir.dist}/Smart Subtitles.app/Contents">
-				<include name="MacOS/*.dylib" />
-				<include name="Java/*.jar" />
-			</fileset>
-		</apply>
-
-		<!-- sign app with entitlements -->
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} 'Smart Subtitles.app/Contents/PlugIns/${jre.version}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="codesign">
-			<arg line="${codesign.opts} ${codesign.entitlements} 'Smart Subtitles.app'" />
-		</exec>
-
-		<!-- verify signature & build pkg -->
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify 'Smart Subtitles.app/Contents/PlugIns/${jre.version}'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="codesign" failonerror="on">
-			<arg line="--verify 'Smart Subtitles.app'" />
-		</exec>
-		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component 'Smart Subtitles.app' /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' ${path.pkg}" />
+			<arg line="--component '${path.app}' /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' ${path.pkg}" />
 		</exec>
 
 		<!-- store this build in releases -->
