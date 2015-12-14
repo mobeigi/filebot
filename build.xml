@@ -284,8 +284,8 @@
 
 	<target name="appbundle-maspkg-subtitles">
 		<antcall target="appbundle-maspkg">
-			<param name="application.name" value="Smart Subtitles" />
-			<param name="application.executable" value="SmartSubtitles" />
+			<param name="application.name" value="Subtitles" />
+			<param name="application.executable" value="Subtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
 			<param name="application.mode" value="Subtitles" />
