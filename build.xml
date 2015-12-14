@@ -277,8 +277,8 @@
 			<param name="application.name" value="FileBot" />
 			<param name="application.executable" value="FileBot" />
 			<param name="application.identifier" value="net.filebot.FileBot" />
-			<param name="application.mode" value="Rename|Episodes|SFV|Analyze|List" />
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
+			<param name="application.help" value="show" />
 		</antcall>
 	</target>
 
@@ -287,8 +287,9 @@
 			<param name="application.name" value="Smart Subtitles" />
 			<param name="application.executable" value="SmartSubtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
-			<param name="application.mode" value="Subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
+			<param name="application.mode" value="Subtitles" />
+			<param name="application.help" value="skip" />
 		</antcall>
 	</target>
 
@@ -317,6 +318,7 @@
 
 			<option value="-Dnet.filebot.UserFiles.fileChooser=COCOA" />
 			<option value="-Dapplication.name=${application.name}" />
+			<option value="-Dapplication.help=${application.help}" />
 			<option value="-Dapplication.deployment=mas" />
 			<option value="-Dapplication.update=skip" />
 			<option value="-Dunixfs=false" />
