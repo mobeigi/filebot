@@ -673,6 +673,16 @@ public class MediaBindingBean {
 		return createMapBindings(getMediaInfo().snapshot(StreamKind.Text, 0));
 	}
 
+	@Define("menu")
+	public AssociativeScriptObject getMenuInfo() {
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.Menu, 0));
+	}
+
+	@Define("image")
+	public AssociativeScriptObject getImageInfo() {
+		return createMapBindings(getMediaInfo().snapshot(StreamKind.Image, 0));
+	}
+
 	@Define("videos")
 	public List<AssociativeScriptObject> getVideoInfoList() {
 		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Video));
@@ -686,6 +696,21 @@ public class MediaBindingBean {
 	@Define("texts")
 	public List<AssociativeScriptObject> getTextInfoList() {
 		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Text));
+	}
+
+	@Define("menus")
+	public List<AssociativeScriptObject> getMenuInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Menu));
+	}
+
+	@Define("chapters")
+	public List<AssociativeScriptObject> getChaptersInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Chapters));
+	}
+
+	@Define("images")
+	public List<AssociativeScriptObject> getImageInfoList() {
+		return createMapBindingsList(getMediaInfo().snapshot().get(StreamKind.Image));
 	}
 
 	@Define("artist")
