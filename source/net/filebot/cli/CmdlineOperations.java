@@ -720,7 +720,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				CLILogger.fine("Looking up subtitles by hash via " + service.getName());
-				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos);
+				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos, false);
 				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
@@ -870,12 +870,17 @@ public class CmdlineOperations implements CmdlineInterface {
 		return destination;
 	}
 
-	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles) throws Exception {
+	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
 		Map<File, SubtitleDescriptor> subtitleByVideo = new TreeMap<File, SubtitleDescriptor>();
 
 		for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videoFiles.toArray(new File[0]), language.getName()).entrySet()) {
 			// guess best hash match (default order is open bad due to invalid hash links)
-			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), false);
+			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), strict);
+
+			// if we can't guess the best one, just pick the first one, since all hash matches should good (ideally)
+			if (bestMatch == null && !strict && it.getValue().size() > 0) {
+				bestMatch = it.getValue().get(0);
+			}
 
 			if (bestMatch != null) {
 				CLILogger.finest(format("Matched [%s] to [%s] via hash", it.getKey().getName(), bestMatch.getName()));
