@@ -720,7 +720,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				CLILogger.fine("Looking up subtitles by hash via " + service.getName());
-				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos, false);
+				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos, strict);
 				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
