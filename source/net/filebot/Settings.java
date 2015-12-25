@@ -220,9 +220,18 @@ public final class Settings {
 		links.put("Getting Started", getApplicationLink("link.intro"));
 		links.put("FAQ", getApplicationLink("link.faq"));
 		links.put("Forums", getApplicationLink("link.forums"));
-		links.put("Twitter", getApplicationLink("link.twitter"));
-		links.put("Report Bugs", getApplicationLink(isMacSandbox() ? "link.help.mas" : "link.bugs"));
-		links.put("Request Help", getApplicationLink(isMacSandbox() ? "link.help.mas" : "link.help"));
+
+		if (isMacSandbox()) {
+			links.put("Report Bugs", getApplicationLink("link.help.mas"));
+			links.put("Request Help", getApplicationLink("link.help.mas"));
+		} else {
+			links.put("Report Bugs", getApplicationLink("link.bugs"));
+			links.put("Request Help", getApplicationLink("link.help"));
+		}
+
+		links.put("Contact us on Twitter", getApplicationLink("link.twitter"));
+		links.put("Contact us on Facebook", getApplicationLink("link.facebook"));
+
 		return links;
 	}
 
