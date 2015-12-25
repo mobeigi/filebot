@@ -788,6 +788,21 @@ public class MediaBindingBean {
 		return getMediaFile().getParentFile();
 	}
 
+	@Define("bytes")
+	public Long getFileSize() {
+		return getInferredMediaFile().length();
+	}
+
+	@Define("megabytes")
+	public String getFileSizeInMegaBytes() {
+		return String.format("%.0f", getFileSize() / Math.pow(1000, 2));
+	}
+
+	@Define("gigabytes")
+	public String getFileSizeInGigaBytes() {
+		return String.format("%.1f", getFileSize() / Math.pow(1000, 3));
+	}
+
 	@Define("home")
 	public File getUserHome() throws IOException {
 		return Settings.getRealUserHome();
