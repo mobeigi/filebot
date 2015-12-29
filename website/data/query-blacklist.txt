@@ -99,6 +99,7 @@
 ^In.Progress$
 ^inbox$
 ^Incoming$
+^Incomplete$
 ^jukebox$
 ^Kids$
 ^Kids.Movies$
@@ -238,6 +239,7 @@ bt.downloads
 btarena.org
 By.Cool.Release
 C.orig
+Castellano
 CBC
 CD[0]?[1-3]
 Channel.4
@@ -311,6 +313,7 @@ HR
 HSBS
 iFH
 info
+Ingles.Subs
 iNT
 iNTERNAL
 iPod
