@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.text.FieldPosition;
@@ -7,9 +8,15 @@ import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EpisodeFormat extends Format {
 
@@ -67,37 +74,31 @@ public class EpisodeFormat extends Format {
 
 	public String formatSxE(Episode episode) {
 		if (episode instanceof MultiEpisode) {
-			return formatMultiSxE(((MultiEpisode) episode).getEpisodes());
+			return formatMultiRangeSxE(((MultiEpisode) episode).getEpisodes());
 		}
 
 		StringBuilder sb = new StringBuilder();
-
 		if (episode.getSeason() != null || episode.getSpecial() != null) {
 			sb.append(episode.getSpecial() == null ? episode.getSeason() : 0).append('x');
 		}
-
 		if (episode.getEpisode() != null || episode.getSpecial() != null) {
 			sb.append(String.format("%02d", episode.getSpecial() == null ? episode.getEpisode() : episode.getSpecial()));
 		}
-
 		return sb.toString();
 	}
 
 	public String formatS00E00(Episode episode) {
 		if (episode instanceof MultiEpisode) {
-			return formatMultiS00E00(((MultiEpisode) episode).getEpisodes());
+			return formatMultiRangeS00E00(((MultiEpisode) episode).getEpisodes());
 		}
 
 		StringBuilder sb = new StringBuilder();
-
 		if (episode.getSeason() != null || episode.getSpecial() != null) {
 			sb.append(String.format("S%02d", episode.getSpecial() == null ? episode.getSeason() : 0));
 		}
-
 		if (episode.getEpisode() != null || episode.getSpecial() != null) {
 			sb.append(String.format("E%02d", episode.getSpecial() == null ? episode.getEpisode() : episode.getSpecial()));
 		}
-
 		return sb.toString();
 	}
 
@@ -108,61 +109,44 @@ public class EpisodeFormat extends Format {
 		for (Episode it : episodes) {
 			name.add(it.getSeriesName());
 			sxe.add(formatSxE(it));
-			title.add(it.getTitle().replaceAll("[(]([^)]*)[)]$", "").trim());
+			title.add(removeTrailingBrackets(it.getTitle()));
 		}
 		return String.format("%s - %s - %s", join(name, " & "), join(" & ", sxe), join(" & ", title));
 	}
 
-	public String formatMultiSxE(Iterable<Episode> episodes) {
-		StringBuilder sb = new StringBuilder();
-		Integer ps = null;
-		for (Episode it : episodes) {
-			if (it.getSeason() != null && !it.getSeason().equals(ps)) {
-				if (sb.length() > 0) {
-					sb.append(' ');
-				}
-				sb.append(it.getSeason()).append('x');
-				if (it.getSpecial() == null) {
-					sb.append(String.format("%02d", it.getEpisode()));
-				} else {
-					sb.append("Special ").append(it.getSpecial());
-				}
+	public String formatMultiRangeSxE(List<Episode> episodes) {
+		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
+			if (it.getKey() >= 0) {
+				// season episode format
+				return String.format("%01dx%02d-%02d", it.getKey(), it.getValue().first(), it.getValue().last());
 			} else {
-				if (sb.length() > 0) {
-					sb.append('-');
-				}
-				if (it.getSpecial() == null) {
-					sb.append(String.format("%02d", it.getEpisode()));
-				} else {
-					sb.append(it.getSpecial());
-				}
+				// absolute episode format
+				return String.format("%02d-%02d", it.getValue().first(), it.getValue().last());
 			}
-			ps = it.getSeason();
-		}
-
-		return sb.toString();
+		}).collect(Collectors.joining("-"));
 	}
 
-	public String formatMultiS00E00(Iterable<Episode> episodes) {
-		StringBuilder sb = new StringBuilder();
-		Integer ps = null;
-		for (Episode it : episodes) {
-			if (sb.length() > 0) {
-				sb.append("-");
-			}
-
-			Integer s = it.getSpecial() == null ? it.getSeason() : 0;
-			Integer e = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
-
-			if (s != null && !s.equals(ps)) {
-				sb.append(String.format("S%02d", s)).append(String.format("E%02d", e));
+	public String formatMultiRangeS00E00(List<Episode> episodes) {
+		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
+			if (it.getKey() >= 0) {
+				// season episode format
+				return String.format("S%02dxE%02d-E%02d", it.getKey(), it.getValue().first(), it.getValue().last());
 			} else {
-				sb.append(String.format("E%02d", e));
+				// absolute episode format
+				return String.format("E%02d-E%02d", it.getValue().first(), it.getValue().last());
 			}
-			ps = s;
-		}
+		}).collect(Collectors.joining("-"));
+	}
 
-		return sb.toString();
+	private SortedMap<Integer, SortedSet<Integer>> getSeasonEpisodeNumbers(Iterable<Episode> episodes) {
+		SortedMap<Integer, SortedSet<Integer>> n = new TreeMap<Integer, SortedSet<Integer>>();
+		for (Episode it : episodes) {
+			Integer s = it.getSeason() == null || it.getSpecial() != null ? it.getSpecial() == null ? -1 : 0 : it.getSeason();
+			Integer e = it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode();
+
+			n.computeIfAbsent(s, key -> new TreeSet<Integer>()).add(e);
+		}
+		return n;
 	}
 
 	private final Pattern sxePattern = Pattern.compile("- (?:(\\d{1,2})x)?(Special )?(\\d{1,3}) -");
