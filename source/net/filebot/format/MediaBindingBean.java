@@ -139,7 +139,7 @@ public class MediaBindingBean {
 	public List<Integer> getEpisodeNumbers() {
 		List<Integer> n = new ArrayList<Integer>();
 		for (Episode it : getEpisodes()) {
-			n.add(it.getEpisode());
+			n.add(it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode());
 		}
 		return n;
 	}
@@ -161,19 +161,7 @@ public class MediaBindingBean {
 		}
 
 		// enforce title length limit by default
-		int limit = 150;
-
-		// single episode format
-		if (getEpisodes().size() == 1) {
-			return truncateText(getEpisode().getTitle(), limit);
-		}
-
-		// multi-episode format
-		Set<String> title = new LinkedHashSet<String>();
-		for (Episode it : getEpisodes()) {
-			title.add(removeTrailingBrackets(it.getTitle()));
-		}
-		return truncateText(join(title, " & "), limit);
+		return truncateText(infoObject instanceof MultiEpisode ? SeasonEpisode.formatMultiTitle(getEpisodes()) : getEpisode().getTitle(), 150);
 	}
 
 	@Define("d")
