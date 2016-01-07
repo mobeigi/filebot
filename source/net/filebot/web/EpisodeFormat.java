@@ -120,7 +120,7 @@ public class EpisodeFormat extends Format {
 		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
 			if (it.getKey() >= 0) {
 				// season episode format
-				return String.format("S%02dxE%02d-E%02d", it.getKey(), it.getValue().first(), it.getValue().last());
+				return String.format("S%02dE%02d-E%02d", it.getKey(), it.getValue().first(), it.getValue().last());
 			} else {
 				// absolute episode format
 				return String.format("E%02d-E%02d", it.getValue().first(), it.getValue().last());
