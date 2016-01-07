@@ -20,15 +20,7 @@ import java.util.stream.Collectors;
 
 public class EpisodeFormat extends Format {
 
-	public static final EpisodeFormat SeasonEpisode = new EpisodeFormat(true, false);
-
-	private final boolean includeAirdate;
-	private final boolean includeSpecial;
-
-	public EpisodeFormat(boolean includeSpecial, boolean includeAirdate) {
-		this.includeSpecial = includeSpecial;
-		this.includeAirdate = includeAirdate;
-	}
+	public static final EpisodeFormat SeasonEpisode = new EpisodeFormat();
 
 	@Override
 	public StringBuffer format(Object obj, StringBuffer sb, FieldPosition pos) {
@@ -51,25 +43,31 @@ public class EpisodeFormat extends Format {
 
 			if (episode.getEpisode() != null) {
 				sb.append(String.format("%02d", episode.getEpisode()));
-			} else if (includeSpecial && episode.getSpecial() != null) {
+			} else if (episode.getSpecial() != null) {
 				sb.append("Special " + episode.getSpecial());
 			}
 		} else {
 			// episode, but no season
 			if (episode.getEpisode() != null) {
 				sb.append(" - ").append(episodeNumber);
-			} else if (includeSpecial && episode.getSpecial() != null) {
+			} else if (episode.getSpecial() != null) {
 				sb.append(" - ").append("Special " + episode.getSpecial());
 			}
 		}
-
 		sb.append(" - ").append(episode.getTitle());
-
-		if (includeAirdate && episode.getAirdate() != null) {
-			sb.append(" [").append(episode.getAirdate().format("yyyy-MM-dd")).append("]");
-		}
-
 		return sb;
+	}
+
+	public String formatMultiEpisode(List<Episode> episodes) {
+		Set<String> name = new LinkedHashSet<String>(2);
+		Set<String> sxe = new LinkedHashSet<String>(2);
+		Set<String> title = new LinkedHashSet<String>(2);
+		for (Episode it : episodes) {
+			name.add(it.getSeriesName());
+			sxe.add(formatSxE(it));
+			title.add(removeTrailingBrackets(it.getTitle()));
+		}
+		return String.format("%s - %s - %s", join(name, " & "), join(" & ", sxe), join(" & ", title));
 	}
 
 	public String formatSxE(Episode episode) {
@@ -102,16 +100,8 @@ public class EpisodeFormat extends Format {
 		return sb.toString();
 	}
 
-	public String formatMultiEpisode(Iterable<Episode> episodes) {
-		Set<String> name = new LinkedHashSet<String>();
-		Set<String> sxe = new LinkedHashSet<String>();
-		Set<String> title = new LinkedHashSet<String>();
-		for (Episode it : episodes) {
-			name.add(it.getSeriesName());
-			sxe.add(formatSxE(it));
-			title.add(removeTrailingBrackets(it.getTitle()));
-		}
-		return String.format("%s - %s - %s", join(name, " & "), join(" & ", sxe), join(" & ", title));
+	public String formatMultiTitle(List<Episode> episodes) {
+		return episodes.stream().map(e -> removeTrailingBrackets(e.getTitle())).distinct().collect(Collectors.joining(" & "));
 	}
 
 	public String formatMultiRangeSxE(List<Episode> episodes) {

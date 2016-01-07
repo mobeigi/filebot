@@ -133,7 +133,7 @@ public class FormatDialog extends JDialog {
 		public Format getFormat() {
 			switch (this) {
 			case Episode:
-				return new EpisodeFormat(true, true);
+				return new EpisodeFormat();
 			case Movie: // case Movie
 				return new MovieFormat(true, true, false);
 			case Music:
