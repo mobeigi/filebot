@@ -3,6 +3,7 @@ package net.filebot.similarity;
 import static java.lang.Math.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
@@ -18,7 +19,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.filebot.media.MediaDetection;
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.vfs.FileInfo;
@@ -350,7 +349,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 				// check direct mappings first
 				try {
-					List<String> directMapping = MediaDetection.matchSeriesByDirectMapping(singleton(file));
+					List<String> directMapping = matchSeriesByDirectMapping(singleton(file));
 					if (directMapping.size() > 0) {
 						return directMapping;
 					}
@@ -371,9 +370,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			// equally strip away strip potential any clutter
 			if (names != null) {
 				try {
-					return MediaDetection.releaseInfo.cleanRelease(names, true);
-				} catch (NoSuchElementException e) {
-					// keep default value in case all tokens are stripped away
+					return stripReleaseInfo(names, true);
 				} catch (IOException e) {
 					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
 				}
@@ -405,8 +402,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			String s1 = normalizeObject(o1);
 			String s2 = normalizeObject(o2);
 
-			s1 = MediaDetection.stripReleaseInfo(s1, false);
-			s2 = MediaDetection.stripReleaseInfo(s2, false);
+			s1 = stripReleaseInfo(s1, false);
+			s2 = stripReleaseInfo(s2, false);
 
 			int length = min(s1.length(), s2.length());
 			s1 = s1.substring(0, length);
@@ -499,7 +496,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				return new String[] { movie.getName(), String.valueOf(movie.getYear()) };
 			}
 
-			return new String[] { normalizeObject(object) };
+			return new String[] { stripFormatInfo(normalizeObject(object)) };
 		}
 	}),
 
@@ -653,7 +650,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 			// deserialize MetaAttributes if enabled and available
 			if (object instanceof File) {
-				Object metaObject = MediaDetection.readMetaInfo((File) object);
+				Object metaObject = readMetaInfo((File) object);
 				if (metaObject != null) {
 					return super.getProperties(metaObject);
 				}
@@ -690,13 +687,13 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return result;
 		}
 
-		String name = object.toString();
-
-		// use name without extension
+		String name;
 		if (object instanceof File) {
 			name = getName((File) object);
 		} else if (object instanceof FileInfo) {
 			name = ((FileInfo) object).getName();
+		} else {
+			name = object.toString();
 		}
 
 		// remove checksums, any [...] or (...)
@@ -706,7 +703,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			name = transliterator.transform(name);
 		}
 
-		// remove/normalize special characters
+		// remove or normalize special characters
 		name = normalizePunctuation(name);
 
 		// normalize to lower case

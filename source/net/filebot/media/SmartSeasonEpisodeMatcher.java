@@ -2,14 +2,10 @@ package net.filebot.media;
 
 import java.io.File;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import net.filebot.similarity.SeasonEpisodeMatcher;
 
 public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
-
-	// make sure certain patterns like x264 or 720p will never be interpreted as SxE numbers
-	private final Pattern ignorePattern = new ReleaseInfo().getVideoFormatPattern(false);
 
 	public SmartSeasonEpisodeMatcher(SeasonEpisodeFilter sanity, boolean strict) {
 		super(sanity, strict);
@@ -20,7 +16,7 @@ public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 	}
 
 	protected String clean(CharSequence name) {
-		return ignorePattern.matcher(name).replaceAll("");
+		return MediaDetection.stripFormatInfo(name);
 	}
 
 	@Override

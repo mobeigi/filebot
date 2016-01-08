@@ -1022,6 +1022,12 @@ public class MediaDetection {
 		return movies;
 	}
 
+	private static final Pattern defaultIgnoreTokens = releaseInfo.getVideoFormatPattern(false);
+
+	public static String stripFormatInfo(CharSequence name) {
+		return defaultIgnoreTokens.matcher(name).replaceAll("");
+	}
+
 	public static String stripReleaseInfo(String name, boolean strict) {
 		try {
 			return releaseInfo.cleanRelease(singleton(name), strict).iterator().next();
