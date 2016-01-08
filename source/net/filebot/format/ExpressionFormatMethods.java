@@ -95,6 +95,10 @@ public class ExpressionFormatMethods {
 		return compile(pattern, CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS | MULTILINE).matcher(self).replaceAll("").trim();
 	}
 
+	public static String removeIllegalCharacters(String self) {
+		return FileUtilities.validateFileName(Normalization.normalizeQuotationMarks(self));
+	}
+
 	/**
 	 * Replace space characters with a given characters.
 	 *
