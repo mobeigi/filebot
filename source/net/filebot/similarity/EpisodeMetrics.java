@@ -384,10 +384,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		}
 	}),
 
-	NameBalancer(new MetricCascade(NameSubstringSequence, Name, SeriesName)),
+	SeriesNameBalancer(new MetricCascade(NameSubstringSequence, Name, SeriesName)),
 
 	// Match by generic name similarity (absolute)
-	AbsolutePath(new NameSimilarityMetric() {
+	FilePath(new NameSimilarityMetric() {
 
 		@Override
 		protected String normalize(Object object) {
@@ -395,6 +395,29 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				object = normalizePathSeparators(getRelativePathTail((File) object, 3).getPath());
 			}
 			return normalizeObject(object.toString()); // simplify file name, if possible
+		}
+	}),
+
+	FilePathBalancer(new NameSimilarityMetric() {
+
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			String s1 = normalizeObject(o1);
+			String s2 = normalizeObject(o2);
+
+			s1 = MediaDetection.stripReleaseInfo(s1, false);
+			s2 = MediaDetection.stripReleaseInfo(s2, false);
+
+			int length = min(s1.length(), s2.length());
+			s1 = s1.substring(0, length);
+			s2 = s2.substring(0, length);
+
+			return (float) (floor(super.getSimilarity(s1, s2) * 4) / 4);
+		};
+
+		@Override
+		protected String normalize(Object object) {
+			return object.toString();
 		}
 	}),
 
@@ -702,9 +725,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, NameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, FilePathBalancer, FilePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, NameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, AbsolutePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, FilePathBalancer, FilePath };
 		}
 	}
 
