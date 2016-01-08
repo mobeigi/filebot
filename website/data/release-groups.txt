@@ -1427,6 +1427,7 @@ KEKKAI
 keltz
 Kemo-Subs
 KESH
+kewenyu
 KFC
 KG
 kgl
@@ -2153,6 +2154,7 @@ RuDE
 RUDOS
 RUELL
 RUELL-Raws
+RUELL-Subs
 RUFGT
 RULLSTOL
 RUMBEL

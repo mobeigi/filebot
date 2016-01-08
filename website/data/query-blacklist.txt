@@ -249,6 +249,7 @@ CN
 CODIFICAR
 CODY
 ConvertedTV
+Creditless
 Custom.DKsubs
 CVCD
 DC
@@ -279,6 +280,7 @@ DVSKY
 ECE
 ENG
 English
+ENSub
 Ext
 EXTENDED
 Extended.Collectors.Cut
@@ -302,6 +304,7 @@ HAVE.TO.BE.CUT
 HBO
 HBO.Documentaries
 HD
+HDR
 HDRip
 HebSubs
 Hi10P
