@@ -134,6 +134,7 @@
 ^Películas$
 ^Pictures$
 ^Piece$
+^plex.film$
 ^Plexserv$
 ^private$
 ^Processed$
