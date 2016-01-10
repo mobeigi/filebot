@@ -1,10 +1,11 @@
 package net.filebot.similarity;
 
+import static net.filebot.util.StringUtilities.*;
+
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
@@ -34,8 +35,6 @@ public class NumericSimilarityMetric implements SimilarityMetric {
 
 	private static class NumberTokeniser implements InterfaceTokeniser {
 
-		private static final Pattern DIGIT = Pattern.compile("\\d+");
-
 		@Override
 		public ArrayList<String> tokenizeToArrayList(String s) {
 			ArrayList<String> tokens = new ArrayList<String>();
@@ -51,7 +50,7 @@ public class NumericSimilarityMetric implements SimilarityMetric {
 
 		@Override
 		public String getDelimiters() {
-			return "\\D+";
+			return NON_DIGIT.pattern();
 		}
 
 		@Override
