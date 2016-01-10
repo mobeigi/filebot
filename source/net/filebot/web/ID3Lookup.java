@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,8 +86,8 @@ public class ID3Lookup implements MusicIdentificationService {
 		String value = getString(mediaInfo, field);
 		if (value != null) {
 			try {
-				return new Integer(value);
-			} catch (Exception e) {
+				return new Scanner(value).useDelimiter("\\D+").nextInt();
+			} catch (NumberFormatException | NoSuchElementException e) {
 				Logger.getLogger(ID3Lookup.class.getName()).log(Level.WARNING, e.toString());
 			}
 		}
