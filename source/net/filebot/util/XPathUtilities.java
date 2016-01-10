@@ -3,8 +3,6 @@ package net.filebot.util;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
@@ -124,14 +122,6 @@ public final class XPathUtilities {
 			}
 		}
 		return list;
-	}
-
-	public static Integer getInteger(String textContent) {
-		try {
-			return new Scanner(textContent).useDelimiter("\\D+").nextInt();
-		} catch (NumberFormatException | NoSuchElementException | NullPointerException e) {
-			return null;
-		}
 	}
 
 	public static Double getDecimal(String textContent) {

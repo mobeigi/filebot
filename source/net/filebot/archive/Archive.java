@@ -1,11 +1,12 @@
 package net.filebot.archive;
 
+import static net.filebot.util.StringUtilities.*;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -94,8 +95,8 @@ public class Archive implements Closeable {
 
 			Matcher matcher = volume.matcher(path.getName());
 			if (matcher.find()) {
-				Scanner scanner = new Scanner(matcher.group()).useDelimiter("\\D+");
-				if (!scanner.hasNext() || scanner.nextInt() != 1) {
+				Integer i = matchInteger(matcher.group());
+				if (i == null || i != 1) {
 					return false;
 				}
 			}

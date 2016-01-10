@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
@@ -123,7 +124,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		seriesInfo.setName(selectString("anime/titles/title[@type='main']", dom));
 		seriesInfo.setRating(getDecimal(selectString("anime/ratings/permanent", dom)));
-		seriesInfo.setRatingCount(getInteger(getTextContent("anime/ratings/permanent/@count", dom)));
+		seriesInfo.setRatingCount(matchInteger(getTextContent("anime/ratings/permanent/@count", dom)));
 		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom), "yyyy-MM-dd"));
 
 		// add categories ordered by weight as genres
@@ -132,7 +133,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// * limit to 5 genres
 		seriesInfo.setGenres(selectNodes("anime/categories/category", dom).stream().map(categoryNode -> {
 			String name = getTextContent("name", categoryNode);
-			Integer weight = getInteger(getAttribute("weight", categoryNode));
+			Integer weight = matchInteger(getAttribute("weight", categoryNode));
 			return new SimpleImmutableEntry<String, Integer>(name, weight);
 		}).filter(nw -> {
 			return nw.getKey() != null && nw.getValue() != null && nw.getKey().length() > 0 && nw.getValue() >= 400;

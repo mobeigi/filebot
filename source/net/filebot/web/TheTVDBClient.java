@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
@@ -104,7 +105,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
 
 		for (Node node : nodes) {
-			int sid = getInteger(getTextContent("seriesid", node));
+			int sid = matchInteger(getTextContent("seriesid", node));
 			String seriesName = getTextContent("SeriesName", node);
 
 			List<String> aliasNames = new ArrayList<String>();
@@ -144,8 +145,8 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		seriesInfo.setStatus(getTextContent("Status", seriesNode));
 
 		seriesInfo.setRating(getDecimal(getTextContent("Rating", seriesNode)));
-		seriesInfo.setRatingCount(getInteger(getTextContent("RatingCount", seriesNode)));
-		seriesInfo.setRuntime(getInteger(getTextContent("Runtime", seriesNode)));
+		seriesInfo.setRatingCount(matchInteger(getTextContent("RatingCount", seriesNode)));
+		seriesInfo.setRuntime(matchInteger(getTextContent("Runtime", seriesNode)));
 		seriesInfo.setActors(getListContent("Actors", "\\|", seriesNode));
 		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
 		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode), "yyyy-MM-dd"));
@@ -162,17 +163,17 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
-			Integer absoluteNumber = getInteger(getTextContent("absolute_number", node));
+			Integer absoluteNumber = matchInteger(getTextContent("absolute_number", node));
 			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
 
 			// default numbering
-			Integer episodeNumber = getInteger(getTextContent("EpisodeNumber", node));
-			Integer seasonNumber = getInteger(getTextContent("SeasonNumber", node));
+			Integer episodeNumber = matchInteger(getTextContent("EpisodeNumber", node));
+			Integer seasonNumber = matchInteger(getTextContent("SeasonNumber", node));
 
 			// adjust for DVD numbering if possible
 			if (sortOrder == SortOrder.DVD) {
-				Integer dvdSeasonNumber = getInteger(getTextContent("DVD_season", node));
-				Integer dvdEpisodeNumber = getInteger(getTextContent("DVD_episodenumber", node));
+				Integer dvdSeasonNumber = matchInteger(getTextContent("DVD_season", node));
+				Integer dvdEpisodeNumber = matchInteger(getTextContent("DVD_episodenumber", node));
 
 				// require both values to be valid integer numbers
 				if (dvdSeasonNumber != null && dvdEpisodeNumber != null) {
@@ -185,7 +186,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			if (seasonNumber == null || seasonNumber == 0) {
 				// handle as special episode
 				for (String specialSeasonTag : new String[] { "airsafter_season", "airsbefore_season" }) {
-					Integer specialSeason = getInteger(getTextContent(specialSeasonTag, node));
+					Integer specialSeason = matchInteger(getTextContent(specialSeasonTag, node));
 					if (specialSeason != null && specialSeason != 0) {
 						seasonNumber = specialSeason;
 						break;

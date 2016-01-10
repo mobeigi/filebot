@@ -1,11 +1,43 @@
 package net.filebot.util;
 
 import static java.util.Arrays.*;
+import static java.util.Collections.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class StringUtilities {
+
+	public static final Pattern DIGIT = Pattern.compile("\\d+");
+	public static final Pattern NON_DIGIT = Pattern.compile("\\D+");
+
+	public static List<Integer> matchIntegers(CharSequence s) {
+		if (s == null || s.length() == 0) {
+			return emptyList();
+		}
+
+		List<Integer> numbers = new ArrayList<Integer>();
+		Matcher matcher = DIGIT.matcher(s);
+		while (matcher.find()) {
+			numbers.add(new Integer(matcher.group()));
+		}
+		return numbers;
+	}
+
+	public static Integer matchInteger(CharSequence s) {
+		if (s == null || s.length() == 0) {
+			return null;
+		}
+
+		Matcher matcher = DIGIT.matcher(s);
+		if (matcher.find()) {
+			return new Integer(matcher.group());
+		}
+		return null;
+	}
 
 	public static String asString(Object object) {
 		return object == null ? null : object.toString();
@@ -28,7 +60,7 @@ public final class StringUtilities {
 	}
 
 	public static String joinSorted(Object[] values, CharSequence delimiter, Comparator<Object> sort, CharSequence start, CharSequence end) {
-		return join(Arrays.stream(values).sorted(sort)::iterator, delimiter, start, end);
+		return join(stream(values).sorted(sort)::iterator, delimiter, start, end);
 	}
 
 	public static String join(Iterable<?> values, CharSequence delimiter, CharSequence start, CharSequence end) {

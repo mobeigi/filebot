@@ -1,6 +1,7 @@
 package net.filebot.similarity;
 
 import static java.lang.Math.*;
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static net.filebot.media.MediaDetection.*;
@@ -19,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -451,11 +451,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			}
 
 			// simplify file name if possible and extract numbers
-			List<String> numbers = new ArrayList<String>(4);
-			Scanner scanner = new Scanner(normalizeObject(object)).useDelimiter("\\D+");
-			while (scanner.hasNextInt()) {
-				numbers.add(String.valueOf(scanner.nextInt()));
-			}
+			List<Integer> numbers = matchIntegers(normalizeObject(object));
 			return join(numbers, " ");
 		}
 	}),

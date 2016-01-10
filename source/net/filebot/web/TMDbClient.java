@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -22,7 +23,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +110,7 @@ public class TMDbClient implements MovieIdentificationService {
 				id = Float.valueOf(it.get("id").toString()).intValue();
 				try {
 					String release = (String) it.get("release_date");
-					year = new Scanner(release).useDelimiter("\\D+").nextInt();
+					year = matchInteger(release);
 				} catch (Exception e) {
 					throw new IllegalArgumentException("Missing data: release date");
 				}

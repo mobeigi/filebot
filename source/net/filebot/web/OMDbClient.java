@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -123,7 +123,7 @@ public class OMDbClient implements MovieIdentificationService {
 	public Movie getMovie(Map<String, String> info) {
 		try {
 			String name = info.get("Title");
-			int year = new Scanner(info.get("Year")).useDelimiter("\\D+").nextInt();
+			int year = matchInteger(info.get("Year"));
 			int imdbid = Integer.parseInt(info.get("imdbID").replace("tt", ""));
 
 			if (name.length() <= 0 || year <= 1900 || imdbid <= 0)
