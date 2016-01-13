@@ -18,6 +18,8 @@
 \d{2,4}.\b\d{2}.\b\d{2}.\b\d{2}.\b\d{2}
 \d{3,4}[pi]
 ^(amc|cover|dvd|specials)
+^(downloads).+$
+^.+(downloads)$
 ^[0-9]{1,2}[.]
 ^[_]+$
 ^[lp]
@@ -45,7 +47,6 @@
 ^Complete$
 ^Complete.Torrents$
 ^Completed$
-^Completed.Downloads$
 ^Crime$
 ^data$
 ^deluge$
@@ -205,7 +206,6 @@
 ^TV.Shows$
 ^tvp
 ^tvs
-^Uncompleted.Downloads$
 ^unsorted$
 ^user$
 ^utorrent$
@@ -348,6 +348,7 @@ mpg$
 MultiSub
 MVGroup.org
 National.Geographic
+new.unsorted
 NeZu
 NFO
 NG
@@ -434,6 +435,7 @@ UNCUT
 unrated
 unrated.edition
 UsaBit.com
+utorrent.downloads
 video[s]?
 vo
 Volume.TB
