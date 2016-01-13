@@ -614,6 +614,7 @@ CultHD
 CuMBuCKeTS
 CureCom
 CureCom-Doremi
+CURIOSITY
 Cutting.EDGE
 Cyber12.com
 CYBERMEN
@@ -1398,6 +1399,7 @@ Jozzep
 JS
 jth
 jTV
+Juggalotus
 JUGGS
 JUMANJi
 JunkyCez
@@ -1522,6 +1524,7 @@ LAP
 LARCENY
 LAZERS
 Lazy-Subs
+LCD
 LCHD
 leetay
 LeetHD
@@ -1643,6 +1646,7 @@ MELiTE
 MEMORiES
 MenaceIISociety
 Mental.RG
+MEOW
 MeTH
 METiS
 MF
@@ -1686,6 +1690,7 @@ MOOVEE
 Morai
 MoreHD
 MORiCH
+MORiTZ
 MOTION
 MOTU
 MoTv
@@ -1965,6 +1970,7 @@ PO2
 POCHER
 POD
 POE
+POKE
 POKERUS
 Polar
 POLISHED
@@ -2305,6 +2311,7 @@ SKiTFiSKE
 SKYLIGHT
 SkyLord
 SL
+SLHD
 SLiGHT
 SLikt
 SLIVE
@@ -2345,6 +2352,7 @@ SoXu
 Soy
 SPABLAUW
 SpaceHD
+spamTV
 SPAREL
 SPARKS
 SPAROOD
