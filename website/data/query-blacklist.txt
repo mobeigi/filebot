@@ -128,6 +128,7 @@
 ^News$
 ^of$
 ^old$
+^Opnamen$
 ^Organize$
 ^other$
 ^Part$
@@ -148,6 +149,7 @@
 ^raid$
 ^Reality$
 ^Reality.Shows$
+^Recordings$
 ^rename$
 ^rip$
 ^Romance$
@@ -312,6 +314,7 @@ Hi10P
 HiDef
 Hindi
 History.Channel
+HOME.SERVER
 HORiZON-ArtSubs
 HQ
 HR
@@ -424,6 +427,7 @@ TRUEFRENCH
 TS
 TSXVID
 tt\d{2,8}
+TV.Opnamen
 TVOON.DE
 tvp
 tvrecorder
