@@ -612,12 +612,33 @@ public class MediaBindingBean {
 
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
-		for (EpisodeListProvider service : WebServices.getEpisodeListProviders()) {
-			if (getSeriesInfo().getDatabase().equals(service.getName())) {
-				return service.getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), new Locale(getSeriesInfo().getLanguage()));
+		return WebServices.getEpisodeListProvider(getSeriesInfo().getDatabase()).getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), new Locale(getSeriesInfo().getLanguage()));
+	}
+
+	@Define("localize")
+	public Object getLocalizedInfoObject() throws Exception {
+		return new DynamicBindings(key -> {
+			Language language = Language.findLanguage(key);
+			if (language != null) {
+				Object localizedInfo = null;
+				try {
+					if (infoObject instanceof Movie) {
+						localizedInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), language.getLocale(), false);
+					} else if (infoObject instanceof Episode) {
+						EpisodeListProvider db = WebServices.getEpisodeListProvider(getSeriesInfo().getDatabase());
+						List<Episode> episodes = db.getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), language.getLocale());
+						localizedInfo = episodes.stream().filter(it -> getEpisode().getNumbers().equals(it.getNumbers())).findFirst().orElse(null);
+					}
+				} catch (Exception e) {
+					throw new BindingException(key, e);
+				}
+
+				if (localizedInfo != null) {
+					return createMapBindings(new PropertyBindings(localizedInfo, null));
+				}
 			}
-		}
-		return null;
+			return undefined(key);
+		});
 	}
 
 	@Define("bitrate")
