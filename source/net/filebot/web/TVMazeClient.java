@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -68,8 +69,8 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 			for (Object result : response.getArray()) {
 				Map<?, ?> show = (Map<?, ?>) ((Map<?, ?>) result).get("show");
 
-				int id = Integer.parseInt(show.get("id").toString());
-				String name = show.get("name").toString();
+				Integer id = getValue(show, "id", Integer::new);
+				String name = getValue(show, "name", String::new);
 
 				// FUTURE WORK: consider adding TVmaze aka titles for each result, e.g. http://api.tvmaze.com/shows/1/akas
 				results.add(new TVMazeSearchResult(id, name));
@@ -83,9 +84,9 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		// e.g. http://api.tvmaze.com/shows/1
 		JsonObject<?, ?> response = request("shows/" + show.getId());
 
-		String status = (String) response.get("status");
-		String premiered = (String) response.get("premiered");
-		String runtime = response.get("runtime").toString();
+		String status = getValue(response, "status", String::new);
+		SimpleDate premiered = getValue(response, "premiered", s -> SimpleDate.parse(s, "yyyy-MM-dd"));
+		Integer runtime = getValue(response, "runtime", Integer::new);
 		JsonObject<?, ?> genres = (JsonObject<?, ?>) response.get("genres");
 		JsonObject<?, ?> rating = (JsonObject<?, ?>) response.get("rating");
 
@@ -93,14 +94,14 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		seriesInfo.setName(show.getName());
 		seriesInfo.setAliasNames(show.getEffectiveNames());
 		seriesInfo.setStatus(status);
-		seriesInfo.setRuntime(new Integer(runtime));
-		seriesInfo.setStartDate(SimpleDate.parse(premiered, "yyyy-MM-dd"));
+		seriesInfo.setRuntime(runtime);
+		seriesInfo.setStartDate(premiered);
 
 		if (genres != null && genres.isArray()) {
 			seriesInfo.setGenres(Arrays.stream(genres.getArray()).map(Objects::toString).collect(Collectors.toList()));
 		}
 		if (rating != null && !rating.isEmpty()) {
-			seriesInfo.setRating(new Double(rating.get("average").toString()));
+			seriesInfo.setRating(getValue(rating, "average", Double::new));
 		}
 
 		return seriesInfo;
@@ -120,20 +121,29 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		if (response.isArray()) {
 			for (Object element : response.getArray()) {
 				JsonObject<?, ?> episode = (JsonObject<?, ?>) element;
-				try {
-					String episodeTitle = episode.get("name").toString();
-					Integer seasonNumber = Integer.parseInt(episode.get("season").toString());
-					Integer episodeNumber = Integer.parseInt(episode.get("number").toString());
-					SimpleDate airdate = SimpleDate.parse(episode.get("airdate").toString(), "yyyy-MM-dd");
 
-					episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, new SeriesInfo(seriesInfo)));
-				} catch (Exception e) {
-					Logger.getLogger(TVMazeClient.class.getName()).log(Level.WARNING, "Illegal episode data: " + e + ": " + episode);
-				}
+				String episodeTitle = getValue(episode, "name", String::new);
+				Integer seasonNumber = getValue(episode, "season", Integer::new);
+				Integer episodeNumber = getValue(episode, "number", Integer::new);
+				SimpleDate airdate = getValue(episode, "airdate", s -> SimpleDate.parse(s, "yyyy-MM-dd"));
+
+				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, new SeriesInfo(seriesInfo)));
 			}
 		}
 
 		return new SeriesData(seriesInfo, episodes);
+	}
+
+	private <V> V getValue(Map<?, ?> json, String key, Function<String, V> converter) {
+		try {
+			Object value = json.get(key);
+			if (value != null) {
+				return converter.apply(value.toString());
+			}
+		} catch (Exception e) {
+			Logger.getLogger(TVMazeClient.class.getName()).log(Level.WARNING, "Illegal " + key + " value: " + json);
+		}
+		return null;
 	}
 
 	public JsonObject<?, ?> request(String resource) throws IOException {
