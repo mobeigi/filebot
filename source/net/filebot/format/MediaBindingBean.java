@@ -638,7 +638,7 @@ public class MediaBindingBean {
 				}
 			}
 			return undefined(key);
-		});
+		}, Language.availableLanguages().stream().map(Language::getName));
 	}
 
 	@Define("bitrate")
