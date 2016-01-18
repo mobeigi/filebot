@@ -493,7 +493,7 @@ public final class FileUtilities {
 					files.add(it);
 				}
 				listFiles(it, files, 0, maxDepth, addHidden, addFiles, addFolders);
-			} else if (addFiles) {
+			} else if (addFiles && it.isFile()) {
 				files.add(it);
 			}
 		}
