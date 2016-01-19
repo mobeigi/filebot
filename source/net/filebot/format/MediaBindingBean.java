@@ -623,7 +623,7 @@ public class MediaBindingBean {
 				Object localizedInfo = null;
 				try {
 					if (infoObject instanceof Movie) {
-						localizedInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), language.getLocale(), false);
+						localizedInfo = WebServices.TheMovieDB.getMovieInfo(getMovie(), language.getLocale(), true);
 					} else if (infoObject instanceof Episode) {
 						EpisodeListProvider db = WebServices.getEpisodeListProvider(getSeriesInfo().getDatabase());
 						List<Episode> episodes = db.getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), language.getLocale());
