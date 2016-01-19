@@ -47,6 +47,7 @@
 ^Complete$
 ^Complete.Torrents$
 ^Completed$
+^Completos$
 ^Crime$
 ^data$
 ^deluge$
@@ -124,7 +125,9 @@
 ^NAS$
 ^net$
 ^new$
+^New.Movies$
 ^New.Shows$
+^New.TV.Shows$
 ^News$
 ^of$
 ^old$
