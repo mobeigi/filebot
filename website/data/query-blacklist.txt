@@ -78,6 +78,7 @@
 ^extracted$
 ^Family$
 ^Fantasy$
+^Fertig$
 ^file$
 ^files$
 ^Film$
@@ -431,6 +432,7 @@ TRUEFRENCH
 TS
 TSXVID
 tt\d{2,8}
+TV.Aufnahmen
 TV.Opnamen
 TVOON.DE
 tvp
