@@ -26,6 +26,7 @@
 ^__.+$
 ^Action$
 ^Adventure$
+^Adventures$
 ^and$
 ^Animation$
 ^Anime$
@@ -114,6 +115,10 @@
 ^media$
 ^mnt$
 ^More$
+^MotoGP$
+^Motor$
+^Motorsport$
+^Motorsports$
 ^moved$
 ^Movie$
 ^movie[0-9]+$
@@ -155,6 +160,7 @@
 ^Reality.Shows$
 ^Recordings$
 ^rename$
+^Review$
 ^rip$
 ^Romance$
 ^rtorrent$
