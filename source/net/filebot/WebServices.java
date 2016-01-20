@@ -149,8 +149,8 @@ public final class WebServices {
 
 		@Override
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
-			Callable<List<SearchResult>> apiSearch = () -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
 			Callable<List<SearchResult>> localSearch = () -> getLocalIndex().search(query);
+			Callable<List<SearchResult>> apiSearch = () -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
 
 			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
 			for (Future<List<SearchResult>> resultSet : requestThreadPool.invokeAll(asList(localSearch, apiSearch))) {
