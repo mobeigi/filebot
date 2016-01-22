@@ -282,6 +282,7 @@
 		</antcall>
 	</target>
 
+
 	<target name="appbundle-maspkg-subtitles">
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot Subtitles" />
