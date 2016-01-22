@@ -292,8 +292,8 @@
 			<param name="application.executable" value="Subtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
-			<param name="application.cert.appbundle" value="Developer ID Application: Reinhard Pointner" />
-			<param name="application.cert.installer" value="Developer ID Installer: Reinhard Pointner" />
+			<param name="application.cert.appbundle" value="Developer ID Application: Point Planck Limited" />
+			<param name="application.cert.installer" value="Developer ID Installer: Point Planck Limited" />
 			<param name="application.mode" value="Subtitles" />
 			<param name="application.help" value="skip" />
 		</antcall>
