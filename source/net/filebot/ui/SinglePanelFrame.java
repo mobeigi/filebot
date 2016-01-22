@@ -1,5 +1,7 @@
 package net.filebot.ui;
 
+import static net.filebot.Settings.*;
+
 import java.awt.Dimension;
 import java.awt.datatransfer.Transferable;
 
@@ -17,7 +19,7 @@ public class SinglePanelFrame extends JFrame {
 	private final JComponent panel;
 
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(builder.getName());
+		super(String.format("%s %s", getApplicationName(), builder.getName()));
 		panel = builder.create();
 
 		JComponent c = (JComponent) getContentPane();
@@ -33,11 +35,6 @@ public class SinglePanelFrame extends JFrame {
 
 		setSize(850, 600);
 		setMinimumSize(new Dimension(800, 400));
-
-		String title = System.getProperty("application.name");
-		if (title != null) {
-			this.setTitle(title);
-		}
 	}
 
 	public SinglePanelFrame publish(Transferable transferable) {
@@ -53,4 +50,5 @@ public class SinglePanelFrame extends JFrame {
 
 		return this;
 	}
+
 }
