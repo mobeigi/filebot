@@ -289,7 +289,7 @@
 	<target name="appbundle-maspkg-subtitles">
 		<antcall target="appbundle-maspkg">
 			<param name="application.name" value="FileBot Subtitles" />
-			<param name="application.executable" value="FileBot_Subtitles" />
+			<param name="application.executable" value="FileBotSubtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
 			<param name="application.cert.appbundle" value="Developer ID Application: Point Planck Limited" />
