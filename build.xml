@@ -278,6 +278,9 @@
 			<param name="application.executable" value="FileBot" />
 			<param name="application.identifier" value="net.filebot.FileBot" />
 			<param name="application.icon" value="${dir.installer}/appbundle/filebot.icns" />
+			<param name="application.cert.appbundle" value="3rd Party Mac Developer Application: Point Planck Limited" />
+			<param name="application.cert.installer" value="3rd Party Mac Developer Installer: Point Planck Limited" />
+			<param name="application.mode" value="Rename|Episodes|SFV|Analyze|List" />
 			<param name="application.help" value="show" />
 		</antcall>
 	</target>
@@ -289,6 +292,8 @@
 			<param name="application.executable" value="Subtitles" />
 			<param name="application.identifier" value="net.filebot.subtitles" />
 			<param name="application.icon" value="${dir.installer}/appbundle/subtitles.icns" />
+			<param name="application.cert.appbundle" value="Developer ID Application: Reinhard Pointner" />
+			<param name="application.cert.installer" value="Developer ID Installer: Reinhard Pointner" />
 			<param name="application.mode" value="Subtitles" />
 			<param name="application.help" value="skip" />
 		</antcall>
@@ -365,7 +370,7 @@
 
 
 		<!-- JRE sign all jars, dylibs and executables -->
-		<property name="codesign.opts" value="--verbose=4 --force --sign '3rd Party Mac Developer Application: Point Planck Limited'" />
+		<property name="codesign.opts" value="--verbose=4 --force --sign '${application.cert.appbundle}'" />
 		<property name="codesign.entitlements" value="--entitlements '${dir.installer}/appbundle/FileBot.entitlements'" />
 		<property name="codesign.entitlements.inherit" value="--entitlements '${dir.installer}/appbundle/inherit.entitlements'" />
 
@@ -410,7 +415,7 @@
 			<arg line="--verify '${path.app}'" />
 		</exec>
 		<exec dir="${dir.dist}" executable="productbuild" failonerror="on">
-			<arg line="--component '${path.app}' /Applications --sign '3rd Party Mac Developer Installer: Point Planck Limited' ${path.pkg}" />
+			<arg line="--component '${path.app}' /Applications --sign '${application.cert.installer}' ${path.pkg}" />
 		</exec>
 
 		<!-- store this build in releases -->
