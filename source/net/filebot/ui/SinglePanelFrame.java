@@ -19,7 +19,7 @@ public class SinglePanelFrame extends JFrame {
 	private final JComponent panel;
 
 	public SinglePanelFrame(PanelBuilder builder) {
-		super(String.format("%s %s", getApplicationName(), builder.getName()));
+		super(String.format("%s %s %s", getApplicationName(), builder.getName(), getApplicationVersion()));
 		panel = builder.create();
 
 		JComponent c = (JComponent) getContentPane();
