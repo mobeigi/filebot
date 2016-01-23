@@ -58,7 +58,9 @@ function getData() {
 			data.splice(1, 0, {
 					image: 'images/permissions.png',
 					thumb: 'images/permissions.thumb.png'
-				}) // sandbox permissions
+			}) // add sandbox permissions
+			data.splice(3, 1) // remove subtitle support
+			data.splice(3, 1) // remove subtitle support
 		} else if (location.hash == '#usc') {
 			data[0].link = 'https://www.youtube.com/watch?v=sEFP3CsntNs&index=6&list=PLdPvEJhzxLMCEJJpb1mJtVkOpS7FfALnd' // ubuntu video
 		}
