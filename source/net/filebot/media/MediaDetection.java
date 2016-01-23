@@ -619,7 +619,7 @@ public class MediaDetection {
 		// skip further queries if collected matches are already sufficient
 		if (movieNameMatches.size() > 0) {
 			options.addAll(movieNameMatches);
-			return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
+			return sortMoviesBySimilarity(options, terms);
 		}
 
 		if (movieNameMatches.isEmpty()) {
@@ -629,7 +629,7 @@ public class MediaDetection {
 		// skip further queries if collected matches are already sufficient
 		if (options.size() > 0 && movieNameMatches.size() > 0) {
 			options.addAll(movieNameMatches);
-			return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
+			return sortMoviesBySimilarity(options, terms);
 		}
 
 		// if matching name+year failed, try matching only by name (in non-strict mode we would have checked these cases already by now)
@@ -679,7 +679,7 @@ public class MediaDetection {
 		options.addAll(movieNameMatches);
 
 		// sort by relevance
-		return sortBySimilarity(options, terms, getMovieMatchMetric(), true);
+		return sortMoviesBySimilarity(options, terms);
 	}
 
 	public static SimilarityMetric getMovieMatchMetric() {
@@ -729,27 +729,19 @@ public class MediaDetection {
 			}
 		};
 
-		// sort by ranking and remove duplicate entries
-		List<T> result = options.stream().sorted(comparator).distinct().collect(Collectors.toList());
-
 		// DEBUG
-		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
+		// System.out.format("sortBySimilarity %s => %s%n", terms, options.stream().sorted(comparator).distinct().collect(Collectors.toList()));
 
-		return result;
+		// sort by ranking and remove duplicate entries
+		return options.stream().sorted(comparator).distinct().collect(Collectors.toList());
 	}
 
-	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric, boolean stripReleaseInfo) throws IOException {
+	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws IOException {
 		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		paragon.addAll(stripReleaseInfo(terms, true));
+		paragon.addAll(stripReleaseInfo(terms, false));
 
-		// clean clutter tokens if required
-		if (stripReleaseInfo) {
-			paragon.addAll(stripReleaseInfo(terms, true));
-			paragon.addAll(stripReleaseInfo(terms, false));
-		} else {
-			paragon.addAll(terms);
-		}
-
-		return sortBySimilarity(options, paragon, metric);
+		return sortBySimilarity(options, paragon, getMovieMatchMetric());
 	}
 
 	public static boolean isEpisodeNumberMatch(File f, Episode e) {
@@ -1300,7 +1292,7 @@ public class MediaDetection {
 				}
 			}
 
-			if (f >= threshold && !probableMatches.contains(option)) {
+			if (f >= threshold) {
 				probableMatches.add(option);
 			}
 		}
