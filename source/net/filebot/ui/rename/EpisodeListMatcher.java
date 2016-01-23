@@ -70,7 +70,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		}
 
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = getProbableMatches(query, searchResults);
+		List<SearchResult> probableMatches = getProbableMatches(query, searchResults, true);
 
 		// auto-select first and only probable search result
 		if (probableMatches.size() == 1) {

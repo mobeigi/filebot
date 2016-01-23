@@ -714,19 +714,9 @@ public class MediaDetection {
 		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true));
 	}
 
-	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric, boolean stripReleaseInfo) throws IOException {
-		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-
-		// clean clutter tokens if required
-		if (stripReleaseInfo) {
-			paragon.addAll(stripReleaseInfo(terms, true));
-			paragon.addAll(stripReleaseInfo(terms, false));
-		} else {
-			paragon.addAll(terms);
-		}
-
+	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric) {
 		// similarity comparator with multi-value support
-		SimilarityComparator comparator = new SimilarityComparator(metric, paragon.toArray()) {
+		SimilarityComparator comparator = new SimilarityComparator(metric, terms.toArray()) {
 
 			@Override
 			public float getMaxSimilarity(Object obj) {
@@ -746,6 +736,20 @@ public class MediaDetection {
 		// System.out.format("sortBySimilarity %s => %s%n", terms, result);
 
 		return result;
+	}
+
+	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric, boolean stripReleaseInfo) throws IOException {
+		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+
+		// clean clutter tokens if required
+		if (stripReleaseInfo) {
+			paragon.addAll(stripReleaseInfo(terms, true));
+			paragon.addAll(stripReleaseInfo(terms, false));
+		} else {
+			paragon.addAll(terms);
+		}
+
+		return sortBySimilarity(options, paragon, metric);
 	}
 
 	public static boolean isEpisodeNumberMatch(File f, Episode e) {
@@ -1266,29 +1270,42 @@ public class MediaDetection {
 		return WebServices.TheTVDB.getSeriesInfo(thetvdbid, locale);
 	}
 
-	public static List<SearchResult> getProbableMatches(String query, Collection<SearchResult> options) {
+	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean strict) {
+		if (query == null) {
+			return new ArrayList<SearchResult>(options);
+		}
+
 		// auto-select most probable search result
-		List<SearchResult> probableMatches = new LinkedList<SearchResult>();
+		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
 
 		// use name similarity metric
 		SimilarityMetric metric = new NameSimilarityMetric();
-		float threshold = 0.85f;
+		float threshold = strict && options.size() > 1 ? 0.8f : 0.6f;
+		float sanity = strict && options.size() > 1 ? 0.5f : 0.2f;
 
-		// remove trailing braces, e.g. Doctor Who (2005) -> Doctor Who
-		query = removeTrailingBrackets(query);
+		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
+		query = removeTrailingBrackets(query).toLowerCase();
 
-		// find probable matches using name similarity >= 0.85
+		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
 		for (SearchResult option : options) {
 			float f = 0;
 			for (String n : option.getEffectiveNames()) {
-				f = Math.max(f, metric.getSimilarity(query, removeTrailingBrackets(n)));
+				n = removeTrailingBrackets(n).toLowerCase();
+				f = Math.max(f, metric.getSimilarity(query, n));
+
+				// boost matching beginnings
+				if (f >= sanity && n.startsWith(query)) {
+					f = 1;
+					break;
+				}
 			}
-			if (f >= threshold) {
+
+			if (f >= threshold && !probableMatches.contains(option)) {
 				probableMatches.add(option);
 			}
 		}
 
-		return probableMatches;
+		return sortBySimilarity(probableMatches, singleton(query), new NameSimilarityMetric());
 	}
 
 	public static class IndexEntry<T> implements Serializable {

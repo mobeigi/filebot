@@ -55,10 +55,7 @@ import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
 import net.filebot.similarity.Match;
-import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SeriesNameMatcher;
-import net.filebot.similarity.SimilarityComparator;
-import net.filebot.similarity.SimilarityMetric;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.EntryList;
@@ -908,36 +905,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		return output;
 	}
 
-	public List<SearchResult> findProbableMatches(final String query, Collection<? extends SearchResult> searchResults, boolean strict) {
-		if (query == null) {
-			return new ArrayList<SearchResult>(searchResults);
-		}
-
-		// auto-select most probable search result
-		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
-
-		// use name similarity metric
-		SimilarityMetric metric = new NameSimilarityMetric();
-
-		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
-		for (SearchResult result : searchResults) {
-			float f = metric.getSimilarity(query, result.getName());
-			if (f >= (strict && searchResults.size() > 1 ? 0.8 : 0.6) || ((f >= 0.5 || !strict) && (result.getName().toLowerCase().startsWith(query.toLowerCase())))) {
-				if (!probableMatches.contains(result)) {
-					probableMatches.add(result);
-				}
-			}
-		}
-
-		// sort results by similarity to query
-		sort(probableMatches, new SimilarityComparator(query));
-
-		return probableMatches;
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> searchResults, boolean strict) throws Exception {
-		List<SearchResult> probableMatches = findProbableMatches(query, searchResults, strict);
+		List<SearchResult> probableMatches = getProbableMatches(query, searchResults, strict);
 
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
 			// allow single search results to just pass through in non-strict mode even if match confidence is low
@@ -951,7 +921,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// just pick the best 5 matches
 			if (query != null) {
-				probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric(), false);
+				probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric());
 			}
 		}
 

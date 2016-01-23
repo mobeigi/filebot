@@ -162,7 +162,8 @@ public final class WebServices {
 					}
 				}
 			}
-			return sortBySimilarity(results, singleton(query), getSeriesMatchMetric(), false);
+
+			return sortBySimilarity(results, singleton(query), getSeriesMatchMetric());
 		}
 	}
 
@@ -209,7 +210,7 @@ public final class WebServices {
 		public synchronized List<SubtitleSearchResult> search(final String query) throws Exception {
 			List<SubtitleSearchResult> results = getLocalIndex().search(query);
 
-			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()), false);
+			return sortBySimilarity(results, singleton(query), new MetricAvg(getSeriesMatchMetric(), getMovieMatchMetric()));
 		}
 
 	}
