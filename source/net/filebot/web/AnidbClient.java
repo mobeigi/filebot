@@ -118,7 +118,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 		// AniDB types: Movie, Music Video, Other, OVA, TV Series, TV Special, Web, unknown
 		String animeType = selectString("//type", dom);
-		if (animeType != null && animeType.matches("(?i:music.video|unkown|other)")) {
+		if (animeType != null && animeType.matches("(?i:music.video|unkown)")) {
 			return new SeriesData(seriesInfo, emptyList());
 		}
 
