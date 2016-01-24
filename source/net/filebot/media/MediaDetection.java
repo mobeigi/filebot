@@ -714,14 +714,14 @@ public class MediaDetection {
 		return new MetricAvg(new SequenceMatchSimilarity(), new NameSimilarityMetric(), new SequenceMatchSimilarity(0, true));
 	}
 
-	public static <T> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric) {
+	public static <T extends SearchResult> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric) {
 		// similarity comparator with multi-value support
 		SimilarityComparator comparator = new SimilarityComparator(metric, terms.toArray()) {
 
 			@Override
 			public float getMaxSimilarity(Object obj) {
-				float f = 0;
 				Collection<?> names = obj instanceof SearchResult ? ((SearchResult) obj).getEffectiveNames() : singleton(obj);
+				float f = 0;
 				for (Object it : names) {
 					f = Math.max(f, super.getMaxSimilarity(it));
 				}
