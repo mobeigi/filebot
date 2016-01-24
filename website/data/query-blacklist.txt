@@ -17,12 +17,14 @@
 \bThe$
 \d{2,4}.\b\d{2}.\b\d{2}.\b\d{2}.\b\d{2}
 \d{3,4}[pi]
+\d{8}.\d{4}
 ^(amc|cover|dvd|specials)
 ^(downloads).+$
 ^.+(downloads)$
 ^[0-9]{1,2}[.]
 ^[_]+$
 ^[lp]
+^\d{8,64}$
 ^__.+$
 ^Action$
 ^Adventure$
@@ -380,6 +382,7 @@ PHoQUE
 plex
 Pre.?DVD
 PROPER
+ProSieben.MAXX
 PS3
 PSP
 QEBS\d*
