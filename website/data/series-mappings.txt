@@ -10,6 +10,7 @@ Hml8p	Homeland
 hoc	House of Cards
 law.and.order.svu	Law & Order: Special Victims Unit
 MBFAGW	My Big Fat American Gypsy Wedding
+Navy.CIS.New.Orleans	NCIS: New Orleans
 NCIS.LA	NCIS: Los Angeles
 NCIS.NO	NCIS: New Orleans
 poid	Person of Interest
