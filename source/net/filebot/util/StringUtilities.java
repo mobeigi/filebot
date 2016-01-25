@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public final class StringUtilities {
 
+	public static final Pattern SPACE = Pattern.compile("\\s+");
 	public static final Pattern DIGIT = Pattern.compile("\\d+");
 	public static final Pattern NON_DIGIT = Pattern.compile("\\D+");
 

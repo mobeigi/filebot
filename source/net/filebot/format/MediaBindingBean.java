@@ -313,7 +313,7 @@ public class MediaBindingBean {
 		String extensions = getMediaInfo(StreamKind.General, 0, "Codec/Extensions", "Format");
 
 		// get first extension
-		return new Scanner(extensions).next().toLowerCase();
+		return SPACE.splitAsStream(extensions).findFirst().get().toLowerCase();
 	}
 
 	@Define("vf")
@@ -350,8 +350,8 @@ public class MediaBindingBean {
 	public String getAudioChannels() {
 		String channels = getMediaInfo(StreamKind.Audio, 0, "Channel(s)_Original", "Channel(s)");
 
-		// e.g. 6ch
-		return channels + "ch";
+		// get first number, e.g. 6ch
+		return SPACE.splitAsStream(channels).findFirst().get() + "ch";
 	}
 
 	@Define("resolution")
