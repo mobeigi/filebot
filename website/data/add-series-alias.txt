@@ -12,6 +12,7 @@ M*A*S*H	MASH
 Naruto Shippuden	Naruto Shippuuden
 NCIS: Los Angeles	NCIS LA
 NCIS: Los Angeles	NCIS LosAngeles
+NCIS: New Orleans	Navy.CIS.New.Orleans
 NCIS: New Orleans	NCIS NO
 Proof (2015)	Proof (US)
 Resurrection	Resurrection (US)
