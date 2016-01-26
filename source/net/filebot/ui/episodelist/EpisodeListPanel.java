@@ -3,6 +3,7 @@ package net.filebot.ui.episodelist;
 import static net.filebot.ui.episodelist.SeasonSpinnerModel.*;
 import static net.filebot.web.EpisodeUtilities.*;
 
+import java.awt.Dimension;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -66,7 +67,9 @@ public class EpisodeListPanel extends AbstractSearchPanel<EpisodeListProvider, E
 		seasonSpinner.setEditor(new SeasonSpinnerEditor(seasonSpinner));
 
 		// set minimum size to "All Seasons" preferred size
-		seasonSpinner.setMinimumSize(seasonSpinner.getPreferredSize());
+		Dimension d = seasonSpinner.getPreferredSize();
+		d.width += 12;
+		seasonSpinner.setMinimumSize(d);
 
 		// add after text field
 		add(seasonSpinner, "sgy button, gap indent", 1);

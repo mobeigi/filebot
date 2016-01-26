@@ -1,68 +1,61 @@
-
 package net.filebot.ui.episodelist;
 
+import static java.lang.Math.*;
+import static java.util.Collections.*;
 
-import javax.swing.SpinnerNumberModel;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import javax.swing.SpinnerListModel;
 
-class SeasonSpinnerModel extends SpinnerNumberModel {
+class SeasonSpinnerModel extends SpinnerListModel {
 
 	public static final int ALL_SEASONS = 0;
 
-	public static final int MAX_VALUE = 99;
+	public static final int YEAR_SEASON_MIN_VALUE = 1990;
+	public static final int YEAR_SEASON_MAX_VALUE = 2100;
 
-	private Number valueBeforeLock = null;
+	public static final int SEASON_MIN_VALUE = 1;
+	public static final int SEASON_MAX_VALUE = 50;
 
+	public static List<Integer> getSeasonValues() {
+		IntStream values = IntStream.of(ALL_SEASONS);
+		values = IntStream.concat(values, IntStream.range(SEASON_MIN_VALUE, SEASON_MAX_VALUE));
+		values = IntStream.concat(values, IntStream.range(YEAR_SEASON_MIN_VALUE, YEAR_SEASON_MAX_VALUE));
+		return values.boxed().collect(Collectors.toList());
+	}
 
 	public SeasonSpinnerModel() {
-		super(ALL_SEASONS, ALL_SEASONS, MAX_VALUE, 1);
+		super(getSeasonValues());
 	}
-
 
 	public int getSeason() {
-		return getNumber().intValue();
+		return ((Integer) getValue()).intValue();
 	}
-
-
-	@Override
-	public Integer getMinimum() {
-		return (Integer) super.getMinimum();
-	}
-
-
-	@Override
-	public Integer getMaximum() {
-		return (Integer) super.getMaximum();
-	}
-
 
 	public void spin(int steps) {
-		int next = getSeason() + steps;
-
-		if (next < getMinimum())
-			next = getMinimum();
-		else if (next > getMaximum())
-			next = getMaximum();
-
-		setValue(next);
+		for (int i = 0; i < abs(steps); i++) {
+			setValue(i < 0 ? getPreviousValue() : getNextValue());
+		}
 	}
 
+	private Object valueBeforeLock = null;
 
 	public void lock(int value) {
-		valueBeforeLock = getNumber();
-		setMinimum(value);
-		setMaximum(value);
-		setValue(value);
+		valueBeforeLock = getValue();
+
+		setList(singletonList(ALL_SEASONS));
+		setValue(ALL_SEASONS);
 	}
 
-
 	public void unlock() {
-		setMinimum(ALL_SEASONS);
-		setMaximum(MAX_VALUE);
+		setList(getSeasonValues());
 
 		if (valueBeforeLock != null) {
 			setValue(valueBeforeLock);
-			valueBeforeLock = null;
 		}
+		valueBeforeLock = null;
 	}
+
 }
