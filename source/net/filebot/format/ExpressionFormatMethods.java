@@ -133,6 +133,21 @@ public class ExpressionFormatMethods {
 		return compile("^(The|A|An)\\s(.+)", CASE_INSENSITIVE).matcher(self).replaceFirst(replacement).trim();
 	}
 
+	public static String sortInitial(String self) {
+		// use primary initial, ignore The XY, A XY, etc
+		String s = ascii(sortName(self)).toUpperCase();
+		int c = s.codePointAt(0);
+
+		if (Character.isDigit(c)) {
+			return "0-9";
+		}
+		if (Character.isLetter(c)) {
+			return String.valueOf(Character.toChars(c));
+		}
+
+		return null;
+	}
+
 	/**
 	 * Get acronym, i.e. first letter of each word.
 	 *

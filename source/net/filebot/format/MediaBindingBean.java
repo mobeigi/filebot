@@ -610,6 +610,15 @@ public class MediaBindingBean {
 		return createMapBindings(new PropertyBindings(metaInfo, null));
 	}
 
+	@Define("az")
+	public String getSortInitial() {
+		try {
+			return sortInitial(getCollection().toString());
+		} catch (Exception e) {
+			return sortInitial(getName());
+		}
+	}
+
 	@Define("episodelist")
 	public Object getEpisodeList() throws Exception {
 		return WebServices.getEpisodeListProvider(getSeriesInfo().getDatabase()).getEpisodeList(getSeriesInfo().getId(), SortOrder.forName(getSeriesInfo().getOrder()), new Locale(getSeriesInfo().getLanguage()));
