@@ -15,6 +15,7 @@ import static net.filebot.web.EpisodeFormat.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -352,6 +353,14 @@ public class MediaBindingBean {
 
 		// get first number, e.g. 6ch
 		return SPACE.splitAsStream(channels).findFirst().get() + "ch";
+	}
+
+	@Define("channels")
+	public String getAudioChannelPositions() {
+		String[] channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2").split("/");
+
+		// e.g. 5.1
+		return stream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).toPlainString();
 	}
 
 	@Define("resolution")
