@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static net.filebot.util.StringUtilities.*;
 import static java.lang.String.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
@@ -186,7 +187,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					CLILogger.config("Auto-detected query: " + seriesNames);
 				} else {
 					// use --q option
-					seriesNames = asList(query.split("[|]"));
+					seriesNames = asList(PIPE.split(query));
 				}
 
 				if (strict && seriesNames.size() > 1) {

@@ -14,6 +14,7 @@ public final class StringUtilities {
 	public static final Pattern SPACE = Pattern.compile("\\s+");
 	public static final Pattern DIGIT = Pattern.compile("\\d+");
 	public static final Pattern NON_DIGIT = Pattern.compile("\\D+");
+	public static final Pattern PIPE = Pattern.compile("|", Pattern.LITERAL);
 
 	public static List<Integer> matchIntegers(CharSequence s) {
 		if (s == null || s.length() == 0) {

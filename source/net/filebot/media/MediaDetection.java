@@ -998,10 +998,10 @@ public class MediaDetection {
 		return movies;
 	}
 
-	private static final Pattern defaultIgnoreTokens = releaseInfo.getVideoFormatPattern(false);
+	private static Pattern formatInfoPattern = releaseInfo.getVideoFormatPattern(false);
 
 	public static String stripFormatInfo(CharSequence name) {
-		return defaultIgnoreTokens.matcher(name).replaceAll("");
+		return formatInfoPattern.matcher(name).replaceAll("");
 	}
 
 	public static String stripReleaseInfo(String name, boolean strict) {
@@ -1144,11 +1144,16 @@ public class MediaDetection {
 		return releaseInfo.cleanRelease(names, strict);
 	}
 
+	private static Pattern blacklistPattern;
+
 	public static List<String> stripBlacklistedTerms(Collection<String> names) throws IOException {
-		Pattern blacklist = releaseInfo.getBlacklistPattern();
+		if (blacklistPattern == null) {
+			blacklistPattern = releaseInfo.getBlacklistPattern();
+		}
+
 		List<String> acceptables = new ArrayList<String>(names.size());
 		for (String it : names) {
-			if (blacklist.matcher(it).replaceAll("").trim().length() > 0) {
+			if (blacklistPattern.matcher(it).replaceAll("").trim().length() > 0) {
 				acceptables.add(it);
 			}
 		}

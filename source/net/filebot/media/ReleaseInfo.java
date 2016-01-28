@@ -43,19 +43,32 @@ import org.tukaani.xz.XZInputStream;
 
 public class ReleaseInfo {
 
+	private String[] videoSources;
+	private Pattern videoSourcePattern;
+
 	public String getVideoSource(String... input) {
+		if (videoSources == null || videoSourcePattern == null) {
+			videoSources = PIPE.split(getProperty("pattern.video.source"));
+			videoSourcePattern = getVideoSourcePattern();
+		}
+
 		// check parent and itself for group names
-		return matchLast(getVideoSourcePattern(), getProperty("pattern.video.source").split("[|]"), input);
+		return matchLast(videoSourcePattern, videoSources, input);
 	}
 
+	private Pattern videoTagPattern;
+
 	public List<String> getVideoTags(String... input) {
-		Pattern pattern = getVideoTagPattern();
+		if (videoTagPattern == null) {
+			videoTagPattern = getVideoTagPattern();
+		}
+
 		List<String> tags = new ArrayList<String>();
 		for (String s : input) {
 			if (s == null)
 				continue;
 
-			Matcher m = pattern.matcher(s);
+			Matcher m = videoTagPattern.matcher(s);
 			while (m.find()) {
 				tags.add(m.group());
 			}
@@ -89,11 +102,17 @@ public class ReleaseInfo {
 		return match;
 	}
 
+	private Map<String, Locale> languages;
+	private Pattern languageSuffix;
+
 	public Locale getLanguageSuffix(String name) {
 		// match locale identifier and lookup Locale object
-		Map<String, Locale> languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
+		if (languages == null || languageSuffix == null) {
+			languages = getLanguageMap(Locale.ENGLISH, Locale.getDefault());
+			languageSuffix = getLanguageSuffixPattern(languages.keySet(), false);
+		}
 
-		String lang = matchLast(getLanguageSuffixPattern(languages.keySet(), false), null, name);
+		String lang = matchLast(languageSuffix, null, name);
 		if (lang == null)
 			return null;
 
@@ -148,11 +167,12 @@ public class ReleaseInfo {
 				Pattern videoSource = getVideoSourcePattern();
 				Pattern videoTags = getVideoTagPattern();
 				Pattern videoFormat = getVideoFormatPattern(strict);
+				Pattern stereoscopic3d = getStereoscopic3DPattern();
 				Pattern resolution = getResolutionPattern();
 				Pattern queryBlacklist = getBlacklistPattern();
 
-				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, languageSuffix };
-				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, languageSuffix };
+				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, stereoscopic3d, resolution, languageSuffix };
+				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, stereoscopic3d, resolution, languageSuffix };
 
 				// cache compiled patterns for common usage
 				this.stopwords.put(strict, stopwords);
@@ -341,16 +361,31 @@ public class ReleaseInfo {
 		return seriesDirectMappings;
 	}
 
+	private static FolderEntryFilter diskFolderFilter;
+
 	public FileFilter getDiskFolderFilter() {
-		return new FolderEntryFilter(compile(getProperty("pattern.diskfolder.entry")));
+		if (diskFolderFilter == null) {
+			diskFolderFilter = new FolderEntryFilter(compile(getProperty("pattern.diskfolder.entry")));
+		}
+		return diskFolderFilter;
 	}
+
+	private static RegexFileFilter diskFolderEntryFilter;
 
 	public FileFilter getDiskFolderEntryFilter() {
-		return new RegexFileFilter(compile(getProperty("pattern.diskfolder.entry")));
+		if (diskFolderEntryFilter == null) {
+			diskFolderEntryFilter = new RegexFileFilter(compile(getProperty("pattern.diskfolder.entry")));
+		}
+		return diskFolderEntryFilter;
 	}
 
+	private static ClutterFileFilter clutterFileFilter;
+
 	public FileFilter getClutterFileFilter() throws IOException {
-		return new ClutterFileFilter(getExcludePattern(), Long.parseLong(getProperty("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
+		if (clutterFileFilter == null) {
+			clutterFileFilter = new ClutterFileFilter(getExcludePattern(), Long.parseLong(getProperty("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
+		}
+		return clutterFileFilter;
 	}
 
 	public List<File> getMediaRoots() {
