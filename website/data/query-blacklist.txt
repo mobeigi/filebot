@@ -52,13 +52,17 @@
 ^Completed$
 ^Completos$
 ^Crime$
+^Das$
 ^data$
 ^deluge$
+^Den$
+^Der$
 ^Descargado$
 ^Descargando$
 ^Descargas$
 ^Desktop$
 ^dev$
+^Die$
 ^Disco[0-9]$
 ^disk[0-9]$
 ^Documentaries$
@@ -304,6 +308,7 @@ Extended.Version
 ExtraScene
 ExtraTorrent
 Fantasy
+Fantasyfilm
 FileBot
 Final.Cut
 FIXED
