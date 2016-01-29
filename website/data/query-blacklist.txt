@@ -244,12 +244,18 @@ A.PROCESAR
 A.Release.Lounge
 AAC\d*
 ABC
+Abenteuerfilm
 AC3D
+Actiondrama
+Actionfilm
+Actionkomödie
+Actionthriller
 Addic7ed.com
 aGGr0
 AMC-BL
 AMC-TEST
 Anaglyph
+Animationsfilm
 Arte
 Axx
 Best.of.\d{4}
@@ -286,6 +292,7 @@ Directors.Cut
 DKsubs
 DL
 docu
+Dokumentarfilm
 DownRev
 dreambox.cut
 DSKI
@@ -309,6 +316,7 @@ ExtraScene
 ExtraTorrent
 Fantasy
 Fantasyfilm
+Fantasykomödie
 FileBot
 Final.Cut
 FIXED
@@ -333,6 +341,9 @@ Hindi
 History.Channel
 HOME.SERVER
 HORiZON-ArtSubs
+Horrorfilm
+Horrorkomödie
+Horrorthriller
 HQ
 HR
 HSBS
@@ -348,11 +359,17 @@ iTA
 iTALIA
 Italian
 jigaxx
+Katastrophenfilm
 KIDZCORNER
 Kino.und.TV
+Komödie
 KOR
 KORSUB
+Kriegsfilm
+Krimikomödie
+Kriminalfilm
 LAB
+Liebeskomödie
 LIMITED
 LMAO
 lol
@@ -367,6 +384,7 @@ Movie.Pack
 mpg$
 MultiSub
 MVGroup.org
+Mysterythriller
 National.Geographic
 new.unsorted
 NewMedia
@@ -385,6 +403,7 @@ PAL
 PBS
 PHoQUE
 plex
+Politdrama
 Pre.?DVD
 PROPER
 ProSieben.MAXX
@@ -404,6 +423,7 @@ RESYNC
 RETAIL
 RiffTrax
 RiPSalot
+Romantikkomödie
 sample
 samples
 SBS
@@ -438,9 +458,11 @@ TAXES
 TC
 theatrical.cut
 THEORY
+Thrillerkomödie
 to.be.sorted
 ToSort
 TPB
+Tragikomödie
 TRUEDEF
 TRUEFRENCH
 TS
@@ -448,6 +470,7 @@ TSXVID
 tt\d{2,8}
 TV.Aufnahmen
 TV.Opnamen
+TV.Thriller
 TVOON.DE
 tvp
 tvrecorder
@@ -463,6 +486,7 @@ utorrent.downloads
 video[s]?
 vo
 Volume.TB
+Western
 WS
 www.[\p{Alnum}\p{Punct}]+?.(com|net|tk|ro|cd|me|de|pe)
 x0r
