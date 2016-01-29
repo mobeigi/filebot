@@ -171,8 +171,8 @@ public class ReleaseInfo {
 				Pattern resolution = getResolutionPattern();
 				Pattern queryBlacklist = getBlacklistPattern();
 
-				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, stereoscopic3d, resolution, languageSuffix };
-				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, stereoscopic3d, resolution, languageSuffix };
+				stopwords = new Pattern[] { languageTag, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
+				blacklist = new Pattern[] { queryBlacklist, languageTag, clutterBracket, releaseGroup, videoSource, videoTags, videoFormat, resolution, stereoscopic3d, languageSuffix };
 
 				// cache compiled patterns for common usage
 				this.stopwords.put(strict, stopwords);
