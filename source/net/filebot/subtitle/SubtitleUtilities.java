@@ -271,11 +271,11 @@ public final class SubtitleUtilities {
 				likelyFormats.addLast(format);
 		}
 
-		// decode bytes and beware of byte-order marks
-		Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()), true, StandardCharsets.UTF_8);
-
 		// decode subtitle file with the first reader that seems to work
 		for (SubtitleFormat format : likelyFormats) {
+			// decode bytes and beware of byte-order marks
+			Reader reader = new UnicodeReader(new ByteBufferInputStream(file.getData()), true, StandardCharsets.UTF_8);
+
 			// reset reader to position 0
 			SubtitleReader parser = format.newReader(reader);
 
@@ -293,7 +293,7 @@ public final class SubtitleUtilities {
 		}
 
 		// unsupported subtitle format
-		throw new IOException("Cannot read subtitle format");
+		throw new IOException("Subtitle format not supported");
 	}
 
 	public static ByteBuffer exportSubtitles(MemoryFile data, SubtitleFormat outputFormat, long outputTimingOffset, Charset outputEncoding) throws IOException {
