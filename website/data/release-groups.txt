@@ -1250,6 +1250,7 @@ Honto
 HoodBag
 HooKah
 HORiZON
+HORiZON-ArtSubs
 HorribleSubs
 hoschi
 HOSTiLE
