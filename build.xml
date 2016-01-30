@@ -9,7 +9,10 @@
 	<property name="version" value="${application.version}" />
 
 	<tstamp>
-		<format property="today" pattern="yyyy-MM-dd" />
+		<format property="tstamp.date" pattern="yyyy-MM-dd" />
+	</tstamp>
+	<tstamp>
+		<format property="tstamp.year" pattern="yyyy" />
 	</tstamp>
 
 	<!-- define source dirs -->
@@ -52,7 +55,7 @@
 		<jar destfile="${dir.dist}/filebot.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Built-Date" value="${today}" />
+				<attribute name="Built-Date" value="${tstamp.date}" />
 				<attribute name="Built-Revision" value="${svn.revision}" />
 				<attribute name="Application-Name" value="${title}" />
 				<attribute name="Application-Version" value="${version}" />
@@ -232,7 +235,7 @@
 	<target name="appbundle" description="Build an OSX application bundle">
 		<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpathref="jars.classpath" />
 
-		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="2015 Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" outputdirectory="${dir.dist}" name="${title}" displayname="${title}" shortversion="${version}" identifier="net.sourceforge.FileBot" mainclassname="net.filebot.Main" icon="${dir.installer}/appbundle/filebot.icns" copyright="${tstamp.year} Reinhard Pointner" applicationcategory="public.app-category.productivity" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -308,7 +311,7 @@
 		<property name="jre.version" value="jdk1.8.0_51.jdk" />
 		<property name="jre.path" value="/Library/Java/JavaVirtualMachines/${jre.version}/Contents/Home" />
 
-		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="2015 Point Planck Limited" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
+		<bundleapp minimumsystemversion="10.8" executablename="${application.executable}AppLauncher" version="${svn.revision}" outputdirectory="${dir.dist}" name="${application.name}" displayname="${application.name}" shortversion="${version}" identifier="${application.identifier}" mainclassname="net.filebot.Main" icon="${application.icon}" copyright="${tstamp.year} Point Planck" applicationcategory="public.app-category.utilities" highresolutioncapable="true" supportsautomaticgraphicsswitching="true">
 			<classpath file="${path.fatjar}" />
 			<librarypath dir="${dir.lib}/native/mac-x86_64" />
 			<arch name="x86_64" />
@@ -817,13 +820,13 @@
 		<scp todir="${sf.user}:${sf.password}@${frs.release}" trust="yes" verbose="true" sftp="true">
 			<!-- make sure to upload README.md first -->
 			<fileset dir="${basedir.release}" includes="**/README.md">
-				<date datetime="${today}" pattern="yyyy-MM-dd" when="after" />
+				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
 		<scp todir="${sf.user}:${sf.password}@${frs.release}" trust="yes" verbose="true" sftp="true">
 			<!-- upload starting with parent folders so scp will create the release folder for us -->
 			<fileset dir="${basedir.release}" excludes="**/README.md">
-				<date datetime="${today}" pattern="yyyy-MM-dd" when="after" />
+				<date datetime="${tstamp.date}" pattern="yyyy-MM-dd" when="after" />
 			</fileset>
 		</scp>
 	</target>
