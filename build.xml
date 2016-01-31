@@ -184,7 +184,9 @@
 			</zipfileset>
 
 			<zipfileset src="${dir.lib}/ivy/jar/language-detector.jar">
-				<include name="com/**" />
+				<include name="be/frma/langguess/**" />
+				<include name="com/cybozu/labs/langdetect/**" />
+				<include name="com/optimaize/langdetect/**" />
 				<include name="languages/**" />
 			</zipfileset>
 
