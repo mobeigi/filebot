@@ -30,5 +30,7 @@
 	<classpathentry kind="lib" path="lib/ivy/jar/sevenzipjbinding.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/bundle/json-io.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jna-platform.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/language-detector.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/bundle/guava.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

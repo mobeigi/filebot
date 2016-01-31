@@ -183,6 +183,15 @@
 				<include name="com/github/junrar/**" />
 			</zipfileset>
 
+			<zipfileset src="${dir.lib}/ivy/jar/language-detector.jar">
+				<include name="com/**" />
+				<include name="languages/**" />
+			</zipfileset>
+
+			<zipfileset src="${dir.lib}/ivy/bundle/guava.jar">
+				<include name="com/google/**" />
+			</zipfileset>
+
 			<!-- include classes and native libraries -->
 			<zipfileset src="${dir.lib}/ivy/jar/jna.jar">
 				<include name="com/sun/jna/**" />

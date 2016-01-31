@@ -175,16 +175,13 @@ public final class FileUtilities {
 	}
 
 	public static byte[] readFile(File source) throws IOException {
-		InputStream in = new FileInputStream(source);
+		long size = source.length();
+		if (size < 0 || size > Integer.MAX_VALUE) {
+			throw new IllegalArgumentException("Unable to read file: " + source);
+		}
 
-		try {
-			long size = source.length();
-			if (size < 0 || size > Integer.MAX_VALUE) {
-				throw new IllegalArgumentException("Unable to read file: " + source);
-			}
-
+		try (InputStream in = new FileInputStream(source)) {
 			byte[] data = new byte[(int) size];
-
 			int position = 0;
 			int read = 0;
 
@@ -193,8 +190,6 @@ public final class FileUtilities {
 			}
 
 			return data;
-		} finally {
-			in.close();
 		}
 	}
 

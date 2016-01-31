@@ -91,9 +91,12 @@ public class Language implements Serializable {
 	};
 
 	public static Language getLanguage(String code) {
-		ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
+		if (code == null || code.isEmpty()) {
+			return null;
+		}
 
 		try {
+			ResourceBundle bundle = ResourceBundle.getBundle(Language.class.getName());
 			String[] values = bundle.getString(code).split("\\t", 3);
 			return new Language(code, values[0], values[1], values[2].split("\\t"));
 		} catch (Exception e) {

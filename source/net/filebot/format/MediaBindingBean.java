@@ -8,6 +8,7 @@ import static net.filebot.format.ExpressionFormatMethods.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
+import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.EpisodeFormat.*;
@@ -32,7 +33,6 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-import net.filebot.Cache;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
@@ -512,14 +512,19 @@ public class MediaBindingBean {
 	}
 
 	@Define("lang")
-	public Language detectSubtitleLanguage() throws Exception {
+	public Language getSubtitleLanguage() throws Exception {
 		Locale languageSuffix = releaseInfo.getLanguageSuffix(FileUtilities.getName(getMediaFile()));
-		if (languageSuffix != null)
+		if (languageSuffix != null) {
 			return Language.getLanguage(languageSuffix);
+		}
 
-		// require subtitle file
-		if (!SUBTITLE_FILES.accept(getMediaFile())) {
-			return null;
+		// try to auto-detect subtitle language
+		if (SUBTITLE_FILES.accept(getMediaFile())) {
+			try {
+				return Language.getLanguage(detectSubtitleLanguage(getMediaFile()));
+			} catch (Throwable e) {
+				throw new RuntimeException("Failed to auto-detect subtitle language: " + e, e);
+			}
 		}
 
 		return null;
@@ -1022,21 +1027,6 @@ public class MediaBindingBean {
 			bindings.add(createMapBindings(it));
 		}
 		return bindings;
-	}
-
-	private String crc32(File file) throws IOException, InterruptedException {
-		// try to get checksum from cache
-		Cache cache = Cache.getCache(Cache.EPHEMERAL);
-
-		String hash = cache.get(file, String.class);
-		if (hash != null) {
-			return hash;
-		}
-
-		// compute and cache checksum
-		hash = computeHash(file, HashType.SFV);
-		cache.put(file, hash);
-		return hash;
 	}
 
 	private String getOriginalFileName(File file) {

@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.filebot.Language;
@@ -47,6 +48,15 @@ import net.filebot.web.Movie;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
+
+import com.optimaize.langdetect.DetectedLanguage;
+import com.optimaize.langdetect.LanguageDetector;
+import com.optimaize.langdetect.LanguageDetectorBuilder;
+import com.optimaize.langdetect.i18n.LdLocale;
+import com.optimaize.langdetect.ngram.NgramExtractors;
+import com.optimaize.langdetect.profiles.BuiltInLanguages;
+import com.optimaize.langdetect.profiles.LanguageProfile;
+import com.optimaize.langdetect.profiles.LanguageProfileReader;
 
 public final class SubtitleUtilities {
 
@@ -308,9 +318,9 @@ public final class SubtitleUtilities {
 			SubRipWriter out = new SubRipWriter(buffer);
 
 			for (SubtitleElement it : decodeSubtitles(data)) {
-				if (outputTimingOffset != 0)
+				if (outputTimingOffset != 0) {
 					it = new SubtitleElement(max(0, it.getStart() + outputTimingOffset), max(0, it.getEnd() + outputTimingOffset), it.getText());
-
+				}
 				out.write(it);
 			}
 
@@ -384,6 +394,31 @@ public final class SubtitleUtilities {
 
 		// assume that the fetched data is the subtitle
 		return new MemoryFile(descriptor.getPath(), data);
+	}
+
+	public static String detectSubtitleLanguage(File file) throws IOException {
+		MemoryFile subtitleFile = new MemoryFile(file.getName(), ByteBuffer.wrap(readFile(file)));
+		String subtitleText = decodeSubtitles(subtitleFile).stream().map(SubtitleElement::getText).collect(Collectors.joining("\n"));
+
+		// detect language
+		List<DetectedLanguage> probabilities = createLanguageDetector().getProbabilities(subtitleText);
+
+		if (probabilities.size() > 0) {
+			return probabilities.get(0).getLocale().getLanguage();
+		}
+		return null;
+	}
+
+	private static LanguageDetectorBuilder languageDetector;
+
+	private static LanguageDetector createLanguageDetector() throws IOException {
+		if (languageDetector == null) {
+			// load all language profiles and build language detector
+			List<LdLocale> languages = BuiltInLanguages.getLanguages().stream().filter(lc -> Language.getLanguage(lc.getLanguage()) != null).collect(Collectors.toList());
+			List<LanguageProfile> languageProfiles = new LanguageProfileReader().readBuiltIn(languages);
+			languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard()).withProfiles(languageProfiles);
+		}
+		return languageDetector.build();
 	}
 
 	/**

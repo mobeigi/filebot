@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.Cache;
+
 public final class VerificationUtilities {
 
 	/**
@@ -101,6 +103,21 @@ public final class VerificationUtilities {
 		}
 
 		return hash.digest();
+	}
+
+	public static String crc32(File file) throws IOException, InterruptedException {
+		// try to get checksum from cache
+		Cache cache = Cache.getCache(Cache.EPHEMERAL);
+
+		String hash = cache.get(file, String.class);
+		if (hash != null) {
+			return hash;
+		}
+
+		// compute and cache checksum
+		hash = computeHash(file, HashType.SFV);
+		cache.put(file, hash);
+		return hash;
 	}
 
 	/**
