@@ -3,9 +3,11 @@ package net.filebot.ui.sfv;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.util.logging.Level;
 import net.filebot.MediaTypes;
 import net.filebot.hash.HashType;
 import net.filebot.hash.VerificationFileReader;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.transfer.BackgroundFileTransferablePolicy;
 import net.filebot.util.ExceptionUtilities;
 
@@ -47,6 +50,11 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void handleInBackground(List<File> files, TransferAction action) {
+		// make sure we have access to the parent folder structure, not just the dropped file
+		if (isMacSandbox()) {
+			MacAppUtilities.askUnlockFolders(getWindow(files), files);
+		}
+
 		if (files.size() == 1 && getHashType(files.get(0)) != null) {
 			model.setHashType(getHashType(files.get(0)));
 		}
