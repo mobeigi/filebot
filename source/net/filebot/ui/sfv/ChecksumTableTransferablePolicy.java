@@ -27,11 +27,13 @@ import net.filebot.util.ExceptionUtilities;
 
 class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<ChecksumCell> {
 
+	private final ChecksumTable table;
 	private final ChecksumTableModel model;
 	private final ChecksumComputationService computationService;
 
-	public ChecksumTableTransferablePolicy(ChecksumTableModel model, ChecksumComputationService checksumComputationService) {
-		this.model = model;
+	public ChecksumTableTransferablePolicy(ChecksumTable table, ChecksumComputationService checksumComputationService) {
+		this.table = table;
+		this.model = table.getModel();
 		this.computationService = checksumComputationService;
 	}
 
@@ -52,7 +54,7 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 	protected void handleInBackground(List<File> files, TransferAction action) {
 		// make sure we have access to the parent folder structure, not just the dropped file
 		if (isMacSandbox()) {
-			MacAppUtilities.askUnlockFolders(getWindow(files), files);
+			MacAppUtilities.askUnlockFolders(getWindow(table), files);
 		}
 
 		if (files.size() == 1 && getHashType(files.get(0)) != null) {

@@ -44,7 +44,7 @@ public class SfvPanel extends JComponent {
 
 	private final ChecksumTable table = new ChecksumTable();
 
-	private final ChecksumTableTransferablePolicy transferablePolicy = new ChecksumTableTransferablePolicy(table.getModel(), computationService);
+	private final ChecksumTableTransferablePolicy transferablePolicy = new ChecksumTableTransferablePolicy(table, computationService);
 	private final ChecksumTableExportHandler exportHandler = new ChecksumTableExportHandler(table.getModel());
 
 	public SfvPanel() {
