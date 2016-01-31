@@ -162,7 +162,7 @@ abstract class SubtitleDropTarget extends JButton {
 			}
 
 			if (getSubtitleService().isAnonymous() && !Settings.isAppStore()) {
-				UILogger.info(String.format("%s: Please enter your login details first.", getSubtitleService().getName()));
+				UILogger.info(String.format("%s: Please enter your login details.", getSubtitleService().getName()));
 				return false;
 			}
 
@@ -174,13 +174,7 @@ abstract class SubtitleDropTarget extends JButton {
 
 			if (videoFiles.size() > 0) {
 				// invoke later so we don't block the DnD operation with the download dialog
-				invokeLater(0, new Runnable() {
-
-					@Override
-					public void run() {
-						handleDownload(videoFiles);
-					}
-				});
+				invokeLater(0, () -> handleDownload(videoFiles));
 				return true;
 			}
 
@@ -233,13 +227,13 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		protected DropAction getDropAction(List<File> input) {
 			// accept video files and folders
-			return (filter(input, VIDEO_FILES).size() > 0 && filter(input, SUBTITLE_FILES).size() > 0) || filter(input, FOLDERS).size() > 0 ? DropAction.Accept : DropAction.Cancel;
+			return filter(input, SUBTITLE_FILES).size() > 0 || filter(input, FOLDERS).size() > 0 ? DropAction.Accept : DropAction.Cancel;
 		}
 
 		@Override
 		protected boolean handleDrop(List<File> input) {
 			if (getSubtitleService().isAnonymous()) {
-				UILogger.info(String.format("%s: Please enter your login details first.", getSubtitleService().getName()));
+				UILogger.info(String.format("%s: You must be logged in to upload subtitles.", getSubtitleService().getName()));
 				return false;
 			}
 
@@ -264,13 +258,7 @@ abstract class SubtitleDropTarget extends JButton {
 
 			if (uploadPlan.size() > 0) {
 				// invoke later so we don't block the DnD operation with the download dialog
-				invokeLater(0, new Runnable() {
-
-					@Override
-					public void run() {
-						handleUpload(uploadPlan);
-					}
-				});
+				invokeLater(0, () -> handleUpload(uploadPlan));
 				return true;
 			}
 			return false;

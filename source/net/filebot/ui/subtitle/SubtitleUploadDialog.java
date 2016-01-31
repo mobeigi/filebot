@@ -1,5 +1,6 @@
 package net.filebot.ui.subtitle;
 
+import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.MediaDetection.*;
@@ -155,8 +156,9 @@ public class SubtitleUploadDialog extends JDialog {
 
 			@Override
 			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-				table.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				try {
+					getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
 					SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 					SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
@@ -170,28 +172,50 @@ public class SubtitleUploadDialog extends JDialog {
 						query = sn;
 					}
 
-					String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(query), getStructurePathTail(video).getPath(), SubtitleUploadDialog.this);
+					final String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(query), getStructurePathTail(video).getPath(), SubtitleUploadDialog.this);
 					if (input != null && input.length() > 0) {
-						List<SubtitleSearchResult> options = database.searchIMDB(input);
-						if (options.size() > 0) {
-							SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
-							dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-							dialog.setVisible(true);
-							Movie selectedValue = dialog.getSelectedValue();
-							if (selectedValue != null) {
-								mapping.setIdentity(selectedValue);
-								if (mapping.getIdentity() != null && mapping.getLanguage() != null) {
-									mapping.setForceIdentity(true);
-									mapping.setState(SubtitleMapping.Status.CheckPending);
-									startChecking();
-								}
+						SwingWorker<List<SubtitleSearchResult>, Void> worker = new SwingWorker<List<SubtitleSearchResult>, Void>() {
+
+							@Override
+							protected List<SubtitleSearchResult> doInBackground() throws Exception {
+								return database.searchIMDB(input);
 							}
-						}
+
+							@Override
+							protected void done() {
+								try {
+									List<SubtitleSearchResult> options = get();
+									System.out.println(options);
+									if (options.size() > 0) {
+										SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
+										dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+										dialog.setVisible(true);
+										Movie selectedValue = dialog.getSelectedValue();
+										if (selectedValue != null) {
+											mapping.setIdentity(selectedValue);
+											if (mapping.getIdentity() != null && mapping.getLanguage() != null && mapping.getVideo() != null) {
+												mapping.setForceIdentity(true);
+												mapping.setState(SubtitleMapping.Status.CheckPending);
+												startChecking();
+											}
+										}
+									} else {
+										UILogger.warning(String.format("%s: \"%s\" not found.", database.getName(), input));
+									}
+								} catch (Exception e) {
+									Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+								}
+								getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							};
+						};
+						worker.execute();
+					} else {
+						getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					}
 				} catch (Exception e) {
-					Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);
+					Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.toString());
+					getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				}
-				table.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				return null;
 			}
 		});
@@ -266,7 +290,7 @@ public class SubtitleUploadDialog extends JDialog {
 	public void startChecking() {
 		SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
 		for (SubtitleMapping it : data) {
-			if (it.getSubtitle() != null && it.getVideo() != null) {
+			if (it.getSubtitle() != null) {
 				if (it.getStatus() == SubtitleMapping.Status.CheckPending) {
 					checkExecutorService.submit(new CheckTask(it));
 				}
@@ -324,20 +348,20 @@ public class SubtitleUploadDialog extends JDialog {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			String text = null;
-			String tooltip = null;
-			Icon icon = null;
 
-			Movie movie = (Movie) value;
-			if (movie != null) {
-				text = movie.toString();
-				tooltip = String.format("%s [tt%07d]", movie.toString(), movie.getImdbId());
-				icon = database.getIcon();
+			if (value != null) {
+				Movie movie = (Movie) value;
+				setText(movie.toString());
+				setToolTipText(String.format("%s [tt%07d]", movie.toString(), movie.getImdbId()));
+				setIcon(database.getIcon());
+				setForeground(table.getForeground());
+			} else {
+				setText("<Click to select movie / series>");
+				setToolTipText(null);
+				setIcon(null);
+				setForeground(Color.LIGHT_GRAY);
 			}
 
-			setText(text);
-			setToolTipText(tooltip);
-			setIcon(icon);
 			return this;
 		}
 	}
@@ -347,24 +371,24 @@ public class SubtitleUploadDialog extends JDialog {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			String text = null;
-			String tooltip = null;
-			Icon icon = null;
 
 			if (value != null) {
 				File file = (File) value;
-				text = file.getName();
-				tooltip = file.getPath();
+				setText(file.getName());
+				setToolTipText(file.getPath());
 				if (SUBTITLE_FILES.accept(file)) {
-					icon = ResourceManager.getIcon("file.subtitle");
+					setIcon(ResourceManager.getIcon("file.subtitle"));
 				} else if (VIDEO_FILES.accept(file)) {
-					icon = ResourceManager.getIcon("file.video");
+					setIcon(ResourceManager.getIcon("file.video"));
 				}
+				setForeground(table.getForeground());
+			} else {
+				setText("<Click to select video file>");
+				setToolTipText(null);
+				setIcon(null);
+				setForeground(Color.LIGHT_GRAY);
 			}
 
-			setText(text);
-			setToolTipText(text);
-			setIcon(icon);
 			return this;
 		}
 	}
@@ -374,29 +398,28 @@ public class SubtitleUploadDialog extends JDialog {
 		private DefaultTableCellRenderer tableCell = new DefaultTableCellRenderer();
 		private DefaultListCellRenderer listCell = new DefaultListCellRenderer();
 
-		private Component configure(JLabel c, Object value, boolean isSelected, boolean hasFocus) {
-			String text = null;
-			Icon icon = null;
-
+		private Component configure(JLabel c, JComponent parent, Object value, boolean isSelected, boolean hasFocus) {
 			if (value != null) {
 				Language language = (Language) value;
-				text = language.getName();
-				icon = ResourceManager.getFlagIcon(language.getCode());
+				c.setText(language.getName());
+				c.setIcon(ResourceManager.getFlagIcon(language.getCode()));
+				c.setForeground(parent.getForeground());
+			} else {
+				c.setText("<Click to select language>");
+				c.setIcon(null);
+				c.setForeground(Color.LIGHT_GRAY);
 			}
-
-			c.setText(text);
-			c.setIcon(icon);
 			return c;
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			return configure((DefaultTableCellRenderer) tableCell.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column), value, isSelected, hasFocus);
+			return configure((DefaultTableCellRenderer) tableCell.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column), table, value, isSelected, hasFocus);
 		}
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			return configure((DefaultListCellRenderer) listCell.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus), value, isSelected, cellHasFocus);
+			return configure((DefaultListCellRenderer) listCell.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus), list, value, isSelected, cellHasFocus);
 		}
 	}
 
@@ -411,7 +434,7 @@ public class SubtitleUploadDialog extends JDialog {
 			// CheckPending, Checking, CheckFailed, AlreadyExists, Identifying, IdentificationRequired, UploadPending, Uploading, UploadComplete, UploadFailed;
 			switch ((SubtitleMapping.Status) value) {
 			case IllegalInput:
-				text = "No video/subtitle pair";
+				text = "Please select video file";
 				icon = ResourceManager.getIcon("status.error");
 				break;
 			case CheckPending:
@@ -435,7 +458,7 @@ public class SubtitleUploadDialog extends JDialog {
 				icon = ResourceManager.getIcon("action.export");
 				break;
 			case IdentificationRequired:
-				text = "Please input the missing information";
+				text = "Please select Movie / Series and Language";
 				icon = ResourceManager.getIcon("dialog.continue.invalid");
 				break;
 			case UploadReady:
@@ -489,9 +512,9 @@ public class SubtitleUploadDialog extends JDialog {
 			case 0:
 				return "Movie / Series";
 			case 1:
-				return "Video";
+				return "Video File";
 			case 2:
-				return "Subtitle";
+				return "Subtitle File";
 			case 3:
 				return "Language";
 			case 4:
@@ -666,7 +689,7 @@ public class SubtitleUploadDialog extends JDialog {
 			try {
 				CheckResult checkResult = null;
 
-				if (!mapping.getForceIdentity()) {
+				if (!mapping.getForceIdentity() && mapping.getVideo() != null) {
 					mapping.setState(SubtitleMapping.Status.Checking);
 
 					checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
@@ -690,7 +713,7 @@ public class SubtitleUploadDialog extends JDialog {
 					}
 				}
 
-				if (mapping.getIdentity() == null) {
+				if (mapping.getIdentity() == null && mapping.getVideo() != null) {
 					mapping.setState(SubtitleMapping.Status.Identifying);
 					try {
 						if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
@@ -723,7 +746,9 @@ public class SubtitleUploadDialog extends JDialog {
 					}
 				}
 
-				if (mapping.getIdentity() == null || mapping.getLanguage() == null) {
+				if (mapping.getVideo() == null) {
+					mapping.setState(SubtitleMapping.Status.IllegalInput);
+				} else if (mapping.getIdentity() == null || mapping.getLanguage() == null) {
 					mapping.setState(SubtitleMapping.Status.IdentificationRequired);
 				} else {
 					mapping.setState(SubtitleMapping.Status.UploadReady);
