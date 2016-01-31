@@ -52,11 +52,6 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void handleInBackground(List<File> files, TransferAction action) {
-		// make sure we have access to the parent folder structure, not just the dropped file
-		if (isMacSandbox()) {
-			MacAppUtilities.askUnlockFolders(getWindow(table), files);
-		}
-
 		if (files.size() == 1 && getHashType(files.get(0)) != null) {
 			model.setHashType(getHashType(files.get(0)));
 		}
@@ -78,6 +73,11 @@ class ChecksumTableTransferablePolicy extends BackgroundFileTransferablePolicy<C
 
 	@Override
 	protected void load(List<File> files, TransferAction action) throws IOException {
+		// make sure we have access to the parent folder structure, not just the dropped file
+		if (isMacSandbox()) {
+			MacAppUtilities.askUnlockFolders(getWindow(table), files);
+		}
+
 		// initialize drop parameters
 		executor.set(computationService.newExecutor());
 		verificationTracker.set(new VerificationTracker(5));

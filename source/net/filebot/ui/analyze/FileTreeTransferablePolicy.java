@@ -53,11 +53,6 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 
 	@Override
 	protected void handleInBackground(List<File> files, TransferAction action) {
-		// make sure we have access to the parent folder structure, not just the dropped file
-		if (isMacSandbox()) {
-			MacAppUtilities.askUnlockFolders(getWindow(tree), files);
-		}
-
 		super.handleInBackground(files, action);
 	}
 
@@ -66,6 +61,11 @@ class FileTreeTransferablePolicy extends BackgroundFileTransferablePolicy<TreeNo
 		try {
 			if (files.size() > 1 || containsOnly(files, FILES)) {
 				files = Arrays.asList(files.get(0).getParentFile());
+			}
+
+			// make sure we have access to the parent folder structure, not just the dropped file
+			if (isMacSandbox()) {
+				MacAppUtilities.askUnlockFolders(getWindow(tree), files);
 			}
 
 			// use fast file to minimize system calls like length(), isDirectory(), isFile(), ...
