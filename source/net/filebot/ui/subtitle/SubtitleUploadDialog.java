@@ -200,7 +200,7 @@ public class SubtitleUploadDialog extends JDialog {
 											}
 										}
 									} else {
-										UILogger.warning(String.format("%s: \"%s\" not found.", database.getName(), input));
+										UILogger.warning(String.format("%s: \"%s\" has not been found", database.getName(), input));
 									}
 								} catch (Exception e) {
 									Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);

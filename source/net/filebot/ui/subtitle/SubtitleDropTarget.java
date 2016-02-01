@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import javax.swing.Icon;
@@ -284,16 +286,21 @@ abstract class SubtitleDropTarget extends JButton {
 		}
 
 		protected File getVideoForSubtitle(File subtitle, List<File> videos) {
-			String baseName = stripReleaseInfo(FileUtilities.getName(subtitle)).toLowerCase();
+			// 1. try to find exact match in drop data
+			return findMatch(subtitle, videos, FileUtilities::getName).orElseGet(() -> {
+				// 2. guess movie file from the parent folder if only a subtitle file was dropped in
+					return findMatch(subtitle, getChildren(subtitle.getParentFile(), VIDEO_FILES), FileUtilities::getName).get();
+				});
+		}
 
-			// find corresponding movie file
-			for (File it : videos) {
-				if (!baseName.isEmpty() && stripReleaseInfo(FileUtilities.getName(it)).toLowerCase().startsWith(baseName)) {
-					return it;
+		private Optional<File> findMatch(File file, List<File> options, Function<File, String> comparator) {
+			String name = comparator.apply(file).toLowerCase();
+			for (File it : options) {
+				if (name.length() > 0 && comparator.apply(it).toLowerCase().startsWith(name)) {
+					return Optional.of(it);
 				}
 			}
-
-			return null;
+			return Optional.empty();
 		}
 
 		@Override
