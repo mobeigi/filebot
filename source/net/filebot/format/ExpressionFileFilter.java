@@ -1,5 +1,7 @@
 package net.filebot.format;
 
+import static net.filebot.media.MediaDetection.*;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.util.logging.Level;
@@ -22,7 +24,7 @@ public class ExpressionFileFilter implements FileFilter {
 	@Override
 	public boolean accept(File f) {
 		try {
-			return filter.matches(new MediaBindingBean(f, f));
+			return filter.matches(new MediaBindingBean(readMetaInfo(f), f, null));
 		} catch (Exception e) {
 			Logger.getLogger(ExpressionFileFilter.class.getName()).log(Level.WARNING, e.toString());
 			return errorResult;
