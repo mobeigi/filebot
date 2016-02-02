@@ -427,7 +427,7 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		synchronized (cli) {
 			try {
-				List<String> lines = cli.getMediaInfo(singleton(input.get(0)), asString(option.get(Option.format)), asString(option.get(Option.filter)));
+				List<String> lines = cli.getMediaInfo(singleton(input.get(0)), asString(option.get(Option.format)), null); // explicitly ignore the --filter option if any
 				return lines.get(0);
 			} catch (Exception e) {
 				printException(e, false);
