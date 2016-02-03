@@ -18,8 +18,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.SecondaryLoop;
-import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -27,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collection;
@@ -34,6 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -133,13 +136,13 @@ public class DropToUnlock extends JList<File> {
 			return true;
 		}
 
-		// show dialog on EDT and wait for user input
-		final SecondaryLoop secondaryLoop = Toolkit.getDefaultToolkit().getSystemEventQueue().createSecondaryLoop();
-		final AtomicBoolean dialogCancelled = new AtomicBoolean(true);
+		// show selection dialog on EDT
+		RunnableFuture<Boolean> showPermissionDialog = new FutureTask<Boolean>(new Callable<Boolean>() {
 
-		SwingUtilities.invokeLater(() -> {
-			try {
-				JDialog dialog = new JDialog(owner);
+			@Override
+			public Boolean call() throws Exception {
+				final JDialog dialog = new JDialog(owner);
+				final AtomicBoolean dialogCancelled = new AtomicBoolean(true);
 				DropToUnlock d = new DropToUnlock(model) {
 
 					@Override
@@ -191,20 +194,29 @@ public class DropToUnlock extends JList<File> {
 
 				// show and wait for user input
 				dialog.setVisible(true);
-			} finally {
-				secondaryLoop.exit();
+
+				// abort if user has closed the window before all folders have been unlocked
+				return !dialogCancelled.get();
 			}
 		});
 
-		if (!secondaryLoop.enter()) {
-			throw new IllegalStateException("SecondaryLoop.enter()");
-		}
-		if (dialogCancelled.get()) {
-			return false;
-		}
+		// show dialog on EDT and wait for user input
+		try {
+			if (SwingUtilities.isEventDispatchThread()) {
+				showPermissionDialog.run();
+			} else {
+				SwingUtilities.invokeAndWait(showPermissionDialog);
+			}
 
-		storeSecurityScopedBookmarks(model);
-		return true;
+			// store security-scoped bookmark if dialog was accepted
+			if (showPermissionDialog.get()) {
+				storeSecurityScopedBookmarks(model);
+				return true;
+			}
+			return false;
+		} catch (InterruptedException | InvocationTargetException | ExecutionException e) {
+			throw new RuntimeException("Failed to request permissions: " + e.getMessage(), e);
+		}
 	}
 
 	public DropToUnlock(Collection<File> model) {
