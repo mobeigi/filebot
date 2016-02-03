@@ -39,7 +39,7 @@ public class ArgumentBean {
 	@Option(name = "--action", usage = "Rename action", metaVar = "[Move, Copy, Keeplink, Symlink, Hardlink, Test]")
 	public String action = "move";
 
-	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[skip, override, auto, fail]")
+	@Option(name = "--conflict", usage = "Conflict resolution", metaVar = "[skip, override, auto, index, fail]")
 	public String conflict = "skip";
 
 	@Option(name = "--filter", usage = "Filter expression", metaVar = "expression")
