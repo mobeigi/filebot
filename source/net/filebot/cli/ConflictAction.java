@@ -2,7 +2,7 @@ package net.filebot.cli;
 
 public enum ConflictAction {
 
-	SKIP, OVERRIDE, FAIL, AUTO;
+	SKIP, OVERRIDE, FAIL, AUTO, INDEX;
 
 	public static ConflictAction forName(String action) {
 		for (ConflictAction it : values()) {

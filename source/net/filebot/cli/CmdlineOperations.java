@@ -1,6 +1,5 @@
 package net.filebot.cli;
 
-import static net.filebot.util.StringUtilities.*;
 import static java.lang.String.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
@@ -12,6 +11,7 @@ import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import net.filebot.HistorySpooler;
 import net.filebot.Language;
@@ -605,7 +605,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// rename files
-		final List<Entry<File, File>> renameLog = new ArrayList<Entry<File, File>>();
+		Map<File, File> renameLog = new LinkedHashMap<File, File>();
 
 		try {
 			for (Entry<File, File> it : renameMap.entrySet()) {
@@ -616,7 +616,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					// resolve destination
 					if (!destination.isAbsolute()) {
 						// same folder, different name
-						destination = new File(source.getParentFile(), destination.getPath());
+						destination = resolveDestination(source, destination, false);
 					}
 
 					if (!destination.equals(source) && destination.exists() && renameAction != StandardRenameAction.TEST) {
@@ -628,44 +628,44 @@ public class CmdlineOperations implements CmdlineInterface {
 							if (!destination.delete()) {
 								CLILogger.log(Level.SEVERE, "Failed to override file: " + destination);
 							}
+						} else if (conflictAction == ConflictAction.INDEX) {
+							destination = nextAvailableIndexedName(destination);
 						}
 					}
 
 					// rename file, throw exception on failure
 					if (!destination.equals(source) && !destination.exists()) {
-						CLILogger.info(format("[%s] Rename [%s] to [%s]", renameAction, it.getKey(), it.getValue()));
+						CLILogger.info(format("[%s] Rename [%s] to [%s]", renameAction, source, destination));
 						destination = renameAction.rename(source, destination);
+
+						// remember successfully renamed matches for history entry and possible revert
+						renameLog.put(source, destination);
 					} else {
 						CLILogger.info(format("Skipped [%s] because [%s] already exists", source, destination));
 					}
-
-					// remember successfully renamed matches for history entry and possible revert
-					renameLog.add(new SimpleImmutableEntry<File, File>(source, destination));
 				} catch (IOException e) {
 					CLILogger.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));
 					throw e;
 				}
 			}
 		} finally {
-			if (renameLog.size() > 0) {
-				// update rename history
-				HistorySpooler.getInstance().append(renameMap.entrySet());
+			// update rename history
+			HistorySpooler.getInstance().append(renameLog.entrySet());
 
-				// printer number of renamed files if any
-				CLILogger.fine(format("Processed %d files", renameLog.size()));
-			}
+			// printer number of renamed files if any
+			CLILogger.fine(format("Processed %d files", renameLog.size()));
 		}
 
 		// write metadata into xattr if xattr is enabled
-		if (matches != null && (useExtendedFileAttributes() || useCreationDate()) && renameAction != StandardRenameAction.TEST) {
+		if (matches != null && renameLog.size() > 0 && (useExtendedFileAttributes() || useCreationDate()) && renameAction != StandardRenameAction.TEST) {
 			try {
 				for (Match<File, ?> match : matches) {
-					File file = match.getValue();
-					Object meta = match.getCandidate();
-					if (renameMap.containsKey(file) && meta != null) {
-						File destination = resolveDestination(file, renameMap.get(file), false);
-						if (destination.isFile()) {
-							MediaDetection.storeMetaInfo(destination, meta, file.getName(), useExtendedFileAttributes(), useCreationDate());
+					File source = match.getValue();
+					Object infoObject = match.getCandidate();
+					if (infoObject != null) {
+						File destination = renameLog.get(source);
+						if (destination != null && destination.isFile()) {
+							MediaDetection.storeMetaInfo(destination, infoObject, source.getName(), useExtendedFileAttributes(), useCreationDate());
 						}
 					}
 				}
@@ -675,12 +675,16 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// new file names
-		List<File> destinationList = new ArrayList<File>();
-		for (Entry<File, File> it : renameLog) {
-			destinationList.add(it.getValue());
-		}
+		return new ArrayList<File>(renameLog.values());
+	}
 
-		return destinationList;
+	private static File nextAvailableIndexedName(File file) {
+		IntStream seq = IntStream.range(1, 100);
+
+		File parent = file.getParentFile();
+		String name = getName(file);
+		String ext = getExtension(file);
+		return seq.mapToObj(i -> new File(parent, name + '.' + i + '.' + ext)).filter(f -> !f.exists()).findFirst().get();
 	}
 
 	@Override
