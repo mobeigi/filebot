@@ -289,14 +289,14 @@ abstract class SubtitleDropTarget extends JButton {
 			// 1. try to find exact match in drop data
 			return findMatch(subtitle, videos, FileUtilities::getName).orElseGet(() -> {
 				// 2. guess movie file from the parent folder if only a subtitle file was dropped in
-					return findMatch(subtitle, getChildren(subtitle.getParentFile(), VIDEO_FILES), FileUtilities::getName).get();
+					return findMatch(subtitle, getChildren(subtitle.getParentFile(), VIDEO_FILES), FileUtilities::getName).orElse(null);
 				});
 		}
 
 		private Optional<File> findMatch(File file, List<File> options, Function<File, String> comparator) {
-			String name = comparator.apply(file).toLowerCase();
+			String subtitleFileName = comparator.apply(file).toLowerCase();
 			for (File it : options) {
-				if (name.length() > 0 && comparator.apply(it).toLowerCase().startsWith(name)) {
+				if (subtitleFileName.length() > 0 && subtitleFileName.startsWith(comparator.apply(it).toLowerCase())) {
 					return Optional.of(it);
 				}
 			}

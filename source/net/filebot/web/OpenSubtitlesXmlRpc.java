@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.util.StringUtilities.*;
 
@@ -13,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -163,14 +165,37 @@ public class OpenSubtitlesXmlRpc {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
-	public TryUploadResponse tryUploadSubtitles(SubFile... subtitles) throws XmlRpcFault {
-		Map<String, SubFile> struct = new HashMap<String, SubFile>();
+	private static final Pattern CDI_PATTERN = Pattern.compile("(?<!\\p{Alnum})CD(?<i>[1-9])(?!\\p{Digit})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+
+	private Map<String, Object> getUploadStruct(BaseInfo baseInfo, SubFile... subtitles) {
+		Map<String, Object> struct = new LinkedHashMap<String, Object>();
+
+		// put baseinfo
+		if (baseInfo != null) {
+			struct.put("baseinfo", baseInfo);
+		}
 
 		// put cd1, cd2, ...
-		for (SubFile cd : subtitles) {
-			struct.put(String.format("cd%d", struct.size() + 1), cd);
+		for (SubFile it : subtitles) {
+			int i = 1;
+			Matcher m = CDI_PATTERN.matcher(it.toString());
+			while (m.find()) {
+				i = Integer.parseInt(m.group("i"));
+			}
+			String key = "cd" + i;
+			if (!struct.containsKey(key)) {
+				struct.put(key, it);
+			} else {
+				throw new IllegalArgumentException(String.format("Duplicate key: %s: %s", key, asList(subtitles)));
+			}
 		}
+
+		return struct;
+	}
+
+	@SuppressWarnings("unchecked")
+	public TryUploadResponse tryUploadSubtitles(SubFile... subtitles) throws XmlRpcFault {
+		Map<String, Object> struct = getUploadStruct(null, subtitles);
 
 		Map<?, ?> response = invoke("TryUploadSubtitles", token, struct);
 
@@ -187,15 +212,7 @@ public class OpenSubtitlesXmlRpc {
 	}
 
 	public URI uploadSubtitles(BaseInfo baseInfo, SubFile... subtitles) throws XmlRpcFault {
-		Map<String, Object> struct = new HashMap<String, Object>();
-
-		// put cd1, cd2, ...
-		for (SubFile cd : subtitles) {
-			struct.put(String.format("cd%d", struct.size() + 1), cd);
-		}
-
-		// put baseinfo
-		struct.put("baseinfo", baseInfo);
+		Map<String, Object> struct = getUploadStruct(baseInfo, subtitles);
 
 		Map<?, ?> response = invoke("UploadSubtitles", token, struct);
 
@@ -496,6 +513,11 @@ public class OpenSubtitlesXmlRpc {
 			if (movieframes.length() > 0) {
 				put("movieframes", movieframes);
 			}
+		}
+
+		@Override
+		public String toString() {
+			return String.format("(%s, %s)", get("moviefilename"), get("subfilename"));
 		}
 
 	}
