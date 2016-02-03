@@ -3,7 +3,6 @@ package net.filebot.ui.subtitle;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
-import static net.filebot.media.MediaDetection.*;
 import static net.filebot.ui.NotificationLogging.*;
 import static net.filebot.ui.transfer.FileTransferable.*;
 import static net.filebot.util.FileUtilities.*;
@@ -32,6 +31,7 @@ import java.util.logging.Level;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.SwingUtilities;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
@@ -116,14 +116,21 @@ abstract class SubtitleDropTarget extends JButton {
 		@Override
 		public void drop(DropTargetDropEvent dtde) {
 			dtde.acceptDrop(DnDConstants.ACTION_REFERENCE);
+			boolean accept = false;
 
 			try {
-				dtde.dropComplete(handleDrop(getFilesFromTransferable(dtde.getTransferable())));
+				List<File> files = getFilesFromTransferable(dtde.getTransferable());
+				accept = getDropAction(files) != DropAction.Cancel;
+
+				if (accept) {
+					// invoke later so we don't block the DnD operation with the download dialog
+					SwingUtilities.invokeLater(() -> handleDrop(files));
+				}
 			} catch (Exception e) {
 				UILogger.log(Level.WARNING, e.getMessage(), e);
 			}
 
-			// reset to default state
+			dtde.dropComplete(accept);
 			dragExit(dtde);
 		}
 
@@ -136,10 +143,8 @@ abstract class SubtitleDropTarget extends JButton {
 			// collect media file extensions (video and subtitle files)
 			List<File> files = showLoadDialogSelectFiles(true, true, null, combineFilter(VIDEO_FILES, SUBTITLE_FILES), "Select Video Folder", evt);
 
-			if (files.size() > 0) {
-				if (getDropAction(files) != DropAction.Cancel) {
-					handleDrop(files);
-				}
+			if (files.size() > 0 && getDropAction(files) != DropAction.Cancel) {
+				handleDrop(files);
 			}
 		}
 	};
@@ -177,8 +182,7 @@ abstract class SubtitleDropTarget extends JButton {
 			videoFiles.addAll(filter(listFiles(input), VIDEO_FILES));
 
 			if (videoFiles.size() > 0) {
-				// invoke later so we don't block the DnD operation with the download dialog
-				invokeLater(0, () -> handleDownload(videoFiles));
+				handleDownload(videoFiles);
 				return true;
 			}
 
@@ -266,8 +270,7 @@ abstract class SubtitleDropTarget extends JButton {
 			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
 			if (uploadPlan.size() > 0) {
-				// invoke later so we don't block the DnD operation with the download dialog
-				invokeLater(0, () -> handleUpload(uploadPlan));
+				handleUpload(uploadPlan);
 				return true;
 			}
 			return false;
