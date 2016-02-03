@@ -86,7 +86,7 @@ public class MacAppUtilities {
 
 		// Enter the loop to block the current event handler, but leave UI responsive
 		if (!secondaryLoop.enter()) {
-			throw new RuntimeException("SecondaryLoop.enter()");
+			throw new IllegalStateException("SecondaryLoop.enter()");
 		}
 
 		return result;

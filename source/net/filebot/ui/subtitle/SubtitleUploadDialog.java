@@ -185,7 +185,6 @@ public class SubtitleUploadDialog extends JDialog {
 							protected void done() {
 								try {
 									List<SubtitleSearchResult> options = get();
-									System.out.println(options);
 									if (options.size() > 0) {
 										SelectDialog<Movie> dialog = new SelectDialog<Movie>(SubtitleUploadDialog.this, options);
 										dialog.setLocation(getOffsetLocation(dialog.getOwner()));
