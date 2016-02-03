@@ -29,6 +29,7 @@
 ^Adventures$
 ^and$
 ^Animation$
+^Animations$
 ^Anime$
 ^Animes$
 ^Applications$
@@ -253,6 +254,7 @@ Actionthriller
 Addic7ed.com
 aGGr0
 Anaglyph
+Animations
 Animationsfilm
 Arte
 Axx
