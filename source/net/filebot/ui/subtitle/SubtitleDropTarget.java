@@ -1,6 +1,7 @@
 package net.filebot.ui.subtitle;
 
 import static net.filebot.MediaTypes.*;
+import static net.filebot.Settings.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.ui.NotificationLogging.*;
@@ -34,6 +35,7 @@ import javax.swing.JDialog;
 
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
+import net.filebot.mac.MacAppUtilities;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
@@ -240,6 +242,11 @@ abstract class SubtitleDropTarget extends JButton {
 			}
 
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+			// make sure we have access to the parent folder structure, not just the dropped file
+			if (isMacSandbox()) {
+				MacAppUtilities.askUnlockFolders(getWindow(this), input);
+			}
 
 			// perform a drop action depending on the given files
 			final Collection<File> files = new TreeSet<File>();
