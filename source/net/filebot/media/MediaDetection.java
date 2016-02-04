@@ -73,26 +73,17 @@ public class MediaDetection {
 
 	public static final ReleaseInfo releaseInfo = new ReleaseInfo();
 
-	private static FileFilter diskFolder;
-	private static FileFilter clutterFile;
-
 	public static FileFilter getDiskFolderFilter() {
-		if (diskFolder == null) {
-			diskFolder = releaseInfo.getDiskFolderFilter();
-		}
-		return diskFolder;
+		return releaseInfo.getDiskFolderFilter();
 	}
 
 	public static FileFilter getClutterFileFilter() {
-		if (clutterFile == null) {
-			try {
-				clutterFile = releaseInfo.getClutterFileFilter();
-			} catch (IOException e) {
-				Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
-				return ((File f) -> false);
-			}
+		try {
+			return releaseInfo.getClutterFileFilter();
+		} catch (IOException e) {
+			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
 		}
-		return clutterFile;
+		return ((File f) -> false);
 	}
 
 	public static boolean isDiskFolder(File folder) {
