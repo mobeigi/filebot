@@ -165,7 +165,7 @@ public class OpenSubtitlesXmlRpc {
 		return null;
 	}
 
-	private static final Pattern CDI_PATTERN = Pattern.compile("(?<!\\p{Alnum})CD(?<i>[1-9])(?!\\p{Digit})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+	private static final Pattern CDI_PATTERN = Pattern.compile("(?<!\\p{Alnum})CD\\D?(?<i>[1-9])(?!\\p{Digit})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
 
 	private Map<String, Object> getUploadStruct(BaseInfo baseInfo, SubFile... subtitles) {
 		Map<String, Object> struct = new LinkedHashMap<String, Object>();
