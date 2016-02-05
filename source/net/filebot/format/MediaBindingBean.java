@@ -533,7 +533,7 @@ public class MediaBindingBean {
 
 	@Define("languages")
 	public Object getSpokenLanguages() {
-		List<?> languages = (List<?>) getMetaInfo().getProperty("spokenLanguages");
+		List<?> languages = infoObject instanceof Movie ? (List<?>) getMetaInfo().getProperty("spokenLanguages") : singletonList(getMetaInfo().getProperty("language"));
 		return languages.stream().map(it -> new Locale(it.toString()).getDisplayLanguage()).collect(toList());
 	}
 
