@@ -1,37 +1,24 @@
 #!/bin/sh
 
-echo 'Fetch TVDB dump'
-DUMP='tvdb.zip'
-LINK='http://thetvdb.com/api/58B4AA94C59AD656/updates/updates_all.zip'
-if [ ! -f "$DUMP" ] || test "`find $DUMP -mtime +5`"; then
-    curl -L -o "$DUMP" -z "$DUMP" "$LINK"
-    unzip -o "$DUMP"
-fi
+fetch()
+{
+    FILE="$1"
+    LINK="$2"
+    TIME="$3"
 
-echo 'Fetch AniDB dump'
-DUMP='anidb.gz'
-TEXT='anidb.txt'
-LINK='http://anidb.net/api/anime-titles.dat.gz'
-if [ ! -f "$DUMP" ] || test "`find $DUMP -mtime +5`"; then
-    curl -L -o "$DUMP" -z "$DUMP" "$LINK"
-    gunzip -c "$DUMP" > "$TEXT"
-fi
+    echo "Fetch $FILE"
+    if [ ! -f "$FILE" ] || test "`find $FILE -mtime $TIME`"; then
+        curl -L -o "$FILE" -z "$FILE" "$LINK"
+    fi
+}
 
-echo 'Fetch OSDB dump'
-DUMP='osdb.gz'
-TEXT='osdb.txt'
-LINK='http://www.opensubtitles.org/addons/export_movie.php'
-if [ ! -f "$DUMP" ] || test "`find $DUMP -mtime +30`"; then
-    curl -L -o "$DUMP" -z "$DUMP" "$LINK" -sH 'Accept-encoding: gzip'
-    gunzip -c "$DUMP" > "$TEXT"
-fi
+fetch anidb.txt.gz 'http://anidb.net/api/anime-titles.dat.gz' +5
+fetch tvdb.zip 'http://thetvdb.com/api/58B4AA94C59AD656/updates/updates_all.zip' +5
+fetch omdb.zip 'http://beforethecode.com/projects/omdb/download.aspx?e=reinhard.pointner%40gmail.com&tsv=movies' +30
+fetch osdb.txt 'http://www.opensubtitles.org/addons/export_movie.php' +30
 
-echo 'Fetch OMDB dump'
-DUMP='omdb.zip'
-LINK='http://beforethecode.com/projects/omdb/download.aspx?e=reinhard.pointner%40gmail.com&tsv=movies'
-if [ ! -f "$DUMP" ] || test "`find $DUMP -mtime +30`"; then
-    curl -L -o "$DUMP" -z "$DUMP" "$LINK"
-    unzip -o "$DUMP"
-fi
+gunzip -k -f anidb.txt.gz
+unzip -o tvdb.zip
+unzip -o omdb.zip
 
 echo 'DONE'
