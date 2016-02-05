@@ -2,6 +2,7 @@ package net.filebot.format;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.format.Define.*;
 import static net.filebot.format.ExpressionFormatMethods.*;
@@ -528,6 +529,12 @@ public class MediaBindingBean {
 		}
 
 		return null;
+	}
+
+	@Define("languages")
+	public Object getSpokenLanguages() {
+		List<?> languages = (List<?>) getMetaInfo().getProperty("spokenLanguages");
+		return languages.stream().map(it -> new Locale(it.toString()).getDisplayLanguage()).collect(toList());
 	}
 
 	@Define("actors")
