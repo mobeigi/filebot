@@ -238,6 +238,6 @@ public class OMDbClient implements MovieIdentificationService {
 		if (value == null || value.isEmpty())
 			return emptyList();
 
-		return regex.splitAsStream(value).map(String::trim).map(toObject).collect(toList());
+		return regex.splitAsStream(value).map(String::trim).filter(s -> !s.equals("N/A")).map(toObject).collect(toList());
 	}
 }
