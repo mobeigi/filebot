@@ -355,19 +355,30 @@ pack(osdb_out, osdb*.join('\t'))
 
 
 // BUILD anidb index
-def anidb = new AnidbClient('filebot', 5).getAnimeTitles()
+def anidb = new AnidbClient('filebot', 6).getAnimeTitles()
+def animeExcludes = new HashSet()
+
+// exclude anime movies from anime index
+new File('anime-list.xml').eachLine('UTF-8') {
+    if (it =~ /tvdbid="movie"/) {
+        animeExcludes << it.match(/anidbid="(\d+)"/).toInteger()
+    }
+}
 
 def anidb_index = anidb.findResults{
+	if (animeExcludes.contains(it.animeId))
+		return null
+
 	def names = it.effectiveNames*.replaceAll(/\s+/, ' ')*.trim()*.replaceAll(/['`´‘’ʻ]+/, /'/)
 	names = getNamePermutations(names)
 	names = names.findAll{ stripReleaseInfo(it)?.length() > 0 }
 
-	return names.empty ? null : [it.getAnimeId().pad(5)] + names.take(4)
+	return names.empty ? null : [it.animeId.pad(5)] + names.take(4)
 }
 
 // join and sort
 def anidb_txt = anidb_index.findResults{ row -> row.join('\t') }.sort().unique()
 
 // sanity check
-if (anidb_txt.size() < 8000) { die('AniDB index sanity failed:' + anidb_txt.size()) }
+if (anidb_txt.size() < 8000 || animeExcludes.size() < 500) { die('AniDB index sanity failed:' + anidb_txt.size()) }
 pack(anidb_out, anidb_txt)
