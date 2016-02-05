@@ -1,6 +1,7 @@
 package net.filebot.web;
 
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -219,24 +221,23 @@ public class OMDbClient implements MovieIdentificationService {
 			}
 		}
 
-		List<String> genres = new ArrayList<String>();
-		for (String it : data.get("genre").split(",")) {
-			genres.add(it.trim());
-		}
+		Pattern delim = Pattern.compile(",");
+
+		List<String> genres = split(delim, data.get("genre"), String::toString);
+		List<String> languages = split(delim, data.get("language"), String::toString);
 
 		List<Person> actors = new ArrayList<Person>();
-		for (String it : data.get("actors").split(",")) {
-			actors.add(new Person(it.trim(), null, null));
-		}
+		actors.addAll(split(delim, data.get("actors"), (s) -> new Person(s, null, null)));
+		actors.addAll(split(delim, data.get("director"), (s) -> new Person(s, null, "Director")));
+		actors.addAll(split(delim, data.get("writer"), (s) -> new Person(s, null, "Writer")));
 
-		for (String director : data.get("director").split(",")) {
-			actors.add(new Person(director, null, "Director"));
-		}
+		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
+	}
 
-		for (String writer : data.get("writer").split(",")) {
-			actors.add(new Person(writer, null, "Writer"));
-		}
+	private <T> List<T> split(Pattern regex, String value, Function<String, T> toObject) {
+		if (value == null || value.isEmpty())
+			return emptyList();
 
-		return new MovieInfo(fields, emptyList(), genres, emptyMap(), emptyList(), emptyList(), emptyList(), actors, emptyList());
+		return regex.splitAsStream(value).map(String::trim).map(toObject).collect(toList());
 	}
 }
