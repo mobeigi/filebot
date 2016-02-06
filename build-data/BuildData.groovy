@@ -360,7 +360,7 @@ def animeExcludes = new HashSet()
 
 // exclude anime movies from anime index
 new File('anime-list.xml').eachLine('UTF-8') {
-    if (it =~ /tvdbid="movie"/ || it =~ /defaulttvdbseason="0"/) {
+    if (it =~ /tvdbid="movie"/ || it =~ /imdbid="ttd\+"/) {
         animeExcludes << it.match(/anidbid="(\d+)"/).toInteger()
     }
 }
