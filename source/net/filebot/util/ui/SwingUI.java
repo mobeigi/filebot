@@ -13,7 +13,6 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DnDConstants;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -49,6 +48,18 @@ public final class SwingUI {
 	public static void checkEventDispatchThread() {
 		if (!SwingUtilities.isEventDispatchThread()) {
 			throw new IllegalStateException("Method must be accessed from the Swing Event Dispatch Thread, but was called on Thread \"" + Thread.currentThread().getName() + "\"");
+		}
+	}
+
+	public static void runOnEventDispatchThread(Runnable r) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			r.run();
+		} else {
+			try {
+				SwingUtilities.invokeAndWait(r);
+			} catch (InvocationTargetException | InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -158,7 +169,7 @@ public final class SwingUI {
 		return (frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0;
 	}
 
-	public static List<String> showMultiValueInputDialog(final Object message, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
+	public static List<String> showMultiValueInputDialog(final Object message, final String initialValue, final String title, final Component parent) {
 		String input = showInputDialog(message, initialValue, title, parent);
 		if (input == null || input.isEmpty()) {
 			return emptyList();
@@ -184,24 +195,15 @@ public final class SwingUI {
 		return singletonList(input);
 	}
 
-	public static String showInputDialog(final Object message, final String initialValue, final String title, final Component parent) throws InvocationTargetException, InterruptedException {
+	public static String showInputDialog(final Object message, final String initialValue, final String title, final Component parent) {
 		final StringBuilder buffer = new StringBuilder();
 
-		Runnable runnable = new Runnable() {
-
-			@Override
-			public void run() {
-				Object value = JOptionPane.showInputDialog(parent, message, title, PLAIN_MESSAGE, null, null, initialValue);
-				if (value != null) {
-					buffer.append(value.toString().trim());
-				}
+		runOnEventDispatchThread(() -> {
+			Object value = JOptionPane.showInputDialog(parent, message, title, PLAIN_MESSAGE, null, null, initialValue);
+			if (value != null) {
+				buffer.append(value.toString().trim());
 			}
-		};
-		if (SwingUtilities.isEventDispatchThread()) {
-			runnable.run();
-		} else {
-			SwingUtilities.invokeAndWait(runnable);
-		}
+		});
 
 		return buffer.length() == 0 ? null : buffer.toString();
 	}
@@ -255,12 +257,8 @@ public final class SwingUI {
 	}
 
 	public static Timer invokeLater(int delay, final Runnable runnable) {
-		Timer timer = new Timer(delay, new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				runnable.run();
-			}
+		Timer timer = new Timer(delay, (evt) -> {
+			runnable.run();
 		});
 
 		timer.setRepeats(false);

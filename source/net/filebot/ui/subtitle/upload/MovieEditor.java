@@ -95,23 +95,20 @@ class MovieEditor implements TableCellEditor {
 
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		try {
-			getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-			SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
-			SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
+		SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
+		SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-			newSwingWorker(() -> {
-				return runSearch(mapping, table);
-			}, (options) -> {
-				runSelect(options, mapping, table);
-				reset(null, table);
-			}, (error) -> {
-				reset(error, table);
-			}).execute();
-		} catch (Exception e) {
-			reset(e, table);
-		}
+		newSwingWorker(() -> {
+			return runSearch(mapping, table);
+		}, (options) -> {
+			runSelect(options, mapping, table);
+			reset(null, table);
+		}, (error) -> {
+			reset(error, table);
+		}).execute();
+
 		return null;
 	}
 
