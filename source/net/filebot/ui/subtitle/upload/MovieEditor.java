@@ -13,7 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
@@ -32,6 +31,68 @@ class MovieEditor implements TableCellEditor {
 		this.database = database;
 	}
 
+	private String guessQuery(SubtitleMapping mapping) {
+		String fn = FileUtilities.getName(mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle());
+
+		// check if query contain an episode identifier
+		SeriesNameMatcher snm = new SeriesNameMatcher();
+		String sn = snm.matchByEpisodeIdentifier(fn);
+		if (sn != null) {
+			return stripReleaseInfo(sn, true);
+		}
+
+		return stripReleaseInfo(fn, false);
+	}
+
+	private String getFileHint(SubtitleMapping mapping) {
+		File f = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
+		try {
+			return getStructurePathTail(f).getPath();
+		} catch (Exception e) {
+			return f.getPath();
+		}
+	}
+
+	private List<SubtitleSearchResult> runSearch(SubtitleMapping mapping, JTable table) throws Exception {
+		String input = showInputDialog("Enter movie / series name:", guessQuery(mapping), getFileHint(mapping), table);
+		if (input != null && input.length() > 0) {
+			return database.searchIMDB(input);
+		} else {
+			return null;
+		}
+	}
+
+	private void runSelect(List<SubtitleSearchResult> options, SubtitleMapping mapping, JTable table) {
+		if (options == null) {
+			return;
+		}
+		if (options.isEmpty()) {
+			UILogger.warning(String.format("%s: No results", database.getName()));
+			return;
+		}
+
+		SelectDialog<Movie> dialog = new SelectDialog<Movie>(table, options);
+		dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+		dialog.setVisible(true);
+		Movie selectedValue = dialog.getSelectedValue();
+		if (selectedValue != null) {
+			mapping.setIdentity(selectedValue);
+			if (mapping.getIdentity() != null && mapping.getLanguage() != null && mapping.getVideo() != null) {
+				mapping.setState(Status.CheckPending);
+			}
+		}
+	}
+
+	private void reset(Exception error, JTable table) {
+		// reset window state
+		getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+		// print error message
+		if (error != null) {
+			Logger.getLogger(getClass().getName()).log(Level.WARNING, error.toString());
+		}
+	}
+
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		try {
@@ -40,56 +101,16 @@ class MovieEditor implements TableCellEditor {
 			SubtitleMappingTableModel model = (SubtitleMappingTableModel) table.getModel();
 			SubtitleMapping mapping = model.getData()[table.convertRowIndexToModel(row)];
 
-			File video = mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle();
-			String query = FileUtilities.getName(video);
-
-			// check if query contain an episode identifier
-			SeriesNameMatcher snm = new SeriesNameMatcher();
-			String sn = snm.matchByEpisodeIdentifier(query);
-			if (sn != null) {
-				query = sn;
-			}
-
-			final String input = showInputDialog("Enter movie / series name:", stripReleaseInfo(query), getStructurePathTail(video).getPath(), table);
-			if (input != null && input.length() > 0) {
-				SwingWorker<List<SubtitleSearchResult>, Void> worker = new SwingWorker<List<SubtitleSearchResult>, Void>() {
-
-					@Override
-					protected List<SubtitleSearchResult> doInBackground() throws Exception {
-						return database.searchIMDB(input);
-					}
-
-					@Override
-					protected void done() {
-						try {
-							List<SubtitleSearchResult> options = get();
-							if (options.size() > 0) {
-								SelectDialog<Movie> dialog = new SelectDialog<Movie>(table, options);
-								dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-								dialog.setVisible(true);
-								Movie selectedValue = dialog.getSelectedValue();
-								if (selectedValue != null) {
-									mapping.setIdentity(selectedValue);
-									if (mapping.getIdentity() != null && mapping.getLanguage() != null && mapping.getVideo() != null) {
-										mapping.setState(Status.CheckPending);
-									}
-								}
-							} else {
-								UILogger.warning(String.format("%s: \"%s\" has not been found", database.getName(), input));
-							}
-						} catch (Exception e) {
-							Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.getMessage(), e);
-						}
-						getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-					};
-				};
-				worker.execute();
-			} else {
-				getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			}
+			newSwingWorker(() -> {
+				return runSearch(mapping, table);
+			}, (options) -> {
+				runSelect(options, mapping, table);
+				reset(null, table);
+			}, (error) -> {
+				reset(error, table);
+			}).execute();
 		} catch (Exception e) {
-			Logger.getLogger(SubtitleUploadDialog.class.getClass().getName()).log(Level.WARNING, e.toString());
-			getWindow(table).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			reset(e, table);
 		}
 		return null;
 	}
