@@ -128,7 +128,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	}
 
 	@Override
-	public void uploadSubtitle(Object identity, Locale locale, File videoFile, File subtitleFile) throws Exception {
+	public void uploadSubtitle(Object identity, Locale locale, File[] videoFile, File[] subtitleFile) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 

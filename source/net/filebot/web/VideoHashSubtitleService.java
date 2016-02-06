@@ -20,7 +20,7 @@ public interface VideoHashSubtitleService {
 
 	public CheckResult checkSubtitle(File videoFile, File subtitleFile) throws Exception;
 
-	public void uploadSubtitle(Object identity, Locale locale, File videoFile, File subtitleFile) throws Exception;
+	public void uploadSubtitle(Object identity, Locale locale, File[] videoFiles, File[] subtitleFiles) throws Exception;
 
 	public static class CheckResult {
 		public final boolean exists;

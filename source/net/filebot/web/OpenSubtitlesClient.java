@@ -322,14 +322,30 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	@Override
-	public void uploadSubtitle(Object identity, Locale language, File videoFile, File subtitleFile) throws Exception {
+	public void uploadSubtitle(Object identity, Locale language, File[] videoFile, File[] subtitleFile) throws Exception {
 		if (!(identity instanceof Movie && ((Movie) identity).getImdbId() > 0)) {
 			throw new IllegalArgumentException("Illegal Movie ID: " + identity);
 		}
 
 		int imdbid = ((Movie) identity).getImdbId();
-		String languageName = getSubLanguageID(language.getDisplayName(Locale.ENGLISH), false);
+		String subLanguageID = getSubLanguageID(language.getDisplayName(Locale.ENGLISH), false);
 
+		BaseInfo info = new BaseInfo();
+		info.setIDMovieImdb(imdbid);
+		info.setSubLanguageID(subLanguageID);
+
+		SubFile[] subFiles = new SubFile[videoFile.length];
+		for (int i = 0; i < subFiles.length; i++) {
+			subFiles[i] = getSubFile(info, videoFile[i], subtitleFile[i]);
+		}
+
+		// require login
+		login();
+
+		xmlrpc.uploadSubtitles(info, subFiles);
+	}
+
+	private SubFile getSubFile(BaseInfo info, File videoFile, File subtitleFile) throws IOException {
 		// subhash (md5 of subtitles), subfilename, moviehash, moviebytesize, moviefilename
 		SubFile sub = new SubFile();
 		sub.setSubHash(md5(readFile(subtitleFile)));
@@ -337,10 +353,6 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		sub.setMovieHash(computeHash(videoFile));
 		sub.setMovieByteSize(videoFile.length());
 		sub.setMovieFileName(videoFile.getName());
-
-		BaseInfo info = new BaseInfo();
-		info.setIDMovieImdb(imdbid);
-		info.setSubLanguageID(languageName);
 
 		// encode subtitle contents
 		sub.setSubContent(readFile(subtitleFile));
@@ -355,10 +367,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 			Logger.getLogger(getClass().getName()).log(Level.WARNING, e.getMessage(), e);
 		}
 
-		// require login
-		login();
-
-		xmlrpc.uploadSubtitles(info, sub);
+		return sub;
 	}
 
 	@Override

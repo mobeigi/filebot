@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.util.StringUtilities.*;
 
@@ -165,8 +164,6 @@ public class OpenSubtitlesXmlRpc {
 		return null;
 	}
 
-	private static final Pattern CDI_PATTERN = Pattern.compile("(?<!\\p{Alnum})CD\\D?(?<i>[1-9])(?!\\p{Digit})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
-
 	private Map<String, Object> getUploadStruct(BaseInfo baseInfo, SubFile... subtitles) {
 		Map<String, Object> struct = new LinkedHashMap<String, Object>();
 
@@ -175,19 +172,8 @@ public class OpenSubtitlesXmlRpc {
 			struct.put("baseinfo", baseInfo);
 		}
 
-		// put cd1, cd2, ...
-		for (SubFile it : subtitles) {
-			int i = 1;
-			Matcher m = CDI_PATTERN.matcher(it.toString());
-			while (m.find()) {
-				i = Integer.parseInt(m.group("i"));
-			}
-			String key = "cd" + i;
-			if (!struct.containsKey(key)) {
-				struct.put(key, it);
-			} else {
-				throw new IllegalArgumentException(String.format("Duplicate key: %s: %s", key, asList(subtitles)));
-			}
+		for (int i = 0; i < subtitles.length; i++) {
+			struct.put("cd" + (i + 1), subtitles[i]);
 		}
 
 		return struct;

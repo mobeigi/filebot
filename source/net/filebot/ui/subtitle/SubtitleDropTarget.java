@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.mac.MacAppUtilities;
+import net.filebot.ui.subtitle.upload.SubtitleUploadDialog;
 import net.filebot.util.FileUtilities;
 import net.filebot.util.FileUtilities.ParentFilter;
 import net.filebot.web.OpenSubtitlesClient;
@@ -299,8 +300,8 @@ abstract class SubtitleDropTarget extends JButton {
 			// 1. try to find exact match in drop data
 			return findMatch(subtitle, videos, FileUtilities::getName).orElseGet(() -> {
 				// 2. guess movie file from the parent folder if only a subtitle file was dropped in
-					return findMatch(subtitle, getChildren(subtitle.getParentFile(), VIDEO_FILES), FileUtilities::getName).orElse(null);
-				});
+				return findMatch(subtitle, getChildren(subtitle.getParentFile(), VIDEO_FILES), FileUtilities::getName).orElse(null);
+			});
 		}
 
 		private Optional<File> findMatch(File file, List<File> options, Function<File, String> comparator) {
