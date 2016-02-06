@@ -1,6 +1,7 @@
 package net.filebot.ui.subtitle.upload;
 
 import static net.filebot.media.MediaDetection.*;
+import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,14 +22,10 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingWorker;
 
 import net.filebot.Language;
 import net.filebot.ResourceManager;
@@ -64,8 +61,8 @@ public class SubtitleUploadDialog extends JDialog {
 
 		content.add(new JScrollPane(subtitleMappingTable), "grow, wrap");
 
-		content.add(new JButton(uploadAction), "tag ok");
-		content.add(new JButton(finishAction), "tag cancel");
+		content.add(newButton("Upload", ResourceManager.getIcon("dialog.continue"), this::doUpload), "tag ok");
+		content.add(newButton("Close", ResourceManager.getIcon("dialog.cancel"), this::doClose), "tag cancel");
 	}
 
 	protected JTable createTable() {
@@ -108,10 +105,9 @@ public class SubtitleUploadDialog extends JDialog {
 	}
 
 	public void startChecking() {
-		SubtitleMapping[] data = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
-		for (SubtitleMapping it : data) {
-			if (it.isCheckReady()) {
-				checkExecutorService.submit(new CheckTask(it));
+		for (SubtitleMapping mapping : ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData()) {
+			if (mapping.isCheckReady()) {
+				checkExecutorService.submit(() -> runCheck(mapping));
 			}
 		}
 	}
@@ -135,153 +131,121 @@ public class SubtitleUploadDialog extends JDialog {
 		}).toList();
 	}
 
-	private final Action uploadAction = new AbstractAction("Upload", ResourceManager.getIcon("dialog.continue")) {
+	private void runCheck(SubtitleMapping mapping) {
+		try {
 
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			// disable any active cell editor
-			if (subtitleMappingTable.getCellEditor() != null) {
-				subtitleMappingTable.getCellEditor().stopCellEditing();
-			}
+			if (mapping.getIdentity() == null && mapping.getVideo() != null) {
+				mapping.setState(Status.Checking);
 
-			// don't allow restart of upload as long as there are still unfinished download tasks
-			if (uploadExecutorService != null && !uploadExecutorService.isTerminated()) {
-				return;
-			}
+				CheckResult checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
 
-			uploadExecutorService = Executors.newSingleThreadExecutor();
-
-			SubtitleMapping[] table = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
-			for (SubtitleGroup it : groupRunsByCD(table)) {
-				if (it.isUploadReady()) {
-					uploadExecutorService.submit(new UploadTask(it));
+				// force upload all subtitles regardless of what TryUploadSubtitles returns (because other programs often submit crap)
+				if (checkResult.exists) {
+					mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
 				}
 			}
 
-			// terminate after all uploads have been completed
-			uploadExecutorService.shutdown();
-		}
-	};
-
-	private final Action finishAction = new AbstractAction("Close", ResourceManager.getIcon("dialog.cancel")) {
-
-		@Override
-		public void actionPerformed(ActionEvent evt) {
-			if (checkExecutorService != null) {
-				checkExecutorService.shutdownNow();
-			}
-			if (uploadExecutorService != null) {
-				uploadExecutorService.shutdownNow();
+			if (mapping.getLanguage() == null) {
+				mapping.setState(Status.Identifying);
+				try {
+					Locale locale = database.detectLanguage(FileUtilities.readFile(mapping.getSubtitle()));
+					mapping.setLanguage(Language.getLanguage(locale));
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());
+				}
 			}
 
-			setVisible(false);
-			dispose();
-		}
-	};
-
-	private class CheckTask extends SwingWorker<Object, Void> {
-
-		private final SubtitleMapping mapping;
-
-		public CheckTask(SubtitleMapping mapping) {
-			this.mapping = mapping;
-		}
-
-		@Override
-		protected Object doInBackground() throws Exception {
-			try {
-
-				if (mapping.getIdentity() == null && mapping.getVideo() != null) {
-					mapping.setState(Status.Checking);
-
-					CheckResult checkResult = database.checkSubtitle(mapping.getVideo(), mapping.getSubtitle());
-
-					// force upload all subtitles regardless of what TryUploadSubtitles returns (because other programs often submit crap)
-					if (checkResult.exists) {
-						mapping.setLanguage(Language.getLanguage(checkResult.language)); // trust language hint only if upload not required
-					}
-				}
-
-				if (mapping.getLanguage() == null) {
-					mapping.setState(Status.Identifying);
-					try {
-						Locale locale = database.detectLanguage(FileUtilities.readFile(mapping.getSubtitle()));
-						mapping.setLanguage(Language.getLanguage(locale));
-					} catch (Exception e) {
-						Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.WARNING, "Failed to auto-detect language: " + e.getMessage());
-					}
-				}
-
-				if (mapping.getIdentity() == null && mapping.getVideo() != null) {
-					mapping.setState(Status.Identifying);
-					try {
-						if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
-							List<String> seriesNames = MediaDetection.detectSeriesNames(Collections.singleton(mapping.getVideo()), true, false, Locale.ENGLISH);
-							NAMES: for (String name : seriesNames) {
-								List<SearchResult> options = WebServices.TheTVDB.search(name, Locale.ENGLISH);
-								for (SearchResult entry : options) {
-									TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(entry, Locale.ENGLISH);
-									if (seriesInfo.getImdbId() != null) {
-										int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
-										mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(null, 0, imdbId, -1), Locale.ENGLISH));
-										break NAMES;
-									}
-								}
-							}
-						} else {
-							Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, Locale.ENGLISH, true);
-							for (Movie it : identity) {
-								if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
-									it = WebServices.TheMovieDB.getMovieDescriptor(it, Locale.ENGLISH);
-								}
-								if (it != null && it.getImdbId() > 0) {
-									mapping.setIdentity(it);
-									break;
+			if (mapping.getIdentity() == null && mapping.getVideo() != null) {
+				mapping.setState(Status.Identifying);
+				try {
+					if (MediaDetection.isEpisode(mapping.getVideo().getPath(), true)) {
+						List<String> seriesNames = MediaDetection.detectSeriesNames(Collections.singleton(mapping.getVideo()), true, false, Locale.ENGLISH);
+						NAMES: for (String name : seriesNames) {
+							List<SearchResult> options = WebServices.TheTVDB.search(name, Locale.ENGLISH);
+							for (SearchResult entry : options) {
+								TheTVDBSeriesInfo seriesInfo = (TheTVDBSeriesInfo) WebServices.TheTVDB.getSeriesInfo(entry, Locale.ENGLISH);
+								if (seriesInfo.getImdbId() != null) {
+									int imdbId = grepImdbId(seriesInfo.getImdbId()).iterator().next();
+									mapping.setIdentity(WebServices.OpenSubtitles.getMovieDescriptor(new Movie(null, 0, imdbId, -1), Locale.ENGLISH));
+									break NAMES;
 								}
 							}
 						}
-					} catch (Exception e) {
-						Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.WARNING, "Failed to auto-detect movie: " + e.getMessage());
+					} else {
+						Collection<Movie> identity = MediaDetection.detectMovie(mapping.getVideo(), database, Locale.ENGLISH, true);
+						for (Movie it : identity) {
+							if (it.getImdbId() <= 0 && it.getTmdbId() > 0) {
+								it = WebServices.TheMovieDB.getMovieDescriptor(it, Locale.ENGLISH);
+							}
+							if (it != null && it.getImdbId() > 0) {
+								mapping.setIdentity(it);
+								break;
+							}
+						}
 					}
+				} catch (Exception e) {
+					Logger.getLogger(getClass().getName()).log(Level.WARNING, "Failed to auto-detect movie: " + e.getMessage());
 				}
-
-				if (mapping.getVideo() == null) {
-					mapping.setState(Status.IllegalInput);
-				} else if (mapping.getIdentity() == null || mapping.getLanguage() == null) {
-					mapping.setState(Status.IdentificationRequired);
-				} else {
-					mapping.setState(Status.UploadReady);
-				}
-			} catch (Exception e) {
-				Logger.getLogger(CheckTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-				mapping.setState(Status.CheckFailed);
 			}
-			return null;
+
+			if (mapping.getVideo() == null) {
+				mapping.setState(Status.IllegalInput);
+			} else if (mapping.getIdentity() == null || mapping.getLanguage() == null) {
+				mapping.setState(Status.IdentificationRequired);
+			} else {
+				mapping.setState(Status.UploadReady);
+			}
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			mapping.setState(Status.CheckFailed);
 		}
 	}
 
-	private class UploadTask extends SwingWorker<Object, Void> {
+	private void runUpload(SubtitleGroup group) {
+		try {
+			group.setState(Status.Uploading);
+			database.uploadSubtitle(group.getIdentity(), group.getLanguage().getLocale(), group.getVideoFiles(), group.getSubtitleFiles());
+			group.setState(Status.UploadComplete);
+		} catch (Exception e) {
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+			group.setState(Status.UploadFailed);
+		}
+	}
 
-		private final SubtitleGroup uploadGroup;
-
-		public UploadTask(SubtitleGroup uploadGroup) {
-			this.uploadGroup = uploadGroup;
+	public void doUpload(ActionEvent evt) {
+		// disable any active cell editor
+		if (subtitleMappingTable.getCellEditor() != null) {
+			subtitleMappingTable.getCellEditor().stopCellEditing();
 		}
 
-		@Override
-		protected Object doInBackground() {
-			try {
-				uploadGroup.setState(Status.Uploading);
+		// don't allow restart of upload as long as there are still unfinished download tasks
+		if (uploadExecutorService != null && !uploadExecutorService.isTerminated()) {
+			return;
+		}
 
-				database.uploadSubtitle(uploadGroup.getIdentity(), uploadGroup.getLanguage().getLocale(), uploadGroup.getVideoFiles(), uploadGroup.getSubtitleFiles());
+		uploadExecutorService = Executors.newSingleThreadExecutor();
 
-				uploadGroup.setState(Status.UploadComplete);
-			} catch (Exception e) {
-				Logger.getLogger(UploadTask.class.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-				uploadGroup.setState(Status.UploadFailed);
+		SubtitleMapping[] table = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
+		for (SubtitleGroup group : groupRunsByCD(table)) {
+			if (group.isUploadReady()) {
+				uploadExecutorService.submit(() -> runUpload(group));
 			}
-			return null;
 		}
+
+		// terminate after all uploads have been completed
+		uploadExecutorService.shutdown();
+	}
+
+	public void doClose(ActionEvent evt) {
+		if (checkExecutorService != null) {
+			checkExecutorService.shutdownNow();
+		}
+		if (uploadExecutorService != null) {
+			uploadExecutorService.shutdownNow();
+		}
+
+		setVisible(false);
+		dispose();
 	}
 
 }

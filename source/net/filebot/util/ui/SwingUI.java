@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
@@ -33,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.basic.BasicTableUI;
@@ -264,6 +267,89 @@ public final class SwingUI {
 		timer.start();
 
 		return timer;
+	}
+
+	public static JButton newButton(String name, Icon icon, Consumer<ActionEvent> action) {
+		return new JButton(new LambdaAction(name, icon, action));
+	}
+
+	public static Action newAction(String name, Icon icon, Consumer<ActionEvent> action) {
+		return new LambdaAction(name, icon, action);
+	}
+
+	private static class LambdaAction extends AbstractAction {
+
+		private Consumer<ActionEvent> action;
+
+		public LambdaAction(String name, Icon icon, Consumer<ActionEvent> action) {
+			super(name, icon);
+			this.action = action;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			action.accept(e);
+		}
+	}
+
+	public static SwingWorker<Void, Void> newSwingWorker(BackgroundRunnable doInBackground) {
+		return new SwingRunnable(doInBackground);
+	}
+
+	public static <T> SwingWorker<T, Void> newSwingWorker(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error) {
+		return new SwingLambda<T, Void>(doInBackground, done, error);
+	}
+
+	private static class SwingRunnable extends SwingWorker<Void, Void> {
+
+		private BackgroundRunnable doInBackground;
+
+		public SwingRunnable(BackgroundRunnable doInBackground) {
+			this.doInBackground = doInBackground;
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			doInBackground.run();
+			return null;
+		}
+	}
+
+	@FunctionalInterface
+	public static interface BackgroundRunnable {
+		void run() throws Exception;
+	}
+
+	@FunctionalInterface
+	public static interface BackgroundSupplier<T> {
+		T get() throws Exception;
+	}
+
+	private static class SwingLambda<T, V> extends SwingWorker<T, V> {
+
+		private BackgroundSupplier<T> doInBackground;
+		private Consumer<T> done;
+		private Consumer<Exception> error;
+
+		public SwingLambda(BackgroundSupplier<T> doInBackground, Consumer<T> done, Consumer<Exception> error) {
+			this.doInBackground = doInBackground;
+			this.done = done;
+			this.error = error;
+		}
+
+		@Override
+		protected T doInBackground() throws Exception {
+			return doInBackground.get();
+		}
+
+		@Override
+		protected void done() {
+			try {
+				done.accept(get());
+			} catch (InterruptedException | ExecutionException e) {
+				error.accept(e);
+			}
+		}
 	}
 
 	/**
