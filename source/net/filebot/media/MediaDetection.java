@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -706,19 +707,12 @@ public class MediaDetection {
 	}
 
 	public static <T extends SearchResult> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric) {
-		// similarity comparator with multi-value support
-		SimilarityComparator comparator = new SimilarityComparator(metric, terms.toArray()) {
+		return sortBySimilarity(options, terms, metric, SearchResult::getEffectiveNames);
+	}
 
-			@Override
-			public float getMaxSimilarity(Object obj) {
-				Collection<?> names = obj instanceof SearchResult ? ((SearchResult) obj).getEffectiveNames() : singleton(obj);
-				float f = 0;
-				for (Object it : names) {
-					f = Math.max(f, super.getMaxSimilarity(it));
-				}
-				return f;
-			}
-		};
+	public static <T extends SearchResult> List<T> sortBySimilarity(Collection<T> options, Collection<String> terms, SimilarityMetric metric, Function<SearchResult, Collection<String>> mapper) {
+		// similarity comparator with multi-value support
+		SimilarityComparator<SearchResult, String> comparator = new SimilarityComparator<SearchResult, String>(metric, terms, mapper);
 
 		// DEBUG
 		// System.out.format("sortBySimilarity %s => %s%n", terms, options.stream().sorted(comparator).distinct().collect(Collectors.toList()));
@@ -732,7 +726,7 @@ public class MediaDetection {
 		paragon.addAll(stripReleaseInfo(terms, true));
 		paragon.addAll(stripReleaseInfo(terms, false));
 
-		return sortBySimilarity(options, paragon, getMovieMatchMetric());
+		return sortBySimilarity(options, paragon, getMovieMatchMetric(), SearchResult::getEffectiveNames);
 	}
 
 	public static boolean isEpisodeNumberMatch(File f, Episode e) {
@@ -1258,10 +1252,13 @@ public class MediaDetection {
 		return WebServices.TheTVDB.getSeriesInfo(thetvdbid, locale);
 	}
 
-	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean strict) {
+	public static List<SearchResult> getProbableMatches(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) {
 		if (query == null) {
 			return new ArrayList<SearchResult>(options);
 		}
+
+		// check all alias names, or just the primary name
+		Function<SearchResult, Collection<String>> names = alias ? SearchResult::getEffectiveNames : (it) -> singleton(it.getName());
 
 		// auto-select most probable search result
 		List<SearchResult> probableMatches = new ArrayList<SearchResult>();
@@ -1272,17 +1269,17 @@ public class MediaDetection {
 		float sanity = strict && options.size() > 1 ? 0.5f : 0.2f;
 
 		// remove trailing braces, e.g. Doctor Who (2005) -> doctor who
-		query = removeTrailingBrackets(query).toLowerCase();
+		String q = removeTrailingBrackets(query).toLowerCase();
 
 		// find probable matches using name similarity > 0.8 (or > 0.6 in non-strict mode)
 		for (SearchResult option : options) {
 			float f = 0;
-			for (String n : option.getEffectiveNames()) {
+			for (String n : names.apply(option)) {
 				n = removeTrailingBrackets(n).toLowerCase();
-				f = Math.max(f, metric.getSimilarity(query, n));
+				f = Math.max(f, metric.getSimilarity(q, n));
 
 				// boost matching beginnings
-				if (f >= sanity && n.startsWith(query)) {
+				if (f >= sanity && n.startsWith(q)) {
 					f = 1;
 					break;
 				}
@@ -1293,7 +1290,7 @@ public class MediaDetection {
 			}
 		}
 
-		return sortBySimilarity(probableMatches, singleton(query), new NameSimilarityMetric());
+		return sortBySimilarity(probableMatches, singleton(query), new NameSimilarityMetric(), names);
 	}
 
 	public static class IndexEntry<T> implements Serializable {

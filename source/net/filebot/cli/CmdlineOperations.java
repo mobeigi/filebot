@@ -285,7 +285,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// select search result
 			if (results.size() > 0) {
-				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, strict);
+				List<SearchResult> selectedSearchResults = selectSearchResult(query, results, true, strict);
 
 				if (selectedSearchResults != null) {
 					for (SearchResult it : selectedSearchResults) {
@@ -404,7 +404,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			// force all mappings
-			Movie result = (Movie) selectSearchResult(query, validResults, strict).get(0);
+			Movie result = (Movie) selectSearchResult(query, validResults, false, strict).get(0);
 			for (File file : files) {
 				movieByFile.put(file, result);
 			}
@@ -447,7 +447,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					// select first element if matches are reliable
 					if (options.size() > 0) {
 						// make sure to get the language-specific movie object for the selected option
-						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, strict).get(0), locale);
+						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, false, strict).get(0), locale);
 					}
 				} catch (Exception e) {
 					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
@@ -910,23 +910,22 @@ public class CmdlineOperations implements CmdlineInterface {
 		return output;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> searchResults, boolean strict) throws Exception {
-		List<SearchResult> probableMatches = getProbableMatches(query, searchResults, strict);
+	private List<SearchResult> selectSearchResult(String query, Collection<? extends SearchResult> options, boolean alias, boolean strict) throws Exception {
+		List<SearchResult> probableMatches = getProbableMatches(query, options, alias, strict);
 
 		if (probableMatches.isEmpty() || (strict && probableMatches.size() != 1)) {
 			// allow single search results to just pass through in non-strict mode even if match confidence is low
-			if (searchResults.size() == 1 && !strict) {
-				return new ArrayList<SearchResult>(searchResults);
+			if (options.size() == 1 && !strict) {
+				return new ArrayList<SearchResult>(options);
 			}
 
 			if (strict) {
-				throw new CmdlineException("Multiple options: Force auto-select requires non-strict matching: " + searchResults);
+				throw new CmdlineException("Multiple options: Force auto-select requires non-strict matching: " + options);
 			}
 
 			// just pick the best 5 matches
 			if (query != null) {
-				probableMatches = (List<SearchResult>) sortBySimilarity(searchResults, singleton(query), getSeriesMatchMetric());
+				probableMatches = new ArrayList<SearchResult>(sortBySimilarity(options, singleton(query), getSeriesMatchMetric()));
 			}
 		}
 
@@ -1081,7 +1080,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		Locale locale = getLanguage(languageName).getLocale();
 
 		// fetch episode data
-		SearchResult hit = selectSearchResult(query, service.search(query, locale), false).get(0);
+		SearchResult hit = selectSearchResult(query, service.search(query, locale), false, false).get(0);
 		List<Episode> episodes = service.getEpisodeList(hit, sortOrder, locale);
 
 		// apply filter
