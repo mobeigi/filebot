@@ -10,11 +10,11 @@ import java.util.logging.Logger;
 public class ExpressionFileFilter implements FileFilter {
 
 	private final ExpressionFilter filter;
-	private final boolean errorResult;
+	private final boolean error;
 
-	public ExpressionFileFilter(ExpressionFilter filter, boolean errorResult) {
+	public ExpressionFileFilter(ExpressionFilter filter, boolean error) {
 		this.filter = filter;
-		this.errorResult = errorResult;
+		this.error = error;
 	}
 
 	public ExpressionFilter getExpressionFilter() {
@@ -27,7 +27,7 @@ public class ExpressionFileFilter implements FileFilter {
 			return filter.matches(new MediaBindingBean(readMetaInfo(f), f, null));
 		} catch (Exception e) {
 			Logger.getLogger(ExpressionFileFilter.class.getName()).log(Level.WARNING, e.toString());
-			return errorResult;
+			return error;
 		}
 	}
 

@@ -1,9 +1,10 @@
 package net.filebot.format;
 
+import static net.filebot.format.ExpressionFormat.*;
+
 import java.security.AccessController;
 
 import javax.script.Bindings;
-import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
@@ -20,9 +21,7 @@ public class ExpressionFilter {
 
 	public ExpressionFilter(String expression) throws ScriptException {
 		this.expression = expression;
-
-		Compilable engine = (Compilable) ExpressionFormat.getGroovyScriptEngine();
-		this.compiledExpression = new SecureCompiledScript(engine.compile(expression)); // sandboxed script
+		this.compiledExpression = new SecureCompiledScript(compileScriptlet(expression));
 	}
 
 	public String getExpression() {
