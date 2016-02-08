@@ -83,6 +83,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	public String getLanguageCode(Locale locale) {
 		String code = locale.getLanguage();
 
+		// sanity check
+		if (code.length() != 2) {
+			// see http://thetvdb.com/api/BA864DEE427E384A/languages.xml
+			throw new IllegalArgumentException("Expecting 2-letter language code: " + code);
+		}
+
 		// Java language code => TheTVDB language code
 		if (code.equals("iw")) // Hebrew
 			return "he";
