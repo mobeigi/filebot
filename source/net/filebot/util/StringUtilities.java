@@ -24,7 +24,11 @@ public final class StringUtilities {
 		List<Integer> numbers = new ArrayList<Integer>();
 		Matcher matcher = DIGIT.matcher(s);
 		while (matcher.find()) {
-			numbers.add(new Integer(matcher.group()));
+			try {
+				numbers.add(new Integer(matcher.group()));
+			} catch (NumberFormatException e) {
+				// ignore
+			}
 		}
 		return numbers;
 	}
@@ -36,7 +40,11 @@ public final class StringUtilities {
 
 		Matcher matcher = DIGIT.matcher(s);
 		if (matcher.find()) {
-			return new Integer(matcher.group());
+			try {
+				return new Integer(matcher.group());
+			} catch (NumberFormatException e) {
+				// ignore
+			}
 		}
 		return null;
 	}
