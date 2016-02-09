@@ -27,7 +27,7 @@ public class SimilarityComparatorTest {
 
 	@Test
 	public void defaultUsage() {
-		SimilarityComparator<String, String> c = new SimilarityComparator<String, String>("Hello", String::toString);
+		SimilarityComparator<String, String> c = SimilarityComparator.compareTo("Hello", String::toString);
 
 		List<String> phrases = generateWords();
 		phrases.sort(c);
