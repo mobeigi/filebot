@@ -2,6 +2,7 @@ package net.filebot.media;
 
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
@@ -41,7 +42,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import net.filebot.WebServices;
 import net.filebot.archive.Archive;
@@ -715,10 +715,10 @@ public class MediaDetection {
 		SimilarityComparator<SearchResult, String> comparator = new SimilarityComparator<SearchResult, String>(metric, terms, mapper);
 
 		// DEBUG
-		// System.out.format("sortBySimilarity %s => %s%n", terms, options.stream().sorted(comparator).distinct().collect(Collectors.toList()));
+		// System.out.format("sortBySimilarity %s => %s%n", terms, options.stream().sorted(comparator).distinct().collect(toList()));
 
 		// sort by ranking and remove duplicate entries
-		return options.stream().sorted(comparator).distinct().collect(Collectors.toList());
+		return options.stream().sorted(comparator).distinct().collect(toList());
 	}
 
 	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws IOException {
@@ -744,7 +744,7 @@ public class MediaDetection {
 	}
 
 	public static List<Integer> parseMovieYear(String name) {
-		return matchIntegers(name).stream().filter(year -> 1950 < year && year < 2050).collect(Collectors.toList());
+		return matchIntegers(name).stream().filter(year -> 1950 < year && year < 2050).collect(toList());
 	}
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {

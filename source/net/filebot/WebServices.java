@@ -2,12 +2,14 @@ package net.filebot;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.Settings.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -138,6 +140,13 @@ public final class WebServices {
 			return localIndex;
 		}
 
+		private SearchResult merge(SearchResult prime, List<SearchResult> group) {
+			int id = prime.getId();
+			String name = prime.getName();
+			String[] aliasNames = StreamEx.of(group).flatMap(it -> stream(it.getAliasNames())).remove(name::equals).distinct().toArray(String[]::new);
+			return new TheTVDBSearchResult(name, aliasNames, id);
+		}
+
 		@Override
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
 			// run local search and API search in parallel
@@ -145,15 +154,9 @@ public final class WebServices {
 			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> getLocalIndex().search(query));
 
 			// combine alias names into a single search results, and keep API search name as primary name
-			SearchResult[] result = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId).values().stream().map(group -> {
-				int id = group.get(0).getId();
-				String name = group.get(0).getName();
-				String[] aliasNames = StreamEx.of(group).flatMap(it -> stream(it.getAliasNames())).remove(name::equals).distinct().toArray(String[]::new);
+			Collection<SearchResult> result = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId, collectingAndThen(toList(), group -> merge(group.get(0), group))).values();
 
-				return new TheTVDBSearchResult(name, aliasNames, id);
-			}).toArray(TheTVDBSearchResult[]::new);
-
-			return sortBySimilarity(asList(result), singleton(query), getSeriesMatchMetric());
+			return sortBySimilarity(result, singleton(query), getSeriesMatchMetric());
 		}
 	}
 
