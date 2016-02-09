@@ -8,12 +8,9 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -25,6 +22,7 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.web.AcoustIDClient;
 import net.filebot.web.AnidbClient;
 import net.filebot.web.AnidbSearchResult;
+import net.filebot.web.Datasource;
 import net.filebot.web.EpisodeListProvider;
 import net.filebot.web.FanartTVClient;
 import net.filebot.web.ID3Lookup;
@@ -42,6 +40,7 @@ import net.filebot.web.TVMazeClient;
 import net.filebot.web.TheTVDBClient;
 import net.filebot.web.TheTVDBSearchResult;
 import net.filebot.web.VideoHashSubtitleService;
+import one.util.streamex.StreamEx;
 
 /**
  * Reuse the same web service client so login, cache, etc. can be shared.
@@ -92,27 +91,19 @@ public final class WebServices {
 	}
 
 	public static EpisodeListProvider getEpisodeListProvider(String name) {
-		for (EpisodeListProvider it : WebServices.getEpisodeListProviders()) {
-			if (it.getName().equalsIgnoreCase(name))
-				return it;
-		}
-		return null; // default
+		return getService(name, getEpisodeListProviders());
 	}
 
 	public static MovieIdentificationService getMovieIdentificationService(String name) {
-		for (MovieIdentificationService it : getMovieIdentificationServices()) {
-			if (it.getName().equalsIgnoreCase(name))
-				return it;
-		}
-		return null; // default
+		return getService(name, getMovieIdentificationServices());
 	}
 
 	public static MusicIdentificationService getMusicIdentificationService(String name) {
-		for (MusicIdentificationService it : getMusicIdentificationServices()) {
-			if (it.getName().equalsIgnoreCase(name))
-				return it;
-		}
-		return null; // default
+		return getService(name, getMusicIdentificationServices());
+	}
+
+	private static <T extends Datasource> T getService(String name, T[] services) {
+		return StreamEx.of(services).findFirst(it -> it.getName().equalsIgnoreCase(name)).orElse(null);
 	}
 
 	public static final ExecutorService requestThreadPool = Executors.newCachedThreadPool();
@@ -149,21 +140,20 @@ public final class WebServices {
 
 		@Override
 		public List<SearchResult> fetchSearchResult(final String query, final Locale locale) throws Exception {
-			Callable<List<SearchResult>> localSearch = () -> getLocalIndex().search(query);
-			Callable<List<SearchResult>> apiSearch = () -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale);
+			// run local search and API search in parallel
+			Future<List<SearchResult>> apiSearch = requestThreadPool.submit(() -> TheTVDBClientWithLocalSearch.super.fetchSearchResult(query, locale));
+			Future<List<SearchResult>> localSearch = requestThreadPool.submit(() -> getLocalIndex().search(query));
 
-			Set<SearchResult> results = new LinkedHashSet<SearchResult>();
-			for (Future<List<SearchResult>> resultSet : requestThreadPool.invokeAll(asList(localSearch, apiSearch))) {
-				try {
-					results.addAll(resultSet.get());
-				} catch (ExecutionException e) {
-					if (e.getCause() instanceof Exception) {
-						throw (Exception) e.getCause(); // unwrap cause
-					}
-				}
-			}
+			// combine alias names into a single search results, and keep API search name as primary name
+			SearchResult[] result = StreamEx.of(apiSearch.get()).append(localSearch.get()).groupingBy(SearchResult::getId).values().stream().map(group -> {
+				int id = group.get(0).getId();
+				String name = group.get(0).getName();
+				String[] aliasNames = StreamEx.of(group).flatMap(it -> stream(it.getAliasNames())).remove(name::equals).distinct().toArray(String[]::new);
 
-			return sortBySimilarity(results, singleton(query), getSeriesMatchMetric());
+				return new TheTVDBSearchResult(name, aliasNames, id);
+			}).toArray(TheTVDBSearchResult[]::new);
+
+			return sortBySimilarity(asList(result), singleton(query), getSeriesMatchMetric());
 		}
 	}
 
