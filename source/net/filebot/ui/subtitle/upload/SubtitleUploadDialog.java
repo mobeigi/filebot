@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -125,10 +126,12 @@ public class SubtitleUploadDialog extends JDialog {
 		return i;
 	}
 
-	private List<SubtitleGroup> groupRunsByCD(SubtitleMapping[] table) {
-		return StreamEx.ofValues(StreamEx.of(table).sortedBy(SubtitleMapping::getVideo).groupingBy(SubtitleMapping::getGroup)).flatMap((group) -> {
-			return StreamEx.of(group).groupRuns((m1, m2) -> getCD(m1) + 1 == getCD(m2)).map(SubtitleGroup::new);
-		}).toList();
+	private List<SubtitleGroup> getUploadGroups(SubtitleMapping[] table) {
+		return StreamEx.ofValues(StreamEx.of(table).groupingBy(SubtitleMapping::getGroup)).flatMap(this::groupRunsByCD).toList();
+	}
+
+	private Stream<SubtitleGroup> groupRunsByCD(Collection<SubtitleMapping> group) {
+		return StreamEx.of(group).sortedBy(SubtitleMapping::getVideo).groupRuns((m1, m2) -> getCD(m1) + 1 == getCD(m2)).map(SubtitleGroup::new);
 	}
 
 	private void runCheck(SubtitleMapping mapping) {
@@ -226,7 +229,7 @@ public class SubtitleUploadDialog extends JDialog {
 		uploadExecutorService = Executors.newSingleThreadExecutor();
 
 		SubtitleMapping[] table = ((SubtitleMappingTableModel) subtitleMappingTable.getModel()).getData();
-		for (SubtitleGroup group : groupRunsByCD(table)) {
+		for (SubtitleGroup group : getUploadGroups(table)) {
 			if (group.isUploadReady()) {
 				uploadExecutorService.submit(() -> runUpload(group));
 			}
