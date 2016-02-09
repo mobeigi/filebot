@@ -410,12 +410,12 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	public List<BannerDescriptor> getBannerList(TheTVDBSearchResult series) throws Exception {
 		// check cache first
-		BannerDescriptor[] cachedList = getCache().getData("banners", series.seriesId, null, BannerDescriptor[].class);
+		BannerDescriptor[] cachedList = getCache().getData("banners", series.getId(), null, BannerDescriptor[].class);
 		if (cachedList != null) {
 			return asList(cachedList);
 		}
 
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.seriesId + "/banners.xml");
+		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getId() + "/banners.xml");
 
 		List<Node> nodes = selectNodes("//Banner", dom);
 		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
@@ -442,7 +442,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			}
 		}
 
-		getCache().putData("banners", series.seriesId, null, banners.toArray(new BannerDescriptor[0]));
+		getCache().putData("banners", series.getId(), null, banners.toArray(new BannerDescriptor[0]));
 		return banners;
 	}
 

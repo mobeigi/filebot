@@ -20,16 +20,12 @@ public class Movie extends SearchResult {
 		// used by serializer
 	}
 
-	public Movie(Movie obj) {
-		this(obj.name, obj.aliasNames, obj.year, obj.imdbId, obj.tmdbId, obj.getLanguage());
-	}
-
 	public Movie(String name, int year, int imdbId, int tmdbId) {
-		this(name, new String[0], year, imdbId, tmdbId, null);
+		this(name, null, year, imdbId, tmdbId, null);
 	}
 
 	public Movie(String name, String[] aliasNames, int year, int imdbId, int tmdbId, Locale locale) {
-		super(name, aliasNames);
+		super(tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : -1, name, aliasNames);
 		this.year = year;
 		this.imdbId = imdbId;
 		this.tmdbId = tmdbId;
@@ -99,12 +95,7 @@ public class Movie extends SearchResult {
 
 	@Override
 	public Movie clone() {
-		return new Movie(this);
-	}
-
-	@Override
-	public int hashCode() {
-		return tmdbId > 0 ? tmdbId : imdbId > 0 ? imdbId : year;
+		return new Movie(name, aliasNames, year, imdbId, tmdbId, getLanguage());
 	}
 
 	@Override

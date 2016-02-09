@@ -14,7 +14,7 @@ public class MoviePart extends Movie {
 	}
 
 	public MoviePart(Movie movie, int partIndex, int partCount) {
-		super(movie);
+		super(movie.getName(), movie.getAliasNames(), movie.getYear(), movie.getImdbId(), movie.getTmdbId(), movie.getLanguage());
 		this.partIndex = partIndex;
 		this.partCount = partCount;
 	}
@@ -44,7 +44,7 @@ public class MoviePart extends Movie {
 
 	@Override
 	public String toString() {
-		return String.format("%s (%d) [%d]", name, year, partIndex);
+		return String.format("%s (%d) [CD%d]", name, year, partIndex);
 	}
 
 }

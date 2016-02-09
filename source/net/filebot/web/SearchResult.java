@@ -8,6 +8,7 @@ import java.util.List;
 
 public abstract class SearchResult implements Serializable {
 
+	protected int id;
 	protected String name;
 	protected String[] aliasNames;
 
@@ -15,9 +16,20 @@ public abstract class SearchResult implements Serializable {
 		// used by serializer
 	}
 
-	public SearchResult(String name, String[] aliasNames) {
+	public SearchResult(int id, String name) {
+		this.id = id;
+		this.name = name;
+		this.aliasNames = EMPTY_STRING_ARRAY;
+	}
+
+	public SearchResult(int id, String name, String[] aliasNames) {
+		this.id = id;
 		this.name = name;
 		this.aliasNames = (aliasNames == null || aliasNames.length == 0) ? EMPTY_STRING_ARRAY : aliasNames.clone();
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -50,13 +62,26 @@ public abstract class SearchResult implements Serializable {
 	}
 
 	@Override
-	public abstract SearchResult clone();
+	public int hashCode() {
+		return id;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (getClass().isInstance(other)) {
+			return getId() == ((SearchResult) other).getId();
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {
 		return name;
 	}
 
-	private static final String[] EMPTY_STRING_ARRAY = new String[0];
+	@Override
+	public abstract SearchResult clone();
+
+	protected static final String[] EMPTY_STRING_ARRAY = new String[0];
 
 }
