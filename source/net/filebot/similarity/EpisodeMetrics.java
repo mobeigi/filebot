@@ -303,7 +303,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by generic name similarity (absolute)
 	SeriesName(new NameSimilarityMetric() {
 
-		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ROOT, false);
+		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, false);
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {

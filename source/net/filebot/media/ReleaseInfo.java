@@ -576,12 +576,11 @@ public class ReleaseInfo {
 
 	public Map<String, Locale> getLanguageMap(Locale... supportedDisplayLocale) {
 		// use maximum strength collator by default
-		Collator collator = Collator.getInstance(Locale.ROOT);
+		Collator collator = Collator.getInstance(Locale.ENGLISH);
 		collator.setDecomposition(Collator.FULL_DECOMPOSITION);
 		collator.setStrength(Collator.PRIMARY);
 
-		@SuppressWarnings("unchecked")
-		Comparator<String> order = (Comparator) collator;
+		Comparator<? super String> order = collator;
 		Map<String, Locale> languageMap = new TreeMap<String, Locale>(order);
 
 		for (String code : Locale.getISOLanguages()) {

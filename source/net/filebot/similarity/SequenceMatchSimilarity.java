@@ -15,7 +15,7 @@ public class SequenceMatchSimilarity implements SimilarityMetric {
 	}
 
 	public SequenceMatchSimilarity(int commonSequenceMaxStartIndex, boolean returnFirstMatch) {
-		this.commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(Locale.ROOT), commonSequenceMaxStartIndex, returnFirstMatch);
+		this.commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(Locale.ENGLISH), commonSequenceMaxStartIndex, returnFirstMatch);
 	}
 
 	@Override

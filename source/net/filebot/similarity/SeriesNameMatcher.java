@@ -38,7 +38,7 @@ public class SeriesNameMatcher {
 	protected CommonSequenceMatcher commonSequenceMatcher;
 
 	public SeriesNameMatcher() {
-		this(Locale.ROOT, true);
+		this(Locale.ENGLISH, true);
 	}
 
 	public SeriesNameMatcher(Locale locale, boolean strict) {

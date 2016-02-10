@@ -117,7 +117,7 @@ public class MediaDetection {
 
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(true);
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(false);
-	private static final DateMatcher dateMatcher = new DateMatcher(Locale.ROOT, DateMatcher.DEFAULT_SANITY);
+	private static final DateMatcher dateMatcher = new DateMatcher(Locale.getDefault(), DateMatcher.DEFAULT_SANITY);
 
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
 		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;

@@ -180,8 +180,8 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Callable<List<Match<File, ?>>>> tasks = new ArrayList<Callable<List<Match<File, ?>>>>();
 
 		// remember user decisions and only bother user once
-		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
-		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ROOT));
+		final Map<String, SearchResult> selectionMemory = new TreeMap<String, SearchResult>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
+		final Map<String, List<String>> inputMemory = new TreeMap<String, List<String>>(CommonSequenceMatcher.getLenientCollator(Locale.ENGLISH));
 
 		// detect series names and create episode list fetch tasks
 		if (strict) {
