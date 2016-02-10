@@ -50,7 +50,7 @@ public class LanguageComboBox extends JComboBox {
 
 		// guess favorite languages
 		if (getModel().favorites().isEmpty()) {
-			for (Locale locale : new Locale[] { Locale.getDefault(), Locale.ENGLISH }) {
+			for (Locale locale : new Locale[] { Locale.ENGLISH, Locale.getDefault() }) {
 				getModel().favorites().add(getLanguage(locale.getLanguage()));
 			}
 		}

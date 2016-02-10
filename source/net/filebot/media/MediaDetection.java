@@ -48,7 +48,6 @@ import net.filebot.archive.Archive;
 import net.filebot.format.MediaBindingBean;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.DateMatcher;
-import net.filebot.similarity.DateMetric;
 import net.filebot.similarity.EpisodeMetrics;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.NameSimilarityMetric;
@@ -118,9 +117,14 @@ public class MediaDetection {
 
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(true);
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(false);
+	private static final DateMatcher dateMatcher = new DateMatcher(Locale.ROOT, DateMatcher.DEFAULT_SANITY);
 
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
 		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;
+	}
+
+	public static DateMatcher getDateMatcher() {
+		return dateMatcher;
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {
@@ -136,7 +140,10 @@ public class MediaDetection {
 	}
 
 	public static SimpleDate parseDate(Object object) {
-		return new DateMetric().parse(object);
+		if (object instanceof File) {
+			return getDateMatcher().match((File) object);
+		}
+		return getDateMatcher().match(object.toString());
 	}
 
 	public static Map<Set<File>, Set<String>> mapSeriesNamesByFiles(Collection<File> files, Locale locale, boolean useSeriesIndex, boolean useAnimeIndex) throws Exception {
@@ -264,7 +271,7 @@ public class MediaDetection {
 
 		// then Date pattern
 		if (match == null) {
-			match = new DateMatcher().match(name);
+			match = getDateMatcher().match(name);
 		}
 
 		// check SxE non-strict
@@ -744,7 +751,7 @@ public class MediaDetection {
 	}
 
 	public static List<Integer> parseMovieYear(String name) {
-		return matchIntegers(name).stream().filter(year -> 1950 < year && year < 2050).collect(toList());
+		return matchIntegers(name).stream().filter(DateMatcher.DEFAULT_SANITY::acceptYear).collect(toList());
 	}
 
 	public static String reduceMovieName(String name, boolean strict) throws IOException {

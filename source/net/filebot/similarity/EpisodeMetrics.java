@@ -83,7 +83,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	}),
 
 	// Match episode airdate
-	AirDate(new DateMetric() {
+	AirDate(new DateMetric(getDateMatcher()) {
 
 		private final Map<Object, SimpleDate> transformCache = synchronizedMap(new HashMap<Object, SimpleDate>(64, 4));
 

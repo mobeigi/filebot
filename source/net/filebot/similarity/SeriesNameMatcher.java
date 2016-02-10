@@ -43,7 +43,7 @@ public class SeriesNameMatcher {
 
 	public SeriesNameMatcher(Locale locale, boolean strict) {
 		seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict);
-		dateMatcher = new DateMatcher();
+		dateMatcher = new DateMatcher(locale, DateMatcher.DEFAULT_SANITY);
 		nameSimilarityMetric = new NameSimilarityMetric();
 
 		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3, true) {

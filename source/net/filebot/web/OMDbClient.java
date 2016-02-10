@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -22,6 +26,8 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -211,18 +217,16 @@ public class OMDbClient implements MovieIdentificationService {
 		fields.put(MovieProperty.poster_path, data.get("poster"));
 
 		// convert release date to yyyy-MM-dd
-		SimpleDate released = SimpleDate.parse(data.get("released"), "dd MMM yyyy");
-		if (released != null) {
-			fields.put(MovieProperty.release_date, released.format("yyyy-MM-dd"));
-		} else {
-			SimpleDate year = SimpleDate.parse(data.get("year"), "yyyy");
-			if (year != null) {
-				fields.put(MovieProperty.release_date, year.format("yyyy-MM-dd"));
-			}
+		SimpleDate release = parsePartialDate(data.get("released"), "d MMM yyyy");
+		if (release == null) {
+			release = parsePartialDate(data.get("released"), "yyyy");
+		}
+		if (release != null) {
+			fields.put(MovieProperty.release_date, release.toString());
 		}
 
+		// convert lists
 		Pattern delim = Pattern.compile(",");
-
 		List<String> genres = split(delim, data.get("genre"), String::toString);
 		List<String> languages = split(delim, data.get("language"), String::toString);
 
@@ -234,10 +238,29 @@ public class OMDbClient implements MovieIdentificationService {
 		return new MovieInfo(fields, emptyList(), genres, emptyMap(), languages, emptyList(), emptyList(), actors, emptyList());
 	}
 
+	private SimpleDate parsePartialDate(String value, String format) {
+		if (value != null && value.length() > 0) {
+			try {
+				TemporalAccessor f = DateTimeFormatter.ofPattern(format, Locale.ENGLISH).parse(value);
+				if (f.isSupported(ChronoField.YEAR)) {
+					if (f.isSupported(ChronoField.MONTH_OF_YEAR) && f.isSupported(ChronoField.DAY_OF_MONTH)) {
+						return new SimpleDate(f.get(ChronoField.YEAR), f.get(ChronoField.MONTH_OF_YEAR), f.get(ChronoField.DAY_OF_MONTH));
+					} else {
+						return new SimpleDate(f.get(ChronoField.YEAR), 1, 1);
+					}
+				}
+			} catch (DateTimeParseException e) {
+				Logger.getLogger(OMDbClient.class.getName()).log(Level.WARNING, String.format("Bad date: %s: %s", value, e.getMessage()));
+			}
+		}
+		return null;
+	}
+
 	private <T> List<T> split(Pattern regex, String value, Function<String, T> toObject) {
 		if (value == null || value.isEmpty())
 			return emptyList();
 
 		return regex.splitAsStream(value).map(String::trim).filter(s -> !s.equals("N/A")).map(toObject).collect(toList());
 	}
+
 }

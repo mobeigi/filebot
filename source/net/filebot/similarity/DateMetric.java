@@ -8,10 +8,6 @@ public class DateMetric implements SimilarityMetric {
 
 	private final DateMatcher matcher;
 
-	public DateMetric() {
-		this.matcher = new DateMatcher();
-	}
-
 	public DateMetric(DateMatcher matcher) {
 		this.matcher = matcher;
 	}
@@ -33,7 +29,6 @@ public class DateMetric implements SimilarityMetric {
 		if (object instanceof File) {
 			return matcher.match((File) object);
 		}
-
 		return matcher.match(object.toString());
 	}
 
