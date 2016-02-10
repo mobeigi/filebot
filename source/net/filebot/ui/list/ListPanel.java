@@ -129,7 +129,7 @@ public class ListPanel extends JComponent {
 				}
 
 				// try to match title from the first five names
-				Collection<String> title = getSeriesNameMatcher().matchAll((names.size() < 5 ? names : names.subList(0, 4)).toArray(new String[0]));
+				Collection<String> title = getSeriesNameMatcher(true).matchAll((names.size() < 5 ? names : names.subList(0, 4)).toArray(new String[0]));
 
 				list.setTitle(title.isEmpty() ? "List" : title.iterator().next());
 

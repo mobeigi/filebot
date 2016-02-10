@@ -1,16 +1,13 @@
 package net.filebot.similarity;
 
 import static org.junit.Assert.*;
-
-import java.util.Locale;
-
 import net.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 import org.junit.Test;
 
 public class SeriesNameMatcherTest {
 
-	private static SeriesNameMatcher matcher = new SeriesNameMatcher(Locale.ENGLISH, true);
+	SeriesNameMatcher matcher = new SeriesNameMatcher(true);
 
 	@Test
 	public void whitelist() {

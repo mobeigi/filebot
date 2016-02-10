@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class DateMetricTest {
 
-	DateMetric metric = new DateMetric(new DateMatcher(Locale.ENGLISH, DateMatcher.DEFAULT_SANITY));
+	DateMetric metric = new DateMetric(new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.ENGLISH));
 
 	@Test
 	public void getSimilarity() {

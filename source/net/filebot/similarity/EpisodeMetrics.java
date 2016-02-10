@@ -303,7 +303,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by generic name similarity (absolute)
 	SeriesName(new NameSimilarityMetric() {
 
-		private SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, false);
+		private final SeriesNameMatcher seriesNameMatcher = getSeriesNameMatcher(false);
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
@@ -591,8 +591,10 @@ public enum EpisodeMetrics implements SimilarityMetric {
 	// Match by (region) or (year) hints
 	RegionHint(new SimilarityMetric() {
 
-		private Pattern hint = compile("[(](\\p{Alpha}+|\\p{Digit}+)[)]$");
-		private Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
+		private final Pattern hint = compile("[(](\\p{Alpha}+|\\p{Digit}+)[)]$");
+		private final Pattern punctuation = compile("[\\p{Punct}\\p{Space}]+");
+
+		private final SeriesNameMatcher seriesNameMatcher = getSeriesNameMatcher(true);
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
@@ -615,7 +617,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 				for (File f : listPathTail((File) o, 3, true)) {
 					// try to focus on series name
 					String n = f.getName();
-					String sn = getSeriesNameMatcher().matchByEpisodeIdentifier(n);
+					String sn = seriesNameMatcher.matchByEpisodeIdentifier(n);
 
 					String[] tokens = punctuation.split(sn != null ? sn : n);
 					for (String s : tokens) {

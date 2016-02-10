@@ -36,8 +36,12 @@ public class SeriesNameMatcher {
 	protected final DateMatcher dateMatcher;
 	protected final CommonSequenceMatcher commonSequenceMatcher;
 
-	public SeriesNameMatcher(Locale locale, boolean strict) {
-		this(new NameSimilarityMetric(), getLenientCollator(locale), new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict), new DateMatcher(locale, DateMatcher.DEFAULT_SANITY));
+	public SeriesNameMatcher(boolean strict) {
+		this(new NameSimilarityMetric(), getLenientCollator(Locale.ENGLISH), new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict), new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.ENGLISH));
+	}
+
+	public SeriesNameMatcher(SeasonEpisodeMatcher seasonEpisodeMatcher, DateMatcher dateMatcher) {
+		this(new NameSimilarityMetric(), getLenientCollator(Locale.ENGLISH), seasonEpisodeMatcher, dateMatcher);
 	}
 
 	public SeriesNameMatcher(SimilarityMetric metric, Collator collator, SeasonEpisodeMatcher seasonEpisodeMatcher, DateMatcher dateMatcher) {

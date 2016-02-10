@@ -117,8 +117,7 @@ public class MediaDetection {
 
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
 	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false);
-	private static final DateMatcher dateMatcher = new DateMatcher(Locale.getDefault(), DateMatcher.DEFAULT_SANITY);
-	private static final SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, true);
+	private static final DateMatcher dateMatcher = new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.ENGLISH, Locale.getDefault());
 
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
 		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;
@@ -128,8 +127,8 @@ public class MediaDetection {
 		return dateMatcher;
 	}
 
-	public static SeriesNameMatcher getSeriesNameMatcher() {
-		return seriesNameMatcher;
+	public static SeriesNameMatcher getSeriesNameMatcher(boolean strict) {
+		return new SeriesNameMatcher(strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict, dateMatcher);
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {
@@ -330,7 +329,7 @@ public class MediaDetection {
 		}
 
 		// strict series name matcher for recognizing 1x01 patterns
-		SeriesNameMatcher strictSeriesNameMatcher = new SeriesNameMatcher(locale, true);
+		SeriesNameMatcher strictSeriesNameMatcher = getSeriesNameMatcher(true);
 
 		// cross-reference known series names against file structure
 		try {
@@ -396,7 +395,7 @@ public class MediaDetection {
 		for (boolean strict : new boolean[] { true, false }) {
 			if (matches.isEmpty()) {
 				// check CWS matches
-				SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, strict);
+				SeriesNameMatcher seriesNameMatcher = getSeriesNameMatcher(strict);
 				matches.addAll(strictSeriesNameMatcher.matchAll(files.toArray(new File[files.size()])));
 
 				// try before SxE pattern
