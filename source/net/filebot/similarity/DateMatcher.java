@@ -10,6 +10,7 @@ import java.time.Month;
 import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -57,12 +58,12 @@ public class DateMatcher {
 
 	protected DatePattern[] compile(List<String> dateFormat, Locale locale, DateFilter sanity) {
 		return dateFormat.stream().map(format -> {
-			String pattern = stream(format.split(DateFormatPattern.DELIMITER)).map(this::getPatternGroup).collect(joining("[^\\p{Alnum}]", "(?<!\\p{Alnum})", "(?!\\p{Alnum})"));
+			String pattern = stream(format.split(DateFormatPattern.DELIMITER)).map(g -> getPatternGroup(g, locale)).collect(joining("[^\\p{Alnum}]", "(?<!\\p{Alnum})", "(?!\\p{Alnum})"));
 			return new DateFormatPattern(pattern, format, locale, sanity);
 		}).toArray(DateFormatPattern[]::new);
 	}
 
-	protected String getPatternGroup(String token) {
+	protected String getPatternGroup(String token, Locale locale) {
 		switch (token) {
 		case "y":
 			return "(\\d{4})";
@@ -73,12 +74,16 @@ public class DateMatcher {
 		case "yyyyMMdd":
 			return "(\\d{8})";
 		case "MMMM":
-			return "(January|February|March|April|May|June|July|August|September|October|November|December)";
+			return getMonthNamePatternGroup(TextStyle.FULL, locale);
 		case "MMM":
-			return "(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)";
+			return getMonthNamePatternGroup(TextStyle.SHORT, locale);
 		default:
 			throw new IllegalArgumentException(token);
 		}
+	}
+
+	protected String getMonthNamePatternGroup(TextStyle style, Locale locale) {
+		return stream(Month.values()).map(m -> m.getDisplayName(style, locale)).map(Pattern::quote).collect(joining("|", "(", ")"));
 	}
 
 	public SimpleDate match(CharSequence seq) {
