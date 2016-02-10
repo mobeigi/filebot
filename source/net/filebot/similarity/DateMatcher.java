@@ -37,7 +37,7 @@ public class DateMatcher {
 		patterns[5] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](?i:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", "dd MMM yyyy");
 
 		// match yyyymmdd patterns like 20140408
-		patterns[6] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{8})(?!\\p{Alnum})", "yyyymmdd");
+		patterns[6] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{8})(?!\\p{Alnum})", "yyyyMMdd");
 	}
 
 	public DateMatcher(DatePattern... patterns) {
