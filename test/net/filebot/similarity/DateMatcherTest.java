@@ -26,7 +26,7 @@ public class DateMatcherTest {
 	@Test
 	public void parseLocale() {
 		assertEquals("2016-03-01", new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.GERMAN).match("01 März 2016").toString());
-		assertEquals("2016-03-01", new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.GERMAN).match("1 March 2016").toString()); // always parse English
+		assertEquals("2016-03-02", new DateMatcher(DateMatcher.DEFAULT_SANITY, Locale.ENGLISH, Locale.GERMAN).match("01 März 2016 to 2 March 2016").toString());
 	}
 
 	@Test
