@@ -1,13 +1,12 @@
 package net.filebot.web;
 
-import static java.util.Calendar.*;
-
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
@@ -28,11 +27,10 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	}
 
 	public SimpleDate(long t) {
-		GregorianCalendar c = new GregorianCalendar();
-		c.setTime(new Date(t));
-		year = c.get(Calendar.YEAR);
-		month = c.get(Calendar.MONTH) + 1;
-		day = c.get(Calendar.DAY_OF_MONTH);
+		LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.systemDefault());
+		year = date.getYear();
+		month = date.getMonthValue();
+		day = date.getDayOfMonth();
 	}
 
 	public int getYear() {
@@ -109,16 +107,15 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	}
 
 	public static SimpleDate parse(String string, String pattern) {
-		if (string == null || string.isEmpty())
+		if (string == null || string.isEmpty()) {
 			return null;
-
-		SimpleDateFormat formatter = new SimpleDateFormat(pattern, Locale.ROOT);
-		formatter.setLenient(false); // enable strict mode (e.g. fail on invalid dates like 0000-00-00)
+		}
 
 		try {
-			Calendar date = new GregorianCalendar(Locale.ROOT);
-			date.setTime(formatter.parse(string));
-			return new SimpleDate(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
+			SimpleDateFormat formatter = new SimpleDateFormat(pattern, Locale.ROOT);
+			formatter.setLenient(false); // enable strict mode (e.g. fail on invalid dates like 0000-00-00)
+
+			return new SimpleDate(formatter.parse(string).getTime());
 		} catch (ParseException e) {
 			// date is invalid
 			return null;
