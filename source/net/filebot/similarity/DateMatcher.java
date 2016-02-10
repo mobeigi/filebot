@@ -59,7 +59,7 @@ public class DateMatcher {
 	protected DatePattern[] compile(List<String> patterns, Locale locale, DateFilter sanity) {
 		return StreamEx.of(patterns).flatMap(dateFormat -> {
 			return StreamEx.of(Locale.ENGLISH, locale).distinct().map(formatLocale -> {
-				String regex = StreamEx.of(dateFormat.split(DateFormatPattern.DELIMITER)).map(g -> getPatternGroup(g, formatLocale)).joining("\\D", "(?<!\\p{Alnum})", "(?!\\p{Alnum})");
+				String regex = StreamEx.split(dateFormat, DateFormatPattern.DELIMITER).map(g -> getPatternGroup(g, formatLocale)).joining("\\D", "(?<!\\p{Alnum})", "(?!\\p{Alnum})");
 				return new DateFormatPattern(regex, dateFormat, formatLocale, sanity);
 			}).distinct(DateFormatPattern::toString);
 		}).toArray(DateFormatPattern[]::new);
