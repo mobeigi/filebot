@@ -120,8 +120,7 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 			date.setTime(formatter.parse(string));
 			return new SimpleDate(date.get(YEAR), date.get(MONTH) + 1, date.get(DAY_OF_MONTH)); // Calendar months start at 0
 		} catch (ParseException e) {
-			// no result if date is invalid
-			// Logger.getLogger(Date.class.getName()).log(Level.WARNING, e.getMessage());
+			// date is invalid
 			return null;
 		}
 	}

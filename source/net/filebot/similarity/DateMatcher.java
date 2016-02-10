@@ -16,7 +16,7 @@ public class DateMatcher {
 	private final DatePattern[] patterns;
 
 	public DateMatcher() {
-		patterns = new DatePattern[6];
+		patterns = new DatePattern[7];
 
 		// match yyyy-mm-dd patterns like 2010-10-24, 2009/6/1, etc
 		patterns[0] = new NumericDatePattern("(?<!\\p{Alnum})(\\d{4})[^\\p{Alnum}](\\d{1,2})[^\\p{Alnum}](\\d{1,2})(?!\\p{Alnum})", new int[] { 1, 2, 3 });
@@ -35,6 +35,9 @@ public class DateMatcher {
 
 		// match dd.MMM.yyyy patterns like 8 Sep 2015
 		patterns[5] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{1,2})[^\\p{Alnum}](?i:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^\\p{Alnum}](\\d{4})(?!\\p{Alnum})", "dd MMM yyyy");
+
+		// match yyyymmdd patterns like 20140408
+		patterns[6] = new DateFormatPattern("(?<!\\p{Alnum})(\\d{8})(?!\\p{Alnum})", "yyyymmdd");
 	}
 
 	public DateMatcher(DatePattern... patterns) {
