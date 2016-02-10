@@ -1,14 +1,14 @@
 package net.filebot.web;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SimpleDate implements Serializable, Comparable<Object> {
 
@@ -26,11 +26,12 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		this.day = day;
 	}
 
+	public SimpleDate(LocalDate date) {
+		this(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+	}
+
 	public SimpleDate(long t) {
-		LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.systemDefault());
-		year = date.getYear();
-		month = date.getMonthValue();
-		day = date.getDayOfMonth();
+		this(LocalDateTime.ofInstant(Instant.ofEpochMilli(t), ZoneId.systemDefault()).toLocalDate());
 	}
 
 	public int getYear() {
@@ -94,32 +95,16 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		return String.format("%04d-%02d-%02d", year, month, day);
 	}
 
-	public String format(String pattern) {
-		return format(pattern, Locale.ROOT);
-	}
-
-	public String format(String pattern, Locale locale) {
-		return new SimpleDateFormat(pattern, locale).format(new GregorianCalendar(year, month - 1, day).getTime()); // Calendar months start at 0
-	}
-
-	public static SimpleDate parse(String string) {
-		return parse(string, "yyyy-MM-dd");
-	}
-
-	public static SimpleDate parse(String string, String pattern) {
-		if (string == null || string.isEmpty()) {
-			return null;
+	public static SimpleDate parse(String date) {
+		if (date != null && date.length() > 0) {
+			Matcher m = DATE_FORMAT.matcher(date);
+			if (m.matches()) {
+				return new SimpleDate(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(3)));
+			}
 		}
-
-		try {
-			SimpleDateFormat formatter = new SimpleDateFormat(pattern, Locale.ROOT);
-			formatter.setLenient(false); // enable strict mode (e.g. fail on invalid dates like 0000-00-00)
-
-			return new SimpleDate(formatter.parse(string).getTime());
-		} catch (ParseException e) {
-			// date is invalid
-			return null;
-		}
+		return null;
 	}
+
+	public static final Pattern DATE_FORMAT = Pattern.compile("(\\d{4}).(\\d{1,2}).(\\d{1,2})");
 
 }

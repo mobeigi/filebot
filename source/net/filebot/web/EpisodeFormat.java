@@ -154,7 +154,7 @@ public class EpisodeFormat extends Format {
 		Matcher m;
 
 		if ((m = airdatePattern.matcher(source)).find()) {
-			airdate = SimpleDate.parse(m.group(1), "yyyy-MM-dd");
+			airdate = SimpleDate.parse(m.group(1));
 			source.replace(m.start(), m.end(), ""); // remove matched part from text
 		}
 

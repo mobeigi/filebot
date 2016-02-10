@@ -155,7 +155,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		seriesInfo.setRuntime(matchInteger(getTextContent("Runtime", seriesNode)));
 		seriesInfo.setActors(getListContent("Actors", "\\|", seriesNode));
 		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
-		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode), "yyyy-MM-dd"));
+		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode)));
 
 		seriesInfo.setBannerUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("banner", seriesNode)));
 		seriesInfo.setFanartUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("fanart", seriesNode)));
@@ -170,7 +170,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		for (Node node : nodes) {
 			String episodeName = getTextContent("EpisodeName", node);
 			Integer absoluteNumber = matchInteger(getTextContent("absolute_number", node));
-			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node), "yyyy-MM-dd");
+			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node));
 
 			// default numbering
 			Integer episodeNumber = matchInteger(getTextContent("EpisodeNumber", node));

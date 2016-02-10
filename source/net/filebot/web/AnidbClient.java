@@ -125,7 +125,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		seriesInfo.setName(selectString("anime/titles/title[@type='main']", dom));
 		seriesInfo.setRating(getDecimal(selectString("anime/ratings/permanent", dom)));
 		seriesInfo.setRatingCount(matchInteger(getTextContent("anime/ratings/permanent/@count", dom)));
-		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom), "yyyy-MM-dd"));
+		seriesInfo.setStartDate(SimpleDate.parse(selectString("anime/startdate", dom)));
 
 		// add categories ordered by weight as genres
 		// * only use categories with weight >= 400
@@ -155,7 +155,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 			int type = Integer.parseInt(getAttribute("type", epno));
 
 			if (type == 1 || type == 2) {
-				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node), "yyyy-MM-dd");
+				SimpleDate airdate = SimpleDate.parse(getTextContent("airdate", node));
 				String title = selectString(".//title[@lang='" + locale.getLanguage() + "']", node);
 				if (title.isEmpty()) { // English language fall-back
 					title = selectString(".//title[@lang='en']", node);

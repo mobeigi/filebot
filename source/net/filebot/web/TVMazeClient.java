@@ -85,7 +85,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		JsonObject<?, ?> response = request("shows/" + show.getId());
 
 		String status = getValue(response, "status", String::new);
-		SimpleDate premiered = getValue(response, "premiered", s -> SimpleDate.parse(s, "yyyy-MM-dd"));
+		SimpleDate premiered = getValue(response, "premiered", SimpleDate::parse);
 		Integer runtime = getValue(response, "runtime", Integer::new);
 		JsonObject<?, ?> genres = (JsonObject<?, ?>) response.get("genres");
 		JsonObject<?, ?> rating = (JsonObject<?, ?>) response.get("rating");
@@ -125,7 +125,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 				String episodeTitle = getValue(episode, "name", String::new);
 				Integer seasonNumber = getValue(episode, "season", Integer::new);
 				Integer episodeNumber = getValue(episode, "number", Integer::new);
-				SimpleDate airdate = getValue(episode, "airdate", s -> SimpleDate.parse(s, "yyyy-MM-dd"));
+				SimpleDate airdate = getValue(episode, "airdate", SimpleDate::parse);
 
 				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, new SeriesInfo(seriesInfo)));
 			}

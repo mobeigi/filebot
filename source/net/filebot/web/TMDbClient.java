@@ -558,7 +558,7 @@ public class TMDbClient implements MovieIdentificationService {
 		public SimpleDate getReleased() {
 			// e.g. 2005-09-30
 			try {
-				return SimpleDate.parse(get(MovieProperty.release_date), "yyyy-MM-dd");
+				return SimpleDate.parse(get(MovieProperty.release_date));
 			} catch (Exception e) {
 				return null;
 			}
