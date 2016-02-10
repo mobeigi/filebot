@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class DateMatcherTest {
 
-	DateMatcher m = new DateMatcher(Locale.ROOT, DateMatcher.DEFAULT_SANITY);
+	DateMatcher m = new DateMatcher(Locale.ENGLISH, DateMatcher.DEFAULT_SANITY);
 
 	@Test
 	public void parse() {
@@ -21,6 +21,12 @@ public class DateMatcherTest {
 		assertEquals("2014-07-25", m.match("25 July 2014").toString());
 		assertEquals("2015-09-08", m.match("8 Sep 2015").toString());
 		assertEquals("2014-04-08", m.match("20140408").toString());
+	}
+
+	@Test
+	public void parseLocale() {
+		assertEquals("2016-03-01", new DateMatcher(Locale.GERMAN, DateMatcher.DEFAULT_SANITY).match("01 März 2016").toString());
+		assertEquals("2016-03-01", new DateMatcher(Locale.GERMAN, DateMatcher.DEFAULT_SANITY).match("1 March 2016").toString()); // always parse English
 	}
 
 	@Test

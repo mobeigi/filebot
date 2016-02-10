@@ -1,6 +1,5 @@
 package net.filebot.similarity;
 
-import static java.util.Arrays.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -21,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
 import net.filebot.web.SimpleDate;
+import one.util.streamex.StreamEx;
 
 public class DateMatcher {
 
@@ -56,10 +56,12 @@ public class DateMatcher {
 		this.patterns = compile(format, locale, sanity);
 	}
 
-	protected DatePattern[] compile(List<String> dateFormat, Locale locale, DateFilter sanity) {
-		return dateFormat.stream().map(format -> {
-			String pattern = stream(format.split(DateFormatPattern.DELIMITER)).map(g -> getPatternGroup(g, locale)).collect(joining("[^\\p{Alnum}]", "(?<!\\p{Alnum})", "(?!\\p{Alnum})"));
-			return new DateFormatPattern(pattern, format, locale, sanity);
+	protected DatePattern[] compile(List<String> patterns, Locale locale, DateFilter sanity) {
+		return StreamEx.of(patterns).flatMap(dateFormat -> {
+			return StreamEx.of(Locale.ENGLISH, locale).distinct().map(formatLocale -> {
+				String regex = StreamEx.of(dateFormat.split(DateFormatPattern.DELIMITER)).map(g -> getPatternGroup(g, formatLocale)).joining("\\D", "(?<!\\p{Alnum})", "(?!\\p{Alnum})");
+				return new DateFormatPattern(regex, dateFormat, formatLocale, sanity);
+			}).distinct(DateFormatPattern::toString);
 		}).toArray(DateFormatPattern[]::new);
 	}
 
@@ -83,7 +85,7 @@ public class DateMatcher {
 	}
 
 	protected String getMonthNamePatternGroup(TextStyle style, Locale locale) {
-		return stream(Month.values()).map(m -> m.getDisplayName(style, locale)).map(Pattern::quote).collect(joining("|", "(", ")"));
+		return StreamEx.of(Month.values()).map(m -> m.getDisplayName(style, locale)).map(Pattern::quote).joining("|", "(", ")");
 	}
 
 	public SimpleDate match(CharSequence seq) {
@@ -141,9 +143,9 @@ public class DateMatcher {
 
 		public static final String DELIMITER = " ";
 
-		protected final Pattern pattern;
-		protected final DateTimeFormatter format;
-		protected final DateFilter sanity;
+		public final Pattern pattern;
+		public final DateTimeFormatter format;
+		public final DateFilter sanity;
 
 		public DateFormatPattern(String pattern, String format, Locale locale, DateFilter sanity) {
 			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
@@ -185,6 +187,11 @@ public class DateMatcher {
 				}
 			}
 			return -1;
+		}
+
+		@Override
+		public String toString() {
+			return pattern.pattern();
 		}
 
 	}
