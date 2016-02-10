@@ -28,37 +28,37 @@ public class DateMatcher {
 
 	private final DatePattern[] patterns;
 
-	public DateMatcher(Locale locale, DateFilter sanity) {
+	public DateMatcher(DateFilter sanity, Locale... locale) {
 		// generate default date format patterns
-		List<String> format = new ArrayList<String>(7);
+		String[] format = new String[7];
 
 		// match yyyy-mm-dd patterns like 2010-10-24, 2009/6/1, etc
-		format.add("y M d");
+		format[0] = "y M d";
 
 		// match dd-mm-yyyy patterns like 1.1.2010, 01/06/2010, etc
-		format.add("d M y");
+		format[1] = "d M y";
 
 		// match yyyy.MMMMM.dd patterns like 2015.October.05
-		format.add("y MMMM d");
+		format[2] = "y MMMM d";
 
 		// match yyyy.MMM.dd patterns like 2015.Oct.6
-		format.add("y MMM d");
+		format[3] = "y MMM d";
 
 		// match dd.MMMMM.yyyy patterns like 25 July 2014
-		format.add("d MMMM y");
+		format[4] = "d MMMM y";
 
 		// match dd.MMM.yyyy patterns like 8 Sep 2015
-		format.add("d MMM y");
+		format[5] = "d MMM y";
 
 		// match yyyymmdd patterns like 20140408
-		format.add("yyyyMMdd");
+		format[6] = "yyyyMMdd";
 
-		this.patterns = compile(format, locale, sanity);
+		this.patterns = compile(format, sanity, locale);
 	}
 
-	protected DatePattern[] compile(List<String> patterns, Locale locale, DateFilter sanity) {
-		return StreamEx.of(patterns).flatMap(dateFormat -> {
-			return StreamEx.of(Locale.ENGLISH, locale).distinct().map(formatLocale -> {
+	protected DatePattern[] compile(String[] pattern, DateFilter sanity, Locale... locale) {
+		return StreamEx.of(pattern).flatMap(dateFormat -> {
+			return StreamEx.of(locale).distinct(Locale::getLanguage).map(formatLocale -> {
 				String regex = StreamEx.split(dateFormat, DateFormatPattern.DELIMITER).map(g -> getPatternGroup(g, formatLocale)).joining("\\D", "(?<!\\p{Alnum})", "(?!\\p{Alnum})");
 				return new DateFormatPattern(regex, dateFormat, formatLocale, sanity);
 			}).distinct(DateFormatPattern::toString);
@@ -148,7 +148,7 @@ public class DateMatcher {
 		public final DateFilter sanity;
 
 		public DateFormatPattern(String pattern, String format, Locale locale, DateFilter sanity) {
-			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
 			this.format = DateTimeFormatter.ofPattern(format, locale);
 			this.sanity = sanity;
 		}
