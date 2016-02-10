@@ -11,10 +11,6 @@ public class SmartSeasonEpisodeMatcher extends SeasonEpisodeMatcher {
 		super(sanity, strict);
 	}
 
-	public SmartSeasonEpisodeMatcher(boolean strict) {
-		super(DEFAULT_SANITY, strict);
-	}
-
 	protected String clean(CharSequence name) {
 		return MediaDetection.stripFormatInfo(name);
 	}

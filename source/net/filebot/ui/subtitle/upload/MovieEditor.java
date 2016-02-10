@@ -35,8 +35,7 @@ class MovieEditor implements TableCellEditor {
 		String fn = FileUtilities.getName(mapping.getVideo() != null ? mapping.getVideo() : mapping.getSubtitle());
 
 		// check if query contain an episode identifier
-		SeriesNameMatcher snm = new SeriesNameMatcher();
-		String sn = snm.matchByEpisodeIdentifier(fn);
+		String sn = getSeriesNameMatcher().matchByEpisodeIdentifier(fn);
 		if (sn != null) {
 			return stripReleaseInfo(sn, true);
 		}

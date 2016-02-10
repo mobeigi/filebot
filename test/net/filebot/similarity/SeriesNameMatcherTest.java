@@ -1,17 +1,16 @@
-
 package net.filebot.similarity;
 
-
 import static org.junit.Assert.*;
+
+import java.util.Locale;
+
 import net.filebot.similarity.SeriesNameMatcher.SeriesNameCollection;
 
 import org.junit.Test;
 
-
 public class SeriesNameMatcherTest {
 
-	private static SeriesNameMatcher matcher = new SeriesNameMatcher();
-
+	private static SeriesNameMatcher matcher = new SeriesNameMatcher(Locale.ENGLISH, true);
 
 	@Test
 	public void whitelist() {
@@ -21,7 +20,6 @@ public class SeriesNameMatcherTest {
 		assertArrayEquals(new String[] { "Test 101" }, matcher.matchAll(names).toArray());
 	}
 
-
 	@Test
 	public void threshold() {
 		// ignore recurring word sequences when matching episode patterns
@@ -30,7 +28,6 @@ public class SeriesNameMatcherTest {
 		assertArrayEquals(new String[] { "Test" }, matcher.matchAll(names).toArray());
 	}
 
-
 	@Test
 	public void matchBeforeSeasonEpisodePattern() {
 		assertEquals("The Test", matcher.matchByEpisodeIdentifier("The Test - 1x01"));
@@ -38,7 +35,6 @@ public class SeriesNameMatcherTest {
 		// real world test
 		assertEquals("Mushishi", matcher.matchByEpisodeIdentifier("[niizk]_Mushishi_-_1x01_-_The_Green_Gathering"));
 	}
-
 
 	@Test
 	public void normalize() {
@@ -52,7 +48,6 @@ public class SeriesNameMatcherTest {
 		assertEquals("strawhat Luffy", matcher.normalize("(strawhat [Luffy (#Monkey)"));
 	}
 
-
 	@Test
 	public void firstCommonSequence() {
 		String[] seq1 = "Common Name 1 Any Title".split("\\s");
@@ -65,7 +60,6 @@ public class SeriesNameMatcherTest {
 		assertArrayEquals(null, matcher.firstCommonSequence(seq1, seq2, 0, String.CASE_INSENSITIVE_ORDER));
 		assertArrayEquals(null, matcher.firstCommonSequence(seq2, seq1, 1, String.CASE_INSENSITIVE_ORDER));
 	}
-
 
 	@Test
 	public void firstCharacterCaseBalance() {

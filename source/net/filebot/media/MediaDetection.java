@@ -115,9 +115,10 @@ public class MediaDetection {
 		return releaseInfo.getLanguageSuffix(getName(file));
 	}
 
-	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(true);
-	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(false);
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, true);
+	private static final SeasonEpisodeMatcher seasonEpisodeMatcherNonStrict = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, false);
 	private static final DateMatcher dateMatcher = new DateMatcher(Locale.getDefault(), DateMatcher.DEFAULT_SANITY);
+	private static final SeriesNameMatcher seriesNameMatcher = new SeriesNameMatcher(Locale.ENGLISH, true);
 
 	public static SeasonEpisodeMatcher getSeasonEpisodeMatcher(boolean strict) {
 		return strict ? seasonEpisodeMatcherStrict : seasonEpisodeMatcherNonStrict;
@@ -125,6 +126,10 @@ public class MediaDetection {
 
 	public static DateMatcher getDateMatcher() {
 		return dateMatcher;
+	}
+
+	public static SeriesNameMatcher getSeriesNameMatcher() {
+		return seriesNameMatcher;
 	}
 
 	public static boolean isEpisode(String name, boolean strict) {

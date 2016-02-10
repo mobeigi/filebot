@@ -116,10 +116,9 @@ public class CmdlineOperations implements CmdlineInterface {
 		int sxe = 0; // SxE
 		int cws = 0; // common word sequence
 
-		SeriesNameMatcher nameMatcher = new SeriesNameMatcher(locale, true);
 		Collection<String> cwsList = emptySet();
 		if (max >= 5) {
-			cwsList = nameMatcher.matchAll(mediaFiles.toArray(new File[0]));
+			cwsList = getSeriesNameMatcher().matchAll(mediaFiles.toArray(new File[0]));
 		}
 
 		for (File f : mediaFiles) {
@@ -130,7 +129,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// count CWS matches
 			for (String base : cwsList) {
-				if (base.equalsIgnoreCase(nameMatcher.matchByFirstCommonWordSequence(base, f.getName()))) {
+				if (base.equalsIgnoreCase(getSeriesNameMatcher().matchByFirstCommonWordSequence(base, f.getName()))) {
 					cws++;
 					break;
 				}

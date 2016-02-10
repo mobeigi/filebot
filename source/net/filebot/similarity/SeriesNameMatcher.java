@@ -8,6 +8,7 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.text.CollationKey;
+import java.text.Collator;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,23 +31,21 @@ import net.filebot.util.FileUtilities;
 
 public class SeriesNameMatcher {
 
-	protected SeasonEpisodeMatcher seasonEpisodeMatcher;
-	protected DateMatcher dateMatcher;
-
-	protected NameSimilarityMetric nameSimilarityMetric;
-
-	protected CommonSequenceMatcher commonSequenceMatcher;
-
-	public SeriesNameMatcher() {
-		this(Locale.ENGLISH, true);
-	}
+	protected final SimilarityMetric metric;
+	protected final SeasonEpisodeMatcher seasonEpisodeMatcher;
+	protected final DateMatcher dateMatcher;
+	protected final CommonSequenceMatcher commonSequenceMatcher;
 
 	public SeriesNameMatcher(Locale locale, boolean strict) {
-		seasonEpisodeMatcher = new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict);
-		dateMatcher = new DateMatcher(locale, DateMatcher.DEFAULT_SANITY);
-		nameSimilarityMetric = new NameSimilarityMetric();
+		this(new NameSimilarityMetric(), getLenientCollator(locale), new SmartSeasonEpisodeMatcher(SeasonEpisodeMatcher.DEFAULT_SANITY, strict), new DateMatcher(locale, DateMatcher.DEFAULT_SANITY));
+	}
 
-		commonSequenceMatcher = new CommonSequenceMatcher(getLenientCollator(locale), 3, true) {
+	public SeriesNameMatcher(SimilarityMetric metric, Collator collator, SeasonEpisodeMatcher seasonEpisodeMatcher, DateMatcher dateMatcher) {
+		this.metric = metric;
+		this.seasonEpisodeMatcher = seasonEpisodeMatcher;
+		this.dateMatcher = dateMatcher;
+
+		this.commonSequenceMatcher = new CommonSequenceMatcher(collator, 3, true) {
 
 			@Override
 			public CollationKey[] split(String sequence) {
@@ -65,7 +64,7 @@ public class SeriesNameMatcher {
 
 			for (String nameMatch : matchAll(names)) {
 				String commonMatch = commonSequenceMatcher.matchFirstCommonSequence(nameMatch, parent);
-				float similarity = commonMatch == null ? 0 : nameSimilarityMetric.getSimilarity(commonMatch, nameMatch);
+				float similarity = commonMatch == null ? 0 : metric.getSimilarity(commonMatch, nameMatch);
 
 				// prefer common match, but only if it's very similar to the original match
 				seriesNames.add(similarity > 0.7 ? commonMatch : nameMatch);
