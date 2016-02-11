@@ -7,9 +7,11 @@ import static net.filebot.util.FileUtilities.*;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +54,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 	}
 
 	protected void load(List<File> files, boolean recursive) {
-		List<File> entries = new ArrayList<File>();
+		Set<File> entries = new LinkedHashSet<File>();
 		LinkedList<File> queue = new LinkedList<File>(files);
 
 		while (queue.size() > 0) {
@@ -63,8 +65,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 
 			if (recursive && LIST_FILES.accept(f)) {
 				// don't use new Scanner(File) because of BUG 6368019 (http://bugs.sun.com/view_bug.do?bug_id=6368019)
-				try {
-					Scanner scanner = new Scanner(createTextReader(f));
+				try (Scanner scanner = new Scanner(createTextReader(f))) {
 					List<File> paths = new ArrayList<File>();
 					while (scanner.hasNextLine()) {
 						String line = scanner.nextLine().trim();
@@ -75,7 +76,6 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 							}
 						}
 					}
-					scanner.close();
 
 					if (paths.isEmpty()) {
 						entries.add(f); // treat as simple text file
@@ -92,7 +92,7 @@ class FilesListTransferablePolicy extends BackgroundFileTransferablePolicy<File>
 			}
 		}
 
-		publish(FastFile.create(entries).toArray(new File[0]));
+		publish(FastFile.create(entries));
 	}
 
 	@Override

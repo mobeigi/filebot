@@ -199,14 +199,8 @@ public class FastFile extends File {
 		throw new UnsupportedOperationException();
 	}
 
-	public static List<FastFile> create(Collection<File> files) {
-		List<FastFile> result = new ArrayList<FastFile>(files.size());
-
-		for (File file : files) {
-			result.add(new FastFile(file.getPath()));
-		}
-
-		return result;
+	public static FastFile[] create(Collection<File> files) {
+		return files.stream().map(f -> new FastFile(f.getPath())).toArray(FastFile[]::new);
 	}
 
 }
