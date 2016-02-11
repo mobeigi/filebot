@@ -9,10 +9,11 @@ fetch()
 	echo "Fetch $FILE"
 	if [ ! -f "$FILE" ] || test "`find $FILE -mtime $TIME`"; then
 		curl -L -o "$FILE" -z "$FILE" "$LINK"
-		if [[ "$FILE" == *.gz ]]; then
+
+		if [[ "${FILE##*.}" == "gz" ]]; then
 			gunzip -k -f "$FILE"
 		fi
-		if [[ "$FILE" == *.zip ]]; then
+		if [[ "${FILE##*.}" == "zip" ]]; then
 			unzip -o "$FILE"
 		fi
 	fi
