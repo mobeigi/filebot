@@ -14,6 +14,7 @@ NCIS: Los Angeles	NCIS LA
 NCIS: Los Angeles	NCIS LosAngeles
 NCIS: New Orleans	Navy CIS New Orleans
 NCIS: New Orleans	NCIS NO
+Outsiders	Outsiders (2016)
 Proof (2015)	Proof (US)
 Resurrection	Resurrection (US)
 Revolution	Revolution (2012)
