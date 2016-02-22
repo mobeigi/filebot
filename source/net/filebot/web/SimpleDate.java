@@ -5,8 +5,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,6 +92,14 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		return new SimpleDate(year, month, day);
 	}
 
+	public String format(String pattern) {
+		return DateTimeFormatter.ofPattern(pattern, Locale.ENGLISH).format(this.toLocalDate());
+	}
+
+	public LocalDate toLocalDate() {
+		return LocalDate.of(year, month, day);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%04d-%02d-%02d", year, month, day);
@@ -105,6 +115,6 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 		return null;
 	}
 
-	public static final Pattern DATE_FORMAT = Pattern.compile("(\\d{4}).(\\d{1,2}).(\\d{1,2})");
+	public static final Pattern DATE_FORMAT = Pattern.compile("(\\d{4})\\D(\\d{1,2})\\D(\\d{1,2})");
 
 }
