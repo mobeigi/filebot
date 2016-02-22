@@ -297,25 +297,26 @@ public class MediaDetection {
 	}
 
 	public static List<String> detectSeriesNames(Collection<File> files, List<IndexEntry<SearchResult>> index, Locale locale) throws Exception {
-		List<String> names = new ArrayList<String>();
+		// known series names
+		List<String> unids = new ArrayList<String>();
 
 		// try xattr metadata if enabled
 		for (File it : files) {
 			Object metaObject = readMetaInfo(it);
 			if (metaObject instanceof Episode) {
-				names.add(((Episode) metaObject).getSeriesName());
+				unids.add(((Episode) metaObject).getSeriesName());
 			}
 		}
 
 		// completely trust xattr metadata if all files are tagged
-		if (names.size() == files.size()) {
-			return getUniqueQuerySet(names);
+		if (unids.size() == files.size()) {
+			return getUniqueQuerySet(unids, emptySet());
 		}
 
 		// try to detect series name via nfo files
 		try {
 			for (SearchResult it : lookupSeriesNameByInfoFile(files, locale)) {
-				names.add(it.getName());
+				unids.add(it.getName());
 			}
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to lookup info by id: " + e);
@@ -323,10 +324,13 @@ public class MediaDetection {
 
 		// try to detect series name via known patterns
 		try {
-			names.addAll(matchSeriesByDirectMapping(files));
+			unids.addAll(matchSeriesByDirectMapping(files));
 		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.WARNING, "Failed to match direct mappings: " + e);
 		}
+
+		// guessed queries
+		List<String> names = new ArrayList<String>();
 
 		// strict series name matcher for recognizing 1x01 patterns
 		SeriesNameMatcher strictSeriesNameMatcher = getSeriesNameMatcher(true);
@@ -438,7 +442,7 @@ public class MediaDetection {
 		names.addAll(matches);
 
 		// don't allow duplicates
-		return getUniqueQuerySet(names);
+		return getUniqueQuerySet(unids, names);
 	}
 
 	public static List<String> matchSeriesByDirectMapping(Collection<File> files) throws Exception {
@@ -933,7 +937,7 @@ public class MediaDetection {
 		querySet.addAll(stripReleaseInfo(files, false));
 
 		// remove duplicates
-		querySet = getUniqueQuerySet(stripBlacklistedTerms(querySet));
+		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
 
 		// DEBUG
 		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
@@ -959,14 +963,24 @@ public class MediaDetection {
 		return results;
 	}
 
-	private static List<String> getUniqueQuerySet(Collection<String> terms) {
-		Map<String, String> unique = new LinkedHashMap<String, String>();
+	private static List<String> getUniqueQuerySet(Collection<String> exactMatches, Collection<String> guessMatches) {
+		Map<String, String> uniqueMap = new LinkedHashMap<String, String>();
+
+		// unique key function (case-insensitive ignore-punctuation)
+		Function<String, String> normalize = (s) -> normalizePunctuation(s).toLowerCase();
+		addUniqueQuerySet(exactMatches, normalize, Function.identity(), uniqueMap);
+		addUniqueQuerySet(guessMatches, normalize, normalize, uniqueMap);
+
+		return new ArrayList<String>(uniqueMap.values());
+	}
+
+	private static void addUniqueQuerySet(Collection<String> terms, Function<String, String> keyFunction, Function<String, String> valueFunction, Map<String, String> uniqueMap) {
 		for (String it : terms) {
-			if (it.length() > 0) {
-				unique.put(normalizePunctuation(it).toLowerCase(), it);
+			String key = keyFunction.apply(it);
+			if (key.length() > 0 && !uniqueMap.containsKey(key)) {
+				uniqueMap.put(key, valueFunction.apply(it));
 			}
 		}
-		return new ArrayList<String>(unique.values());
 	}
 
 	public static String stripReleaseInfo(String name) {
