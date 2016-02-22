@@ -534,7 +534,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		public float getSimilarity(Object o1, Object o2) {
 			// adjust differentiation accuracy to about a year
 			float f = super.getSimilarity(o1, o2);
-			return f >= 0.8 ? 1 : f >= 0 ? 0 : -1;
+			return f >= 0.9 ? 1 : f >= 0 ? 0 : -1;
 		}
 
 		@Override

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +48,7 @@ public class SimpleDate implements Serializable, Comparable<Object> {
 	}
 
 	public long getTimeStamp() {
-		return new GregorianCalendar(year, month - 1, day).getTimeInMillis(); // Month value is 0-based, e.g. 0 for January
+		return this.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
 	}
 
 	@Override
