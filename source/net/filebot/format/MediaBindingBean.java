@@ -358,10 +358,10 @@ public class MediaBindingBean {
 
 	@Define("channels")
 	public String getAudioChannelPositions() {
-		String[] channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2").split("/");
+		String[] channels = getMediaInfo(StreamKind.Audio, 0, "ChannelPositions/String2", "Channel(s)_Original", "Channel(s)").split("/");
 
 		// e.g. 5.1
-		return stream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).toPlainString();
+		return stream(channels).map(BigDecimal::new).reduce(BigDecimal.ZERO, BigDecimal::add).setScale(1).toPlainString();
 	}
 
 	@Define("resolution")
