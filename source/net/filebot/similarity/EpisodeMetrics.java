@@ -10,6 +10,8 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,7 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -562,8 +563,8 @@ public enum EpisodeMetrics implements SimilarityMetric {
 
 		@Override
 		public float getSimilarity(Object o1, Object o2) {
-			float r1 = getRating(o1);
-			float r2 = getRating(o2);
+			float r1 = getScore(o1);
+			float r2 = getScore(o2);
 
 			if (r1 < 0 || r2 < 0)
 				return -1;
@@ -571,7 +572,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			return max(r1, r2);
 		}
 
-		public float getRating(Object object) {
+		public float getScore(Object object) {
 			if (object instanceof Episode) {
 				SeriesInfo seriesInfo = ((Episode) object).getSeriesInfo();
 				if (seriesInfo != null && seriesInfo.getRating() != null && seriesInfo.getRatingCount() != null) {
@@ -582,6 +583,30 @@ public enum EpisodeMetrics implements SimilarityMetric {
 						return 0; // PENALIZE SHOWS WITH FEW RATINGS
 					}
 					return -1; // BIG PENALTY FOR SHOWS WITH 0 RATINGS
+				}
+			}
+			return 0;
+		}
+	}),
+
+	VoteRate(new SimilarityMetric() {
+
+		@Override
+		public float getSimilarity(Object o1, Object o2) {
+			float r1 = getScore(o1);
+			float r2 = getScore(o2);
+
+			return max(r1, r2) >= 0.1 ? 1 : 0;
+		}
+
+		public float getScore(Object object) {
+			if (object instanceof Episode) {
+				SeriesInfo seriesInfo = ((Episode) object).getSeriesInfo();
+				if (seriesInfo != null && seriesInfo.getRating() != null && seriesInfo.getRatingCount() != null && seriesInfo.getStartDate() != null) {
+					long days = ChronoUnit.DAYS.between(seriesInfo.getStartDate().toLocalDate(), LocalDate.now());
+					if (days > 0) {
+						return (float) ((seriesInfo.getRatingCount().doubleValue() / days) * seriesInfo.getRating());
+					}
 				}
 			}
 			return 0;
@@ -717,9 +742,9 @@ public enum EpisodeMetrics implements SimilarityMetric {
 		// 7 pass: prefer episodes that were aired closer to the last modified date of the file
 		// 8 pass: resolve remaining collisions via absolute string similarity
 		if (includeFileMetrics) {
-			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { FileSize, new MetricCascade(FileName, EpisodeFunnel), EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		} else {
-			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, TimeStamp, FilePathBalancer, FilePath };
+			return new SimilarityMetric[] { EpisodeFunnel, EpisodeBalancer, AirDate, MetaAttributes, SubstringFields, SeriesNameBalancer, SeriesName, RegionHint, Numeric, NumericSequence, SeriesRating, VoteRate, TimeStamp, FilePathBalancer, FilePath };
 		}
 	}
 
