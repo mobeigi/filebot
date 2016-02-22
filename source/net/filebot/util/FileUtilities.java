@@ -620,12 +620,14 @@ public final class FileUtilities {
 		return path.replace('\\', '/');
 	}
 
+	private static final Pattern PATH_SEPARATORS = Pattern.compile("\\s*[\\\\/]+\\s*");
+
 	public static String replacePathSeparators(CharSequence path) {
 		return replacePathSeparators(path, " ");
 	}
 
 	public static String replacePathSeparators(CharSequence path, String replacement) {
-		return Pattern.compile("\\s*[\\\\/]+\\s*").matcher(path).replaceAll(replacement);
+		return PATH_SEPARATORS.matcher(path).replaceAll(replacement);
 	}
 
 	public static String md5(String string) {
