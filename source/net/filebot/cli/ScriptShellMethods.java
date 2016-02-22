@@ -17,8 +17,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -374,18 +372,15 @@ public class ScriptShellMethods {
 	}
 
 	public static Collection<?> sortBySimilarity(Collection<?> self, final Object prime, final Closure<String> toStringFunction) {
-		final SimilarityMetric metric = new NameSimilarityMetric();
 		List<Object> values = new ArrayList<Object>(self);
-		Collections.sort(values, new Comparator<Object>() {
 
-			@Override
-			public int compare(Object o1, Object o2) {
-				String s1 = toStringFunction != null ? toStringFunction.call(o1) : o1.toString();
-				String s2 = toStringFunction != null ? toStringFunction.call(o2) : o2.toString();
-
-				return Float.compare(metric.getSimilarity(s2, prime), metric.getSimilarity(s1, prime));
-			}
+		SimilarityMetric metric = new NameSimilarityMetric();
+		values.sort((o1, o2) -> {
+			String s1 = toStringFunction != null ? toStringFunction.call(o1) : o1.toString();
+			String s2 = toStringFunction != null ? toStringFunction.call(o2) : o2.toString();
+			return Float.compare(metric.getSimilarity(s2, prime), metric.getSimilarity(s1, prime));
 		});
+
 		return values;
 	}
 
