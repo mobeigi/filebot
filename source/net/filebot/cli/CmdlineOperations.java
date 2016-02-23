@@ -293,7 +293,7 @@ public class CmdlineOperations implements CmdlineInterface {
 								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
 								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
 							} catch (IOException e) {
-								CLILogger.log(Level.SEVERE, e.getMessage());
+								throw new CmdlineException(format("Failed to fetch episode data for [%s]: %s", it, e.getMessage()), e);
 							}
 						}
 					}
