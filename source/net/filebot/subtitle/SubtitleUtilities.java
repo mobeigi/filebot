@@ -2,6 +2,7 @@ package net.filebot.subtitle;
 
 import static java.lang.Math.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.similarity.Normalization.*;
@@ -38,6 +39,7 @@ import net.filebot.similarity.Match;
 import net.filebot.similarity.Matcher;
 import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.NameSimilarityMetric;
+import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.similarity.SequenceMatchSimilarity;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.util.ByteBufferInputStream;
@@ -140,7 +142,20 @@ public final class SubtitleUtilities {
 
 				// fetch subtitles for all search results
 				for (SubtitleSearchResult it : selection) {
-					subtitles.addAll(service.getSubtitleList(it, languageName));
+					int[][] episodeFilter = null; // no filter
+
+					if (searchBySeries) {
+						// search for subtitles for the given files
+						List<SxE> numbers = files.stream().flatMap(f -> parseEpisodeNumber(f, true).stream()).distinct().collect(toList());
+
+						if (numbers.size() == 1) {
+							episodeFilter = numbers.stream().map(sxe -> new int[] { sxe.season, sxe.episode }).toArray(int[][]::new); // season-and-episode filter
+						} else {
+							episodeFilter = numbers.stream().map(sxe -> new int[] { sxe.season, -1 }).toArray(int[][]::new); // season-only filter
+						}
+					}
+
+					subtitles.addAll(service.getSubtitleList(it, episodeFilter, languageName));
 				}
 
 				// allow early abort

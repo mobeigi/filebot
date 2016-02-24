@@ -33,6 +33,7 @@ import redstone.xmlrpc.XmlRpcException;
 import redstone.xmlrpc.XmlRpcFault;
 import redstone.xmlrpc.util.Base64;
 
+@SuppressWarnings("unchecked")
 public class OpenSubtitlesXmlRpc {
 
 	private final String useragent;
@@ -85,19 +86,17 @@ public class OpenSubtitlesXmlRpc {
 		return token != null;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, String> getServerInfo() throws XmlRpcFault {
 		return (Map<String, String>) invoke("ServerInfo", token);
 	}
 
-	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, String... sublanguageids) throws XmlRpcFault {
-		return searchSubtitles(singleton(Query.forImdbId(imdbid, sublanguageids)));
+	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(int imdbid, int season, int episode, String... sublanguageids) throws XmlRpcFault {
+		return searchSubtitles(singleton(Query.forImdbId(imdbid, season, episode, sublanguageids)));
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<OpenSubtitlesSubtitleDescriptor> searchSubtitles(Collection<Query> queryList) throws XmlRpcFault {
 		List<OpenSubtitlesSubtitleDescriptor> subtitles = new ArrayList<OpenSubtitlesSubtitleDescriptor>();
-		Map<?, ?> response = invoke("SearchSubtitles", token, queryList, singletonMap("limit", 2000));
+		Map<?, ?> response = invoke("SearchSubtitles", token, queryList);
 
 		try {
 			List<Map<String, String>> subtitleData = (List<Map<String, String>>) response.get("data");
@@ -112,7 +111,6 @@ public class OpenSubtitlesXmlRpc {
 		return subtitles;
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<SubtitleSearchResult> searchMoviesOnIMDB(String query) throws XmlRpcFault {
 		Map<?, ?> response = invoke("SearchMoviesOnIMDB", token, query);
 
@@ -145,7 +143,6 @@ public class OpenSubtitlesXmlRpc {
 		return movies;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Movie getIMDBMovieDetails(int imdbid) throws XmlRpcFault {
 		Map<?, ?> response = invoke("GetIMDBMovieDetails", token, imdbid);
 
@@ -179,7 +176,6 @@ public class OpenSubtitlesXmlRpc {
 		return struct;
 	}
 
-	@SuppressWarnings("unchecked")
 	public TryUploadResponse tryUploadSubtitles(SubFile... subtitles) throws XmlRpcFault {
 		Map<String, Object> struct = getUploadStruct(null, subtitles);
 
@@ -206,7 +202,6 @@ public class OpenSubtitlesXmlRpc {
 		return URI.create(response.get("data").toString());
 	}
 
-	@SuppressWarnings("unchecked")
 	public List<String> detectLanguage(byte[] data) throws XmlRpcFault {
 		// compress and base64 encode
 		String parameter = encodeData(data);
@@ -221,7 +216,6 @@ public class OpenSubtitlesXmlRpc {
 		return languages;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, Integer> checkSubHash(Collection<String> hashes) throws XmlRpcFault {
 		Map<?, ?> response = invoke("CheckSubHash", token, hashes);
 
@@ -264,7 +258,6 @@ public class OpenSubtitlesXmlRpc {
 		return results;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, Movie> checkMovieHash(Collection<String> hashes, int minSeenCount) throws XmlRpcFault {
 		Map<String, Movie> movieHashMap = new HashMap<String, Movie>();
 
@@ -314,7 +307,6 @@ public class OpenSubtitlesXmlRpc {
 		return getSubLanguages("en");
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, String> getSubLanguages(String languageCode) throws XmlRpcFault {
 		Map<String, List<Map<String, String>>> response = (Map<String, List<Map<String, String>>>) invoke("GetSubLanguages", languageCode);
 
@@ -427,9 +419,15 @@ public class OpenSubtitlesXmlRpc {
 			return query;
 		}
 
-		public static Query forImdbId(int imdbid, String... sublanguageids) {
+		public static Query forImdbId(int imdbid, int season, int episode, String... sublanguageids) {
 			Query query = new Query(sublanguageids);
 			query.put("imdbid", Integer.toString(imdbid));
+			if (season >= 0) {
+				query.put("season", Integer.toString(season));
+			}
+			if (episode >= 0) {
+				query.put("episode", Integer.toString(episode));
+			}
 			return query;
 		}
 	}

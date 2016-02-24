@@ -60,7 +60,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getSubtitleListEnglish() throws Exception {
-		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, "eng");
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, -1, -1, "eng");
 
 		SubtitleDescriptor sample = list.get(0);
 
@@ -73,7 +73,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void getSubtitleListAllLanguages() throws Exception {
-		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256);
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, -1, -1);
 
 		OpenSubtitlesSubtitleDescriptor sample = list.get(75);
 
@@ -176,7 +176,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	@Test
 	public void fetchSubtitle() throws Exception {
-		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, "eng");
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(361256, -1, -1, "eng");
 
 		// check format
 		assertEquals("srt", list.get(0).getType());
@@ -190,7 +190,7 @@ public class OpenSubtitlesXmlRpcTest {
 
 	// @Test(expected = IOException.class)
 	public void fetchSubtitlesExceedLimit() throws Exception {
-		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(773262, "eng");
+		List<OpenSubtitlesSubtitleDescriptor> list = xmlrpc.searchSubtitles(773262, -1, -1, "eng");
 
 		for (int i = 0; true; i++) {
 			System.out.format("Fetch #%d: %s%n", i, list.get(i).fetch());

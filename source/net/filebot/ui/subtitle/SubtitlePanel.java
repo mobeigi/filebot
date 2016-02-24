@@ -20,8 +20,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -180,8 +183,6 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 	@Override
 	protected SubtitleRequestProcessor createRequestProcessor() {
 		SubtitleProvider provider = searchTextField.getSelectButton().getSelectedValue();
-		String text = searchTextField.getText().trim();
-		Language language = languageComboBox.getModel().getSelectedItem();
 
 		if (provider instanceof OpenSubtitlesClient && ((OpenSubtitlesClient) provider).isAnonymous() && !Settings.isAppStore()) {
 			UILogger.info(String.format("%s: Please enter your login details first.", ((OpenSubtitlesClient) provider).getName()));
@@ -192,17 +193,54 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			return null;
 		}
 
-		return new SubtitleRequestProcessor(new SubtitleRequest(provider, text, language));
+		// parse query
+		String query = searchTextField.getText();
+		int season = seasonFilter.match(query);
+		query = seasonFilter.remove(query).trim();
+		int episode = episodeFilter.match(query);
+		query = episodeFilter.remove(query).trim();
+
+		Language language = languageComboBox.getModel().getSelectedItem();
+		return new SubtitleRequestProcessor(new SubtitleRequest(provider, query, season, episode, language));
+	}
+
+	private final QueryFilter<Integer> seasonFilter = new QueryFilter<Integer>("season", s -> s == null ? -1 : Integer.parseInt(s));
+	private final QueryFilter<Integer> episodeFilter = new QueryFilter<Integer>("episode", s -> s == null ? -1 : Integer.parseInt(s));
+
+	protected static class QueryFilter<T> {
+
+		private final Pattern pattern;
+		private final Function<String, T> parser;
+
+		public QueryFilter(String key, Function<String, T> parser) {
+			this.pattern = Pattern.compile("(?:" + key + "):(\\w+)", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS);
+			this.parser = parser;
+		}
+
+		public T match(String s) {
+			Matcher m = pattern.matcher(s);
+			if (m.find()) {
+				return parser.apply(m.group(m.groupCount()));
+			}
+			return parser.apply(null);
+		}
+
+		public String remove(String s) {
+			return pattern.matcher(s).replaceAll("");
+		}
 	}
 
 	protected static class SubtitleRequest extends Request {
 
 		private final SubtitleProvider provider;
 		private final Language language;
+		private final int season;
+		private final int episode;
 
-		public SubtitleRequest(SubtitleProvider provider, String searchText, Language language) {
+		public SubtitleRequest(SubtitleProvider provider, String searchText, int season, int episode, Language language) {
 			super(searchText);
-
+			this.season = season;
+			this.episode = episode;
 			this.provider = provider;
 			this.language = language;
 		}
@@ -215,6 +253,9 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 			return language == ALL_LANGUAGES ? null : language.getName();
 		}
 
+		public int[][] getEpisodeFilter() {
+			return season >= 0 && episode >= 0 ? new int[][] { new int[] { season, episode } } : season >= 0 ? new int[][] { new int[] { season, -1 } } : null;
+		}
 	}
 
 	protected static class SubtitleRequestProcessor extends RequestProcessor<SubtitleRequest, SubtitlePackage> {
@@ -237,7 +278,7 @@ public class SubtitlePanel extends AbstractSearchPanel<SubtitleProvider, Subtitl
 		public Collection<SubtitlePackage> fetch() throws Exception {
 			List<SubtitlePackage> packages = new ArrayList<SubtitlePackage>();
 
-			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getLanguageName())) {
+			for (SubtitleDescriptor subtitle : request.getProvider().getSubtitleList(getSearchResult(), request.getEpisodeFilter(), request.getLanguageName())) {
 				packages.add(new SubtitlePackage(request.getProvider(), subtitle));
 			}
 
