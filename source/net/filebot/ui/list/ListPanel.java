@@ -31,7 +31,6 @@ import javax.swing.SpinnerNumberModel;
 
 import net.filebot.ResourceManager;
 import net.filebot.format.ExpressionFormat;
-import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.ui.FileBotList;
 import net.filebot.ui.FileBotListExportHandler;
 import net.filebot.ui.transfer.LoadAction;

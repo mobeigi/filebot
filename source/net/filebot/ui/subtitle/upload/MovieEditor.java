@@ -16,7 +16,6 @@ import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
-import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.ui.SelectDialog;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.Movie;

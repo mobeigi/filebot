@@ -99,8 +99,10 @@ public class MediaBindingBean {
 			return getEpisode().getSeriesName();
 		else if (infoObject instanceof Movie)
 			return getMovie().getName();
+		else if (infoObject instanceof AudioTrack && getAlbumArtist() != null)
+			return getAlbumArtist();
 		else if (infoObject instanceof AudioTrack)
-			return getAlbumArtist() != null ? getAlbumArtist() : getArtist();
+			return getArtist();
 		else if (infoObject instanceof File)
 			return FileUtilities.getName((File) infoObject);
 

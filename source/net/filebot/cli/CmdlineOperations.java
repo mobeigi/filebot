@@ -56,7 +56,6 @@ import net.filebot.media.XattrMetaInfoProvider;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
 import net.filebot.similarity.Match;
-import net.filebot.similarity.SeriesNameMatcher;
 import net.filebot.subtitle.SubtitleFormat;
 import net.filebot.subtitle.SubtitleNaming;
 import net.filebot.util.EntryList;
