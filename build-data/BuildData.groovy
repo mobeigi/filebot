@@ -1,29 +1,34 @@
 #!/usr/bin/env filebot -script
 
+
 import org.tukaani.xz.*
 
+
 /* ------------------------------------------------------------------------- */
+
 
 def dir_root    = ".."
 def dir_website = "${dir_root}/website"
 def dir_data    = "${dir_website}/data"
 
-def sortRegexList(path) {
+// sort and check shared regex collections
+['add-series-alias.txt', 
+ 'exclude-blacklist.txt', 
+ 'query-blacklist.txt', 
+ 'release-groups.txt', 
+ 'series-mappings.txt'
+].each{
+	def input = new URL("https://raw.githubusercontent.com/filebot/data/master/${it}")
+	def output = new File("${dir_data}/${it}")
+
 	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
-	new File(path).eachLine('UTF-8'){
-		// check if regex compiles
+	input.getText('UTF-8').split(/\R/).each{
 		set += java.util.regex.Pattern.compile(it.trim()).pattern()
 	}
-	def out = set.join('\n').saveAs(path)
-	println "${out}\n${out.text}\n"
-}
 
-// sort and check shared regex collections
-sortRegexList("${dir_data}/release-groups.txt")
-sortRegexList("${dir_data}/query-blacklist.txt")
-sortRegexList("${dir_data}/exclude-blacklist.txt")
-sortRegexList("${dir_data}/series-mappings.txt")
-sortRegexList("${dir_data}/add-series-alias.txt")
+	set.join('\n').saveAs(output)
+	println "${output}\n${output.text}\n"
+}
 
 
 /* ------------------------------------------------------------------------- */
