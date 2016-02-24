@@ -450,6 +450,7 @@ to.be.sorted
 ToSort
 TPB
 Tragikomödie
+TransmissionDL
 TRUEDEF
 TRUEFRENCH
 TS
