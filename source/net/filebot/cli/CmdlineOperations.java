@@ -1102,7 +1102,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {af} {vc} {ac}]");
+		ExpressionFormat formatter = new ExpressionFormat(format != null && format.length() > 0 ? format : "{fn} [{resolution} {vc} {channels} {ac} {minutes+'m'}]");
 		List<String> output = new ArrayList<String>();
 		for (File file : files) {
 			String line = formatter.format(new MediaBindingBean(readMetaInfo(file), file, null));

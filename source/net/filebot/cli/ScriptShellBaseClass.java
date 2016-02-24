@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -418,7 +419,15 @@ public abstract class ScriptShellBaseClass extends Script {
 		}
 	}
 
-	public String getMediaInfo(Map<String, ?> parameters) throws Exception {
+	public String getMediaInfo(File file, String format) throws Exception {
+		return cli.getMediaInfo(singleton(file), format, null).get(0); // explicitly ignore the --filter option
+	}
+
+	public List<String> getMediaInfo(Collection<?> files, String format) throws Exception {
+		return cli.getMediaInfo(FileUtilities.asFileList(files), format, null); // explicitly ignore the --filter option
+	}
+
+	public Object getMediaInfo(Map<String, ?> parameters) throws Exception {
 		List<File> input = getInputFileList(parameters);
 		if (input == null || input.isEmpty()) {
 			return null;
@@ -427,8 +436,12 @@ public abstract class ScriptShellBaseClass extends Script {
 		Map<Option, Object> option = getDefaultOptions(parameters);
 		synchronized (cli) {
 			try {
-				List<String> lines = cli.getMediaInfo(singleton(input.get(0)), asString(option.get(Option.format)), null); // explicitly ignore the --filter option if any
-				return lines.get(0);
+				List<String> lines = cli.getMediaInfo(input, asString(option.get(Option.format)), asString(option.get(Option.filter)));
+				if (parameters.containsKey("file") && !(parameters.get("file") instanceof Collection)) {
+					return lines.get(0); // HACK for script backwards compatibility
+				} else {
+					return lines;
+				}
 			} catch (Exception e) {
 				printException(e, false);
 				return null;
