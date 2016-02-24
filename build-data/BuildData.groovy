@@ -1,6 +1,6 @@
 #!/usr/bin/env filebot -script
 
-
+import java.util.regex.*
 import org.tukaani.xz.*
 
 
@@ -22,8 +22,8 @@ def dir_data    = "${dir_website}/data"
 	def output = new File("${dir_data}/${it}")
 
 	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
-	input.getText('UTF-8').split(/\R/).each{
-		set += java.util.regex.Pattern.compile(it.trim()).pattern()
+	input.getText('UTF-8').split(/\R/)*.trim().findAll( it.length() > 0 ).each{
+		set += Pattern.compile(it).pattern()
 	}
 
 	set.join('\n').saveAs(output)
