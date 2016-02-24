@@ -3,44 +3,44 @@
 	<info organisation="net.filebot" module="filebot" />
 	<dependencies>
 		<!-- FileBot -->
-		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.6" />
-		<dependency org="net.java.dev.jna" name="jna" rev="4.2.1" />
-		<dependency org="net.java.dev.jna" name="jna-platform" rev="4.2.1" />
-		<dependency org="args4j" name="args4j" rev="2.32" />
-		<dependency org="net.sf.ehcache" name="ehcache" rev="2.10.1" />
-		<dependency org="com.ibm.icu" name="icu4j" rev="56.1" />
-		<dependency org="org.jsoup" name="jsoup" rev="1.8.3" />
-		<dependency org="org.tukaani" name="xz" rev="1.5" />
-		<dependency org="com.cedarsoftware" name="json-io" rev="4.1.9" />
-		<dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1.1" />
-		<dependency org="commons-io" name="commons-io" rev="2.4" />
-		<dependency org="commons-net" name="commons-net" rev="3.3" />
-		<dependency org="org.slf4j" name="slf4j-jdk14" rev="1.7.12" />
-		<dependency org="net.java.dev.glazedlists" name="glazedlists_java15" rev="1.9.1" />
-		<dependency org="com.miglayout" name="miglayout-swing" rev="4.2" />
-		<dependency org="org.apache.commons" name="commons-vfs2" rev="2.0" />
-		<dependency org="com.github.junrar" name="junrar" rev="0.7" />
-		<dependency org="com.fifesoft" name="rsyntaxtextarea" rev="2.5.8" />
-		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding" rev="9.20-2.00beta" />
-		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" rev="9.20-2.00beta" />
-		<dependency org="com.optimaize.languagedetector" name="language-detector" rev="0.5" />
-		<dependency org="one.util" name="streamex" rev="0.5.4" />
+		<dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.+" />
+		<dependency org="net.java.dev.jna" name="jna" rev="4.2.+" />
+		<dependency org="net.java.dev.jna" name="jna-platform" rev="4.2.+" />
+		<dependency org="args4j" name="args4j" rev="2.+" />
+		<dependency org="net.sf.ehcache" name="ehcache" rev="2.+" />
+		<dependency org="com.ibm.icu" name="icu4j" rev="56.+" />
+		<dependency org="org.jsoup" name="jsoup" rev="1.+" />
+		<dependency org="org.tukaani" name="xz" rev="1.+" />
+		<dependency org="com.cedarsoftware" name="json-io" rev="4.+" />
+		<dependency org="com.googlecode.json-simple" name="json-simple" rev="1.+" />
+		<dependency org="commons-io" name="commons-io" rev="2.+" />
+		<dependency org="commons-net" name="commons-net" rev="3.+" />
+		<dependency org="org.slf4j" name="slf4j-jdk14" rev="1.+" />
+		<dependency org="net.java.dev.glazedlists" name="glazedlists_java15" rev="1.+" />
+		<dependency org="com.miglayout" name="miglayout-swing" rev="4.+" />
+		<dependency org="org.apache.commons" name="commons-vfs2" rev="2.+" />
+		<dependency org="com.github.junrar" name="junrar" rev="0.+" />
+		<dependency org="com.fifesoft" name="rsyntaxtextarea" rev="2.+" />
+		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding" rev="9.+" />
+		<dependency org="net.sf.sevenzipjbinding" name="sevenzipjbinding-all-platforms" rev="9.+" />
+		<dependency org="com.optimaize.languagedetector" name="language-detector" rev="0.+" />
+		<dependency org="one.util" name="streamex" rev="0.+" />
 
 		<!-- FileBot Scripting -->
-		<dependency org="org.apache.ant" name="ant" rev="1.9.6" />
-		<dependency org="org.apache.ant" name="ant-launcher" rev="1.9.6" />
-		<dependency org="org.apache.ant" name="ant-commons-net" rev="1.9.6" />
-		<dependency org="org.apache.ant" name="ant-javamail" rev="1.9.6" />
-		<dependency org="org.apache.ant" name="ant-jsch" rev="1.9.6" />
-		<dependency org="org.apache.ivy" name="ivy" rev="2.4.0" />
+		<dependency org="org.apache.ant" name="ant" rev="1.9.+" />
+		<dependency org="org.apache.ant" name="ant-launcher" rev="1.9.+" />
+		<dependency org="org.apache.ant" name="ant-commons-net" rev="1.9.+" />
+		<dependency org="org.apache.ant" name="ant-javamail" rev="1.9.+" />
+		<dependency org="org.apache.ant" name="ant-jsch" rev="1.9.+" />
+		<dependency org="org.apache.ivy" name="ivy" rev="2.4.+" />
 
 		<!-- FileBot Ant Build -->
-		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.6" />
-		<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.53" />
-		<dependency org="org.bouncycastle" name="bcpg-jdk15on" rev="1.53" />
-		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.4.4" />
-		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.5.1" />
-		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" />
-		<dependency org="org.glassfish" name="javax.json" rev="1.0.4" />
+		<dependency org="org.apache.ant" name="ant-junit" rev="1.9.+" />
+		<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.+" />
+		<dependency org="org.bouncycastle" name="bcpg-jdk15on" rev="1.+" />
+		<dependency org="org.apache.httpcomponents" name="httpcore" rev="4.+" />
+		<dependency org="org.apache.httpcomponents" name="httpmime" rev="4.+" />
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.+" />
+		<dependency org="org.glassfish" name="javax.json" rev="1.+" />
 	</dependencies>
 </ivy-module>
