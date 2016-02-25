@@ -281,7 +281,7 @@ tvdb.values().each{ r ->
 	def votes = r[4]
 	def names = r.subList(5, r.size())
 	
-	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 7) || (votes >= 1 && rating >= 10)) {
+	if ((votes >= 5 && rating >= 4) || (votes >= 2 && rating >= 6) || (votes >= 1 && rating >= 10)) {
 		getNamePermutations(names).each{ n ->
 			thetvdb_index << [tvdb_id, n]
 		}
