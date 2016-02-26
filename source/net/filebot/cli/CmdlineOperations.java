@@ -875,11 +875,6 @@ public class CmdlineOperations implements CmdlineInterface {
 			// guess best hash match (default order is open bad due to invalid hash links)
 			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), strict);
 
-			// if we can't guess the best one, just pick the first one, since all hash matches should good (ideally)
-			if (bestMatch == null && !strict && it.getValue().size() > 0) {
-				bestMatch = it.getValue().get(0);
-			}
-
 			if (bestMatch != null) {
 				CLILogger.finest(format("Matched [%s] to [%s] via hash", it.getKey().getName(), bestMatch.getName()));
 				subtitleByVideo.put(it.getKey(), bestMatch);

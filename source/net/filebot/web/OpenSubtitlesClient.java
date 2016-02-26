@@ -214,12 +214,13 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 		List<Query> hashQueryList = new ArrayList<Query>(files.length);
 
 		for (File file : files) {
-			// add hash query
-			if (file.length() > HASH_CHUNK_SIZE) {
-				String movieHash = computeHash(file);
-				Query query = Query.forHash(movieHash, file.length(), languageFilter);
+			Query query = file.length() > HASH_CHUNK_SIZE ? Query.forHash(computeHash(file), file.length(), languageFilter) : null;
 
-				// check hash
+			// DEBUG
+			// query = Query.forHash("b4a91d8384a92269", 1178926184, languageFilter);
+
+			// add hash query
+			if (query != null) {
 				List<SubtitleDescriptor> cachedResults = getCache().getSubtitleDescriptorList(query);
 				if (cachedResults == null) {
 					hashQueryList.add(query);

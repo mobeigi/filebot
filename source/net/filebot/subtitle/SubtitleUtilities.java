@@ -159,8 +159,9 @@ public final class SubtitleUtilities {
 				}
 
 				// allow early abort
-				if (Thread.interrupted())
+				if (Thread.interrupted()) {
 					throw new InterruptedException();
+				}
 
 				// files by possible subtitles matches
 				for (File file : files) {
