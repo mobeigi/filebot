@@ -1,6 +1,8 @@
 package net.filebot.similarity;
 
+import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.web.EpisodeUtilities.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import net.filebot.media.SmartSeasonEpisodeMatcher;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
@@ -55,20 +58,19 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 			File file = it.getValue();
 
 			Set<Integer> uniqueFiles = normalizeIdentifierSet(parseEpisodeIdentifer(file));
-			if (uniqueFiles.size() < 2)
-				continue;
-
 			Set<Integer> uniqueEpisodes = normalizeIdentifierSet(episodeIdentifierSets.get(file));
-			if (uniqueEpisodes.size() < 2)
-				continue;
 
 			if (uniqueFiles.equals(uniqueEpisodes)) {
 				List<Episode> episodes = episodeSets.get(file);
 
-				if (isMultiEpisode(episodes)) {
-					MultiEpisode episode = new MultiEpisode(episodes.toArray(new Episode[0]));
-					disjointMatchCollection.add(new Match<File, Object>(file, episode));
-					modified = true;
+				if (episodes.size() > 1) {
+					Episode[] episodeSequence = episodes.stream().sorted(episodeComparator()).distinct().toArray(Episode[]::new);
+
+					if (isMultiEpisode(episodeSequence)) {
+						MultiEpisode episode = new MultiEpisode(episodeSequence);
+						disjointMatchCollection.add(new Match<File, Object>(file, episode));
+						modified = true;
+					}
 				}
 			}
 		}
@@ -123,40 +125,30 @@ public class EpisodeMatcher extends Matcher<File, Object> {
 		return identifier;
 	}
 
-	private boolean isMultiEpisode(List<Episode> episodes) {
-		// sanity check that there is valid episode data for at least two episodes
-		if (episodes.size() < 2)
+	private boolean isMultiEpisode(Episode[] episodes) {
+		if (episodes.length < 2)
 			return false;
 
 		// check episode sequence integrity
 		Integer seqIndex = null;
 		for (Episode it : episodes) {
 			// any illegal episode object breaks the chain
-			if (it == null)
-				return false;
-			if (it.getEpisode() == null && it.getSpecial() == null)
+			Integer num = it != null ? it.getEpisode() != null ? it.getEpisode() : it.getSpecial() : null;
+			if (num == null)
 				return false;
 
-			// non-sequential episode index breaks the chain
+			// non-sequential next episode index breaks the chain (same episode is OK since DVD numbering allows for multiple episodes to share the same SxE numbers)
 			if (seqIndex != null) {
-				Integer num = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
-				if (!num.equals(seqIndex + 1)) {
+				if (!(num.equals(seqIndex + 1) || num.equals(seqIndex))) {
 					return false;
 				}
 			}
 
-			seqIndex = it.getEpisode() != null ? it.getEpisode() : it.getSpecial();
+			seqIndex = num;
 		}
 
 		// check drill-down integrity
-		String seriesName = null;
-		for (Episode ep : episodes) {
-			if (seriesName != null && !seriesName.equals(ep.getSeriesName()))
-				return false;
-
-			seriesName = ep.getSeriesName();
-		}
-
-		return true;
+		return stream(episodes).map(Episode::getSeriesName).allMatch(Predicate.isEqual(episodes[0].getSeriesName()));
 	}
+
 }

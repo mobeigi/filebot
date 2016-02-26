@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.StringUtilities.*;
 
@@ -16,7 +17,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class EpisodeFormat extends Format {
 
@@ -101,31 +102,23 @@ public class EpisodeFormat extends Format {
 	}
 
 	public String formatMultiTitle(List<Episode> episodes) {
-		return episodes.stream().map(e -> removeTrailingBrackets(e.getTitle())).distinct().collect(Collectors.joining(" & "));
+		return episodes.stream().map(e -> removeTrailingBrackets(e.getTitle())).distinct().collect(joining(" & "));
 	}
 
 	public String formatMultiRangeSxE(List<Episode> episodes) {
-		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
-			if (it.getKey() >= 0) {
-				// season episode format
-				return String.format("%01dx%02d-%02d", it.getKey(), it.getValue().first(), it.getValue().last());
-			} else {
-				// absolute episode format
-				return String.format("%02d-%02d", it.getValue().first(), it.getValue().last());
-			}
-		}).collect(Collectors.joining("-"));
+		return formatMultiRangeNumbers(episodes, "%01dx", "%02d");
 	}
 
 	public String formatMultiRangeS00E00(List<Episode> episodes) {
+		return formatMultiRangeNumbers(episodes, "S%02d", "E%02d");
+	}
+
+	public String formatMultiRangeNumbers(List<Episode> episodes, String seasonFormat, String episodeFormat) {
 		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
-			if (it.getKey() >= 0) {
-				// season episode format
-				return String.format("S%02dE%02d-E%02d", it.getKey(), it.getValue().first(), it.getValue().last());
-			} else {
-				// absolute episode format
-				return String.format("E%02d-E%02d", it.getValue().first(), it.getValue().last());
-			}
-		}).collect(Collectors.joining("-"));
+			String s = it.getKey() >= 0 ? String.format(seasonFormat, it.getKey()) : "";
+			String e = IntStream.of(it.getValue().first(), it.getValue().last()).distinct().mapToObj(i -> String.format(episodeFormat, i)).collect(joining("-"));
+			return s + e;
+		}).collect(joining(" - "));
 	}
 
 	private SortedMap<Integer, SortedSet<Integer>> getSeasonEpisodeNumbers(Iterable<Episode> episodes) {

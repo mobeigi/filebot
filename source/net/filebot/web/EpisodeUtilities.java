@@ -33,41 +33,39 @@ public final class EpisodeUtilities {
 	}
 
 	public static Comparator<Episode> episodeComparator() {
-		return new Comparator<Episode>() {
-
-			@Override
-			public int compare(Episode a, Episode b) {
-				int diff = compareValue(a.getSeriesName(), b.getSeriesName());
-				if (diff != 0)
-					return diff;
-
-				diff = compareValue(a.getSeason(), b.getSeason());
-				if (diff != 0)
-					return diff;
-
-				diff = compareValue(a.getEpisode(), b.getEpisode());
-				if (diff != 0)
-					return diff;
-
-				diff = compareValue(a.getSpecial(), b.getSpecial());
-				if (diff != 0)
-					return diff;
-
-				return compareValue(a.getTitle(), b.getTitle());
-			}
-
-			private <T> int compareValue(Comparable<T> o1, T o2) {
-				if (o1 == null && o2 == null)
-					return 0;
-				if (o1 == null && o2 != null)
-					return Integer.MAX_VALUE;
-				if (o1 != null && o2 == null)
-					return Integer.MIN_VALUE;
-
-				return o1.compareTo(o2);
-			}
-		};
+		return NUMBERS_COMPARATOR;
 	}
+
+	public static final Comparator<Episode> NUMBERS_COMPARATOR = new Comparator<Episode>() {
+
+		@Override
+		public int compare(Episode a, Episode b) {
+			int diff = compareValue(a.getSeason(), b.getSeason());
+			if (diff != 0)
+				return diff;
+
+			diff = compareValue(a.getEpisode(), b.getEpisode());
+			if (diff != 0)
+				return diff;
+
+			diff = compareValue(a.getSpecial(), b.getSpecial());
+			if (diff != 0)
+				return diff;
+
+			return compareValue(a.getAbsolute(), b.getAbsolute());
+		}
+
+		private <T> int compareValue(Comparable<T> o1, T o2) {
+			if (o1 == null && o2 == null)
+				return 0;
+			if (o1 == null && o2 != null)
+				return Integer.MAX_VALUE;
+			if (o1 != null && o2 == null)
+				return Integer.MIN_VALUE;
+
+			return o1.compareTo(o2);
+		}
+	};
 
 	private EpisodeUtilities() {
 		throw new UnsupportedOperationException();

@@ -82,7 +82,7 @@ public class Episode implements Serializable {
 	}
 
 	public List<Integer> getNumbers() {
-		return Arrays.asList(season, episode, special);
+		return Arrays.asList(season, episode, special, absolute);
 	}
 
 	public List<String> getSeriesNames() {
@@ -107,7 +107,7 @@ public class Episode implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof Episode) {
 			Episode other = (Episode) obj;
-			return equals(season, other.season) && equals(episode, other.episode) && equals(seriesName, other.seriesName) && equals(title, other.title) && equals(special, other.special);
+			return equals(season, other.season) && equals(episode, other.episode) && equals(absolute, other.absolute) && equals(special, other.special) && equals(seriesName, other.seriesName) && equals(title, other.title);
 		}
 
 		return false;
@@ -122,7 +122,7 @@ public class Episode implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(new Object[] { seriesName, season, episode, title, special });
+		return Arrays.hashCode(new Object[] { season, episode, absolute, special, seriesName, title });
 	}
 
 	@Override
