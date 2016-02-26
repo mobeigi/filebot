@@ -15,7 +15,6 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class EpisodeFormat extends Format {
@@ -113,7 +112,7 @@ public class EpisodeFormat extends Format {
 	public String formatMultiRangeNumbers(List<Episode> episodes, String seasonFormat, String episodeFormat) {
 		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
 			String s = it.getKey() >= 0 ? String.format(seasonFormat, it.getKey()) : "";
-			return IntStream.of(it.getValue().first(), it.getValue().last()).distinct().mapToObj(i -> String.format(episodeFormat, i)).collect(joining("-", s, ""));
+			return Stream.of(it.getValue().first(), it.getValue().last()).distinct().map(i -> String.format(episodeFormat, i)).collect(joining("-", s, ""));
 		}).collect(joining(" - "));
 	}
 
