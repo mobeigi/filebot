@@ -2,22 +2,21 @@ package net.filebot.web;
 
 import static java.util.stream.Collectors.*;
 import static net.filebot.similarity.Normalization.*;
-import static net.filebot.util.StringUtilities.*;
 
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class EpisodeFormat extends Format {
 
@@ -60,15 +59,13 @@ public class EpisodeFormat extends Format {
 	}
 
 	public String formatMultiEpisode(List<Episode> episodes) {
-		Set<String> name = new LinkedHashSet<String>(2);
-		Set<String> sxe = new LinkedHashSet<String>(2);
-		Set<String> title = new LinkedHashSet<String>(2);
-		for (Episode it : episodes) {
-			name.add(it.getSeriesName());
-			sxe.add(formatSxE(it));
-			title.add(removeTrailingBrackets(it.getTitle()));
-		}
-		return String.format("%s - %s - %s", join(name, " & "), join(" & ", sxe), join(" & ", title));
+		Function<Episode, String> seriesName = it -> it.getSeriesName();
+		Function<Episode, String> episodeNumber = it -> formatSxE(it);
+		Function<Episode, String> episodeTitle = it -> removeTrailingBrackets(it.getTitle());
+
+		return Stream.of(seriesName, episodeNumber, episodeTitle).map(f -> {
+			return episodes.stream().map(f::apply).distinct().collect(joining(" & "));
+		}).collect(joining(" - "));
 	}
 
 	public String formatSxE(Episode episode) {
@@ -102,7 +99,7 @@ public class EpisodeFormat extends Format {
 	}
 
 	public String formatMultiTitle(List<Episode> episodes) {
-		return episodes.stream().map(e -> removeTrailingBrackets(e.getTitle())).distinct().collect(joining(" & "));
+		return episodes.stream().map(it -> removeTrailingBrackets(it.getTitle())).distinct().collect(joining(" & "));
 	}
 
 	public String formatMultiRangeSxE(List<Episode> episodes) {
@@ -116,8 +113,7 @@ public class EpisodeFormat extends Format {
 	public String formatMultiRangeNumbers(List<Episode> episodes, String seasonFormat, String episodeFormat) {
 		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
 			String s = it.getKey() >= 0 ? String.format(seasonFormat, it.getKey()) : "";
-			String e = IntStream.of(it.getValue().first(), it.getValue().last()).distinct().mapToObj(i -> String.format(episodeFormat, i)).collect(joining("-"));
-			return s + e;
+			return IntStream.of(it.getValue().first(), it.getValue().last()).distinct().mapToObj(i -> String.format(episodeFormat, i)).collect(joining("-", s, ""));
 		}).collect(joining(" - "));
 	}
 
@@ -126,7 +122,6 @@ public class EpisodeFormat extends Format {
 		for (Episode it : episodes) {
 			Integer s = it.getSeason() == null || it.getSpecial() != null ? it.getSpecial() == null ? -1 : 0 : it.getSeason();
 			Integer e = it.getEpisode() == null ? it.getSpecial() == null ? -1 : it.getSpecial() : it.getEpisode();
-
 			n.computeIfAbsent(s, key -> new TreeSet<Integer>()).add(e);
 		}
 		return n;
