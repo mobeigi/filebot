@@ -115,7 +115,7 @@ public class ArgumentProcessor {
 			}
 
 			// script finished successfully
-			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ");
+			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ" + System.lineSeparator());
 			return 0;
 		} catch (Throwable e) {
 			if (findCause(e, CmdlineException.class) != null) {
