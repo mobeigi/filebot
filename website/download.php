@@ -8,7 +8,7 @@ $folder = $root.'FileBot_'.$version;
 $file = 'undefined';
 
 if ($type == 'nsis') {
-	$folder = $root.'HEAD';
+	$folder = $root.'LATEST';
 	$file = 'FileBot-setup.exe';
 } else if ($type == 'jar') {
 	$folder = $root.'HEAD';
