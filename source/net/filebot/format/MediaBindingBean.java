@@ -940,7 +940,7 @@ public class MediaBindingBean {
 
 			// still no good match found -> just take the most probable video from the same folder
 			if (videos.size() > 0) {
-				sort(videos, SimilarityComparator.compareTo(getMediaFile(), FileUtilities::getName));
+				sort(videos, SimilarityComparator.compareTo(FileUtilities.getName(getMediaFile()), FileUtilities::getName));
 				return videos.get(0);
 			}
 		}

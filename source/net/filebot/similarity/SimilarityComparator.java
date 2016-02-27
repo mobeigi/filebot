@@ -9,8 +9,8 @@ import java.util.function.Function;
 
 public class SimilarityComparator<T, P> implements Comparator<T> {
 
-	public static <T, S extends CharSequence> SimilarityComparator<T, S> compareTo(T value, Function<T, S> mapper) {
-		return new SimilarityComparator<T, S>(new NameSimilarityMetric(), singleton(mapper.apply(value)), mapper.andThen(Collections::singleton));
+	public static <T, S extends CharSequence> SimilarityComparator<T, S> compareTo(S value, Function<T, S> mapper) {
+		return new SimilarityComparator<T, S>(new NameSimilarityMetric(), singleton(value), mapper.andThen(Collections::singleton));
 	}
 
 	protected SimilarityMetric metric;

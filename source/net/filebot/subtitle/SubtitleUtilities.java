@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ import net.filebot.similarity.MetricAvg;
 import net.filebot.similarity.NameSimilarityMetric;
 import net.filebot.similarity.SeasonEpisodeMatcher.SxE;
 import net.filebot.similarity.SequenceMatchSimilarity;
+import net.filebot.similarity.SimilarityComparator;
 import net.filebot.similarity.SimilarityMetric;
 import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.UnicodeReader;
@@ -50,6 +52,7 @@ import net.filebot.web.Movie;
 import net.filebot.web.SubtitleDescriptor;
 import net.filebot.web.SubtitleProvider;
 import net.filebot.web.SubtitleSearchResult;
+import net.filebot.web.VideoHashSubtitleService;
 
 import com.optimaize.langdetect.DetectedLanguage;
 import com.optimaize.langdetect.LanguageDetector;
@@ -62,7 +65,30 @@ import com.optimaize.langdetect.profiles.LanguageProfileReader;
 
 public final class SubtitleUtilities {
 
-	public static Map<File, List<SubtitleDescriptor>> findSubtitleMatches(SubtitleProvider service, Collection<File> fileSet, String languageName, String forceQuery, boolean addOptions, boolean strict) throws Exception {
+	public static Map<File, List<SubtitleDescriptor>> lookupSubtitleByHash(VideoHashSubtitleService service, String languageName, Collection<File> files, boolean addOptions, boolean strict) throws Exception {
+		Map<File, List<SubtitleDescriptor>> options = service.getSubtitleList(files.toArray(new File[files.size()]), languageName);
+		Map<File, List<SubtitleDescriptor>> results = new LinkedHashMap<File, List<SubtitleDescriptor>>(options.size());
+
+		options.forEach((k, v) -> {
+			// guess best hash match (default order is open bad due to invalid hash links)
+			SubtitleDescriptor bestMatch = getBestMatch(k, v, strict);
+
+			// ignore results if there is no best match
+			if (bestMatch != null) {
+				if (addOptions) {
+					Stream<SubtitleDescriptor> top1 = Stream.of(bestMatch);
+					Stream<SubtitleDescriptor> topN = v.stream().filter(Predicate.isEqual(bestMatch).negate()).sorted(SimilarityComparator.compareTo(getName(k), SubtitleDescriptor::getName));
+					results.put(k, Stream.concat(top1, topN).collect(toList()));
+				} else {
+					results.put(k, singletonList(bestMatch));
+				}
+			}
+		});
+
+		return results;
+	}
+
+	public static Map<File, List<SubtitleDescriptor>> findSubtitleByName(SubtitleProvider service, Collection<File> fileSet, String languageName, String forceQuery, boolean addOptions, boolean strict) throws Exception {
 		// ignore anything that is not a video
 		fileSet = filter(fileSet, VIDEO_FILES);
 
@@ -331,13 +357,13 @@ public final class SubtitleUtilities {
 		if (outputFormat == SubtitleFormat.SubRip) {
 			// output buffer
 			StringBuilder buffer = new StringBuilder(4 * 1024);
-			SubRipWriter out = new SubRipWriter(buffer);
-
-			for (SubtitleElement it : decodeSubtitles(data)) {
-				if (outputTimingOffset != 0) {
-					it = new SubtitleElement(max(0, it.getStart() + outputTimingOffset), max(0, it.getEnd() + outputTimingOffset), it.getText());
+			try (SubRipWriter out = new SubRipWriter(buffer)) {
+				for (SubtitleElement it : decodeSubtitles(data)) {
+					if (outputTimingOffset != 0) {
+						it = new SubtitleElement(max(0, it.getStart() + outputTimingOffset), max(0, it.getEnd() + outputTimingOffset), it.getText());
+					}
+					out.write(it);
 				}
-				out.write(it);
 			}
 
 			return outputEncoding.encode(CharBuffer.wrap(buffer));

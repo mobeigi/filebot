@@ -718,8 +718,8 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				CLILogger.fine("Looking up subtitles by hash via " + service.getName());
-				Map<File, SubtitleDescriptor> subtitles = lookupSubtitleByHash(service, language, remainingVideos, strict);
-				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
+				Map<File, List<SubtitleDescriptor>> options = lookupSubtitleByHash(service, language.getName(), remainingVideos, false, strict);
+				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -734,13 +734,8 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			try {
 				CLILogger.fine(format("Looking up subtitles by name via %s", service.getName()));
-				Map<File, SubtitleDescriptor> subtitles = new TreeMap<File, SubtitleDescriptor>();
-				for (Entry<File, List<SubtitleDescriptor>> it : findSubtitleMatches(service, remainingVideos, language.getName(), query, false, strict).entrySet()) {
-					if (it.getValue().size() > 0) {
-						subtitles.put(it.getKey(), it.getValue().get(0));
-					}
-				}
-				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), subtitles, outputFormat, outputEncoding, naming);
+				Map<File, List<SubtitleDescriptor>> options = findSubtitleByName(service, remainingVideos, language.getName(), query, false, strict);
+				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
@@ -752,6 +747,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		for (File it : remainingVideos) {
 			CLILogger.warning("No matching subtitles found: " + it);
 		}
+
 		return subtitleFiles;
 	}
 
@@ -828,17 +824,20 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 	}
 
-	private Map<File, File> downloadSubtitleBatch(String service, Map<File, SubtitleDescriptor> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
-		Map<File, File> downloads = new HashMap<File, File>();
+	private Map<File, File> downloadSubtitleBatch(String service, Map<File, List<SubtitleDescriptor>> subtitles, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) {
+		Map<File, File> downloads = new LinkedHashMap<File, File>();
 
 		// fetch subtitle
-		for (Entry<File, SubtitleDescriptor> it : subtitles.entrySet()) {
-			try {
-				downloads.put(it.getKey(), downloadSubtitle(it.getValue(), it.getKey(), outputFormat, outputEncoding, naming));
-			} catch (Exception e) {
-				CLILogger.warning(format("Failed to download %s: %s", it.getValue().getPath(), e.getMessage()));
+		subtitles.forEach((movie, options) -> {
+			if (options.size() > 0) {
+				SubtitleDescriptor subtitle = options.get(0);
+				try {
+					downloads.put(movie, downloadSubtitle(subtitle, movie, outputFormat, outputEncoding, naming));
+				} catch (Exception e) {
+					CLILogger.warning(format("Failed to download %s: %s", subtitle.getPath(), e.getMessage()));
+				}
 			}
-		}
+		});
 
 		return downloads;
 	}
@@ -866,22 +865,6 @@ public class CmdlineOperations implements CmdlineInterface {
 
 		writeFile(data, destination);
 		return destination;
-	}
-
-	private Map<File, SubtitleDescriptor> lookupSubtitleByHash(VideoHashSubtitleService service, Language language, Collection<File> videoFiles, boolean strict) throws Exception {
-		Map<File, SubtitleDescriptor> subtitleByVideo = new TreeMap<File, SubtitleDescriptor>();
-
-		for (Entry<File, List<SubtitleDescriptor>> it : service.getSubtitleList(videoFiles.toArray(new File[0]), language.getName()).entrySet()) {
-			// guess best hash match (default order is open bad due to invalid hash links)
-			SubtitleDescriptor bestMatch = getBestMatch(it.getKey(), it.getValue(), strict);
-
-			if (bestMatch != null) {
-				CLILogger.finest(format("Matched [%s] to [%s] via hash", it.getKey().getName(), bestMatch.getName()));
-				subtitleByVideo.put(it.getKey(), bestMatch);
-			}
-		}
-
-		return subtitleByVideo;
 	}
 
 	private <T> List<T> applyExpressionFilter(Collection<T> input, ExpressionFilter filter) throws Exception {
