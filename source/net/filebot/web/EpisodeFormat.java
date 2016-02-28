@@ -7,7 +7,7 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.List;
+import java.util.Collection;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -57,7 +57,7 @@ public class EpisodeFormat extends Format {
 		return sb;
 	}
 
-	public String formatMultiEpisode(List<Episode> episodes) {
+	public String formatMultiEpisode(Collection<Episode> episodes) {
 		Function<Episode, String> seriesName = it -> it.getSeriesName();
 		Function<Episode, String> episodeNumber = it -> formatSxE(it);
 		Function<Episode, String> episodeTitle = it -> removeTrailingBrackets(it.getTitle());
@@ -97,19 +97,19 @@ public class EpisodeFormat extends Format {
 		return sb.toString();
 	}
 
-	public String formatMultiTitle(List<Episode> episodes) {
+	public String formatMultiTitle(Collection<Episode> episodes) {
 		return episodes.stream().map(it -> removeTrailingBrackets(it.getTitle())).distinct().collect(joining(" & "));
 	}
 
-	public String formatMultiRangeSxE(List<Episode> episodes) {
+	public String formatMultiRangeSxE(Iterable<Episode> episodes) {
 		return formatMultiRangeNumbers(episodes, "%01dx", "%02d");
 	}
 
-	public String formatMultiRangeS00E00(List<Episode> episodes) {
+	public String formatMultiRangeS00E00(Iterable<Episode> episodes) {
 		return formatMultiRangeNumbers(episodes, "S%02d", "E%02d");
 	}
 
-	public String formatMultiRangeNumbers(List<Episode> episodes, String seasonFormat, String episodeFormat) {
+	public String formatMultiRangeNumbers(Iterable<Episode> episodes, String seasonFormat, String episodeFormat) {
 		return getSeasonEpisodeNumbers(episodes).entrySet().stream().map(it -> {
 			String s = it.getKey() >= 0 ? String.format(seasonFormat, it.getKey()) : "";
 			return Stream.of(it.getValue().first(), it.getValue().last()).distinct().map(i -> String.format(episodeFormat, i)).collect(joining("-", s, ""));
