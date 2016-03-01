@@ -114,6 +114,11 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			int sid = matchInteger(getTextContent("seriesid", node));
 			String seriesName = getTextContent("SeriesName", node);
 
+			if (seriesName.startsWith("**") && seriesName.endsWith("**")) {
+				Logger.getLogger(getClass().getName()).log(Level.WARNING, String.format("Invalid series: %s [%d]", seriesName, sid));
+				continue;
+			}
+
 			List<String> aliasNames = new ArrayList<String>();
 			for (Node aliasNode : selectNodes("AliasNames", node)) {
 				for (String aliasName : getTextContent(aliasNode).split("\\|")) {
