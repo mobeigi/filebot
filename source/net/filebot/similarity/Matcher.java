@@ -1,6 +1,7 @@
 package net.filebot.similarity;
 
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -139,7 +140,7 @@ public class Matcher<V, C> {
 			float similarity = metric.getSimilarity(possibleMatch.getValue(), possibleMatch.getCandidate());
 
 			// DEBUG
-			// System.out.format("%s: %.04f: %s%n", metric, similarity, possibleMatch);
+			debug.finest(format("%s: %.04f: %s", metric, similarity, possibleMatch));
 
 			Set<Match<V, C>> matchSet = similarityMap.get(similarity);
 			if (matchSet == null) {

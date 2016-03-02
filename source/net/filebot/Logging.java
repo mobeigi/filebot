@@ -7,7 +7,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
 import net.filebot.util.SystemProperty;
@@ -19,7 +18,6 @@ public final class Logging {
 	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.CONFIG);
 	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", s -> Pattern.compile(s, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE));
 
-	public static final Logger global = getConsoleLogger("net.filebot", Level.ALL, new SimpleFormatter());
 	public static final Logger log = getConsoleLogger("net.filebot.console", Level.ALL, new ConsoleFormatter(anonymizePattern.get()));
 	public static final Logger debug = getConsoleLogger("net.filebot.debug", debugLevel.get(), new ConsoleFormatter(anonymizePattern.get()));
 
