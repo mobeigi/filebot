@@ -11,13 +11,17 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
 import net.filebot.cli.CmdlineInterface;
+import net.filebot.util.SystemProperty;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
 
 public final class Logging {
 
-	public static final Logger log = getConsoleLogger(CmdlineInterface.class, Level.ALL, new ConsoleFormatter(getAnonymizePattern()));
-	public static final Logger debug = getConsoleLogger(Logging.class, Level.ALL, new SimpleFormatter());
+	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.CONFIG);
+	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", s -> Pattern.compile(s, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE));
+
+	public static final Logger log = getConsoleLogger(CmdlineInterface.class, Level.ALL, new ConsoleFormatter(anonymizePattern.get()));
+	public static final Logger debug = getConsoleLogger(Logging.class, debugLevel.get(), new SimpleFormatter());
 
 	public static Logger getConsoleLogger(Class<?> cls, Level level, Formatter formatter) {
 		Logger log = Logger.getLogger(cls.getPackage().getName());
@@ -29,14 +33,6 @@ public final class Logging {
 
 	public static Supplier<String> format(String format, Object... args) {
 		return () -> String.format(format, args);
-	}
-
-	private static Pattern getAnonymizePattern() {
-		String pattern = System.getProperty("net.filebot.logging.anonymize");
-		if (pattern != null && pattern.length() > 0) {
-			return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE);
-		}
-		return null;
 	}
 
 	public static class ConsoleHandler extends Handler {
@@ -88,7 +84,7 @@ public final class Logging {
 		public String format(LogRecord record) {
 			String message = record.getMessage();
 			if (anonymize != null) {
-				message = anonymize.matcher(record.getMessage()).replaceAll("");
+				message = anonymize.matcher(message).replaceAll("");
 			}
 			return message + System.lineSeparator();
 		}
