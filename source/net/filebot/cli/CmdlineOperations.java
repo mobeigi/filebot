@@ -1003,7 +1003,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					log.info(format("%s %s", current, file));
 
 					if (current.compareToIgnoreCase(it.getValue()) != 0) {
-						throw new IOException(format("Corrupted file found: %s [hash mismatch: %s vs %s]", it.getKey(), current, it.getValue()));
+						throw new IOException(String.format("Corrupted file found: %s [hash mismatch: %s vs %s]", it.getKey(), current, it.getValue()));
 					}
 				} catch (IOException e) {
 					status = false;
