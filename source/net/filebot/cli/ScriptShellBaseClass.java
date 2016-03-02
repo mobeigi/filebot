@@ -2,7 +2,7 @@ package net.filebot.cli;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static net.filebot.cli.CLILogging.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.StringUtilities.*;
 import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
@@ -137,9 +137,9 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	public void printException(Throwable t, boolean severe) {
 		if (severe) {
-			CLILogger.log(Level.SEVERE, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()), StackTraceUtils.deepSanitize(t));
+			log.log(Level.SEVERE, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()), StackTraceUtils.deepSanitize(t));
 		} else {
-			CLILogger.log(Level.WARNING, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
+			log.log(Level.WARNING, String.format("%s: %s", t.getClass().getSimpleName(), t.getMessage()));
 		}
 	}
 
@@ -185,7 +185,7 @@ public abstract class ScriptShellBaseClass extends Script {
 
 	// define global variable: log
 	public Logger getLog() {
-		return CLILogger;
+		return log;
 	}
 
 	// define global variable: console

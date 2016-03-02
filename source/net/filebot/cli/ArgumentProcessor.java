@@ -1,7 +1,7 @@
 package net.filebot.cli;
 
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
-import static net.filebot.cli.CLILogging.*;
 import static net.filebot.util.ExceptionUtilities.*;
 import static net.filebot.util.FileUtilities.*;
 
@@ -30,12 +30,12 @@ import net.filebot.web.CachedResource;
 public class ArgumentProcessor {
 
 	public int process(ArgumentBean args, CmdlineInterface cli) {
-		CLILogger.setLevel(args.getLogLevel());
+		log.setLevel(args.getLogLevel());
 
 		try {
 			// print episode info
 			if (args.list) {
-				CLILogger.setLevel(Level.WARNING); // make sure to disable any logging on standard output
+				log.setLevel(Level.WARNING); // make sure to disable any logging on standard output
 				for (String eps : cli.fetchEpisodeList(args.query, args.format, args.db, args.order, args.filter, args.lang)) {
 					System.out.println(eps);
 				}
@@ -110,20 +110,20 @@ public class ArgumentProcessor {
 			}
 
 			// script finished successfully
-			CLILogger.finest("Done ヾ(＠⌒ー⌒＠)ノ" + System.lineSeparator());
+			log.finest("Done ヾ(＠⌒ー⌒＠)ノ" + System.lineSeparator());
 			return 0;
 		} catch (Throwable e) {
 			if (findCause(e, CmdlineException.class) != null) {
-				CLILogger.log(Level.WARNING, findCause(e, CmdlineException.class).getMessage());
+				log.log(Level.WARNING, findCause(e, CmdlineException.class).getMessage());
 			} else if (findCause(e, ScriptDeath.class) != null) {
-				CLILogger.log(Level.WARNING, findCause(e, ScriptDeath.class).getMessage());
+				log.log(Level.WARNING, findCause(e, ScriptDeath.class).getMessage());
 			} else {
-				CLILogger.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
+				log.log(Level.SEVERE, String.format("%s: %s", getRootCause(e).getClass().getSimpleName(), getRootCauseMessage(e)), getRootCause(e));
 			}
 		}
 
 		// script failed with exception -> exit with non-zero exit code (and use positive code to avoid issues with launch4j launcher)
-		CLILogger.finest("Failure (°_°)");
+		log.finest("Failure (°_°)");
 		return 1;
 	}
 

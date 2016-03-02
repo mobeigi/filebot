@@ -1,12 +1,11 @@
 package net.filebot.cli;
 
-import static java.lang.String.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.WebServices.*;
-import static net.filebot.cli.CLILogging.*;
 import static net.filebot.hash.VerificationUtilities.*;
 import static net.filebot.media.MediaDetection.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
@@ -135,7 +134,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 		}
 
-		CLILogger.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
+		log.finest(format("Filename pattern: [%.02f] SxE, [%.02f] CWS", sxe / max, cws / max));
 		if (sxe > (max * 0.65) || cws > (max * 0.65)) {
 			return renameSeries(files, action, conflictAction, outputDir, format, TheTVDB, query, SortOrder.forName(sortOrder), filter, locale, strict); // use default episode db
 		} else {
@@ -150,7 +149,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<File> renameSeries(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, EpisodeListProvider db, String query, SortOrder sortOrder, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
-		CLILogger.config(format("Rename episodes using [%s]", db.getName()));
+		log.config(format("Rename episodes using [%s]", db.getName()));
 
 		// ignore sample files
 		List<File> fileset = sortByUniquePath(filter(files, not(getClutterFileFilter())));
@@ -182,7 +181,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				if (query == null) {
 					// detect series name by common word sequence
 					seriesNames = detectSeriesNames(batch, db != AniDB, db == AniDB, locale);
-					CLILogger.config("Auto-detected query: " + seriesNames);
+					log.config("Auto-detected query: " + seriesNames);
 				} else {
 					// use --q option
 					seriesNames = asList(PIPE.split(query));
@@ -193,14 +192,14 @@ public class CmdlineOperations implements CmdlineInterface {
 				}
 
 				if (seriesNames.size() == 0) {
-					CLILogger.warning("Failed to detect query for files: " + batch);
+					log.warning("Failed to detect query for files: " + batch);
 					continue;
 				}
 
 				// fetch episode data
 				Collection<Episode> episodes = fetchEpisodeSet(db, seriesNames, sortOrder, locale, strict);
 				if (episodes.size() == 0) {
-					CLILogger.warning("Failed to fetch episode data: " + seriesNames);
+					log.warning("Failed to fetch episode data: " + seriesNames);
 					continue;
 				}
 
@@ -255,7 +254,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		List<Match<File, Object>> matches = matcher.match();
 
 		for (File failedMatch : matcher.remainingValues()) {
-			CLILogger.warning("No matching episode: " + failedMatch.getName());
+			log.warning("No matching episode: " + failedMatch.getName());
 		}
 
 		// in non-strict mode just pass back results as we got it from the matcher
@@ -289,10 +288,10 @@ public class CmdlineOperations implements CmdlineInterface {
 					for (SearchResult it : selectedSearchResults) {
 						if (shows.add(it)) {
 							try {
-								CLILogger.fine(format("Fetching episode data for [%s]", it.getName()));
+								log.fine(format("Fetching episode data for [%s]", it.getName()));
 								episodes.addAll(db.getEpisodeList(it, sortOrder, locale));
 							} catch (IOException e) {
-								throw new CmdlineException(format("Failed to fetch episode data for [%s]: %s", it, e.getMessage()), e);
+								throw new CmdlineException(String.format("Failed to fetch episode data for [%s]: %s", it, e.getMessage()), e);
 							}
 						}
 					}
@@ -304,7 +303,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<File> renameMovie(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MovieIdentificationService service, String query, ExpressionFilter filter, Locale locale, boolean strict) throws Exception {
-		CLILogger.config(format("Rename movies using [%s]", service.getName()));
+		log.config(format("Rename movies using [%s]", service.getName()));
 
 		// ignore sample files
 		List<File> fileset = sortByUniquePath(filter(files, not(getClutterFileFilter())));
@@ -341,7 +340,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					Map<File, Movie> hashLookup = service.getMovieDescriptors(movieFiles, locale);
 					if (hashLookup.size() > 0) {
-						CLILogger.finest(format("Looking up up movie by hash via [%s]", service.getName()));
+						log.finest(format("Looking up up movie by hash via [%s]", service.getName()));
 						movieByFile.putAll(hashLookup);
 					}
 				} catch (UnsupportedOperationException e) {
@@ -390,11 +389,11 @@ public class CmdlineOperations implements CmdlineInterface {
 						}
 					}
 				} catch (NoSuchElementException e) {
-					CLILogger.warning("Failed to grep IMDbID: " + nfo.getName());
+					log.warning("Failed to grep IMDbID: " + nfo.getName());
 				}
 			}
 		} else {
-			CLILogger.fine(format("Looking up movie by query [%s]", query));
+			log.fine(format("Looking up movie by query [%s]", query));
 			List<Movie> results = service.searchMovie(query, locale);
 			List<Movie> validResults = applyExpressionFilter(results, filter);
 			if (validResults.isEmpty()) {
@@ -429,7 +428,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 			// unknown hash, try via imdb id from nfo file
 			if (movie == null) {
-				CLILogger.fine(format("Auto-detect movie from context: [%s]", file));
+				log.fine(format("Auto-detect movie from context: [%s]", file));
 				Collection<Movie> options = detectMovie(file, service, locale, strict);
 
 				// apply filter if defined
@@ -448,7 +447,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						movie = service.getMovieDescriptor((Movie) selectSearchResult(null, options, false, strict).get(0), locale);
 					}
 				} catch (Exception e) {
-					CLILogger.log(Level.WARNING, String.format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
+					log.log(Level.WARNING, format("%s: [%s/%s] %s", e.getClass().getSimpleName(), guessMovieFolder(file) != null ? guessMovieFolder(file).getName() : null, file.getName(), e.getMessage()));
 				}
 			}
 
@@ -509,7 +508,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<File> renameMusic(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, MusicIdentificationService service) throws Exception {
-		CLILogger.config(format("Rename music using [%s]", service.getName()));
+		log.config(format("Rename music using [%s]", service.getName()));
 		List<File> audioFiles = sortByUniquePath(filter(files, AUDIO_FILES, VIDEO_FILES));
 
 		// check audio files against acoustid
@@ -535,7 +534,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		if (renameMap.size() != audioFiles.size()) {
 			for (File f : audioFiles) {
 				if (!renameMap.containsKey(f)) {
-					CLILogger.warning(String.format("Unable to lookup %s: %s", service.getName(), f.getName()));
+					log.warning(format("Unable to lookup %s: %s", service.getName(), f.getName()));
 				}
 			}
 		}
@@ -545,7 +544,7 @@ public class CmdlineOperations implements CmdlineInterface {
 	}
 
 	public List<File> renameByMetaData(Collection<File> files, RenameAction renameAction, ConflictAction conflictAction, File outputDir, ExpressionFormat format, ExpressionFilter filter, XattrMetaInfoProvider service) throws Exception {
-		CLILogger.config(format("Rename files using [%s]", service.getName()));
+		log.config(format("Rename files using [%s]", service.getName()));
 
 		// force sort order
 		List<File> selection = sortByUniquePath(files);
@@ -590,7 +589,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		if (isInvalidFilePath(newFile) && !isUnixFS()) {
-			CLILogger.config("Stripping invalid characters from new path: " + newName);
+			log.config("Stripping invalid characters from new path: " + newName);
 			newFile = validateFilePath(newFile);
 		}
 
@@ -624,7 +623,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 						if (conflictAction == ConflictAction.OVERRIDE || (conflictAction == ConflictAction.AUTO && VIDEO_SIZE_ORDER.compare(source, destination) > 0)) {
 							if (!destination.delete()) {
-								CLILogger.log(Level.SEVERE, "Failed to override file: " + destination);
+								log.log(Level.SEVERE, "Failed to override file: " + destination);
 							}
 						} else if (conflictAction == ConflictAction.INDEX) {
 							destination = nextAvailableIndexedName(destination);
@@ -633,16 +632,16 @@ public class CmdlineOperations implements CmdlineInterface {
 
 					// rename file, throw exception on failure
 					if (!destination.equals(source) && !destination.exists()) {
-						CLILogger.info(format("[%s] Rename [%s] to [%s]", renameAction, source, destination));
+						log.info(format("[%s] Rename [%s] to [%s]", renameAction, source, destination));
 						destination = renameAction.rename(source, destination);
 
 						// remember successfully renamed matches for history entry and possible revert
 						renameLog.put(source, destination);
 					} else {
-						CLILogger.info(format("Skipped [%s] because [%s] already exists", source, destination));
+						log.info(format("Skipped [%s] because [%s] already exists", source, destination));
 					}
 				} catch (IOException e) {
-					CLILogger.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));
+					log.warning(format("[%s] Failed to rename [%s]", renameAction, it.getKey()));
 					throw e;
 				}
 			}
@@ -651,7 +650,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			HistorySpooler.getInstance().append(renameLog.entrySet());
 
 			// printer number of renamed files if any
-			CLILogger.fine(format("Processed %d files", renameLog.size()));
+			log.fine(format("Processed %d files", renameLog.size()));
 		}
 
 		// write metadata into xattr if xattr is enabled
@@ -668,7 +667,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					}
 				}
 			} catch (Throwable e) {
-				CLILogger.warning("Failed to write xattr: " + e.getMessage());
+				log.warning("Failed to write xattr: " + e.getMessage());
 			}
 		}
 
@@ -705,7 +704,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		// parallel download
 		List<File> subtitleFiles = new ArrayList<File>();
 
-		CLILogger.finest(String.format("Get [%s] subtitles for %d files", language.getName(), remainingVideos.size()));
+		log.finest(format("Get [%s] subtitles for %d files", language.getName(), remainingVideos.size()));
 		if (remainingVideos.isEmpty()) {
 			throw new CmdlineException("No video files: " + files);
 		}
@@ -717,13 +716,13 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			try {
-				CLILogger.fine("Looking up subtitles by hash via " + service.getName());
+				log.fine("Looking up subtitles by hash via " + service.getName());
 				Map<File, List<SubtitleDescriptor>> options = lookupSubtitleByHash(service, language.getName(), remainingVideos, false, strict);
 				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
-				CLILogger.warning("Lookup by hash failed: " + e.getMessage());
+				log.warning("Lookup by hash failed: " + e.getMessage());
 			}
 		}
 
@@ -733,19 +732,19 @@ public class CmdlineOperations implements CmdlineInterface {
 			}
 
 			try {
-				CLILogger.fine(format("Looking up subtitles by name via %s", service.getName()));
+				log.fine(format("Looking up subtitles by name via %s", service.getName()));
 				Map<File, List<SubtitleDescriptor>> options = findSubtitleByName(service, remainingVideos, language.getName(), query, false, strict);
 				Map<File, File> downloads = downloadSubtitleBatch(service.getName(), options, outputFormat, outputEncoding, naming);
 				remainingVideos.removeAll(downloads.keySet());
 				subtitleFiles.addAll(downloads.values());
 			} catch (Exception e) {
-				CLILogger.warning(format("Search by name failed: %s", e.getMessage()));
+				log.warning(format("Search by name failed: %s", e.getMessage()));
 			}
 		}
 
 		// no subtitles for remaining video files
 		for (File it : remainingVideos) {
-			CLILogger.warning("No matching subtitles found: " + it);
+			log.warning("No matching subtitles found: " + it);
 		}
 
 		return subtitleFiles;
@@ -808,7 +807,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		});
 
 		if (videoFiles.isEmpty()) {
-			CLILogger.info("No missing subtitles");
+			log.info("No missing subtitles");
 			return emptyList();
 		}
 
@@ -834,7 +833,7 @@ public class CmdlineOperations implements CmdlineInterface {
 				try {
 					downloads.put(movie, downloadSubtitle(subtitle, movie, outputFormat, outputEncoding, naming));
 				} catch (Exception e) {
-					CLILogger.warning(format("Failed to download %s: %s", subtitle.getPath(), e.getMessage()));
+					log.warning(format("Failed to download %s: %s", subtitle.getPath(), e.getMessage()));
 				}
 			}
 		});
@@ -844,7 +843,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 	private File downloadSubtitle(SubtitleDescriptor descriptor, File movieFile, SubtitleFormat outputFormat, Charset outputEncoding, SubtitleNaming naming) throws Exception {
 		// fetch subtitle archive
-		CLILogger.config(format("Fetching [%s]", descriptor.getPath()));
+		log.config(format("Fetching [%s]", descriptor.getPath()));
 		MemoryFile subtitleFile = fetchSubtitle(descriptor);
 
 		// subtitle filename is based on movie filename
@@ -856,12 +855,12 @@ public class CmdlineOperations implements CmdlineInterface {
 				ext = outputFormat.getFilter().extension(); // adjust extension of the output file
 			}
 
-			CLILogger.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
+			log.finest(format("Export [%s] as: %s / %s", subtitleFile.getName(), outputFormat, outputEncoding.displayName(Locale.ROOT)));
 			data = exportSubtitles(subtitleFile, outputFormat, 0, outputEncoding);
 		}
 
 		File destination = new File(movieFile.getParentFile(), naming.format(movieFile, descriptor, ext));
-		CLILogger.info(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
+		log.info(format("Writing [%s] to [%s]", subtitleFile.getName(), destination.getName()));
 
 		writeFile(data, destination);
 		return destination;
@@ -872,12 +871,12 @@ public class CmdlineOperations implements CmdlineInterface {
 			return new ArrayList<T>(input);
 		}
 
-		CLILogger.fine(String.format("Apply Filter: {%s}", filter.getExpression()));
+		log.fine(format("Apply Filter: {%s}", filter.getExpression()));
 		Map<File, Object> context = new EntryList<File, Object>(null, input);
 		List<T> output = new ArrayList<T>(input.size());
 		for (T it : input) {
 			if (filter.matches(new MediaBindingBean(it, null, context))) {
-				CLILogger.finest(String.format("Include [%s]", it));
+				log.finest(format("Include [%s]", it));
 				output.add(it);
 			}
 		}
@@ -975,7 +974,7 @@ public class CmdlineOperations implements CmdlineInterface {
 			throw new CmdlineException("No files: " + files);
 		}
 
-		CLILogger.info(format("Compute %s hash for %s files [%s]", hashType, files.size(), outputFile));
+		log.info(format("Compute %s hash for %s files [%s]", hashType, files.size(), outputFile));
 		compute(root.getPath(), files, outputFile, hashType, csn);
 
 		return outputFile;
@@ -990,7 +989,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		}
 
 		// add all file names from verification file
-		CLILogger.fine(format("Checking [%s]", verificationFile.getName()));
+		log.fine(format("Checking [%s]", verificationFile.getName()));
 		VerificationFileReader parser = new VerificationFileReader(createTextReader(verificationFile), type.getFormat());
 		boolean status = true;
 
@@ -1001,14 +1000,14 @@ public class CmdlineOperations implements CmdlineInterface {
 
 					File file = new File(root, it.getKey().getPath()).getAbsoluteFile();
 					String current = computeHash(new File(root, it.getKey().getPath()), type);
-					CLILogger.info(format("%s %s", current, file));
+					log.info(format("%s %s", current, file));
 
 					if (current.compareToIgnoreCase(it.getValue()) != 0) {
 						throw new IOException(format("Corrupted file found: %s [hash mismatch: %s vs %s]", it.getKey(), current, it.getValue()));
 					}
 				} catch (IOException e) {
 					status = false;
-					CLILogger.warning(e.getMessage());
+					log.warning(e.getMessage());
 				}
 			}
 		} finally {
@@ -1029,7 +1028,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 				String relativePath = normalizePathSeparators(it.getPath().replace(root, "")).substring(1);
 				String hash = computeHash(it, hashType);
-				CLILogger.info(format("%s %s", hash, relativePath));
+				log.info(format("%s %s", hash, relativePath));
 
 				out.write(relativePath, hash);
 			}
@@ -1104,7 +1103,7 @@ public class CmdlineOperations implements CmdlineInterface {
 					outputFolder = new File(file.getParentFile(), outputFolder.getPath());
 				}
 
-				CLILogger.info(String.format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
+				log.info(format("Read archive [%s] and extract to [%s]", file.getName(), outputFolder));
 				final FileMapper outputMapper = new FileMapper(outputFolder);
 
 				final List<FileInfo> outputMapping = new ArrayList<FileInfo>();
@@ -1136,7 +1135,7 @@ public class CmdlineOperations implements CmdlineInterface {
 
 				if (!skip || conflictAction == ConflictAction.OVERRIDE) {
 					if (filter == null || forceExtractAll) {
-						CLILogger.finest("Extracting files " + outputMapping);
+						log.finest("Extracting files " + outputMapping);
 
 						// extract all files
 						archive.extract(outputMapper.getOutputDir());
@@ -1145,7 +1144,7 @@ public class CmdlineOperations implements CmdlineInterface {
 							extractedFiles.add(it.toFile());
 						}
 					} else {
-						CLILogger.finest("Extracting files " + selection);
+						log.finest("Extracting files " + selection);
 
 						// extract files selected by the given filter
 						archive.extract(outputMapper.getOutputDir(), new FileFilter() {
@@ -1161,7 +1160,7 @@ public class CmdlineOperations implements CmdlineInterface {
 						}
 					}
 				} else {
-					CLILogger.finest("Skipped extracting files " + selection);
+					log.finest("Skipped extracting files " + selection);
 				}
 			} finally {
 				archive.close();
