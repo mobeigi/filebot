@@ -140,7 +140,7 @@ public class Matcher<V, C> {
 			float similarity = metric.getSimilarity(possibleMatch.getValue(), possibleMatch.getCandidate());
 
 			// DEBUG
-			debug.finest(format("%s: %.04f: %s", metric, similarity, possibleMatch));
+			debug.finest(format("%s %.04f => %s", metric, similarity, possibleMatch));
 
 			Set<Match<V, C>> matchSet = similarityMap.get(similarity);
 			if (matchSet == null) {

@@ -3,6 +3,7 @@ package net.filebot.media;
 import static java.util.Collections.*;
 import static java.util.regex.Pattern.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
 import static net.filebot.similarity.CommonSequenceMatcher.*;
@@ -729,11 +730,14 @@ public class MediaDetection {
 		// similarity comparator with multi-value support
 		SimilarityComparator<SearchResult, String> comparator = new SimilarityComparator<SearchResult, String>(metric, terms, mapper);
 
+		// sort by ranking and remove duplicate entries
+		List<T> ranking = options.stream().sorted(comparator).distinct().collect(toList());
+
 		// DEBUG
-		// System.out.format("sortBySimilarity %s => %s%n", terms, options.stream().sorted(comparator).distinct().collect(toList()));
+		debug.finest(format("%s => %s", terms, ranking));
 
 		// sort by ranking and remove duplicate entries
-		return options.stream().sorted(comparator).distinct().collect(toList());
+		return ranking;
 	}
 
 	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws IOException {
@@ -940,7 +944,7 @@ public class MediaDetection {
 		querySet = getUniqueQuerySet(emptySet(), stripBlacklistedTerms(querySet));
 
 		// DEBUG
-		// System.out.format("Query %s: %s%n", queryLookupService.getName(), querySet);
+		debug.finest(format("%s => %s", queryLookupService.getName(), querySet));
 
 		final Map<Movie, Float> probabilityMap = new LinkedHashMap<Movie, Float>();
 		final SimilarityMetric metric = getMovieMatchMetric();
