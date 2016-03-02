@@ -118,7 +118,7 @@ public class ArgumentBean {
 	public List<String> arguments = new ArrayList<String>();
 
 	public boolean runCLI() {
-		return rename || getSubtitles || getMissingSubtitles || check || list || mediaInfo || extract || script != null;
+		return rename || getSubtitles || check || list || mediaInfo || extract || script != null;
 	}
 
 	public boolean printVersion() {
