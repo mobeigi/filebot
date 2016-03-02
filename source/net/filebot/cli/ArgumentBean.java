@@ -54,9 +54,6 @@ public class ArgumentBean {
 	@Option(name = "-get-subtitles", usage = "Fetch subtitles", metaVar = "fileset")
 	public boolean getSubtitles;
 
-	@Option(name = "-get-missing-subtitles", usage = "Fetch missing subtitles", metaVar = "fileset")
-	public boolean getMissingSubtitles;
-
 	@Option(name = "--q", usage = "Force lookup query", metaVar = "series/movie title")
 	public String query;
 

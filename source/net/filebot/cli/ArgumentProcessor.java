@@ -53,11 +53,8 @@ public class ArgumentProcessor {
 			// execute CLI operations
 			if (args.script == null) {
 				// sanity checks
-				if (args.getSubtitles) {
-					throw new CmdlineException("`filebot -get-subtitles` has been disabled due to abuse. Please use `filebot -get-missing-subtitles` instead.");
-				}
-				if (args.getMissingSubtitles && args.recursive) {
-					throw new CmdlineException("`filebot -get-missing-subtitles -r` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
+				if (args.getSubtitles && args.recursive) {
+					throw new CmdlineException("`filebot -get-subtitles -r` has been disabled due to abuse. Please see http://bit.ly/suball for details.");
 				}
 
 				// file operations
@@ -68,8 +65,6 @@ public class ArgumentProcessor {
 				}
 
 				if (args.getSubtitles) {
-					files.addAll(cli.getSubtitles(files, WebServices.OpenSubtitles.getName(), args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
-				} else if (args.getMissingSubtitles) {
 					files.addAll(cli.getMissingSubtitles(files, WebServices.OpenSubtitles.getName(), args.query, args.lang, args.output, args.encoding, args.format, !args.nonStrict));
 				}
 
