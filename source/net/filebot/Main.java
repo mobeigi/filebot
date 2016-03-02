@@ -486,7 +486,7 @@ public class Main {
 					}
 
 					if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
-						debug.log(Level.WARNING, format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
+						Logger.getLogger(Main.class.getName()).log(Level.WARNING, format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
 
 						// tag cache with new revision number
 						isNewCache = true;

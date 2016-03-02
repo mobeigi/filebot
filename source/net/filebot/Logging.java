@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
-import net.filebot.cli.CmdlineInterface;
 import net.filebot.util.SystemProperty;
 
 import org.codehaus.groovy.runtime.StackTraceUtils;
@@ -20,11 +19,12 @@ public final class Logging {
 	private static final SystemProperty<Level> debugLevel = SystemProperty.of("net.filebot.logging.debug", Level::parse, Level.CONFIG);
 	private static final SystemProperty<Pattern> anonymizePattern = SystemProperty.of("net.filebot.logging.anonymize", s -> Pattern.compile(s, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE));
 
-	public static final Logger log = getConsoleLogger(CmdlineInterface.class, Level.ALL, new ConsoleFormatter(anonymizePattern.get()));
-	public static final Logger debug = getConsoleLogger(Logging.class, debugLevel.get(), new SimpleFormatter());
+	public static final Logger global = getConsoleLogger("net.filebot", Level.ALL, new SimpleFormatter());
+	public static final Logger log = getConsoleLogger("net.filebot.console", Level.ALL, new ConsoleFormatter(anonymizePattern.get()));
+	public static final Logger debug = getConsoleLogger("net.filebot.debug", debugLevel.get(), new ConsoleFormatter(anonymizePattern.get()));
 
-	public static Logger getConsoleLogger(Class<?> cls, Level level, Formatter formatter) {
-		Logger log = Logger.getLogger(cls.getPackage().getName());
+	public static Logger getConsoleLogger(String name, Level level, Formatter formatter) {
+		Logger log = Logger.getLogger(name);
 		log.setLevel(level);
 		log.setUseParentHandlers(false);
 		log.addHandler(new ConsoleHandler(level, formatter));
