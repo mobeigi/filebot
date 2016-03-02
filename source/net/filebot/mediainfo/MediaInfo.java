@@ -155,11 +155,9 @@ public class MediaInfo implements Closeable {
 	}
 
 	public synchronized void dispose() {
-		if (handle == null)
+		if (handle == null) {
 			return;
-
-		// DEBUG
-		// System.out.println("Dispose " + this);
+		}
 
 		// delete handle
 		MediaInfoLibrary.INSTANCE.Delete(handle);

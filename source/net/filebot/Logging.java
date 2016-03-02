@@ -2,10 +2,12 @@ package net.filebot;
 
 import java.io.PrintStream;
 import java.util.function.Supplier;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
 import net.filebot.cli.CmdlineInterface;
@@ -14,14 +16,14 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 
 public final class Logging {
 
-	public static final Logger log = getConsoleLogger(CmdlineInterface.class, Level.ALL);
-	public static final Logger debug = getConsoleLogger(Logging.class, Level.CONFIG);
+	public static final Logger log = getConsoleLogger(CmdlineInterface.class, Level.ALL, new ConsoleFormatter());
+	public static final Logger debug = getConsoleLogger(Logging.class, Level.ALL, new SimpleFormatter());
 
-	public static Logger getConsoleLogger(Class<?> cls, Level level) {
+	public static Logger getConsoleLogger(Class<?> cls, Level level, Formatter formatter) {
 		Logger log = Logger.getLogger(cls.getPackage().getName());
 		log.setLevel(level);
 		log.setUseParentHandlers(false);
-		log.addHandler(new ConsoleHandler());
+		log.addHandler(new ConsoleHandler(level, formatter));
 		return log;
 	}
 
@@ -29,33 +31,12 @@ public final class Logging {
 		return () -> String.format(format, args);
 	}
 
-	private static final Pattern ANONYMIZE_PATTERN = getAnonymizePattern();
-
-	private static Pattern getAnonymizePattern() {
-		String pattern = System.getProperty("net.filebot.logging.anonymize");
-		if (pattern != null && pattern.length() > 0) {
-			return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE);
-		}
-		return null;
-	}
-
-	private static void printMessage(String message, PrintStream out) {
-		if (message != null && message.length() > 0) {
-			if (ANONYMIZE_PATTERN == null) {
-				out.println(ANONYMIZE_PATTERN.matcher(message).replaceAll(""));
-			} else {
-				out.println(message);
-			}
-		}
-	}
-
-	private static void printStackTrace(Throwable throwable, PrintStream out) {
-		if (throwable != null) {
-			StackTraceUtils.deepSanitize(throwable).printStackTrace(out);
-		}
-	}
-
 	public static class ConsoleHandler extends Handler {
+
+		public ConsoleHandler(Level level, Formatter formatter) {
+			setLevel(level);
+			setFormatter(formatter);
+		}
 
 		@Override
 		public void publish(LogRecord record) {
@@ -63,8 +44,12 @@ public final class Logging {
 			PrintStream out = record.getLevel().intValue() < Level.WARNING.intValue() ? System.out : System.err;
 
 			// print messages
-			printMessage(record.getMessage(), out);
-			printStackTrace(record.getThrown(), out);
+			out.print(getFormatter().format(record));
+
+			Throwable t = record.getThrown();
+			if (t != null) {
+				StackTraceUtils.deepSanitize(t).printStackTrace(out);
+			}
 
 			// flush every message immediately
 			out.flush();
@@ -81,6 +66,28 @@ public final class Logging {
 
 		}
 
+	}
+
+	public static class ConsoleFormatter extends Formatter {
+
+		@Override
+		public String format(LogRecord record) {
+			if (ANONYMIZE_PATTERN != null) {
+				return ANONYMIZE_PATTERN.matcher(record.getMessage()).replaceAll("") + System.lineSeparator();
+			}
+			return record.getMessage() + System.lineSeparator();
+		}
+
+	}
+
+	private static final Pattern ANONYMIZE_PATTERN = getAnonymizePattern();
+
+	private static Pattern getAnonymizePattern() {
+		String pattern = System.getProperty("net.filebot.logging.anonymize");
+		if (pattern != null && pattern.length() > 0) {
+			return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CHARACTER_CLASS | Pattern.MULTILINE);
+		}
+		return null;
 	}
 
 }

@@ -3,6 +3,7 @@ package net.filebot;
 import static java.awt.GraphicsEnvironment.*;
 import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
+import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
@@ -87,17 +88,17 @@ public class Main {
 
 			if (args.clearCache() || args.clearUserData()) {
 				if (args.clearUserData()) {
-					System.out.println("Reset preferences");
+					log.info("Reset preferences");
 					Settings.forPackage(Main.class).clear();
 				}
 
 				if (args.clearCache()) {
 					// clear preferences and cache
-					System.out.println("Clear cache and temporary files");
+					log.info("Clear cache and temporary files");
 					for (File folder : getChildren(getApplicationFolder().getAbsoluteFile(), FOLDERS)) {
 						if (matches("cache|temp|grape|reports|logs", folder.getName())) {
 							if (delete(folder)) {
-								System.out.println("* Delete " + folder);
+								log.config("* Delete " + folder);
 							}
 						}
 					}
@@ -124,7 +125,7 @@ public class Main {
 				FileChannel logChannel = FileChannel.open(logFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 				if (args.logLock) {
 					if (args.getLogLevel() == Level.ALL) {
-						System.out.println("Locking " + logFile);
+						log.config("Locking " + logFile);
 					}
 					logChannel.lock();
 				}
@@ -485,7 +486,7 @@ public class Main {
 					}
 
 					if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
-						Logger.getLogger(Main.class.getName()).log(Level.WARNING, String.format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
+						debug.log(Level.WARNING, format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
 
 						// tag cache with new revision number
 						isNewCache = true;
