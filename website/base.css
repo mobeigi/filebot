@@ -177,7 +177,8 @@ h1 .description {
 .social .twitter {
 	position: relative;
 	top: 3px;
-	width: 90px;
+	right: 5px;
+	width: 75px;
 }
 
 .social .facebook {
