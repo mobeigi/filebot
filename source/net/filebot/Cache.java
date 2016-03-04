@@ -10,7 +10,8 @@ import net.sf.ehcache.Element;
 
 public class Cache {
 
-	public static final String EPHEMERAL = "ephemeral";
+	public static final String EPHEMERAL = "ephemeral-memory";
+	public static final String PERSISTENT = "persistent-memory";
 
 	public static Cache getCache(String name) {
 		return new Cache(CacheManager.getInstance().getCache(name));

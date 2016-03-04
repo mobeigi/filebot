@@ -38,6 +38,7 @@ import java.util.concurrent.RunnableFuture;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
+import net.filebot.Cache;
 import net.filebot.Settings;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
@@ -58,13 +59,16 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	// only allow one fetch session at a time so later requests can make use of cached results
 	private final Object providerLock = new Object();
 
+	// remember user selections
+	private final Cache persistentSelectionMemory = Cache.getCache(Cache.PERSISTENT);
+
 	public EpisodeListMatcher(EpisodeListProvider provider, boolean useSeriesIndex, boolean useAnimeIndex) {
 		this.provider = provider;
 		this.useSeriesIndex = useSeriesIndex;
 		this.useAnimeIndex = useAnimeIndex;
 	}
 
-	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, final Component parent) throws Exception {
+	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, boolean autodetection, final Component parent) throws Exception {
 		if (searchResults.size() == 1) {
 			return searchResults.get(0);
 		}
@@ -83,7 +87,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			@Override
 			public SearchResult call() throws Exception {
 				// multiple results have been found, user must select one
-				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, searchResults);
+				SelectDialog<SearchResult> selectDialog = new SelectDialog<SearchResult>(parent, searchResults, true, false);
 
 				selectDialog.getHeaderLabel().setText(String.format("Shows matching '%s':", query));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
@@ -107,6 +111,11 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					throw new CancellationException("Cancelled by user");
 				}
 
+				// remember if we should auto-repeat the chosen action in the future
+				if (selectDialog.getAutoRepeatCheckBox().isSelected() && selectDialog.getSelectedValue() != null) {
+					persistentSelectionMemory.put(query, selectDialog.getSelectedValue());
+				}
+
 				// selected value or null if the dialog was canceled by the user
 				return selectDialog.getSelectedValue();
 			}
@@ -119,16 +128,26 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 					return selectionMemory.get(query);
 				}
 
-				SwingUtilities.invokeAndWait(showSelectDialog);
+				// check persistent memory
+				if (autodetection) {
+					SearchResult persistentSelection = persistentSelectionMemory.get(query, SearchResult.class);
+					if (persistentSelection != null) {
+						return persistentSelection;
+					}
+				}
 
-				// cache selected value
-				selectionMemory.put(query, showSelectDialog.get());
-				return showSelectDialog.get();
+				// ask user
+				SwingUtilities.invokeAndWait(showSelectDialog);
+				SearchResult userSelection = showSelectDialog.get();
+
+				// remember selected value
+				selectionMemory.put(query, userSelection);
+				return userSelection;
 			}
 		}
 	}
 
-	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final SortOrder sortOrder, final Locale locale, final Map<String, SearchResult> selectionMemory, final Component parent) throws Exception {
+	protected Set<Episode> fetchEpisodeSet(Collection<String> seriesNames, final SortOrder sortOrder, final Locale locale, final Map<String, SearchResult> selectionMemory, final boolean autodetection, final Component parent) throws Exception {
 		List<Callable<List<Episode>>> tasks = new ArrayList<Callable<List<Episode>>>();
 
 		// detect series names and create episode list fetch tasks
@@ -141,7 +160,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 
 					// select search result
 					if (results.size() > 0) {
-						SearchResult selectedSearchResult = selectSearchResult(query, results, selectionMemory, parent);
+						SearchResult selectedSearchResult = selectSearchResult(query, results, selectionMemory, autodetection, parent);
 
 						if (selectedSearchResult != null) {
 							return provider.getEpisodeList(selectedSearchResult, sortOrder, locale);
@@ -278,7 +297,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (queries != null && queries.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(queries, sortOrder, locale, selectionMemory, parent);
+					episodes = fetchEpisodeSet(queries, sortOrder, locale, selectionMemory, autodetection, parent);
 				}
 			}
 		}
@@ -301,7 +320,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 			if (input != null && input.size() > 0) {
 				// only allow one fetch session at a time so later requests can make use of cached results
 				synchronized (providerLock) {
-					episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), parent);
+					episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
 				}
 			}
 		}
@@ -374,7 +393,7 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 		List<Match<File, ?>> matches = new ArrayList<Match<File, ?>>();
 		if (input.size() > 0) {
 			synchronized (providerLock) {
-				Set<Episode> episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), parent);
+				Set<Episode> episodes = fetchEpisodeSet(input, sortOrder, locale, new HashMap<String, SearchResult>(), false, parent);
 				for (Episode it : episodes) {
 					matches.add(new Match<File, Episode>(null, it));
 				}

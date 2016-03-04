@@ -1,5 +1,6 @@
 package net.filebot.ui;
 
+import static java.awt.Cursor.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Component;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -30,12 +32,17 @@ import net.miginfocom.swing.MigLayout;
 public class SelectDialog<T> extends JDialog {
 
 	private JLabel headerLabel = new JLabel();
+	private JCheckBox autoRepeatCheckBox = new JCheckBox();
 
 	private JList list;
 
 	private Action selectedAction = null;
 
 	public SelectDialog(Component parent, Collection<? extends T> options) {
+		this(parent, options, false, false);
+	}
+
+	public SelectDialog(Component parent, Collection<? extends T> options, boolean autoRepeatEnabled, boolean autoRepeatSelected) {
 		super(getWindow(parent), "Select", ModalityType.DOCUMENT_MODAL);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -70,6 +77,16 @@ public class SelectDialog<T> extends JDialog {
 		c.add(new JButton(selectAction), "align center, id select");
 		c.add(new JButton(cancelAction), "gap unrel, id cancel");
 
+		// add repeat button
+		if (autoRepeatEnabled) {
+			autoRepeatCheckBox.setSelected(autoRepeatSelected);
+			autoRepeatCheckBox.setToolTipText("Remember");
+			autoRepeatCheckBox.setCursor(getPredefinedCursor(HAND_CURSOR));
+			autoRepeatCheckBox.setIcon(ResourceManager.getIcon("button.repeat"));
+			autoRepeatCheckBox.setSelectedIcon(ResourceManager.getIcon("button.repeat.selected"));
+			c.add(autoRepeatCheckBox, "pos 1al select.y n select.y2");
+		}
+
 		// set default size and location
 		setMinimumSize(new Dimension(220, 240));
 		setSize(new Dimension(240, 260));
@@ -84,6 +101,10 @@ public class SelectDialog<T> extends JDialog {
 
 	public JLabel getHeaderLabel() {
 		return headerLabel;
+	}
+
+	public JCheckBox getAutoRepeatCheckBox() {
+		return autoRepeatCheckBox;
 	}
 
 	public Action getSelectedAction() {

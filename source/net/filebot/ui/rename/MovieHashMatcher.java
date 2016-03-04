@@ -404,20 +404,11 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 			@Override
 			public Movie call() throws Exception {
 				// multiple results have been found, user must select one
-				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options);
+				SelectDialog<Movie> selectDialog = new SelectDialog<Movie>(parent, options, true, false);
 
 				selectDialog.setTitle(folderQuery.isEmpty() ? fileQuery : String.format("%s / %s", folderQuery, fileQuery));
 				selectDialog.getHeaderLabel().setText(String.format("Movies matching '%s':", fileQuery.length() >= 2 || folderQuery.length() <= 2 ? fileQuery : folderQuery));
 				selectDialog.getCancelAction().putValue(Action.NAME, "Ignore");
-
-				// add repeat button
-				JCheckBox checkBox = new JCheckBox();
-				checkBox.setToolTipText("Select / Ignore for all");
-				checkBox.setCursor(getPredefinedCursor(HAND_CURSOR));
-				checkBox.setIcon(ResourceManager.getIcon("button.repeat"));
-				checkBox.setSelectedIcon(ResourceManager.getIcon("button.repeat.selected"));
-				JComponent c = (JComponent) selectDialog.getContentPane();
-				c.add(checkBox, "pos 1al select.y n select.y2");
 
 				// restore original dialog size
 				Settings prefs = Settings.forPackage(MovieHashMatcher.class);
@@ -435,7 +426,7 @@ class MovieHashMatcher implements AutoCompleteMatcher {
 				prefs.put("dialog.select.h", Integer.toString(selectDialog.getHeight()));
 
 				// remember if we should auto-repeat the chosen action in the future
-				if (checkBox.isSelected() || selectDialog.getSelectedAction() == null) {
+				if (selectDialog.getAutoRepeatCheckBox().isSelected() || selectDialog.getSelectedAction() == null) {
 					memory.put("repeat", selectDialog.getSelectedValue() != null ? "select" : "ignore");
 				}
 

@@ -3,7 +3,7 @@
 	Persistent disk store location
 	-->
 	<diskStore path="ehcache.disk.store.dir" />
-	
+
 	<!--
 	Mandatory Default Cache configuration. These settings will be applied to caches
 	created pragmatically using CacheManager.add(String cacheName)
@@ -17,7 +17,7 @@
 		diskPersistent="false"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-	
+
 	<!--
 	Short-lived (24 hours) persistent disk cache for web responses
 	-->
@@ -31,7 +31,7 @@
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-	
+
 	<!--
 	Long-lived (2 weeks) persistent disk cache for web responses
 	-->
@@ -45,7 +45,7 @@
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-	
+
 	<!--
 	Long-lived (2 months) persistent disk cache for web responses (that can be updated via If-Modified or If-None-Match)
 	-->
@@ -59,7 +59,7 @@
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-	
+
 	<!--
 	Very long-lived cache (4 months) anime/series lists, movie index, etc
 	-->
@@ -73,11 +73,25 @@
 		diskPersistent="true"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-	
+
+	<!--
+	Simple memory cache. Time to live is 4 months.
+	-->
+	<cache name="persistent-memory"
+		maxElementsInMemory="100"
+		maxElementsOnDisk="50000"
+		eternal="false"
+		timeToIdleSeconds="10512000"
+		timeToLiveSeconds="10512000"
+		overflowToDisk="true"
+		diskPersistent="true"
+		memoryStoreEvictionPolicy="LRU"
+	/>
+
 	<!--
 	Simple memory cache. Time to live is 2 hours.
 	-->
-	<cache name="ephemeral"
+	<cache name="ephemeral-memory"
 		maxElementsInMemory="50000"
 		eternal="false"
 		timeToIdleSeconds="7200"
@@ -86,5 +100,5 @@
 		diskPersistent="false"
 		memoryStoreEvictionPolicy="LRU"
 	/>
-		
+
 </ehcache>
