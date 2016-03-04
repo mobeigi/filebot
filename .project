@@ -16,9 +16,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>scripts</name>
+			<name>filebot-plugins</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/scripts</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/filebot-plugins</locationURI>
+		</link>
+		<link>
+			<name>filebot-scripts</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/filebot-scripts</locationURI>
+		</link>
+		<link>
+			<name>plugins</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/plugins</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
