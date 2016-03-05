@@ -1,6 +1,5 @@
 package net.filebot.ui.rename;
 
-import static java.awt.Cursor.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.Settings.*;
@@ -39,11 +38,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import net.filebot.ResourceManager;
 import net.filebot.Settings;
 import net.filebot.similarity.Match;
 import net.filebot.similarity.NameSimilarityMetric;

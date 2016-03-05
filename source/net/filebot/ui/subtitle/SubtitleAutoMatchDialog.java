@@ -915,7 +915,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> files, String languageName, Component parent) throws Exception {
-			return lookupSubtitleByHash(service, languageName, files, true, false);
+			return lookupSubtitlesByHash(service, files, languageName, true, false);
 		}
 
 		@Override
@@ -940,7 +940,7 @@ class SubtitleAutoMatchDialog extends JDialog {
 
 		@Override
 		protected Map<File, List<SubtitleDescriptor>> getSubtitleList(Collection<File> fileSet, String languageName, Component parent) throws Exception {
-			return findSubtitleByName(service, fileSet, languageName, null, true, false);
+			return findSubtitlesByName(service, fileSet, languageName, null, true, false);
 		}
 
 		@Override

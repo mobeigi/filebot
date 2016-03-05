@@ -65,7 +65,7 @@ import com.optimaize.langdetect.profiles.LanguageProfileReader;
 
 public final class SubtitleUtilities {
 
-	public static Map<File, List<SubtitleDescriptor>> lookupSubtitleByHash(VideoHashSubtitleService service, String languageName, Collection<File> files, boolean addOptions, boolean strict) throws Exception {
+	public static Map<File, List<SubtitleDescriptor>> lookupSubtitlesByHash(VideoHashSubtitleService service, Collection<File> files, String languageName, boolean addOptions, boolean strict) throws Exception {
 		Map<File, List<SubtitleDescriptor>> options = service.getSubtitleList(files.toArray(new File[files.size()]), languageName);
 		Map<File, List<SubtitleDescriptor>> results = new LinkedHashMap<File, List<SubtitleDescriptor>>(options.size());
 
@@ -88,7 +88,7 @@ public final class SubtitleUtilities {
 		return results;
 	}
 
-	public static Map<File, List<SubtitleDescriptor>> findSubtitleByName(SubtitleProvider service, Collection<File> fileSet, String languageName, String forceQuery, boolean addOptions, boolean strict) throws Exception {
+	public static Map<File, List<SubtitleDescriptor>> findSubtitlesByName(SubtitleProvider service, Collection<File> fileSet, String languageName, String forceQuery, boolean addOptions, boolean strict) throws Exception {
 		// ignore anything that is not a video
 		fileSet = filter(fileSet, VIDEO_FILES);
 
