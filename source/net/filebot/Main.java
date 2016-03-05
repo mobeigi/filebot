@@ -1,7 +1,6 @@
 package net.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
-import static java.util.regex.Pattern.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
@@ -95,11 +94,9 @@ public class Main {
 				if (args.clearCache()) {
 					// clear preferences and cache
 					log.info("Clear cache and temporary files");
-					for (File folder : getChildren(getApplicationFolder().getAbsoluteFile(), FOLDERS)) {
-						if (matches("cache|temp|grape|reports|logs", folder.getName())) {
-							if (delete(folder)) {
-								log.config("* Delete " + folder);
-							}
+					for (File folder : getChildren(getApplicationFolder().getCanonicalFile(), FOLDERS)) {
+						if (delete(folder)) {
+							log.config("* Delete " + folder);
 						}
 					}
 
@@ -136,8 +133,7 @@ public class Main {
 			}
 
 			// make sure java.io.tmpdir exists
-			File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-			createFolders(tmpdir);
+			createFolders(getApplicationTempFolder());
 
 			// initialize this stuff before anything else
 			initializeCache();
@@ -149,22 +145,16 @@ public class Main {
 			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 
-			if (args.unixfs) {
-				System.setProperty("unixfs", "true");
-			}
-			if (args.disableExtendedAttributes) {
-				System.setProperty("useExtendedFileAttributes", "false");
-				System.setProperty("useCreationDate", "false");
-			}
-			if (args.action.equalsIgnoreCase("test")) {
-				System.setProperty("application.rename.history", "false"); // don't keep history of --action test rename operations
-			}
+			System.setProperty("unixfs", Boolean.toString(args.unixfs));
+			System.setProperty("useExtendedFileAttributes", Boolean.toString(!args.disableExtendedAttributes));
+			System.setProperty("useCreationDate", Boolean.toString(!args.disableExtendedAttributes));
+			System.setProperty("application.rename.history", Boolean.toString(!args.action.equalsIgnoreCase("test"))); // don't keep history of --action test rename operations
 
 			// make sure we can access application arguments at any time
-			Settings.setApplicationArgumentArray(argumentArray);
+			setApplicationArgumentArray(argumentArray);
 
 			// initialize history spooler
-			HistorySpooler.getInstance().setPersistentHistoryEnabled(System.getProperty("application.rename.history") == null ? true : Boolean.parseBoolean(System.getProperty("application.rename.history")));
+			HistorySpooler.getInstance().setPersistentHistoryEnabled(useRenameHistory());
 
 			// CLI mode => run command-line interface and then exit
 			if (args.runCLI()) {
@@ -459,6 +449,7 @@ public class Main {
 	private static void initializeCache() throws Exception {
 		// prepare cache folder for this application instance
 		File cacheRoot = getApplicationCache();
+		createFolders(cacheRoot);
 
 		try {
 			for (int i = 0; true; i++) {

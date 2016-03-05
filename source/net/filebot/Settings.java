@@ -79,6 +79,10 @@ public final class Settings {
 		return Boolean.parseBoolean(System.getProperty("useCreationDate"));
 	}
 
+	public static boolean useRenameHistory() {
+		return Boolean.parseBoolean(System.getProperty("application.rename.history", "true"));
+	}
+
 	public static String getApplicationDeployment() {
 		return System.getProperty("application.deployment", "jar");
 	}
@@ -165,14 +169,11 @@ public final class Settings {
 			cacheFolder = new File(getApplicationFolder(), "cache");
 		}
 
-		// create folder if necessary
-		try {
-			createFolders(cacheFolder);
-		} catch (Exception e) {
-			throw new IllegalStateException("application.cache", e);
-		}
-
 		return cacheFolder;
+	}
+
+	public static File getApplicationTempFolder() {
+		return new File(System.getProperty("java.io.tmpdir"));
 	}
 
 	public static File getRealUserHome() {
