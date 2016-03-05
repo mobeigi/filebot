@@ -1,9 +1,7 @@
 #!/bin/sh
 
-
-# sanity checks
-if [ -z "$HOME" ]; then
-	echo "The environment variable 'HOME' must be set"
+if [ ! -w "$HOME" ]; then
+	echo '$HOME must be set and writable'
 	exit 1
 fi
 
