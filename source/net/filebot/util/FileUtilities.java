@@ -214,16 +214,17 @@ public final class FileUtilities {
 		return destination;
 	}
 
-	public static List<String[]> readCSV(InputStream source, String charsetName, String separatorPattern) {
-		Scanner scanner = new Scanner(source, charsetName);
-		Pattern separator = Pattern.compile(separatorPattern);
-		List<String[]> rows = new ArrayList<String[]>(65536);
+	public static List<String[]> readCSV(InputStream source, String charsetName, String pattern) {
+		try (Scanner scanner = new Scanner(source, charsetName)) {
+			Pattern separator = Pattern.compile(pattern);
+			List<String[]> rows = new ArrayList<String[]>(65536);
 
-		while (scanner.hasNextLine()) {
-			rows.add(separator.split(scanner.nextLine()));
+			while (scanner.hasNextLine()) {
+				rows.add(separator.split(scanner.nextLine()));
+			}
+
+			return rows;
 		}
-
-		return rows;
 	}
 
 	public static Reader createTextReader(File file) throws IOException {
