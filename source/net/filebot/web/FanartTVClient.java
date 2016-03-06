@@ -1,9 +1,11 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
+import static net.filebot.util.JsonUtilities.*;
+
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -14,9 +16,6 @@ import java.util.Map;
 import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
 
 public class FanartTVClient {
 
@@ -42,30 +41,28 @@ public class FanartTVClient {
 
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
-				String json = Charset.forName("UTF-8").decode(data).toString();
-				Map<?, ?> maps = JsonReader.jsonToMaps(json);
-
 				List<FanartDescriptor> fanart = new ArrayList<FanartDescriptor>();
-				maps.forEach((k, v) -> {
-					if (v instanceof JsonObject) {
-						JsonObject<?, ?> mapping = (JsonObject<?, ?>) v;
-						if (mapping.isArray()) {
-							for (Object i : mapping.getArray()) {
-								if (i instanceof Map) {
-									Map<?, ?> item = (Map<?, ?>) i;
-									Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
-									fields.put(FanartProperty.type, k.toString());
-									for (FanartProperty prop : FanartProperty.values()) {
-										Object value = item.get(prop.name());
-										if (value != null) {
-											fields.put(prop, value.toString());
-										}
-									}
-									if (fields.size() > 1) {
-										fanart.add(new FanartDescriptor(fields));
-									}
-								}
+
+				readJson(UTF_8.decode(data)).forEach((k, v) -> {
+					Object[] array = asArray(v);
+					if (array == null)
+						return;
+
+					for (Object it : array) {
+						Map<?, ?> item = asMap(it);
+						if (item == null)
+							return;
+
+						Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
+						fields.put(FanartProperty.type, k.toString());
+						for (FanartProperty prop : FanartProperty.values()) {
+							Object value = item.get(prop.name());
+							if (value != null) {
+								fields.put(prop, value.toString());
 							}
+						}
+						if (fields.size() > 1) {
+							fanart.add(new FanartDescriptor(fields));
 						}
 					}
 				});

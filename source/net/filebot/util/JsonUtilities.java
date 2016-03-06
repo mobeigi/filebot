@@ -8,12 +8,26 @@ import com.cedarsoftware.util.io.JsonReader;
 
 public class JsonUtilities {
 
-	public static Map<?, ?> readJson(String json) {
-		return (Map<?, ?>) JsonReader.jsonToJava(json, singletonMap(JsonReader.USE_MAPS, true));
+	public static Map<?, ?> readJson(CharSequence json) {
+		return (Map<?, ?>) JsonReader.jsonToJava(json.toString(), singletonMap(JsonReader.USE_MAPS, true));
+	}
+
+	public static Map<?, ?> asMap(Object node) {
+		if (node instanceof Map) {
+			return (Map<?, ?>) node;
+		}
+		return null;
+	}
+
+	public static Object[] asArray(Object node) {
+		if (node instanceof Object[]) {
+			return (Object[]) node;
+		}
+		return null;
 	}
 
 	public static Object[] getArray(Object node, String key) {
-		return (Object[]) ((Map<?, ?>) node).get(key);
+		return asArray(((Map<?, ?>) node).get(key));
 	}
 
 	public static Map<?, ?> getFirstMap(Object node, String key) {
