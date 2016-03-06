@@ -1,5 +1,7 @@
 package net.filebot.util;
 
+import static java.util.Collections.*;
+
 import java.util.Map;
 
 import com.cedarsoftware.util.io.JsonReader;
@@ -7,7 +9,7 @@ import com.cedarsoftware.util.io.JsonReader;
 public class JsonUtilities {
 
 	public static Map<?, ?> readJson(String json) {
-		return JsonReader.jsonToMaps(json);
+		return (Map<?, ?>) JsonReader.jsonToJava(json, singletonMap(JsonReader.USE_MAPS, true));
 	}
 
 	public static Object[] getArray(Object node, String key) {
