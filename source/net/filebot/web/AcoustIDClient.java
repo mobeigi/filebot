@@ -107,10 +107,10 @@ public class AcoustIDClient implements MusicIdentificationService {
 	}
 
 	public AudioTrack parseResult(String json, final int targetDuration) throws IOException {
-		Map<?, ?> data = readJson(json);
+		Object data = readJson(json);
 
-		if (!data.get("status").equals("ok")) {
-			throw new IOException("acoustid responded with error: " + data.get("status"));
+		if (!"ok".equals(getString(data, "status"))) {
+			throw new IOException("acoustid responded with error: " + getString(data, "status"));
 		}
 
 		for (Object result : getArray(data, "results")) {

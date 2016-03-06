@@ -171,7 +171,7 @@ public class OMDbClient implements MovieIdentificationService {
 			}
 		};
 
-		return readJson(json.get());
+		return asMap(readJson(json.get()));
 	}
 
 	public Map<String, String> getMovieInfo(Integer i, String t, String y, boolean tomatoes) throws IOException {

@@ -117,7 +117,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 	}
 
 	public Object request(String resource) throws IOException {
-		return new CachedJsonResource("http://api.tvmaze.com/" + resource).getJSON();
+		return new CachedJsonResource("http://api.tvmaze.com/" + resource).getJsonObject();
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package net.filebot.web;
 
+import static net.filebot.util.JsonUtilities.*;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -7,9 +9,6 @@ import java.nio.charset.StandardCharsets;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
 
 public class CachedJsonResource extends AbstractCachedResource<String, String> {
 
@@ -22,9 +21,9 @@ public class CachedJsonResource extends AbstractCachedResource<String, String> {
 		return CacheManager.getInstance().getCache("web-datasource-lv3");
 	}
 
-	public JsonObject<?, ?> getJSON() throws IOException {
+	public Object getJsonObject() throws IOException {
 		try {
-			return (JsonObject<?, ?>) JsonReader.jsonToMaps(get());
+			return readJson(get());
 		} catch (Exception e) {
 			throw new IOException(String.format("Error while loading JSON resource: %s (%s)", getResourceLocation(resource), e.getMessage()));
 		}
@@ -33,11 +32,11 @@ public class CachedJsonResource extends AbstractCachedResource<String, String> {
 	@Override
 	public String process(String data) throws IOException {
 		try {
-			JsonReader.jsonToMaps(data); // make sure JSON is valid
+			readJson(get()); // make sure JSON is valid
+			return data;
 		} catch (Exception e) {
 			throw new IOException(String.format("Malformed JSON: %s (%s)", getResourceLocation(resource), e.getMessage()));
 		}
-		return data;
 	}
 
 	@Override

@@ -42,7 +42,9 @@ public class FanartTVClient {
 
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
-				return readJson(UTF_8.decode(data)).entrySet().stream().flatMap(it -> {
+				Object json = readJson(UTF_8.decode(data));
+
+				return asMap(json).entrySet().stream().flatMap(it -> {
 					return stream(asMapArray(it.getValue())).map(item -> {
 						Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
 						fields.put(FanartProperty.type, it.getKey().toString());
