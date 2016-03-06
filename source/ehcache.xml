@@ -1,103 +1,15 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false">
-	<!--
-	Persistent disk store location
-	-->
-	<diskStore path="ehcache.disk.store.dir" />
 
-	<!--
-	Mandatory Default Cache configuration. These settings will be applied to caches
-	created pragmatically using CacheManager.add(String cacheName)
-	-->
+	<diskStore path="java.io.tmpdir" />
+
 	<defaultCache
-		maxElementsInMemory="100"
-		eternal="false"
-		timeToIdleSeconds="120"
-		timeToLiveSeconds="120"
-		overflowToDisk="false"
-		diskPersistent="false"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Short-lived (24 hours) persistent disk cache for web responses
-	-->
-	<cache name="web-datasource"
-		maxElementsInMemory="200"
+		maxElementsInMemory="400"
 		maxElementsOnDisk="80000"
 		eternal="false"
 		timeToIdleSeconds="86400"
 		timeToLiveSeconds="86400"
 		overflowToDisk="true"
 		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Long-lived (2 weeks) persistent disk cache for web responses
-	-->
-	<cache name="web-datasource-lv2"
-		maxElementsInMemory="200"
-		maxElementsOnDisk="80000"
-		eternal="false"
-		timeToIdleSeconds="1209600"
-		timeToLiveSeconds="1209600"
-		overflowToDisk="true"
-		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Long-lived (2 months) persistent disk cache for web responses (that can be updated via If-Modified or If-None-Match)
-	-->
-	<cache name="web-datasource-lv3"
-		maxElementsInMemory="100"
-		maxElementsOnDisk="200000"
-		eternal="false"
-		timeToIdleSeconds="5256000"
-		timeToLiveSeconds="5256000"
-		overflowToDisk="true"
-		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Very long-lived cache (4 months) anime/series lists, movie index, etc
-	-->
-	<cache name="web-persistent-datasource"
-		maxElementsInMemory="100"
-		maxElementsOnDisk="80000"
-		eternal="false"
-		timeToIdleSeconds="10512000"
-		timeToLiveSeconds="10512000"
-		overflowToDisk="true"
-		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Simple memory cache. Time to live is 4 months.
-	-->
-	<cache name="persistent-memory"
-		maxElementsInMemory="100"
-		maxElementsOnDisk="50000"
-		eternal="false"
-		timeToIdleSeconds="10512000"
-		timeToLiveSeconds="10512000"
-		overflowToDisk="true"
-		diskPersistent="true"
-		memoryStoreEvictionPolicy="LRU"
-	/>
-
-	<!--
-	Simple memory cache. Time to live is 2 hours.
-	-->
-	<cache name="ephemeral-memory"
-		maxElementsInMemory="50000"
-		eternal="false"
-		timeToIdleSeconds="7200"
-		timeToLiveSeconds="7200"
-		overflowToDisk="false"
-		diskPersistent="false"
 		memoryStoreEvictionPolicy="LRU"
 	/>
 

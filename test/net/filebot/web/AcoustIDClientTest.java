@@ -4,10 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 
-import net.sf.ehcache.CacheManager;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class AcoustIDClientTest {
@@ -36,12 +32,6 @@ public class AcoustIDClientTest {
 
 		assertEquals("周杰倫", info.getArtist());
 		assertEquals("聽媽媽的話", info.getTitle());
-	}
-
-	@BeforeClass
-	@AfterClass
-	public static void clearCache() {
-		CacheManager.getInstance().clearAll();
 	}
 
 }

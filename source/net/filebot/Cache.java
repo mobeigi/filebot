@@ -1,13 +1,16 @@
 package net.filebot;
 
+import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.Logging.*;
 
 import java.io.Serializable;
+import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
+import net.filebot.web.CachedResource2;
+import net.filebot.web.FloodLimit;
 import net.sf.ehcache.Element;
 
 public class Cache {
@@ -24,51 +27,60 @@ public class Cache {
 
 	public Object get(Object key) {
 		try {
-			return cache.get(key).getObjectValue();
+			Element element = cache.get(key);
+			if (element != null) {
+				return element.getObjectValue();
+			}
 		} catch (Exception e) {
-			debug.warning(format("Bad cache state: %s => %s", key, e));
+			e.printStackTrace();
+			debug.warning(format("Cache get: %s => %s", key, e));
 		}
 		return null;
 	}
 
-	public Object computeIf(Object key, Predicate<Element> condition, Callable<?> callable) throws Exception {
+	public Object computeIf(Object key, Predicate<Element> condition, Compute<?> compute) throws Exception {
 		// get if present
+		Element element = null;
 		try {
-			Element element = cache.get(key);
+			element = cache.get(key);
 			if (element != null && condition.test(element)) {
 				return element.getObjectValue();
 			}
 		} catch (Exception e) {
-			debug.warning(format("Bad cache state: %s => %s", key, e));
+			debug.warning(format("Cache get: %s => %s", key, e));
 		}
 
 		// compute if absent
-		Object value = callable.call();
+		Object value = compute.apply(element);
 		try {
 			cache.put(new Element(key, value));
 		} catch (Exception e) {
-			debug.warning(format("Bad cache state: %s => %s", key, e));
+			debug.warning(format("Cache put: %s => %s", key, e));
 		}
 		return value;
 	}
 
-	public Object computeIfAbsent(Object key, Callable<?> callable) throws Exception {
-		return computeIf(key, Element::isExpired, callable);
+	public Object computeIfAbsent(Object key, Compute<?> compute) throws Exception {
+		return computeIf(key, isAbsent(), compute);
 	}
 
-	public Object computeIfStale(Object key, Duration expirationTime, Callable<?> callable) throws Exception {
-		return computeIf(key, isStale(expirationTime), callable);
+	public Object computeIfStale(Object key, Duration expirationTime, Compute<?> compute) throws Exception {
+		return computeIf(key, isStale(expirationTime), compute);
 	}
 
-	private Predicate<Element> isStale(Duration expirationTime) {
-		return (element) -> element.isExpired() || System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
+	public Predicate<Element> isAbsent() {
+		return (element) -> element.getObjectValue() == null;
+	}
+
+	public Predicate<Element> isStale(Duration expirationTime) {
+		return (element) -> System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
 	}
 
 	public void put(Object key, Object value) {
 		try {
 			cache.put(new Element(key, value));
 		} catch (Exception e) {
-			debug.warning(format("Bad cache state: %s => %s", key, e));
+			debug.warning(format("Cache put: %s => %s", key, e));
 		}
 	}
 
@@ -76,8 +88,13 @@ public class Cache {
 		try {
 			cache.remove(key);
 		} catch (Exception e) {
-			debug.warning(format("Bad cache state: %s => %s", key, e));
+			debug.warning(format("Cache remove: %s => %s", key, e));
 		}
+	}
+
+	@FunctionalInterface
+	public interface Compute<R> {
+		R apply(Element element) throws Exception;
 	}
 
 	@Deprecated
@@ -112,6 +129,10 @@ public class Cache {
 		public String toString() {
 			return Arrays.toString(fields);
 		}
+	}
+
+	public CachedResource2<String, String> resource(String url, Duration expirationTime, FloodLimit limit) {
+		return new CachedResource2<String, String>(url, URL::new, CachedResource2.fetchIfModified(limit), CachedResource2.decode(UTF_8), expirationTime, this);
 	}
 
 }

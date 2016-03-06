@@ -24,12 +24,12 @@ public class OMDbClientTest {
 
 	@Test
 	public void searchMovie2() throws Exception {
-		List<Movie> results = client.searchMovie("The Illusionist", null);
+		List<Movie> results = client.searchMovie("The Terminator", null);
 		Movie movie = results.get(0);
 
-		assertEquals("The Illusionist", movie.getName());
-		assertEquals(2006, movie.getYear());
-		assertEquals(443543, movie.getImdbId(), 0);
+		assertEquals("The Terminator", movie.getName());
+		assertEquals(1984, movie.getYear());
+		assertEquals(88247, movie.getImdbId());
 	}
 
 	@Test

@@ -2,16 +2,13 @@ package net.filebot.web;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
@@ -27,26 +24,21 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
 import net.filebot.web.TMDbClient.Person;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 
 public class OMDbClient implements MovieIdentificationService {
 
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
-
-	private final String protocol = "http";
-	private final String host = "www.omdbapi.com";
 
 	@Override
 	public String getName() {
@@ -70,7 +62,7 @@ public class OMDbClient implements MovieIdentificationService {
 	}
 
 	@Override
-	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
+	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
 		// query by name with year filter if possible
 		Matcher nameYear = Pattern.compile("(.+)\\b(19\\d{2}|20\\d{2})$").matcher(query);
 		if (nameYear.matches()) {
@@ -80,14 +72,14 @@ public class OMDbClient implements MovieIdentificationService {
 		}
 	}
 
-	public List<Movie> searchMovie(String movieName, int movieYear) throws IOException {
+	public List<Movie> searchMovie(String movieName, int movieYear) throws Exception {
 		Map<String, Object> param = new LinkedHashMap<String, Object>(2);
 		param.put("s", movieName);
 		if (movieYear > 0) {
 			param.put("y", movieYear);
 		}
 
-		Map<?, ?> response = request(param, REQUEST_LIMIT);
+		Map<?, ?> response = request(param);
 
 		List<Movie> result = new ArrayList<Movie>();
 		for (Object it : getArray(response, "Search")) {
@@ -141,40 +133,16 @@ public class OMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 
-	public Map<?, ?> request(Map<String, Object> parameters, final FloodLimit limit) throws IOException {
-		URL url = new URL(protocol, host, "/?" + encodeParameters(parameters, true));
+	public Map<?, ?> request(Map<String, Object> parameters) throws Exception {
+		String url = "http://www.omdbapi.com/?" + encodeParameters(parameters, true);
 
-		CachedResource<String> json = new CachedResource<String>(url.toString(), String.class, CachedResource.ONE_WEEK) {
+		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
+		String json = cache.resource(url, Duration.ofDays(7), REQUEST_LIMIT).get();
 
-			@Override
-			public String process(ByteBuffer data) throws Exception {
-				return Charset.forName("UTF-8").decode(data).toString();
-			}
-
-			@Override
-			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
-				try {
-					if (limit != null) {
-						limit.acquirePermit();
-					}
-					return super.fetchData(url, lastModified);
-				} catch (FileNotFoundException e) {
-					return ByteBuffer.allocate(0);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-			@Override
-			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-datasource-lv2");
-			}
-		};
-
-		return asMap(readJson(json.get()));
+		return asMap(readJson(json));
 	}
 
-	public Map<String, String> getMovieInfo(Integer i, String t, String y, boolean tomatoes) throws IOException {
+	public Map<String, String> getMovieInfo(Integer i, String t, String y, boolean tomatoes) throws Exception {
 		// e.g. http://www.imdbapi.com/?i=tt0379786&r=xml&tomatoes=true
 		Map<String, Object> param = new LinkedHashMap<String, Object>(2);
 		if (i != null) {
@@ -188,10 +156,10 @@ public class OMDbClient implements MovieIdentificationService {
 		}
 		param.put("tomatoes", String.valueOf(tomatoes));
 
-		return getInfoMap(request(param, REQUEST_LIMIT));
+		return getInfoMap(request(param));
 	}
 
-	public MovieInfo getMovieInfo(Movie movie) throws IOException {
+	public MovieInfo getMovieInfo(Movie movie) throws Exception {
 		Map<String, String> data = movie.getImdbId() > 0 ? getMovieInfo(movie.getImdbId(), null, null, false) : getMovieInfo(null, movie.getName(), String.valueOf(movie.getYear()), false);
 
 		// sanity check
@@ -243,7 +211,7 @@ public class OMDbClient implements MovieIdentificationService {
 					}
 				}
 			} catch (DateTimeParseException e) {
-				Logger.getLogger(OMDbClient.class.getName()).log(Level.WARNING, String.format("Bad date: %s: %s", value, e.getMessage()));
+				debug.warning(format("Bad date: %s =~ %s => %s", value, format, e));
 			}
 		}
 		return null;
