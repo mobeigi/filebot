@@ -39,6 +39,7 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.Settings;
 import net.filebot.similarity.CommonSequenceMatcher;
 import net.filebot.similarity.EpisodeMatcher;
@@ -56,16 +57,17 @@ class EpisodeListMatcher implements AutoCompleteMatcher {
 	private boolean useAnimeIndex;
 	private boolean useSeriesIndex;
 
+	// remember user selections
+	private Cache persistentSelectionMemory;
+
 	// only allow one fetch session at a time so later requests can make use of cached results
 	private final Object providerLock = new Object();
-
-	// remember user selections
-	private final Cache persistentSelectionMemory = Cache.getCache(Cache.PERSISTENT);
 
 	public EpisodeListMatcher(EpisodeListProvider provider, boolean useSeriesIndex, boolean useAnimeIndex) {
 		this.provider = provider;
 		this.useSeriesIndex = useSeriesIndex;
 		this.useAnimeIndex = useAnimeIndex;
+		this.persistentSelectionMemory = Cache.getCache("selection_" + provider.getName(), CacheType.Persistent);
 	}
 
 	protected SearchResult selectSearchResult(final String query, final List<SearchResult> searchResults, Map<String, SearchResult> selectionMemory, boolean autodetection, final Component parent) throws Exception {

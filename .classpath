@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="lib/jars/jacksum.jar"/>
 	<classpathentry kind="lib" path="lib/jars/simmetrics.jar"/>
 	<classpathentry kind="lib" path="lib/jars/xmlrpc.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/jar/ehcache.jar" sourcepath="lib/ivy/source/ehcache.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/glazedlists_java15.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/icu4j.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/jar/jna.jar"/>

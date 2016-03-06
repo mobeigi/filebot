@@ -30,7 +30,8 @@ import java.util.zip.GZIPInputStream;
 
 import javax.swing.Icon;
 
-import net.filebot.Cache;
+import net.filebot.CacheManager;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 import org.jsoup.Jsoup;
@@ -78,7 +79,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache("web-datasource-lv2"));
+		return new ResultCache(getName(), CacheManager.getInstance().getCache(getName(), CacheType.Weekly));
 	}
 
 	@Override

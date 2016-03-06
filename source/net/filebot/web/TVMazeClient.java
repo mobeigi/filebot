@@ -16,6 +16,7 @@ import java.util.Objects;
 import javax.swing.Icon;
 
 import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 public class TVMazeClient extends AbstractEpisodeListProvider {
@@ -52,7 +53,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache("web-datasource"));
+		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Daily));
 	}
 
 	@Override

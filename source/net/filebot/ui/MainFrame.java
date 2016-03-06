@@ -38,6 +38,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.filebot.CacheManager;
 import net.filebot.Settings;
 import net.filebot.cli.GroovyPad;
 import net.filebot.mac.MacAppUtilities;
@@ -52,7 +53,6 @@ import net.filebot.util.ui.DefaultFancyListCellRenderer;
 import net.filebot.util.ui.ShadowBorder;
 import net.filebot.util.ui.SwingUI;
 import net.miginfocom.swing.MigLayout;
-import net.sf.ehcache.CacheManager;
 
 public class MainFrame extends JFrame {
 

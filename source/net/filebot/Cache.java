@@ -1,75 +1,91 @@
 package net.filebot;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import static net.filebot.Logging.*;
 
-import net.sf.ehcache.CacheManager;
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.function.Predicate;
+
 import net.sf.ehcache.Element;
 
 public class Cache {
 
-	public static final String EPHEMERAL = "ephemeral-memory";
-	public static final String PERSISTENT = "persistent-memory";
-
-	public static Cache getCache(String name) {
-		return new Cache(CacheManager.getInstance().getCache(name));
+	public static Cache getCache(String name, CacheType type) {
+		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
 	}
 
 	private final net.sf.ehcache.Cache cache;
 
-	protected Cache(net.sf.ehcache.Cache cache) {
+	public Cache(net.sf.ehcache.Cache cache) {
 		this.cache = cache;
+	}
+
+	public Object get(Object key) {
+		try {
+			return cache.get(key).getObjectValue();
+		} catch (Exception e) {
+			debug.warning(format("Bad cache state: %s => %s", key, e));
+		}
+		return null;
+	}
+
+	public Object computeIf(Object key, Predicate<Element> condition, Callable<?> callable) throws Exception {
+		// get if present
+		try {
+			Element element = cache.get(key);
+			if (element != null && condition.test(element)) {
+				return element.getObjectValue();
+			}
+		} catch (Exception e) {
+			debug.warning(format("Bad cache state: %s => %s", key, e));
+		}
+
+		// compute if absent
+		Object value = callable.call();
+		try {
+			cache.put(new Element(key, value));
+		} catch (Exception e) {
+			debug.warning(format("Bad cache state: %s => %s", key, e));
+		}
+		return value;
+	}
+
+	public Object computeIfAbsent(Object key, Callable<?> callable) throws Exception {
+		return computeIf(key, Element::isExpired, callable);
+	}
+
+	public Object computeIfStale(Object key, Duration expirationTime, Callable<?> callable) throws Exception {
+		return computeIf(key, isStale(expirationTime), callable);
+	}
+
+	private Predicate<Element> isStale(Duration expirationTime) {
+		return (element) -> element.isExpired() || System.currentTimeMillis() - element.getLatestOfCreationAndUpdateTime() < expirationTime.toMillis();
 	}
 
 	public void put(Object key, Object value) {
 		try {
 			cache.put(new Element(key, value));
-		} catch (Throwable e) {
-			Logger.getLogger(Cache.class.getName()).log(Level.WARNING, e.getMessage());
-			remove(key); // fail-safe
-		}
-	}
-
-	public Object get(Object key) {
-		return get(key, Object.class);
-	}
-
-	public <T> T get(Object key, Class<T> type) {
-		try {
-			Element element = cache.get(key);
-			if (element != null && key.equals(element.getKey())) {
-				return type.cast(element.getValue());
-			}
 		} catch (Exception e) {
-			Logger.getLogger(Cache.class.getName()).log(Level.WARNING, e.getMessage());
-			remove(key); // fail-safe
+			debug.warning(format("Bad cache state: %s => %s", key, e));
 		}
-
-		return null;
 	}
 
 	public void remove(Object key) {
 		try {
 			cache.remove(key);
-		} catch (Exception e1) {
-			Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e1.getMessage());
-			try {
-				Logger.getLogger(Cache.class.getName()).log(Level.INFO, "Cached data has become invalid: Clearing cache now");
-				cache.removeAll();
-			} catch (Exception e2) {
-				Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e2.getMessage());
-				try {
-					Logger.getLogger(Cache.class.getName()).log(Level.INFO, "Cache has become invalid: Reset all caches");
-					cache.getCacheManager().clearAll();
-				} catch (Exception e3) {
-					Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, e3.getMessage());
-				}
-			}
+		} catch (Exception e) {
+			debug.warning(format("Bad cache state: %s => %s", key, e));
 		}
 	}
 
+	@Deprecated
+	public <T> T get(Object key, Class<T> type) {
+		return type.cast(get(key));
+	}
+
+	@Deprecated
 	public static class Key implements Serializable {
 
 		protected Object[] fields;

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 public class AcoustIDClient implements MusicIdentificationService {
@@ -51,7 +52,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 	}
 
 	public Cache getCache() {
-		return Cache.getCache("web-datasource-lv3");
+		return Cache.getCache(getName(), CacheType.Monthly);
 	}
 
 	@Override

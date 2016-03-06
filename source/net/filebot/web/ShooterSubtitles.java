@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.Icon;
 
 import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 
 import org.json.simple.JSONArray;
@@ -88,7 +89,7 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		param.put("format", "json");
 		param.put("lang", LANGUAGE_CHINESE.equals(languageName) ? "Chn" : "Eng");
 
-		Cache cache = Cache.getCache("web-datasource");
+		Cache cache = Cache.getCache(getName(), CacheType.Daily);
 		String key = endpoint.toString() + param.toString();
 		SubtitleDescriptor[] value = cache.get(key, SubtitleDescriptor[].class);
 		if (value != null) {

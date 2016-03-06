@@ -34,6 +34,8 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.Language;
 import net.filebot.MediaTypes;
 import net.filebot.MetaAttributeView;
@@ -412,7 +414,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("crc32")
-	public String getCRC32() throws IOException, InterruptedException {
+	public String getCRC32() throws Exception {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
 
@@ -444,7 +446,8 @@ public class MediaBindingBean {
 		}
 
 		// calculate checksum from file
-		return crc32(inferredMediaFile);
+		Cache cache = Cache.getCache("crc32", CacheType.Ephemeral);
+		return (String) cache.computeIfAbsent(inferredMediaFile, () -> crc32(inferredMediaFile));
 	}
 
 	@Define("fn")

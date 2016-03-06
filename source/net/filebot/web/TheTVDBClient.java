@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.swing.Icon;
 
 import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
@@ -77,7 +78,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache("web-datasource"));
+		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Daily));
 	}
 
 	public String getLanguageCode(Locale locale) {

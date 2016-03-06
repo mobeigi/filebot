@@ -30,6 +30,7 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.Cache.Key;
+import net.filebot.CacheType;
 import net.filebot.ResourceManager;
 import net.filebot.media.MediaDetection;
 import net.filebot.mediainfo.MediaInfo;
@@ -85,7 +86,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	}
 
 	public ResultCache getCache() {
-		return new ResultCache(getName(), Cache.getCache("web-datasource"));
+		return new ResultCache(getName(), Cache.getCache(getName(), CacheType.Daily));
 	}
 
 	@Override
@@ -603,7 +604,7 @@ public class OpenSubtitlesClient implements SubtitleProvider, VideoHashSubtitleS
 	 */
 	@SuppressWarnings("unchecked")
 	protected synchronized Map<String, String> getSubLanguageMap() throws IOException {
-		Cache cache = Cache.getCache("web-datasource-lv2");
+		Cache cache = Cache.getCache(getName(), CacheType.Persistent);
 		String cacheKey = getClass().getName() + ".subLanguageMap";
 
 		// try to get language map from cache

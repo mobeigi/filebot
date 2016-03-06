@@ -19,8 +19,6 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 import java.security.CodeSource;
 import java.security.Permission;
@@ -30,7 +28,6 @@ import java.security.Policy;
 import java.security.ProtectionDomain;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -62,7 +59,6 @@ import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
 import net.filebot.web.CachedResource;
 import net.miginfocom.swing.MigLayout;
-import net.sf.ehcache.CacheManager;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.w3c.dom.NodeList;
@@ -100,7 +96,6 @@ public class Main {
 						}
 					}
 
-					initializeCache();
 					CacheManager.getInstance().clearAll();
 				}
 
@@ -136,7 +131,7 @@ public class Main {
 			createFolders(getApplicationTempFolder());
 
 			// initialize this stuff before anything else
-			initializeCache();
+			CacheManager.getInstance();
 			initializeSecurityManager();
 
 			// update system properties
@@ -441,95 +436,6 @@ public class Main {
 		int width = Integer.parseInt(settings.get("window.width"));
 		int height = Integer.parseInt(settings.get("window.height"));
 		window.setBounds(x, y, width, height);
-	}
-
-	/**
-	 * Shutdown ehcache properly, so that disk-persistent stores can actually be saved to disk
-	 */
-	private static void initializeCache() throws Exception {
-		// prepare cache folder for this application instance
-		File cacheRoot = getApplicationCache();
-		createFolders(cacheRoot);
-
-		try {
-			for (int i = 0; true; i++) {
-				File cache = new File(cacheRoot, String.format("%d", i));
-
-				// make sure cache is accessible
-				createFolders(cache);
-
-				final File lockFile = new File(cache, ".lock");
-				boolean isNewCache = !lockFile.exists();
-
-				final FileChannel channel = FileChannel.open(lockFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
-				final FileLock lock = channel.tryLock();
-
-				if (lock != null) {
-					// setup cache dir for ehcache
-					System.setProperty("ehcache.disk.store.dir", cache.getAbsolutePath());
-
-					int applicationRevision = getApplicationRevisionNumber();
-					int cacheRevision = 0;
-					try {
-						cacheRevision = new Scanner(channel, "UTF-8").nextInt();
-					} catch (Exception e) {
-						// ignore
-					}
-
-					if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
-						Logger.getLogger(Main.class.getName()).log(Level.WARNING, format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
-
-						// tag cache with new revision number
-						isNewCache = true;
-
-						// delete all files related to previous cache instances
-						for (File it : getChildren(cache)) {
-							if (!it.equals(lockFile)) {
-								delete(cache);
-							}
-						}
-					}
-
-					if (isNewCache) {
-						// set new cache revision
-						channel.position(0);
-						channel.write(Charset.forName("UTF-8").encode(String.valueOf(applicationRevision)));
-						channel.truncate(channel.position());
-					}
-
-					// make sure to orderly shutdown cache
-					Runtime.getRuntime().addShutdownHook(new Thread() {
-
-						@Override
-						public void run() {
-							try {
-								CacheManager.getInstance().shutdown();
-							} catch (Exception e) {
-								// ignore, shutting down anyway
-							}
-							try {
-								lock.release();
-							} catch (Exception e) {
-								// ignore, shutting down anyway
-							}
-							try {
-								channel.close();
-							} catch (Exception e) {
-								// ignore, shutting down anyway
-							}
-						}
-					});
-
-					// cache for this application instance is successfully set up and locked
-					return;
-				}
-
-				// try next lock file
-				channel.close();
-			}
-		} catch (Exception e) {
-			throw new Exception("Failed to initialize cache: " + e.toString(), e);
-		}
 	}
 
 	/**
