@@ -1,12 +1,13 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static net.filebot.util.JsonUtilities.*;
 
 import java.io.Serializable;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -41,33 +42,21 @@ public class FanartTVClient {
 
 			@Override
 			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
-				List<FanartDescriptor> fanart = new ArrayList<FanartDescriptor>();
-
-				readJson(UTF_8.decode(data)).forEach((k, v) -> {
-					Object[] array = asArray(v);
-					if (array == null)
-						return;
-
-					for (Object it : array) {
-						Map<?, ?> item = asMap(it);
-						if (item == null)
-							return;
-
+				return readJson(UTF_8.decode(data)).entrySet().stream().flatMap(it -> {
+					return stream(asMapArray(it.getValue())).map(item -> {
 						Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
-						fields.put(FanartProperty.type, k.toString());
+						fields.put(FanartProperty.type, it.getKey().toString());
+
 						for (FanartProperty prop : FanartProperty.values()) {
 							Object value = item.get(prop.name());
 							if (value != null) {
 								fields.put(prop, value.toString());
 							}
 						}
-						if (fields.size() > 1) {
-							fanart.add(new FanartDescriptor(fields));
-						}
-					}
-				});
 
-				return fanart.toArray(new FanartDescriptor[0]);
+						return new FanartDescriptor(fields);
+					}).filter(art -> art.getProperties().size() > 1);
+				}).toArray(FanartDescriptor[]::new);
 			}
 
 			@Override
@@ -90,31 +79,35 @@ public class FanartTVClient {
 			type, id, url, lang, likes, season, disc, disc_type
 		}
 
-		protected Map<FanartProperty, String> fields;
+		protected Map<FanartProperty, String> properties;
 
 		protected FanartDescriptor() {
 			// used by serializer
 		}
 
 		protected FanartDescriptor(Map<FanartProperty, String> fields) {
-			this.fields = new EnumMap<FanartProperty, String>(fields);
+			this.properties = new EnumMap<FanartProperty, String>(fields);
+		}
+
+		public Map<FanartProperty, String> getProperties() {
+			return unmodifiableMap(properties);
 		}
 
 		public String get(Object key) {
-			return fields.get(FanartProperty.valueOf(key.toString()));
+			return properties.get(FanartProperty.valueOf(key.toString()));
 		}
 
 		public String get(FanartProperty key) {
-			return fields.get(key);
+			return properties.get(key);
 		}
 
 		public String getType() {
-			return fields.get(FanartProperty.type);
+			return properties.get(FanartProperty.type);
 		}
 
 		public Integer getId() {
 			try {
-				return new Integer(fields.get(FanartProperty.id));
+				return new Integer(properties.get(FanartProperty.id));
 			} catch (Exception e) {
 				return null;
 			}
@@ -122,7 +115,7 @@ public class FanartTVClient {
 
 		public URL getUrl() {
 			try {
-				return new URL(fields.get(FanartProperty.url));
+				return new URL(properties.get(FanartProperty.url));
 			} catch (Exception e) {
 				return null;
 			}
@@ -130,7 +123,7 @@ public class FanartTVClient {
 
 		public Integer getLikes() {
 			try {
-				return new Integer(fields.get(FanartProperty.likes));
+				return new Integer(properties.get(FanartProperty.likes));
 			} catch (Exception e) {
 				return null;
 			}
@@ -138,7 +131,7 @@ public class FanartTVClient {
 
 		public Locale getLanguage() {
 			try {
-				return new Locale(fields.get(FanartProperty.lang));
+				return new Locale(properties.get(FanartProperty.lang));
 			} catch (Exception e) {
 				return null;
 			}
@@ -146,7 +139,7 @@ public class FanartTVClient {
 
 		public Integer getSeason() {
 			try {
-				return new Integer(fields.get(FanartProperty.season));
+				return new Integer(properties.get(FanartProperty.season));
 			} catch (Exception e) {
 				return null;
 			}
@@ -154,19 +147,19 @@ public class FanartTVClient {
 
 		public Integer getDiskNumber() {
 			try {
-				return new Integer(fields.get(FanartProperty.disc));
+				return new Integer(properties.get(FanartProperty.disc));
 			} catch (Exception e) {
 				return null;
 			}
 		}
 
 		public String getDiskType() {
-			return fields.get(FanartProperty.disc_type);
+			return properties.get(FanartProperty.disc_type);
 		}
 
 		@Override
 		public String toString() {
-			return fields.toString();
+			return properties.toString();
 		}
 	}
 

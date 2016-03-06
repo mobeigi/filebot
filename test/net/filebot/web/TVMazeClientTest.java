@@ -5,6 +5,10 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.Locale;
 
+import net.sf.ehcache.CacheManager;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TVMazeClientTest {
@@ -62,6 +66,12 @@ public class TVMazeClientTest {
 	@Test
 	public void getEpisodeListLinkAll() throws Exception {
 		assertEquals("http://www.tvmaze.com/shows/427", client.getEpisodeListLink(buffySearchResult).toString());
+	}
+
+	@BeforeClass
+	@AfterClass
+	public static void clearCache() {
+		CacheManager.getInstance().clearAll();
 	}
 
 }

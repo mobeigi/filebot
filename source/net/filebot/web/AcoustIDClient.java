@@ -1,5 +1,7 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
+import static java.util.Arrays.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -9,7 +11,6 @@ import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,11 +19,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import javax.swing.Icon;
 
@@ -99,7 +100,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 		requestParam.put("Accept-Encoding", "gzip");
 
 		// submit
-		response = Charset.forName("UTF-8").decode(post(url, postParam, requestParam)).toString();
+		response = UTF_8.decode(post(url, postParam, requestParam)).toString();
 
 		cache.put(cacheKey, response);
 		return response;
@@ -114,20 +115,18 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 		for (Object result : getArray(data, "results")) {
 			// pick most likely matching recording
-			return Stream.of(getArray(result, "recordings")).sorted((Object o1, Object o2) -> {
-				Integer i1 = getInteger(o1, "duration");
-				Integer i2 = getInteger(o2, "duration");
+			return stream(getMapArray(result, "recordings")).sorted((Map<?, ?> r1, Map<?, ?> r2) -> {
+				Integer i1 = getInteger(r1, "duration");
+				Integer i2 = getInteger(r2, "duration");
 				return Double.compare(i1 == null ? Double.NaN : Math.abs(i1 - targetDuration), i2 == null ? Double.NaN : Math.abs(i2 - targetDuration));
-			}).map((Object o) -> {
-				Map<?, ?> recording = (Map<?, ?>) o;
+			}).map((Map<?, ?> recording) -> {
 				try {
 					Map<?, ?> releaseGroup = getFirstMap(recording, "releasegroups");
-					if (releaseGroup == null) {
-						return null;
-					}
+					String artist = getString(getFirstMap(recording, "artists"), "name");
+					String title = getString(recording, "title");
 
-					String artist = (String) getFirstMap(recording, "artists").get("name");
-					String title = (String) recording.get("title");
+					if (artist == null || title == null || releaseGroup.isEmpty())
+						return null;
 
 					AudioTrack audioTrack = new AudioTrack(artist, title, null);
 					audioTrack.mbid = getString(result, "id");
@@ -136,15 +135,15 @@ public class AcoustIDClient implements MusicIdentificationService {
 					Object[] secondaryTypes = getArray(releaseGroup, "secondarytypes");
 					Object[] releases = getArray(releaseGroup, "releases");
 
-					if (releases == null || secondaryTypes != null || (!"Album".equals(type))) {
+					if (releases.length == 0 || secondaryTypes.length > 0 || (!"Album".equals(type))) {
 						return audioTrack; // default to simple music info if album data is undesirable
 					}
 
-					for (Object it : releases) {
+					for (Map<?, ?> release : asMapArray(releases)) {
 						AudioTrack thisRelease = audioTrack.clone();
-						Map<?, ?> release = (Map<?, ?>) it;
-						Map<?, ?> date = (Map<?, ?>) release.get("date");
+
 						try {
+							Map<?, ?> date = getMap(release, "date");
 							thisRelease.albumReleaseDate = new SimpleDate(getInteger(date, "year"), getInteger(date, "month"), getInteger(date, "day"));
 						} catch (Exception e) {
 							thisRelease.albumReleaseDate = null;
@@ -163,16 +162,16 @@ public class AcoustIDClient implements MusicIdentificationService {
 						thisRelease.trackCount = getInteger(medium, "track_count");
 
 						try {
-							thisRelease.album = release.get("title").toString();
+							thisRelease.album = getString(release, "title");
 						} catch (Exception e) {
-							thisRelease.album = (String) releaseGroup.get("title");
+							thisRelease.album = getString(releaseGroup, "title");
 						}
 						try {
-							thisRelease.albumArtist = (String) getFirstMap(releaseGroup, "artists").get("name");
+							thisRelease.albumArtist = getString(getFirstMap(releaseGroup, "artists"), "name");
 						} catch (Exception e) {
 							thisRelease.albumArtist = null;
 						}
-						thisRelease.trackTitle = (String) track.get("title");
+						thisRelease.trackTitle = getString(track, "title");
 
 						if (!"Various Artists".equalsIgnoreCase(thisRelease.albumArtist) && (thisRelease.album == null || !thisRelease.album.contains("Greatest Hits"))) {
 							// full info audio track
@@ -183,10 +182,10 @@ public class AcoustIDClient implements MusicIdentificationService {
 					// default to simple music info if extended info is not available
 					return audioTrack;
 				} catch (Exception e) {
-					Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.toString(), e);
+					Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
 					return null;
 				}
-			}).filter(o -> o != null).sorted(new MostFieldsNotNull()).findFirst().get();
+			}).filter(Objects::nonNull).sorted(new MostFieldsNotNull()).findFirst().get();
 		}
 
 		return null;
@@ -211,7 +210,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 			throw new IOException("Failed to exec fpcalc: " + e.getMessage());
 		}
 
-		Scanner scanner = new Scanner(new InputStreamReader(process.getInputStream(), "UTF-8"));
+		Scanner scanner = new Scanner(new InputStreamReader(process.getInputStream(), UTF_8));
 		LinkedList<Map<String, String>> results = new LinkedList<Map<String, String>>();
 
 		try {

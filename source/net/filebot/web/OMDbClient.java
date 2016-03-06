@@ -2,6 +2,7 @@ package net.filebot.web;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -40,9 +41,6 @@ import net.filebot.web.TMDbClient.Person;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
-import com.cedarsoftware.util.io.JsonObject;
-import com.cedarsoftware.util.io.JsonReader;
-
 public class OMDbClient implements MovieIdentificationService {
 
 	private static final FloodLimit REQUEST_LIMIT = new FloodLimit(20, 10, TimeUnit.SECONDS);
@@ -71,11 +69,6 @@ public class OMDbClient implements MovieIdentificationService {
 		throw new IllegalArgumentException(String.format("Cannot find imdb id: %s", link));
 	}
 
-	private static Object[] array(Object node, String key) {
-		Object value = ((Map<?, ?>) node).get(key);
-		return value == null ? new Object[0] : ((JsonObject<?, ?>) value).getArray();
-	}
-
 	@Override
 	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
 		// query by name with year filter if possible
@@ -97,7 +90,7 @@ public class OMDbClient implements MovieIdentificationService {
 		Map<?, ?> response = request(param, REQUEST_LIMIT);
 
 		List<Movie> result = new ArrayList<Movie>();
-		for (Object it : array(response, "Search")) {
+		for (Object it : getArray(response, "Search")) {
 			Map<String, String> info = getInfoMap(it);
 			if ("movie".equals(info.get("Type"))) {
 				result.add(getMovie(info));
@@ -178,7 +171,7 @@ public class OMDbClient implements MovieIdentificationService {
 			}
 		};
 
-		return JsonReader.jsonToMaps(json.get());
+		return readJson(json.get());
 	}
 
 	public Map<String, String> getMovieInfo(Integer i, String t, String y, boolean tomatoes) throws IOException {
