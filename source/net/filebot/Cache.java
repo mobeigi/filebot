@@ -21,7 +21,7 @@ public class Cache {
 	public static final Duration ONE_WEEK = Duration.ofDays(7);
 
 	public static Cache getCache(String name, CacheType type) {
-		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
+		return CacheManager.getInstance().getCache(name, type);
 	}
 
 	public CachedResource2<String, String> text(String key, Transform<String, URL> resource) {

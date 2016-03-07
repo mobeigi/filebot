@@ -123,8 +123,8 @@ public class CachedResource2<K, R> {
 	}
 
 	@FunctionalInterface
-	public interface Permit<P> {
-		boolean acquirePermit(URL resource) throws Exception;
+	public interface Permit {
+		void acquire(URL resource) throws Exception;
 	}
 
 	public static Transform<ByteBuffer, String> getText(Charset charset) {
@@ -194,12 +194,10 @@ public class CachedResource2<K, R> {
 		};
 	}
 
-	public static Fetch withPermit(Fetch fetch, Permit<?> permit) {
+	public static Fetch withPermit(Fetch fetch, Permit permit) {
 		return (url, lastModified) -> {
-			if (permit.acquirePermit(url)) {
-				return fetch.fetch(url, lastModified);
-			}
-			return null;
+			permit.acquire(url);
+			return fetch.fetch(url, lastModified);
 		};
 	}
 

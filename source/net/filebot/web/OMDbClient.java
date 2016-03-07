@@ -80,7 +80,7 @@ public class OMDbClient implements MovieIdentificationService {
 			param.put("y", movieYear);
 		}
 
-		Map<?, ?> response = request(param);
+		Object response = request(param);
 
 		List<Movie> result = new ArrayList<Movie>();
 		for (Object it : getArray(response, "Search")) {
@@ -134,13 +134,11 @@ public class OMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 
-	public Map<?, ?> request(Map<String, Object> parameters) throws Exception {
+	public Object request(Map<String, Object> parameters) throws Exception {
+		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
 		String key = '?' + encodeParameters(parameters, true);
 
-		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
-		Object json = cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit() != null)).expire(Cache.ONE_WEEK).get();
-
-		return asMap(json);
+		return cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit())).expire(Cache.ONE_WEEK).get();
 	}
 
 	public URL getResource(String file) throws Exception {

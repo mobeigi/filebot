@@ -87,7 +87,7 @@ public class TMDbClient implements MovieIdentificationService {
 			param.put("year", movieYear);
 		}
 
-		Map<?, ?> response = request("search/movie", param, locale, SEARCH_LIMIT);
+		Object response = request("search/movie", param, locale, SEARCH_LIMIT);
 
 		// e.g. {"id":16320,"title":"冲出宁静号","release_date":"2005-09-30","original_title":"Serenity"}
 		return streamJsonObjects(response, "results").map(it -> {
@@ -110,7 +110,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 				if (extendedInfo) {
 					try {
-						Map<?, ?> titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
+						Object titles = request("movie/" + id + "/alternative_titles", null, null, REQUEST_LIMIT);
 						streamJsonObjects(titles, "titles").map(n -> {
 							return getString(n, "title");
 						}).filter(t -> t != null && t.length() >= 3).forEach(alternativeTitles::add);
@@ -169,7 +169,7 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
-		Map<?, ?> response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
+		Object response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
 
 		Map<MovieProperty, String> fields = mapStringValues(response, MovieProperty.class);
 
@@ -270,10 +270,10 @@ public class TMDbClient implements MovieIdentificationService {
 
 	public List<Artwork> getArtwork(String id) throws Exception {
 		// http://api.themoviedb.org/3/movie/11/images
-		Map<?, ?> config = request("configuration", null, null, REQUEST_LIMIT);
+		Object config = request("configuration", null, null, REQUEST_LIMIT);
 		String baseUrl = getString(getMap(config, "images"), "base_url");
 
-		Map<?, ?> images = request("movie/" + id + "/images", null, null, REQUEST_LIMIT);
+		Object images = request("movie/" + id + "/images", null, null, REQUEST_LIMIT);
 
 		return Stream.of("backdrops", "posters").flatMap(section -> {
 			Stream<Artwork> artwork = streamJsonObjects(images, section).map(it -> {
@@ -292,7 +292,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}).collect(toList());
 	}
 
-	public Map<?, ?> request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
+	public Object request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
 		// default parameters
 		LinkedHashMap<String, Object> data = new LinkedHashMap<String, Object>();
 		if (parameters != null) {
@@ -313,17 +313,16 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		data.put("api_key", apikey);
 
+		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
+		Cache etagStorage = Cache.getCache("etag", CacheType.Monthly);
 		String key = resource + '?' + encodeParameters(data, true);
 
-		Cache etagStorage = Cache.getCache("etag", CacheType.Monthly);
-		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		Object json = cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfNoneMatch(etagStorage), r -> limit.acquirePermit() != null)).expire(Cache.ONE_WEEK).get();
+		Object json = cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfNoneMatch(etagStorage), r -> limit.acquirePermit())).expire(Cache.ONE_WEEK).get();
 
-		Map<?, ?> root = asMap(json);
-		if (root.isEmpty()) {
+		if (asMap(json).isEmpty()) {
 			throw new FileNotFoundException(String.format("Resource is empty: %s => %s", json, getResource(key)));
 		}
-		return root;
+		return json;
 	}
 
 	public URL getResource(String file) throws Exception {

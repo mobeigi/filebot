@@ -35,7 +35,7 @@ public class CacheManager {
 	}
 
 	public Cache getCache(String name, CacheType type) {
-		String cacheName = name + "_" + type.ordinal();
+		String cacheName = name.toLowerCase() + "_" + type.ordinal();
 		if (!manager.cacheExists(cacheName)) {
 			debug.config("Create cache: " + cacheName);
 			manager.addCache(new net.sf.ehcache.Cache(type.getConfiguration(cacheName)));
