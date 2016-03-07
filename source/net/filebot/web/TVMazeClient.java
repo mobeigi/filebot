@@ -15,7 +15,6 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
-import net.filebot.Resource;
 import net.filebot.ResourceManager;
 
 public class TVMazeClient extends AbstractEpisodeListProvider {
@@ -113,8 +112,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	protected Object request(String resource) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		Resource<Object> json = cache.json(resource, s -> getResource(resource), Cache.ONE_DAY);
-		return json.get();
+		return cache.json(resource, s -> getResource(resource), Cache.ONE_DAY).get();
 	}
 
 	protected URL getResource(String resource) throws Exception {

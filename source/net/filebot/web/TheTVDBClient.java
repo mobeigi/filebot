@@ -28,7 +28,6 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
-import net.filebot.Resource;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
@@ -301,8 +300,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	protected Document getXmlResource(MirrorType mirror, String resource) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		Resource<Document> xml = cache.xml(resource, s -> getResource(mirror, s), Cache.ONE_DAY);
-		return xml.get();
+		return cache.xml(resource, s -> getResource(mirror, s), Cache.ONE_DAY).get();
 	}
 
 	protected URL getResource(MirrorType mirror, String path) throws Exception {

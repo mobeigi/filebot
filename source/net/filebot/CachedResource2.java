@@ -15,7 +15,7 @@ import net.filebot.web.WebRequest;
 
 import org.w3c.dom.Document;
 
-public class CachedResource2<K, R> implements Resource<R> {
+public class CachedResource2<K, R> {
 
 	public static final int DEFAULT_RETRY_LIMIT = 2;
 	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
@@ -50,7 +50,6 @@ public class CachedResource2<K, R> implements Resource<R> {
 		this.cache = cache;
 	}
 
-	@Override
 	public synchronized R get() throws Exception {
 		Object value = cache.computeIfStale(key, expirationTime, element -> {
 			URL resource = source.source(key);
