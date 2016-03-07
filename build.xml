@@ -82,10 +82,6 @@
 			<zipfileset src="${dir.dist}/filebot.jar" />
 
 			<!-- include libs -->
-			<zipfileset src="${dir.lib}/ivy/bundle/json-simple.jar">
-				<include name="org/json/simple/**" />
-			</zipfileset>
-
 			<zipfileset src="${dir.lib}/ivy/bundle/json-io.jar">
 				<include name="com/cedarsoftware/util/**" />
 			</zipfileset>

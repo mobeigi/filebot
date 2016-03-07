@@ -4,6 +4,7 @@ import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
 
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -72,24 +73,53 @@ public class JsonUtilities {
 	}
 
 	public static String getString(Object node, String key) {
-		Object value = asMap(node).get(key);
-		if (value != null) {
-			return value.toString();
-		}
-		return null;
+		return nonEmptyOrNull(asMap(node).get(key));
 	}
 
 	public static Integer getInteger(Object node, String key) {
 		return getStringValue(node, key, Integer::parseInt);
 	}
 
+	public static Double getDecimal(Object node, String key) {
+		return getStringValue(node, key, Double::parseDouble);
+	}
+
 	public static <V> V getStringValue(Object node, String key, Function<String, V> converter) {
 		String value = getString(node, key);
-		if (value != null && value.length() > 0) {
+		if (value != null) {
 			try {
 				return converter.apply(getString(node, key));
 			} catch (Exception e) {
 				debug.warning(format("Bad %s value: %s => %s", key, value, e));
+			}
+		}
+		return null;
+	}
+
+	public static <K extends Enum<K>> EnumMap<K, String> mapStringValues(Object node, Class<K> cls) {
+		return mapValues(node, cls, JsonUtilities::nonEmptyOrNull);
+	}
+
+	public static <K extends Enum<K>, V> EnumMap<K, V> mapValues(Object node, Class<K> cls, Function<Object, V> converter) {
+		Map<?, ?> values = asMap(node);
+		EnumMap<K, V> map = new EnumMap<K, V>(cls);
+		for (K key : cls.getEnumConstants()) {
+			Object object = values.get(key.name());
+			if (object != null) {
+				V value = converter.apply(object);
+				if (value != null) {
+					map.put(key, value);
+				}
+			}
+		}
+		return map;
+	}
+
+	public static String nonEmptyOrNull(Object object) {
+		if (object != null) {
+			String string = object.toString();
+			if (string.length() > 0) {
+				return string;
 			}
 		}
 		return null;

@@ -1,8 +1,11 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.JsonUtilities.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,10 +30,6 @@ import javax.swing.Icon;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.ResourceManager;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 public class ShooterSubtitles implements VideoHashSubtitleService {
 
@@ -97,30 +94,16 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 		}
 
 		ByteBuffer post = WebRequest.post(endpoint, param, null);
-		Object response = JSONValue.parse(StandardCharsets.UTF_8.decode(post).toString());
+		Object response = readJson(UTF_8.decode(post));
 
-		List<SubtitleDescriptor> results = new ArrayList<SubtitleDescriptor>();
 		String name = getNameWithoutExtension(file.getName());
 
-		JSON: for (JSONObject result : jsonList(response)) {
-			if (result == null)
-				continue;
-
-			List<JSONObject> files = jsonList(result.get("Files"));
-			if (files.size() == 1) {
-				for (JSONObject fd : jsonList(result.get("Files"))) {
-					String type = (String) fd.get("Ext");
-					String link = (String) fd.get("Link");
-					results.add(new ShooterSubtitleDescriptor(name, type, link, languageName));
-
-					// use the first best option and ignore the rest
-					break JSON;
-				}
-			}
-		}
-
-		cache.put(key, results.toArray(new SubtitleDescriptor[0]));
-		return results;
+		// use the first best option and ignore the rest
+		return streamJsonObjects(response).flatMap(it -> streamJsonObjects(it, "Files")).map(f -> {
+			String type = getString(f, "Ext");
+			String link = getString(f, "Link");
+			return new ShooterSubtitleDescriptor(name, type, link, languageName);
+		}).limit(1).collect(toList());
 	}
 
 	@Override
@@ -131,21 +114,6 @@ public class ShooterSubtitles implements VideoHashSubtitleService {
 	@Override
 	public void uploadSubtitle(Object identity, Locale locale, File[] videoFile, File[] subtitleFile) throws Exception {
 		throw new UnsupportedOperationException();
-	}
-
-	protected static List<JSONObject> jsonList(final Object array) {
-		return new AbstractList<JSONObject>() {
-
-			@Override
-			public JSONObject get(int index) {
-				return (JSONObject) ((JSONArray) array).get(index);
-			}
-
-			@Override
-			public int size() {
-				return array == null ? 0 : ((JSONArray) array).size();
-			}
-		};
 	}
 
 	/**

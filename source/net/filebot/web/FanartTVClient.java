@@ -45,17 +45,10 @@ public class FanartTVClient {
 
 				return asMap(json).entrySet().stream().flatMap(it -> {
 					return streamJsonObjects(it.getValue()).map(item -> {
-						Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
-						fields.put(FanartProperty.type, it.getKey().toString());
+						Map<FanartProperty, String> map = mapStringValues(item, FanartProperty.class);
+						map.put(FanartProperty.type, it.getKey().toString());
 
-						for (FanartProperty prop : FanartProperty.values()) {
-							Object value = item.get(prop.name());
-							if (value != null) {
-								fields.put(prop, value.toString());
-							}
-						}
-
-						return new FanartDescriptor(fields);
+						return new FanartDescriptor(map);
 					}).filter(art -> art.getProperties().size() > 1);
 				}).toArray(FanartDescriptor[]::new);
 			}
