@@ -138,7 +138,7 @@ public class OMDbClient implements MovieIdentificationService {
 		String key = '?' + encodeParameters(parameters, true);
 
 		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
-		Object json = cache.json(key, s -> getResource(s), Cache.ONE_WEEK, withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit() != null)).get();
+		Object json = cache.json(key, s -> getResource(s)).fetch(withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit() != null)).expire(Cache.ONE_WEEK).get();
 
 		return asMap(json);
 	}

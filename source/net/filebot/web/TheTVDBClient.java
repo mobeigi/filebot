@@ -300,7 +300,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	protected Document getXmlResource(MirrorType mirror, String resource) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		return cache.xml(resource, s -> getResource(mirror, s), Cache.ONE_DAY).get();
+		return cache.xml(resource, s -> getResource(mirror, s)).get();
 	}
 
 	protected URL getResource(MirrorType mirror, String path) throws Exception {

@@ -375,7 +375,7 @@ public class TMDbClient implements MovieIdentificationService {
 
 		Cache etagStorage = Cache.getCache("etag", CacheType.Monthly);
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		String json = cache.text(key, s -> getResource(s), Cache.ONE_WEEK, withPermit(fetchIfNoneMatch(etagStorage), r -> REQUEST_LIMIT.acquirePermit() != null)).get();
+		String json = cache.text(key, s -> getResource(s)).fetch(withPermit(fetchIfNoneMatch(etagStorage), r -> REQUEST_LIMIT.acquirePermit() != null)).expire(Cache.ONE_WEEK).get();
 
 		JSONObject object = (JSONObject) JSONValue.parse(json);
 		if (object == null || object.isEmpty()) {

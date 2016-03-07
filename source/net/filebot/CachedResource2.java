@@ -32,8 +32,8 @@ public class CachedResource2<K, R> {
 
 	private Duration expirationTime;
 
-	private int retryCountLimit;
-	private Duration retryWaitTime;
+	private int retryLimit;
+	private Duration retryWait;
 
 	private final Cache cache;
 
@@ -41,16 +41,31 @@ public class CachedResource2<K, R> {
 		this(key, resource, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
 	}
 
-	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
+	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryLimit, Duration retryWait, Duration expirationTime, Cache cache) {
 		this.key = key;
 		this.resource = resource;
 		this.fetch = fetch;
 		this.parse = parse;
 		this.cast = cast;
 		this.expirationTime = expirationTime;
-		this.retryCountLimit = retryCountLimit;
-		this.retryWaitTime = retryWaitTime;
+		this.retryLimit = retryLimit;
+		this.retryWait = retryWait;
 		this.cache = cache;
+	}
+
+	public synchronized CachedResource2<K, R> fetch(Fetch fetch) {
+		this.fetch = fetch;
+		return this;
+	}
+
+	public synchronized CachedResource2<K, R> expire(Duration expirationTime) {
+		this.expirationTime = expirationTime;
+		return this;
+	}
+
+	public synchronized CachedResource2<K, R> retry(int retryLimit) {
+		this.retryLimit = retryLimit;
+		return this;
 	}
 
 	public synchronized R get() throws Exception {
@@ -59,7 +74,7 @@ public class CachedResource2<K, R> {
 			long lastModified = element == null ? 0 : element.getLatestOfCreationAndUpdateTime();
 
 			try {
-				ByteBuffer data = retry(() -> fetch.fetch(url, lastModified), retryCountLimit, retryWaitTime);
+				ByteBuffer data = retry(() -> fetch.fetch(url, lastModified), retryLimit, retryWait);
 
 				// 304 Not Modified
 				if (data == null && element != null && element.getObjectValue() != null) {

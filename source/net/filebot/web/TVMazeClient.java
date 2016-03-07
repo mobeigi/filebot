@@ -112,7 +112,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	protected Object request(String resource) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		return cache.json(resource, s -> getResource(resource), Cache.ONE_DAY).get();
+		return cache.json(resource, s -> getResource(resource)).get();
 	}
 
 	protected URL getResource(String resource) throws Exception {
