@@ -6,6 +6,7 @@ import static net.filebot.Logging.*;
 
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.cedarsoftware.util.io.JsonObject;
 import com.cedarsoftware.util.io.JsonReader;
@@ -26,20 +27,24 @@ public class JsonUtilities {
 	}
 
 	public static Object[] asArray(Object node) {
-		if (node instanceof Object[]) {
-			return (Object[]) node;
-		}
 		if (node instanceof JsonObject) {
 			JsonObject<?, ?> jsonObject = (JsonObject<?, ?>) node;
 			if (jsonObject.isArray()) {
 				return jsonObject.getArray();
 			}
 		}
+		if (node instanceof Object[]) {
+			return (Object[]) node;
+		}
 		return EMPTY_ARRAY;
 	}
 
 	public static Map<?, ?>[] asMapArray(Object node) {
 		return stream(asArray(node)).map(JsonUtilities::asMap).filter(m -> m.size() > 0).toArray(Map[]::new);
+	}
+
+	public static Stream<Map<?, ?>> streamJsonObjects(Object node) {
+		return stream(asMapArray(node));
 	}
 
 	public static Object[] getArray(Object node, String key) {
@@ -52,6 +57,10 @@ public class JsonUtilities {
 
 	public static Map<?, ?>[] getMapArray(Object node, String key) {
 		return asMapArray(asMap(node).get(key));
+	}
+
+	public static Stream<Map<?, ?>> streamJsonObjects(Object node, String key) {
+		return stream(getMapArray(node, key));
 	}
 
 	public static Map<?, ?> getFirstMap(Object node, String key) {

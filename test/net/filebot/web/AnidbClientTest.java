@@ -5,9 +5,6 @@ import static org.junit.Assert.*;
 import java.util.List;
 import java.util.Locale;
 
-import net.sf.ehcache.CacheManager;
-
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -130,12 +127,6 @@ public class AnidbClientTest {
 	@Test
 	public void getEpisodeListLink() throws Exception {
 		assertEquals("http://anidb.net/a1539", anidb.getEpisodeListLink(monsterSearchResult).toURL().toString());
-	}
-
-	@BeforeClass
-	@AfterClass
-	public static void clearCache() {
-		CacheManager.getInstance().clearAll();
 	}
 
 }

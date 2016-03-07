@@ -1,7 +1,6 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.Arrays.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -116,7 +115,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 
 		for (Object result : getArray(data, "results")) {
 			// pick most likely matching recording
-			return stream(getMapArray(result, "recordings")).sorted((Map<?, ?> r1, Map<?, ?> r2) -> {
+			return streamJsonObjects(result, "recordings").sorted((r1, r2) -> {
 				Integer i1 = getInteger(r1, "duration");
 				Integer i2 = getInteger(r2, "duration");
 				return Double.compare(i1 == null ? Double.NaN : Math.abs(i1 - targetDuration), i2 == null ? Double.NaN : Math.abs(i2 - targetDuration));
@@ -140,7 +139,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 						return audioTrack; // default to simple music info if album data is undesirable
 					}
 
-					for (Map<?, ?> release : asMapArray(releases)) {
+					return streamJsonObjects(releases).map(release -> {
 						AudioTrack thisRelease = audioTrack.clone();
 
 						try {
@@ -151,7 +150,7 @@ public class AcoustIDClient implements MusicIdentificationService {
 						}
 
 						if (thisRelease.albumReleaseDate == null || thisRelease.albumReleaseDate.getTimeStamp() >= (audioTrack.albumReleaseDate == null ? Long.MAX_VALUE : audioTrack.albumReleaseDate.getTimeStamp())) {
-							continue;
+							return null;
 						}
 
 						Map<?, ?> medium = getFirstMap(release, "mediums");
@@ -178,10 +177,8 @@ public class AcoustIDClient implements MusicIdentificationService {
 							// full info audio track
 							return thisRelease;
 						}
-					}
-
-					// default to simple music info if extended info is not available
-					return audioTrack;
+						return null;
+					}).filter(Objects::nonNull).findFirst().orElse(audioTrack); // default to simple music info if extended info is not available
 				} catch (Exception e) {
 					Logger.getLogger(AcoustIDClient.class.getName()).log(Level.WARNING, e.getMessage(), e);
 					return null;

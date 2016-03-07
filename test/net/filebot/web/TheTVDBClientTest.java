@@ -10,10 +10,7 @@ import java.util.Map;
 
 import net.filebot.web.TheTVDBClient.BannerDescriptor;
 import net.filebot.web.TheTVDBClient.MirrorType;
-import net.sf.ehcache.CacheManager;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TheTVDBClientTest {
@@ -178,12 +175,6 @@ public class TheTVDBClientTest {
 		assertEquals("fanart", banners.get(0).getBannerType());
 		assertEquals("1280x720", banners.get(0).getBannerType2());
 		assertEquals(486993, WebRequest.fetch(banners.get(0).getUrl()).remaining(), 0);
-	}
-
-	@BeforeClass
-	@AfterClass
-	public static void clearCache() {
-		CacheManager.getInstance().clearAll();
 	}
 
 }

@@ -7,10 +7,8 @@ import static net.filebot.web.WebRequest.*;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.swing.Icon;
@@ -62,7 +60,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		Object response = request("search/shows?q=" + encode(query, true));
 
 		// TODO: FUTURE WORK: consider adding TVmaze aka titles for each result, e.g. http://api.tvmaze.com/shows/1/akas
-		return stream(asMapArray(response)).map(it -> {
+		return streamJsonObjects(response).map(it -> {
 			Object show = it.get("show");
 			Integer id = getInteger(show, "id");
 			String name = getString(show, "name");
@@ -95,24 +93,19 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
-		TVMazeSearchResult show = (TVMazeSearchResult) searchResult;
-
-		SeriesInfo seriesInfo = fetchSeriesInfo(show, sortOrder, locale);
-		List<Episode> episodes = new ArrayList<Episode>(25);
+		SeriesInfo seriesInfo = fetchSeriesInfo((TVMazeSearchResult) searchResult, sortOrder, locale);
 
 		// e.g. http://api.tvmaze.com/shows/1/episodes
-		Object response = request("shows/" + show.getId() + "/episodes");
+		Object response = request("shows/" + seriesInfo.getId() + "/episodes");
 
-		for (Map<?, ?> episode : asMapArray(response)) {
+		List<Episode> episodes = streamJsonObjects(response).map(episode -> {
 			String episodeTitle = getString(episode, "name");
 			Integer seasonNumber = getInteger(episode, "season");
 			Integer episodeNumber = getInteger(episode, "number");
 			SimpleDate airdate = getStringValue(episode, "airdate", SimpleDate::parse);
 
-			if (episodeNumber != null && episodeTitle != null) {
-				episodes.add(new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, new SeriesInfo(seriesInfo)));
-			}
-		}
+			return new Episode(seriesInfo.getName(), seasonNumber, episodeNumber, episodeTitle, null, null, airdate, seriesInfo);
+		}).collect(toList());
 
 		return new SeriesData(seriesInfo, episodes);
 	}

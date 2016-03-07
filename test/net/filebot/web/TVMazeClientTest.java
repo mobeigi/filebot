@@ -1,14 +1,11 @@
 package net.filebot.web;
 
+import static net.filebot.web.EpisodeUtilities.*;
 import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Locale;
 
-import net.sf.ehcache.CacheManager;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TVMazeClientTest {
@@ -32,7 +29,7 @@ public class TVMazeClientTest {
 
 	@Test
 	public void getEpisodeList() throws Exception {
-		List<Episode> list = EpisodeUtilities.filterBySeason(client.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH), 7);
+		List<Episode> list = filterBySeason(client.getEpisodeList(buffySearchResult, SortOrder.Airdate, Locale.ENGLISH), 7);
 
 		assertEquals(22, list.size());
 
@@ -66,12 +63,6 @@ public class TVMazeClientTest {
 	@Test
 	public void getEpisodeListLinkAll() throws Exception {
 		assertEquals("http://www.tvmaze.com/shows/427", client.getEpisodeListLink(buffySearchResult).toString());
-	}
-
-	@BeforeClass
-	@AfterClass
-	public static void clearCache() {
-		CacheManager.getInstance().clearAll();
 	}
 
 }

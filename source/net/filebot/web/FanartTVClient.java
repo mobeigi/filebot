@@ -1,7 +1,6 @@
 package net.filebot.web;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.util.JsonUtilities.*;
 
@@ -45,7 +44,7 @@ public class FanartTVClient {
 				Object json = readJson(UTF_8.decode(data));
 
 				return asMap(json).entrySet().stream().flatMap(it -> {
-					return stream(asMapArray(it.getValue())).map(item -> {
+					return streamJsonObjects(it.getValue()).map(item -> {
 						Map<FanartProperty, String> fields = new EnumMap<FanartProperty, String>(FanartProperty.class);
 						fields.put(FanartProperty.type, it.getKey().toString());
 
