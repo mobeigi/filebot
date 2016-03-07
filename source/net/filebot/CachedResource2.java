@@ -22,7 +22,7 @@ public class CachedResource2<K, R> {
 
 	private K key;
 
-	private Source<K> source;
+	private Resource<K> source;
 	private Fetch fetch;
 	private Transform<ByteBuffer, ? extends Object> parse;
 	private Transform<? super Object, R> cast;
@@ -30,15 +30,15 @@ public class CachedResource2<K, R> {
 	private Duration expirationTime;
 
 	private int retryCountLimit;
-	private long retryWaitTime;
+	private Duration retryWaitTime;
 
 	private final Cache cache;
 
-	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
+	public CachedResource2(K key, Resource<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
 		this(key, source, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
 	}
 
-	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
+	public CachedResource2(K key, Resource<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
 		this.key = key;
 		this.source = source;
 		this.fetch = fetch;
@@ -46,7 +46,7 @@ public class CachedResource2<K, R> {
 		this.cast = cast;
 		this.expirationTime = expirationTime;
 		this.retryCountLimit = retryCountLimit;
-		this.retryWaitTime = retryWaitTime.toMillis();
+		this.retryWaitTime = retryWaitTime;
 		this.cache = cache;
 	}
 
@@ -80,7 +80,7 @@ public class CachedResource2<K, R> {
 		return cast.transform(value);
 	}
 
-	protected <T> T retry(Callable<T> callable, int retryCount, long retryWaitTime) throws Exception {
+	protected <T> T retry(Callable<T> callable, int retryCount, Duration retryWaitTime) throws Exception {
 		try {
 			return callable.call();
 		} catch (FileNotFoundException e) {
@@ -91,13 +91,13 @@ public class CachedResource2<K, R> {
 			if (retryCount > 0) {
 				throw e;
 			}
-			Thread.sleep(retryWaitTime);
-			return retry(callable, retryCount - 1, retryWaitTime * 2);
+			Thread.sleep(retryWaitTime.toMillis());
+			return retry(callable, retryCount - 1, retryWaitTime.multipliedBy(2));
 		}
 	}
 
 	@FunctionalInterface
-	public interface Source<K> {
+	public interface Resource<K> {
 		URL source(K key) throws Exception;
 	}
 

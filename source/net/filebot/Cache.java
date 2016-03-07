@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import net.filebot.CachedResource2.Fetch;
-import net.filebot.CachedResource2.Source;
+import net.filebot.CachedResource2.Resource;
 import net.filebot.CachedResource2.Transform;
 import net.filebot.web.FloodLimit;
 import net.sf.ehcache.Element;
@@ -28,7 +28,7 @@ public class Cache {
 		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
 	}
 
-	public <R> CachedResource2<String, R> resource(String key, Source<String> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime) {
+	public <R> CachedResource2<String, R> resource(String key, Resource<String> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime) {
 		return new CachedResource2<String, R>(key, source, fetch, parse, cast, expirationTime, this);
 	}
 
@@ -36,11 +36,11 @@ public class Cache {
 		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, expirationTime, this);
 	}
 
-	public CachedResource2<String, Document> xml(String key, Source<String> source, Duration expirationTime) {
+	public CachedResource2<String, Document> xml(String key, Resource<String> source, Duration expirationTime) {
 		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), expirationTime, this);
 	}
 
-	public CachedResource2<String, Object> json(String key, Source<String> source, Duration expirationTime) {
+	public CachedResource2<String, Object> json(String key, Resource<String> source, Duration expirationTime) {
 		return new CachedResource2<String, Object>(key, source, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), expirationTime, this);
 	}
 
