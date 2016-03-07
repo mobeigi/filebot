@@ -2,17 +2,15 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static net.filebot.CachedResource2.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +31,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.Language;
 import net.filebot.ResourceManager;
 import net.filebot.web.TMDbClient.MovieInfo.MovieProperty;
@@ -67,7 +67,7 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	@Override
-	public List<Movie> searchMovie(String query, Locale locale) throws IOException {
+	public List<Movie> searchMovie(String query, Locale locale) throws Exception {
 		// query by name with year filter if possible
 		Matcher nameYear = Pattern.compile("(.+)\\b\\(?(19\\d{2}|20\\d{2})\\)?$").matcher(query.trim());
 		if (nameYear.matches()) {
@@ -77,7 +77,7 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 	}
 
-	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws IOException {
+	public List<Movie> searchMovie(String movieName, int movieYear, Locale locale, boolean extendedInfo) throws Exception {
 		// ignore queries that are too short to yield good results
 		if (movieName.length() < 3 && !(movieName.length() >= 1 && movieYear > 0)) {
 			return emptyList();
@@ -155,7 +155,7 @@ public class TMDbClient implements MovieIdentificationService {
 	}
 
 	@Override
-	public Movie getMovieDescriptor(Movie id, Locale locale) throws IOException {
+	public Movie getMovieDescriptor(Movie id, Locale locale) throws Exception {
 		if (id.getTmdbId() > 0 || id.getImdbId() > 0) {
 			MovieInfo info = getMovieInfo(id, locale, false);
 			if (info != null) {
@@ -175,7 +175,7 @@ public class TMDbClient implements MovieIdentificationService {
 		throw new UnsupportedOperationException();
 	}
 
-	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws IOException {
+	public MovieInfo getMovieInfo(Movie movie, Locale locale, boolean extendedInfo) throws Exception {
 		try {
 			if (movie.getTmdbId() > 0) {
 				return getMovieInfo(String.valueOf(movie.getTmdbId()), locale, extendedInfo);
@@ -188,7 +188,7 @@ public class TMDbClient implements MovieIdentificationService {
 		return null;
 	}
 
-	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws IOException {
+	public MovieInfo getMovieInfo(String id, Locale locale, boolean extendedInfo) throws Exception {
 		JSONObject response = request("movie/" + id, extendedInfo ? singletonMap("append_to_response", "alternative_titles,releases,casts,trailers") : null, locale, REQUEST_LIMIT);
 
 		Map<MovieProperty, String> fields = new EnumMap<MovieProperty, String>(MovieProperty.class);
@@ -325,7 +325,7 @@ public class TMDbClient implements MovieIdentificationService {
 		return new MovieInfo(fields, alternativeTitles, genres, certifications, spokenLanguages, productionCountries, productionCompanies, cast, trailers);
 	}
 
-	public List<Artwork> getArtwork(String id) throws IOException {
+	public List<Artwork> getArtwork(String id) throws Exception {
 		// http://api.themoviedb.org/3/movie/11/images
 		JSONObject config = request("configuration", null, null, REQUEST_LIMIT);
 		String baseUrl = (String) ((JSONObject) config.get("images")).get("base_url");
@@ -350,7 +350,7 @@ public class TMDbClient implements MovieIdentificationService {
 		return artwork;
 	}
 
-	public JSONObject request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws IOException {
+	public JSONObject request(String resource, Map<String, Object> parameters, Locale locale, final FloodLimit limit) throws Exception {
 		// default parameters
 		LinkedHashMap<String, Object> data = new LinkedHashMap<String, Object>();
 		if (parameters != null) {
@@ -371,35 +371,21 @@ public class TMDbClient implements MovieIdentificationService {
 		}
 		data.put("api_key", apikey);
 
-		URL url = new URL("http", host, "/" + version + "/" + resource + "?" + encodeParameters(data, true));
+		String key = resource + '?' + encodeParameters(data, true);
 
-		CachedResource<String> json = new ETagCachedResource<String>(url.toString(), String.class) {
+		Cache etagStorage = Cache.getCache("etag", CacheType.Monthly);
+		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
+		String json = cache.text(key, s -> getResource(s), Cache.ONE_WEEK, withPermit(fetchIfNoneMatch(etagStorage), r -> REQUEST_LIMIT.acquirePermit() != null)).get();
 
-			@Override
-			public String process(ByteBuffer data) throws Exception {
-				return Charset.forName("UTF-8").decode(data).toString();
-			}
-
-			@Override
-			protected ByteBuffer fetchData(URL url, long lastModified) throws IOException {
-				try {
-					if (limit != null) {
-						limit.acquirePermit();
-					}
-					return super.fetchData(url, lastModified);
-				} catch (FileNotFoundException e) {
-					return ByteBuffer.allocate(0);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		};
-
-		JSONObject object = (JSONObject) JSONValue.parse(json.get());
+		JSONObject object = (JSONObject) JSONValue.parse(json);
 		if (object == null || object.isEmpty()) {
-			throw new FileNotFoundException("Resource not found: " + url);
+			throw new FileNotFoundException("Resource not found: " + getResource(key));
 		}
 		return object;
+	}
+
+	public URL getResource(String file) throws Exception {
+		return new URL("http", host, "/" + version + "/" + file);
 	}
 
 	protected List<JSONObject> jsonList(final Object array) {

@@ -6,15 +6,12 @@ import static net.filebot.Logging.*;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
 import net.filebot.CachedResource2.Fetch;
-import net.filebot.CachedResource2.Resource;
 import net.filebot.CachedResource2.Transform;
-import net.filebot.web.FloodLimit;
 import net.sf.ehcache.Element;
 
 import org.w3c.dom.Document;
@@ -28,20 +25,20 @@ public class Cache {
 		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
 	}
 
-	public <R> CachedResource2<String, R> resource(String key, Resource<String> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime) {
-		return new CachedResource2<String, R>(key, source, fetch, parse, cast, expirationTime, this);
+	public CachedResource2<String, String> text(String key, Transform<String, URL> resource, Duration expirationTime, Fetch fetch) {
+		return new CachedResource2<String, String>(key, resource, fetch, getText(UTF_8), String.class::cast, expirationTime, this);
 	}
 
-	public CachedResource2<String, String> text(String url, Duration expirationTime, FloodLimit limit) {
-		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, expirationTime, this);
+	public CachedResource2<String, Document> xml(String key, Transform<String, URL> resource, Duration expirationTime) {
+		return new CachedResource2<String, Document>(key, resource, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), expirationTime, this);
 	}
 
-	public CachedResource2<String, Document> xml(String key, Resource<String> source, Duration expirationTime) {
-		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), expirationTime, this);
+	public CachedResource2<String, Object> json(String key, Transform<String, URL> resource, Duration expirationTime) {
+		return json(key, resource, expirationTime, fetchIfModified());
 	}
 
-	public CachedResource2<String, Object> json(String key, Resource<String> source, Duration expirationTime) {
-		return new CachedResource2<String, Object>(key, source, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), expirationTime, this);
+	public CachedResource2<String, Object> json(String key, Transform<String, URL> resource, Duration expirationTime, Fetch fetch) {
+		return new CachedResource2<String, Object>(key, resource, fetch, validateJson(getText(UTF_8)), getJson(String.class::cast), expirationTime, this);
 	}
 
 	private final net.sf.ehcache.Cache cache;

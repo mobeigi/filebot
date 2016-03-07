@@ -2,13 +2,14 @@ package net.filebot.web;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
+import static net.filebot.CachedResource2.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
 import java.io.File;
-import java.time.Duration;
+import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
@@ -134,12 +135,16 @@ public class OMDbClient implements MovieIdentificationService {
 	}
 
 	public Map<?, ?> request(Map<String, Object> parameters) throws Exception {
-		String url = "http://www.omdbapi.com/?" + encodeParameters(parameters, true);
+		String key = '?' + encodeParameters(parameters, true);
 
 		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
-		String json = cache.text(url, Duration.ofDays(7), REQUEST_LIMIT).get();
+		Object json = cache.json(key, s -> getResource(s), Cache.ONE_WEEK, withPermit(fetchIfModified(), r -> REQUEST_LIMIT.acquirePermit() != null)).get();
 
-		return asMap(readJson(json));
+		return asMap(json);
+	}
+
+	public URL getResource(String file) throws Exception {
+		return new URL("http://www.omdbapi.com/" + file);
 	}
 
 	public Map<String, String> getMovieInfo(Integer i, String t, String y, boolean tomatoes) throws Exception {

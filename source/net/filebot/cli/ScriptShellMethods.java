@@ -276,11 +276,11 @@ public class ScriptShellMethods {
 	}
 
 	public static ByteBuffer get(URL self) throws IOException {
-		return WebRequest.fetch(self, 0, null, null);
+		return WebRequest.fetch(self, 0, null, null, null);
 	}
 
 	public static ByteBuffer get(URL self, Map<String, String> requestParameters) throws IOException {
-		return WebRequest.fetch(self, 0, requestParameters, null);
+		return WebRequest.fetch(self, 0, null, requestParameters, null);
 	}
 
 	public static ByteBuffer post(URL self, Map<String, ?> parameters, Map<String, String> requestParameters) throws IOException {

@@ -97,17 +97,25 @@ public final class WebRequest {
 	}
 
 	public static ByteBuffer fetch(URL resource) throws IOException {
-		return fetch(resource, 0, null, null);
+		return fetch(resource, 0, null, null, null);
 	}
 
 	public static ByteBuffer fetchIfModified(URL resource, long ifModifiedSince) throws IOException {
-		return fetch(resource, ifModifiedSince, null, null);
+		return fetch(resource, ifModifiedSince, null, null, null);
 	}
 
-	public static ByteBuffer fetch(URL url, long ifModifiedSince, Map<String, String> requestParameters, Map<String, List<String>> responseParameters) throws IOException {
+	public static ByteBuffer fetchIfNoneMatch(URL resource, Object etag) throws IOException {
+		return fetch(resource, 0, etag, null, null);
+	}
+
+	public static ByteBuffer fetch(URL url, long ifModifiedSince, Object etag, Map<String, String> requestParameters, Map<String, List<String>> responseParameters) throws IOException {
 		URLConnection connection = url.openConnection();
+
 		if (ifModifiedSince > 0) {
 			connection.setIfModifiedSince(ifModifiedSince);
+		} else if (etag != null) {
+			// If-Modified-Since must not be set if If-None-Match is set
+			connection.addRequestProperty("If-None-Match", etag.toString());
 		}
 
 		try {

@@ -8,6 +8,9 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import net.filebot.util.JsonUtilities;
@@ -22,7 +25,7 @@ public class CachedResource2<K, R> {
 
 	private K key;
 
-	private Resource<K> source;
+	private Transform<K, URL> resource;
 	private Fetch fetch;
 	private Transform<ByteBuffer, ? extends Object> parse;
 	private Transform<? super Object, R> cast;
@@ -34,13 +37,13 @@ public class CachedResource2<K, R> {
 
 	private final Cache cache;
 
-	public CachedResource2(K key, Resource<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
-		this(key, source, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
+	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
+		this(key, resource, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
 	}
 
-	public CachedResource2(K key, Resource<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
+	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
 		this.key = key;
-		this.source = source;
+		this.resource = resource;
 		this.fetch = fetch;
 		this.parse = parse;
 		this.cast = cast;
@@ -52,13 +55,11 @@ public class CachedResource2<K, R> {
 
 	public synchronized R get() throws Exception {
 		Object value = cache.computeIfStale(key, expirationTime, element -> {
-			URL resource = source.source(key);
+			URL url = resource.transform(key);
 			long lastModified = element == null ? 0 : element.getLatestOfCreationAndUpdateTime();
 
-			debug.fine(format("Fetch %s (If-Modified-Since: %tc)", resource, lastModified));
-
 			try {
-				ByteBuffer data = retry(() -> fetch.fetch(resource, lastModified), retryCountLimit, retryWaitTime);
+				ByteBuffer data = retry(() -> fetch.fetch(url, lastModified), retryCountLimit, retryWaitTime);
 
 				// 304 Not Modified
 				if (data == null && element != null && element.getObjectValue() != null) {
@@ -94,11 +95,6 @@ public class CachedResource2<K, R> {
 			Thread.sleep(retryWaitTime.toMillis());
 			return retry(callable, retryCount - 1, retryWaitTime.multipliedBy(2));
 		}
-	}
-
-	@FunctionalInterface
-	public interface Resource<K> {
-		URL source(K key) throws Exception;
 	}
 
 	@FunctionalInterface
@@ -151,10 +147,34 @@ public class CachedResource2<K, R> {
 	public static Fetch fetchIfModified() {
 		return (url, lastModified) -> {
 			try {
+				debug.fine(format("Fetch %s (If-Modified-Since: %tc)", url, lastModified));
 				return WebRequest.fetchIfModified(url, lastModified);
 			} catch (FileNotFoundException e) {
 				debug.warning(format("Resource not found: %s => %s", url, e));
 				return ByteBuffer.allocate(0);
+			}
+		};
+	}
+
+	public static Fetch fetchIfNoneMatch(Cache etagStorage) {
+		return (url, lastModified) -> {
+			Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+
+			String etagKey = url.toString();
+			Object etagValue = etagStorage.get(etagKey);
+
+			try {
+				debug.fine(format("Fetch %s (If-None-Match: %s, If-Modified-Since: %tc)", url, etagValue, lastModified));
+				return WebRequest.fetch(url, lastModified, etagValue, null, responseHeaders);
+			} catch (FileNotFoundException e) {
+				debug.warning(format("Resource not found: %s => %s", url, e));
+				return ByteBuffer.allocate(0);
+			} finally {
+				List<String> value = responseHeaders.get("ETag");
+				if (value != null && value.size() > 0 && !value.contains(etagValue)) {
+					debug.finest(format("ETag %s", value));
+					etagStorage.put(etagKey, value.get(0));
+				}
 			}
 		};
 	}
