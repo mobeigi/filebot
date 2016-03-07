@@ -3,6 +3,8 @@ package net.filebot.util;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathConstants;
@@ -140,11 +142,12 @@ public final class XPathUtilities {
 		}
 	}
 
-	/**
-	 * Dummy constructor to prevent instantiation.
-	 */
-	private XPathUtilities() {
-		throw new UnsupportedOperationException();
+	public static Stream<Node> streamChildren(Node parent) {
+		return stream(parent.getChildNodes());
+	}
+
+	public static Stream<Node> stream(NodeList nodes) {
+		return IntStream.range(0, nodes.getLength()).mapToObj(nodes::item);
 	}
 
 	protected static class NodeListDecorator extends AbstractList<Node> {
@@ -165,6 +168,10 @@ public final class XPathUtilities {
 			return nodes.getLength();
 		}
 
+	}
+
+	private XPathUtilities() {
+		throw new UnsupportedOperationException();
 	}
 
 }

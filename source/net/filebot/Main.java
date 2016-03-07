@@ -1,22 +1,23 @@
 package net.filebot;
 
 import static java.awt.GraphicsEnvironment.*;
+import static java.util.stream.Collectors.*;
 import static javax.swing.JOptionPane.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
+import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.util.ui.SwingUI.*;
 
 import java.awt.Desktop;
 import java.awt.Dialog.ModalityType;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.ByteBuffer;
+import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
@@ -26,14 +27,11 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.security.Policy;
 import java.security.ProtectionDomain;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,7 +39,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.filebot.cli.ArgumentBean;
 import net.filebot.cli.ArgumentProcessor;
@@ -54,14 +51,12 @@ import net.filebot.ui.MainFrame;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
-import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.PreferencesMap.PreferencesEntry;
 import net.filebot.util.TeePrintStream;
-import net.filebot.web.CachedResource;
 import net.miginfocom.swing.MigLayout;
 
 import org.kohsuke.args4j.CmdLineException;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Document;
 
 public class Main {
 
@@ -276,74 +271,41 @@ public class Main {
 	 * Show update notifications if updates are available
 	 */
 	private static void checkUpdate() throws Exception {
-		final Properties updateProperties = new CachedResource<Properties>(getApplicationProperty("update.url"), Properties.class, CachedResource.ONE_WEEK, 0, 0) {
+		Cache cache = Cache.getCache(getApplicationName(), CacheType.Persistent);
+		Document dom = cache.xml("update.url", s -> new URL(getApplicationProperty(s)), Cache.ONE_WEEK).get();
 
-			@Override
-			public Properties process(ByteBuffer data) {
-				try {
-					Properties properties = new Properties();
-					NodeList fields = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteBufferInputStream(data)).getFirstChild().getChildNodes();
-					for (int i = 0; i < fields.getLength(); i++) {
-						properties.setProperty(fields.item(i).getNodeName(), fields.item(i).getTextContent().trim());
-					}
-					return properties;
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}.get();
+		// parse update xml
+		final Map<String, String> update = streamChildren(dom.getFirstChild()).collect(toMap(n -> n.getNodeName(), n -> n.getTextContent().trim()));
 
 		// check if update is required
-		int latestRev = Integer.parseInt(updateProperties.getProperty("revision"));
+		int latestRev = Integer.parseInt(update.get("revision"));
 		int currentRev = getApplicationRevisionNumber();
 
 		if (latestRev > currentRev && currentRev > 0) {
-			SwingUtilities.invokeLater(new Runnable() {
+			SwingUtilities.invokeLater(() -> {
+				final JDialog dialog = new JDialog(JFrame.getFrames()[0], update.get("title"), ModalityType.APPLICATION_MODAL);
+				final JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
+				dialog.setContentPane(pane);
 
-				@Override
-				public void run() {
-					final JDialog dialog = new JDialog(JFrame.getFrames()[0], updateProperties.getProperty("title"), ModalityType.APPLICATION_MODAL);
-					final JPanel pane = new JPanel(new MigLayout("fill, nogrid, insets dialog"));
-					dialog.setContentPane(pane);
+				pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
+				pane.add(new JLabel(update.get("message")), "gap 10, wrap paragraph:push");
 
-					pane.add(new JLabel(ResourceManager.getIcon("window.icon.medium")), "aligny top");
-					pane.add(new JLabel(updateProperties.getProperty("message")), "gap 10, wrap paragraph:push");
-					pane.add(new JButton(new AbstractAction("Download", ResourceManager.getIcon("dialog.continue")) {
+				pane.add(newButton("Download", ResourceManager.getIcon("dialog.continue"), evt -> {
+					openURI(update.get("download"));
+					dialog.setVisible(false);
+				}), "tag ok");
 
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							try {
-								Desktop.getDesktop().browse(URI.create(updateProperties.getProperty("download")));
-							} catch (IOException e) {
-								throw new RuntimeException(e);
-							} finally {
-								dialog.setVisible(false);
-							}
-						}
-					}), "tag ok");
-					pane.add(new JButton(new AbstractAction("Details", ResourceManager.getIcon("action.report")) {
+				pane.add(newButton("Details", ResourceManager.getIcon("action.report"), evt -> {
+					openURI(update.get("discussion"));
+				}), "tag help2");
 
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							try {
-								Desktop.getDesktop().browse(URI.create(updateProperties.getProperty("discussion")));
-							} catch (IOException e) {
-								throw new RuntimeException(e);
-							}
-						}
-					}), "tag help2");
-					pane.add(new JButton(new AbstractAction("Ignore", ResourceManager.getIcon("dialog.cancel")) {
+				pane.add(newButton("Ignore", ResourceManager.getIcon("dialog.cancel"), evt -> {
+					dialog.setVisible(false);
+				}), "tag cancel");
 
-						@Override
-						public void actionPerformed(ActionEvent evt) {
-							dialog.setVisible(false);
-						}
-					}), "tag cancel");
-
-					dialog.pack();
-					dialog.setLocation(getOffsetLocation(dialog.getOwner()));
-					dialog.setVisible(true);
-				}
+				dialog.pack();
+				dialog.setLocation(getOffsetLocation(dialog.getOwner()));
+				dialog.setVisible(true);
 			});
 		}
 	}
@@ -357,9 +319,8 @@ public class Main {
 			started.setValue("1");
 			started.flush();
 
-			SwingUtilities.invokeLater(() -> {
-				GettingStartedStage.start();
-			});
+			// open Getting Started
+			SwingUtilities.invokeLater(() -> GettingStartedStage.start());
 		}
 	}
 
@@ -371,18 +332,14 @@ public class Main {
 			return;
 		}
 
-		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", HistorySpooler.getInstance().getPersistentHistoryTotalSize());
-		String[] actions = new String[] { "Donate! :)", donationRev > 0 ? "Not this time" : "Later" };
+		String message = String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider a donation to me and my work. It will help to<br>make FileBot even better!<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", HistorySpooler.getInstance().getPersistentHistoryTotalSize());
+		String[] actions = { "Donate! :)", donationRev > 0 ? "Not this time" : "Later" };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("message.donate"), actions, actions[0]);
 		pane.createDialog(null, "Please Donate").setVisible(true);
+
 		if (pane.getValue() == actions[0]) {
-			try {
-				Desktop.getDesktop().browse(new URI(getDonateURL()));
-			} catch (Exception e) {
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to browse URI", e);
-			} finally {
-				donation.setValue(String.valueOf(currentRev));
-			}
+			openURI(getDonateURL());
+			donation.setValue(String.valueOf(currentRev));
 		} else {
 			if (donationRev > 0 && donationRev < currentRev) {
 				donation.setValue(String.valueOf(currentRev));
@@ -401,16 +358,20 @@ public class Main {
 		int currentRev = getApplicationRevisionNumber();
 		donation.setValue(String.valueOf(currentRev));
 
-		String message = String.format(Locale.ROOT, "<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice little review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), HistorySpooler.getInstance().getPersistentHistoryTotalSize());
-		String[] actions = new String[] { "Review! I like FileBot. :)", "Never! Don't bother me again." };
+		String message = String.format("<html><p style='font-size:16pt; font-weight:bold'>Thank you for using FileBot!</p><br><p>It has taken many nights to develop this application. If you enjoy using it,<br>please consider writing a nice little review on the %s.<p><p style='font-size:14pt; font-weight:bold'>You've renamed %,d files.</p><br><html>", getAppStoreName(), HistorySpooler.getInstance().getPersistentHistoryTotalSize());
+		String[] actions = { "Review! I like FileBot. :)", "Never! Don't bother me again." };
 		JOptionPane pane = new JOptionPane(message, INFORMATION_MESSAGE, YES_NO_OPTION, ResourceManager.getIcon("window.icon.large"), actions, actions[0]);
 		pane.createDialog(null, "Please rate FileBot").setVisible(true);
 		if (pane.getValue() == actions[0]) {
-			try {
-				Desktop.getDesktop().browse(getAppStoreURI()); // this will naturally only work on Mac or Ubuntu ;)
-			} catch (Exception e) {
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to browse URI", e);
-			}
+			openURI(getAppStoreLink());
+		}
+	}
+
+	private static void openURI(String uri) {
+		try {
+			Desktop.getDesktop().browse(URI.create(uri));
+		} catch (Exception e) {
+			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Failed to open URI: " + uri, e);
 		}
 	}
 

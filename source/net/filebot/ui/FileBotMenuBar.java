@@ -1,17 +1,16 @@
 package net.filebot.ui;
 
+import static net.filebot.util.ui.SwingUI.*;
+
 import java.awt.Desktop;
-import java.awt.event.ActionEvent;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
-import net.filebot.Main;
 import net.filebot.Settings;
 
 public class FileBotMenuBar {
@@ -19,7 +18,7 @@ public class FileBotMenuBar {
 	public static JMenuBar createHelp() {
 		JMenu help = new JMenu("Help");
 		Settings.getHelpURIs().forEach((title, uri) -> {
-			help.add(createLink(title, uri));
+			help.add(createLink(title, URI.create(uri)));
 		});
 
 		JMenuBar menuBar = new JMenuBar();
@@ -28,17 +27,13 @@ public class FileBotMenuBar {
 	}
 
 	private static Action createLink(final String title, final URI uri) {
-		return new AbstractAction(title) {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				try {
-					Desktop.getDesktop().browse(uri);
-				} catch (Exception e) {
-					Logger.getLogger(Main.class.getName()).log(Level.WARNING, "Failed to browse URI", e);
-				}
+		return newAction(title, null, evt -> {
+			try {
+				Desktop.getDesktop().browse(uri);
+			} catch (Exception e) {
+				Logger.getLogger(FileBotMenuBar.class.getName()).log(Level.SEVERE, "Failed to open URI: " + uri, e);
 			}
-		};
+		});
 	}
 
 }

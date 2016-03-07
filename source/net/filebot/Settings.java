@@ -5,7 +5,6 @@ import static net.filebot.util.StringUtilities.*;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
-import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -198,11 +197,11 @@ public final class Settings {
 		return null;
 	}
 
-	public static URI getAppStoreURI() {
+	public static String getAppStoreLink() {
 		if (isMacApp())
-			return getApplicationLink("link.mas");
+			return getApplicationProperty("link.mas");
 		if (isUbuntuApp())
-			return getApplicationLink("link.usc");
+			return getApplicationProperty("link.usc");
 
 		return null;
 	}
@@ -216,28 +215,25 @@ public final class Settings {
 		return getApplicationProperty("link.app.help") + '#' + getApplicationDeployment();
 	}
 
-	public static Map<String, URI> getHelpURIs() {
-		Map<String, URI> links = new LinkedHashMap<String, URI>();
-		links.put("Getting Started", getApplicationLink("link.intro"));
-		links.put("FAQ", getApplicationLink("link.faq"));
-		links.put("Forums", getApplicationLink("link.forums"));
+	public static Map<String, String> getHelpURIs() {
+		Map<String, String> links = new LinkedHashMap<String, String>();
+
+		links.put("Getting Started", getApplicationProperty("link.intro"));
+		links.put("FAQ", getApplicationProperty("link.faq"));
+		links.put("Forums", getApplicationProperty("link.forums"));
 
 		if (isMacSandbox()) {
-			links.put("Report Bugs", getApplicationLink("link.help.mas"));
-			links.put("Request Help", getApplicationLink("link.help.mas"));
+			links.put("Report Bugs", getApplicationProperty("link.help.mas"));
+			links.put("Request Help", getApplicationProperty("link.help.mas"));
 		} else {
-			links.put("Report Bugs", getApplicationLink("link.bugs"));
-			links.put("Request Help", getApplicationLink("link.help"));
+			links.put("Report Bugs", getApplicationProperty("link.bugs"));
+			links.put("Request Help", getApplicationProperty("link.help"));
 		}
 
-		links.put("Contact us on Twitter", getApplicationLink("link.twitter"));
-		links.put("Contact us on Facebook", getApplicationLink("link.facebook"));
+		links.put("Contact us on Twitter", getApplicationProperty("link.twitter"));
+		links.put("Contact us on Facebook", getApplicationProperty("link.facebook"));
 
 		return links;
-	}
-
-	public static URI getApplicationLink(String key) {
-		return URI.create(getApplicationProperty(key));
 	}
 
 	public static Settings forPackage(Class<?> type) {
