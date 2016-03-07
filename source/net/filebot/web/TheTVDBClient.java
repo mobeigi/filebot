@@ -2,17 +2,17 @@ package net.filebot.web;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.StringUtilities.*;
 import static net.filebot.util.XPathUtilities.*;
 import static net.filebot.web.EpisodeUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -40,7 +40,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	private final String host = "www.thetvdb.com";
 
-	private final Map<MirrorType, String> mirrors = new EnumMap<MirrorType, String>(MirrorType.class);
+	private final Map<MirrorType, String> mirrors = MirrorType.newMap();
 
 	private final String apikey;
 
@@ -106,7 +106,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// perform online search
-		Document dom = getXmlResource(MirrorType.SEARCH, "/api/GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
+		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 
 		List<Node> nodes = selectNodes("Data/Series", dom);
 		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
@@ -140,7 +140,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 	@Override
 	protected SeriesData fetchSeriesData(SearchResult searchResult, SortOrder sortOrder, Locale locale) throws Exception {
 		TheTVDBSearchResult series = (TheTVDBSearchResult) searchResult;
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getSeriesId() + "/all/" + getLanguageCode(locale) + ".xml");
+		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getSeriesId() + "/all/" + getLanguageCode(locale) + ".xml");
 
 		// parse series info
 		Node seriesNode = selectNode("Data/Series", dom);
@@ -163,9 +163,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		seriesInfo.setGenres(getListContent("Genre", "\\|", seriesNode));
 		seriesInfo.setStartDate(SimpleDate.parse(getTextContent("FirstAired", seriesNode)));
 
-		seriesInfo.setBannerUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("banner", seriesNode)));
-		seriesInfo.setFanartUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("fanart", seriesNode)));
-		seriesInfo.setPosterUrl(getResourceURL(MirrorType.BANNER, "/banners/" + getTextContent("poster", seriesNode)));
+		seriesInfo.setBannerUrl(getResource(MirrorType.BANNER, getTextContent("banner", seriesNode)));
+		seriesInfo.setFanartUrl(getResource(MirrorType.BANNER, getTextContent("fanart", seriesNode)));
+		seriesInfo.setPosterUrl(getResource(MirrorType.BANNER, getTextContent("poster", seriesNode)));
 
 		// parse episode data
 		List<Node> nodes = selectNodes("Data/Episode", dom);
@@ -237,7 +237,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
+		Document dom = getXmlResource(MirrorType.XML, "series/" + id + "/all/" + getLanguageCode(locale) + ".xml");
 		String name = selectString("//SeriesName", dom);
 
 		TheTVDBSearchResult series = new TheTVDBSearchResult(name, id);
@@ -255,7 +255,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return cachedItem;
 		}
 
-		Document dom = getXmlResource(null, "/api/GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
+		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeriesByRemoteID.php?imdbid=" + imdbid + "&language=" + getLanguageCode(locale));
 
 		String id = selectString("//seriesid", dom);
 		String name = selectString("//SeriesName", dom);
@@ -268,112 +268,86 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		return series;
 	}
 
-	protected String getMirror(MirrorType mirrorType) throws IOException {
+	protected String getMirror(MirrorType mirrorType) throws Exception {
+		// use default server
+		if (mirrorType == MirrorType.NULL) {
+			return "http://thetvdb.com";
+		}
+
 		synchronized (mirrors) {
+			// initialize mirrors
 			if (mirrors.isEmpty()) {
-				// try cache first
-				try {
-					@SuppressWarnings("unchecked")
-					Map<MirrorType, String> cachedMirrors = getCache().getData("mirrors", null, null, Map.class);
-					if (cachedMirrors != null) {
-						mirrors.putAll(cachedMirrors);
-						return mirrors.get(mirrorType);
-					}
-				} catch (Exception e) {
-					Logger.getLogger(getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-				}
+				Document dom = getXmlResource(MirrorType.NULL, "mirrors.xml");
 
-				// initialize mirrors
-				Document dom = getXmlResource(null, "/api/" + apikey + "/mirrors.xml");
-
-				// all mirrors by type
-				Map<MirrorType, List<String>> mirrorListMap = new EnumMap<MirrorType, List<String>>(MirrorType.class);
-
-				// initialize mirror list per type
-				for (MirrorType type : MirrorType.values()) {
-					mirrorListMap.put(type, new ArrayList<String>(5));
-				}
-
-				// traverse all mirrors
-				for (Node node : selectNodes("Mirrors/Mirror", dom)) {
-					// mirror data
+				// collect all mirror data
+				Map<MirrorType, List<String>> mirrorLists = selectNodes("Mirrors/Mirror", dom).stream().flatMap(node -> {
 					String mirror = getTextContent("mirrorpath", node);
 					int typeMask = Integer.parseInt(getTextContent("typemask", node));
 
-					// add mirror to the according type lists
-					for (MirrorType type : MirrorType.fromTypeMask(typeMask)) {
-						mirrorListMap.get(type).add(mirror);
-					}
-				}
+					return MirrorType.fromTypeMask(typeMask).stream().collect(toMap(m -> m, m -> mirror)).entrySet().stream();
+				}).collect(groupingBy(Entry::getKey, MirrorType::newMap, mapping(Entry::getValue, toList())));
 
-				// put random entry from each type list into mirrors
+				// select random mirror for each type
 				Random random = new Random();
 
-				for (MirrorType type : MirrorType.values()) {
-					List<String> list = mirrorListMap.get(type);
-
-					if (!list.isEmpty()) {
-						mirrors.put(type, list.get(random.nextInt(list.size())));
-					}
-				}
-
-				getCache().putData("mirrors", null, null, mirrors);
+				mirrorLists.forEach((type, options) -> {
+					String selection = options.get(random.nextInt(options.size()));
+					mirrors.put(type, selection);
+				});
 			}
 
+			// return selected mirror
 			return mirrors.get(mirrorType);
 		}
 	}
 
-	protected Document getXmlResource(final MirrorType mirrorType, final String path) throws IOException {
-		CachedXmlResource resource = new CachedXmlResource(path) {
-
-			@Override
-			protected URL getResourceLocation(String path) throws IOException {
-				return getResourceURL(mirrorType, path);
-			};
-		};
-
-		// fetch data or retrieve from cache
-		try {
-			return resource.getDocument();
-		} catch (FileNotFoundException e) {
-			throw new FileNotFoundException("Resource not found: " + getResourceURL(mirrorType, path)); // simplify error message
-		}
+	protected Document getXmlResource(MirrorType mirror, String path) throws Exception {
+		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
+		Duration expirationTime = Duration.ofDays(1);
+		Resource<Document> xml = cache.xml(path, s -> getResource(mirror, s), expirationTime);
+		return xml.get();
 	}
 
-	protected URL getResourceURL(MirrorType mirrorType, String path) throws IOException {
-		if (mirrorType != null) {
-			// use mirror
-			String mirror = getMirror(mirrorType);
-			if (mirror != null && mirror.length() > 0) {
-				return new URL(mirror + path);
-			}
+	protected URL getResource(MirrorType mirror, String path) throws Exception {
+		StringBuilder url = new StringBuilder(getMirror(mirror)).append('/').append(mirror.prefix()).append('/');
+		if (mirror.keyRequired()) {
+			url.append(apikey).append('/');
 		}
-
-		// use default server
-		return new URL("http", "thetvdb.com", path);
+		return new URL(url.append(path).toString());
 	}
 
 	protected static enum MirrorType {
-		XML(1), BANNER(2), ZIP(4), SEARCH(1);
 
-		private final int bitMask;
+		NULL(0), SEARCH(1), XML(1), BANNER(2);
+
+		final int bitMask;
 
 		private MirrorType(int bitMask) {
 			this.bitMask = bitMask;
 		}
 
-		public static EnumSet<MirrorType> fromTypeMask(int typeMask) {
-			// initialize enum set with all types
-			EnumSet<MirrorType> enumSet = EnumSet.allOf(MirrorType.class);
-			for (MirrorType type : values()) {
-				if ((typeMask & type.bitMask) == 0) {
-					// remove types that are not set
-					enumSet.remove(type);
-				}
-			}
-			return enumSet;
+		public String prefix() {
+			return this != BANNER ? "api" : "banners";
+		}
+
+		public boolean keyRequired() {
+			return this != BANNER && this != SEARCH;
+		}
+
+		public static EnumSet<MirrorType> fromTypeMask(int mask) {
+			// convert bit mask to enumset
+			return EnumSet.of(SEARCH, XML, BANNER).stream().filter(m -> {
+				return (mask & m.bitMask) != 0;
+			}).collect(toCollection(MirrorType::newSet));
 		};
+
+		public static EnumSet<MirrorType> newSet() {
+			return EnumSet.noneOf(MirrorType.class);
+		}
+
+		public static <T> EnumMap<MirrorType, T> newMap() {
+			return new EnumMap<MirrorType, T>(MirrorType.class);
+		}
 
 	}
 
@@ -421,7 +395,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 			return asList(cachedList);
 		}
 
-		Document dom = getXmlResource(MirrorType.XML, "/api/" + apikey + "/series/" + series.getId() + "/banners.xml");
+		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
 
 		List<Node> nodes = selectNodes("//Banner", dom);
 		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
@@ -431,7 +405,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				Map<BannerProperty, String> item = new EnumMap<BannerProperty, String>(BannerProperty.class);
 
 				// insert banner mirror
-				item.put(BannerProperty.BannerMirror, getResourceURL(MirrorType.BANNER, "/banners/").toString());
+				item.put(BannerProperty.BannerMirror, getResource(MirrorType.BANNER, "").toString());
 
 				// copy values from xml
 				for (BannerProperty key : BannerProperty.values()) {

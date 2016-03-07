@@ -31,6 +31,7 @@ import java.util.zip.InflaterInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -43,6 +44,8 @@ import net.filebot.util.ByteBufferOutputStream;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public final class WebRequest {
 
@@ -150,8 +153,9 @@ public final class WebRequest {
 		}
 
 		// no data, e.g. If-Modified-Since requests
-		if (contentLength < 0 && buffer.getByteBuffer().remaining() == 0)
+		if (contentLength < 0 && buffer.getByteBuffer().remaining() == 0) {
 			return null;
+		}
 
 		return buffer.getByteBuffer();
 	}
@@ -285,10 +289,20 @@ public final class WebRequest {
 		return buffer.toString();
 	}
 
-	/**
-	 * Dummy constructor to prevent instantiation.
-	 */
+	public static void validateXml(String xml) throws SAXException, ParserConfigurationException, IOException {
+		SAXParserFactory sax = SAXParserFactory.newInstance();
+		sax.setValidating(false);
+		sax.setNamespaceAware(false);
+
+		XMLReader reader = sax.newSAXParser().getXMLReader();
+
+		// throw exception on error
+		reader.setErrorHandler(new DefaultHandler());
+		reader.parse(new InputSource(new StringReader(xml)));
+	}
+
 	private WebRequest() {
 		throw new UnsupportedOperationException();
 	}
+
 }

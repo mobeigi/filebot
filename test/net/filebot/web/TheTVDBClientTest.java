@@ -104,22 +104,12 @@ public class TheTVDBClientTest {
 	}
 
 	@Test
-	public void getMirror() throws Exception {
-		assertNotNull(thetvdb.getMirror(MirrorType.XML));
-		assertNotNull(thetvdb.getMirror(MirrorType.BANNER));
-		assertNotNull(thetvdb.getMirror(MirrorType.ZIP));
-	}
-
-	@Test
 	public void resolveTypeMask() {
 		// no flags set
-		assertEquals(EnumSet.noneOf(MirrorType.class), MirrorType.fromTypeMask(0));
-
-		// xml and zip flags set
-		assertEquals(EnumSet.of(MirrorType.ZIP, MirrorType.XML, MirrorType.SEARCH), MirrorType.fromTypeMask(5));
+		assertEquals(MirrorType.newSet(), MirrorType.fromTypeMask(0));
 
 		// all flags set
-		assertEquals(EnumSet.allOf(MirrorType.class), MirrorType.fromTypeMask(7));
+		assertEquals(EnumSet.of(MirrorType.SEARCH, MirrorType.XML, MirrorType.BANNER), MirrorType.fromTypeMask(7));
 	}
 
 	@Test
@@ -145,9 +135,9 @@ public class TheTVDBClientTest {
 		assertEquals("2007-09-24", it.getFirstAired().toString());
 		assertEquals("Action", it.getGenres().get(0));
 		assertEquals("tt0934814", it.getImdbId());
-		assertEquals("English", it.getLanguage());
-		assertEquals(310, it.getOverview().length());
-		assertEquals("60", it.getRuntime());
+		assertEquals("en", it.getLanguage());
+		assertEquals(987, it.getOverview().length());
+		assertEquals("45", it.getRuntime().toString());
 		assertEquals("Chuck", it.getName());
 	}
 
@@ -174,7 +164,7 @@ public class TheTVDBClientTest {
 
 		assertEquals("fanart", banners.get(0).getBannerType());
 		assertEquals("1280x720", banners.get(0).getBannerType2());
-		assertEquals(486993, WebRequest.fetch(banners.get(0).getUrl()).remaining(), 0);
+		assertEquals(460058, WebRequest.fetch(banners.get(0).getUrl()).remaining());
 	}
 
 }

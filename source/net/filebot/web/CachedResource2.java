@@ -12,7 +12,9 @@ import java.util.concurrent.Callable;
 
 import net.filebot.Cache;
 
-public class CachedResource2<K, R> {
+import org.w3c.dom.Document;
+
+public class CachedResource2<K, R> implements Resource<R> {
 
 	public static final int DEFAULT_RETRY_LIMIT = 2;
 	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
@@ -21,7 +23,8 @@ public class CachedResource2<K, R> {
 
 	protected final Source<K> source;
 	protected final Fetch fetch;
-	protected final Parse<R> parse;
+	protected final Transform<ByteBuffer, ? extends Object> parse;
+	protected final Transform<? super Object, R> cast;
 
 	protected final Duration expirationTime;
 
@@ -30,24 +33,21 @@ public class CachedResource2<K, R> {
 
 	protected final Cache cache;
 
-	public CachedResource2(K key, Source<K> source, Fetch fetch, Parse<R> parse, Duration expirationTime, Cache cache) {
-		this(key, source, fetch, parse, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
-	}
-
-	public CachedResource2(K key, Source<K> source, Fetch fetch, Parse<R> parse, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
+	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
 		this.key = key;
 		this.source = source;
 		this.fetch = fetch;
 		this.parse = parse;
+		this.cast = cast;
 		this.expirationTime = expirationTime;
 		this.retryCountLimit = retryCountLimit;
 		this.retryWaitTime = retryWaitTime.toMillis();
 		this.cache = cache;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public synchronized R get() throws Exception {
-		return (R) cache.computeIfStale(key, expirationTime, element -> {
+		Object value = cache.computeIfStale(key, expirationTime, element -> {
 			URL resource = source.source(key);
 			long lastModified = element == null ? 0 : element.getLatestOfCreationAndUpdateTime();
 
@@ -61,7 +61,7 @@ public class CachedResource2<K, R> {
 					return element.getObjectValue();
 				}
 
-				return parse.parse(data);
+				return parse.transform(data);
 			} catch (IOException e) {
 				debug.fine(format("Fetch failed => %s", e));
 
@@ -72,6 +72,8 @@ public class CachedResource2<K, R> {
 				return element.getObjectKey();
 			}
 		});
+
+		return cast.transform(value);
 	}
 
 	protected <T> T retry(Callable<T> callable, int retryCount, long retryWaitTime) throws Exception {
@@ -101,22 +103,50 @@ public class CachedResource2<K, R> {
 	}
 
 	@FunctionalInterface
-	public interface Parse<R> {
-		R parse(ByteBuffer bytes) throws Exception;
+	public interface Transform<T, R> {
+		R transform(T object) throws Exception;
 	}
 
-	public static Parse<String> decode(Charset charset) {
-		return (bb) -> charset.decode(bb).toString();
+	@FunctionalInterface
+	public interface Permit<P> {
+		boolean acquirePermit(URL resource) throws Exception;
 	}
 
-	public static Fetch fetchIfModified(FloodLimit limit) {
+	public static Transform<ByteBuffer, String> getText(Charset charset) {
+		return (data) -> charset.decode(data).toString();
+	}
+
+	public static <T> Transform<T, String> validateXml(Transform<T, String> parse) {
+		return (object) -> {
+			String xml = parse.transform(object);
+			WebRequest.validateXml(xml);
+			return xml;
+		};
+	}
+
+	public static <T> Transform<T, Document> getXml(Transform<T, String> parse) {
+		return (object) -> {
+			return WebRequest.getDocument(parse.transform(object));
+		};
+	}
+
+	public static Fetch fetchIfModified() {
 		return (url, lastModified) -> {
 			try {
-				limit.acquirePermit();
 				return WebRequest.fetchIfModified(url, lastModified);
 			} catch (FileNotFoundException e) {
+				debug.warning(format("Resource not found: %s => %s", url, e));
 				return ByteBuffer.allocate(0);
 			}
+		};
+	}
+
+	public static Fetch withPermit(Fetch fetch, Permit<?> permit) {
+		return (url, lastModified) -> {
+			if (permit.acquirePermit(url)) {
+				return fetch.fetch(url, lastModified);
+			}
+			return null;
 		};
 	}
 

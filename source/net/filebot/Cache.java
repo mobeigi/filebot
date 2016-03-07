@@ -2,6 +2,7 @@ package net.filebot;
 
 import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.Logging.*;
+import static net.filebot.web.CachedResource2.*;
 
 import java.io.Serializable;
 import java.net.URL;
@@ -10,8 +11,12 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 import net.filebot.web.CachedResource2;
+import net.filebot.web.CachedResource2.Source;
 import net.filebot.web.FloodLimit;
+import net.filebot.web.Resource;
 import net.sf.ehcache.Element;
+
+import org.w3c.dom.Document;
 
 public class Cache {
 
@@ -131,8 +136,12 @@ public class Cache {
 		}
 	}
 
-	public CachedResource2<String, String> resource(String url, Duration expirationTime, FloodLimit limit) {
-		return new CachedResource2<String, String>(url, URL::new, CachedResource2.fetchIfModified(limit), CachedResource2.decode(UTF_8), expirationTime, this);
+	public Resource<Document> xml(String key, Source<String> source, Duration expirationTime) {
+		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, this);
+	}
+
+	public Resource<String> resource(String url, Duration expirationTime, FloodLimit limit) {
+		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, this);
 	}
 
 }
