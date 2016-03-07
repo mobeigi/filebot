@@ -1,19 +1,20 @@
 package net.filebot;
 
 import static java.nio.charset.StandardCharsets.*;
+import static net.filebot.CachedResource2.*;
 import static net.filebot.Logging.*;
-import static net.filebot.web.CachedResource2.*;
 
 import java.io.Serializable;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-import net.filebot.web.CachedResource2;
-import net.filebot.web.CachedResource2.Source;
+import net.filebot.CachedResource2.Fetch;
+import net.filebot.CachedResource2.Source;
+import net.filebot.CachedResource2.Transform;
 import net.filebot.web.FloodLimit;
-import net.filebot.web.Resource;
 import net.sf.ehcache.Element;
 
 import org.w3c.dom.Document;
@@ -21,20 +22,25 @@ import org.w3c.dom.Document;
 public class Cache {
 
 	public static final Duration ONE_DAY = Duration.ofDays(1);
+	public static final Duration ONE_WEEK = Duration.ofDays(7);
 
 	public static Cache getCache(String name, CacheType type) {
 		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
 	}
 
-	public Resource<String> text(String url, Duration expirationTime, FloodLimit limit) {
+	public <R> CachedResource2<String, R> resource(String key, Source<String> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime) {
+		return new CachedResource2<String, R>(key, source, fetch, parse, cast, expirationTime, this);
+	}
+
+	public CachedResource2<String, String> text(String url, Duration expirationTime, FloodLimit limit) {
 		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, expirationTime, this);
 	}
 
-	public Resource<Document> xml(String key, Source<String> source, Duration expirationTime) {
+	public CachedResource2<String, Document> xml(String key, Source<String> source, Duration expirationTime) {
 		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), expirationTime, this);
 	}
 
-	public Resource<Object> json(String key, Source<String> source, Duration expirationTime) {
+	public CachedResource2<String, Object> json(String key, Source<String> source, Duration expirationTime) {
 		return new CachedResource2<String, Object>(key, source, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), expirationTime, this);
 	}
 

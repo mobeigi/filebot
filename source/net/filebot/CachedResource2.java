@@ -1,4 +1,4 @@
-package net.filebot.web;
+package net.filebot;
 
 import static net.filebot.Logging.*;
 
@@ -10,8 +10,8 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 
-import net.filebot.Cache;
 import net.filebot.util.JsonUtilities;
+import net.filebot.web.WebRequest;
 
 import org.w3c.dom.Document;
 
@@ -20,19 +20,19 @@ public class CachedResource2<K, R> implements Resource<R> {
 	public static final int DEFAULT_RETRY_LIMIT = 2;
 	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
 
-	protected final K key;
+	private K key;
 
-	protected final Source<K> source;
-	protected final Fetch fetch;
-	protected final Transform<ByteBuffer, ? extends Object> parse;
-	protected final Transform<? super Object, R> cast;
+	private Source<K> source;
+	private Fetch fetch;
+	private Transform<ByteBuffer, ? extends Object> parse;
+	private Transform<? super Object, R> cast;
 
-	protected final Duration expirationTime;
+	private Duration expirationTime;
 
-	protected final int retryCountLimit;
-	protected final long retryWaitTime;
+	private int retryCountLimit;
+	private long retryWaitTime;
 
-	protected final Cache cache;
+	private final Cache cache;
 
 	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
 		this(key, source, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
@@ -59,7 +59,7 @@ public class CachedResource2<K, R> implements Resource<R> {
 			debug.fine(format("Fetch %s (If-Modified-Since: %tc)", resource, lastModified));
 
 			try {
-				ByteBuffer data = retry(() -> fetch.fetch(resource, lastModified), retryCountLimit, lastModified);
+				ByteBuffer data = retry(() -> fetch.fetch(resource, lastModified), retryCountLimit, retryWaitTime);
 
 				// 304 Not Modified
 				if (data == null && element != null && element.getObjectValue() != null) {

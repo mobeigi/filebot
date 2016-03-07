@@ -15,6 +15,7 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.Resource;
 import net.filebot.ResourceManager;
 
 public class TVMazeClient extends AbstractEpisodeListProvider {

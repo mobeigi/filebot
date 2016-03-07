@@ -12,7 +12,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -29,6 +28,7 @@ import javax.swing.Icon;
 
 import net.filebot.Cache;
 import net.filebot.CacheType;
+import net.filebot.Resource;
 import net.filebot.ResourceManager;
 import net.filebot.util.FileUtilities;
 import net.filebot.web.TheTVDBClient.BannerDescriptor.BannerProperty;
