@@ -5,8 +5,8 @@ import static java.util.stream.Collectors.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
-import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -55,11 +55,11 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 	}
 
 	@Override
-	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws IOException {
+	public List<SearchResult> fetchSearchResult(String query, Locale locale) throws Exception {
 		// e.g. http://api.tvmaze.com/search/shows?q=girls
 		Object response = request("search/shows?q=" + encode(query, true));
 
-		// TODO: FUTURE WORK: consider adding TVmaze aka titles for each result, e.g. http://api.tvmaze.com/shows/1/akas
+		// FUTURE WORK: consider adding TVmaze aka titles for each result, e.g. http://api.tvmaze.com/shows/1/akas
 		return streamJsonObjects(response).map(it -> {
 			Object show = it.get("show");
 			Integer id = getInteger(show, "id");
@@ -69,7 +69,7 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		}).collect(toList());
 	}
 
-	protected SeriesInfo fetchSeriesInfo(TVMazeSearchResult show, SortOrder sortOrder, Locale locale) throws IOException {
+	protected SeriesInfo fetchSeriesInfo(TVMazeSearchResult show, SortOrder sortOrder, Locale locale) throws Exception {
 		// e.g. http://api.tvmaze.com/shows/1
 		Object response = request("shows/" + show.getId());
 
@@ -110,8 +110,14 @@ public class TVMazeClient extends AbstractEpisodeListProvider {
 		return new SeriesData(seriesInfo, episodes);
 	}
 
-	public Object request(String resource) throws IOException {
-		return new CachedJsonResource("http://api.tvmaze.com/" + resource).getJsonObject();
+	protected Object request(String resource) throws Exception {
+		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
+		Resource<Object> json = cache.json(resource, s -> getResource(resource), Cache.ONE_DAY);
+		return json.get();
+	}
+
+	protected URL getResource(String resource) throws Exception {
+		return new URL("http://api.tvmaze.com/" + resource);
 	}
 
 	@Override

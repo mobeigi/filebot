@@ -20,8 +20,22 @@ import org.w3c.dom.Document;
 
 public class Cache {
 
+	public static final Duration ONE_DAY = Duration.ofDays(1);
+
 	public static Cache getCache(String name, CacheType type) {
 		return CacheManager.getInstance().getCache(name.toLowerCase(), type);
+	}
+
+	public Resource<String> text(String url, Duration expirationTime, FloodLimit limit) {
+		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, expirationTime, this);
+	}
+
+	public Resource<Document> xml(String key, Source<String> source, Duration expirationTime) {
+		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), expirationTime, this);
+	}
+
+	public Resource<Object> json(String key, Source<String> source, Duration expirationTime) {
+		return new CachedResource2<String, Object>(key, source, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), expirationTime, this);
 	}
 
 	private final net.sf.ehcache.Cache cache;
@@ -134,14 +148,6 @@ public class Cache {
 		public String toString() {
 			return Arrays.toString(fields);
 		}
-	}
-
-	public Resource<Document> xml(String key, Source<String> source, Duration expirationTime) {
-		return new CachedResource2<String, Document>(key, source, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, this);
-	}
-
-	public Resource<String> resource(String url, Duration expirationTime, FloodLimit limit) {
-		return new CachedResource2<String, String>(url, URL::new, withPermit(fetchIfModified(), r -> limit.acquirePermit() != null), getText(UTF_8), String.class::cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, this);
 	}
 
 }

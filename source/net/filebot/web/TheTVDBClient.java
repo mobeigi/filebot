@@ -38,8 +38,6 @@ import org.w3c.dom.Node;
 
 public class TheTVDBClient extends AbstractEpisodeListProvider {
 
-	private final String host = "www.thetvdb.com";
-
 	private final Map<MirrorType, String> mirrors = MirrorType.newMap();
 
 	private final String apikey;
@@ -301,10 +299,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		}
 	}
 
-	protected Document getXmlResource(MirrorType mirror, String path) throws Exception {
+	protected Document getXmlResource(MirrorType mirror, String resource) throws Exception {
 		Cache cache = Cache.getCache(getName(), CacheType.Monthly);
-		Duration expirationTime = Duration.ofDays(1);
-		Resource<Document> xml = cache.xml(path, s -> getResource(mirror, s), expirationTime);
+		Resource<Document> xml = cache.xml(resource, s -> getResource(mirror, s), Cache.ONE_DAY);
 		return xml.get();
 	}
 
@@ -362,7 +359,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 	@Override
 	public URI getEpisodeListLink(SearchResult searchResult) {
-		return URI.create("http://" + host + "/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
+		return URI.create("http://www.thetvdb.com/?tab=seasonall&id=" + ((TheTVDBSearchResult) searchResult).getSeriesId());
 	}
 
 	/**

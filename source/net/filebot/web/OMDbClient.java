@@ -137,7 +137,7 @@ public class OMDbClient implements MovieIdentificationService {
 		String url = "http://www.omdbapi.com/?" + encodeParameters(parameters, true);
 
 		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
-		String json = cache.resource(url, Duration.ofDays(7), REQUEST_LIMIT).get();
+		String json = cache.text(url, Duration.ofDays(7), REQUEST_LIMIT).get();
 
 		return asMap(readJson(json));
 	}

@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.concurrent.Callable;
 
 import net.filebot.Cache;
+import net.filebot.util.JsonUtilities;
 
 import org.w3c.dom.Document;
 
@@ -32,6 +33,10 @@ public class CachedResource2<K, R> implements Resource<R> {
 	protected final long retryWaitTime;
 
 	protected final Cache cache;
+
+	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
+		this(key, source, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
+	}
 
 	public CachedResource2(K key, Source<K> source, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryCountLimit, Duration retryWaitTime, Duration expirationTime, Cache cache) {
 		this.key = key;
@@ -124,9 +129,23 @@ public class CachedResource2<K, R> implements Resource<R> {
 		};
 	}
 
+	public static <T> Transform<T, String> validateJson(Transform<T, String> parse) {
+		return (object) -> {
+			String json = parse.transform(object);
+			JsonUtilities.readJson(json);
+			return json;
+		};
+	}
+
 	public static <T> Transform<T, Document> getXml(Transform<T, String> parse) {
 		return (object) -> {
 			return WebRequest.getDocument(parse.transform(object));
+		};
+	}
+
+	public static <T> Transform<T, Object> getJson(Transform<T, String> parse) {
+		return (object) -> {
+			return JsonUtilities.readJson(parse.transform(object));
 		};
 	}
 

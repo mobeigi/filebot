@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class TheTVDBClientTest {
 
-	private TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
+	TheTVDBClient thetvdb = new TheTVDBClient("BA864DEE427E384A");
 
 	@Test
 	public void search() throws Exception {
