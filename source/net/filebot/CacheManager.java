@@ -35,7 +35,7 @@ public class CacheManager {
 		}
 	}
 
-	public Cache getCache(String name, CacheType type) {
+	public synchronized Cache getCache(String name, CacheType type) {
 		String cacheName = name.toLowerCase() + "_" + type.ordinal();
 		if (!manager.cacheExists(cacheName)) {
 			debug.config("Create cache: " + cacheName);
@@ -44,11 +44,15 @@ public class CacheManager {
 		return new Cache(manager.getCache(cacheName));
 	}
 
-	public void clearAll() {
+	public synchronized void clearAll() {
 		manager.clearAll();
+		manager.removeAllCaches();
+
+		// clear all caches that have not been added yet
+		clearDiskStore(new File(manager.getConfiguration().getDiskStoreConfiguration().getPath()));
 	}
 
-	public void shutdown() {
+	public synchronized void shutdown() {
 		manager.shutdown();
 	}
 
@@ -56,6 +60,14 @@ public class CacheManager {
 		Configuration config = new Configuration();
 		config.addDiskStore(getDiskStoreConfiguration());
 		return config;
+	}
+
+	private void clearDiskStore(File cache) {
+		getChildren(cache).stream().filter(f -> f.isFile() && !f.getName().startsWith(".")).forEach(f -> {
+			if (!delete(f)) {
+				debug.warning(format("Failed to delete cache: %s", f.getName()));
+			}
+		});
 	}
 
 	private DiskStoreConfiguration getDiskStoreConfiguration() throws IOException {
@@ -92,13 +104,10 @@ public class CacheManager {
 					isNewCache = true;
 
 					// delete all files related to previous cache instances
-					for (File it : getChildren(cache)) {
-						if (!it.equals(lockFile)) {
-							delete(cache);
-						}
-					}
+					clearDiskStore(cache);
 				}
 
+				// TODO: use UTF8
 				if (isNewCache) {
 					// set new cache revision
 					channel.position(0);

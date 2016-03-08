@@ -82,15 +82,13 @@ public class Main {
 					Settings.forPackage(Main.class).clear();
 				}
 
+				// clear preferences and cache
 				if (args.clearCache()) {
-					// clear preferences and cache
 					log.info("Clear cache and temporary files");
 					for (File folder : getChildren(getApplicationFolder().getCanonicalFile(), FOLDERS)) {
-						if (delete(folder)) {
-							log.config("* Delete " + folder);
-						}
+						log.config("* Delete " + folder);
+						delete(folder);
 					}
-
 					CacheManager.getInstance().clearAll();
 				}
 
@@ -131,6 +129,9 @@ public class Main {
 
 			// update system properties
 			System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
+			System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
+			System.setProperty("sun.net.client.defaultReadTimeout", "60000");
+
 			System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
 			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
