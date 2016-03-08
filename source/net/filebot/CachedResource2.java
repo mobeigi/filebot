@@ -184,7 +184,11 @@ public class CachedResource2<K, R> implements Resource<R> {
 
 			try {
 				debug.fine(WebRequest.log(url, lastModified, etagValue));
-				return WebRequest.fetch(url, lastModified, etagValue, null, responseHeaders);
+				if (etagValue != null) {
+					return WebRequest.fetchIfNoneMatch(url, etagValue);
+				} else {
+					return WebRequest.fetchIfModified(url, lastModified);
+				}
 			} catch (FileNotFoundException e) {
 				return fileNotFound(url, e);
 			} finally {

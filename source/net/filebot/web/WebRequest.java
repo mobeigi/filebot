@@ -121,7 +121,7 @@ public final class WebRequest {
 		if (ifModifiedSince > 0) {
 			connection.setIfModifiedSince(ifModifiedSince);
 		} else if (etag != null) {
-			// If-Modified-Since must not be set if If-None-Match is set
+			// If-Modified-Since must not be set if If-None-Match is set and vice versa
 			connection.addRequestProperty("If-None-Match", etag.toString());
 		}
 
@@ -319,11 +319,11 @@ public final class WebRequest {
 	public static Supplier<String> log(URL url, long lastModified, Object etag) {
 		return () -> {
 			List<String> headers = new ArrayList<String>(2);
-			if (lastModified > 0) {
-				headers.add("If-Modified-Since: " + DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneOffset.UTC)));
-			}
 			if (etag != null) {
 				headers.add("If-None-Match: " + etag);
+			}
+			if (lastModified > 0) {
+				headers.add("If-Modified-Since: " + DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneOffset.UTC)));
 			}
 			return "Fetch resource: " + url + (headers.isEmpty() ? "" : " " + headers);
 		};
