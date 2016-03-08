@@ -96,6 +96,9 @@ public class Main {
 				System.exit(0);
 			}
 
+			// update system properties
+			initializeSystemProperties(args);
+
 			// tee stdout and stderr to log file if set
 			if (args.logFile != null) {
 				File logFile = new File(args.logFile);
@@ -126,20 +129,6 @@ public class Main {
 			// initialize this stuff before anything else
 			CacheManager.getInstance();
 			initializeSecurityManager();
-
-			// update system properties
-			System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
-			System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
-			System.setProperty("sun.net.client.defaultReadTimeout", "60000");
-
-			System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
-			System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
-			System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
-
-			System.setProperty("unixfs", Boolean.toString(args.unixfs));
-			System.setProperty("useExtendedFileAttributes", Boolean.toString(!args.disableExtendedAttributes));
-			System.setProperty("useCreationDate", Boolean.toString(!args.disableExtendedAttributes));
-			System.setProperty("application.rename.history", Boolean.toString(!args.action.equalsIgnoreCase("test"))); // don't keep history of --action test rename operations
 
 			// make sure we can access application arguments at any time
 			setApplicationArgumentArray(argumentArray);
@@ -429,6 +418,21 @@ public class Main {
 			// security manager was probably set via system property
 			Logger.getLogger(Main.class.getName()).log(Level.WARNING, e.toString(), e);
 		}
+	}
+
+	public static void initializeSystemProperties(ArgumentBean args) {
+		System.setProperty("http.agent", String.format("%s %s", getApplicationName(), getApplicationVersion()));
+		System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
+		System.setProperty("sun.net.client.defaultReadTimeout", "60000");
+
+		System.setProperty("swing.crossplatformlaf", "javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		System.setProperty("grape.root", new File(getApplicationFolder(), "grape").getAbsolutePath());
+		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
+
+		System.setProperty("unixfs", Boolean.toString(args.unixfs));
+		System.setProperty("useExtendedFileAttributes", Boolean.toString(!args.disableExtendedAttributes));
+		System.setProperty("useCreationDate", Boolean.toString(!args.disableExtendedAttributes));
+		System.setProperty("application.rename.history", Boolean.toString(!args.action.equalsIgnoreCase("test"))); // do not keep history of --action test rename operations
 	}
 
 }
