@@ -17,8 +17,6 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -43,10 +41,8 @@ import java.util.regex.Pattern;
 import net.filebot.Cache;
 import net.filebot.CacheType;
 import net.filebot.Resource;
-import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.web.AnidbSearchResult;
-import net.filebot.web.CachedResource;
 import net.filebot.web.Movie;
 import net.filebot.web.SubtitleSearchResult;
 import net.filebot.web.TheTVDBSearchResult;
@@ -483,112 +479,7 @@ public class ReleaseInfo {
 		return System.getProperty(name, getBundle(ReleaseInfo.class.getName()).getString(name));
 	}
 
-	protected static class PatternResource extends CachedResource<String[]> {
-
-		public PatternResource(String resource) {
-			super(resource, String[].class, ONE_WEEK); // check for updates every week
-		}
-
-		@Override
-		public String[] process(ByteBuffer data) {
-			return compile("\\n").split(Charset.forName("UTF-8").decode(data));
-		}
-	}
-
-	protected static class MovieResource extends CachedResource<Movie[]> {
-
-		public MovieResource(String resource) {
-			super(resource, Movie[].class, ONE_MONTH); // check for updates every month
-		}
-
-		@Override
-		public Movie[] process(ByteBuffer data) throws IOException {
-			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
-			List<Movie> movies = new ArrayList<Movie>(rows.size());
-
-			for (String[] row : rows) {
-				int imdbid = parseInt(row[0]);
-				int tmdbid = parseInt(row[1]);
-				int year = parseInt(row[2]);
-				String name = row[3];
-				String[] aliasNames = copyOfRange(row, 4, row.length);
-				movies.add(new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1, null));
-			}
-
-			return movies.toArray(new Movie[0]);
-		}
-	}
-
-	protected static class TheTVDBIndexResource extends CachedResource<TheTVDBSearchResult[]> {
-
-		public TheTVDBIndexResource(String resource) {
-			super(resource, TheTVDBSearchResult[].class, ONE_WEEK); // check for updates every week
-		}
-
-		@Override
-		public TheTVDBSearchResult[] process(ByteBuffer data) throws IOException {
-			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
-			List<TheTVDBSearchResult> tvshows = new ArrayList<TheTVDBSearchResult>(rows.size());
-
-			for (String[] row : rows) {
-				int id = parseInt(row[0]);
-				String name = row[1];
-				String[] aliasNames = copyOfRange(row, 2, row.length);
-				tvshows.add(new TheTVDBSearchResult(name, aliasNames, id));
-			}
-
-			return tvshows.toArray(new TheTVDBSearchResult[0]);
-		}
-	}
-
-	protected static class AnidbIndexResource extends CachedResource<AnidbSearchResult[]> {
-
-		public AnidbIndexResource(String resource) {
-			super(resource, AnidbSearchResult[].class, ONE_WEEK); // check for updates every week
-		}
-
-		@Override
-		public AnidbSearchResult[] process(ByteBuffer data) throws IOException {
-			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
-			List<AnidbSearchResult> anime = new ArrayList<AnidbSearchResult>(rows.size());
-
-			for (String[] row : rows) {
-				int aid = parseInt(row[0]);
-				String primaryTitle = row[1];
-				String[] aliasNames = copyOfRange(row, 2, row.length);
-				anime.add(new AnidbSearchResult(aid, primaryTitle, aliasNames));
-			}
-
-			return anime.toArray(new AnidbSearchResult[0]);
-		}
-	}
-
-	protected static class OpenSubtitlesIndexResource extends CachedResource<SubtitleSearchResult[]> {
-
-		public OpenSubtitlesIndexResource(String resource) {
-			super(resource, SubtitleSearchResult[].class, ONE_MONTH); // check for updates every month
-		}
-
-		@Override
-		public SubtitleSearchResult[] process(ByteBuffer data) throws IOException {
-			List<String[]> rows = readCSV(new XZInputStream(new ByteBufferInputStream(data)), "UTF-8", "\t");
-			List<SubtitleSearchResult> result = new ArrayList<SubtitleSearchResult>(rows.size());
-
-			for (String[] row : rows) {
-				String kind = row[0];
-				int score = parseInt(row[1]);
-				int imdbId = parseInt(row[2]);
-				int year = parseInt(row[3]);
-				String name = row[4];
-				String[] aliasNames = copyOfRange(row, 5, row.length);
-				result.add(new SubtitleSearchResult(name, aliasNames, year, imdbId, -1, Locale.ENGLISH, SubtitleSearchResult.Kind.forName(kind), score));
-			}
-
-			return result.toArray(new SubtitleSearchResult[0]);
-		}
-	}
-
-	protected static class FolderEntryFilter implements FileFilter {
+	public static class FolderEntryFilter implements FileFilter {
 
 		private final Pattern entryPattern;
 

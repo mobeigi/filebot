@@ -86,7 +86,7 @@ public class CacheManager {
 				}
 
 				if (cacheRevision != applicationRevision && applicationRevision > 0 && !isNewCache) {
-					debug.config(format("App version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
+					debug.config(format("Current application version (r%d) does not match cache version (r%d): reset cache", applicationRevision, cacheRevision));
 
 					// tag cache with new revision number
 					isNewCache = true;
