@@ -497,7 +497,7 @@ public class MediaBindingBean {
 	}
 
 	@Define("group")
-	public String getReleaseGroup() throws IOException {
+	public String getReleaseGroup() throws Exception {
 		// use inferred media file
 		File inferredMediaFile = getInferredMediaFile();
 

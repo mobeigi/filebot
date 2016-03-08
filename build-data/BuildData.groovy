@@ -21,13 +21,15 @@ def dir_data    = "${dir_website}/data"
 	def input = new URL("https://raw.githubusercontent.com/filebot/data/master/${it}")
 	def output = new File("${dir_data}/${it}")
 
-	def set = new TreeSet(String.CASE_INSENSITIVE_ORDER)
+	def lines = new TreeSet(String.CASE_INSENSITIVE_ORDER)
 	input.getText('UTF-8').split(/\R/)*.trim().findAll{ it.length() > 0 }.each{
-		set += Pattern.compile(it).pattern()
+		lines += Pattern.compile(it).pattern()
 	}
 
-	set.join('\n').saveAs(output)
-	println "${output}\n${output.text}\n"
+	pack(output, lines)
+
+	println lines.join('\n')
+	lines.join('\n').saveAs(output)
 }
 
 

@@ -340,7 +340,7 @@ public class ScriptShellMethods {
 		return JsonReader.jsonToJava(self);
 	}
 
-	public static File getStructurePathTail(File self) throws IOException {
+	public static File getStructurePathTail(File self) throws Exception {
 		return MediaDetection.getStructurePathTail(self);
 	}
 

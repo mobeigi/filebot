@@ -9,7 +9,6 @@ import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -371,7 +370,7 @@ public enum EpisodeMetrics implements SimilarityMetric {
 			if (names != null) {
 				try {
 					return stripReleaseInfo(names, true);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					Logger.getLogger(EpisodeMetrics.class.getName()).log(Level.WARNING, e.getMessage());
 				}
 			}

@@ -81,7 +81,7 @@ public class MediaDetection {
 	public static FileFilter getClutterFileFilter() {
 		try {
 			return releaseInfo.getClutterFileFilter();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Logger.getLogger(MediaDetection.class.getClass().getName()).log(Level.SEVERE, "Unable to access clutter file filter: " + e.getMessage(), e);
 		}
 		return ((File f) -> false);
@@ -740,7 +740,7 @@ public class MediaDetection {
 		return ranking;
 	}
 
-	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws IOException {
+	public static List<Movie> sortMoviesBySimilarity(Collection<Movie> options, Collection<String> terms) throws Exception {
 		Collection<String> paragon = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 		paragon.addAll(stripReleaseInfo(terms, true));
 		paragon.addAll(stripReleaseInfo(terms, false));
@@ -1023,19 +1023,19 @@ public class MediaDetection {
 			return releaseInfo.cleanRelease(singleton(name), strict).iterator().next();
 		} catch (NoSuchElementException e) {
 			return ""; // default value in case all tokens are stripped away
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static boolean isStructureRoot(File folder) throws IOException {
+	public static boolean isStructureRoot(File folder) throws Exception {
 		if (folder == null || folder.getName() == null || folder.getName().isEmpty() || releaseInfo.getVolumeRoots().contains(folder)) {
 			return true;
 		}
 		return releaseInfo.getStructureRootPattern().matcher(folder.getName()).matches();
 	}
 
-	public static File getStructureRoot(File file) throws IOException {
+	public static File getStructureRoot(File file) throws Exception {
 		boolean structureRoot = false;
 		for (File it : listPathTail(file, Integer.MAX_VALUE, true)) {
 			if (structureRoot || isStructureRoot(it)) {
@@ -1048,7 +1048,7 @@ public class MediaDetection {
 		return null;
 	}
 
-	public static File getStructurePathTail(File file) throws IOException {
+	public static File getStructurePathTail(File file) throws Exception {
 		LinkedList<String> relativePath = new LinkedList<String>();
 
 		// iterate path in reverse
@@ -1154,13 +1154,13 @@ public class MediaDetection {
 		return file.getParentFile();
 	}
 
-	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws IOException {
+	public static List<String> stripReleaseInfo(Collection<String> names, boolean strict) throws Exception {
 		return releaseInfo.cleanRelease(names, strict);
 	}
 
 	private static Pattern blacklistPattern;
 
-	public static List<String> stripBlacklistedTerms(Collection<String> names) throws IOException {
+	public static List<String> stripBlacklistedTerms(Collection<String> names) throws Exception {
 		if (blacklistPattern == null) {
 			blacklistPattern = releaseInfo.getBlacklistPattern();
 		}

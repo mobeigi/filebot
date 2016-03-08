@@ -24,6 +24,10 @@ public class Cache {
 		return CacheManager.getInstance().getCache(name, type);
 	}
 
+	public <T> CachedResource2<T, byte[]> bytes(T key, Transform<T, URL> resource) {
+		return new CachedResource2<T, byte[]>(key, resource, fetchIfModified(), getBytes(), byte[].class::cast, ONE_DAY, this);
+	}
+
 	public <T> CachedResource2<T, String> text(T key, Transform<T, URL> resource) {
 		return new CachedResource2<T, String>(key, resource, fetchIfModified(), getText(UTF_8), String.class::cast, ONE_DAY, this);
 	}
@@ -106,6 +110,14 @@ public class Cache {
 			cache.remove(key);
 		} catch (Exception e) {
 			debug.warning(format("Cache remove: %s => %s", key, e));
+		}
+	}
+
+	public void flush() {
+		try {
+			cache.flush();
+		} catch (Exception e) {
+			debug.warning(format("Cache flush: %s => %s", cache.getName(), e));
 		}
 	}
 

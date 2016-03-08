@@ -11,6 +11,7 @@ import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
+import java.util.logging.Level;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.config.Configuration;
@@ -47,6 +48,10 @@ public class CacheManager {
 		manager.clearAll();
 	}
 
+	public void shutdown() {
+		manager.shutdown();
+	}
+
 	private Configuration getConfiguration() throws IOException {
 		Configuration config = new Configuration();
 		config.addDiskStore(getDiskStoreConfiguration());
@@ -57,7 +62,7 @@ public class CacheManager {
 		// prepare cache folder for this application instance
 		File cacheRoot = getApplicationCache().getCanonicalFile();
 
-		for (int i = 0; true; i++) {
+		for (int i = 0; i < 10; i++) {
 			File cache = new File(cacheRoot, Integer.toString(i));
 
 			// make sure cache is readable and writable
@@ -102,27 +107,7 @@ public class CacheManager {
 				}
 
 				// make sure to orderly shutdown cache
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-
-					@Override
-					public void run() {
-						try {
-							manager.shutdown();
-						} catch (Exception e) {
-							// ignore, shutting down anyway
-						}
-						try {
-							lock.release();
-						} catch (Exception e) {
-							// ignore, shutting down anyway
-						}
-						try {
-							channel.close();
-						} catch (Exception e) {
-							// ignore, shutting down anyway
-						}
-					}
-				});
+				Runtime.getRuntime().addShutdownHook(new ShutdownHook(this, channel, lock));
 
 				// cache for this application instance is successfully set up and locked
 				return new DiskStoreConfiguration().path(cache.getPath());
@@ -131,6 +116,45 @@ public class CacheManager {
 			// try next lock file
 			channel.close();
 		}
+
+		// serious error, abort
+		throw new IOException("Unable to acquire cache lock: " + cacheRoot);
+	}
+
+	private static class ShutdownHook extends Thread {
+
+		private final CacheManager manager;
+
+		private final FileChannel channel;
+		private final FileLock lock;
+
+		public ShutdownHook(CacheManager manager, FileChannel channel, FileLock lock) {
+			this.manager = manager;
+			this.channel = channel;
+			this.lock = lock;
+		}
+
+		@Override
+		public void run() {
+			try {
+				manager.shutdown();
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Shutdown hook failed: shutdown", e);
+			}
+
+			try {
+				lock.release();
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Shutdown hook failed: release", e);
+			}
+
+			try {
+				channel.close();
+			} catch (Exception e) {
+				debug.log(Level.WARNING, "Shutdown hook failed: close", e);
+			}
+		}
+
 	}
 
 }

@@ -18,7 +18,7 @@ import net.filebot.web.WebRequest;
 
 import org.w3c.dom.Document;
 
-public class CachedResource2<K, R> {
+public class CachedResource2<K, R> implements Resource<R> {
 
 	public static final int DEFAULT_RETRY_LIMIT = 2;
 	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
@@ -68,6 +68,7 @@ public class CachedResource2<K, R> {
 		return this;
 	}
 
+	@Override
 	public synchronized R get() throws Exception {
 		Object value = cache.computeIfStale(key, expirationTime, element -> {
 			URL url = resource.transform(key);
@@ -115,6 +116,14 @@ public class CachedResource2<K, R> {
 	@FunctionalInterface
 	public interface Transform<T, R> {
 		R transform(T object) throws Exception;
+	}
+
+	public static Transform<ByteBuffer, byte[]> getBytes() {
+		return (data) -> {
+			byte[] bytes = new byte[data.remaining()];
+			data.get(bytes, 0, bytes.length);
+			return bytes;
+		};
 	}
 
 	public static Transform<ByteBuffer, String> getText(Charset charset) {

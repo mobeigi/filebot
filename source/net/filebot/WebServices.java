@@ -8,7 +8,6 @@ import static net.filebot.media.MediaDetection.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -119,7 +118,7 @@ public final class WebServices {
 		// index of local thetvdb data dump
 		private static LocalSearch<SearchResult> localIndex;
 
-		public synchronized LocalSearch<SearchResult> getLocalIndex() throws IOException {
+		public synchronized LocalSearch<SearchResult> getLocalIndex() throws Exception {
 			if (localIndex == null) {
 				// fetch data dump
 				TheTVDBSearchResult[] data = releaseInfo.getTheTVDBIndex();
@@ -181,7 +180,7 @@ public final class WebServices {
 		// index of local OpenSubtitles data dump
 		private static LocalSearch<SubtitleSearchResult> localIndex;
 
-		public synchronized LocalSearch<SubtitleSearchResult> getLocalIndex() throws IOException {
+		public synchronized LocalSearch<SubtitleSearchResult> getLocalIndex() throws Exception {
 			if (localIndex == null) {
 				// fetch data dump
 				SubtitleSearchResult[] data = releaseInfo.getOpenSubtitlesIndex();

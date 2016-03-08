@@ -1,6 +1,7 @@
 package net.filebot.media;
 
 import static java.lang.Integer.*;
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static java.util.ResourceBundle.*;
@@ -9,14 +10,19 @@ import static net.filebot.similarity.Normalization.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.util.StringUtilities.*;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,11 +32,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.filebot.Cache;
+import net.filebot.CacheType;
+import net.filebot.Resource;
 import net.filebot.util.ByteBufferInputStream;
 import net.filebot.util.FileUtilities.RegexFileFilter;
 import net.filebot.web.AnidbSearchResult;
@@ -87,9 +99,9 @@ public class ReleaseInfo {
 		return null;
 	}
 
-	public String getReleaseGroup(String... strings) throws IOException {
+	public String getReleaseGroup(String... strings) throws Exception {
 		// check file and folder for release group names
-		String[] groups = releaseGroupResource.get();
+		String[] groups = releaseGroup.get();
 
 		// try case-sensitive match
 		String match = matchLast(getReleaseGroupPattern(true), groups, strings);
@@ -149,7 +161,7 @@ public class ReleaseInfo {
 	private final Map<Boolean, Pattern[]> stopwords = new HashMap<Boolean, Pattern[]>(2);
 	private final Map<Boolean, Pattern[]> blacklist = new HashMap<Boolean, Pattern[]>(2);
 
-	public List<String> cleanRelease(Collection<String> items, boolean strict) throws IOException {
+	public List<String> cleanRelease(Collection<String> items, boolean strict) throws Exception {
 		Pattern[] stopwords;
 		Pattern[] blacklist;
 
@@ -252,10 +264,10 @@ public class ReleaseInfo {
 		return volumeRoots;
 	}
 
-	public Pattern getStructureRootPattern() throws IOException {
+	public Pattern getStructureRootPattern() throws Exception {
 		if (structureRootFolderPattern == null) {
 			List<String> folders = new ArrayList<String>();
-			for (String it : queryBlacklistResource.get()) {
+			for (String it : queryBlacklist.get()) {
 				if (it.startsWith("^") && it.endsWith("$")) {
 					folders.add(it);
 				}
@@ -310,44 +322,44 @@ public class ReleaseInfo {
 		return compile("(?:\\[([^\\[\\]]+?" + contentFilter + "[^\\[\\]]+?)\\])|(?:\\{([^\\{\\}]+?" + contentFilter + "[^\\{\\}]+?)\\})|(?:\\(([^\\(\\)]+?" + contentFilter + "[^\\(\\)]+?)\\))");
 	}
 
-	public Pattern getReleaseGroupPattern(boolean strict) throws IOException {
+	public Pattern getReleaseGroupPattern(boolean strict) throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})" + or(releaseGroupResource.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(releaseGroup.get()) + "(?!\\p{Alnum}|[^\\p{Alnum}](19|20)\\d{2})", strict ? 0 : CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
-	public Pattern getBlacklistPattern() throws IOException {
+	public Pattern getBlacklistPattern() throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile("(?<!\\p{Alnum})" + or(queryBlacklistResource.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile("(?<!\\p{Alnum})" + or(queryBlacklist.get()) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
-	public Pattern getExcludePattern() throws IOException {
+	public Pattern getExcludePattern() throws Exception {
 		// pattern matching any release group name enclosed in separators
-		return compile(or(excludeBlacklistResource.get()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+		return compile(or(excludeBlacklist.get()), CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
 	public Pattern getCustomRemovePattern(Collection<String> terms) throws IOException {
 		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
-	public Movie[] getMovieList() throws IOException {
-		return movieListResource.get();
+	public Movie[] getMovieList() throws Exception {
+		return movieIndex.get();
 	}
 
-	public TheTVDBSearchResult[] getTheTVDBIndex() throws IOException {
-		return tvdbIndexResource.get();
+	public TheTVDBSearchResult[] getTheTVDBIndex() throws Exception {
+		return tvdbIndex.get();
 	}
 
-	public AnidbSearchResult[] getAnidbIndex() throws IOException {
-		return anidbIndexResource.get();
+	public AnidbSearchResult[] getAnidbIndex() throws Exception {
+		return anidbIndex.get();
 	}
 
-	public SubtitleSearchResult[] getOpenSubtitlesIndex() throws IOException {
-		return osdbIndexResource.get();
+	public SubtitleSearchResult[] getOpenSubtitlesIndex() throws Exception {
+		return osdbIndex.get();
 	}
 
 	private Map<Pattern, String> seriesDirectMappings;
 
-	public Map<Pattern, String> getSeriesDirectMappings() throws IOException {
+	public Map<Pattern, String> getSeriesDirectMappings() throws Exception {
 		if (seriesDirectMappings == null) {
 			Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
 			for (String line : seriesDirectMappingsResource.get()) {
@@ -381,7 +393,7 @@ public class ReleaseInfo {
 
 	private static ClutterFileFilter clutterFileFilter;
 
-	public FileFilter getClutterFileFilter() throws IOException {
+	public FileFilter getClutterFileFilter() throws Exception {
 		if (clutterFileFilter == null) {
 			clutterFileFilter = new ClutterFileFilter(getExcludePattern(), Long.parseLong(getProperty("number.clutter.maxfilesize"))); // only files smaller than 250 MB may be considered clutter
 		}
@@ -397,18 +409,78 @@ public class ReleaseInfo {
 	}
 
 	// fetch release group names online and try to update the data every other day
-	protected final CachedResource<String[]> releaseGroupResource = new PatternResource(getProperty("url.release-groups"));
-	protected final CachedResource<String[]> queryBlacklistResource = new PatternResource(getProperty("url.query-blacklist"));
-	protected final CachedResource<String[]> excludeBlacklistResource = new PatternResource(getProperty("url.exclude-blacklist"));
-	protected final CachedResource<Movie[]> movieListResource = new MovieResource(getProperty("url.movie-list"));
-	protected final CachedResource<String[]> seriesDirectMappingsResource = new PatternResource(getProperty("url.series-mappings"));
-	protected final CachedResource<TheTVDBSearchResult[]> tvdbIndexResource = new TheTVDBIndexResource(getProperty("url.thetvdb-index"));
-	protected final CachedResource<AnidbSearchResult[]> anidbIndexResource = new AnidbIndexResource(getProperty("url.anidb-index"));
-	protected final CachedResource<SubtitleSearchResult[]> osdbIndexResource = new OpenSubtitlesIndexResource(getProperty("url.osdb-index"));
 
-	protected String getProperty(String propertyName) {
-		// allow override via Java System properties
-		return System.getProperty(propertyName, getBundle(ReleaseInfo.class.getName()).getString(propertyName));
+	protected final Resource<String[]> releaseGroup = patternResource("url.release-groups");
+	protected final Resource<String[]> queryBlacklist = patternResource("url.query-blacklist");
+	protected final Resource<String[]> excludeBlacklist = patternResource("url.exclude-blacklist");
+	protected final Resource<String[]> seriesDirectMappingsResource = patternResource("url.series-mappings");
+
+	protected final Resource<Movie[]> movieIndex = tsvResource("url.movie-list", this::parseMovie, Movie[]::new);
+	protected final Resource<TheTVDBSearchResult[]> tvdbIndex = tsvResource("url.thetvdb-index", this::parseSeries, TheTVDBSearchResult[]::new);
+	protected final Resource<AnidbSearchResult[]> anidbIndex = tsvResource("url.anidb-index", this::parseAnime, AnidbSearchResult[]::new);
+	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsvResource("url.osdb-index", this::parseSubtitle, SubtitleSearchResult[]::new);
+
+	private Movie parseMovie(String[] v) {
+		int imdbid = parseInt(v[0]);
+		int tmdbid = parseInt(v[1]);
+		int year = parseInt(v[2]);
+		String name = v[3];
+		String[] aliasNames = copyOfRange(v, 4, v.length);
+		return new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1, null);
+	}
+
+	private TheTVDBSearchResult parseSeries(String[] v) {
+		int id = parseInt(v[0]);
+		String name = v[1];
+		String[] aliasNames = copyOfRange(v, 2, v.length);
+		return new TheTVDBSearchResult(name, aliasNames, id);
+	}
+
+	private AnidbSearchResult parseAnime(String[] v) {
+		int aid = parseInt(v[0]);
+		String primaryTitle = v[1];
+		String[] aliasNames = copyOfRange(v, 2, v.length);
+		return new AnidbSearchResult(aid, primaryTitle, aliasNames);
+	}
+
+	private SubtitleSearchResult parseSubtitle(String[] v) {
+		String kind = v[0];
+		int score = parseInt(v[1]);
+		int imdbId = parseInt(v[2]);
+		int year = parseInt(v[3]);
+		String name = v[4];
+		String[] aliasNames = copyOfRange(v, 5, v.length);
+		return new SubtitleSearchResult(name, aliasNames, year, imdbId, -1, Locale.ENGLISH, SubtitleSearchResult.Kind.forName(kind), score);
+	}
+
+	protected Resource<String[]> patternResource(String name) {
+		return resource(name, Cache.ONE_WEEK, s -> {
+			return s.length() > 0 ? s : null;
+		}, String[]::new);
+	}
+
+	protected <T> Resource<T[]> tsvResource(String name, Function<String[], T> parse, IntFunction<T[]> generator) {
+		return resource(name, Cache.ONE_WEEK, s -> {
+			String[] v = s.split("\t");
+			return v.length > 0 ? parse.apply(v) : null;
+		}, generator);
+	}
+
+	protected <T> Resource<T[]> resource(String name, Duration expirationTime, Function<String, T> parse, IntFunction<T[]> generator) {
+		return () -> {
+			Cache cache = Cache.getCache("data", CacheType.Persistent);
+			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(expirationTime).get();
+
+			// all data file are xz compressed
+			try (BufferedReader text = new BufferedReader(new InputStreamReader(new XZInputStream(new ByteArrayInputStream(bytes)), UTF_8))) {
+				return text.lines().map(parse).filter(Objects::nonNull).toArray(generator);
+			}
+		};
+	}
+
+	protected String getProperty(String name) {
+		// override resource locations via Java System properties
+		return System.getProperty(name, getBundle(ReleaseInfo.class.getName()).getString(name));
 	}
 
 	protected static class PatternResource extends CachedResource<String[]> {
