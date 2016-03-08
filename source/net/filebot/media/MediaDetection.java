@@ -1560,19 +1560,16 @@ public class MediaDetection {
 	}
 
 	public static void warmupCachedResources() throws Exception {
-		// pre-load filter data
+		// load filter data
 		MediaDetection.getClutterFileFilter();
 		MediaDetection.getDiskFolderFilter();
+		MediaDetection.matchSeriesByDirectMapping(emptyList());
 
-		Collection<File> empty = Collections.emptyList();
-		MediaDetection.matchSeriesByDirectMapping(empty);
-
-		// pre-load movie/series index
-		List<String> dummy = Collections.singletonList("");
-		MediaDetection.stripReleaseInfo(dummy, true);
-		MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getSeriesIndex());
-		MediaDetection.matchSeriesByName(dummy, -1, MediaDetection.getAnimeIndex());
-		MediaDetection.matchMovieName(dummy, true, -1);
+		// load movie/series index
+		MediaDetection.stripReleaseInfo(singleton(""), true);
+		MediaDetection.matchSeriesByName(singleton(""), -1, MediaDetection.getSeriesIndex());
+		MediaDetection.matchSeriesByName(singleton(""), -1, MediaDetection.getAnimeIndex());
+		MediaDetection.matchMovieName(singleton(""), true, -1);
 	}
 
 }
