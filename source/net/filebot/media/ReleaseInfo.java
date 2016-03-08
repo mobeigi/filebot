@@ -392,7 +392,7 @@ public class ReleaseInfo {
 		return roots;
 	}
 
-	protected final Resource<Map<Pattern, String>> seriesMappings = lines("url.series-mappings", Cache.ONE_WEEK).transform(lines -> {
+	protected final Resource<Map<Pattern, String>> seriesMappings = resource("url.series-mappings", Cache.ONE_WEEK, Function.identity(), String[]::new).transform(lines -> {
 		Map<Pattern, String> map = new LinkedHashMap<Pattern, String>(lines.length);
 		stream(lines).map(s -> s.split("\t", 2)).filter(v -> v.length == 2).forEach(v -> {
 			Pattern pattern = compile("(?<!\\p{Alnum})(" + v[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
@@ -445,16 +445,11 @@ public class ReleaseInfo {
 	}
 
 	protected Resource<String[]> lines(String name, Duration expirationTime) {
-		return resource(name, expirationTime, s -> {
-			return s.length() > 0 ? s : null;
-		}, String[]::new).memoize();
+		return resource(name, expirationTime, Function.identity(), String[]::new).memoize();
 	}
 
 	protected <A> Resource<A[]> tsv(String name, Duration expirationTime, Function<String[], A> parse, IntFunction<A[]> generator) {
-		return resource(name, expirationTime, s -> {
-			String[] v = s.split("\t");
-			return v.length > 0 ? parse.apply(v) : null;
-		}, generator).memoize();
+		return resource(name, expirationTime, s -> parse.apply(s.split("\t")), generator).memoize();
 	}
 
 	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
@@ -464,7 +459,7 @@ public class ReleaseInfo {
 
 			// all data file are xz compressed
 			try (BufferedReader text = new BufferedReader(new InputStreamReader(new XZInputStream(new ByteArrayInputStream(bytes)), UTF_8))) {
-				return text.lines().map(parse).filter(Objects::nonNull).toArray(generator);
+				return text.lines().filter(s -> s.length() > 0).map(parse).filter(Objects::nonNull).toArray(generator);
 			}
 		};
 	}
