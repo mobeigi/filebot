@@ -1,5 +1,6 @@
 package net.filebot.web;
 
+import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.util.FileUtilities.*;
 
 import java.io.ByteArrayOutputStream;
@@ -284,12 +285,12 @@ public final class WebRequest {
 
 			// use http default encoding only for text/html
 			if (contentType.equals("text/html")) {
-				return Charset.forName("ISO-8859-1");
+				return ISO_8859_1;
 			}
 		}
 
 		// use UTF-8 if we don't know any better
-		return Charset.forName("UTF-8");
+		return UTF_8;
 	}
 
 	public static String getXmlString(Document dom, boolean indent) throws TransformerException {

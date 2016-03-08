@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.MediaTypes.*;
@@ -9,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -272,7 +272,7 @@ public class ScriptShellMethods {
 	}
 
 	public static String getText(ByteBuffer self) {
-		return Charset.forName("UTF-8").decode(self.duplicate()).toString();
+		return UTF_8.decode(self.duplicate()).toString();
 	}
 
 	public static ByteBuffer get(URL self) throws IOException {
@@ -318,7 +318,7 @@ public class ScriptShellMethods {
 	}
 
 	public static File saveAs(String self, File file) throws IOException {
-		return saveAs(Charset.forName("UTF-8").encode(self), file);
+		return saveAs(UTF_8.encode(self), file);
 	}
 
 	public static File saveAs(URL self, File file) throws IOException {

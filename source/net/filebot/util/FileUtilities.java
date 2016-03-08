@@ -1,5 +1,6 @@
 package net.filebot.util;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 
@@ -15,7 +16,6 @@ import java.io.Reader;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileVisitOption;
@@ -255,7 +255,7 @@ public final class FileUtilities {
 		}
 
 		// assume UTF-8 by default
-		return Charset.forName("UTF-8").decode(data).toString();
+		return UTF_8.decode(data).toString();
 	}
 
 	/**

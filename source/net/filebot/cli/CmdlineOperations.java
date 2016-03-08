@@ -1,5 +1,6 @@
 package net.filebot.cli;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static net.filebot.Logging.*;
@@ -689,7 +690,7 @@ public class CmdlineOperations implements CmdlineInterface {
 		final SubtitleNaming naming = getSubtitleNaming(format);
 
 		// when rewriting subtitles to target format an encoding must be defined, default to UTF-8
-		final Charset outputEncoding = (csn != null) ? Charset.forName(csn) : (output != null) ? Charset.forName("UTF-8") : null;
+		final Charset outputEncoding = csn != null ? Charset.forName(csn) : output != null ? UTF_8 : null;
 		final SubtitleFormat outputFormat = (output != null) ? getSubtitleFormatByName(output) : null;
 
 		// ignore anything that is not a video

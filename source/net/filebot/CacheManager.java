@@ -1,5 +1,6 @@
 package net.filebot;
 
+import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.Logging.*;
 import static net.filebot.Settings.*;
 import static net.filebot.util.FileUtilities.*;
@@ -8,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.charset.Charset;
 import java.nio.file.StandardOpenOption;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -107,11 +107,10 @@ public class CacheManager {
 					clearDiskStore(cache);
 				}
 
-				// TODO: use UTF8
 				if (isNewCache) {
 					// set new cache revision
 					channel.position(0);
-					channel.write(Charset.forName("UTF-8").encode(String.valueOf(applicationRevision)));
+					channel.write(UTF_8.encode(String.valueOf(applicationRevision)));
 					channel.truncate(channel.position());
 				}
 

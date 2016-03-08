@@ -1,6 +1,6 @@
-
 package net.filebot.ui.transfer;
 
+import static java.nio.charset.StandardCharsets.*;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -10,16 +10,13 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Set;
 
-
 public class TextFileTransferable extends ByteBufferTransferable {
 
 	private final String text;
 
-
 	public TextFileTransferable(String name, String text) {
-		this(name, text, Charset.forName("UTF-8"));
+		this(name, text, UTF_8);
 	}
-
 
 	public TextFileTransferable(final String name, final String text, final Charset charset) {
 		// lazy data map for file transfer
@@ -39,7 +36,6 @@ public class TextFileTransferable extends ByteBufferTransferable {
 		this.text = text;
 	}
 
-
 	@Override
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
 		// check file flavor first, because text/uri-list is also text flavor
@@ -55,14 +51,10 @@ public class TextFileTransferable extends ByteBufferTransferable {
 		throw new UnsupportedFlavorException(flavor);
 	}
 
-
 	@Override
 	public DataFlavor[] getTransferDataFlavors() {
-		return new DataFlavor[] {
-				DataFlavor.javaFileListFlavor, FileTransferable.uriListFlavor, DataFlavor.stringFlavor
-		};
+		return new DataFlavor[] { DataFlavor.javaFileListFlavor, FileTransferable.uriListFlavor, DataFlavor.stringFlavor };
 	}
-
 
 	@Override
 	public boolean isDataFlavorSupported(DataFlavor flavor) {

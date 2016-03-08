@@ -1,5 +1,6 @@
 package net.filebot;
 
+import static java.nio.charset.StandardCharsets.*;
 import static java.nio.file.Files.*;
 
 import java.io.File;
@@ -46,7 +47,7 @@ public class MetaAttributeView extends AbstractMap<String, String> {
 			}
 		} else {
 			// UserDefinedFileAttributeView
-			this.encoding = Charset.forName("UTF-8");
+			this.encoding = UTF_8;
 		}
 	}
 

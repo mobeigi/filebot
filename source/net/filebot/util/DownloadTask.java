@@ -1,5 +1,6 @@
 package net.filebot.util;
 
+import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.util.FileUtilities.*;
 import static net.filebot.web.WebRequest.*;
 
@@ -10,7 +11,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class DownloadTask extends SwingWorker<ByteBuffer, Void> {
 		HttpURLConnection connection = createConnection();
 
 		if (postParameters != null) {
-			ByteBuffer postData = Charset.forName("UTF-8").encode(encodeParameters(postParameters, true));
+			ByteBuffer postData = UTF_8.encode(encodeParameters(postParameters, true));
 
 			// add content type and content length headers
 			connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded");

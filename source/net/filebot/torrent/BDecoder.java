@@ -22,33 +22,27 @@
 
 package net.filebot.torrent;
 
+import static java.nio.charset.StandardCharsets.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 /**
- * A set of utility methods to decode a bencoded array of byte into a Map. integer are
- * represented as Long, String as byte[], dictionnaries as Map, and list as List.
+ * A set of utility methods to decode a bencoded array of byte into a Map. integer are represented as Long, String as byte[], dictionnaries as Map, and list as List.
  *
  * @author TdC_VgA
  */
 class BDecoder {
 
-	private static final Charset BINARY_CHARSET = Charset.forName("ISO-8859-1");
-
-
 	public static Map<?, ?> decode(InputStream is) throws IOException {
 		return (new BDecoder().decodeStream(is));
 	}
-
 
 	public Map<?, ?> decodeStream(InputStream data) throws IOException {
 		Object res = decodeInputStream(data, 0);
@@ -60,7 +54,6 @@ class BDecoder {
 
 		return ((Map<?, ?>) res);
 	}
-
 
 	private Object decodeInputStream(InputStream bais, int nesting) throws IOException {
 		if (!bais.markSupported())
@@ -89,7 +82,7 @@ class BDecoder {
 
 				// add the value to the map
 
-				CharBuffer cb = BINARY_CHARSET.decode(ByteBuffer.wrap(tempByteArray));
+				CharBuffer cb = ISO_8859_1.decode(ByteBuffer.wrap(tempByteArray));
 
 				String key = new String(cb.array(), 0, cb.limit());
 
@@ -156,7 +149,6 @@ class BDecoder {
 		}
 	}
 
-
 	private long getNumberFromStream(InputStream bais, char parseChar) throws IOException {
 		int length = 0;
 
@@ -189,13 +181,12 @@ class BDecoder {
 		bais.skip(1);
 
 		// return the value
-		CharBuffer cb = BINARY_CHARSET.decode(ByteBuffer.wrap(tempArray));
+		CharBuffer cb = ISO_8859_1.decode(ByteBuffer.wrap(tempArray));
 
 		String str_value = new String(cb.array(), 0, cb.limit());
 
 		return Long.parseLong(str_value);
 	}
-
 
 	private byte[] getByteArrayFromStream(InputStream bais) throws IOException {
 		int length = (int) getNumberFromStream(bais, ':');

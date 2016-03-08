@@ -12,8 +12,9 @@
  */
 package net.filebot.mac.xattr;
 
+import static java.nio.charset.StandardCharsets.*;
+
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class XAttrUtil {
 
 	protected static Memory encodeString(String s) {
 		// create NULL-terminated UTF-8 String
-		byte[] bb = s.getBytes(Charset.forName("UTF-8"));
+		byte[] bb = s.getBytes(UTF_8);
 		Memory valueBuffer = new Memory(bb.length + 1);
 		valueBuffer.write(0, bb, 0, bb.length);
 		valueBuffer.setByte(valueBuffer.size() - 1, (byte) 0);
@@ -75,7 +76,7 @@ public class XAttrUtil {
 	}
 
 	protected static String decodeString(ByteBuffer bb) {
-		return Charset.forName("UTF-8").decode(bb).toString();
+		return UTF_8.decode(bb).toString();
 	}
 
 	protected static List<String> decodeStringSequence(ByteBuffer bb) {

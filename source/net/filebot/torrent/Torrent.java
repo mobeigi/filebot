@@ -1,6 +1,6 @@
-
 package net.filebot.torrent;
 
+import static java.nio.charset.StandardCharsets.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 
 public class Torrent {
 
@@ -28,19 +27,16 @@ public class Torrent {
 	private List<Entry> files;
 	private boolean singleFileTorrent;
 
-
 	protected Torrent() {
 		// used by serializer
 	}
-
 
 	public Torrent(File torrent) throws IOException {
 		this(decodeTorrent(torrent));
 	}
 
-
 	public Torrent(Map<?, ?> torrentMap) {
-		Charset charset = Charset.forName("UTF-8");
+		Charset charset = UTF_8;
 		encoding = decodeString(torrentMap.get("encoding"), charset);
 
 		try {
@@ -99,7 +95,6 @@ public class Torrent {
 		}
 	}
 
-
 	private static Map<?, ?> decodeTorrent(File torrent) throws IOException {
 		InputStream in = new BufferedInputStream(new FileInputStream(torrent));
 
@@ -110,14 +105,12 @@ public class Torrent {
 		}
 	}
 
-
 	private String decodeString(Object byteArray, Charset charset) {
 		if (byteArray == null)
 			return null;
 
 		return new String((byte[]) byteArray, charset);
 	}
-
 
 	private Long decodeLong(Object number) {
 		if (number == null)
@@ -126,51 +119,41 @@ public class Torrent {
 		return (Long) number;
 	}
 
-
 	public String getAnnounce() {
 		return announce;
 	}
-
 
 	public String getComment() {
 		return comment;
 	}
 
-
 	public String getCreatedBy() {
 		return createdBy;
 	}
-
 
 	public Long getCreationDate() {
 		return creationDate;
 	}
 
-
 	public String getEncoding() {
 		return encoding;
 	}
-
 
 	public List<Entry> getFiles() {
 		return files;
 	}
 
-
 	public String getName() {
 		return name;
 	}
-
 
 	public Long getPieceLength() {
 		return pieceLength;
 	}
 
-
 	public boolean isSingleFileTorrent() {
 		return singleFileTorrent;
 	}
-
 
 	public static class Entry {
 
@@ -178,17 +161,14 @@ public class Torrent {
 
 		private final long length;
 
-
 		public Entry(String path, long length) {
 			this.path = path;
 			this.length = length;
 		}
 
-
 		public String getPath() {
 			return path;
 		}
-
 
 		public String getName() {
 			// the last element in the path is the filename
@@ -196,11 +176,9 @@ public class Torrent {
 			return path.substring(path.lastIndexOf("/") + 1);
 		}
 
-
 		public long getLength() {
 			return length;
 		}
-
 
 		@Override
 		public String toString() {

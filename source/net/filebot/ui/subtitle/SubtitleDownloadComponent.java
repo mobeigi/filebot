@@ -1,5 +1,6 @@
 package net.filebot.ui.subtitle;
 
+import static java.nio.charset.StandardCharsets.*;
 import static net.filebot.MediaTypes.*;
 import static net.filebot.UserFiles.*;
 import static net.filebot.subtitle.SubtitleUtilities.*;
@@ -294,7 +295,7 @@ class SubtitleDownloadComponent extends JComponent {
 			// default values
 			SubtitleFormat selectedFormat = SubtitleFormat.SubRip;
 			long selectedTimingOffset = 0;
-			Charset selectedEncoding = Charset.forName("UTF-8");
+			Charset selectedEncoding = UTF_8;
 
 			// just use default values when we can't use a JFC with accessory component (also Swing OSX LaF doesn't seem to support JFileChooser::setAccessory)
 			if (Settings.isMacApp()) {
