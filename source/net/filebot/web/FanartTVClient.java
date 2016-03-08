@@ -1,28 +1,38 @@
 package net.filebot.web;
 
-import static java.nio.charset.StandardCharsets.*;
 import static java.util.Collections.*;
+import static java.util.stream.Collectors.*;
 import static net.filebot.util.JsonUtilities.*;
 
 import java.io.Serializable;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
+import javax.swing.Icon;
 
-public class FanartTVClient {
+import net.filebot.Cache;
+import net.filebot.CacheType;
+import net.filebot.web.FanartTVClient.FanartDescriptor.FanartProperty;
+
+public class FanartTVClient implements Datasource {
 
 	private String apikey;
 
 	public FanartTVClient(String apikey) {
 		this.apikey = apikey;
+	}
+
+	@Override
+	public String getName() {
+		return "FanartTV";
+	}
+
+	@Override
+	public Icon getIcon() {
+		return null;
 	}
 
 	public List<FanartDescriptor> getSeriesArtwork(int tvdbid) throws Exception {
@@ -34,37 +44,24 @@ public class FanartTVClient {
 	}
 
 	public List<FanartDescriptor> getArtwork(String category, String id) throws Exception {
-		String resource = getResource(category, id);
+		String path = category + '/' + id;
 
-		// cache results
-		CachedResource<FanartDescriptor[]> data = new CachedResource<FanartDescriptor[]>(resource, FanartDescriptor[].class, CachedResource.ONE_WEEK) {
+		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
+		Object json = cache.json(path, s -> getResource(s)).expire(Cache.ONE_WEEK);
 
-			@Override
-			public FanartDescriptor[] process(ByteBuffer data) throws Exception {
-				Object json = readJson(UTF_8.decode(data));
+		return asMap(json).entrySet().stream().flatMap(it -> {
+			return streamJsonObjects(it.getValue()).map(item -> {
+				Map<FanartProperty, String> map = mapStringValues(item, FanartProperty.class);
+				map.put(FanartProperty.type, it.getKey().toString());
 
-				return asMap(json).entrySet().stream().flatMap(it -> {
-					return streamJsonObjects(it.getValue()).map(item -> {
-						Map<FanartProperty, String> map = mapStringValues(item, FanartProperty.class);
-						map.put(FanartProperty.type, it.getKey().toString());
-
-						return new FanartDescriptor(map);
-					}).filter(art -> art.getProperties().size() > 1);
-				}).toArray(FanartDescriptor[]::new);
-			}
-
-			@Override
-			protected Cache getCache() {
-				return CacheManager.getInstance().getCache("web-datasource-lv2");
-			}
-		};
-
-		return Arrays.asList(data.get());
+				return new FanartDescriptor(map);
+			}).filter(a -> a.getProperties().size() > 1);
+		}).collect(toList());
 	}
 
-	public String getResource(String category, String id) {
+	public URL getResource(String path) throws Exception {
 		// e.g. http://webservice.fanart.tv/v3/movies/17645?api_key=6fa42b0ef3b5f3aab6a7edaa78675ac2
-		return "http://webservice.fanart.tv/v3/" + category + "/" + id + "?api_key=" + apikey;
+		return new URL("http://webservice.fanart.tv/v3/" + path + "?api_key=" + apikey);
 	}
 
 	public static class FanartDescriptor implements Serializable {
