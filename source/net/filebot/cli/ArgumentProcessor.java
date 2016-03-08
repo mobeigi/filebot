@@ -7,25 +7,24 @@ import static net.filebot.util.FileUtilities.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.MissingResourceException;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
+import net.filebot.Cache;
+import net.filebot.CacheType;
 import net.filebot.MediaTypes;
 import net.filebot.StandardRenameAction;
 import net.filebot.WebServices;
 import net.filebot.cli.ScriptShell.ScriptProvider;
-import net.filebot.web.CachedResource;
 
 public class ArgumentProcessor {
 
@@ -91,16 +90,16 @@ public class ArgumentProcessor {
 				DefaultScriptProvider scriptProvider = new DefaultScriptProvider();
 				URI script = scriptProvider.getScriptLocation(args.script);
 
-				if (!scriptProvider.isInlineScheme(script.getScheme())) {
-					if (scriptProvider.getResourceTemplate(script.getScheme()) != null) {
+				if (!scriptProvider.isInline(script)) {
+					if (scriptProvider.resolveTemplate(script) != null) {
 						scriptProvider.setBaseScheme(new URI(script.getScheme(), "%s", null));
-					} else if ("file".equals(script.getScheme())) {
-						File base = new File(script).getParentFile();
-						File template = new File(base, "%s.groovy");
+					} else if (scriptProvider.isFile(script)) {
+						File parent = new File(script).getParentFile();
+						File template = new File(parent, "%s.groovy");
 						scriptProvider.setBaseScheme(template.toURI());
 					} else {
-						File base = new File(script.getPath()).getParentFile();
-						String template = normalizePathSeparators(new File(base, "%s.groovy").getPath());
+						File parent = new File(script.getPath()).getParentFile();
+						String template = normalizePathSeparators(new File(parent, "%s.groovy").getPath());
 						scriptProvider.setBaseScheme(new URI(script.getScheme(), script.getHost(), template, script.getQuery(), script.getFragment()));
 					}
 				}
@@ -129,78 +128,87 @@ public class ArgumentProcessor {
 
 	public static class DefaultScriptProvider implements ScriptProvider {
 
+		public static final String SCHEME_REMOTE_STABLE = "fn";
+		public static final String SCHEME_REMOTE_DEVEL = "dev";
+		public static final String SCHEME_INLINE_GROOVY = "g";
+		public static final String SCHEME_LOCAL_FILE = "file";
+
+		public static final Pattern TEMPLATE_SCHEME = Pattern.compile("([a-z]{1,5}):(.+)");
+
+		public static final String NAME = "script";
+
 		private URI baseScheme;
 
 		public void setBaseScheme(URI baseScheme) {
 			this.baseScheme = baseScheme;
 		}
 
-		public String getResourceTemplate(String scheme) {
+		public String resolveTemplate(URI uri) {
 			try {
-				return getApplicationProperty("script." + scheme);
+				String template = getApplicationProperty(NAME + '.' + uri.getScheme());
+				return String.format(template, uri.getSchemeSpecificPart());
 			} catch (MissingResourceException e) {
 				return null;
 			}
 		}
 
-		public boolean isInlineScheme(String scheme) {
-			return "g".equals(scheme);
+		public boolean isInline(URI r) {
+			return SCHEME_INLINE_GROOVY.equals(r.getScheme());
+		}
+
+		public boolean isFile(URI r) {
+			return SCHEME_LOCAL_FILE.equals(r.getScheme());
 		}
 
 		@Override
 		public URI getScriptLocation(String input) throws Exception {
-			try {
-				return new URL(input).toURI();
-			} catch (Exception e) {
-				// g:println 'hello world'
-				if (input.startsWith("g:")) {
-					return new URI("g", input.substring(2), null);
-				}
+			// e.g. dev:amc
+			Matcher template = TEMPLATE_SCHEME.matcher(input);
+			if (template.matches()) {
+				URI uri = new URI(template.group(1), template.group(2), null);
 
-				// fn:amc / dev:amc
-				if (Pattern.matches("\\w+:.+", input)) {
-					String scheme = input.substring(0, input.indexOf(':'));
-					if (getResourceTemplate(scheme) != null) {
-						return new URI(scheme, input.substring(scheme.length() + 1, input.length()), null);
-					}
+				// 1. fn:amc
+				// 2. dev:sysinfo
+				// 3. g:println 'hello world'
+				switch (uri.getScheme()) {
+				case SCHEME_REMOTE_STABLE:
+				case SCHEME_REMOTE_DEVEL:
+				case SCHEME_INLINE_GROOVY:
+					return uri;
+				default:
+					return new URL(input).toURI();
 				}
-
-				File file = new File(input);
-				if (baseScheme != null && !file.isAbsolute()) {
-					return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
-				}
-
-				// X:/foo/bar.groovy
-				if (!file.isFile()) {
-					throw new FileNotFoundException(file.getPath());
-				}
-				return file.getAbsoluteFile().toURI();
 			}
+
+			File file = new File(input);
+			if (baseScheme != null && !file.isAbsolute()) {
+				return new URI(baseScheme.getScheme(), String.format(baseScheme.getSchemeSpecificPart(), input), null);
+			}
+
+			// e.g. /path/to/script.groovy
+			if (!file.isFile()) {
+				throw new FileNotFoundException(file.getPath());
+			}
+			return file.getCanonicalFile().toURI();
 		}
 
 		@Override
-		public String fetchScript(URI uri) throws IOException {
-			if (uri.getScheme().equals("file")) {
+		public String fetchScript(URI uri) throws Exception {
+			if (isFile(uri)) {
 				return readTextFile(new File(uri));
 			}
 
-			if (uri.getScheme().equals("g")) {
+			if (isInline(uri)) {
 				return uri.getSchemeSpecificPart();
 			}
 
 			// remote script
-			String resolver = getResourceTemplate(uri.getScheme());
-			String url = (resolver != null) ? String.format(resolver, uri.getSchemeSpecificPart()) : uri.toString();
+			Cache cache = Cache.getCache(NAME, CacheType.Persistent);
 
 			// fetch remote script only if modified
-			CachedResource<String> script = new CachedResource<String>(url, String.class, url.contains("/devel/") ? CachedResource.ONE_DAY : CachedResource.ONE_WEEK) {
-
-				@Override
-				public String process(ByteBuffer data) {
-					return Charset.forName("UTF-8").decode(data).toString();
-				}
-			};
-			return script.get();
+			return cache.text(uri.toString(), s -> {
+				return new URL(resolveTemplate(uri));
+			}).expire(SCHEME_REMOTE_DEVEL.equals(uri.getScheme()) ? Cache.ONE_DAY : Cache.ONE_WEEK).get();
 		}
 	}
 

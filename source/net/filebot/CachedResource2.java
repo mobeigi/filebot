@@ -113,18 +113,8 @@ public class CachedResource2<K, R> {
 	}
 
 	@FunctionalInterface
-	public interface Fetch {
-		ByteBuffer fetch(URL url, long lastModified) throws Exception;
-	}
-
-	@FunctionalInterface
 	public interface Transform<T, R> {
 		R transform(T object) throws Exception;
-	}
-
-	@FunctionalInterface
-	public interface Permit {
-		void acquire(URL resource) throws Exception;
 	}
 
 	public static Transform<ByteBuffer, String> getText(Charset charset) {
@@ -159,39 +149,52 @@ public class CachedResource2<K, R> {
 		};
 	}
 
+	@FunctionalInterface
+	public interface Fetch {
+		ByteBuffer fetch(URL url, long lastModified) throws Exception;
+	}
+
 	public static Fetch fetchIfModified() {
 		return (url, lastModified) -> {
 			try {
-				debug.fine(format("Fetch %s (If-Modified-Since: %tc)", url, lastModified));
+				debug.fine(WebRequest.log(url, lastModified, null));
 				return WebRequest.fetchIfModified(url, lastModified);
 			} catch (FileNotFoundException e) {
-				debug.warning(format("Resource not found: %s => %s", url, e));
-				return ByteBuffer.allocate(0);
+				return fileNotFound(url, e);
 			}
 		};
 	}
 
 	public static Fetch fetchIfNoneMatch(Cache etagStorage) {
 		return (url, lastModified) -> {
+			// record ETag response header
 			Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
 
 			String etagKey = url.toString();
 			Object etagValue = etagStorage.get(etagKey);
 
 			try {
-				debug.fine(format("Fetch %s (If-None-Match: %s, If-Modified-Since: %tc)", url, etagValue, lastModified));
+				debug.fine(WebRequest.log(url, lastModified, etagValue));
 				return WebRequest.fetch(url, lastModified, etagValue, null, responseHeaders);
 			} catch (FileNotFoundException e) {
-				debug.warning(format("Resource not found: %s => %s", url, e));
-				return ByteBuffer.allocate(0);
+				return fileNotFound(url, e);
 			} finally {
 				List<String> value = responseHeaders.get("ETag");
 				if (value != null && value.size() > 0 && !value.contains(etagValue)) {
-					debug.finest(format("ETag %s", value));
 					etagStorage.put(etagKey, value.get(0));
 				}
 			}
 		};
+	}
+
+	private static ByteBuffer fileNotFound(URL url, FileNotFoundException e) {
+		debug.warning(format("Resource not found: %s => %s", url, e.getMessage()));
+		return ByteBuffer.allocate(0);
+	}
+
+	@FunctionalInterface
+	public interface Permit {
+		void acquire(URL resource) throws Exception;
 	}
 
 	public static Fetch withPermit(Fetch fetch, Permit permit) {

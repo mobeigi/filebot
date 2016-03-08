@@ -24,16 +24,16 @@ public class Cache {
 		return CacheManager.getInstance().getCache(name, type);
 	}
 
-	public CachedResource2<String, String> text(String key, Transform<String, URL> resource) {
-		return new CachedResource2<String, String>(key, resource, fetchIfModified(), getText(UTF_8), String.class::cast, ONE_DAY, this);
+	public <T> CachedResource2<T, String> text(T key, Transform<T, URL> resource) {
+		return new CachedResource2<T, String>(key, resource, fetchIfModified(), getText(UTF_8), String.class::cast, ONE_DAY, this);
 	}
 
-	public CachedResource2<String, Document> xml(String key, Transform<String, URL> resource) {
-		return new CachedResource2<String, Document>(key, resource, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), ONE_DAY, this);
+	public <T> CachedResource2<T, Document> xml(T key, Transform<T, URL> resource) {
+		return new CachedResource2<T, Document>(key, resource, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), ONE_DAY, this);
 	}
 
-	public CachedResource2<String, Object> json(String key, Transform<String, URL> resource) {
-		return new CachedResource2<String, Object>(key, resource, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), ONE_DAY, this);
+	public <T> CachedResource2<T, Object> json(T key, Transform<T, URL> resource) {
+		return new CachedResource2<T, Object>(key, resource, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), ONE_DAY, this);
 	}
 
 	private final net.sf.ehcache.Cache cache;

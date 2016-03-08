@@ -52,7 +52,7 @@ public final class Settings {
 			try {
 				return bundle.getString("apikey.appstore." + name);
 			} catch (MissingResourceException e) {
-				// ignore, fall back to default
+				// use default value
 			}
 		}
 		return bundle.getString("apikey." + name);

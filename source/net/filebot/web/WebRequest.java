@@ -17,9 +17,15 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -307,6 +313,19 @@ public final class WebRequest {
 		// throw exception on error
 		reader.setErrorHandler(new DefaultHandler());
 		reader.parse(new InputSource(new StringReader(xml)));
+	}
+
+	public static Supplier<String> log(URL url, long lastModified, Object etag) {
+		return () -> {
+			List<String> headers = new ArrayList<String>(2);
+			if (lastModified > 0) {
+				headers.add("If-Modified-Since: " + DateTimeFormatter.RFC_1123_DATE_TIME.format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneOffset.UTC)));
+			}
+			if (etag != null) {
+				headers.add("If-None-Match: " + etag);
+			}
+			return "Fetch resource: " + url + (headers.isEmpty() ? "" : " " + headers);
+		};
 	}
 
 	private WebRequest() {
