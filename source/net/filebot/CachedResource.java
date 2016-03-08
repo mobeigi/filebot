@@ -18,7 +18,7 @@ import net.filebot.web.WebRequest;
 
 import org.w3c.dom.Document;
 
-public class CachedResource2<K, R> implements Resource<R> {
+public class CachedResource<K, R> implements Resource<R> {
 
 	public static final int DEFAULT_RETRY_LIMIT = 2;
 	public static final Duration DEFAULT_RETRY_DELAY = Duration.ofSeconds(2);
@@ -37,11 +37,11 @@ public class CachedResource2<K, R> implements Resource<R> {
 
 	private final Cache cache;
 
-	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
+	public CachedResource(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, Duration expirationTime, Cache cache) {
 		this(key, resource, fetch, parse, cast, DEFAULT_RETRY_LIMIT, DEFAULT_RETRY_DELAY, expirationTime, cache);
 	}
 
-	public CachedResource2(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryLimit, Duration retryWait, Duration expirationTime, Cache cache) {
+	public CachedResource(K key, Transform<K, URL> resource, Fetch fetch, Transform<ByteBuffer, ? extends Object> parse, Transform<? super Object, R> cast, int retryLimit, Duration retryWait, Duration expirationTime, Cache cache) {
 		this.key = key;
 		this.resource = resource;
 		this.fetch = fetch;
@@ -53,17 +53,17 @@ public class CachedResource2<K, R> implements Resource<R> {
 		this.cache = cache;
 	}
 
-	public synchronized CachedResource2<K, R> fetch(Fetch fetch) {
+	public synchronized CachedResource<K, R> fetch(Fetch fetch) {
 		this.fetch = fetch;
 		return this;
 	}
 
-	public synchronized CachedResource2<K, R> expire(Duration expirationTime) {
+	public synchronized CachedResource<K, R> expire(Duration expirationTime) {
 		this.expirationTime = expirationTime;
 		return this;
 	}
 
-	public synchronized CachedResource2<K, R> retry(int retryLimit) {
+	public synchronized CachedResource<K, R> retry(int retryLimit) {
 		this.retryLimit = retryLimit;
 		return this;
 	}

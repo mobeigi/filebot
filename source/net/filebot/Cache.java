@@ -1,7 +1,7 @@
 package net.filebot;
 
 import static java.nio.charset.StandardCharsets.*;
-import static net.filebot.CachedResource2.*;
+import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
-import net.filebot.CachedResource2.Transform;
+import net.filebot.CachedResource.Transform;
 import net.sf.ehcache.Element;
 
 import org.w3c.dom.Document;
@@ -25,20 +25,20 @@ public class Cache {
 		return CacheManager.getInstance().getCache(name, type);
 	}
 
-	public <T> CachedResource2<T, byte[]> bytes(T key, Transform<T, URL> resource) {
-		return new CachedResource2<T, byte[]>(key, resource, fetchIfModified(), getBytes(), byte[].class::cast, ONE_DAY, this);
+	public <T> CachedResource<T, byte[]> bytes(T key, Transform<T, URL> resource) {
+		return new CachedResource<T, byte[]>(key, resource, fetchIfModified(), getBytes(), byte[].class::cast, ONE_DAY, this);
 	}
 
-	public <T> CachedResource2<T, String> text(T key, Transform<T, URL> resource) {
-		return new CachedResource2<T, String>(key, resource, fetchIfModified(), getText(UTF_8), String.class::cast, ONE_DAY, this);
+	public <T> CachedResource<T, String> text(T key, Transform<T, URL> resource) {
+		return new CachedResource<T, String>(key, resource, fetchIfModified(), getText(UTF_8), String.class::cast, ONE_DAY, this);
 	}
 
-	public <T> CachedResource2<T, Document> xml(T key, Transform<T, URL> resource) {
-		return new CachedResource2<T, Document>(key, resource, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), ONE_DAY, this);
+	public <T> CachedResource<T, Document> xml(T key, Transform<T, URL> resource) {
+		return new CachedResource<T, Document>(key, resource, fetchIfModified(), validateXml(getText(UTF_8)), getXml(String.class::cast), ONE_DAY, this);
 	}
 
-	public <T> CachedResource2<T, Object> json(T key, Transform<T, URL> resource) {
-		return new CachedResource2<T, Object>(key, resource, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), ONE_DAY, this);
+	public <T> CachedResource<T, Object> json(T key, Transform<T, URL> resource) {
+		return new CachedResource<T, Object>(key, resource, fetchIfModified(), validateJson(getText(UTF_8)), getJson(String.class::cast), ONE_DAY, this);
 	}
 
 	private final net.sf.ehcache.Cache cache;

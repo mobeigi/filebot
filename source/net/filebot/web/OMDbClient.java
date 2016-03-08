@@ -2,7 +2,7 @@ package net.filebot.web;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
-import static net.filebot.CachedResource2.*;
+import static net.filebot.CachedResource.*;
 import static net.filebot.Logging.*;
 import static net.filebot.util.JsonUtilities.*;
 import static net.filebot.util.StringUtilities.*;
