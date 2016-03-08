@@ -113,7 +113,7 @@ Section MAIN
 
 	${if} $MSI_STATUS == "0"
 		DetailPrint "Optimizing..."
-		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println net.filebot.Settings.applicationIdentifier; println 'JRE: ' + Settings.getJavaRuntimeIdentifier(); println String.format('JVM: %d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, _system['java.vm.name']); java.util.prefs.Preferences.userRoot(); net.sf.ehcache.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();" --log OFF`
+		nsExec::ExecToLog `"C:\Program Files\FileBot\filebot.exe" -script "g:println net.filebot.Settings.getApplicationIdentifier(); println 'JRE: ' + Settings.getJavaRuntimeIdentifier(); println String.format('JVM: %d-bit %s', com.sun.jna.Platform.is64Bit() ? 64 : 32, System.getProperty('java.vm.name')); java.util.prefs.Preferences.userRoot(); net.filebot.CacheManager.getInstance().clearAll(); net.filebot.media.MediaDetection.warmupCachedResources();" --log OFF`
 		DetailPrint "Done."
 	${else}
 		DetailPrint "msiexec error $MSI_STATUS"

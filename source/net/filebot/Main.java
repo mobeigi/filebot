@@ -99,6 +99,12 @@ public class Main {
 			// update system properties
 			initializeSystemProperties(args);
 
+			// update logging level
+			log.setLevel(args.getLogLevel());
+			if (debug.getLevel().intValue() < log.getLevel().intValue()) {
+				debug.setLevel(log.getLevel());
+			}
+
 			// tee stdout and stderr to log file if set
 			if (args.logFile != null) {
 				File logFile = new File(args.logFile);

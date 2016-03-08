@@ -29,8 +29,6 @@ import net.filebot.cli.ScriptShell.ScriptProvider;
 public class ArgumentProcessor {
 
 	public int process(ArgumentBean args, CmdlineInterface cli) {
-		log.setLevel(args.getLogLevel());
-
 		try {
 			// print episode info
 			if (args.list) {
