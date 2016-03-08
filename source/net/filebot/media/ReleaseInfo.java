@@ -337,8 +337,8 @@ public class ReleaseInfo {
 		return compile("(?<!\\p{Alnum})" + or(quoteAll(terms)) + "(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
 	}
 
-	public Movie[] getMovieList() throws Exception {
-		return movieIndex.get();
+	public Map<Pattern, String> getSeriesMappings() throws Exception {
+		return seriesMappings.get();
 	}
 
 	public TheTVDBSearchResult[] getTheTVDBIndex() throws Exception {
@@ -349,24 +349,12 @@ public class ReleaseInfo {
 		return anidbIndex.get();
 	}
 
-	public SubtitleSearchResult[] getOpenSubtitlesIndex() throws Exception {
-		return osdbIndex.get();
+	public Movie[] getMovieList() throws Exception {
+		return movieIndex.get();
 	}
 
-	private Map<Pattern, String> seriesDirectMappings;
-
-	public Map<Pattern, String> getSeriesDirectMappings() throws Exception {
-		if (seriesDirectMappings == null) {
-			Map<Pattern, String> mappings = new LinkedHashMap<Pattern, String>();
-			for (String line : seriesDirectMappingsResource.get()) {
-				String[] tsv = line.split("\t", 2);
-				if (tsv.length == 2) {
-					mappings.put(compile("(?<!\\p{Alnum})(" + tsv[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS), tsv[1]);
-				}
-			}
-			seriesDirectMappings = unmodifiableMap(mappings);
-		}
-		return seriesDirectMappings;
+	public SubtitleSearchResult[] getOpenSubtitlesIndex() throws Exception {
+		return osdbIndex.get();
 	}
 
 	private static FolderEntryFilter diskFolderFilter;
@@ -404,26 +392,24 @@ public class ReleaseInfo {
 		return roots;
 	}
 
-	// fetch release group names online and try to update the data every other day
+	protected final Resource<Map<Pattern, String>> seriesMappings = lines("url.series-mappings", Cache.ONE_WEEK).transform(lines -> {
+		Map<Pattern, String> map = new LinkedHashMap<Pattern, String>(lines.length);
+		stream(lines).map(s -> s.split("\t", 2)).filter(v -> v.length == 2).forEach(v -> {
+			Pattern pattern = compile("(?<!\\p{Alnum})(" + v[0] + ")(?!\\p{Alnum})", CASE_INSENSITIVE | UNICODE_CHARACTER_CLASS);
+			map.put(pattern, v[1]);
+		});
+		return unmodifiableMap(map);
+	}).memoize();
 
-	protected final Resource<String[]> releaseGroup = patternResource("url.release-groups");
-	protected final Resource<String[]> queryBlacklist = patternResource("url.query-blacklist");
-	protected final Resource<String[]> excludeBlacklist = patternResource("url.exclude-blacklist");
-	protected final Resource<String[]> seriesDirectMappingsResource = patternResource("url.series-mappings");
+	protected final Resource<String[]> releaseGroup = lines("url.release-groups", Cache.ONE_WEEK);
+	protected final Resource<String[]> queryBlacklist = lines("url.query-blacklist", Cache.ONE_WEEK);
+	protected final Resource<String[]> excludeBlacklist = lines("url.exclude-blacklist", Cache.ONE_WEEK);
 
-	protected final Resource<Movie[]> movieIndex = tsvResource("url.movie-list", this::parseMovie, Movie[]::new);
-	protected final Resource<TheTVDBSearchResult[]> tvdbIndex = tsvResource("url.thetvdb-index", this::parseSeries, TheTVDBSearchResult[]::new);
-	protected final Resource<AnidbSearchResult[]> anidbIndex = tsvResource("url.anidb-index", this::parseAnime, AnidbSearchResult[]::new);
-	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsvResource("url.osdb-index", this::parseSubtitle, SubtitleSearchResult[]::new);
+	protected final Resource<TheTVDBSearchResult[]> tvdbIndex = tsv("url.thetvdb-index", Cache.ONE_WEEK, this::parseSeries, TheTVDBSearchResult[]::new);
+	protected final Resource<AnidbSearchResult[]> anidbIndex = tsv("url.anidb-index", Cache.ONE_WEEK, this::parseAnime, AnidbSearchResult[]::new);
 
-	private Movie parseMovie(String[] v) {
-		int imdbid = parseInt(v[0]);
-		int tmdbid = parseInt(v[1]);
-		int year = parseInt(v[2]);
-		String name = v[3];
-		String[] aliasNames = copyOfRange(v, 4, v.length);
-		return new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1, null);
-	}
+	protected final Resource<Movie[]> movieIndex = tsv("url.movie-list", Cache.ONE_MONTH, this::parseMovie, Movie[]::new);
+	protected final Resource<SubtitleSearchResult[]> osdbIndex = tsv("url.osdb-index", Cache.ONE_MONTH, this::parseSubtitle, SubtitleSearchResult[]::new);
 
 	private TheTVDBSearchResult parseSeries(String[] v) {
 		int id = parseInt(v[0]);
@@ -439,6 +425,15 @@ public class ReleaseInfo {
 		return new AnidbSearchResult(aid, primaryTitle, aliasNames);
 	}
 
+	private Movie parseMovie(String[] v) {
+		int imdbid = parseInt(v[0]);
+		int tmdbid = parseInt(v[1]);
+		int year = parseInt(v[2]);
+		String name = v[3];
+		String[] aliasNames = copyOfRange(v, 4, v.length);
+		return new Movie(name, aliasNames, year, imdbid > 0 ? imdbid : -1, tmdbid > 0 ? tmdbid : -1, null);
+	}
+
 	private SubtitleSearchResult parseSubtitle(String[] v) {
 		String kind = v[0];
 		int score = parseInt(v[1]);
@@ -449,20 +444,20 @@ public class ReleaseInfo {
 		return new SubtitleSearchResult(name, aliasNames, year, imdbId, -1, Locale.ENGLISH, SubtitleSearchResult.Kind.forName(kind), score);
 	}
 
-	protected Resource<String[]> patternResource(String name) {
-		return resource(name, Cache.ONE_WEEK, s -> {
+	protected Resource<String[]> lines(String name, Duration expirationTime) {
+		return resource(name, expirationTime, s -> {
 			return s.length() > 0 ? s : null;
-		}, String[]::new);
+		}, String[]::new).memoize();
 	}
 
-	protected <T> Resource<T[]> tsvResource(String name, Function<String[], T> parse, IntFunction<T[]> generator) {
-		return resource(name, Cache.ONE_WEEK, s -> {
+	protected <A> Resource<A[]> tsv(String name, Duration expirationTime, Function<String[], A> parse, IntFunction<A[]> generator) {
+		return resource(name, expirationTime, s -> {
 			String[] v = s.split("\t");
 			return v.length > 0 ? parse.apply(v) : null;
-		}, generator);
+		}, generator).memoize();
 	}
 
-	protected <T> Resource<T[]> resource(String name, Duration expirationTime, Function<String, T> parse, IntFunction<T[]> generator) {
+	protected <A> Resource<A[]> resource(String name, Duration expirationTime, Function<String, A> parse, IntFunction<A[]> generator) {
 		return () -> {
 			Cache cache = Cache.getCache("data", CacheType.Persistent);
 			byte[] bytes = cache.bytes(name, n -> new URL(getProperty(n))).expire(expirationTime).get();

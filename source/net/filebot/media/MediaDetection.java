@@ -22,7 +22,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -447,15 +446,15 @@ public class MediaDetection {
 	}
 
 	public static List<String> matchSeriesByDirectMapping(Collection<File> files) throws Exception {
-		Map<Pattern, String> seriesDirectMappings = releaseInfo.getSeriesDirectMappings();
+		Map<Pattern, String> patterns = releaseInfo.getSeriesMappings();
 		List<String> matches = new ArrayList<String>();
 
 		for (File file : files) {
-			for (Entry<Pattern, String> it : seriesDirectMappings.entrySet()) {
-				if (it.getKey().matcher(getName(file)).find()) {
-					matches.add(it.getValue());
+			patterns.forEach((pattern, seriesName) -> {
+				if (pattern.matcher(getName(file)).find()) {
+					matches.add(seriesName);
 				}
-			}
+			});
 		}
 
 		return matches;
