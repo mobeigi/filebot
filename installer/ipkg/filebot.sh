@@ -22,14 +22,8 @@ EXTRACTOR="ApacheVFS"					# use Apache Commons VFS2 with junrar plugin
 # EXTRACTOR="SevenZipExecutable"		# use the 7z executable
 # EXTRACTOR="SevenZipNativeBindings"	# use the lib7-Zip-JBinding.so native library
 
-# create application data folder
+# select application data folder
 APP_DATA="$APP_ROOT/data/$USER"
 
-mkdir -p "$APP_DATA"
-if [ ! -w "$APP_DATA" ]; then
-	echo "$APP_DATA must be set and writable"
-	exit 1
-fi
-
 # start filebot
-java $JAVA_OPTS -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Dsun.net.client.defaultConnectTimeout=10000 -Dsun.net.client.defaultReadTimeout=60000 -Dapplication.deployment=ipkg -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" -jar "$APP_ROOT/FileBot.jar" "$@"
+java -Dunixfs=false -DuseExtendedFileAttributes=true -DuseCreationDate=false -Dfile.encoding="UTF-8" -Dsun.jnu.encoding="UTF-8" -Dapplication.deployment=ipkg -Dnet.filebot.Archive.extractor="$EXTRACTOR" -Dnet.filebot.AcoustID.fpcalc="fpcalc" -Dapplication.dir="$APP_DATA" -Djava.io.tmpdir="$APP_DATA/temp" -Duser.home="$APP_DATA" $JAVA_OPTS -jar "$APP_ROOT/FileBot.jar" "$@"
