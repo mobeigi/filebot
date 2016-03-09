@@ -16,17 +16,17 @@ import net.filebot.util.ui.notification.MessageNotification;
 import net.filebot.util.ui.notification.NotificationManager;
 import net.filebot.util.ui.notification.QueueNotificationLayout;
 
-public class NotificationLogging extends Handler {
+public class NotificationHandler extends Handler {
 
 	private final String title;
 	private final int timeout;
 	private final NotificationManager manager;
 
-	public NotificationLogging(String title) {
+	public NotificationHandler(String title) {
 		this(title, 2500, new NotificationManager(new QueueNotificationLayout(NORTH, SOUTH)));
 	}
 
-	public NotificationLogging(String title, int timeout, NotificationManager manager) {
+	public NotificationHandler(String title, int timeout, NotificationManager manager) {
 		this.title = title;
 		this.timeout = timeout;
 		this.manager = manager;

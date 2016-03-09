@@ -1,5 +1,8 @@
 package net.filebot;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.function.Supplier;
 import java.util.logging.Formatter;
@@ -7,6 +10,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 import java.util.regex.Pattern;
 
 import net.filebot.util.SystemProperty;
@@ -27,6 +32,12 @@ public final class Logging {
 		log.setUseParentHandlers(false);
 		log.addHandler(new ConsoleHandler(level, formatter));
 		return log;
+	}
+
+	public static StreamHandler createSimpleFileHandler(File file, Level level) throws IOException {
+		StreamHandler handler = new StreamHandler(new FileOutputStream(file, true), new SimpleFormatter());
+		handler.setLevel(level);
+		return handler;
 	}
 
 	public static Supplier<String> format(String format, Object... args) {

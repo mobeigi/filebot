@@ -15,7 +15,6 @@ import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -32,8 +31,6 @@ import java.security.ProtectionDomain;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.StreamHandler;
-import java.util.logging.XMLFormatter;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -51,7 +48,7 @@ import net.filebot.mac.MacAppUtilities;
 import net.filebot.ui.FileBotMenuBar;
 import net.filebot.ui.GettingStartedStage;
 import net.filebot.ui.MainFrame;
-import net.filebot.ui.NotificationLogging;
+import net.filebot.ui.NotificationHandler;
 import net.filebot.ui.PanelBuilder;
 import net.filebot.ui.SinglePanelFrame;
 import net.filebot.ui.transfer.FileTransferable;
@@ -189,8 +186,8 @@ public class Main {
 	private static void startUserInterface(ArgumentBean args) {
 		try {
 			// GUI logging settings
-			log.addHandler(new NotificationLogging(getApplicationName()));
-			log.addHandler(new StreamHandler(new FileOutputStream(new File(getApplicationFolder(), "error.log.xml"), true), new XMLFormatter()));
+			log.addHandler(new NotificationHandler(getApplicationName()));
+			log.addHandler(createSimpleFileHandler(new File(getApplicationFolder(), "error.log"), Level.WARNING)); // only log errors to file
 
 			// use native LaF an all platforms
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
