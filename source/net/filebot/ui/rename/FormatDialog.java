@@ -545,12 +545,19 @@ public class FormatDialog extends JDialog {
 					} catch (Exception e) {
 						BindingException issue = findCause(e, BindingException.class);
 						if (issue != null && getMessage(issue).contains(MediaBindingBean.EXCEPTION_SAMPLE_FILE_NOT_SET)) {
+							// exception caused by file bindings because sample file has not been set
 							status.setText(getMessage(issue));
 							status.setIcon(ResourceManager.getIcon("action.variables"));
 						} else if (issue != null) {
+							// default binding exception handler
 							status.setText(getMessage(issue));
 							status.setIcon(ResourceManager.getIcon("status.info"));
+						} else if (e.getCause() != null && e.getCause().getClass().equals(Exception.class)) {
+							// ScriptShellMethods throws Exception type exceptions which are not unexpected
+							status.setText(e.getCause().getMessage());
+							status.setIcon(ResourceManager.getIcon("status.info"));
 						} else {
+							// default exception handler
 							status.setText(String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage()));
 							status.setIcon(ResourceManager.getIcon("status.warning"));
 						}
