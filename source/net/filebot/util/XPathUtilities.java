@@ -1,6 +1,5 @@
 package net.filebot.util;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -20,12 +19,16 @@ public final class XPathUtilities {
 		return (Node) evaluateXPath(xpath, node, XPathConstants.NODE);
 	}
 
-	public static List<Node> selectNodes(String xpath, Object node) {
-		return new NodeListDecorator((NodeList) evaluateXPath(xpath, node, XPathConstants.NODESET));
-	}
-
 	public static String selectString(String xpath, Object node) {
 		return ((String) evaluateXPath(xpath, node, XPathConstants.STRING)).trim();
+	}
+
+	public static Stream<Node> streamNodes(String xpath, Object node) {
+		return stream((NodeList) evaluateXPath(xpath, node, XPathConstants.NODESET));
+	}
+
+	public static Node[] selectNodes(String xpath, Object node) {
+		return streamNodes(xpath, node).toArray(Node[]::new);
 	}
 
 	public static List<String> selectStrings(String xpath, Object node) {
@@ -47,25 +50,15 @@ public final class XPathUtilities {
 	 * @return text content of the child node or null if no child with the given name was found
 	 */
 	public static Node getChild(String nodeName, Node parentNode) {
-		for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
-			if (nodeName.equals(child.getNodeName()))
-				return child;
-		}
-
-		return null;
+		return stream(parentNode.getChildNodes()).filter(n -> nodeName.equals(n.getNodeName())).findFirst().orElse(null);
 	}
 
-	public static List<Node> getChildren(String nodeName, Node parentNode) {
-		List<Node> children = new ArrayList<Node>();
-
-		if (parentNode != null) {
-			for (Node child : new NodeListDecorator(parentNode.getChildNodes())) {
-				if (nodeName.equals(child.getNodeName()))
-					children.add(child);
-			}
+	public static Node[] getChildren(String nodeName, Node parentNode) {
+		if (parentNode == null) {
+			return new Node[0];
+		} else {
+			return stream(parentNode.getChildNodes()).filter(n -> nodeName.equals(n.getNodeName())).toArray(Node[]::new);
 		}
-
-		return children;
 	}
 
 	public static String getAttribute(String attribute, Node node) {
@@ -142,32 +135,12 @@ public final class XPathUtilities {
 		}
 	}
 
-	public static Stream<Node> streamChildren(Node parent) {
-		return stream(parent.getChildNodes());
+	public static Stream<Node> streamElements(Node parent) {
+		return stream(parent.getChildNodes()).filter(n -> n.getNodeType() == Node.ELEMENT_NODE);
 	}
 
 	public static Stream<Node> stream(NodeList nodes) {
 		return IntStream.range(0, nodes.getLength()).mapToObj(nodes::item);
-	}
-
-	protected static class NodeListDecorator extends AbstractList<Node> {
-
-		private final NodeList nodes;
-
-		public NodeListDecorator(NodeList nodes) {
-			this.nodes = nodes;
-		}
-
-		@Override
-		public Node get(int index) {
-			return nodes.item(index);
-		}
-
-		@Override
-		public int size() {
-			return nodes.getLength();
-		}
-
 	}
 
 	private XPathUtilities() {

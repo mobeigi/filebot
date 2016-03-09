@@ -132,7 +132,7 @@ public class AnidbClient extends AbstractEpisodeListProvider {
 		// * only use categories with weight >= 400
 		// * sort by weight (descending)
 		// * limit to 5 genres
-		seriesInfo.setGenres(selectNodes("anime/categories/category", dom).stream().map(categoryNode -> {
+		seriesInfo.setGenres(streamNodes("anime/categories/category", dom).map(categoryNode -> {
 			String name = getTextContent("name", categoryNode);
 			Integer weight = matchInteger(getAttribute("weight", categoryNode));
 			return new SimpleImmutableEntry<String, Integer>(name, weight);

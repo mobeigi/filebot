@@ -105,10 +105,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		// perform online search
 		Document dom = getXmlResource(MirrorType.SEARCH, "GetSeries.php?seriesname=" + encode(query, true) + "&language=" + getLanguageCode(locale));
 
-		List<Node> nodes = selectNodes("Data/Series", dom);
 		Map<Integer, TheTVDBSearchResult> resultSet = new LinkedHashMap<Integer, TheTVDBSearchResult>();
 
-		for (Node node : nodes) {
+		for (Node node : selectNodes("Data/Series", dom)) {
 			int sid = matchInteger(getTextContent("seriesid", node));
 			String seriesName = getTextContent("SeriesName", node);
 
@@ -165,12 +164,10 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 		seriesInfo.setPosterUrl(getResource(MirrorType.BANNER, getTextContent("poster", seriesNode)));
 
 		// parse episode data
-		List<Node> nodes = selectNodes("Data/Episode", dom);
-
-		List<Episode> episodes = new ArrayList<Episode>(nodes.size());
+		List<Episode> episodes = new ArrayList<Episode>(50);
 		List<Episode> specials = new ArrayList<Episode>(5);
 
-		for (Node node : nodes) {
+		for (Node node : selectNodes("Data/Episode", dom)) {
 			String episodeName = getTextContent("EpisodeName", node);
 			Integer absoluteNumber = matchInteger(getTextContent("absolute_number", node));
 			SimpleDate airdate = SimpleDate.parse(getTextContent("FirstAired", node));
@@ -277,7 +274,7 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 				Document dom = getXmlResource(MirrorType.NULL, "mirrors.xml");
 
 				// collect all mirror data
-				Map<MirrorType, List<String>> mirrorLists = selectNodes("Mirrors/Mirror", dom).stream().flatMap(node -> {
+				Map<MirrorType, List<String>> mirrorLists = streamNodes("Mirrors/Mirror", dom).flatMap(node -> {
 					String mirror = getTextContent("mirrorpath", node);
 					int typeMask = Integer.parseInt(getTextContent("typemask", node));
 
@@ -392,10 +389,9 @@ public class TheTVDBClient extends AbstractEpisodeListProvider {
 
 		Document dom = getXmlResource(MirrorType.XML, "series/" + series.getId() + "/banners.xml");
 
-		List<Node> nodes = selectNodes("//Banner", dom);
 		List<BannerDescriptor> banners = new ArrayList<BannerDescriptor>();
 
-		for (Node node : nodes) {
+		for (Node node : selectNodes("//Banner", dom)) {
 			try {
 				Map<BannerProperty, String> item = new EnumMap<BannerProperty, String>(BannerProperty.class);
 
