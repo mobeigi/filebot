@@ -73,7 +73,7 @@ public class JsonUtilities {
 	}
 
 	public static String getString(Object node, String key) {
-		return nonEmptyOrNull(asMap(node).get(key));
+		return StringUtilities.asNonEmptyString(asMap(node).get(key));
 	}
 
 	public static Integer getInteger(Object node, String key) {
@@ -97,7 +97,7 @@ public class JsonUtilities {
 	}
 
 	public static <K extends Enum<K>> EnumMap<K, String> mapStringValues(Object node, Class<K> cls) {
-		return mapValues(node, cls, JsonUtilities::nonEmptyOrNull);
+		return mapValues(node, cls, StringUtilities::asNonEmptyString);
 	}
 
 	public static <K extends Enum<K>, V> EnumMap<K, V> mapValues(Object node, Class<K> cls, Function<Object, V> converter) {
@@ -113,16 +113,6 @@ public class JsonUtilities {
 			}
 		}
 		return map;
-	}
-
-	public static String nonEmptyOrNull(Object object) {
-		if (object != null) {
-			String string = object.toString();
-			if (string.length() > 0) {
-				return string;
-			}
-		}
-		return null;
 	}
 
 }

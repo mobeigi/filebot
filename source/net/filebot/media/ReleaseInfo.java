@@ -520,7 +520,7 @@ public class ReleaseInfo {
 	}
 
 	private String or(Object[] terms) {
-		return joinSorted(terms, "|", reverseOrder(), "(", ")"); // non-capturing group that matches the longest occurrence
+		return join(stream(terms).sorted(reverseOrder()), "|", "(", ")"); // non-capturing group that matches the longest occurrence
 	}
 
 	private String[] quoteAll(Collection<String> values) {
