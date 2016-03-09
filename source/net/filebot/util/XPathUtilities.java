@@ -1,6 +1,7 @@
 package net.filebot.util;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -141,6 +142,17 @@ public final class XPathUtilities {
 
 	public static Stream<Node> stream(NodeList nodes) {
 		return IntStream.range(0, nodes.getLength()).mapToObj(nodes::item);
+	}
+
+	public static <K extends Enum<K>> EnumMap<K, String> getEnumMap(Node node, Class<K> cls) {
+		EnumMap<K, String> map = new EnumMap<K, String>(cls);
+		for (K key : cls.getEnumConstants()) {
+			String value = getTextContent(key.name(), node);
+			if (value != null && value.length() > 0) {
+				map.put(key, value);
+			}
+		}
+		return map;
 	}
 
 	private XPathUtilities() {

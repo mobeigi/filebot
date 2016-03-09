@@ -1,6 +1,5 @@
 package net.filebot.web;
 
-import static java.util.Collections.*;
 import static java.util.stream.Collectors.*;
 import static net.filebot.util.JsonUtilities.*;
 
@@ -49,13 +48,13 @@ public class FanartTVClient implements Datasource {
 		Cache cache = Cache.getCache(getName(), CacheType.Weekly);
 		Object json = cache.json(path, s -> getResource(s)).expire(Cache.ONE_WEEK);
 
-		return asMap(json).entrySet().stream().flatMap(it -> {
-			return streamJsonObjects(it.getValue()).map(item -> {
-				Map<FanartProperty, String> map = mapStringValues(item, FanartProperty.class);
-				map.put(FanartProperty.type, it.getKey().toString());
+		return asMap(json).entrySet().stream().flatMap(type -> {
+			return streamJsonObjects(type.getValue()).map(item -> {
+				Map<FanartProperty, String> map = getEnumMap(item, FanartProperty.class);
+				map.put(FanartProperty.type, type.getKey().toString());
 
 				return new FanartDescriptor(map);
-			}).filter(a -> a.getProperties().size() > 1);
+			}).filter(art -> art.getUrl() != null);
 		}).collect(toList());
 	}
 
@@ -78,10 +77,6 @@ public class FanartTVClient implements Datasource {
 
 		protected FanartDescriptor(Map<FanartProperty, String> fields) {
 			this.properties = new EnumMap<FanartProperty, String>(fields);
-		}
-
-		public Map<FanartProperty, String> getProperties() {
-			return unmodifiableMap(properties);
 		}
 
 		public String get(Object key) {

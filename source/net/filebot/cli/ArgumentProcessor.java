@@ -200,10 +200,8 @@ public class ArgumentProcessor {
 				return uri.getSchemeSpecificPart();
 			}
 
-			// remote script
+			// check remote script for updates (weekly for stable and daily for devel branches)
 			Cache cache = Cache.getCache(NAME, CacheType.Persistent);
-
-			// fetch remote script only if modified
 			return cache.text(uri.toString(), s -> {
 				return new URL(resolveTemplate(uri));
 			}).expire(SCHEME_REMOTE_DEVEL.equals(uri.getScheme()) ? Cache.ONE_DAY : Cache.ONE_WEEK).get();

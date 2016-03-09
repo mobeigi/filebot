@@ -96,11 +96,11 @@ public class JsonUtilities {
 		return null;
 	}
 
-	public static <K extends Enum<K>> EnumMap<K, String> mapStringValues(Object node, Class<K> cls) {
-		return mapValues(node, cls, StringUtilities::asNonEmptyString);
+	public static <K extends Enum<K>> EnumMap<K, String> getEnumMap(Object node, Class<K> cls) {
+		return getEnumMap(node, cls, StringUtilities::asNonEmptyString);
 	}
 
-	public static <K extends Enum<K>, V> EnumMap<K, V> mapValues(Object node, Class<K> cls, Function<Object, V> converter) {
+	public static <K extends Enum<K>, V> EnumMap<K, V> getEnumMap(Object node, Class<K> cls, Function<Object, V> converter) {
 		Map<?, ?> values = asMap(node);
 		EnumMap<K, V> map = new EnumMap<K, V>(cls);
 		for (K key : cls.getEnumConstants()) {
@@ -113,6 +113,10 @@ public class JsonUtilities {
 			}
 		}
 		return map;
+	}
+
+	private JsonUtilities() {
+		throw new UnsupportedOperationException();
 	}
 
 }

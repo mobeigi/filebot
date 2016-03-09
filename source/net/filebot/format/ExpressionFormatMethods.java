@@ -328,11 +328,11 @@ public class ExpressionFormatMethods {
 
 	/**
 	 * Join non-empty String values and prepend prefix / append suffix values
-	 * 
+	 *
 	 * e.g. (1..3).join('-', '[', ']')
-	 * 
+	 *
 	 * Unwind if list is empty
-	 * 
+	 *
 	 * e.g. [].join('-', '[', ']') => Exception: List is empty
 	 */
 	public static String join(Collection<?> self, String delimiter, String prefix, String suffix) throws Exception {
